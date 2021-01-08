@@ -11,11 +11,10 @@ class TestCodec(unittest.TestCase):
 
         result = addresscodec.encode(encoded_hex, [addresscodec.ACCOUNT_ID], 20)
         self.assertEqual(result, base58_string)
-    
-    def test_encode2(self):
-        pubkey_hex = '2decab42ca805119a9ba2ff305c9afa12f0b86a1'
-        base58_string = 'rnBFvgZphmN39GWzUJeUitaP22Fr9be75H'
-        encoded_hex = bytes.fromhex(pubkey_hex)
 
-        result = addresscodec.encode(encoded_hex, [addresscodec.ACCOUNT_ID], 20)
-        self.assertEqual(result, base58_string)
+        hex_string2 = '2decab42ca805119a9ba2ff305c9afa12f0b86a1'
+        base58_string2 = 'rnBFvgZphmN39GWzUJeUitaP22Fr9be75H'
+        encoded_hex2 = bytes.fromhex(hex_string2)
+
+        result = addresscodec.encode(encoded_hex2, [addresscodec.ACCOUNT_ID], 20)
+        self.assertEqual(result, base58_string2)
