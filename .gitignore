@@ -1,5 +1,8 @@
 .gitignore
 
+# my own sandbox
+xrpl/binary_codec/definitions/sandbox.py
+
 # Pycharm Stuff
 .idea/*
 

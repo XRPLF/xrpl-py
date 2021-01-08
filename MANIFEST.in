@@ -1,1 +1,1 @@
-include xrpl/binary_codec/definitions/definitions.json 
+include binary_codec/definitions/definitions.json
