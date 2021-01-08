@@ -9,5 +9,6 @@ setup(name="xrpl",
         packages=["xrpl"],
         install_requires=[
             "ECPy",
+            "base58",
         ],
         zip_safe=False)
