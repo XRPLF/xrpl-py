@@ -1,12 +1,12 @@
 # xrpl-py
 
-# Development
-## Running Tests
-```bash
-python -m unittest discover tests
-```
-
-## Installing Dependencies
+## Contributing 
+### Installing Dependencies
 ```bash
 python setup.py develop
+```
+
+### Running Tests
+```bash
+python -m unittest discover tests
 ```
