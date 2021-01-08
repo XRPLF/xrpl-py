@@ -1,8 +1,9 @@
 # xrpl-py
 
-## Setting up the dev environment
+## Contributing 
+### Setting up the dev environment
 
-```
+```bash
 # Create a new virtual environment.
 python -m venv venv
 
@@ -13,7 +14,7 @@ venv/bin/activate.
 python -m pip install -r requirements-dev.txt
 ```
 
-## Linting
+### Linting
 
 After setting up the dev environment using the commands above, you can run the linter
 by executing
@@ -22,8 +23,12 @@ by executing
 flake8 ./xrpl
 ```
 
-## Running Tests
+### Installing Dependencies
+```bash
+python setup.py develop
+```
 
+### Running Tests
 ```bash
 python -m unittest discover tests
 ```
