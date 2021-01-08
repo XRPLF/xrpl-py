@@ -2,6 +2,7 @@
 
 import hashlib
 
+
 def hash(message):
     """Fundamental method, returning
     hash of input.
