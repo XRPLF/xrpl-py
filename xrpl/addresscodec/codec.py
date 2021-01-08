@@ -13,9 +13,16 @@ ED25519_SEED = [0x01, 0xE1, 0x4B] # [1, 225, 75]
 XRPL_ALPHABET = b'rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz'
 
 def sha256(bytestring):
+    """
+    Returns the SHA256 hash of the provided bytestring. 
+    """
     return hashlib.sha256(bytestring).digest()
 
 def encode(bytestring, versions, expected_length):
+    """
+    Returns the base58 encoding of the bytestring, with the given data version type and 
+    while ensuring the bytestring is the expected length. 
+    """
     if expected_length and len(bytestring) != expected_length:
         raise Exception('unexpected_payload_length: len(bytestring) does not match expected_length. Ensure that the bytes are a bytestring.')
     encoded_versions = bytes(versions).ljust(1, b'\0')
