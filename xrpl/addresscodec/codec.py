@@ -26,3 +26,10 @@ def encode(bytestring, prefix, expected_length):
     encoded_prefix = bytes(prefix)
     payload = encoded_prefix + bytestring
     return base58.b58encode_check(payload, alphabet=XRPL_ALPHABET).decode("utf-8")
+
+def decode(b58_string):
+    """
+    b58_string: string representing a base58 value
+    Returns the byte decoding of the base58-encoded string
+    """
+    return base58.b58decode_check(b58_string, alphabet=XRPL_ALPHABET)[1:]
