@@ -22,6 +22,6 @@ def encode(bytestring, prefixes, expected_length):
     """
     if expected_length and len(bytestring) != expected_length:
         raise Exception('unexpected_payload_length: len(bytestring) does not match expected_length. Ensure that the bytes are a bytestring.')
-    encoded_prefixes = bytes(prefixes).ljust(1, b'\0') # convert prefix ints to bytes
+    encoded_prefixes = bytes(prefixes)
     payload = encoded_prefixes + bytestring
     return base58.b58encode_check(payload, alphabet=XRPL_ALPHABET).decode("utf-8")
