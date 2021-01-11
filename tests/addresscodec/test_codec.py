@@ -39,7 +39,7 @@ class TestCodec(unittest.TestCase):
     
     # encode_seed tests
 
-    def test_encode_seed_secp256k1(self):
+    def test_seed_encode_decode_secp256k1(self):
         hex_string = 'CF2DE378FBDD7E2EE87D486DFB5A7BFF'
         encoded_string = 'sn259rEFXrQrWyx3Q7XneWcwV6dfL'
         hex_string_bytes = bytes.fromhex(hex_string)
@@ -50,7 +50,7 @@ class TestCodec(unittest.TestCase):
         decode_result = addresscodec.decode_seed(encoded_string, addresscodec.SECP256K1)
         self.assertEqual(decode_result, hex_string_bytes)
 
-    def test_encode_seed_secp256k1_low(self):
+    def test_seed_encode_decode_secp256k1_low(self):
         hex_string = '00000000000000000000000000000000'
         encoded_string = 'sp6JS7f14BuwFY8Mw6bTtLKWauoUs'
         hex_string_bytes = bytes.fromhex(hex_string)
@@ -61,7 +61,7 @@ class TestCodec(unittest.TestCase):
         decode_result = addresscodec.decode_seed(encoded_string, addresscodec.SECP256K1)
         self.assertEqual(decode_result, hex_string_bytes)
 
-    def test_encode_seed_secp256k1_high(self):
+    def test_seed_encode_decode_secp256k1_high(self):
         hex_string = 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
         encoded_string = 'saGwBRReqUNKuWNLpUAq8i8NkXEPN'
         hex_string_bytes = bytes.fromhex(hex_string)
@@ -72,7 +72,7 @@ class TestCodec(unittest.TestCase):
         decode_result = addresscodec.decode_seed(encoded_string, addresscodec.SECP256K1)
         self.assertEqual(decode_result, hex_string_bytes)
 
-    def test_encode_seed_ed25519(self):
+    def test_seed_encode_decode_ed25519(self):
         hex_string = '4C3A1D213FBDFB14C7C28D609469B341'
         encoded_string = 'sEdTM1uX8pu2do5XvTnutH6HsouMaM2'
         hex_string_bytes = bytes.fromhex(hex_string)
@@ -83,7 +83,7 @@ class TestCodec(unittest.TestCase):
         decode_result = addresscodec.decode_seed(encoded_string, addresscodec.ED25519)
         self.assertEqual(decode_result, hex_string_bytes)
 
-    def test_encode_seed_ed25519_low(self):
+    def test_seed_encode_decode_ed25519_low(self):
         hex_string = '00000000000000000000000000000000'
         encoded_string = 'sEdSJHS4oiAdz7w2X2ni1gFiqtbJHqE'
         hex_string_bytes = bytes.fromhex(hex_string)
@@ -94,7 +94,7 @@ class TestCodec(unittest.TestCase):
         decode_result = addresscodec.decode_seed(encoded_string, addresscodec.ED25519)
         self.assertEqual(decode_result, hex_string_bytes)
 
-    def test_encode_seed_ed25519_high(self):
+    def test_seed_encode_decode_ed25519_high(self):
         hex_string = 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
         encoded_string = 'sEdV19BLfeQeKdEXyYA4NhjPJe6XBfG'
         hex_string_bytes = bytes.fromhex(hex_string)
@@ -105,7 +105,7 @@ class TestCodec(unittest.TestCase):
         decode_result = addresscodec.decode_seed(encoded_string, addresscodec.ED25519)
         self.assertEqual(decode_result, hex_string_bytes)
 
-    def test_encode_seed_too_small(self):
+    def test_seed_encode_decode_too_small(self):
         hex_string = 'CF2DE378FBDD7E2EE87D486DFB5A7B'
         hex_string_bytes = bytes.fromhex(hex_string)
 
@@ -115,7 +115,7 @@ class TestCodec(unittest.TestCase):
             addresscodec.SECP256K1
         )
 
-    def test_encode_too_big(self):
+    def test_seed_encode_decode_too_big(self):
         hex_string = 'CF2DE378FBDD7E2EE87D486DFB5A7BFFFF'
         hex_string_bytes = bytes.fromhex(hex_string)
         
