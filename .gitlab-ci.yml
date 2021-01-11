@@ -6,7 +6,7 @@ stages:
   image: python:3-alpine
   before_script:
     - echo "before testing"
-    - pip3 install flake8
+    - pip3 install -r requirements-dev.txt
 
 stubtest:
   stage: test
