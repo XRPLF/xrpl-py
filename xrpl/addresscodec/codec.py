@@ -1,6 +1,7 @@
 import hashlib
 import base58
 import struct
+from .exceptions import XRPLAddressCodecException
 
 # base58 encodings: https://xrpl.org/base58-encodings.html
 ACCOUNT_ID_PREFIX = 0x0 # Account address (20 bytes)
@@ -21,7 +22,7 @@ def encode(bytestring, prefixes, expected_length):
     while ensuring the bytestring is the expected length. 
     """
     if expected_length and len(bytestring) != expected_length:
-        raise Exception('unexpected_payload_length: len(bytestring) does not match expected_length. Ensure that the bytes are a bytestring.')
+        raise XRPLAddressCodecException('unexpected_payload_length: len(bytestring) does not match expected_length. Ensure that the bytes are a bytestring.')
     encoded_prefixes = bytes(prefixes)
     payload = encoded_prefixes + bytestring
     return base58.b58encode_check(payload, alphabet=XRPL_ALPHABET).decode("utf-8")
