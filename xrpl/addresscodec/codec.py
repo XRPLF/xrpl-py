@@ -13,6 +13,9 @@ ED25519_SEED_PREFIX = [0x01, 0xE1, 0x4B] # [1, 225, 75]
 
 XRPL_ALPHABET = b'rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz'
 
+ED25519 = 'ed25519'
+SECP256K1 = 'secp256k1'
+
 def encode(bytestring, prefix, expected_length):
     """
     bytestring: bytes
@@ -32,16 +35,16 @@ def encode(bytestring, prefix, expected_length):
 def encode_seed(entropy, encoding_type):
     """
     entropy: 16 bytes
-    encoding_type: either 'ed25519' or 'secp256k1'
+    encoding_type: either ED25519 or SECP256K1
 
     Returns an encoded seed
     """
     if len(entropy) != 16:
         raise XRPLAddressCodecException('Entropy must have length 16')
 
-    if encoding_type == 'ed25519':
+    if encoding_type == ED25519:
         prefix = ED25519_SEED_PREFIX
-    elif encoding_type == 'secp256k1':
+    elif encoding_type == SECP256K1:
         prefix = FAMILY_SEED_PREFIX
     else:
         raise XRPLAddressCodecException('Encoding type is not valid; must be either \'ed24419\' or \'secp256k1\'')
