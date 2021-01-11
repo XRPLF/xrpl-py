@@ -6,3 +6,8 @@ repos:
     -   id: check-yaml
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
+# TODO tedkalaw: Manage this with a tool like Poetry to keep versions in sync
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: ''  # pick a git hash / tag to point to
+    hooks:
+    -   id: flake8
