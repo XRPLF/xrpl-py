@@ -15,6 +15,6 @@ stubtest:
 
 lint:
   image: python3-alpine
-  stage: line
+  stage: lint
   script:
     - flake8 .
