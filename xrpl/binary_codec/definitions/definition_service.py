@@ -12,8 +12,8 @@ class DefinitionService:
         """
         Loads JSON from the definitions file and converts it to a preferred format.
 
-        :param filename: The name of the definitions file.  (The definitions file should be drop-in compatible with the one from the
-        ripple-binary-codec JavaScript package.)
+        :param filename: The name of the definitions file.  (The definitions file should be drop-in compatible with the
+        one from the ripple-binary-codec JavaScript package.)
         :return: A dictionary containing the mappings provided in the definitions file.
         """
         dirname = os.path.dirname(__file__)
