@@ -6,6 +6,11 @@ stages:
   image: python3-alpine
   stage: test
   before_script:
+    - echo "before testing"
+
+stubtest:
+  stage: test
+  script:
     - echo "testing"
 
 lint:
