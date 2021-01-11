@@ -31,7 +31,7 @@ def encode(bytestring, prefix, expected_length):
 def decode(b58_string, prefix_length):
     """
     b58_string: string representing a base58 value
-    prefix_length: int representing the length of the prefix prepended to the bytestring
+    prefix_length: int representing the length in bytes of the prefix prepended to the bytestring
 
     Returns the byte decoding of the base58-encoded string
     """
