@@ -26,3 +26,43 @@ class TestCodec(unittest.TestCase):
 
         result = addresscodec.encode(decoded_seed_bytes, addresscodec.ED25519_SEED_PREFIX, 16)
         self.assertEqual(result, ed_seed)
+    
+    # encode_seed tests
+
+    def test_encode_seed_secp256k1(self):
+        result = addresscodec.encode_seed(bytes.fromhex('CF2DE378FBDD7E2EE87D486DFB5A7BFF'), 'secp256k1')
+        self.assertEqual(result, 'sn259rEFXrQrWyx3Q7XneWcwV6dfL')
+
+    def test_encode_seed_secp256k1_low(self):
+        result = addresscodec.encode_seed(bytes.fromhex('00000000000000000000000000000000'), 'secp256k1')
+        self.assertEqual(result, 'sp6JS7f14BuwFY8Mw6bTtLKWauoUs')
+
+    def test_encode_seed_secp256k1_high(self):
+        result = addresscodec.encode_seed(bytes.fromhex('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 'secp256k1')
+        self.assertEqual(result, 'saGwBRReqUNKuWNLpUAq8i8NkXEPN')
+
+    def test_encode_seed_ed25519(self):
+        result = addresscodec.encode_seed(bytes.fromhex('4C3A1D213FBDFB14C7C28D609469B341'), 'ed25519')
+        self.assertEqual(result, 'sEdTM1uX8pu2do5XvTnutH6HsouMaM2')
+
+    def test_encode_seed_ed25519_low(self):
+        result = addresscodec.encode_seed(bytes.fromhex('00000000000000000000000000000000'), 'ed25519')
+        self.assertEqual(result, 'sEdSJHS4oiAdz7w2X2ni1gFiqtbJHqE')
+
+    def test_encode_seed_ed25519_high(self):
+        result = addresscodec.encode_seed(bytes.fromhex('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 'ed25519')
+        self.assertEqual(result, 'sEdV19BLfeQeKdEXyYA4NhjPJe6XBfG')
+
+    def test_encode_seed_too_small(self):
+        self.assertRaises(addresscodec.XRPLAddressCodecException, 
+            addresscodec.encode_seed, 
+            bytes.fromhex('CF2DE378FBDD7E2EE87D486DFB5A7B'), 
+            'secp256k1'
+        )
+
+    def test_encode_too_big(self):
+        self.assertRaises(addresscodec.XRPLAddressCodecException, 
+            addresscodec.encode_seed, 
+            bytes.fromhex('CF2DE378FBDD7E2EE87D486DFB5A7BFFFF')
+            , 'secp256k1'
+        )
