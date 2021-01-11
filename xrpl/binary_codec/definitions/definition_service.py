@@ -64,3 +64,6 @@ class DefinitionService:
         `Serialization Canonical Field Order <https://xrpl.org/serialization.html#canonical-field-order>`_
         """
         return self.get_field_type_code(field_name), self.get_field_code(field_name)
+
+    # TODO: get_field_name(self, field_id)
+    # For deserialization. May require inverse table for lookup.
