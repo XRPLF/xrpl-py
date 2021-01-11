@@ -3,7 +3,7 @@ stages:
   - test
 
 .test:
-  image: python3-alpine
+  image: python:3-alpine
   stage: test
   before_script:
     - echo "before testing"
@@ -14,7 +14,7 @@ stubtest:
     - echo "testing"
 
 lint:
-  image: python3-alpine
+  image: python:3-alpine
   stage: lint
   script:
     - flake8 .
