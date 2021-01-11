@@ -61,3 +61,13 @@ def encode_seed(entropy, encoding_type):
     
     return encode(entropy, prefix, SEED_LENGTH)
 
+def decode_seed(seed, encoding_type):
+    if encoding_type == ED25519:
+        prefix = ED25519_SEED_PREFIX
+    elif encoding_type == SECP256K1:
+        prefix = FAMILY_SEED_PREFIX
+    else:
+        raise XRPLAddressCodecException('Encoding type is not valid; must be either \'{}\' or \'{}\''.format(SECP256K1, ED25519))
+    
+    return decode(seed, len(prefix))
+
