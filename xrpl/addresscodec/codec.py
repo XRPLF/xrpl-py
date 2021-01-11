@@ -8,8 +8,9 @@ ACCOUNT_ID_PREFIX = [0x0] # Account address (20 bytes)
 ACCOUNT_PUBLIC_KEY_PREFIX = [0x23] # value is 35; Account public key (33 bytes)
 FAMILY_SEED_PREFIX = [0x21] # value is 33; Seed value (for secret keys) (16 bytes)
 NODE_PUBLIC_PREFIX = [0x1C] # value is 28; Validation public key (33 bytes)
-
 ED25519_SEED_PREFIX = [0x01, 0xE1, 0x4B] # [1, 225, 75]
+
+SEED_LENGTH = 16
 
 XRPL_ALPHABET = b'rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz'
 
@@ -34,19 +35,19 @@ def encode(bytestring, prefix, expected_length):
 
 def encode_seed(entropy, encoding_type):
     """
-    entropy: 16 bytes
+    entropy: SEED_LENGTH bytes
     encoding_type: either ED25519 or SECP256K1
 
     Returns an encoded seed
     """
-    if len(entropy) != 16:
-        raise XRPLAddressCodecException('Entropy must have length 16')
+    if len(entropy) != SEED_LENGTH:
+        raise XRPLAddressCodecException('Entropy must have length {}'.format(SEED_LENGTH))
 
     if encoding_type == ED25519:
         prefix = ED25519_SEED_PREFIX
     elif encoding_type == SECP256K1:
         prefix = FAMILY_SEED_PREFIX
     else:
-        raise XRPLAddressCodecException('Encoding type is not valid; must be either \'ed24419\' or \'secp256k1\'')
+        raise XRPLAddressCodecException('Encoding type is not valid; must be either \'{}\' or \'{}\''.format(SECP256K1, ED25519))
     
-    return encode(entropy, prefix, 16)
+    return encode(entropy, prefix, SEED_LENGTH)

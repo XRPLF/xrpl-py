@@ -24,7 +24,7 @@ class TestCodec(unittest.TestCase):
         decoded_seed = '4C3A1D213FBDFB14C7C28D609469B341'
         decoded_seed_bytes = bytes.fromhex(decoded_seed)
 
-        result = addresscodec.encode(decoded_seed_bytes, addresscodec.ED25519_SEED_PREFIX, 16)
+        result = addresscodec.encode(decoded_seed_bytes, addresscodec.ED25519_SEED_PREFIX, addresscodec.SEED_LENGTH)
         self.assertEqual(result, ed_seed)
     
     # encode_seed tests
