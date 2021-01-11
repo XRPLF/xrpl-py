@@ -4,17 +4,19 @@ stages:
 
 .test:
   image: python:3-alpine
-  stage: test
   before_script:
     - echo "before testing"
+    - pip3 install flake8
 
 stubtest:
   stage: test
+  extends: .test
   script:
     - echo "testing"
 
 lint:
   image: python:3-alpine
   stage: lint
+  extends: .test
   script:
     - flake8 .
