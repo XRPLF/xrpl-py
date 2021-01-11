@@ -12,7 +12,7 @@ class TestCodec(unittest.TestCase):
         encode_result = addresscodec.encode(encoded_hex, addresscodec.ACCOUNT_ID_PREFIX, 20)
         self.assertEqual(encode_result, base58_string)
 
-        decode_result = addresscodec.decode(base58_string)
+        decode_result = addresscodec.decode(base58_string, len(addresscodec.ACCOUNT_ID_PREFIX))
         self.assertEqual(decode_result, encoded_hex)
 
         hex_string2 = '2decab42ca805119a9ba2ff305c9afa12f0b86a1'
@@ -22,14 +22,17 @@ class TestCodec(unittest.TestCase):
         encode_result2 = addresscodec.encode(encoded_hex2, addresscodec.ACCOUNT_ID_PREFIX, 20)
         self.assertEqual(encode_result2, base58_string2)
 
-        decode_result2 = addresscodec.decode(base58_string2)
+        decode_result2 = addresscodec.decode(base58_string2, len(addresscodec.ACCOUNT_ID_PREFIX))
         self.assertEqual(decode_result2, encoded_hex2)
 
     
-    def test_encode_longer_prefix(self):
+    def test_encode_and_decode_longer_prefix(self):
         ed_seed = 'sEdTM1uX8pu2do5XvTnutH6HsouMaM2'
         decoded_seed = '4C3A1D213FBDFB14C7C28D609469B341'
         decoded_seed_bytes = bytes.fromhex(decoded_seed)
 
-        result = addresscodec.encode(decoded_seed_bytes, addresscodec.ED25519_SEED_PREFIX, 16)
-        self.assertEqual(result, ed_seed)
+        encode_result = addresscodec.encode(decoded_seed_bytes, addresscodec.ED25519_SEED_PREFIX, 16)
+        self.assertEqual(encode_result, ed_seed)
+
+        decode_result2 = addresscodec.decode(ed_seed, len(addresscodec.ED25519_SEED_PREFIX))
+        self.assertEqual(decode_result2, decoded_seed_bytes)

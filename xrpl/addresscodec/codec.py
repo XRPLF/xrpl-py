@@ -18,6 +18,7 @@ def encode(bytestring, prefix, expected_length):
     bytestring: bytes
     prefix: list of ints (each int < 256)
     expected_length: int
+
     Returns the base58 encoding of the bytestring, with the given data prefix (which indicates type) and 
     while ensuring the bytestring is the expected length. 
     """
@@ -27,9 +28,12 @@ def encode(bytestring, prefix, expected_length):
     payload = encoded_prefix + bytestring
     return base58.b58encode_check(payload, alphabet=XRPL_ALPHABET).decode("utf-8")
 
-def decode(b58_string):
+def decode(b58_string, prefix_length):
     """
     b58_string: string representing a base58 value
+    prefix_length: int representing the length of the prefix prepended to the bytestring
+
     Returns the byte decoding of the base58-encoded string
     """
-    return base58.b58decode_check(b58_string, alphabet=XRPL_ALPHABET)[1:]
+    # TODO: (mvadari) Figure out if prefix_length is the right way to do this or if there is a better way
+    return base58.b58decode_check(b58_string, alphabet=XRPL_ALPHABET)[prefix_length:]
