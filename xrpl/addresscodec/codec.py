@@ -26,3 +26,24 @@ def encode(bytestring, prefix, expected_length):
     encoded_prefix = bytes(prefix)
     payload = encoded_prefix + bytestring
     return base58.b58encode_check(payload, alphabet=XRPL_ALPHABET).decode("utf-8")
+
+
+
+def encode_seed(entropy, encoding_type):
+    """
+    entropy: 16 bytes
+    encoding_type: either 'ed25519' or 'secp256k1'
+
+    Returns an encoded seed
+    """
+    if len(entropy) != 16:
+        raise XRPLAddressCodecException('Entropy must have length 16')
+
+    if encoding_type == 'ed25519':
+        prefix = ED25519_SEED_PREFIX
+    elif encoding_type == 'secp256k1':
+        prefix = FAMILY_SEED_PREFIX
+    else:
+        raise XRPLAddressCodecException('Encoding type is not valid; must be either \'ed24419\' or \'secp256k1\'')
+    
+    return encode(entropy, prefix, 16)
