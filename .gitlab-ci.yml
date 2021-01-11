@@ -1,0 +1,15 @@
+stages:
+  - lint
+  - test
+
+.test:
+  image: python3-alpine
+  stage: test
+  before_script:
+    - echo "testing"
+
+lint:
+  image: python3-alpine
+  stage: line
+  script:
+    - flake8 .
