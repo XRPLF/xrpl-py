@@ -18,3 +18,11 @@ class TestCodec(unittest.TestCase):
 
         result = addresscodec.encode(encoded_hex2, addresscodec.ACCOUNT_ID_PREFIX, 20)
         self.assertEqual(result, base58_string2)
+    
+    def test_encode_longer_prefix(self):
+        ed_seed = 'sEdTM1uX8pu2do5XvTnutH6HsouMaM2'
+        decoded_seed = '4C3A1D213FBDFB14C7C28D609469B341'
+        decoded_seed_bytes = bytes.fromhex(decoded_seed)
+
+        result = addresscodec.encode(decoded_seed_bytes, addresscodec.ED25519_SEED_PREFIX, 16)
+        self.assertEqual(result, ed_seed)
