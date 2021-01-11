@@ -8,8 +8,9 @@ ACCOUNT_ID_PREFIX = [0x0] # Account address (20 bytes)
 ACCOUNT_PUBLIC_KEY_PREFIX = [0x23] # value is 35; Account public key (33 bytes)
 FAMILY_SEED_PREFIX = [0x21] # value is 33; Seed value (for secret keys) (16 bytes)
 NODE_PUBLIC_PREFIX = [0x1C] # value is 28; Validation public key (33 bytes)
-
 ED25519_SEED_PREFIX = [0x01, 0xE1, 0x4B] # [1, 225, 75]
+
+ACCOUNT_ID_LENGTH = 20
 
 XRPL_ALPHABET = b'rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz'
 
@@ -26,3 +27,13 @@ def encode(bytestring, prefix, expected_length):
     encoded_prefix = bytes(prefix)
     payload = encoded_prefix + bytestring
     return base58.b58encode_check(payload, alphabet=XRPL_ALPHABET).decode("utf-8")
+
+
+
+def encode_account_id(bytestring):
+    """
+    bytestring: bytes to be encoded
+
+    Returns the account ID encoding of these bytes as a base58 string
+    """
+    return encode(bytestring, ACCOUNT_ID_PREFIX, ACCOUNT_ID_LENGTH)
