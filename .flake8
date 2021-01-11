@@ -1,9 +1,14 @@
 [flake8]
 # Select other tools to enable.
 
+# BLK enables using black --check from within flake8
+
 # F are errors reported by pyflakes, a tool which parses source files 
 # and finds invalid Python code.
 
 # W and E are warnings and errors reported by pycodestyle, which checks 
 # your Python code against some of the style conventions in PEP 8.
-select = E,F,W
+select = BLK,E,F,W
+
+# E203 and W503 don't interact well with black
+ignore = E203,W503
