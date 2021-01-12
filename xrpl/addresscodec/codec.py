@@ -102,3 +102,11 @@ def encode_node_public_key(bytestring):
     Returns the node public key encoding of these bytes as a base58 string
     """
     return encode(bytestring, NODE_PUBLIC_KEY_PREFIX, NODE_PUBLIC_KEY_LENGTH)
+
+def decode_node_public_key(node_public_key):
+    """
+    node_public_key: node public key to be decoded
+    
+    Returns the decoded bytes of the node public key
+    """
+    return decode(node_public_key, len(NODE_PUBLIC_KEY_PREFIX)) 
