@@ -37,15 +37,18 @@ class TestCodec(unittest.TestCase):
         decode_result2 = addresscodec.decode(ed_seed, len(addresscodec.ED25519_SEED_PREFIX))
         self.assertEqual(decode_result2, decoded_seed_bytes)
 
-    # encode_account_id tests
+    # account_id tests
 
-    def test_encode_account_id(self):
+    def test_account_id_encode_decode(self):
         hex_string = 'BA8E78626EE42C41B46D46C3048DF3A1C3C87072'
         encoded_string = 'rJrRMgiRgrU6hDF4pgu5DXQdWyPbY35ErN'
         hex_string_bytes = bytes.fromhex(hex_string)
 
-        result = addresscodec.encode_account_id(hex_string_bytes)
-        self.assertEqual(result, encoded_string)
+        encode_result = addresscodec.encode_account_id(hex_string_bytes)
+        self.assertEqual(encode_result, encoded_string)
+
+        decode_result2 = addresscodec.decode_account_id(encoded_string)
+        self.assertEqual(decode_result2, hex_string_bytes)
     
     def test_encode_account_id_bad_length(self):
         hex_string = 'ABCDEF'
