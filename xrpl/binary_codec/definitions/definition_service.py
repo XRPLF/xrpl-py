@@ -9,6 +9,13 @@ class DefinitionService:
 
     def __init__(self):
         self.definitions = self.load_definitions()
+        self.transaction_type_code_to_str_map = {
+            value: key for (key, value) in self.definitions["TRANSACTION_TYPES"].items()
+        }
+        self.transaction_results_code_to_str_map = {
+            value: key for (key, value) in self.definitions["TRANSACTION_RESULTS"].items()
+        }
+
         self.type_ordinal_map = self.definitions["TYPES"]
         self.field_info_map = {}
         self.field_header_name_map = {}
@@ -93,4 +100,3 @@ class DefinitionService:
         Returns the field name described by the given FieldHeader object.
         """
         return self.field_header_name_map[field_header]
-
