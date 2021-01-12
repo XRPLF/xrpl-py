@@ -62,6 +62,12 @@ def encode_seed(entropy, encoding_type):
     return encode(entropy, prefix, SEED_LENGTH)
 
 def decode_seed(seed, encoding_type):
+    """
+    seed: b58 encoding of a seed
+    encoding_type: either ED25519 or SECP256K1
+
+    Returns a decoded seed
+    """
     if encoding_type == ED25519:
         prefix = ED25519_SEED_PREFIX
     elif encoding_type == SECP256K1:
