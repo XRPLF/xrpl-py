@@ -8,6 +8,7 @@ setup(name="xrpl",
         license="TODO",
         packages=["xrpl"],
         install_requires=[
+            "base58",
             "ECPy",
         ],
         zip_safe=False)
