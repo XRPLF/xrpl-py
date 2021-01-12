@@ -34,10 +34,38 @@ class TestFieldIDCodec(unittest.TestCase):
         field_id = self.field_id_codec.encodeFieldID(field_header)
         self.assertEqual(expected_field_id, field_id)
 
-    def test_encode_field_id_4_bytes(self):
+    def test_encode_field_id_3_bytes(self):
         # field header representing a TickSize field (type code = 16, field code = 16)
         field_header = binary_codec.FieldHeader(16, 16)
         # first byte is zero: 00000000; next byte is type code: 16 = 00010000; last byte is field code: 16 = 00010000
         expected_field_id = bytes([int('0b00000000', 2), int('0b00010000', 2), int('0b00010000', 2)])
         field_id = self.field_id_codec.encodeFieldID(field_header)
         self.assertEqual(expected_field_id, field_id)
+
+    def test_decode_field_id_1_byte(self):
+        # hex representing an Expiration field (type code = 2, field code = 10)
+        field_id = bytes([int('0b00101010', 2)]).hex()
+        expected_field_header = binary_codec.FieldHeader(2, 10)
+        field_header = self.field_id_codec.decodeFieldID(field_id)
+        self.assertEqual(expected_field_header, field_header)
+
+    def test_decode_field_id_2_bytes_large_type_code(self):
+        # hex representing a Paths field (type code = 18, field code = 1)
+        field_id = bytes([int('0b00000001', 2), int('0b00010010', 2)]).hex()
+        expected_field_header = binary_codec.FieldHeader(18, 1)
+        field_header = self.field_id_codec.decodeFieldID(field_id)
+        self.assertEqual(expected_field_header, field_header)
+
+    def test_decode_field_id_2_bytes_large_field_code(self):
+        # hex representing a QualityIn field (type code = 2, field code = 20)
+        field_id = bytes([int('0b00100000', 2), int('0b00010100', 2)]).hex()
+        expected_field_header = binary_codec.FieldHeader(2, 20)
+        field_header = self.field_id_codec.decodeFieldID(field_id)
+        self.assertEqual(expected_field_header, field_header)
+
+    def test_decode_field_id_3_bytes(self):
+        # hex representing a TickSize field (type code = 16, field code = 16)
+        field_id = bytes([int('0b00000000', 2), int('0b00010000', 2), int('0b00010000', 2)]).hex()
+        expected_field_header = binary_codec.FieldHeader(16, 16)
+        field_header = self.field_id_codec.decodeFieldID(field_id)
+        self.assertEqual(expected_field_header, field_header)

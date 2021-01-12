@@ -56,16 +56,22 @@ class FieldIDCodec:
         assert len(field_id) > 0
         byte_array = bytearray.fromhex(field_id)
         if len(byte_array) == 1:
-            high_bits = byte_array[0][:4]
-            low_bits = byte_array[0][4:]
-            return FieldHeader(int(high_bits, 16), int(low_bits, 16))
+            high_bits = byte_array[0] >> 4
+            low_bits = byte_array[0] & 0x0F
+            return FieldHeader(high_bits, low_bits)
         elif len(byte_array) == 2:
-            return "Unimplemented"
+            first_byte = byte_array[0]
+            second_byte = byte_array[1]
+            first_byte_high_bits = first_byte >> 4
+            first_byte_low_bits = first_byte & 0x0F
+            if first_byte_high_bits == 0:  # next 4 bits are field code, second byte is type code
+                return FieldHeader(second_byte, first_byte_low_bits)
+            else:  # next 4 bits are type code, second byte is field code
+                return FieldHeader(first_byte_high_bits, second_byte)
         elif len(byte_array) == 3:
-            return "Unimplemented"
+            return FieldHeader(byte_array[1], byte_array[2])
         else:
             raise Exception("Too many bytes in the FieldID")
-
 
     def uint8_to_bytes(self, i):
         return i.to_bytes(1, byteorder="big", signed=False)
