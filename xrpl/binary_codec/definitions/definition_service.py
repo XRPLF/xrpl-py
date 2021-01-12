@@ -1,5 +1,7 @@
 import json
 import os
+from .field_header import FieldHeader
+from .field_info import FieldInfo
 
 
 class DefinitionService:
@@ -7,6 +9,21 @@ class DefinitionService:
 
     def __init__(self):
         self.definitions = self.load_definitions()
+        self.type_ordinal_map = self.definitions["TYPES"]
+        self.field_info_map = {}
+        self.field_header_name_map = {}
+
+        for field_name in self.definitions["FIELDS"]:
+            field_entry = self.definitions["FIELDS"][field_name]
+            field_info = FieldInfo(field_entry["nth"],
+                                   field_entry["isVLEncoded"],
+                                   field_entry["isSerialized"],
+                                   field_entry["isSigningField"],
+                                   field_entry["type"])
+            field_header = FieldHeader(self.type_ordinal_map[field_entry["type"]], field_entry["nth"])
+            self.field_info_map[field_name] = field_info
+            self.field_header_name_map[field_header] = field_name
+            # TODO: error handling
 
     def load_definitions(self, filename='definitions.json'):
         """
@@ -41,7 +58,7 @@ class DefinitionService:
         Returns the serialization data type for the given field name.
         `Serialization Type List <https://xrpl.org/serialization.html#type-list>`_
         """
-        return self.definitions["FIELDS"][field_name]["type"]
+        return self.field_info_map[field_name].type
 
     def get_field_type_code(self, field_name):
         """
@@ -49,14 +66,14 @@ class DefinitionService:
         `Serialization Type Codes <https://xrpl.org/serialization.html#type-codes>`_
         """
         field_type_name = self.get_field_type_name(field_name)
-        return self.definitions["TYPES"][field_type_name]
+        return self.type_ordinal_map[field_type_name]
 
     def get_field_code(self, field_name):
         """
         Returns the field code associated with the given field.
         `Serializtion Field Codes <https://xrpl.org/serialization.html#field-codes>`_
         """
-        return self.definitions["FIELDS"][field_name]["nth"]
+        return self.field_info_map[field_name].nth
 
     def get_field_sort_key(self, field_name):
         """
@@ -65,5 +82,15 @@ class DefinitionService:
         """
         return self.get_field_type_code(field_name), self.get_field_code(field_name)
 
-    # TODO: get_field_name(self, field_id)
-    # For deserialization. May require inverse table for lookup.
+    def get_field_header_from_name(self, field_name):
+        """
+        Returns a FieldHeader object for a field of the given field name.
+        """
+        return FieldHeader(self.get_field_type_code(field_name), self.get_field_code(field_name))
+
+    def get_field_name_from_header(self, field_header):
+        """
+        Returns the field name described by the given FieldHeader object.
+        """
+        return self.field_header_name_map[field_header]
+
