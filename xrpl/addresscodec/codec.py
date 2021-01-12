@@ -44,6 +44,7 @@ def decode(b58_string, prefix_length):
 def encode_node_public_key(bytestring):
     """
     bytestring: bytes to be encoded
+    
     Returns the node public key encoding of these bytes as a base58 string
     """
     return encode(bytestring, NODE_PUBLIC_KEY_PREFIX, NODE_PUBLIC_KEY_LENGTH)
