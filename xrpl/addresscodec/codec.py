@@ -46,3 +46,11 @@ def encode_account_id(bytestring):
     Returns the account ID encoding of these bytes as a base58 string
     """
     return encode(bytestring, ACCOUNT_ID_PREFIX, ACCOUNT_ID_LENGTH)
+
+def decode_account_id(account_id):
+    """
+    account_id: account ID to be decoded
+
+    Returns the decoded bytes of the account ID
+    """
+    return decode(account_id, len(ACCOUNT_ID_PREFIX))
