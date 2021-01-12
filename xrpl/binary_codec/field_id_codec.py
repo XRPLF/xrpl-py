@@ -17,6 +17,7 @@ class FieldIDCodec:
         type_code = field_header.type_code
         field_code = field_header.field_code
 
+        # TODO: implement specific errors
         # Codes must be nonzero and fit in 1 byte
         assert 0 < field_code <= 255
         assert 0 < type_code <= 255
