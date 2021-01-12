@@ -148,11 +148,14 @@ class TestCodec(unittest.TestCase):
         )
 
     # node_public_key test
-
-    def test_encode_node_public_key(self):
+    
+    def test_node_public_key_encode_decode(self):
         hex_string = '0388E5BA87A000CB807240DF8C848EB0B5FFA5C8E5A521BC8E105C0F0A44217828'
         encoded_string = 'n9MXXueo837zYH36DvMc13BwHcqtfAWNJY5czWVbp7uYTj7x17TH'
         hex_string_bytes = bytes.fromhex(hex_string)
 
-        result = addresscodec.encode_node_public_key(hex_string_bytes)
-        self.assertEqual(result, encoded_string)
+        encode_result = addresscodec.encode_node_public_key(hex_string_bytes)
+        self.assertEqual(encode_result, encoded_string)
+
+        decode_result2 = addresscodec.decode_node_public_key(encoded_string)
+        self.assertEqual(decode_result2, hex_string_bytes)
