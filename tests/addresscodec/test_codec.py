@@ -157,5 +157,5 @@ class TestCodec(unittest.TestCase):
         encode_result = addresscodec.encode_node_public_key(hex_string_bytes)
         self.assertEqual(encode_result, encoded_string)
 
-        decode_result2 = addresscodec.decode_node_public_key(encoded_string)
-        self.assertEqual(decode_result2, hex_string_bytes)
+        decode_result = addresscodec.decode_node_public_key(encoded_string)
+        self.assertEqual(decode_result, hex_string_bytes)
