@@ -27,5 +27,5 @@ def construct_field_test(field_test_dict):
         field_test_dict["name"],
         field_test_dict["nth_of_type"],
         field_test_dict["type"],
-        field_test_dict["hex"]
+        field_test_dict["expected_hex"]
     )
