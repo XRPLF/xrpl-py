@@ -2,7 +2,7 @@ from .definitions import FieldHeader, DefinitionService
 
 class FieldIDCodec:
     """
-    A class for encoding and decoding Field IDs.
+    A class for encoding and decoding field IDs.
     `Field IDs <https://xrpl.org/serialization.html#field-ids>`_
     """
     def __init__(self):
@@ -10,7 +10,7 @@ class FieldIDCodec:
 
     def encode(self, field_name):
         """
-        Returns the unique Field ID for a given field name.
+        Returns the unique field ID for a given field name.
         This field ID consists of the type code and field code, in 1 to 3 bytes
         depending on whether those values are "common" (<16) or "uncommon" (>=16)
         """
@@ -88,7 +88,7 @@ class FieldIDCodec:
         elif len(byte_array) == 3:
             return FieldHeader(byte_array[1], byte_array[2])
         else:
-            raise Exception("Too many bytes in the FieldID")
+            raise Exception("Too many bytes in the field ID")
 
     def uint8_to_bytes(self, i):
         return i.to_bytes(1, byteorder="big", signed=False)
