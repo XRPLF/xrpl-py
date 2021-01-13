@@ -36,3 +36,13 @@ class TestCodec(unittest.TestCase):
 
         decode_result2 = addresscodec.decode(ed_seed, len(addresscodec.ED25519_SEED_PREFIX))
         self.assertEqual(decode_result2, decoded_seed_bytes)
+    
+    # account public key encode/decode tests
+
+    def test_encode_account_public_key(self):
+        hex_string = '023693F15967AE357D0327974AD46FE3C127113B1110D6044FD41E723689F81CC6'
+        encoded_string = 'aB44YfzW24VDEJQ2UuLPV2PvqcPCSoLnL7y5M1EzhdW4LnK5xMS3'
+        hex_string_bytes = bytes.fromhex(hex_string)
+
+        result = addresscodec.encode_account_public_key(hex_string_bytes)
+        self.assertEqual(result, encoded_string) 
