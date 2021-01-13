@@ -4,16 +4,21 @@ import struct
 from .exceptions import XRPLAddressCodecException
 
 # base58 encodings: https://xrpl.org/base58-encodings.html
-ACCOUNT_ID_PREFIX = [0x0] # Account address (20 bytes)
+CLASSIC_ADDRESS_PREFIX = [0x0] # Account address (20 bytes)
 ACCOUNT_PUBLIC_KEY_PREFIX = [0x23] # value is 35; Account public key (33 bytes)
 FAMILY_SEED_PREFIX = [0x21] # value is 33; Seed value (for secret keys) (16 bytes)
-NODE_PUBLIC_PREFIX = [0x1C] # value is 28; Validation public key (33 bytes)
-
+NODE_PUBLIC_KEY_PREFIX = [0x1C] # value is 28; Validation public key (33 bytes)
 ED25519_SEED_PREFIX = [0x01, 0xE1, 0x4B] # [1, 225, 75]
 
+SEED_LENGTH = 16
+CLASSIC_ADDRESS_LENGTH = 20
+NODE_PUBLIC_KEY_LENGTH = 33
 ACCOUNT_PUBLIC_KEY_LENGTH = 33
 
 XRPL_ALPHABET = b'rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz'
+
+ED25519 = 'ed25519'
+SECP256K1 = 'secp256k1'
 
 def encode(bytestring, prefix, expected_length):
     """
@@ -39,6 +44,73 @@ def decode(b58_string, prefix_length):
     """
     # TODO: (mvadari) Figure out if prefix_length is the right way to do this or if there is a better way
     return base58.b58decode_check(b58_string, alphabet=XRPL_ALPHABET)[prefix_length:]
+
+def encode_seed(entropy, encoding_type):
+    """
+    entropy: SEED_LENGTH bytes
+    encoding_type: either ED25519 or SECP256K1
+
+    Returns an encoded seed
+    """
+    if len(entropy) != SEED_LENGTH:
+        raise XRPLAddressCodecException('Entropy must have length {}'.format(SEED_LENGTH))
+
+    if encoding_type == ED25519:
+        prefix = ED25519_SEED_PREFIX
+    elif encoding_type == SECP256K1:
+        prefix = FAMILY_SEED_PREFIX
+    else:
+        raise XRPLAddressCodecException('Encoding type is not valid; must be either \'{}\' or \'{}\''.format(SECP256K1, ED25519))
+    
+    return encode(entropy, prefix, SEED_LENGTH)
+
+def decode_seed(seed, encoding_type):
+    """
+    seed: b58 encoding of a seed
+    encoding_type: either ED25519 or SECP256K1
+
+    Returns a decoded seed
+    """
+    if encoding_type == ED25519:
+        prefix = ED25519_SEED_PREFIX
+    elif encoding_type == SECP256K1:
+        prefix = FAMILY_SEED_PREFIX
+    else:
+        raise XRPLAddressCodecException('Encoding type is not valid; must be either \'{}\' or \'{}\''.format(SECP256K1, ED25519))
+    
+    return decode(seed, len(prefix))
+
+def encode_classic_address(bytestring):
+    """
+    bytestring: bytes to be encoded
+
+    Returns the classic address encoding of these bytes as a base58 string
+    """
+    return encode(bytestring, CLASSIC_ADDRESS_PREFIX, CLASSIC_ADDRESS_LENGTH)
+
+def decode_classic_address(classic_address):
+    """
+    classic_address: classic address to be decoded
+
+    Returns the decoded bytes of the classic address
+    """
+    return decode(classic_address, len(CLASSIC_ADDRESS_PREFIX))
+
+def encode_node_public_key(bytestring):
+    """
+    bytestring: bytes to be encoded
+    
+    Returns the node public key encoding of these bytes as a base58 string
+    """
+    return encode(bytestring, NODE_PUBLIC_KEY_PREFIX, NODE_PUBLIC_KEY_LENGTH)
+
+def decode_node_public_key(node_public_key):
+    """
+    node_public_key: node public key to be decoded
+    
+    Returns the decoded bytes of the node public key
+    """
+    return decode(node_public_key, len(NODE_PUBLIC_KEY_PREFIX)) 
 
 def encode_account_public_key(bytestring):
     """
