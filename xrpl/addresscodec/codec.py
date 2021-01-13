@@ -10,9 +10,13 @@ FAMILY_SEED_PREFIX = [0x21] # value is 33; Seed value (for secret keys) (16 byte
 NODE_PUBLIC_PREFIX = [0x1C] # value is 28; Validation public key (33 bytes)
 ED25519_SEED_PREFIX = [0x01, 0xE1, 0x4B] # [1, 225, 75]
 
+SEED_LENGTH = 16
 ACCOUNT_ID_LENGTH = 20
 
 XRPL_ALPHABET = b'rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz'
+
+ED25519 = 'ed25519'
+SECP256K1 = 'secp256k1'
 
 def encode(bytestring, prefix, expected_length):
     """
@@ -38,6 +42,25 @@ def decode(b58_string, prefix_length):
     """
     # TODO: (mvadari) Figure out if prefix_length is the right way to do this or if there is a better way
     return base58.b58decode_check(b58_string, alphabet=XRPL_ALPHABET)[prefix_length:]
+
+def encode_seed(entropy, encoding_type):
+    """
+    entropy: SEED_LENGTH bytes
+    encoding_type: either ED25519 or SECP256K1
+
+    Returns an encoded seed
+    """
+    if len(entropy) != SEED_LENGTH:
+        raise XRPLAddressCodecException('Entropy must have length {}'.format(SEED_LENGTH))
+
+    if encoding_type == ED25519:
+        prefix = ED25519_SEED_PREFIX
+    elif encoding_type == SECP256K1:
+        prefix = FAMILY_SEED_PREFIX
+    else:
+        raise XRPLAddressCodecException('Encoding type is not valid; must be either \'{}\' or \'{}\''.format(SECP256K1, ED25519))
+    
+    return encode(entropy, prefix, SEED_LENGTH)
 
 def encode_account_id(bytestring):
     """
