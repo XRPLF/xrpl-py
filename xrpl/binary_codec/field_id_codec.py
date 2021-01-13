@@ -8,9 +8,25 @@ class FieldIDCodec:
     def __init__(self):
         self.definition_service = DefinitionService()
 
-    def encodeFieldID(self, field_header):
+    def encode(self, field_name):
         """
         Returns the unique Field ID for a given field name.
+        This field ID consists of the type code and field code, in 1 to 3 bytes
+        depending on whether those values are "common" (<16) or "uncommon" (>=16)
+        """
+        field_header = self.definition_service.get_field_header_from_name(field_name)
+        return self._encode_field_id(field_header)
+
+    def decode(self, field_id):
+        """
+        Returns the field name represented by the given field ID.
+        """
+        field_header = self._decode_field_id(field_id)
+        return self.definition_service.get_field_name_from_header(field_header)
+
+    def _encode_field_id(self, field_header):
+        """
+        Returns the unique field ID for a given field header.
         This field ID consists of the type code and field code, in 1 to 3 bytes
         depending on whether those values are "common" (<16) or "uncommon" (>=16)
         """
@@ -49,9 +65,9 @@ class FieldIDCodec:
             byte3 = self.uint8_to_bytes(field_code)
             return b''.join((bytes(1), byte2, byte3))
 
-    def decodeFieldID(self, field_id):
+    def _decode_field_id(self, field_id):
         """
-        Returns a FieldHeader object representing the type code and field code of a decoded Field ID.
+        Returns a FieldHeader object representing the type code and field code of a decoded field ID.
         """
         # TODO: implement specific errors
         assert len(field_id) > 0
