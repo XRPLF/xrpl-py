@@ -85,3 +85,12 @@ def encode_classic_address(bytestring):
     Returns the classic address encoding of these bytes as a base58 string
     """
     return encode(bytestring, CLASSIC_ADDRESS_PREFIX, CLASSIC_ADDRESS_LENGTH)
+
+def decode_classic_address(classic_address):
+    """
+    classic_address: classic address to be decoded
+
+    Returns the decoded bytes of the classic address
+    """
+    return decode(classic_address, len(CLASSIC_ADDRESS_PREFIX))
+

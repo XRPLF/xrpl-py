@@ -36,8 +36,8 @@ class TestCodec(unittest.TestCase):
 
         decode_result2 = addresscodec.decode(ed_seed, len(addresscodec.ED25519_SEED_PREFIX))
         self.assertEqual(decode_result2, decoded_seed_bytes)
-    
-    # encode_seed tests
+
+    # seed tests
 
     def test_seed_encode_decode_secp256k1(self):
         hex_string = 'CF2DE378FBDD7E2EE87D486DFB5A7BFF'
@@ -124,16 +124,19 @@ class TestCodec(unittest.TestCase):
             hex_string_bytes,
             addresscodec.SECP256K1
         )
+    
+    # classic_address tests
 
-    # encode_classic_address tests
-
-    def test_encode_classic_address(self):
+    def test_classic_address_encode_decode(self):
         hex_string = 'BA8E78626EE42C41B46D46C3048DF3A1C3C87072'
         encoded_string = 'rJrRMgiRgrU6hDF4pgu5DXQdWyPbY35ErN'
         hex_string_bytes = bytes.fromhex(hex_string)
 
-        result = addresscodec.encode_classic_address(hex_string_bytes)
-        self.assertEqual(result, encoded_string)
+        encode_result = addresscodec.encode_classic_address(hex_string_bytes)
+        self.assertEqual(encode_result, encoded_string)
+
+        decode_result = addresscodec.decode_classic_address(encoded_string)
+        self.assertEqual(decode_result, hex_string_bytes)
     
     def test_encode_classic_address_bad_length(self):
         hex_string = 'ABCDEF'
