@@ -9,20 +9,20 @@ class TestCodec(unittest.TestCase):
         hex_string = 'BA8E78626EE42C41B46D46C3048DF3A1C3C87072'
         encoded_hex = bytes.fromhex(hex_string)
 
-        encode_result = addresscodec.encode(encoded_hex, addresscodec.ACCOUNT_ID_PREFIX, 20)
+        encode_result = addresscodec.encode(encoded_hex, addresscodec.CLASSIC_ADDRESS_PREFIX, addresscodec.CLASSIC_ADDRESS_LENGTH)
         self.assertEqual(encode_result, base58_string)
 
-        decode_result = addresscodec.decode(base58_string, len(addresscodec.ACCOUNT_ID_PREFIX))
+        decode_result = addresscodec.decode(base58_string, len(addresscodec.CLASSIC_ADDRESS_PREFIX))
         self.assertEqual(decode_result, encoded_hex)
 
         hex_string2 = '2decab42ca805119a9ba2ff305c9afa12f0b86a1'
         base58_string2 = 'rnBFvgZphmN39GWzUJeUitaP22Fr9be75H'
         encoded_hex2 = bytes.fromhex(hex_string2)
 
-        encode_result2 = addresscodec.encode(encoded_hex2, addresscodec.ACCOUNT_ID_PREFIX, 20)
+        encode_result2 = addresscodec.encode(encoded_hex2, addresscodec.CLASSIC_ADDRESS_PREFIX, addresscodec.CLASSIC_ADDRESS_LENGTH)
         self.assertEqual(encode_result2, base58_string2)
 
-        decode_result2 = addresscodec.decode(base58_string2, len(addresscodec.ACCOUNT_ID_PREFIX))
+        decode_result2 = addresscodec.decode(base58_string2, len(addresscodec.CLASSIC_ADDRESS_PREFIX))
         self.assertEqual(decode_result2, encoded_hex2)
 
     
@@ -123,4 +123,23 @@ class TestCodec(unittest.TestCase):
             addresscodec.encode_seed, 
             hex_string_bytes,
             addresscodec.SECP256K1
+        )
+
+    # encode_classic_address tests
+
+    def test_encode_classic_address(self):
+        hex_string = 'BA8E78626EE42C41B46D46C3048DF3A1C3C87072'
+        encoded_string = 'rJrRMgiRgrU6hDF4pgu5DXQdWyPbY35ErN'
+        hex_string_bytes = bytes.fromhex(hex_string)
+
+        result = addresscodec.encode_classic_address(hex_string_bytes)
+        self.assertEqual(result, encoded_string)
+    
+    def test_encode_classic_address_bad_length(self):
+        hex_string = 'ABCDEF'
+        hex_string_bytes = bytes.fromhex(hex_string)
+
+        self.assertRaises(addresscodec.XRPLAddressCodecException, 
+            addresscodec.encode_classic_address, 
+            hex_string_bytes
         )
