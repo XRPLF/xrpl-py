@@ -135,8 +135,8 @@ class TestCodec(unittest.TestCase):
         encode_result = addresscodec.encode_classic_address(hex_string_bytes)
         self.assertEqual(encode_result, encoded_string)
 
-        decode_result2 = addresscodec.decode_classic_address(encoded_string)
-        self.assertEqual(decode_result2, hex_string_bytes)
+        decode_result = addresscodec.decode_classic_address(encoded_string)
+        self.assertEqual(decode_result, hex_string_bytes)
     
     def test_encode_classic_address_bad_length(self):
         hex_string = 'ABCDEF'
