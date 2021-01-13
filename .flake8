@@ -10,7 +10,7 @@
 # your Python code against some of the style conventions in PEP 8.
 select = BLK,E,F,W
 
-# This is the line length tha black uses
+# This is the line length that black uses
 # https://black.readthedocs.io/en/stable/the_black_code_style.html#line-length
 max-line-length = 88
 
