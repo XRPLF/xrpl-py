@@ -11,6 +11,8 @@ NODE_PUBLIC_PREFIX = [0x1C] # value is 28; Validation public key (33 bytes)
 
 ED25519_SEED_PREFIX = [0x01, 0xE1, 0x4B] # [1, 225, 75]
 
+ACCOUNT_PUBLIC_KEY_LENGTH = 33
+
 XRPL_ALPHABET = b'rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz'
 
 def encode(bytestring, prefix, expected_length):
@@ -37,3 +39,11 @@ def decode(b58_string, prefix_length):
     """
     # TODO: (mvadari) Figure out if prefix_length is the right way to do this or if there is a better way
     return base58.b58decode_check(b58_string, alphabet=XRPL_ALPHABET)[prefix_length:]
+
+def encode_account_public_key(bytestring):
+    """
+    bytestring: bytes to be encoded
+    
+    Returns the account public key encoding of these bytes as a base58 string
+    """
+    return encode(bytestring, ACCOUNT_PUBLIC_KEY_PREFIX, ACCOUNT_PUBLIC_KEY_LENGTH)
