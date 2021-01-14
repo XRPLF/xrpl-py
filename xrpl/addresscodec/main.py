@@ -7,6 +7,12 @@ MAX_32_BIT_UNSIGNED_INT = 4294967295
 PREFIX_BYTES_MAIN = bytes([0x05, 0x44])  # 5, 68
 PREFIX_BYTES_TEST = bytes([0x04, 0x93])  # 4, 147
 
+# To better understand the cryptographic details, visit
+# https://github.com/xrp-community/standards-drafts/issues/6
+
+# General format of an X-Address:
+# [← 2 byte prefix →|← 160 bits of account ID →|← 8 bits of flags →|← 64 bits of tag →]
+
 
 def encode_xaddress(classic_address_bytes, tag, test):
     """
@@ -55,24 +61,25 @@ def decode_xaddress(xaddress):
         tag: the destination tag
         is_test: whether the address is on the test network
     """
-    decoded = base58.b58decode_check(xaddress, alphabet=XRPL_ALPHABET)
-    is_test = _is_test_address(decoded)
+    decoded = base58.b58decode_check(
+        xaddress, alphabet=XRPL_ALPHABET
+    )  # convert b58 to bytes
+    is_test = _is_test_address(decoded[:2])
     classic_address = decoded[2:22]
-    tag = _get_tag_from_buffer(decoded)
+    tag = _get_tag_from_buffer(decoded[22:])  # extracts the destination tag
 
     return (classic_address, tag, is_test)
 
 
-def _is_test_address(buffer):
+def _is_test_address(prefix):
     """
-    buffer: bytes
+    prefix: the first 2 bytes of an X-Address
 
     Returns whether a decoded X-Address is a test address.
     """
-    decoded_prefix = buffer[:2]
-    if PREFIX_BYTES_MAIN == decoded_prefix:
+    if PREFIX_BYTES_MAIN == prefix:
         return False
-    if PREFIX_BYTES_TEST == decoded_prefix:
+    if PREFIX_BYTES_TEST == prefix:
         return True
     raise XRPLAddressCodecException("Invalid X-Address: bad prefix")
 
@@ -81,20 +88,17 @@ def _get_tag_from_buffer(buffer):
     """
     buffer: bytes
 
-    Returns the tag extracted from the buffer.
+    Returns the destination tag extracted from the suffix of the X-Address.
     """
-    flag = buffer[22]
+    flag = buffer[0]
     if flag >= 2:
         raise XRPLAddressCodecException("Unsupported X-Address")
     if flag == 1:  # Little-endian to big-endian
         return (
-            buffer[23]
-            + buffer[24] * 0x100
-            + buffer[25] * 0x10000
-            + buffer[26] * 0x1000000
-        )
+            buffer[1] + buffer[2] * 0x100 + buffer[3] * 0x10000 + buffer[4] * 0x1000000
+        )  # inverse of what happens in encode
     if flag != 0:
         raise XRPLAddressCodecException("Flag must be zero to indicate no tag")
-    if bytes.fromhex("0000000000000000") != buffer[23 : 23 + 8]:
+    if bytes.fromhex("0000000000000000") != buffer[1:9]:
         raise XRPLAddressCodecException("Remaining bytes must be zero")
     return None
