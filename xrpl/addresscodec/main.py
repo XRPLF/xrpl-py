@@ -1,4 +1,5 @@
 import base58
+from .codec import encode_classic_address
 from .exceptions import XRPLAddressCodecException
 from .utils import XRPL_ALPHABET
 
@@ -102,3 +103,10 @@ def _get_tag_from_buffer(buffer):
     if bytes.fromhex("0000000000000000") != buffer[1:9]:
         raise XRPLAddressCodecException("Remaining bytes must be zero")
     return None
+
+
+def xaddress_to_classic_address(xaddress):
+    """"""
+    classic_address_bytes, tag, test = decode_xaddress(xaddress)
+    classic_address = encode_classic_address(classic_address_bytes)
+    return (classic_address, tag, test)
