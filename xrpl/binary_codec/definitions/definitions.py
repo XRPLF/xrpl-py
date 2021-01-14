@@ -2,14 +2,17 @@ import json
 import os
 from .field_header import FieldHeader
 from .field_info import FieldInfo
+from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 
 
 def load_definitions(filename='definitions.json'):
     """
     Loads JSON from the definitions file and converts it to a preferred format.
+    The definitions file contains information required for the XRP Ledger's canonical binary serialization format:
+    `Serialization <https://xrpl.org/serialization.html>`_
 
-    :param filename: The name of the definitions file.  (The definitions file should be drop-in compatible with the
-    one from the ripple-binary-codec JavaScript package.)
+    :param filename: The name of the definitions file.
+    (The definitions file should be drop-in compatible with the one from the ripple-binary-codec JavaScript package.)
     :return: A dictionary containing the mappings provided in the definitions file.
     """
     dirname = os.path.dirname(__file__)
@@ -43,17 +46,19 @@ FIELD_INFO_MAP = {}
 FIELD_HEADER_NAME_MAP = {}
 
 # Populate FIELD_INFO_MAP and FIELD_HEADER_NAME_MAP
-for field in DEFINITIONS["FIELDS"]:
-    field_entry = DEFINITIONS["FIELDS"][field]
-    field_info = FieldInfo(field_entry["nth"],
-                           field_entry["isVLEncoded"],
-                           field_entry["isSerialized"],
-                           field_entry["isSigningField"],
-                           field_entry["type"])
-    header = FieldHeader(TYPE_ORDINAL_MAP[field_entry["type"]], field_entry["nth"])
-    FIELD_INFO_MAP[field] = field_info
-    FIELD_HEADER_NAME_MAP[header] = field
-    # TODO: error handling
+try:
+    for field in DEFINITIONS["FIELDS"]:
+        field_entry = DEFINITIONS["FIELDS"][field]
+        field_info = FieldInfo(field_entry["nth"],
+                               field_entry["isVLEncoded"],
+                               field_entry["isSerialized"],
+                               field_entry["isSigningField"],
+                               field_entry["type"])
+        header = FieldHeader(TYPE_ORDINAL_MAP[field_entry["tpe"]], field_entry["nth"])
+        FIELD_INFO_MAP[field] = field_info
+        FIELD_HEADER_NAME_MAP[header] = field
+except KeyError as e:
+    raise XRPLBinaryCodecException("Malformed definitions.json file. (Original exception: KeyError: {})".format(e))
 
 
 def get_field_type_name(field_name):
