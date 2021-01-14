@@ -8,7 +8,7 @@ stages:
     - echo "before testing"
     - apk add build-base
     - pip3 install -r requirements-dev.txt
-    - python setup.py develop
+    - python3 setup.py develop
 
 unit-test:
   stage: test
