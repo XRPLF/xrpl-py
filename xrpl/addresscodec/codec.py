@@ -53,6 +53,7 @@ def decode(b58_string, prefix_length):
     """
     # TODO: (mvadari) Figure out if prefix_length is the right way to do this or if
     # there is a better way
+    # TODO: (mvadari) Add checks to ensure the prefix equals the desired prefix
     return base58.b58decode_check(b58_string, alphabet=XRPL_ALPHABET)[prefix_length:]
 
 
@@ -76,20 +77,22 @@ def encode_seed(entropy, encoding_type):
     return encode(entropy, prefix, SEED_LENGTH)
 
 
-def decode_seed(seed, encoding_type):
+def decode_seed(seed):
     """
     seed: b58 encoding of a seed
-    encoding_type: either ED25519 or SECP256K1
 
     Returns a decoded seed
     """
-    if encoding_type not in ALGORITHMS:
-        raise XRPLAddressCodecException(
-            "Encoding type is not valid; must be one of {}.ALGORITHMS".format(__name__)
-        )
+    for algorithm in ALGORITHMS:
+        prefix = ALGORITHM_TO_PREFIX_MAP[algorithm]
+        decoded_result = decode(seed, len(prefix))
 
-    prefix = ALGORITHM_TO_PREFIX_MAP[encoding_type]
-    return decode(seed, len(prefix))
+        if len(decoded_result) == SEED_LENGTH:
+            # this works because the prefixes have different lengths
+            return decoded_result, algorithm
+    raise XRPLAddressCodecException(
+        "Encoding type is not valid; must be one of {}.ALGORITHMS".format(__name__)
+    )
 
 
 def encode_classic_address(bytestring):
