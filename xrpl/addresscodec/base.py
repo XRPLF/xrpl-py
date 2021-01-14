@@ -1,5 +1,6 @@
 import base58
 from .exceptions import XRPLAddressCodecException
+from .utils import XRPL_ALPHABET
 
 MAX_32_BIT_UNSIGNED_INT = 4294967295
 
@@ -10,10 +11,13 @@ def encode_xaddress(account_id, tag, test):
     if len(account_id) != 20:
         raise XRPLAddressCodecException('Account ID must be 20 bytes')
     
-    if tag > MAX_32_BIT_UNSIGNED_INT:
+    if tag is not None and tag > MAX_32_BIT_UNSIGNED_INT:
         raise XRPLAddressCodecException('Invalid tag')
+
+    flag = tag is not None
     if tag is None:
         tag = 0
+    
     
     bytestring = PREFIX_BYTES_TEST if test else PREFIX_BYTES_MAIN
     bytestring += account_id
