@@ -54,11 +54,8 @@ def _decode(b58_string, prefix):
     """
     # TODO: (mvadari) Figure out if prefix is the right way to do this or if
     # there is a better way
-    prefix_length = len(prefix)
-    decoded = base58.b58decode_check(b58_string, alphabet=XRPL_ALPHABET)
-    if decoded[:prefix_length] != prefix:
-        raise XRPLAddressCodecException("Provided prefix is incorrect")
-    return decoded[prefix_length:]
+    # TODO: (mvadari) Add checks to ensure the prefix equals the desired prefix
+    return base58.b58decode_check(b58_string, alphabet=XRPL_ALPHABET)[prefix_length:]
 
 
 def encode_seed(entropy, encoding_type):
