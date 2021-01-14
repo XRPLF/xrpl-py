@@ -58,10 +58,9 @@ def _is_test_address(buffer):
     decoded_prefix = buffer[:2]
     if PREFIX_BYTES_MAIN == decoded_prefix:
         return False
-    elif PREFIX_BYTES_TEST == decoded_prefix:
+    if PREFIX_BYTES_TEST == decoded_prefix:
         return True
-    else:
-        raise XRPLAddressCodecException('Invalid X-Address: bad prefix')
+    raise XRPLAddressCodecException('Invalid X-Address: bad prefix')
 
 def _get_tag_from_buffer(buffer):
     """
