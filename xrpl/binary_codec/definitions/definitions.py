@@ -54,7 +54,7 @@ try:
                                field_entry["isSerialized"],
                                field_entry["isSigningField"],
                                field_entry["type"])
-        header = FieldHeader(TYPE_ORDINAL_MAP[field_entry["tpe"]], field_entry["nth"])
+        header = FieldHeader(TYPE_ORDINAL_MAP[field_entry["type"]], field_entry["nth"])
         FIELD_INFO_MAP[field] = field_info
         FIELD_HEADER_NAME_MAP[header] = field
 except KeyError as e:
