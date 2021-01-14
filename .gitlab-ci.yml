@@ -10,7 +10,7 @@ stages:
     - pip3 install -r requirements-dev.txt
     - python setup.py develop
 
-stubtest:
+unit-test:
   stage: test
   extends: .test
   script:
