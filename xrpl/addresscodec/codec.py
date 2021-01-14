@@ -48,6 +48,7 @@ def decode(b58_string, prefix_length):
     """
     # TODO: (mvadari) Figure out if prefix_length is the right way to do this or if
     # there is a better way
+    # TODO: (mvadari) Add checks to ensure the prefix equals the desired prefix
     return base58.b58decode_check(b58_string, alphabet=XRPL_ALPHABET)[prefix_length:]
 
 
