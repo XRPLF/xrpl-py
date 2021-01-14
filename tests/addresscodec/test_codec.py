@@ -34,8 +34,8 @@ class TestCodec(unittest.TestCase):
         encode_result = addresscodec.encode(decoded_seed_bytes, addresscodec.ED25519_SEED_PREFIX, 16)
         self.assertEqual(encode_result, ed_seed)
 
-        decode_result2 = addresscodec.decode(ed_seed, len(addresscodec.ED25519_SEED_PREFIX))
-        self.assertEqual(decode_result2, decoded_seed_bytes)
+        decode_result = addresscodec.decode(ed_seed, len(addresscodec.ED25519_SEED_PREFIX))
+        self.assertEqual(decode_result, decoded_seed_bytes)
 
     # seed tests
 
@@ -169,3 +169,9 @@ class TestCodec(unittest.TestCase):
 
         result = addresscodec.encode_account_public_key(hex_string_bytes)
         self.assertEqual(result, encoded_string) 
+
+        encode_result = addresscodec.encode_account_public_key(hex_string_bytes)
+        self.assertEqual(encode_result, encoded_string)
+
+        decode_result = addresscodec.decode_account_public_key(encoded_string)
+        self.assertEqual(decode_result, hex_string_bytes)

@@ -110,7 +110,7 @@ def decode_node_public_key(node_public_key):
     
     Returns the decoded bytes of the node public key
     """
-    return decode(node_public_key, len(NODE_PUBLIC_KEY_PREFIX)) 
+    return decode(node_public_key, len(NODE_PUBLIC_KEY_PREFIX))
 
 def encode_account_public_key(bytestring):
     """
@@ -119,3 +119,11 @@ def encode_account_public_key(bytestring):
     Returns the account public key encoding of these bytes as a base58 string
     """
     return encode(bytestring, ACCOUNT_PUBLIC_KEY_PREFIX, ACCOUNT_PUBLIC_KEY_LENGTH)
+
+def decode_account_public_key(account_public_key):
+    """
+    account_public_key: account public key to be decoded
+    
+    Returns the decoded bytes of the account public key
+    """
+    return decode(account_public_key, len(ACCOUNT_PUBLIC_KEY_PREFIX)) 
