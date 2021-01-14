@@ -1,9 +1,11 @@
 """Base functions for keypairs module."""
 
 import hashlib
+import random
+from xrpl import addresscodec
 
 
-def hash(message):
+def _hash(message):
     """Fundamental method, returning
     hash of input.
 
@@ -13,3 +15,18 @@ def hash(message):
     hasher = hashlib.sha512()
     hasher.update(bytes(str(message), "UTF-8"))
     return hasher.digest()[:32]
+
+
+def generate_seed(entropy=None, algorithm=addresscodec.ED25519):
+    """
+    entropy: must be at least addresscodec.SEED_LENGTH bytes long and
+    will be truncated to that length
+    algorithm: any of addresscodec.ALGORITHMS
+
+    returns: a seed suitable for use with derive_keypair
+    """
+    if entropy is None:
+        entropy = random.randbytes(addresscodec.SEED_LENGTH)
+    else:
+        entropy = entropy[: addresscodec.SEED_LENGTH]
+    return addresscodec.encode_seed(entropy, algorithm)
