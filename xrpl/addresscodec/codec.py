@@ -17,6 +17,11 @@ XRPL_ALPHABET = b"rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz"
 
 ED25519 = "ed25519"
 SECP256K1 = "secp256k1"
+ALGORITHM_TO_PREFIX_MAP = {
+    ED25519: ED25519_SEED_PREFIX,
+    SECP256K1: FAMILY_SEED_PREFIX,
+}
+ALGORITHMS = list(ALGORITHM_TO_PREFIX_MAP)
 
 
 def encode(bytestring, prefix, expected_length):
@@ -62,18 +67,12 @@ def encode_seed(entropy, encoding_type):
         raise XRPLAddressCodecException(
             "Entropy must have length {}".format(SEED_LENGTH)
         )
-
-    if encoding_type == ED25519:
-        prefix = ED25519_SEED_PREFIX
-    elif encoding_type == SECP256K1:
-        prefix = FAMILY_SEED_PREFIX
-    else:
+    if encoding_type not in ALGORITHMS:
         raise XRPLAddressCodecException(
-            "Encoding type is not valid; must be either '{}' or '{}'".format(
-                SECP256K1, ED25519
-            )
+            "Encoding type is not valid; must be one of {}.ALGORITHMS".format(__name__)
         )
 
+    prefix = ALGORITHM_TO_PREFIX_MAP[encoding_type]
     return encode(entropy, prefix, SEED_LENGTH)
 
 
@@ -84,17 +83,12 @@ def decode_seed(seed, encoding_type):
 
     Returns a decoded seed
     """
-    if encoding_type == ED25519:
-        prefix = ED25519_SEED_PREFIX
-    elif encoding_type == SECP256K1:
-        prefix = FAMILY_SEED_PREFIX
-    else:
+    if encoding_type not in ALGORITHMS:
         raise XRPLAddressCodecException(
-            "Encoding type is not valid; must be either '{}' or '{}'".format(
-                SECP256K1, ED25519
-            )
+            "Encoding type is not valid; must be one of {}.ALGORITHMS".format(__name__)
         )
 
+    prefix = ALGORITHM_TO_PREFIX_MAP[encoding_type]
     return decode(seed, len(prefix))
 
 
