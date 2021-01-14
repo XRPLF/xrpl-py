@@ -3,10 +3,10 @@ class BinarySerializer:
     Serializes JSON to XRPL binary format.
     """
     def __init__(self):
-        self.sink = bytearray()
+        self.sink = bytes()
 
     def put(self, hex_bytes):
-        self.sink.append(bytearray.fromhex(hex_bytes))
+        self.sink.append(bytes.fromhex(hex_bytes))
 
     def write(self, byte_array):
         self.sink.append(byte_array)
