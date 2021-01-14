@@ -4,6 +4,7 @@ A module for encoding and decoding field IDs.
 """
 
 import xrpl.binary_codec.definitions as definitions
+from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 
 
 def encode(field_name):
@@ -33,10 +34,11 @@ def _encode_field_id(field_header):
     type_code = field_header.type_code
     field_code = field_header.field_code
 
-    # TODO: implement specific errors
-    # Codes must be nonzero and fit in 1 byte
-    assert 0 < field_code <= 255
-    assert 0 < type_code <= 255
+    try:
+        assert 0 < field_code <= 255
+        assert 0 < type_code <= 255
+    except AssertionError:
+        raise XRPLBinaryCodecException("Codes must be nonzero and fit in 1 byte.")
 
     if type_code < 16 and field_code < 16:
         # high 4 bits is the type_code
@@ -70,9 +72,7 @@ def _decode_field_id(field_id):
     """
     Returns a FieldHeader object representing the type code and field code of a decoded field ID.
     """
-    # TODO: implement specific errors
-    assert len(field_id) > 0
-    byte_array = bytearray.fromhex(field_id)
+    byte_array = bytes.fromhex(field_id)
     if len(byte_array) == 1:
         high_bits = byte_array[0] >> 4
         low_bits = byte_array[0] & 0x0F
@@ -89,7 +89,9 @@ def _decode_field_id(field_id):
     elif len(byte_array) == 3:
         return definitions.FieldHeader(byte_array[1], byte_array[2])
     else:
-        raise Exception("Too many bytes in the field ID")
+        raise XRPLBinaryCodecException(
+            "Field ID must be between 1 and 3 bytes. This field ID contained {} bytes.".format(len(byte_array))
+        )
 
 
 def uint8_to_bytes(i):

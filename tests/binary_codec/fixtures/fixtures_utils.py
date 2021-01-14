@@ -1,5 +1,4 @@
-from .data_driven_fixtures import DataDrivenFixtures
-from .field_test import FieldTest
+from .data_driven_fixtures import DataDrivenFixtures, FieldTest
 import json
 import os
 
