@@ -35,7 +35,7 @@ def encode_xaddress(address_bytes, tag, test):
 
 def decode_xaddress(xaddress):
     """
-    xaddress: A base58-encoded X-Address. 
+    xaddress: string, a base58-encoded X-Address. 
 
     Returns:
         classic_address: the byte-encoded classic address
@@ -51,6 +51,8 @@ def decode_xaddress(xaddress):
 
 def _is_test_address(buffer):
     """
+    buffer: bytes
+
     Returns whether a decoded X-Address is a test address.
     """
     decoded_prefix = buffer[:2]
@@ -63,6 +65,8 @@ def _is_test_address(buffer):
 
 def _get_tag_from_buffer(buffer):
     """
+    buffer: bytes
+
     Returns the tag extracted from the buffer. 
     """
     flag = buffer[22]
