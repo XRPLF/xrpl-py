@@ -2,6 +2,7 @@ class BinarySerializer:
     """
     Serializes JSON to XRPL binary format.
     """
+
     def __init__(self):
         self.sink = bytes()
 
@@ -28,30 +29,27 @@ class BinarySerializer:
         elif length <= 12480:
             length -= 193
             byte1 = ((length >> 8) + 193).to_bytes(1, byteorder="big", signed=False)
-            byte2 = (length & 0xff).to_bytes(1, byteorder="big", signed=False)
-            return b''.join((byte1, byte2))
+            byte2 = (length & 0xFF).to_bytes(1, byteorder="big", signed=False)
+            return b"".join((byte1, byte2))
         elif length <= 918744:
             length -= 12481
             byte1 = (241 + (length >> 16)).to_bytes(1, byteorder="big", signed=False)
-            byte2 = ((length >> 8) & 0xff).to_bytes(1, byteorder="big", signed=False)
-            byte3 = (length & 0xff).to_bytes(1, byteorder="big", signed=False)
-            return b''.join((byte1, byte2, byte3))
+            byte2 = ((length >> 8) & 0xFF).to_bytes(1, byteorder="big", signed=False)
+            byte3 = (length & 0xFF).to_bytes(1, byteorder="big", signed=False)
+            return b"".join((byte1, byte2, byte3))
 
         raise ValueError("VariableLength field must be <= 918744 bytes long")
 
-    # TODO: this method depends on the SerializedType class (of which value is a member).
+    # TODO: this method depends on the SerializedType class.
     def write_length_encoded(self, value):
         """
         Write a variable length encoded value to the BinarySerializer.
         """
         pass
 
-    # TODO: this method depends on the SerializedType and FieldInstance classes
+    # TODO: this method depends on the SerializedType and FieldInstance classes.
     def write_field_and_value(self, field, value):
         """
         Write field and value to the buffer.
         """
         return None
-
-
-
