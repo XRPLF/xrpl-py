@@ -88,10 +88,20 @@ def decode_seed(seed):
     decoded_result = decode(seed, len(prefix))
 
     if len(decoded_result) == SEED_LENGTH:
+        # this works because the prefixes have different lengths
         return decoded_result, ED25519
 
+    # if not, should be SECP256K1
     prefix = FAMILY_SEED_PREFIX
-    return decode(seed, len(prefix)), SECP256K1
+    decoded_result = decode(seed, len(prefix))
+
+    if len(decoded_result) != SEED_LENGTH:
+        raise XRPLAddressCodecException(
+            "Encoding type is not valid; must be either '{}' or '{}'".format(
+                SECP256K1, ED25519
+            )
+        )
+    return decoded_result, SECP256K1
 
 
 def encode_classic_address(bytestring):
