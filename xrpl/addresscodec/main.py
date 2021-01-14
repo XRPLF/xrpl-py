@@ -46,6 +46,7 @@ def encode_xaddress(classic_address_bytes, tag, test):
 
     return base58.b58encode_check(bytestring, alphabet=XRPL_ALPHABET).decode("utf-8")
 
+
 def classic_address_to_xaddress(classic_address, tag, test):
     """
     classic_address: string, the base58 encoding of the classic address
