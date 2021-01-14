@@ -26,11 +26,7 @@ def generate_seed(entropy=None, algorithm=addresscodec.ED25519):
     returns: a seed suitable for use with derive_keypair
     """
     if entropy is None:
-        return addresscodec.encode_seed(
-            random.randbytes(addresscodec.SEED_LENGTH),
-            algorithm,
-        )
-    return addresscodec.encode_seed(
-        entropy[: addresscodec.SEED_LENGTH],
-        algorithm,
-    )
+        entropy = random.randbytes(addresscodec.SEED_LENGTH)
+    else:
+        entropy = entropy[: addresscodec.SEED_LENGTH]
+    return addresscodec.encode_seed(entropy, algorithm)
