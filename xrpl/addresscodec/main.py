@@ -106,7 +106,14 @@ def _get_tag_from_buffer(buffer):
 
 
 def xaddress_to_classic_address(xaddress):
-    """"""
+    """
+    xaddress: string, base58-encoded X-Address
+
+    Returns this breakdown of the data:
+        classic_address: the base58 classic address
+        tag: the destination tag
+        is_test: whether the address is on the test network
+    """
     classic_address_bytes, tag, test = decode_xaddress(xaddress)
     classic_address = encode_classic_address(classic_address_bytes)
     return (classic_address, tag, test)
