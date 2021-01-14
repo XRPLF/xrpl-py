@@ -1,0 +1,23 @@
+stages:
+  - lint
+  - test
+
+.test:
+  image: python:3-alpine
+  before_script:
+    - echo "before testing"
+    - apk add build-base
+    - pip3 install -r requirements-dev.txt
+
+stubtest:
+  stage: test
+  extends: .test
+  script:
+    - echo "testing"
+
+lint:
+  image: python:3-alpine
+  stage: lint
+  extends: .test
+  script:
+    - flake8 .
