@@ -32,6 +32,7 @@ class DefinitionService:
             self.field_header_name_map[field_header] = field_name
             # TODO: error handling
 
+
     def load_definitions(self, filename='definitions.json'):
         """
         Loads JSON from the definitions file and converts it to a preferred format.
