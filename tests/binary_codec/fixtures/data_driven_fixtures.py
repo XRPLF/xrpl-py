@@ -15,8 +15,6 @@ def get_field_tests(filename="./data/data-driven-tests.json"):
     with open(absolute_path) as data_driven_tests:
         fixtures_json = json.load(data_driven_tests)
         # top level keys: ['types', 'fields_tests', 'whole_objects', 'values_tests']
-
-    # parse "fields_tests" into list of FieldTest objects
     return [construct_field_test(field_test_dict) for field_test_dict in fixtures_json["fields_tests"]]
 
 
