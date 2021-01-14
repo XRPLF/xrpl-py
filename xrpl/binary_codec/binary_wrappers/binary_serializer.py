@@ -46,7 +46,7 @@ class BinarySerializer:
         """
         pass
 
-    # TODO: this method depends on the SerializedType and FieldInstance classes
+    # TODO: this method depends on the SerializedType and FieldInstance classes.
     def write_field_and_value(self, field, value):
         """
         Write field and value to the buffer.
