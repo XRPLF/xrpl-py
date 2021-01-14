@@ -1,9 +1,9 @@
 import unittest
 
 from xrpl import addresscodec
-from .test_base_testcases import testcases
+from .test_main_testcases import testcases
 
-class TestBase(unittest.TestCase):
+class TestMain(unittest.TestCase):
     def test_encode_xaddress(self):
         for testcase in testcases:
             classic_address, tag, expected_main_xaddress, expected_test_xaddress = testcase
