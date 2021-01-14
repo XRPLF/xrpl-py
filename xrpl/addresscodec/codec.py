@@ -70,7 +70,7 @@ def encode_seed(entropy, encoding_type):
         )
     if encoding_type not in ALGORITHMS:
         raise XRPLAddressCodecException(
-            "Encoding type is not valid; must be one of {}.ALGORITHMS".format(__name__)
+            "Encoding type must be one of {}".format(ALGORITHMS)
         )
 
     prefix = ALGORITHM_TO_PREFIX_MAP[encoding_type]
@@ -81,7 +81,7 @@ def decode_seed(seed):
     """
     seed: b58 encoding of a seed
 
-    Returns a decoded seed
+    Returns (decoded seed, its algorithm)
     """
     for algorithm in ALGORITHMS:
         prefix = ALGORITHM_TO_PREFIX_MAP[algorithm]
@@ -91,7 +91,7 @@ def decode_seed(seed):
             # this works because the prefixes have different lengths
             return decoded_result, algorithm
     raise XRPLAddressCodecException(
-        "Encoding type is not valid; must be one of {}.ALGORITHMS".format(__name__)
+        "Invalid seed; could not determine encoding algorithm"
     )
 
 
