@@ -1,7 +1,7 @@
 import unittest
 import xrpl.binary_codec.field_id_codec as field_id_codec
 from xrpl.binary_codec.definitions import FieldHeader
-from .fixtures import fixtures_utils
+from .fixtures import data_driven_fixtures
 
 
 class TestFieldIDCodec(unittest.TestCase):
@@ -9,7 +9,7 @@ class TestFieldIDCodec(unittest.TestCase):
     `See FieldIDs <https://xrpl.org/serialization.html#field-ids>`_
     """
     def setUp(self):
-        self.field_tests = fixtures_utils.get_field_tests()
+        self.field_tests = data_driven_fixtures.get_field_tests()
 
     def test_encode(self):
         for test in self.field_tests:
