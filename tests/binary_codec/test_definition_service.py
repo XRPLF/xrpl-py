@@ -15,12 +15,16 @@ class TestDefinitionService(unittest.TestCase):
 
     def test_get_field_type_name(self):
         expected_field_type_name = "UInt32"
-        field_type_name = self.definition_service.get_field_type_name(self.test_field_name)
+        field_type_name = self.definition_service.get_field_type_name(
+            self.test_field_name
+        )
         self.assertEqual(expected_field_type_name, field_type_name)
 
     def test_get_field_type_code(self):
         expected_field_type_code = 2
-        field_type_code = self.definition_service.get_field_type_code(self.test_field_name)
+        field_type_code = self.definition_service.get_field_type_code(
+            self.test_field_name
+        )
         self.assertEqual(expected_field_type_code, field_type_code)
 
     def test_get_field_code(self):
@@ -30,6 +34,8 @@ class TestDefinitionService(unittest.TestCase):
 
     def test_get_field_sort_key(self):
         expected_field_sort_key = (2, 4)
-        field_sort_key = self.definition_service.get_field_sort_key(self.test_field_name)
+        field_sort_key = self.definition_service.get_field_sort_key(
+            self.test_field_name
+        )
         print("field sort key:", field_sort_key)
         self.assertEqual(expected_field_sort_key, field_sort_key)
