@@ -13,7 +13,7 @@ def encode_xaddress(address_bytes, tag, test):
     tag: int, the destination tag
     test: boolean, whether it is the test network or not (aka the main network)
 
-    Returns the X-address representation of the data
+    Returns the X-Address representation of the data
     """
     if len(address_bytes) != 20:
         raise XRPLAddressCodecException('Account ID must be 20 bytes')
@@ -34,6 +34,14 @@ def encode_xaddress(address_bytes, tag, test):
     return base58.b58encode_check(bytestring, alphabet=XRPL_ALPHABET).decode("utf-8")
 
 def decode_xaddress(xaddress):
+    """
+    xaddress: A base58-encoded X-Address. 
+
+    Returns:
+        classic_address: the byte-encoded classic address
+        tag: the destination tag
+        is_test: whether the address is on the test network
+    """
     decoded = base58.b58decode_check(xaddress, alphabet=XRPL_ALPHABET)
     is_test = _is_test_address(decoded)
     classic_address = decoded[2:22]
@@ -42,6 +50,9 @@ def decode_xaddress(xaddress):
     return (classic_address, tag, is_test)
 
 def _is_test_address(buffer):
+    """
+    Returns whether a decoded X-Address is a test address.
+    """
     decoded_prefix = buffer[:2]
     if PREFIX_BYTES_MAIN == decoded_prefix:
         return False
@@ -51,6 +62,9 @@ def _is_test_address(buffer):
         raise XRPLAddressCodecException('Invalid X-Address: bad prefix')
 
 def _get_tag_from_buffer(buffer):
+    """
+    Returns the tag extracted from the buffer. 
+    """
     flag = buffer[22]
     if flag >= 2:
         raise XRPLAddressCodecException('Unsupported X-Address')
