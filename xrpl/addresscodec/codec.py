@@ -13,6 +13,7 @@ ED25519_SEED_PREFIX = [0x01, 0xE1, 0x4B] # [1, 225, 75]
 SEED_LENGTH = 16
 CLASSIC_ADDRESS_LENGTH = 20
 NODE_PUBLIC_KEY_LENGTH = 33
+ACCOUNT_PUBLIC_KEY_LENGTH = 33
 
 XRPL_ALPHABET = b'rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz'
 
@@ -110,3 +111,11 @@ def decode_node_public_key(node_public_key):
     Returns the decoded bytes of the node public key
     """
     return decode(node_public_key, len(NODE_PUBLIC_KEY_PREFIX)) 
+
+def encode_account_public_key(bytestring):
+    """
+    bytestring: bytes to be encoded
+    
+    Returns the account public key encoding of these bytes as a base58 string
+    """
+    return encode(bytestring, ACCOUNT_PUBLIC_KEY_PREFIX, ACCOUNT_PUBLIC_KEY_LENGTH)
