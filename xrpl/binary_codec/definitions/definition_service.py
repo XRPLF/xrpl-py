@@ -8,12 +8,14 @@ class DefinitionService:
     def __init__(self):
         self.definitions = self.load_definitions()
 
-    def load_definitions(self, filename='definitions.json'):
+    def load_definitions(self, filename="definitions.json"):
         """
         Loads JSON from the definitions file and converts it to a preferred format.
 
-        :param filename: The name of the definitions file.  (The definitions file should be drop-in compatible with the
+        :param filename: The name of the definitions file.
+        (The definitions file should be drop-in compatible with the
         one from the ripple-binary-codec JavaScript package.)
+
         :return: A dictionary containing the mappings provided in the definitions file.
         """
         dirname = os.path.dirname(__file__)
@@ -23,13 +25,15 @@ class DefinitionService:
             return {
                 "TYPES": definitions["TYPES"],
                 # type_name str: type_sort_key int
-                "FIELDS": {k: v for (k, v) in definitions["FIELDS"]},  # convert list of tuples to dict
+                "FIELDS": {
+                    k: v for (k, v) in definitions["FIELDS"]
+                },  # convert list of tuples to dict
                 # field_name str: {
                 #   nth: field_sort_key int,
                 #   isVLEncoded: bool,
                 #   isSerialized: bool,
                 #   isSigningField: bool,
-                #   type: type_name str
+                #   type: str
                 # }
                 "LEDGER_ENTRY_TYPES": definitions["LEDGER_ENTRY_TYPES"],
                 "TRANSACTION_RESULTS": definitions["TRANSACTION_RESULTS"],
@@ -61,7 +65,8 @@ class DefinitionService:
     def get_field_sort_key(self, field_name):
         """
         Returns a tuple sort key for a given field name.
-        `Serialization Canonical Field Order <https://xrpl.org/serialization.html#canonical-field-order>`_
+        `Serialization Canonical Field Order
+        <https://xrpl.org/serialization.html#canonical-field-order>`_
         """
         return self.get_field_type_code(field_name), self.get_field_code(field_name)
 
