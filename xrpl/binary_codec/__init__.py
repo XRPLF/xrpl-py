@@ -1,1 +1,1 @@
-from .definitions import *
+import xrpl.binary_codec.definitions
