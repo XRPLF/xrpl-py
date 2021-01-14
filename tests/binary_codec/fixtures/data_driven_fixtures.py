@@ -1,9 +1,8 @@
 import json
 import os
 
-
-# TODO: functions to parse "whole_objects" and "values_tests" dicts into WholeObjectTest and ValueTest lists as needed
 # TODO: expand the set of test classes here as `WholeObjectTest` and `ValueTest` become relevant.
+# TODO: functions to parse "whole_objects" and "values_tests" dicts into WholeObjectTest and ValueTest lists as needed
 
 
 def get_field_tests(filename="./data/data-driven-tests.json"):
