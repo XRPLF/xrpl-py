@@ -34,7 +34,7 @@ def encode_xaddress(address_bytes, tag, test):
     return base58.b58encode_check(bytestring, alphabet=XRPL_ALPHABET).decode("utf-8")
 
 def decode_xaddress(xaddress):
-    decoded = base58.b58decode_check(xaddress)
+    decoded = base58.b58decode_check(xaddress, alphabet=XRPL_ALPHABET)
     is_test = _is_test_address(decoded)
     classic_address = decoded[2:22]
     tag = _get_tag_from_buffer(decoded)
