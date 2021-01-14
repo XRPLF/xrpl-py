@@ -1,11 +1,13 @@
-from .data_driven_fixtures import DataDrivenFixtures, FieldTest
+from .data_driven_fixtures import FieldTest
 import json
 import os
 
 
-def get_data_driven_fixtures(filename="./data/data-driven-tests.json"):
+# TODO: functions to parse "whole_objects" and "values_tests" dicts into WholeObjectTest and ValueTest lists as needed
+
+def get_field_tests(filename="./data/data-driven-tests.json"):
     """
-    Constructs and returns a DataDrivenFixtures object after parsing JSON data describing test fixtures.
+    Constructs and returns a list of FieldTest objects after parsing JSON data describing field test fixtures.
     """
     dirname = os.path.dirname(__file__)
     absolute_path = os.path.join(dirname, filename)
@@ -14,10 +16,7 @@ def get_data_driven_fixtures(filename="./data/data-driven-tests.json"):
         # top level keys: ['types', 'fields_tests', 'whole_objects', 'values_tests']
 
     # parse "fields_tests" into list of FieldTest objects
-    field_tests = [construct_field_test(field_test_dict) for field_test_dict in fixtures_json["fields_tests"]]
-    # TODO: parse "whole_objects" and "values_tests" dicts into lists of WholeObjectTest and ValueTest objects as needed
-
-    return DataDrivenFixtures(field_tests)
+    return [construct_field_test(field_test_dict) for field_test_dict in fixtures_json["fields_tests"]]
 
 
 def construct_field_test(field_test_dict):
