@@ -1,6 +1,5 @@
 import unittest
 
-import xrpl.binary_codec as binary_codec
 import xrpl.binary_codec.definitions as definitions
 
 
@@ -16,13 +15,17 @@ class TestDefinitionService(unittest.TestCase):
     def test_inverse_transaction_type_map(self):
         transaction_type_code = 8
         expected_transaction_type = "OfferCancel"
-        transaction_type = definitions.TRANSACTION_TYPE_CODE_TO_STR_MAP[transaction_type_code]
+        transaction_type = definitions.TRANSACTION_TYPE_CODE_TO_STR_MAP[
+            transaction_type_code
+        ]
         self.assertEqual(expected_transaction_type, transaction_type)
 
     def test_inverse_transaction_result_map(self):
         transaction_result_code = 0
         expected_transaction_result = "tesSUCCESS"
-        transaction_result = definitions.TRANSACTION_RESULTS_CODE_TO_STR_MAP[transaction_result_code]
+        transaction_result = definitions.TRANSACTION_RESULTS_CODE_TO_STR_MAP[
+            transaction_result_code
+        ]
         self.assertEqual(expected_transaction_result, transaction_result)
 
     def test_get_field_type_name(self):
