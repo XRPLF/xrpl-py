@@ -26,12 +26,12 @@ class BinarySerializer:
         """
         if length <= 192:
             return length.to_bytes(1, byteorder="big", signed=False)
-        elif length <= 12480:
+        if length <= 12480:
             length -= 193
             byte1 = ((length >> 8) + 193).to_bytes(1, byteorder="big", signed=False)
             byte2 = (length & 0xFF).to_bytes(1, byteorder="big", signed=False)
             return byte1 + byte2
-        elif length <= 918744:
+        if length <= 918744:
             length -= 12481
             byte1 = (241 + (length >> 16)).to_bytes(1, byteorder="big", signed=False)
             byte2 = ((length >> 8) & 0xFF).to_bytes(1, byteorder="big", signed=False)
