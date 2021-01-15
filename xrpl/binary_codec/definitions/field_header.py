@@ -2,7 +2,9 @@
 
 
 class FieldHeader:
-    """A container class for storage of a field's type code and field code."""
+    """A container class for simultaneous storage of a field's type code and
+    field code.
+    """
 
     def __init__(self, type_code, field_code):
         """TODO: D107 Missing docstring in __init__."""
