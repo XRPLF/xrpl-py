@@ -4,7 +4,7 @@ from xrpl import addresscodec
 from .test_main_test_cases import test_cases
 
 
-class TestMain(unittest.Test_Case):
+class TestMain(unittest.TestCase):
     def test_encode_xaddress(self):
         # TODO: make these separate tests somehow
         for test_case in test_cases:
