@@ -88,11 +88,11 @@ def _decode_field_id(field_id):
         return definitions.FieldHeader(first_byte_high_bits, second_byte)
     if len(byte_array) == 3:
         return definitions.FieldHeader(byte_array[1], byte_array[2])
-    else:
-        raise XRPLBinaryCodecException(
-            "Field ID must be between 1 and 3 bytes. "
-            "This field ID contained {} bytes.".format(len(byte_array))
-        )
+
+    raise XRPLBinaryCodecException(
+        "Field ID must be between 1 and 3 bytes. "
+        "This field ID contained {} bytes.".format(len(byte_array))
+    )
 
 
 def uint8_to_bytes(i):
