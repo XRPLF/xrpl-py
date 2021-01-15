@@ -1,1 +1,1 @@
-from .binary_serializer import *  # noqa
+from .binary_serializer import *  # noqa F401
