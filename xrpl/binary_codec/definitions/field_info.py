@@ -1,7 +1,8 @@
+"""TODO: D100 Missing docstring in public module."""
+
+
 class FieldInfo:
-    """
-    Model object for field info metadata from the "fields" section of definitions.json.
-    """
+    """Model object for field info metadata from the "fields" in definitions.json."""
 
     def __init__(
         self, nth, is_variable_length_encoded, is_serialized, is_signing_field, type
