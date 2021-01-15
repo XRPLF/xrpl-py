@@ -112,8 +112,8 @@ def xaddress_to_classic_address(xaddress):
     Returns this breakdown of the data:
         classic_address: the base58 classic address
         tag: the destination tag
-        is_test: whether the address is on the test network
+        is_test_network: whether the address is on the test network (or main)
     """
-    classic_address_bytes, tag, test = decode_xaddress(xaddress)
+    classic_address_bytes, tag, is_test_network = decode_xaddress(xaddress)
     classic_address = encode_classic_address(classic_address_bytes)
-    return (classic_address, tag, test)
+    return (classic_address, tag, is_test_network)
