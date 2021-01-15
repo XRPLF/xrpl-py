@@ -9,6 +9,10 @@ ignore = E203,W503
 # https://black.readthedocs.io/en/stable/the_black_code_style.html#line-length
 max-line-length = 88
 
+per-file-ignores =
+  # For tests, we probably don't need these docstrings rules.
+  tests/*: D100 D101 D102 D104
+
 # Select other tools to enable.
 
 # BLK enables using black --check from within flake8
