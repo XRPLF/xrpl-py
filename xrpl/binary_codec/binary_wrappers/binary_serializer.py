@@ -4,13 +4,13 @@ class BinarySerializer:
     """
 
     def __init__(self):
-        self.sink = bytes()
+        self.bytesink = bytes()
 
     def put(self, hex_bytes):
-        self.sink.append(bytes.fromhex(hex_bytes))
+        self.bytesink.append(bytes.fromhex(hex_bytes))
 
     def write(self, byte_array):
-        self.sink.append(byte_array)
+        self.bytesink.append(byte_array)
 
     def encode_variable_length_prefix(self, length):
         """
@@ -30,13 +30,13 @@ class BinarySerializer:
             length -= 193
             byte1 = ((length >> 8) + 193).to_bytes(1, byteorder="big", signed=False)
             byte2 = (length & 0xFF).to_bytes(1, byteorder="big", signed=False)
-            return b"".join((byte1, byte2))
+            return byte1 + byte2
         elif length <= 918744:
             length -= 12481
             byte1 = (241 + (length >> 16)).to_bytes(1, byteorder="big", signed=False)
             byte2 = ((length >> 8) & 0xFF).to_bytes(1, byteorder="big", signed=False)
             byte3 = (length & 0xFF).to_bytes(1, byteorder="big", signed=False)
-            return b"".join((byte1, byte2, byte3))
+            return byte1 + byte2 + byte3
 
         raise ValueError("VariableLength field must be <= 918744 bytes long")
 
