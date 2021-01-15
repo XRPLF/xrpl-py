@@ -23,10 +23,12 @@ class TestMain(unittest.TestCase):
             )
             self.assertEqual(xaddress, expected_test_xaddress)
 
-            classic_address, tag, is_test = addresscodec.decode_xaddress(xaddress)
+            classic_address, tag, is_test_network = addresscodec.decode_xaddress(
+                xaddress
+            )
             self.assertEqual(classic_address, expected_classic_address_bytes)
             self.assertEqual(tag, expected_tag)
-            self.assertTrue(is_test)
+            self.assertTrue(is_test_network)
 
             # main
             xaddress = addresscodec.encode_xaddress(
@@ -34,10 +36,12 @@ class TestMain(unittest.TestCase):
             )
             self.assertEqual(xaddress, expected_main_xaddress)
 
-            classic_address, tag, is_test = addresscodec.decode_xaddress(xaddress)
+            classic_address, tag, is_test_network = addresscodec.decode_xaddress(
+                xaddress
+            )
             self.assertEqual(classic_address, expected_classic_address_bytes)
             self.assertEqual(tag, expected_tag)
-            self.assertFalse(is_test)
+            self.assertFalse(is_test_network)
 
     def test_classic_address_to_xaddress(self):
         for test_case in test_cases:
