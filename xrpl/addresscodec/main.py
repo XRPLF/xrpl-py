@@ -1,4 +1,5 @@
 import base58
+from .codec import decode_classic_address
 from .exceptions import XRPLAddressCodecException
 from .utils import XRPL_ALPHABET
 
@@ -14,11 +15,11 @@ PREFIX_BYTES_TEST = bytes([0x04, 0x93])  # 4, 147
 # [← 2 byte prefix →|← 160 bits of account ID →|← 8 bits of flags →|← 64 bits of tag →]
 
 
-def encode_xaddress(classic_address_bytes, tag, test):
+def encode_xaddress(classic_address_bytes, tag, is_test_network):
     """
     classic_address_bytes: bytes, representing the classic address
     tag: int, the destination tag
-    test: boolean, whether it is the test network or not (aka the main network)
+    is_test_network: boolean, whether it is the test network or the main network
 
     Returns the X-Address representation of the data
     """
@@ -32,7 +33,7 @@ def encode_xaddress(classic_address_bytes, tag, test):
     if tag is None:
         tag = 0
 
-    bytestring = PREFIX_BYTES_TEST if test else PREFIX_BYTES_MAIN
+    bytestring = PREFIX_BYTES_TEST if is_test_network else PREFIX_BYTES_MAIN
     bytestring += classic_address_bytes
     encoded_tag = bytes(
         [
@@ -102,3 +103,15 @@ def _get_tag_from_buffer(buffer):
     if bytes.fromhex("0000000000000000") != buffer[1:9]:
         raise XRPLAddressCodecException("Remaining bytes must be zero")
     return None
+
+
+def classic_address_to_xaddress(classic_address, tag, is_test_network):
+    """
+    classic_address: string, the base58 encoding of the classic address
+    tag: int, the destination tag
+    is_test_network: boolean, whether it is the test network or the main network
+
+    Returns the X-Address representation of the data
+    """
+    address_bytes = decode_classic_address(classic_address)
+    return encode_xaddress(address_bytes, tag, is_test_network)
