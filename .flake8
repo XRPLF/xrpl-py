@@ -2,7 +2,7 @@
 # As defined at https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
 docstring-convention=google
 
-# D205, D212, and D415 are harder to fix than other D errors,
+# D205, D212, and D415 have to do with more opinionated docstring formatting
 # so I'm going to fix them in the next PR.
 # TODO tedkalaw: Remove D205/D212
 # E203 and W503 don't interact well with black
