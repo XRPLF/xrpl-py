@@ -18,9 +18,9 @@ per-file-ignores =
 
 # Select other tools to enable.
 
-# BLK enables using black --check from within flake8
+# BLK enables using black --check from within flake8.
 
-# D enables docstrings warnings from pydocstyle
+# D enables docstrings warnings from pydocstyle.
 
 # F are errors reported by pyflakes, a tool which parses source files
 # and finds invalid Python code.
