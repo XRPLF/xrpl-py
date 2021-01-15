@@ -1,5 +1,6 @@
 import base58
 from .exceptions import XRPLAddressCodecException
+from .utils import XRPL_ALPHABET
 
 # base58 encodings: https://xrpl.org/base58-encodings.html
 CLASSIC_ADDRESS_PREFIX = [0x0]  # Account address (20 bytes)
@@ -12,8 +13,6 @@ SEED_LENGTH = 16
 CLASSIC_ADDRESS_LENGTH = 20
 NODE_PUBLIC_KEY_LENGTH = 33
 ACCOUNT_PUBLIC_KEY_LENGTH = 33
-
-XRPL_ALPHABET = b"rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz"
 
 ED25519 = "ed25519"
 SECP256K1 = "secp256k1"
