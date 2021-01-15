@@ -1,18 +1,19 @@
 import unittest
 
 from xrpl import addresscodec
-from .test_main_testcases import testcases
+from .test_main_test_cases import test_cases
 
 
-class TestMain(unittest.TestCase):
+class TestMain(unittest.Test_Case):
     def test_encode_xaddress(self):
-        for testcase in testcases:
+        # TODO: make these separate tests somehow
+        for test_case in test_cases:
             (
                 classic_address,
                 tag,
                 expected_main_xaddress,
                 expected_test_xaddress,
-            ) = testcase
+            ) = test_case
             decoded_classic_address = addresscodec.decode_classic_address(
                 classic_address
             )
@@ -26,13 +27,13 @@ class TestMain(unittest.TestCase):
             self.assertEqual(xaddress, expected_main_xaddress)
 
     def test_classic_address_to_xaddress(self):
-        for testcase in testcases:
+        for test_case in test_cases:
             (
                 classic_address,
                 tag,
                 expected_main_xaddress,
                 expected_test_xaddress,
-            ) = testcase
+            ) = test_case
 
             # test
             xaddress = addresscodec.classic_address_to_xaddress(

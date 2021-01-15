@@ -5,14 +5,16 @@ from .field_info import FieldInfo
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 
 
-def load_definitions(filename='definitions.json'):
+def load_definitions(filename="definitions.json"):
     """
     Loads JSON from the definitions file and converts it to a preferred format.
-    The definitions file contains information required for the XRP Ledger's canonical binary serialization format:
+    The definitions file contains information required for the XRP Ledger's
+    canonical binary serialization format:
     `Serialization <https://xrpl.org/serialization.html>`_
 
     :param filename: The name of the definitions file.
-    (The definitions file should be drop-in compatible with the one from the ripple-binary-codec JavaScript package.)
+    (The definitions file should be drop-in compatible with the one from the
+    ripple-binary-codec JavaScript package.)
     :return: A dictionary containing the mappings provided in the definitions file.
     """
     dirname = os.path.dirname(__file__)
@@ -22,7 +24,9 @@ def load_definitions(filename='definitions.json'):
         return {
             "TYPES": definitions["TYPES"],
             # type_name str: type_sort_key int
-            "FIELDS": {k: v for (k, v) in definitions["FIELDS"]},  # convert list of tuples to dict
+            "FIELDS": {
+                k: v for (k, v) in definitions["FIELDS"]
+            },  # convert list of tuples to dict
             # "field_name" str: {
             #   "nth": field_sort_key int,
             #   "isVLEncoded": bool,
@@ -37,8 +41,12 @@ def load_definitions(filename='definitions.json'):
 
 
 DEFINITIONS = load_definitions()
-TRANSACTION_TYPE_CODE_TO_STR_MAP = {value: key for (key, value) in DEFINITIONS["TRANSACTION_TYPES"].items()}
-TRANSACTION_RESULTS_CODE_TO_STR_MAP = {value: key for (key, value) in DEFINITIONS["TRANSACTION_RESULTS"].items()}
+TRANSACTION_TYPE_CODE_TO_STR_MAP = {
+    value: key for (key, value) in DEFINITIONS["TRANSACTION_TYPES"].items()
+}
+TRANSACTION_RESULTS_CODE_TO_STR_MAP = {
+    value: key for (key, value) in DEFINITIONS["TRANSACTION_RESULTS"].items()
+}
 
 TYPE_ORDINAL_MAP = DEFINITIONS["TYPES"]
 
@@ -49,16 +57,20 @@ FIELD_HEADER_NAME_MAP = {}
 try:
     for field in DEFINITIONS["FIELDS"]:
         field_entry = DEFINITIONS["FIELDS"][field]
-        field_info = FieldInfo(field_entry["nth"],
-                               field_entry["isVLEncoded"],
-                               field_entry["isSerialized"],
-                               field_entry["isSigningField"],
-                               field_entry["type"])
+        field_info = FieldInfo(
+            field_entry["nth"],
+            field_entry["isVLEncoded"],
+            field_entry["isSerialized"],
+            field_entry["isSigningField"],
+            field_entry["type"],
+        )
         header = FieldHeader(TYPE_ORDINAL_MAP[field_entry["type"]], field_entry["nth"])
         FIELD_INFO_MAP[field] = field_info
         FIELD_HEADER_NAME_MAP[header] = field
 except KeyError as e:
-    raise XRPLBinaryCodecException("Malformed definitions.json file. (Original exception: KeyError: {})".format(e))
+    raise XRPLBinaryCodecException(
+        "Malformed definitions.json file. (Original exception: KeyError: {})".format(e)
+    )
 
 
 def get_field_type_name(field_name):
@@ -89,7 +101,8 @@ def get_field_code(field_name):
 def get_field_sort_key(field_name):
     """
     Returns a tuple sort key for a given field name.
-    `Serialization Canonical Field Order <https://xrpl.org/serialization.html#canonical-field-order>`_
+    `Serialization Canonical Field Order
+    <https://xrpl.org/serialization.html#canonical-field-order>`_
     """
     return get_field_type_code(field_name), get_field_code(field_name)
 
