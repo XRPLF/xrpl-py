@@ -3,16 +3,17 @@ import abc
 
 class SerializedType:
     """ The base class for all binary codec types. """
+
     def __init__(self):
-        self.bytes = bytearray()
+        self.bytes = bytes()
 
     @abc.abstractmethod
     def from_parser(self, parser, length_hint=None):
-        raise NotImplemented("SerializedType.from_parser not implemented.")
+        raise NotImplementedError("SerializedType.from_parser not implemented.")
 
     @abc.abstractmethod
     def from_value(self, value):
-        raise NotImplemented("SerializedType.from_value not implemented.")
+        raise NotImplementedError("SerializedType.from_value not implemented.")
 
     def to_bytes_sink(self, bytesink):
         """
@@ -45,4 +46,3 @@ class SerializedType:
         Get the hex representation of a SerializedType's bytes.
         """
         return self.bytes.hex()
-
