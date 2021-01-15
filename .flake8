@@ -2,8 +2,11 @@
 # As defined at https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
 docstring-convention=google
 
+# D205 and D212 are harder to fix than other D errors,
+# so I'm going to fix them in the next PR.
+# TODO tedkalaw: Remove D205/D212
 # E203 and W503 don't interact well with black
-ignore = E203,W503
+ignore = D205,D212,E203,W503
 
 # This is the line length that black uses
 # https://black.readthedocs.io/en/stable/the_black_code_style.html#line-length
