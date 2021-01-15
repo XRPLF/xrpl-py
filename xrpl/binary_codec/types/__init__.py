@@ -1,1 +1,1 @@
-from .serialized_type import *
+from .serialized_type import *  # noqa
