@@ -1,3 +1,4 @@
+"""TODO: D100 Missing docstring in public module."""
 from setuptools import setup
 
 setup(
