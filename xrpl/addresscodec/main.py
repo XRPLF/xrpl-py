@@ -121,7 +121,7 @@ def xaddress_to_classic_address(xaddress):
     """
     xaddress: string, base58-encoded X-Address
 
-    Returns this breakdown of the data:
+    Returns a tuple containing:
         classic_address: the base58 classic address
         tag: the destination tag
         is_test_network: whether the address is on the test network (or main)
