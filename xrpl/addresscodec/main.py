@@ -1,5 +1,5 @@
 import base58
-from .codec import decode_classic_address
+from .codec import encode_classic_address, decode_classic_address
 from .exceptions import XRPLAddressCodecException
 from .utils import XRPL_ALPHABET
 
@@ -115,3 +115,17 @@ def classic_address_to_xaddress(classic_address, tag, is_test_network):
     """
     address_bytes = decode_classic_address(classic_address)
     return encode_xaddress(address_bytes, tag, is_test_network)
+
+
+def xaddress_to_classic_address(xaddress):
+    """
+    xaddress: string, base58-encoded X-Address
+
+    Returns a tuple containing:
+        classic_address: the base58 classic address
+        tag: the destination tag
+        is_test_network: whether the address is on the test network (or main)
+    """
+    classic_address_bytes, tag, is_test_network = decode_xaddress(xaddress)
+    classic_address = encode_classic_address(classic_address_bytes)
+    return (classic_address, tag, is_test_network)
