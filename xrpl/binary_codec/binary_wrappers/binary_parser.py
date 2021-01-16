@@ -87,42 +87,40 @@ class BinaryParser:
             "Length prefix must contain between 1 and 3 bytes."
         )
 
+    def read_field_ordinal(self):
+        """ Reads and returns a field ordinal from the BinaryParser. """
+        type_code = self.read_uint_8()
+        field_code = type & 15
+        type_code >>= 4
+
+        if type_code == 0:
+            type_code = self.read_uint_8()
+            if type_code == 0 or type_code < 16:
+                raise XRPLBinaryCodecException(
+                    "Cannot read FieldOrdinal, type_code out of range."
+                )
+
+        if field_code == 0:
+            field_code = self.read_uint_8()
+            if field_code == 0 or field_code < 16:
+                raise XRPLBinaryCodecException(
+                    "Cannot read FieldOrdinal, field_code out of range."
+                )
+
+        return (type_code << 16) | field_code
+
+    def read_field(self):
+        """
+        Read the field ordinal at the head of the BinaryParser and return a
+        FieldInstance object representing information about the field contained
+        in the following bytes.
+        """
+        # return Field.from_string(self.read_field_ordinal().to_string())
+        # TODO: you are here: Field, FieldLookup, FieldInstace infra
+        pass
+
     """
-  /**
-   * Reads the field ordinal from the BinaryParser
-   *
-   * @return Field ordinal
-   */
-  readFieldOrdinal(): number {
-    let type = this.readUInt8();
-    let nth = type & 15;
-    type >>= 4;
 
-    if (type === 0) {
-      type = this.readUInt8();
-      if (type === 0 || type < 16) {
-        throw new Error("Cannot read FieldOrdinal, type_code out of range");
-      }
-    }
-
-    if (nth === 0) {
-      nth = this.readUInt8();
-      if (nth === 0 || nth < 16) {
-        throw new Error("Cannot read FieldOrdinal, field_code out of range");
-      }
-    }
-
-    return (type << 16) | nth;
-  }
-
-  /**
-   * Read the field from the BinaryParser
-   *
-   * @return The field represented by the bytes at the head of the BinaryParser
-   */
-  readField(): FieldInstance {
-    return Field.fromString(this.readFieldOrdinal().toString());
-  }
 
   /**
    * Read a given type from the BinaryParser
