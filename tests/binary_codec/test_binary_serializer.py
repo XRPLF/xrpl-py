@@ -1,11 +1,11 @@
 import unittest
 
-from xrpl import binary_codec
+from xrpl.binary_codec.binary_wrappers import BinarySerializer
 
 
 class TestBinarySerializer(unittest.TestCase):
     def setUp(self):
-        self.binary_serializer = binary_codec.BinarySerializer()
+        self.binary_serializer = BinarySerializer()
 
     def test_encode_variable_length_prefix(self):
         # length ranges: 0 - 192, 193 - 12480, 12481 - 918744

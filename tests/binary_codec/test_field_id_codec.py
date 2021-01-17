@@ -1,6 +1,6 @@
 import unittest
 import xrpl.binary_codec.field_id_codec as field_id_codec
-from .fixtures import data_driven_fixtures
+from tests.binary_codec.fixtures import data_driven_fixtures
 
 
 class TestFieldIDCodec(unittest.TestCase):
