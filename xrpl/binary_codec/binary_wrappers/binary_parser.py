@@ -1,4 +1,8 @@
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
+from xrpl.binary_codec.definitions import definitions
+from xrpl.binary_codec.definitions.field_header import FieldHeader
+from xrpl.binary_codec.definitions.field_instance import FieldInstance
+from xrpl.binary_codec.types.serialized_type import SerializedType
 
 
 class BinaryParser:
@@ -88,8 +92,10 @@ class BinaryParser:
             "Length prefix must contain between 1 and 3 bytes."
         )
 
-    def read_field_ordinal(self):
-        """ Reads and returns a field ordinal from the BinaryParser. """
+    def read_field_header(self):
+        """
+        Reads field ordinal from BinaryParser and returns as a FieldHeader object.
+        """
         type_code = self.read_uint_8()
         field_code = type & 15
         type_code >>= 4
@@ -107,8 +113,9 @@ class BinaryParser:
                 raise XRPLBinaryCodecException(
                     "Cannot read FieldOrdinal, field_code out of range."
                 )
-
-        return (type_code << 16) | field_code
+        # TODO: make sure these are equivalent
+        # return (type_code << 16) | field_code
+        return FieldHeader(type_code, field_code)
 
     def read_field(self):
         """
@@ -116,66 +123,39 @@ class BinaryParser:
         FieldInstance object representing information about the field contained
         in the following bytes.
         """
-        # return Field.from_string(self.read_field_ordinal().to_string())
-        # TODO: you are here: Field, FieldLookup, FieldInstance infra
-        # Nathan's code sucks
-        pass
+        field_header = self.read_field_header()
+        field_name = definitions.get_field_name_from_header(field_header)
+        return definitions.get_field_instance(field_name)
 
-    """
+    def read_type(self, field_type: SerializedType):
+        """
+        Read next bytes from BinaryParser as the given type.
+        """
+        return type.from_parser(self)
 
+    def type_for_field(self, field_instance: FieldInstance):
+        """
+        Get the type associated with a given field.
+        """
+        return field_instance.type
 
-  /**
-   * Read a given type from the BinaryParser
-   *
-   * @param type The type that you want to read from the BinaryParser
-   * @return The instance of that type read from the BinaryParser
-   */
-  readType(type: typeof SerializedType): SerializedType {
-    return type.fromParser(this);
-  }
+    def read_field_value(self, field: FieldInstance):
+        """ Read value of the type specified by field from the BinaryParser. """
+        field_type = self.type_for_field(field)
+        # TODO: error handling for unsupported type?
+        size_hint = (
+            self.read_variable_length_length()
+            if field.is_variable_length_encoded
+            else None
+        )
+        value = field_type.from_parser(self, size_hint)
+        if value is None:
+            raise XRPLBinaryCodecException(
+                "from_parser for {}, {} returned None.".format(field.name, field.type)
+            )
+        return value
 
-  /**
-   * Get the type associated with a given field
-   *
-   * @param field The field that you wan to get the type of
-   * @return The type associated with the given field
-   */
-  typeForField(field: FieldInstance): typeof SerializedType {
-    return field.associatedType;
-  }
-
-  /**
-   * Read value of the type specified by field from the BinaryParser
-   *
-   * @param field The field that you want to get the associated value for
-   * @return The value associated with the given field
-   */
-  readFieldValue(field: FieldInstance): SerializedType {
-    const type = this.typeForField(field);
-    if (!type) {
-      throw new Error(`unsupported: (${field.name}, ${field.type.name})`);
-    }
-    const sizeHint = field.isVariableLengthEncoded
-      ? this.readVariableLengthLength()
-      : undefined;
-    const value = type.fromParser(this, sizeHint);
-    if (value === undefined) {
-      throw new Error(
-        `fromParser for (${field.name}, ${field.type.name}) -> undefined `
-      );
-    }
-    return value;
-  }
-
-  /**
-   * Get the next field and value from the BinaryParser
-   *
-   * @return The field and value
-   */
-  readFieldAndValue(): [FieldInstance, SerializedType] {
-    const field = this.readField();
-    return [field, this.readFieldValue(field)];
-  }
-}
-
-"""
+    def read_field_and_value(self):
+        """ Get the next field and value from the BinaryParser. """
+        field = self.read_field()
+        return field, self.read_field_and_value(field)

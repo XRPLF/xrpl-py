@@ -130,11 +130,7 @@ def get_field_instance(field_name):
     info = FIELD_INFO_MAP[field_name]
     field_header = get_field_header_from_name(field_name)
     return FieldInstance(
-        info.nth,
-        info.is_variable_length_encoded,
-        info.is_serialized,
-        info.is_signing_field,
-        info.type,
+        info,
         field_name,
         field_header,
     )
