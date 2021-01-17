@@ -5,6 +5,7 @@ from xrpl.binary_codec.definitions.field_instance import FieldInstance
 from xrpl.binary_codec.types.serialized_type import SerializedType
 
 
+# TODO: make private methods private
 class BinaryParser:
     """ Deserializes from hex-encoded XRPL binary format to JSON fields and values."""
 
@@ -28,26 +29,14 @@ class BinaryParser:
         self.skip(n)
         return first_n_bytes
 
-    def read_uint_n(self, n):
-        """
-        Reads an integer of given size in bytes.
+    def read_uint8(self):
+        return int.from_bytes(self.read(1), byteorder="big")
 
-        Parameters:
-            n: The number of bytes to read.
-        Returns:
-            The integer represented by those bytes.
-        """
-        assert 0 < n <= 4
-        return int.from_bytes(b"".join(self.read(n)), byteorder="big", signed=False)
+    def read_uint16(self):
+        return int.from_bytes(self.read(2), byteorder="big")
 
-    def read_uint_8(self):
-        return self.read_uint_n(1)
-
-    def read_uint_16(self):
-        return self.read_uint_n(2)
-
-    def read_uint_32(self):
-        return self.read_uint_n(4)
+    def read_uint32(self):
+        return int.from_bytes(self.read(4), byteorder="big")
 
     # TODO: should this be a __len__ override?
     def size(self):
@@ -70,7 +59,7 @@ class BinaryParser:
         `Length Prefixing <https://xrpl.org/serialization.html#length-prefixing>`_
         """
         # TODO: use constants instead of magic numbers here, a la Neil
-        byte1 = self.read_uint_8()
+        byte1 = self.read_uint8()
         # If the field contains 0 to 192 bytes of data, the first byte defines
         # the length of the contents
         if byte1 <= 192:
@@ -79,14 +68,14 @@ class BinaryParser:
         # indicate the length of the field with the following formula:
         #    193 + ((byte1 - 193) * 256) + byte2
         if byte1 <= 240:
-            byte2 = self.read_uint_8()
+            byte2 = self.read_uint8()
             return 193 + ((byte1 - 193) * 256) + byte2
         # If the field contains 12481 to 918744 bytes of data, the first three
         # bytes indicate the length of the field with the following formula:
         #    12481 + ((byte1 - 241) * 65536) + (byte2 * 256) + byte3
         if byte1 <= 254:
-            byte2 = self.read_uint_8()
-            byte3 = self.read_uint_8()
+            byte2 = self.read_uint8()
+            byte3 = self.read_uint8()
             return 12481 + ((byte1 - 241) * 65536) + (byte2 * 256) + byte3
         raise XRPLBinaryCodecException(
             "Length prefix must contain between 1 and 3 bytes."
@@ -96,19 +85,19 @@ class BinaryParser:
         """
         Reads field ordinal from BinaryParser and returns as a FieldHeader object.
         """
-        type_code = self.read_uint_8()
+        type_code = self.read_uint8()
         field_code = type & 15
         type_code >>= 4
 
         if type_code == 0:
-            type_code = self.read_uint_8()
+            type_code = self.read_uint8()
             if type_code == 0 or type_code < 16:
                 raise XRPLBinaryCodecException(
                     "Cannot read FieldOrdinal, type_code out of range."
                 )
 
         if field_code == 0:
-            field_code = self.read_uint_8()
+            field_code = self.read_uint8()
             if field_code == 0 or field_code < 16:
                 raise XRPLBinaryCodecException(
                     "Cannot read FieldOrdinal, field_code out of range."
@@ -131,7 +120,7 @@ class BinaryParser:
         """
         Read next bytes from BinaryParser as the given type.
         """
-        return type.from_parser(self)
+        return field_type.from_parser(self)
 
     def type_for_field(self, field_instance: FieldInstance):
         """
@@ -158,4 +147,4 @@ class BinaryParser:
     def read_field_and_value(self):
         """ Get the next field and value from the BinaryParser. """
         field = self.read_field()
-        return field, self.read_field_and_value(field)
+        return field, self.read_field_value(field)
