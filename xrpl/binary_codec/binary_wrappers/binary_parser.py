@@ -24,7 +24,7 @@ class BinaryParser:
     def read(self, n):
         """ Consume and return the first n bytes of the BinaryParser. """
         assert n <= len(self.bytes)
-        first_n_bytes = self.bytes[n:]
+        first_n_bytes = self.bytes[:n]
         self.skip(n)
         return first_n_bytes
 
