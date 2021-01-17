@@ -2,6 +2,8 @@ import json
 import os
 from .field_header import FieldHeader
 from .field_info import FieldInfo
+from .field_instance import FieldInstance
+
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 
 
@@ -119,3 +121,20 @@ def get_field_name_from_header(field_header):
     Returns the field name described by the given FieldHeader object.
     """
     return FIELD_HEADER_NAME_MAP[field_header]
+
+
+def get_field_instance(field_name):
+    """
+    Return a FieldInstance object for the given field name.
+    """
+    info = FIELD_INFO_MAP[field_name]
+    field_header = get_field_header_from_name(field_name)
+    return FieldInstance(
+        info.nth,
+        info.is_variable_length_encoded,
+        info.is_serialized,
+        info.is_signing_field,
+        info.type,
+        field_name,
+        field_header,
+    )

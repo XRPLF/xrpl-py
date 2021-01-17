@@ -65,6 +65,7 @@ class BinaryParser:
         The formula for decoding a length prefix is described in:
         `Length Prefixing <https://xrpl.org/serialization.html#length-prefixing>`_
         """
+        # TODO: use constants instead of magic numbers here, a la Neil
         byte1 = self.read_uint_8()
         # If the field contains 0 to 192 bytes of data, the first byte defines
         # the length of the contents
@@ -116,7 +117,8 @@ class BinaryParser:
         in the following bytes.
         """
         # return Field.from_string(self.read_field_ordinal().to_string())
-        # TODO: you are here: Field, FieldLookup, FieldInstace infra
+        # TODO: you are here: Field, FieldLookup, FieldInstance infra
+        # Nathan's code sucks
         pass
 
     """
