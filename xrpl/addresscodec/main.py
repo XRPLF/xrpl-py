@@ -133,6 +133,7 @@ def xaddress_to_classic_address(xaddress):
 
 
 def is_valid_classic_address(classic_address):
+    """TODO: D103 Missing docstring in public function."""
     try:
         decode_classic_address(classic_address)
         return True
