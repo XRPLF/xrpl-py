@@ -2,6 +2,7 @@
 
 import base58
 
+from xrpl import CryptoAlgorithm
 from .exceptions import XRPLAddressCodecException
 from .utils import XRPL_ALPHABET
 
@@ -17,13 +18,14 @@ CLASSIC_ADDRESS_LENGTH = 20
 NODE_PUBLIC_KEY_LENGTH = 33
 ACCOUNT_PUBLIC_KEY_LENGTH = 33
 
-ED25519 = "ed25519"
-SECP256K1 = "secp256k1"
-ALGORITHM_TO_PREFIX_MAP = {
-    ED25519: ED25519_SEED_PREFIX,
-    SECP256K1: FAMILY_SEED_PREFIX,
+XRPL_ALPHABET = b"rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz"
+
+_ALGORITHM_TO_PREFIX_MAP = {
+    CryptoAlgorithm.ED25519: ED25519_SEED_PREFIX,
+    CryptoAlgorithm.SECP256K1: FAMILY_SEED_PREFIX,
 }
-ALGORITHMS = list(ALGORITHM_TO_PREFIX_MAP)
+# TODO - maybe this needs to be a test? not sure how to do what i want
+assert len(_ALGORITHM_TO_PREFIX_MAP) == len(CryptoAlgorithm)
 
 
 def _encode(bytestring, prefix, expected_length):
@@ -72,12 +74,12 @@ def encode_seed(entropy, encoding_type):
         raise XRPLAddressCodecException(
             "Entropy must have length {}".format(SEED_LENGTH)
         )
-    if encoding_type not in ALGORITHMS:
+    if encoding_type not in CryptoAlgorithm:
         raise XRPLAddressCodecException(
-            "Encoding type must be one of {}".format(ALGORITHMS)
+            "Encoding type must be one of {}".format(CryptoAlgorithm)
         )
 
-    prefix = ALGORITHM_TO_PREFIX_MAP[encoding_type]
+    prefix = _ALGORITHM_TO_PREFIX_MAP[encoding_type]
     return _encode(entropy, prefix, SEED_LENGTH)
 
 
@@ -87,8 +89,8 @@ def decode_seed(seed):
 
     Returns (decoded seed, its algorithm)
     """
-    for algorithm in ALGORITHMS:
-        prefix = ALGORITHM_TO_PREFIX_MAP[algorithm]
+    for algorithm in CryptoAlgorithm:
+        prefix = _ALGORITHM_TO_PREFIX_MAP[algorithm]
         try:
             decoded_result = _decode(seed, bytes(prefix))
             return decoded_result, algorithm
