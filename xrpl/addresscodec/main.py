@@ -135,5 +135,5 @@ def is_valid_classic_address(classic_address):
     try:
         decode_classic_address(classic_address)
         return True
-    except XRPLAddressCodecException:
+    except (XRPLAddressCodecException, ValueError):
         return False

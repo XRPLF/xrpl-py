@@ -127,3 +127,27 @@ class TestMain(unittest.TestCase):
             None,
             False,
         )
+
+    def test_is_valid_classic_address_secp256k1(self):
+        classic_address = "rU6K7V3Po4snVhBBaU29sesqs2qTQJWDw1"
+
+        result = addresscodec.is_valid_classic_address(classic_address)
+        self.assertTrue(result)
+
+    def test_is_valid_classic_address_ed25519(self):
+        classic_address = "rLUEXYuLiQptky37CqLcm9USQpPiz5rkpD"
+
+        result = addresscodec.is_valid_classic_address(classic_address)
+        self.assertTrue(result)
+
+    def test_is_valid_classic_address_invalid(self):
+        classic_address = "rU6K7V3Po4snVhBBaU29sesqs2qTQJWDw2"
+
+        result = addresscodec.is_valid_classic_address(classic_address)
+        self.assertFalse(result)
+
+    def test_is_valid_classic_address_empty(self):
+        classic_address = ""
+
+        result = addresscodec.is_valid_classic_address(classic_address)
+        self.assertFalse(result)
