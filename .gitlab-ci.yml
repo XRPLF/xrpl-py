@@ -7,7 +7,7 @@ stages:
   before_script:
     - echo "before testing"
     - apk add build-base
-    - pip install poetry
+    - pip3 install poetry
     - poetry install
     - python3 setup.py develop
 
