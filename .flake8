@@ -1,18 +1,30 @@
 [flake8]
+# As defined at https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
+docstring-convention=google
+
+# D205, D212, and D415 have to do with more opinionated docstring formatting
+# so I'm going to fix them in the next PR.
+# TODO tedkalaw: Remove D205/D212
+# E203 and W503 don't interact well with black
+ignore = D205,D212,D415,E203,W503
+
+# This is the line length that black uses
+# https://black.readthedocs.io/en/stable/the_black_code_style.html#line-length
+max-line-length = 88
+
+per-file-ignores =
+  # For tests, we probably don't need these docstrings rules.
+  tests/*: D100 D101 D102 D104 D107
+
 # Select other tools to enable.
 
-# BLK enables using black --check from within flake8
+# BLK enables using black --check from within flake8.
+
+# D enables docstrings warnings from pydocstyle.
 
 # F are errors reported by pyflakes, a tool which parses source files
 # and finds invalid Python code.
 
 # W and E are warnings and errors reported by pycodestyle, which checks
 # your Python code against some of the style conventions in PEP 8.
-select = BLK,E,F,W
-
-# This is the line length that black uses
-# https://black.readthedocs.io/en/stable/the_black_code_style.html#line-length
-max-line-length = 88
-
-# E203 and W503 don't interact well with black
-ignore = E203,W503
+select = BLK,D,E,F,W

@@ -18,9 +18,7 @@ def encode(field_name):
 
 
 def decode(field_id):
-    """
-    Returns the field name represented by the given field ID.
-    """
+    """Returns the field name represented by the given field ID."""
     field_header = _decode_field_id(field_id)
     return definitions.get_field_name_from_header(field_header)
 
@@ -96,4 +94,5 @@ def _decode_field_id(field_id):
 
 
 def uint8_to_bytes(i):
+    """D103 Missing docstring in public function."""
     return i.to_bytes(1, byteorder="big", signed=False)
