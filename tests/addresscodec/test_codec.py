@@ -17,7 +17,7 @@ class TestCodec(unittest.TestCase):
         self.assertEqual(encode_result, base58_string)
 
         decode_result = addresscodec.decode(
-            base58_string, len(addresscodec.CLASSIC_ADDRESS_PREFIX)
+            base58_string, bytes(addresscodec.CLASSIC_ADDRESS_PREFIX)
         )
         self.assertEqual(decode_result, encoded_hex)
 
@@ -33,7 +33,7 @@ class TestCodec(unittest.TestCase):
         self.assertEqual(encode_result2, base58_string2)
 
         decode_result2 = addresscodec.decode(
-            base58_string2, len(addresscodec.CLASSIC_ADDRESS_PREFIX)
+            base58_string2, bytes(addresscodec.CLASSIC_ADDRESS_PREFIX)
         )
         self.assertEqual(decode_result2, encoded_hex2)
 
@@ -48,7 +48,7 @@ class TestCodec(unittest.TestCase):
         self.assertEqual(encode_result, ed_seed)
 
         decode_result = addresscodec.decode(
-            ed_seed, len(addresscodec.ED25519_SEED_PREFIX)
+            ed_seed, bytes(addresscodec.ED25519_SEED_PREFIX)
         )
         self.assertEqual(decode_result, decoded_seed_bytes)
 
@@ -64,8 +64,9 @@ class TestCodec(unittest.TestCase):
         )
         self.assertEqual(encode_result, encoded_string)
 
-        decode_result = addresscodec.decode_seed(encoded_string, addresscodec.SECP256K1)
+        decode_result, encoding_type = addresscodec.decode_seed(encoded_string)
         self.assertEqual(decode_result, hex_string_bytes)
+        self.assertEqual(encoding_type, addresscodec.SECP256K1)
 
     def test_seed_encode_decode_secp256k1_low(self):
         hex_string = "00000000000000000000000000000000"
@@ -77,8 +78,9 @@ class TestCodec(unittest.TestCase):
         )
         self.assertEqual(encode_result, encoded_string)
 
-        decode_result = addresscodec.decode_seed(encoded_string, addresscodec.SECP256K1)
+        decode_result, encoding_type = addresscodec.decode_seed(encoded_string)
         self.assertEqual(decode_result, hex_string_bytes)
+        self.assertEqual(encoding_type, addresscodec.SECP256K1)
 
     def test_seed_encode_decode_secp256k1_high(self):
         hex_string = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
@@ -90,8 +92,9 @@ class TestCodec(unittest.TestCase):
         )
         self.assertEqual(encode_result, encoded_string)
 
-        decode_result = addresscodec.decode_seed(encoded_string, addresscodec.SECP256K1)
+        decode_result, encoding_type = addresscodec.decode_seed(encoded_string)
         self.assertEqual(decode_result, hex_string_bytes)
+        self.assertEqual(encoding_type, addresscodec.SECP256K1)
 
     def test_seed_encode_decode_ed25519(self):
         hex_string = "4C3A1D213FBDFB14C7C28D609469B341"
@@ -101,8 +104,9 @@ class TestCodec(unittest.TestCase):
         encode_result = addresscodec.encode_seed(hex_string_bytes, addresscodec.ED25519)
         self.assertEqual(encode_result, encoded_string)
 
-        decode_result = addresscodec.decode_seed(encoded_string, addresscodec.ED25519)
+        decode_result, encoding_type = addresscodec.decode_seed(encoded_string)
         self.assertEqual(decode_result, hex_string_bytes)
+        self.assertEqual(encoding_type, addresscodec.ED25519)
 
     def test_seed_encode_decode_ed25519_low(self):
         hex_string = "00000000000000000000000000000000"
@@ -112,8 +116,9 @@ class TestCodec(unittest.TestCase):
         encode_result = addresscodec.encode_seed(hex_string_bytes, addresscodec.ED25519)
         self.assertEqual(encode_result, encoded_string)
 
-        decode_result = addresscodec.decode_seed(encoded_string, addresscodec.ED25519)
+        decode_result, encoding_type = addresscodec.decode_seed(encoded_string)
         self.assertEqual(decode_result, hex_string_bytes)
+        self.assertEqual(encoding_type, addresscodec.ED25519)
 
     def test_seed_encode_decode_ed25519_high(self):
         hex_string = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
@@ -123,8 +128,9 @@ class TestCodec(unittest.TestCase):
         encode_result = addresscodec.encode_seed(hex_string_bytes, addresscodec.ED25519)
         self.assertEqual(encode_result, encoded_string)
 
-        decode_result = addresscodec.decode_seed(encoded_string, addresscodec.ED25519)
+        decode_result, encoding_type = addresscodec.decode_seed(encoded_string)
         self.assertEqual(decode_result, hex_string_bytes)
+        self.assertEqual(encoding_type, addresscodec.ED25519)
 
     def test_seed_encode_decode_too_small(self):
         hex_string = "CF2DE378FBDD7E2EE87D486DFB5A7B"
