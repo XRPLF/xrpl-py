@@ -3,15 +3,14 @@
 ## Contributing
 ### Setting up the dev environment
 
+Install pre-commit globally to get access to the pre-commit hooks:
 ```bash
-# Create a new virtual environment.
-python -m venv venv
+pip install pre-commit
+```
 
-# Activate the virtual environment.
-venv/bin/activate.
-
-# Install dev dependencies into virtual environment.
-python -m pip install -r requirements-dev.txt
+Install poetry per the instructions at https://python-poetry.org/docs/
+```bash
+poetry install
 ```
 
 ### Linting
@@ -20,7 +19,7 @@ After setting up the dev environment using the commands above, you can run the l
 by executing
 
 ```bash
-flake8 ./xrpl
+poetry run flake8 ./xrpl
 ```
 
 ### Installing Dependencies
