@@ -30,7 +30,9 @@ def generate_seed(entropy=None, algorithm=CryptoAlgorithm.ED25519):
 
 def derive(seed):
     """
-    TODO: annotate and determine how keys can be made optional
+    Given seed, which can be generated via `generate_seed`, returns
+    public and private keypair.
+    seed: :string
     returns: (public_key: string, private_key: string)
     """
     decoded_entropy, algorithm = addresscodec.decode_seed(seed)
