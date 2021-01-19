@@ -10,7 +10,7 @@ _ALGORITHM_TO_MODULE_MAP = {
 # Ensure all CryptoAlgorithms have a module
 assert len(_ALGORITHM_TO_MODULE_MAP) == len(CryptoAlgorithm)
 
-_VERIFICATION_MESSAGE = helpers.hash(b"This test message should verify.")
+_VERIFICATION_MESSAGE = helpers._sha512_first_half(b"This test message should verify.")
 
 
 def generate_seed(entropy=None, algorithm=CryptoAlgorithm.ED25519):

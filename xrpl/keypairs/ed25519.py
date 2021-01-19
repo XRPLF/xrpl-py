@@ -19,7 +19,7 @@ def derive(entropy):
     entropy: :bytes raw entropy
     :returns (private key :string, public key :string)
     """
-    raw_private = helpers.hash(entropy)
+    raw_private = helpers._sha512_first_half(entropy)
     wrapped_private = ECPrivateKey(int(raw_private.hex(), 16), _CURVE)
     wrapped_public = EDDSA.get_public_key(wrapped_private, sha512).W
     raw_public = _CURVE.encode_point(wrapped_public)
@@ -31,7 +31,7 @@ def derive(entropy):
 
 def sign(message, private_key):
     """
-    sign message in ED25519 given private-key
+    Sign message in ED25519 given private-key
     returns: :bytes
     """
     raw_private = private_key[len(_PREFIX) :]
@@ -41,7 +41,7 @@ def sign(message, private_key):
 
 def is_valid(message, signature, public_key):
     """
-    verify that message matches signature given public_key
+    Verify that message matches signature given public_key
     :returns: boolean
     """
     raw_public = public_key[len(_PREFIX) :]

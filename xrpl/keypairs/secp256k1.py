@@ -1,6 +1,4 @@
-"""
-Methods for deriving keypairs given an SECP256k1-encoded seed.
-"""
+"""Methods for deriving keypairs given an SECP256k1-encoded seed."""
 from ecpy.curves import Curve
 
 _PREFIX = "00"
@@ -16,14 +14,10 @@ def derive(entropy):
 
 
 def sign(message, private_key):
-    """
-    sign message in SECP256k1 given private-key
-    """
+    """Sign message in SECP256k1 given private-key"""
     pass
 
 
 def verify(message, signature, public_key):
-    """
-    verify that message matches signature given public_key
-    """
+    """Verify that message matches signature given public_key"""
     pass

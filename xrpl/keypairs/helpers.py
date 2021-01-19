@@ -1,10 +1,8 @@
-"""
-Miscellaneous functions that are private to xrpl.keypairs.
-"""
+"""Miscellaneous functions that are private to xrpl.keypairs."""
 from hashlib import sha512
 
 
-def hash(message):
+def _sha512_first_half(message):
     """
     First 32 chars of SHA-512 hash of input
 
