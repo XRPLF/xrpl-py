@@ -1,6 +1,6 @@
 # xrpl-py
 
-## Contributing 
+## Contributing
 ### Setting up the dev environment
 
 ```bash
