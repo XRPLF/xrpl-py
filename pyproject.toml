@@ -3,6 +3,7 @@ name = "xrpl"
 version = "0.1.0"
 description = "Foundational XRPL ledger tools"
 readme = "README.md"
+repository = "https://github.com/xpring-eng/xrpl-py"
 
 [tool.poetry.dependencies]
 python = "^3.9"
