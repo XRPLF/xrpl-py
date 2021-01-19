@@ -1,4 +1,4 @@
-"""Base functions for keypairs module."""
+"""Public interface for keypairs module"""
 
 import hashlib
 import random
@@ -19,11 +19,11 @@ def _hash(message):
 
 def generate_seed(entropy=None, algorithm=addresscodec.ED25519):
     """
-    entropy: must be at least addresscodec.SEED_LENGTH bytes long and
+    entropy: string, must be at least addresscodec.SEED_LENGTH bytes long and
     will be truncated to that length
     algorithm: any of addresscodec.ALGORITHMS
 
-    returns: a seed suitable for use with derive_keypair
+    returns: string, a seed suitable for use with derive_keypair
     """
     if entropy is None:
         entropy = random.randbytes(addresscodec.SEED_LENGTH)
