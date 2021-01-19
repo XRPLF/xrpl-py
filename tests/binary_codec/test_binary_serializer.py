@@ -1,17 +1,17 @@
 import unittest
-
-from xrpl.binary_codec.binary_wrappers import BinarySerializer
+from xrpl.binary_codec.binary_wrappers.binary_serializer import BinarySerializer
 
 
 class TestBinarySerializer(unittest.TestCase):
-    def setUp(self):
-        self.binary_serializer = BinarySerializer()
-
-    def test_encode_variable_length_prefix(self):
+    # TODO: update this test when write_length_encoded is fully complete.
+    # This is currently a sanity check for private _encode_variable_length_prefix,
+    # which is called by BinarySerializer.write_length_encoded
+    def test_write_length_encoded(self):
         # length ranges: 0 - 192, 193 - 12480, 12481 - 918744
         for case in [100, 1000, 20_000]:
-            prefix = self.binary_serializer.encode_variable_length_prefix(case)
-            decoded_length = calculate_length_from_prefix(prefix)
+            binary_serializer = BinarySerializer()
+            binary_serializer.write_length_encoded(case)
+            decoded_length = calculate_length_from_prefix(binary_serializer.bytesink)
             self.assertEqual(case, decoded_length)
 
 
