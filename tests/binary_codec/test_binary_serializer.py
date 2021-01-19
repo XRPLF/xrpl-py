@@ -15,6 +15,8 @@ class TestBinarySerializer(unittest.TestCase):
             self.assertEqual(case, decoded_length)
 
 
+# TODO: (amiecorso) can replace this with BinaryParser's
+# read_variable_length_length once implemented.
 def calculate_length_from_prefix(length_prefix_bytes):
     """
     A test utility to calculate the length specified by the given length_prefix,

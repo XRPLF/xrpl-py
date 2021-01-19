@@ -1,3 +1,14 @@
+# Constants used in length prefix encoding:
+# max length that can be represented in a single byte per XRPL serialization encoding
+MAX_SINGLE_BYTE_LENGTH = 192
+# max length that can be represented in 2 bytes per XRPL serialization encoding
+MAX_DOUBLE_BYTE_LENGTH = 12481
+# max value that can be used in the second byte of a length field
+MAX_SECOND_BYTE_VALUE = 240
+# maximum length that can be encoded in a length prefix per XRPL serialization encoding
+MAX_LENGTH_VALUE = 918744
+
+
 class BinarySerializer:
     """
     Serializes JSON to XRPL binary format.
@@ -24,21 +35,27 @@ class BinarySerializer:
 
         `See Length Prefixing <https://xrpl.org/serialization.html#length-prefixing>`_
         """
-        if length <= 192:
+        if length <= MAX_SINGLE_BYTE_LENGTH:
             return length.to_bytes(1, byteorder="big", signed=False)
-        if length <= 12480:
-            length -= 193
-            byte1 = ((length >> 8) + 193).to_bytes(1, byteorder="big", signed=False)
+        if length < MAX_DOUBLE_BYTE_LENGTH:
+            length -= MAX_SINGLE_BYTE_LENGTH + 1
+            byte1 = ((length >> 8) + (MAX_SINGLE_BYTE_LENGTH + 1)).to_bytes(
+                1, byteorder="big", signed=False
+            )
             byte2 = (length & 0xFF).to_bytes(1, byteorder="big", signed=False)
             return byte1 + byte2
-        if length <= 918744:
-            length -= 12481
-            byte1 = (241 + (length >> 16)).to_bytes(1, byteorder="big", signed=False)
+        if length <= MAX_LENGTH_VALUE:
+            length -= MAX_DOUBLE_BYTE_LENGTH + 1
+            byte1 = ((MAX_SECOND_BYTE_VALUE + 1) + (length >> 16)).to_bytes(
+                1, byteorder="big", signed=False
+            )
             byte2 = ((length >> 8) & 0xFF).to_bytes(1, byteorder="big", signed=False)
             byte3 = (length & 0xFF).to_bytes(1, byteorder="big", signed=False)
             return byte1 + byte2 + byte3
 
-        raise ValueError("VariableLength field must be <= 918744 bytes long")
+        raise ValueError(
+            "VariableLength field must be <= {} bytes long".format(MAX_LENGTH_VALUE)
+        )
 
     # TODO: this method depends on the SerializedType class.
     def write_length_encoded(self, value):

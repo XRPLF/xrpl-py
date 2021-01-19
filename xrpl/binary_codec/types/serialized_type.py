@@ -15,7 +15,7 @@ class SerializedType:
     def from_value(self, value):
         raise NotImplementedError("SerializedType.from_value not implemented.")
 
-    def to_bytes_sink(self, bytesink):
+    def to_byte_sink(self, bytesink):
         """
         Write the bytes representation of a SerializedType to a bytearray.
         :param bytesink: The bytearray to write self.bytes to.
