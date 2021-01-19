@@ -4,6 +4,18 @@ from xrpl.binary_codec.definitions.field_header import FieldHeader
 from xrpl.binary_codec.definitions.field_instance import FieldInstance
 from xrpl.binary_codec.types.serialized_type import SerializedType
 
+# Constants used in length prefix decoding:
+# max length that can be represented in a single byte per XRPL serialization encoding
+MAX_SINGLE_BYTE_LENGTH = 192
+# max length that can be represented in 2 bytes per XRPL serialization restrictions
+MAX_DOUBLE_BYTE_LENGTH = 12481
+# max value that can be used in the second byte of a length field
+MAX_SECOND_BYTE_VALUE = 240
+# max value that can be represented using one 8-bit byte (2^8)
+MAX_BYTE_VALUE = 256
+# max value that can be represented in using two 8-bit bytes (2^16)
+MAX_DOUBLE_BYTE_VALUE = 65536
+
 
 # TODO: make private methods private
 class BinaryParser:
@@ -58,25 +70,33 @@ class BinaryParser:
         The formula for decoding a length prefix is described in:
         `Length Prefixing <https://xrpl.org/serialization.html#length-prefixing>`_
         """
-        # TODO: use constants instead of magic numbers here, a la Neil
         byte1 = self.read_uint8()
         # If the field contains 0 to 192 bytes of data, the first byte defines
         # the length of the contents
-        if byte1 <= 192:
+        if byte1 <= MAX_SINGLE_BYTE_LENGTH:
             return byte1
         # If the field contains 193 to 12480 bytes of data, the first two bytes
         # indicate the length of the field with the following formula:
         #    193 + ((byte1 - 193) * 256) + byte2
-        if byte1 <= 240:
+        if byte1 <= MAX_SECOND_BYTE_VALUE:
             byte2 = self.read_uint8()
-            return 193 + ((byte1 - 193) * 256) + byte2
+            return (
+                (MAX_SINGLE_BYTE_LENGTH + 1)
+                + ((byte1 - (MAX_SINGLE_BYTE_LENGTH + 1)) * MAX_BYTE_VALUE)
+                + byte2
+            )
         # If the field contains 12481 to 918744 bytes of data, the first three
         # bytes indicate the length of the field with the following formula:
         #    12481 + ((byte1 - 241) * 65536) + (byte2 * 256) + byte3
         if byte1 <= 254:
             byte2 = self.read_uint8()
             byte3 = self.read_uint8()
-            return 12481 + ((byte1 - 241) * 65536) + (byte2 * 256) + byte3
+            return (
+                MAX_DOUBLE_BYTE_LENGTH
+                + ((byte1 - (MAX_SECOND_BYTE_VALUE + 1)) * MAX_DOUBLE_BYTE_VALUE)
+                + (byte2 * MAX_BYTE_VALUE)
+                + byte3
+            )
         raise XRPLBinaryCodecException(
             "Length prefix must contain between 1 and 3 bytes."
         )
@@ -102,8 +122,6 @@ class BinaryParser:
                 raise XRPLBinaryCodecException(
                     "Cannot read FieldOrdinal, field_code out of range."
                 )
-        # TODO: make sure these are equivalent
-        # return (type_code << 16) | field_code
         return FieldHeader(type_code, field_code)
 
     def read_field(self):
