@@ -1,3 +1,4 @@
+"""TODO: D100 Missing docstring in public module."""
 # Constants used in length prefix encoding:
 # max length that can be represented in a single byte per XRPL serialization encoding
 MAX_SINGLE_BYTE_LENGTH = 192
@@ -45,29 +46,25 @@ def _encode_variable_length_prefix(length):
 
 
 class BinarySerializer:
-    """
-    Serializes JSON to XRPL binary format.
-    """
+    """Serializes JSON to XRPL binary format."""
 
     def __init__(self):
+        """TODO: D107 Missing docstring in __init__."""
         self.bytesink = bytes()
 
     def put(self, bytes_object):
+        """TODO: D102 Missing docstring in public method."""
         self.bytesink += bytes_object
 
     # TODO: this method depends on the SerializedType class.
     # Complete when SerializedType is implemented
     def write_length_encoded(self, value):
-        """
-        Write a variable length encoded value to the BinarySerializer.
-        """
+        """Write a variable length encoded value to the BinarySerializer."""
         length_prefix = _encode_variable_length_prefix(value)
         self.bytesink += length_prefix
 
     # TODO: this method depends on the SerializedType and FieldInstance classes.
     # Complete when both classes are implemented
     def write_field_and_value(self, field, value):
-        """
-        Write field and value to the buffer.
-        """
+        """Write field and value to the buffer."""
         return None

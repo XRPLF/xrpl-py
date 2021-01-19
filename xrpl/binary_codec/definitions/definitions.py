@@ -1,3 +1,5 @@
+"""TODO: D100 Missing docstring in public module."""
+
 import json
 import os
 from .field_header import FieldHeader
@@ -110,16 +112,12 @@ def get_field_sort_key(field_name):
 
 
 def get_field_header_from_name(field_name):
-    """
-    Returns a FieldHeader object for a field of the given field name.
-    """
+    """Returns a FieldHeader object for a field of the given field name."""
     return FieldHeader(get_field_type_code(field_name), get_field_code(field_name))
 
 
 def get_field_name_from_header(field_header):
-    """
-    Returns the field name described by the given FieldHeader object.
-    """
+    """Returns the field name described by the given FieldHeader object."""
     return FIELD_HEADER_NAME_MAP[field_header]
 
 
