@@ -14,7 +14,7 @@ max-line-length = 88
 
 per-file-ignores =
   # For tests, we probably don't need these docstrings rules.
-  tests/*: D100 D101 D102 D104
+  tests/*: D100 D101 D102 D104 D107
 
 # Select other tools to enable.
 
