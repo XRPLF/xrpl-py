@@ -3,8 +3,8 @@
 import base58
 
 from xrpl import CryptoAlgorithm
-from .exceptions import XRPLAddressCodecException
-from .utils import XRPL_ALPHABET
+from xrpl.addresscodec.exceptions import XRPLAddressCodecException
+from xrpl.addresscodec.utils import XRPL_ALPHABET
 
 # base58 encodings: https://xrpl.org/base58-encodings.html
 CLASSIC_ADDRESS_PREFIX = [0x0]  # Account address (20 bytes)
@@ -18,13 +18,11 @@ CLASSIC_ADDRESS_LENGTH = 20
 NODE_PUBLIC_KEY_LENGTH = 33
 ACCOUNT_PUBLIC_KEY_LENGTH = 33
 
-XRPL_ALPHABET = b"rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz"
-
 _ALGORITHM_TO_PREFIX_MAP = {
     CryptoAlgorithm.ED25519: ED25519_SEED_PREFIX,
     CryptoAlgorithm.SECP256K1: FAMILY_SEED_PREFIX,
 }
-# TODO - maybe this needs to be a test? not sure how to do what i want
+# Ensure that each algorithm has a prefix
 assert len(_ALGORITHM_TO_PREFIX_MAP) == len(CryptoAlgorithm)
 
 
