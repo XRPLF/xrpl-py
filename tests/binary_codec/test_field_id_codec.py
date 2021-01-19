@@ -4,9 +4,7 @@ from .fixtures import data_driven_fixtures
 
 
 class TestFieldIDCodec(unittest.TestCase):
-    """
-    `See FieldIDs <https://xrpl.org/serialization.html#field-ids>`_
-    """
+    """`See FieldIDs <https://xrpl.org/serialization.html#field-ids>`_."""
 
     def setUp(self):
         self.field_tests = data_driven_fixtures.get_field_tests()
