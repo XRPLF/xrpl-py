@@ -7,7 +7,7 @@ stages:
   before_script:
     - echo "before testing"
     - apk add build-base
-    - pip install poetry
+    - pip install --user poetry
     - poetry config virtualenvs.create false
     - poetry install
     - python3 setup.py develop
