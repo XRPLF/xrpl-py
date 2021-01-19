@@ -17,7 +17,6 @@ MAX_BYTE_VALUE = 256
 MAX_DOUBLE_BYTE_VALUE = 65536
 
 
-# TODO: make private methods private
 class BinaryParser:
     """ Deserializes from hex-encoded XRPL binary format to JSON fields and values."""
 
