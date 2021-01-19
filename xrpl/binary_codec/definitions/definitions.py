@@ -1,4 +1,4 @@
-"""TODO: D100 Missing docstring in public module."""
+"""Maps and helpers providing serialization-related information about fields."""
 
 import json
 import os

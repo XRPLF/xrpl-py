@@ -1,4 +1,4 @@
-"""TODO: D100 Missing docstring in public module."""
+"""Context manager and helpers for the serialization of a JSON object into bytes."""
 # Constants used in length prefix encoding:
 # max length that can be represented in a single byte per XRPL serialization encoding
 MAX_SINGLE_BYTE_LENGTH = 192

@@ -1,4 +1,4 @@
-"""TODO: D100 Missing docstring in public module."""
+"""Model object for field info from the "fields" section of definitions.json."""
 
 
 class FieldInfo:
