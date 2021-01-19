@@ -17,7 +17,7 @@ class TestCodec(unittest.TestCase):
         self.assertEqual(encode_result, base58_string)
 
         decode_result = addresscodec.decode(
-            base58_string, len(addresscodec.CLASSIC_ADDRESS_PREFIX)
+            base58_string, bytes(addresscodec.CLASSIC_ADDRESS_PREFIX)
         )
         self.assertEqual(decode_result, encoded_hex)
 
@@ -33,7 +33,7 @@ class TestCodec(unittest.TestCase):
         self.assertEqual(encode_result2, base58_string2)
 
         decode_result2 = addresscodec.decode(
-            base58_string2, len(addresscodec.CLASSIC_ADDRESS_PREFIX)
+            base58_string2, bytes(addresscodec.CLASSIC_ADDRESS_PREFIX)
         )
         self.assertEqual(decode_result2, encoded_hex2)
 
@@ -48,7 +48,7 @@ class TestCodec(unittest.TestCase):
         self.assertEqual(encode_result, ed_seed)
 
         decode_result = addresscodec.decode(
-            ed_seed, len(addresscodec.ED25519_SEED_PREFIX)
+            ed_seed, bytes(addresscodec.ED25519_SEED_PREFIX)
         )
         self.assertEqual(decode_result, decoded_seed_bytes)
 
