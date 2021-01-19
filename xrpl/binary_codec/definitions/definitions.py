@@ -2,12 +2,13 @@
 
 import json
 import os
+from typing import Tuple, Dict
 from .field_header import FieldHeader
 from .field_info import FieldInfo
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 
 
-def load_definitions(filename="definitions.json"):
+def load_definitions(filename: str = "definitions.json") -> Dict:
     """
     Loads JSON from the definitions file and converts it to a preferred format.
     The definitions file contains information required for the XRP Ledger's
@@ -75,7 +76,7 @@ except KeyError as e:
     )
 
 
-def get_field_type_name(field_name):
+def get_field_type_name(field_name: str) -> str:
     """
     Returns the serialization data type for the given field name.
     `Serialization Type List <https://xrpl.org/serialization.html#type-list>`_
@@ -83,7 +84,7 @@ def get_field_type_name(field_name):
     return FIELD_INFO_MAP[field_name].type
 
 
-def get_field_type_code(field_name):
+def get_field_type_code(field_name: str) -> int:
     """
     Returns the type code associated with the given field.
     `Serialization Type Codes <https://xrpl.org/serialization.html#type-codes>`_
@@ -92,7 +93,7 @@ def get_field_type_code(field_name):
     return TYPE_ORDINAL_MAP[field_type_name]
 
 
-def get_field_code(field_name):
+def get_field_code(field_name: str) -> int:
     """
     Returns the field code associated with the given field.
     `Serialization Field Codes <https://xrpl.org/serialization.html#field-codes>`_
@@ -100,7 +101,9 @@ def get_field_code(field_name):
     return FIELD_INFO_MAP[field_name].nth
 
 
-def get_field_sort_key(field_name):
+# TODO: may be able to remove this method,
+#  since a FieldHeader object provides this info.
+def get_field_sort_key(field_name: str) -> Tuple[int, int]:
     """
     Returns a tuple sort key for a given field name.
     `Serialization Canonical Field Order
@@ -109,11 +112,11 @@ def get_field_sort_key(field_name):
     return get_field_type_code(field_name), get_field_code(field_name)
 
 
-def get_field_header_from_name(field_name):
+def get_field_header_from_name(field_name: str) -> FieldHeader:
     """Returns a FieldHeader object for a field of the given field name."""
     return FieldHeader(get_field_type_code(field_name), get_field_code(field_name))
 
 
-def get_field_name_from_header(field_header):
+def get_field_name_from_header(field_header: FieldHeader) -> str:
     """Returns the field name described by the given FieldHeader object."""
     return FIELD_HEADER_NAME_MAP[field_header]

@@ -10,7 +10,7 @@ class SerializedType(ABC):
         self.bytes = bytes()
 
     @abstractmethod
-    def from_parser(self, parser, length_hint=None):
+    def from_parser(self, parser, length_hint: int = None):
         """Construct a new SerializedType from a BinaryParser."""
         raise NotImplementedError("SerializedType.from_parser not implemented.")
 
