@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "xrpl-py"
+name = "xrpl"
 version = "0.1.0"
-description = ""
-authors = ["Ted Kalaw <ted.kalaw@gmail.com>"]
+description = "Foundational XRPL ledger tools"
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
