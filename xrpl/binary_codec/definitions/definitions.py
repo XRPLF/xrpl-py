@@ -122,9 +122,7 @@ def get_field_name_from_header(field_header):
 
 
 def get_field_instance(field_name):
-    """
-    Return a FieldInstance object for the given field name.
-    """
+    """Return a FieldInstance object for the given field name."""
     info = FIELD_INFO_MAP[field_name]
     field_header = get_field_header_from_name(field_name)
     return FieldInstance(
