@@ -45,7 +45,7 @@ class BinarySerializer:
             byte2 = (length & 0xFF).to_bytes(1, byteorder="big", signed=False)
             return byte1 + byte2
         if length <= MAX_LENGTH_VALUE:
-            length -= MAX_DOUBLE_BYTE_LENGTH + 1
+            length -= MAX_DOUBLE_BYTE_LENGTH
             byte1 = ((MAX_SECOND_BYTE_VALUE + 1) + (length >> 16)).to_bytes(
                 1, byteorder="big", signed=False
             )
