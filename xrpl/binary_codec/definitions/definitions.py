@@ -1,10 +1,13 @@
 """TODO: D100 Missing docstring in public module."""
 
+
 import json
 import os
+
+from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
+
 from .field_header import FieldHeader
 from .field_info import FieldInfo
-from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 
 
 def load_definitions(filename="definitions.json"):
