@@ -1,16 +1,23 @@
-"""TODO: D100 Missing docstring in pubic module."""
+"""A collection of serialization information about a specific field type."""
+from xrpl.binary_codec.definitions import FieldInfo, FieldHeader
 
 
 class FieldInstance:
-    """TODO: D101 Missing docstring in public class."""
+    """A collection of serialization information about a specific field type."""
 
     def __init__(
         self,
-        field_info,
-        field_name,
-        field_header,
+        field_info: FieldInfo,
+        field_name: str,
+        field_header: FieldHeader,
     ):
-        """TODO: D107 Missing docstring in __init__."""
+        """
+        Construct a FieldInstance.
+
+        :param field_info: The field's serialization info from definitions.json.
+        :param field_name: The field's string name.
+        :param field_header: A FieldHeader object with the type_code and field_code.
+        """
         self.nth = field_info.nth
         self.is_variable_length_encoded = field_info.is_variable_length_encoded
         self.is_serialized = field_info.is_serialized
