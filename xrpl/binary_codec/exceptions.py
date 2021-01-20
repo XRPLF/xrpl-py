@@ -1,4 +1,4 @@
-"""General XRPL Binary Codec Excepetions."""
+"""General XRPL Binary Codec Exceptions."""
 
 
 class XRPLBinaryCodecException(Exception):
