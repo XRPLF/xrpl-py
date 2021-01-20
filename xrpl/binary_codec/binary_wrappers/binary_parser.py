@@ -8,15 +8,15 @@ from xrpl.binary_codec.definitions.field_instance import FieldInstance
 from xrpl.binary_codec.types.serialized_type import SerializedType
 
 # Constants used in length prefix decoding:
-# max length that can be represented in a single byte per XRPL serialization encoding
+# Max length that can be represented in a single byte per XRPL serialization encoding
 MAX_SINGLE_BYTE_LENGTH = 192
-# max length that can be represented in 2 bytes per XRPL serialization restrictions
+# Max length that can be represented in 2 bytes per XRPL serialization restrictions
 MAX_DOUBLE_BYTE_LENGTH = 12481
-# max value that can be used in the second byte of a length field
+# Max value that can be used in the second byte of a length field
 MAX_SECOND_BYTE_VALUE = 240
-# max value that can be represented using one 8-bit byte (2^8)
+# Max value that can be represented using one 8-bit byte (2^8)
 MAX_BYTE_VALUE = 256
-# max value that can be represented in using two 8-bit bytes (2^16)
+# Max value that can be represented in using two 8-bit bytes (2^16)
 MAX_DOUBLE_BYTE_VALUE = 65536
 
 
@@ -27,6 +27,10 @@ class BinaryParser:
         """Construct a BinaryParser that will parse hex-encoded bytes."""
         self.bytes = bytes.fromhex(hex_bytes)
 
+    def __len__(self):
+        """Return the number of bytes in this parser's buffer."""
+        return len(self.bytes)
+
     def peek(self) -> bytes:
         """Peek the first byte of the BinaryParser."""
         if len(self.bytes) > 0:
@@ -35,15 +39,25 @@ class BinaryParser:
 
     def skip(self, n):
         """Consume the first n bytes of the BinaryParser."""
-        assert n <= len(self.bytes)
-        self.bytes = self.bytes[n:]
+        if n <= len(self.bytes):
+            self.bytes = self.bytes[n:]
+        raise XRPLBinaryCodecException(
+            "BinaryParser can't skip {} bytes, only contains {}.".format(
+                n, len(self.bytes)
+            )
+        )
 
     def read(self, n) -> bytes:
         """Consume and return the first n bytes of the BinaryParser."""
-        assert n <= len(self.bytes)
-        first_n_bytes = self.bytes[:n]
-        self.skip(n)
-        return first_n_bytes
+        if n <= len(self.bytes):
+            first_n_bytes = self.bytes[:n]
+            self.skip(n)
+            return first_n_bytes
+        raise XRPLBinaryCodecException(
+            "BinaryParser can't read {} bytes, only contains {}.".format(
+                n, len(self.bytes)
+            )
+        )
 
     def read_uint8(self) -> int:
         """Read 1 byte from parser and return as unsigned int."""
@@ -56,11 +70,6 @@ class BinaryParser:
     def read_uint32(self) -> int:
         """Read 4 bytes from parser and return as unsigned int."""
         return int.from_bytes(self.read(4), byteorder="big")
-
-    # TODO: should this be a __len__ override?
-    def size(self) -> int:
-        """Return the number of bytes in this parser's buffer."""
-        return len(self.bytes)
 
     def is_end(self, custom_end=None) -> bool:
         """TODO: I'm not sure what this actually does yet."""
