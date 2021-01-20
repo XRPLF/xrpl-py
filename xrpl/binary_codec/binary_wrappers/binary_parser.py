@@ -47,7 +47,7 @@ class BinaryParser:
             )
         )
 
-    def read(self, n) -> bytes:
+    def read(self, n: int) -> bytes:
         """Consume and return the first n bytes of the BinaryParser."""
         if n <= len(self.bytes):
             first_n_bytes = self.bytes[:n]
@@ -122,7 +122,7 @@ class BinaryParser:
     def read_field_header(self) -> FieldHeader:
         """Reads field ordinal from BinaryParser and returns as a FieldHeader object."""
         type_code = self.read_uint8()
-        field_code = type & 15
+        field_code = type_code & 15
         type_code >>= 4
 
         if type_code == 0:
@@ -175,7 +175,7 @@ class BinaryParser:
             )
         return value
 
-    def read_field_and_value(self) -> Tuple[str, SerializedType]:
+    def read_field_and_value(self) -> Tuple[FieldInstance, SerializedType]:
         """Get the next field and value from the BinaryParser."""
         field = self.read_field()
         return field, self.read_field_value(field)
