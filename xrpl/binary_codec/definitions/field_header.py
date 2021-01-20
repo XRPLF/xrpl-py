@@ -1,6 +1,4 @@
 """A container class for simultaneous storage of a field's type code and field code."""
-# Allows the use of a type inside the class that defines it.
-from __future__ import annotations
 
 
 class FieldHeader:
@@ -19,7 +17,7 @@ class FieldHeader:
         self.type_code = type_code
         self.field_code = field_code
 
-    def __eq__(self, other: FieldHeader):
+    def __eq__(self, other):
         """Two FieldHeaders are equal if both type code and field_code are the same."""
         return self.type_code == other.type_code and self.field_code == other.field_code
 
