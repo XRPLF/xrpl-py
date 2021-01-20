@@ -1,4 +1,4 @@
-"""TODO: D100 Missing docstring in public module."""
+"""General XRPL Binary Codec Excepetions."""
 
 
 class XRPLBinaryCodecException(Exception):

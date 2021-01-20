@@ -1,1 +1,1 @@
-from .base import *  # noqa F401 F403
+from xrpl.keypairs.main import *  # noqa F403

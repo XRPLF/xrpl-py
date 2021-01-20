@@ -1,4 +1,4 @@
-"""TODO: D100 Missing docstring in public module."""
+"""Context manager and helpers for the serialization of a JSON object into bytes."""
 # Constants used in length prefix encoding:
 # max length that can be represented in a single byte per XRPL serialization encoding
 MAX_SINGLE_BYTE_LENGTH = 192
@@ -10,7 +10,7 @@ MAX_SECOND_BYTE_VALUE = 240
 MAX_LENGTH_VALUE = 918744
 
 
-def _encode_variable_length_prefix(length):
+def _encode_variable_length_prefix(length: int) -> bytes:
     """
     Helper function for length-prefixed fields including Blob types
     and some AccountID types. Calculates the prefix of variable length bytes.
@@ -49,11 +49,11 @@ class BinarySerializer:
     """Serializes JSON to XRPL binary format."""
 
     def __init__(self):
-        """TODO: D107 Missing docstring in __init__."""
+        """Construct a BinarySerializer."""
         self.bytesink = bytes()
 
-    def put(self, bytes_object):
-        """TODO: D102 Missing docstring in public method."""
+    def put(self, bytes_object: bytes):
+        """Write given bytes to this BinarySerializer's bytesink."""
         self.bytesink += bytes_object
 
     # TODO: this method depends on the SerializedType class.

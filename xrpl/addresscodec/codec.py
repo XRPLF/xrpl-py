@@ -17,6 +17,11 @@ ACCOUNT_PUBLIC_KEY_LENGTH = 33
 
 ED25519 = "ed25519"
 SECP256K1 = "secp256k1"
+ALGORITHM_TO_PREFIX_MAP = {
+    ED25519: ED25519_SEED_PREFIX,
+    SECP256K1: FAMILY_SEED_PREFIX,
+}
+ALGORITHMS = list(ALGORITHM_TO_PREFIX_MAP)
 
 
 def encode(bytestring, prefix, expected_length):
@@ -38,17 +43,20 @@ def encode(bytestring, prefix, expected_length):
     return base58.b58encode_check(payload, alphabet=XRPL_ALPHABET).decode("utf-8")
 
 
-def decode(b58_string, prefix_length):
+def decode(b58_string, prefix):
     """
     b58_string: string representing a base58 value
-    prefix_length: int representing the length in bytes of the prefix prepended
-    to the bytestring
+    prefix: the prefix prepended to the bytestring, in bytes
 
     Returns the byte decoding of the base58-encoded string
     """
-    # TODO: (mvadari) Figure out if prefix_length is the right way to do this or if
+    # TODO: (mvadari) Figure out if prefix is the right way to do this or if
     # there is a better way
-    return base58.b58decode_check(b58_string, alphabet=XRPL_ALPHABET)[prefix_length:]
+    prefix_length = len(prefix)
+    decoded = base58.b58decode_check(b58_string, alphabet=XRPL_ALPHABET)
+    if decoded[:prefix_length] != prefix:
+        raise XRPLAddressCodecException("Provided prefix is incorrect")
+    return decoded[prefix_length:]
 
 
 def encode_seed(entropy, encoding_type):
@@ -62,40 +70,32 @@ def encode_seed(entropy, encoding_type):
         raise XRPLAddressCodecException(
             "Entropy must have length {}".format(SEED_LENGTH)
         )
-
-    if encoding_type == ED25519:
-        prefix = ED25519_SEED_PREFIX
-    elif encoding_type == SECP256K1:
-        prefix = FAMILY_SEED_PREFIX
-    else:
+    if encoding_type not in ALGORITHMS:
         raise XRPLAddressCodecException(
-            "Encoding type is not valid; must be either '{}' or '{}'".format(
-                SECP256K1, ED25519
-            )
+            "Encoding type must be one of {}".format(ALGORITHMS)
         )
 
+    prefix = ALGORITHM_TO_PREFIX_MAP[encoding_type]
     return encode(entropy, prefix, SEED_LENGTH)
 
 
-def decode_seed(seed, encoding_type):
+def decode_seed(seed):
     """
     seed: b58 encoding of a seed
-    encoding_type: either ED25519 or SECP256K1
 
-    Returns a decoded seed
+    Returns (decoded seed, its algorithm)
     """
-    if encoding_type == ED25519:
-        prefix = ED25519_SEED_PREFIX
-    elif encoding_type == SECP256K1:
-        prefix = FAMILY_SEED_PREFIX
-    else:
-        raise XRPLAddressCodecException(
-            "Encoding type is not valid; must be either '{}' or '{}'".format(
-                SECP256K1, ED25519
-            )
-        )
-
-    return decode(seed, len(prefix))
+    for algorithm in ALGORITHMS:
+        prefix = ALGORITHM_TO_PREFIX_MAP[algorithm]
+        try:
+            decoded_result = decode(seed, bytes(prefix))
+            return decoded_result, algorithm
+        except XRPLAddressCodecException:
+            # prefix is incorrect, wrong algorithm
+            continue
+    raise XRPLAddressCodecException(
+        "Invalid seed; could not determine encoding algorithm"
+    )
 
 
 def encode_classic_address(bytestring):
@@ -113,7 +113,7 @@ def decode_classic_address(classic_address):
 
     Returns the decoded bytes of the classic address
     """
-    return decode(classic_address, len(CLASSIC_ADDRESS_PREFIX))
+    return decode(classic_address, bytes(CLASSIC_ADDRESS_PREFIX))
 
 
 def encode_node_public_key(bytestring):
@@ -131,7 +131,7 @@ def decode_node_public_key(node_public_key):
 
     Returns the decoded bytes of the node public key
     """
-    return decode(node_public_key, len(NODE_PUBLIC_KEY_PREFIX))
+    return decode(node_public_key, bytes(NODE_PUBLIC_KEY_PREFIX))
 
 
 def encode_account_public_key(bytestring):
@@ -149,4 +149,4 @@ def decode_account_public_key(account_public_key):
 
     Returns the decoded bytes of the account public key
     """
-    return decode(account_public_key, len(ACCOUNT_PUBLIC_KEY_PREFIX))
+    return decode(account_public_key, bytes(ACCOUNT_PUBLIC_KEY_PREFIX))
