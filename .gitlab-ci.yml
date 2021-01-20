@@ -10,8 +10,8 @@ stages:
     - apk add libffi-dev
     - apk add openssl-dev
     - pip install --user poetry
-    - poetry config virtualenvs.create false
     - poetry install
+    - poetry config virtualenvs.create false
     - python3 setup.py develop
 
 unit-test:
