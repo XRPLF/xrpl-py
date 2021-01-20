@@ -12,6 +12,8 @@ Install poetry per the instructions at https://python-poetry.org/docs/
 poetry install
 ```
 
+This will install dev and library dependencies.
+
 Install pre-commit globally to get access to the pre-commit hooks:
 
 ```bash
@@ -27,14 +29,8 @@ by executing
 poetry run flake8 ./xrpl
 ```
 
-### Installing Dependencies
-
-```bash
-python setup.py develop
-```
-
 ### Running Tests
 
 ```bash
-python -m unittest discover tests
+poetry python -m unittest discover tests
 ```
