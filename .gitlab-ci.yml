@@ -7,8 +7,8 @@ stages:
   before_script:
     - echo "before testing"
     - apk add build-base
-    - apid add openssl-dev
     - apk add libffi-dev
+    - apk add openssl-dev
     - pip install --user poetry
     - poetry config virtualenvs.create false
     - poetry install
