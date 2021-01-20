@@ -40,7 +40,7 @@ def derive(seed):
     module = _ALGORITHM_TO_MODULE_MAP[algorithm]
     public_key, private_key = module.derive(decoded_seed)
     signature = module.sign(_VERIFICATION_MESSAGE, private_key)
-    if not module.is_valid(_VERIFICATION_MESSAGE, signature, public_key):
+    if not module.is_message_valid(_VERIFICATION_MESSAGE, signature, public_key):
         raise KeypairException(
             "derived keypair did not generate verifiable signature",
         )

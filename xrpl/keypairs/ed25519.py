@@ -36,7 +36,7 @@ def sign(message, private_key):
     return _SIGNER.sign(message, wrapped_private)
 
 
-def is_valid(message, signature, public_key):
+def is_message_valid(message, signature, public_key):
     """
     Verify that message matches signature given public_key
     :returns: boolean
