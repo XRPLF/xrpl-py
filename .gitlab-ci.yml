@@ -25,4 +25,4 @@ lint:
   stage: lint
   extends: .test
   script:
-    - poetry run flake8 .
+    - poetry run flake8 xrpl tests
