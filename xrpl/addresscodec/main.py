@@ -1,4 +1,5 @@
-"""TODO: D100 Missing docstring in public module."""
+"""This module handles everything related to X-Addresses."""
+
 import base58
 from .codec import encode_classic_address, decode_classic_address
 from .exceptions import XRPLAddressCodecException
@@ -106,19 +107,6 @@ def _get_tag_from_buffer(buffer):
     if bytes.fromhex("0000000000000000") != buffer[1:9]:
         raise XRPLAddressCodecException("Remaining bytes must be zero")
     return None
-
-
-def is_valid_classic_address(classic_address):
-    """
-    classic_address: string
-
-    Returns whether `classic_address` is a valid classic address.
-    """
-    try:
-        decode_classic_address(classic_address)
-        return True
-    except (XRPLAddressCodecException, ValueError):
-        return False
 
 
 def is_valid_xaddress(xaddress):

@@ -1,4 +1,5 @@
-"""TODO: D100 Missing docstring in public module."""
+"""This module encodes and decodes various types of base58 encodings."""
+
 import base58
 from .exceptions import XRPLAddressCodecException
 from .utils import XRPL_ALPHABET
@@ -150,3 +151,16 @@ def decode_account_public_key(account_public_key):
     Returns the decoded bytes of the account public key
     """
     return _decode(account_public_key, bytes(ACCOUNT_PUBLIC_KEY_PREFIX))
+
+
+def is_valid_classic_address(classic_address):
+    """
+    classic_address: string
+
+    Returns whether `classic_address` is a valid classic address.
+    """
+    try:
+        decode_classic_address(classic_address)
+        return True
+    except (XRPLAddressCodecException, ValueError):
+        return False
