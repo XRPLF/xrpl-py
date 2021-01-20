@@ -1,4 +1,5 @@
-"""TODO: D100 Missing docstring in public module."""
+"""This module handles everything related to X-Addresses."""
+
 import base58
 from .codec import encode_classic_address, decode_classic_address
 from .exceptions import XRPLAddressCodecException
@@ -16,14 +17,15 @@ PREFIX_BYTES_TEST = bytes([0x04, 0x93])  # 4, 147
 # [← 2 byte prefix →|← 160 bits of account ID →|← 8 bits of flags →|← 64 bits of tag →]
 
 
-def encode_xaddress(classic_address_bytes, tag, is_test_network):
+def classic_address_to_xaddress(classic_address, tag, is_test_network):
     """
-    classic_address_bytes: bytes, representing the classic address
+    classic_address: string, the base58 encoding of the classic address
     tag: int, the destination tag
     is_test_network: boolean, whether it is the test network or the main network
 
     Returns the X-Address representation of the data
     """
+    classic_address_bytes = decode_classic_address(classic_address)
     if len(classic_address_bytes) != 20:
         raise XRPLAddressCodecException("Account ID must be 20 bytes")
 
@@ -54,23 +56,24 @@ def encode_xaddress(classic_address_bytes, tag, is_test_network):
     return base58.b58encode_check(bytestring, alphabet=XRPL_ALPHABET).decode("utf-8")
 
 
-def decode_xaddress(xaddress):
+def xaddress_to_classic_address(xaddress):
     """
-    xaddress: string, a base58-encoded X-Address.
+    xaddress: string, base58-encoded X-Address
 
-    Returns:
-        classic_address: the byte-encoded classic address
+    Returns a tuple containing:
+        classic_address: the base58 classic address
         tag: the destination tag
-        is_test: whether the address is on the test network
+        is_test_network: whether the address is on the test network (or main)
     """
     decoded = base58.b58decode_check(
         xaddress, alphabet=XRPL_ALPHABET
     )  # convert b58 to bytes
-    is_test = _is_test_address(decoded[:2])
-    classic_address = decoded[2:22]
+    is_test_network = _is_test_address(decoded[:2])
+    classic_address_bytes = decoded[2:22]
     tag = _get_tag_from_buffer(decoded[22:])  # extracts the destination tag
 
-    return (classic_address, tag, is_test)
+    classic_address = encode_classic_address(classic_address_bytes)
+    return (classic_address, tag, is_test_network)
 
 
 def _is_test_address(prefix):
@@ -106,45 +109,6 @@ def _get_tag_from_buffer(buffer):
     return None
 
 
-def classic_address_to_xaddress(classic_address, tag, is_test_network):
-    """
-    classic_address: string, the base58 encoding of the classic address
-    tag: int, the destination tag
-    is_test_network: boolean, whether it is the test network or the main network
-
-    Returns the X-Address representation of the data
-    """
-    address_bytes = decode_classic_address(classic_address)
-    return encode_xaddress(address_bytes, tag, is_test_network)
-
-
-def xaddress_to_classic_address(xaddress):
-    """
-    xaddress: string, base58-encoded X-Address
-
-    Returns a tuple containing:
-        classic_address: the base58 classic address
-        tag: the destination tag
-        is_test_network: whether the address is on the test network (or main)
-    """
-    classic_address_bytes, tag, is_test_network = decode_xaddress(xaddress)
-    classic_address = encode_classic_address(classic_address_bytes)
-    return (classic_address, tag, is_test_network)
-
-
-def is_valid_classic_address(classic_address):
-    """
-    classic_address: string
-
-    Returns whether `classic_address` is a valid classic address.
-    """
-    try:
-        decode_classic_address(classic_address)
-        return True
-    except (XRPLAddressCodecException, ValueError):
-        return False
-
-
 def is_valid_xaddress(xaddress):
     """
     xaddress: string
@@ -152,7 +116,7 @@ def is_valid_xaddress(xaddress):
     Returns whether `xaddress` is a valid X-Address.
     """
     try:
-        decode_xaddress(xaddress)
+        xaddress_to_classic_address(xaddress)
         return True
     except (XRPLAddressCodecException, ValueError):
         return False
