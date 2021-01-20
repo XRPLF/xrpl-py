@@ -1,5 +1,6 @@
 """TODO: D100 Missing docstring in public module."""
 import base58
+
 from .exceptions import XRPLAddressCodecException
 from .utils import XRPL_ALPHABET
 
