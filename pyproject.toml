@@ -27,6 +27,7 @@ isort = "^5.7.0"
 flake8-isort = "^4.0.0"
 
 [tool.isort]
+# Make sure that isort's settings line up with black
 profile = "black"
 
 [build-system]
