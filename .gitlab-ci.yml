@@ -9,7 +9,7 @@ stages:
     - apk add build-base
     - apk add libffi-dev
     - apk add openssl-dev
-    - pip install --user poetry
+    - pip install poetry
     - poetry install
     - poetry config virtualenvs.create false
     - python3 setup.py develop
