@@ -1,7 +1,8 @@
 """Public interface for keypairs module"""
 from random import randbytes
 from xrpl import addresscodec, CryptoAlgorithm
-from xrpl.keypairs import ed25519, secp256k1, exceptions, helpers
+from xrpl.keypairs import ed25519, secp256k1, helpers
+from xrpl.keypairs.exceptions import KeypairException
 
 _ALGORITHM_TO_MODULE_MAP = {
     CryptoAlgorithm.ED25519: ed25519,
@@ -35,12 +36,12 @@ def derive(seed):
     seed: :string
     returns: (public_key: string, private_key: string)
     """
-    decoded_entropy, algorithm = addresscodec.decode_seed(seed)
+    decoded_seed, algorithm = addresscodec.decode_seed(seed)
     module = _ALGORITHM_TO_MODULE_MAP[algorithm]
-    public_key, private_key = module.derive(decoded_entropy)
+    public_key, private_key = module.derive(decoded_seed)
     signature = module.sign(_VERIFICATION_MESSAGE, private_key)
     if not module.is_valid(_VERIFICATION_MESSAGE, signature, public_key):
-        raise exceptions.KeypairException(
+        raise KeypairException(
             "derived keypair did not generate verifiable signature",
         )
     return public_key, private_key

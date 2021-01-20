@@ -14,19 +14,16 @@ _CURVE = Curve.get_curve("Ed25519")
 _SIGNER = EDDSA(sha512)
 
 
-def derive(entropy):
+def derive(seed):
     """
-    entropy: :bytes raw entropy
+    seed: :bytes raw seed
     :returns (private key :string, public key :string)
     """
-    raw_private = helpers._sha512_first_half(entropy)
+    raw_private = helpers._sha512_first_half(seed)
     wrapped_private = ECPrivateKey(int(raw_private.hex(), 16), _CURVE)
     wrapped_public = EDDSA.get_public_key(wrapped_private, sha512).W
     raw_public = _CURVE.encode_point(wrapped_public)
-    return map(
-        _key_format,
-        [raw_public, raw_private],
-    )
+    return [_key_format(raw) for raw in [raw_public, raw_private]]
 
 
 def sign(message, private_key):
