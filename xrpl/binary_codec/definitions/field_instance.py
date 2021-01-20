@@ -1,5 +1,6 @@
 """A collection of serialization information about a specific field type."""
-from xrpl.binary_codec.definitions import FieldInfo, FieldHeader
+from xrpl.binary_codec.definitions.field_info import FieldInfo
+from xrpl.binary_codec.definitions.field_header import FieldHeader
 
 
 class FieldInstance:

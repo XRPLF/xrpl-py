@@ -2,10 +2,8 @@ import unittest
 
 from xrpl.binary_codec.binary_wrappers import BinaryParser, BinarySerializer
 
-"""
-Note that core field-reading logic will be tested by the implementation of
-specific field type classes. These tests just sanity-check key helper methods.
-"""
+# Note that core field-reading logic will be tested by the implementation of
+# specific field type classes. These tests just sanity-check key helper methods.
 
 
 class TestBinaryParser(unittest.TestCase):
@@ -36,10 +34,11 @@ class TestBinaryParser(unittest.TestCase):
         self.assertEqual(int32, 3)
 
     def test_read_variable_length_length(self):
-        binary_serializer = BinarySerializer()
         for case in [100, 1000, 20_000]:
+            binary_serializer = BinarySerializer()
+            binary_serializer.write_length_encoded(case)
             # hex string representation of encoded length prefix
-            encoded_length = binary_serializer.encode_variable_length_prefix(case).hex()
+            encoded_length = binary_serializer.bytesink.hex()
             binary_parser = BinaryParser(encoded_length)
-            decoded_length = binary_parser.read_variable_length_length()
+            decoded_length = binary_parser._read_length_prefix()
             self.assertEqual(case, decoded_length)

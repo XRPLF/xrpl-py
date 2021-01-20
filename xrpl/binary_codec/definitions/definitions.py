@@ -3,9 +3,9 @@
 import json
 import os
 from typing import Tuple, Dict
-from .field_header import FieldHeader
-from .field_info import FieldInfo
-from .field_instance import FieldInstance
+from xrpl.binary_codec.definitions.field_info import FieldInfo
+from xrpl.binary_codec.definitions.field_header import FieldHeader
+from xrpl.binary_codec.definitions.field_instance import FieldInstance
 
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 

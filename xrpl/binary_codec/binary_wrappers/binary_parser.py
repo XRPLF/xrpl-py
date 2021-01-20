@@ -29,8 +29,9 @@ class BinaryParser:
 
     def peek(self) -> bytes:
         """Peek the first byte of the BinaryParser."""
-        assert len(self.bytes) > 0
-        return self.bytes[0]
+        if len(self.bytes) > 0:
+            return self.bytes[0]
+        return None
 
     def skip(self, n):
         """Consume the first n bytes of the BinaryParser."""
@@ -61,7 +62,7 @@ class BinaryParser:
         """Return the number of bytes in this parser's buffer."""
         return len(self.bytes)
 
-    def end(self, custom_end=None) -> bool:
+    def is_end(self, custom_end=None) -> bool:
         """TODO: I'm not sure what this actually does yet."""
         return len(self.bytes) == 0 or (
             custom_end is not None and len(self.bytes) <= custom_end
@@ -69,9 +70,9 @@ class BinaryParser:
 
     def read_variable_length(self) -> bytes:
         """Reads and returns variable length encoded bytes."""
-        return self.read(self.read_variable_length_length())
+        return self.read(self._read_length_prefix())
 
-    def read_variable_length_length(self) -> int:
+    def _read_length_prefix(self) -> int:
         """
         Reads a variable length encoding prefix and returns the encoded length.
 
