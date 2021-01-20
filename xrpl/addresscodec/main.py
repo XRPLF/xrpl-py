@@ -133,9 +133,26 @@ def xaddress_to_classic_address(xaddress):
 
 
 def is_valid_classic_address(classic_address):
-    """TODO: D103 Missing docstring in public function."""
+    """
+    classic_address: string
+
+    Returns whether `classic_address` is a valid classic address.
+    """
     try:
         decode_classic_address(classic_address)
+        return True
+    except (XRPLAddressCodecException, ValueError):
+        return False
+
+
+def is_valid_xaddress(xaddress):
+    """
+    xaddress: string
+
+    Returns whether `xaddress` is a valid X-Address.
+    """
+    try:
+        decode_xaddress(xaddress)
         return True
     except (XRPLAddressCodecException, ValueError):
         return False
