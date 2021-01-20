@@ -130,3 +130,29 @@ def xaddress_to_classic_address(xaddress):
     classic_address_bytes, tag, is_test_network = decode_xaddress(xaddress)
     classic_address = encode_classic_address(classic_address_bytes)
     return (classic_address, tag, is_test_network)
+
+
+def is_valid_classic_address(classic_address):
+    """
+    classic_address: string
+
+    Returns whether `classic_address` is a valid classic address.
+    """
+    try:
+        decode_classic_address(classic_address)
+        return True
+    except (XRPLAddressCodecException, ValueError):
+        return False
+
+
+def is_valid_xaddress(xaddress):
+    """
+    xaddress: string
+
+    Returns whether `xaddress` is a valid X-Address.
+    """
+    try:
+        decode_xaddress(xaddress)
+        return True
+    except (XRPLAddressCodecException, ValueError):
+        return False

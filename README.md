@@ -1,5 +1,7 @@
 # xrpl-py
 
+Supports Python 3.5 and later.
+
 ## Contributing
 
 ### Setting up the dev environment
