@@ -11,7 +11,6 @@ stages:
     - apk add openssl-dev
     - pip install poetry
     - poetry install
-    - poetry config virtualenvs.create false
     - python3 setup.py develop
 
 unit-test:
