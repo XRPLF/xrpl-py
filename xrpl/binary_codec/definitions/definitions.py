@@ -3,7 +3,7 @@
 
 import json
 import os
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 
@@ -11,7 +11,7 @@ from .field_header import FieldHeader
 from .field_info import FieldInfo
 
 
-def load_definitions(filename: str = "definitions.json") -> Dict:
+def load_definitions(filename: str = "definitions.json") -> Dict[str, Any]:
     """
     Loads JSON from the definitions file and converts it to a preferred format.
     The definitions file contains information required for the XRP Ledger's
@@ -93,7 +93,13 @@ def get_field_type_code(field_name: str) -> int:
     `Serialization Type Codes <https://xrpl.org/serialization.html#type-codes>`_
     """
     field_type_name = get_field_type_name(field_name)
-    return TYPE_ORDINAL_MAP[field_type_name]
+    field_type_code = TYPE_ORDINAL_MAP[field_type_name]
+    if not isinstance(field_type_code, int):
+        raise XRPLBinaryCodecException(
+            "Field type codes in definitions.json must be ints."
+        )
+
+    return field_type_code
 
 
 def get_field_code(field_name: str) -> int:
@@ -122,4 +128,10 @@ def get_field_header_from_name(field_name: str) -> FieldHeader:
 
 def get_field_name_from_header(field_header: FieldHeader) -> str:
     """Returns the field name described by the given FieldHeader object."""
-    return FIELD_HEADER_NAME_MAP[field_header]
+    field_header_name = FIELD_HEADER_NAME_MAP[field_header]
+    if not isinstance(field_header_name, str):
+        raise XRPLBinaryCodecException(
+            "Field type header names in definitions.json must be strings."
+        )
+
+    return field_header_name
