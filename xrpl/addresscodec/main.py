@@ -1,7 +1,8 @@
 """This module handles everything related to X-Addresses."""
 
 import base58
-from .codec import encode_classic_address, decode_classic_address
+
+from .codec import decode_classic_address, encode_classic_address
 from .exceptions import XRPLAddressCodecException
 from .utils import XRPL_ALPHABET
 

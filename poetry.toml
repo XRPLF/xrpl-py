@@ -1,0 +1,7 @@
+# This makes it so that the virtual env is created in a .venv
+# folder in this repo instead of globally, which has better
+# support for environments like VSCode and PyCharm.
+
+[virtualenvs]
+create = true
+in-project = true

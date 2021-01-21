@@ -1,6 +1,7 @@
 """This module encodes and decodes various types of base58 encodings."""
 
 import base58
+
 from .exceptions import XRPLAddressCodecException
 from .utils import XRPL_ALPHABET
 
