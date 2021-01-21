@@ -1,11 +1,14 @@
 """Maps and helpers providing serialization-related information about fields."""
 
+
 import json
 import os
-from typing import Tuple, Dict
+from typing import Dict, Tuple
+
+from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
+
 from .field_header import FieldHeader
 from .field_info import FieldInfo
-from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 
 
 def load_definitions(filename: str = "definitions.json") -> Dict:
