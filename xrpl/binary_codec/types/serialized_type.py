@@ -1,22 +1,22 @@
-"""TODO: D100 Missing docstring in public module."""
-import abc
+"""The base class for all binary codec types."""
+from abc import ABC, abstractmethod
 
 
-class SerializedType:
+class SerializedType(ABC):
     """The base class for all binary codec types."""
 
     def __init__(self):
-        """TODO: D107 Missing docstring in __init__."""
+        """Construct a new SerializedType."""
         self.bytes = bytes()
 
-    @abc.abstractmethod
-    def from_parser(self, parser, length_hint=None):
-        """TODO: D102 Missing docstring in public method."""
+    @abstractmethod
+    def from_parser(self, parser, length_hint: int = None):
+        """Construct a new SerializedType from a BinaryParser."""
         raise NotImplementedError("SerializedType.from_parser not implemented.")
 
-    @abc.abstractmethod
+    @abstractmethod
     def from_value(self, value):
-        """TODO: D102 Missing docstring in public method."""
+        """Construct a new SerializedType from a literal value."""
         raise NotImplementedError("SerializedType.from_value not implemented.")
 
     def to_byte_sink(self, bytesink):

@@ -4,10 +4,11 @@ Encodes and decodes field IDs.
 """
 
 import xrpl.binary_codec.definitions as definitions
+from xrpl.binary_codec.definitions.field_header import FieldHeader
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 
 
-def encode(field_name):
+def encode(field_name: str) -> bytes:
     """
     Returns the unique field ID for a given field name.
     This field ID consists of the type code and field code, in 1 to 3 bytes
@@ -17,13 +18,13 @@ def encode(field_name):
     return _encode_field_id(field_header)
 
 
-def decode(field_id):
+def decode(field_id: bytes) -> str:
     """Returns the field name represented by the given field ID."""
     field_header = _decode_field_id(field_id)
     return definitions.get_field_name_from_header(field_header)
 
 
-def _encode_field_id(field_header):
+def _encode_field_id(field_header: FieldHeader) -> bytes:
     """
     Returns the unique field ID for a given field header.
     This field ID consists of the type code and field code, in 1 to 3 bytes
@@ -39,31 +40,31 @@ def _encode_field_id(field_header):
         # high 4 bits is the type_code
         # low 4 bits is the field code
         combined_code = (type_code << 4) | field_code
-        return uint8_to_bytes(combined_code)
+        return _uint8_to_bytes(combined_code)
     if type_code >= 16 and field_code < 16:
         # first 4 bits are zeroes
         # next 4 bits is field code
         # next byte is type code
-        byte1 = uint8_to_bytes(field_code)
-        byte2 = uint8_to_bytes(type_code)
+        byte1 = _uint8_to_bytes(field_code)
+        byte2 = _uint8_to_bytes(type_code)
         return byte1 + byte2
     if type_code < 16 and field_code >= 16:
         # first 4 bits is type code
         # next 4 bits are zeroes
         # next byte is field code
-        byte1 = uint8_to_bytes(type_code << 4)
-        byte2 = uint8_to_bytes(field_code)
+        byte1 = _uint8_to_bytes(type_code << 4)
+        byte2 = _uint8_to_bytes(field_code)
         return byte1 + byte2
     else:  # both are >= 16
         # first byte is all zeroes
         # second byte is type code
         # third byte is field code
-        byte2 = uint8_to_bytes(type_code)
-        byte3 = uint8_to_bytes(field_code)
+        byte2 = _uint8_to_bytes(type_code)
+        byte3 = _uint8_to_bytes(field_code)
         return bytes(1) + byte2 + byte3
 
 
-def _decode_field_id(field_id):
+def _decode_field_id(field_id: bytes) -> FieldHeader:
     """
     Returns a FieldHeader object representing the type code and field code of
     a decoded field ID.
@@ -93,6 +94,5 @@ def _decode_field_id(field_id):
     )
 
 
-def uint8_to_bytes(i):
-    """D103 Missing docstring in public function."""
+def _uint8_to_bytes(i: int) -> bytes:
     return i.to_bytes(1, byteorder="big", signed=False)
