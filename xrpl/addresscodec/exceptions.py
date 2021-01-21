@@ -1,4 +1,4 @@
-"""TODO: D100 Missing docstring in public module."""
+"""This module contains custom `addresscodec` exceptions."""
 
 
 class XRPLAddressCodecException(Exception):

@@ -2,11 +2,11 @@
 
 import json
 import os
-from typing import Tuple, Dict
-from xrpl.binary_codec.definitions.field_info import FieldInfo
-from xrpl.binary_codec.definitions.field_header import FieldHeader
-from xrpl.binary_codec.definitions.field_instance import FieldInstance
+from typing import Dict, Tuple
 
+from xrpl.binary_codec.definitions.field_header import FieldHeader
+from xrpl.binary_codec.definitions.field_info import FieldInfo
+from xrpl.binary_codec.definitions.field_instance import FieldInstance
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 
 
