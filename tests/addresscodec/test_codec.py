@@ -1,6 +1,6 @@
 import unittest
 
-from xrpl import addresscodec, CryptoAlgorithm
+from xrpl import CryptoAlgorithm, addresscodec
 
 
 class TestCodec(unittest.TestCase):
