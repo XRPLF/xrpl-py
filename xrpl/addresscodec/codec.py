@@ -1,4 +1,5 @@
-"""TODO: D100 Missing docstring in public module."""
+"""This module encodes and decodes various types of base58 encodings."""
+
 import base58
 from .exceptions import XRPLAddressCodecException
 from .utils import XRPL_ALPHABET
@@ -24,7 +25,7 @@ ALGORITHM_TO_PREFIX_MAP = {
 ALGORITHMS = list(ALGORITHM_TO_PREFIX_MAP)
 
 
-def encode(bytestring, prefix, expected_length):
+def _encode(bytestring, prefix, expected_length):
     """
     bytestring: bytes
     prefix: list of ints (each int < 256)
@@ -43,7 +44,7 @@ def encode(bytestring, prefix, expected_length):
     return base58.b58encode_check(payload, alphabet=XRPL_ALPHABET).decode("utf-8")
 
 
-def decode(b58_string, prefix):
+def _decode(b58_string, prefix):
     """
     b58_string: string representing a base58 value
     prefix: the prefix prepended to the bytestring, in bytes
@@ -76,7 +77,7 @@ def encode_seed(entropy, encoding_type):
         )
 
     prefix = ALGORITHM_TO_PREFIX_MAP[encoding_type]
-    return encode(entropy, prefix, SEED_LENGTH)
+    return _encode(entropy, prefix, SEED_LENGTH)
 
 
 def decode_seed(seed):
@@ -88,7 +89,7 @@ def decode_seed(seed):
     for algorithm in ALGORITHMS:
         prefix = ALGORITHM_TO_PREFIX_MAP[algorithm]
         try:
-            decoded_result = decode(seed, bytes(prefix))
+            decoded_result = _decode(seed, bytes(prefix))
             return decoded_result, algorithm
         except XRPLAddressCodecException:
             # prefix is incorrect, wrong algorithm
@@ -104,7 +105,7 @@ def encode_classic_address(bytestring):
 
     Returns the classic address encoding of these bytes as a base58 string
     """
-    return encode(bytestring, CLASSIC_ADDRESS_PREFIX, CLASSIC_ADDRESS_LENGTH)
+    return _encode(bytestring, CLASSIC_ADDRESS_PREFIX, CLASSIC_ADDRESS_LENGTH)
 
 
 def decode_classic_address(classic_address):
@@ -113,7 +114,7 @@ def decode_classic_address(classic_address):
 
     Returns the decoded bytes of the classic address
     """
-    return decode(classic_address, bytes(CLASSIC_ADDRESS_PREFIX))
+    return _decode(classic_address, bytes(CLASSIC_ADDRESS_PREFIX))
 
 
 def encode_node_public_key(bytestring):
@@ -122,7 +123,7 @@ def encode_node_public_key(bytestring):
 
     Returns the node public key encoding of these bytes as a base58 string
     """
-    return encode(bytestring, NODE_PUBLIC_KEY_PREFIX, NODE_PUBLIC_KEY_LENGTH)
+    return _encode(bytestring, NODE_PUBLIC_KEY_PREFIX, NODE_PUBLIC_KEY_LENGTH)
 
 
 def decode_node_public_key(node_public_key):
@@ -131,7 +132,7 @@ def decode_node_public_key(node_public_key):
 
     Returns the decoded bytes of the node public key
     """
-    return decode(node_public_key, bytes(NODE_PUBLIC_KEY_PREFIX))
+    return _decode(node_public_key, bytes(NODE_PUBLIC_KEY_PREFIX))
 
 
 def encode_account_public_key(bytestring):
@@ -140,7 +141,7 @@ def encode_account_public_key(bytestring):
 
     Returns the account public key encoding of these bytes as a base58 string
     """
-    return encode(bytestring, ACCOUNT_PUBLIC_KEY_PREFIX, ACCOUNT_PUBLIC_KEY_LENGTH)
+    return _encode(bytestring, ACCOUNT_PUBLIC_KEY_PREFIX, ACCOUNT_PUBLIC_KEY_LENGTH)
 
 
 def decode_account_public_key(account_public_key):
@@ -149,4 +150,17 @@ def decode_account_public_key(account_public_key):
 
     Returns the decoded bytes of the account public key
     """
-    return decode(account_public_key, bytes(ACCOUNT_PUBLIC_KEY_PREFIX))
+    return _decode(account_public_key, bytes(ACCOUNT_PUBLIC_KEY_PREFIX))
+
+
+def is_valid_classic_address(classic_address):
+    """
+    classic_address: string
+
+    Returns whether `classic_address` is a valid classic address.
+    """
+    try:
+        decode_classic_address(classic_address)
+        return True
+    except (XRPLAddressCodecException, ValueError):
+        return False
