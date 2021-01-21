@@ -7,7 +7,7 @@ class SerializedType(ABC):
 
     def __init__(self, buffer):
         """Construct a new SerializedType."""
-        self.buffer = bytes
+        self.buffer = buffer
 
     @abstractmethod
     def from_parser(self, parser, length_hint: int = None):
