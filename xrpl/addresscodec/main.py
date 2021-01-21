@@ -1,5 +1,7 @@
 """This module handles everything related to X-Addresses."""
 
+from typing import Optional, Tuple
+
 import base58
 
 from .codec import decode_classic_address, encode_classic_address
@@ -18,11 +20,13 @@ PREFIX_BYTES_TEST = bytes([0x04, 0x93])  # 4, 147
 # [← 2 byte prefix →|← 160 bits of account ID →|← 8 bits of flags →|← 64 bits of tag →]
 
 
-def classic_address_to_xaddress(classic_address, tag, is_test_network):
+def classic_address_to_xaddress(
+    classic_address: str, tag: Optional[int], is_test_network: bool
+) -> str:
     """
-    classic_address: string, the base58 encoding of the classic address
-    tag: int, the destination tag
-    is_test_network: boolean, whether it is the test network or the main network
+    classic_address: the base58 encoding of the classic address
+    tag: the destination tag
+    is_test_network: whether it is the test network or the main network
 
     Returns the X-Address representation of the data
     """
@@ -57,9 +61,9 @@ def classic_address_to_xaddress(classic_address, tag, is_test_network):
     return base58.b58encode_check(bytestring, alphabet=XRPL_ALPHABET).decode("utf-8")
 
 
-def xaddress_to_classic_address(xaddress):
+def xaddress_to_classic_address(xaddress: str) -> Tuple[str, Optional[int], bool]:
     """
-    xaddress: string, base58-encoded X-Address
+    xaddress: base58-encoded X-Address
 
     Returns a tuple containing:
         classic_address: the base58 classic address
@@ -77,7 +81,7 @@ def xaddress_to_classic_address(xaddress):
     return (classic_address, tag, is_test_network)
 
 
-def _is_test_address(prefix):
+def _is_test_address(prefix: bytes) -> bool:
     """
     prefix: the first 2 bytes of an X-Address
 
@@ -90,9 +94,9 @@ def _is_test_address(prefix):
     raise XRPLAddressCodecException("Invalid X-Address: bad prefix")
 
 
-def _get_tag_from_buffer(buffer):
+def _get_tag_from_buffer(buffer: bytes) -> Optional[int]:
     """
-    buffer: bytes
+    buffer: The buffer to extract a destination tag from.
 
     Returns the destination tag extracted from the suffix of the X-Address.
     """
@@ -110,9 +114,9 @@ def _get_tag_from_buffer(buffer):
     return None
 
 
-def is_valid_xaddress(xaddress):
+def is_valid_xaddress(xaddress: str) -> bool:
     """
-    xaddress: string
+    xaddress: The X-Addresse to check for validity.
 
     Returns whether `xaddress` is a valid X-Address.
     """
