@@ -2,12 +2,10 @@
 from hashlib import sha512
 
 
-def _sha512_first_half(message):
+def _sha512_first_half(message: bytes) -> str:
     """
-    First 32 chars of SHA-512 hash of input
-
     :param message: bytes input to hash
-    :returns hash of message
+    :returns first 32 chars of SHA-512 hash of message
     """
     hasher = sha512()
     hasher.update(message)

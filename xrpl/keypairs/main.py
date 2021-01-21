@@ -1,26 +1,35 @@
 """Public interface for keypairs module"""
 from random import randbytes
-from xrpl import addresscodec, CryptoAlgorithm
-from xrpl.keypairs import ed25519, secp256k1, helpers
+from typing import Any, Dict, Final, Optional, Tuple
+
+from xrpl import CryptoAlgorithm, addresscodec
+from xrpl.keypairs import ed25519, helpers, secp256k1
 from xrpl.keypairs.exceptions import KeypairException
 
-_ALGORITHM_TO_MODULE_MAP = {
+# TODO: need to determine interface strategy for these modules, which will
+# effect the type used here, allowing us to remove the Any
+_ALGORITHM_TO_MODULE_MAP: Final[Dict[CryptoAlgorithm, Any]] = {
     CryptoAlgorithm.ED25519: ed25519,
     CryptoAlgorithm.SECP256K1: secp256k1,
 }
 # Ensure all CryptoAlgorithms have a module
 assert len(_ALGORITHM_TO_MODULE_MAP) == len(CryptoAlgorithm)
 
-_VERIFICATION_MESSAGE = helpers._sha512_first_half(b"This test message should verify.")
+_VERIFICATION_MESSAGE: Final[str] = helpers._sha512_first_half(
+    b"This test message should verify."
+)
 
 
-def generate_seed(entropy=None, algorithm=CryptoAlgorithm.ED25519):
+def generate_seed(
+    entropy: Optional[str] = None,
+    algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
+) -> str:
     """
-    entropy: string, must be at least addresscodec.SEED_LENGTH bytes long and
+    entropy: must be at least addresscodec.SEED_LENGTH bytes long and
     will be truncated to that length
-    algorithm: any of CryptoAlgorithm
+    algorithm: CryptoAlgorithm to use for seed generation
 
-    returns: string, a seed suitable for use with derive
+    returns: a seed suitable for use with derive
     """
     if entropy is None:
         entropy = randbytes(addresscodec.SEED_LENGTH)
@@ -29,12 +38,12 @@ def generate_seed(entropy=None, algorithm=CryptoAlgorithm.ED25519):
     return addresscodec.encode_seed(entropy, algorithm)
 
 
-def derive(seed):
+def derive(seed: str) -> Tuple[str, str]:
     """
     Given seed, which can be generated via `generate_seed`, returns
     public and private keypair.
-    seed: :string
-    returns: (public_key: string, private_key: string)
+    seed: value from which to derive keypair
+    returns: (public_key, private_key) keypair
     """
     decoded_seed, algorithm = addresscodec.decode_seed(seed)
     module = _ALGORITHM_TO_MODULE_MAP[algorithm]
