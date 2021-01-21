@@ -3,7 +3,8 @@ Encodes and decodes field IDs.
 `Field IDs <https://xrpl.org/serialization.html#field-ids>`_
 """
 
-from xrpl.binary_codec.definitions import FieldHeader, definitions
+from xrpl.binary_codec.definitions import definitions
+from xrpl.binary_codec.definitions.field_header import FieldHeader
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 
 
@@ -72,7 +73,7 @@ def _decode_field_id(field_id: bytes) -> FieldHeader:
     if len(byte_array) == 1:
         high_bits = byte_array[0] >> 4
         low_bits = byte_array[0] & 0x0F
-        return definitions.FieldHeader(high_bits, low_bits)
+        return FieldHeader(high_bits, low_bits)
     if len(byte_array) == 2:
         first_byte = byte_array[0]
         second_byte = byte_array[1]
@@ -81,11 +82,11 @@ def _decode_field_id(field_id: bytes) -> FieldHeader:
         if (
             first_byte_high_bits == 0
         ):  # next 4 bits are field code, second byte is type code
-            return definitions.FieldHeader(second_byte, first_byte_low_bits)
+            return FieldHeader(second_byte, first_byte_low_bits)
         # Otherwise, next 4 bits are type code, second byte is field code
-        return definitions.FieldHeader(first_byte_high_bits, second_byte)
+        return FieldHeader(first_byte_high_bits, second_byte)
     if len(byte_array) == 3:
-        return definitions.FieldHeader(byte_array[1], byte_array[2])
+        return FieldHeader(byte_array[1], byte_array[2])
 
     raise XRPLBinaryCodecException(
         "Field ID must be between 1 and 3 bytes. "
