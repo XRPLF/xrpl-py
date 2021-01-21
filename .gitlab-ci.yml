@@ -7,7 +7,10 @@ stages:
   before_script:
     - echo "before testing"
     - apk add build-base
-    - pip3 install -r requirements-dev.txt
+    - apk add libffi-dev
+    - apk add openssl-dev
+    - pip install poetry
+    - poetry install
     - python3 setup.py develop
 
 unit-test:
@@ -22,4 +25,4 @@ lint:
   stage: lint
   extends: .test
   script:
-    - flake8 .
+    - poetry run flake8 xrpl tests

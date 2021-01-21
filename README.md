@@ -3,17 +3,19 @@
 Supports Python 3.5 and later.
 
 ## Contributing
+
 ### Setting up the dev environment
 
+Install poetry per the instructions at https://python-poetry.org/docs/
+
 ```bash
-# Create a new virtual environment.
-python -m venv venv
+poetry install
+```
 
-# Activate the virtual environment.
-venv/bin/activate.
+Install pre-commit globally to get access to the pre-commit hooks:
 
-# Install dev dependencies into virtual environment.
-python -m pip install -r requirements-dev.txt
+```bash
+pip install pre-commit
 ```
 
 ### Linting
@@ -22,15 +24,17 @@ After setting up the dev environment using the commands above, you can run the l
 by executing
 
 ```bash
-flake8 ./xrpl
+poetry run flake8 ./xrpl
 ```
 
 ### Installing Dependencies
+
 ```bash
 python setup.py develop
 ```
 
 ### Running Tests
+
 ```bash
 python -m unittest discover tests
 ```
