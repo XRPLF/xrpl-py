@@ -1,5 +1,7 @@
 """This module encodes and decodes various types of base58 encodings."""
 
+from typing import List, Tuple
+
 import base58
 
 from .exceptions import XRPLAddressCodecException
@@ -26,12 +28,8 @@ ALGORITHM_TO_PREFIX_MAP = {
 ALGORITHMS = list(ALGORITHM_TO_PREFIX_MAP)
 
 
-def _encode(bytestring, prefix, expected_length):
+def _encode(bytestring: bytes, prefix: List[int], expected_length: int) -> str:
     """
-    bytestring: bytes
-    prefix: list of ints (each int < 256)
-    expected_length: int
-
     Returns the base58 encoding of the bytestring, with the given data prefix
     (which indicates type) and while ensuring the bytestring is the expected
     length.
@@ -45,13 +43,8 @@ def _encode(bytestring, prefix, expected_length):
     return base58.b58encode_check(payload, alphabet=XRPL_ALPHABET).decode("utf-8")
 
 
-def _decode(b58_string, prefix):
-    """
-    b58_string: string representing a base58 value
-    prefix: the prefix prepended to the bytestring, in bytes
-
-    Returns the byte decoding of the base58-encoded string
-    """
+def _decode(b58_string: str, prefix: bytes) -> bytes:
+    """Returns the byte decoding of the base58-encoded string"""
     # TODO: (mvadari) Figure out if prefix is the right way to do this or if
     # there is a better way
     prefix_length = len(prefix)
@@ -61,7 +54,7 @@ def _decode(b58_string, prefix):
     return decoded[prefix_length:]
 
 
-def encode_seed(entropy, encoding_type):
+def encode_seed(entropy: bytes, encoding_type: str) -> str:
     """
     entropy: SEED_LENGTH bytes
     encoding_type: either ED25519 or SECP256K1
@@ -81,7 +74,7 @@ def encode_seed(entropy, encoding_type):
     return _encode(entropy, prefix, SEED_LENGTH)
 
 
-def decode_seed(seed):
+def decode_seed(seed: str) -> Tuple[bytes, str]:
     """
     seed: b58 encoding of a seed
 
@@ -100,7 +93,7 @@ def decode_seed(seed):
     )
 
 
-def encode_classic_address(bytestring):
+def encode_classic_address(bytestring: bytes) -> str:
     """
     bytestring: bytes to be encoded
 
@@ -109,7 +102,7 @@ def encode_classic_address(bytestring):
     return _encode(bytestring, CLASSIC_ADDRESS_PREFIX, CLASSIC_ADDRESS_LENGTH)
 
 
-def decode_classic_address(classic_address):
+def decode_classic_address(classic_address: str) -> bytes:
     """
     classic_address: classic address to be decoded
 
@@ -118,7 +111,7 @@ def decode_classic_address(classic_address):
     return _decode(classic_address, bytes(CLASSIC_ADDRESS_PREFIX))
 
 
-def encode_node_public_key(bytestring):
+def encode_node_public_key(bytestring: bytes) -> str:
     """
     bytestring: bytes to be encoded
 
@@ -127,7 +120,7 @@ def encode_node_public_key(bytestring):
     return _encode(bytestring, NODE_PUBLIC_KEY_PREFIX, NODE_PUBLIC_KEY_LENGTH)
 
 
-def decode_node_public_key(node_public_key):
+def decode_node_public_key(node_public_key: str) -> bytes:
     """
     node_public_key: node public key to be decoded
 
@@ -136,7 +129,7 @@ def decode_node_public_key(node_public_key):
     return _decode(node_public_key, bytes(NODE_PUBLIC_KEY_PREFIX))
 
 
-def encode_account_public_key(bytestring):
+def encode_account_public_key(bytestring: bytes) -> str:
     """
     bytestring: bytes to be encoded
 
@@ -145,7 +138,7 @@ def encode_account_public_key(bytestring):
     return _encode(bytestring, ACCOUNT_PUBLIC_KEY_PREFIX, ACCOUNT_PUBLIC_KEY_LENGTH)
 
 
-def decode_account_public_key(account_public_key):
+def decode_account_public_key(account_public_key: str) -> bytes:
     """
     account_public_key: account public key to be decoded
 
@@ -154,7 +147,7 @@ def decode_account_public_key(account_public_key):
     return _decode(account_public_key, bytes(ACCOUNT_PUBLIC_KEY_PREFIX))
 
 
-def is_valid_classic_address(classic_address):
+def is_valid_classic_address(classic_address: str) -> bool:
     """
     classic_address: string
 
