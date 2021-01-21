@@ -44,7 +44,12 @@ def _encode(bytestring: bytes, prefix: List[int], expected_length: int) -> str:
 
 
 def _decode(b58_string: str, prefix: bytes) -> bytes:
-    """Returns the byte decoding of the base58-encoded string"""
+    """
+    b58_string: A base58 value
+    prefix: The prefix prepended to the bytestring
+
+    Returns the byte decoding of the base58-encoded string.
+    """
     # TODO: (mvadari) Figure out if prefix is the right way to do this or if
     # there is a better way
     prefix_length = len(prefix)
@@ -56,7 +61,7 @@ def _decode(b58_string: str, prefix: bytes) -> bytes:
 
 def encode_seed(entropy: bytes, encoding_type: str) -> str:
     """
-    entropy: SEED_LENGTH bytes
+    entropy: SEED_LENGTH
     encoding_type: either ED25519 or SECP256K1
 
     Returns an encoded seed
@@ -95,7 +100,7 @@ def decode_seed(seed: str) -> Tuple[bytes, str]:
 
 def encode_classic_address(bytestring: bytes) -> str:
     """
-    bytestring: bytes to be encoded
+    bytestring: Bytes to be encoded
 
     Returns the classic address encoding of these bytes as a base58 string
     """
@@ -104,7 +109,7 @@ def encode_classic_address(bytestring: bytes) -> str:
 
 def decode_classic_address(classic_address: str) -> bytes:
     """
-    classic_address: classic address to be decoded
+    classic_address: Classic address to be decoded
 
     Returns the decoded bytes of the classic address
     """
@@ -113,7 +118,7 @@ def decode_classic_address(classic_address: str) -> bytes:
 
 def encode_node_public_key(bytestring: bytes) -> str:
     """
-    bytestring: bytes to be encoded
+    bytestring: Bytes to be encoded
 
     Returns the node public key encoding of these bytes as a base58 string
     """
@@ -122,7 +127,7 @@ def encode_node_public_key(bytestring: bytes) -> str:
 
 def decode_node_public_key(node_public_key: str) -> bytes:
     """
-    node_public_key: node public key to be decoded
+    node_public_key: Node public key to be decoded
 
     Returns the decoded bytes of the node public key
     """
@@ -131,7 +136,7 @@ def decode_node_public_key(node_public_key: str) -> bytes:
 
 def encode_account_public_key(bytestring: bytes) -> str:
     """
-    bytestring: bytes to be encoded
+    bytestring: Bytes to be encoded
 
     Returns the account public key encoding of these bytes as a base58 string
     """
@@ -140,7 +145,7 @@ def encode_account_public_key(bytestring: bytes) -> str:
 
 def decode_account_public_key(account_public_key: str) -> bytes:
     """
-    account_public_key: account public key to be decoded
+    account_public_key: Account public key to be decoded
 
     Returns the decoded bytes of the account public key
     """
@@ -149,7 +154,7 @@ def decode_account_public_key(account_public_key: str) -> bytes:
 
 def is_valid_classic_address(classic_address: str) -> bool:
     """
-    classic_address: string
+    classic_address: The classic address to validate.
 
     Returns whether `classic_address` is a valid classic address.
     """
