@@ -18,18 +18,18 @@ class UInt8(UInt):
         pass
 
     @classmethod
-    def from_parser(parser):
+    def from_parser(cls, parser):
         """Construct a new UInt8 type from a binary parser."""
-        return UInt8(parser.read(_width))
+        return cls(parser.read(_width))
 
     @classmethod
-    def from_value(value):
+    def from_value(cls, value):
         """Construct a new UInt8 type from a number."""
-        if isinstance(value, UInt8):
+        if isinstance(value, cls):
             return value
 
         if isinstance(value, int):
-            return UInt8(bytes([value]))
+            return cls(bytes([value]))
 
         raise XRPLBinaryCodecException("Cannot construct UInt8 from given value")
 
