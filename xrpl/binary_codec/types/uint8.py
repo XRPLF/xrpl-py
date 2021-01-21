@@ -8,9 +8,9 @@ _width = 1  # 8 / 8
 class UInt8(UInt):
     """Derived UInt class for serializing/deserializing 8 bit UInt."""
 
-    def __init__(self, uint_bytes):
+    def __init__(self, buffer):
         """Construct a new UInt8 type from a `bytes` value."""
-        super().__init__(uint_bytes)
+        super().__init__(buffer)
 
     @property
     def value(self):
