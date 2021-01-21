@@ -11,14 +11,13 @@ stages:
     - apk add openssl-dev
     - pip install poetry
     - poetry install
-    - python3 setup.py develop
 
 unit-test:
   stage: test
   extends: .test
   script:
     - echo "testing"
-    - python -m unittest discover tests
+    - poetry run python -m unittest discover tests
 
 lint:
   image: python:3-alpine
