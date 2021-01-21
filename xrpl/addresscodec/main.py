@@ -116,7 +116,7 @@ def _get_tag_from_buffer(buffer: bytes) -> Optional[int]:
 
 def is_valid_xaddress(xaddress: str) -> bool:
     """
-    xaddress: The X-Addresse to check for validity.
+    xaddress: The X-Address to check for validity.
 
     Returns whether `xaddress` is a valid X-Address.
     """
