@@ -3,8 +3,7 @@ Encodes and decodes field IDs.
 `Field IDs <https://xrpl.org/serialization.html#field-ids>`_
 """
 
-from xrpl.binary_codec.definitions import definitions
-from xrpl.binary_codec.definitions.field_header import FieldHeader
+from xrpl.binary_codec.definitions import FieldHeader, definitions
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 
 
@@ -69,7 +68,7 @@ def _decode_field_id(field_id: bytes) -> FieldHeader:
     Returns a FieldHeader object representing the type code and field code of
     a decoded field ID.
     """
-    byte_array = bytes.fromhex(field_id)
+    byte_array = bytes.fromhex(str(field_id))
     if len(byte_array) == 1:
         high_bits = byte_array[0] >> 4
         low_bits = byte_array[0] & 0x0F
