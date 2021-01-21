@@ -11,26 +11,38 @@ class UInt(ABC):
 
     def __eq__(self, other):
         """Determine whether two UInt objects are equal."""
+        if isinstance(other, int):
+            return self.value == other
         return self.value == other.value
 
     def __ne__(self, other):
         """Determine whether two UInt objects are unequal."""
+        if isinstance(other, int):
+            return self.value != other
         return self.value != other.value
 
     def __lt__(self, other):
         """Determine whether one UInt object is less than another."""
+        if isinstance(other, int):
+            return self.value < other
         return self.value < other.value
 
     def __le__(self, other):
         """Determine whether one UInt object is less than or equal to another."""
+        if isinstance(other, int):
+            return self.value <= other
         return self.value <= other.value
 
     def __gt__(self, other):
         """Determine whether one UInt object is greater than another."""
+        if isinstance(other, int):
+            return self.value > other
         return self.value > other.value
 
     def __ge__(self, other):
         """Determine whether one UInt object is greater than or equal to another."""
+        if isinstance(other, int):
+            return self.value >= other
         return self.value >= other.value
 
     def to_json(self):

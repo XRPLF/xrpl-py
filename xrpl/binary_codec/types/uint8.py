@@ -2,7 +2,7 @@
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.types import UInt
 
-_width = 8 / 8
+_width = 1  # 8 / 8
 
 
 class UInt8(UInt):
@@ -15,7 +15,7 @@ class UInt8(UInt):
     @property
     def value(self):
         """Get the value of the UInt8 represented by `this.bytes`."""
-        pass
+        return self.bytes[0]
 
     @classmethod
     def from_parser(cls, parser):
