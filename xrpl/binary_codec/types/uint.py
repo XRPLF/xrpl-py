@@ -5,9 +5,9 @@ from abc import ABC, abstractmethod
 class UInt(ABC):
     """Base class for serializing and deserializing unsigned integers."""
 
-    def __init__(self, uint_bytes):
+    def __init__(self, buffer):
         """Construct a new UInt type from a `bytes` value."""
-        self.bytes = uint_bytes
+        self.bytes = buffer
 
     def __eq__(self, other):
         """Determine whether two UInt objects are equal."""
@@ -55,5 +55,5 @@ class UInt(ABC):
     @property
     @abstractmethod
     def value(self):
-        """Get the value of the UInt represented by `this.bytes`."""
+        """Get the value of the UInt represented by `self.buffer`."""
         raise NotImplementedError("UInt.value not implemented.")
