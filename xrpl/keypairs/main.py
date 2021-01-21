@@ -1,4 +1,4 @@
-"""Public interface for keypairs module"""
+"""Public interface for keypairs module."""
 from random import randbytes
 from typing import Any, Dict, Final, Optional, Tuple
 
@@ -31,10 +31,11 @@ def generate_seed(
 
     returns: a seed suitable for use with derive
     """
-    if entropy is None:
-        entropy = randbytes(addresscodec.SEED_LENGTH)
-    else:
-        entropy = entropy[: addresscodec.SEED_LENGTH]
+    entropy = (
+        randbytes(addresscodec.SEED_LENGTH)
+        if entropy is None
+        else entropy[: addresscodec.SEED_LENGTH]
+    )
     return addresscodec.encode_seed(entropy, algorithm)
 
 
