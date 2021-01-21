@@ -31,8 +31,9 @@ def derive(seed: str) -> Tuple[str, str]:
 
 def sign(message: str, private_key: str) -> bytes:
     """
-    Sign message in ED25519 given private-key
-    returns: :bytes
+    param: message: message to sign
+    param: private_key: key with which to sign message
+    returns: signature of message signed using private_key
     """
     raw_private = private_key[len(_PREFIX) :]
     wrapped_private = ECPrivateKey(int(raw_private, 16), _CURVE)
@@ -40,7 +41,13 @@ def sign(message: str, private_key: str) -> bytes:
 
 
 def is_message_valid(message: str, signature: bytes, public_key: str) -> bool:
-    """:returns: True if message is valid given signature"""
+    """
+    param: message: message to check against signature
+    param: signature: signature of message to to verify
+    param: public_key: public key corresponding to private key used to
+    generate signature
+    :returns: True if message is valid given signature and public_key
+    """
     raw_public = public_key[len(_PREFIX) :]
     public_key_point = _CURVE.decode_point(bytes.fromhex(raw_public))
     wrapped_public = ECPublicKey(public_key_point)
