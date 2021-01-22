@@ -1,5 +1,5 @@
 """Base class for serializing and deserializing unsigned integers."""
-from abc import ABC, abstractmethod
+from abc import ABC
 
 
 class UInt(ABC):
@@ -52,7 +52,6 @@ class UInt(ABC):
         return str(self.value)
 
     @property
-    @abstractmethod
     def value(self):
         """Get the value of the UInt represented by `self.buffer`."""
-        raise NotImplementedError("UInt.value not implemented.")
+        return int.from_bytes(self.buffer, byteorder="big")

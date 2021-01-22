@@ -15,11 +15,6 @@ class UInt64(UInt):
         else:
             super().__init__(buffer)
 
-    @property
-    def value(self):
-        """Get the value of the UInt64 represented by `self.buffer`."""
-        return self.buffer[:_WIDTH]
-
     @classmethod
     def from_parser(cls, parser):
         """Construct a new UInt64 type from a BinaryParser."""

@@ -1,6 +1,6 @@
 import unittest
 
-from xrpl.binary_codec.types import UInt8
+from xrpl.binary_codec.types import UInt8, UInt16, UInt32, UInt64
 
 
 class TestUInt(unittest.TestCase):
@@ -16,8 +16,19 @@ class TestUInt(unittest.TestCase):
 
     def test_compare(self):
         value1 = UInt8.from_value(124)
-        value1_value = int.from_bytes(value1.buffer, byteorder="big")
 
-        self.assertEqual(value1_value, 124)
-        self.assertLess(value1_value, 125)
-        self.assertGreater(value1_value, 123)
+        self.assertEqual(value1, 124)
+        self.assertLess(value1, 125)
+        self.assertGreater(value1, 123)
+
+    def test_compare_different(self):
+        const = 124
+        uint8 = UInt8.from_value(const)
+        uint16 = UInt16.from_value(const)
+        uint32 = UInt32.from_value(const)
+        uint64 = UInt64.from_value(const)
+
+        self.assertEqual(uint8, uint16)
+        self.assertEqual(uint16, uint32)
+        self.assertEqual(uint32, uint64)
+        self.assertEqual(uint64, const)
