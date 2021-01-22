@@ -1,38 +1,38 @@
-"""Derived UInt class for serializing/deserializing 8 bit UInt."""
+"""Derived UInt class for serializing/deserializing 16 bit UInt."""
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.types import UInt
 
-_WIDTH = 1  # 8 / 8
+_WIDTH = 2  # 16 / 8
 
 
-class UInt8(UInt):
+class UInt16(UInt):
     """Derived UInt class for serializing/deserializing 8 bit UInt."""
 
     def __init__(self, buffer):
-        """Construct a new UInt8 type from a `bytes` value."""
+        """Construct a new UInt16 type from a `bytes` value."""
         if buffer is None:
-            super().__init__(DEFAULT_UINT8)
+            super().__init__(DEFAULT_UINT16)
         else:
             super().__init__(buffer)
 
     @property
     def value(self):
-        """Get the value of the UInt8 represented by `self.buffer`."""
-        return self.buffer[0]
+        """Get the value of the UInt16 represented by `self.buffer`."""
+        return self.buffer[:_WIDTH]
 
     @classmethod
     def from_parser(cls, parser):
-        """Construct a new UInt8 type from a BinaryParser."""
+        """Construct a new UInt16 type from a BinaryParser."""
         return cls(parser.read(_WIDTH))
 
     @classmethod
     def from_value(cls, value):
-        """Construct a new UInt8 type from a number."""
+        """Construct a new UInt16 type from a number."""
         if isinstance(value, int):
             value_bytes = (value).to_bytes(_WIDTH, byteorder="big")
             return cls(value_bytes)
 
-        raise XRPLBinaryCodecException("Cannot construct UInt8 from given value")
+        raise XRPLBinaryCodecException("Cannot construct UInt16 from given value")
 
 
-DEFAULT_UINT8 = UInt8(bytes([_WIDTH]))
+DEFAULT_UINT16 = UInt16(bytes([_WIDTH]))
