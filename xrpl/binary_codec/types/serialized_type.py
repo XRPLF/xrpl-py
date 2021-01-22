@@ -1,6 +1,6 @@
 """The base class for all binary codec types."""
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Optional
 
 
 class SerializedType(ABC):
@@ -11,12 +11,12 @@ class SerializedType(ABC):
         self.bytes = bytes()
 
     @abstractmethod
-    def from_parser(self, parser: None, length_hint: Optional[int] = None) -> None:
+    def from_parser(self, parser: Any, length_hint: Optional[int] = None) -> None:
         """Construct a new SerializedType from a BinaryParser."""
         raise NotImplementedError("SerializedType.from_parser not implemented.")
 
     @abstractmethod
-    def from_value(self, value: None) -> None:
+    def from_value(self, value: Any) -> None:
         """Construct a new SerializedType from a literal value."""
         raise NotImplementedError("SerializedType.from_value not implemented.")
 
