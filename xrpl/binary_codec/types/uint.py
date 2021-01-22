@@ -7,7 +7,7 @@ class UInt(ABC):
 
     def __init__(self, buffer):
         """Construct a new UInt type from a `bytes` value."""
-        self.bytes = buffer
+        self.buffer = buffer
 
     def __eq__(self, other):
         """Determine whether two UInt objects are equal."""
@@ -47,10 +47,9 @@ class UInt(ABC):
 
     def to_json(self):
         """Convert a UInt object to JSON."""
-        if isinstance(self.value, (int, float)):
+        if isinstance(self.value, int):
             return self.value
-        else:
-            return str(self.value)
+        return str(self.value)
 
     @property
     @abstractmethod

@@ -2,7 +2,7 @@
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.types import UInt
 
-_width = 1  # 8 / 8
+_WIDTH = 1  # 8 / 8
 
 
 class UInt8(UInt):
@@ -14,24 +14,21 @@ class UInt8(UInt):
 
     @property
     def value(self):
-        """Get the value of the UInt8 represented by `this.bytes`."""
-        return self.bytes[0]
+        """Get the value of the UInt8 represented by `self.buffer`."""
+        return self.buffer[0]
 
     @classmethod
     def from_parser(cls, parser):
-        """Construct a new UInt8 type from a binary parser."""
-        return cls(parser.read(_width))
+        """Construct a new UInt8 type from a BinaryParser."""
+        return cls(parser.read(_WIDTH))
 
     @classmethod
     def from_value(cls, value):
         """Construct a new UInt8 type from a number."""
-        if isinstance(value, cls):
-            return value
-
         if isinstance(value, int):
             return cls(bytes([value]))
 
         raise XRPLBinaryCodecException("Cannot construct UInt8 from given value")
 
 
-DEFAULT_UINT8 = UInt8(bytes([_width]))
+DEFAULT_UINT8 = UInt8(bytes([_WIDTH]))
