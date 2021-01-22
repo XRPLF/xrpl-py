@@ -36,7 +36,6 @@ __all__ = [
     "is_valid_classic_address",
     "is_valid_xaddress",
     "SEED_LENGTH",
-    "MAX_32_BIT_UNSIGNED_INT",
     "xaddress_to_classic_address",
     "XRPLAddressCodecException",
     "XRPL_ALPHABET",
