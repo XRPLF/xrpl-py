@@ -1,6 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch
-from xrpl import keypairs, addresscodec
+
+from xrpl import addresscodec, keypairs
 
 DUMMY_BYTES = b"\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10"
 

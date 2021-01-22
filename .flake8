@@ -25,6 +25,9 @@ per-file-ignores =
 # F are errors reported by pyflakes, a tool which parses source files
 # and finds invalid Python code.
 
+# I is linting errors related to isort, which is the source of truth
+# for how imports should be ordered.
+
 # W and E are warnings and errors reported by pycodestyle, which checks
 # your Python code against some of the style conventions in PEP 8.
-select = BLK,D,E,F,W
+select = BLK,D,E,F,I,W

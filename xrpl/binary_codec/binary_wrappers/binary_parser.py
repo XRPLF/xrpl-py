@@ -1,10 +1,10 @@
 """Context manager and helpers for the deserialization of bytes into JSON."""
 from typing import Tuple
 
-from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.definitions import definitions
 from xrpl.binary_codec.definitions.field_header import FieldHeader
 from xrpl.binary_codec.definitions.field_instance import FieldInstance
+from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.types import SerializedType
 
 # Constants used in length prefix decoding:
@@ -120,7 +120,7 @@ class BinaryParser:
         )
 
     def read_field_header(self) -> FieldHeader:
-        """Reads field ordinal from BinaryParser and returns as a FieldHeader object."""
+        """Reads field ID from BinaryParser and returns as a FieldHeader object."""
         type_code = self.read_uint8()
         field_code = type_code & 15
         type_code >>= 4
@@ -129,14 +129,14 @@ class BinaryParser:
             type_code = self.read_uint8()
             if type_code == 0 or type_code < 16:
                 raise XRPLBinaryCodecException(
-                    "Cannot read FieldOrdinal, type_code out of range."
+                    "Cannot read Field ID, type_code out of range."
                 )
 
         if field_code == 0:
             field_code = self.read_uint8()
             if field_code == 0 or field_code < 16:
                 raise XRPLBinaryCodecException(
-                    "Cannot read FieldOrdinal, field_code out of range."
+                    "Cannot read field ID, field_code out of range."
                 )
         return FieldHeader(type_code, field_code)
 
@@ -153,11 +153,6 @@ class BinaryParser:
     def read_type(self, field_type: SerializedType):
         """Read next bytes from BinaryParser as the given type."""
         return field_type.from_parser(self)
-
-    # TODO: this is essentially a dispatch, figure it out for python.
-    def type_for_field(self, field_instance: FieldInstance):
-        """Get the type associated with a given field."""
-        return field_instance.type
 
     def read_field_value(self, field: FieldInstance) -> SerializedType:
         """Read value of the type specified by field from the BinaryParser."""
