@@ -1,14 +1,13 @@
 """Maps and helpers providing serialization-related information about fields."""
 
-
 import json
 import os
 from typing import Dict, Tuple
 
+from xrpl.binary_codec.definitions.field_header import FieldHeader
+from xrpl.binary_codec.definitions.field_info import FieldInfo
+from xrpl.binary_codec.definitions.field_instance import FieldInstance
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
-
-from .field_header import FieldHeader
-from .field_info import FieldInfo
 
 
 def load_definitions(filename: str = "definitions.json") -> Dict:
@@ -57,7 +56,7 @@ TRANSACTION_RESULTS_CODE_TO_STR_MAP = {
 TYPE_ORDINAL_MAP = DEFINITIONS["TYPES"]
 
 FIELD_INFO_MAP = {}
-FIELD_HEADER_NAME_MAP = {}
+FIELD_HEADER_NAME_MAP: Dict[FieldHeader, str] = {}
 
 # Populate FIELD_INFO_MAP and FIELD_HEADER_NAME_MAP
 try:
@@ -123,3 +122,14 @@ def get_field_header_from_name(field_name: str) -> FieldHeader:
 def get_field_name_from_header(field_header: FieldHeader) -> str:
     """Returns the field name described by the given FieldHeader object."""
     return FIELD_HEADER_NAME_MAP[field_header]
+
+
+def get_field_instance(field_name: str) -> FieldInstance:
+    """Return a FieldInstance object for the given field name."""
+    info = FIELD_INFO_MAP[field_name]
+    field_header = get_field_header_from_name(field_name)
+    return FieldInstance(
+        info,
+        field_name,
+        field_header,
+    )

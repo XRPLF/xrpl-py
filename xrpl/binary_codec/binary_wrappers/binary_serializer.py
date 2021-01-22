@@ -48,7 +48,7 @@ def _encode_variable_length_prefix(length: int) -> bytes:
 class BinarySerializer:
     """Serializes JSON to XRPL binary format."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Construct a BinarySerializer."""
         self.bytesink = bytes()
 
