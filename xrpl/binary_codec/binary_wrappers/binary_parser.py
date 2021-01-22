@@ -5,7 +5,7 @@ from xrpl.binary_codec.definitions import definitions
 from xrpl.binary_codec.definitions.field_header import FieldHeader
 from xrpl.binary_codec.definitions.field_instance import FieldInstance
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
-from xrpl.binary_codec.types import SerializedType
+from xrpl.binary_codec.types.serialized_type import SerializedType
 
 # Constants used in length prefix decoding:
 # Max length that can be represented in a single byte per XRPL serialization encoding

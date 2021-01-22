@@ -2,7 +2,7 @@ import unittest
 
 from xrpl.binary_codec.binary_wrappers import BinaryParser
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
-from xrpl.binary_codec.types import Hash160
+from xrpl.binary_codec.types.hash160 import Hash160
 
 
 class TestHash160(unittest.TestCase):

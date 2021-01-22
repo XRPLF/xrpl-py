@@ -4,7 +4,7 @@
 from abc import ABC
 
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
-from xrpl.binary_codec.types import SerializedType
+from xrpl.binary_codec.types.serialized_type import SerializedType
 
 
 class Hash(SerializedType, ABC):
