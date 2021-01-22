@@ -4,7 +4,7 @@
 # See https://xrpl.org/cryptographic-keys.html#secp256k1-key-derivation
 # for an overview of the algorithm.
 from struct import pack
-from typing import Callable, Final, Generator, Tuple
+from typing import Callable, Final, Generator, Literal, Tuple, Union
 
 from ecpy.curves import Curve
 from ecpy.ecdsa import ECDSA
@@ -13,14 +13,14 @@ from ecpy.keys import ECPrivateKey, ECPublicKey
 from xrpl.keypairs.exceptions import KeypairException
 from xrpl.keypairs.helpers import sha512_first_half
 
+_CURVE: Final[Curve] = Curve.get_curve("secp256k1")
+_GROUP_ORDER: Final[int] = _CURVE.order
+_SIGNER: Final[ECDSA] = ECDSA()
+
 # keys must be _KEY_LENGTH long and may be left padded
 # with _PADDING_PREFIX to accomplish that
 _KEY_LENGTH: Final[int] = 66
 _PADDING_PREFIX: Final[str] = "0"
-
-_CURVE: Final[Curve] = Curve.get_curve("secp256k1")
-_GROUP_ORDER: Final[int] = _CURVE.order
-_SIGNER: Final[ECDSA] = ECDSA()
 
 # generated sequence values are 4 byte unsigned big-endian.
 #
@@ -39,35 +39,24 @@ _INTERMEDIATE_KEYPAIR_PADDING: Final[bytes] = pack(">BBBB", 0, 0, 0, 0)
 
 def derive(decoded_seed: bytes) -> Tuple[str, str]:
     """
-        :param decoded_seed: :bytes decoded seed
-    import { bytesToHex } from './utils'
-        :returns (private key :string, public key :string)
+    :param decoded_seed: :bytes decoded seed
+    :returns (private key :string, public key :string)
     """
-    root_private = _root_secret(decoded_seed)
-    wrapped_root_private = ECPrivateKey(int.from_bytes(root_private, "big"), _CURVE)
-    wrapped_root_public = wrapped_root_private.get_public_key().W
-    root_public = bytes(
-        _CURVE.encode_point(wrapped_root_public, compressed=True),
+    root_public, root_private = _do_derive_part(
+        decoded_seed,
+        "root",
     )
-
-    mid_private = _intermediate_secret(root_public)
-    wrapped_mid_private = ECPrivateKey(int.from_bytes(mid_private, "big"), _CURVE)
-    wrapped_mid_public = wrapped_mid_private.get_public_key().W
-
-    final_private = format(
-        (int.from_bytes(root_private, "big") + int.from_bytes(mid_private, "big"))
-        % _GROUP_ORDER,
-        "x",
+    mid_public, mid_private = _do_derive_part(
+        _bytes_from_public_key(root_public),
+        "mid",
     )
-    wrapped_final_public = _CURVE.add_point(
-        wrapped_root_public,
-        wrapped_mid_public,
+    final_public, final_private = _derive_final_pair(
+        root_public,
+        root_private,
+        mid_public,
+        mid_private,
     )
-    final_public = bytes(
-        _CURVE.encode_point(wrapped_final_public, compressed=True),
-    ).hex()
-
-    return [_key_format(raw) for raw in [final_public, final_private]]
+    return [_key_format(key) for key in [final_public, final_private]]
 
 
 def sign(message: str, private_key: str) -> bytes:
@@ -92,24 +81,48 @@ def is_message_valid(message: str, signature: bytes, public_key: str) -> bool:
     return _SIGNER.verify(message, signature, wrapped_public)
 
 
-def _key_format(raw_key: str) -> str:
-    return raw_key.rjust(_KEY_LENGTH, _PADDING_PREFIX).upper()
+def _bytes_from_public_key(key: ECPublicKey) -> bytes:
+    return bytes(_CURVE.encode_point(key.W, compressed=True))
 
 
-def _root_secret(decoded_seed: bytes) -> bytes:
-    def candidate_merger(candidate: bytes) -> bytes:
-        return decoded_seed + candidate
+def _key_format(key: Union[ECPublicKey, ECPrivateKey]) -> str:
+    as_string = (
+        _bytes_from_public_key(key).hex()
+        if type(key) == ECPublicKey
+        else format(key.d, "x")
+    )
+    return as_string.rjust(_KEY_LENGTH, _PADDING_PREFIX).upper()
 
-    return _get_secret(candidate_merger)
+
+def _do_derive_part(
+    bytes_input: bytes, phase: Literal["root", "mid"]
+) -> Tuple[ECPublicKey, ECPrivateKey]:
+    if phase == "root":
+
+        def candidate_merger(candidate: bytes) -> bytes:
+            return bytes_input + candidate
+
+    else:
+
+        def candidate_merger(candidate: bytes) -> bytes:
+            return bytes_input + _INTERMEDIATE_KEYPAIR_PADDING + candidate
+
+    raw_private = _get_secret(candidate_merger)
+    wrapped_private = ECPrivateKey(int.from_bytes(raw_private, "big"), _CURVE)
+    return wrapped_private.get_public_key(), wrapped_private
 
 
-def _intermediate_secret(root_public_key: bytes) -> bytes:
-    def candidate_merger(candidate: bytes) -> bytes:
-        x = root_public_key + _INTERMEDIATE_KEYPAIR_PADDING + candidate
-        return x
->>>>>>> 4cb80af (wow! it works!)
-
-    return _get_secret(candidate_merger)
+def _derive_final_pair(
+    root_public: ECPublicKey,
+    root_private: ECPrivateKey,
+    mid_public: ECPublicKey,
+    mid_private: ECPrivateKey,
+) -> Tuple[ECPublicKey, ECPrivateKey]:
+    raw_private = (root_private.d + mid_private.d) % _GROUP_ORDER
+    wrapped_private = ECPrivateKey(raw_private, _CURVE)
+    public_point = _CURVE.add_point(root_public.W, mid_public.W)
+    wrapped_public = ECPublicKey(public_point)
+    return wrapped_public, wrapped_private
 
 
 def _get_secret(candidate_merger: Callable[[bytes], bytes]) -> bytes:
