@@ -1,6 +1,7 @@
 """A hash field with a width of 160 bits (20 bytes).
 `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
 """
+from xrpl.binary_codec.binary_wrappers import BinaryParser
 from xrpl.binary_codec.types import Hash
 
 
@@ -27,7 +28,7 @@ class Hash160(Hash):
         return cls(bytes.fromhex(value))
 
     @classmethod
-    def from_parser(cls, parser, length_hint: int = None):
+    def from_parser(cls, parser: BinaryParser, length_hint: int = None):
         """Construct a Hash object from an existing BinaryParser."""
         num_bytes = length_hint if length_hint is not None else cls.width
         return cls(parser.read(num_bytes))
