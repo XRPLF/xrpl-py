@@ -1,5 +1,4 @@
 """TODO: D104 Missing docstring in public package."""
-from .codec import *  # noqa: F401 F403
 from .codec import (
     decode_account_public_key,
     decode_classic_address,
