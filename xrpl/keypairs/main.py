@@ -32,11 +32,10 @@ def generate_seed(
 
     returns: a seed suitable for use with derive
     """
-    parsed_entropy = (
-        randbytes(addresscodec.SEED_LENGTH)
-        if entropy is None
-        else entropy[: addresscodec.SEED_LENGTH]
-    )
+    if entropy is None:
+        parsed_entropy = randbytes(addresscodec.SEED_LENGTH)
+    else:
+        parsed_entropy = bytes(entropy[: addresscodec.SEED_LENGTH], "UTF-8")
     return addresscodec.encode_seed(parsed_entropy, algorithm)
 
 
@@ -53,6 +52,6 @@ def derive(seed: str) -> Tuple[str, str]:
     signature = module.sign(_VERIFICATION_MESSAGE, private_key)
     if not module.is_message_valid(_VERIFICATION_MESSAGE, signature, public_key):
         raise KeypairException(
-            "derived keypair did not generate verifiable signature",
+            "Derived keypair did not generate verifiable signature",
         )
     return public_key, private_key
