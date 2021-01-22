@@ -40,17 +40,20 @@ def generate_seed(
     return addresscodec.encode_seed(parsed_entropy, algorithm)
 
 
-def derive(seed: str) -> Tuple[str, str]:
+def derive(seed: str, validator: bool = False) -> Tuple[str, str]:
     """
     Given seed, which can be generated via `generate_seed`, returns
     public and private keypair.
     seed: value from which to derive keypair
+    validator: if these keys are to be used for a validator, set this to
+    True. Validator keys must use SECP256K1.
     returns: (public_key, private_key) keypair
     """
     decoded_seed, algorithm = addresscodec.decode_seed(seed)
     module = _ALGORITHM_TO_MODULE_MAP[algorithm]
-    public_key, private_key = module.derive(decoded_seed)
+    public_key, private_key = module.derive(decoded_seed, validator)
     signature = module.sign(_VERIFICATION_MESSAGE, private_key)
+
     if not module.is_message_valid(_VERIFICATION_MESSAGE, signature, public_key):
         raise KeypairException(
             "derived keypair did not generate verifiable signature",

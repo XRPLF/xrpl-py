@@ -37,15 +37,22 @@ _SEQUENCE_BYTE_FORMAT_STRING: Final[str] = ">{}".format("B" * _SEQUENCE_SIZE)
 _INTERMEDIATE_KEYPAIR_PADDING: Final[bytes] = pack(">BBBB", 0, 0, 0, 0)
 
 
-def derive(decoded_seed: bytes) -> Tuple[str, str]:
+def derive(decoded_seed: bytes, is_validator: bool) -> Tuple[str, str]:
     """
     :param decoded_seed: :bytes decoded seed
+    is_validator: if True indicates that caller wishes to derive a validator
+    keypair from this seed.
     :returns (private key :string, public key :string)
     """
     root_public, root_private = _do_derive_part(
         decoded_seed,
         "root",
     )
+
+    # validator keys just stop at the first pass
+    if is_validator:
+        return [_key_format(key) for key in [root_public, root_private]]
+
     mid_public, mid_private = _do_derive_part(
         _bytes_from_public_key(root_public),
         "mid",
