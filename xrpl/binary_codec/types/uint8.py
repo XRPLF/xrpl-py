@@ -10,7 +10,10 @@ class UInt8(UInt):
 
     def __init__(self, buffer):
         """Construct a new UInt8 type from a `bytes` value."""
-        super().__init__(buffer)
+        if buffer is None:
+            super().__init__(DEFAULT_UINT8)
+        else:
+            super().__init__(buffer)
 
     @property
     def value(self):
