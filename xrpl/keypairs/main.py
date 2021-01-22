@@ -16,7 +16,7 @@ _ALGORITHM_TO_MODULE_MAP: Final[Dict[CryptoAlgorithm, Any]] = {
 # Ensure all CryptoAlgorithms have a module
 assert len(_ALGORITHM_TO_MODULE_MAP) == len(CryptoAlgorithm)
 
-_VERIFICATION_MESSAGE: Final[str] = sha512_first_half(
+_VERIFICATION_MESSAGE: Final[bytes] = sha512_first_half(
     b"This test message should verify."
 )
 
@@ -32,12 +32,12 @@ def generate_seed(
 
     returns: a seed suitable for use with derive
     """
-    entropy = (
+    parsed_entropy = (
         randbytes(addresscodec.SEED_LENGTH)
         if entropy is None
         else entropy[: addresscodec.SEED_LENGTH]
     )
-    return addresscodec.encode_seed(entropy, algorithm)
+    return addresscodec.encode_seed(parsed_entropy, algorithm)
 
 
 def derive(seed: str) -> Tuple[str, str]:

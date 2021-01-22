@@ -1,5 +1,5 @@
 """Methods for deriving keypairs given an SECP256k1-encoded seed."""
-from ecpy.curves import Curve
+from ecpy.curves import Curve  # type: ignore
 
 _CURVE = Curve.get_curve("secp256k1")
 

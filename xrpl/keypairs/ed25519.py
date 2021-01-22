@@ -6,9 +6,9 @@ TODO - is there a way to do an interface for this?
 from hashlib import sha512
 from typing import Final, Tuple
 
-from ecpy.curves import Curve
-from ecpy.eddsa import EDDSA
-from ecpy.keys import ECPrivateKey, ECPublicKey
+from ecpy.curves import Curve  # type: ignore
+from ecpy.eddsa import EDDSA  # type: ignore
+from ecpy.keys import ECPrivateKey, ECPublicKey  # type: ignore
 
 from xrpl.keypairs.helpers import sha512_first_half
 
@@ -17,7 +17,7 @@ _CURVE: Final[Curve] = Curve.get_curve("Ed25519")
 _SIGNER: Final[EDDSA] = EDDSA(sha512)
 
 
-def derive(seed: str) -> Tuple[str, str]:
+def derive(seed: bytes) -> Tuple[str, str]:
     """
     seed: an ED25519 seed from which to derive keypair
     :returns (private key, public key) derived from seed
@@ -26,7 +26,7 @@ def derive(seed: str) -> Tuple[str, str]:
     wrapped_private = ECPrivateKey(int.from_bytes(raw_private, "big"), _CURVE)
     wrapped_public = EDDSA.get_public_key(wrapped_private, sha512).W
     raw_public = _CURVE.encode_point(wrapped_public)
-    return [_key_format(raw) for raw in [raw_public, raw_private]]
+    return _key_format(raw_public), _key_format(raw_private)
 
 
 def sign(message: str, private_key: str) -> bytes:
@@ -54,5 +54,5 @@ def is_message_valid(message: str, signature: bytes, public_key: str) -> bool:
     return _SIGNER.verify(message, signature, wrapped_public)
 
 
-def _key_format(raw_key: str) -> str:
+def _key_format(raw_key: bytes) -> str:
     return (_PREFIX + raw_key.hex()).upper()
