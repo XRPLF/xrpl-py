@@ -6,9 +6,9 @@
 from struct import pack
 from typing import Callable, Final, Literal, Tuple
 
-from ecpy.curves import Curve
-from ecpy.ecdsa import ECDSA
-from ecpy.keys import ECPrivateKey, ECPublicKey
+from ecpy.curves import Curve  # type: ignore
+from ecpy.ecdsa import ECDSA  # type: ignore
+from ecpy.keys import ECPrivateKey, ECPublicKey  # type: ignore
 
 from xrpl.keypairs.exceptions import KeypairException
 from xrpl.keypairs.helpers import sha512_first_half
@@ -85,10 +85,12 @@ def is_message_valid(message: str, signature: bytes, public_key: str) -> bool:
 
 
 def _format_keys(public: ECPublicKey, private: ECPrivateKey) -> Tuple[str, str]:
-    return [
-        _format_key(raw)
-        for raw in [_public_key_to_str(public), _private_key_to_str(private)]
-    ]
+    # returning a list comprehension triggers mypy (appropriately, because
+    # then we're actually returning a list), so doing this very inelegantly
+    return (
+        _format_key(_public_key_to_str(public)),
+        _format_key(_private_key_to_str(private)),
+    )
 
 
 def _format_key(keystr: str) -> str:
