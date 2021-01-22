@@ -2,6 +2,7 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from xrpl import CryptoAlgorithm, keypairs
+from xrpl.keypairs.exceptions import KeypairException
 
 DUMMY_BYTES = b"\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10"
 
@@ -38,7 +39,7 @@ class TestMain(TestCase):
         )
 
     def test_derive_ed25519_validator(self):
-        with self.assertRaises(keypairs.KeypairException):
+        with self.assertRaises(KeypairException):
             keypairs.derive("sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r", validator=True)
 
     def test_derive_secp256k1(self):

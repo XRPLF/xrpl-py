@@ -104,15 +104,10 @@ def _key_format(key: Union[ECPublicKey, ECPrivateKey]) -> str:
 def _do_derive_part(
     bytes_input: bytes, phase: Literal["root", "mid"]
 ) -> Tuple[ECPublicKey, ECPrivateKey]:
-    if phase == "root":
-
-        def candidate_merger(candidate: bytes) -> bytes:
+    def candidate_merger(candidate: bytes) -> bytes:
+        if phase == "root":
             return bytes_input + candidate
-
-    else:
-
-        def candidate_merger(candidate: bytes) -> bytes:
-            return bytes_input + _INTERMEDIATE_KEYPAIR_PADDING + candidate
+        return bytes_input + _INTERMEDIATE_KEYPAIR_PADDING + candidate
 
     raw_private = _get_secret(candidate_merger)
     wrapped_private = ECPrivateKey(int.from_bytes(raw_private, "big"), _CURVE)
