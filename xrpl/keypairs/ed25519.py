@@ -61,5 +61,18 @@ def is_message_valid(message: str, signature: bytes, public_key: str) -> bool:
     return _SIGNER.verify(message, signature, wrapped_public)
 
 
+<<<<<<< HEAD
 def _key_format(raw_key: bytes) -> str:
     return (_PREFIX + raw_key.hex()).upper()
+=======
+def _public_key_to_str(key: ECPublicKey) -> str:
+    return _CURVE.encode_point(key.W).hex()
+
+
+def _private_key_to_str(key: ECPrivateKey) -> str:
+    return format(key.d, "x")
+
+
+def _format_key(keystr: str) -> str:
+    return (_PREFIX + keystr).upper()
+>>>>>>> 6f84880 (more cleanup)

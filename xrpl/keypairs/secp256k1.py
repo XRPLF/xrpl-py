@@ -4,7 +4,7 @@
 # See https://xrpl.org/cryptographic-keys.html#secp256k1-key-derivation
 # for an overview of the algorithm.
 from struct import pack
-from typing import Callable, Final, Generator, Literal, Tuple, Union
+from typing import Callable, Final, Literal, Tuple
 
 from ecpy.curves import Curve
 from ecpy.ecdsa import ECDSA
@@ -28,7 +28,7 @@ _PADDING_PREFIX: Final[str] = "0"
 # this scheme + 1 (IE 10_000, because largest number is 9999)
 #
 # _SEQUENCE_BYTE_FORMAT_STRING is a format string representing
-# N unsigned big-endian bytes, where N is _SEQUENCE_SIZE.
+# _SEQUENCE_SIZE unsigned big-endian bytes.
 _SEQUENCE_SIZE: Final[int] = 4
 _SEQUENCE_MAX: Final[int] = 10 ** _SEQUENCE_SIZE
 _SEQUENCE_BYTE_FORMAT_STRING: Final[str] = ">{}".format("B" * _SEQUENCE_SIZE)
@@ -44,17 +44,13 @@ def derive(decoded_seed: bytes, is_validator: bool) -> Tuple[str, str]:
     keypair from this seed.
     :returns (private key :string, public key :string)
     """
-    root_public, root_private = _do_derive_part(
-        decoded_seed,
-        "root",
-    )
-
+    root_public, root_private = _do_derive_part(decoded_seed, "root")
     # validator keys just stop at the first pass
     if is_validator:
-        return [_key_format(key) for key in [root_public, root_private]]
+        return _format_keys(root_public, root_private)
 
     mid_public, mid_private = _do_derive_part(
-        _bytes_from_public_key(root_public),
+        _public_key_to_bytes(root_public),
         "mid",
     )
     final_public, final_private = _derive_final_pair(
@@ -63,7 +59,7 @@ def derive(decoded_seed: bytes, is_validator: bool) -> Tuple[str, str]:
         mid_public,
         mid_private,
     )
-    return [_key_format(key) for key in [final_public, final_private]]
+    return _format_keys(final_public, final_private)
 
 
 def sign(message: str, private_key: str) -> bytes:
@@ -88,17 +84,27 @@ def is_message_valid(message: str, signature: bytes, public_key: str) -> bool:
     return _SIGNER.verify(message, signature, wrapped_public)
 
 
-def _bytes_from_public_key(key: ECPublicKey) -> bytes:
+def _format_keys(public: ECPublicKey, private: ECPrivateKey) -> Tuple[str, str]:
+    return [
+        _format_key(raw)
+        for raw in [_public_key_to_str(public), _private_key_to_str(private)]
+    ]
+
+
+def _format_key(keystr: str) -> str:
+    return keystr.rjust(_KEY_LENGTH, _PADDING_PREFIX).upper()
+
+
+def _public_key_to_bytes(key: ECPublicKey) -> bytes:
     return bytes(_CURVE.encode_point(key.W, compressed=True))
 
 
-def _key_format(key: Union[ECPublicKey, ECPrivateKey]) -> str:
-    as_string = (
-        _bytes_from_public_key(key).hex()
-        if type(key) == ECPublicKey
-        else format(key.d, "x")
-    )
-    return as_string.rjust(_KEY_LENGTH, _PADDING_PREFIX).upper()
+def _public_key_to_str(key: ECPublicKey) -> str:
+    return _public_key_to_bytes(key).hex()
+
+
+def _private_key_to_str(key: ECPrivateKey) -> str:
+    return format(key.d, "x")
 
 
 def _do_derive_part(
@@ -122,45 +128,28 @@ def _derive_final_pair(
 ) -> Tuple[ECPublicKey, ECPrivateKey]:
     raw_private = (root_private.d + mid_private.d) % _GROUP_ORDER
     wrapped_private = ECPrivateKey(raw_private, _CURVE)
-    public_point = _CURVE.add_point(root_public.W, mid_public.W)
-    wrapped_public = ECPublicKey(public_point)
+    wrapped_public = ECPublicKey(_CURVE.add_point(root_public.W, mid_public.W))
     return wrapped_public, wrapped_private
 
 
 def _get_secret(candidate_merger: Callable[[bytes], bytes]) -> bytes:
     """
     Given a function `candidate_merger` that knows how
-    to prepare a candidate bytesting from _key_sequence into
-    a possible candidate secret, returns the first value
-    from _key_sequence that is valid. If none are valid,
-    raises, however this should be so exceedingly rare
-    as to ignore.
+    to prepare a sequence_candidate bytesting from into
+    a possible full candidate secret, returns the first sequence
+    value that is valid. If none are valid, raises, however this
+    should be so exceedingly rare as to ignore.
     """
-    for root_candidate in _key_sequence():
-        candidate = sha512_first_half(
-            candidate_merger(root_candidate),
-        )
-        if _is_candidate_valid(candidate):
+    for seq in range(_SEQUENCE_MAX):
+        # get digits of root via integer division and modulo
+        # but stepping backwards from _SEQUENCE_SIZE...0
+        seq_digits = [(seq // 10 ** i) % 10 for i in reversed(range(_SEQUENCE_SIZE))]
+        seq_candidate = pack(_SEQUENCE_BYTE_FORMAT_STRING, *seq_digits)
+        candidate = sha512_first_half(candidate_merger(seq_candidate))
+        numerical_candidate = int.from_bytes(candidate, "big")
+        if numerical_candidate in range(1, _GROUP_ORDER):
             return candidate
     raise KeypairException(
         """Could not determine a key pair.
         This is extremely improbable. Please try again.""",
     )
-
-
-def _is_candidate_valid(candidate: bytes) -> bool:
-    numerical_candidate = int.from_bytes(candidate, "big")
-    return numerical_candidate in range(1, _GROUP_ORDER)
-
-
-def _key_sequence() -> Generator[bytes, None, None]:
-    """
-    Generator function for all possible integers that
-    could satisfy either the root or intermediate hash
-    calculation.
-    """
-    for root in range(_SEQUENCE_MAX):
-        # get digits of root via integer division and modulo
-        # but stepping backwards from _SEQUENCE_SIZE...0
-        digits = [(root // 10 ** i) % 10 for i in reversed(range(_SEQUENCE_SIZE))]
-        yield pack(_SEQUENCE_BYTE_FORMAT_STRING, *digits)
