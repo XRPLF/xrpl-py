@@ -2,8 +2,9 @@
 `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
 """
 from abc import ABC
-from xrpl.binary_codec.types import SerializedType
+
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
+from xrpl.binary_codec.types import SerializedType
 
 
 class Hash(SerializedType, ABC):
