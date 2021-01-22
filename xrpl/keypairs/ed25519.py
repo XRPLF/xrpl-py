@@ -23,7 +23,7 @@ def derive(seed: str) -> Tuple[str, str]:
     :returns (private key, public key) derived from seed
     """
     raw_private = sha512_first_half(seed)
-    wrapped_private = ECPrivateKey(int(raw_private.hex(), 16), _CURVE)
+    wrapped_private = ECPrivateKey(int.from_bytes(raw_private, "big"), _CURVE)
     wrapped_public = EDDSA.get_public_key(wrapped_private, sha512).W
     raw_public = _CURVE.encode_point(wrapped_public)
     return [_key_format(raw) for raw in [raw_public, raw_private]]
