@@ -1,6 +1,6 @@
 """Public interface for keypairs module."""
 from random import randbytes
-from typing import Any, Dict, Final, Optional, Tuple
+from typing import Any, Final, Optional, Tuple
 
 from xrpl import CryptoAlgorithm, addresscodec
 from xrpl.keypairs import ed25519, secp256k1
@@ -9,7 +9,7 @@ from xrpl.keypairs.helpers import sha512_first_half
 
 # TODO: need to determine interface strategy for these modules, which will
 # effect the type used here, allowing us to remove the Any
-_ALGORITHM_TO_MODULE_MAP: Final[Dict[CryptoAlgorithm, Any]] = {
+_ALGORITHM_TO_MODULE_MAP: Final[dict[CryptoAlgorithm, Any]] = {
     CryptoAlgorithm.ED25519: ed25519,
     CryptoAlgorithm.SECP256K1: secp256k1,
 }

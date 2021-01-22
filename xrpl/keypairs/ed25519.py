@@ -17,12 +17,12 @@ _CURVE: Final[Curve] = Curve.get_curve("Ed25519")
 _SIGNER: Final[EDDSA] = EDDSA(sha512)
 
 
-def derive(seed: bytes) -> Tuple[str, str]:
+def derive(decoded_seed: bytes) -> Tuple[str, str]:
     """
-    seed: an ED25519 seed from which to derive keypair
+    decoded_seed: an ED25519 seed from which to derive keypair
     :returns (private key, public key) derived from seed
     """
-    raw_private = sha512_first_half(seed)
+    raw_private = sha512_first_half(decoded_seed)
     wrapped_private = ECPrivateKey(int.from_bytes(raw_private, "big"), _CURVE)
     wrapped_public = EDDSA.get_public_key(wrapped_private, sha512).W
     raw_public = _CURVE.encode_point(wrapped_public)

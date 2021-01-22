@@ -36,3 +36,14 @@ class TestMain(TestCase):
             private,
             "EDB4C4E046826BD26190D09715FC31F4E6A728204EADD112905B08B14B7F15C4F3",
         )
+
+    def test_derive_secp256k1(self):
+        public, private = keypairs.derive("sp5fghtJtpUorTwvof1NpDXAzNwf5")
+        self.assertEqual(
+            public,
+            "030D58EB48B4420B1F7B9DF55087E0E29FEF0E8468F9A6825B01CA2C361042D435",
+        )
+        self.assertEqual(
+            private,
+            "00D78B9735C3F26501C7337B8A5727FD53A6EFDBC6AA55984F098488561F985E23",
+        )
