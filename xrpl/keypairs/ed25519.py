@@ -22,6 +22,8 @@ def derive(seed: bytes) -> Tuple[str, str]:
     seed: an ED25519 seed from which to derive keypair
     :returns (private key, public key) derived from seed
     """
+    # the private key is just the sha512_first_half of the seed and the public
+    # key is derived from the private key using the curve.
     raw_private = sha512_first_half(seed)
     wrapped_private = ECPrivateKey(int.from_bytes(raw_private, "big"), _CURVE)
     wrapped_public = EDDSA.get_public_key(wrapped_private, sha512).W
