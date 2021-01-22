@@ -10,7 +10,7 @@ from ecpy.curves import Curve
 from ecpy.eddsa import EDDSA
 from ecpy.keys import ECPrivateKey, ECPublicKey
 
-from xrpl.keypairs import helpers
+from xrpl.keypairs.helpers import sha512_first_half
 
 _PREFIX: Final[str] = "ED"
 _CURVE: Final[Curve] = Curve.get_curve("Ed25519")
@@ -22,7 +22,7 @@ def derive(seed: str) -> Tuple[str, str]:
     seed: an ED25519 seed from which to derive keypair
     :returns (private key, public key) derived from seed
     """
-    raw_private = helpers._sha512_first_half(seed)
+    raw_private = sha512_first_half(seed)
     wrapped_private = ECPrivateKey(int(raw_private.hex(), 16), _CURVE)
     wrapped_public = EDDSA.get_public_key(wrapped_private, sha512).W
     raw_public = _CURVE.encode_point(wrapped_public)

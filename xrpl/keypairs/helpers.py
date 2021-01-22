@@ -2,7 +2,7 @@
 from hashlib import sha512
 
 
-def _sha512_first_half(message: bytes) -> str:
+def sha512_first_half(message: bytes) -> str:
     """
     :param message: bytes input to hash
     :returns first 32 chars of SHA-512 hash of message

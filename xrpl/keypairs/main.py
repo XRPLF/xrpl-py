@@ -3,8 +3,9 @@ from random import randbytes
 from typing import Any, Dict, Final, Optional, Tuple
 
 from xrpl import CryptoAlgorithm, addresscodec
-from xrpl.keypairs import ed25519, helpers, secp256k1
+from xrpl.keypairs import ed25519, secp256k1
 from xrpl.keypairs.exceptions import KeypairException
+from xrpl.keypairs.helpers import sha512_first_half
 
 # TODO: need to determine interface strategy for these modules, which will
 # effect the type used here, allowing us to remove the Any
@@ -15,7 +16,7 @@ _ALGORITHM_TO_MODULE_MAP: Final[Dict[CryptoAlgorithm, Any]] = {
 # Ensure all CryptoAlgorithms have a module
 assert len(_ALGORITHM_TO_MODULE_MAP) == len(CryptoAlgorithm)
 
-_VERIFICATION_MESSAGE: Final[str] = helpers._sha512_first_half(
+_VERIFICATION_MESSAGE: Final[str] = sha512_first_half(
     b"This test message should verify."
 )
 
