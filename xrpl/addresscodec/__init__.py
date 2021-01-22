@@ -15,7 +15,6 @@ from xrpl.addresscodec.codec import (
 )
 from xrpl.addresscodec.exceptions import XRPLAddressCodecException
 from xrpl.addresscodec.main import (
-    MAX_32_BIT_UNSIGNED_INT,
     classic_address_to_xaddress,
     is_valid_xaddress,
     xaddress_to_classic_address,
