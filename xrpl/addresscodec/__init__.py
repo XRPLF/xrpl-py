@@ -10,11 +10,16 @@ from .codec import (
     encode_seed,
     is_valid_classic_address,
 )
-from .exceptions import *  # noqa: F401 F403
-from .main import *  # noqa: F401 F403
-from .utils import *  # noqa: F401 F403
+from .exceptions import XRPLAddressCodecException
+from .main import (
+    classic_address_to_xaddress,
+    is_valid_xaddress,
+    xaddress_to_classic_address,
+)
+from .utils import XRPL_ALPHABET
 
 __all__ = [
+    "classic_address_to_xaddress",
     "decode_account_public_key",
     "decode_classic_address",
     "decode_node_public_key",
@@ -24,4 +29,8 @@ __all__ = [
     "encode_classic_address",
     "encode_node_public_key",
     "is_valid_classic_address",
+    "is_valid_xaddress",
+    "xaddress_to_classic_address",
+    "XRPLAddressCodecException",
+    "XRPL_ALPHABET",
 ]
