@@ -9,6 +9,11 @@ class UInt(ABC):
         """Construct a new UInt type from a `bytes` value."""
         self.buffer = buffer
 
+    @property
+    def value(self):
+        """Get the value of the UInt represented by `self.buffer`."""
+        return int.from_bytes(self.buffer, byteorder="big")
+
     def __eq__(self, other):
         """Determine whether two UInt objects are equal."""
         if isinstance(other, int):
@@ -50,8 +55,3 @@ class UInt(ABC):
         if isinstance(self.value, int):
             return self.value
         return str(self.value)
-
-    @property
-    def value(self):
-        """Get the value of the UInt represented by `self.buffer`."""
-        return int.from_bytes(self.buffer, byteorder="big")
