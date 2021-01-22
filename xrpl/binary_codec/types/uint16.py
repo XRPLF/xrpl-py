@@ -6,7 +6,7 @@ _WIDTH = 2  # 16 / 8
 
 
 class UInt16(UInt):
-    """Derived UInt class for serializing/deserializing 8 bit UInt."""
+    """Derived UInt class for serializing/deserializing 16 bit UInt."""
 
     def __init__(self, buffer):
         """Construct a new UInt16 type from a `bytes` value."""
