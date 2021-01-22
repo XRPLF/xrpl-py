@@ -18,7 +18,7 @@ def encode(field_name: str) -> bytes:
     return _encode_field_id(field_header)
 
 
-def decode(field_id: bytes) -> str:
+def decode(field_id: str) -> str:
     """Returns the field name represented by the given field ID."""
     field_header = _decode_field_id(field_id)
     return definitions.get_field_name_from_header(field_header)
@@ -64,7 +64,7 @@ def _encode_field_id(field_header: FieldHeader) -> bytes:
         return bytes(1) + byte2 + byte3
 
 
-def _decode_field_id(field_id: bytes) -> FieldHeader:
+def _decode_field_id(field_id: str) -> FieldHeader:
     """
     Returns a FieldHeader object representing the type code and field code of
     a decoded field ID.
