@@ -19,7 +19,7 @@ class Hash128(Hash):
 
     def __init__(self, buffer: bytes = None):
         """Construct a Hash128."""
-        buffer = buffer if buffer is not None else bytes(20)
+        buffer = buffer if buffer is not None else bytes(self.width)
         super().__init__(buffer)
 
     @classmethod
