@@ -5,9 +5,9 @@ from abc import ABC, abstractmethod
 class SerializedType(ABC):
     """The base class for all binary codec types."""
 
-    def __init__(self):
+    def __init__(self, buffer):
         """Construct a new SerializedType."""
-        self.bytes = bytes()
+        self.buffer = buffer
 
     @abstractmethod
     def from_parser(self, parser, length_hint: int = None):
@@ -24,11 +24,11 @@ class SerializedType(ABC):
         Write the bytes representation of a SerializedType to a bytearray.
         :param bytesink: The bytearray to write self.bytes to.
         """
-        bytesink.append(self.bytes)
+        bytesink.append(self.buffer)
 
     def to_bytes(self):
         """Get the bytes representation of a SerializedType."""
-        return self.bytes
+        return self.buffer
 
     def to_json(self):
         """
@@ -43,4 +43,4 @@ class SerializedType(ABC):
 
     def to_hex(self):
         """Get the hex representation of a SerializedType's bytes."""
-        return self.bytes.hex()
+        return self.buffer.hex()
