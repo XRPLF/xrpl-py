@@ -30,8 +30,8 @@ def is_iso_code(iso: str) -> bool:
 
 def is_hex(value: str) -> bool:
     """Tests if value is a valid hex string."""
-    # return HEX_REGEX.test(value)
-    pass
+    pattern = re.compile(_HEX_REGEX)
+    return pattern.match(value)
 
 
 def is_string_representation(value: str) -> bool:
