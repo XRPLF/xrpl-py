@@ -10,28 +10,39 @@ _ISO_REGEX = "^[A-Z0-9]{3}$"
 _HEX_REGEX = "^[A-F0-9]{40}$"
 
 
-def iso_to_bytes(iso: str) -> bytes:
-    """Convert an ISO code to a currency bytes representation."""
-    #   const bytes = Buffer.alloc(20);
-    #   if (iso !== "XRP") {
-    #     const isoBytes = iso.split("").map((c) => c.charCodeAt(0));
-    #     bytes.set(isoBytes, 12);
-    #   }
-    #   return bytes;
-    # }
-    pass
-
-
-def is_iso_code(iso: str) -> bool:
-    """Tests if iso is a valid iso code."""
+def is_iso_code(value: str) -> bool:
+    """Tests if value is a valid 3-char iso code."""
     pattern = re.compile(_ISO_REGEX)
-    return pattern.match(iso)
+    return pattern.match(value)
 
 
 def is_hex(value: str) -> bool:
-    """Tests if value is a valid hex string."""
+    """Tests if value is a valid 40-char hex string."""
     pattern = re.compile(_HEX_REGEX)
     return pattern.match(value)
+
+
+def iso_to_bytes(iso: str) -> bytes:
+    """
+    Convert an ISO code to a 160-bit (20 byte) encoded representation.
+
+    See "Currency codes" subheading in
+    `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
+    """
+    if iso == "XRP":
+        # This code (160 bit all zeroes) is used to indicate XRP in
+        # rare cases where a field must specify a currency code for XRP.
+        return bytes(20)
+
+    iso_bytes = iso.encode("ASCII")
+    # Currency Codes: https://xrpl.org/currency-formats.html#standard-currency-codes
+    # 160 total bits:
+    #   8 bits type code (0x00)
+    #   88 bits reserved (0's)
+    #   24 bits ASCII
+    #   16 bits version (0x00)
+    #   24 bits reserved (0's)
+    return bytes(12) + iso_bytes + bytes(5)
 
 
 def is_string_representation(value: str) -> bool:
@@ -44,7 +55,7 @@ def is_bytes_array(buffer: bytes) -> bool:
     return len(buffer) == 20
 
 
-# TODO: the type of param input is bytes | str... how to represent this?
+# TODO: the type of param `value` is (bytes | str)... how to represent this?
 def is_valid_representation(value) -> bool:
     """Ensures that a value is a valid representation of a currency."""
     if type(value) == "bytes":

@@ -18,9 +18,8 @@ class TestCurrency(unittest.TestCase):
         self.assertFalse(currency.is_iso_code(invalid_code_short))
 
     def test_is_hex(self):
-        valid_hex = (
-            "0000000000000000000000005553440000000000"  # USD iso code hex-encoded
-        )
+        # USD iso code in 160-bit format, represented as hex str
+        valid_hex = "0000000000000000000000005553440000000000"
         invalid_hex_long = "0000000000000000000000005553440000000000123455"
         invalid_hex_short = "1234"
         invalid_hex_chars = "USD0000000000000000000005553440000000000"
@@ -28,3 +27,16 @@ class TestCurrency(unittest.TestCase):
         self.assertFalse(currency.is_hex(invalid_hex_long))
         self.assertFalse(currency.is_hex(invalid_hex_short))
         self.assertFalse(currency.is_hex(invalid_hex_chars))
+
+    def test_iso_to_bytes(self):
+        usd_iso = "USD"
+        usd_expected_bytes_hex = "0000000000000000000000005553440000000000"
+        usd_iso_bytes = currency.iso_to_bytes(usd_iso)
+        # convert bytes to hex string for comparison to expectation
+        self.assertEqual(usd_iso_bytes.hex(), usd_expected_bytes_hex)
+
+        xrp_iso = "XRP"
+        xrp_expected_bytes_hex = "0000000000000000000000000000000000000000"
+        xrp_iso_bytes = currency.iso_to_bytes(xrp_iso)
+        # convert bytes to hex string for comparison to expectation
+        self.assertEqual(xrp_iso_bytes.hex(), xrp_expected_bytes_hex)
