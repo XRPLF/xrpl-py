@@ -1,4 +1,4 @@
-"""Defines how to serialize and deserialize an amount."""
+"""Defines how to serialize and deserialize an amount field."""
 from decimal import Decimal
 
 from xrpl.binary_codec.types.serialized_type import SerializedType
