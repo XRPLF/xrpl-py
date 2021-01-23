@@ -1,11 +1,13 @@
-"""Defines how to encode and decode currency codes in issued currency amounts."""
+"""Codec for currency property inside an XRPL issued currency amount json."""
 from __future__ import annotations
+
+import re
 
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.types.hash160 import Hash160
 
-ISO_REGEX = "/^[A-Z0-9]{3}$/"
-HEX_REGEX = "/^[A-F0-9]{40}$/"
+_ISO_REGEX = "^[A-Z0-9]{3}$"
+_HEX_REGEX = "^[A-F0-9]{40}$"
 
 
 def iso_to_bytes(iso: str) -> bytes:
@@ -22,8 +24,8 @@ def iso_to_bytes(iso: str) -> bytes:
 
 def is_iso_code(iso: str) -> bool:
     """Tests if iso is a valid iso code."""
-    # return ISO_REGEX.test(iso);
-    pass
+    pattern = re.compile(_ISO_REGEX)
+    return pattern.match(iso)
 
 
 def is_hex(value: str) -> bool:
