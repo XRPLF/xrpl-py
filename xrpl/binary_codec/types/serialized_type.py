@@ -43,4 +43,4 @@ class SerializedType(ABC):
 
     def to_hex(self):
         """Get the hex representation of a SerializedType's bytes."""
-        return self.buffer.hex().upper()
+        return self.buffer.hex()
