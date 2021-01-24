@@ -22,16 +22,18 @@ class AccountID(Hash160):
         else:
             super().__init__(bytes(20))
 
-    def from_value(self, value: str) -> AccountID:
+    @classmethod
+    def from_value(cls, value: str) -> AccountID:
         """Construct an AccountID from a hex string or a base58 r-Address."""
         if value == "":
-            return AccountID()
+            return cls()
+
         hex_pattern = re.compile(_HEX_REGEX)
         # hex-encoded case
         if hex_pattern.fullmatch(value):
-            return AccountID(bytes.fromhex(value))
+            return cls(bytes.fromhex(value))
         # base58 case
-        return AccountID(decode_classic_address(value))
+        return cls(decode_classic_address(value))
 
     def to_json(self) -> str:
         """Return the value of this AccountID encoded as a base58 string."""
