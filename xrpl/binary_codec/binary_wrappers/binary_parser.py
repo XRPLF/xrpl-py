@@ -39,25 +39,19 @@ class BinaryParser:
 
     def skip(self, n):
         """Consume the first n bytes of the BinaryParser."""
-        if n <= len(self.bytes):
-            self.bytes = self.bytes[n:]
-        raise XRPLBinaryCodecException(
-            "BinaryParser can't skip {} bytes, only contains {}.".format(
-                n, len(self.bytes)
+        if n > len(self.bytes):
+            raise XRPLBinaryCodecException(
+                "BinaryParser can't skip {} bytes, only contains {}.".format(
+                    n, len(self.bytes)
+                )
             )
-        )
+        self.bytes = self.bytes[n:]
 
     def read(self, n: int) -> bytes:
         """Consume and return the first n bytes of the BinaryParser."""
-        if n <= len(self.bytes):
-            first_n_bytes = self.bytes[:n]
-            self.skip(n)
-            return first_n_bytes
-        raise XRPLBinaryCodecException(
-            "BinaryParser can't read {} bytes, only contains {}.".format(
-                n, len(self.bytes)
-            )
-        )
+        first_n_bytes = self.bytes[:n]
+        self.skip(n)
+        return first_n_bytes
 
     def read_uint8(self) -> int:
         """Read 1 byte from parser and return as unsigned int."""
