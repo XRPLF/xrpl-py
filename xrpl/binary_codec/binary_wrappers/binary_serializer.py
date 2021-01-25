@@ -48,23 +48,23 @@ def _encode_variable_length_prefix(length: int) -> bytes:
 class BinarySerializer:
     """Serializes JSON to XRPL binary format."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Construct a BinarySerializer."""
         self.bytesink = bytes()
 
-    def put(self, bytes_object: bytes):
+    def put(self, bytes_object: bytes) -> None:
         """Write given bytes to this BinarySerializer's bytesink."""
         self.bytesink += bytes_object
 
     # TODO: this method depends on the SerializedType class.
     # Complete when SerializedType is implemented
-    def write_length_encoded(self, value):
+    def write_length_encoded(self, value: int) -> None:
         """Write a variable length encoded value to the BinarySerializer."""
         length_prefix = _encode_variable_length_prefix(value)
         self.bytesink += length_prefix
 
     # TODO: this method depends on the SerializedType and FieldInstance classes.
     # Complete when both classes are implemented
-    def write_field_and_value(self, field, value):
+    def write_field_and_value(self, field: None, value: None) -> None:
         """Write field and value to the buffer."""
         return None
