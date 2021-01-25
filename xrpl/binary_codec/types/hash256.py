@@ -15,11 +15,11 @@ class Hash256(Hash):
         width: The length of this hash in bytes.
     """
 
-    width = 32
+    _width = 32
 
     def __init__(self, buffer: bytes = None):
         """Construct a Hash256."""
-        buffer = buffer if buffer is not None else bytes(self.width)
+        buffer = buffer if buffer is not None else bytes(self._width)
         super().__init__(buffer)
 
     @classmethod
@@ -30,5 +30,5 @@ class Hash256(Hash):
     @classmethod
     def from_parser(cls, parser: BinaryParser, length_hint: int = None):
         """Construct a Hash256 object from an existing BinaryParser."""
-        num_bytes = length_hint if length_hint is not None else cls.width
+        num_bytes = length_hint if length_hint is not None else cls._width
         return cls(parser.read(num_bytes))

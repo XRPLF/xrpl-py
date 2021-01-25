@@ -24,9 +24,9 @@ class TestHash128(unittest.TestCase):
         self.assertEqual(from_parser.to_hex(), self.hex_128_bits)
 
         # Assert objects have correct width
-        self.assertEqual(from_constructor.width, self.expected_width)
-        self.assertEqual(from_value.width, self.expected_width)
-        self.assertEqual(from_parser.width, self.expected_width)
+        self.assertEqual(from_constructor._width, self.expected_width)
+        self.assertEqual(from_value._width, self.expected_width)
+        self.assertEqual(from_parser._width, self.expected_width)
 
     def test_constructor_raises_invalid_length(self):
         # 17 bytes, 34 nibbles
@@ -53,9 +53,9 @@ class TestHash160(unittest.TestCase):
         self.assertEqual(from_parser.to_hex(), self.hex_160_bits)
 
         # Assert objects have correct width
-        self.assertEqual(from_constructor.width, self.expected_width)
-        self.assertEqual(from_value.width, self.expected_width)
-        self.assertEqual(from_parser.width, self.expected_width)
+        self.assertEqual(from_constructor._width, self.expected_width)
+        self.assertEqual(from_value._width, self.expected_width)
+        self.assertEqual(from_parser._width, self.expected_width)
 
     def test_constructor_raises_invalid_length(self):
         # 21 bytes, 42 nibbles
@@ -84,9 +84,9 @@ class TestHash256(unittest.TestCase):
         self.assertEqual(from_parser.to_hex(), self.hex_256_bits)
 
         # Assert objects have correct width
-        self.assertEqual(from_constructor.width, self.expected_width)
-        self.assertEqual(from_value.width, self.expected_width)
-        self.assertEqual(from_parser.width, self.expected_width)
+        self.assertEqual(from_constructor._width, self.expected_width)
+        self.assertEqual(from_value._width, self.expected_width)
+        self.assertEqual(from_parser._width, self.expected_width)
 
     def test_constructor_raises_invalid_length(self):
         # 33 bytes, 66 nibbles
