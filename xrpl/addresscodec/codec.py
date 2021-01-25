@@ -59,7 +59,7 @@ def _decode(b58_string: str, prefix: bytes) -> bytes:
     return decoded[prefix_length:]
 
 
-def encode_seed(entropy: bytes, encoding_type: str) -> str:
+def encode_seed(entropy: bytes, encoding_type: CryptoAlgorithm) -> str:
     """
     entropy: SEED_LENGTH
     encoding_type: either ED25519 or SECP256K1
@@ -79,7 +79,7 @@ def encode_seed(entropy: bytes, encoding_type: str) -> str:
     return _encode(entropy, prefix, SEED_LENGTH)
 
 
-def decode_seed(seed: str) -> Tuple[bytes, str]:
+def decode_seed(seed: str) -> Tuple[bytes, CryptoAlgorithm]:
     """
     seed: b58 encoding of a seed
 

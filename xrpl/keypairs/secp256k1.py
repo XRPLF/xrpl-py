@@ -165,5 +165,4 @@ def _root_sequence() -> Generator[bytes, None, None]:
         root_digits = [
             (raw_root // 256 ** i) % 256 for i in reversed(range(_SEQUENCE_SIZE))
         ]
-        root = pack(_SEQUENCE_BYTE_FORMAT_STRING, *root_digits)
-        yield root
+        yield pack(_SEQUENCE_BYTE_FORMAT_STRING, *root_digits)
