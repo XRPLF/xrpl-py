@@ -61,10 +61,18 @@ def _decode(b58_string: str, prefix: bytes) -> bytes:
 
 def encode_seed(entropy: bytes, encoding_type: CryptoAlgorithm) -> str:
     """
-    entropy: SEED_LENGTH
-    encoding_type: either ED25519 or SECP256K1
+    Returns an encoded seed.
 
-    Returns an encoded seed
+    Args:
+        entropy: Entropy of SEED_LENGTH.
+        encoding_type: Either ED25519 or SECP256K1.
+
+    Returns:
+        An encoded seed.
+
+    Raises:
+        XRPLAddressCodecException: If entropy is not of length SEED_LENGTH
+            or the encoding type is not one of CryptoAlgorithm.
     """
     if len(entropy) != SEED_LENGTH:
         raise XRPLAddressCodecException(
@@ -81,9 +89,16 @@ def encode_seed(entropy: bytes, encoding_type: CryptoAlgorithm) -> str:
 
 def decode_seed(seed: str) -> Tuple[bytes, CryptoAlgorithm]:
     """
-    seed: b58 encoding of a seed
-
     Returns (decoded seed, its algorithm)
+
+    Args:
+        seed: b58 encoding of a seed
+
+    Returns:
+        (decoded seed, its algorithm)
+
+    Raises:
+        XRPLAddressCodecException: If the seed is invalid.
     """
     for algorithm in CryptoAlgorithm:
         prefix = _ALGORITHM_TO_PREFIX_MAP[algorithm]
@@ -100,63 +115,92 @@ def decode_seed(seed: str) -> Tuple[bytes, CryptoAlgorithm]:
 
 def encode_classic_address(bytestring: bytes) -> str:
     """
-    bytestring: Bytes to be encoded
+    Returns the classic address encoding of these bytes as a base58 string.
 
-    Returns the classic address encoding of these bytes as a base58 string
+    Args:
+        bytestring: Bytes to be encoded.
+
+    Returns:
+        The classic address encoding of these bytes as a base58 string.
     """
     return _encode(bytestring, CLASSIC_ADDRESS_PREFIX, CLASSIC_ADDRESS_LENGTH)
 
 
 def decode_classic_address(classic_address: str) -> bytes:
     """
-    classic_address: Classic address to be decoded
+    Returns the decoded bytes of the classic address.
 
-    Returns the decoded bytes of the classic address
+    Args:
+        classic_address: Classic address to be decoded.
+
+    Returns:
+        The decoded bytes of the classic address.
     """
     return _decode(classic_address, bytes(CLASSIC_ADDRESS_PREFIX))
 
 
 def encode_node_public_key(bytestring: bytes) -> str:
     """
-    bytestring: Bytes to be encoded
+    Returns the node public key encoding of these bytes as a base58 string.
 
-    Returns the node public key encoding of these bytes as a base58 string
+    Args:
+        bytestring: Bytes to be encoded.
+
+    Returns:
+        The node public key encoding of these bytes as a base58 string.
     """
     return _encode(bytestring, NODE_PUBLIC_KEY_PREFIX, NODE_PUBLIC_KEY_LENGTH)
 
 
 def decode_node_public_key(node_public_key: str) -> bytes:
     """
-    node_public_key: Node public key to be decoded
-
     Returns the decoded bytes of the node public key
+
+    Args:
+        node_public_key: Node public key to be decoded.
+
+    Returns:
+        The decoded bytes of the node public key.
+
     """
     return _decode(node_public_key, bytes(NODE_PUBLIC_KEY_PREFIX))
 
 
 def encode_account_public_key(bytestring: bytes) -> str:
     """
-    bytestring: Bytes to be encoded
+    Returns the account public key encoding of these bytes as a base58 string.
 
-    Returns the account public key encoding of these bytes as a base58 string
+    Args:
+        bytestring: Bytes to be encoded.
+
+    Returns:
+        The account public key encoding of these bytes as a base58 string.
     """
     return _encode(bytestring, ACCOUNT_PUBLIC_KEY_PREFIX, ACCOUNT_PUBLIC_KEY_LENGTH)
 
 
 def decode_account_public_key(account_public_key: str) -> bytes:
     """
-    account_public_key: Account public key to be decoded
+    Returns the decoded bytes of the account public key.
 
-    Returns the decoded bytes of the account public key
+    Args:
+        account_public_key: Account public key to be decoded.
+
+    Returns:
+        The decoded bytes of the account public key.
     """
     return _decode(account_public_key, bytes(ACCOUNT_PUBLIC_KEY_PREFIX))
 
 
 def is_valid_classic_address(classic_address: str) -> bool:
     """
-    classic_address: The classic address to validate.
-
     Returns whether `classic_address` is a valid classic address.
+
+    Args:
+        classic_address: The classic address to validate.
+
+    Returns:
+        Whether `classic_address` is a valid classic address.
     """
     try:
         decode_classic_address(classic_address)

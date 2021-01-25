@@ -24,11 +24,19 @@ def classic_address_to_xaddress(
     classic_address: str, tag: Optional[int], is_test_network: bool
 ) -> str:
     """
-    classic_address: the base58 encoding of the classic address
-    tag: the destination tag
-    is_test_network: whether it is the test network or the main network
+    Returns the X-Address representation of the data.
 
-    Returns the X-Address representation of the data
+    Args:
+        classic_address: The base58 encoding of the classic address.
+        tag: The destination tag.
+        is_test_network: Whether it is the test network or the main network.
+
+    Returns:
+        The X-Address representation of the data.
+
+    Raises:
+        XRPLAddressCodecException: If the classic address does not have enough bytes
+            or the tag is invalid.
     """
     classic_address_bytes = decode_classic_address(classic_address)
     if len(classic_address_bytes) != 20:
@@ -63,12 +71,17 @@ def classic_address_to_xaddress(
 
 def xaddress_to_classic_address(xaddress: str) -> Tuple[str, Optional[int], bool]:
     """
-    xaddress: base58-encoded X-Address
+    Returns a tuple containing the classic address, tag, and whether the address
+    is on a test network for an X-Address.
 
-    Returns a tuple containing:
-        classic_address: the base58 classic address
-        tag: the destination tag
-        is_test_network: whether the address is on the test network (or main)
+    Args:
+        xaddress: base58-encoded X-Address.
+
+    Returns:
+        A tuple containing:
+            classic_address: the base58 classic address
+            tag: the destination tag
+            is_test_network: whether the address is on the test network (or main)
     """
     decoded = base58.b58decode_check(
         xaddress, alphabet=XRPL_ALPHABET
@@ -83,9 +96,16 @@ def xaddress_to_classic_address(xaddress: str) -> Tuple[str, Optional[int], bool
 
 def _is_test_address(prefix: bytes) -> bool:
     """
-    prefix: the first 2 bytes of an X-Address
-
     Returns whether a decoded X-Address is a test address.
+
+    Args:
+        prefix: The first 2 bytes of an X-Address.
+
+    Returns:
+        Whether a decoded X-Address is a test address.
+
+    Raises:
+        XRPLAddressCodecException: If the prefix is invalid.
     """
     if PREFIX_BYTES_MAIN == prefix:
         return False
@@ -96,9 +116,13 @@ def _is_test_address(prefix: bytes) -> bool:
 
 def _get_tag_from_buffer(buffer: bytes) -> Optional[int]:
     """
-    buffer: The buffer to extract a destination tag from.
-
     Returns the destination tag extracted from the suffix of the X-Address.
+
+    Args:
+        buffer: The buffer to extract a destination tag from.
+
+    Returns:
+        The destination tag extracted from the suffix of the X-Address.
     """
     flag = buffer[0]
     if flag >= 2:
@@ -116,9 +140,13 @@ def _get_tag_from_buffer(buffer: bytes) -> Optional[int]:
 
 def is_valid_xaddress(xaddress: str) -> bool:
     """
-    xaddress: The X-Address to check for validity.
-
     Returns whether `xaddress` is a valid X-Address.
+
+    Args:
+        xaddress: The X-Address to check for validity.
+
+    Returns:
+        Whether `xaddress` is a valid X-Address.
     """
     try:
         xaddress_to_classic_address(xaddress)
