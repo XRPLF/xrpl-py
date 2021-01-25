@@ -16,7 +16,7 @@ class Hash(SerializedType, ABC):
         width:  The length of this hash in bytes.
     """
 
-    width: int
+    _width: int
 
     def __init__(self, buffer: bytes):
         """
@@ -25,7 +25,7 @@ class Hash(SerializedType, ABC):
         :param buffer: The byte buffer that will be used to store
                         the serialized encoding of this field.
         """
-        if len(buffer) != self.width:
+        if len(buffer) != self._width:
             raise XRPLBinaryCodecException("Invalid hash length {}".format(len(buffer)))
         super().__init__(buffer)
 
