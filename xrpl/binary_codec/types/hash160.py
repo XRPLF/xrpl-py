@@ -3,6 +3,8 @@
 """
 from __future__ import annotations
 
+from typing import Optional
+
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binary_codec.types.hash import Hash
 
@@ -30,7 +32,9 @@ class Hash160(Hash):
         return cls(bytes.fromhex(value))
 
     @classmethod
-    def from_parser(cls, parser: BinaryParser, length_hint: int = None) -> Hash160:
+    def from_parser(
+        cls, parser: BinaryParser, length_hint: Optional[int] = None
+    ) -> Hash160:
         """Construct a Hash160 object from an existing BinaryParser."""
         num_bytes = length_hint if length_hint is not None else cls._width
         return cls(parser.read(num_bytes))
