@@ -1,5 +1,5 @@
 """Defines how to serialize and deserialize an amount field."""
-from decimal import Context, Decimal, setcontext
+from decimal import Context, Decimal, getcontext, setcontext
 from typing import Dict
 
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
@@ -51,13 +51,18 @@ def assert_xrp_is_valid(xrp_value: str) -> None:
 
     :param xrp_value: A string representing an integer number of drops of XRP.
     """
-    # contains no decimal point
+    # Contains no decimal point
     if not (xrp_value.find(".") == -1):
         raise XRPLBinaryCodecException("{} is an invalid XRP amount.".format(xrp_value))
 
+    # Within valid range?
     decimal = Decimal(xrp_value)
-    if (decimal.compare(_MIN_XRP) == -1) or (decimal.compare(_MAX_DROPS) == 1):
-        raise XRPLBinaryCodecException("{} is an invalid XRP amount.".format(xrp_value))
+    # Zero is less than both the min and max XRP amounts but is valid.
+    if not decimal.is_zero():
+        if (decimal.compare(_MIN_XRP) == -1) or (decimal.compare(_MAX_DROPS) == 1):
+            raise XRPLBinaryCodecException(
+                "{} is an invalid XRP amount.".format(xrp_value)
+            )
 
 
 def assert_iou_is_valid(issued_currency_value: Decimal) -> None:
@@ -68,18 +73,18 @@ def assert_iou_is_valid(issued_currency_value: Decimal) -> None:
     :param issued_currency_value: A Decimal object representing the "value"
                                     field of an issued currency amount.
     """
-    # if (!decimal.equals(BigDecimal.ZERO)) {
-    #   int p = decimal.precision();
-    #   int e = MathUtils.getExponent(decimal);
-    #   if (p > MAX_IOU_PRECISION ||
-    #       e > MAX_IOU_EXPONENT ||
-    #       e < MIN_IOU_EXPONENT
-    #   ) {
-    #     throw new Error("Decimal precision out of range");
-    #   }
-    #   verifyNoDecimal(decimal);
-    # }
-    pass
+    if not issued_currency_value.is_zero():
+        precision = getcontext().prec
+        exponent = issued_currency_value.as_tuple().exponent
+        if (
+            (precision > _MAX_IOU_PRECISION)
+            or (exponent > _MAX_IOU_EXPONENT)
+            or (exponent < _MAX_IOU_EXPONENT)
+        ):
+            raise XRPLBinaryCodecException(
+                "Decimal precision out of range for issued currency value."
+            )
+        verify_no_decimal(issued_currency_value)
 
 
 def verify_no_decimal(decimal: Decimal) -> None:
@@ -89,13 +94,11 @@ def verify_no_decimal(decimal: Decimal) -> None:
 
     :param decimal: A Decimal object.
     """
-    # BigDecimal exponent =
-    #               new BigDecimal("1e" + -(MathUtils.getExponent(decimal) - 15));
-    # String integerNumberString = decimal.multiply(exponent).toPlainString();
-    # if (integerNumberString.indexOf(".") > 0) {
-    #     throw new Error("Decimal place found in integerNumberString");
-    # }
-    pass
+    actual_exponent = decimal.as_tuple().exponent
+    exponent = Decimal("1e" + "-" + str(int(actual_exponent) - 15))
+    int_number_string = str(decimal * exponent)
+    if not (int_number_string.find(".") == -1):
+        raise XRPLBinaryCodecException("Decimal place found in int_number_str")
 
 
 class Amount(SerializedType):
