@@ -4,7 +4,7 @@
 # See https://xrpl.org/cryptographic-keys.html#secp256k1-key-derivation
 # for an overview of the algorithm.
 from struct import pack
-from typing import Callable, Final, Literal, Tuple
+from typing import Callable, Final, Generator, Literal, Tuple
 
 from ecpy.curves import Curve  # type: ignore
 from ecpy.ecdsa import ECDSA  # type: ignore
@@ -25,12 +25,12 @@ _PADDING_PREFIX: Final[str] = "0"
 # generated sequence values are 4 byte unsigned big-endian.
 #
 # _SEQUENCE_MAX is the largest number that can be represented in
-# this scheme + 1 (IE 10_000, because largest number is 9999)
+# this scheme + 1.
 #
 # _SEQUENCE_BYTE_FORMAT_STRING is a format string representing
 # _SEQUENCE_SIZE unsigned big-endian bytes.
 _SEQUENCE_SIZE: Final[int] = 4
-_SEQUENCE_MAX: Final[int] = 10 ** _SEQUENCE_SIZE
+_SEQUENCE_MAX: Final[int] = 256 ** _SEQUENCE_SIZE
 _SEQUENCE_BYTE_FORMAT_STRING: Final[str] = ">{}".format("B" * _SEQUENCE_SIZE)
 
 # intermediate private keys are always padded with 4 bytes of zeros
@@ -142,16 +142,28 @@ def _get_secret(candidate_merger: Callable[[bytes], bytes]) -> bytes:
     value that is valid. If none are valid, raises, however this
     should be so exceedingly rare as to ignore.
     """
-    for seq in range(_SEQUENCE_MAX):
-        # get digits of root via integer division and modulo
-        # but stepping backwards from _SEQUENCE_SIZE...0
-        seq_digits = [(seq // 10 ** i) % 10 for i in reversed(range(_SEQUENCE_SIZE))]
-        seq_candidate = pack(_SEQUENCE_BYTE_FORMAT_STRING, *seq_digits)
-        candidate = sha512_first_half(candidate_merger(seq_candidate))
-        numerical_candidate = int.from_bytes(candidate, "big")
-        if numerical_candidate in range(1, _GROUP_ORDER):
+    for root in _root_sequence():
+        candidate = sha512_first_half(candidate_merger(root))
+        if _is_secret_valid(candidate):
             return candidate
     raise KeypairException(
         """Could not determine a key pair.
         This is extremely improbable. Please try again.""",
     )
+
+
+def _is_secret_valid(secret: bytes) -> bool:
+    numerical_secret = int.from_bytes(secret, "big")
+    return numerical_secret in range(1, _GROUP_ORDER)
+
+
+def _root_sequence() -> Generator[bytes, None, None]:
+    """Generates all possible root values"""
+    for raw_root in range(_SEQUENCE_MAX):
+        # get digits of root via integer division and modulo
+        # but stepping backwards from _SEQUENCE_SIZE...0
+        root_digits = [
+            (raw_root // 256 ** i) % 256 for i in reversed(range(_SEQUENCE_SIZE))
+        ]
+        root = pack(_SEQUENCE_BYTE_FORMAT_STRING, *root_digits)
+        yield root
