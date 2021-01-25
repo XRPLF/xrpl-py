@@ -18,7 +18,7 @@ def encode(field_name: str) -> bytes:
     return _encode_field_id(field_header)
 
 
-def decode(field_id: bytes) -> str:
+def decode(field_id: str) -> str:
     """Returns the field name represented by the given field ID."""
     field_header = _decode_field_id(field_id)
     return definitions.get_field_name_from_header(field_header)
@@ -64,7 +64,7 @@ def _encode_field_id(field_header: FieldHeader) -> bytes:
         return bytes(1) + byte2 + byte3
 
 
-def _decode_field_id(field_id: bytes) -> FieldHeader:
+def _decode_field_id(field_id: str) -> FieldHeader:
     """
     Returns a FieldHeader object representing the type code and field code of
     a decoded field ID.
@@ -73,7 +73,7 @@ def _decode_field_id(field_id: bytes) -> FieldHeader:
     if len(byte_array) == 1:
         high_bits = byte_array[0] >> 4
         low_bits = byte_array[0] & 0x0F
-        return definitions.FieldHeader(high_bits, low_bits)
+        return FieldHeader(high_bits, low_bits)
     if len(byte_array) == 2:
         first_byte = byte_array[0]
         second_byte = byte_array[1]
@@ -82,11 +82,11 @@ def _decode_field_id(field_id: bytes) -> FieldHeader:
         if (
             first_byte_high_bits == 0
         ):  # next 4 bits are field code, second byte is type code
-            return definitions.FieldHeader(second_byte, first_byte_low_bits)
+            return FieldHeader(second_byte, first_byte_low_bits)
         # Otherwise, next 4 bits are type code, second byte is field code
-        return definitions.FieldHeader(first_byte_high_bits, second_byte)
+        return FieldHeader(first_byte_high_bits, second_byte)
     if len(byte_array) == 3:
-        return definitions.FieldHeader(byte_array[1], byte_array[2])
+        return FieldHeader(byte_array[1], byte_array[2])
 
     raise XRPLBinaryCodecException(
         "Field ID must be between 1 and 3 bytes. "
