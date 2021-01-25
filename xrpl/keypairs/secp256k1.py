@@ -4,7 +4,7 @@ from ecpy.curves import Curve  # type: ignore
 _CURVE = Curve.get_curve("secp256k1")
 
 
-def derive(entropy):
+def derive_keypair(entropy):
     """TODO: placeholder."""
     pass
 

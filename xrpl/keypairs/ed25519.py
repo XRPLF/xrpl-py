@@ -17,7 +17,7 @@ _CURVE: Final[Curve] = Curve.get_curve("Ed25519")
 _SIGNER: Final[EDDSA] = EDDSA(sha512)
 
 
-def derive(seed: bytes) -> Tuple[str, str]:
+def derive_keypair(seed: bytes) -> Tuple[str, str]:
     """
     seed: an ED25519 seed from which to derive keypair
     :returns (private key, public key) derived from seed

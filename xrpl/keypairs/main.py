@@ -35,11 +35,11 @@ def generate_seed(
     if entropy is None:
         parsed_entropy = randbytes(addresscodec.SEED_LENGTH)
     else:
-        parsed_entropy = bytes(entropy[: addresscodec.SEED_LENGTH], "UTF-8")
+        parsed_entropy = bytes(entropy, "UTF-8")[: addresscodec.SEED_LENGTH]
     return addresscodec.encode_seed(parsed_entropy, algorithm)
 
 
-def derive(seed: str) -> Tuple[str, str]:
+def derive_keypair(seed: str) -> Tuple[str, str]:
     """
     Given seed, which can be generated via `generate_seed`, returns
     public and private keypair.
@@ -48,7 +48,7 @@ def derive(seed: str) -> Tuple[str, str]:
     """
     decoded_seed, algorithm = addresscodec.decode_seed(seed)
     module = _ALGORITHM_TO_MODULE_MAP[algorithm]
-    public_key, private_key = module.derive(decoded_seed)
+    public_key, private_key = module.derive_keypair(decoded_seed)
     signature = module.sign(_VERIFICATION_MESSAGE, private_key)
     if not module.is_message_valid(_VERIFICATION_MESSAGE, signature, public_key):
         raise KeypairException(
