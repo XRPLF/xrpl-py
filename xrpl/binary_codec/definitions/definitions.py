@@ -2,7 +2,7 @@
 
 import json
 import os
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 
 from xrpl.binary_codec.definitions.field_header import FieldHeader
 from xrpl.binary_codec.definitions.field_info import FieldInfo
@@ -10,7 +10,7 @@ from xrpl.binary_codec.definitions.field_instance import FieldInstance
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 
 
-def load_definitions(filename: str = "definitions.json") -> Dict:
+def load_definitions(filename: str = "definitions.json") -> Dict[str, Any]:
     """
     Loads JSON from the definitions file and converts it to a preferred format.
     The definitions file contains information required for the XRP Ledger's
@@ -92,7 +92,13 @@ def get_field_type_code(field_name: str) -> int:
     `Serialization Type Codes <https://xrpl.org/serialization.html#type-codes>`_
     """
     field_type_name = get_field_type_name(field_name)
-    return TYPE_ORDINAL_MAP[field_type_name]
+    field_type_code = TYPE_ORDINAL_MAP[field_type_name]
+    if not isinstance(field_type_code, int):
+        raise XRPLBinaryCodecException(
+            "Field type codes in definitions.json must be ints."
+        )
+
+    return field_type_code
 
 
 def get_field_code(field_name: str) -> int:
