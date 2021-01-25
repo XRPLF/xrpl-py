@@ -1,9 +1,9 @@
 import unittest
 
+from tests.test_main_test_cases import test_cases
+
 from xrpl import addresscodec
 from xrpl.addresscodec.main import MAX_32_BIT_UNSIGNED_INT
-
-from .test_main_test_cases import test_cases
 
 
 class TestMain(unittest.TestCase):
