@@ -17,7 +17,6 @@ per-file-ignores =
   tests/*: ANN D
   # TODO: Remove these after we've migrated to having everything typed.
   xrpl/binary_codec/*: ANN
-  xrpl/keypairs/*: ANN
 
 # Select other tools to enable.
 
