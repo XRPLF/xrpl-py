@@ -1,6 +1,8 @@
 """A hash field with a width of 256 bits (32 bytes).
 `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
 """
+from __future__ import annotations
+
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binary_codec.types.hash import Hash
 
@@ -17,18 +19,18 @@ class Hash256(Hash):
 
     _width = 32
 
-    def __init__(self, buffer: bytes = None):
+    def __init__(self, buffer: bytes = None) -> None:
         """Construct a Hash256."""
         buffer = buffer if buffer is not None else bytes(self._width)
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls, value: str):
+    def from_value(cls, value: str) -> Hash256:
         """Construct a Hash256 object from a hex string."""
         return cls(bytes.fromhex(value))
 
     @classmethod
-    def from_parser(cls, parser: BinaryParser, length_hint: int = None):
+    def from_parser(cls, parser: BinaryParser, length_hint: int = None) -> Hash256:
         """Construct a Hash256 object from an existing BinaryParser."""
         num_bytes = length_hint if length_hint is not None else cls._width
         return cls(parser.read(num_bytes))
