@@ -6,9 +6,9 @@ from typing import Any, Optional
 class SerializedType(ABC):
     """The base class for all binary codec types."""
 
-    def __init__(self) -> None:
+    def __init__(self, buffer: bytes) -> None:
         """Construct a new SerializedType."""
-        self.bytes = bytes()
+        self.buffer = buffer
 
     @abstractmethod
     def from_parser(self, parser: Any, length_hint: Optional[int] = None) -> None:
@@ -29,7 +29,7 @@ class SerializedType(ABC):
 
     def to_bytes(self) -> bytes:
         """Get the bytes representation of a SerializedType."""
-        return self.bytes
+        return self.buffer
 
     def to_json(self) -> str:
         """
@@ -44,4 +44,4 @@ class SerializedType(ABC):
 
     def to_hex(self) -> str:
         """Get the hex representation of a SerializedType's bytes."""
-        return self.bytes.hex()
+        return self.buffer.hex()
