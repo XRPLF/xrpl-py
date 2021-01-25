@@ -89,13 +89,13 @@ def encode_seed(entropy: bytes, encoding_type: CryptoAlgorithm) -> str:
 
 def decode_seed(seed: str) -> Tuple[bytes, CryptoAlgorithm]:
     """
-    Returns (decoded seed, its algorithm)
+    Returns (decoded seed, its algorithm).
 
     Args:
-        seed: b58 encoding of a seed
+        seed: b58 encoding of a seed.
 
     Returns:
-        (decoded seed, its algorithm)
+        (decoded seed, its algorithm).
 
     Raises:
         XRPLAddressCodecException: If the seed is invalid.
