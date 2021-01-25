@@ -12,17 +12,19 @@ from xrpl.binary_codec.types.serialized_type import SerializedType
 class Blob(SerializedType):
     """TODO: write docstring"""
 
-    def __init__(self, buffer: bytes):
+    def __init__(self, buffer: bytes) -> None:
         """TODO: write docstring"""
         super().__init__(buffer)
 
     @classmethod
-    def from_parser(cls, parser: BinaryParser, hint: int):
+    def from_parser(
+        cls, parser: BinaryParser, length_hint: Union[int, None] = None
+    ) -> Blob:
         """TODO: write docstring"""
         pass
 
     @classmethod
-    def from_value(cls, value: Union[Blob, str]):
+    def from_value(cls, value: Union[Blob, str]) -> Blob:
         """TODO: write docstring"""
         if isinstance(value, str):
             return cls(bytes.fromhex(value))
