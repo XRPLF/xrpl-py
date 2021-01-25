@@ -1,54 +1,101 @@
 """Defines how to serialize and deserialize an amount field."""
-from decimal import Decimal
+from decimal import Context, Decimal, setcontext
+from typing import Dict
 
+from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
+
+# from xrpl.binary_codec.types.account_id import AccountID
+# from xrpl.binary_codec.types.currency import Currency
 from xrpl.binary_codec.types.serialized_type import SerializedType
 
 # Constants for validating amounts.
-# JS Constants
 _MIN_IOU_EXPONENT = -96
 _MAX_IOU_EXPONENT = 80
 _MAX_IOU_PRECISION = 16
-# MAX_DROPS = new Decimal("1e17");
-# MIN_XRP = new Decimal("1e-6");
 
-# other JAVA constants:
+# Configure Decimal
+setcontext(
+    Context(prec=_MAX_IOU_PRECISION, Emax=_MAX_IOU_EXPONENT, Emin=_MIN_IOU_EXPONENT)
+)
+
+_MAX_DROPS = Decimal("1e17")
+_MIN_XRP = Decimal("1e-6")
+
+# other constants:
 _DEFAULT_AMOUNT_HEX = "4000000000000000"
 _ZERO_CURRENCY_AMOUNT_HEX = "8000000000000000"
 _NATIVE_AMOUNT_BYTE_LENGTH = 8
 _CURRENCY_AMOUNT_BYTE_LENGTH = 48
 
 
-"""
-/**
- * decimal.js configuration for Amount IOUs
- */
-Decimal.config({
-  toExpPos: MAX_IOU_EXPONENT + MAX_IOU_PRECISION,
-  toExpNeg: MIN_IOU_EXPONENT - MAX_IOU_PRECISION,
-});
+# TODO: is there a more Pythonic way to do this? Should an IOU be its own class?
+def is_valid_issued_currency_amount(value: Dict) -> bool:
+    """
+    Determines whether given dictionary represents a valid issued currency amount,
+    which must contain exactly "currency", "issuer" and "value" keys.
+    """
+    if len(value.keys()) != 3:
+        return False
+    expected_keys = ["currency", "issuer", "value"]
+    for key in expected_keys:
+        if not (key in value.keys()):
+            return False
+    return True
 
-/**
- * Interface for JSON objects that represent amounts
- */
-interface AmountObject extends JsonObject {
-  value: string;
-  currency: string;
-  issuer: string;
-}
 
-/**
- * Type guard for AmountObject
- */
-function isAmountObject(arg): arg is AmountObject {
-  const keys = Object.keys(arg).sort();
-  return (
-    keys.length === 3 &&
-    keys[0] === "currency" &&
-    keys[1] === "issuer" &&
-    keys[2] === "value"
-  );
-}
-"""
+# TODO: when it's all writ: are all these docstrings correct?
+def assert_xrp_is_valid(xrp_value: str) -> None:
+    """
+    Validates the format of an XRP amount.
+    Raises if value is invalid.
+
+    :param xrp_value: A string representing an integer number of drops of XRP.
+    """
+    # contains no decimal point
+    if not (xrp_value.find(".") == -1):
+        raise XRPLBinaryCodecException("{} is an invalid XRP amount.".format(xrp_value))
+
+    decimal = Decimal(xrp_value)
+    if (decimal.compare(_MIN_XRP) == -1) or (decimal.compare(_MAX_DROPS) == 1):
+        raise XRPLBinaryCodecException("{} is an invalid XRP amount.".format(xrp_value))
+
+
+def assert_iou_is_valid(issued_currency_value: Decimal) -> None:
+    """
+    Validates the format of an issued currency amount value.
+    Raises if value is invalid.
+
+    :param issued_currency_value: A Decimal object representing the "value"
+                                    field of an issued currency amount.
+    """
+    # if (!decimal.equals(BigDecimal.ZERO)) {
+    #   int p = decimal.precision();
+    #   int e = MathUtils.getExponent(decimal);
+    #   if (p > MAX_IOU_PRECISION ||
+    #       e > MAX_IOU_EXPONENT ||
+    #       e < MIN_IOU_EXPONENT
+    #   ) {
+    #     throw new Error("Decimal precision out of range");
+    #   }
+    #   verifyNoDecimal(decimal);
+    # }
+    pass
+
+
+def verify_no_decimal(decimal: Decimal) -> None:
+    """
+    Ensure that the value after being multiplied by the exponent
+    does not contain a decimal.
+
+    :param decimal: A Decimal object.
+    """
+    # BigDecimal exponent =
+    #               new BigDecimal("1e" + -(MathUtils.getExponent(decimal) - 15));
+    # String integerNumberString = decimal.multiply(exponent).toPlainString();
+    # if (integerNumberString.indexOf(".") > 0) {
+    #     throw new Error("Decimal place found in integerNumberString");
+    # }
+    pass
 
 
 class Amount(SerializedType):
@@ -84,61 +131,6 @@ class Amount(SerializedType):
     # this one exists only in JS not JAVA ... ?
     def to_json(self):
         """Construct a JSON object representing this Amount."""
-        pass
-
-    # TODO: when it's all writ: are all these docstrings correct?
-    def assert_xrp_is_valid(self, xrp_value: str) -> None:
-        """
-        Validates the format of an XRP amount.
-        Raises if value is invalid.
-
-        :param xrp_value: A string representing an integer number of drops of XRP.
-        """
-        # contains no decimal point
-
-        # const decimal = new Decimal(amount);
-        # is this check necessary?
-        #     if (!decimal.isZero()) {
-        #       if (decimal.lt(MIN_XRP) || decimal.gt(MAX_DROPS)) {
-        #         throw new Error(`${amount.toString()} is an illegal amount`);
-        #       }
-        #
-        pass
-
-    def assert_iou_is_valid(self, issued_currency_value: Decimal) -> None:
-        """
-        Validates the format of an issued currency amount value.
-        Raises if value is invalid.
-
-        :param issued_currency_value: A Decimal object representing the "value"
-                                        field of an issued currency amount.
-        """
-        # if (!decimal.equals(BigDecimal.ZERO)) {
-        #   int p = decimal.precision();
-        #   int e = MathUtils.getExponent(decimal);
-        #   if (p > MAX_IOU_PRECISION ||
-        #       e > MAX_IOU_EXPONENT ||
-        #       e < MIN_IOU_EXPONENT
-        #   ) {
-        #     throw new Error("Decimal precision out of range");
-        #   }
-        #   verifyNoDecimal(decimal);
-        # }
-        pass
-
-    def verify_no_decimal(self, decimal: Decimal) -> None:
-        """
-        Ensure that the value after being multiplied by the exponent
-        does not contain a decimal.
-
-        :param decimal: A Decimal object.
-        """
-        # BigDecimal exponent =
-        #               new BigDecimal("1e" + -(MathUtils.getExponent(decimal) - 15));
-        # String integerNumberString = decimal.multiply(exponent).toPlainString();
-        # if (integerNumberString.indexOf(".") > 0) {
-        #     throw new Error("Decimal place found in integerNumberString");
-        # }
         pass
 
     def is_native(self) -> bool:
