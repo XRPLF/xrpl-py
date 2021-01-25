@@ -3,7 +3,7 @@ Encodes and decodes field IDs.
 `Field IDs <https://xrpl.org/serialization.html#field-ids>`_
 """
 
-import xrpl.binary_codec.definitions as definitions
+from xrpl.binary_codec.definitions import definitions
 from xrpl.binary_codec.definitions.field_header import FieldHeader
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 

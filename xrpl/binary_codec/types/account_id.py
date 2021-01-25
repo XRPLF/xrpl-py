@@ -6,7 +6,7 @@ import re
 from xrpl.addresscodec import decode_classic_address, encode_classic_address
 from xrpl.binary_codec.types.hash160 import Hash160
 
-_HEX_REGEX = "^[A-F0-9]{40}$"
+_HEX_REGEX = re.compile("^[A-F0-9]{40}$")
 
 
 class AccountID(Hash160):
@@ -28,9 +28,8 @@ class AccountID(Hash160):
         if value == "":
             return cls()
 
-        hex_pattern = re.compile(_HEX_REGEX)
         # hex-encoded case
-        if hex_pattern.fullmatch(value):
+        if _HEX_REGEX.fullmatch(value):
             return cls(bytes.fromhex(value))
         # base58 case
         return cls(decode_classic_address(value))

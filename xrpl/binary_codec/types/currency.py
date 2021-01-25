@@ -6,20 +6,19 @@ import re
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.types.hash160 import Hash160
 
-_ISO_REGEX = "^[A-Z0-9]{3}$"
-_HEX_REGEX = "^[A-F0-9]{40}$"
+_ISO_REGEX = re.compile("^[A-Z0-9]{3}$")
+_HEX_REGEX = re.compile("^[A-F0-9]{40}$")
+_CURRENCY_CODE_LENGTH = 20  # bytes
 
 
 def _is_iso_code(value: str) -> bool:
     """Tests if value is a valid 3-char iso code."""
-    pattern = re.compile(_ISO_REGEX)
-    return bool(pattern.fullmatch(value))
+    return bool(_ISO_REGEX.fullmatch(value))
 
 
 def _is_hex(value: str) -> bool:
     """Tests if value is a valid 40-char hex string."""
-    pattern = re.compile(_HEX_REGEX)
-    return bool(pattern.fullmatch(value))
+    return bool(_HEX_REGEX.fullmatch(value))
 
 
 def _iso_to_bytes(iso: str) -> bytes:
@@ -35,7 +34,7 @@ def _iso_to_bytes(iso: str) -> bytes:
     if iso == "XRP":
         # This code (160 bit all zeroes) is used to indicate XRP in
         # rare cases where a field must specify a currency code for XRP.
-        return bytes(20)
+        return bytes(_CURRENCY_CODE_LENGTH)
 
     iso_bytes = iso.encode("ASCII")
     # Currency Codes: https://xrpl.org/currency-formats.html#standard-currency-codes
