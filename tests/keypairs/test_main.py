@@ -16,19 +16,23 @@ class TestMain(TestCase):
         self.assertEqual(output, "sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r")
 
     def test_generate_seed_entropy_provided(self):
-        output = keypairs.generate_seed(DUMMY_BYTES)
+        output = keypairs.generate_seed(DUMMY_BYTES.decode("UTF-8"))
         self.assertEqual(output, "sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r")
 
     def test_generate_seed_ed25519(self):
-        output = keypairs.generate_seed(DUMMY_BYTES, CryptoAlgorithm.ED25519)
+        output = keypairs.generate_seed(
+            DUMMY_BYTES.decode("UTF-8"), CryptoAlgorithm.ED25519
+        )
         self.assertEqual(output, "sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r")
 
     def test_generate_seed_secp256k1(self):
-        output = keypairs.generate_seed(DUMMY_BYTES, CryptoAlgorithm.SECP256K1)
+        output = keypairs.generate_seed(
+            DUMMY_BYTES.decode("UTF-8"), CryptoAlgorithm.SECP256K1
+        )
         self.assertEqual(output, "sp5fghtJtpUorTwvof1NpDXAzNwf5")
 
     def test_derive_ed25519(self):
-        public, private = keypairs.derive("sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r")
+        public, private = keypairs.derive_keypair("sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r")
         self.assertEqual(
             public,
             "ED01FA53FA5A7E77798F882ECE20B1ABC00BB358A9E55A202D0D0676BD0CE37A63",
@@ -40,10 +44,10 @@ class TestMain(TestCase):
 
     def test_derive_ed25519_validator(self):
         with self.assertRaises(KeypairException):
-            keypairs.derive("sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r", validator=True)
+            keypairs.derive_keypair("sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r", validator=True)
 
     def test_derive_secp256k1(self):
-        public, private = keypairs.derive("sp5fghtJtpUorTwvof1NpDXAzNwf5")
+        public, private = keypairs.derive_keypair("sp5fghtJtpUorTwvof1NpDXAzNwf5")
         self.assertEqual(
             public,
             "030D58EB48B4420B1F7B9DF55087E0E29FEF0E8468F9A6825B01CA2C361042D435",
@@ -54,7 +58,7 @@ class TestMain(TestCase):
         )
 
     def test_derive_secp256k1_validator(self):
-        public, private = keypairs.derive(
+        public, private = keypairs.derive_keypair(
             "sp5fghtJtpUorTwvof1NpDXAzNwf5",
             validator=True,
         )

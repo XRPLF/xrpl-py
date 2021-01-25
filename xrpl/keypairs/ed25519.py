@@ -14,7 +14,7 @@ _CURVE: Final[Curve] = Curve.get_curve("Ed25519")
 _SIGNER: Final[EDDSA] = EDDSA(sha512)
 
 
-def derive(decoded_seed: bytes, is_validator: bool) -> Tuple[str, str]:
+def derive_keypair(decoded_seed: bytes, is_validator: bool) -> Tuple[str, str]:
     """
     decoded_seed: an ED25519 seed from which to derive keypair
     is_validator: if True indicates that caller wishes to derive a validator keypair
