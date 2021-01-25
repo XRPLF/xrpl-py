@@ -2,7 +2,7 @@
 from xrpl import XRPLException
 
 
-class KeypairException(XRPLException):
+class XRPLKeypairsException(XRPLException):
     """General XRPL Keypair Codec Exception."""
 
     pass
