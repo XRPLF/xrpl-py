@@ -108,6 +108,14 @@ def _private_key_to_str(key: ECPrivateKey) -> str:
 def _do_derive_part(
     bytes_input: bytes, phase: Literal["root", "mid"]
 ) -> Tuple[ECPublicKey, ECPrivateKey]:
+    """
+    Given bytes_input determine public/private keypair for a given phase of
+    this algorithm. The difference between generating the root and
+    intermediate keypairs is just what bytes are input by the caller and that
+    the intermediate keypair needs to inject _INTERMEDIATE_KEYPAIR_PADDING
+    into the value to hash to get the raw private key.
+    """
+
     def candidate_merger(candidate: bytes) -> bytes:
         if phase == "root":
             return bytes_input + candidate
