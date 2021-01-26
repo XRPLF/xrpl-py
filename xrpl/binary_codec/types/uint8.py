@@ -11,7 +11,7 @@ class UInt8(UInt):
     def __init__(self, buffer):
         """Construct a new UInt8 type from a `bytes` value."""
         if buffer is None:
-            super().__init__(DEFAULT_UINT8.buffer)
+            super().__init__(bytes(_WIDTH))
         else:
             super().__init__(buffer)
 
@@ -28,6 +28,3 @@ class UInt8(UInt):
             return cls(value_bytes)
 
         raise XRPLBinaryCodecException("Cannot construct UInt8 from given value")
-
-
-DEFAULT_UINT8 = UInt8(bytes(_WIDTH))

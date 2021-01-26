@@ -11,7 +11,7 @@ class UInt16(UInt):
     def __init__(self, buffer):
         """Construct a new UInt16 type from a `bytes` value."""
         if buffer is None:
-            super().__init__(DEFAULT_UINT16.buffer)
+            super().__init__(bytes(_WIDTH))
         else:
             super().__init__(buffer)
 
@@ -28,6 +28,3 @@ class UInt16(UInt):
             return cls(value_bytes)
 
         raise XRPLBinaryCodecException("Cannot construct UInt16 from given value")
-
-
-DEFAULT_UINT16 = UInt16(bytes(_WIDTH))

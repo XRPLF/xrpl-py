@@ -11,7 +11,7 @@ class UInt32(UInt):
     def __init__(self, buffer):
         """Construct a new UInt32 type from a `bytes` value."""
         if buffer is None:
-            super().__init__(DEFAULT_UINT32.buffer)
+            super().__init__(bytes(_WIDTH))
         else:
             super().__init__(buffer)
 
@@ -28,6 +28,3 @@ class UInt32(UInt):
             return cls(value_bytes)
 
         raise XRPLBinaryCodecException("Cannot construct UInt32 from given value")
-
-
-DEFAULT_UINT32 = UInt32(bytes(_WIDTH))
