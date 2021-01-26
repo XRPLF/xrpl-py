@@ -1,4 +1,4 @@
-"""TODO: write docstring"""
+"""Variable length encoded type."""
 
 from __future__ import annotations
 
@@ -10,26 +10,23 @@ from xrpl.binary_codec.types.serialized_type import SerializedType
 
 
 class Blob(SerializedType):
-    """TODO: write docstring"""
+    """Variable length encoded type."""
 
     def __init__(self, buffer: bytes) -> None:
-        """TODO: write docstring"""
+        """Construct a new Blob type from a `bytes` value."""
         super().__init__(buffer)
 
     @classmethod
     def from_parser(
         cls, parser: BinaryParser, length_hint: Union[int, None] = None
     ) -> Blob:
-        """TODO: write docstring"""
-        pass
+        """Defines how to read a Blob from a BinaryParser."""
+        return cls(parser.read(length_hint))
 
     @classmethod
-    def from_value(cls, value: Union[Blob, str]) -> Blob:
-        """TODO: write docstring"""
+    def from_value(cls, value: str) -> Blob:
+        """Create a Blob object from a hex-string."""
         if isinstance(value, str):
             return cls(bytes.fromhex(value))
-
-        if isinstance(value, Blob):
-            return value
 
         raise XRPLBinaryCodecException("Cannot construct Blob from value given")
