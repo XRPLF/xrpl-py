@@ -69,6 +69,17 @@ pycodestyle = ">=2.6.0a1,<2.7.0"
 pyflakes = ">=2.2.0,<2.3.0"
 
 [[package]]
+name = "flake8-absolute-import"
+version = "1.0"
+description = "flake8 plugin to require absolute imports"
+category = "dev"
+optional = false
+python-versions = ">=3.4"
+
+[package.dependencies]
+flake8 = ">=3.0"
+
+[[package]]
 name = "flake8-black"
 version = "0.2.1"
 description = "flake8 plugin to call black as a code style validator"
@@ -244,7 +255,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "f275280199153a4240e82b5334c0edff9d256fd5722e390c883e4ab054adbebc"
+content-hash = "c3849150a3fd9f9c6a0a7286dbb38c527a434f8f684c4649a950b4bbebdf101a"
 
 [metadata.files]
 appdirs = [
@@ -269,6 +280,10 @@ ecpy = [
 flake8 = [
     {file = "flake8-3.8.4-py2.py3-none-any.whl", hash = "sha256:749dbbd6bfd0cf1318af27bf97a14e28e5ff548ef8e5b1566ccfb25a11e7c839"},
     {file = "flake8-3.8.4.tar.gz", hash = "sha256:aadae8761ec651813c24be05c6f7b4680857ef6afaae4651a4eccaef97ce6c3b"},
+]
+flake8-absolute-import = [
+    {file = "flake8-absolute-import-1.0.tar.gz", hash = "sha256:06f2784078d91e52812dac10c77e09515916c4e455c8bb15cc538fb95f20d9a3"},
+    {file = "flake8_absolute_import-1.0-py3-none-any.whl", hash = "sha256:8ea7e60817038133dd7a0d8b5719b955bc22317ab35c7d247b1a2985f96cf8d4"},
 ]
 flake8-black = [
     {file = "flake8-black-0.2.1.tar.gz", hash = "sha256:f26651bc10db786c03f4093414f7c9ea982ed8a244cec323c984feeffdf4c118"},
