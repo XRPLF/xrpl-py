@@ -58,6 +58,8 @@ class Currency(Hash160):
         _is_native: True if the currency code is "XRP"
     """
 
+    WIDTH = 20
+
     def __init__(self, buffer: bytes = None) -> None:
         """Construct a Currency."""
         if buffer is not None:

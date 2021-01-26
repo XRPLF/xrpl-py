@@ -12,6 +12,8 @@ _HEX_REGEX = re.compile("^[A-F0-9]{40}$")
 class AccountID(Hash160):
     """Codec for serializing and deserializing AccountID fields."""
 
+    WIDTH = 20
+
     def __init__(self, buffer: bytes = None) -> None:
         """
         Construct an AccountID from given bytes.
