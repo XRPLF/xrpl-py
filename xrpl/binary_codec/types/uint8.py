@@ -1,6 +1,6 @@
 """Derived UInt class for serializing/deserializing 8 bit UInt."""
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
-from xrpl.binary_codec.types import UInt
+from xrpl.binary_codec.types.uint import UInt
 
 _WIDTH = 1  # 8 / 8
 

@@ -2,9 +2,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, Union
-
-from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
+from typing import Any, Optional, Union
 
 
 class SerializedType(ABC):
@@ -19,7 +17,10 @@ class SerializedType(ABC):
 
     @abstractmethod
     def from_parser(
-        self, parser: BinaryParser, length_hint: Optional[int] = None
+        self,
+        parser: Any,
+        length_hint: Optional[int] = None
+        # TODO: resolve Any (can't be `BinaryParser` because of circular imports)
     ) -> SerializedType:
         """Construct a new SerializedType from a BinaryParser."""
         raise NotImplementedError("SerializedType.from_parser not implemented.")
