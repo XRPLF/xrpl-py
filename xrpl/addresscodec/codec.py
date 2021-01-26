@@ -4,8 +4,9 @@ from typing import List, Tuple
 
 import base58
 
-from .exceptions import XRPLAddressCodecException
-from .utils import XRPL_ALPHABET
+from xrpl import CryptoAlgorithm
+from xrpl.addresscodec.exceptions import XRPLAddressCodecException
+from xrpl.addresscodec.utils import XRPL_ALPHABET
 
 # base58 encodings: https://xrpl.org/base58-encodings.html
 CLASSIC_ADDRESS_PREFIX = [0x0]  # Account address (20 bytes)
@@ -19,13 +20,12 @@ CLASSIC_ADDRESS_LENGTH = 20
 NODE_PUBLIC_KEY_LENGTH = 33
 ACCOUNT_PUBLIC_KEY_LENGTH = 33
 
-ED25519 = "ed25519"
-SECP256K1 = "secp256k1"
-ALGORITHM_TO_PREFIX_MAP = {
-    ED25519: ED25519_SEED_PREFIX,
-    SECP256K1: FAMILY_SEED_PREFIX,
+_ALGORITHM_TO_PREFIX_MAP = {
+    CryptoAlgorithm.ED25519: ED25519_SEED_PREFIX,
+    CryptoAlgorithm.SECP256K1: FAMILY_SEED_PREFIX,
 }
-ALGORITHMS = list(ALGORITHM_TO_PREFIX_MAP)
+# Ensure that each algorithm has a prefix
+assert len(_ALGORITHM_TO_PREFIX_MAP) == len(CryptoAlgorithm)
 
 
 def _encode(bytestring: bytes, prefix: List[int], expected_length: int) -> str:
@@ -59,7 +59,7 @@ def _decode(b58_string: str, prefix: bytes) -> bytes:
     return decoded[prefix_length:]
 
 
-def encode_seed(entropy: bytes, encoding_type: str) -> str:
+def encode_seed(entropy: bytes, encoding_type: CryptoAlgorithm) -> str:
     """
     entropy: SEED_LENGTH
     encoding_type: either ED25519 or SECP256K1
@@ -70,23 +70,23 @@ def encode_seed(entropy: bytes, encoding_type: str) -> str:
         raise XRPLAddressCodecException(
             "Entropy must have length {}".format(SEED_LENGTH)
         )
-    if encoding_type not in ALGORITHMS:
+    if encoding_type not in CryptoAlgorithm:
         raise XRPLAddressCodecException(
-            "Encoding type must be one of {}".format(ALGORITHMS)
+            "Encoding type must be one of {}".format(CryptoAlgorithm)
         )
 
-    prefix = ALGORITHM_TO_PREFIX_MAP[encoding_type]
+    prefix = _ALGORITHM_TO_PREFIX_MAP[encoding_type]
     return _encode(entropy, prefix, SEED_LENGTH)
 
 
-def decode_seed(seed: str) -> Tuple[bytes, str]:
+def decode_seed(seed: str) -> Tuple[bytes, CryptoAlgorithm]:
     """
     seed: b58 encoding of a seed
 
     Returns (decoded seed, its algorithm)
     """
-    for algorithm in ALGORITHMS:
-        prefix = ALGORITHM_TO_PREFIX_MAP[algorithm]
+    for algorithm in CryptoAlgorithm:
+        prefix = _ALGORITHM_TO_PREFIX_MAP[algorithm]
         try:
             decoded_result = _decode(seed, bytes(prefix))
             return decoded_result, algorithm

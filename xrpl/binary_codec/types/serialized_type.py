@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Union
+from typing import Optional, Union
 
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
 
@@ -10,7 +10,7 @@ from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
 class SerializedType(ABC):
     """The base class for all binary codec types."""
 
-    def __init__(self, buffer: bytes):
+    def __init__(self, buffer: bytes) -> None:
         """Construct a new SerializedType."""
         if buffer is not None:
             self.buffer = buffer
@@ -19,7 +19,7 @@ class SerializedType(ABC):
 
     @abstractmethod
     def from_parser(
-        self, parser: BinaryParser, length_hint: Union[int, None] = None
+        self, parser: BinaryParser, length_hint: Optional[int] = None
     ) -> SerializedType:
         """Construct a new SerializedType from a BinaryParser."""
         raise NotImplementedError("SerializedType.from_parser not implemented.")
@@ -29,7 +29,7 @@ class SerializedType(ABC):
         """Construct a new SerializedType from a literal value."""
         raise NotImplementedError("SerializedType.from_value not implemented.")
 
-    def to_byte_sink(self, bytesink) -> None:
+    def to_byte_sink(self, bytesink: bytearray) -> None:
         """
         Write the bytes representation of a SerializedType to a bytearray.
         :param bytesink: The bytearray to write self.buffer to.
