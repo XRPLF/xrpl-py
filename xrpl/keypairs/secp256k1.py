@@ -3,8 +3,7 @@
 #
 # See https://xrpl.org/cryptographic-keys.html#secp256k1-key-derivation
 # for an overview of the algorithm.
-from struct import pack
-from typing import Callable, Final, Generator, Literal, Tuple
+from typing import Callable, Final, Literal, Tuple
 
 from ecpy.curves import Curve  # type: ignore
 from ecpy.ecdsa import ECDSA  # type: ignore
@@ -17,30 +16,27 @@ _CURVE: Final[Curve] = Curve.get_curve("secp256k1")
 _GROUP_ORDER: Final[int] = _CURVE.order
 _SIGNER: Final[ECDSA] = ECDSA()
 
-# keys must be _KEY_LENGTH long and may be left padded
-# with _PADDING_PREFIX to accomplish that
+# String keys must be _KEY_LENGTH long
 _KEY_LENGTH: Final[int] = 66
+# Pad string keys with _PADDING_PREFIX to reach _KEY_LENGTH
 _PADDING_PREFIX: Final[str] = "0"
 
-# generated sequence values are 4 byte unsigned big-endian.
-#
-# _SEQUENCE_MAX is the largest number that can be represented in
-# this scheme + 1.
-#
-# _SEQUENCE_BYTE_FORMAT_STRING is a format string representing
-# _SEQUENCE_SIZE unsigned big-endian bytes.
+# Generated sequence values are _SEQUENCE_SIZE bytes unsigned big-endian
 _SEQUENCE_SIZE: Final[int] = 4
 _SEQUENCE_MAX: Final[int] = 256 ** _SEQUENCE_SIZE
-_SEQUENCE_BYTE_FORMAT_STRING: Final[str] = ">{}".format("B" * _SEQUENCE_SIZE)
 
-# intermediate private keys are always padded with 4 bytes of zeros
-_INTERMEDIATE_KEYPAIR_PADDING: Final[bytes] = pack(">BBBB", 0, 0, 0, 0)
+# Intermediate private keys are always padded with 4 bytes of zeros
+_INTERMEDIATE_KEYPAIR_PADDING: Final[bytes] = (0).to_bytes(
+    4,
+    byteorder="big",
+    signed=False,
+)
 
 
 def derive_keypair(decoded_seed: bytes, is_validator: bool) -> Tuple[str, str]:
     """
-    :param decoded_seed: :bytes decoded seed
-    is_validator: if True indicates that caller wishes to derive a validator
+    :param decoded_seed: decoded seed
+    :param is_validator: if True indicates that caller wishes to derive a validator
     keypair from this seed.
     :returns (private key :string, public key :string)
     """
@@ -137,12 +133,17 @@ def _derive_final_pair(
 def _get_secret(candidate_merger: Callable[[bytes], bytes]) -> bytes:
     """
     Given a function `candidate_merger` that knows how
-    to prepare a sequence_candidate bytesting from into
+    to prepare a sequence candidate bytestring into
     a possible full candidate secret, returns the first sequence
-    value that is valid. If none are valid, raises, however this
+    value that is valid. If none are valid, raises; however this
     should be so exceedingly rare as to ignore.
     """
-    for root in _root_sequence():
+    for raw_root in range(_SEQUENCE_MAX):
+        root = raw_root.to_bytes(
+            _SEQUENCE_SIZE,
+            byteorder="big",
+            signed=False,
+        )
         candidate = sha512_first_half(candidate_merger(root))
         if _is_secret_valid(candidate):
             return candidate
@@ -155,14 +156,3 @@ def _get_secret(candidate_merger: Callable[[bytes], bytes]) -> bytes:
 def _is_secret_valid(secret: bytes) -> bool:
     numerical_secret = int.from_bytes(secret, "big")
     return numerical_secret in range(1, _GROUP_ORDER)
-
-
-def _root_sequence() -> Generator[bytes, None, None]:
-    """Generates all possible root values"""
-    for raw_root in range(_SEQUENCE_MAX):
-        # get digits of root via integer division and modulo
-        # but stepping backwards from _SEQUENCE_SIZE...0
-        root_digits = [
-            (raw_root // 256 ** i) % 256 for i in reversed(range(_SEQUENCE_SIZE))
-        ]
-        yield pack(_SEQUENCE_BYTE_FORMAT_STRING, *root_digits)

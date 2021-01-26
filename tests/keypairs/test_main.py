@@ -31,7 +31,7 @@ class TestMain(TestCase):
         )
         self.assertEqual(output, "sp5fghtJtpUorTwvof1NpDXAzNwf5")
 
-    def test_derive_ed25519(self):
+    def test_derive_keypair_ed25519(self):
         public, private = keypairs.derive_keypair("sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r")
         self.assertEqual(
             public,
@@ -42,11 +42,11 @@ class TestMain(TestCase):
             "EDB4C4E046826BD26190D09715FC31F4E6A728204EADD112905B08B14B7F15C4F3",
         )
 
-    def test_derive_ed25519_validator(self):
+    def test_derive_keypair_ed25519_validator(self):
         with self.assertRaises(KeypairException):
             keypairs.derive_keypair("sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r", validator=True)
 
-    def test_derive_secp256k1(self):
+    def test_derive_keypair_secp256k1(self):
         public, private = keypairs.derive_keypair("sp5fghtJtpUorTwvof1NpDXAzNwf5")
         self.assertEqual(
             public,
@@ -57,7 +57,7 @@ class TestMain(TestCase):
             "00D78B9735C3F26501C7337B8A5727FD53A6EFDBC6AA55984F098488561F985E23",
         )
 
-    def test_derive_secp256k1_validator(self):
+    def test_derive_keypair_validator(self):
         public, private = keypairs.derive_keypair(
             "sp5fghtJtpUorTwvof1NpDXAzNwf5",
             validator=True,
