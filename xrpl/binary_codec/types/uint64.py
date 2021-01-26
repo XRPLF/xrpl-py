@@ -14,7 +14,7 @@ class UInt64(UInt):
     def __init__(self, buffer: bytes):
         """Construct a new UInt64 type from a `bytes` value."""
         if buffer is None:
-            super().__init__(DEFAULT_UINT64.buffer)
+            super().__init__(bytes(_WIDTH))
         else:
             super().__init__(buffer)
 
@@ -31,6 +31,3 @@ class UInt64(UInt):
             return cls(value_bytes)
 
         raise XRPLBinaryCodecException("Cannot construct UInt64 from given value")
-
-
-DEFAULT_UINT64 = UInt64(bytes(_WIDTH))
