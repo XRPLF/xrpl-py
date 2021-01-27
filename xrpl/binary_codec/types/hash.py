@@ -16,19 +16,19 @@ class Hash(SerializedType, ABC):
         width:  The length of this hash in bytes.
     """
 
-    width: int
+    _width: int
 
-    def __init__(self, buffer: bytes):
+    def __init__(self, buffer: bytes) -> None:
         """
         Construct a Hash.
 
         :param buffer: The byte buffer that will be used to store
                         the serialized encoding of this field.
         """
-        if len(buffer) != self.width:
+        if len(buffer) != self._width:
             raise XRPLBinaryCodecException("Invalid hash length {}".format(len(buffer)))
         super().__init__(buffer)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns a hex-encoded string representation of the bytes buffer."""
         return self.to_hex()
