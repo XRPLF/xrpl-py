@@ -16,7 +16,6 @@ test-3.7:
   stage: test
   extends: .test
   script:
-    - echo "testing in 3.7"
     - poetry run nox -rs tests-3.7
 
 test-3.8:
@@ -24,7 +23,6 @@ test-3.8:
   stage: test
   extends: .test
   script:
-    - echo "testing in 3.8"
     - poetry run nox -rs tests-3.8
 
 test-3.9:
@@ -32,7 +30,6 @@ test-3.9:
   stage: test
   extends: .test
   script:
-    - echo "testing in 3.9"
     - poetry run nox -rs tests-3.9
 
 lint:
