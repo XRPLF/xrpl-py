@@ -18,19 +18,19 @@ PATHSET_END_BYTE = 0x00
 PATH_SEPARATOR_BYTE = 0xFF
 
 
-def _is_hop_object(value: Dict[str, Any]):
+def _is_path_step(value: Dict[str, Any]):
     return "issuer" in value or "account" in value or "currency" in value
 
 
 def _is_path_set(value: List[List[Dict[str, Any]]]):
-    return len(value) == 0 or len(value[0]) == 0 or _is_hop_object(value[0])
+    return len(value) == 0 or len(value[0]) == 0 or _is_path_step(value[0])
 
 
-class Hop(SerializedType):
+class PathStep(SerializedType):
     """TODO: docstring"""
 
     @classmethod
-    def from_value(cls, value: Dict[str, Any]) -> Hop:
+    def from_value(cls, value: Dict[str, Any]) -> PathStep:
         """TODO: docstring"""
         data_type = bytes(0)
         buffer = b""
@@ -47,10 +47,10 @@ class Hop(SerializedType):
             buffer += issuer.to_bytes()
             data_type |= TYPE_ISSUER
 
-        return Hop(data_type + buffer)
+        return PathStep(data_type + buffer)
 
     @classmethod
-    def from_parser(cls, parser: BinaryParser) -> Hop:
+    def from_parser(cls, parser: BinaryParser) -> PathStep:
         """TODO: docstring"""
         data_type = parser.read_uint8()
         buffer = b""
@@ -65,7 +65,7 @@ class Hop(SerializedType):
             issuer = parser.read(AccountID.WIDTH)
             buffer += issuer
 
-        return Hop(bytes([data_type]) + buffer)
+        return PathStep(bytes([data_type]) + buffer)
 
     def to_json(self) -> Dict[str, Any]:
         """TODO: docstring"""
@@ -98,9 +98,9 @@ class Path(SerializedType):
     def from_value(cls, value: List[Dict[str, Any]]) -> Path:
         """TODO: docstring"""
         buffer: bytes = b""
-        for hop_dict in value:
-            hop = Hop.from_value(hop_dict)
-            buffer += hop.to_bytes()
+        for PathStep_dict in value:
+            pathstep = PathStep.from_value(PathStep_dict)
+            buffer += pathstep.to_bytes()
         return Path(buffer)
 
     @classmethod
@@ -108,8 +108,8 @@ class Path(SerializedType):
         """TODO: docstring"""
         buffer: List[bytes] = []
         while not parser.is_end():
-            hop = Hop.from_parser(parser)
-            buffer.append(hop.to_bytes())
+            pathstep = PathStep.from_parser(parser)
+            buffer.append(pathstep.to_bytes())
 
             if (
                 parser.peek() == PATHSET_END_BYTE
@@ -124,8 +124,8 @@ class Path(SerializedType):
         path_parser = BinaryParser(self.to_string())
 
         while not path_parser.is_end():
-            hop = Hop.from_parser(path_parser)
-            json.append(hop.to_json())
+            pathstep = PathStep.from_parser(path_parser)
+            json.append(pathstep.to_json())
 
         return json
 
