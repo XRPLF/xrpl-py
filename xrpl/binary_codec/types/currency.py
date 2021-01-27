@@ -1,5 +1,5 @@
 """Codec for currency property inside an XRPL issued currency amount json."""
-from __future__ import annotations
+from __future__ import annotations  # Requires Python 3.7+
 
 import re
 
