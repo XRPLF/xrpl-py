@@ -25,7 +25,7 @@ def _is_path_step(value: Dict[str, str]):
 
 
 def _is_path_set(value: List[List[Dict[str, str]]]):
-    return len(value) == 0 or len(value[0]) == 0 or _is_path_step(value[0])
+    return len(value) == 0 or len(value[0]) == 0 or _is_path_step(value[0][0])
 
 
 class PathStep(SerializedType):
@@ -34,14 +34,14 @@ class PathStep(SerializedType):
     @classmethod
     def from_value(cls, value: Dict[str, str]) -> PathStep:
         """Create a PathStep from a dictionary."""
-        data_type = bytes(0)
+        data_type = 0x00
         buffer = b""
         if "account" in value:
             account_id = AccountID.from_value(value["account"])
             buffer += account_id.to_bytes()
             data_type |= TYPE_ACCOUNT
         if "currency" in value:
-            currency = Currency.from_value()
+            currency = Currency.from_value(value["currency"])
             buffer += currency.to_bytes()
             data_type |= TYPE_CURRENCY
         if "issuer" in value:
@@ -49,7 +49,7 @@ class PathStep(SerializedType):
             buffer += issuer.to_bytes()
             data_type |= TYPE_ISSUER
 
-        return PathStep(data_type + buffer)
+        return PathStep(bytes([data_type]) + buffer)
 
     @classmethod
     def from_parser(cls, parser: BinaryParser) -> PathStep:
