@@ -1,7 +1,8 @@
 """XRPL keypair codec exceptions."""
+from xrpl import XRPLException
 
 
-class KeypairException(Exception):
+class XRPLKeypairsException(XRPLException):
     """General XRPL Keypair Codec Exception."""
 
     pass

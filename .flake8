@@ -20,6 +20,8 @@ per-file-ignores =
 
 # Select other tools to enable.
 
+# ABS enables absolute import checks.
+
 # ANN enables linting for type annotations.
 
 # BLK enables using black --check from within flake8.
@@ -34,4 +36,4 @@ per-file-ignores =
 
 # W and E are warnings and errors reported by pycodestyle, which checks
 # your Python code against some of the style conventions in PEP 8.
-select = ANN,BLK,D,E,F,I,W
+select = ABS,ANN,BLK,D,E,F,I,W
