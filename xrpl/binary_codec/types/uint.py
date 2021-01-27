@@ -12,7 +12,7 @@ class UInt(ABC):
     @property
     def value(self):
         """Get the value of the UInt represented by `self.buffer`."""
-        return int.from_bytes(self.buffer, byteorder="big")
+        return int.from_bytes(self.buffer, byteorder="big", signed=False)
 
     def __eq__(self, other):
         """Determine whether two UInt objects are equal."""
