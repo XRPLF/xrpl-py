@@ -22,7 +22,7 @@ class AccountID(Hash160):
         if buffer is not None:
             super().__init__(buffer)
         else:
-            super().__init__(bytes(20))
+            super().__init__(bytes(self.WIDTH))
 
     @classmethod
     def from_value(cls, value: str) -> AccountID:

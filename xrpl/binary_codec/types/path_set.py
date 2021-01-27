@@ -30,7 +30,7 @@ class Hop(SerializedType):
     """TODO: docstring"""
 
     @classmethod
-    def from_value(value: Dict[str, Any]) -> Hop:
+    def from_value(cls, value: Dict[str, Any]) -> Hop:
         """TODO: docstring"""
         data_type = bytes(0)
         buffer = b""
@@ -50,10 +50,10 @@ class Hop(SerializedType):
         return Hop(data_type + buffer)
 
     @classmethod
-    def from_parser(parser: BinaryParser) -> Hop:
+    def from_parser(cls, parser: BinaryParser) -> Hop:
         """TODO: docstring"""
         data_type = parser.read_uint8()
-        buffer = bytes(data_type)
+        buffer = b""
 
         if data_type & TYPE_ACCOUNT:
             account_id = parser.read(AccountID.WIDTH)
@@ -65,24 +65,28 @@ class Hop(SerializedType):
             issuer = parser.read(AccountID.WIDTH)
             buffer += issuer
 
-        return Hop(buffer)
+        return Hop(bytes([data_type]) + buffer)
 
-    def to_json(self):
+    def to_json(self) -> Dict[str, Any]:
         """TODO: docstring"""
         parser = BinaryParser(self.to_string())
         data_type = parser.read_uint8()
+        json = {}
 
         if data_type & TYPE_ACCOUNT:
-            account_id = parser.read(AccountID.WIDTH).to_json()
+            account_id = AccountID.from_parser(parser).to_json()
+            json["account"] = account_id
         if data_type & TYPE_CURRENCY:
-            currency = parser.read(Currency.WIDTH).to_json()
+            currency = Currency.from_parser(parser).to_json()
+            json["currency"] = currency
         if data_type & TYPE_ISSUER:
-            issuer = parser.read(AccountID.WIDTH).to_json()
+            issuer = AccountID.from_parser(parser).to_json()
+            json["issuer"] = issuer
 
-        return {"account": account_id, "currency": currency, "issuer": issuer}
+        return json
 
     @property
-    def type(self):
+    def type(self) -> int:
         """TODO: docstring"""
         return self.buffer[0]
 
@@ -100,27 +104,26 @@ class Path(SerializedType):
         return Path(buffer)
 
     @classmethod
-    def from_parser(parser: BinaryParser) -> Path:
+    def from_parser(cls, parser: BinaryParser) -> Path:
         """TODO: docstring"""
         buffer: List[bytes] = []
-        while not parser.end():
+        while not parser.is_end():
             hop = Hop.from_parser(parser)
-            buffer.append(hop.to_bytes)
+            buffer.append(hop.to_bytes())
 
             if (
                 parser.peek() == PATHSET_END_BYTE
                 or parser.peek() == PATH_SEPARATOR_BYTE
             ):
                 break
-
-        return Path(buffer)
+        return Path(b"".join(buffer))
 
     def to_json(self) -> List[Dict[str, Any]]:
         """TODO: docstring"""
         json = []
         path_parser = BinaryParser(self.to_string())
 
-        while not path_parser.end():
+        while not path_parser.is_end():
             hop = Hop.from_parser(path_parser)
             json.append(hop.to_json())
 
@@ -131,7 +134,7 @@ class PathSet(SerializedType):
     """Deserialize and Serialize the PathSet type"""
 
     @classmethod
-    def from_value(value: List[List[Dict[str, Any]]]) -> PathSet:
+    def from_value(cls, value: List[List[Dict[str, Any]]]) -> PathSet:
         """TODO: docstring"""
         if _is_path_set(value):
             buffer: List[bytes] = []
@@ -146,10 +149,10 @@ class PathSet(SerializedType):
         raise XRPLBinaryCodecException("Cannot construct PathSet from given value")
 
     @classmethod
-    def from_parser(parser: BinaryParser) -> PathSet:
+    def from_parser(cls, parser: BinaryParser) -> PathSet:
         """TODO: docstring"""
         buffer: List[bytes] = []
-        while not parser.end():
+        while not parser.is_end():
             path = Path.from_parser(parser)
             buffer.append(path.to_bytes())
             buffer.append(parser.read(1))
@@ -163,7 +166,7 @@ class PathSet(SerializedType):
         json = []
         pathset_parser = BinaryParser(self.to_string())
 
-        while not pathset_parser.end():
+        while not pathset_parser.is_end():
             path = Path.from_parser(pathset_parser)
             json.append(path.to_json())
             pathset_parser.skip(1)

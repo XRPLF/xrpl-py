@@ -65,7 +65,7 @@ class Currency(Hash160):
         if buffer is not None:
             super().__init__(buffer)
         else:
-            super().__init__(bytes(20))
+            super().__init__(bytes(self.WIDTH))
 
         # Determine whether this currency code is in standard or nonstandard format:
         # https://xrpl.org/currency-formats.html#nonstandard-currency-codes
