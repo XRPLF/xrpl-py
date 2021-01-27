@@ -71,17 +71,17 @@ class TestMain(TestCase):
             "001A6B48BF0DE7C7E425B61E0444E3921182B6529867685257CEDC3E7EF13F0F18",
         )
 
-    def test_derive_address_ed25519(self):
+    def test_derive_classic_address_ed25519(self):
         self.assertEqual(
-            keypairs.derive_address(
+            keypairs.derive_classic_address(
                 "ED01FA53FA5A7E77798F882ECE20B1ABC00BB358A9E55A202D0D0676BD0CE37A63",
             ),
             "rLUEXYuLiQptky37CqLcm9USQpPiz5rkpD",
         )
 
-    def test_derive_address_secp256k1(self):
+    def test_derive_classic_address_secp256k1(self):
         self.assertEqual(
-            keypairs.derive_address(
+            keypairs.derive_classic_address(
                 "030D58EB48B4420B1F7B9DF55087E0E29FEF0E8468F9A6825B01CA2C361042D435",
             ),
             "rU6K7V3Po4snVhBBaU29sesqs2qTQJWDw1",
