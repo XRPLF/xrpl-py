@@ -1,6 +1,15 @@
 stages:
+  - multi
   - lint
   - test
+
+.multi:
+  image: $IMAGE
+  script:
+    - python -V
+  parallel:
+    matrix:
+      - IMAGE: ["python:3.6-alpine", "python:3.7-alpine"]
 
 .test:
   image: python:3-alpine
