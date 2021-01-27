@@ -4,7 +4,7 @@ from typing import Any, Dict, Final, Optional, Tuple
 
 from xrpl import CryptoAlgorithm, addresscodec
 from xrpl.keypairs import ed25519, secp256k1
-from xrpl.keypairs.exceptions import KeypairException
+from xrpl.keypairs.exceptions import XRPLKeypairsException
 from xrpl.keypairs.helpers import sha512_first_half
 
 # using Any type here because the overhead of an abstract class for these two
@@ -52,7 +52,7 @@ def derive_keypair(seed: str, validator: bool = False) -> Tuple[str, str]:
     public_key, private_key = module.derive_keypair(decoded_seed, validator)
     signature = module.sign(_VERIFICATION_MESSAGE, private_key)
     if not module.is_message_valid(_VERIFICATION_MESSAGE, signature, public_key):
-        raise KeypairException(
+        raise XRPLKeypairsException(
             "Derived keypair did not generate verifiable signature",
         )
     return public_key, private_key
