@@ -6,7 +6,7 @@ from ecpy.curves import Curve  # type: ignore
 from ecpy.eddsa import EDDSA  # type: ignore
 from ecpy.keys import ECPrivateKey, ECPublicKey  # type: ignore
 
-from xrpl.keypairs.exceptions import KeypairException
+from xrpl.keypairs.exceptions import XRPLKeypairsException
 from xrpl.keypairs.helpers import sha512_first_half
 
 _PREFIX: Final[str] = "ED"
@@ -23,7 +23,7 @@ def derive_keypair(decoded_seed: bytes, is_validator: bool) -> Tuple[str, str]:
     :returns (private key, public key) derived from seed
     """
     if is_validator:
-        raise KeypairException("validator keypairs cannot use ED25519")
+        raise XRPLKeypairsException("validator keypairs cannot use ED25519")
 
     raw_private = sha512_first_half(decoded_seed)
     private = ECPrivateKey(int.from_bytes(raw_private, "big"), _CURVE)

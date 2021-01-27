@@ -9,7 +9,7 @@ from ecpy.curves import Curve  # type: ignore
 from ecpy.ecdsa import ECDSA  # type: ignore
 from ecpy.keys import ECPrivateKey, ECPublicKey  # type: ignore
 
-from xrpl.keypairs.exceptions import KeypairException
+from xrpl.keypairs.exceptions import XRPLKeypairsException
 from xrpl.keypairs.helpers import sha512_first_half
 
 _CURVE: Final[Curve] = Curve.get_curve("secp256k1")
@@ -155,7 +155,7 @@ def _get_secret(candidate_merger: Callable[[bytes], bytes]) -> bytes:
         candidate = sha512_first_half(candidate_merger(root))
         if _is_secret_valid(candidate):
             return candidate
-    raise KeypairException(
+    raise XRPLKeypairsException(
         """Could not determine a key pair.
         This is extremely improbable. Please try again.""",
     )
