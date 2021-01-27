@@ -1,8 +1,8 @@
 import unittest
 
+from tests.addresscodec.test_main_test_cases import test_cases
 from xrpl import addresscodec
-
-from .test_main_test_cases import test_cases
+from xrpl.addresscodec.main import MAX_32_BIT_UNSIGNED_INT
 
 
 class TestMain(unittest.TestCase):
@@ -54,7 +54,7 @@ class TestMain(unittest.TestCase):
 
     def test_classic_address_to_xaddress_invalid_tag(self):
         classic_address = "rGWrZyQqhTp9Xu7G5Pkayo7bXjH4k4QYpf"
-        tag = addresscodec.MAX_32_BIT_UNSIGNED_INT + 1
+        tag = MAX_32_BIT_UNSIGNED_INT + 1
 
         self.assertRaises(
             addresscodec.XRPLAddressCodecException,

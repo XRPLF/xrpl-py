@@ -11,12 +11,9 @@ _WIDTH = 1  # 8 / 8
 class UInt8(UInt):
     """Derived UInt class for serializing/deserializing 8 bit UInt."""
 
-    def __init__(self, buffer: bytes):
+    def __init__(self, buffer: bytes = bytes(_WIDTH)):
         """Construct a new UInt8 type from a `bytes` value."""
-        if buffer is None:
-            super().__init__(bytes(_WIDTH))
-        else:
-            super().__init__(buffer)
+        super().__init__(buffer)
 
     @classmethod
     def from_parser(cls, parser: BinaryParser) -> UInt8:
@@ -27,7 +24,7 @@ class UInt8(UInt):
     def from_value(cls, value: int) -> UInt8:
         """Construct a new UInt8 type from a number."""
         if isinstance(value, int):
-            value_bytes = (value).to_bytes(_WIDTH, byteorder="big")
+            value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=False)
             return cls(value_bytes)
 
         raise XRPLBinaryCodecException("Cannot construct UInt8 from given value")
