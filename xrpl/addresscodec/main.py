@@ -4,9 +4,9 @@ from typing import Optional, Tuple
 
 import base58
 
-from .codec import decode_classic_address, encode_classic_address
-from .exceptions import XRPLAddressCodecException
-from .utils import XRPL_ALPHABET
+from xrpl.addresscodec.codec import decode_classic_address, encode_classic_address
+from xrpl.addresscodec.exceptions import XRPLAddressCodecException
+from xrpl.addresscodec.utils import XRPL_ALPHABET
 
 MAX_32_BIT_UNSIGNED_INT = 4294967295
 
