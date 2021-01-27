@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Union
+from typing import Optional
 
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
@@ -18,7 +18,7 @@ class Blob(SerializedType):
 
     @classmethod
     def from_parser(
-        cls, parser: BinaryParser, length_hint: Union[int, None] = None
+        cls, parser: BinaryParser, length_hint: Optional[int] = None
     ) -> Blob:
         """Defines how to read a Blob from a BinaryParser."""
         return cls(parser.read(length_hint))

@@ -8,12 +8,9 @@ from typing import Any, Optional, Union
 class SerializedType(ABC):
     """The base class for all binary codec types."""
 
-    def __init__(self, buffer: bytes) -> None:
+    def __init__(self, buffer: bytes = bytes()) -> None:
         """Construct a new SerializedType."""
-        if buffer is not None:
-            self.buffer = buffer
-        else:
-            self.buffer = bytes()
+        self.buffer = buffer
 
     @abstractmethod
     def from_parser(
@@ -35,7 +32,7 @@ class SerializedType(ABC):
         Write the bytes representation of a SerializedType to a bytearray.
         :param bytesink: The bytearray to write self.buffer to.
         """
-        bytesink.append(self.buffer)
+        bytesink.extend(self.buffer)
 
     def to_bytes(self) -> bytes:
         """Get the bytes representation of a SerializedType."""
