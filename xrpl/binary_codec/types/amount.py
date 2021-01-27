@@ -111,21 +111,19 @@ class Amount(SerializedType):
         :param value:
         :return:
         """
-        # is the incoming value a string?
-        # self.assert_xrp_is_valid(value)
-        # represent and write the number as bytes to this buffer
-        # some OR situation with 0x40...
-        # return Amount object with this buffer
-
-        # is the incoming value a dictionary?
-        # does the dictionary have keys ["currency", "issuer", "value"]?
-        # self.assert_iou_is_valid(value)
-        # is it the special zero case?
-        # write the 0x800... situation
-        # else:
-        # set up the amount, currency, and issuer bytes
-        # write to buffer
-        # return Amount object with this buffer
+        if isinstance(value, str):
+            assert_xrp_is_valid(value)
+            # represent and write the number as bytes to this buffer
+            # some OR situation with 0x40...
+            # return Amount object with this buffer
+        if is_valid_issued_currency_amount(value):
+            assert_iou_is_valid(value)
+            # is it the special zero case?
+            # write the 0x800... situation
+            # else:
+            # set up the amount, currency, and issuer bytes
+            # write to buffer
+            # return Amount object with this buffer
         # raise an error if it's not a string or correct dict
 
     def from_parser(self, parser):
