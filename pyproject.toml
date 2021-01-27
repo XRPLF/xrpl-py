@@ -25,6 +25,9 @@ flake8-docstrings = "^1.5.0"
 mypy = "^0.790"
 isort = "^5.7.0"
 flake8-isort = "^4.0.0"
+flake8-annotations = "^2.5.0"
+flake8-absolute-import = "^1.0"
+nox = "^2020.12.31"
 
 [tool.isort]
 # Make sure that isort's settings line up with black

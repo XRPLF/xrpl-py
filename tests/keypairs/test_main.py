@@ -2,6 +2,7 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from xrpl import CryptoAlgorithm, keypairs
+from xrpl.keypairs.exceptions import XRPLKeypairsException
 
 DUMMY_BYTES = b"\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10"
 
@@ -30,7 +31,7 @@ class TestMain(TestCase):
         )
         self.assertEqual(output, "sp5fghtJtpUorTwvof1NpDXAzNwf5")
 
-    def test_derive_ed25519(self):
+    def test_derive_keypair_ed25519(self):
         public, private = keypairs.derive_keypair("sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r")
         self.assertEqual(
             public,
@@ -39,4 +40,33 @@ class TestMain(TestCase):
         self.assertEqual(
             private,
             "EDB4C4E046826BD26190D09715FC31F4E6A728204EADD112905B08B14B7F15C4F3",
+        )
+
+    def test_derive_keypair_ed25519_validator(self):
+        with self.assertRaises(XRPLKeypairsException):
+            keypairs.derive_keypair("sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r", validator=True)
+
+    def test_derive_keypair_secp256k1(self):
+        public, private = keypairs.derive_keypair("sp5fghtJtpUorTwvof1NpDXAzNwf5")
+        self.assertEqual(
+            public,
+            "030D58EB48B4420B1F7B9DF55087E0E29FEF0E8468F9A6825B01CA2C361042D435",
+        )
+        self.assertEqual(
+            private,
+            "00D78B9735C3F26501C7337B8A5727FD53A6EFDBC6AA55984F098488561F985E23",
+        )
+
+    def test_derive_keypair_validator(self):
+        public, private = keypairs.derive_keypair(
+            "sp5fghtJtpUorTwvof1NpDXAzNwf5",
+            validator=True,
+        )
+        self.assertEqual(
+            public,
+            "03B462771E99AAE9C7912AF47D6120C0B0DA972A4043A17F26320A52056DA46EA8",
+        )
+        self.assertEqual(
+            private,
+            "001A6B48BF0DE7C7E425B61E0444E3921182B6529867685257CEDC3E7EF13F0F18",
         )
