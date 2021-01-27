@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
+from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.types.account_id import AccountID
 from xrpl.binary_codec.types.currency import Currency
 from xrpl.binary_codec.types.serialized_type import SerializedType
@@ -17,6 +18,14 @@ PATHSET_END_BYTE = 0x00
 PATH_SEPARATOR_BYTE = 0xFF
 
 
+def _is_hop_object(value: Dict[str, Any]):
+    return "issuer" in value or "account" in value or "currency" in value
+
+
+def _is_path_set(value: List[List[Dict[str, Any]]]):
+    return len(value) == 0 or len(value[0]) == 0 or _is_hop_object(value[0])
+
+
 class Hop(SerializedType):
     """TODO: docstring"""
 
@@ -27,15 +36,15 @@ class Hop(SerializedType):
         buffer = b""
         if "account" in value:
             account_id = AccountID.from_value(value["account"])
-            buffer += account_id.buffer
+            buffer += account_id.to_bytes()
             data_type |= TYPE_ACCOUNT
         if "currency" in value:
             currency = Currency.from_value()
-            buffer += currency.buffer
+            buffer += currency.to_bytes()
             data_type |= TYPE_CURRENCY
         if "issuer" in value:
             issuer = AccountID.from_value(value["issuer"])
-            buffer += issuer.buffer
+            buffer += issuer.to_bytes()
             data_type |= TYPE_ISSUER
 
         return Hop(data_type + buffer)
@@ -60,7 +69,7 @@ class Hop(SerializedType):
 
     def to_json(self):
         """TODO: docstring"""
-        parser = BinaryParser(self.buffer.hex())
+        parser = BinaryParser(self.to_string())
         data_type = parser.read_uint8()
 
         if data_type & TYPE_ACCOUNT:
@@ -71,10 +80,6 @@ class Hop(SerializedType):
             issuer = parser.read(AccountID.WIDTH).to_json()
 
         return {"account": account_id, "currency": currency, "issuer": issuer}
-
-    def to_bytes(self):
-        """TODO: docstring"""
-        return self.buffer
 
     @property
     def type(self):
@@ -113,10 +118,54 @@ class Path(SerializedType):
     def to_json(self) -> List[Dict[str, Any]]:
         """TODO: docstring"""
         json = []
-        path_parser = BinaryParser(self.buffer.hex())
+        path_parser = BinaryParser(self.to_string())
 
         while not path_parser.end():
             hop = Hop.from_parser(path_parser)
             json.append(hop.to_json())
+
+        return json
+
+
+class PathSet(SerializedType):
+    """Deserialize and Serialize the PathSet type"""
+
+    @classmethod
+    def from_value(value: List[List[Dict[str, Any]]]) -> PathSet:
+        """TODO: docstring"""
+        if _is_path_set(value):
+            buffer: List[bytes] = []
+            for path_dict in value:
+                path = Path.from_value(path_dict)
+                buffer.append(path.to_bytes())
+                buffer.append(bytes([PATH_SEPARATOR_BYTE]))
+
+            buffer[-1] = bytes([PATHSET_END_BYTE])
+            return PathSet(b"".join(buffer))
+
+        raise XRPLBinaryCodecException("Cannot construct PathSet from given value")
+
+    @classmethod
+    def from_parser(parser: BinaryParser) -> PathSet:
+        """TODO: docstring"""
+        buffer: List[bytes] = []
+        while not parser.end():
+            path = Path.from_parser(parser)
+            buffer.append(path.to_bytes())
+            buffer.append(parser.read(1))
+
+            if buffer[-1][0] == PATHSET_END_BYTE:
+                break
+        return PathSet(b"".join(buffer))
+
+    def to_json(self) -> List[List[Dict[str, Any]]]:
+        """TODO: docstring"""
+        json = []
+        pathset_parser = BinaryParser(self.to_string())
+
+        while not pathset_parser.end():
+            path = Path.from_parser(pathset_parser)
+            json.append(path.to_json())
+            pathset_parser.skip(1)
 
         return json
