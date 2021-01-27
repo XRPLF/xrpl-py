@@ -1,4 +1,5 @@
 import unittest
+from decimal import Decimal
 
 import xrpl.binary_codec.types.amount as amount
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
@@ -25,4 +26,17 @@ class TestAmount(unittest.TestCase):
         )
 
     def test_assert_iou_is_valid(self):
-        pass
+        # { zero, pos, negative } * fractional, large, small
+        cases = [
+            "0",
+            "0.0",
+            "1",
+            "1.1111",
+            "-1",
+            "-1.1",
+            "1111111111111111.0",
+            "0.00000000001",
+        ]
+        for case in cases:
+            decimal = Decimal(case)
+            amount.assert_iou_is_valid(decimal)

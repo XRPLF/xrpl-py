@@ -79,7 +79,7 @@ def assert_iou_is_valid(issued_currency_value: Decimal) -> None:
         if (
             (precision > _MAX_IOU_PRECISION)
             or (exponent > _MAX_IOU_EXPONENT)
-            or (exponent < _MAX_IOU_EXPONENT)
+            or (exponent < _MIN_IOU_EXPONENT)
         ):
             raise XRPLBinaryCodecException(
                 "Decimal precision out of range for issued currency value."
@@ -95,8 +95,9 @@ def verify_no_decimal(decimal: Decimal) -> None:
     :param decimal: A Decimal object.
     """
     actual_exponent = decimal.as_tuple().exponent
-    exponent = Decimal("1e" + "-" + str(int(actual_exponent) - 15))
-    int_number_string = str(decimal * exponent)
+    exponent = Decimal("1e" + str(-(int(actual_exponent) - 15)))
+    # str(Decimal) uses sci notation by default... get around w/ string format
+    int_number_string = "{:f}".format(decimal * exponent)
     if not (int_number_string.find(".") == -1):
         raise XRPLBinaryCodecException("Decimal place found in int_number_str")
 
