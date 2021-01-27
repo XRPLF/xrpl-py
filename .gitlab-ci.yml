@@ -1,15 +1,8 @@
 stages:
-  - multi
   - lint
-  - test
-
-.multi:
-  image: $IMAGE
-  script:
-    - python -V
-  parallel:
-    matrix:
-      - IMAGE: ["python:3.6-alpine", "python:3.7-alpine"]
+  - test-3.7
+  - test-3.8
+  - test-3.9
 
 .test:
   image: python:3-alpine
@@ -21,11 +14,28 @@ stages:
     - pip install poetry
     - poetry install
 
-unit-test:
+test-3.7:
+  image: python:3.7-alpine
   stage: test
   extends: .test
   script:
-    - echo "testing"
+    - echo "testing in 3.7"
+    - poetry run nox -rs tests
+
+test-3.8:
+  image: python:3.8-alpine
+  stage: test
+  extends: .test
+  script:
+    - echo "testing in 3.8"
+    - poetry run nox -rs tests
+
+test-3.9:
+  image: python:3.9-alpine
+  stage: test
+  extends: .test
+  script:
+    - echo "testing in 3.9"
     - poetry run nox -rs tests
 
 lint:
