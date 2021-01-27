@@ -64,7 +64,7 @@ def encode_seed(entropy: bytes, encoding_type: CryptoAlgorithm) -> str:
     Returns an encoded seed.
 
     Args:
-        entropy: Entropy of SEED_LENGTH.
+        entropy: Entropy bytes of SEED_LENGTH.
         encoding_type: Either ED25519 or SECP256K1.
 
     Returns:
