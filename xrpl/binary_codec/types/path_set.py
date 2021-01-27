@@ -1,8 +1,8 @@
-"""TODO: docstring"""
+"""Classes and methods related to serializing and deserializing PathSets."""
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
@@ -10,28 +10,30 @@ from xrpl.binary_codec.types.account_id import AccountID
 from xrpl.binary_codec.types.currency import Currency
 from xrpl.binary_codec.types.serialized_type import SerializedType
 
+# Constant for masking types of a PathStep
 TYPE_ACCOUNT = 0x01
 TYPE_CURRENCY = 0x10
 TYPE_ISSUER = 0x20
 
+# Constants for separating Paths in a PathSet
 PATHSET_END_BYTE = 0x00
 PATH_SEPARATOR_BYTE = 0xFF
 
 
-def _is_path_step(value: Dict[str, Any]):
+def _is_path_step(value: Dict[str, str]):
     return "issuer" in value or "account" in value or "currency" in value
 
 
-def _is_path_set(value: List[List[Dict[str, Any]]]):
+def _is_path_set(value: List[List[Dict[str, str]]]):
     return len(value) == 0 or len(value[0]) == 0 or _is_path_step(value[0])
 
 
 class PathStep(SerializedType):
-    """TODO: docstring"""
+    """Serialize and deserialize a single step in a Path."""
 
     @classmethod
-    def from_value(cls, value: Dict[str, Any]) -> PathStep:
-        """TODO: docstring"""
+    def from_value(cls, value: Dict[str, str]) -> PathStep:
+        """Create a PathStep from a dictionary."""
         data_type = bytes(0)
         buffer = b""
         if "account" in value:
@@ -51,7 +53,7 @@ class PathStep(SerializedType):
 
     @classmethod
     def from_parser(cls, parser: BinaryParser) -> PathStep:
-        """TODO: docstring"""
+        """Construct a PathStep from a BinaryParser."""
         data_type = parser.read_uint8()
         buffer = b""
 
@@ -67,8 +69,8 @@ class PathStep(SerializedType):
 
         return PathStep(bytes([data_type]) + buffer)
 
-    def to_json(self) -> Dict[str, Any]:
-        """TODO: docstring"""
+    def to_json(self) -> Dict[str, str]:
+        """Get the JSON interpretation of this PathStep."""
         parser = BinaryParser(self.to_string())
         data_type = parser.read_uint8()
         json = {}
@@ -87,16 +89,21 @@ class PathStep(SerializedType):
 
     @property
     def type(self) -> int:
-        """TODO: docstring"""
+        """Get a number representing the type of this PathStep.
+
+        Returns:
+            a number to be bitwise and-ed with TYPE_ constants to describe the types in
+            the PathStep.
+        """
         return self.buffer[0]
 
 
 class Path(SerializedType):
-    """Class for serializing/deserializing Paths"""
+    """Class for serializing/deserializing Paths."""
 
     @classmethod
-    def from_value(cls, value: List[Dict[str, Any]]) -> Path:
-        """TODO: docstring"""
+    def from_value(cls, value: List[Dict[str, str]]) -> Path:
+        """Construct a Path from an array of dictionaries describing PathSteps"""
         buffer: bytes = b""
         for PathStep_dict in value:
             pathstep = PathStep.from_value(PathStep_dict)
@@ -105,7 +112,7 @@ class Path(SerializedType):
 
     @classmethod
     def from_parser(cls, parser: BinaryParser) -> Path:
-        """TODO: docstring"""
+        """Construct a Path from a BinaryParser."""
         buffer: List[bytes] = []
         while not parser.is_end():
             pathstep = PathStep.from_parser(parser)
@@ -118,8 +125,8 @@ class Path(SerializedType):
                 break
         return Path(b"".join(buffer))
 
-    def to_json(self) -> List[Dict[str, Any]]:
-        """TODO: docstring"""
+    def to_json(self) -> List[Dict[str, str]]:
+        """Get the JSON representation of this Path."""
         json = []
         path_parser = BinaryParser(self.to_string())
 
@@ -131,11 +138,11 @@ class Path(SerializedType):
 
 
 class PathSet(SerializedType):
-    """Deserialize and Serialize the PathSet type"""
+    """Deserialize and Serialize the PathSet type."""
 
     @classmethod
-    def from_value(cls, value: List[List[Dict[str, Any]]]) -> PathSet:
-        """TODO: docstring"""
+    def from_value(cls, value: List[List[Dict[str, str]]]) -> PathSet:
+        """Construct a PathSet from a List of Lists representing paths."""
         if _is_path_set(value):
             buffer: List[bytes] = []
             for path_dict in value:
@@ -150,7 +157,7 @@ class PathSet(SerializedType):
 
     @classmethod
     def from_parser(cls, parser: BinaryParser) -> PathSet:
-        """TODO: docstring"""
+        """Construct a PathSet from a BinaryParser."""
         buffer: List[bytes] = []
         while not parser.is_end():
             path = Path.from_parser(parser)
@@ -161,8 +168,8 @@ class PathSet(SerializedType):
                 break
         return PathSet(b"".join(buffer))
 
-    def to_json(self) -> List[List[Dict[str, Any]]]:
-        """TODO: docstring"""
+    def to_json(self) -> List[List[Dict[str, str]]]:
+        """Get the JSON representation of this PathSet."""
         json = []
         pathset_parser = BinaryParser(self.to_string())
 
