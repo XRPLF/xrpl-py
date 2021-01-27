@@ -1,4 +1,5 @@
 """Public interface for keypairs module."""
+import hashlib
 from secrets import token_bytes
 from typing import Any, Dict, Optional, Tuple
 
@@ -22,6 +23,11 @@ assert len(_ALGORITHM_TO_MODULE_MAP) == len(CryptoAlgorithm)
 _VERIFICATION_MESSAGE: Final[bytes] = sha512_first_half(
     b"This test message should verify."
 )
+
+assert (
+    "ripemd160" in hashlib.algorithms_available
+), """Your OpenSSL implementation does not include the RIPEMD160 algorithm,
+    which is required by XRPL"""
 
 
 def generate_seed(
@@ -71,3 +77,18 @@ def derive_keypair(seed: str, validator: bool = False) -> Tuple[str, str]:
             "Derived keypair did not generate verifiable signature",
         )
     return public_key, private_key
+
+
+# TODO - how is this supposed to work for validator keys?
+def derive_address(public_key: str) -> str:
+    """
+    public_key: public key from which to derive address
+    returns: address corresponding to public key
+    """
+    return _derive_address_from_bytes(bytes.fromhex(public_key))
+
+
+def _derive_address_from_bytes(public_key: bytes) -> str:
+    sha_hash = hashlib.sha256(public_key).digest()
+    ripe_hash = hashlib.new("ripemd160", sha_hash).digest()
+    return addresscodec.encode_classic_address(ripe_hash)
