@@ -55,15 +55,15 @@ class BinaryParser:
 
     def read_uint8(self) -> int:
         """Read 1 byte from parser and return as unsigned int."""
-        return int.from_bytes(self.read(1), byteorder="big")
+        return int.from_bytes(self.read(1), byteorder="big", signed=False)
 
     def read_uint16(self) -> int:
         """Read 2 bytes from parser and return as unsigned int."""
-        return int.from_bytes(self.read(2), byteorder="big")
+        return int.from_bytes(self.read(2), byteorder="big", signed=False)
 
     def read_uint32(self) -> int:
         """Read 4 bytes from parser and return as unsigned int."""
-        return int.from_bytes(self.read(4), byteorder="big")
+        return int.from_bytes(self.read(4), byteorder="big", signed=False)
 
     def is_end(self, custom_end=None) -> bool:
         """TODO: I'm not sure what this actually does yet."""
