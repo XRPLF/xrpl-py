@@ -18,7 +18,7 @@ class Hash(SerializedType, ABC):
 
     _width: int
 
-    def __init__(self, buffer: bytes) -> None:
+    def __init__(self: SerializedType, buffer: bytes) -> None:
         """
         Construct a Hash.
 
@@ -29,6 +29,6 @@ class Hash(SerializedType, ABC):
             raise XRPLBinaryCodecException("Invalid hash length {}".format(len(buffer)))
         super().__init__(buffer)
 
-    def __str__(self) -> str:
+    def __str__(self: SerializedType) -> str:
         """Returns a hex-encoded string representation of the bytes buffer."""
         return self.to_hex()
