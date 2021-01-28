@@ -1,6 +1,8 @@
 """Public interface for keypairs module."""
 from secrets import token_bytes
-from typing import Any, Dict, Final, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
+
+from typing_extensions import Final
 
 from xrpl import CryptoAlgorithm, addresscodec
 from xrpl.keypairs import ed25519, secp256k1
