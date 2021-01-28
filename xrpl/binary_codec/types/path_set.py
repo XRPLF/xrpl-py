@@ -58,13 +58,13 @@ class PathStep(SerializedType):
         buffer = b""
 
         if data_type & TYPE_ACCOUNT:
-            account_id = parser.read(AccountID.WIDTH)
+            account_id = parser.read(AccountID.LENGTH)
             buffer += account_id
         if data_type & TYPE_CURRENCY:
-            currency = parser.read(Currency.WIDTH)
+            currency = parser.read(Currency.LENGTH)
             buffer += currency
         if data_type & TYPE_ISSUER:
-            issuer = parser.read(AccountID.WIDTH)
+            issuer = parser.read(AccountID.LENGTH)
             buffer += issuer
 
         return PathStep(bytes([data_type]) + buffer)
