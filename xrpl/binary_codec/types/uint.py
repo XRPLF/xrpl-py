@@ -1,5 +1,5 @@
 """Base class for serializing and deserializing unsigned integers."""
-from abc import ABC, abstractmethod
+from abc import ABC
 
 
 class UInt(ABC):
@@ -8,6 +8,11 @@ class UInt(ABC):
     def __init__(self, buffer):
         """Construct a new UInt type from a `bytes` value."""
         self.buffer = buffer
+
+    @property
+    def value(self):
+        """Get the value of the UInt represented by `self.buffer`."""
+        return int.from_bytes(self.buffer, byteorder="big", signed=False)
 
     def __eq__(self, other):
         """Determine whether two UInt objects are equal."""
@@ -50,9 +55,3 @@ class UInt(ABC):
         if isinstance(self.value, int):
             return self.value
         return str(self.value)
-
-    @property
-    @abstractmethod
-    def value(self):
-        """Get the value of the UInt represented by `self.buffer`."""
-        raise NotImplementedError("UInt.value not implemented.")
