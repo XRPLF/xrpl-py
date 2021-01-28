@@ -7,6 +7,7 @@ from xrpl.addresscodec import decode_classic_address, encode_classic_address
 from xrpl.binary_codec.types.hash160 import Hash160
 
 _HEX_REGEX = re.compile("^[A-F0-9]{40}$")
+_ACCOUNT_ID_LENGTH = 20  # bytes
 
 
 class AccountID(Hash160):
@@ -20,7 +21,7 @@ class AccountID(Hash160):
         if buffer is not None:
             super().__init__(buffer)
         else:
-            super().__init__(bytes(20))
+            super().__init__(bytes(_ACCOUNT_ID_LENGTH))
 
     @classmethod
     def from_value(cls, value: str) -> AccountID:

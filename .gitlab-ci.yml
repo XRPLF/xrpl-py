@@ -17,7 +17,7 @@ unit-test:
   extends: .test
   script:
     - echo "testing"
-    - poetry run python -m unittest discover tests
+    - poetry run nox -rs tests
 
 lint:
   image: python:3-alpine
