@@ -11,17 +11,17 @@ _WIDTH = 1  # 8 / 8
 class UInt8(UInt):
     """Derived UInt class for serializing/deserializing 8 bit UInt."""
 
-    def __init__(self, buffer: bytes = bytes(_WIDTH)):
+    def __init__(self: UInt8, buffer: bytes = bytes(_WIDTH)) -> None:
         """Construct a new UInt8 type from a `bytes` value."""
         super().__init__(buffer)
 
     @classmethod
-    def from_parser(cls, parser: BinaryParser) -> UInt8:
+    def from_parser(cls: UInt8, parser: BinaryParser) -> UInt8:
         """Construct a new UInt8 type from a BinaryParser."""
         return cls(parser.read(_WIDTH))
 
     @classmethod
-    def from_value(cls, value: int) -> UInt8:
+    def from_value(cls: UInt8, value: int) -> UInt8:
         """Construct a new UInt8 type from a number."""
         if isinstance(value, int):
             value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=False)
