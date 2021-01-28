@@ -3,9 +3,8 @@ from decimal import Context, Decimal, getcontext, setcontext
 from typing import Dict
 
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
-
-# from xrpl.binary_codec.types.account_id import AccountID
-# from xrpl.binary_codec.types.currency import Currency
+from xrpl.binary_codec.types.account_id import AccountID
+from xrpl.binary_codec.types.currency import Currency
 from xrpl.binary_codec.types.serialized_type import SerializedType
 
 # Constants for validating amounts.
@@ -22,7 +21,7 @@ _MAX_DROPS = Decimal("1e17")
 _MIN_XRP = Decimal("1e-6")
 
 # other constants:
-_DEFAULT_AMOUNT_HEX = "4000000000000000"
+_POS_SIGN_BIT_MASK = "4000000000000000"
 _ZERO_CURRENCY_AMOUNT_HEX = "8000000000000000"
 _NATIVE_AMOUNT_BYTE_LENGTH = 8
 _CURRENCY_AMOUNT_BYTE_LENGTH = 48
@@ -113,18 +112,38 @@ class Amount(SerializedType):
         """
         if isinstance(value, str):
             assert_xrp_is_valid(value)
-            # represent and write the number as bytes to this buffer
-            # some OR situation with 0x40...
-            # return Amount object with this buffer
+            raw_bytes = int(value).to_bytes(8, byteorder="big", signed=False)
+            # set the "is positive" bit (this is backwards from usual two's complement!)
+            raw_bytes |= _POS_SIGN_BIT_MASK
+            return Amount(raw_bytes)
+
         if is_valid_issued_currency_amount(value):
-            assert_iou_is_valid(value)
-            # is it the special zero case?
-            # write the 0x800... situation
-            # else:
-            # set up the amount, currency, and issuer bytes
-            # write to buffer
-            # return Amount object with this buffer
-        # raise an error if it's not a string or correct dict
+            decimal_value = Decimal(value)
+            assert_iou_is_valid(decimal_value)
+            if decimal_value.is_zero():
+                return Amount(bytes.fromhex(_ZERO_CURRENCY_AMOUNT_HEX))
+
+            actual_exponent = decimal_value.as_tuple().exponent
+            exponent = Decimal("1e" + str(-(int(actual_exponent) - 15)))
+            int_number_string = "{:f}".format(value * exponent)
+
+            amount_bytes = bytes(int(int_number_string))
+            amount_bytes |= _ZERO_CURRENCY_AMOUNT_HEX  # "not XRP" bit set
+
+            if decimal_value > Decimal(0):
+                amount_bytes |= _POS_SIGN_BIT_MASK
+
+            exponent = actual_exponent - 15
+            exponent_byte = 97 + exponent
+            first_byte = bytes(amount_bytes[0] | (exponent_byte >> 2))
+            second_byte = bytes(amount_bytes[1] | ((exponent_byte & 0x03) << 6))
+
+            amount_bytes = first_byte + second_byte + amount_bytes[2:]
+            currency_bytes = Currency(value["currency"]).to_bytes()
+            issuer_bytes = AccountID(value["issuer"]).to_bytes()
+            return Amount(amount_bytes + currency_bytes + issuer_bytes)
+
+        raise XRPLBinaryCodecException("Invalid type to construct an Amount")
 
     def from_parser(self, parser):
         """Construct an Amount from an existing BinaryParser."""
