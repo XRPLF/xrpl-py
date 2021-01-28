@@ -16,7 +16,7 @@ authors = [
 python = "^3.7"
 base58 = "^2.1.0"
 ECPy = "^1.2.5"
-typing = "^3.7.4"
+typing-extensions = "^3.7.4"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
