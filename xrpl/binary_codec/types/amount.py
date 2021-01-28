@@ -1,7 +1,10 @@
 """Defines how to serialize and deserialize an amount field."""
-from decimal import Context, Decimal, getcontext, setcontext
-from typing import Dict
+from __future__ import annotations
 
+from decimal import Context, Decimal, getcontext, setcontext
+from typing import Dict, Optional, Union
+
+from xrpl.binary_codec.binary_wrappers import BinaryParser
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.types.account_id import AccountID
 from xrpl.binary_codec.types.currency import Currency
@@ -104,11 +107,14 @@ def verify_no_decimal(decimal: Decimal) -> None:
 class Amount(SerializedType):
     """Defines how to serialize and deserialize an amount."""
 
-    def from_value(self, value):
-        """
+    def __init__(self, buffer: bytes) -> None:
+        """Construct an Amount from given bytes."""
+        super().__init__(buffer)
 
-        :param value:
-        :return:
+    def from_value(self, value: Union[str, Dict]) -> Amount:
+        """
+        Construct an Amount from an issued currency amount or (for XRP),
+        a string amount.
         """
         if isinstance(value, str):
             assert_xrp_is_valid(value)
@@ -145,11 +151,19 @@ class Amount(SerializedType):
 
         raise XRPLBinaryCodecException("Invalid type to construct an Amount")
 
-    def from_parser(self, parser):
+    def from_parser(
+        self, parser: BinaryParser, length_hit: Optional[int] = None
+    ) -> Amount:
         """Construct an Amount from an existing BinaryParser."""
-        pass
+        is_xrp = parser.peek() & 0x08
+        if is_xrp:
+            num_bytes = 48
+        else:
+            num_bytes = 8
+        return Amount(parser.read(num_bytes))
 
     # this one exists only in JS not JAVA ... ?
+    # TODO: return type?
     def to_json(self):
         """Construct a JSON object representing this Amount."""
         pass
@@ -157,12 +171,11 @@ class Amount(SerializedType):
     def is_native(self) -> bool:
         """Returns True if this amount is a native XRP amount."""
         # 1st bit in 1st byte is set to 0 for native XRP
-        # return (toBytes()[0] & 0x80) == 0
-        pass
+        return self.to_bytes[0] & 0x08 == 0
 
     def is_positive(self) -> bool:
         """Returns True if 2nd bit in 1st byte is set to 1 (positive amount)."""
-        # return (toBytes()[0] & 0x40) > 0
+        return self.to_bytes()[0] & 0x04 > 0
 
     # def get_amount_bytes(self):
     #     pass

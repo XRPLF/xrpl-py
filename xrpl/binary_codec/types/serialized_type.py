@@ -2,6 +2,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
+from xrpl.binary_codec.binary_wrappers import BinaryParser
+
 
 class SerializedType(ABC):
     """The base class for all binary codec types."""
@@ -11,7 +13,9 @@ class SerializedType(ABC):
         self.buffer = buffer
 
     @abstractmethod
-    def from_parser(self, parser: Any, length_hint: Optional[int] = None) -> None:
+    def from_parser(
+        self, parser: BinaryParser, length_hint: Optional[int] = None
+    ) -> Any:
         """Construct a new SerializedType from a BinaryParser."""
         raise NotImplementedError("SerializedType.from_parser not implemented.")
 
