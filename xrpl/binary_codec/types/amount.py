@@ -14,6 +14,8 @@ from xrpl.binary_codec.types.serialized_type import SerializedType
 _MIN_IOU_EXPONENT = -96
 _MAX_IOU_EXPONENT = 80
 _MAX_IOU_PRECISION = 16
+_MIN_MANTISSA = 10 ** 15
+_MAX_MANTISSA = 10 ** 16 - 1
 
 # Configure Decimal
 setcontext(
@@ -111,7 +113,8 @@ class Amount(SerializedType):
         """Construct an Amount from given bytes."""
         super().__init__(buffer)
 
-    def from_value(self, value: Union[str, Dict]) -> Amount:
+    @classmethod
+    def from_value(cls, value: Union[str, Dict]) -> Amount:
         """
         Construct an Amount from an issued currency amount or (for XRP),
         a string amount.
@@ -121,33 +124,48 @@ class Amount(SerializedType):
             raw_bytes = int(value).to_bytes(8, byteorder="big", signed=False)
             # set the "is positive" bit (this is backwards from usual two's complement!)
             raw_bytes |= _POS_SIGN_BIT_MASK
-            return Amount(raw_bytes)
+            return cls(raw_bytes)
 
         if is_valid_issued_currency_amount(value):
-            decimal_value = Decimal(value)
+            decimal_value = Decimal(value["value"])
             assert_iou_is_valid(decimal_value)
             if decimal_value.is_zero():
-                return Amount(bytes.fromhex(_ZERO_CURRENCY_AMOUNT_HEX))
+                amount_bytes = bytes.fromhex(_ZERO_CURRENCY_AMOUNT_HEX)
+            else:
+                # Convert components to integers ---------------------------------------
+                sign, digits, exp = decimal_value.as_tuple()
+                mantissa = int("".join([str(d) for d in digits]))
 
-            actual_exponent = decimal_value.as_tuple().exponent
-            exponent = Decimal("1e" + str(-(int(actual_exponent) - 15)))
-            int_number_string = "{:f}".format(value * exponent)
+                # Canonicalize to expected range ---------------------------------------
+                while mantissa < _MIN_MANTISSA and exp > _MIN_IOU_EXPONENT:
+                    mantissa *= 10
+                    exp -= 1
 
-            amount_bytes = bytes(int(int_number_string))
-            amount_bytes |= _ZERO_CURRENCY_AMOUNT_HEX  # "not XRP" bit set
+                while mantissa > _MAX_MANTISSA:
+                    if exp >= _MAX_IOU_EXPONENT:
+                        raise ValueError("amount overflow")
+                    mantissa //= 10
+                    exp += 1
 
-            if decimal_value > Decimal(0):
-                amount_bytes |= _POS_SIGN_BIT_MASK
+                if exp < _MIN_IOU_EXPONENT or mantissa < _MIN_MANTISSA:
+                    # Round to zero
+                    (0x8000000000000000).to_bytes(8, byteorder="big", signed=False)
 
-            exponent = actual_exponent - 15
-            exponent_byte = 97 + exponent
-            first_byte = bytes(amount_bytes[0] | (exponent_byte >> 2))
-            second_byte = bytes(amount_bytes[1] | ((exponent_byte & 0x03) << 6))
+                if exp > _MAX_IOU_EXPONENT or mantissa > _MAX_MANTISSA:
+                    raise ValueError("amount overflow")
 
-            amount_bytes = first_byte + second_byte + amount_bytes[2:]
-            currency_bytes = Currency(value["currency"]).to_bytes()
-            issuer_bytes = AccountID(value["issuer"]).to_bytes()
-            return Amount(amount_bytes + currency_bytes + issuer_bytes)
+                # Convert to bytes -----------------------------------------------------
+                serial = 0x8000000000000000  # "Not XRP" bit set
+                if sign == 0:
+                    serial |= 0x4000000000000000  # "Is positive" bit set
+                serial |= (exp + 97) << 54  # next 8 bits are exponent
+                serial |= mantissa  # last 54 bits are mantissa
+
+                amount_bytes = serial.to_bytes(8, byteorder="big", signed=False)
+
+            currency_bytes = Currency.from_value(value["currency"]).to_bytes()
+            issuer_bytes = AccountID.from_value(value["issuer"]).to_bytes()
+            return cls(amount_bytes + currency_bytes + issuer_bytes)
 
         raise XRPLBinaryCodecException("Invalid type to construct an Amount")
 
@@ -155,7 +173,7 @@ class Amount(SerializedType):
         self, parser: BinaryParser, length_hit: Optional[int] = None
     ) -> Amount:
         """Construct an Amount from an existing BinaryParser."""
-        is_xrp = parser.peek() & 0x08
+        is_xrp = int(parser.peek()) & 0x08
         if is_xrp:
             num_bytes = 48
         else:

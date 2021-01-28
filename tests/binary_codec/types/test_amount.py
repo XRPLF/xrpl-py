@@ -40,3 +40,58 @@ class TestAmount(unittest.TestCase):
         for case in cases:
             decimal = Decimal(case)
             amount.assert_iou_is_valid(decimal)
+
+    def test_from_value_issued_currency(self):
+        # [IOU dict, expected serialized hex]
+        cases = [
+            [
+                {
+                    "value": "0",
+                    "currency": "USD",
+                    "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
+                },
+                "80000000000000000000000000000000000000005553440000"
+                "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
+            ],
+            [
+                {
+                    "value": "1",
+                    "currency": "USD",
+                    "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
+                },
+                "D4838D7EA4C680000000000000000000000000005553440000"
+                "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
+            ],
+            [
+                {
+                    "value": "2",
+                    "currency": "USD",
+                    "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
+                },
+                "D4871AFD498D00000000000000000000000000005553440000"
+                "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
+            ],
+            [
+                {
+                    "value": "-2",
+                    "currency": "USD",
+                    "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
+                },
+                "94871AFD498D00000000000000000000000000005553440000"
+                "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
+            ],
+            [
+                {
+                    "value": "2.1",
+                    "currency": "USD",
+                    "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
+                },
+                "D48775F05A0740000000000000000000000000005553440000"
+                "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
+            ],
+        ]
+        for case in cases:
+            print("CASE: ", case[0])
+            amount_object = amount.Amount.from_value(case[0])
+            # Convert hex to uppercase to match expectation
+            self.assertEqual(amount_object.to_hex().upper(), case[1])
