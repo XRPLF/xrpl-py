@@ -107,7 +107,9 @@ def verify_no_decimal(decimal: Decimal) -> None:
 
 
 class Amount(SerializedType):
-    """Defines how to serialize and deserialize an amount."""
+    """Defines how to serialize and deserialize an amount.
+    See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
+    """
 
     def __init__(self, buffer: bytes) -> None:
         """Construct an Amount from given bytes."""
@@ -118,6 +120,8 @@ class Amount(SerializedType):
         """
         Construct an Amount from an issued currency amount or (for XRP),
         a string amount.
+
+        See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
         """
         if isinstance(value, str):
             assert_xrp_is_valid(value)
@@ -169,8 +173,9 @@ class Amount(SerializedType):
 
         raise XRPLBinaryCodecException("Invalid type to construct an Amount")
 
+    @classmethod
     def from_parser(
-        self, parser: BinaryParser, length_hit: Optional[int] = None
+        cls, parser: BinaryParser, length_hit: Optional[int] = None
     ) -> Amount:
         """Construct an Amount from an existing BinaryParser."""
         is_xrp = int(parser.peek()) & 0x08
@@ -178,22 +183,41 @@ class Amount(SerializedType):
             num_bytes = 48
         else:
             num_bytes = 8
-        return Amount(parser.read(num_bytes))
+        return cls(parser.read(num_bytes))
 
-    # this one exists only in JS not JAVA ... ?
-    # TODO: return type?
     def to_json(self):
         """Construct a JSON object representing this Amount."""
-        pass
+        if self.is_native():
+            raw_bytes = bytes(self.buffer[0] & 0x40) + self.buffer[1:]
+            sign = "" if self.is_positive() else "-"
+            return "{}{}".format(
+                sign, int.from_bytes(raw_bytes, byteorder="big", signed=False)
+            )
+        parser = BinaryParser(self.to_string())
+        mantissa = parser.read(8)
+        currency = Currency.from_parser(parser)
+        issuer = AccountID.from_parser(parser)
+        b1 = mantissa[0]
+        b2 = mantissa[1]
+        is_positive = b1 & 0x04
+        sign = "" if is_positive else "-"
+        exponent = ((b1 & 0x3F) << 2) + ((b2 & 0xFF) >> 6) - 97
+        mantissa = bytes(1) + bytes(b2 & 0x3F) + mantissa[2:]
+        value = Decimal("{}0x{}".format(sign, mantissa.hex())) * Decimal(
+            "1e{}".format(exponent)
+        )
+        assert_iou_is_valid(value)
+        return {
+            "value": str(value),
+            "currency": currency.to_json(),
+            "issuer": issuer.to_json(),
+        }
 
     def is_native(self) -> bool:
         """Returns True if this amount is a native XRP amount."""
         # 1st bit in 1st byte is set to 0 for native XRP
-        return self.to_bytes[0] & 0x08 == 0
+        return (self.buffer[0] & 0x80) == 0
 
     def is_positive(self) -> bool:
         """Returns True if 2nd bit in 1st byte is set to 1 (positive amount)."""
-        return self.to_bytes()[0] & 0x04 > 0
-
-    # def get_amount_bytes(self):
-    #     pass
+        return (self.to_bytes()[0] & 0x40) > 0

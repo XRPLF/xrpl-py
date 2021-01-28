@@ -2,6 +2,7 @@ import unittest
 from decimal import Decimal
 
 import xrpl.binary_codec.types.amount as amount
+from xrpl.binary_codec.binary_wrappers import BinaryParser
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 
 
@@ -91,7 +92,33 @@ class TestAmount(unittest.TestCase):
             ],
         ]
         for case in cases:
-            print("CASE: ", case[0])
             amount_object = amount.Amount.from_value(case[0])
             # Convert hex to uppercase to match expectation
             self.assertEqual(amount_object.to_hex().upper(), case[1])
+
+    def test_to_json(self):
+        cases = [
+            [
+                "D48775F05A07400000000000000000000000000000000000"
+                "000000000000000000000000000000000000000000000000",
+                {
+                    "currency": "XRP",
+                    "value": "2.1",
+                    "issuer": "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
+                },
+            ],
+            [
+                "94838D7EA4C6800000000000000000000000000055534400"
+                "000000000000000000000000000000000000000000000001",
+                {
+                    "currency": "USD",
+                    "value": "-1",
+                    "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji",
+                },
+            ],
+        ]
+        for case in cases:
+            print("CASE;", case)
+            parser = BinaryParser(case[0])
+            amount_object = amount.Amount.from_parser(parser)
+            self.assertEqual(amount_object.to_json(), case[1])
