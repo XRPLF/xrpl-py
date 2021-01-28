@@ -1,5 +1,7 @@
 """Context manager and helpers for the deserialization of bytes into JSON."""
-from typing import Tuple
+from __future__ import annotations  # Requires Python 3.7+
+
+from typing import Optional, Tuple
 
 from xrpl.binary_codec.definitions import definitions
 from xrpl.binary_codec.definitions.field_header import FieldHeader
@@ -23,21 +25,21 @@ MAX_DOUBLE_BYTE_VALUE = 65536
 class BinaryParser:
     """Deserializes from hex-encoded XRPL binary format to JSON fields and values."""
 
-    def __init__(self, hex_bytes: str):
+    def __init__(self: BinaryParser, hex_bytes: str) -> None:
         """Construct a BinaryParser that will parse hex-encoded bytes."""
         self.bytes = bytes.fromhex(hex_bytes)
 
-    def __len__(self):
+    def __len__(self: BinaryParser) -> int:
         """Return the number of bytes in this parser's buffer."""
         return len(self.bytes)
 
-    def peek(self) -> bytes:
+    def peek(self: BinaryParser) -> bytes:
         """Peek the first byte of the BinaryParser."""
         if len(self.bytes) > 0:
             return self.bytes[0]
         return None
 
-    def skip(self, n):
+    def skip(self: BinaryParser, n: int) -> None:
         """Consume the first n bytes of the BinaryParser."""
         if n > len(self.bytes):
             raise XRPLBinaryCodecException(
@@ -47,35 +49,35 @@ class BinaryParser:
             )
         self.bytes = self.bytes[n:]
 
-    def read(self, n: int) -> bytes:
+    def read(self: BinaryParser, n: int) -> bytes:
         """Consume and return the first n bytes of the BinaryParser."""
         first_n_bytes = self.bytes[:n]
         self.skip(n)
         return first_n_bytes
 
-    def read_uint8(self) -> int:
+    def read_uint8(self: BinaryParser) -> int:
         """Read 1 byte from parser and return as unsigned int."""
         return int.from_bytes(self.read(1), byteorder="big", signed=False)
 
-    def read_uint16(self) -> int:
+    def read_uint16(self: BinaryParser) -> int:
         """Read 2 bytes from parser and return as unsigned int."""
         return int.from_bytes(self.read(2), byteorder="big", signed=False)
 
-    def read_uint32(self) -> int:
+    def read_uint32(self: BinaryParser) -> int:
         """Read 4 bytes from parser and return as unsigned int."""
         return int.from_bytes(self.read(4), byteorder="big", signed=False)
 
-    def is_end(self, custom_end=None) -> bool:
+    def is_end(self: BinaryParser, custom_end: Optional[int] = None) -> bool:
         """TODO: I'm not sure what this actually does yet."""
         return len(self.bytes) == 0 or (
             custom_end is not None and len(self.bytes) <= custom_end
         )
 
-    def read_variable_length(self) -> bytes:
+    def read_variable_length(self: BinaryParser) -> bytes:
         """Reads and returns variable length encoded bytes."""
         return self.read(self._read_length_prefix())
 
-    def _read_length_prefix(self) -> int:
+    def _read_length_prefix(self: BinaryParser) -> int:
         """
         Reads a variable length encoding prefix and returns the encoded length.
 
@@ -113,7 +115,7 @@ class BinaryParser:
             "Length prefix must contain between 1 and 3 bytes."
         )
 
-    def read_field_header(self) -> FieldHeader:
+    def read_field_header(self: BinaryParser) -> FieldHeader:
         """Reads field ID from BinaryParser and returns as a FieldHeader object."""
         type_code = self.read_uint8()
         field_code = type_code & 15
@@ -134,7 +136,7 @@ class BinaryParser:
                 )
         return FieldHeader(type_code, field_code)
 
-    def read_field(self) -> FieldInstance:
+    def read_field(self: BinaryParser) -> FieldInstance:
         """
         Read the field ordinal at the head of the BinaryParser and return a
         FieldInstance object representing information about the field contained
@@ -144,11 +146,11 @@ class BinaryParser:
         field_name = definitions.get_field_name_from_header(field_header)
         return definitions.get_field_instance(field_name)
 
-    def read_type(self, field_type: SerializedType):
+    def read_type(self: BinaryParser, field_type: SerializedType) -> None:
         """Read next bytes from BinaryParser as the given type."""
         return field_type.from_parser(self)
 
-    def read_field_value(self, field: FieldInstance) -> SerializedType:
+    def read_field_value(self: BinaryParser, field: FieldInstance) -> SerializedType:
         """Read value of the type specified by field from the BinaryParser."""
         field_type = self.type_for_field(field)
         # TODO: error handling for unsupported type?
@@ -164,7 +166,9 @@ class BinaryParser:
             )
         return value
 
-    def read_field_and_value(self) -> Tuple[FieldInstance, SerializedType]:
+    def read_field_and_value(
+        self: BinaryParser,
+    ) -> Tuple[FieldInstance, SerializedType]:
         """Get the next field and value from the BinaryParser."""
         field = self.read_field()
         return field, self.read_field_value(field)

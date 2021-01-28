@@ -13,7 +13,7 @@ _ACCOUNT_ID_LENGTH = 20  # bytes
 class AccountID(Hash160):
     """Codec for serializing and deserializing AccountID fields."""
 
-    def __init__(self, buffer: bytes = None) -> None:
+    def __init__(self: Hash160, buffer: bytes = None) -> None:
         """
         Construct an AccountID from given bytes.
         If buffer is not provided, default to 20 zero bytes.
@@ -24,7 +24,7 @@ class AccountID(Hash160):
             super().__init__(bytes(_ACCOUNT_ID_LENGTH))
 
     @classmethod
-    def from_value(cls, value: str) -> AccountID:
+    def from_value(cls: Hash160, value: str) -> AccountID:
         """Construct an AccountID from a hex string or a base58 r-Address."""
         if value == "":
             return cls()
@@ -35,6 +35,6 @@ class AccountID(Hash160):
         # base58 case
         return cls(decode_classic_address(value))
 
-    def to_json(self) -> str:
+    def to_json(self: Hash160) -> str:
         """Return the value of this AccountID encoded as a base58 string."""
         return encode_classic_address(self.buffer)

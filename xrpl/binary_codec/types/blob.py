@@ -12,19 +12,19 @@ from xrpl.binary_codec.types.serialized_type import SerializedType
 class Blob(SerializedType):
     """Variable length encoded type."""
 
-    def __init__(self, buffer: bytes) -> None:
+    def __init__(self: Blob, buffer: bytes) -> None:
         """Construct a new Blob type from a `bytes` value."""
         super().__init__(buffer)
 
     @classmethod
     def from_parser(
-        cls, parser: BinaryParser, length_hint: Optional[int] = None
+        cls: Blob, parser: BinaryParser, length_hint: Optional[int] = None
     ) -> Blob:
         """Defines how to read a Blob from a BinaryParser."""
         return cls(parser.read(length_hint))
 
     @classmethod
-    def from_value(cls, value: str) -> Blob:
+    def from_value(cls: Blob, value: str) -> Blob:
         """Create a Blob object from a hex-string."""
         if isinstance(value, str):
             return cls(bytes.fromhex(value))
