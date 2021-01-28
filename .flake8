@@ -14,9 +14,10 @@ max-line-length = 88
 
 per-file-ignores =
   # For tests, disable type annotation and docstring linting.
-  tests/*: ANN D
+  tests/*: ANN D DAR
   # TODO: Remove these after we've migrated to having everything typed.
-  xrpl/binary_codec/*: ANN
+  xrpl/binary_codec/*: ANN DAR
+  xrpl/keypairs/*: DAR
 
 # Select other tools to enable.
 
@@ -28,6 +29,8 @@ per-file-ignores =
 
 # D enables docstrings warnings from pydocstyle.
 
+# DAR enables docstring style linting via darglint.
+
 # F are errors reported by pyflakes, a tool which parses source files
 # and finds invalid Python code.
 
@@ -36,4 +39,4 @@ per-file-ignores =
 
 # W and E are warnings and errors reported by pycodestyle, which checks
 # your Python code against some of the style conventions in PEP 8.
-select = ABS,ANN,BLK,D,E,F,I,W
+select = ABS,ANN,DAR,BLK,D,E,F,I,W
