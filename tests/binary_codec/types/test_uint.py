@@ -1,6 +1,9 @@
 import unittest
 
-from xrpl.binary_codec.types import UInt8, UInt16, UInt32, UInt64
+from xrpl.binary_codec.types.uint8 import UInt8
+from xrpl.binary_codec.types.uint16 import UInt16
+from xrpl.binary_codec.types.uint32 import UInt32
+from xrpl.binary_codec.types.uint64 import UInt64
 
 
 class TestUInt(unittest.TestCase):
