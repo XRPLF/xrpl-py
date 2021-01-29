@@ -1,4 +1,8 @@
 """Context manager and helpers for the serialization of a JSON object into bytes."""
+
+from xrpl.binary_codec.definitions.field_instance import FieldInstance
+from xrpl.binary_codec.types.serialized_type import SerializedType
+
 # Constants used in length prefix encoding:
 # max length that can be represented in a single byte per XRPL serialization encoding
 MAX_SINGLE_BYTE_LENGTH = 192
@@ -56,15 +60,22 @@ class BinarySerializer:
         """Write given bytes to this BinarySerializer's bytesink."""
         self.bytesink += bytes_object
 
-    # TODO: this method depends on the SerializedType class.
-    # Complete when SerializedType is implemented
-    def write_length_encoded(self, value: int) -> None:
+    def write_length_encoded(self, value: SerializedType) -> None:
         """Write a variable length encoded value to the BinarySerializer."""
+        byte_object = bytearray()
+        value.to_byte_sink(byte_object)
         length_prefix = _encode_variable_length_prefix(value)
         self.bytesink += length_prefix
+        self.bytesink += byte_object  # TODO: this might not work
 
-    # TODO: this method depends on the SerializedType and FieldInstance classes.
-    # Complete when both classes are implemented
-    def write_field_and_value(self, field: None, value: None) -> None:
+    def write_field_and_value(
+        self, field: FieldInstance, value: SerializedType
+    ) -> None:
         """Write field and value to the buffer."""
-        return None
+        # TODO: there may be some casting required here
+        self.bytesink.put(field.header)
+
+        if field.is_variable_length_encoded:
+            self.write_length_encoded(value)
+        else:
+            value.to_byte_sink(self.bytesink)
