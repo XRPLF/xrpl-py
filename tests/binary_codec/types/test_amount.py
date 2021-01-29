@@ -99,6 +99,15 @@ class TestAmount(unittest.TestCase):
     def test_to_json(self):
         cases = [
             [
+                "D48775F05A0740000000000000000000000000005553440000"
+                "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
+                {
+                    "value": "2.1",
+                    "currency": "USD",
+                    "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
+                },
+            ],
+            [
                 "D48775F05A07400000000000000000000000000000000000"
                 "000000000000000000000000000000000000000000000000",
                 {

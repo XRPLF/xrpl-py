@@ -178,7 +178,7 @@ class Amount(SerializedType):
         cls, parser: BinaryParser, length_hit: Optional[int] = None
     ) -> Amount:
         """Construct an Amount from an existing BinaryParser."""
-        is_xrp = int(parser.peek()) & 0x08
+        is_xrp = int(parser.peek()) & 0x80
         if is_xrp:
             num_bytes = 48
         else:
@@ -194,21 +194,31 @@ class Amount(SerializedType):
                 sign, int.from_bytes(raw_bytes, byteorder="big", signed=False)
             )
         parser = BinaryParser(self.to_string())
-        mantissa = parser.read(8)
+        value_bytes = parser.read(8)
+        print("binary value bytes: \n", value_bytes.hex())
         currency = Currency.from_parser(parser)
         issuer = AccountID.from_parser(parser)
-        b1 = mantissa[0]
-        b2 = mantissa[1]
-        is_positive = b1 & 0x04
+        b1 = value_bytes[0]
+        b2 = value_bytes[1]
+        print("b1: ", bin(b1))
+        print("b2: ", bin(b2))
+        is_positive = b1 & 0x40
         sign = "" if is_positive else "-"
         exponent = ((b1 & 0x3F) << 2) + ((b2 & 0xFF) >> 6) - 97
-        mantissa = bytes(1) + bytes(b2 & 0x3F) + mantissa[2:]
-        value = Decimal("{}0x{}".format(sign, mantissa.hex())) * Decimal(
+        print("exponent: ", exponent)
+        print("b2 & 0x3F: ", bin(b2 & 0x3F))
+        print("value_bytes[2:] = ", value_bytes[2:].hex())
+        hex_mantissa = hex(b2 & 0x3F) + value_bytes[2:].hex()
+        # mantissa = b''.join([bytes(b2 & 0x3F) + bytes(value_bytes[2:])]
+        print("hex_mantissa = ", hex_mantissa)
+        int_mantissa = int(hex_mantissa[2:], 16)
+        print("int mantissa: ", int_mantissa)
+        value = Decimal("{}{}".format(sign, int_mantissa)) * Decimal(
             "1e{}".format(exponent)
         )
         assert_iou_is_valid(value)
         return {
-            "value": str(value),
+            "value": str(value).rstrip("0").rstrip("."),
             "currency": currency.to_json(),
             "issuer": issuer.to_json(),
         }
