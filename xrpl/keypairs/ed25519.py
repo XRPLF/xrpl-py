@@ -1,10 +1,11 @@
 """Methods for deriving keypairs given an ED25519-encoded seed."""
 from hashlib import sha512
-from typing import Final, Tuple
+from typing import Tuple
 
 from ecpy.curves import Curve  # type: ignore
 from ecpy.eddsa import EDDSA  # type: ignore
 from ecpy.keys import ECPrivateKey, ECPublicKey  # type: ignore
+from typing_extensions import Final
 
 from xrpl.keypairs.exceptions import XRPLKeypairsException
 from xrpl.keypairs.helpers import sha512_first_half
