@@ -60,6 +60,10 @@ class BinarySerializer:
         """Write given bytes to this BinarySerializer's bytesink."""
         self.bytesink += bytes_object
 
+    def to_bytes(self) -> bytes:
+        """TODO: docstring"""
+        return self.bytesink
+
     def write_length_encoded(self, value: SerializedType) -> None:
         """Write a variable length encoded value to the BinarySerializer."""
         byte_object = bytearray()
