@@ -10,7 +10,7 @@ from typing_extensions import Final
 from xrpl.keypairs.exceptions import XRPLKeypairsException
 from xrpl.keypairs.helpers import sha512_first_half
 
-_PREFIX: Final[str] = "ED"
+PREFIX: Final[str] = "ED"
 _CURVE: Final[Curve] = Curve.get_curve("Ed25519")
 _SIGNER: Final[EDDSA] = EDDSA(sha512)
 
@@ -54,7 +54,7 @@ def sign(message: str, private_key: str) -> bytes:
     Returns:
         The signature of message signed using private_key.
     """
-    raw_private = private_key[len(_PREFIX) :]
+    raw_private = private_key[len(PREFIX) :]
     wrapped_private = ECPrivateKey(int(raw_private, 16), _CURVE)
     return _SIGNER.sign(message, wrapped_private)
 
@@ -72,7 +72,7 @@ def is_message_valid(message: str, signature: bytes, public_key: str) -> bool:
     Returns:
         Whether message is valid given signature and public_key
     """
-    raw_public = public_key[len(_PREFIX) :]
+    raw_public = public_key[len(PREFIX) :]
     public_key_point = _CURVE.decode_point(bytes.fromhex(raw_public))
     wrapped_public = ECPublicKey(public_key_point)
     return _SIGNER.verify(message, signature, wrapped_public)
@@ -87,4 +87,4 @@ def _private_key_to_str(key: ECPrivateKey) -> str:
 
 
 def _format_key(keystr: str) -> str:
-    return (_PREFIX + keystr).upper()
+    return (PREFIX + keystr).upper()

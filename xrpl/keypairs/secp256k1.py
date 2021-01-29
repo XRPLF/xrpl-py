@@ -3,7 +3,8 @@
 #
 # See https://xrpl.org/cryptographic-keys.html#secp256k1-key-derivation
 # for an overview of the algorithm.
-from typing import Callable, Tuple
+import hashlib
+from typing import Callable, Final, Literal, Tuple
 
 from ecpy.curves import Curve  # type: ignore
 from ecpy.ecdsa import ECDSA  # type: ignore
@@ -15,7 +16,7 @@ from xrpl.keypairs.helpers import sha512_first_half
 
 _CURVE: Final[Curve] = Curve.get_curve("secp256k1")
 _GROUP_ORDER: Final[int] = _CURVE.order
-_SIGNER: Final[ECDSA] = ECDSA()
+_SIGNER: Final[ECDSA] = ECDSA("DER")
 
 # String keys must be _KEY_LENGTH long
 _KEY_LENGTH: Final[int] = 66
@@ -75,7 +76,12 @@ def sign(message: str, private_key: str) -> bytes:
         The signed message.
     """
     wrapped_private = ECPrivateKey(int(private_key, 16), _CURVE)
-    return _SIGNER.sign(message, wrapped_private)
+    return _SIGNER.sign_rfc6979(
+        sha512_first_half(message),
+        wrapped_private,
+        hashlib.sha256,
+        canonical=True,
+    )
 
 
 def is_message_valid(message: str, signature: bytes, public_key: str) -> bool:
@@ -92,7 +98,7 @@ def is_message_valid(message: str, signature: bytes, public_key: str) -> bool:
     """
     public_key_point = _CURVE.decode_point(bytes.fromhex(public_key))
     wrapped_public = ECPublicKey(public_key_point)
-    return _SIGNER.verify(message, signature, wrapped_public)
+    return _SIGNER.verify(sha512_first_half(message), signature, wrapped_public)
 
 
 def _format_keys(public: ECPublicKey, private: ECPrivateKey) -> Tuple[str, str]:
@@ -131,12 +137,12 @@ def _do_derive_part(
     into the value to hash to get the raw private key.
     """
 
-    def candidate_merger(candidate: bytes) -> bytes:
+    def _candidate_merger(candidate: bytes) -> bytes:
         if phase == "root":
             return bytes_input + candidate
         return bytes_input + _INTERMEDIATE_KEYPAIR_PADDING + candidate
 
-    raw_private = _get_secret(candidate_merger)
+    raw_private = _get_secret(_candidate_merger)
     wrapped_private = ECPrivateKey(int.from_bytes(raw_private, "big"), _CURVE)
     return wrapped_private.get_public_key(), wrapped_private
 
