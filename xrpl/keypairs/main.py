@@ -1,5 +1,5 @@
 """Public interface for keypairs module."""
-from random import randbytes
+from secrets import token_bytes
 from typing import Any, Dict, Final, Optional, Tuple
 
 from xrpl import CryptoAlgorithm, addresscodec
@@ -34,7 +34,7 @@ def generate_seed(
     returns: a seed suitable for use with derive
     """
     if entropy is None:
-        parsed_entropy = randbytes(addresscodec.SEED_LENGTH)
+        parsed_entropy = token_bytes(addresscodec.SEED_LENGTH)
     else:
         parsed_entropy = bytes(entropy, "UTF-8")[: addresscodec.SEED_LENGTH]
     return addresscodec.encode_seed(parsed_entropy, algorithm)
