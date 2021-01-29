@@ -5,6 +5,79 @@ import xrpl.binary_codec.types.amount as amount
 from xrpl.binary_codec.binary_wrappers import BinaryParser
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 
+# [IOU dict, expected serialized hex]
+IOU_CASES = [
+    [
+        {
+            "value": "0",
+            "currency": "USD",
+            "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
+        },
+        "80000000000000000000000000000000000000005553440000"
+        "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
+    ],
+    [
+        {
+            "value": "1",
+            "currency": "USD",
+            "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
+        },
+        "D4838D7EA4C680000000000000000000000000005553440000"
+        "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
+    ],
+    [
+        {
+            "value": "2",
+            "currency": "USD",
+            "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
+        },
+        "D4871AFD498D00000000000000000000000000005553440000"
+        "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
+    ],
+    [
+        {
+            "value": "-2",
+            "currency": "USD",
+            "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
+        },
+        "94871AFD498D00000000000000000000000000005553440000"
+        "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
+    ],
+    [
+        {
+            "value": "2.1",
+            "currency": "USD",
+            "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
+        },
+        "D48775F05A0740000000000000000000000000005553440000"
+        "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
+    ],
+    [
+        {
+            "currency": "XRP",
+            "value": "2.1",
+            "issuer": "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
+        },
+        "D48775F05A07400000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000",
+    ],
+    [
+        {
+            "currency": "USD",
+            "value": "1111111111111111",
+            "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji",
+        },
+        "D843F28CB71571C700000000000000000000000055534400"
+        "000000000000000000000000000000000000000000000001",
+    ],
+]
+
+# [XRP value, hex encoding]
+XRP_CASES = [
+    ["100", "4000000000000064"],
+    ["100000000000000000", "416345785D8A0000"],
+]
+
 
 class TestAmount(unittest.TestCase):
     def test_assert_xrp_is_valid(self):
@@ -43,91 +116,24 @@ class TestAmount(unittest.TestCase):
             amount.assert_iou_is_valid(decimal)
 
     def test_from_value_issued_currency(self):
-        # [IOU dict, expected serialized hex]
-        cases = [
-            [
-                {
-                    "value": "0",
-                    "currency": "USD",
-                    "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
-                },
-                "80000000000000000000000000000000000000005553440000"
-                "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
-            ],
-            [
-                {
-                    "value": "1",
-                    "currency": "USD",
-                    "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
-                },
-                "D4838D7EA4C680000000000000000000000000005553440000"
-                "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
-            ],
-            [
-                {
-                    "value": "2",
-                    "currency": "USD",
-                    "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
-                },
-                "D4871AFD498D00000000000000000000000000005553440000"
-                "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
-            ],
-            [
-                {
-                    "value": "-2",
-                    "currency": "USD",
-                    "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
-                },
-                "94871AFD498D00000000000000000000000000005553440000"
-                "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
-            ],
-            [
-                {
-                    "value": "2.1",
-                    "currency": "USD",
-                    "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
-                },
-                "D48775F05A0740000000000000000000000000005553440000"
-                "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
-            ],
-        ]
-        for case in cases:
+        for case in IOU_CASES:
             amount_object = amount.Amount.from_value(case[0])
             # Convert hex to uppercase to match expectation
             self.assertEqual(amount_object.to_hex().upper(), case[1])
 
-    def test_to_json(self):
-        cases = [
-            [
-                "D48775F05A0740000000000000000000000000005553440000"
-                "0000008B1CE810C13D6F337DAC85863B3D70265A24DF44",
-                {
-                    "value": "2.1",
-                    "currency": "USD",
-                    "issuer": "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw",
-                },
-            ],
-            [
-                "D48775F05A07400000000000000000000000000000000000"
-                "000000000000000000000000000000000000000000000000",
-                {
-                    "currency": "XRP",
-                    "value": "2.1",
-                    "issuer": "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
-                },
-            ],
-            [
-                "94838D7EA4C6800000000000000000000000000055534400"
-                "000000000000000000000000000000000000000000000001",
-                {
-                    "currency": "USD",
-                    "value": "-1",
-                    "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji",
-                },
-            ],
-        ]
-        for case in cases:
-            print("CASE;", case)
-            parser = BinaryParser(case[0])
+    def test_from_value_xrp(self):
+        for case in XRP_CASES:
+            amount_object = amount.Amount.from_value(case[0])
+            self.assertEqual(amount_object.to_hex().upper(), case[1])
+
+    def test_to_json_issued_currency(self):
+        for case in IOU_CASES:
+            parser = BinaryParser(case[1])
             amount_object = amount.Amount.from_parser(parser)
-            self.assertEqual(amount_object.to_json(), case[1])
+            self.assertEqual(amount_object.to_json(), case[0])
+
+    def test_to_json_xrp(self):
+        for case in XRP_CASES:
+            parser = BinaryParser(case[1])
+            amount_object = amount.Amount.from_parser(parser)
+            self.assertEqual(amount_object.to_json(), case[0])

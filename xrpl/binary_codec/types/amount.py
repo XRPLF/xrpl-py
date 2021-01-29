@@ -1,4 +1,7 @@
-"""Defines how to serialize and deserialize an amount field."""
+"""
+Defines how to serialize and deserialize an amount field.
+See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
+"""
 from __future__ import annotations
 
 from decimal import Context, Decimal, getcontext, setcontext
@@ -26,13 +29,12 @@ _MAX_DROPS = Decimal("1e17")
 _MIN_XRP = Decimal("1e-6")
 
 # other constants:
-_POS_SIGN_BIT_MASK = "4000000000000000"
+_POS_SIGN_BIT_MASK = 0x4000000000000000
 _ZERO_CURRENCY_AMOUNT_HEX = "8000000000000000"
 _NATIVE_AMOUNT_BYTE_LENGTH = 8
 _CURRENCY_AMOUNT_BYTE_LENGTH = 48
 
 
-# TODO: is there a more Pythonic way to do this? Should an IOU be its own class?
 def is_valid_issued_currency_amount(value: Dict) -> bool:
     """
     Determines whether given dictionary represents a valid issued currency amount,
@@ -47,7 +49,6 @@ def is_valid_issued_currency_amount(value: Dict) -> bool:
     return True
 
 
-# TODO: when it's all writ: are all these docstrings correct?
 def assert_xrp_is_valid(xrp_value: str) -> None:
     """
     Validates the format of an XRP amount.
@@ -125,10 +126,9 @@ class Amount(SerializedType):
         """
         if isinstance(value, str):
             assert_xrp_is_valid(value)
-            raw_bytes = int(value).to_bytes(8, byteorder="big", signed=False)
             # set the "is positive" bit (this is backwards from usual two's complement!)
-            raw_bytes |= _POS_SIGN_BIT_MASK
-            return cls(raw_bytes)
+            value_with_pos_bit = int(value) | _POS_SIGN_BIT_MASK
+            return cls(value_with_pos_bit.to_bytes(8, byteorder="big"))
 
         if is_valid_issued_currency_amount(value):
             decimal_value = Decimal(value["value"])
@@ -178,47 +178,44 @@ class Amount(SerializedType):
         cls, parser: BinaryParser, length_hit: Optional[int] = None
     ) -> Amount:
         """Construct an Amount from an existing BinaryParser."""
-        is_xrp = int(parser.peek()) & 0x80
-        if is_xrp:
-            num_bytes = 48
+        not_xrp = int(parser.peek()) & 0x80
+        if not_xrp:
+            num_bytes = _CURRENCY_AMOUNT_BYTE_LENGTH
         else:
-            num_bytes = 8
+            num_bytes = _NATIVE_AMOUNT_BYTE_LENGTH
         return cls(parser.read(num_bytes))
 
-    def to_json(self):
+    def to_json(self) -> Union[str, Dict]:
         """Construct a JSON object representing this Amount."""
         if self.is_native():
-            raw_bytes = bytes(self.buffer[0] & 0x40) + self.buffer[1:]
             sign = "" if self.is_positive() else "-"
-            return "{}{}".format(
-                sign, int.from_bytes(raw_bytes, byteorder="big", signed=False)
+            masked_bytes = (
+                int.from_bytes(self.buffer, byteorder="big") & 0x3FFFFFFFFFFFFFFF
             )
+            return "{}{}".format(sign, masked_bytes)
         parser = BinaryParser(self.to_string())
         value_bytes = parser.read(8)
-        print("binary value bytes: \n", value_bytes.hex())
         currency = Currency.from_parser(parser)
         issuer = AccountID.from_parser(parser)
         b1 = value_bytes[0]
         b2 = value_bytes[1]
-        print("b1: ", bin(b1))
-        print("b2: ", bin(b2))
         is_positive = b1 & 0x40
         sign = "" if is_positive else "-"
         exponent = ((b1 & 0x3F) << 2) + ((b2 & 0xFF) >> 6) - 97
-        print("exponent: ", exponent)
-        print("b2 & 0x3F: ", bin(b2 & 0x3F))
-        print("value_bytes[2:] = ", value_bytes[2:].hex())
         hex_mantissa = hex(b2 & 0x3F) + value_bytes[2:].hex()
-        # mantissa = b''.join([bytes(b2 & 0x3F) + bytes(value_bytes[2:])]
-        print("hex_mantissa = ", hex_mantissa)
         int_mantissa = int(hex_mantissa[2:], 16)
-        print("int mantissa: ", int_mantissa)
         value = Decimal("{}{}".format(sign, int_mantissa)) * Decimal(
             "1e{}".format(exponent)
         )
+
         assert_iou_is_valid(value)
+        if value.is_zero():
+            value_str = "0"
+        else:
+            value_str = str(value).rstrip("0").rstrip(".")
+
         return {
-            "value": str(value).rstrip("0").rstrip("."),
+            "value": value_str,
             "currency": currency.to_json(),
             "issuer": issuer.to_json(),
         }
