@@ -11,15 +11,25 @@ from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 def encode(field_name: str) -> bytes:
     """
     Returns the unique field ID for a given field name.
+
     This field ID consists of the type code and field code, in 1 to 3 bytes
     depending on whether those values are "common" (<16) or "uncommon" (>=16)
+
+    Args:
+        field_name: The name of the field to encode.
     """
-    field_header = definitions.get_field_header_from_name(field_name)
-    return _encode_field_id(field_header)
 
 
 def decode(field_id: str) -> str:
-    """Returns the field name represented by the given field ID."""
+    """
+    Returns the field name represented by the given field ID.
+
+    Args:
+        field_id: The field_id to decode.
+
+    Returns:
+        The field name represented by the field ID.
+    """
     field_header = _decode_field_id(field_id)
     return definitions.get_field_name_from_header(field_header)
 
