@@ -30,7 +30,7 @@ _MIN_XRP = Decimal("1e-6")
 
 # other constants:
 _POS_SIGN_BIT_MASK = 0x4000000000000000
-_ZERO_CURRENCY_AMOUNT_HEX = "8000000000000000"
+_ZERO_CURRENCY_AMOUNT_HEX = 0x8000000000000000
 _NATIVE_AMOUNT_BYTE_LENGTH = 8
 _CURRENCY_AMOUNT_BYTE_LENGTH = 48
 
@@ -54,7 +54,7 @@ def assert_xrp_is_valid(xrp_value: str) -> None:
     Validates the format of an XRP amount.
     Raises if value is invalid.
 
-    :param xrp_value: A string representing an integer number of drops of XRP.
+    :param xrp_value: A string representing an amount of XRP.
     """
     # Contains no decimal point
     if not (xrp_value.find(".") == -1):
@@ -134,7 +134,7 @@ class Amount(SerializedType):
             decimal_value = Decimal(value["value"])
             assert_iou_is_valid(decimal_value)
             if decimal_value.is_zero():
-                amount_bytes = bytes.fromhex(_ZERO_CURRENCY_AMOUNT_HEX)
+                amount_bytes = _ZERO_CURRENCY_AMOUNT_HEX.to_bytes(8, byteorder="big")
             else:
                 # Convert components to integers ---------------------------------------
                 sign, digits, exp = decimal_value.as_tuple()
@@ -147,21 +147,25 @@ class Amount(SerializedType):
 
                 while mantissa > _MAX_MANTISSA:
                     if exp >= _MAX_IOU_EXPONENT:
-                        raise ValueError("amount overflow")
+                        raise XRPLBinaryCodecException(
+                            "Amount overflow in issued currency value {}".format(value)
+                        )
                     mantissa //= 10
                     exp += 1
 
                 if exp < _MIN_IOU_EXPONENT or mantissa < _MIN_MANTISSA:
                     # Round to zero
-                    (0x8000000000000000).to_bytes(8, byteorder="big", signed=False)
+                    _ZERO_CURRENCY_AMOUNT_HEX.to_bytes(8, byteorder="big", signed=False)
 
                 if exp > _MAX_IOU_EXPONENT or mantissa > _MAX_MANTISSA:
-                    raise ValueError("amount overflow")
+                    raise XRPLBinaryCodecException(
+                        "Amount overflow in issued currency value {}".format(value)
+                    )
 
                 # Convert to bytes -----------------------------------------------------
-                serial = 0x8000000000000000  # "Not XRP" bit set
+                serial = _ZERO_CURRENCY_AMOUNT_HEX  # "Not XRP" bit set
                 if sign == 0:
-                    serial |= 0x4000000000000000  # "Is positive" bit set
+                    serial |= _POS_SIGN_BIT_MASK  # "Is positive" bit set
                 serial |= (exp + 97) << 54  # next 8 bits are exponent
                 serial |= mantissa  # last 54 bits are mantissa
 
