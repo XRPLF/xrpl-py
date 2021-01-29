@@ -103,7 +103,7 @@ class Path(SerializedType):
 
     @classmethod
     def from_value(cls, value: List[Dict[str, str]]) -> Path:
-        """Construct a Path from an array of dictionaries describing PathSteps"""
+        """Construct a Path from an array of dictionaries describing PathSteps."""
         buffer: bytes = b""
         for PathStep_dict in value:
             pathstep = PathStep.from_value(PathStep_dict)
