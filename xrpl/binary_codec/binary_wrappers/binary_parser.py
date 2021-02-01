@@ -1,5 +1,5 @@
 """Context manager and helpers for the deserialization of bytes into JSON."""
-from typing import Tuple
+from typing import Tuple, Type
 
 from xrpl.binary_codec.definitions import definitions
 from xrpl.binary_codec.definitions.field_header import FieldHeader
@@ -148,16 +148,15 @@ class BinaryParser:
         """Read next bytes from BinaryParser as the given type."""
         return field_type.from_parser(self)
 
+    def type_for_field(self, field: FieldInstance) -> Type[SerializedType]:
+        """TODO: docstring"""
+        return SerializedType.get_type_by_name(field.type)
+
     def read_field_value(self, field: FieldInstance) -> SerializedType:
         """Read value of the type specified by field from the BinaryParser."""
         field_type = self.type_for_field(field)
         # TODO: error handling for unsupported type?
-        size_hint = (
-            self.read_variable_length_length()
-            if field.is_variable_length_encoded
-            else None
-        )
-        value = field_type.from_parser(self, size_hint)
+        value = field_type.from_parser(self)  # , size_hint
         if value is None:
             raise XRPLBinaryCodecException(
                 "from_parser for {}, {} returned None.".format(field.name, field.type)

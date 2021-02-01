@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Union
+from typing import Any, Optional, Type, Union
 
 
 class SerializedType(ABC):
@@ -11,6 +11,42 @@ class SerializedType(ABC):
     def __init__(self, buffer: bytes = bytes()) -> None:
         """Construct a new SerializedType."""
         self.buffer = buffer
+
+    @classmethod
+    def get_type_by_name(cls, name: str) -> Type[SerializedType]:
+        """TODO: docstring"""
+        from xrpl.binary_codec.types.account_id import AccountID
+        from xrpl.binary_codec.types.blob import Blob
+        from xrpl.binary_codec.types.currency import Currency
+        from xrpl.binary_codec.types.hash128 import Hash128
+        from xrpl.binary_codec.types.hash160 import Hash160
+        from xrpl.binary_codec.types.hash256 import Hash256
+        from xrpl.binary_codec.types.serialized_transaction import SerializedTransaction
+        from xrpl.binary_codec.types.uint8 import UInt8
+        from xrpl.binary_codec.types.uint16 import UInt16
+        from xrpl.binary_codec.types.uint32 import UInt32
+        from xrpl.binary_codec.types.uint64 import UInt64
+
+        type_map = {
+            "AccountID": AccountID,
+            # "Amount": Amount, # TODO: uncomment when implemented
+            "Blob": Blob,
+            "Currency": Currency,
+            "Hash128": Hash128,
+            "Hash160": Hash160,
+            "Hash256": Hash256,
+            # "PathSet": PathSet, # TODO: uncomment when implemented
+            # "STArray": STArray, # TODO: uncomment when implemented
+            "SerializedTransaction": SerializedTransaction,
+            "UInt8": UInt8,
+            "UInt16": UInt16,
+            "UInt32": UInt32,
+            "UInt64": UInt64,
+            # "Vector256": Vector256, # TODO: uncomment when implemented
+        }
+        # TODO: figure out if there's a better way to do this
+
+        return type_map[name]
 
     @abstractmethod
     def from_parser(

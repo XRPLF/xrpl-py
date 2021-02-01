@@ -77,9 +77,10 @@ class BinarySerializer:
     ) -> None:
         """Write field and value to the buffer."""
         # TODO: there may be some casting required here
-        self.bytesink.put(field.header)
+        self.bytesink += field.header.to_bytes()
 
         if field.is_variable_length_encoded:
             self.write_length_encoded(value)
         else:
-            value.to_byte_sink(self.bytesink)
+            print(value, type(value))
+            self.bytesink += value.to_bytes()

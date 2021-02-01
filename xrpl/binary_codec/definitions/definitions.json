@@ -9,7 +9,7 @@
     "Hash256": 5,
     "UInt8": 16,
     "Vector256": 19,
-    "STObject": 14,
+    "SerializedTransaction": 14,
     "Unknown": -2,
     "Transaction": 10001,
     "Hash160": 17,
@@ -81,7 +81,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "UInt16"
+        "type": "Blob"
       }
     ],
     [
@@ -1141,7 +1141,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STObject"
+        "type": "SerializedTransaction"
       }
     ],
     [
@@ -1151,7 +1151,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STObject"
+        "type": "SerializedTransaction"
       }
     ],
     [
@@ -1161,7 +1161,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STObject"
+        "type": "SerializedTransaction"
       }
     ],
     [
@@ -1171,7 +1171,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STObject"
+        "type": "SerializedTransaction"
       }
     ],
     [
@@ -1181,7 +1181,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STObject"
+        "type": "SerializedTransaction"
       }
     ],
     [
@@ -1191,7 +1191,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STObject"
+        "type": "SerializedTransaction"
       }
     ],
     [
@@ -1201,7 +1201,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STObject"
+        "type": "SerializedTransaction"
       }
     ],
     [
@@ -1211,7 +1211,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STObject"
+        "type": "SerializedTransaction"
       }
     ],
     [
@@ -1221,7 +1221,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STObject"
+        "type": "SerializedTransaction"
       }
     ],
     [
@@ -1231,7 +1231,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STObject"
+        "type": "SerializedTransaction"
       }
     ],
     [
@@ -1241,7 +1241,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STObject"
+        "type": "SerializedTransaction"
       }
     ],
     [
@@ -1251,7 +1251,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STObject"
+        "type": "SerializedTransaction"
       }
     ],
     [
@@ -1261,7 +1261,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STObject"
+        "type": "SerializedTransaction"
       }
     ],
     [
@@ -1271,7 +1271,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STObject"
+        "type": "SerializedTransaction"
       }
     ],
     [

@@ -6,14 +6,14 @@ from typing import Any, Dict, List
 
 from xrpl.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
-from xrpl.binary_codec.binary_wrappers.binary_serializer import BinarySerializer
+from xrpl.binary_codec.definitions.definitions import get_field_instance
 from xrpl.binary_codec.definitions.field_instance import FieldInstance
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.types.serialized_type import SerializedType
 
 OBJECT_END_MARKER_BYTE = bytes([0xE1])
 OBJECT_END_MARKER = "ObjectEndMarker"
-SERIALIZED_OBJECT = "SerializedObject"
+SERIALIZED_TRANSACTION = "SerializedTransaction"
 DESTINATION = "Destination"
 ACCOUNT = "Account"
 SOURCE_TAG = "SourceTag"
@@ -35,32 +35,37 @@ def handle_xaddress(field: str, xaddress: str) -> Dict[str, Any]:
     return {field: classic_address}
 
 
-class SerializedObject(SerializedType):
+class SerializedTransaction(SerializedType):
     """TODO: docstrings"""
 
-    def from_parser(parser: BinaryParser) -> SerializedObject:
+    def from_parser(parser: Any) -> SerializedTransaction:
         """TODO: docstrings"""
+        from xrpl.binary_codec.binary_wrappers.binary_serializer import BinarySerializer
+
         serializer = BinarySerializer()
 
         while not parser.is_end():
             field = parser.read_field()
+            print(field.__dict__)
             if field.name == OBJECT_END_MARKER:
                 break
 
             associated_value = parser.read_field_value(field)
             serializer.write_field_and_value(field, associated_value)
-            if field.type.name == SERIALIZED_OBJECT:
+            if field.type == SERIALIZED_TRANSACTION:
                 serializer.put(OBJECT_END_MARKER_BYTE)
 
-        return SerializedObject(serializer.to_bytes())
+        return SerializedTransaction(serializer.to_bytes())
 
-    def from_value(value: Dict[str, Any]) -> SerializedObject:
+    def from_value(value: Dict[str, Any]) -> SerializedTransaction:
         """TODO: docstring"""
+        from xrpl.binary_codec.binary_wrappers.binary_serializer import BinarySerializer
+
         serializer = BinarySerializer()
 
-        x_address_decoded = {}
+        xaddress_decoded = {}
         for (k, v) in value.items():
-            if is_valid_xaddress(v):
+            if isinstance(v, str) and is_valid_xaddress(v):
                 handled = handle_xaddress(k, v)
                 if handled[SOURCE_TAG] is not None and value[SOURCE_TAG] is not None:
                     raise XRPLBinaryCodecException(
@@ -70,25 +75,32 @@ class SerializedObject(SerializedType):
                     raise XRPLBinaryCodecException(
                         "Cannot have Destination X-Address and DestinationTag"
                     )
-            x_address_decoded[k] = v
+                xaddress_decoded.update(handled)
+            else:
+                xaddress_decoded[k] = v
+        print(xaddress_decoded)
 
         sorted_keys: List[FieldInstance] = []
-        for f in x_address_decoded:
-            # TODO: somehow convert f to a FieldInstance???
+        for f in xaddress_decoded:
+            field_instance = get_field_instance(f)
             if (
-                f is not None
-                and x_address_decoded[f.name] is not None
-                and f.is_serialized
+                field_instance is not None
+                and xaddress_decoded[field_instance.name] is not None
+                and field_instance.is_serialized
             ):
-                sorted_keys.append(f)
-        sorted_keys.sort(lambda x: x.ordinal)
+                sorted_keys.append(field_instance)
+        sorted_keys.sort(key=lambda x: x.ordinal)
+        print([key.name for key in sorted_keys])
 
         for field in sorted_keys:
-            serializer.write_field_and_value(field, x_address_decoded[field.name])
-            if field.type.name == SERIALIZED_OBJECT:
+            associated_type = SerializedType.get_type_by_name(field.type)
+            print(field.__dict__, associated_type, xaddress_decoded[field.name])
+            associated_value = associated_type.from_value(xaddress_decoded[field.name])
+            serializer.write_field_and_value(field, associated_value)
+            if field.type == SERIALIZED_TRANSACTION:
                 serializer.put(OBJECT_END_MARKER_BYTE)
 
-        return SerializedObject(serializer.to_bytes())
+        return SerializedTransaction(serializer.to_bytes())
 
     def to_json(self) -> Dict[str, Any]:
         """TODO: docstring"""
