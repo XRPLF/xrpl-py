@@ -17,12 +17,31 @@ class UInt32(UInt):
 
     @classmethod
     def from_parser(cls: UInt32, parser: BinaryParser) -> UInt32:
-        """Construct a new UInt32 type from a BinaryParser."""
+        """
+        Construct a new UInt32 type from a BinaryParser.
+
+        Args:
+            parser: A BinaryParser to construct a UInt32 from.
+
+        Returns:
+            The UInt32 constructed from parser.
+        """
         return cls(parser.read(_WIDTH))
 
     @classmethod
     def from_value(cls: UInt32, value: int) -> UInt32:
-        """Construct a new UInt32 type from a number."""
+        """
+        Construct a new UInt32 type from a number.
+
+        Args:
+            value: The number to construct a UInt32 from.
+
+        Returns:
+            The UInt32 constructed from value.
+
+        Raises:
+            XRPLBinaryCodecException: If a UInt32 could not be constructed from value.
+        """
         if isinstance(value, int):
             value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=False)
             return cls(value_bytes)
