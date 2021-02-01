@@ -21,19 +21,19 @@ class Hash128(Hash):
 
     _width = 16
 
-    def __init__(self, buffer: bytes = None) -> None:
+    def __init__(self: Hash128, buffer: bytes = None) -> None:
         """Construct a Hash128."""
         buffer = buffer if buffer is not None else bytes(self._width)
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls, value: str) -> Hash128:
+    def from_value(cls: Hash128, value: str) -> Hash128:
         """Construct a Hash128 object from a hex string."""
         return cls(bytes.fromhex(value))
 
     @classmethod
     def from_parser(
-        cls, parser: BinaryParser, length_hint: Optional[int] = None
+        cls: Hash128, parser: BinaryParser, length_hint: Optional[int] = None
     ) -> Hash128:
         """Construct a Hash128 object from an existing BinaryParser."""
         num_bytes = length_hint if length_hint is not None else cls._width

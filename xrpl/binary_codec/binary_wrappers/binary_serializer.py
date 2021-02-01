@@ -1,4 +1,6 @@
 """Context manager and helpers for the serialization of a JSON object into bytes."""
+from __future__ import annotations  # Requires Python 3.7+
+
 # Constants used in length prefix encoding:
 # max length that can be represented in a single byte per XRPL serialization encoding
 MAX_SINGLE_BYTE_LENGTH = 192
@@ -48,23 +50,23 @@ def _encode_variable_length_prefix(length: int) -> bytes:
 class BinarySerializer:
     """Serializes JSON to XRPL binary format."""
 
-    def __init__(self) -> None:
+    def __init__(self: BinarySerializer) -> None:
         """Construct a BinarySerializer."""
         self.bytesink = bytes()
 
-    def put(self, bytes_object: bytes) -> None:
+    def put(self: BinarySerializer, bytes_object: bytes) -> None:
         """Write given bytes to this BinarySerializer's bytesink."""
         self.bytesink += bytes_object
 
     # TODO: this method depends on the SerializedType class.
     # Complete when SerializedType is implemented
-    def write_length_encoded(self, value: int) -> None:
+    def write_length_encoded(self: BinarySerializer, value: int) -> None:
         """Write a variable length encoded value to the BinarySerializer."""
         length_prefix = _encode_variable_length_prefix(value)
         self.bytesink += length_prefix
 
     # TODO: this method depends on the SerializedType and FieldInstance classes.
     # Complete when both classes are implemented
-    def write_field_and_value(self, field: None, value: None) -> None:
+    def write_field_and_value(self: BinarySerializer, field: None, value: None) -> None:
         """Write field and value to the buffer."""
         return None
