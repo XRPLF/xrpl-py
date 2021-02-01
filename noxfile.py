@@ -1,9 +1,10 @@
 """The noxfile for xrpl-py."""
 import nox
+from nox.sessions import Session
 
 
-@nox.session(python=["3.9"])
-def tests(session):
+@nox.session(python=["3.9", "3.8", "3.7"])
+def tests(session: Session) -> None:
     """
     Runs the test suite in xrpl-py.
 

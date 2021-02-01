@@ -1,4 +1,5 @@
 """Model object for field info from the "fields" section of definitions.json."""
+from __future__ import annotations  # Requires Python 3.7+
 
 
 class FieldInfo:
@@ -7,13 +8,13 @@ class FieldInfo:
     """
 
     def __init__(
-        self,
+        self: FieldInfo,
         nth: int,
         is_variable_length_encoded: bool,
         is_serialized: bool,
         is_signing_field: bool,
         type_name: str,
-    ):
+    ) -> None:
         """
         :param nth: The field code -- sort order position for fields of the same type.
         :param is_variable_length_encoded: Whether the serialized length of this field

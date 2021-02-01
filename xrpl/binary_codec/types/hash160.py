@@ -21,20 +21,37 @@ class Hash160(Hash):
 
     _width = 20
 
-    def __init__(self, buffer: bytes = None) -> None:
+    def __init__(self: Hash160, buffer: bytes = None) -> None:
         """Construct a Hash160."""
         buffer = buffer if buffer is not None else bytes(self._width)
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls, value: str) -> Hash160:
-        """Construct a Hash160 object from a hex string."""
+    def from_value(cls: Hash160, value: str) -> Hash160:
+        """
+        Construct a Hash160 object from a hex string.
+
+        Args:
+            value: The string to construct a Hash160 from.
+
+        Returns:
+            The Hash160 constructed from value.
+        """
         return cls(bytes.fromhex(value))
 
     @classmethod
     def from_parser(
-        cls, parser: BinaryParser, length_hint: Optional[int] = None
+        cls: Hash160, parser: BinaryParser, length_hint: Optional[int] = None
     ) -> Hash160:
-        """Construct a Hash160 object from an existing BinaryParser."""
+        """
+        Construct a Hash160 object from an existing BinaryParser.
+
+        Args:
+            parser: The parser to construct Hash160 from.
+            length_hint: The number of bytes to consume from the parser.
+
+        Returns:
+            The Hash160 constructed from the parser.
+        """
         num_bytes = length_hint if length_hint is not None else cls._width
         return cls(parser.read(num_bytes))
