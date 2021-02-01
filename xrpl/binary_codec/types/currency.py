@@ -98,7 +98,7 @@ class Currency(Hash160):
             A Currency object constructed from value.
 
         Raises:
-            XRPLBinaryCodecException: If the Currency represenation is invalid.
+            XRPLBinaryCodecException: If the Currency representation is invalid.
         """
         if _is_iso_code(value):
             return Currency(_iso_to_bytes(value))

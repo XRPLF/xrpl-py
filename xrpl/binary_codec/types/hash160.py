@@ -51,7 +51,7 @@ class Hash160(Hash):
             length_hint: A hint for the parser.
 
         Returns:
-            The Hash160 constructed from parser.
+            The Hash160 constructed from the parser.
         """
         num_bytes = length_hint if length_hint is not None else cls._width
         return cls(parser.read(num_bytes))

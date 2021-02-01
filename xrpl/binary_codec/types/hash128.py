@@ -35,7 +35,7 @@ class Hash128(Hash):
             value: The value to construct a Hash128 from.
 
         Returns:
-            The Hash128 object construct from value.
+            The Hash128 object constructed from value.
         """
         return cls(bytes.fromhex(value))
 
@@ -48,10 +48,10 @@ class Hash128(Hash):
 
         Args:
             parser: The parser to construct the Hash128 object from.
-            length_hint: A length hint for the BinaryParser.
+            length_hint: The number of bytes to consume from the parser.
 
         Returns:
-            The Hash128 object constructed from parser.
+            The Hash128 object constructed from a parser.
         """
         num_bytes = length_hint if length_hint is not None else cls._width
         return cls(parser.read(num_bytes))

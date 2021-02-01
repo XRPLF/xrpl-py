@@ -38,7 +38,7 @@ class BinaryParser:
         Peek the first byte of the BinaryParser.
 
         Returns:
-            The first of the BinaryParser.
+            The first byte of the BinaryParser.
         """
         if len(self.bytes) > 0:
             return self.bytes[0]
@@ -49,7 +49,7 @@ class BinaryParser:
         Consume the first n bytes of the BinaryParser.
 
         Args:
-            n: The number of bytes to consumer.
+            n: The number of bytes to consume.
 
         Raises:
             XRPLBinaryCodecException: If n bytes can't be skipped.
@@ -182,7 +182,7 @@ class BinaryParser:
             type_code = self.read_uint8()
             if type_code == 0 or type_code < 16:
                 raise XRPLBinaryCodecException(
-                    "Cannot read Field ID, type_code out of range."
+                    "Cannot read field ID, type_code out of range."
                 )
 
         if field_code == 0:

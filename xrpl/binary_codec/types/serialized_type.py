@@ -24,7 +24,7 @@ class SerializedType(ABC):
 
         Args:
             parser: The parser to construct a SerializedType from.
-            length_hint: A hint for the length of the serialized type.
+            length_hint: The number of bytes to consume from the parser.
 
         Raises:
             NotImplementedError: Always.
@@ -62,7 +62,7 @@ class SerializedType(ABC):
         Get the bytes representation of a SerializedType.
 
         Returns:
-            The bytes representations of the SerializedType.
+            The bytes representation of the SerializedType.
         """
         return self.buffer
 
@@ -73,7 +73,7 @@ class SerializedType(ABC):
         If not overridden, returns hex string representation of bytes.
 
         Returns:
-            The JSON representations of the SerializedType.
+            The JSON representation of the SerializedType.
         """
         return self.to_hex()
 

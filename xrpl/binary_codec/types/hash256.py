@@ -48,7 +48,7 @@ class Hash256(Hash):
 
         Args:
             parser: The parser to construct a Hash256 from.
-            length_hint: A hint for the parser.
+            length_hint: The number of bytes to consume from the parser.
 
         Returns:
             The Hash256 constructed from parser.

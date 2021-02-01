@@ -25,7 +25,7 @@ class Blob(SerializedType):
 
         Args:
             parser: The parser to construct a Blob from.
-            length_hint: A hint for the parser.
+            length_hint: The number of bytes to consume from the parser.
 
         Returns:
             The Blob constructed from parser.
@@ -38,7 +38,7 @@ class Blob(SerializedType):
         Create a Blob object from a hex-string.
 
         Args:
-            value: The string to construct a Blob from.
+            value: The hex-encoded string to construct a Blob from.
 
         Returns:
             The Blob constructed from value.
