@@ -6,12 +6,7 @@ from typing import Any, Dict, List
 
 from xrpl.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
-from xrpl.binary_codec.definitions.definitions import (
-    get_field_instance,
-    get_ledger_entry_type_code,
-    get_transaction_result_code,
-    get_transaction_type_code,
-)
+from xrpl.binary_codec.definitions.definitions import get_field_instance
 from xrpl.binary_codec.definitions.field_instance import FieldInstance
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.types.serialized_type import SerializedType
@@ -82,23 +77,6 @@ class SerializedTransaction(SerializedType):
                 xaddress_decoded.update(handled)
             else:
                 xaddress_decoded[k] = v
-
-        # convert strings to enum ints
-        if "TransactionType" in xaddress_decoded:
-            transaction_type_code = get_transaction_type_code(
-                xaddress_decoded["TransactionType"]
-            )
-            xaddress_decoded["TransactionType"] = transaction_type_code
-        if "TransactionResult" in xaddress_decoded:
-            transaction_result_code = get_transaction_result_code(
-                xaddress_decoded["TransactionResult"]
-            )
-            xaddress_decoded["TransactionResult"] = transaction_result_code
-        if "LedgerEntryType" in xaddress_decoded:
-            ledger_entry_type_code = get_ledger_entry_type_code(
-                xaddress_decoded["LedgerEntryType"]
-            )
-            xaddress_decoded["LedgerEntryType"] = ledger_entry_type_code
 
         sorted_keys: List[FieldInstance] = []
         for f in xaddress_decoded:

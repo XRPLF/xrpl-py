@@ -156,7 +156,11 @@ class BinaryParser:
         """Read value of the type specified by field from the BinaryParser."""
         field_type = self.type_for_field(field)
         # TODO: error handling for unsupported type?
-        value = field_type.from_parser(self)  # , size_hint
+        if field.is_variable_length_encoded:
+            size_hint = self._read_length_prefix()
+            value = field_type.from_parser(self, size_hint)
+        else:
+            value = field_type.from_parser(self)
         if value is None:
             raise XRPLBinaryCodecException(
                 "from_parser for {}, {} returned None.".format(field.name, field.type)
