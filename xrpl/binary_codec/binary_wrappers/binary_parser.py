@@ -34,13 +34,26 @@ class BinaryParser:
         return len(self.bytes)
 
     def peek(self: BinaryParser) -> bytes:
-        """Peek the first byte of the BinaryParser."""
+        """
+        Peek the first byte of the BinaryParser.
+
+        Returns:
+            The first byte of the BinaryParser.
+        """
         if len(self.bytes) > 0:
             return self.bytes[0]
         return None
 
     def skip(self: BinaryParser, n: int) -> None:
-        """Consume the first n bytes of the BinaryParser."""
+        """
+        Consume the first n bytes of the BinaryParser.
+
+        Args:
+            n: The number of bytes to consume.
+
+        Raises:
+            XRPLBinaryCodecException: If n bytes can't be skipped.
+        """
         if n > len(self.bytes):
             raise XRPLBinaryCodecException(
                 "BinaryParser can't skip {} bytes, only contains {}.".format(
@@ -50,31 +63,67 @@ class BinaryParser:
         self.bytes = self.bytes[n:]
 
     def read(self: BinaryParser, n: int) -> bytes:
-        """Consume and return the first n bytes of the BinaryParser."""
+        """
+        Consume and return the first n bytes of the BinaryParser.
+
+        Args:
+            n: The number of bytes to read.
+
+        Returns:
+            The bytes read.
+        """
         first_n_bytes = self.bytes[:n]
         self.skip(n)
         return first_n_bytes
 
     def read_uint8(self: BinaryParser) -> int:
-        """Read 1 byte from parser and return as unsigned int."""
+        """
+        Read 1 byte from parser and return as unsigned int.
+
+        Returns:
+            The byte read.
+        """
         return int.from_bytes(self.read(1), byteorder="big", signed=False)
 
     def read_uint16(self: BinaryParser) -> int:
-        """Read 2 bytes from parser and return as unsigned int."""
+        """
+        Read 2 bytes from parser and return as unsigned int.
+
+        Returns:
+            The bytes read.
+        """
         return int.from_bytes(self.read(2), byteorder="big", signed=False)
 
     def read_uint32(self: BinaryParser) -> int:
-        """Read 4 bytes from parser and return as unsigned int."""
+        """
+        Read 4 bytes from parser and return as unsigned int.
+
+        Returns:
+            The bytes read.
+        """
         return int.from_bytes(self.read(4), byteorder="big", signed=False)
 
     def is_end(self: BinaryParser, custom_end: Optional[int] = None) -> bool:
-        """TODO: I'm not sure what this actually does yet."""
+        """
+        TODO: I'm not sure what this actually does yet.
+
+        Args:
+            custom_end: A custom end?
+
+        Returns:
+            Whether or not it's the end.
+        """
         return len(self.bytes) == 0 or (
             custom_end is not None and len(self.bytes) <= custom_end
         )
 
     def read_variable_length(self: BinaryParser) -> bytes:
-        """Reads and returns variable length encoded bytes."""
+        """
+        Reads and returns variable length encoded bytes.
+
+        Returns:
+            The bytes read.
+        """
         return self.read(self._read_length_prefix())
 
     def _read_length_prefix(self: BinaryParser) -> int:
@@ -116,7 +165,15 @@ class BinaryParser:
         )
 
     def read_field_header(self: BinaryParser) -> FieldHeader:
-        """Reads field ID from BinaryParser and returns as a FieldHeader object."""
+        """
+        Reads field ID from BinaryParser and returns as a FieldHeader object.
+
+        Returns:
+            The field header.
+
+        Raises:
+            XRPLBinaryCodecException: If the Field ID cannot be read.
+        """
         type_code = self.read_uint8()
         field_code = type_code & 15
         type_code >>= 4
@@ -125,7 +182,7 @@ class BinaryParser:
             type_code = self.read_uint8()
             if type_code == 0 or type_code < 16:
                 raise XRPLBinaryCodecException(
-                    "Cannot read Field ID, type_code out of range."
+                    "Cannot read field ID, type_code out of range."
                 )
 
         if field_code == 0:
@@ -141,17 +198,39 @@ class BinaryParser:
         Read the field ordinal at the head of the BinaryParser and return a
         FieldInstance object representing information about the field contained
         in the following bytes.
+
+        Returns:
+            The field ordinal at the head of the BinaryParser.
         """
         field_header = self.read_field_header()
         field_name = definitions.get_field_name_from_header(field_header)
         return definitions.get_field_instance(field_name)
 
     def read_type(self: BinaryParser, field_type: SerializedType) -> None:
-        """Read next bytes from BinaryParser as the given type."""
+        """
+        Read next bytes from BinaryParser as the given type.
+
+        Args:
+            field_type: The field type to read the next bytes as.
+
+        Returns:
+            None
+        """
         return field_type.from_parser(self)
 
     def read_field_value(self: BinaryParser, field: FieldInstance) -> SerializedType:
-        """Read value of the type specified by field from the BinaryParser."""
+        """
+        Read value of the type specified by field from the BinaryParser.
+
+        Args:
+            field: The FieldInstance specifying the field to read.
+
+        Returns:
+            A SerializedType read from the BinaryParser.
+
+        Raises:
+            XRPLBinaryCodecException: If a parser cannot be constructed from field.
+        """
         field_type = self.type_for_field(field)
         # TODO: error handling for unsupported type?
         size_hint = (
@@ -169,6 +248,11 @@ class BinaryParser:
     def read_field_and_value(
         self: BinaryParser,
     ) -> Tuple[FieldInstance, SerializedType]:
-        """Get the next field and value from the BinaryParser."""
+        """
+        Get the next field and value from the BinaryParser.
+
+        Returns:
+            A (FieldInstance, SerializedType) pair as read from the BinaryParser.
+        """
         field = self.read_field()
         return field, self.read_field_value(field)
