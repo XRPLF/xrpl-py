@@ -1,6 +1,8 @@
 """Base class for XRPL Hash types.
 `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
 """
+from __future__ import annotations  # Requires Python 3.7+
+
 from abc import ABC
 
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
@@ -18,7 +20,7 @@ class Hash(SerializedType, ABC):
 
     _width: int
 
-    def __init__(self, buffer: bytes) -> None:
+    def __init__(self: Hash, buffer: bytes) -> None:
         """
         Construct a Hash.
 
@@ -29,6 +31,6 @@ class Hash(SerializedType, ABC):
             raise XRPLBinaryCodecException("Invalid hash length {}".format(len(buffer)))
         super().__init__(buffer)
 
-    def __str__(self) -> str:
+    def __str__(self: Hash) -> str:
         """Returns a hex-encoded string representation of the bytes buffer."""
         return self.to_hex()
