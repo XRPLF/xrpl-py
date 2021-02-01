@@ -46,7 +46,6 @@ class SerializedTransaction(SerializedType):
 
         while not parser.is_end():
             field = parser.read_field()
-            print(field.__dict__)
             if field.name == OBJECT_END_MARKER:
                 break
 
@@ -78,7 +77,6 @@ class SerializedTransaction(SerializedType):
                 xaddress_decoded.update(handled)
             else:
                 xaddress_decoded[k] = v
-        print(xaddress_decoded)
 
         sorted_keys: List[FieldInstance] = []
         for f in xaddress_decoded:
@@ -90,11 +88,9 @@ class SerializedTransaction(SerializedType):
             ):
                 sorted_keys.append(field_instance)
         sorted_keys.sort(key=lambda x: x.ordinal)
-        print([key.name for key in sorted_keys])
 
         for field in sorted_keys:
             associated_type = SerializedType.get_type_by_name(field.type)
-            print(field.__dict__, associated_type, xaddress_decoded[field.name])
             associated_value = associated_type.from_value(xaddress_decoded[field.name])
             serializer.write_field_and_value(field, associated_value)
             if field.type == SERIALIZED_TRANSACTION:
