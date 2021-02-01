@@ -48,7 +48,7 @@ class Hash160(Hash):
 
         Args:
             parser: The parser to construct Hash160 from.
-            length_hint: A hint for the parser.
+            length_hint: The number of bytes to consume from the parser.
 
         Returns:
             The Hash160 constructed from the parser.

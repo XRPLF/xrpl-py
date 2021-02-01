@@ -172,7 +172,7 @@ class BinaryParser:
             The field header.
 
         Raises:
-            XRPLBinaryCodecException: If the Field ID cannot be read.
+            XRPLBinaryCodecException: If the field ID cannot be read.
         """
         type_code = self.read_uint8()
         field_code = type_code & 15
