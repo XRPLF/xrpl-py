@@ -159,17 +159,26 @@ class Amount(SerializedType):
     See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
     """
 
-    def __init__(self, buffer: bytes) -> None:
+    def __init__(self: Amount, buffer: bytes) -> None:
         """Construct an Amount from given bytes."""
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls, value: Union[str, Dict]) -> Amount:
+    def from_value(cls: Amount, value: Union[str, Dict]) -> Amount:
         """
-        Construct an Amount from an issued currency amount or (for XRP),
+         Construct an Amount from an issued currency amount or (for XRP),
         a string amount.
 
         See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
+
+        Args:
+            value: The value from which to construct an Amount.
+
+        Returns:
+            An Amount object.
+
+        Raises:
+            XRPLBinaryCodecException: if an Amount cannot be constructed.
         """
         if isinstance(value, str):
             _assert_is_valid_xrp_value(value)
@@ -188,9 +197,17 @@ class Amount(SerializedType):
 
     @classmethod
     def from_parser(
-        cls, parser: BinaryParser, length_hit: Optional[int] = None
+        cls: Amount, parser: BinaryParser, length_hint: Optional[int] = None
     ) -> Amount:
-        """Construct an Amount from an existing BinaryParser."""
+        """Construct an Amount from an existing BinaryParser.
+
+        Args:
+            parser: The parser to construct the Amount object from.
+            length_hint: Unused.
+
+        Returns:
+            An Amount object.
+        """
         not_xrp = int(parser.peek()) & 0x80
         if not_xrp:
             num_bytes = _CURRENCY_AMOUNT_BYTE_LENGTH
@@ -198,8 +215,12 @@ class Amount(SerializedType):
             num_bytes = _NATIVE_AMOUNT_BYTE_LENGTH
         return cls(parser.read(num_bytes))
 
-    def to_json(self) -> Union[str, Dict]:
-        """Construct a JSON object representing this Amount."""
+    def to_json(self: Amount) -> Union[str, Dict]:
+        """Construct a JSON object representing this Amount.
+
+        Returns:
+            The JSON representation of this amount.
+        """
         if self.is_native():
             sign = "" if self.is_positive() else "-"
             masked_bytes = (
@@ -233,11 +254,20 @@ class Amount(SerializedType):
             "issuer": issuer.to_json(),
         }
 
-    def is_native(self) -> bool:
-        """Returns True if this amount is a native XRP amount."""
+    def is_native(self: Amount) -> bool:
+        """Returns True if this amount is a native XRP amount.
+
+        Returns:
+            True if this amount is a native XRP amount, False otherwise.
+        """
         # 1st bit in 1st byte is set to 0 for native XRP
         return (self.buffer[0] & 0x80) == 0
 
-    def is_positive(self) -> bool:
-        """Returns True if 2nd bit in 1st byte is set to 1 (positive amount)."""
+    def is_positive(self: Amount) -> bool:
+        """Returns True if 2nd bit in 1st byte is set to 1 (positive amount).
+
+        Returns:
+            True if 2nd bit in 1st byte is set to 1 (positive amount),
+            False otherwise.
+        """
         return (self.to_bytes()[0] & 0x40) > 0
