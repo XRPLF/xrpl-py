@@ -16,6 +16,7 @@ class SerializedType(ABC):
     def get_type_by_name(cls, name: str) -> Type[SerializedType]:
         """TODO: docstring"""
         from xrpl.binary_codec.types.account_id import AccountID
+        from xrpl.binary_codec.types.amount import Amount
         from xrpl.binary_codec.types.blob import Blob
         from xrpl.binary_codec.types.currency import Currency
         from xrpl.binary_codec.types.hash128 import Hash128
@@ -29,7 +30,7 @@ class SerializedType(ABC):
 
         type_map = {
             "AccountID": AccountID,
-            # "Amount": Amount, # TODO: uncomment when implemented
+            "Amount": Amount,
             "Blob": Blob,
             "Currency": Currency,
             "Hash128": Hash128,
