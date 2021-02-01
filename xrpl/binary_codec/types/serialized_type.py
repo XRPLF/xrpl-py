@@ -89,3 +89,7 @@ class SerializedType(ABC):
     def to_hex(self) -> str:
         """Get the hex representation of a SerializedType's bytes."""
         return self.buffer.hex()
+
+    def __len__(self) -> int:
+        """TODO: docstring"""
+        return len(self.buffer)

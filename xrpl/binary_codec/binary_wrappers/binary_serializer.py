@@ -68,7 +68,7 @@ class BinarySerializer:
         """Write a variable length encoded value to the BinarySerializer."""
         byte_object = bytearray()
         value.to_byte_sink(byte_object)
-        length_prefix = _encode_variable_length_prefix(value)
+        length_prefix = _encode_variable_length_prefix(len(value))
         self.bytesink += length_prefix
         self.bytesink += byte_object  # TODO: this might not work
 
@@ -82,5 +82,4 @@ class BinarySerializer:
         if field.is_variable_length_encoded:
             self.write_length_encoded(value)
         else:
-            print(value, type(value))
             self.bytesink += value.to_bytes()

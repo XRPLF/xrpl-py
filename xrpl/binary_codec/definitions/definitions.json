@@ -81,7 +81,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "Blob"
+        "type": "UInt16"
       }
     ],
     [

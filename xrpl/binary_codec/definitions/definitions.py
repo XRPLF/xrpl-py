@@ -139,3 +139,18 @@ def get_field_instance(field_name: str) -> FieldInstance:
         field_name,
         field_header,
     )
+
+
+def get_transaction_type_code(transaction_type: str) -> int:
+    """TODO: docstring"""
+    return DEFINITIONS["TRANSACTION_TYPES"][transaction_type]
+
+
+def get_transaction_result_code(transaction_result_type: str) -> int:
+    """TODO: docstring"""
+    return DEFINITIONS["TRANSACTION_RESULTS"][transaction_result_type]
+
+
+def get_ledger_entry_type_code(ledger_entry_type: str) -> int:
+    """TODO: docstring"""
+    return DEFINITIONS["LEDGER_ENTRY_TYPES"][ledger_entry_type]
