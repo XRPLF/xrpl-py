@@ -29,11 +29,15 @@ def generate_seed(
     algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
 ) -> str:
     """
-    entropy: must be at least addresscodec.SEED_LENGTH bytes long and
-    will be truncated to that length
-    algorithm: CryptoAlgorithm to use for seed generation
+    Generates a seed suitable for use with derive.
 
-    returns: a seed suitable for use with derive
+    Args:
+        entropy: Must be at least addresscodec.SEED_LENGTH bytes long and
+            will be truncated to that length
+        algorithm: CryptoAlgorithm to use for seed generation
+
+    Returns:
+        A seed suitable for use with derive
     """
     if entropy is None:
         parsed_entropy = token_bytes(addresscodec.SEED_LENGTH)
@@ -46,8 +50,17 @@ def derive_keypair(seed: str, validator: bool = False) -> Tuple[str, str]:
     """
     Given seed, which can be generated via `generate_seed`, returns
     public and private keypair.
-    seed: value from which to derive keypair
-    returns: (public_key, private_key) keypair
+
+    Args:
+        seed: Value from which to derive keypair
+        validator: Whether the keypair is a validator keypair.
+
+    Returns:
+        A public and private keypair.
+
+    Raises:
+        XRPLKeypairsException: If the derived keypair did not generate a
+            verifiable signature.
     """
     decoded_seed, algorithm = addresscodec.decode_seed(seed)
     module = _ALGORITHM_TO_MODULE_MAP[algorithm]
