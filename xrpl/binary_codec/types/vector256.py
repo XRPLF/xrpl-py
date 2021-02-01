@@ -8,6 +8,8 @@ from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binary_codec.types.hash256 import Hash256
 from xrpl.binary_codec.types.serialized_type import SerializedType
 
+_HASH_LENGTH_BYTES = 32
+
 
 class Vector256(SerializedType):
     """A vector of Hash256 objects."""
@@ -31,16 +33,16 @@ class Vector256(SerializedType):
         """Construct a Vector256 from a BinaryParser."""
         byte_list = []
         num_bytes = length_hint if length_hint is not None else len(parser)
-        num_hashes = num_bytes // 32
+        num_hashes = num_bytes // _HASH_LENGTH_BYTES
         for i in range(num_hashes):
             byte_list.append(Hash256.from_parser(parser).to_bytes())
         return cls(b"".join(byte_list))
 
     def to_json(self) -> List[str]:
         """Return a list of hashes encoded as hex strings."""
-        if len(self.buffer) % 32 != 0:
+        if len(self.buffer) % _HASH_LENGTH_BYTES != 0:
             raise XRPLBinaryCodecException("Invalid bytes for Vector256.")
         hash_list = []
-        for i in range(0, len(self.buffer), 32):
-            hash_list.append(self.buffer[i : i + 32].hex().upper())
+        for i in range(0, len(self.buffer), _HASH_LENGTH_BYTES):
+            hash_list.append(self.buffer[i : i + _HASH_LENGTH_BYTES].hex().upper())
         return hash_list
