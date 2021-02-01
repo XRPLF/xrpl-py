@@ -28,30 +28,13 @@ class Hash160(Hash):
 
     @classmethod
     def from_value(cls: Hash160, value: str) -> Hash160:
-        """
-        Construct a Hash160 object from a hex string.
-
-        Args:
-            value: The string to construct a Hash160 from.
-
-        Returns:
-            The Hash160 constructed from value.
-        """
+        """Construct a Hash160 object from a hex string."""
         return cls(bytes.fromhex(value))
 
     @classmethod
     def from_parser(
         cls: Hash160, parser: BinaryParser, length_hint: Optional[int] = None
     ) -> Hash160:
-        """
-        Construct a Hash160 object from an existing BinaryParser.
-
-        Args:
-            parser: The parser to construct Hash160 from.
-            length_hint: A hint for the parser.
-
-        Returns:
-            The Hash160 constructed from the parser.
-        """
+        """Construct a Hash160 object from an existing BinaryParser."""
         num_bytes = length_hint if length_hint is not None else cls._width
         return cls(parser.read(num_bytes))

@@ -20,32 +20,12 @@ class Blob(SerializedType):
     def from_parser(
         cls: Blob, parser: BinaryParser, length_hint: Optional[int] = None
     ) -> Blob:
-        """
-        Defines how to read a Blob from a BinaryParser.
-
-        Args:
-            parser: The parser to construct a Blob from.
-            length_hint: The number of bytes to consume from the parser.
-
-        Returns:
-            The Blob constructed from parser.
-        """
+        """Defines how to read a Blob from a BinaryParser."""
         return cls(parser.read(length_hint))
 
     @classmethod
     def from_value(cls: Blob, value: str) -> Blob:
-        """
-        Create a Blob object from a hex-string.
-
-        Args:
-            value: The hex-encoded string to construct a Blob from.
-
-        Returns:
-            The Blob constructed from value.
-
-        Raises:
-            XRPLBinaryCodecException: If the Blob can't be constructed from value.
-        """
+        """Create a Blob object from a hex-string."""
         if isinstance(value, str):
             return cls(bytes.fromhex(value))
 

@@ -17,13 +17,10 @@ def load_definitions(filename: str = "definitions.json") -> Dict[str, Any]:
     canonical binary serialization format:
     `Serialization <https://xrpl.org/serialization.html>`_
 
-    Args:
-        filename: The name of the definitions file.
-            (The definitions file should be drop-in compatible with the one from the
-            ripple-binary-codec JavaScript package.)
-
-    Returns:
-        A dictionary containing the mappings provided in the definitions file.
+    :param filename: The name of the definitions file.
+    (The definitions file should be drop-in compatible with the one from the
+    ripple-binary-codec JavaScript package.)
+    :return: A dictionary containing the mappings provided in the definitions file.
     """
     dirname = os.path.dirname(__file__)
     absolute_path = os.path.join(dirname, filename)
@@ -85,12 +82,6 @@ def get_field_type_name(field_name: str) -> str:
     """
     Returns the serialization data type for the given field name.
     `Serialization Type List <https://xrpl.org/serialization.html#type-list>`_
-
-    Args:
-        field_name: The name of the field to get the serialization data type for.
-
-    Returns:
-        The serialization data type for the given field name.
     """
     return FIELD_INFO_MAP[field_name].type
 
@@ -99,15 +90,6 @@ def get_field_type_code(field_name: str) -> int:
     """
     Returns the type code associated with the given field.
     `Serialization Type Codes <https://xrpl.org/serialization.html#type-codes>`_
-
-    Args:
-        field_name: The name of the field get a type code for.
-
-    Returns:
-        The type code associated with the given field name.
-
-    Raises:
-        XRPLBinaryCodecException: If definitions.json is invalid.
     """
     field_type_name = get_field_type_name(field_name)
     field_type_code = TYPE_ORDINAL_MAP[field_type_name]
@@ -123,12 +105,6 @@ def get_field_code(field_name: str) -> int:
     """
     Returns the field code associated with the given field.
     `Serialization Field Codes <https://xrpl.org/serialization.html#field-codes>`_
-
-    Args:
-        field_name: The name of the field to get a field code for.
-
-    Returns:
-        The field code associated with the given field.
     """
     return FIELD_INFO_MAP[field_name].nth
 
@@ -140,52 +116,22 @@ def get_field_sort_key(field_name: str) -> Tuple[int, int]:
     Returns a tuple sort key for a given field name.
     `Serialization Canonical Field Order
     <https://xrpl.org/serialization.html#canonical-field-order>`_
-
-    Args:
-        field_name: The name of the field to get a sort key for.
-
-    Returns:
-        A tuple sort key for field_name.
     """
     return get_field_type_code(field_name), get_field_code(field_name)
 
 
 def get_field_header_from_name(field_name: str) -> FieldHeader:
-    """
-    Returns a FieldHeader object for a field of the given field name.
-
-    Args:
-        field_name: The name of the field to get a FieldHeader for.
-
-    Returns:
-        A FieldHeader object for a field of the given field name.
-    """
+    """Returns a FieldHeader object for a field of the given field name."""
     return FieldHeader(get_field_type_code(field_name), get_field_code(field_name))
 
 
 def get_field_name_from_header(field_header: FieldHeader) -> str:
-    """
-    Returns the field name described by the given FieldHeader object.
-
-    Args:
-        field_header: The header to get a field name for.
-
-    Returns:
-        The name of the field described by the given FieldHeader.
-    """
+    """Returns the field name described by the given FieldHeader object."""
     return FIELD_HEADER_NAME_MAP[field_header]
 
 
 def get_field_instance(field_name: str) -> FieldInstance:
-    """
-    Return a FieldInstance object for the given field name.
-
-    Args:
-        field_name: The name of the field to get a FieldInstance for.
-
-    Returns:
-        A FieldInstance object for the given field name.
-    """
+    """Return a FieldInstance object for the given field name."""
     info = FIELD_INFO_MAP[field_name]
     field_header = get_field_header_from_name(field_name)
     return FieldInstance(

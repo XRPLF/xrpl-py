@@ -17,6 +17,7 @@ per-file-ignores =
   noxfile.py: DAR
   tests/*: ANN D DAR
   # TODO: Remove these after we've migrated to having everything typed.
+  xrpl/binary_codec/*: DAR
 
 # Select other tools to enable.
 

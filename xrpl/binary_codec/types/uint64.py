@@ -17,31 +17,12 @@ class UInt64(UInt):
 
     @classmethod
     def from_parser(cls: UInt64, parser: BinaryParser) -> UInt64:
-        """
-        Construct a new UInt64 type from a BinaryParser.
-
-        Args:
-            parser: The BinaryParser to construct a UInt64 from.
-
-        Returns:
-            The UInt64 constructed from parser.
-        """
+        """Construct a new UInt64 type from a BinaryParser."""
         return cls(parser.read(_WIDTH))
 
     @classmethod
     def from_value(cls: UInt64, value: int) -> UInt64:
-        """
-        Construct a new UInt64 type from a number.
-
-        Args:
-            value: The number to construct a UInt64 from.
-
-        Returns:
-            The UInt64 constructed from value.
-
-        Raises:
-            XRPLBinaryCodecException: If a UInt64 could not be constructed from value.
-        """
+        """Construct a new UInt64 type from a number."""
         if isinstance(value, int):
             value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=False)
             return cls(value_bytes)

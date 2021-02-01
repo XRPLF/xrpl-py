@@ -17,31 +17,12 @@ class UInt16(UInt):
 
     @classmethod
     def from_parser(cls: UInt16, parser: BinaryParser) -> UInt16:
-        """
-        Construct a new UInt16 type from a BinaryParser.
-
-        Args:
-            parser: The BinaryParser to construct a UInt16 from.
-
-        Returns:
-            The UInt16 constructed from parser.
-        """
+        """Construct a new UInt16 type from a BinaryParser."""
         return cls(parser.read(_WIDTH))
 
     @classmethod
     def from_value(cls: UInt16, value: int) -> UInt16:
-        """
-        Construct a new UInt16 type from a number.
-
-        Args:
-            value: The value to consutrct a UInt16 from.
-
-        Returns:
-            The UInt16 constructed from value.
-
-        Raises:
-            XRPLBinaryCodecException: If a UInt16 can't be constructed from value.
-        """
+        """Construct a new UInt16 type from a number."""
         if isinstance(value, int):
             value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=False)
             return cls(value_bytes)

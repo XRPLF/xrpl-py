@@ -28,30 +28,13 @@ class Hash128(Hash):
 
     @classmethod
     def from_value(cls: Hash128, value: str) -> Hash128:
-        """
-        Construct a Hash128 object from a hex string.
-
-        Args:
-            value: The value to construct a Hash128 from.
-
-        Returns:
-            The Hash128 object constructed from value.
-        """
+        """Construct a Hash128 object from a hex string."""
         return cls(bytes.fromhex(value))
 
     @classmethod
     def from_parser(
         cls: Hash128, parser: BinaryParser, length_hint: Optional[int] = None
     ) -> Hash128:
-        """
-        Construct a Hash128 object from an existing BinaryParser.
-
-        Args:
-            parser: The parser to construct the Hash128 object from.
-            length_hint: The number of bytes to consume from the parser.
-
-        Returns:
-            The Hash128 object constructed from a parser.
-        """
+        """Construct a Hash128 object from an existing BinaryParser."""
         num_bytes = length_hint if length_hint is not None else cls._width
         return cls(parser.read(num_bytes))

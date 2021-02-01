@@ -88,18 +88,7 @@ class Currency(Hash160):
 
     @classmethod
     def from_value(cls: Currency, value: str) -> Currency:
-        """
-        Construct a Currency object from a string representation of a currency.
-
-        Args:
-            value: The string to construct a Currency object from.
-
-        Returns:
-            A Currency object constructed from value.
-
-        Raises:
-            XRPLBinaryCodecException: If the Currency representation is invalid.
-        """
+        """Construct a Currency object from a string representation of a currency."""
         if _is_iso_code(value):
             return Currency(_iso_to_bytes(value))
         if _is_hex(value):
@@ -109,12 +98,7 @@ class Currency(Hash160):
         )
 
     def to_json(self: Currency) -> str:
-        """
-        Returns the JSON representation of a currency.
-
-        Returns:
-            The JSON representation of a Currency.
-        """
+        """Returns the JSON representation of a currency."""
         if self._iso is not None:
             return self._iso
         return self.buffer.hex().upper()

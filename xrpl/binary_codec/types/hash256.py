@@ -28,30 +28,13 @@ class Hash256(Hash):
 
     @classmethod
     def from_value(cls: Hash256, value: str) -> Hash256:
-        """
-        Construct a Hash256 object from a hex string.
-
-        Args:
-            value: The string to construct a Hash256 object from.
-
-        Returns:
-            The Hash256 constructed from value.
-        """
+        """Construct a Hash256 object from a hex string."""
         return cls(bytes.fromhex(value))
 
     @classmethod
     def from_parser(
         cls: Hash256, parser: BinaryParser, length_hint: Optional[int] = None
     ) -> Hash256:
-        """
-        Construct a Hash256 object from an existing BinaryParser.
-
-        Args:
-            parser: The parser to construct a Hash256 from.
-            length_hint: The number of bytes to consume from the parser.
-
-        Returns:
-            The Hash256 constructed from parser.
-        """
+        """Construct a Hash256 object from an existing BinaryParser."""
         num_bytes = length_hint if length_hint is not None else cls._width
         return cls(parser.read(num_bytes))

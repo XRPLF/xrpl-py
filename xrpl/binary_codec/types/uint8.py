@@ -17,31 +17,12 @@ class UInt8(UInt):
 
     @classmethod
     def from_parser(cls: UInt8, parser: BinaryParser) -> UInt8:
-        """
-        Construct a new UInt8 type from a BinaryParser.
-
-        Args:
-            parser: The parser to construct a UInt8 from.
-
-        Returns:
-            A new UInt8.
-        """
+        """Construct a new UInt8 type from a BinaryParser."""
         return cls(parser.read(_WIDTH))
 
     @classmethod
     def from_value(cls: UInt8, value: int) -> UInt8:
-        """
-        Construct a new UInt8 type from a number.
-
-        Args:
-            value: The value to construct a UInt8 from.
-
-        Returns:
-            A new UInt8.
-
-        Raises:
-            XRPLBinaryCodecException: If a UInt8 cannot be constructed.
-        """
+        """Construct a new UInt8 type from a number."""
         if isinstance(value, int):
             value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=False)
             return cls(value_bytes)
