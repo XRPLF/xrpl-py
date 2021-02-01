@@ -61,7 +61,7 @@ class BinarySerializer:
         self.bytesink += bytes_object
 
     def to_bytes(self) -> bytes:
-        """TODO: docstring"""
+        """Get the bytes representation of a BinarySerializer."""
         return self.bytesink
 
     def write_length_encoded(self, value: SerializedType) -> None:

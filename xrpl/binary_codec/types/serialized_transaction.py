@@ -1,4 +1,4 @@
-"""TODO: docstrings"""
+"""Class for serializing/deserializing transactions."""
 
 from __future__ import annotations
 
@@ -21,7 +21,10 @@ DEST_TAG = "DestinationTag"
 
 
 def handle_xaddress(field: str, xaddress: str) -> Dict[str, Any]:
-    """TODO: docstring"""
+    """Break down an X-Address into an account and a tag.
+    :param field: Name of field
+    :param xAddress: X-Address corresponding to the field
+    """
     (classic_address, tag, is_test_network) = xaddress_to_classic_address(xaddress)
     if field == DESTINATION:
         tag_name = DEST_TAG
@@ -36,10 +39,10 @@ def handle_xaddress(field: str, xaddress: str) -> Dict[str, Any]:
 
 
 class SerializedTransaction(SerializedType):
-    """TODO: docstrings"""
+    """Class for serializing/deserializing transactions."""
 
     def from_parser(parser: Any) -> SerializedTransaction:
-        """TODO: docstrings"""
+        """Construct a SerializedTransaction from a BinaryParser."""
         from xrpl.binary_codec.binary_wrappers.binary_serializer import BinarySerializer
 
         serializer = BinarySerializer()
@@ -57,7 +60,7 @@ class SerializedTransaction(SerializedType):
         return SerializedTransaction(serializer.to_bytes())
 
     def from_value(value: Dict[str, Any]) -> SerializedTransaction:
-        """TODO: docstring"""
+        """Construct a SerializedTransaction from a JSON object."""
         from xrpl.binary_codec.binary_wrappers.binary_serializer import BinarySerializer
 
         serializer = BinarySerializer()
@@ -99,7 +102,7 @@ class SerializedTransaction(SerializedType):
         return SerializedTransaction(serializer.to_bytes())
 
     def to_json(self) -> Dict[str, Any]:
-        """TODO: docstring"""
+        """Get the JSON interpretation of this object."""
         parser = BinaryParser(self.to_string())
         accumulator = {}
 

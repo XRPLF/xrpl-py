@@ -28,7 +28,7 @@ class FieldHeader:
         return hash((self.type_code, self.field_code))
 
     def to_bytes(self):
-        """TODO: docstring"""
+        """Get the bytes representation of a BinarySerializer."""
         header = []
         if self.type_code < 16:
             if self.field_code < 16:

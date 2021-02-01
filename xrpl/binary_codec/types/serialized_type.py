@@ -14,7 +14,8 @@ class SerializedType(ABC):
 
     @classmethod
     def get_type_by_name(cls, name: str) -> Type[SerializedType]:
-        """TODO: docstring"""
+        """Convert the string name of a class to the class object itself."""
+        # TODO: figure out if there's a better way to do this
         from xrpl.binary_codec.types.account_id import AccountID
         from xrpl.binary_codec.types.amount import Amount
         from xrpl.binary_codec.types.blob import Blob
@@ -45,7 +46,6 @@ class SerializedType(ABC):
             "UInt64": UInt64,
             # "Vector256": Vector256, # TODO: uncomment when implemented
         }
-        # TODO: figure out if there's a better way to do this
 
         return type_map[name]
 
@@ -91,5 +91,5 @@ class SerializedType(ABC):
         return self.buffer.hex()
 
     def __len__(self) -> int:
-        """TODO: docstring"""
+        """Get the length of a SerializedType's bytes."""
         return len(self.buffer)
