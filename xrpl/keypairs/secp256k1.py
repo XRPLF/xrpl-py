@@ -36,10 +36,14 @@ _INTERMEDIATE_KEYPAIR_PADDING: Final[bytes] = (0).to_bytes(
 
 def derive_keypair(decoded_seed: bytes, is_validator: bool) -> Tuple[str, str]:
     """
-    :param decoded_seed: decoded seed
-    :param is_validator: if True indicates that caller wishes to derive a validator
-    keypair from this seed.
-    :returns (private key :string, public key :string)
+    Derives a keypair using SECP256k1.
+
+    Args:
+        decoded_seed: Decoded seed.
+        is_validator: Whether to derive a validator keypair from this seed.
+
+    Returns:
+        A private and public key pair.
     """
     root_public, root_private = _do_derive_part(decoded_seed, "root")
     # validator keys just stop at the first pass
@@ -61,8 +65,14 @@ def derive_keypair(decoded_seed: bytes, is_validator: bool) -> Tuple[str, str]:
 
 def sign(message: str, private_key: str) -> bytes:
     """
-    Sign message in SECP256k1 given private-key
-    returns: :bytes
+    Signs message in SECP256k1 using the given private key.
+
+    Args:
+        message: The message to sign in SECP256k1.
+        private_key: The private key to use to sign the message.
+
+    Returns:
+        The signed message.
     """
     wrapped_private = ECPrivateKey(int(private_key, 16), _CURVE)
     return _SIGNER.sign(message, wrapped_private)
@@ -70,11 +80,15 @@ def sign(message: str, private_key: str) -> bytes:
 
 def is_message_valid(message: str, signature: bytes, public_key: str) -> bool:
     """
-    Verify that message matches signature given public_key
-    :param message: string
-    :param signature: string
-    :param public_key: string
-    :returns :boolean
+    Verifies that message matches signature given public_key.
+
+    Args:
+        message: The message to validate.
+        signature: The signature of the message.
+        public_key: The public_key to use to verify the message.
+
+    Returns:
+        Whether the message matches the signature given the public key.
     """
     public_key_point = _CURVE.decode_point(bytes.fromhex(public_key))
     wrapped_public = ECPublicKey(public_key_point)

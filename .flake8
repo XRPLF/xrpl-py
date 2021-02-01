@@ -17,7 +17,6 @@ per-file-ignores =
   noxfile.py: DAR
   tests/*: ANN D DAR
   # TODO: Remove these after we've migrated to having everything typed.
-  xrpl/keypairs/*: DAR
 
 # Select other tools to enable.
 
