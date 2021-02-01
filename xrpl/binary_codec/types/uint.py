@@ -16,7 +16,12 @@ class UInt(ABC):
 
     @property
     def value(self: UInt) -> int:
-        """Get the value of the UInt represented by `self.buffer`."""
+        """
+        Get the value of the UInt represented by `self.buffer`.
+
+        Returns:
+            The int value of the UInt.
+        """
         return int.from_bytes(self.buffer, byteorder="big", signed=False)
 
     def __eq__(self: UInt, other: object) -> bool:
@@ -68,7 +73,12 @@ class UInt(ABC):
         raise XRPLBinaryCodecException("Cannot compare UInt and {}".format(type(other)))
 
     def to_json(self: UInt) -> Union[str, int]:
-        """Convert a UInt object to JSON."""
+        """
+        Convert a UInt object to JSON.
+
+        Returns:
+            The JSON representation of the UInt object.
+        """
         if isinstance(self.value, int):
             return self.value
         return str(self.value)

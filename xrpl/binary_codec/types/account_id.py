@@ -25,7 +25,15 @@ class AccountID(Hash160):
 
     @classmethod
     def from_value(cls: Hash160, value: str) -> AccountID:
-        """Construct an AccountID from a hex string or a base58 r-Address."""
+        """
+        Construct an AccountID from a hex string or a base58 r-Address.
+
+        Args:
+            value: The string to construct an AccountID from.
+
+        Returns:
+            The AccountID constructed from value.
+        """
         if value == "":
             return cls()
 
@@ -36,5 +44,10 @@ class AccountID(Hash160):
         return cls(decode_classic_address(value))
 
     def to_json(self: Hash160) -> str:
-        """Return the value of this AccountID encoded as a base58 string."""
+        """
+        Return the value of this AccountID encoded as a base58 string.
+
+        Returns:
+            The JSON representation of the AccountID.
+        """
         return encode_classic_address(self.buffer)
