@@ -70,13 +70,12 @@ class BinarySerializer:
         value.to_byte_sink(byte_object)
         length_prefix = _encode_variable_length_prefix(len(value))
         self.bytesink += length_prefix
-        self.bytesink += byte_object  # TODO: this might not work
+        self.bytesink += byte_object
 
     def write_field_and_value(
         self, field: FieldInstance, value: SerializedType
     ) -> None:
         """Write field and value to the buffer."""
-        # TODO: there may be some casting required here
         self.bytesink += field.header.to_bytes()
 
         if field.is_variable_length_encoded:
