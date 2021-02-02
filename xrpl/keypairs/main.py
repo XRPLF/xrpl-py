@@ -112,13 +112,13 @@ def sign(message: bytes, private_key: str) -> str:
 
 def is_valid_message(message: bytes, signature: bytes, public_key: str) -> bool:
     """
-    Returns True is message is valid given signature and public key.
+    Returns True if message is valid given signature and public key.
 
     Args:
         message: Message to check against signature.
         signature: Signature of message as created with private key.
         public_key: Public key corresponding to private key used to generate
-        signature.
+            signature.
 
     Returns:
         True if message is valid given signature and public key.
