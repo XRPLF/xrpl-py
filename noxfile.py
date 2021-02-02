@@ -1,5 +1,6 @@
 """The noxfile for xrpl-py."""
 import nox
+import nox_poetry.patch  # noqa: F401
 from nox.sessions import Session
 
 
@@ -11,5 +12,5 @@ def tests(session: Session) -> None:
     You can run individual tests with `nox -rs tests -- <directory or module>`.
     """
     args = session.posargs or ["discover", "tests"]
-    session.run("poetry", "install", external=True)
+    session.install(".")
     session.run("python", "-m", "unittest", *args)
