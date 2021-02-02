@@ -7,7 +7,6 @@ from typing_extensions import Final
 from xrpl import CryptoAlgorithm, addresscodec
 from xrpl.keypairs import ed25519, secp256k1
 from xrpl.keypairs.exceptions import XRPLKeypairsException
-
 from xrpl.keypairs.helpers import get_account_id
 
 # using Any type here because the overhead of an abstract class for these two
