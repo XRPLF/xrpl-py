@@ -1,10 +1,11 @@
 """Methods for deriving keypairs given an ED25519-encoded seed."""
 from hashlib import sha512
-from typing import Final, Tuple
+from typing import Tuple
 
 from ecpy.curves import Curve  # type: ignore
 from ecpy.eddsa import EDDSA  # type: ignore
 from ecpy.keys import ECPrivateKey, ECPublicKey  # type: ignore
+from typing_extensions import Final
 
 from xrpl.keypairs.exceptions import XRPLKeypairsException
 from xrpl.keypairs.helpers import sha512_first_half
@@ -16,11 +17,19 @@ _SIGNER: Final[EDDSA] = EDDSA(sha512)
 
 def derive_keypair(decoded_seed: bytes, is_validator: bool) -> Tuple[str, str]:
     """
-    decoded_seed: an ED25519 seed from which to derive keypair
-    is_validator: if True indicates that caller wishes to derive a validator keypair
-    from this seed, however, that is always invalid for this algorithm and
-    will cause this function to raise.
-    :returns (private key, public key) derived from seed
+    Derives a keypair.
+
+    Args:
+        decoded_seed: an ED25519 seed from which to derive keypair
+        is_validator: if True indicates that caller wishes to derive a validator keypair
+            from this seed, however, that is always invalid for this algorithm and
+            will cause this function to raise.
+
+    Returns:
+        A (private key, public key) derived from seed
+
+    Raises:
+        XRPLKeypairsException: If the keypair is a validator keypair.
     """
     if is_validator:
         raise XRPLKeypairsException("validator keypairs cannot use ED25519")
@@ -36,9 +45,14 @@ def derive_keypair(decoded_seed: bytes, is_validator: bool) -> Tuple[str, str]:
 
 def sign(message: str, private_key: str) -> bytes:
     """
-    param: message: message to sign
-    param: private_key: key with which to sign message
-    returns: signature of message signed using private_key
+    Signs a message.
+
+    Args:
+        message: Message to sign
+        private_key: Key with which to sign message
+
+    Returns:
+        The signature of message signed using private_key.
     """
     raw_private = private_key[len(_PREFIX) :]
     wrapped_private = ECPrivateKey(int(raw_private, 16), _CURVE)
@@ -47,11 +61,16 @@ def sign(message: str, private_key: str) -> bytes:
 
 def is_message_valid(message: str, signature: bytes, public_key: str) -> bool:
     """
-    param: message: message to check against signature
-    param: signature: signature of message to to verify
-    param: public_key: public key corresponding to private key used to
-    generate signature
-    :returns: True if message is valid given signature and public_key
+    Checks whether or not a message is valid.
+
+    Args:
+        message: Message to check against signature
+        signature: Signature of message to to verify
+        public_key: Public key corresponding to private key used to
+            generate signature
+
+    Returns:
+        Whether message is valid given signature and public_key
     """
     raw_public = public_key[len(_PREFIX) :]
     public_key_point = _CURVE.decode_point(bytes.fromhex(raw_public))

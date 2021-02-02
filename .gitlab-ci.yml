@@ -3,7 +3,6 @@ stages:
   - test
 
 .test:
-  image: python:3-alpine
   before_script:
     - echo "before testing"
     - apk add build-base
@@ -12,12 +11,30 @@ stages:
     - pip install poetry
     - poetry install
 
-unit-test:
+test-3.7:
+  image: python:3.7.4-alpine
+  stage: test
+  script:
+    - apk add build-base
+    - apk add libffi-dev
+    - apk add openssl-dev
+    - pip install poetry
+    - poetry install
+    - poetry run nox -rs tests-3.7
+
+test-3.8:
+  image: python:3.8-alpine
   stage: test
   extends: .test
   script:
-    - echo "testing"
-    - poetry run nox -rs tests
+    - poetry run nox -rs tests-3.8
+
+test-3.9:
+  image: python:3.9-alpine
+  stage: test
+  extends: .test
+  script:
+    - poetry run nox -rs tests-3.9
 
 lint:
   image: python:3-alpine
