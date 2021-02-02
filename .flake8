@@ -14,10 +14,9 @@ max-line-length = 88
 
 per-file-ignores =
   # For tests, disable type annotation and docstring linting.
+  noxfile.py: DAR
   tests/*: ANN D DAR
   # TODO: Remove these after we've migrated to having everything typed.
-  xrpl/binary_codec/*: ANN DAR
-  xrpl/keypairs/*: DAR
 
 # Select other tools to enable.
 

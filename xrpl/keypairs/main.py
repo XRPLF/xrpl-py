@@ -1,11 +1,13 @@
 """Public interface for keypairs module."""
 from secrets import token_bytes
-from typing import Any, Dict, Final, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
+
+from typing_extensions import Final
 
 from xrpl import CryptoAlgorithm, addresscodec
 from xrpl.keypairs import ed25519, secp256k1
 from xrpl.keypairs.exceptions import XRPLKeypairsException
-from xrpl.keypairs.helpers import sha512_first_half
+from xrpl.keypairs.helpers import get_account_id, sha512_first_half
 
 # using Any type here because the overhead of an abstract class for these two
 # modules would be overkill and we'll raise in tests if they do not satisfy
@@ -27,11 +29,15 @@ def generate_seed(
     algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
 ) -> str:
     """
-    entropy: must be at least addresscodec.SEED_LENGTH bytes long and
-    will be truncated to that length
-    algorithm: CryptoAlgorithm to use for seed generation
+    Generates a seed suitable for use with derive.
 
-    returns: a seed suitable for use with derive
+    Args:
+        entropy: Must be at least addresscodec.SEED_LENGTH bytes long and
+            will be truncated to that length
+        algorithm: CryptoAlgorithm to use for seed generation
+
+    Returns:
+        A seed suitable for use with derive
     """
     if entropy is None:
         parsed_entropy = token_bytes(addresscodec.SEED_LENGTH)
@@ -44,8 +50,17 @@ def derive_keypair(seed: str, validator: bool = False) -> Tuple[str, str]:
     """
     Given seed, which can be generated via `generate_seed`, returns
     public and private keypair.
-    seed: value from which to derive keypair
-    returns: (public_key, private_key) keypair
+
+    Args:
+        seed: Value from which to derive keypair
+        validator: Whether the keypair is a validator keypair.
+
+    Returns:
+        A public and private keypair.
+
+    Raises:
+        XRPLKeypairsException: If the derived keypair did not generate a
+            verifiable signature.
     """
     decoded_seed, algorithm = addresscodec.decode_seed(seed)
     module = _ALGORITHM_TO_MODULE_MAP[algorithm]
@@ -56,3 +71,19 @@ def derive_keypair(seed: str, validator: bool = False) -> Tuple[str, str]:
             "Derived keypair did not generate verifiable signature",
         )
     return public_key, private_key
+
+
+def derive_classic_address(public_key: str) -> str:
+    """
+    Returns the classic address for the given public key. See
+    https://xrpl.org/cryptographic-keys.html#account-id-and-address
+    for more information.
+
+    Args:
+        public_key: Public key from which to derive address.
+
+    Returns:
+        Classic address corresponding to public key.
+    """
+    account_id = get_account_id(bytes.fromhex(public_key))
+    return addresscodec.encode_classic_address(account_id)

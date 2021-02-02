@@ -11,18 +11,37 @@ _WIDTH = 8  # 64 / 8
 class UInt64(UInt):
     """Derived UInt class for serializing/deserializing 64 bit UInt."""
 
-    def __init__(self, buffer: bytes = bytes(_WIDTH)):
+    def __init__(self: UInt64, buffer: bytes = bytes(_WIDTH)) -> None:
         """Construct a new UInt64 type from a `bytes` value."""
         super().__init__(buffer)
 
     @classmethod
-    def from_parser(cls, parser: BinaryParser) -> UInt64:
-        """Construct a new UInt64 type from a BinaryParser."""
+    def from_parser(cls: UInt64, parser: BinaryParser) -> UInt64:
+        """
+        Construct a new UInt64 type from a BinaryParser.
+
+        Args:
+            parser: The BinaryParser to construct a UInt64 from.
+
+        Returns:
+            The UInt64 constructed from parser.
+        """
         return cls(parser.read(_WIDTH))
 
     @classmethod
-    def from_value(cls, value: int) -> UInt64:
-        """Construct a new UInt64 type from a number."""
+    def from_value(cls: UInt64, value: int) -> UInt64:
+        """
+        Construct a new UInt64 type from a number.
+
+        Args:
+            value: The number to construct a UInt64 from.
+
+        Returns:
+            The UInt64 constructed from value.
+
+        Raises:
+            XRPLBinaryCodecException: If a UInt64 could not be constructed from value.
+        """
         if isinstance(value, int):
             value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=False)
             return cls(value_bytes)

@@ -1,5 +1,7 @@
 """Context manager and helpers for the serialization of a JSON object into bytes."""
 
+from __future__ import annotations  # Requires Python 3.7+
+
 from xrpl.binary_codec.definitions.field_instance import FieldInstance
 from xrpl.binary_codec.types.serialized_type import SerializedType
 
@@ -52,12 +54,17 @@ def _encode_variable_length_prefix(length: int) -> bytes:
 class BinarySerializer:
     """Serializes JSON to XRPL binary format."""
 
-    def __init__(self) -> None:
+    def __init__(self: BinarySerializer) -> None:
         """Construct a BinarySerializer."""
         self.bytesink = bytes()
 
-    def put(self, bytes_object: bytes) -> None:
-        """Write given bytes to this BinarySerializer's bytesink."""
+    def put(self: BinarySerializer, bytes_object: bytes) -> None:
+        """
+        Write given bytes to this BinarySerializer's bytesink.
+
+        Args:
+            bytes_object: The bytes to write to bytesink.
+        """
         self.bytesink += bytes_object
 
     def to_bytes(self) -> bytes:
@@ -65,7 +72,12 @@ class BinarySerializer:
         return self.bytesink
 
     def write_length_encoded(self, value: SerializedType) -> None:
-        """Write a variable length encoded value to the BinarySerializer."""
+        """
+        Write a variable length encoded value to the BinarySerializer.
+
+        Args:
+            value: The SerializedType object to write to bytesink.
+        """
         byte_object = bytearray()
         value.to_byte_sink(byte_object)
         length_prefix = _encode_variable_length_prefix(len(value))
@@ -75,7 +87,16 @@ class BinarySerializer:
     def write_field_and_value(
         self, field: FieldInstance, value: SerializedType
     ) -> None:
-        """Write field and value to the buffer."""
+        """
+        Write field and value to the buffer.
+
+        Args:
+            field: The field to write to the buffer.
+            value: The value to write to the buffer.
+
+        Returns:
+            None
+        """
         self.bytesink += field.header.to_bytes()
 
         if field.is_variable_length_encoded:

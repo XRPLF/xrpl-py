@@ -80,23 +80,32 @@ XRP_CASES = [
 
 
 class TestAmount(unittest.TestCase):
-    def test_assert_xrp_is_valid(self):
+    def test_assert_xrp_is_valid_passes(self):
         valid_zero = "0"
         valid_amount = "1000"
+
+        amount.assert_is_valid_xrp_value(valid_zero)
+        amount.assert_is_valid_xrp_value(valid_amount)
+
+    def test_assert_xrp_is_valid_raises(self):
         invalid_amount_large = "1e20"
         invalid_amount_small = "1e-7"
         invalid_amount_decimal = "1.234"
 
-        amount.assert_xrp_is_valid(valid_zero)
-        amount.assert_xrp_is_valid(valid_amount)
         self.assertRaises(
-            XRPLBinaryCodecException, amount.assert_xrp_is_valid, invalid_amount_large
+            XRPLBinaryCodecException,
+            amount.assert_is_valid_xrp_value,
+            invalid_amount_large,
         )
         self.assertRaises(
-            XRPLBinaryCodecException, amount.assert_xrp_is_valid, invalid_amount_small
+            XRPLBinaryCodecException,
+            amount.assert_is_valid_xrp_value,
+            invalid_amount_small,
         )
         self.assertRaises(
-            XRPLBinaryCodecException, amount.assert_xrp_is_valid, invalid_amount_decimal
+            XRPLBinaryCodecException,
+            amount.assert_is_valid_xrp_value,
+            invalid_amount_decimal,
         )
 
     def test_assert_iou_is_valid(self):
@@ -113,27 +122,27 @@ class TestAmount(unittest.TestCase):
         ]
         for case in cases:
             decimal = Decimal(case)
-            amount.assert_iou_is_valid(decimal)
+            amount.assert_is_valid_iou_value(decimal)
 
     def test_from_value_issued_currency(self):
-        for case in IOU_CASES:
-            amount_object = amount.Amount.from_value(case[0])
+        for json, serialized in IOU_CASES:
+            amount_object = amount.Amount.from_value(json)
             # Convert hex to uppercase to match expectation
-            self.assertEqual(amount_object.to_hex().upper(), case[1])
+            self.assertEqual(amount_object.to_hex().upper(), serialized)
 
     def test_from_value_xrp(self):
-        for case in XRP_CASES:
-            amount_object = amount.Amount.from_value(case[0])
-            self.assertEqual(amount_object.to_hex().upper(), case[1])
+        for json, serialized in XRP_CASES:
+            amount_object = amount.Amount.from_value(json)
+            self.assertEqual(amount_object.to_hex().upper(), serialized)
 
     def test_to_json_issued_currency(self):
-        for case in IOU_CASES:
-            parser = BinaryParser(case[1])
+        for json, serialized in IOU_CASES:
+            parser = BinaryParser(serialized)
             amount_object = amount.Amount.from_parser(parser)
-            self.assertEqual(amount_object.to_json(), case[0])
+            self.assertEqual(amount_object.to_json(), json)
 
     def test_to_json_xrp(self):
-        for case in XRP_CASES:
-            parser = BinaryParser(case[1])
+        for json, serialized in XRP_CASES:
+            parser = BinaryParser(serialized)
             amount_object = amount.Amount.from_parser(parser)
-            self.assertEqual(amount_object.to_json(), case[0])
+            self.assertEqual(amount_object.to_json(), json)
