@@ -14,8 +14,12 @@ stages:
 test-3.7:
   image: python:3.7-alpine
   stage: test
-  extends: .test
   script:
+    - apk add build-base
+    - apk add libffi-dev
+    - apk add libressl-dev
+    - pip install poetry
+    - poetry install
     - poetry run nox -rs tests-3.7
 
 test-3.8:
