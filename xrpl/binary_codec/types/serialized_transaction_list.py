@@ -6,8 +6,8 @@ from typing import Any, List
 
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
+from xrpl.binary_codec.types.serialized_transaction import SerializedTransaction
 from xrpl.binary_codec.types.serialized_type import SerializedType
-from xrpl.binary_codec.types.serializedTransaction import SerializedTransaction
 
 ARRAY_END_MARKER = bytes([0xF1])
 ARRAY_END_MARKER_NAME = "ArrayEndMarker"
@@ -18,6 +18,7 @@ OBJECT_END_MARKER = bytes([0xE1])
 class SerializedTransactionList(SerializedType):
     """TODO: docstring"""
 
+    @classmethod
     def from_parser(
         cls: SerializedTransactionList, parser: BinaryParser
     ) -> SerializedTransactionList:
@@ -28,13 +29,15 @@ class SerializedTransactionList(SerializedType):
             field = parser.read_field()
             if field.name == ARRAY_END_MARKER_NAME:
                 break
-            bytestring += field.header.to_bytes()
-            bytestring += parser.read_field_value(field).to_bytes()
-            bytestring += OBJECT_END_MARKER
+            else:
+                bytestring += field.header.to_bytes()
+                bytestring += parser.read_field_value(field).to_bytes()
+                bytestring += OBJECT_END_MARKER
 
         bytestring += ARRAY_END_MARKER
         return SerializedTransactionList(bytestring)
 
+    @classmethod
     def from_value(
         cls: SerializedTransactionList, value: List[Any]
     ) -> SerializedTransactionList:
@@ -64,5 +67,4 @@ class SerializedTransactionList(SerializedType):
             outer = {}
             outer[field.name] = SerializedTransaction.from_parser(parser).to_json()
             result.append(outer)
-
         return result

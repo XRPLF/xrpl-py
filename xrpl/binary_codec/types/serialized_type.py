@@ -32,6 +32,9 @@ class SerializedType(ABC):
         from xrpl.binary_codec.types.hash160 import Hash160
         from xrpl.binary_codec.types.hash256 import Hash256
         from xrpl.binary_codec.types.serialized_transaction import SerializedTransaction
+        from xrpl.binary_codec.types.serialized_transaction_list import (
+            SerializedTransactionList,
+        )
         from xrpl.binary_codec.types.uint8 import UInt8
         from xrpl.binary_codec.types.uint16 import UInt16
         from xrpl.binary_codec.types.uint32 import UInt32
@@ -46,7 +49,7 @@ class SerializedType(ABC):
             "Hash160": Hash160,
             "Hash256": Hash256,
             # "PathSet": PathSet, # TODO: uncomment when implemented
-            # "STArray": STArray, # TODO: uncomment when implemented
+            "SerializedTransactionList": SerializedTransactionList,
             "SerializedTransaction": SerializedTransaction,
             "UInt8": UInt8,
             "UInt16": UInt16,

@@ -149,6 +149,9 @@ class SerializedTransaction(SerializedType):
             field = parser.read_field()
             if field.name == OBJECT_END_MARKER:
                 break
-            accumulator[field.name] = parser.read_field_value(field).to_json()
+            value = parser.read_field_value(field)
 
+            if str(value) == "SerializedTransactionList":
+                break
+            accumulator[field.name] = value.to_json()
         return accumulator
