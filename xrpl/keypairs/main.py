@@ -75,8 +75,15 @@ def derive_keypair(seed: str, validator: bool = False) -> Tuple[str, str]:
 
 def derive_classic_address(public_key: str) -> str:
     """
-    public_key: public key from which to derive address
-    returns: classic address corresponding to public key
+    Returns the classic address for the given public key. See
+    https://xrpl.org/cryptographic-keys.html#account-id-and-address
+    for more information.
+
+    Args:
+        public_key: Public key from which to derive address.
+
+    Returns:
+        Classic address corresponding to public key.
     """
     account_id = get_account_id(bytes.fromhex(public_key))
     return addresscodec.encode_classic_address(account_id)

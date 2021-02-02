@@ -22,9 +22,15 @@ def sha512_first_half(message: bytes) -> bytes:
 
 def get_account_id(public_key: bytes) -> bytes:
     """
-    :param public_key: unencoded public key
-    :returns the account_id, which is defined as the RIPEMD160 of the SHA256
-    of the input
+    Returns the account ID for a given public key. See
+    https://xrpl.org/cryptographic-keys.html#account-id-and-address
+    to learn about the relationship between keys and account IDs.
+
+    Args:
+        public_key: Unencoded public key.
+
+    Returns:
+        The account ID for the given public key.
     """
     sha_hash = hashlib.sha256(public_key).digest()
     return hashlib.new("ripemd160", sha_hash).digest()
