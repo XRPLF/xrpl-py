@@ -57,10 +57,10 @@ class SerializedTransaction(SerializedType):
         Construct a SerializedTransaction from a BinaryParser.
 
         Args:
-            parser: The parser to construct a Blob from.
+            parser: The parser to construct a SerializedTransaction from.
 
         Returns:
-            The Blob constructed from parser.
+            The SerializedTransaction constructed from parser.
         """
         from xrpl.binary_codec.binary_wrappers.binary_serializer import BinarySerializer
 
