@@ -1,4 +1,4 @@
-"""TODO: docstring"""
+"""Class for serializing and deserializing Lists of objects."""
 
 from __future__ import annotations
 
@@ -16,13 +16,21 @@ OBJECT_END_MARKER = bytes([0xE1])
 
 
 class SerializedTransactionList(SerializedType):
-    """TODO: docstring"""
+    """Class for serializing and deserializing Lists of objects."""
 
     @classmethod
     def from_parser(
         cls: SerializedTransactionList, parser: BinaryParser
     ) -> SerializedTransactionList:
-        """TODO: docstring"""
+        """
+        Construct a SerializedTransactionList from a BinaryParser.
+
+        Args:
+            parser: The parser to construct a SerializedTransactionList from.
+
+        Returns:
+            The SerializedTransactionList constructed from parser.
+        """
         bytestring = b""
 
         while not parser.is_end():
@@ -41,7 +49,19 @@ class SerializedTransactionList(SerializedType):
     def from_value(
         cls: SerializedTransactionList, value: List[Any]
     ) -> SerializedTransactionList:
-        """TODO: docstring"""
+        """
+        Create a SerializedTransactionList object from a dictionary.
+
+        Args:
+            value: The dictionary to construct a SerializedTransactionList from.
+
+        Returns:
+            The SerializedTransactionList object constructed from value.
+
+        Raises:
+            XRPLBinaryCodecException: If the SerializedTransactionList can't be
+                constructed from value.
+        """
         if isinstance(value, list) and (len(value) == 0 or isinstance(value[0], dict)):
             bytestring = b""
             for obj in value:
@@ -55,7 +75,12 @@ class SerializedTransactionList(SerializedType):
         )
 
     def to_json(self: SerializedTransactionList) -> List[Any]:
-        """TODO: docstring"""
+        """
+        Returns the JSON representation of a SerializedTransactionList.
+
+        Returns:
+            The JSON representation of a SerializedTransactionList.
+        """
         result = []
         parser = BinaryParser(self.to_string())
 
