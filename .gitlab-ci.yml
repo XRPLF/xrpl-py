@@ -15,6 +15,7 @@ test-3.7:
   # tedkalaw: Use 3.7.4 for now: https://bugs.python.org/issue38550
   image: python:3.7.4-alpine
   stage: test
+  extends: .test
   script:
     - poetry run nox -rs tests-3.7
 
