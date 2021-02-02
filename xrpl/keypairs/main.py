@@ -7,7 +7,7 @@ from typing_extensions import Final
 from xrpl import CryptoAlgorithm, addresscodec
 from xrpl.keypairs import ed25519, secp256k1
 from xrpl.keypairs.exceptions import XRPLKeypairsException
-from xrpl.keypairs.helpers import get_account_id, sha512_first_half
+from xrpl.keypairs.helpers import get_account_id
 
 # using Any type here because the overhead of an abstract class for these two
 # modules would be overkill and we'll raise in tests if they do not satisfy
@@ -19,9 +19,7 @@ _ALGORITHM_TO_MODULE_MAP: Final[Dict[CryptoAlgorithm, Any]] = {
 # Ensure all CryptoAlgorithms have a module
 assert len(_ALGORITHM_TO_MODULE_MAP) == len(CryptoAlgorithm)
 
-_VERIFICATION_MESSAGE: Final[bytes] = sha512_first_half(
-    b"This test message should verify."
-)
+_VERIFICATION_MESSAGE: Final[bytes] = b"This test message should verify."
 
 
 def generate_seed(
@@ -87,3 +85,32 @@ def derive_classic_address(public_key: str) -> str:
     """
     account_id = get_account_id(bytes.fromhex(public_key))
     return addresscodec.encode_classic_address(account_id)
+
+
+def sign(message: bytes, private_key: str) -> str:
+    """
+    Given message and private key returns signed message.
+
+    Args:
+        message: Message to sign.
+        private_key: Private key generated using any of the supported
+            CryptoAlgorithm.
+
+    Returns:
+        Signed message.
+    """
+    return (
+        _get_module_from_key(private_key)
+        .sign(
+            message,
+            private_key,
+        )
+        .hex()
+        .upper()
+    )
+
+
+def _get_module_from_key(key: str) -> Any:
+    if key.startswith(ed25519.PREFIX):
+        return _ALGORITHM_TO_MODULE_MAP[CryptoAlgorithm.ED25519]
+    return _ALGORITHM_TO_MODULE_MAP[CryptoAlgorithm.SECP256K1]
