@@ -3,8 +3,8 @@
 #
 # See https://xrpl.org/cryptographic-keys.html#secp256k1-key-derivation
 # for an overview of the algorithm.
-import hashlib
-from typing import Callable, Final, Literal, Tuple
+from hashlib import sha256
+from typing import Callable, Tuple
 
 from ecpy.curves import Curve  # type: ignore
 from ecpy.ecdsa import ECDSA  # type: ignore
@@ -79,7 +79,7 @@ def sign(message: str, private_key: str) -> bytes:
     return _SIGNER.sign_rfc6979(
         sha512_first_half(message),
         wrapped_private,
-        hashlib.sha256,
+        sha256,
         canonical=True,
     )
 
