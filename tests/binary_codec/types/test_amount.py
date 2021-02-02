@@ -84,8 +84,8 @@ class TestAmount(unittest.TestCase):
         valid_zero = "0"
         valid_amount = "1000"
 
-        amount.assert_is_valid_xrp_value(valid_zero)
-        amount.assert_is_valid_xrp_value(valid_amount)
+        amount.verify_xrp_value(valid_zero)
+        amount.verify_xrp_value(valid_amount)
 
     def test_assert_xrp_is_valid_raises(self):
         invalid_amount_large = "1e20"
@@ -94,17 +94,17 @@ class TestAmount(unittest.TestCase):
 
         self.assertRaises(
             XRPLBinaryCodecException,
-            amount.assert_is_valid_xrp_value,
+            amount.verify_xrp_value,
             invalid_amount_large,
         )
         self.assertRaises(
             XRPLBinaryCodecException,
-            amount.assert_is_valid_xrp_value,
+            amount.verify_xrp_value,
             invalid_amount_small,
         )
         self.assertRaises(
             XRPLBinaryCodecException,
-            amount.assert_is_valid_xrp_value,
+            amount.verify_xrp_value,
             invalid_amount_decimal,
         )
 
@@ -122,7 +122,7 @@ class TestAmount(unittest.TestCase):
         ]
         for case in cases:
             decimal = Decimal(case)
-            amount.assert_is_valid_iou_value(decimal)
+            amount.verify_iou_value(decimal)
 
     def test_from_value_issued_currency(self):
         for json, serialized in IOU_CASES:

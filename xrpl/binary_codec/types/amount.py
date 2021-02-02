@@ -36,6 +36,18 @@ _NATIVE_AMOUNT_BYTE_LENGTH = 8
 _CURRENCY_AMOUNT_BYTE_LENGTH = 48
 
 
+def _contains_decimal(string: str) -> bool:
+    """Returns True if the given string contains a decimal point character.
+
+    Args:
+        string: The string to check.
+
+    Returns:
+        True if the string contains a decimal point character.
+    """
+    return string.find(".") == -1
+
+
 def _is_valid_issued_currency_amount(value: Dict) -> bool:
     """
     Determines whether given dictionary represents a valid issued currency amount,
@@ -53,13 +65,12 @@ def _is_valid_issued_currency_amount(value: Dict) -> bool:
     if len(value.keys()) != 3:
         return False
     expected_keys = set(["currency", "issuer", "value"])
-    for key in expected_keys:
-        if not (key in value.keys()):
-            return False
-    return True
+    if set(value.keys()) == expected_keys:
+        return True
+    return False
 
 
-def assert_is_valid_xrp_value(xrp_value: str) -> None:
+def verify_xrp_value(xrp_value: str) -> None:
     """
     Validates the format of an XRP amount.
     Raises if value is invalid.
@@ -74,19 +85,19 @@ def assert_is_valid_xrp_value(xrp_value: str) -> None:
         XRPLBinaryCodecException: If xrp_value is not a valid XRP amount.
     """
     # Contains no decimal point
-    if not (xrp_value.find(".") == -1):
+    if not _contains_decimal(xrp_value):
         raise XRPLBinaryCodecException("{} is an invalid XRP amount.".format(xrp_value))
 
     # Within valid range
     decimal = Decimal(xrp_value)
     # Zero is less than both the min and max XRP amounts but is valid.
     if decimal.is_zero():
-        return None
+        return
     if (decimal.compare(_MIN_XRP) == -1) or (decimal.compare(_MAX_DROPS) == 1):
         raise XRPLBinaryCodecException("{} is an invalid XRP amount.".format(xrp_value))
 
 
-def assert_is_valid_iou_value(issued_currency_value: Decimal) -> None:
+def verify_iou_value(issued_currency_value: Decimal) -> None:
     """
     Validates the format of an issued currency amount value.
     Raises if value is invalid.
@@ -127,7 +138,7 @@ def _verify_no_decimal(decimal: Decimal) -> None:
     exponent = Decimal("1e" + str(-(int(actual_exponent) - 15)))
     # str(Decimal) uses sci notation by default... get around w/ string format
     int_number_string = "{:f}".format(decimal * exponent)
-    if not (int_number_string.find(".") == -1):
+    if not _contains_decimal(int_number_string):
         raise XRPLBinaryCodecException("Decimal place found in int_number_str")
 
 
@@ -139,7 +150,7 @@ def _serialize_issued_currency_value(value: str) -> bytes:
     :return: A bytes object encoding the serialized value.
     """
     decimal_value = Decimal(value)
-    assert_is_valid_iou_value(decimal_value)
+    verify_iou_value(decimal_value)
     if decimal_value.is_zero():
         return _ZERO_CURRENCY_AMOUNT_HEX.to_bytes(8, byteorder="big")
 
@@ -188,7 +199,7 @@ def _serialize_xrp_amount(value: str) -> bytes:
     Returns:
         The bytes representing the serialized XRP amount.
     """
-    assert_is_valid_xrp_value(value)
+    verify_xrp_value(value)
     # set the "is positive" bit (this is backwards from usual two's complement!)
     value_with_pos_bit = int(value) | _POS_SIGN_BIT_MASK
     return value_with_pos_bit.to_bytes(8, byteorder="big")
@@ -290,7 +301,7 @@ class Amount(SerializedType):
             "1e{}".format(exponent)
         )
 
-        assert_is_valid_iou_value(value)
+        verify_iou_value(value)
         if value.is_zero():
             value_str = "0"
         else:
