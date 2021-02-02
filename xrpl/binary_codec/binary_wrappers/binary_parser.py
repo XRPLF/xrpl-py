@@ -230,7 +230,7 @@ class BinaryParser:
         Returns:
             The type associated with the given field.
         """
-        return SerializedType.get_type_by_name(field.type)
+        return field.associated_type
 
     def read_field_value(self: BinaryParser, field: FieldInstance) -> SerializedType:
         """
