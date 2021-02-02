@@ -12,7 +12,7 @@ stages:
     - poetry install
 
 test-3.7:
-  image: python:3.7-alpine
+  image: python:3.7.4-alpine
   stage: test
   script:
     - apk add build-base
