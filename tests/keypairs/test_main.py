@@ -114,3 +114,87 @@ class TestMain(TestCase):
                 "5DB0188D3A56A977ECBA54B36FA9371B40319655B1B4429E33EF2D"
             ),
         )
+
+    def test_is_valid_message_ed25519(self):
+        output = keypairs.is_valid_message(
+            b"test message",
+            bytes.fromhex(
+                (
+                    "CB199E1BFD4E3DAA105E4832EEDFA36413E1F442"
+                    "05E4EFB9E27E826044C21E3E2E848BBC8195E895"
+                    "9BADF887599B7310AD1B7047EF11B682E0D068F73749750E"
+                ),
+            ),
+            "ED01FA53FA5A7E77798F882ECE20B1ABC00BB358A9E55A202D0D0676BD0CE37A63",
+        )
+        self.assertTrue(output)
+
+    def test_is_valid_message_secp256k1(self):
+        output = keypairs.is_valid_message(
+            b"test message",
+            bytes.fromhex(
+                (
+                    "30440220583A91C95E54E6A651C47BEC22744E0B101E2C"
+                    "4060E7B08F6341657DAD9BC3EE02207D1489C7395DB018"
+                    "8D3A56A977ECBA54B36FA9371B40319655B1B4429E33EF2D"
+                ),
+            ),
+            "030D58EB48B4420B1F7B9DF55087E0E29FEF0E8468F9A6825B01CA2C361042D435",
+        )
+        self.assertTrue(output)
+
+    def test_is_valid_message_ed25519_bad_key(self):
+        output = keypairs.is_valid_message(
+            b"test message",
+            bytes.fromhex(
+                (
+                    "CB199E1BFD4E3DAA105E4832EEDFA36413E1F442"
+                    "05E4EFB9E27E826044C21E3E2E848BBC8195E895"
+                    "9BADF887599B7310AD1B7047EF11B682E0D068F73749750E"
+                ),
+            ),
+            "ED11FA53FA5A7E77798F882ECE20B1ABC00BB358A9E55A202D0D0676BD0CE37A63",
+        )
+        self.assertFalse(output)
+
+    def test_is_valid_message_secp256k1_bad_key(self):
+        output = keypairs.is_valid_message(
+            b"test message",
+            bytes.fromhex(
+                (
+                    "30440220583A91C95E54E6A651C47BEC22744E0B101E2C"
+                    "4060E7B08F6341657DAD9BC3EE02207D1489C7395DB018"
+                    "8D3A56A977ECBA54B36FA9371B40319655B1B4429E33EF2D"
+                ),
+            ),
+            "031D58EB48B4420B1F7B9DF55087E0E29FEF0E8468F9A6825B01CA2C361042D435",
+        )
+        self.assertFalse(output)
+
+    def test_is_valid_message_ed25519_bad_sig(self):
+        output = keypairs.is_valid_message(
+            b"test message",
+            bytes.fromhex(
+                (
+                    "CB199E1BFD4E3DAA105E4832EEDFA36413E1F442"
+                    "05E4EFB9E27E826044C21E3E2E848BBC8195E895"
+                    "9BADF887599B7310AD1B7047EF11B682E0D068F73749750F"
+                ),
+            ),
+            "ED01FA53FA5A7E77798F882ECE20B1ABC00BB358A9E55A202D0D0676BD0CE37A63",
+        )
+        self.assertFalse(output)
+
+    def test_is_valid_message_secp256k1_bad_sig(self):
+        output = keypairs.is_valid_message(
+            b"test message",
+            bytes.fromhex(
+                (
+                    "30440220583A91C95E54E6A651C47BEC22744E0B101E2C"
+                    "4060E7B08F6341657DAD9BC3EE02207D1489C7395DB018"
+                    "8D3A56A977ECBA54B36FA9371B40319655B1B4429E33EF2F"
+                ),
+            ),
+            "030D58EB48B4420B1F7B9DF55087E0E29FEF0E8468F9A6825B01CA2C361042D435",
+        )
+        self.assertFalse(output)

@@ -84,7 +84,7 @@ def sign(message: str, private_key: str) -> bytes:
     )
 
 
-def is_message_valid(message: str, signature: bytes, public_key: str) -> bool:
+def is_valid_message(message: str, signature: bytes, public_key: str) -> bool:
     """
     Verifies that message matches signature given public_key.
 
