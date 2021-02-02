@@ -91,9 +91,14 @@ def derive_classic_address(public_key: str) -> str:
 def sign(message: bytes, private_key: str) -> str:
     """
     Given message and private key returns signed message.
-    message: message to sign
-    private_key: private key generated using any of the supported
-    CryptoAlgorithm
+
+    Args:
+        message: Message to sign.
+        private_key: Private key generated using any of the supported
+            CryptoAlgorithm.
+
+    Returns:
+        Signed message.
     """
     return (
         _get_module_from_key(private_key)
