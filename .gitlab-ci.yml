@@ -7,7 +7,7 @@ stages:
     - echo "before testing"
     - apk add build-base
     - apk add libffi-dev
-    - apk add openssl-dev
+    - apk add libressl-dev
     - pip install poetry
     - poetry install
 
