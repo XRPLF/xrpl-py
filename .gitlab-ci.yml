@@ -18,6 +18,7 @@ test-3.7:
   extends: .test
   script:
     - poetry run nox -rs tests-3.7
+  retry: 2
 
 test-3.8:
   image: python:3.8-alpine
@@ -25,6 +26,7 @@ test-3.8:
   extends: .test
   script:
     - poetry run nox -rs tests-3.8
+  retry: 2
 
 test-3.9:
   image: python:3.9-alpine
@@ -32,6 +34,7 @@ test-3.9:
   extends: .test
   script:
     - poetry run nox -rs tests-3.9
+  retry: 2
 
 lint:
   image: python:3-alpine
