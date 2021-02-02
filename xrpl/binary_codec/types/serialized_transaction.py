@@ -116,8 +116,8 @@ class SerializedTransaction(SerializedType):
                 xaddress_decoded[k] = v
 
         sorted_keys: List[FieldInstance] = []
-        for f in xaddress_decoded:
-            field_instance = get_field_instance(f)
+        for field_name in xaddress_decoded:
+            field_instance = get_field_instance(field_name)
             if (
                 field_instance is not None
                 and xaddress_decoded[field_instance.name] is not None
@@ -127,8 +127,9 @@ class SerializedTransaction(SerializedType):
         sorted_keys.sort(key=lambda x: x.ordinal)
 
         for field in sorted_keys:
-            associated_type = SerializedType.get_type_by_name(field.type)
-            associated_value = associated_type.from_value(xaddress_decoded[field.name])
+            associated_value = field.associated_type.from_value(
+                xaddress_decoded[field.name]
+            )
             serializer.write_field_and_value(field, associated_value)
             if field.type == SERIALIZED_TRANSACTION:
                 serializer.put(OBJECT_END_MARKER_BYTE)
