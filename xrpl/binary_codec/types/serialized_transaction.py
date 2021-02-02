@@ -79,7 +79,9 @@ class SerializedTransaction(SerializedType):
         return SerializedTransaction(serializer.to_bytes())
 
     @classmethod
-    def from_value(value: Dict[str, Any]) -> SerializedTransaction:
+    def from_value(
+        cls: SerializedTransaction, value: Dict[str, Any]
+    ) -> SerializedTransaction:
         """
         Create a SerializedTransaction object from a dictionary.
 
