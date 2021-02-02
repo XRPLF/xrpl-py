@@ -25,7 +25,7 @@ def handle_xaddress(field: str, xaddress: str) -> Dict[str, str]:
 
     Args:
         field: Name of field
-        xAddress: X-Address corresponding to the field
+        xaddress: X-Address corresponding to the field
 
     Returns:
         A dictionary representing the classic address and tag.
@@ -129,7 +129,7 @@ class SerializedTransaction(SerializedType):
 
         return SerializedTransaction(serializer.to_bytes())
 
-    def to_json(self) -> Dict[str, Any]:
+    def to_json(self: SerializedTransaction) -> Dict[str, Any]:
         """
         Returns the JSON representation of a SerializedTransaction.
 

@@ -98,9 +98,6 @@ class BinarySerializer:
         Args:
             field: The field to write to the buffer.
             value: The value to write to the buffer.
-
-        Returns:
-            None
         """
         self.bytesink += field.header.to_bytes()
 
