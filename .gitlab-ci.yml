@@ -7,7 +7,7 @@ stages:
     - echo "before testing"
     - apk add build-base
     - apk add libffi-dev
-    - apk add libressl
+    - apk add openssl-dev
     - pip install poetry
     - poetry install
 
@@ -18,7 +18,6 @@ test-3.7:
     - apk add build-base
     - apk add libffi-dev
     - apk add openssl-dev
-    - apk add openssl
     - pip install poetry
     - poetry install
     - poetry run nox -rs tests-3.7
