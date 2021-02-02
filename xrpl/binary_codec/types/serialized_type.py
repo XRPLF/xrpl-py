@@ -13,8 +13,16 @@ class SerializedType(ABC):
         self.buffer = buffer
 
     @classmethod
-    def get_type_by_name(cls, name: str) -> Type[SerializedType]:
-        """Convert the string name of a class to the class object itself."""
+    def get_type_by_name(cls: SerializedType, name: str) -> Type[SerializedType]:
+        """
+        Convert the string name of a class to the class object itself.
+
+        Args:
+            name: the name of the class.
+
+        Returns:
+            The corresponding class object.
+        """
         # TODO: figure out if there's a better way to do this
         from xrpl.binary_codec.types.account_id import AccountID
         from xrpl.binary_codec.types.amount import Amount
@@ -132,6 +140,6 @@ class SerializedType(ABC):
         """
         return self.buffer.hex()
 
-    def __len__(self) -> int:
+    def __len__(self: SerializedType) -> int:
         """Get the length of a SerializedType's bytes."""
         return len(self.buffer)

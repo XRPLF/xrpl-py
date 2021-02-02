@@ -218,11 +218,17 @@ class BinaryParser:
         """
         return field_type.from_parser(self)
 
-    def type_for_field(self, field: FieldInstance) -> Type[SerializedType]:
+    def type_for_field(
+        self: BinaryParser, field: FieldInstance
+    ) -> Type[SerializedType]:
         """
-        Get the type associated with a given field
-        :param field: The field that you wan to get the type of
-        :return: The type associated with the given field
+        Get the type associated with a given field.
+
+        Args:
+            field: The field that you want to get the type of.
+
+        Returns:
+            The type associated with the given field.
         """
         return SerializedType.get_type_by_name(field.type)
 

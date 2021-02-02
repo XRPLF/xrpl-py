@@ -20,10 +20,18 @@ SOURCE_TAG = "SourceTag"
 DEST_TAG = "DestinationTag"
 
 
-def handle_xaddress(field: str, xaddress: str) -> Dict[str, Any]:
-    """Break down an X-Address into an account and a tag.
-    :param field: Name of field
-    :param xAddress: X-Address corresponding to the field
+def handle_xaddress(field: str, xaddress: str) -> Dict[str, str]:
+    """Break down an X-Address into a classic address and a tag.
+
+    Args:
+        field: Name of field
+        xAddress: X-Address corresponding to the field
+
+    Returns:
+        A dictionary representing the classic address and tag.
+
+    Raises:
+        XRPLBinaryCodecException: field-tag combo is invalid.
     """
     (classic_address, tag, is_test_network) = xaddress_to_classic_address(xaddress)
     if field == DESTINATION:
@@ -41,8 +49,16 @@ def handle_xaddress(field: str, xaddress: str) -> Dict[str, Any]:
 class SerializedTransaction(SerializedType):
     """Class for serializing/deserializing transactions."""
 
-    def from_parser(parser: Any) -> SerializedTransaction:
-        """Construct a SerializedTransaction from a BinaryParser."""
+    def from_parser(parser: BinaryParser) -> SerializedTransaction:
+        """
+        Construct a SerializedTransaction from a BinaryParser.
+
+        Args:
+            parser: The parser to construct a Blob from.
+
+        Returns:
+            The Blob constructed from parser.
+        """
         from xrpl.binary_codec.binary_wrappers.binary_serializer import BinarySerializer
 
         serializer = BinarySerializer()
@@ -60,7 +76,19 @@ class SerializedTransaction(SerializedType):
         return SerializedTransaction(serializer.to_bytes())
 
     def from_value(value: Dict[str, Any]) -> SerializedTransaction:
-        """Construct a SerializedTransaction from a JSON object."""
+        """
+        Create a SerializedTransaction object from a dictionary.
+
+        Args:
+            value: The dictionary to construct a SerializedTransaction from.
+
+        Returns:
+            The SerializedTransaction object constructed from value.
+
+        Raises:
+            XRPLBinaryCodecException: If the SerializedTransaction can't be constructed
+                from value.
+        """
         from xrpl.binary_codec.binary_wrappers.binary_serializer import BinarySerializer
 
         serializer = BinarySerializer()
@@ -102,7 +130,12 @@ class SerializedTransaction(SerializedType):
         return SerializedTransaction(serializer.to_bytes())
 
     def to_json(self) -> Dict[str, Any]:
-        """Get the JSON interpretation of this object."""
+        """
+        Returns the JSON representation of a SerializedTransaction.
+
+        Returns:
+            The JSON representation of a SerializedTransaction.
+        """
         parser = BinaryParser(self.to_string())
         accumulator = {}
 

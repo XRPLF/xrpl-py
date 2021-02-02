@@ -67,11 +67,16 @@ class BinarySerializer:
         """
         self.bytesink += bytes_object
 
-    def to_bytes(self) -> bytes:
-        """Get the bytes representation of a BinarySerializer."""
+    def to_bytes(self: BinarySerializer) -> bytes:
+        """
+        Get the bytes representation of a BinarySerializer.
+
+        Returns:
+            The bytes representation of the BinarySerializer's bytesink.
+        """
         return self.bytesink
 
-    def write_length_encoded(self, value: SerializedType) -> None:
+    def write_length_encoded(self: BinarySerializer, value: SerializedType) -> None:
         """
         Write a variable length encoded value to the BinarySerializer.
 
@@ -85,7 +90,7 @@ class BinarySerializer:
         self.bytesink += byte_object
 
     def write_field_and_value(
-        self, field: FieldInstance, value: SerializedType
+        self: BinarySerializer, field: FieldInstance, value: SerializedType
     ) -> None:
         """
         Write field and value to the buffer.

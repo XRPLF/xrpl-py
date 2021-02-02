@@ -196,15 +196,40 @@ def get_field_instance(field_name: str) -> FieldInstance:
 
 
 def get_transaction_type_code(transaction_type: str) -> int:
-    """Return an integer representing the given transaction type string in an enum."""
+    """
+    Return an integer representing the given transaction type string in an enum.
+
+    Args:
+        transaction_type: The name of the transaction type to get the enum value for.
+
+    Returns:
+        An integer representing the given transaction type string in an enum.
+    """
     return DEFINITIONS["TRANSACTION_TYPES"][transaction_type]
 
 
 def get_transaction_result_code(transaction_result_type: str) -> int:
-    """Return an integer representing the given transaction result string in an enum."""
+    """
+    Return an integer representing the given transaction result string in an enum.
+
+    Args:
+        transaction_result_type: The name of the transaction result type to get the
+            enum value for.
+
+    Returns:
+        An integer representing the given transaction result type string in an enum.
+    """
     return DEFINITIONS["TRANSACTION_RESULTS"][transaction_result_type]
 
 
 def get_ledger_entry_type_code(ledger_entry_type: str) -> int:
-    """Return an integer representing the given ledger entry type string in an enum."""
+    """
+    Return an integer representing the given ledger entry type string in an enum.
+
+    Args:
+        ledger_entry_type: The name of the ledger entry type to get the enum value for.
+
+    Returns:
+        An integer representing the given ledger entry type string in an enum.
+    """
     return DEFINITIONS["LEDGER_ENTRY_TYPES"][ledger_entry_type]

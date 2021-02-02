@@ -28,8 +28,13 @@ class FieldHeader:
         """Two equal FieldHeaders must have the same hash value."""
         return hash((self.type_code, self.field_code))
 
-    def to_bytes(self):
-        """Get the bytes representation of a BinarySerializer."""
+    def to_bytes(self: FieldHeader) -> bytes:
+        """
+        Get the bytes representation of a FieldHeader.
+
+        Returns:
+            The bytes representation of the FieldHeader.
+        """
         header = []
         if self.type_code < 16:
             if self.field_code < 16:
