@@ -58,12 +58,14 @@ class Currency(Hash160):
         _is_native: True if the currency code is "XRP"
     """
 
+    LENGTH = 20
+
     def __init__(self: Currency, buffer: bytes = None) -> None:
         """Construct a Currency."""
         if buffer is not None:
             super().__init__(buffer)
         else:
-            super().__init__(bytes(20))
+            super().__init__(bytes(self.LENGTH))
 
         # Determine whether this currency code is in standard or nonstandard format:
         # https://xrpl.org/currency-formats.html#nonstandard-currency-codes
