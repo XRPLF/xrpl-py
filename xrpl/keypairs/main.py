@@ -7,7 +7,7 @@ from typing_extensions import Final
 from xrpl import CryptoAlgorithm, addresscodec
 from xrpl.keypairs import ed25519, secp256k1
 from xrpl.keypairs.exceptions import XRPLKeypairsException
-from xrpl.keypairs.helpers import sha512_first_half
+from xrpl.keypairs.helpers import get_account_id, sha512_first_half
 
 # using Any type here because the overhead of an abstract class for these two
 # modules would be overkill and we'll raise in tests if they do not satisfy
@@ -71,3 +71,19 @@ def derive_keypair(seed: str, validator: bool = False) -> Tuple[str, str]:
             "Derived keypair did not generate verifiable signature",
         )
     return public_key, private_key
+
+
+def derive_classic_address(public_key: str) -> str:
+    """
+    Returns the classic address for the given public key. See
+    https://xrpl.org/cryptographic-keys.html#account-id-and-address
+    for more information.
+
+    Args:
+        public_key: Public key from which to derive address.
+
+    Returns:
+        Classic address corresponding to public key.
+    """
+    account_id = get_account_id(bytes.fromhex(public_key))
+    return addresscodec.encode_classic_address(account_id)
