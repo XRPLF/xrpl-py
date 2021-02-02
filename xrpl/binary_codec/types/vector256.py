@@ -3,12 +3,14 @@ from __future__ import annotations
 
 from typing import List, Optional
 
+from typing_extensions import Final
+
 from xrpl.binary_codec import XRPLBinaryCodecException
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binary_codec.types.hash256 import Hash256
 from xrpl.binary_codec.types.serialized_type import SerializedType
 
-_HASH_LENGTH_BYTES = 32
+_HASH_LENGTH_BYTES: Final = 32
 
 
 class Vector256(SerializedType):
