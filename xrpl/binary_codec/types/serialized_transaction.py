@@ -49,7 +49,10 @@ def handle_xaddress(field: str, xaddress: str) -> Dict[str, str]:
 class SerializedTransaction(SerializedType):
     """Class for serializing/deserializing transactions."""
 
-    def from_parser(parser: BinaryParser) -> SerializedTransaction:
+    @classmethod
+    def from_parser(
+        cls: SerializedTransaction, parser: BinaryParser
+    ) -> SerializedTransaction:
         """
         Construct a SerializedTransaction from a BinaryParser.
 
@@ -75,6 +78,7 @@ class SerializedTransaction(SerializedType):
 
         return SerializedTransaction(serializer.to_bytes())
 
+    @classmethod
     def from_value(value: Dict[str, Any]) -> SerializedTransaction:
         """
         Create a SerializedTransaction object from a dictionary.
