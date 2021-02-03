@@ -3,9 +3,12 @@
 """
 from __future__ import annotations
 
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
+if TYPE_CHECKING:
+    # To solve the circular import.
+    from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
+
 from xrpl.binary_codec.types.hash import Hash
 
 
