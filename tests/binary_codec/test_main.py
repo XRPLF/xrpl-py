@@ -2,6 +2,7 @@ import json
 import os
 import unittest
 
+from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.main import decode, encode
 
 TX_JSON = {
@@ -13,52 +14,35 @@ TX_JSON = {
 }
 
 
-class TestMain(unittest.TestCase):
-    maxDiff = 1000
-
-    def _check_encode_decode(self, test_binary, test_json):
-        self.assertEqual(encode(test_json), test_binary)
-        self.assertEqual(decode(test_binary), test_json)
-
+class TestMainSimple(unittest.TestCase):
     def test_simple(self):
-        TX_JSON = {
-            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "Destination": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
-            "Flags": (1 << 31),  # tfFullyCanonicalSig
-            "Sequence": 1,
-            "TransactionType": "Payment",
-        }
-
         encoded = encode(TX_JSON)
         decoded = decode(encoded)
         self.assertEqual(TX_JSON, decoded)
 
-    def test_codec_fixtures_account_state(self):
-        dirname = os.path.dirname(__file__)
-        filename = "fixtures/data/codec-fixtures.json"
-        absolute_path = os.path.join(dirname, filename)
-        with open(absolute_path) as data_driven_tests:
-            fixtures_json = json.load(data_driven_tests)
-            for test in fixtures_json["accountState"]:
-                test_binary = test["binary"]
-                test_json = test["json"]
-                with self.subTest(test_binary=test_binary, test_json=test_json):
-                    self._check_encode_decode(test_binary, test_json)
+    def test_tx_amount_fee(self):
+        tx = {**TX_JSON, "Amount": "1000", "Fee": "10"}
+        self.assertEqual(decode(encode(tx)), tx)
 
-    def test_codec_fixtures_transaction(self):
-        dirname = os.path.dirname(__file__)
-        filename = "fixtures/data/codec-fixtures.json"
-        absolute_path = os.path.join(dirname, filename)
-        with open(absolute_path) as data_driven_tests:
-            fixtures_json = json.load(data_driven_tests)
-            for test in fixtures_json["transactions"]:
-                test_binary = test["binary"]
-                test_json = test["json"]
-                with self.subTest(test_binary=test_binary, test_json=test_json):
-                    self._check_encode_decode(test_binary, test_json)
+    def test_tx_invalid_amt(self):
+        tx = {**TX_JSON, "Amount": "1000.789", "Fee": "10.123"}
+        with self.assertRaises(XRPLBinaryCodecException):
+            encode(tx)
 
-    def test_codec_fixtures_ledger_data(self):
-        pass
+    def test_tx_invalid_amt_invalid_fee(self):
+        tx = {**TX_JSON, "Amount": "1000.001", "Fee": "10"}
+        with self.assertRaises(XRPLBinaryCodecException):
+            encode(tx)
+
+    def test_tx_amount_number(self):
+        tx = {**TX_JSON, "Amount": 1000.789}
+        with self.assertRaises(XRPLBinaryCodecException):
+            encode(tx)
+
+    def test_tx_fee_number(self):
+        tx = {**TX_JSON, "Amount": "1000.789", "Fee": 10.123}
+        with self.assertRaises(XRPLBinaryCodecException):
+            encode(tx)
 
     def test_lowercase(self):
         s = (
@@ -103,3 +87,65 @@ class TestMain(unittest.TestCase):
         self.assertEqual(encode(decode(lower)), s)
         self.assertEqual(encode(json_dict), binary)
         self.assertEqual(decode(encode(json_dict)), json_upper)
+
+    def test_pseudo_transaction(self):
+        json_dict = {
+            "Account": "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
+            "Sequence": 0,
+            "Fee": "0",
+            "SigningPubKey": "",
+            "Signature": "",
+        }
+
+        json_blank_acct = {
+            "Account": "",
+            "Sequence": 0,
+            "Fee": "0",
+            "SigningPubKey": "",
+            "Signature": "",
+        }
+
+        binary = (
+            "240000000068400000000000000073007600811400000000000000000000000000"
+            "00000000000000"
+        )
+
+        self.assertEqual(encode(json_dict), binary)
+        self.assertEqual(decode(encode(json_dict)), json_dict)
+        self.assertEqual(encode(json_blank_acct), binary)
+        self.assertEqual(decode(encode(json_blank_acct)), json_dict)
+
+
+class TestMainFixtures(unittest.TestCase):
+    maxDiff = 1000
+
+    def _check_encode_decode(self, test_binary, test_json):
+        self.assertEqual(encode(test_json), test_binary)
+        self.assertEqual(decode(test_binary), test_json)
+
+    def test_codec_fixtures_account_state(self):
+        dirname = os.path.dirname(__file__)
+        filename = "fixtures/data/codec-fixtures.json"
+        absolute_path = os.path.join(dirname, filename)
+        with open(absolute_path) as data_driven_tests:
+            fixtures_json = json.load(data_driven_tests)
+            for test in fixtures_json["accountState"]:
+                test_binary = test["binary"]
+                test_json = test["json"]
+                with self.subTest(test_binary=test_binary, test_json=test_json):
+                    self._check_encode_decode(test_binary, test_json)
+
+    def test_codec_fixtures_transaction(self):
+        dirname = os.path.dirname(__file__)
+        filename = "fixtures/data/codec-fixtures.json"
+        absolute_path = os.path.join(dirname, filename)
+        with open(absolute_path) as data_driven_tests:
+            fixtures_json = json.load(data_driven_tests)
+            for test in fixtures_json["transactions"]:
+                test_binary = test["binary"]
+                test_json = test["json"]
+                with self.subTest(test_binary=test_binary, test_json=test_json):
+                    self._check_encode_decode(test_binary, test_json)
+
+    def test_codec_fixtures_ledger_data(self):
+        pass

@@ -249,6 +249,9 @@ class Amount(SerializedType):
         Raises:
             XRPLBinaryCodecException: if an Amount cannot be constructed.
         """
+        if not isinstance(value, (str, dict)):
+            raise XRPLBinaryCodecException("Invalid type to construct an Amount")
+
         if isinstance(value, str):
             return cls(_serialize_xrp_amount(value))
         if _is_valid_issued_currency_amount(value):
