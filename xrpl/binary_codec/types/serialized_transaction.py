@@ -82,7 +82,7 @@ class SerializedTransaction(SerializedType):
 
     @classmethod
     def from_value(
-        cls: SerializedTransaction, value: Dict[str, Any]
+        cls: SerializedTransaction, value: Dict[str, Any], only_signing: bool = False
     ) -> SerializedTransaction:
         """
         Create a SerializedTransaction object from a dictionary.
@@ -127,6 +127,9 @@ class SerializedTransaction(SerializedType):
             ):
                 sorted_keys.append(field_instance)
         sorted_keys.sort(key=lambda x: x.ordinal)
+
+        if only_signing:
+            sorted_keys = list(filter(lambda x: x.is_signing, sorted_keys))
 
         for field in sorted_keys:
             associated_value = field.associated_type.from_value(
