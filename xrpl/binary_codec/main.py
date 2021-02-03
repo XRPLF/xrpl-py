@@ -6,19 +6,19 @@ from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binary_codec.types.serialized_transaction import SerializedTransaction
 
 
-def encode(json: Union[List[Any], Dict[Any]]) -> str:
+def encode(json: Union[List[Any], Dict[str, Any]]) -> str:
     """TODO: docstring"""
     return _serialize_json(json).hex().upper()
 
 
-def decode(buffer: str) -> Union[List[Any], Dict[Any]]:
+def decode(buffer: str) -> Union[List[Any], Dict[str, Any]]:
     """TODO: docstring"""
     parser = BinaryParser(buffer)
     return parser.read_type(SerializedTransaction).to_json()
 
 
 def _serialize_json(
-    json: Union[List[Any], Dict[Any]],
+    json: Union[List[Any], Dict[str, Any]],
     prefix: Optional[bytes] = None,
     suffix: Optional[bytes] = None,
     signing: bool = False,

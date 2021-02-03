@@ -55,6 +55,9 @@ TRANSACTION_TYPE_CODE_TO_STR_MAP = {
 TRANSACTION_RESULTS_CODE_TO_STR_MAP = {
     value: key for (key, value) in DEFINITIONS["TRANSACTION_RESULTS"].items()
 }
+LEDGER_ENTRY_TYPES_CODE_TO_STR_MAP = {
+    value: key for (key, value) in DEFINITIONS["LEDGER_ENTRY_TYPES"].items()
+}
 
 TYPE_ORDINAL_MAP = DEFINITIONS["TYPES"]
 
@@ -208,6 +211,19 @@ def get_transaction_type_code(transaction_type: str) -> int:
     return DEFINITIONS["TRANSACTION_TYPES"][transaction_type]
 
 
+def get_transaction_type_name(transaction_type: int) -> str:
+    """
+    Return string representing the given transaction type from the enum.
+
+    Args:
+        transaction_type: The enum value of the transaction type.
+
+    Returns:
+        The string name of the transaction type.
+    """
+    return TRANSACTION_TYPE_CODE_TO_STR_MAP[transaction_type]
+
+
 def get_transaction_result_code(transaction_result_type: str) -> int:
     """
     Return an integer representing the given transaction result string in an enum.
@@ -222,6 +238,19 @@ def get_transaction_result_code(transaction_result_type: str) -> int:
     return DEFINITIONS["TRANSACTION_RESULTS"][transaction_result_type]
 
 
+def get_transaction_result_name(transaction_result_type: int) -> str:
+    """
+    Return string representing the given transaction result type from the enum.
+
+    Args:
+        transaction_result_type: The enum value of the transaction result type.
+
+    Returns:
+        The string name of the transaction result type.
+    """
+    return TRANSACTION_RESULTS_CODE_TO_STR_MAP[transaction_result_type]
+
+
 def get_ledger_entry_type_code(ledger_entry_type: str) -> int:
     """
     Return an integer representing the given ledger entry type string in an enum.
@@ -233,3 +262,16 @@ def get_ledger_entry_type_code(ledger_entry_type: str) -> int:
         An integer representing the given ledger entry type string in an enum.
     """
     return DEFINITIONS["LEDGER_ENTRY_TYPES"][ledger_entry_type]
+
+
+def get_ledger_entry_type_name(ledger_entry_type: int) -> str:
+    """
+    Return string representing the given ledger entry type from the enum.
+
+    Args:
+        ledger_entry_type: The enum value of the ledger entry type.
+
+    Returns:
+        The string name of the ledger entry type.
+    """
+    return LEDGER_ENTRY_TYPES_CODE_TO_STR_MAP[ledger_entry_type]
