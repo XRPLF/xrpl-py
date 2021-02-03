@@ -33,11 +33,11 @@
       "ordinal": 8
     },
     {
-      "name": "STObject",
+      "name": "SerializedTransaction",
       "ordinal": 14
     },
     {
-      "name": "STArray",
+      "name": "SerializedTransactionList",
       "ordinal": 15
     },
     {
@@ -736,126 +736,126 @@
       "expected_hex": "88"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "ObjectEndMarker",
       "nth_of_type": 1,
       "type": 14,
       "expected_hex": "E1"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "TransactionMetaData",
       "nth_of_type": 2,
       "type": 14,
       "expected_hex": "E2"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "CreatedNode",
       "nth_of_type": 3,
       "type": 14,
       "expected_hex": "E3"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "DeletedNode",
       "nth_of_type": 4,
       "type": 14,
       "expected_hex": "E4"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "ModifiedNode",
       "nth_of_type": 5,
       "type": 14,
       "expected_hex": "E5"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "PreviousFields",
       "nth_of_type": 6,
       "type": 14,
       "expected_hex": "E6"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "FinalFields",
       "nth_of_type": 7,
       "type": 14,
       "expected_hex": "E7"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "NewFields",
       "nth_of_type": 8,
       "type": 14,
       "expected_hex": "E8"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "TemplateEntry",
       "nth_of_type": 9,
       "type": 14,
       "expected_hex": "E9"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "Memo",
       "nth_of_type": 10,
       "type": 14,
       "expected_hex": "EA"
     },
     {
-      "type_name": "STArray",
+      "type_name": "SerializedTransactionList",
       "name": "ArrayEndMarker",
       "nth_of_type": 1,
       "type": 15,
       "expected_hex": "F1"
     },
     {
-      "type_name": "STArray",
+      "type_name": "SerializedTransactionList",
       "name": "Signers",
       "nth_of_type": 3,
       "type": 15,
       "expected_hex": "F3"
     },
     {
-      "type_name": "STArray",
+      "type_name": "SerializedTransactionList",
       "name": "SignerEntries",
       "nth_of_type": 4,
       "type": 15,
       "expected_hex": "F4"
     },
     {
-      "type_name": "STArray",
+      "type_name": "SerializedTransactionList",
       "name": "Template",
       "nth_of_type": 5,
       "type": 15,
       "expected_hex": "F5"
     },
     {
-      "type_name": "STArray",
+      "type_name": "SerializedTransactionList",
       "name": "Necessary",
       "nth_of_type": 6,
       "type": 15,
       "expected_hex": "F6"
     },
     {
-      "type_name": "STArray",
+      "type_name": "SerializedTransactionList",
       "name": "Sufficient",
       "nth_of_type": 7,
       "type": 15,
       "expected_hex": "F7"
     },
     {
-      "type_name": "STArray",
+      "type_name": "SerializedTransactionList",
       "name": "AffectedNodes",
       "nth_of_type": 8,
       "type": 15,
       "expected_hex": "F8"
     },
     {
-      "type_name": "STArray",
+      "type_name": "SerializedTransactionList",
       "name": "Memos",
       "nth_of_type": 9,
       "type": 15,

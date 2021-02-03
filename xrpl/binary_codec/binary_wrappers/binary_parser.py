@@ -1,7 +1,7 @@
 """Context manager and helpers for the deserialization of bytes into JSON."""
 from __future__ import annotations  # Requires Python 3.7+
 
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Type
 
 from xrpl.binary_codec.definitions import definitions
 from xrpl.binary_codec.definitions.field_header import FieldHeader
@@ -218,6 +218,20 @@ class BinaryParser:
         """
         return field_type.from_parser(self)
 
+    def type_for_field(
+        self: BinaryParser, field: FieldInstance
+    ) -> Type[SerializedType]:
+        """
+        Get the type associated with a given field.
+
+        Args:
+            field: The field that you want to get the type of.
+
+        Returns:
+            The type associated with the given field.
+        """
+        return field.associated_type
+
     def read_field_value(self: BinaryParser, field: FieldInstance) -> SerializedType:
         """
         Read value of the type specified by field from the BinaryParser.
@@ -233,12 +247,11 @@ class BinaryParser:
         """
         field_type = self.type_for_field(field)
         # TODO: error handling for unsupported type?
-        size_hint = (
-            self.read_variable_length_length()
-            if field.is_variable_length_encoded
-            else None
-        )
-        value = field_type.from_parser(self, size_hint)
+        if field.is_variable_length_encoded:
+            size_hint = self._read_length_prefix()
+            value = field_type.from_parser(self, size_hint)
+        else:
+            value = field_type.from_parser(self)
         if value is None:
             raise XRPLBinaryCodecException(
                 "from_parser for {}, {} returned None.".format(field.name, field.type)

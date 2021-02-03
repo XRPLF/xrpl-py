@@ -1,5 +1,9 @@
 """Context manager and helpers for the serialization of a JSON object into bytes."""
+
 from __future__ import annotations  # Requires Python 3.7+
+
+from xrpl.binary_codec.definitions.field_instance import FieldInstance
+from xrpl.binary_codec.types.serialized_type import SerializedType
 
 # Constants used in length prefix encoding:
 # max length that can be represented in a single byte per XRPL serialization encoding
@@ -63,29 +67,41 @@ class BinarySerializer:
         """
         self.bytesink += bytes_object
 
-    # TODO: this method depends on the SerializedType class.
-    # Complete when SerializedType is implemented
-    def write_length_encoded(self: BinarySerializer, value: int) -> None:
+    def to_bytes(self: BinarySerializer) -> bytes:
+        """
+        Get the bytes representation of a BinarySerializer.
+
+        Returns:
+            The bytes representation of the BinarySerializer's bytesink.
+        """
+        return self.bytesink
+
+    def write_length_encoded(self: BinarySerializer, value: SerializedType) -> None:
         """
         Write a variable length encoded value to the BinarySerializer.
 
         Args:
-            value: The length prefix to write to bytesink.
+            value: The SerializedType object to write to bytesink.
         """
-        length_prefix = _encode_variable_length_prefix(value)
+        byte_object = bytearray()
+        value.to_byte_sink(byte_object)
+        length_prefix = _encode_variable_length_prefix(len(value))
         self.bytesink += length_prefix
+        self.bytesink += byte_object
 
-    # TODO: this method depends on the SerializedType and FieldInstance classes.
-    # Complete when both classes are implemented
-    def write_field_and_value(self: BinarySerializer, field: None, value: None) -> None:
+    def write_field_and_value(
+        self: BinarySerializer, field: FieldInstance, value: SerializedType
+    ) -> None:
         """
         Write field and value to the buffer.
 
         Args:
             field: The field to write to the buffer.
             value: The value to write to the buffer.
-
-        Returns:
-            None
         """
-        return None
+        self.bytesink += field.header.to_bytes()
+
+        if field.is_variable_length_encoded:
+            self.write_length_encoded(value)
+        else:
+            self.bytesink += value.to_bytes()
