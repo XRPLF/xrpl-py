@@ -34,9 +34,10 @@ TYPE_MAP = {
 }
 
 VALUE_TESTS = get_value_tests()
-# for test in VALUE_TESTS:
-#     if test.type.startswith("A"):
-#         print(test)
+types = set()
+for test in VALUE_TESTS:
+    types.add(test.type)
+print("AVAIL TYPES: ", types)
 
 
 def data_driven_fixtures_for_type(type_string: str):

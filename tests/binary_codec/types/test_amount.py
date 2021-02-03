@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 import xrpl.binary_codec.types.amount as amount
 from tests.binary_codec.types.test_serialized_type import (
     TestSerializedType,
@@ -124,8 +122,7 @@ class TestAmount(TestSerializedType):
             "0.00000000001",
         ]
         for case in cases:
-            decimal = Decimal(case)
-            amount.verify_iou_value(decimal)
+            amount.verify_iou_value(case)
 
     def test_from_value_issued_currency(self):
         for json, serialized in IOU_CASES:
