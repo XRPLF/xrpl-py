@@ -17,7 +17,7 @@ expected_json = {
         "issuer": "rNPRNzBB92BVpAhhZr4iXDTveCgV5Pofm9",
     },
     "TakerPays": "98957503520",
-    "TransactionType": 7,
+    "TransactionType": "OfferCreate",
     "TxnSignature": (
         "304502202abe08d5e78d1e74a4c18f2714f64e87b8bd57444afa5733"
         "109eb3c077077520022100db335ee97386e4c0591cac024d50e9230d8"
