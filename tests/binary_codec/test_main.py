@@ -21,7 +21,7 @@ class TestMain(unittest.TestCase):
         decoded = decode(encoded)
         self.assertEqual(TX_JSON, decoded)
 
-    def test_codec_fixtures(self):
+    def test_codec_fixtures_account_state(self):
         dirname = os.path.dirname(__file__)
         filename = "fixtures/data/codec-fixtures.json"
         absolute_path = os.path.join(dirname, filename)
@@ -33,3 +33,19 @@ class TestMain(unittest.TestCase):
                 with self.subTest(test_binary=test_binary, test_json=test_json):
                     self.assertEqual(encode(test_json), test_binary)
                     self.assertEqual(decode(test_binary), test_json)
+
+    def test_codec_fixtures_transaction(self):
+        dirname = os.path.dirname(__file__)
+        filename = "fixtures/data/codec-fixtures.json"
+        absolute_path = os.path.join(dirname, filename)
+        with open(absolute_path) as data_driven_tests:
+            fixtures_json = json.load(data_driven_tests)
+            for test in fixtures_json["transactions"]:
+                test_binary = test["binary"]
+                test_json = test["json"]
+                with self.subTest(test_binary=test_binary, test_json=test_json):
+                    self.assertEqual(encode(test_json), test_binary)
+                    self.assertEqual(decode(test_binary), test_json)
+
+    def test_codec_fixtures_ledger_data(self):
+        pass
