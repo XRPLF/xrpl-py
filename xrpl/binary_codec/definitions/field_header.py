@@ -27,3 +27,24 @@ class FieldHeader:
     def __hash__(self: FieldHeader) -> int:
         """Two equal FieldHeaders must have the same hash value."""
         return hash((self.type_code, self.field_code))
+
+    def to_bytes(self: FieldHeader) -> bytes:
+        """
+        Get the bytes representation of a FieldHeader.
+
+        Returns:
+            The bytes representation of the FieldHeader.
+        """
+        header = []
+        if self.type_code < 16:
+            if self.field_code < 16:
+                header.append(self.type_code << 4 | self.field_code)
+            else:
+                header.append(self.type_code << 4)
+                header.append(self.field_code)
+        elif self.field_code < 16:
+            header += [self.field_code, self.type_code]
+        else:
+            header += [0, self.type_code, self.field_code]
+
+        return bytes(header)

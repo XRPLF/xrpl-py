@@ -1,13 +1,13 @@
 """Base class for serializing and deserializing unsigned integers."""
 from __future__ import annotations
 
-from abc import ABC
 from typing import Union
 
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
+from xrpl.binary_codec.types.serialized_type import SerializedType
 
 
-class UInt(ABC):
+class UInt(SerializedType):
     """Base class for serializing and deserializing unsigned integers."""
 
     def __init__(self: UInt, buffer: bytes) -> None:

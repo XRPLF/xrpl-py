@@ -1,6 +1,7 @@
 import unittest
 
 from xrpl.binary_codec.binary_wrappers import BinaryParser, BinarySerializer
+from xrpl.binary_codec.types.blob import Blob
 
 # Note that core field-reading logic will be tested by the implementation of
 # specific field type classes. These tests just sanity-check key helper methods.
@@ -36,7 +37,10 @@ class TestBinaryParser(unittest.TestCase):
     def test_read_variable_length_length(self):
         for case in [100, 1000, 20_000]:
             binary_serializer = BinarySerializer()
-            binary_serializer.write_length_encoded(case)
+            bytestring = "A2" * case
+            blob = Blob.from_value(bytestring)
+            binary_serializer.write_length_encoded(blob)
+
             # hex string representation of encoded length prefix
             encoded_length = binary_serializer.bytesink.hex()
             binary_parser = BinaryParser(encoded_length)

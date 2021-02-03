@@ -33,7 +33,7 @@
       "ordinal": 8
     },
     {
-      "name": "STObject",
+      "name": "SerializedTransaction",
       "ordinal": 14
     },
     {
@@ -736,70 +736,70 @@
       "expected_hex": "88"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "ObjectEndMarker",
       "nth_of_type": 1,
       "type": 14,
       "expected_hex": "E1"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "TransactionMetaData",
       "nth_of_type": 2,
       "type": 14,
       "expected_hex": "E2"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "CreatedNode",
       "nth_of_type": 3,
       "type": 14,
       "expected_hex": "E3"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "DeletedNode",
       "nth_of_type": 4,
       "type": 14,
       "expected_hex": "E4"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "ModifiedNode",
       "nth_of_type": 5,
       "type": 14,
       "expected_hex": "E5"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "PreviousFields",
       "nth_of_type": 6,
       "type": 14,
       "expected_hex": "E6"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "FinalFields",
       "nth_of_type": 7,
       "type": 14,
       "expected_hex": "E7"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "NewFields",
       "nth_of_type": 8,
       "type": 14,
       "expected_hex": "E8"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "TemplateEntry",
       "nth_of_type": 9,
       "type": 14,
       "expected_hex": "E9"
     },
     {
-      "type_name": "STObject",
+      "type_name": "SerializedTransaction",
       "name": "Memo",
       "nth_of_type": 10,
       "type": 14,
