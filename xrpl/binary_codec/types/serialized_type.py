@@ -93,7 +93,7 @@ class SerializedType(ABC):
         Returns:
             The hex string representation of the SerializedType's bytes.
         """
-        return self.buffer.hex()
+        return self.buffer.hex().upper()
 
     def __len__(self: SerializedType) -> int:
         """Get the length of a SerializedType's bytes."""

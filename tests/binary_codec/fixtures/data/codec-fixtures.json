@@ -7,7 +7,7 @@
         "Account": "rBKPS4oLSaV2KVVuHH8EpQqMGgGefGFQs7",
         "PreviousTxnLgrSeq": 8901,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "8d7f42ed0621fbcfae55cc6f2a9403a2afb205708ccba3109bb61db8dda261b4",
+        "PreviousTxnID": "8D7F42ED0621FBCFAE55CC6F2A9403A2AFB205708CCBA3109BB61DB8DDA261B4",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "370000000"
@@ -20,7 +20,7 @@
         "Account": "rLs1MzkFWCxTbuAHgjeTZK4fcCDDnf2KRv",
         "PreviousTxnLgrSeq": 7,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "df530fb14c5304852f20080b0a8eef3a6bdd044f41f4ebbd68b8b321145fe4ff",
+        "PreviousTxnID": "DF530FB14C5304852F20080B0A8EEF3A6BDD044F41F4EBBD68B8B321145FE4FF",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -32,7 +32,7 @@
         "Owner": "rPcHbQ26o4Xrwb2bu5gLc3gWUsS52yx1pG",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "059d1e86de5dcccf956bf4799675b2425af9ad44fe4cca6fee1c812eef6423e6",
+        "RootIndex": "059D1E86DE5DCCCF956BF4799675B2425AF9AD44FE4CCA6FEE1C812EEF6423E6",
         "Indexes": ["908D554AA0D29F660716A3EE65C61DD886B744DDF60DE70E6B16EADB770635DB"]
       }
     },
@@ -43,7 +43,7 @@
         "Account": "rpGaCyHRYbgKhErgFih3RdjJqXDsYBouz3",
         "PreviousTxnLgrSeq": 26725,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "b6632d6376a2d9319f20a1c6dccb486432d1e4a79951229d4c3de2946f51d566",
+        "PreviousTxnID": "B6632D6376A2D9319F20A1C6DCCB486432D1E4A79951229D4C3DE2946F51D566",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000000"
@@ -56,7 +56,7 @@
         "Account": "rUnFEsHjxqTswbivzL2DNHBb34rhAgZZZK",
         "PreviousTxnLgrSeq": 8,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "0735a0b32b2a3f4c938b76d6933003e29447db8c7ce382bbe089402ff12a03e5",
+        "PreviousTxnID": "0735A0B32B2A3F4C938B76D6933003E29447DB8C7CE382BBE089402FF12A03E5",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -69,7 +69,7 @@
         "Account": "r4mscDrVMQz2on2px31aV5e5ouHeRPn8oy",
         "PreviousTxnLgrSeq": 31802,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "fbf647e057f5c15ec277246ab843a5eb063646bef2e3d3914d29456b32903262",
+        "PreviousTxnID": "FBF647E057F5C15EC277246AB843A5EB063646BEF2E3D3914D29456B32903262",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -83,7 +83,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000001",
         "Flags": 0,
-        "RootIndex": "d0cac45692858d395b16d52a0b44adcb7ef178617c05bae3c36ff5574ba012c3",
+        "RootIndex": "D0CAC45692858D395B16D52A0B44ADCB7EF178617C05BAE3C36FF5574BA012C3",
         "Indexes": [
           "A95EB2892EA15C8B7BCDAF6D1A8F1F21791192586EBD66B7DCBEC582BFAAA198",
           "52733E959FD0D25A72E188A26BC406768D91285883108AED061121408DAD4AF0"
@@ -96,7 +96,7 @@
         "Owner": "rhxbkK9jGqPVLZSWPvCEmmf15xHBfJfCEy",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "0ac869678d387bf526da37f0c4b8b6be049e57322efb53e2c5d7d7a854da829c",
+        "RootIndex": "0AC869678D387BF526DA37F0C4B8B6BE049E57322EFB53E2C5D7D7A854DA829C",
         "Indexes": [
           "6BC1677EB8218F6ECB37FB83723ED4FA4C3089D718A45D5F0BB4F4EC553CDF28",
           "263F16D626C701250AD1E9FF56C763132DF4E09B1EF0B2D0A838D265123FBBA8",
@@ -112,7 +112,7 @@
         "Account": "rLiCWKQNUs8CQ81m2rBoFjshuVJviSRoaJ",
         "PreviousTxnLgrSeq": 10066,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "c7aecaf0e7abc3868c37343b7f63baec317a53867abd2ca6bad1f335c1ca4d6f",
+        "PreviousTxnID": "C7AECAF0E7ABC3868C37343B7F63BAEC317A53867ABD2CA6BAD1F335C1CA4D6F",
         "Flags": 0,
         "Sequence": 2,
         "Balance": "199999990"
@@ -128,7 +128,7 @@
           "value": "0",
           "issuer": "rnziParaNb8nsU4aruQdwYE3j5jUcqjzFm"
         },
-        "PreviousTxnID": "c6a2521bbccf13282c4ffebc00d47bba18c6ce5f5e4e0efc3e3fce364bafc6b8",
+        "PreviousTxnID": "C6A2521BBCCF13282C4FFEBC00D47BBA18C6CE5F5E4E0EFC3E3FCE364BAFC6B8",
         "Flags": 131072,
         "Balance": {
           "currency": "USD",
@@ -154,7 +154,7 @@
           "value": "20",
           "issuer": "rshceBo6ftSVYo8h5uNPzRWbdqk4W6g9va"
         },
-        "PreviousTxnID": "bdbdd6ccf2f8211b41072bc37e934d2270f58ea5d5f44f7ca8483cf348b9377b",
+        "PreviousTxnID": "BDBDD6CCF2F8211B41072BC37E934D2270F58EA5D5F44F7CA8483CF348B9377B",
         "Flags": 65536,
         "Balance": {
           "currency": "EUR",
@@ -175,7 +175,7 @@
         "Account": "rLCvFaWk9WkJCCyg9Byvwbe9gxn1pnMLWL",
         "PreviousTxnLgrSeq": 9,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "5d2cc18f142044f1d792dc33d82218665359979ecfd5cd29211cc9cd6704f88c",
+        "PreviousTxnID": "5D2CC18F142044F1D792DC33D82218665359979ECFD5CD29211CC9CD6704F88C",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -188,7 +188,7 @@
         "Account": "rLzpfV5BFjUmBs8Et75Wurddg4CCXFLDFU",
         "PreviousTxnLgrSeq": 8836,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "fb7889b08f6b6413e37a3fbdda421323b2e00ec2fddfce7a9035a2e12ca776e8",
+        "PreviousTxnID": "FB7889B08F6B6413E37A3FBDDA421323B2E00EC2FDDFCE7A9035A2E12CA776E8",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -201,7 +201,7 @@
         "Account": "rKZig5RFv5yWAqMi9PtC5akkGpNtn3pz8A",
         "PreviousTxnLgrSeq": 8281,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "1ce378fa7d55a2f000943fbb4ee60233aecc75cde3f2845f0b603165968d9cb4",
+        "PreviousTxnID": "1CE378FA7D55A2F000943FBB4EE60233AECC75CDE3F2845F0B603165968D9CB4",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000000"
@@ -215,7 +215,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000002",
         "Flags": 0,
-        "RootIndex": "1f71219ba652037b7064fc6e81eabd8f0b54f6afe703f172e3999f48d0642f1c",
+        "RootIndex": "1F71219BA652037B7064FC6E81EABD8F0B54F6AFE703F172E3999F48D0642F1C",
         "Indexes": [
           "85469362B15032D6213572E63175C87C321601E1DDBB588C9CBD08CDB3F276AC",
           "2F1F54C50845EBD434A06639160F77CEB7C99C0606A3624F64C3678A9129F08D"
@@ -229,7 +229,7 @@
         "Account": "rLeRkwDgbPVeSakJ2uXC2eqR8NLWMvU3kN",
         "PreviousTxnLgrSeq": 3755,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "f2ba48100aaea92faa28718f2f3e50452d7069696fae781fe5043552593f95a5",
+        "PreviousTxnID": "F2BA48100AAEA92FAA28718F2F3E50452D7069696FAE781FE5043552593F95A5",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "40000000000000"
@@ -245,7 +245,7 @@
           "value": "0",
           "issuer": "rGLUu9LfpKyZyeTtSRXpU15e2FfrdvtADa"
         },
-        "PreviousTxnID": "7b4dec82cf3be513da95c57282fbd0659e4e352bf59fa04c6c819e4bbd7cffc5",
+        "PreviousTxnID": "7B4DEC82CF3BE513DA95C57282FBD0659E4E352BF59FA04C6C819E4BBD7CFFC5",
         "Flags": 131072,
         "Balance": {
           "currency": "BTC",
@@ -266,7 +266,7 @@
         "Account": "rUy6q3TxE4iuVWMpzycrQfD5uZok51g1cq",
         "PreviousTxnLgrSeq": 24230,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "61055b0f50077e654d61666a1a58e24c9b4fb4c2541ac09e2ca1f850c57e0c7b",
+        "PreviousTxnID": "61055B0F50077E654D61666A1A58E24C9B4FB4C2541AC09E2CA1F850C57E0C7B",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -282,7 +282,7 @@
           "value": "25",
           "issuer": "rnp8kFTTm6KW8wsbgczfmv56kWXghPSWbK"
         },
-        "PreviousTxnID": "3906085ab9862a404113e9b17bf00e796d8a80ed2b1066212ab4f00a7d7bcd1d",
+        "PreviousTxnID": "3906085AB9862A404113E9B17BF00E796D8A80ED2B1066212AB4F00A7D7BCD1D",
         "Flags": 65536,
         "Balance": {
           "currency": "USD",
@@ -306,7 +306,7 @@
           "value": "50",
           "issuer": "r9aRw8p1jHtR9XhDAE22TjtM7PdupNXhkx"
         },
-        "PreviousTxnID": "7ae0c1dbadd06e4150ab00e94bd5ad41a3d1e5fc852c8a6922b5efd2e812709e",
+        "PreviousTxnID": "7AE0C1DBADD06E4150AB00E94BD5AD41A3D1E5FC852C8A6922B5EFD2E812709E",
         "Flags": 196608,
         "Balance": {
           "currency": "USD",
@@ -326,7 +326,7 @@
         "Owner": "rEUXZtdhEtCDPxJ3MAgLNMQpq4ASgjrV6i",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "17cc40c6872e0c0e658c49b75d0812a70d4161dda53324df51fa58d3819c814b",
+        "RootIndex": "17CC40C6872E0C0E658C49B75D0812A70D4161DDA53324DF51FA58D3819C814B",
         "Indexes": ["571BF14F28C4D97871CDACD344A8CF57E6BA287BF0440B9E0D0683D02751CC7B"]
       }
     },
@@ -337,7 +337,7 @@
         "Account": "r43mpEMKY1cVUX8k6zKXnRhZMEyPU9aHzR",
         "PreviousTxnLgrSeq": 3736,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "2748d2555190dd2cc803e616c5276e299841da53fb15aa9efbea1003549f7dd1",
+        "PreviousTxnID": "2748D2555190DD2CC803E616C5276E299841DA53FB15AA9EFBEA1003549F7DD1",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "200000000000000"
@@ -350,7 +350,7 @@
         "Account": "rMwNkcpvcJucoWbFW89EGT6TfZyGUkaGso",
         "PreviousTxnLgrSeq": 10,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "26b0efcf1501118bd60f2bcd075e18865d8660b18c6581a8ddd626fa30976257",
+        "PreviousTxnID": "26B0EFCF1501118BD60F2BCD075E18865D8660B18C6581A8DDD626FA30976257",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -363,7 +363,7 @@
         "Account": "r9duXXmUuhSs6JxKpPCSh2tPUg9AGvE2cG",
         "PreviousTxnLgrSeq": 10128,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "c26f87cb499395ac8cd2dedb7e944f4f16cee07eca0b481f9e2536450b7cc0da",
+        "PreviousTxnID": "C26F87CB499395AC8CD2DEDB7E944F4F16CEE07ECA0B481F9E2536450B7CC0DA",
         "Flags": 0,
         "Sequence": 2,
         "Balance": "9999999990"
@@ -375,7 +375,7 @@
         "Owner": "rhdAw3LiEfWWmSrbnZG3udsN7PoWKT56Qo",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "1bca9161a199ad5e907751cbf3fba49689d517f0e8ee823ae17b737039b41de1",
+        "RootIndex": "1BCA9161A199AD5E907751CBF3FBA49689D517F0E8EE823AE17B737039B41DE1",
         "Indexes": ["26B894EE68470AD5AEEB55D5EBF936E6397CEE6957B93C56A2E7882CA9082873"]
       }
     },
@@ -386,7 +386,7 @@
         "Account": "r3AthBf5eW4b9ujLoXNHFeeEJsK3PtJDea",
         "PreviousTxnLgrSeq": 26706,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "da77b52c935cb91be7e5d62fc3d1443a4861944944b4bd097f9210320c0ad859",
+        "PreviousTxnID": "DA77B52C935CB91BE7E5D62FC3D1443A4861944944B4BD097F9210320C0AD859",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000000"
@@ -399,7 +399,7 @@
         "Account": "rHC5QwZvGxyhC75StiJwZCrfnHhtSWrr8Y",
         "PreviousTxnLgrSeq": 12,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "16112aa178a920da89b5f8d9dfcba3487a767bd612ae4af60b214a2136f7bef5",
+        "PreviousTxnID": "16112AA178A920DA89B5F8D9DFCBA3487A767BD612AE4AF60B214A2136F7BEF5",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "2000000000"
@@ -412,7 +412,7 @@
         "Account": "rPhMwMcn8ewJiM6NnP6xrm9NZBbKZ57kw1",
         "PreviousTxnLgrSeq": 26800,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "d51fcbb193c8b1b3b981f894e0535fd58478b1146eccc35db462fe0c1a6b6cb6",
+        "PreviousTxnID": "D51FCBB193C8B1B3B981F894E0535FD58478B1146ECCC35DB462FE0C1A6B6CB6",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -426,7 +426,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000003",
         "Flags": 0,
-        "RootIndex": "1f71219ba652037b7064fc6e81eabd8f0b54f6afe703f172e3999f48d0642f1c",
+        "RootIndex": "1F71219BA652037B7064FC6E81EABD8F0B54F6AFE703F172E3999F48D0642F1C",
         "Indexes": [
           "AC2875C846CBD37CAF8409A623F3AA7D62916A0E043E02C909C9EF3A7B06F8CF",
           "142355A88F0729A5014DB835C24DA05F062293A439151A0BE9ACB80F20B2CDC5"
@@ -439,7 +439,7 @@
         "Owner": "rEA2XzkTXi6sWRzTVQVyUoSX4yJAzNxucd",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "1f9ff48419ca69fddcc294cceee608f5f8a8be11e286ad5743ed2d457c5570c4",
+        "RootIndex": "1F9FF48419CA69FDDCC294CCEEE608F5F8A8BE11E286AD5743ED2D457C5570C4",
         "Indexes": ["7D4325BE338A40BBCBCC1F351B3272EB3E76305A878E76603DE206A795871619"]
       }
     },
@@ -450,7 +450,7 @@
         "Account": "rJ6VE6L87yaVmdyxa9jZFXSAdEFSoTGPbE",
         "PreviousTxnLgrSeq": 31179,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "d612015f70931dc1ce2d65713408f0c4ee6230911f52e08678898d24c888a43a",
+        "PreviousTxnID": "D612015F70931DC1CE2D65713408F0C4EE6230911F52E08678898D24C888A43A",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "1000000000000"
@@ -463,7 +463,7 @@
         "Account": "rDJvoVn8PyhwvHAWuTdtqkH4fuMLoWsZKG",
         "PreviousTxnLgrSeq": 17698,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "19cddd9e0de5f269e1eafc09e0c2d3e54bedd7c67f890d020e883b69a653a4ba",
+        "PreviousTxnID": "19CDDD9E0DE5F269E1EAFC09E0C2D3E54BEDD7C67F890D020E883B69A653A4BA",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "500000000"
@@ -475,7 +475,7 @@
         "Owner": "rJRyob8LPaA3twGEQDPU2gXevWhpSgD8S6",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "23e4c9fb1a108e7a4a188e13c3735432ddf7e104296da2e493e3b0634cd529ff",
+        "RootIndex": "23E4C9FB1A108E7A4A188E13C3735432DDF7E104296DA2E493E3B0634CD529FF",
         "Indexes": [
           "E1A4C98A789F35BA9947BD4920CDA9BF2C1A74E831208F7616FA485D5F016714",
           "F8608765CAD8DCA6FD3A5D417D008DB687732804BDABA32737DCB527DAC70B06"
@@ -494,7 +494,7 @@
           "value": "1000",
           "issuer": "rB5TihdPbKgMrkFqrqUC3yLdE8hhv4BdeY"
         },
-        "PreviousTxnID": "54ffa99a7418a342392237ba37874ef1b8df48e9fa9e810c399eee112ca3e2fa",
+        "PreviousTxnID": "54FFA99A7418A342392237BA37874EF1B8DF48E9FA9E810C399EEE112CA3E2FA",
         "Flags": 65536,
         "Balance": {
           "currency": "USD",
@@ -520,7 +520,7 @@
           "value": "0",
           "issuer": "rhxbkK9jGqPVLZSWPvCEmmf15xHBfJfCEy"
         },
-        "PreviousTxnID": "a5c133ce96eee6769f98a24b476a2e4b7b235c64c70527d8992a54d7a9625264",
+        "PreviousTxnID": "A5C133CE96EEE6769F98A24B476A2E4B7B235C64C70527D8992A54D7A9625264",
         "Flags": 131072,
         "Balance": {
           "currency": "JPY",
@@ -541,7 +541,7 @@
         "Account": "rM1oqKtfh1zgjdAgbFmaRm3btfGBX25xVo",
         "PreviousTxnLgrSeq": 2972,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "64efad0087ad213ca25abea801e34e4719bf21a175a886ec9fd689e8424560b5",
+        "PreviousTxnID": "64EFAD0087AD213CA25ABEA801E34E4719BF21A175A886EC9FD689E8424560B5",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "9100000000"
@@ -554,7 +554,7 @@
         "Account": "rnp8kFTTm6KW8wsbgczfmv56kWXghPSWbK",
         "PreviousTxnLgrSeq": 31317,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "2485fdc606352f1b0785da5de96fb9dbaf43eb60ecbb01b7f6fa970f512cda5f",
+        "PreviousTxnID": "2485FDC606352F1B0785DA5DE96FB9DBAF43EB60ECBB01B7F6FA970F512CDA5F",
         "Flags": 0,
         "Sequence": 2,
         "Balance": "159999999990"
@@ -572,7 +572,7 @@
           "value": "10",
           "issuer": "rhdAw3LiEfWWmSrbnZG3udsN7PoWKT56Qo"
         },
-        "PreviousTxnID": "2e504e650bee8920bf979adbe6236c6c3f239fa2b37f22741dcfaf245091115d",
+        "PreviousTxnID": "2E504E650BEE8920BF979ADBE6236C6C3F239FA2B37F22741DCFAF245091115D",
         "Flags": 65536,
         "Balance": {
           "currency": "USD",
@@ -593,7 +593,7 @@
         "Account": "rwpRq4gQrb58N7PRJwYEQaoSui6Xd3FC7j",
         "PreviousTxnLgrSeq": 17841,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "4e690ecbc944a7a3c57dfdc24d7ca1a0bdefeb916901b7e35cdd4fe7e81848d6",
+        "PreviousTxnID": "4E690ECBC944A7A3C57DFDC24D7CA1A0BDEFEB916901B7E35CDD4FE7E81848D6",
         "Flags": 0,
         "Sequence": 11,
         "Balance": "5999999900"
@@ -605,7 +605,7 @@
         "Owner": "rphasxS8Q5p5TLTpScQCBhh5HfJfPbM2M8",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "289cfc476b5876f28c8a3b3c5b7058ec2bdf668c37b846ea7e5e1a73a4aa0816",
+        "RootIndex": "289CFC476B5876F28C8A3B3C5B7058EC2BDF668C37B846EA7E5E1A73A4AA0816",
         "Indexes": ["BC10E40AFB79298004CDE51CB065DBDCABA86EC406E3A1CF02CE5F8A9628A2BD"]
       }
     },
@@ -616,7 +616,7 @@
         "Account": "rBJwwXADHqbwsp6yhrqoyt2nmFx9FB83Th",
         "PreviousTxnLgrSeq": 16,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "12b9558b22bb2df05643b745389145a2e12a07cd9ad6ab7f653a4b24dc50b2e0",
+        "PreviousTxnID": "12B9558B22BB2DF05643B745389145A2E12A07CD9AD6AB7F653A4B24DC50B2E0",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "20300000000"
@@ -630,7 +630,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000003",
         "Flags": 0,
-        "RootIndex": "d0cac45692858d395b16d52a0b44adcb7ef178617c05bae3c36ff5574ba012c3",
+        "RootIndex": "D0CAC45692858D395B16D52A0B44ADCB7EF178617C05BAE3C36FF5574BA012C3",
         "Indexes": [
           "9C3784EB4832563535522198D9D14E91D2760644174813689EE6A03AD43C6E4C",
           "ED54FC8E215EFAE23E396D27099387D6687BDB63F7F282111BB0F567F8D1D649"
@@ -644,7 +644,7 @@
         "Account": "rnT9PFSfAnWyj2fd7D5TCoCyCYbK4n356A",
         "PreviousTxnLgrSeq": 24182,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "7c27c4820f6e4ba7b0698253a38410eb68d82b5433ea320848677f9b1180b447",
+        "PreviousTxnID": "7C27C4820F6E4BA7B0698253A38410EB68D82B5433EA320848677F9B1180B447",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -657,7 +657,7 @@
         "Account": "rEyhgkRqGdCK7nXtfmADrqWYGT6rSsYYEZ",
         "PreviousTxnLgrSeq": 14804,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "1ec7e89a17180b5dba0b15709b616cb2cd703dc54702eb5edcb1b95f3526aac3",
+        "PreviousTxnID": "1EC7E89A17180B5DBA0B15709B616CB2CD703DC54702EB5EDCB1B95F3526AAC3",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -670,7 +670,7 @@
         "Account": "rPrz9m9yaXT94nWbqEG2SSe9kdU4Jo1CxA",
         "PreviousTxnLgrSeq": 20183,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "54ffa99a7418a342392237ba37874ef1b8df48e9fa9e810c399eee112ca3e2fa",
+        "PreviousTxnID": "54FFA99A7418A342392237BA37874EF1B8DF48E9FA9E810C399EEE112CA3E2FA",
         "Flags": 0,
         "Sequence": 4,
         "Balance": "4998999999970"
@@ -683,7 +683,7 @@
         "Account": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
         "PreviousTxnLgrSeq": 12718,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "4ef16211be5869c19e010b639568aa335db9d9c7d02ac952a97e314a9c04743a",
+        "PreviousTxnID": "4EF16211BE5869C19E010B639568AA335DB9D9C7D02AC952A97E314A9C04743A",
         "Flags": 0,
         "Sequence": 47,
         "Balance": "200999540"
@@ -696,7 +696,7 @@
         "Account": "rhWcbzUj9SVJocfHGLn58VYzXvoVnsU44u",
         "PreviousTxnLgrSeq": 3748,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "2c41f6108df7234ffa6cce96079196cf0f0b86e988993ecc8bad6b61f0faefae",
+        "PreviousTxnID": "2C41F6108DF7234FFA6CCE96079196CF0F0B86E988993ECC8BAD6B61F0FAEFAE",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "60000000000000"
@@ -708,7 +708,7 @@
         "Owner": "rwCYkXihZPm7dWuPCXoS3WXap7vbnZ8uzB",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "2c9f00efa5ccbd43452ef364b12c8dfcef2b910336e5efce3aa412a556991582",
+        "RootIndex": "2C9F00EFA5CCBD43452EF364B12C8DFCEF2B910336E5EFCE3AA412A556991582",
         "Indexes": ["F721E924498EE68BFF906CD856E8332073DD350BAC9E8977AC3F31860BA1E33A"]
       }
     },
@@ -722,7 +722,7 @@
           "value": "0",
           "issuer": "rnziParaNb8nsU4aruQdwYE3j5jUcqjzFm"
         },
-        "PreviousTxnID": "0c3bb479dbdf48dfc99792e46dee584545f365d04351d57480a0fbd4543980ec",
+        "PreviousTxnID": "0C3BB479DBDF48DFC99792E46DEE584545F365D04351D57480A0FBD4543980EC",
         "Flags": 131072,
         "Balance": {
           "currency": "BTC",
@@ -745,9 +745,9 @@
         "TakerGetsIssuer": "0000000000000000000000000000000000000000",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "2fb4904acfb96228fc002335b1b5a4c5584d9d727bbe82144f0415eb4ea0c727",
+        "RootIndex": "2FB4904ACFB96228FC002335B1B5A4C5584D9D727BBE82144F0415EB4EA0C727",
         "Indexes": ["5F22826818CC83448C9DF34939AB4019D3F80C70DEB8BDBDCF0496A36DC68719"],
-        "TakerPaysIssuer": "2b6c42a95b3f7ee1971e4a10098e8f1b5f66aa08"
+        "TakerPaysIssuer": "2B6C42A95B3F7EE1971E4A10098E8F1B5F66AA08"
       }
     },
     {
@@ -759,9 +759,9 @@
         "TakerGetsIssuer": "0000000000000000000000000000000000000000",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "2fb4904acfb96228fc002335b1b5a4c5584d9d727bbe82145003baf82d03a000",
+        "RootIndex": "2FB4904ACFB96228FC002335B1B5A4C5584D9D727BBE82145003BAF82D03A000",
         "Indexes": ["5B7F148A8DDB4EB7386C9E75C4C1ED918DEDE5C52D5BA51B694D7271EF8BDB46"],
-        "TakerPaysIssuer": "2b6c42a95b3f7ee1971e4a10098e8f1b5f66aa08"
+        "TakerPaysIssuer": "2B6C42A95B3F7EE1971E4A10098E8F1B5F66AA08"
       }
     },
     {
@@ -771,7 +771,7 @@
         "Account": "rEUXZtdhEtCDPxJ3MAgLNMQpq4ASgjrV6i",
         "PreviousTxnLgrSeq": 8897,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "1a9b9c5537f2bd2c221b34aa61b30e076f0ddc74931327de6b6b727270672f44",
+        "PreviousTxnID": "1A9B9C5537F2BD2C221B34AA61B30E076F0DDC74931327DE6B6B727270672F44",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "370000000"
@@ -784,7 +784,7 @@
         "Account": "rJFGHvCtpPrftTmeNAs8bYy5xUeTaxCD5t",
         "PreviousTxnLgrSeq": 21,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "07f84b7af363f23b822105078ebe49cc18e846b23697a3652294b2ccd333accf",
+        "PreviousTxnID": "07F84B7AF363F23B822105078EBE49CC18E846B23697A3652294B2CCD333ACCF",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -800,7 +800,7 @@
           "value": "1",
           "issuer": "rnziParaNb8nsU4aruQdwYE3j5jUcqjzFm"
         },
-        "PreviousTxnID": "38c911c5daf1615baa58b7d2265590de1dad40c79b3f7597c47ece8047e1e4f4",
+        "PreviousTxnID": "38C911C5DAF1615BAA58B7D2265590DE1DAD40C79B3F7597C47ECE8047E1E4F4",
         "Flags": 65536,
         "Balance": {
           "currency": "BTC",
@@ -824,7 +824,7 @@
           "value": "10",
           "issuer": "rnziParaNb8nsU4aruQdwYE3j5jUcqjzFm"
         },
-        "PreviousTxnID": "d890893a91dc745be221820c17ec3e8af4cc119a93aa8ab8fd42c16d264521fa",
+        "PreviousTxnID": "D890893A91DC745BE221820C17EC3E8AF4CC119A93AA8AB8FD42C16D264521FA",
         "Flags": 196608,
         "Balance": {
           "currency": "USD",
@@ -844,7 +844,7 @@
         "Owner": "rBKPS4oLSaV2KVVuHH8EpQqMGgGefGFQs7",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "3811bc6a986ceba5e5268a5f58800da3a6611ac2a90155c1ea745a41e9a217f6",
+        "RootIndex": "3811BC6A986CEBA5E5268A5F58800DA3A6611AC2A90155C1EA745A41E9A217F6",
         "Indexes": [
           "F8608765CAD8DCA6FD3A5D417D008DB687732804BDABA32737DCB527DAC70B06",
           "B82A83B063FF08369F9BDEDC73074352FE37733E8373F6EDBFFC872489B57D93"
@@ -858,7 +858,7 @@
         "Account": "rNSnpURu2o7mD9JPjaLsdUw2HEMx5xHzd",
         "PreviousTxnLgrSeq": 28,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "da64ad82376a8162070421bbb7644282f0b012779a0deca1fc2ef01285e9f7a0",
+        "PreviousTxnID": "DA64AD82376A8162070421BBB7644282F0B012779A0DECA1FC2EF01285E9F7A0",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -871,7 +871,7 @@
         "Account": "rHTxKLzRbniScyQFGMb3NodmxA848W8dKM",
         "PreviousTxnLgrSeq": 76,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "d4affb56dcccb4394a067bf61ea8084e53317392732a27d021fbb6b2ed4b19b9",
+        "PreviousTxnID": "D4AFFB56DCCCB4394A067BF61EA8084E53317392732A27D021FBB6B2ED4B19B9",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "500000000000"
@@ -885,7 +885,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000001",
         "Flags": 0,
-        "RootIndex": "98082e695cab618590beea0647a5f24d2b610a686ecd49310604fc7431faab0d",
+        "RootIndex": "98082E695CAB618590BEEA0647A5F24D2B610A686ECD49310604FC7431FAAB0D",
         "Indexes": [
           "A2EFB4B11D6FDF01643DEE32792BA65BCCC5A98189A4955EB3C73911DDB648DB",
           "D24FA4A3422BA1E91109B83D2A7545FC6369EAC13E7F4673F464BBBBC77AB2BE"
@@ -899,7 +899,7 @@
         "Account": "rHDcKZgR7JDGQEe9r13UZkryEVPytV6L6F",
         "PreviousTxnLgrSeq": 26946,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "62efa3f14d0de4136d444b65371c6efe842c9b4782437d6de81784329e040012",
+        "PreviousTxnID": "62EFA3F14D0DE4136D444B65371C6EFE842C9B4782437D6DE81784329E040012",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "100000000000000"
@@ -912,7 +912,7 @@
         "Account": "rNWzcdSkXL28MeKaPwrvR3i7yU6XoqCiZc",
         "PreviousTxnLgrSeq": 8315,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "4d2fa912ffa328bc36a0804e1cc9fb4a54689b1419f9d22188da59e739578e79",
+        "PreviousTxnID": "4D2FA912FFA328BC36A0804E1CC9FB4A54689B1419F9D22188DA59E739578E79",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000000"
@@ -925,7 +925,7 @@
         "Account": "rMYBVwiY95QyUnCeuBQA1D47kXA9zuoBui",
         "PreviousTxnLgrSeq": 240,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "0c164a054712296cb0946eec6f3bf43dfe94662da03238aabf4c1b13c32dac24",
+        "PreviousTxnID": "0C164A054712296CB0946EEC6F3BF43DFE94662DA03238AABF4C1B13C32DAC24",
         "Flags": 0,
         "Sequence": 14,
         "Balance": "5024999870"
@@ -938,7 +938,7 @@
         "Account": "rUZRZ2b4NyCxjHSQKiYnpBuCWkKwDWTjxw",
         "PreviousTxnLgrSeq": 32,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "d70aced6430b917dbfd98f92ecc1b7222c41e0283bc5854cc064eb01288889bf",
+        "PreviousTxnID": "D70ACED6430B917DBFD98F92ECC1B7222C41E0283BC5854CC064EB01288889BF",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -950,7 +950,7 @@
         "Owner": "r9duXXmUuhSs6JxKpPCSh2tPUg9AGvE2cG",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "3f2badb38f12c87d111d3970cd1f05fe698db86f14dc7c5faeb05bfb6391b00e",
+        "RootIndex": "3F2BADB38F12C87D111D3970CD1F05FE698DB86F14DC7C5FAEB05BFB6391B00E",
         "Indexes": ["73E075E64CA5E7CE60FFCD5359C1D730EDFFEE7C4D992760A87DF7EA0A34E40F"]
       }
     },
@@ -962,7 +962,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000001",
         "Flags": 0,
-        "RootIndex": "3f491053bb45b0b08d9f0cbe85c29206483e7fa9ce889e1d248108565711f0a9",
+        "RootIndex": "3F491053BB45B0B08D9F0CBE85C29206483E7FA9CE889E1D248108565711F0A9",
         "Indexes": [
           "1595E5D5197330F58A479200A2FDD434D7A244BD1FFEC5E5EE8CF064AE77D3F5",
           "E1A4C98A789F35BA9947BD4920CDA9BF2C1A74E831208F7616FA485D5F016714"
@@ -975,7 +975,7 @@
         "Owner": "rU5KBPzSyPycRVW1HdgCKjYpU6W9PKQdE8",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "4235cd082112fb621c02d6da2e4f4acfafc91cb0585e034b936c29abf4a76b01",
+        "RootIndex": "4235CD082112FB621C02D6DA2E4F4ACFAFC91CB0585E034B936C29ABF4A76B01",
         "Indexes": ["6C4C3F1C6B9D76A6EF50F377E7C3991825694C604DBE0C1DD09362045EE41997"]
       }
     },
@@ -989,7 +989,7 @@
           "value": "1",
           "issuer": "rnziParaNb8nsU4aruQdwYE3j5jUcqjzFm"
         },
-        "PreviousTxnID": "64efad0087ad213ca25abea801e34e4719bf21a175a886ec9fd689e8424560b5",
+        "PreviousTxnID": "64EFAD0087AD213CA25ABEA801E34E4719BF21A175A886EC9FD689E8424560B5",
         "Flags": 65536,
         "Balance": {
           "currency": "BTC",
@@ -1010,7 +1010,7 @@
         "Account": "rfitr7nL7MX85LLKJce7E3ATQjSiyUPDfj",
         "PreviousTxnLgrSeq": 26917,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "d1ddaedc74bc308b26bf3112d42f12e0d125f826506e0db13654ad22115d3c31",
+        "PreviousTxnID": "D1DDAEDC74BC308B26BF3112D42F12E0D125F826506E0DB13654AD22115D3C31",
         "Flags": 0,
         "Sequence": 2,
         "Balance": "9998999990"
@@ -1024,7 +1024,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000005",
         "Flags": 0,
-        "RootIndex": "433fe9d880c1a0d1901bae63bb255312119826d6adf8571f04736c409a77b840",
+        "RootIndex": "433FE9D880C1A0D1901BAE63BB255312119826D6ADF8571F04736C409A77B840",
         "Indexes": [
           "E49318D6DF22411C3F35581B1D28297A36E47F68B45F36A587C156E6E43CE0A6",
           "4FFCC3F4D53FD3B5F488C8EB8E5D779F9028130F9160218020DA73CD5E630454"
@@ -1041,7 +1041,7 @@
           "value": "0",
           "issuer": "rf8kg7r5Fc8cCszGdD2jeUZt2FrgQd76BS"
         },
-        "PreviousTxnID": "93ddd4d2532ab1bfc2a18fb2e32542a24ea353aedf482520792f8bcdeaa77e87",
+        "PreviousTxnID": "93DDD4D2532AB1BFC2A18FB2E32542A24EA353AEDF482520792F8BCDEAA77E87",
         "Flags": 131072,
         "Balance": {
           "currency": "BTC",
@@ -1061,7 +1061,7 @@
         "Owner": "rnziParaNb8nsU4aruQdwYE3j5jUcqjzFm",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "433fe9d880c1a0d1901bae63bb255312119826d6adf8571f04736c409a77b840",
+        "RootIndex": "433FE9D880C1A0D1901BAE63BB255312119826D6ADF8571F04736C409A77B840",
         "Indexes": [
           "42E28285A82D01DCA856118A064C8AEEE1BF8167C08186DA5BFC678687E86F7C",
           "AB124EEAB087452070EC70D9DEA1A22C9766FFBBEE1025FD46495CC74148CCA8"
@@ -1074,7 +1074,7 @@
         "Owner": "rPrz9m9yaXT94nWbqEG2SSe9kdU4Jo1CxA",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "48e91fd14597fb089654dade7b70eb08caf421ea611d703f3e871f7d4b5aab5d",
+        "RootIndex": "48E91FD14597FB089654DADE7B70EB08CAF421EA611D703F3E871F7D4B5AAB5D",
         "Indexes": ["25DCAC87FBE4C3B66A1AFDE3C3F98E5A16333975C4FD46682F7497F27DFB9766"]
       }
     },
@@ -1085,7 +1085,7 @@
         "Account": "rUf6pynZ8ucVj1jC9bKExQ7mb9sQFooTPK",
         "PreviousTxnLgrSeq": 3739,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "66e8e26b5d80658b19d772e9ca701f5e6101a080da6c45b386521ee2191315ee",
+        "PreviousTxnID": "66E8E26B5D80658B19D772E9CA701F5E6101A080DA6C45B386521EE2191315EE",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "100000000000000"
@@ -1098,7 +1098,7 @@
         "Account": "r49pCti5xm7WVNceBaiz7vozvE9zUGq8z2",
         "PreviousTxnLgrSeq": 33,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "4fd7b01ef2a4d4a34336dad124d774990dbbdd097e2a4dd8e8fb992c7642dda1",
+        "PreviousTxnID": "4FD7B01EF2A4D4A34336DAD124D774990DBBDD097E2A4DD8E8FB992C7642DDA1",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "2000000000"
@@ -1111,7 +1111,7 @@
         "Account": "rLQBHVhFnaC5gLEkgr6HgBJJ3bgeZHg9cj",
         "PreviousTxnLgrSeq": 38129,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "3b1a4e1c9bb6a7208eb146bcdb86ecea6068ed01466d933528ca2b4c64f753ef",
+        "PreviousTxnID": "3B1A4E1C9BB6A7208EB146BCDB86ECEA6068ED01466D933528CA2B4C64F753EF",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -1123,7 +1123,7 @@
         "Owner": "rPgrEG6nMMwAM1VbTumL23dnEX4UmeUHk7",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "3f491053bb45b0b08d9f0cbe85c29206483e7fa9ce889e1d248108565711f0a9",
+        "RootIndex": "3F491053BB45B0B08D9F0CBE85C29206483E7FA9CE889E1D248108565711F0A9",
         "Indexes": [
           "B15AB125CC1D8CACDC22B76E5AABF74A6BB620A5C223BE81ECB71EF17F1C3489",
           "571BF14F28C4D97871CDACD344A8CF57E6BA287BF0440B9E0D0683D02751CC7B"
@@ -1136,7 +1136,7 @@
         "Owner": "rnp8kFTTm6KW8wsbgczfmv56kWXghPSWbK",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "4efc0442d07ae681f7fdfaa89c75f06f8e28cff888593440201b0320e8f2c7bd",
+        "RootIndex": "4EFC0442D07AE681F7FDFAA89C75F06F8E28CFF888593440201B0320E8F2C7BD",
         "Indexes": ["1595E5D5197330F58A479200A2FDD434D7A244BD1FFEC5E5EE8CF064AE77D3F5"]
       }
     },
@@ -1147,7 +1147,7 @@
         "Account": "rPgrEG6nMMwAM1VbTumL23dnEX4UmeUHk7",
         "PreviousTxnLgrSeq": 8897,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "1a9b9c5537f2bd2c221b34aa61b30e076f0ddc74931327de6b6b727270672f44",
+        "PreviousTxnID": "1A9B9C5537F2BD2C221B34AA61B30E076F0DDC74931327DE6B6B727270672F44",
         "Flags": 0,
         "Sequence": 4,
         "Balance": "8519999970"
@@ -1160,7 +1160,7 @@
         "Account": "r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59",
         "PreviousTxnLgrSeq": 16154,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "b24159f8552c355d35e43623f0e5ad965adbf034d482421529e2703904e1ec09",
+        "PreviousTxnID": "B24159F8552C355D35E43623F0E5AD965ADBF034D482421529E2703904E1EC09",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -1176,7 +1176,7 @@
           "value": "0.25",
           "issuer": "rnziParaNb8nsU4aruQdwYE3j5jUcqjzFm"
         },
-        "PreviousTxnID": "dfac2c5fbd6c6df48e65345f7926a5f158d62c31151e9a982fdff65bc8627b42",
+        "PreviousTxnID": "DFAC2C5FBD6C6DF48E65345F7926A5F158D62C31151E9A982FDFF65BC8627B42",
         "Flags": 65536,
         "Balance": {
           "currency": "BTC",
@@ -1197,7 +1197,7 @@
         "Account": "rD1jovjQeEpvaDwn9wKaYokkXXrqo4D23x",
         "PreviousTxnLgrSeq": 18585,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "1b91a44428ca0752c4111a528ab32593852a83ab372883a46a8929ff0f06a899",
+        "PreviousTxnID": "1B91A44428CA0752C4111A528AB32593852A83AB372883A46A8929FF0F06A899",
         "Flags": 0,
         "Sequence": 32,
         "Balance": "9972999690"
@@ -1213,7 +1213,7 @@
           "value": "0",
           "issuer": "rHXS898sKZX6RY3WYPo5hW6UGnpBCnDzfr"
         },
-        "PreviousTxnID": "90931f239c10ea28d263a3e09a5817818b80a8e2501930f413455cda7d586481",
+        "PreviousTxnID": "90931F239C10EA28D263A3E09A5817818B80A8E2501930F413455CDA7D586481",
         "Flags": 131072,
         "Balance": {
           "currency": "USD",
@@ -1235,7 +1235,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000004",
         "Flags": 0,
-        "RootIndex": "433fe9d880c1a0d1901bae63bb255312119826d6adf8571f04736c409a77b840",
+        "RootIndex": "433FE9D880C1A0D1901BAE63BB255312119826D6ADF8571F04736C409A77B840",
         "Indexes": [
           "353D47B7B033F5EC041BD4E367437C9EDA160D14BFBC3EF43B3335259AA5D5D5",
           "72307CB57E53604A0C50E653AB10E386F3835460B5585B70CB7F668C1E04AC8B"
@@ -1249,7 +1249,7 @@
         "Account": "r9aRw8p1jHtR9XhDAE22TjtM7PdupNXhkx",
         "PreviousTxnLgrSeq": 32301,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "2e30f12ccd06e57502c5c9e834ca8834935b7de14c79da9abe72e9d508bcbcb1",
+        "PreviousTxnID": "2E30F12CCD06E57502C5C9E834CA8834935B7DE14C79DA9ABE72E9D508BCBCB1",
         "Flags": 0,
         "Sequence": 18,
         "Balance": "9499999830"
@@ -1262,7 +1262,7 @@
         "Account": "rLqQ62u51KR3TFcewbEbJTQbCuTqsg82EY",
         "PreviousTxnLgrSeq": 20179,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "3662fed78877c7e424bef91c02b9eca5e02ad3a8638f0a3b89c1eac6c9cc9253",
+        "PreviousTxnID": "3662FED78877C7E424BEF91C02B9ECA5E02AD3A8638F0A3B89C1EAC6C9CC9253",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "50000000000000"
@@ -1275,7 +1275,7 @@
         "Account": "rnGTwRTacmqZZBwPB6rh3H1W4GoTZCQtNA",
         "PreviousTxnLgrSeq": 8904,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "45ca59f7752331a307ff9bcf016c3243267d8506d0d0fa51965d322f7d59df36",
+        "PreviousTxnID": "45CA59F7752331A307FF9BCF016C3243267D8506D0D0FA51965D322F7D59DF36",
         "Flags": 0,
         "Sequence": 2,
         "Balance": "369999990"
@@ -1288,7 +1288,7 @@
         "Account": "rauPN85FeNYLBpHgJJFH6g9fYUWBmJKKhs",
         "PreviousTxnLgrSeq": 39,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "4efe780df3b843610b1f045ec6c0d921d5ee1a2225add558946ad5149170bb3d",
+        "PreviousTxnID": "4EFE780DF3B843610B1F045EC6C0D921D5EE1A2225ADD558946AD5149170BB3D",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -1301,7 +1301,7 @@
         "Account": "rEMqTpu21XNk62QjTgVXKDig5HUpNnHvij",
         "PreviousTxnLgrSeq": 41,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "126733220b5ddad7854ef9f763d65bcbc1bbd61fd1feeef9cd7356037162c33f",
+        "PreviousTxnID": "126733220B5DDAD7854EF9F763D65BCBC1BBD61FD1FEEEF9CD7356037162C33F",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -1317,7 +1317,7 @@
           "value": "0",
           "issuer": "rEUXZtdhEtCDPxJ3MAgLNMQpq4ASgjrV6i"
         },
-        "PreviousTxnID": "1a9b9c5537f2bd2c221b34aa61b30e076f0ddc74931327de6b6b727270672f44",
+        "PreviousTxnID": "1A9B9C5537F2BD2C221B34AA61B30E076F0DDC74931327DE6B6B727270672F44",
         "Flags": 131072,
         "Balance": {
           "currency": "USD",
@@ -1338,7 +1338,7 @@
         "Account": "rGLUu9LfpKyZyeTtSRXpU15e2FfrdvtADa",
         "PreviousTxnLgrSeq": 270,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "9c9af3ac76fc4626d86305d1d6082944d1e56ec92e3ecec07503e3b26bf233b2",
+        "PreviousTxnID": "9C9AF3AC76FC4626D86305D1D6082944D1E56EC92E3ECEC07503E3B26BF233B2",
         "Flags": 0,
         "Sequence": 7,
         "Balance": "4999999940"
@@ -1350,7 +1350,7 @@
         "Owner": "rHXS898sKZX6RY3WYPo5hW6UGnpBCnDzfr",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "98082e695cab618590beea0647a5f24d2b610a686ecd49310604fc7431faab0d",
+        "RootIndex": "98082E695CAB618590BEEA0647A5F24D2B610A686ECD49310604FC7431FAAB0D",
         "Indexes": ["9BF3216E42575CA5A3CB4D0F2021EE81D0F7835BA2EDD78E05CAB44B655962BB"]
       }
     },
@@ -1361,7 +1361,7 @@
         "Account": "rshceBo6ftSVYo8h5uNPzRWbdqk4W6g9va",
         "PreviousTxnLgrSeq": 23260,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "f9ed6c634de09655f9f7c8e088b9157bb785571caa4305a6dd7bc876bd57671d",
+        "PreviousTxnID": "F9ED6C634DE09655F9F7C8E088B9157BB785571CAA4305A6DD7BC876BD57671D",
         "Flags": 0,
         "Sequence": 5,
         "Balance": "499999960"
@@ -1374,7 +1374,7 @@
         "Account": "rDsDR1pFaY8Ythr8px4N98bSueixyrKvPx",
         "PreviousTxnLgrSeq": 7989,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "fe8a433c90ed67e78fb7f8b8ded39e1ecd8dec17dc748db3e2671695e141d389",
+        "PreviousTxnID": "FE8A433C90ED67E78FB7F8B8DED39E1ECD8DEC17DC748DB3E2671695E141D389",
         "Flags": 0,
         "Sequence": 4,
         "Balance": "209999970"
@@ -1390,10 +1390,10 @@
         },
         "Account": "rwpRq4gQrb58N7PRJwYEQaoSui6Xd3FC7j",
         "PreviousTxnLgrSeq": 17826,
-        "BookDirectory": "2fb4904acfb96228fc002335b1b5a4c5584d9d727bbe82145003baf82d03a000",
+        "BookDirectory": "2FB4904ACFB96228FC002335B1B5A4C5584D9D727BBE82145003BAF82D03A000",
         "LedgerEntryType": "Offer",
         "OwnerNode": "0000000000000000",
-        "PreviousTxnID": "15955f0dcbf3237ce8f5acab92c81b4368857af2e9bd2bc3d0c1d9cea26f45ba",
+        "PreviousTxnID": "15955F0DCBF3237CE8F5ACAB92C81B4368857AF2E9BD2BC3D0C1D9CEA26F45BA",
         "TakerGets": "3000000",
         "Flags": 0,
         "Sequence": 8,
@@ -1407,7 +1407,7 @@
         "Account": "rnCiWCUZXAHPpEjLY1gCjtbuc9jM1jq8FD",
         "PreviousTxnLgrSeq": 46,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "152db308576d51a37adf51d121bfe1b5bb0edd15ac22f1d45c36caf8c88a318b",
+        "PreviousTxnID": "152DB308576D51A37ADF51D121BFE1B5BB0EDD15AC22F1D45C36CAF8C88A318B",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "1000000000"
@@ -1423,7 +1423,7 @@
           "value": "0",
           "issuer": "rf8kg7r5Fc8cCszGdD2jeUZt2FrgQd76BS"
         },
-        "PreviousTxnID": "bbe44659984409f29af04f9422a2026d4a4d4343f80f53337bf5086555a1fd07",
+        "PreviousTxnID": "BBE44659984409F29AF04F9422A2026D4A4D4343F80F53337BF5086555A1FD07",
         "Flags": 131072,
         "Balance": {
           "currency": "USD",
@@ -1445,7 +1445,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000002",
         "Flags": 0,
-        "RootIndex": "433fe9d880c1a0d1901bae63bb255312119826d6adf8571f04736c409a77b840",
+        "RootIndex": "433FE9D880C1A0D1901BAE63BB255312119826D6ADF8571F04736C409A77B840",
         "Indexes": [
           "6231CFA6BE243E92EC33050DC23C6E8EC972F22A111D96328873207A7CCCC7C7",
           "35FB1D334ECCD52B94253E7A33BA37C3D845E26F11FDEC08A56527C92907C3AC"
@@ -1459,7 +1459,7 @@
         "Account": "rKdH2TKVGjoJkrE8zQKosL2PCvG2LcPzs5",
         "PreviousTxnLgrSeq": 48,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "64f24dbd7eebaf80f204c70ef972ec884ef4192f0d9d579588f5da740d7199f6",
+        "PreviousTxnID": "64F24DBD7EEBAF80F204C70EF972EC884EF4192F0D9D579588F5DA740D7199F6",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "2000000000"
@@ -1475,10 +1475,10 @@
         },
         "Account": "rwpRq4gQrb58N7PRJwYEQaoSui6Xd3FC7j",
         "PreviousTxnLgrSeq": 17819,
-        "BookDirectory": "2fb4904acfb96228fc002335b1b5a4c5584d9d727bbe82144f0415eb4ea0c727",
+        "BookDirectory": "2FB4904ACFB96228FC002335B1B5A4C5584D9D727BBE82144F0415EB4EA0C727",
         "LedgerEntryType": "Offer",
         "OwnerNode": "0000000000000000",
-        "PreviousTxnID": "433789526b3a7a57b6402a867815a44f1f12800e552e581fa38ec6360471e5a4",
+        "PreviousTxnID": "433789526B3A7A57B6402A867815A44F1F12800E552E581FA38EC6360471E5A4",
         "TakerGets": "1739130",
         "Flags": 0,
         "Sequence": 7,
@@ -1495,10 +1495,10 @@
         },
         "Account": "rwpRq4gQrb58N7PRJwYEQaoSui6Xd3FC7j",
         "PreviousTxnLgrSeq": 17835,
-        "BookDirectory": "62ae37a44fe44bdcfc2ba5dd14d74bec0ac346da2dc1f04756044364c5bb0000",
+        "BookDirectory": "62AE37A44FE44BDCFC2BA5DD14D74BEC0AC346DA2DC1F04756044364C5BB0000",
         "LedgerEntryType": "Offer",
         "OwnerNode": "0000000000000000",
-        "PreviousTxnID": "dab224e1847c8f0d69f77f53f564cccabf25be502128b34d772b1a8bb91e613c",
+        "PreviousTxnID": "DAB224E1847C8F0D69F77F53F564CCCABF25BE502128B34D772B1A8BB91E613C",
         "TakerGets": {
           "currency": "USD",
           "value": "110",
@@ -1516,7 +1516,7 @@
         "Account": "rDngjhgeQZj9FNtW8adgHvdpMJtSBMymPe",
         "PreviousTxnLgrSeq": 49,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "c3157f699f23c4ecba78442d68ddcab29ae1c54c3ec9302959939c4b34913be8",
+        "PreviousTxnID": "C3157F699F23C4ECBA78442D68DDCAB29AE1C54C3EC9302959939C4B34913BE8",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -1532,7 +1532,7 @@
           "value": "0",
           "issuer": "rnziParaNb8nsU4aruQdwYE3j5jUcqjzFm"
         },
-        "PreviousTxnID": "0c164a054712296cb0946eec6f3bf43dfe94662da03238aabf4c1b13c32dac24",
+        "PreviousTxnID": "0C164A054712296CB0946EEC6F3BF43DFE94662DA03238AABF4C1B13C32DAC24",
         "Flags": 131072,
         "Balance": {
           "currency": "CAD",
@@ -1549,15 +1549,15 @@
     {
       "binary": "11006422000000003656044364C5BB00005862AE37A44FE44BDCFC2BA5DD14D74BEC0AC346DA2DC1F04756044364C5BB000001110000000000000000000000004A5059000000000002112B6C42A95B3F7EE1971E4A10098E8F1B5F66AA0803110000000000000000000000005553440000000000041162FE474693228F7F9ED1C5EFADB3B6555FBEAFBE011320600A398F57CAE44461B4C8C25DE12AC289F87ED125438440B33B97417FE3D82C",
       "json": {
-        "TakerPaysCurrency": "0000000000000000000000004a50590000000000",
+        "TakerPaysCurrency": "0000000000000000000000004A50590000000000",
         "ExchangeRate": "56044364C5BB0000",
         "TakerGetsCurrency": "0000000000000000000000005553440000000000",
-        "TakerGetsIssuer": "62fe474693228f7f9ed1c5efadb3b6555fbeafbe",
+        "TakerGetsIssuer": "62FE474693228F7F9ED1C5EFADB3B6555FBEAFBE",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "62ae37a44fe44bdcfc2ba5dd14d74bec0ac346da2dc1f04756044364c5bb0000",
+        "RootIndex": "62AE37A44FE44BDCFC2BA5DD14D74BEC0AC346DA2DC1F04756044364C5BB0000",
         "Indexes": ["600A398F57CAE44461B4C8C25DE12AC289F87ED125438440B33B97417FE3D82C"],
-        "TakerPaysIssuer": "2b6c42a95b3f7ee1971e4a10098e8f1b5f66aa08"
+        "TakerPaysIssuer": "2B6C42A95B3F7EE1971E4A10098E8F1B5F66AA08"
       }
     },
     {
@@ -1567,7 +1567,7 @@
         "Account": "rJRyob8LPaA3twGEQDPU2gXevWhpSgD8S6",
         "PreviousTxnLgrSeq": 8901,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "8d7f42ed0621fbcfae55cc6f2a9403a2afb205708ccba3109bb61db8dda261b4",
+        "PreviousTxnID": "8D7F42ED0621FBCFAE55CC6F2A9403A2AFB205708CCBA3109BB61DB8DDA261B4",
         "Flags": 0,
         "Sequence": 2,
         "Balance": "369999990"
@@ -1580,7 +1580,7 @@
         "Account": "rphasxS8Q5p5TLTpScQCBhh5HfJfPbM2M8",
         "PreviousTxnLgrSeq": 2026,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "a39f6b89f50033153c9cc1233bb175be52685a31ae038a58bec1a88898e83420",
+        "PreviousTxnID": "A39F6B89F50033153C9CC1233BB175BE52685A31AE038A58BEC1A88898E83420",
         "Flags": 0,
         "Sequence": 2,
         "Balance": "9999999990"
@@ -1598,7 +1598,7 @@
           "value": "1000",
           "issuer": "rB5TihdPbKgMrkFqrqUC3yLdE8hhv4BdeY"
         },
-        "PreviousTxnID": "d612015f70931dc1ce2d65713408f0c4ee6230911f52e08678898d24c888a43a",
+        "PreviousTxnID": "D612015F70931DC1CE2D65713408F0C4EE6230911F52E08678898D24C888A43A",
         "Flags": 65536,
         "Balance": {
           "currency": "USD",
@@ -1619,7 +1619,7 @@
         "Account": "ramPgJkA1LSLevMg2Yrs1jWbqPTsSbbYHQ",
         "PreviousTxnLgrSeq": 79,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "523944de44018cb5d3f2bb38fe0f54bf3953669328cef1cf4751e91034b553fe",
+        "PreviousTxnID": "523944DE44018CB5D3F2BB38FE0F54BF3953669328CEF1CF4751E91034B553FE",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000000"
@@ -1632,7 +1632,7 @@
         "Account": "rsjB6kHDBDUw7iB5A1EVDK1WmgmR6yFKpB",
         "PreviousTxnLgrSeq": 3732,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "d994f257d0e357601ae60b58d7066906b6112d49771ad8f0a4b27f59c74a4415",
+        "PreviousTxnID": "D994F257D0E357601AE60B58D7066906B6112D49771AD8F0A4B27F59C74A4415",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "1000000000000000"
@@ -1645,7 +1645,7 @@
         "Account": "rnj8sNUBCw3J6sSstY9QDDoncnijFwH7Cs",
         "PreviousTxnLgrSeq": 3753,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "4b03d5a4eefcaf8adb8488e9fd767a69c6b5ac3020e8ff2128a8cbb8a4ba0aff",
+        "PreviousTxnID": "4B03D5A4EEFCAF8ADB8488E9FD767A69C6B5AC3020E8FF2128A8CBB8A4BA0AFF",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "60000000000000"
@@ -1817,7 +1817,7 @@
         "Account": "rB59DESmVnTwXd2SCy1G4ReVkP5UM7ZYcN",
         "PreviousTxnLgrSeq": 3743,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "7b2a63feedb3a8eccc0ff2a342c677804e75dcc525b1447ab36406ab0e0cfe48",
+        "PreviousTxnID": "7B2A63FEEDB3A8ECCC0FF2A342C677804E75DCC525B1447AB36406AB0E0CFE48",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "150000000000000"
@@ -1835,7 +1835,7 @@
           "value": "100",
           "issuer": "rhxbkK9jGqPVLZSWPvCEmmf15xHBfJfCEy"
         },
-        "PreviousTxnID": "4e690ecbc944a7a3c57dfdc24d7ca1a0bdefeb916901b7e35cdd4fe7e81848d6",
+        "PreviousTxnID": "4E690ECBC944A7A3C57DFDC24D7CA1A0BDEFEB916901B7E35CDD4FE7E81848D6",
         "Flags": 196608,
         "Balance": {
           "currency": "USD",
@@ -1861,7 +1861,7 @@
           "value": "0",
           "issuer": "r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV"
         },
-        "PreviousTxnID": "865a20f744fbb8673c684d6a310c1b2d59070fcb9979223a4e54018c22466946",
+        "PreviousTxnID": "865A20F744FBB8673C684D6A310C1B2D59070FCB9979223A4E54018C22466946",
         "Flags": 131072,
         "Balance": {
           "currency": "BTC",
@@ -1882,7 +1882,7 @@
         "Account": "r9ssnjg97d86PxMrjVsCAX1xE9qg8czZTu",
         "PreviousTxnLgrSeq": 8412,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "217df9ec25e736af6d6a5f5deeccd8f1e2b1cfda65723ab6cc75d8c53d3ca98b",
+        "PreviousTxnID": "217DF9EC25E736AF6D6A5F5DEECCD8F1E2B1CFDA65723AB6CC75D8C53D3CA98B",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "200000000000000"
@@ -1895,7 +1895,7 @@
         "Account": "rEJkrunCP8hpvk4ijxUgEWnxCE6iUiXxc2",
         "PreviousTxnLgrSeq": 54,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "83f0bfd13373b83b76bdd3cb47f705791e57b43db6d00675f9ab0c5b75698bac",
+        "PreviousTxnID": "83F0BFD13373B83B76BDD3CB47F705791E57B43DB6D00675F9AB0C5B75698BAC",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -1911,7 +1911,7 @@
           "value": "10",
           "issuer": "rnziParaNb8nsU4aruQdwYE3j5jUcqjzFm"
         },
-        "PreviousTxnID": "7c63981f982844b6abb31f0fe858cbe7528ca47bc76658855fe44a4eceecedd4",
+        "PreviousTxnID": "7C63981F982844B6ABB31F0FE858CBE7528CA47BC76658855FE44A4ECEECEDD4",
         "Flags": 65536,
         "Balance": {
           "currency": "BTC",
@@ -1931,7 +1931,7 @@
         "Owner": "rQsiKrEtzTFZkQjF9MrxzsXHCANZJSd1je",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "72d60ccd3905a3abe19049b6ee76e8e0f3a2cbac852625c757176f1b73ef617f",
+        "RootIndex": "72D60CCD3905A3ABE19049B6EE76E8E0F3A2CBAC852625C757176F1B73EF617F",
         "Indexes": ["AB124EEAB087452070EC70D9DEA1A22C9766FFBBEE1025FD46495CC74148CCA8"]
       }
     },
@@ -1945,7 +1945,7 @@
           "value": "0",
           "issuer": "r9aRw8p1jHtR9XhDAE22TjtM7PdupNXhkx"
         },
-        "PreviousTxnID": "aac46bd97b75b21f81b73be6f81df13ae4f9e83b6bd8c290894a095878158deb",
+        "PreviousTxnID": "AAC46BD97B75B21F81B73BE6F81DF13AE4F9E83B6BD8C290894A095878158DEB",
         "Flags": 131072,
         "Balance": {
           "currency": "USD",
@@ -1966,7 +1966,7 @@
         "Account": "rLCAUzFMzKzcyRLa1B4LRqEMsUkYXX1LAs",
         "PreviousTxnLgrSeq": 56,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "5d4529121a6f29a1390730ebf6c6def542a6b6b852786a4b75388da0067eaee4",
+        "PreviousTxnID": "5D4529121A6F29A1390730EBF6C6DEF542A6B6B852786A4B75388DA0067EAEE4",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -1978,7 +1978,7 @@
         "Owner": "r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "77f65eff930ed7e93c6cc839c421e394d6b1b6a47cea8a140d63ec9c712f46f5",
+        "RootIndex": "77F65EFF930ED7E93C6CC839C421E394D6B1B6A47CEA8A140D63EC9C712F46F5",
         "Indexes": [
           "4FFCC3F4D53FD3B5F488C8EB8E5D779F9028130F9160218020DA73CD5E630454",
           "6C4C3F1C6B9D76A6EF50F377E7C3991825694C604DBE0C1DD09362045EE41997",
@@ -1993,7 +1993,7 @@
         "Owner": "r9aRw8p1jHtR9XhDAE22TjtM7PdupNXhkx",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "8e92e688a132410427806a734df6154b7535e439b72deca5e4bc7ce17135c5a4",
+        "RootIndex": "8E92E688A132410427806A734DF6154B7535E439B72DECA5E4BC7CE17135C5A4",
         "Indexes": [
           "44A3BC5DABBA84B9E1D64A61350F2FBB26EC70D1393B699CA2BB2CA1A0679A01",
           "7D4325BE338A40BBCBCC1F351B3272EB3E76305A878E76603DE206A795871619"
@@ -2007,7 +2007,7 @@
         "Account": "r4cmKj1gK9EcNggeHMy1eqWakPBicwp69R",
         "PreviousTxnLgrSeq": 57,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "66a8f5c59cc1c77a647cffee2b2ca3755e44ec02ba3bc9fdee4a4403747b5b35",
+        "PreviousTxnID": "66A8F5C59CC1C77A647CFFEE2B2CA3755E44EC02BA3BC9FDEE4A4403747B5B35",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -2021,7 +2021,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000001",
         "Flags": 0,
-        "RootIndex": "1f71219ba652037b7064fc6e81eabd8f0b54f6afe703f172e3999f48d0642f1c",
+        "RootIndex": "1F71219BA652037B7064FC6E81EABD8F0B54F6AFE703F172E3999F48D0642F1C",
         "Indexes": [
           "E136A6E4D945A85C05C644B9420C2FB182ACD0E15086757A4EC609202ABDC469",
           "35FB1D334ECCD52B94253E7A33BA37C3D845E26F11FDEC08A56527C92907C3AC"
@@ -2040,7 +2040,7 @@
           "value": "0",
           "issuer": "r9aRw8p1jHtR9XhDAE22TjtM7PdupNXhkx"
         },
-        "PreviousTxnID": "a4152496c7c090b531a5dad9f1ff8d6d842ecedfc753d63b77434f35ea43797c",
+        "PreviousTxnID": "A4152496C7C090B531A5DAD9F1FF8D6D842ECEDFC753D63B77434F35EA43797C",
         "Flags": 131072,
         "Balance": {
           "currency": "USD",
@@ -2060,7 +2060,7 @@
         "Owner": "rM1oqKtfh1zgjdAgbFmaRm3btfGBX25xVo",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "80ab25842b230d48027800213eb86023a3eaf4430e22c092d333795fff1e5219",
+        "RootIndex": "80AB25842B230D48027800213EB86023A3EAF4430E22C092D333795FFF1E5219",
         "Indexes": ["42E28285A82D01DCA856118A064C8AEEE1BF8167C08186DA5BFC678687E86F7C"]
       }
     },
@@ -2071,7 +2071,7 @@
         "Account": "rHSTEtAcRZBg1SjcR4KKNQzJKF3y86MNxT",
         "PreviousTxnLgrSeq": 7989,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "fe8a433c90ed67e78fb7f8b8ded39e1ecd8dec17dc748db3e2671695e141d389",
+        "PreviousTxnID": "FE8A433C90ED67E78FB7F8B8DED39E1ECD8DEC17DC748DB3E2671695E141D389",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "19790000000"
@@ -2084,7 +2084,7 @@
         "Account": "rnNPCm97TBMPprUGbfwqp1VpkfHUqMeUm7",
         "PreviousTxnLgrSeq": 60,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "f26ce2140f7b9f9a0d9e17919f7e0da9040fb5312d155e6cda1feddd3ffb6f4d",
+        "PreviousTxnID": "F26CE2140F7B9F9A0D9E17919F7E0DA9040FB5312D155E6CDA1FEDDD3FFB6F4D",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -2097,7 +2097,7 @@
         "Account": "rwZpVacRQHYArgN3NzUfuKEcRDfbdvqGMi",
         "PreviousTxnLgrSeq": 61,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "9d02bd8906820772fcf8a413a6bf603603a5489de1cfe7775fdcf3691a473b64",
+        "PreviousTxnID": "9D02BD8906820772FCF8A413A6BF603603A5489DE1CFE7775FDCF3691A473B64",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -2113,7 +2113,7 @@
           "value": "0",
           "issuer": "rnziParaNb8nsU4aruQdwYE3j5jUcqjzFm"
         },
-        "PreviousTxnID": "e816716b912b1476d4de80c872a52d148f1b0791ea7a2cef1af5632451feccad",
+        "PreviousTxnID": "E816716B912B1476D4DE80C872A52D148F1B0791EA7A2CEF1AF5632451FECCAD",
         "Flags": 131072,
         "Balance": {
           "currency": "CAD",
@@ -2134,7 +2134,7 @@
         "Account": "rHrSTVSjMsZKeZMenkpeLgHGvY5svPkRvR",
         "PreviousTxnLgrSeq": 3759,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "e6fb5cdec11a45af7cd9b81e8b7a5d1e85a42b8dcd9d741786588214d82e0a8a",
+        "PreviousTxnID": "E6FB5CDEC11A45AF7CD9B81E8B7A5D1E85A42B8DCD9D741786588214D82E0A8A",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000000"
@@ -2152,7 +2152,7 @@
           "value": "10",
           "issuer": "rD1jovjQeEpvaDwn9wKaYokkXXrqo4D23x"
         },
-        "PreviousTxnID": "b9eb652fcc0bea72f8fdddc5a8355938084e48e6caa4744e09e5023d64d0199e",
+        "PreviousTxnID": "B9EB652FCC0BEA72F8FDDDC5A8355938084E48E6CAA4744E09E5023D64D0199E",
         "Flags": 65536,
         "Balance": {
           "currency": "USD",
@@ -2173,7 +2173,7 @@
         "Account": "rfCXAzsmsnqDvyQj2TxDszTsbVj5cRTXGM",
         "PreviousTxnLgrSeq": 31798,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "10c5a4dcef6078d1dcd654dab48f77a7073d32981cd514669ccefa5f409852ca",
+        "PreviousTxnID": "10C5A4DCEF6078D1DCD654DAB48F77A7073D32981CD514669CCEFA5F409852CA",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -2185,7 +2185,7 @@
         "Owner": "rsQP8f9fLtd58hwjEArJz2evtrKULnCNif",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "8adf3c5527ccf6d0b5863365ef40254171536c3901f1cbd9e2bc5f918a7d492a",
+        "RootIndex": "8ADF3C5527CCF6D0B5863365EF40254171536C3901F1CBD9E2BC5F918A7D492A",
         "Indexes": ["BC10E40AFB79298004CDE51CB065DBDCABA86EC406E3A1CF02CE5F8A9628A2BD"]
       }
     },
@@ -2195,7 +2195,7 @@
         "Owner": "rB5TihdPbKgMrkFqrqUC3yLdE8hhv4BdeY",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "8baa6f346307122fc5527291b4b2e88050cb66e4556360786b535c14bb0a4509",
+        "RootIndex": "8BAA6F346307122FC5527291B4B2E88050CB66E4556360786B535C14BB0A4509",
         "Indexes": [
           "CAD951AB279A749AE648FD1DFF56C021BD66E36187022E772C31FE52106CB13B",
           "C683B5BB928F025F1E860D9D69D6C554C2202DE0D45877ADB3077DA4CB9E125C",
@@ -2213,7 +2213,7 @@
         "Account": "rfpQtAXgPpHNzfnAYykgT6aWa94xvTEYce",
         "PreviousTxnLgrSeq": 62,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "0c5c64edbb27641a83f5dd135cd3adfe86d311d3f466bacfebb69eb8e8d8e60f",
+        "PreviousTxnID": "0C5C64EDBB27641A83F5DD135CD3ADFE86D311D3F466BACFEBB69EB8E8D8E60F",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -2227,7 +2227,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000004",
         "Flags": 0,
-        "RootIndex": "d0cac45692858d395b16d52a0b44adcb7ef178617c05bae3c36ff5574ba012c3",
+        "RootIndex": "D0CAC45692858D395B16D52A0B44ADCB7EF178617C05BAE3C36FF5574BA012C3",
         "Indexes": [
           "CF1F8DF231AE06AE9D55C3B3367A9ED1E430FC0A6CA193EEA559C3ADF0A634FB",
           "CEA57059DECE8D5C6FC9FDB9ACE44278EC74A075CE8A5A7522B2F85F669245FF"
@@ -2242,7 +2242,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000003",
         "Flags": 0,
-        "RootIndex": "8e92e688a132410427806a734df6154b7535e439b72deca5e4bc7ce17135c5a4",
+        "RootIndex": "8E92E688A132410427806A734DF6154B7535E439B72DECA5E4BC7CE17135C5A4",
         "Indexes": [
           "17B72685E9FBEFE18E0C1E8F07000E1B345A18ECD2D2BE9B27E69045248EF036",
           "F9830A2F94E5B611F6364893235E6D7F3521A8DE8AF936687B40C555E1282836"
@@ -2256,7 +2256,7 @@
         "Account": "rGRGYWLmSvPuhKm4rQV287PpJUgTB1VeD7",
         "PreviousTxnLgrSeq": 85,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "ee8b75c4a4c54f61f1a3ee0d0bb9a712fce18d5dfb0b8973f232eeed301acd84",
+        "PreviousTxnID": "EE8B75C4A4C54F61F1A3EE0D0BB9A712FCE18D5DFB0B8973F232EEED301ACD84",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "1000000000000000"
@@ -2272,7 +2272,7 @@
           "value": "0",
           "issuer": "rLiCWKQNUs8CQ81m2rBoFjshuVJviSRoaJ"
         },
-        "PreviousTxnID": "c7aecaf0e7abc3868c37343b7f63baec317a53867abd2ca6bad1f335c1ca4d6f",
+        "PreviousTxnID": "C7AECAF0E7ABC3868C37343B7F63BAEC317A53867ABD2CA6BAD1F335C1CA4D6F",
         "Flags": 131072,
         "Balance": {
           "currency": "MEA",
@@ -2292,7 +2292,7 @@
         "Owner": "rwpRq4gQrb58N7PRJwYEQaoSui6Xd3FC7j",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "90f51238e58e7ca88f9754984b8b2328dcd4a7d699c04092bf58dd40d5660edd",
+        "RootIndex": "90F51238E58E7CA88F9754984B8B2328DCD4A7D699C04092BF58DD40D5660EDD",
         "Indexes": [
           "6BC1677EB8218F6ECB37FB83723ED4FA4C3089D718A45D5F0BB4F4EC553CDF28",
           "A5C489C3780C320EC1C2CF5A2E22C2F393F91884DC14D18F5F5BED4EE3AFFE00",
@@ -2310,7 +2310,7 @@
         "Account": "rHXS898sKZX6RY3WYPo5hW6UGnpBCnDzfr",
         "PreviousTxnLgrSeq": 8985,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "21278af0cc3a3e968367d064c61280b9723e85f8170f67d4fed0d255e92381d5",
+        "PreviousTxnID": "21278AF0CC3A3E968367D064C61280B9723E85F8170F67D4FED0D255E92381D5",
         "Flags": 0,
         "Sequence": 5,
         "Balance": "10199999960"
@@ -2323,7 +2323,7 @@
         "Account": "r4U5AcSVABL6Ym85jB94KYnURnzkRDqh1Y",
         "PreviousTxnLgrSeq": 65,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "024ff4b5506abc1359dbff40f783911d0e5547d29bdd857b9d8d78861cfc6be7",
+        "PreviousTxnID": "024FF4B5506ABC1359DBFF40F783911D0E5547D29BDD857B9D8D78861CFC6BE7",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -2336,7 +2336,7 @@
         "Account": "rHzWtXTBrArrGoLDixQAgcSD2dBisM19fF",
         "PreviousTxnLgrSeq": 14186,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "cbf0f1ac96d1e0aa8eba6685e085cd389d83e60ba19f141618bffa022165eda2",
+        "PreviousTxnID": "CBF0F1AC96D1E0AA8EBA6685E085CD389D83E60BA19F141618BFFA022165EDA2",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -2349,7 +2349,7 @@
         "Account": "r4DGz8SxHXLaqsA9M2oocXsrty6BMSQvw3",
         "PreviousTxnLgrSeq": 10067,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "47f959e260e8eeba242df638229e3298c8988feac77041d7d419c6ed835ef4a8",
+        "PreviousTxnID": "47F959E260E8EEBA242DF638229E3298C8988FEAC77041D7D419C6ED835EF4A8",
         "Flags": 0,
         "Sequence": 5,
         "Balance": "9999999960"
@@ -2362,7 +2362,7 @@
         "Account": "r9hEDb4xBGRfBCcX3E4FirDWQBAYtpxC8K",
         "PreviousTxnLgrSeq": 3055,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "ae5929de1626787ef84680b4b9741d793e3294cc8dfe5c03b5c911af7c39ad8c",
+        "PreviousTxnID": "AE5929DE1626787EF84680B4B9741D793E3294CC8DFE5C03B5C911AF7C39AD8C",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -2376,7 +2376,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000002",
         "Flags": 0,
-        "RootIndex": "98082e695cab618590beea0647a5f24d2b610a686ecd49310604fc7431faab0d",
+        "RootIndex": "98082E695CAB618590BEEA0647A5F24D2B610A686ECD49310604FC7431FAAB0D",
         "Indexes": [
           "A95EB2892EA15C8B7BCDAF6D1A8F1F21791192586EBD66B7DCBEC582BFAAA198",
           "52733E959FD0D25A72E188A26BC406768D91285883108AED061121408DAD4AF0"
@@ -2390,7 +2390,7 @@
         "Account": "rEA2XzkTXi6sWRzTVQVyUoSX4yJAzNxucd",
         "PreviousTxnLgrSeq": 32359,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "a4152496c7c090b531a5dad9f1ff8d6d842ecedfc753d63b77434f35ea43797c",
+        "PreviousTxnID": "A4152496C7C090B531A5DAD9F1FF8D6D842ECEDFC753D63B77434F35EA43797C",
         "Flags": 0,
         "Sequence": 3,
         "Balance": "499999980"
@@ -2403,7 +2403,7 @@
         "Account": "r2oU84CFuT4MgmrDejBaoyHNvovpMSPiA",
         "PreviousTxnLgrSeq": 10043,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "4c6dc2d608c3b0781856f42042cd33b6053fb46c673a057fb192ab4319967a0c",
+        "PreviousTxnID": "4C6DC2D608C3B0781856F42042CD33B6053FB46C673A057FB192AB4319967A0C",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -2416,7 +2416,7 @@
         "Account": "rPFPa8AjKofbPiYNtYqSWxYA4A9Eqrf9jG",
         "PreviousTxnLgrSeq": 26718,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "8439b6029a9e670d0980088928c3ee35a6c7b1d851f73e68fa7607e9c173afa8",
+        "PreviousTxnID": "8439B6029A9E670D0980088928C3EE35A6C7B1D851F73E68FA7607E9C173AFA8",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000000"
@@ -2429,16 +2429,16 @@
         "ExchangeRate": "531AA535D3D0C000",
         "TakerGetsCurrency": "0000000000000000000000005553440000000000",
         "IndexNext": "0000000000000002",
-        "TakerGetsIssuer": "58c742cf55c456de367686cb9ced83750bd24979",
+        "TakerGetsIssuer": "58C742CF55C456DE367686CB9CED83750BD24979",
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000001",
         "Flags": 0,
-        "RootIndex": "8e92e688a132410427806a734df6154b7535e439b72deca5e4bc7ce17135c5a4",
+        "RootIndex": "8E92E688A132410427806A734DF6154B7535E439B72DECA5E4BC7CE17135C5A4",
         "Indexes": [
           "D1CB738BD08AC36DCB77191DB87C6E40FA478B86503371ED497F30931D7F4F52",
           "5CCE7ABDC737694A71B9B1BBD15D9408E8DC4439C9510D2BC2538D59F99B7515"
         ],
-        "TakerPaysIssuer": "e8acfc6b5ef4ea0601241525375162f43c2ff285"
+        "TakerPaysIssuer": "E8ACFC6B5EF4EA0601241525375162F43C2FF285"
       }
     },
     {
@@ -2448,7 +2448,7 @@
         "Account": "rp1xKo4CWEzTuT2CmfHnYntKeZSf21KqKq",
         "PreviousTxnLgrSeq": 66,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "059d2dca15acf2dc3873c2a1acf9e9309c4574ffc8da0ceeab6dcc746a027157",
+        "PreviousTxnID": "059D2DCA15ACF2DC3873C2A1ACF9E9309C4574FFC8DA0CEEAB6DCC746A027157",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "1000000000"
@@ -2461,7 +2461,7 @@
         "Account": "rGow3MKvbQJvuzPPP4vEoohGmLLZ5jXtcC",
         "PreviousTxnLgrSeq": 26714,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "1ac83c3910b20c2a8d7d9a14772f78a8f8ca87632f3eea8ee2c9731937cf7292",
+        "PreviousTxnID": "1AC83C3910B20C2A8D7D9A14772F78A8F8CA87632F3EEA8EE2C9731937CF7292",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "50000000000000"
@@ -2474,7 +2474,7 @@
         "Account": "rJ51FBSh6hXSUkFdMxwmtcorjx9izrC1yj",
         "PreviousTxnLgrSeq": 2948,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "38c911c5daf1615baa58b7d2265590de1dad40c79b3f7597c47ece8047e1e4f4",
+        "PreviousTxnID": "38C911C5DAF1615BAA58B7D2265590DE1DAD40C79B3F7597C47ECE8047E1E4F4",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "325000000"
@@ -2492,7 +2492,7 @@
           "value": "1000",
           "issuer": "rB5TihdPbKgMrkFqrqUC3yLdE8hhv4BdeY"
         },
-        "PreviousTxnID": "3662fed78877c7e424bef91c02b9eca5e02ad3a8638f0a3b89c1eac6c9cc9253",
+        "PreviousTxnID": "3662FED78877C7E424BEF91C02B9ECA5E02AD3A8638F0A3B89C1EAC6C9CC9253",
         "Flags": 65536,
         "Balance": {
           "currency": "USD",
@@ -2513,7 +2513,7 @@
         "Account": "rB5TihdPbKgMrkFqrqUC3yLdE8hhv4BdeY",
         "PreviousTxnLgrSeq": 31179,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "d612015f70931dc1ce2d65713408f0c4ee6230911f52e08678898d24c888a43a",
+        "PreviousTxnID": "D612015F70931DC1CE2D65713408F0C4EE6230911F52E08678898D24C888A43A",
         "Flags": 0,
         "Sequence": 60,
         "Balance": "8188999999999410"
@@ -2529,7 +2529,7 @@
           "value": "1",
           "issuer": "rGLUu9LfpKyZyeTtSRXpU15e2FfrdvtADa"
         },
-        "PreviousTxnID": "f7a5bf798499ff7862d2e5f65798673aadb6e4248d057fe100df9dfc98a7ded6",
+        "PreviousTxnID": "F7A5BF798499FF7862D2E5F65798673AADB6E4248D057FE100DF9DFC98A7DED6",
         "Flags": 196608,
         "Balance": {
           "currency": "BTC",
@@ -2553,7 +2553,7 @@
           "value": "0",
           "issuer": "rJ51FBSh6hXSUkFdMxwmtcorjx9izrC1yj"
         },
-        "PreviousTxnID": "189db8a6db5160cfbd62ab7a21afc5f4246e704a1a1b4b1db5e23f7f4600d37e",
+        "PreviousTxnID": "189DB8A6DB5160CFBD62AB7A21AFC5F4246E704A1A1B4B1DB5E23F7F4600D37E",
         "Flags": 131072,
         "Balance": {
           "currency": "USD",
@@ -2574,7 +2574,7 @@
         "Account": "rUvEG9ahtFRcdZHi3nnJeFcJWhwXQoEkbi",
         "PreviousTxnLgrSeq": 250,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "da52cf235f41b229158db77302966e7ab04b1dfe05e3b5f4e381bc9a19fe2a30",
+        "PreviousTxnID": "DA52CF235F41B229158DB77302966E7AB04B1DFE05E3B5F4E381BC9A19FE2A30",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "50000000000000"
@@ -2586,7 +2586,7 @@
         "Owner": "rBJwwXADHqbwsp6yhrqoyt2nmFx9FB83Th",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "a00cd19c13a5cfa3fecb409d42b38017c07a4aeae05a7a00347dda17199ba683",
+        "RootIndex": "A00CD19C13A5CFA3FECB409D42B38017C07A4AEAE05A7A00347DDA17199BA683",
         "Indexes": ["E49318D6DF22411C3F35581B1D28297A36E47F68B45F36A587C156E6E43CE0A6"]
       }
     },
@@ -2597,7 +2597,7 @@
         "Account": "r3WjZU5LKLmjh8ff1q2RiaPLcUJeSU414x",
         "PreviousTxnLgrSeq": 26708,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "8e78494eff840f90fead186e3a4374d8a82f48b512ea105b415ed0705e59b112",
+        "PreviousTxnID": "8E78494EFF840F90FEAD186E3A4374D8A82F48B512EA105B415ED0705E59B112",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000000"
@@ -2613,7 +2613,7 @@
           "value": "20",
           "issuer": "rHXS898sKZX6RY3WYPo5hW6UGnpBCnDzfr"
         },
-        "PreviousTxnID": "21278af0cc3a3e968367d064c61280b9723e85f8170f67d4fed0d255e92381d5",
+        "PreviousTxnID": "21278AF0CC3A3E968367D064C61280B9723E85F8170F67D4FED0D255E92381D5",
         "Flags": 196608,
         "Balance": {
           "currency": "CAD",
@@ -2633,7 +2633,7 @@
         "Owner": "r3PDtZSa5LiYp1Ysn1vMuMzB59RzV3W9QH",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "a39f044d860c5b5846aa7e0faad44dc8897f0a62b2f628aa073b21b3ec146010",
+        "RootIndex": "A39F044D860C5B5846AA7E0FAAD44DC8897F0A62B2F628AA073B21B3EC146010",
         "Indexes": ["CD34D8FF7C656B66E2298DB420C918FE27DFFF2186AC8D1785D8CBF2C6BC3488"]
       }
     },
@@ -2649,7 +2649,7 @@
           "value": "0",
           "issuer": "rhxbkK9jGqPVLZSWPvCEmmf15xHBfJfCEy"
         },
-        "PreviousTxnID": "d0d1dc6636198949642d9125b5eec51ff6ac02a47d32387cbb6aab346fb3afe3",
+        "PreviousTxnID": "D0D1DC6636198949642D9125B5EEC51FF6AC02A47D32387CBB6AAB346FB3AFE3",
         "Flags": 131072,
         "Balance": {
           "currency": "BTC",
@@ -2670,7 +2670,7 @@
         "Account": "rEWDpTUVU9fZZtzrywAUE6D6UcFzu6hFdE",
         "PreviousTxnLgrSeq": 23230,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "070e052d8d38bce690a69a25d164569315a20e29f07c9279e2f1231f4b971711",
+        "PreviousTxnID": "070E052D8D38BCE690A69A25D164569315A20E29F07C9279E2F1231F4B971711",
         "Flags": 0,
         "Sequence": 12,
         "Balance": "199999890"
@@ -2682,7 +2682,7 @@
         "Owner": "rEWDpTUVU9fZZtzrywAUE6D6UcFzu6hFdE",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "a7e461c6dc98f472991fde51faddc0082d755f553f5849875d554b52624ef1c3",
+        "RootIndex": "A7E461C6DC98F472991FDE51FADDC0082D755F553F5849875D554B52624EF1C3",
         "Indexes": ["116C6D5E5C6C59C9C5362B84CB9DD30BD3D4B7CB98CE993D49C068323BF19747"]
       }
     },
@@ -2696,7 +2696,7 @@
           "value": "0",
           "issuer": "rHXS898sKZX6RY3WYPo5hW6UGnpBCnDzfr"
         },
-        "PreviousTxnID": "058ec111aaf1f21207a3d87fc2ab7f841b02d95f73a37423f3119fda65c031f7",
+        "PreviousTxnID": "058EC111AAF1F21207A3D87FC2AB7F841B02D95F73A37423F3119FDA65C031F7",
         "Flags": 131072,
         "Balance": {
           "currency": "BTC",
@@ -2716,7 +2716,7 @@
         "Owner": "rEe6VvCzzKU1ib9waLknXvEXywVjjUWFDN",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "aa539c8eece0a0cff0dbf3bfacd6b42cd4421715428ad90b034091bd3c721038",
+        "RootIndex": "AA539C8EECE0A0CFF0DBF3BFACD6B42CD4421715428AD90B034091BD3C721038",
         "Indexes": ["72307CB57E53604A0C50E653AB10E386F3835460B5585B70CB7F668C1E04AC8B"]
       }
     },
@@ -2730,7 +2730,7 @@
           "value": "0.5",
           "issuer": "rnziParaNb8nsU4aruQdwYE3j5jUcqjzFm"
         },
-        "PreviousTxnID": "99711ce5dc63b01502bb642b58450b8f60ea544dee30b2fe4f87282e13dd1360",
+        "PreviousTxnID": "99711CE5DC63B01502BB642B58450B8F60EA544DEE30B2FE4F87282E13DD1360",
         "Flags": 65536,
         "Balance": {
           "currency": "BTC",
@@ -2751,7 +2751,7 @@
         "Account": "rhdAw3LiEfWWmSrbnZG3udsN7PoWKT56Qo",
         "PreviousTxnLgrSeq": 26917,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "d1ddaedc74bc308b26bf3112d42f12e0d125f826506e0db13654ad22115d3c31",
+        "PreviousTxnID": "D1DDAEDC74BC308B26BF3112D42F12E0D125F826506E0DB13654AD22115D3C31",
         "Flags": 0,
         "Sequence": 7,
         "Balance": "10000999940"
@@ -2767,7 +2767,7 @@
           "value": "0",
           "issuer": "rGLUu9LfpKyZyeTtSRXpU15e2FfrdvtADa"
         },
-        "PreviousTxnID": "9a9c9267e11734f53c6b25308f03b4f99ecd3ca4ccf330c94bd94f01efc0e0c5",
+        "PreviousTxnID": "9A9C9267E11734F53C6B25308F03B4F99ECD3CA4CCF330C94BD94F01EFC0E0C5",
         "Flags": 131072,
         "Balance": {
           "currency": "USD",
@@ -2789,7 +2789,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000002",
         "Flags": 0,
-        "RootIndex": "d0cac45692858d395b16d52a0b44adcb7ef178617c05bae3c36ff5574ba012c3",
+        "RootIndex": "D0CAC45692858D395B16D52A0B44ADCB7EF178617C05BAE3C36FF5574BA012C3",
         "Indexes": [
           "A2EFB4B11D6FDF01643DEE32792BA65BCCC5A98189A4955EB3C73911DDB648DB",
           "E136A6E4D945A85C05C644B9420C2FB182ACD0E15086757A4EC609202ABDC469"
@@ -2803,7 +2803,7 @@
         "Account": "rf8kg7r5Fc8cCszGdD2jeUZt2FrgQd76BS",
         "PreviousTxnLgrSeq": 31802,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "fbf647e057f5c15ec277246ab843a5eb063646bef2e3d3914d29456b32903262",
+        "PreviousTxnID": "FBF647E057F5C15EC277246AB843A5EB063646BEF2E3D3914D29456B32903262",
         "Flags": 0,
         "Sequence": 14,
         "Balance": "49999999870"
@@ -2816,7 +2816,7 @@
         "Account": "rBY8EZDiCNMjjhrC7SCfaGr2PzGWtSntNy",
         "PreviousTxnLgrSeq": 26713,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "7957dd6be9323ded70bac7c43761e0eaac4c6f5ba7dfc59cfe95100ca9b0b0d4",
+        "PreviousTxnID": "7957DD6BE9323DED70BAC7C43761E0EAAC4C6F5BA7DFC59CFE95100CA9B0B0D4",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000000"
@@ -2828,7 +2828,7 @@
         "Owner": "rMYBVwiY95QyUnCeuBQA1D47kXA9zuoBui",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "d0cac45692858d395b16d52a0b44adcb7ef178617c05bae3c36ff5574ba012c3",
+        "RootIndex": "D0CAC45692858D395B16D52A0B44ADCB7EF178617C05BAE3C36FF5574BA012C3",
         "Indexes": [
           "10BB331A6A794396B33DF7B975A57A3842AB68F3BC6C3B02928BA5399AAC9C8F",
           "6231CFA6BE243E92EC33050DC23C6E8EC972F22A111D96328873207A7CCCC7C7"
@@ -2842,7 +2842,7 @@
         "Account": "rVehB9r1dWghqrzJxY2y8qTiKxMgHFtQh",
         "PreviousTxnLgrSeq": 70,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "17c00adb90ee2f481fee456ff0afd5a991d1c13d364ed48549680646f4bbe3ff",
+        "PreviousTxnID": "17C00ADB90EE2F481FEE456FF0AFD5A991D1C13D364ED48549680646F4BBE3FF",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -2854,7 +2854,7 @@
         "Owner": "rshceBo6ftSVYo8h5uNPzRWbdqk4W6g9va",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "af2cdc95233533bab37a73bed86e950f8a9337f88a972f652762e6cd8e37ce14",
+        "RootIndex": "AF2CDC95233533BAB37A73BED86E950F8A9337F88A972F652762E6CD8E37CE14",
         "Indexes": [
           "F721E924498EE68BFF906CD856E8332073DD350BAC9E8977AC3F31860BA1E33A",
           "116C6D5E5C6C59C9C5362B84CB9DD30BD3D4B7CB98CE993D49C068323BF19747"
@@ -2867,7 +2867,7 @@
         "Owner": "rGLUu9LfpKyZyeTtSRXpU15e2FfrdvtADa",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "1f71219ba652037b7064fc6e81eabd8f0b54f6afe703f172e3999f48d0642f1c",
+        "RootIndex": "1F71219BA652037B7064FC6E81EABD8F0B54F6AFE703F172E3999F48D0642F1C",
         "Indexes": [
           "D24FA4A3422BA1E91109B83D2A7545FC6369EAC13E7F4673F464BBBBC77AB2BE",
           "9BF3216E42575CA5A3CB4D0F2021EE81D0F7835BA2EDD78E05CAB44B655962BB"
@@ -2884,7 +2884,7 @@
           "value": "0",
           "issuer": "rnGTwRTacmqZZBwPB6rh3H1W4GoTZCQtNA"
         },
-        "PreviousTxnID": "1da779a65d0faa515c2b463e353dc249ebf9a9258af0ed668f478cf8185fdfd6",
+        "PreviousTxnID": "1DA779A65D0FAA515C2B463E353DC249EBF9A9258AF0ED668F478CF8185FDFD6",
         "Flags": 131072,
         "Balance": {
           "currency": "USD",
@@ -2905,7 +2905,7 @@
         "Account": "rDa8TxBdCfokqZyyYEpGMsiKziraLtyPe8",
         "PreviousTxnLgrSeq": 14422,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "c10dfdb026bbb12ac419ec8653aeb659c896fd5398f95f90fdadcbc256aa927c",
+        "PreviousTxnID": "C10DFDB026BBB12AC419EC8653AEB659C896FD5398F95F90FDADCBC256AA927C",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "5001000000000"
@@ -2918,7 +2918,7 @@
         "Account": "r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
         "PreviousTxnLgrSeq": 38129,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "3b1a4e1c9bb6a7208eb146bcdb86ecea6068ed01466d933528ca2b4c64f753ef",
+        "PreviousTxnID": "3B1A4E1C9BB6A7208EB146BCDB86ECEA6068ED01466D933528CA2B4C64F753EF",
         "Flags": 0,
         "Sequence": 63,
         "Balance": "981481999380"
@@ -2931,7 +2931,7 @@
         "Account": "rwCYkXihZPm7dWuPCXoS3WXap7vbnZ8uzB",
         "PreviousTxnLgrSeq": 23194,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "6c2c3126a945e8371f973dac3df4e899c2bc8aac51de6748e873bbe63fcd7607",
+        "PreviousTxnID": "6C2C3126A945E8371F973DAC3DF4E899C2BC8AAC51DE6748E873BBE63FCD7607",
         "Flags": 0,
         "Sequence": 3,
         "Balance": "1009999980"
@@ -3211,7 +3211,7 @@
         "Account": "rsQP8f9fLtd58hwjEArJz2evtrKULnCNif",
         "PreviousTxnLgrSeq": 71,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "83124a90968261c4ec33f29a5f1d2b2941ac7a52d74639c1f8b94e36c13fa3f9",
+        "PreviousTxnID": "83124A90968261C4EC33F29A5F1D2B2941AC7A52D74639C1F8B94E36C13FA3F9",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -3224,7 +3224,7 @@
         "Account": "rMkq9vs7zfJyQSPPkS2JgD8hXpDR5djrTA",
         "PreviousTxnLgrSeq": 89,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "bfb2829f8c2549b420539853a3a03a6f29803d6e885465f11e6bbed711dd013a",
+        "PreviousTxnID": "BFB2829F8C2549B420539853A3A03A6F29803D6E885465F11E6BBED711DD013A",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -3237,7 +3237,7 @@
         "Account": "rBQQwVbHrkf8TEcW4h4MtE6EUyPQedmtof",
         "PreviousTxnLgrSeq": 237,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "1ee8602b929b4690e2f3d318afa25f5248607f82831930eb3280690f66f98147",
+        "PreviousTxnID": "1EE8602B929B4690E2F3D318AFA25F5248607F82831930EB3280690F66F98147",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "50000000000000"
@@ -3250,7 +3250,7 @@
         "Account": "r4q1ujKY4hwBpgFNFx43629f2LuViU4LfA",
         "PreviousTxnLgrSeq": 14310,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "f00540c7d38779deee08ca90584d3a3d5a43e3adaa97902b1541dd84d31d3ca7",
+        "PreviousTxnID": "F00540C7D38779DEEE08CA90584D3A3D5A43E3ADAA97902B1541DD84D31D3CA7",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -3263,7 +3263,7 @@
         "Account": "rhDfLV1hUCanViHnjJaq3gF1R2mo6PDCSC",
         "PreviousTxnLgrSeq": 90,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "4d4c38e4a5bd7d7864f7c28cad712d6cd1e85804c7645abf6f4c5b2fe5472035",
+        "PreviousTxnID": "4D4C38E4A5BD7D7864F7C28CAD712D6CD1E85804C7645ABF6F4C5B2FE5472035",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -3276,7 +3276,7 @@
         "Account": "rppWupV826yJUFd2zcpRGSjQHnAHXqe7Ny",
         "PreviousTxnLgrSeq": 8410,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "77a1280e1103759d7c77c6b4f4759af005afc58f84988c1893a74d47e3e0568a",
+        "PreviousTxnID": "77A1280E1103759D7C77C6B4F4759AF005AFC58F84988C1893A74D47E3E0568A",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "200000000000000"
@@ -3289,7 +3289,7 @@
         "Account": "r43ksW5oFnW7FMjQXDqpYGJfUwmLan9dGo",
         "PreviousTxnLgrSeq": 26710,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "663f8a73611629dce63205aea8c698770607ce929e1d015407d8d352e9dcef8e",
+        "PreviousTxnID": "663F8A73611629DCE63205AEA8C698770607CE929E1D015407D8D352E9DCEF8E",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000000"
@@ -3305,7 +3305,7 @@
           "value": "7",
           "issuer": "rnGTwRTacmqZZBwPB6rh3H1W4GoTZCQtNA"
         },
-        "PreviousTxnID": "45ca59f7752331a307ff9bcf016c3243267d8506d0d0fa51965d322f7d59df36",
+        "PreviousTxnID": "45CA59F7752331A307FF9BCF016C3243267D8506D0D0FA51965D322F7D59DF36",
         "Flags": 65536,
         "Balance": {
           "currency": "USD",
@@ -3326,7 +3326,7 @@
         "Account": "rDy7Um1PmjPgkyhJzUWo1G8pzcDan9drox",
         "PreviousTxnLgrSeq": 23095,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "7fa58df8a1a2d639d65aa889553ee19c44c770b33859e53bd7ce18272a81c06b",
+        "PreviousTxnID": "7FA58DF8A1A2D639D65AA889553EE19C44C770B33859E53BD7CE18272A81C06B",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "200000000"
@@ -3342,7 +3342,7 @@
           "value": "5000",
           "issuer": "rphasxS8Q5p5TLTpScQCBhh5HfJfPbM2M8"
         },
-        "PreviousTxnID": "a39f6b89f50033153c9cc1233bb175be52685a31ae038a58bec1a88898e83420",
+        "PreviousTxnID": "A39F6B89F50033153C9CC1233BB175BE52685A31AE038A58BEC1A88898E83420",
         "Flags": 65536,
         "Balance": {
           "currency": "USD",
@@ -3363,7 +3363,7 @@
         "Account": "rU5KBPzSyPycRVW1HdgCKjYpU6W9PKQdE8",
         "PreviousTxnLgrSeq": 16029,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "865a20f744fbb8673c684d6a310c1b2d59070fcb9979223a4e54018c22466946",
+        "PreviousTxnID": "865A20F744FBB8673C684D6A310C1B2D59070FCB9979223A4E54018C22466946",
         "Flags": 0,
         "Sequence": 2,
         "Balance": "9999999990"
@@ -3376,7 +3376,7 @@
         "Account": "rQsiKrEtzTFZkQjF9MrxzsXHCANZJSd1je",
         "PreviousTxnLgrSeq": 4156,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "99711ce5dc63b01502bb642b58450b8f60ea544dee30b2fe4f87282e13dd1360",
+        "PreviousTxnID": "99711CE5DC63B01502BB642B58450B8F60EA544DEE30B2FE4F87282E13DD1360",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10300000000"
@@ -3389,7 +3389,7 @@
         "Account": "rsRpe4UHx6HB32kJJ3FjB6Q1wUdY2wi3xi",
         "PreviousTxnLgrSeq": 3751,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "d99b7b1d66c09166319920116caae2b7209fb1c44c352eaa18862ea0d49d68d3",
+        "PreviousTxnID": "D99B7B1D66C09166319920116CAAE2B7209FB1C44C352EAA18862EA0D49D68D3",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "40000000000000"
@@ -3407,7 +3407,7 @@
           "value": "300",
           "issuer": "rhxbkK9jGqPVLZSWPvCEmmf15xHBfJfCEy"
         },
-        "PreviousTxnID": "19cddd9e0de5f269e1eafc09e0c2d3e54bedd7c67f890d020e883b69a653a4ba",
+        "PreviousTxnID": "19CDDD9E0DE5F269E1EAFC09E0C2D3E54BEDD7C67F890D020E883B69A653A4BA",
         "Flags": 65536,
         "Balance": {
           "currency": "USD",
@@ -3428,7 +3428,7 @@
         "Account": "rwDWD2WoU7npQKKeYd6tyiLkmr7DuyRgsz",
         "PreviousTxnLgrSeq": 93,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "3faf5e34874473a4d9707124da8a4d6af6820eba718f588a07b9c021cc5caf01",
+        "PreviousTxnID": "3FAF5E34874473A4D9707124DA8A4D6AF6820EBA718F588A07B9C021CC5CAF01",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -3441,7 +3441,7 @@
         "Account": "rDCJ39V8yW39Ar3Pod7umxnrp24jATE1rt",
         "PreviousTxnLgrSeq": 3745,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "30df2860f25d582699d4c802c7650a65dc54a07fa0d60acceb9a7a66b4454d5a",
+        "PreviousTxnID": "30DF2860F25D582699D4C802C7650A65DC54A07FA0D60ACCEB9A7A66B4454D5A",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "150000000000000"
@@ -3454,7 +3454,7 @@
         "Account": "rf7phSp1ABzXhBvEwgSA7nRzWv2F7K5VM7",
         "PreviousTxnLgrSeq": 3741,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "bef9dfdea6b289ff343e83734a125d87c3b60e6007d1c3a499da47ce1f909ffd",
+        "PreviousTxnID": "BEF9DFDEA6B289FF343E83734A125D87C3B60E6007D1C3A499DA47CE1F909FFD",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "150000000000000"
@@ -3467,7 +3467,7 @@
         "Account": "rwoE5PxARitChLgu6VrMxWBHN7j11Jt18x",
         "PreviousTxnLgrSeq": 26719,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "3f8e7146b8bf4a208c01135ef1688e38fe4d2eb72dcec472330b278660f5c251",
+        "PreviousTxnID": "3F8E7146B8BF4A208C01135EF1688E38FE4D2EB72DCEC472330B278660F5C251",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000000"
@@ -3485,7 +3485,7 @@
           "value": "1000",
           "issuer": "rB5TihdPbKgMrkFqrqUC3yLdE8hhv4BdeY"
         },
-        "PreviousTxnID": "4e4aaf8c25f0a436fecea7d1cb8c36fce33f1117b81b712b9cf30b400c226c3f",
+        "PreviousTxnID": "4E4AAF8C25F0A436FECEA7D1CB8C36FCE33F1117B81B712B9CF30B400C226C3F",
         "Flags": 65536,
         "Balance": {
           "currency": "USD",
@@ -3505,7 +3505,7 @@
         "Owner": "rf8kg7r5Fc8cCszGdD2jeUZt2FrgQd76BS",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "c6f93f7d81c5b659ea2bf067fa390cde1a5d5084486fa0b1a7eaef77937d54d8",
+        "RootIndex": "C6F93F7D81C5B659EA2BF067FA390CDE1A5D5084486FA0B1A7EAEF77937D54D8",
         "Indexes": [
           "5CCE7ABDC737694A71B9B1BBD15D9408E8DC4439C9510D2BC2538D59F99B7515",
           "44A3BC5DABBA84B9E1D64A61350F2FBB26EC70D1393B699CA2BB2CA1A0679A01"
@@ -3519,7 +3519,7 @@
         "Account": "rnxyvrF2mUhK6HubgPxUfWExERAwZXMhVL",
         "PreviousTxnLgrSeq": 95,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "189228c5636a8b16f1a811f0533953e71f2b8b1009d343888b72a23a83fafb3f",
+        "PreviousTxnID": "189228C5636A8B16F1A811F0533953E71F2B8B1009D343888B72A23A83FAFB3F",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "300000000"
@@ -3532,7 +3532,7 @@
         "Account": "rKMhQik9qdyq8TDCYT92xPPRnFtuq8wvQK",
         "PreviousTxnLgrSeq": 262,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "5014d1c3606b264324998ab36403ffd4a70f1e942f7586ea217dbe9336f962da",
+        "PreviousTxnID": "5014D1C3606B264324998AB36403FFD4A70F1E942F7586EA217DBE9336F962DA",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "50000000000000"
@@ -3545,7 +3545,7 @@
         "Account": "rnziParaNb8nsU4aruQdwYE3j5jUcqjzFm",
         "PreviousTxnLgrSeq": 4174,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "d890893a91dc745be221820c17ec3e8af4cc119a93aa8ab8fd42c16d264521fa",
+        "PreviousTxnID": "D890893A91DC745BE221820C17EC3E8AF4CC119A93AA8AB8FD42C16D264521FA",
         "Flags": 0,
         "Sequence": 9,
         "Balance": "8249999920"
@@ -3563,7 +3563,7 @@
           "value": "0",
           "issuer": "rBY8EZDiCNMjjhrC7SCfaGr2PzGWtSntNy"
         },
-        "PreviousTxnID": "7957dd6be9323ded70bac7c43761e0eaac4c6f5ba7dfc59cfe95100ca9b0b0d4",
+        "PreviousTxnID": "7957DD6BE9323DED70BAC7C43761E0EAAC4C6F5BA7DFC59CFE95100CA9B0B0D4",
         "Flags": 131072,
         "Balance": {
           "currency": "USD",
@@ -3585,7 +3585,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000001",
         "Flags": 0,
-        "RootIndex": "433fe9d880c1a0d1901bae63bb255312119826d6adf8571f04736c409a77b840",
+        "RootIndex": "433FE9D880C1A0D1901BAE63BB255312119826D6ADF8571F04736C409A77B840",
         "Indexes": [
           "CEA57059DECE8D5C6FC9FDB9ACE44278EC74A075CE8A5A7522B2F85F669245FF",
           "10BB331A6A794396B33DF7B975A57A3842AB68F3BC6C3B02928BA5399AAC9C8F"
@@ -3604,7 +3604,7 @@
           "value": "1",
           "issuer": "r3PDtZSa5LiYp1Ysn1vMuMzB59RzV3W9QH"
         },
-        "PreviousTxnID": "3b76c257b746c298dcd945ad900b05a17ba44c74e298a1b70c75a89ad588d006",
+        "PreviousTxnID": "3B76C257B746C298DCD945AD900B05A17BA44C74E298A1B70C75A89AD588D006",
         "Flags": 196608,
         "Balance": {
           "currency": "USD",
@@ -3625,7 +3625,7 @@
         "Account": "rMNKtUq5Z5TB5C4MJnwzUZ3YP7qmMGog3y",
         "PreviousTxnLgrSeq": 3761,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "d156cb5a5736e5b4383def61d4e4f934442077a4b4e291903a4b082e7e48fd42",
+        "PreviousTxnID": "D156CB5A5736E5B4383DEF61D4E4F934442077A4B4E291903A4B082E7E48FD42",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000000"
@@ -3641,7 +3641,7 @@
           "value": "1",
           "issuer": "rnziParaNb8nsU4aruQdwYE3j5jUcqjzFm"
         },
-        "PreviousTxnID": "3319cf0238a16958e2f5b26cfb90b05a2b16a290b933f105f66929da16a09e6e",
+        "PreviousTxnID": "3319CF0238A16958E2F5B26CFB90B05A2B16A290B933F105F66929DA16A09E6E",
         "Flags": 196608,
         "Balance": {
           "currency": "BTC",
@@ -3665,7 +3665,7 @@
           "value": "0",
           "issuer": "rJ51FBSh6hXSUkFdMxwmtcorjx9izrC1yj"
         },
-        "PreviousTxnID": "deeb01071843d07939a19bd97128604f2b788c744d01af82d631df5023f4c7c0",
+        "PreviousTxnID": "DEEB01071843D07939A19BD97128604F2B788C744D01AF82D631DF5023F4C7C0",
         "Flags": 131072,
         "Balance": {
           "currency": "BTC",
@@ -3687,7 +3687,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000005",
         "Flags": 0,
-        "RootIndex": "d0cac45692858d395b16d52a0b44adcb7ef178617c05bae3c36ff5574ba012c3",
+        "RootIndex": "D0CAC45692858D395B16D52A0B44ADCB7EF178617C05BAE3C36FF5574BA012C3",
         "Indexes": [
           "AC2875C846CBD37CAF8409A623F3AA7D62916A0E043E02C909C9EF3A7B06F8CF",
           "142355A88F0729A5014DB835C24DA05F062293A439151A0BE9ACB80F20B2CDC5"
@@ -3704,10 +3704,10 @@
         },
         "Account": "r9aRw8p1jHtR9XhDAE22TjtM7PdupNXhkx",
         "PreviousTxnLgrSeq": 10084,
-        "BookDirectory": "f774e0321809251174ac85531606fb46b75eef9f842f9697531aa535d3d0c000",
+        "BookDirectory": "F774E0321809251174AC85531606FB46B75EEF9F842F9697531AA535D3D0C000",
         "LedgerEntryType": "Offer",
         "OwnerNode": "0000000000000001",
-        "PreviousTxnID": "58bf1ac5f8addb088913149e0440ef41430f2e62a0be200674f6f5f28979f1f8",
+        "PreviousTxnID": "58BF1AC5F8ADDB088913149E0440EF41430F2E62A0BE200674F6F5F28979F1F8",
         "TakerGets": {
           "currency": "USD",
           "value": "100",
@@ -3725,7 +3725,7 @@
         "Account": "rEe6VvCzzKU1ib9waLknXvEXywVjjUWFDN",
         "PreviousTxnLgrSeq": 2967,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "7c63981f982844b6abb31f0fe858cbe7528ca47bc76658855fe44a4eceecedd4",
+        "PreviousTxnID": "7C63981F982844B6ABB31F0FE858CBE7528CA47BC76658855FE44A4ECEECEDD4",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10600000000"
@@ -3741,7 +3741,7 @@
           "value": "10",
           "issuer": "rGLUu9LfpKyZyeTtSRXpU15e2FfrdvtADa"
         },
-        "PreviousTxnID": "9c88635839af1b4142fc8a03e733dcb62adae7d2407f13365a05b94a5a153d59",
+        "PreviousTxnID": "9C88635839AF1B4142FC8A03E733DCB62ADAE7D2407F13365A05B94A5A153D59",
         "Flags": 65536,
         "Balance": {
           "currency": "USD",
@@ -3763,7 +3763,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000003",
         "Flags": 0,
-        "RootIndex": "433fe9d880c1a0d1901bae63bb255312119826d6adf8571f04736c409a77b840",
+        "RootIndex": "433FE9D880C1A0D1901BAE63BB255312119826D6ADF8571F04736C409A77B840",
         "Indexes": [
           "85469362B15032D6213572E63175C87C321601E1DDBB588C9CBD08CDB3F276AC",
           "2F1F54C50845EBD434A06639160F77CEB7C99C0606A3624F64C3678A9129F08D"
@@ -3776,7 +3776,7 @@
         "Owner": "rDJvoVn8PyhwvHAWuTdtqkH4fuMLoWsZKG",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "d4a00d9b3452c7f93c5f0531fa8ffb4599feec405ca803fbefe0fa22137d863d",
+        "RootIndex": "D4A00D9B3452C7F93C5F0531FA8FFB4599FEEC405CA803FBEFE0FA22137D863D",
         "Indexes": ["C1C5FB39D6C15C581D822DBAF725EF7EDE40BEC9F93C52398CF5CE9F64154D6C"]
       }
     },
@@ -3786,7 +3786,7 @@
         "Owner": "rLqQ62u51KR3TFcewbEbJTQbCuTqsg82EY",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "d4b68b54869e428428078e1045b8bb66c24dd101db3fccbb099929b3b63bcb40",
+        "RootIndex": "D4B68B54869E428428078E1045B8BB66C24DD101DB3FCCBB099929B3B63BCB40",
         "Indexes": ["9A551971E78FE2FB80D930A77EA0BAC2139A49D6BEB98406427C79F52A347A09"]
       }
     },
@@ -3797,7 +3797,7 @@
         "Account": "rPcHbQ26o4Xrwb2bu5gLc3gWUsS52yx1pG",
         "PreviousTxnLgrSeq": 10065,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "af65070e6664e619813067c49bc64cbdb9a7543042da7741da5446859bdd782c",
+        "PreviousTxnID": "AF65070E6664E619813067C49BC64CBDB9A7543042DA7741DA5446859BDD782C",
         "Flags": 0,
         "Sequence": 2,
         "Balance": "10099999990"
@@ -3809,7 +3809,7 @@
         "Owner": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "d8120fc732737a2cf2e9968fdf3797a43b457f2a81aa06d2653171a1ea635204",
+        "RootIndex": "D8120FC732737A2CF2E9968FDF3797A43B457F2A81AA06D2653171A1EA635204",
         "Indexes": [
           "8A2B79E75D1012CB89DBF27A0CE4750B398C353D679F5C1E22F8FAC6F87AE13C",
           "C683B5BB928F025F1E860D9D69D6C554C2202DE0D45877ADB3077DA4CB9E125C"
@@ -3823,7 +3823,7 @@
         "Account": "rBrspBLnwBRXEeszToxcDUHs4GbWtGrhdE",
         "PreviousTxnLgrSeq": 101,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "972a6b3107761a267f54b48a337b5145bc59a565e9e36e970525877cb053678c",
+        "PreviousTxnID": "972A6B3107761A267F54B48A337B5145BC59A565E9E36E970525877CB053678C",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -3836,7 +3836,7 @@
         "Account": "rLebJGqYffmcTbFwBzWJRiv5fo2ccmmvsB",
         "PreviousTxnLgrSeq": 14190,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "458f1f8cc965a0677bc7b0761afe57d47845b501b9e5293c49736a100e2e9292",
+        "PreviousTxnID": "458F1F8CC965A0677BC7B0761AFE57D47845B501B9E5293C49736A100E2E9292",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -3849,7 +3849,7 @@
         "Account": "rPWyiv5PXyKWitakbaKne4cnCQppRvDc5B",
         "PreviousTxnLgrSeq": 102,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "2da2b33ffae8cdcc011c86e52904a665256ad3f9d0a1d85a6637c461925e3fb0",
+        "PreviousTxnID": "2DA2B33FFAE8CDCC011C86E52904A665256AD3F9D0A1D85A6637C461925E3FB0",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -3861,7 +3861,7 @@
         "Owner": "rLiCWKQNUs8CQ81m2rBoFjshuVJviSRoaJ",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "dd23e2c60c9bc58180ac6ea7c668233ec51a0947e42fd1fad4f5fbaed9698d95",
+        "RootIndex": "DD23E2C60C9BC58180AC6EA7C668233EC51A0947E42FD1FAD4F5FBAED9698D95",
         "Indexes": ["908D554AA0D29F660716A3EE65C61DD886B744DDF60DE70E6B16EADB770635DB"]
       }
     },
@@ -3872,7 +3872,7 @@
         "Account": "rUzSNPtxrmeSTpnjsvaTuQvF2SQFPFSvLn",
         "PreviousTxnLgrSeq": 87,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "8d247ff7a5195a888a36c0ca56dd2b70c2ab5bbd04f3045cd3b9caf34bbf8143",
+        "PreviousTxnID": "8D247FF7A5195A888A36C0CA56DD2B70C2AB5BBD04F3045CD3B9CAF34BBF8143",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "1000000000000000"
@@ -3885,7 +3885,7 @@
         "Account": "r3PDtZSa5LiYp1Ysn1vMuMzB59RzV3W9QH",
         "PreviousTxnLgrSeq": 17810,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "821706fded3bed3d146ced9896683e2d4131b0d1238f44ed53c5c40e07dd659a",
+        "PreviousTxnID": "821706FDED3BED3D146CED9896683E2D4131B0D1238F44ED53C5C40E07DD659A",
         "Flags": 0,
         "Sequence": 9,
         "Balance": "10026999920"
@@ -3898,7 +3898,7 @@
         "Account": "rMNzmamctjEDqgwyBKbYfEzHbMeSkLQfaS",
         "PreviousTxnLgrSeq": 104,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "81066dca6c77c2c8a2f39eb03dcc720652aa0fa0edf6e99a92202acb5414a1b5",
+        "PreviousTxnID": "81066DCA6C77C2C8A2F39EB03DCC720652AA0FA0EDF6E99A92202ACB5414A1B5",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "20000000000"
@@ -3911,7 +3911,7 @@
         "Account": "rHWKKygGWPon9WSj4SzTH7vS4ict1QWKo9",
         "PreviousTxnLgrSeq": 105,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "711b2ed1072f60ea84b05ba99c594d56bb10701bd83bba68ec0d55cd4c4fdc50",
+        "PreviousTxnID": "711B2ED1072F60EA84B05BA99C594D56BB10701BD83BBA68EC0D55CD4C4FDC50",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -3927,7 +3927,7 @@
           "value": "0",
           "issuer": "rGLUu9LfpKyZyeTtSRXpU15e2FfrdvtADa"
         },
-        "PreviousTxnID": "aed7737870a63125c3255323624846181e422b8e6e5cb7f1740eb364b89ac1f0",
+        "PreviousTxnID": "AED7737870A63125C3255323624846181E422B8E6E5CB7F1740EB364B89AC1F0",
         "Flags": 131072,
         "Balance": {
           "currency": "CAD",
@@ -3951,7 +3951,7 @@
           "value": "0",
           "issuer": "rJRyob8LPaA3twGEQDPU2gXevWhpSgD8S6"
         },
-        "PreviousTxnID": "eb662576200a6f79b29f58b4c08605a391151199a551d0b2a7231013fd722d9c",
+        "PreviousTxnID": "EB662576200A6F79B29F58B4C08605A391151199A551D0B2A7231013FD722D9C",
         "Flags": 131072,
         "Balance": {
           "currency": "USD",
@@ -3973,7 +3973,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000001",
         "Flags": 0,
-        "RootIndex": "e1de1c68686261e5d06a3c89b78b4c254366ae9f166b56ed02da545ff1954b29",
+        "RootIndex": "E1DE1C68686261E5D06A3C89B78B4C254366AE9F166B56ED02DA545FF1954B29",
         "Indexes": [
           "9C3784EB4832563535522198D9D14E91D2760644174813689EE6A03AD43C6E4C",
           "ED54FC8E215EFAE23E396D27099387D6687BDB63F7F282111BB0F567F8D1D649"
@@ -3987,7 +3987,7 @@
         "Account": "rLp9pST1aAndXTeUYFkpLtkmtZVNcMs2Hc",
         "PreviousTxnLgrSeq": 23085,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "6f4331fb011a35edbd5b17bf5d09764e9f5aa21984f7ddeb1c79e72e684bad35",
+        "PreviousTxnID": "6F4331FB011A35EDBD5B17BF5D09764E9F5AA21984F7DDEB1C79E72E684BAD35",
         "Flags": 0,
         "Sequence": 15,
         "Balance": "8287999860"
@@ -4000,7 +4000,7 @@
         "Account": "rBqCdAqw7jLH3EDx1Gkw4gUAbFqF7Gap4c",
         "PreviousTxnLgrSeq": 106,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "94057e3093d47e7a5286f1abbf11780fbe644ae9de530c15b1edcf512aac42ea",
+        "PreviousTxnID": "94057E3093D47E7A5286F1ABBF11780FBE644AE9DE530C15B1EDCF512AAC42EA",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "2000000000"
@@ -4012,7 +4012,7 @@
         "Owner": "rJ6VE6L87yaVmdyxa9jZFXSAdEFSoTGPbE",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "e2ec9e1bc7b4667b7a5f2f68857f6e6a478a09b5bb4f99e09f694437c4152ded",
+        "RootIndex": "E2EC9E1BC7B4667B7A5F2F68857F6E6A478A09B5BB4F99E09F694437C4152DED",
         "Indexes": ["65492B9F30F1CBEA168509128EB8619BAE02A7A7A4725FF3F8DAA70FA707A26E"]
       }
     },
@@ -4023,7 +4023,7 @@
         "Account": "rGwUWgN5BEg3QGNY3RX2HfYowjUTZdid3E",
         "PreviousTxnLgrSeq": 17155,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "de5907b8533b8d3c40d1ba268d54e34d74f03348dab54837f0000f9182a6be03",
+        "PreviousTxnID": "DE5907B8533B8D3C40D1BA268D54E34D74F03348DAB54837F0000F9182A6BE03",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -4039,7 +4039,7 @@
           "value": "25",
           "issuer": "rnziParaNb8nsU4aruQdwYE3j5jUcqjzFm"
         },
-        "PreviousTxnID": "981bc0b7c0bd6686453a9dc15a98e32e77834b55ca5d177916c03a09f8b89639",
+        "PreviousTxnID": "981BC0B7C0BD6686453A9DC15A98E32E77834B55CA5D177916C03A09F8B89639",
         "Flags": 65536,
         "Balance": {
           "currency": "BTC",
@@ -4060,7 +4060,7 @@
         "Account": "rNRG8YAUqgsqoE5HSNPHTYqEGoKzMd7DJr",
         "PreviousTxnLgrSeq": 3734,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "48632a870d75ad35f30022a6e1406de55d7807aced8376bb9b6a99fcad7242c6",
+        "PreviousTxnID": "48632A870D75AD35F30022A6E1406DE55D7807ACED8376BB9B6A99FCAD7242C6",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "1000000000000000"
@@ -4078,7 +4078,7 @@
           "value": "0",
           "issuer": "r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV"
         },
-        "PreviousTxnID": "782876bcd6e5a40816da9c300d06bf1736e7938cdf72c3a5f65ad50eabb956eb",
+        "PreviousTxnID": "782876BCD6E5A40816DA9C300D06BF1736E7938CDF72C3A5F65AD50EABB956EB",
         "Flags": 131072,
         "Balance": {
           "currency": "USD",
@@ -4099,7 +4099,7 @@
         "Account": "r8TR1AeB1RDQFabM6i8UoFsRF5basqoHJ",
         "PreviousTxnLgrSeq": 150,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "f85d6e7fba9feb513b4a3fd80a5eb8a7245a0d93f3bdb86dc0d00cad928c7f20",
+        "PreviousTxnID": "F85D6E7FBA9FEB513B4A3FD80A5EB8A7245A0D93F3BDB86DC0D00CAD928C7F20",
         "Flags": 0,
         "Sequence": 3,
         "Balance": "79997608218999980"
@@ -4112,7 +4112,7 @@
         "Account": "rpWrw1a5rQjZba1VySn2jichsPuB4GVnoC",
         "PreviousTxnLgrSeq": 3757,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "ec842b3f83593784a904fb1c43ff0677dee59399e11286d426a52a1976856ab8",
+        "PreviousTxnID": "EC842B3F83593784A904FB1C43FF0677DEE59399E11286D426A52A1976856AB8",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "20000000000000"
@@ -4128,7 +4128,7 @@
           "value": "0",
           "issuer": "rJ51FBSh6hXSUkFdMxwmtcorjx9izrC1yj"
         },
-        "PreviousTxnID": "f859e3de1b110c73cabab950feb0d734de68b3e6028ac831a5e3ea65271953fd",
+        "PreviousTxnID": "F859E3DE1B110C73CABAB950FEB0D734DE68B3E6028AC831A5E3EA65271953FD",
         "Flags": 131072,
         "Balance": {
           "currency": "CAD",
@@ -4149,7 +4149,7 @@
         "Account": "rJQx7JpaHUBgk7C56T2MeEAu1JZcxDekgH",
         "PreviousTxnLgrSeq": 23095,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "7fa58df8a1a2d639d65aa889553ee19c44c770b33859e53bd7ce18272a81c06b",
+        "PreviousTxnID": "7FA58DF8A1A2D639D65AA889553EE19C44C770B33859E53BD7CE18272A81C06B",
         "Flags": 0,
         "Sequence": 2,
         "Balance": "9799999990"
@@ -4162,7 +4162,7 @@
         "Account": "rBnmYPdB5ModK8NyDUad1mxuQjHVp6tAbk",
         "PreviousTxnLgrSeq": 7919,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "898b68513da6b1680a114474e0327c076fda4f1280721657ff639aaad60669b1",
+        "PreviousTxnID": "898B68513DA6B1680A114474E0327C076FDA4F1280721657FF639AAAD60669B1",
         "Flags": 0,
         "Sequence": 5,
         "Balance": "9999999960"
@@ -4175,7 +4175,7 @@
         "Account": "rGqM8S5GnGwiEdZ6QRm1GThiTAa89tS86E",
         "PreviousTxnLgrSeq": 26715,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "7e9190820f32df1cae924c9257b610f46003794229030f314e2075e4101b09df",
+        "PreviousTxnID": "7E9190820F32DF1CAE924C9257B610F46003794229030F314E2075E4101B09DF",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000000"
@@ -4189,7 +4189,7 @@
         "LedgerEntryType": "DirectoryNode",
         "IndexPrevious": "0000000000000002",
         "Flags": 0,
-        "RootIndex": "8e92e688a132410427806a734df6154b7535e439b72deca5e4bc7ce17135c5a4",
+        "RootIndex": "8E92E688A132410427806A734DF6154B7535E439B72DECA5E4BC7CE17135C5A4",
         "Indexes": ["73E075E64CA5E7CE60FFCD5359C1D730EDFFEE7C4D992760A87DF7EA0A34E40F"]
       }
     },
@@ -4200,7 +4200,7 @@
         "Account": "rJZCJ2jcohxtTzssBPeTGHLstMNEj5D96n",
         "PreviousTxnLgrSeq": 110,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "60ca81bf12767f5e9159dfda983525e2b45776567aca83d19fdbc28353f25d9f",
+        "PreviousTxnID": "60CA81BF12767F5E9159DFDA983525E2B45776567ACA83D19FDBC28353F25D9F",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10600000000"
@@ -4213,7 +4213,7 @@
         "Account": "rJYMACXJd1eejwzZA53VncYmiK2kZSBxyD",
         "PreviousTxnLgrSeq": 26946,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "62efa3f14d0de4136d444b65371c6efe842c9b4782437d6de81784329e040012",
+        "PreviousTxnID": "62EFA3F14D0DE4136D444B65371C6EFE842C9B4782437D6DE81784329E040012",
         "Flags": 0,
         "Sequence": 17,
         "Balance": "5919999799999840"
@@ -4225,7 +4225,7 @@
         "Owner": "rJ51FBSh6hXSUkFdMxwmtcorjx9izrC1yj",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "e1de1c68686261e5d06a3c89b78b4c254366ae9f166b56ed02da545ff1954b29",
+        "RootIndex": "E1DE1C68686261E5D06A3C89B78B4C254366AE9F166B56ED02DA545FF1954B29",
         "Indexes": [
           "CF1F8DF231AE06AE9D55C3B3367A9ED1E430FC0A6CA193EEA559C3ADF0A634FB",
           "353D47B7B033F5EC041BD4E367437C9EDA160D14BFBC3EF43B3335259AA5D5D5"
@@ -4239,7 +4239,7 @@
         "Account": "rLBwqTG5ErivwPXGaAGLQzJ2rr7ZTpjMx7",
         "PreviousTxnLgrSeq": 26721,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "afd4f8e6eab0cbe97a842576d6ceb158a54b209b6c28e5106e8445f0c599ef53",
+        "PreviousTxnID": "AFD4F8E6EAB0CBE97A842576D6CEB158A54B209B6C28E5106E8445F0C599EF53",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000000"
@@ -4252,7 +4252,7 @@
         "Account": "rhuCtPvq6jJeYF1S7aEmAcE5iM8LstSrrP",
         "PreviousTxnLgrSeq": 26723,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "256238c32d954f1dbe93c7fdf50d24226238db495ed6a3205803915a27a138c2",
+        "PreviousTxnID": "256238C32D954F1DBE93C7FDF50D24226238DB495ED6A3205803915A27A138C2",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000000"
@@ -4270,7 +4270,7 @@
           "value": "20",
           "issuer": "rshceBo6ftSVYo8h5uNPzRWbdqk4W6g9va"
         },
-        "PreviousTxnID": "f9ed6c634de09655f9f7c8e088b9157bb785571caa4305a6dd7bc876bd57671d",
+        "PreviousTxnID": "F9ED6C634DE09655F9F7C8E088B9157BB785571CAA4305A6DD7BC876BD57671D",
         "Flags": 196608,
         "Balance": {
           "currency": "USD",
@@ -4290,12 +4290,12 @@
         "TakerPaysCurrency": "0000000000000000000000004254430000000000",
         "ExchangeRate": "531AA535D3D0C000",
         "TakerGetsCurrency": "0000000000000000000000005553440000000000",
-        "TakerGetsIssuer": "58c742cf55c456de367686cb9ced83750bd24979",
+        "TakerGetsIssuer": "58C742CF55C456DE367686CB9CED83750BD24979",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "f774e0321809251174ac85531606fb46b75eef9f842f9697531aa535d3d0c000",
+        "RootIndex": "F774E0321809251174AC85531606FB46B75EEF9F842F9697531AA535D3D0C000",
         "Indexes": ["D1CB738BD08AC36DCB77191DB87C6E40FA478B86503371ED497F30931D7F4F52"],
-        "TakerPaysIssuer": "e8acfc6b5ef4ea0601241525375162f43c2ff285"
+        "TakerPaysIssuer": "E8ACFC6B5EF4EA0601241525375162F43C2FF285"
       }
     },
     {
@@ -4304,7 +4304,7 @@
         "Owner": "r4DGz8SxHXLaqsA9M2oocXsrty6BMSQvw3",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "f8327e8afe1af09a5b13d6384f055ccc475a5757308aa243a7a1a2cb00a6cb7e",
+        "RootIndex": "F8327E8AFE1AF09A5B13D6384F055CCC475A5757308AA243A7A1A2CB00A6CB7E",
         "Indexes": [
           "17B72685E9FBEFE18E0C1E8F07000E1B345A18ECD2D2BE9B27E69045248EF036",
           "F9830A2F94E5B611F6364893235E6D7F3521A8DE8AF936687B40C555E1282836"
@@ -4321,7 +4321,7 @@
           "value": "0",
           "issuer": "rBKPS4oLSaV2KVVuHH8EpQqMGgGefGFQs7"
         },
-        "PreviousTxnID": "8d7f42ed0621fbcfae55cc6f2a9403a2afb205708ccba3109bb61db8dda261b4",
+        "PreviousTxnID": "8D7F42ED0621FBCFAE55CC6F2A9403A2AFB205708CCBA3109BB61DB8DDA261B4",
         "Flags": 131072,
         "Balance": {
           "currency": "USD",
@@ -4342,7 +4342,7 @@
         "Account": "r4HabKLiKYtCbwnGG3Ev4HqncmXWsCtF9F",
         "PreviousTxnLgrSeq": 229,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "6b10bddabeb8c1d5f8e0cd7a54c08fead32260bdffac9692ee79b95e6e022a27",
+        "PreviousTxnID": "6B10BDDABEB8C1D5F8E0CD7A54C08FEAD32260BDFFAC9692EE79B95E6E022A27",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000000"
@@ -4354,7 +4354,7 @@
         "Owner": "rBY8EZDiCNMjjhrC7SCfaGr2PzGWtSntNy",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "f95f6d3a1ef7981e5ca4d5aec4da63392b126c76469735bcca26150a1af6d9c3",
+        "RootIndex": "F95F6D3A1EF7981E5CA4D5AEC4DA63392B126C76469735BCCA26150A1AF6D9C3",
         "Indexes": ["CAD951AB279A749AE648FD1DFF56C021BD66E36187022E772C31FE52106CB13B"]
       }
     },
@@ -4368,7 +4368,7 @@
           "value": "50",
           "issuer": "r9aRw8p1jHtR9XhDAE22TjtM7PdupNXhkx"
         },
-        "PreviousTxnID": "fe8a112ad2c27440245f120388eb00c8208833b3737a6de6cb8d3af3840ecead",
+        "PreviousTxnID": "FE8A112AD2C27440245F120388EB00C8208833B3737A6DE6CB8D3AF3840ECEAD",
         "Flags": 196608,
         "Balance": {
           "currency": "BTC",
@@ -4389,7 +4389,7 @@
         "Account": "rKHD6m92oprEVdi1FwGfTzxbgKt8eQfUYL",
         "PreviousTxnLgrSeq": 111,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "f1414803262ca34694e60b7d1efbd6f7400966bfe1c7eef2c564599730d792cc",
+        "PreviousTxnID": "F1414803262CA34694E60B7D1EFBD6F7400966BFE1C7EEF2C564599730D792CC",
         "Flags": 0,
         "Sequence": 1,
         "Balance": "10000000000"
@@ -4401,7 +4401,7 @@
         "Owner": "rD1jovjQeEpvaDwn9wKaYokkXXrqo4D23x",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "fd46ce0eebb1c52878eca415ab73df378ce04452ae67873b8bef0356f89b35ce",
+        "RootIndex": "FD46CE0EEBB1C52878ECA415AB73DF378CE04452AE67873B8BEF0356F89B35CE",
         "Indexes": [
           "8A2B79E75D1012CB89DBF27A0CE4750B398C353D679F5C1E22F8FAC6F87AE13C",
           "CD34D8FF7C656B66E2298DB420C918FE27DFFF2186AC8D1785D8CBF2C6BC3488"
@@ -4415,7 +4415,7 @@
         "Account": "rhxbkK9jGqPVLZSWPvCEmmf15xHBfJfCEy",
         "PreviousTxnLgrSeq": 17842,
         "LedgerEntryType": "AccountRoot",
-        "PreviousTxnID": "0a7e6fd67d2eb7b7ad0e10dac33b595b26e8e0dfd9f06183fb430a46779b6634",
+        "PreviousTxnID": "0A7E6FD67D2EB7B7AD0E10DAC33B595B26E8E0DFD9F06183FB430A46779B6634",
         "Flags": 0,
         "Sequence": 9,
         "Balance": "3499999920"
@@ -4427,7 +4427,7 @@
         "Owner": "rnGTwRTacmqZZBwPB6rh3H1W4GoTZCQtNA",
         "LedgerEntryType": "DirectoryNode",
         "Flags": 0,
-        "RootIndex": "ffa9a0be95fac1e9843396c0791eada3cbfee551d900ba126e4ad107ec71008c",
+        "RootIndex": "FFA9A0BE95FAC1E9843396C0791EADA3CBFEE551D900BA126E4AD107EC71008C",
         "Indexes": [
           "B15AB125CC1D8CACDC22B76E5AABF74A6BB620A5C223BE81ECB71EF17F1C3489",
           "B82A83B063FF08369F9BDEDC73074352FE37733E8373F6EDBFFC872489B57D93"
@@ -4441,8 +4441,8 @@
       "Account": "r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
       "Destination": "rLQBHVhFnaC5gLEkgr6HgBJJ3bgeZHg9cj",
       "TransactionType": "Payment",
-      "TxnSignature": "3045022022eb32aecef7c644c891c19f87966df9c62b1f34baba6be774325e4bb8e2dd62022100a51437898c28c2b297112df8131f2bb39ea5fe613487ddd611525f1796264639",
-      "SigningPubKey": "034aadb09cff4a4804073701ec53c3510cdc95917c2bb0150fb742d0c66e6cee9e",
+      "TxnSignature": "3045022022EB32AECEF7C644C891C19F87966DF9C62B1F34BABA6BE774325E4BB8E2DD62022100A51437898C28C2B297112DF8131F2BB39EA5FE613487DDD611525F1796264639",
+      "SigningPubKey": "034AADB09CFF4A4804073701EC53C3510CDC95917C2BB0150FB742D0C66E6CEE9E",
       "Amount": "10000000000",
       "Fee": "10",
       "Flags": 0,

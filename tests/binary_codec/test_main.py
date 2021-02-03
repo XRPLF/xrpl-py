@@ -16,7 +16,19 @@ TX_JSON = {
 class TestMain(unittest.TestCase):
     maxDiff = 1000
 
+    def _check_encode_decode(self, test_binary, test_json):
+        self.assertEqual(encode(test_json), test_binary)
+        self.assertEqual(decode(test_binary), test_json)
+
     def test_simple(self):
+        TX_JSON = {
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Destination": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+            "Flags": (1 << 31),  # tfFullyCanonicalSig
+            "Sequence": 1,
+            "TransactionType": "Payment",
+        }
+
         encoded = encode(TX_JSON)
         decoded = decode(encoded)
         self.assertEqual(TX_JSON, decoded)
@@ -31,8 +43,7 @@ class TestMain(unittest.TestCase):
                 test_binary = test["binary"]
                 test_json = test["json"]
                 with self.subTest(test_binary=test_binary, test_json=test_json):
-                    self.assertEqual(encode(test_json), test_binary)
-                    self.assertEqual(decode(test_binary), test_json)
+                    self._check_encode_decode(test_binary, test_json)
 
     def test_codec_fixtures_transaction(self):
         dirname = os.path.dirname(__file__)
@@ -44,8 +55,51 @@ class TestMain(unittest.TestCase):
                 test_binary = test["binary"]
                 test_json = test["json"]
                 with self.subTest(test_binary=test_binary, test_json=test_json):
-                    self.assertEqual(encode(test_json), test_binary)
-                    self.assertEqual(decode(test_binary), test_json)
+                    self._check_encode_decode(test_binary, test_json)
 
     def test_codec_fixtures_ledger_data(self):
         pass
+
+    def test_lowercase(self):
+        s = (
+            "1100612200000000240000000125000068652D0000000055B6632D6376A2D9319F"
+            "20A1C6DCCB486432D1E4A79951229D4C3DE2946F51D56662400009184E72A00081"
+            "140DD319918CD5AE792BF7EC80D63B0F01B4573BBC"
+        )
+        lower = s.lower()
+
+        binary = (
+            "1100612200000000240000000125000000082D00000000550735A0B32B2A3F4C93"
+            "8B76D6933003E29447DB8C7CE382BBE089402FF12A03E56240000002540BE40081"
+            "1479927BAFFD3D04A26096C0C97B1B0D45B01AD3C0"
+        )
+        json_dict = {
+            "OwnerCount": 0,
+            "Account": "rUnFEsHjxqTswbivzL2DNHBb34rhAgZZZK",
+            "PreviousTxnLgrSeq": 8,
+            "LedgerEntryType": "AccountRoot",
+            "PreviousTxnID": (
+                "0735A0B32B2A3F4C938B76D6933003E29447DB8C7CE382BBE089402FF12A03E5"
+            ).lower(),
+            "Flags": 0,
+            "Sequence": 1,
+            "Balance": "10000000000",
+        }
+
+        json_upper = {
+            "OwnerCount": 0,
+            "Account": "rUnFEsHjxqTswbivzL2DNHBb34rhAgZZZK",
+            "PreviousTxnLgrSeq": 8,
+            "LedgerEntryType": "AccountRoot",
+            "PreviousTxnID": (
+                "0735A0B32B2A3F4C938B76D6933003E29447DB8C7CE382BBE089402FF12A03E5"
+            ),
+            "Flags": 0,
+            "Sequence": 1,
+            "Balance": "10000000000",
+        }
+
+        self.assertEqual(decode(lower), decode(s))
+        self.assertEqual(encode(decode(lower)), s)
+        self.assertEqual(encode(json_dict), binary)
+        self.assertEqual(decode(encode(json_dict)), json_upper)
