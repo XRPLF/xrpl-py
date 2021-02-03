@@ -12,15 +12,13 @@ stages:
     - poetry install
 
 test-3.7:
+  # tedkalaw: Use 3.7.4 for now: https://bugs.python.org/issue38550
   image: python:3.7.4-alpine
   stage: test
+  extends: .test
   script:
-    - apk add build-base
-    - apk add libffi-dev
-    - apk add openssl-dev
-    - pip install poetry
-    - poetry install
     - poetry run nox -rs tests-3.7
+  retry: 2
 
 test-3.8:
   image: python:3.8-alpine
@@ -28,6 +26,7 @@ test-3.8:
   extends: .test
   script:
     - poetry run nox -rs tests-3.8
+  retry: 2
 
 test-3.9:
   image: python:3.9-alpine
@@ -35,6 +34,7 @@ test-3.9:
   extends: .test
   script:
     - poetry run nox -rs tests-3.9
+  retry: 2
 
 lint:
   image: python:3-alpine
@@ -42,3 +42,4 @@ lint:
   extends: .test
   script:
     - poetry run flake8 xrpl tests
+  retry: 2
