@@ -1,6 +1,8 @@
 """Derived UInt class for serializing/deserializing 32 bit UInt."""
 from __future__ import annotations
 
+from typing import Union
+
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.types.uint import UInt
@@ -29,7 +31,7 @@ class UInt32(UInt):
         return cls(parser.read(_WIDTH))
 
     @classmethod
-    def from_value(cls: UInt32, value: int) -> UInt32:
+    def from_value(cls: UInt32, value: Union[str, int]) -> UInt32:
         """
         Construct a new UInt32 type from a number.
 
@@ -44,6 +46,10 @@ class UInt32(UInt):
         """
         if isinstance(value, int):
             value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=False)
+            return cls(value_bytes)
+
+        if isinstance(value, str) and value.isdigit():
+            value_bytes = (int(value)).to_bytes(_WIDTH, byteorder="big", signed=False)
             return cls(value_bytes)
 
         raise XRPLBinaryCodecException("Cannot construct UInt32 from given value")
