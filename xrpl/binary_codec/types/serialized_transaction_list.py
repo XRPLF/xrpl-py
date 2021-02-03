@@ -4,15 +4,17 @@ from __future__ import annotations
 
 from typing import Any, List
 
+from typing_extensions import Final
+
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.types.serialized_transaction import SerializedTransaction
 from xrpl.binary_codec.types.serialized_type import SerializedType
 
-ARRAY_END_MARKER = bytes([0xF1])
-ARRAY_END_MARKER_NAME = "ArrayEndMarker"
+_ARRAY_END_MARKER: Final = bytes([0xF1])
+_ARRAY_END_MARKER_NAME: Final = "ArrayEndMarker"
 
-OBJECT_END_MARKER = bytes([0xE1])
+_OBJECT_END_MARKER: Final = bytes([0xE1])
 
 
 class SerializedTransactionList(SerializedType):
@@ -35,14 +37,13 @@ class SerializedTransactionList(SerializedType):
 
         while not parser.is_end():
             field = parser.read_field()
-            if field.name == ARRAY_END_MARKER_NAME:
+            if field.name == _ARRAY_END_MARKER_NAME:
                 break
-            else:
-                bytestring += field.header.to_bytes()
-                bytestring += parser.read_field_value(field).to_bytes()
-                bytestring += OBJECT_END_MARKER
+            bytestring += field.header.to_bytes()
+            bytestring += parser.read_field_value(field).to_bytes()
+            bytestring += _OBJECT_END_MARKER
 
-        bytestring += ARRAY_END_MARKER
+        bytestring += _ARRAY_END_MARKER
         return SerializedTransactionList(bytestring)
 
     @classmethod
@@ -59,20 +60,28 @@ class SerializedTransactionList(SerializedType):
             The SerializedTransactionList object constructed from value.
 
         Raises:
-            XRPLBinaryCodecException: If the SerializedTransactionList can't be
-                constructed from value.
+            XRPLBinaryCodecException: If the provided value isn't a list or contains
+                non-dict elements.
         """
-        if isinstance(value, list) and (len(value) == 0 or isinstance(value[0], dict)):
-            bytestring = b""
-            for obj in value:
-                transaction = SerializedTransaction.from_value(obj)
-                bytestring += transaction.to_bytes()
-            bytestring += ARRAY_END_MARKER
-            return SerializedTransactionList(bytestring)
+        if not isinstance(value, list):
+            raise XRPLBinaryCodecException(
+                "Cannot construct SerializedTransactionList from a non-list object"
+            )
 
-        raise XRPLBinaryCodecException(
-            "Cannot construct SerializedTransactionList from value given"
-        )
+        if len(value) > 0 and not isinstance(value[0], dict):
+            raise XRPLBinaryCodecException(
+                (
+                    "Cannot construct SerializedTransactionList from a list of non-dict"
+                    " objects"
+                )
+            )
+
+        bytestring = b""
+        for obj in value:
+            transaction = SerializedTransaction.from_value(obj)
+            bytestring += transaction.to_bytes()
+        bytestring += _ARRAY_END_MARKER
+        return SerializedTransactionList(bytestring)
 
     def to_json(self: SerializedTransactionList) -> List[Any]:
         """
@@ -86,7 +95,7 @@ class SerializedTransactionList(SerializedType):
 
         while not parser.is_end():
             field = parser.read_field()
-            if field.name == ARRAY_END_MARKER_NAME:
+            if field.name == _ARRAY_END_MARKER_NAME:
                 break
 
             outer = {}
