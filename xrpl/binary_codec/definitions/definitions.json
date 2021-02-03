@@ -19,7 +19,7 @@
     "NotPresent": 0,
     "UInt64": 3,
     "UInt32": 2,
-    "STArray": 15
+    "SerializedTransactionList": 15
   },
   "LEDGER_ENTRY_TYPES": {
     "Any": -3,
@@ -1281,7 +1281,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STArray"
+        "type": "SerializedTransactionList"
       }
     ],
     [
@@ -1291,7 +1291,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": false,
-        "type": "STArray"
+        "type": "SerializedTransactionList"
       }
     ],
     [
@@ -1301,7 +1301,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STArray"
+        "type": "SerializedTransactionList"
       }
     ],
     [
@@ -1311,7 +1311,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STArray"
+        "type": "SerializedTransactionList"
       }
     ],
     [
@@ -1321,7 +1321,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STArray"
+        "type": "SerializedTransactionList"
       }
     ],
     [
@@ -1331,7 +1331,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STArray"
+        "type": "SerializedTransactionList"
       }
     ],
     [
@@ -1341,7 +1341,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STArray"
+        "type": "SerializedTransactionList"
       }
     ],
     [
@@ -1351,7 +1351,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STArray"
+        "type": "SerializedTransactionList"
       }
     ],
     [
@@ -1361,7 +1361,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STArray"
+        "type": "SerializedTransactionList"
       }
     ],
     [
@@ -1371,7 +1371,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STArray"
+        "type": "SerializedTransactionList"
       }
     ],
     [
