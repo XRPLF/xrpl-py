@@ -1,7 +1,10 @@
-import unittest
 from decimal import Decimal
 
 import xrpl.binary_codec.types.amount as amount
+from tests.binary_codec.types.test_serialized_type import (
+    TestSerializedType,
+    data_driven_fixtures_for_type,
+)
 from xrpl.binary_codec.binary_wrappers import BinaryParser
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 
@@ -79,7 +82,7 @@ XRP_CASES = [
 ]
 
 
-class TestAmount(unittest.TestCase):
+class TestAmount(TestSerializedType):
     def test_assert_xrp_is_valid_passes(self):
         valid_zero = "0"
         valid_amount = "1000"
@@ -146,3 +149,7 @@ class TestAmount(unittest.TestCase):
             parser = BinaryParser(serialized)
             amount_object = amount.Amount.from_parser(parser)
             self.assertEqual(amount_object.to_json(), json)
+
+    def test_fixtures(self):
+        for fixture in data_driven_fixtures_for_type("Amount"):
+            self.fixture_test(fixture)

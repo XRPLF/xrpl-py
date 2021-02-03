@@ -29,9 +29,6 @@ def get_value_tests():
     Constructs and returns a list of ValueTest objects after parsing JSON data
     describing value test fixtures.
     """
-    for test in _FIXTURES_JSON["values_tests"][10:13]:
-        print(test)
-
     return [
         _construct_value_test(value_test_dict)
         for value_test_dict in _FIXTURES_JSON["values_tests"]

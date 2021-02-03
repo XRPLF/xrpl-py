@@ -35,20 +35,19 @@ TYPE_MAP = {
 
 VALUE_TESTS = get_value_tests()
 # for test in VALUE_TESTS:
-#     if test.error is not None:
+#     if test.type.startswith("A"):
 #         print(test)
 
 
-def _data_driven_fixtures_for_type(self, type_string: str):
+def data_driven_fixtures_for_type(type_string: str):
     """Return a list of ValueTest objects for the specified type."""
-    return [
-        value_test for value_test in self.value_tests if value_test.type == type_string
-    ]
+    return [value_test for value_test in VALUE_TESTS if value_test.type == type_string]
 
 
-class TestAmount(unittest.TestCase):
-    def fixture_tests(self, fixture: ValueTest):
+class TestSerializedType(unittest.TestCase):
+    def fixture_test(self, fixture: ValueTest):
         """Run the appropriate test for given fixture case."""
+        print("Fixture: ", fixture)
         serialized_type: SerializedType = TYPE_MAP[fixture.type]
         if type(fixture.test_json) == dict:
             json_value = fixture.test_json
@@ -60,5 +59,7 @@ class TestAmount(unittest.TestCase):
             )
         else:
             self.assertEqual(
-                serialized_type.from_value(json_value).to_hex(), fixture.expected_hex
+                # TODO: should to_hex() be returning uppercase hex SerializedType?
+                serialized_type.from_value(json_value).to_hex().upper(),
+                fixture.expected_hex,
             )
