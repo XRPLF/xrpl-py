@@ -6,6 +6,13 @@ from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binary_codec.types.serialized_transaction import SerializedTransaction
 
 
+def _num_to_bytes(num: int) -> bytes:
+    return (num).to_bytes(4, byteorder="big", signed=False)
+
+
+_TRANSACTION_SIGNATURE_PREFIX = _num_to_bytes(0x53545800)
+
+
 def encode(json: Union[List[Any], Dict[str, Any]]) -> str:
     """
     Encode a transaction.
@@ -17,6 +24,13 @@ def encode(json: Union[List[Any], Dict[str, Any]]) -> str:
         A hex-string of the encoded transaction.
     """
     return _serialize_json(json).hex().upper()
+
+
+def encode_for_signing(json: Union[List[Any], Dict[str, Any]]) -> str:
+    """TODO: docstring"""
+    return _serialize_json(
+        json, prefix=_TRANSACTION_SIGNATURE_PREFIX, signing_only=True
+    )
 
 
 def decode(buffer: str) -> Union[List[Any], Dict[str, Any]]:
@@ -37,7 +51,7 @@ def _serialize_json(
     json: Union[List[Any], Dict[str, Any]],
     prefix: Optional[bytes] = None,
     suffix: Optional[bytes] = None,
-    signing: bool = False,
+    signing_only: bool = False,
 ) -> bytes:
     buffer = b""
     if prefix is not None:
