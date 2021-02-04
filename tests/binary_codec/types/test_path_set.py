@@ -93,7 +93,7 @@ expected_json = [
 class TestPathSet(unittest.TestCase):
     def test_from_value(self):
         pathset = PathSet.from_value(expected_json)
-        self.assertEqual(buffer, pathset.to_string().upper())
+        self.assertEqual(buffer, pathset.to_string())
 
     def test_from_value_to_json(self):
         pathset = PathSet.from_value(expected_json)

@@ -12,12 +12,12 @@ SERIALIZED = HASH1 + HASH2
 class TestVector256(unittest.TestCase):
     def test_from_value(self):
         vector256_object = Vector256.from_value(HASH_LIST)
-        self.assertEqual(vector256_object.to_hex().upper(), SERIALIZED)
+        self.assertEqual(vector256_object.to_hex(), SERIALIZED)
 
     def test_from_parser(self):
         parser = BinaryParser(SERIALIZED)
         vector256_object = Vector256.from_parser(parser)
-        self.assertEqual(vector256_object.to_hex().upper(), SERIALIZED)
+        self.assertEqual(vector256_object.to_hex(), SERIALIZED)
 
     def test_to_json(self):
         vector256_object = Vector256.from_value(HASH_LIST)
