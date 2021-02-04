@@ -9,7 +9,7 @@ expected_json = {
     "Flags": 0,
     "Sequence": 103929,
     "SigningPubKey": (
-        "028472865af4cb32aa285834b57576b7290aa8c31b459047db27e16f418d6a7166"
+        "028472865AF4CB32AA285834B57576B7290AA8C31B459047DB27E16F418D6A7166"
     ),
     "TakerGets": {
         "value": "1694.768",
@@ -19,9 +19,9 @@ expected_json = {
     "TakerPays": "98957503520",
     "TransactionType": "OfferCreate",
     "TxnSignature": (
-        "304502202abe08d5e78d1e74a4c18f2714f64e87b8bd57444afa5733"
-        "109eb3c077077520022100db335ee97386e4c0591cac024d50e9230d8"
-        "f171eeb901b5e5e4bd6d1e0aef98c"
+        "304502202ABE08D5E78D1E74A4C18F2714F64E87B8BD57444AFA5733"
+        "109EB3C077077520022100DB335EE97386E4C0591CAC024D50E9230D8"
+        "F171EEB901B5E5E4BD6D1E0AEF98C"
     ),
 }
 
@@ -38,6 +38,8 @@ buffer = (
 
 
 class TestSerializedTransaction(unittest.TestCase):
+    maxDiff = 1000
+
     def test_from_value(self):
         transaction = SerializedTransaction.from_value(expected_json)
         self.assertEqual(buffer, transaction.to_string().upper())
