@@ -2,6 +2,7 @@ import json
 import os
 import unittest
 
+from tests.binary_codec.fixtures.data_driven_fixtures import get_whole_object_tests
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.main import decode, encode
 
@@ -269,3 +270,9 @@ class TestMainFixtures(unittest.TestCase):
         self._run_fixtures_test(
             "x-codec-fixtures.json", "transactions", self._check_xaddress_jsons
         )
+
+    def test_whole_object_fixtures(self):
+        whole_object_tests = get_whole_object_tests()
+        for whole_object in whole_object_tests:
+            self.assertEqual(encode(whole_object.tx_json), whole_object.expected_hex)
+            self.assertEqual(decode(whole_object.expected_hex), whole_object.tx_json)
