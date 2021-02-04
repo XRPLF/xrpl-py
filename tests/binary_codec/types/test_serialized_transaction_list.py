@@ -9,8 +9,8 @@ from xrpl.binary_codec.types.serialized_transaction_list import (
 
 MEMO = {
     "Memo": {
-        "MemoType": "687474703a2f2f6578616d706c652e636f6d2f6d656d6f2f67656e65726963",
-        "MemoData": "72656e74",
+        "MemoType": "687474703A2F2F6578616D706C652E636F6D2F6D656D6F2F67656E65726963",
+        "MemoData": "72656E74",
     }
 }
 MEMO_HEX = (
@@ -25,12 +25,12 @@ BUFFER = MEMO_HEX + MEMO_HEX + _ARRAY_END_MARKER.hex().upper()
 class TestSerializedTransactionList(unittest.TestCase):
     def test_from_value(self):
         transaction_list = SerializedTransactionList.from_value(EXPECTED_JSON)
-        self.assertEqual(BUFFER, transaction_list.to_string().upper())
+        self.assertEqual(BUFFER, transaction_list.to_string())
 
     def test_from_parser(self):
         parser = BinaryParser(BUFFER)
         transaction_list = SerializedTransactionList.from_parser(parser)
-        self.assertEqual(BUFFER, transaction_list.to_string().upper())
+        self.assertEqual(BUFFER, transaction_list.to_string())
 
     def test_from_value_to_json(self):
         transaction_list = SerializedTransactionList.from_value(EXPECTED_JSON)
