@@ -11,7 +11,6 @@ from xrpl.binary_codec.types.uint import UInt
 _WIDTH = 8  # 64 / 8
 
 _HEX_REGEX = re.compile("^[A-F0-9]{16}$")
-mask = 0x00000000FFFFFFFF
 
 
 class UInt64(UInt):
