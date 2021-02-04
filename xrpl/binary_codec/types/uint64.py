@@ -64,12 +64,3 @@ class UInt64(UInt):
         raise XRPLBinaryCodecException(
             "Cannot construct UInt64 from given value {}".format(value)
         )
-
-    def to_json(self) -> str:
-        """
-        Convert a UInt64 object to JSON (hex).
-
-        Returns:
-            The JSON representation of the UInt64 object.
-        """
-        return self.buffer.hex().upper()
