@@ -247,8 +247,8 @@ class TestMainFixtures(unittest.TestCase):
         dirname = os.path.dirname(__file__)
         full_filename = "fixtures/data/" + filename
         absolute_path = os.path.join(dirname, full_filename)
-        with open(absolute_path) as data_driven_tests:
-            fixtures_json = json.load(data_driven_tests)
+        with open(absolute_path) as fixtures_file:
+            fixtures_json = json.load(fixtures_file)
             for test in fixtures_json[category]:
                 test_method(test)
 
