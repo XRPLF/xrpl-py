@@ -13,6 +13,93 @@ TX_JSON = {
     "TransactionType": "Payment",
 }
 
+json_x1 = {
+    "OwnerCount": 0,
+    "Account": "XVXdn5wEVm5G4UhEHWDPqjvdeH361P7BsapL4m2D2XnPSwT",
+    "PreviousTxnLgrSeq": 7,
+    "LedgerEntryType": "AccountRoot",
+    "PreviousTxnID": "DF530FB14C5304852F20080B0A8EEF3A6BDD044F41F4EBBD68B8B321145FE4FF",
+    "Flags": 0,
+    "Sequence": 1,
+    "Balance": "10000000000",
+}
+
+json_r1 = {
+    "OwnerCount": 0,
+    "Account": "rLs1MzkFWCxTbuAHgjeTZK4fcCDDnf2KRv",
+    "PreviousTxnLgrSeq": 7,
+    "LedgerEntryType": "AccountRoot",
+    "PreviousTxnID": "DF530FB14C5304852F20080B0A8EEF3A6BDD044F41F4EBBD68B8B321145FE4FF",
+    "Flags": 0,
+    "Sequence": 1,
+    "Balance": "10000000000",
+    "SourceTag": 12345,
+}
+
+json_null_x = {
+    "OwnerCount": 0,
+    "Account": "rLs1MzkFWCxTbuAHgjeTZK4fcCDDnf2KRv",
+    "Destination": "rLs1MzkFWCxTbuAHgjeTZK4fcCDDnf2KRv",
+    "Issuer": "XVXdn5wEVm5G4UhEHWDPqjvdeH361P4GETfNyyXGaoqBj71",
+    "PreviousTxnLgrSeq": 7,
+    "LedgerEntryType": "AccountRoot",
+    "PreviousTxnID": "DF530FB14C5304852F20080B0A8EEF3A6BDD044F41F4EBBD68B8B321145FE4FF",
+    "Flags": 0,
+    "Sequence": 1,
+    "Balance": "10000000000",
+}
+
+json_invalid_x = {
+    "OwnerCount": 0,
+    "Account": "rLs1MzkFWCxTbuAHgjeTZK4fcCDDnf2KRv",
+    "Destination": "rLs1MzkFWCxTbuAHgjeTZK4fcCDDnf2KRv",
+    "Issuer": "XVXdn5wEVm5g4UhEHWDPqjvdeH361P4GETfNyyXGaoqBj71",
+    "PreviousTxnLgrSeq": 7,
+    "LedgerEntryType": "AccountRoot",
+    "PreviousTxnID": "DF530FB14C5304852F20080B0A8EEF3A6BDD044F41F4EBBD68B8B321145FE4FF",
+    "Flags": 0,
+    "Sequence": 1,
+    "Balance": "10000000000",
+}
+
+json_null_r = {
+    "OwnerCount": 0,
+    "Account": "rLs1MzkFWCxTbuAHgjeTZK4fcCDDnf2KRv",
+    "Destination": "rLs1MzkFWCxTbuAHgjeTZK4fcCDDnf2KRv",
+    "Issuer": "rLs1MzkFWCxTbuAHgjeTZK4fcCDDnf2KRv",
+    "PreviousTxnLgrSeq": 7,
+    "LedgerEntryType": "AccountRoot",
+    "PreviousTxnID": "DF530FB14C5304852F20080B0A8EEF3A6BDD044F41F4EBBD68B8B321145FE4FF",
+    "Flags": 0,
+    "Sequence": 1,
+    "Balance": "10000000000",
+}
+
+invalid_json_issuer_tagged = {
+    "OwnerCount": 0,
+    "Account": "rLs1MzkFWCxTbuAHgjeTZK4fcCDDnf2KRv",
+    "Destination": "rLs1MzkFWCxTbuAHgjeTZK4fcCDDnf2KRv",
+    "Issuer": "XVXdn5wEVm5G4UhEHWDPqjvdeH361P7BsapL4m2D2XnPSwT",
+    "PreviousTxnLgrSeq": 7,
+    "LedgerEntryType": "AccountRoot",
+    "PreviousTxnID": "DF530FB14C5304852F20080B0A8EEF3A6BDD044F41F4EBBD68B8B321145FE4FF",
+    "Flags": 0,
+    "Sequence": 1,
+    "Balance": "10000000000",
+}
+
+invalid_json_x_and_tagged = {
+    "OwnerCount": 0,
+    "Account": "XVXdn5wEVm5G4UhEHWDPqjvdeH361P7BsapL4m2D2XnPSwT",
+    "PreviousTxnLgrSeq": 7,
+    "LedgerEntryType": "AccountRoot",
+    "PreviousTxnID": "DF530FB14C5304852F20080B0A8EEF3A6BDD044F41F4EBBD68B8B321145FE4FF",
+    "Flags": 0,
+    "Sequence": 1,
+    "Balance": "10000000000",
+    "SourceTag": 12345,
+}
+
 
 class TestMainSimple(unittest.TestCase):
     def test_simple(self):
@@ -116,36 +203,69 @@ class TestMainSimple(unittest.TestCase):
         self.assertEqual(decode(encode(json_blank_acct)), json_dict)
 
 
+class TestXAddress(unittest.TestCase):
+    def test_xaddress_encode(self):
+        self.assertEqual(encode(json_x1), encode(json_r1))
+
+    def test_xaddress_decode(self):
+        self.assertEqual(decode(encode(json_x1)), json_r1)
+
+    def test_xaddress_null_tag(self):
+        self.assertEqual(encode(json_null_x), encode(json_null_r))
+
+    def test_xaddress_invalid(self):
+        with self.assertRaises(ValueError):
+            encode(json_invalid_x)
+
+    def test_xaddress_invalid_field(self):
+        with self.assertRaises(XRPLBinaryCodecException):
+            encode(invalid_json_issuer_tagged)
+
+    def test_xaddress_xaddr_and_dest_tag(self):
+        with self.assertRaises(XRPLBinaryCodecException):
+            encode(invalid_json_x_and_tagged)
+
+
 class TestMainFixtures(unittest.TestCase):
     maxDiff = 1000
 
-    def _check_encode_decode(self, test_binary, test_json):
-        self.assertEqual(encode(test_json), test_binary)
-        self.assertEqual(decode(test_binary), test_json)
+    def _check_binary_and_json(self, test):
+        test_binary = test["binary"]
+        test_json = test["json"]
+        with self.subTest(test_binary=test_binary, test_json=test_json):
+            self.assertEqual(encode(test_json), test_binary)
+            self.assertEqual(decode(test_binary), test_json)
+
+    def _check_xaddress_jsons(self, test):
+        x_json = test["xjson"]
+        r_json = test["rjson"]
+        with self.subTest(x_json=test["xjson"], r_json=test["rjson"]):
+            self.assertEqual(encode(x_json), encode(r_json))
+            self.assertEqual(decode(encode(x_json)), r_json)
+
+    def _run_fixtures_test(self, filename, category, test_method):
+        dirname = os.path.dirname(__file__)
+        full_filename = "fixtures/data/" + filename
+        absolute_path = os.path.join(dirname, full_filename)
+        with open(absolute_path) as data_driven_tests:
+            fixtures_json = json.load(data_driven_tests)
+            for test in fixtures_json[category]:
+                test_method(test)
 
     def test_codec_fixtures_account_state(self):
-        dirname = os.path.dirname(__file__)
-        filename = "fixtures/data/codec-fixtures.json"
-        absolute_path = os.path.join(dirname, filename)
-        with open(absolute_path) as data_driven_tests:
-            fixtures_json = json.load(data_driven_tests)
-            for test in fixtures_json["accountState"]:
-                test_binary = test["binary"]
-                test_json = test["json"]
-                with self.subTest(test_binary=test_binary, test_json=test_json):
-                    self._check_encode_decode(test_binary, test_json)
+        self._run_fixtures_test(
+            "codec-fixtures.json", "accountState", self._check_binary_and_json
+        )
 
     def test_codec_fixtures_transaction(self):
-        dirname = os.path.dirname(__file__)
-        filename = "fixtures/data/codec-fixtures.json"
-        absolute_path = os.path.join(dirname, filename)
-        with open(absolute_path) as data_driven_tests:
-            fixtures_json = json.load(data_driven_tests)
-            for test in fixtures_json["transactions"]:
-                test_binary = test["binary"]
-                test_json = test["json"]
-                with self.subTest(test_binary=test_binary, test_json=test_json):
-                    self._check_encode_decode(test_binary, test_json)
+        self._run_fixtures_test(
+            "codec-fixtures.json", "transactions", self._check_binary_and_json
+        )
 
     def test_codec_fixtures_ledger_data(self):
         pass
+
+    def test_x_codec_fixtures(self):
+        self._run_fixtures_test(
+            "x-codec-fixtures.json", "transactions", self._check_xaddress_jsons
+        )

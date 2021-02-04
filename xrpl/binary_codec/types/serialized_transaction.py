@@ -133,11 +133,21 @@ class SerializedTransaction(SerializedType):
         for (k, v) in value.items():
             if isinstance(v, str) and is_valid_xaddress(v):
                 handled = _handle_xaddress(k, v)
-                if handled[_SOURCE_TAG] is not None and value[_SOURCE_TAG] is not None:
+                if (
+                    _SOURCE_TAG in handled
+                    and handled[_SOURCE_TAG] is not None
+                    and _SOURCE_TAG in value
+                    and value[_SOURCE_TAG] is not None
+                ):
                     raise XRPLBinaryCodecException(
                         "Cannot have Account X-Address and SourceTag"
                     )
-                if handled[_DEST_TAG] is not None and value[_DEST_TAG] is not None:
+                if (
+                    _DEST_TAG in handled
+                    and handled[_DEST_TAG] is not None
+                    and _DEST_TAG in value
+                    and value[_DEST_TAG] is not None
+                ):
                     raise XRPLBinaryCodecException(
                         "Cannot have Destination X-Address and DestinationTag"
                     )
