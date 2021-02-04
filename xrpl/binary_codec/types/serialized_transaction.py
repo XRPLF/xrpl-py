@@ -120,6 +120,7 @@ class SerializedTransaction(SerializedType):
 
         Args:
             value: The dictionary to construct a SerializedTransaction from.
+            only_signing: whether only the signing fields should be included.
 
         Returns:
             The SerializedTransaction object constructed from value.
