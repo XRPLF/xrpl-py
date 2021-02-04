@@ -9,8 +9,8 @@ from xrpl.binary_codec.types.serialized_transaction_list import (
 
 MEMO = {
     "Memo": {
-        "MemoType": "687474703a2f2f6578616d706c652e636f6d2f6d656d6f2f67656e65726963",
-        "MemoData": "72656e74",
+        "MemoType": "687474703A2F2F6578616D706C652E636F6D2F6D656D6F2F67656E65726963",
+        "MemoData": "72656E74",
     }
 }
 MEMO_HEX = (
