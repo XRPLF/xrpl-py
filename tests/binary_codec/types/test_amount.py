@@ -127,13 +127,12 @@ class TestAmount(TestSerializedType):
     def test_from_value_issued_currency(self):
         for json, serialized in IOU_CASES:
             amount_object = amount.Amount.from_value(json)
-            # Convert hex to uppercase to match expectation
-            self.assertEqual(amount_object.to_hex().upper(), serialized)
+            self.assertEqual(amount_object.to_hex(), serialized)
 
     def test_from_value_xrp(self):
         for json, serialized in XRP_CASES:
             amount_object = amount.Amount.from_value(json)
-            self.assertEqual(amount_object.to_hex().upper(), serialized)
+            self.assertEqual(amount_object.to_hex(), serialized)
 
     def test_to_json_issued_currency(self):
         for json, serialized in IOU_CASES:
