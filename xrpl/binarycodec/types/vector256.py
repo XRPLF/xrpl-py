@@ -10,7 +10,7 @@ from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.types.hash256 import Hash256
 from xrpl.binarycodec.types.serialized_type import SerializedType
 
-_HASH_LENGTH_BYTES: Final = 32
+_HASH_LENGTH_BYTES: Final[int] = 32
 
 
 class Vector256(SerializedType):

@@ -21,13 +21,13 @@ from xrpl.binarycodec.definitions.field_instance import FieldInstance
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.serialized_type import SerializedType
 
-_OBJECT_END_MARKER_BYTE: Final = bytes([0xE1])
-_OBJECT_END_MARKER: Final = "ObjectEndMarker"
-_SERIALIZED_TRANSACTION: Final = "SerializedTransaction"
-_DESTINATION: Final = "Destination"
-_ACCOUNT: Final = "Account"
-_SOURCE_TAG: Final = "SourceTag"
-_DEST_TAG: Final = "DestinationTag"
+_OBJECT_END_MARKER_BYTE: Final[bytes] = bytes([0xE1])
+_OBJECT_END_MARKER: Final[str] = "ObjectEndMarker"
+_SERIALIZED_TRANSACTION: Final[str] = "SerializedTransaction"
+_DESTINATION: Final[str] = "Destination"
+_ACCOUNT: Final[str] = "Account"
+_SOURCE_TAG: Final[str] = "SourceTag"
+_DEST_TAG: Final[str] = "DestinationTag"
 
 
 def _handle_xaddress(field: str, xaddress: str) -> Dict[str, str]:

@@ -5,6 +5,8 @@ from __future__ import annotations  # Requires Python 3.7+
 
 from abc import ABC
 
+from typing_extensions import Final
+
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.serialized_type import SerializedType
 
@@ -18,7 +20,7 @@ class Hash(SerializedType, ABC):
         width:  The length of this hash in bytes.
     """
 
-    _width: int
+    _WIDTH: Final[int]
 
     def __init__(self: Hash, buffer: bytes) -> None:
         """
@@ -27,7 +29,7 @@ class Hash(SerializedType, ABC):
         :param buffer: The byte buffer that will be used to store
                         the serialized encoding of this field.
         """
-        if len(buffer) != self._width:
+        if len(buffer) != self._WIDTH:
             raise XRPLBinaryCodecException("Invalid hash length {}".format(len(buffer)))
         super().__init__(buffer)
 

@@ -22,7 +22,7 @@ class Hash160(Hash):
         width: The length of this hash in bytes.
     """
 
-    _width = 20
+    _WIDTH = 20
 
     def __init__(self: Hash160, buffer: bytes = None) -> None:
         """Construct a Hash160."""

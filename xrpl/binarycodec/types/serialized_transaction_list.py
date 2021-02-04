@@ -13,10 +13,10 @@ from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.serialized_transaction import SerializedTransaction
 from xrpl.binarycodec.types.serialized_type import SerializedType
 
-_ARRAY_END_MARKER: Final = bytes([0xF1])
-_ARRAY_END_MARKER_NAME: Final = "ArrayEndMarker"
+_ARRAY_END_MARKER: Final[bytes] = bytes([0xF1])
+_ARRAY_END_MARKER_NAME: Final[str] = "ArrayEndMarker"
 
-_OBJECT_END_MARKER: Final = bytes([0xE1])
+_OBJECT_END_MARKER: Final[bytes] = bytes([0xE1])
 
 
 class SerializedTransactionList(SerializedType):

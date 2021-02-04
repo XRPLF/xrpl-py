@@ -22,7 +22,7 @@ class Hash256(Hash):
         width: The length of this hash in bytes.
     """
 
-    _width = 32
+    _WIDTH = 32
 
     def __init__(self: Hash256, buffer: bytes = None) -> None:
         """Construct a Hash256."""

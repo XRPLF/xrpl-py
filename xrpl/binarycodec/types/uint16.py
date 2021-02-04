@@ -3,11 +3,13 @@ See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
 """
 from __future__ import annotations
 
+from typing_extensions import Final
+
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.uint import UInt
 
-_WIDTH = 2  # 16 / 8
+_WIDTH: Final[int] = 2  # 16 / 8
 
 
 class UInt16(UInt):

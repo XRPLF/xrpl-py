@@ -6,13 +6,15 @@ from __future__ import annotations
 import re
 from typing import Union
 
+from typing_extensions import Final
+
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.uint import UInt
 
-_WIDTH = 8  # 64 / 8
+_WIDTH: Final[int] = 8  # 64 / 8
 
-_HEX_REGEX = re.compile("^[A-F0-9]{16}$")
+_HEX_REGEX: Final[re.Pattern] = re.compile("^[A-F0-9]{16}$")
 
 
 class UInt64(UInt):

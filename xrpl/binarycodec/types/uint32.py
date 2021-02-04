@@ -5,11 +5,13 @@ from __future__ import annotations
 
 from typing import Union
 
+from typing_extensions import Final
+
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.uint import UInt
 
-_WIDTH = 4  # 32 / 8
+_WIDTH: Final[int] = 4  # 32 / 8
 
 
 class UInt32(UInt):

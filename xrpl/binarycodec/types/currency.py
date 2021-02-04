@@ -3,12 +3,14 @@ from __future__ import annotations  # Requires Python 3.7+
 
 import re
 
+from typing_extensions import Final
+
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.hash160 import Hash160
 
-_ISO_REGEX = re.compile("^[A-Z0-9]{3}$")
-_HEX_REGEX = re.compile("^[A-F0-9]{40}$")
-_CURRENCY_CODE_LENGTH = 20  # bytes
+_ISO_REGEX: Final[re.Pattern] = re.compile("^[A-Z0-9]{3}$")
+_HEX_REGEX: Final[re.Pattern] = re.compile("^[A-F0-9]{40}$")
+_CURRENCY_CODE_LENGTH: Final[int] = 20  # bytes
 
 
 def _is_iso_code(value: str) -> bool:
@@ -58,14 +60,14 @@ class Currency(Hash160):
         _is_native: True if the currency code is "XRP"
     """
 
-    LENGTH = 20
+    _LENGTH: Final[int] = 20
 
     def __init__(self: Currency, buffer: bytes = None) -> None:
         """Construct a Currency."""
         if buffer is not None:
             super().__init__(buffer)
         else:
-            super().__init__(bytes(self.LENGTH))
+            super().__init__(bytes(self._LENGTH))
 
         # Determine whether this currency code is in standard or nonstandard format:
         # https://xrpl.org/currency-formats.html#nonstandard-currency-codes

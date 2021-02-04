@@ -16,26 +16,26 @@ from xrpl.binarycodec.types.currency import Currency
 from xrpl.binarycodec.types.serialized_type import SerializedType
 
 # Constants for validating amounts.
-_MIN_IOU_EXPONENT: Final = -96
-_MAX_IOU_EXPONENT: Final = 80
-_MAX_IOU_PRECISION: Final = 16
-_MIN_MANTISSA: Final = 10 ** 15
-_MAX_MANTISSA: Final = 10 ** 16 - 1
+_MIN_IOU_EXPONENT: Final[int] = -96
+_MAX_IOU_EXPONENT: Final[int] = 80
+_MAX_IOU_PRECISION: Final[int] = 16
+_MIN_MANTISSA: Final[int] = 10 ** 15
+_MAX_MANTISSA: Final[int] = 10 ** 16 - 1
 
 # Configure Decimal
 setcontext(
     Context(prec=_MAX_IOU_PRECISION, Emax=_MAX_IOU_EXPONENT, Emin=_MIN_IOU_EXPONENT)
 )
 
-_MAX_DROPS: Final = Decimal("1e17")
-_MIN_XRP: Final = Decimal("1e-6")
+_MAX_DROPS: Final[Decimal] = Decimal("1e17")
+_MIN_XRP: Final[Decimal] = Decimal("1e-6")
 
 # other constants:
-_NOT_XRP_BIT_MASK: Final = 0x80
-_POS_SIGN_BIT_MASK: Final = 0x4000000000000000
-_ZERO_CURRENCY_AMOUNT_HEX: Final = 0x8000000000000000
-_NATIVE_AMOUNT_BYTE_LENGTH: Final = 8
-_CURRENCY_AMOUNT_BYTE_LENGTH: Final = 48
+_NOT_XRP_BIT_MASK: Final[int] = 0x80
+_POS_SIGN_BIT_MASK: Final[int] = 0x4000000000000000
+_ZERO_CURRENCY_AMOUNT_HEX: Final[int] = 0x8000000000000000
+_NATIVE_AMOUNT_BYTE_LENGTH: Final[int] = 8
+_CURRENCY_AMOUNT_BYTE_LENGTH: Final[int] = 48
 
 
 def _contains_decimal(string: str) -> bool:
