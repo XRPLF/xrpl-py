@@ -4,7 +4,7 @@ See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
 """
 from __future__ import annotations
 
-from decimal import Context, Decimal, getcontext, setcontext
+from decimal import Context, Decimal, setcontext
 from typing import Dict, Optional, Union
 
 from typing_extensions import Final
@@ -66,7 +66,7 @@ def _is_valid_issued_currency_amount(value: Dict) -> bool:
     """
     if len(value.keys()) != 3:
         return False
-    expected_keys = set(["currency", "issuer", "value"])
+    expected_keys = {"currency", "issuer", "value"}
     if set(value.keys()) == expected_keys:
         return True
     return False
@@ -99,14 +99,14 @@ def verify_xrp_value(xrp_value: str) -> None:
         raise XRPLBinaryCodecException("{} is an invalid XRP amount.".format(xrp_value))
 
 
-def verify_iou_value(issued_currency_value: Decimal) -> None:
+def verify_iou_value(issued_currency_value: str) -> None:
     """
     Validates the format of an issued currency amount value.
     Raises if value is invalid.
 
     Args:
-        issued_currency_value: A Decimal object representing the "value"
-                                    field of an issued currency amount.
+        issued_currency_value: A string representing the "value"
+                               field of an issued currency amount.
 
     Returns:
         None, but raises if issued_currency_value is not valid.
@@ -114,19 +114,26 @@ def verify_iou_value(issued_currency_value: Decimal) -> None:
     Raises:
         XRPLBinaryCodecException: If issued_currency_value is invalid.
     """
-    if issued_currency_value.is_zero():
+    decimal_value = Decimal(issued_currency_value)
+    if decimal_value.is_zero():
         return None
-    precision = getcontext().prec
-    exponent = issued_currency_value.as_tuple().exponent
+    exponent = decimal_value.as_tuple().exponent
     if (
-        (precision > _MAX_IOU_PRECISION)
+        (_calculate_precision(issued_currency_value) > _MAX_IOU_PRECISION)
         or (exponent > _MAX_IOU_EXPONENT)
         or (exponent < _MIN_IOU_EXPONENT)
     ):
         raise XRPLBinaryCodecException(
             "Decimal precision out of range for issued currency value."
         )
-    _verify_no_decimal(issued_currency_value)
+    _verify_no_decimal(decimal_value)
+
+
+def _calculate_precision(value: str) -> int:
+    """Calculate the precision of given value as a string."""
+    no_decimal_point = value.replace(".", "")
+    no_leading_or_trailing_zeros = no_decimal_point.strip("0")
+    return len(no_leading_or_trailing_zeros)
 
 
 def _verify_no_decimal(decimal: Decimal) -> None:
@@ -138,8 +145,11 @@ def _verify_no_decimal(decimal: Decimal) -> None:
     """
     actual_exponent = decimal.as_tuple().exponent
     exponent = Decimal("1e" + str(-(int(actual_exponent) - 15)))
-    # str(Decimal) uses sci notation by default... get around w/ string format
-    int_number_string = "{:f}".format(decimal * exponent)
+    if actual_exponent == 0:
+        int_number_string = "".join([str(d) for d in decimal.as_tuple().digits])
+    else:
+        # str(Decimal) uses sci notation by default... get around w/ string format
+        int_number_string = "{:f}".format(decimal * exponent)
     if not _contains_decimal(int_number_string):
         raise XRPLBinaryCodecException("Decimal place found in int_number_str")
 
@@ -151,8 +161,8 @@ def _serialize_issued_currency_value(value: str) -> bytes:
     :param value: The value to serialize, as a string.
     :return: A bytes object encoding the serialized value.
     """
+    verify_iou_value(value)
     decimal_value = Decimal(value)
-    verify_iou_value(decimal_value)
     if decimal_value.is_zero():
         return _ZERO_CURRENCY_AMOUNT_HEX.to_bytes(8, byteorder="big")
 
@@ -306,11 +316,11 @@ class Amount(SerializedType):
             "1e{}".format(exponent)
         )
 
-        verify_iou_value(value)
         if value.is_zero():
             value_str = "0"
         else:
             value_str = str(value).rstrip("0").rstrip(".")
+        verify_iou_value(value_str)
 
         return {
             "value": value_str,

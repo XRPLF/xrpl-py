@@ -27,12 +27,12 @@ class TestSerializedTransactionList(unittest.TestCase):
 
     def test_from_value(self):
         transaction_list = SerializedTransactionList.from_value(EXPECTED_JSON)
-        self.assertEqual(BUFFER, transaction_list.to_string().upper())
+        self.assertEqual(BUFFER, transaction_list.to_string())
 
     def test_from_parser(self):
         parser = BinaryParser(BUFFER)
         transaction_list = SerializedTransactionList.from_parser(parser)
-        self.assertEqual(BUFFER, transaction_list.to_string().upper())
+        self.assertEqual(BUFFER, transaction_list.to_string())
 
     def test_from_value_to_json(self):
         transaction_list = SerializedTransactionList.from_value(EXPECTED_JSON)

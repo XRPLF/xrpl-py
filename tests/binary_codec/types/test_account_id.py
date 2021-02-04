@@ -16,4 +16,4 @@ class TestAccountID(unittest.TestCase):
         # Note that I converted the hex to uppercase here...
         # We may want to decide if we want the implemention of `to_hex` in
         # SerializedType to return uppercase hex by default.
-        self.assertEqual(account_id.to_hex().upper(), HEX_ENCODING)
+        self.assertEqual(account_id.to_hex(), HEX_ENCODING)
