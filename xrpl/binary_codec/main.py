@@ -27,9 +27,19 @@ def encode(json: Union[List[Any], Dict[str, Any]]) -> str:
 
 
 def encode_for_signing(json: Union[List[Any], Dict[str, Any]]) -> str:
-    """TODO: docstring"""
-    return _serialize_json(
-        json, prefix=_TRANSACTION_SIGNATURE_PREFIX, signing_only=True
+    """
+    Encode a transaction and prepare for signing
+
+    Args:
+        json: JSON object representing the transaction
+
+    Returns:
+        A hex string of the encoded transaction.
+    """
+    return (
+        _serialize_json(json, prefix=_TRANSACTION_SIGNATURE_PREFIX, signing_only=True)
+        .hex()
+        .upper()
     )
 
 
@@ -57,7 +67,7 @@ def _serialize_json(
     if prefix is not None:
         buffer += prefix
 
-    buffer += SerializedTransaction.from_value(json).to_bytes()
+    buffer += SerializedTransaction.from_value(json, signing_only).to_bytes()
 
     if suffix is not None:
         buffer += suffix
