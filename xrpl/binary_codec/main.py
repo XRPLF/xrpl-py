@@ -3,7 +3,9 @@
 from typing import Any, Dict, List, Optional, Union
 
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
+from xrpl.binary_codec.types.hash256 import Hash256
 from xrpl.binary_codec.types.serialized_transaction import SerializedTransaction
+from xrpl.binary_codec.types.uint64 import UInt64
 
 
 def _num_to_bytes(num: int) -> bytes:
@@ -11,6 +13,7 @@ def _num_to_bytes(num: int) -> bytes:
 
 
 _TRANSACTION_SIGNATURE_PREFIX = _num_to_bytes(0x53545800)
+_PAYMENT_CHANNEL_CLAIM_PREFIX = _num_to_bytes(0x434C4D00)
 
 
 def encode(json: Union[List[Any], Dict[str, Any]]) -> str:
@@ -28,10 +31,10 @@ def encode(json: Union[List[Any], Dict[str, Any]]) -> str:
 
 def encode_for_signing(json: Union[List[Any], Dict[str, Any]]) -> str:
     """
-    Encode a transaction and prepare for signing
+    Encode a transaction and prepare for signing.
 
     Args:
-        json: JSON object representing the transaction
+        json: JSON object representing the transaction.
 
     Returns:
         A hex string of the encoded transaction.
@@ -41,6 +44,24 @@ def encode_for_signing(json: Union[List[Any], Dict[str, Any]]) -> str:
         .hex()
         .upper()
     )
+
+
+def encode_for_signing_claim(json: Dict[str, Any]) -> str:
+    """
+    Encode a transaction and prepare for signing with a claim.
+
+    Args:
+        json: JSON object representing the transaction.
+
+    Returns:
+        A hex string of the encoded transaction.
+    """
+    prefix = _PAYMENT_CHANNEL_CLAIM_PREFIX
+    channel = Hash256.from_value(json["channel"])
+    amount = UInt64.from_value(int(json["amount"]))
+
+    buffer = prefix + channel.to_bytes() + amount.to_bytes()
+    return buffer.hex().upper()
 
 
 def decode(buffer: str) -> Union[List[Any], Dict[str, Any]]:

@@ -3,7 +3,12 @@ import os
 import unittest
 
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
-from xrpl.binary_codec.main import decode, encode, encode_for_signing
+from xrpl.binary_codec.main import (
+    decode,
+    encode,
+    encode_for_signing,
+    encode_for_signing_claim,
+)
 
 TX_JSON = {
     "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
@@ -297,7 +302,7 @@ class TestMainFixtures(unittest.TestCase):
 class TestMainSigning(unittest.TestCase):
     maxDiff = 1000
 
-    def test_single_signing_blob(self):
+    def test_single_signing(self):
         expected = (
             "53545800120000228000000024000000016140000000000003E868400000000000"
             "000A7321ED5F5AC8B98974A3CA843326D9B88CEBD0560177B973EE0B149F782CFA"
@@ -305,3 +310,13 @@ class TestMainSigning(unittest.TestCase):
             "53D543A014CAF8B297CFF8F2F937E8"
         )
         self.assertEqual(encode_for_signing(signing_json), expected)
+
+    def test_claim(self):
+        channel = "43904CBFCDCEC530B4037871F86EE90BF799DF8D2E0EA564BC8A3F332E4F5FB1"
+        amount = "1000"
+        json = {"amount": amount, "channel": channel}
+        expected = (
+            "434C4D0043904CBFCDCEC530B4037871F86EE90BF799DF8D2E0EA564BC8A3F332E"
+            "4F5FB100000000000003E8"
+        )
+        self.assertEqual(encode_for_signing_claim(json), expected)
