@@ -38,9 +38,6 @@ buffer = (
 
 
 class TestSerializedTransaction(unittest.TestCase):
-    def setUp(self):
-        self.maxDiff = None
-
     def test_from_value(self):
         transaction = SerializedTransaction.from_value(expected_json)
         self.assertEqual(buffer, transaction.to_string().upper())
