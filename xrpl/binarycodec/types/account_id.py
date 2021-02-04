@@ -6,6 +6,7 @@ from __future__ import annotations  # Requires Python 3.7+
 import re
 
 from xrpl.addresscodec import decode_classic_address, encode_classic_address
+from xrpl.binarycodec import XRPLBinaryCodecException
 from xrpl.binarycodec.types.hash160 import Hash160
 
 _HEX_REGEX = re.compile("^[A-F0-9]{40}$")
@@ -38,7 +39,13 @@ class AccountID(Hash160):
 
         Returns:
             The AccountID constructed from value.
+
+        Raises:
+            XRPLBinaryCodecException: If the supplied value is of the wrong type.
         """
+        if not isinstance(value, str):
+            raise XRPLBinaryCodecException("Invalid type to construct an AccountID")
+
         if value == "":
             return cls()
 

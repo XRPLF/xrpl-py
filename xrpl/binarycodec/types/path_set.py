@@ -45,7 +45,13 @@ class PathStep(SerializedType):
 
         Returns:
             The PathStep constructed from value.
+
+        Raises:
+            XRPLBinaryCodecException: If the supplied value is of the wrong type.
         """
+        if not isinstance(value, dict):
+            raise XRPLBinaryCodecException("Invalid type to construct a PathStep")
+
         data_type = 0x00
         buffer = b""
         if "account" in value:
@@ -136,7 +142,13 @@ class Path(SerializedType):
 
         Returns:
             The Path constructed from value.
+
+        Raises:
+            XRPLBinaryCodecException: If the supplied value is of the wrong type.
         """
+        if not isinstance(value, list):
+            raise XRPLBinaryCodecException("Invalid type to construct a Path")
+
         buffer: bytes = b""
         for PathStep_dict in value:
             pathstep = PathStep.from_value(PathStep_dict)
@@ -202,6 +214,9 @@ class PathSet(SerializedType):
         Raises:
             XRPLBinaryCodecException: If the PathSet representation is invalid.
         """
+        if not isinstance(value, list):
+            raise XRPLBinaryCodecException("Invalid type to construct a PathSet")
+
         if _is_path_set(value):
             buffer: List[bytes] = []
             for path_dict in value:

@@ -48,6 +48,9 @@ class UInt32(UInt):
         Raises:
             XRPLBinaryCodecException: If a UInt32 could not be constructed from value.
         """
+        if not isinstance(value, (str, int)):
+            raise XRPLBinaryCodecException("Invalid type to construct a UInt32")
+
         if isinstance(value, int):
             value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=False)
             return cls(value_bytes)

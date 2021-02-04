@@ -46,6 +46,9 @@ class UInt16(UInt):
         Raises:
             XRPLBinaryCodecException: If a UInt16 can't be constructed from value.
         """
+        if not isinstance(value, int):
+            raise XRPLBinaryCodecException("Invalid type to construct a UInt16")
+
         if isinstance(value, int):
             value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=False)
             return cls(value_bytes)

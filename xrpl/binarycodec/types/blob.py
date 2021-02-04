@@ -45,6 +45,9 @@ class Blob(SerializedType):
         Raises:
             XRPLBinaryCodecException: If the Blob can't be constructed from value.
         """
+        if not isinstance(value, str):
+            raise XRPLBinaryCodecException("Invalid type to construct a Blob")
+
         if isinstance(value, str):
             return cls(bytes.fromhex(value))
 

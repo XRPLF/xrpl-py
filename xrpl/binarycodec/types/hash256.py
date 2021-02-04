@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import Optional
 
+from xrpl.binarycodec import XRPLBinaryCodecException
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.types.hash import Hash
 
@@ -38,7 +39,12 @@ class Hash256(Hash):
 
         Returns:
             The Hash256 constructed from value.
+
+        Raises:
+            XRPLBinaryCodecException: If the supplied value is of the wrong type.
         """
+        if not isinstance(value, str):
+            raise XRPLBinaryCodecException("Invalid type to construct a Hash256")
         return cls(bytes.fromhex(value))
 
     @classmethod

@@ -29,7 +29,13 @@ class Vector256(SerializedType):
 
         Returns:
             A Vector256 object representing these hashes.
+
+        Raises:
+            XRPLBinaryCodecException: If the supplied value is of the wrong type.
         """
+        if not isinstance(value, list):
+            raise XRPLBinaryCodecException("Invalid type to construct a Vector256")
+
         byte_list = []
         for string in value:
             byte_list.append(Hash256.from_value(string).to_bytes())

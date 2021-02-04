@@ -102,6 +102,9 @@ class Currency(Hash160):
         Raises:
             XRPLBinaryCodecException: If the Currency representation is invalid.
         """
+        if not isinstance(value, str):
+            raise XRPLBinaryCodecException("Invalid type to construct a Currency")
+
         if _is_iso_code(value):
             return Currency(_iso_to_bytes(value))
         if _is_hex(value):
