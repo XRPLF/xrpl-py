@@ -6,6 +6,7 @@ from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.main import (
     decode,
     encode,
+    encode_for_multisigning,
     encode_for_signing,
     encode_for_signing_claim,
 )
@@ -315,8 +316,22 @@ class TestMainSigning(unittest.TestCase):
         channel = "43904CBFCDCEC530B4037871F86EE90BF799DF8D2E0EA564BC8A3F332E4F5FB1"
         amount = "1000"
         json = {"amount": amount, "channel": channel}
+
         expected = (
             "434C4D0043904CBFCDCEC530B4037871F86EE90BF799DF8D2E0EA564BC8A3F332E"
             "4F5FB100000000000003E8"
         )
         self.assertEqual(encode_for_signing_claim(json), expected)
+
+    def test_multisig(self):
+        signing_account = "rJZdUusLDtY9NEsGea7ijqhVrXv98rYBYN"
+        multisig_json = {**signing_json, "SigningPubKey": ""}
+        expected = (
+            "534D5400120000228000000024000000016140000000000003E868400000000000"
+            "000A730081145B812C9D57731E27A2DA8B1830195F88EF32A3B68314B5F762798A"
+            "53D543A014CAF8B297CFF8F2F937E8C0A5ABEF242802EFED4B041E8F2D4A8CC86A"
+            "E3D1"
+        )
+        self.assertEqual(
+            encode_for_multisigning(multisig_json, signing_account), expected
+        )

@@ -3,6 +3,7 @@
 from typing import Any, Dict, List, Optional, Union
 
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
+from xrpl.binary_codec.types.account_id import AccountID
 from xrpl.binary_codec.types.hash256 import Hash256
 from xrpl.binary_codec.types.serialized_transaction import SerializedTransaction
 from xrpl.binary_codec.types.uint64 import UInt64
@@ -14,6 +15,7 @@ def _num_to_bytes(num: int) -> bytes:
 
 _TRANSACTION_SIGNATURE_PREFIX = _num_to_bytes(0x53545800)
 _PAYMENT_CHANNEL_CLAIM_PREFIX = _num_to_bytes(0x434C4D00)
+_TRANSACTION_MULTISIG_PREFIX = _num_to_bytes(0x534D5400)
 
 
 def encode(json: Union[List[Any], Dict[str, Any]]) -> str:
@@ -26,7 +28,7 @@ def encode(json: Union[List[Any], Dict[str, Any]]) -> str:
     Returns:
         A hex-string of the encoded transaction.
     """
-    return _serialize_json(json).hex().upper()
+    return _serialize_json(json)
 
 
 def encode_for_signing(json: Union[List[Any], Dict[str, Any]]) -> str:
@@ -39,10 +41,8 @@ def encode_for_signing(json: Union[List[Any], Dict[str, Any]]) -> str:
     Returns:
         A hex string of the encoded transaction.
     """
-    return (
-        _serialize_json(json, prefix=_TRANSACTION_SIGNATURE_PREFIX, signing_only=True)
-        .hex()
-        .upper()
+    return _serialize_json(
+        json, prefix=_TRANSACTION_SIGNATURE_PREFIX, signing_only=True
     )
 
 
@@ -62,6 +62,28 @@ def encode_for_signing_claim(json: Dict[str, Any]) -> str:
 
     buffer = prefix + channel.to_bytes() + amount.to_bytes()
     return buffer.hex().upper()
+
+
+def encode_for_multisigning(json: Dict[str, Any], signing_account: str) -> str:
+    """
+    Encode a transaction and prepare for multi-signing.
+
+    Args:
+        json: JSON object representing the transaction.
+        signing_account: string representing the account to sign the transaction with.
+
+    Returns:
+        A hex string of the encoded transaction.
+    """
+    assert json["SigningPubKey"] == ""
+    signing_account_id = AccountID.from_value(signing_account).to_bytes()
+
+    return _serialize_json(
+        json,
+        prefix=_TRANSACTION_MULTISIG_PREFIX,
+        suffix=signing_account_id,
+        signing_only=True,
+    )
 
 
 def decode(buffer: str) -> Union[List[Any], Dict[str, Any]]:
@@ -93,4 +115,4 @@ def _serialize_json(
     if suffix is not None:
         buffer += suffix
 
-    return buffer
+    return buffer.hex().upper()
