@@ -1,4 +1,6 @@
-"""Class for serializing and deserializing Lists of objects."""
+"""Class for serializing and deserializing Lists of objects.
+See `Array Fields <https://xrpl.org/serialization.html#array-fields>`_
+"""
 
 from __future__ import annotations
 
@@ -18,7 +20,9 @@ _OBJECT_END_MARKER: Final = bytes([0xE1])
 
 
 class SerializedTransactionList(SerializedType):
-    """Class for serializing and deserializing Lists of objects."""
+    """Class for serializing and deserializing Lists of objects.
+    See `Array Fields <https://xrpl.org/serialization.html#array-fields>`_
+    """
 
     @classmethod
     def from_parser(

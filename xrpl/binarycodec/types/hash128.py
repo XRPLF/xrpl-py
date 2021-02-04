@@ -1,4 +1,5 @@
-"""A hash field with a width of 128 bits (16 bytes).
+"""Codec for serializing and deserializing a hash field with a width
+of 128 bits (16 bytes).
 `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
 """
 from __future__ import annotations
@@ -11,7 +12,8 @@ from xrpl.binarycodec.types.hash import Hash
 
 class Hash128(Hash):
     """
-    A hash field with a width of 128 bits (16 bytes).
+    Codec for serializing and deserializing a hash field with a width
+    of 128 bits (16 bytes).
     `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
 
 

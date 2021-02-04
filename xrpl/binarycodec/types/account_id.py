@@ -1,4 +1,6 @@
-"""Codec for serializing and deserializing AccountID fields."""
+"""Codec for serializing and deserializing AccountID fields.
+See `AccountID Fields <https://xrpl.org/serialization.html#accountid-fields>`_
+"""
 from __future__ import annotations  # Requires Python 3.7+
 
 import re
@@ -10,7 +12,9 @@ _HEX_REGEX = re.compile("^[A-F0-9]{40}$")
 
 
 class AccountID(Hash160):
-    """Codec for serializing and deserializing AccountID fields."""
+    """Codec for serializing and deserializing AccountID fields.
+    See `AccountID Fields <https://xrpl.org/serialization.html#accountid-fields>`_
+    """
 
     LENGTH = 20  # bytes
 

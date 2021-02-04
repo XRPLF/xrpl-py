@@ -1,4 +1,6 @@
-"""Derived UInt class for serializing/deserializing 64 bit UInt."""
+"""Class for serializing and deserializing a 64-bit UInt.
+See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
+"""
 from __future__ import annotations
 
 import re
@@ -14,7 +16,9 @@ _HEX_REGEX = re.compile("^[A-F0-9]{16}$")
 
 
 class UInt64(UInt):
-    """Derived UInt class for serializing/deserializing 64 bit UInt."""
+    """Class for serializing and deserializing a 64-bit UInt.
+    See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
+    """
 
     def __init__(self: UInt64, buffer: bytes = bytes(_WIDTH)) -> None:
         """Construct a new UInt64 type from a `bytes` value."""

@@ -14,7 +14,7 @@ _HASH_LENGTH_BYTES: Final = 32
 
 
 class Vector256(SerializedType):
-    """A vector of Hash256 objects."""
+    """Codec for serializing and deserializing vectors of Hash256."""
 
     def __init__(self: Vector256, buffer: bytes) -> None:
         """Construct a Vector256."""

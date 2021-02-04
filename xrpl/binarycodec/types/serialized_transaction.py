@@ -1,4 +1,4 @@
-"""Class for serializing/deserializing transactions."""
+"""Class for serializing and deserializing transactions."""
 
 from __future__ import annotations
 
@@ -80,7 +80,7 @@ def _enum_to_str(field: str, value: Any) -> Any:
 
 
 class SerializedTransaction(SerializedType):
-    """Class for serializing/deserializing transactions."""
+    """Class for serializing and deserializing transactions."""
 
     @classmethod
     def from_parser(

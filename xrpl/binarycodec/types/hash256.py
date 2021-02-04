@@ -1,4 +1,5 @@
-"""A hash field with a width of 256 bits (32 bytes).
+"""Codec for serializing and deserializing a hash field with a width
+of 256 bits (32 bytes).
 `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
 """
 from __future__ import annotations
@@ -11,7 +12,8 @@ from xrpl.binarycodec.types.hash import Hash
 
 class Hash256(Hash):
     """
-    A hash field with a width of 256 bits (32 bytes).
+    Codec for serializing and deserializing a hash field with a width
+    of 256 bits (32 bytes).
     `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
 
 

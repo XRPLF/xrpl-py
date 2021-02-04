@@ -1,5 +1,5 @@
 """
-Defines how to serialize and deserialize an amount field.
+Codec for serializing and deserializing Amount fields.
 See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
 """
 from __future__ import annotations
@@ -234,7 +234,7 @@ def _serialize_issued_currency_amount(value: Dict) -> bytes:
 
 
 class Amount(SerializedType):
-    """Defines how to serialize and deserialize an amount.
+    """Codec for serializing and deserializing Amount fields.
     See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
     """
 

@@ -1,4 +1,6 @@
-"""Derived UInt class for serializing/deserializing 32 bit UInt."""
+"""Class for serializing and deserializing a 32-bit UInt.
+See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
+"""
 from __future__ import annotations
 
 from typing import Union
@@ -11,7 +13,9 @@ _WIDTH = 4  # 32 / 8
 
 
 class UInt32(UInt):
-    """Derived UInt class for serializing/deserializing 32 bit UInt."""
+    """Class for serializing and deserializing a 32-bit UInt.
+    See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
+    """
 
     def __init__(self: UInt32, buffer: bytes = bytes(_WIDTH)) -> None:
         """Construct a new UInt32 type from a `bytes` value."""

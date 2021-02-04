@@ -1,4 +1,6 @@
-"""Classes and methods related to serializing and deserializing PathSets."""
+"""Codec for serializing and deserializing PathSet fields.
+See `PathSet Fields <https://xrpl.org/serialization.html#pathset-fields>`_
+"""
 
 from __future__ import annotations
 
@@ -182,7 +184,9 @@ class Path(SerializedType):
 
 
 class PathSet(SerializedType):
-    """Deserialize and Serialize the PathSet type."""
+    """Codec for serializing and deserializing PathSet fields.
+    See `PathSet Fields <https://xrpl.org/serialization.html#pathset-fields>`_
+    """
 
     @classmethod
     def from_value(cls: PathSet, value: List[List[Dict[str, str]]]) -> PathSet:

@@ -49,7 +49,7 @@ def _iso_to_bytes(iso: str) -> bytes:
 
 class Currency(Hash160):
     """
-    Defines how to encode and decode currency codes in issued currency amounts.
+    Codec for serializing and deserializing currency codes in issued currency amounts.
     `Amount fields <https://xrpl.org/serialization.html#amount-fields>`_
 
     Attributes:

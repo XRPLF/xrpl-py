@@ -1,4 +1,4 @@
-"""The base class for all binary codec types."""
+"""The base class for all binary codec field types."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -6,7 +6,7 @@ from typing import Any, Optional, Union
 
 
 class SerializedType(ABC):
-    """The base class for all binary codec types."""
+    """The base class for all binary codec field types."""
 
     def __init__(self: SerializedType, buffer: bytes = bytes()) -> None:
         """Construct a new SerializedType."""

@@ -1,4 +1,6 @@
-"""Derived UInt class for serializing/deserializing 8 bit UInt."""
+"""Class for serializing and deserializing an 8-bit UInt.
+See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
+"""
 from __future__ import annotations
 
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
@@ -9,7 +11,9 @@ _WIDTH = 1  # 8 / 8
 
 
 class UInt8(UInt):
-    """Derived UInt class for serializing/deserializing 8 bit UInt."""
+    """Class for serializing and deserializing an 8-bit UInt.
+    See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
+    """
 
     def __init__(self: UInt8, buffer: bytes = bytes(_WIDTH)) -> None:
         """Construct a new UInt8 type from a `bytes` value."""
