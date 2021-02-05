@@ -108,7 +108,7 @@ def encode_quality(quality: str) -> str:
     Args:
         quality: A string representation of a number.
 
-    Return:
+    Returns:
         A hex-string representing the quality.
     """
     decimal = Decimal(quality)
