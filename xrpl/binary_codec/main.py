@@ -1,5 +1,6 @@
 """High-level binary codec methods."""
 
+from decimal import Decimal
 from typing import Any, Dict, List, Optional, Union
 
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
@@ -98,6 +99,37 @@ def decode(buffer: str) -> Union[List[Any], Dict[str, Any]]:
     """
     parser = BinaryParser(buffer)
     return parser.read_type(SerializedTransaction).to_json()
+
+
+def encode_quality(quality: str) -> str:
+    """
+    Encode a quality value.
+
+    Args:
+        quality: A string representation of a number.
+
+    Return:
+        A hex-string representing the quality.
+    """
+    decimal = Decimal(quality)
+    exponent = decimal.adjusted() - 15
+    quality_int = int((decimal * Decimal("1e{}".format(-1 * exponent))).copy_abs())
+    buffer = bytearray(UInt64.from_value(quality_int).to_bytes())
+    buffer[0] = exponent + 100
+    return buffer.hex().upper()
+
+
+def decode_quality(quality: str) -> str:
+    """
+    Decode a quality value.
+
+    Args:
+        quality: A hex-string of a quality.
+
+    Returns:
+        A string representing the quality.
+    """
+    pass
 
 
 def _serialize_json(

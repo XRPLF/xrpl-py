@@ -9,6 +9,7 @@ from xrpl.binary_codec.main import (
     encode_for_multisigning,
     encode_for_signing,
     encode_for_signing_claim,
+    encode_quality,
 )
 
 TX_JSON = {
@@ -335,3 +336,13 @@ class TestMainSigning(unittest.TestCase):
         self.assertEqual(
             encode_for_multisigning(multisig_json, signing_account), expected
         )
+
+
+class TestMainQuality(unittest.TestCase):
+    def test_quality_encode(self):
+        book_directory = (
+            "4627DFFCFF8B5A265EDBD8AE8C14A52325DBFEDAF4F5C32E5D06F4C3362FE1D0"
+        )
+        expected_quality = "195796912.5171664"
+
+        self.assertEqual(encode_quality(expected_quality), book_directory[-16:])
