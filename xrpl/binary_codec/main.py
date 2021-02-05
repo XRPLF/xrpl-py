@@ -129,7 +129,10 @@ def decode_quality(quality: str) -> str:
     Returns:
         A string representing the quality.
     """
-    pass
+    buffer = bytes.fromhex(quality)[-8:]
+    exponent = buffer[0] - 100
+    mantissa = Decimal(str(int(buffer[1:].hex(), 16)))
+    return str(mantissa * Decimal("1e{}".format(exponent)))
 
 
 def _serialize_json(

@@ -5,6 +5,7 @@ import unittest
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.main import (
     decode,
+    decode_quality,
     encode,
     encode_for_multisigning,
     encode_for_signing,
@@ -346,3 +347,11 @@ class TestMainQuality(unittest.TestCase):
         expected_quality = "195796912.5171664"
 
         self.assertEqual(encode_quality(expected_quality), book_directory[-16:])
+
+    def test_quality_decode(self):
+        book_directory = (
+            "4627DFFCFF8B5A265EDBD8AE8C14A52325DBFEDAF4F5C32E5D06F4C3362FE1D0"
+        )
+        expected_quality = "195796912.5171664"
+
+        self.assertEqual(decode_quality(book_directory), expected_quality)
