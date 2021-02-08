@@ -7,6 +7,7 @@ stages:
   before_script:
     - echo "before testing"
     - apk add build-base
+    - apk add rust
     - apk add openssl-dev
     - apk add libffi-dev
     - pip install poetry
