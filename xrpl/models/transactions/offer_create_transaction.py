@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, Optional, Union
 
 from xrpl.models.exceptions import XrplModelException
-from xrpl.models.transactions.issued_currency import IssuedCurrency
+from xrpl.models.issued_currency import IssuedCurrency
 
 
 @dataclass(frozen=True)
