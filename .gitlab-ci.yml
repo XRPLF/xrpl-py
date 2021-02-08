@@ -6,7 +6,7 @@ variables:
   # The cryptography team broke older builds of Alpine: https://github.com/pyca/cryptography/issues/5776
   # Seems like people are having issues with the rust build even on newer versions,
   # so let's skip rust for now.
-  CRYPTOGRAPHY_DONT_BUILD_RUST: 1
+  # CRYPTOGRAPHY_DONT_BUILD_RUST: 1
 
 # Test
 .test:
@@ -16,6 +16,7 @@ variables:
     - apk add rust
     - apk add openssl-dev
     - apk add libffi-dev
+    - python -m pip install -U pip
     - pip install poetry
     - poetry install
 
