@@ -2,6 +2,7 @@ stages:
   - lint
   - test
 
+# Test
 .test:
   before_script:
     - echo "before testing"
