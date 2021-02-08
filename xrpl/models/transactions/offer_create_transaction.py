@@ -25,6 +25,20 @@ class OfferCreateTransaction:
     expiration: Optional[int] = None
     offer_sequence: Optional[int] = None
 
+    def __init__(
+        self: OfferCreateTransaction,
+        taker_gets: Union[str, IssuedCurrency],
+        taker_pays: Union[str, IssuedCurrency],
+        expiration: Optional[int] = None,
+        offer_sequence: Optional[int] = None,
+        flags: int = 0,
+    ):
+        """TODO: docstring"""
+        self.taker_gets = taker_gets
+        self.taker_pays = taker_pays
+        self.expiration = expiration
+        self.offer_sequence = offer_sequence
+
     @classmethod
     def from_value(
         cls: OfferCreateTransaction, value: Dict[str, Any]
