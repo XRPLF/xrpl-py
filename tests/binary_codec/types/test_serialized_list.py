@@ -20,6 +20,8 @@ BUFFER = MEMO_HEX + MEMO_HEX + _ARRAY_END_MARKER.hex().upper()
 
 
 class TestSerializedList(unittest.TestCase):
+    maxDiff = 1000
+
     def test_from_value(self):
         serialized_list = SerializedList.from_value(EXPECTED_JSON)
         self.assertEqual(BUFFER, serialized_list.to_string())

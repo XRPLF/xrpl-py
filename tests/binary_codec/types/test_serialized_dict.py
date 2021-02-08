@@ -17,7 +17,7 @@ expected_json = {
         "issuer": "rNPRNzBB92BVpAhhZr4iXDTveCgV5Pofm9",
     },
     "TakerPays": "98957503520",
-    "TransactionType": 7,
+    "TransactionType": "OfferCreate",
     "TxnSignature": (
         "304502202ABE08D5E78D1E74A4C18F2714F64E87B8BD57444AFA5733"
         "109EB3C077077520022100DB335EE97386E4C0591CAC024D50E9230D8"
@@ -38,6 +38,8 @@ buffer = (
 
 
 class TestSerializedDict(unittest.TestCase):
+    maxDiff = 1000
+
     def test_from_value(self):
         transaction = SerializedDict.from_value(expected_json)
         self.assertEqual(buffer, transaction.to_string().upper())
