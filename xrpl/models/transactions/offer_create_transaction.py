@@ -2,7 +2,7 @@
 from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from xrpl.models.exceptions import XrplModelException
 from xrpl.models.issued_currency import IssuedCurrency
@@ -27,17 +27,41 @@ class OfferCreateTransaction:
 
     def __init__(
         self: OfferCreateTransaction,
+        account: str,
+        fee: str,
+        sequence: int,
         taker_gets: Union[str, IssuedCurrency],
         taker_pays: Union[str, IssuedCurrency],
         expiration: Optional[int] = None,
         offer_sequence: Optional[int] = None,
-        flags: int = 0,
+        account_transaction_id: Optional[str] = None,
+        flags: Optional[int] = None,
+        last_ledger_sequence: Optional[int] = None,
+        memos: Optional[List[Any]] = None,
+        signers: Optional[List[Any]] = None,
+        source_tag: Optional[int] = None,
+        signing_public_key: Optional[str] = None,
+        transaction_signature: Optional[str] = None,
     ):
         """TODO: docstring"""
         self.taker_gets = taker_gets
         self.taker_pays = taker_pays
         self.expiration = expiration
         self.offer_sequence = offer_sequence
+        super().__init__(
+            account=account,
+            transaction_type="OfferCreate",
+            fee=fee,
+            sequence=sequence,
+            account_transaction_id=account_transaction_id,
+            flags=flags,
+            last_ledger_sequence=last_ledger_sequence,
+            memos=memos,
+            signers=signers,
+            source_tag=source_tag,
+            signing_public_key=signing_public_key,
+            transaction_signature=transaction_signature,
+        )
 
     @classmethod
     def from_value(
