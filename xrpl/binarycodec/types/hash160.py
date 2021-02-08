@@ -19,10 +19,10 @@ class Hash160(Hash):
 
 
     Attributes:
-        width: The length of this hash in bytes.
+        _LENGTH: The length of this hash in bytes.
     """
 
-    _WIDTH = 20
+    _LENGTH = 20
 
     def __init__(self: Hash160, buffer: bytes = None) -> None:
         """Construct a Hash160."""
@@ -44,7 +44,10 @@ class Hash160(Hash):
             XRPLBinaryCodecException: If the supplied value is of the wrong type.
         """
         if not isinstance(value, str):
-            raise XRPLBinaryCodecException("Invalid type to construct a Hash160")
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a Hash160: expected str,"
+                " received {}.".format(value.__class__.__name__)
+            )
 
         return cls(bytes.fromhex(value))
 
@@ -62,5 +65,5 @@ class Hash160(Hash):
         Returns:
             The Hash160 constructed from the parser.
         """
-        num_bytes = length_hint if length_hint is not None else cls._width
+        num_bytes = length_hint if length_hint is not None else cls._LENGTH
         return cls(parser.read(num_bytes))

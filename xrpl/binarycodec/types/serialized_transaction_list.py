@@ -69,7 +69,8 @@ class SerializedTransactionList(SerializedType):
         """
         if not isinstance(value, list):
             raise XRPLBinaryCodecException(
-                "Cannot construct SerializedTransactionList from a non-list object"
+                "Invalid type to construct a SerializedTransactionList:"
+                " expected list, received {}.".format(value.__class__.__name__)
             )
 
         if len(value) > 0 and not isinstance(value[0], dict):

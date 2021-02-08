@@ -19,14 +19,14 @@ class Hash128(Hash):
 
 
     Attributes:
-        width: The length of this hash in bytes.
+        _LENGTH: The length of this hash in bytes.
     """
 
-    _WIDTH = 16
+    _LENGTH = 16
 
     def __init__(self: Hash128, buffer: bytes = None) -> None:
         """Construct a Hash128."""
-        buffer = buffer if buffer is not None else bytes(self._width)
+        buffer = buffer if buffer is not None else bytes(self._LENGTH)
         super().__init__(buffer)
 
     @classmethod
@@ -44,7 +44,10 @@ class Hash128(Hash):
             XRPLBinaryCodecException: If the supplied value is of the wrong type.
         """
         if not isinstance(value, str):
-            raise XRPLBinaryCodecException("Invalid type to construct a Hash128")
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a Hash128: expected str,"
+                " received {}.".format(value.__class__.__name__)
+            )
 
         return cls(bytes.fromhex(value))
 
@@ -62,5 +65,5 @@ class Hash128(Hash):
         Returns:
             The Hash128 object constructed from a parser.
         """
-        num_bytes = length_hint if length_hint is not None else cls._width
+        num_bytes = length_hint if length_hint is not None else cls._LENGTH
         return cls(parser.read(num_bytes))

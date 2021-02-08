@@ -50,7 +50,10 @@ class PathStep(SerializedType):
             XRPLBinaryCodecException: If the supplied value is of the wrong type.
         """
         if not isinstance(value, dict):
-            raise XRPLBinaryCodecException("Invalid type to construct a PathStep")
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a PathStep: expected dict,"
+                " received {}.".format(value.__class__.__name__)
+            )
 
         data_type = 0x00
         buffer = b""
@@ -87,7 +90,7 @@ class PathStep(SerializedType):
             account_id = parser.read(AccountID.LENGTH)
             buffer += account_id
         if data_type & _TYPE_CURRENCY:
-            currency = parser.read(Currency._LENGTH)
+            currency = parser.read(Currency.LENGTH)
             buffer += currency
         if data_type & _TYPE_ISSUER:
             issuer = parser.read(AccountID.LENGTH)
@@ -147,7 +150,11 @@ class Path(SerializedType):
             XRPLBinaryCodecException: If the supplied value is of the wrong type.
         """
         if not isinstance(value, list):
-            raise XRPLBinaryCodecException("Invalid type to construct a Path")
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a Path: expected list, received {}.".format(
+                    value.__class__.__name__
+                )
+            )
 
         buffer: bytes = b""
         for PathStep_dict in value:
@@ -215,7 +222,10 @@ class PathSet(SerializedType):
             XRPLBinaryCodecException: If the PathSet representation is invalid.
         """
         if not isinstance(value, list):
-            raise XRPLBinaryCodecException("Invalid type to construct a PathSet")
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a PathSet: expected list,"
+                " received {}.".format(value.__class__.__name__)
+            )
 
         if _is_path_set(value):
             buffer: List[bytes] = []

@@ -54,7 +54,10 @@ class UInt64(UInt):
             XRPLBinaryCodecException: If a UInt64 could not be constructed from value.
         """
         if not isinstance(value, (str, int)):
-            raise XRPLBinaryCodecException("Invalid type to construct a UInt64")
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a UInt64: expected str or int,"
+                " received {}.".format(value.__class__.__name__)
+            )
 
         if isinstance(value, int):
             if value < 0:

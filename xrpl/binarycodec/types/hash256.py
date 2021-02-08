@@ -19,10 +19,10 @@ class Hash256(Hash):
 
 
     Attributes:
-        width: The length of this hash in bytes.
+        : The length of this hash in bytes.
     """
 
-    _WIDTH = 32
+    _LENGTH = 32
 
     def __init__(self: Hash256, buffer: bytes = None) -> None:
         """Construct a Hash256."""
@@ -44,7 +44,10 @@ class Hash256(Hash):
             XRPLBinaryCodecException: If the supplied value is of the wrong type.
         """
         if not isinstance(value, str):
-            raise XRPLBinaryCodecException("Invalid type to construct a Hash256")
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a Hash256: expected str,"
+                " received {}.".format(value.__class__.__name__)
+            )
         return cls(bytes.fromhex(value))
 
     @classmethod
@@ -61,5 +64,5 @@ class Hash256(Hash):
         Returns:
             The Hash256 constructed from parser.
         """
-        num_bytes = length_hint if length_hint is not None else cls._width
+        num_bytes = length_hint if length_hint is not None else cls._LENGTH
         return cls(parser.read(num_bytes))

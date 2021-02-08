@@ -49,7 +49,11 @@ class UInt8(UInt):
             XRPLBinaryCodecException: If a UInt8 cannot be constructed.
         """
         if not isinstance(value, int):
-            raise XRPLBinaryCodecException("Invalid type to construct a UInt8")
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a UInt8: expected int, received {}.".format(
+                    value.__class__.__name__
+                )
+            )
 
         if isinstance(value, int):
             value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=False)
