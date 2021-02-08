@@ -26,10 +26,8 @@ def _get_type_by_name(name: str) -> Type[SerializedType]:
     from xrpl.binary_codec.types.hash160 import Hash160
     from xrpl.binary_codec.types.hash256 import Hash256
     from xrpl.binary_codec.types.path_set import PathSet
-    from xrpl.binary_codec.types.serialized_transaction import SerializedTransaction
-    from xrpl.binary_codec.types.serialized_transaction_list import (
-        SerializedTransactionList,
-    )
+    from xrpl.binary_codec.types.serialized_dict import SerializedDict
+    from xrpl.binary_codec.types.serialized_list import SerializedList
     from xrpl.binary_codec.types.uint8 import UInt8
     from xrpl.binary_codec.types.uint16 import UInt16
     from xrpl.binary_codec.types.uint32 import UInt32
@@ -45,8 +43,8 @@ def _get_type_by_name(name: str) -> Type[SerializedType]:
         "Hash160": Hash160,
         "Hash256": Hash256,
         "PathSet": PathSet,
-        "SerializedTransactionList": SerializedTransactionList,
-        "SerializedTransaction": SerializedTransaction,
+        "SerializedList": SerializedList,
+        "SerializedDict": SerializedDict,
         "UInt8": UInt8,
         "UInt16": UInt16,
         "UInt32": UInt32,

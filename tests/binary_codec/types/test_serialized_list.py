@@ -2,10 +2,7 @@ import unittest
 
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
-from xrpl.binary_codec.types.serialized_transaction_list import (
-    _ARRAY_END_MARKER,
-    SerializedTransactionList,
-)
+from xrpl.binary_codec.types.serialized_list import _ARRAY_END_MARKER, SerializedList
 
 MEMO = {
     "Memo": {
@@ -22,33 +19,33 @@ EXPECTED_JSON = [MEMO, MEMO]
 BUFFER = MEMO_HEX + MEMO_HEX + _ARRAY_END_MARKER.hex().upper()
 
 
-class TestSerializedTransactionList(unittest.TestCase):
+class TestSerializedList(unittest.TestCase):
     def test_from_value(self):
-        transaction_list = SerializedTransactionList.from_value(EXPECTED_JSON)
+        transaction_list = SerializedList.from_value(EXPECTED_JSON)
         self.assertEqual(BUFFER, transaction_list.to_string())
 
     def test_from_parser(self):
         parser = BinaryParser(BUFFER)
-        transaction_list = SerializedTransactionList.from_parser(parser)
+        transaction_list = SerializedList.from_parser(parser)
         self.assertEqual(BUFFER, transaction_list.to_string())
 
     def test_from_value_to_json(self):
-        transaction_list = SerializedTransactionList.from_value(EXPECTED_JSON)
+        transaction_list = SerializedList.from_value(EXPECTED_JSON)
         actual_json = transaction_list.to_json()
         self.assertEqual(actual_json[0], actual_json[1])
         self.assertEqual(actual_json, EXPECTED_JSON)
 
     def test_from_parser_to_json(self):
         parser = BinaryParser(BUFFER)
-        transaction_list = SerializedTransactionList.from_parser(parser)
+        transaction_list = SerializedList.from_parser(parser)
         self.assertEqual(transaction_list.to_json(), EXPECTED_JSON)
 
     def test_from_value_non_list(self):
         obj = 123
         with self.assertRaises(XRPLBinaryCodecException):
-            SerializedTransactionList.from_value(obj)
+            SerializedList.from_value(obj)
 
     def test_from_value_bad_list(self):
         obj = [123]
         with self.assertRaises(XRPLBinaryCodecException):
-            SerializedTransactionList.from_value(obj)
+            SerializedList.from_value(obj)
