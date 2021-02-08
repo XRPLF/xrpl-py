@@ -43,7 +43,7 @@ test-3.9:
   retry: 2
 
 lint:
-  image: alpine
+  image: python:3-alpine
   stage: lint
   extends: .test
   script:
