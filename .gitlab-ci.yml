@@ -2,10 +2,14 @@ stages:
   - lint
   - test
 
+variables:
+  CRYPTOGRAPHY_DONT_BUILD_RUST: 1
+
 # Test
 .test:
   before_script:
     - echo "before testing"
+    - echo $CRYPTOGRAPHY_DONT_BUILD_RUST
     - apk add build-base
     - apk add rust
     - apk add openssl-dev
@@ -39,7 +43,7 @@ test-3.9:
   retry: 2
 
 lint:
-  image: python:3-alpine
+  image: alpine
   stage: lint
   extends: .test
   script:
