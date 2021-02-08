@@ -8,7 +8,15 @@ from typing_extensions import Final
 
 from xrpl.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
-from xrpl.binary_codec.definitions.definitions import get_field_instance
+from xrpl.binary_codec.definitions.definitions import (
+    get_field_instance,
+    get_ledger_entry_type_code,
+    get_ledger_entry_type_name,
+    get_transaction_result_code,
+    get_transaction_result_name,
+    get_transaction_type_code,
+    get_transaction_type_name,
+)
 from xrpl.binary_codec.definitions.field_instance import FieldInstance
 from xrpl.binary_codec.exceptions import XRPLBinaryCodecException
 from xrpl.binary_codec.types.serialized_type import SerializedType
@@ -22,7 +30,7 @@ _SOURCE_TAG: Final = "SourceTag"
 _DEST_TAG: Final = "DestinationTag"
 
 
-def handle_xaddress(field: str, xaddress: str) -> Dict[str, str]:
+def _handle_xaddress(field: str, xaddress: str) -> Dict[str, str]:
     """Break down an X-Address into a classic address and a tag.
 
     Args:
@@ -46,6 +54,29 @@ def handle_xaddress(field: str, xaddress: str) -> Dict[str, str]:
     if tag is not None:
         return {field: classic_address, tag_name: tag}
     return {field: classic_address}
+
+
+def _str_to_enum(field: str, value: Any) -> Any:
+    # all of these fields have enum values that are used for serialization
+    # converts the string name to the corresponding enum code
+    if field == "TransactionType":
+        return get_transaction_type_code(value)
+    if field == "TransactionResult":
+        return get_transaction_result_code(value)
+    if field == "LedgerEntryType":
+        return get_ledger_entry_type_code(value)
+    return value
+
+
+def _enum_to_str(field: str, value: Any) -> Any:
+    # reverse of the above function
+    if field == "TransactionType":
+        return get_transaction_type_name(value)
+    if field == "TransactionResult":
+        return get_transaction_result_name(value)
+    if field == "LedgerEntryType":
+        return get_ledger_entry_type_name(value)
+    return value
 
 
 class SerializedTransaction(SerializedType):
@@ -82,13 +113,14 @@ class SerializedTransaction(SerializedType):
 
     @classmethod
     def from_value(
-        cls: SerializedTransaction, value: Dict[str, Any]
+        cls: SerializedTransaction, value: Dict[str, Any], only_signing: bool = False
     ) -> SerializedTransaction:
         """
         Create a SerializedTransaction object from a dictionary.
 
         Args:
             value: The dictionary to construct a SerializedTransaction from.
+            only_signing: whether only the signing fields should be included.
 
         Returns:
             The SerializedTransaction object constructed from value.
@@ -104,18 +136,28 @@ class SerializedTransaction(SerializedType):
         xaddress_decoded = {}
         for (k, v) in value.items():
             if isinstance(v, str) and is_valid_xaddress(v):
-                handled = handle_xaddress(k, v)
-                if handled[_SOURCE_TAG] is not None and value[_SOURCE_TAG] is not None:
+                handled = _handle_xaddress(k, v)
+                if (
+                    _SOURCE_TAG in handled
+                    and handled[_SOURCE_TAG] is not None
+                    and _SOURCE_TAG in value
+                    and value[_SOURCE_TAG] is not None
+                ):
                     raise XRPLBinaryCodecException(
                         "Cannot have Account X-Address and SourceTag"
                     )
-                if handled[_DEST_TAG] is not None and value[_DEST_TAG] is not None:
+                if (
+                    _DEST_TAG in handled
+                    and handled[_DEST_TAG] is not None
+                    and _DEST_TAG in value
+                    and value[_DEST_TAG] is not None
+                ):
                     raise XRPLBinaryCodecException(
                         "Cannot have Destination X-Address and DestinationTag"
                     )
                 xaddress_decoded.update(handled)
             else:
-                xaddress_decoded[k] = v
+                xaddress_decoded[k] = _str_to_enum(k, v)
 
         sorted_keys: List[FieldInstance] = []
         for field_name in xaddress_decoded:
@@ -127,6 +169,9 @@ class SerializedTransaction(SerializedType):
             ):
                 sorted_keys.append(field_instance)
         sorted_keys.sort(key=lambda x: x.ordinal)
+
+        if only_signing:
+            sorted_keys = list(filter(lambda x: x.is_signing, sorted_keys))
 
         for field in sorted_keys:
             associated_value = field.associated_type.from_value(
@@ -152,6 +197,7 @@ class SerializedTransaction(SerializedType):
             field = parser.read_field()
             if field.name == _OBJECT_END_MARKER:
                 break
-            accumulator[field.name] = parser.read_field_value(field).to_json()
+            json_value = parser.read_field_value(field).to_json()
+            accumulator[field.name] = _enum_to_str(field.name, json_value)
 
         return accumulator
