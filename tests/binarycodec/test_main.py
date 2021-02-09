@@ -2,6 +2,7 @@ import json
 import os
 import unittest
 
+from tests.binarycodec.fixtures.data_driven_fixtures import get_whole_object_tests
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.main import (
     decode,
@@ -294,12 +295,19 @@ class TestMainFixtures(unittest.TestCase):
         )
 
     def test_codec_fixtures_ledger_data(self):
+        # implement when the ledger entry code has been written
         pass
 
     def test_x_codec_fixtures(self):
         self._run_fixtures_test(
             "x-codec-fixtures.json", "transactions", self._check_xaddress_jsons
         )
+
+    def test_whole_object_fixtures(self):
+        whole_object_tests = get_whole_object_tests()
+        for whole_object in whole_object_tests:
+            self.assertEqual(encode(whole_object.tx_json), whole_object.expected_hex)
+            self.assertEqual(decode(whole_object.expected_hex), whole_object.tx_json)
 
 
 class TestMainSigning(unittest.TestCase):
