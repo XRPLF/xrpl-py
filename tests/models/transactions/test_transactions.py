@@ -44,8 +44,6 @@ class TestOfferCreateTransaction(unittest.TestCase):
             "taker_pays": taker_pays,
             "sequence": sequence,
         }
-        print(transaction_dict)
         transaction = OfferCreateTransaction.from_dict(transaction_dict)
-        print(repr(transaction))
         expected_dict = {**transaction_dict, "transaction_type": "OfferCreate"}
         self.assertEqual(transaction.to_json(), expected_dict)
