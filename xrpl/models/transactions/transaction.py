@@ -1,11 +1,12 @@
 """TODO: docstring"""
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
+from xrpl.models.base_model import BaseModel
 
-class Transaction(ABC):
+
+class Transaction(BaseModel):
     """
     TODO: docstring
     https://xrpl.org/transaction-types.html
@@ -42,31 +43,12 @@ class Transaction(ABC):
         self.signing_public_key = signing_public_key
         self.transaction_signature = transaction_signature
 
-    @classmethod
-    @abstractmethod
-    def from_dict(cls: Transaction, value: Dict[str, Any]) -> Transaction:
-        """
-        Construct a new Transaction from a literal value.
-
-        Args:
-            value: The value to construct the Transaction from.
-
-        Raises:
-            NotImplementedError: Always.
-        """
-        raise NotImplementedError("Transaction.from_value not implemented.")
-
     def is_signed(self) -> bool:
         """TODO: docstring"""
         return (
             self.signing_public_key is not None
             and self.transaction_signature is not None
         )
-
-    @abstractmethod
-    def to_json(self: Transaction) -> Dict[str, Any]:
-        """TODO: docstring"""
-        raise NotImplementedError("Transaction.to_json not implemented.")
 
     def _get_transaction_json(self: Transaction) -> Dict[str, Any]:
         """TODO: docstring"""
@@ -103,6 +85,6 @@ class Transaction(ABC):
     def __repr__(self):
         """TODO: docstring"""
         repr_items = []
-        for key, value in self.to_json():
+        for key, value in self.to_json().items():
             repr_items.append(f"{key}={repr(value)}")
-        return "{}({})".format(type(self).__name, ", ".join(repr_items))
+        return "{}({})".format(type(self).__name__, ", ".join(repr_items))

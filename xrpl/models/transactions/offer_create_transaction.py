@@ -7,6 +7,14 @@ from xrpl.models.issued_currency import IssuedCurrency
 from xrpl.models.transactions.transaction import Transaction
 
 
+def _currency_amount_to_json(
+    amount: Union[str, IssuedCurrency]
+) -> Union[Dict[str, Any], str]:
+    if isinstance(amount, str):
+        return amount
+    return amount.to_json()
+
+
 class OfferCreateTransaction(Transaction):
     """
     Represents an OfferCreate transaction on the XRP Ledger.

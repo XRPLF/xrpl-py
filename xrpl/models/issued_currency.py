@@ -4,9 +4,11 @@ from __future__ import annotations  # Requires Python 3.7+
 from dataclasses import dataclass
 from typing import Any, Dict
 
+from xrpl.models.base_model import BaseModel
+
 
 @dataclass(frozen=True)
-class IssuedCurrency:
+class IssuedCurrency(BaseModel):
     """TODO: docstring"""
 
     currency: str
@@ -14,7 +16,7 @@ class IssuedCurrency:
     issuer: str
 
     @classmethod
-    def from_value(cls: IssuedCurrency, value: Dict[str, Any]) -> IssuedCurrency:
+    def from_dict(cls: IssuedCurrency, value: Dict[str, Any]) -> IssuedCurrency:
         """TODO: docstring"""
         assert isinstance(value["currency"], str)
         assert isinstance(value["value"], int)
@@ -22,3 +24,7 @@ class IssuedCurrency:
         return IssuedCurrency(
             currency=value["currency"], value=value["value"], issuer=value["issuer"]
         )
+
+    def to_json(self) -> Dict[str, Any]:
+        """TODO: docstring"""
+        return {"currency": self.currency, "value": self.value, "issuer": self.issuer}
