@@ -20,7 +20,7 @@ class Transaction(BaseModel):
     """
 
     def __init__(
-        self,
+        self: Transaction,
         *,
         account: str,
         transaction_type: str,
@@ -34,7 +34,7 @@ class Transaction(BaseModel):
         source_tag: Optional[int] = None,
         signing_public_key: Optional[str] = None,
         transaction_signature: Optional[str] = None,
-    ):
+    ) -> None:
         """Construct an OfferCreateTransaction from the given parameters."""
         self.account = account
         self.transaction_type = transaction_type

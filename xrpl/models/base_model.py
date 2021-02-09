@@ -39,7 +39,7 @@ class BaseModel(ABC):
             return False
         return self.to_json() == other.to_json()
 
-    def __repr__(self) -> str:
+    def __repr__(self: BaseModel) -> str:
         """Returns a string representation of a BaseModel object"""
         repr_items = []
         for key, value in self.to_json().items():

@@ -43,7 +43,7 @@ class IssuedCurrency(BaseModel):
             currency=value["currency"], value=value["value"], issuer=value["issuer"]
         )
 
-    def to_json(self) -> Dict[str, Any]:
+    def to_json(self: IssuedCurrency) -> Dict[str, Any]:
         """
         Return the value of this IssuedCurrency encoded as a dictionary.
 

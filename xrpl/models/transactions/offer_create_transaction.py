@@ -49,7 +49,7 @@ class OfferCreateTransaction(Transaction):
         source_tag: Optional[int] = None,
         signing_public_key: Optional[str] = None,
         transaction_signature: Optional[str] = None,
-    ):
+    ) -> None:
         """Construct an OfferCreateTransaction from the given parameters."""
         if isinstance(taker_gets, dict):
             self.taker_gets = IssuedCurrency.from_dict(taker_gets)
@@ -94,7 +94,7 @@ class OfferCreateTransaction(Transaction):
         """
         return OfferCreateTransaction(**value)
 
-    def to_json(self) -> Dict[str, Any]:
+    def to_json(self: OfferCreateTransaction) -> Dict[str, Any]:
         """
         Return the value of this OfferCreateTransaction encoded as a dictionary.
 
