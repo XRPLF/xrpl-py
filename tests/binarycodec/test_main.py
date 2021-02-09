@@ -6,12 +6,10 @@ from tests.binarycodec.fixtures.data_driven_fixtures import get_whole_object_tes
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.main import (
     decode,
-    decode_quality,
     encode,
     encode_for_multisigning,
     encode_for_signing,
     encode_for_signing_claim,
-    encode_quality,
 )
 
 TX_JSON = {
@@ -294,10 +292,6 @@ class TestMainFixtures(unittest.TestCase):
             "codec-fixtures.json", "transactions", self._check_binary_and_json
         )
 
-    def test_codec_fixtures_ledger_data(self):
-        # implement when the ledger entry code has been written
-        pass
-
     def test_x_codec_fixtures(self):
         self._run_fixtures_test(
             "x-codec-fixtures.json", "transactions", self._check_xaddress_jsons
@@ -345,21 +339,3 @@ class TestMainSigning(unittest.TestCase):
         self.assertEqual(
             encode_for_multisigning(multisig_json, signing_account), expected
         )
-
-
-class TestMainQuality(unittest.TestCase):
-    def test_quality_encode(self):
-        book_directory = (
-            "4627DFFCFF8B5A265EDBD8AE8C14A52325DBFEDAF4F5C32E5D06F4C3362FE1D0"
-        )
-        expected_quality = "195796912.5171664"
-
-        self.assertEqual(encode_quality(expected_quality), book_directory[-16:])
-
-    def test_quality_decode(self):
-        book_directory = (
-            "4627DFFCFF8B5A265EDBD8AE8C14A52325DBFEDAF4F5C32E5D06F4C3362FE1D0"
-        )
-        expected_quality = "195796912.5171664"
-
-        self.assertEqual(decode_quality(book_directory), expected_quality)
