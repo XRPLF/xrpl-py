@@ -1,6 +1,7 @@
 """TODO: docstring"""
 from __future__ import annotations  # Requires Python 3.7+
 
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
 
 from xrpl.models.exceptions import XRPLModelException
@@ -8,6 +9,7 @@ from xrpl.models.issued_currency import IssuedCurrency
 from xrpl.models.transactions.transaction import Transaction
 
 
+@dataclass(frozen=True)
 class OfferCreateTransaction(Transaction):
     """
     Represents an OfferCreate transaction on the XRP Ledger.
@@ -57,10 +59,11 @@ class OfferCreateTransaction(Transaction):
             signing_public_key=signing_public_key,
             transaction_signature=transaction_signature,
         )
-        self.__setattr__("taker_gets", taker_gets)
-        self.__setattr__("taker_pays", taker_pays)
-        self.__setattr__("expiration", expiration)
-        self.__setattr__("offer_sequence", offer_sequence)
+
+        object.__setattr__(self, "taker_gets", taker_gets)
+        object.__setattr__(self, "taker_pays", taker_pays)
+        object.__setattr__(self, "expiration", expiration)
+        object.__setattr__(self, "offer_sequence", offer_sequence)
 
     @classmethod
     def from_value(

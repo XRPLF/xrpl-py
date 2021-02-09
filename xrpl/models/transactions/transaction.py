@@ -18,14 +18,14 @@ class Transaction(ABC):
     transaction_type: str
     fee: str
     sequence: int
-    account_transaction_id: Optional[str] = None
-    flags: Optional[int] = None
-    last_ledger_sequence: Optional[int] = None
-    memos: Optional[List[Any]] = None
-    signers: Optional[List[Any]] = None
-    source_tag: Optional[int] = None
-    signing_public_key: Optional[str] = None
-    transaction_signature: Optional[str] = None
+    account_transaction_id: Optional[str]
+    flags: Optional[int]
+    last_ledger_sequence: Optional[int]
+    memos: Optional[List[Any]]
+    signers: Optional[List[Any]]
+    source_tag: Optional[int]
+    signing_public_key: Optional[str]
+    transaction_signature: Optional[str]
 
     @classmethod
     @abstractmethod
