@@ -64,7 +64,7 @@ class OfferCreateTransaction:
         )
 
     @classmethod
-    def from_value(
+    def from_dict(
         cls: OfferCreateTransaction, value: Dict[str, Any]
     ) -> OfferCreateTransaction:
         """TODO: docstring"""

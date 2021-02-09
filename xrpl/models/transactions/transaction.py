@@ -29,7 +29,7 @@ class Transaction(ABC):
 
     @abstractmethod
     @classmethod
-    def from_value(self: Transaction, value: Dict[str, Any]) -> Transaction:
+    def from_dict(self: Transaction, value: Dict[str, Any]) -> Transaction:
         """
         Construct a new Transaction from a literal value.
 
