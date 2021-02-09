@@ -2,11 +2,11 @@
 
 from typing import Any, Dict, List, Optional, Union
 
-from xrpl.binary_codec.binary_wrappers.binary_parser import BinaryParser
-from xrpl.binary_codec.types.account_id import AccountID
-from xrpl.binary_codec.types.hash256 import Hash256
-from xrpl.binary_codec.types.serialized_transaction import SerializedTransaction
-from xrpl.binary_codec.types.uint64 import UInt64
+from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
+from xrpl.binarycodec.types.account_id import AccountID
+from xrpl.binarycodec.types.hash256 import Hash256
+from xrpl.binarycodec.types.serialized_transaction import SerializedTransaction
+from xrpl.binarycodec.types.uint64 import UInt64
 
 
 def _num_to_bytes(num: int) -> bytes:
