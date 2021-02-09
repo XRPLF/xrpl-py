@@ -1,10 +1,6 @@
 import json
 import os
 
-# TODO: expand the set of test classes here to include "WholeObject"
-# TODO: functions to parse "whole_objects" dicts into WholeObjectTest lists
-
-
 _FILENAME = "./data/data-driven-tests.json"
 dirname = os.path.dirname(__file__)
 absolute_path = os.path.join(dirname, _FILENAME)
@@ -32,6 +28,17 @@ def get_value_tests():
     return [
         _construct_value_test(value_test_dict)
         for value_test_dict in _FIXTURES_JSON["values_tests"]
+    ]
+
+
+def get_whole_object_tests():
+    """
+    Constructs and returns a list of WholeObjectTest objects after parsing JSON data
+    describing whole object test fixtures.
+    """
+    return [
+        _construct_whole_object_test(whole_object_test_dict)
+        for whole_object_test_dict in _FIXTURES_JSON["whole_objects"]
     ]
 
 
@@ -88,6 +95,13 @@ def _construct_value_test(value_test_dict):
     )
 
 
+def _construct_whole_object_test(whole_object_test_dict):
+    return WholeObjectTest(
+        whole_object_test_dict["tx_json"],
+        whole_object_test_dict["blob_with_no_signing"],
+    )
+
+
 class FieldTest:
     def __init__(self, type_name, name, nth_of_type, type, expected_hex):
         self.type_name = type_name
@@ -118,37 +132,8 @@ class ValueTest:
         self.type_specialization_field = type_specialization_field
         self.error = error
 
-    def __str__(self):
-        return (
-            "test_json: "
-            + str(self.test_json)
-            + " "
-            + str(type(self.test_json))
-            + "\ntype_id: "
-            + str(self.type_id)
-            + " "
-            + str(type(self.type_id))
-            + "\ntype: "
-            + str(self.type)
-            + " "
-            + str(type(self.type))
-            + "\nis_native: "
-            + str(self.is_native)
-            + " "
-            + str(type(self.is_native))
-            + "\nexpected_hex: "
-            + str(self.expected_hex)
-            + " "
-            + str(type(self.expected_hex))
-            + "\nis_negative: "
-            + str(self.is_negative)
-            + " "
-            + str(type(self.is_negative))
-            + "\ntype_specialization_field: "
-            + str(self.type_specialization_field)
-            + " "
-            + str(type(self.type_specialization_field))
-            + "\nerror: "
-            + str(self.error)
-            + "\n"
-        )
+
+class WholeObjectTest:
+    def __init__(self, tx_json, expected_hex):
+        self.tx_json = tx_json
+        self.expected_hex = expected_hex

@@ -6,7 +6,6 @@ from xrpl.binary_codec.types.blob import Blob
 
 
 class TestBinarySerializer(unittest.TestCase):
-    # TODO: update this test when write_length_encoded is fully complete.
     # This is currently a sanity check for private _encode_variable_length_prefix,
     # which is called by BinarySerializer.write_length_encoded
     def test_write_length_encoded(self):
