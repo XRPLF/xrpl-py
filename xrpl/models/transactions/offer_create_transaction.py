@@ -1,15 +1,14 @@
 """TODO: docstring"""
 from __future__ import annotations  # Requires Python 3.7+
 
-from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
 
-from xrpl.models.exceptions import XrplModelException
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.issued_currency import IssuedCurrency
+from xrpl.models.transactions.transaction import Transaction
 
 
-@dataclass(frozen=True)
-class OfferCreateTransaction:
+class OfferCreateTransaction(Transaction):
     """
     Represents an OfferCreate transaction on the XRP Ledger.
     An OfferCreate transaction is effectively a limit order.
@@ -20,13 +19,9 @@ class OfferCreateTransaction:
     See https://xrpl.org/offercreate.html.
     """
 
-    taker_gets: Union[str, IssuedCurrency]
-    taker_pays: Union[str, IssuedCurrency]
-    expiration: Optional[int] = None
-    offer_sequence: Optional[int] = None
-
     def __init__(
         self: OfferCreateTransaction,
+        *,
         account: str,
         fee: str,
         sequence: int,
@@ -76,7 +71,7 @@ class OfferCreateTransaction:
         elif isinstance(value["taker_gets"], dict):
             taker_gets = IssuedCurrency.from_value(value["taker_gets"])
         else:
-            raise XrplModelException(
+            raise XRPLModelException(
                 "Cannot convert `taker_gets` value into `str` or `IssuedCurrency`"
             )
 
@@ -85,7 +80,7 @@ class OfferCreateTransaction:
         elif isinstance(value["taker_pays"], dict):
             taker_pays = IssuedCurrency.from_value(value["taker_pays"])
         else:
-            raise XrplModelException(
+            raise XRPLModelException(
                 "Cannot convert `taker_pays` value into `str` or `IssuedCurrency`"
             )
 
@@ -118,4 +113,4 @@ class OfferCreateTransaction:
         if self.offer_sequence is not None:
             return_dict["offer_sequence"] = self.offer_sequence
 
-        return return_dict
+        return {**self._get_transaction_json(), **return_dict}
