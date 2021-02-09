@@ -1,15 +1,14 @@
 """TODO: docstring"""
 from __future__ import annotations  # Requires Python 3.7+
 
-from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
 
-from xrpl.models.exceptions import XrplModelException
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.issued_currency import IssuedCurrency
+from xrpl.models.transactions.transaction import Transaction
 
 
-@dataclass(frozen=True)
-class OfferCreateTransaction:
+class OfferCreateTransaction(Transaction):
     """
     Represents an OfferCreate transaction on the XRP Ledger.
     An OfferCreate transaction is effectively a limit order.
@@ -42,12 +41,8 @@ class OfferCreateTransaction:
         source_tag: Optional[int] = None,
         signing_public_key: Optional[str] = None,
         transaction_signature: Optional[str] = None,
-    ):
+    ) -> None:
         """TODO: docstring"""
-        self.taker_gets = taker_gets
-        self.taker_pays = taker_pays
-        self.expiration = expiration
-        self.offer_sequence = offer_sequence
         super().__init__(
             account=account,
             transaction_type="OfferCreate",
@@ -62,12 +57,27 @@ class OfferCreateTransaction:
             signing_public_key=signing_public_key,
             transaction_signature=transaction_signature,
         )
+        self.__setattr__("taker_gets", taker_gets)
+        self.__setattr__("taker_pays", taker_pays)
+        self.__setattr__("expiration", expiration)
+        self.__setattr__("offer_sequence", offer_sequence)
 
     @classmethod
     def from_value(
         cls: OfferCreateTransaction, value: Dict[str, Any]
     ) -> OfferCreateTransaction:
-        """TODO: docstring"""
+        """
+        TODO: docstring
+
+        Args:
+            value: A thing
+
+        Returns:
+            A thing
+
+        Raises:
+            XRPLModelException: When it does
+        """
         assert "taker_gets" in value
         assert "taker_pays" in value
 
@@ -76,7 +86,7 @@ class OfferCreateTransaction:
         elif isinstance(value["taker_gets"], dict):
             taker_gets = IssuedCurrency.from_value(value["taker_gets"])
         else:
-            raise XrplModelException(
+            raise XRPLModelException(
                 "Cannot convert `taker_gets` value into `str` or `IssuedCurrency`"
             )
 
@@ -85,7 +95,7 @@ class OfferCreateTransaction:
         elif isinstance(value["taker_pays"], dict):
             taker_pays = IssuedCurrency.from_value(value["taker_pays"])
         else:
-            raise XrplModelException(
+            raise XRPLModelException(
                 "Cannot convert `taker_pays` value into `str` or `IssuedCurrency`"
             )
 
@@ -110,12 +120,17 @@ class OfferCreateTransaction:
             offer_sequence=offer_sequence,
         )
 
-    def to_json(self) -> Dict[str, Any]:
-        """TODO: docstring"""
+    def to_json(self: OfferCreateTransaction) -> Dict[str, Any]:
+        """
+        TODO: docstring
+
+        Returns:
+            A thing.
+        """
         return_dict = {"taker_gets": self.taker_gets, "taker_pays": self.taker_pays}
         if self.expiration is not None:
             return_dict["expiration"] = self.expiration
         if self.offer_sequence is not None:
             return_dict["offer_sequence"] = self.offer_sequence
 
-        return return_dict
+        return {**self._get_transaction_json(), **return_dict}
