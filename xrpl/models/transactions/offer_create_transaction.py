@@ -3,7 +3,6 @@ from __future__ import annotations  # Requires Python 3.7+
 
 from typing import Any, Dict, List, Optional, Union
 
-from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.issued_currency import IssuedCurrency
 from xrpl.models.transactions.transaction import Transaction
 
@@ -63,47 +62,7 @@ class OfferCreateTransaction(Transaction):
         cls: OfferCreateTransaction, value: Dict[str, Any]
     ) -> OfferCreateTransaction:
         """TODO: docstring"""
-        assert "taker_gets" in value
-        assert "taker_pays" in value
-
-        if isinstance(value["taker_gets"], str):
-            taker_gets = value["taker_gets"]
-        elif isinstance(value["taker_gets"], dict):
-            taker_gets = IssuedCurrency.from_value(value["taker_gets"])
-        else:
-            raise XRPLModelException(
-                "Cannot convert `taker_gets` value into `str` or `IssuedCurrency`"
-            )
-
-        if isinstance(value["taker_pays"], str):
-            taker_pays = value["taker_pays"]
-        elif isinstance(value["taker_pays"], dict):
-            taker_pays = IssuedCurrency.from_value(value["taker_pays"])
-        else:
-            raise XRPLModelException(
-                "Cannot convert `taker_pays` value into `str` or `IssuedCurrency`"
-            )
-
-        expiration = None
-        if "expiration" in value:
-            assert isinstance(
-                value["expiration"], int
-            ), "`expiration` value is not an integer"
-            expiration = value["expiration"]
-
-        offer_sequence = None
-        if "offer_sequence" in value:
-            assert isinstance(
-                value["offer_sequence"], int
-            ), "`offer_sequence` value is not an integer"
-            offer_sequence = value["offer_sequence"]
-
-        return OfferCreateTransaction(
-            taker_gets=taker_gets,
-            taker_pays=taker_pays,
-            expiration=expiration,
-            offer_sequence=offer_sequence,
-        )
+        return OfferCreateTransaction(**value)
 
     def to_json(self) -> Dict[str, Any]:
         """TODO: docstring"""

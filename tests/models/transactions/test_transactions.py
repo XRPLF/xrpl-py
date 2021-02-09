@@ -4,7 +4,7 @@ from xrpl.models.transactions.offer_create_transaction import OfferCreateTransac
 
 
 class TestOfferCreateTransaction(unittest.TestCase):
-    def test_basic(self):
+    def test_init_to_json(self):
         account = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
         fee = "0.00001"
         taker_gets = "3000000"
@@ -25,4 +25,21 @@ class TestOfferCreateTransaction(unittest.TestCase):
             "sequence": sequence,
             "transaction_type": "OfferCreate",
         }
+        self.assertEqual(transaction.to_json(), expected_dict)
+
+    def test_from_dict_to_json(self):
+        account = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
+        fee = "0.00001"
+        taker_gets = "3000000"
+        taker_pays = "3000000"
+        sequence = 0
+        transaction_dict = {
+            "account": account,
+            "fee": fee,
+            "taker_gets": taker_gets,
+            "taker_pays": taker_pays,
+            "sequence": sequence,
+        }
+        transaction = OfferCreateTransaction.from_dict(transaction_dict)
+        expected_dict = {**transaction_dict, "transaction_type": "OfferCreate"}
         self.assertEqual(transaction.to_json(), expected_dict)
