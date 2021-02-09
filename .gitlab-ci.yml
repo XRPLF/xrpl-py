@@ -2,12 +2,20 @@ stages:
   - lint
   - test
 
+variables:
+  # The cryptography team broke older builds of Alpine: https://github.com/pyca/cryptography/issues/5776
+  # Seems like people are having issues with the rust build even on newer versions,
+  # so let's skip rust for now.
+  CRYPTOGRAPHY_DONT_BUILD_RUST: 1
+
+# Test
 .test:
   before_script:
     - echo "before testing"
     - apk add build-base
-    - apk add libffi-dev
+    - apk add rust
     - apk add openssl-dev
+    - apk add libffi-dev
     - pip install poetry
     - poetry install
 

@@ -4,7 +4,13 @@ import unittest
 
 from tests.binarycodec.fixtures.data_driven_fixtures import get_whole_object_tests
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
-from xrpl.binarycodec.main import decode, encode
+from xrpl.binarycodec.main import (
+    decode,
+    encode,
+    encode_for_multisigning,
+    encode_for_signing,
+    encode_for_signing_claim,
+)
 
 TX_JSON = {
     "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
@@ -99,6 +105,29 @@ invalid_json_x_and_tagged = {
     "Sequence": 1,
     "Balance": "10000000000",
     "SourceTag": 12345,
+}
+
+signing_json = {
+    "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+    "Amount": "1000",
+    "Destination": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "Fee": "10",
+    "Flags": 2147483648,
+    "Sequence": 1,
+    "TransactionType": "Payment",
+    "TxnSignature": (
+        "30440220718D264EF05CAED7C781FF6DE298DCAC68D002562C9BF3A07C1"
+        "E721B420C0DAB02203A5A4779EF4D2CCC7BC3EF886676D803A9981B928D3B8ACA483B80"
+        "ECA3CD7B9B"
+    ),
+    "Signature": (
+        "30440220718D264EF05CAED7C781FF6DE298DCAC68D002562C9BF3A07C1E72"
+        "1B420C0DAB02203A5A4779EF4D2CCC7BC3EF886676D803A9981B928D3B8ACA483B80ECA"
+        "3CD7B9B"
+    ),
+    "SigningPubKey": (
+        "ED5F5AC8B98974A3CA843326D9B88CEBD0560177B973EE0B149F782CFAA06DC66A"
+    ),
 }
 
 
@@ -276,3 +305,40 @@ class TestMainFixtures(unittest.TestCase):
         for whole_object in whole_object_tests:
             self.assertEqual(encode(whole_object.tx_json), whole_object.expected_hex)
             self.assertEqual(decode(whole_object.expected_hex), whole_object.tx_json)
+
+
+class TestMainSigning(unittest.TestCase):
+    maxDiff = 1000
+
+    def test_single_signing(self):
+        expected = (
+            "53545800120000228000000024000000016140000000000003E868400000000000"
+            "000A7321ED5F5AC8B98974A3CA843326D9B88CEBD0560177B973EE0B149F782CFA"
+            "A06DC66A81145B812C9D57731E27A2DA8B1830195F88EF32A3B68314B5F762798A"
+            "53D543A014CAF8B297CFF8F2F937E8"
+        )
+        self.assertEqual(encode_for_signing(signing_json), expected)
+
+    def test_claim(self):
+        channel = "43904CBFCDCEC530B4037871F86EE90BF799DF8D2E0EA564BC8A3F332E4F5FB1"
+        amount = "1000"
+        json = {"amount": amount, "channel": channel}
+
+        expected = (
+            "434C4D0043904CBFCDCEC530B4037871F86EE90BF799DF8D2E0EA564BC8A3F332E"
+            "4F5FB100000000000003E8"
+        )
+        self.assertEqual(encode_for_signing_claim(json), expected)
+
+    def test_multisig(self):
+        signing_account = "rJZdUusLDtY9NEsGea7ijqhVrXv98rYBYN"
+        multisig_json = {**signing_json, "SigningPubKey": ""}
+        expected = (
+            "534D5400120000228000000024000000016140000000000003E868400000000000"
+            "000A730081145B812C9D57731E27A2DA8B1830195F88EF32A3B68314B5F762798A"
+            "53D543A014CAF8B297CFF8F2F937E8C0A5ABEF242802EFED4B041E8F2D4A8CC86A"
+            "E3D1"
+        )
+        self.assertEqual(
+            encode_for_multisigning(multisig_json, signing_account), expected
+        )
