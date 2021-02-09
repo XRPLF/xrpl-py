@@ -1,4 +1,10 @@
-"""TODO: docstring"""
+"""
+Represents an OfferCreate transaction on the XRP Ledger. An OfferCreate transaction is
+effectively a limit order. It defines an intent to exchange currencies, and creates an
+Offer object if not completely fulfilled when placed. Offers can be partially fulfilled.
+
+See https://xrpl.org/offercreate.html.
+"""
 from __future__ import annotations  # Requires Python 3.7+
 
 from typing import Any, Dict, List, Optional, Union
@@ -17,23 +23,22 @@ def _currency_amount_to_json(
 
 class OfferCreateTransaction(Transaction):
     """
-    Represents an OfferCreate transaction on the XRP Ledger.
-    An OfferCreate transaction is effectively a limit order.
-    It defines an intent to exchange currencies, and creates
-    an Offer object if not completely fulfilled when placed.
-    Offers can be partially fulfilled.
+    Represents an OfferCreate transaction on the XRP Ledger. An OfferCreate transaction
+    is effectively a limit order. It defines an intent to exchange currencies, and
+    creates an Offer object if not completely fulfilled when placed. Offers can be
+    partially fulfilled.
 
     See https://xrpl.org/offercreate.html.
     """
 
     def __init__(
         self: OfferCreateTransaction,
-        *,
+        *,  # forces remaining params to be named, not just listed
         account: str,
         fee: str,
         sequence: int,
-        taker_gets: Union[str, IssuedCurrency],
-        taker_pays: Union[str, IssuedCurrency],
+        taker_gets: Union[str, IssuedCurrency, Dict[str, Any]],
+        taker_pays: Union[str, IssuedCurrency, Dict[str, Any]],
         expiration: Optional[int] = None,
         offer_sequence: Optional[int] = None,
         account_transaction_id: Optional[str] = None,
@@ -45,11 +50,20 @@ class OfferCreateTransaction(Transaction):
         signing_public_key: Optional[str] = None,
         transaction_signature: Optional[str] = None,
     ):
-        """TODO: docstring"""
-        self.taker_gets = taker_gets
-        self.taker_pays = taker_pays
+        """Construct an OfferCreateTransaction from the given parameters."""
+        if isinstance(taker_gets, dict):
+            self.taker_gets = IssuedCurrency.from_dict(taker_gets)
+        else:
+            self.taker_gets = taker_gets
+
+        if isinstance(taker_pays, dict):
+            self.taker_pays = IssuedCurrency.from_dict(taker_pays)
+        else:
+            self.taker_pays = taker_pays
+
         self.expiration = expiration
         self.offer_sequence = offer_sequence
+
         super().__init__(
             account=account,
             transaction_type="OfferCreate",
@@ -69,11 +83,24 @@ class OfferCreateTransaction(Transaction):
     def from_dict(
         cls: OfferCreateTransaction, value: Dict[str, Any]
     ) -> OfferCreateTransaction:
-        """TODO: docstring"""
+        """
+        Construct an OfferCreateTransaction from a dictionary of parameters.
+
+        Args:
+            value: The dictionary to construct an OfferCreateTransaction from.
+
+        Returns:
+            The OfferCreateTransaction constructed from value.
+        """
         return OfferCreateTransaction(**value)
 
     def to_json(self) -> Dict[str, Any]:
-        """TODO: docstring"""
+        """
+        Return the value of this OfferCreateTransaction encoded as a dictionary.
+
+        Returns:
+            The JSON representation of the OfferCreateTransaction.
+        """
         return_dict = {"taker_gets": self.taker_gets, "taker_pays": self.taker_pays}
         if self.expiration is not None:
             return_dict["expiration"] = self.expiration

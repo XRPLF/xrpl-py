@@ -1,4 +1,4 @@
-"""TODO: docstring"""
+"""The base class for all model types."""
 
 from __future__ import annotations
 
@@ -7,13 +7,13 @@ from typing import Any, Dict
 
 
 class BaseModel(ABC):
-    """TODO: docstring"""
+    """The base class for all model types."""
 
     @classmethod
     @abstractmethod
     def from_dict(cls: BaseModel, value: Dict[str, Any]) -> BaseModel:
         """
-        Construct a new BaseModel from a literal value.
+        Construct a new BaseModel from a dictionary of parameters.
 
         Args:
             value: The value to construct the BaseModel from.
@@ -25,5 +25,23 @@ class BaseModel(ABC):
 
     @abstractmethod
     def to_json(self: BaseModel) -> Dict[str, Any]:
-        """TODO: docstring"""
+        """
+        Returns the JSON representation of a BaseModel.
+
+        Raises:
+            NotImplementedError: Always.
+        """
         raise NotImplementedError("BaseModel.to_json not implemented.")
+
+    def __eq__(self: BaseModel, other: object) -> bool:
+        """Compares a BaseModel to another object to determine if they are equal."""
+        if not isinstance(other, BaseModel):
+            return False
+        return self.to_json() == other.to_json()
+
+    def __repr__(self) -> str:
+        """Returns a string representation of a BaseModel object"""
+        repr_items = []
+        for key, value in self.to_json().items():
+            repr_items.append(f"{key}={repr(value)}")
+        return "{}({})".format(type(self).__name__, ", ".join(repr_items))

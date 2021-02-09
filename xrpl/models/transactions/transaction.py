@@ -1,4 +1,9 @@
-"""TODO: docstring"""
+"""
+The base class for all transaction types.
+
+See https://xrpl.org/transaction-types.html.
+See https://xrpl.org/transaction-common-fields.html.
+"""
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
@@ -8,9 +13,10 @@ from xrpl.models.base_model import BaseModel
 
 class Transaction(BaseModel):
     """
-    TODO: docstring
-    https://xrpl.org/transaction-types.html
-    https://xrpl.org/transaction-common-fields.html
+    The base class for all transaction types.
+
+    See https://xrpl.org/transaction-types.html.
+    See https://xrpl.org/transaction-common-fields.html.
     """
 
     def __init__(
@@ -29,7 +35,7 @@ class Transaction(BaseModel):
         signing_public_key: Optional[str] = None,
         transaction_signature: Optional[str] = None,
     ):
-        """TODO: docstring"""
+        """Construct an OfferCreateTransaction from the given parameters."""
         self.account = account
         self.transaction_type = transaction_type
         self.fee = fee
@@ -43,15 +49,14 @@ class Transaction(BaseModel):
         self.signing_public_key = signing_public_key
         self.transaction_signature = transaction_signature
 
-    def is_signed(self) -> bool:
-        """TODO: docstring"""
-        return (
-            self.signing_public_key is not None
-            and self.transaction_signature is not None
-        )
-
     def _get_transaction_json(self: Transaction) -> Dict[str, Any]:
-        """TODO: docstring"""
+        """
+        Returns the dictionary JSON representation of all the common elements of a
+        Transaction object.
+
+        This helper function is used in `to_json` implementations of concrete
+        implementations of a Transaction.
+        """
         return_dict = {
             "account": self.account,
             "transaction_type": self.transaction_type,
@@ -75,16 +80,3 @@ class Transaction(BaseModel):
         if self.transaction_signature is not None:
             return_dict["transaction_signature"] = self.transaction_signature
         return return_dict
-
-    def __eq__(self: Transaction, other: object) -> bool:
-        """TODO: docstring"""
-        if not isinstance(other, Transaction):
-            return False
-        return self.to_json() == other.to_json()
-
-    def __repr__(self):
-        """TODO: docstring"""
-        repr_items = []
-        for key, value in self.to_json().items():
-            repr_items.append(f"{key}={repr(value)}")
-        return "{}({})".format(type(self).__name__, ", ".join(repr_items))

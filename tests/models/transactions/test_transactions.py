@@ -4,6 +4,21 @@ from xrpl.models.transactions.offer_create_transaction import OfferCreateTransac
 
 
 class TestOfferCreateTransaction(unittest.TestCase):
+    def test_init_only_named(self):
+        account = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
+        fee = "0.00001"
+        taker_gets = "3000000"
+        taker_pays = "3000000"
+        sequence = 0
+        with self.assertRaises(TypeError):
+            OfferCreateTransaction(
+                account,
+                fee,
+                sequence,
+                taker_gets,
+                taker_pays,
+            )
+
     def test_init_to_json(self):
         account = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
         fee = "0.00001"
