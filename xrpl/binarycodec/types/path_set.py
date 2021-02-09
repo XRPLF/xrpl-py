@@ -4,7 +4,9 @@ See `PathSet Fields <https://xrpl.org/serialization.html#pathset-fields>`_
 
 from __future__ import annotations
 
-from typing import Dict, Final, List
+from typing import Dict, List
+
+from typing_extensions import Final
 
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
