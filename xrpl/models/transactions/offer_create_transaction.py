@@ -101,7 +101,10 @@ class OfferCreateTransaction(Transaction):
         Returns:
             The JSON representation of the OfferCreateTransaction.
         """
-        return_dict = {"taker_gets": self.taker_gets, "taker_pays": self.taker_pays}
+        return_dict = {
+            "taker_gets": _currency_amount_to_json(self.taker_gets),
+            "taker_pays": _currency_amount_to_json(self.taker_pays),
+        }
         if self.expiration is not None:
             return_dict["expiration"] = self.expiration
         if self.offer_sequence is not None:
