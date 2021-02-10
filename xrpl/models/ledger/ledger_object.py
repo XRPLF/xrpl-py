@@ -1,7 +1,8 @@
 """Base object for ledger objects on XRPL"""
-from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
+
+from xrpl.models.base_model import BaseModel
 
 
 class LedgerObjectType(str, Enum):
@@ -11,7 +12,7 @@ class LedgerObjectType(str, Enum):
 
 
 @dataclass(frozen=True)
-class LedgerObject(ABC):
+class LedgerObject(BaseModel):
     """
     Base object for ledger objects on XRPL.
 
