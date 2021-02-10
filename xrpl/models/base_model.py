@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Any, Dict
 
 
@@ -10,10 +10,11 @@ class BaseModel(ABC):
     """The base class for all model types."""
 
     @classmethod
-    @abstractmethod
     def from_dict(cls: BaseModel, value: Dict[str, Any]) -> BaseModel:
         """
         Construct a new BaseModel from a dictionary of parameters.
+
+        If not overridden, passes the dictionary as args to the constructor.
 
         Args:
             value: The value to construct the BaseModel from.
@@ -21,7 +22,7 @@ class BaseModel(ABC):
         Raises:
             NotImplementedError: Always.
         """
-        raise NotImplementedError("BaseModel.from_value not implemented.")
+        return cls(**value)
 
     def to_json(self: BaseModel) -> Dict[str, Any]:
         """

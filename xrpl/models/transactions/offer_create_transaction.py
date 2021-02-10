@@ -79,21 +79,6 @@ class OfferCreateTransaction(Transaction):
             transaction_signature=transaction_signature,
         )
 
-    @classmethod
-    def from_dict(
-        cls: OfferCreateTransaction, value: Dict[str, Any]
-    ) -> OfferCreateTransaction:
-        """
-        Construct an OfferCreateTransaction from a dictionary of parameters.
-
-        Args:
-            value: The dictionary to construct an OfferCreateTransaction from.
-
-        Returns:
-            The OfferCreateTransaction constructed from value.
-        """
-        return OfferCreateTransaction(**value)
-
     def to_json(self: OfferCreateTransaction) -> Dict[str, Any]:
         """
         Return the value of this OfferCreateTransaction encoded as a dictionary.

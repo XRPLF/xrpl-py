@@ -39,6 +39,4 @@ class IssuedCurrency(BaseModel):
         assert isinstance(value["currency"], str)
         assert isinstance(value["value"], int)
         assert isinstance(value["issuer"], str)
-        return IssuedCurrency(
-            currency=value["currency"], value=value["value"], issuer=value["issuer"]
-        )
+        return IssuedCurrency(**value)
