@@ -292,9 +292,6 @@ class TestMainFixtures(unittest.TestCase):
             "codec-fixtures.json", "transactions", self._check_binary_and_json
         )
 
-    def test_codec_fixtures_ledger_data(self):
-        pass
-
     def test_x_codec_fixtures(self):
         self._run_fixtures_test(
             "x-codec-fixtures.json", "transactions", self._check_xaddress_jsons

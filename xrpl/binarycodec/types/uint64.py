@@ -57,7 +57,9 @@ class UInt64(UInt):
 
         if isinstance(value, str):
             if not _HEX_REGEX.fullmatch(value):
-                raise XRPLBinaryCodecException("{} is not a valid hex string")
+                raise XRPLBinaryCodecException(
+                    "{} is not a valid hex string".format(value)
+                )
             value_bytes = bytes.fromhex(value)
             return cls(value_bytes)
 
