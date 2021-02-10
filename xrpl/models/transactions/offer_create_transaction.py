@@ -102,8 +102,8 @@ class OfferCreateTransaction(Transaction):
             The JSON representation of the OfferCreateTransaction.
         """
         return_dict = {
-            **self.__dict__,
+            **super().to_json(),
             "taker_gets": _currency_amount_to_json(self.taker_gets),
             "taker_pays": _currency_amount_to_json(self.taker_pays),
         }
-        return {key: value for (key, value) in return_dict.items() if value is not None}
+        return return_dict

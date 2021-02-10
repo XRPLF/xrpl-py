@@ -27,7 +27,7 @@ class BaseModel(ABC):
         """
         Returns the JSON representation of a BaseModel.
 
-        If not overridden, returns the object dict.
+        If not overridden, returns the object dict with all non-None values.
         """
         return {
             key: value for (key, value) in self.__dict__.items() if value is not None
