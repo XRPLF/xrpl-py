@@ -14,7 +14,7 @@ class LedgerObjectType(str, Enum):
 @dataclass(frozen=True)
 class LedgerObject(BaseModel):
     """
-    Base object for ledger objects on XRPL.
+    Base object for ledger objects on the XRPL.
 
     Attributes:
         type: The type of the LedgerObject.
