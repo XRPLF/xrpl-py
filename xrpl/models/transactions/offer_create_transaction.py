@@ -102,12 +102,8 @@ class OfferCreateTransaction(Transaction):
             The JSON representation of the OfferCreateTransaction.
         """
         return_dict = {
+            **self.__dict__,
             "taker_gets": _currency_amount_to_json(self.taker_gets),
             "taker_pays": _currency_amount_to_json(self.taker_pays),
         }
-        if self.expiration is not None:
-            return_dict["expiration"] = self.expiration
-        if self.offer_sequence is not None:
-            return_dict["offer_sequence"] = self.offer_sequence
-
-        return {**self._get_transaction_json(), **return_dict}
+        return {key: value for (key, value) in return_dict.items() if value is not None}

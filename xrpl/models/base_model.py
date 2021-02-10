@@ -23,15 +23,15 @@ class BaseModel(ABC):
         """
         raise NotImplementedError("BaseModel.from_value not implemented.")
 
-    @abstractmethod
     def to_json(self: BaseModel) -> Dict[str, Any]:
         """
         Returns the JSON representation of a BaseModel.
 
-        Raises:
-            NotImplementedError: Always.
+        If not overridden, returns the object dict.
         """
-        raise NotImplementedError("BaseModel.to_json not implemented.")
+        return {
+            key: value for (key, value) in self.__dict__.items() if value is not None
+        }
 
     def __eq__(self: BaseModel, other: object) -> bool:
         """Compares a BaseModel to another object to determine if they are equal."""
