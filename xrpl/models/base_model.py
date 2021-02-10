@@ -5,6 +5,8 @@ from __future__ import annotations
 from abc import ABC
 from typing import Any, Dict
 
+from xrpl.models.exceptions import XRPLModelValidationException
+
 
 class BaseModel(ABC):
     """The base class for all model types."""
@@ -22,7 +24,35 @@ class BaseModel(ABC):
         Returns:
             A new BaseModel object, constructed using the given parameters.
         """
+        cls.validate(value)
         return cls(**value)
+
+    @classmethod
+    def validate(self: BaseModel, value: Dict[str, Any]) -> None:
+        """
+        Raises an error if the arguments provided are invalid for a BaseModel object.
+
+        Raises:
+            XRPLModelValidationException: if the arguments provided are invalid for the
+            creation of a BaseModel object.
+        """
+        validation_errors = self._get_validation_errors(value)
+        if len(validation_errors) > 0:
+            raise XRPLModelValidationException(str(validation_errors))
+
+    @classmethod
+    def is_valid(cls: BaseModel, value: Dict[str, Any]) -> bool:
+        """
+        Returns whether the dictionary provided contains valid arguments.
+
+        Returns:
+            Whether the dictionary provided contains valid arguments.
+        """
+        return len(cls._get_validation_errors(value))
+
+    @classmethod
+    def _get_validation_errors(cls: BaseModel, value: Dict[str, Any]) -> Dict[str, str]:
+        return {}
 
     def to_json(self: BaseModel) -> Dict[str, Any]:
         """

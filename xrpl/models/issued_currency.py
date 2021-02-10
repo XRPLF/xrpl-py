@@ -26,17 +26,12 @@ class IssuedCurrency(BaseModel):
     issuer: str
 
     @classmethod
-    def from_dict(cls: IssuedCurrency, value: Dict[str, Any]) -> IssuedCurrency:
-        """
-        Construct an IssuedCurrency from a dictionary of parameters.
-
-        Args:
-            value: The dictionary to construct an IssuedCurrency from.
-
-        Returns:
-            The IssuedCurrency constructed from value.
-        """
-        assert isinstance(value["currency"], str)
-        assert isinstance(value["value"], int)
-        assert isinstance(value["issuer"], str)
-        return cls(**value)
+    def _get_validation_errors(cls: BaseModel, value: Dict[str, Any]) -> Dict[str, str]:
+        errors = {}
+        if not isinstance(value["currency"], str):
+            errors["currency"] = "currency provided is not a str"
+        if not isinstance(value["value"], int):
+            errors["value"] = "value provided is not an int"
+        if not isinstance(value["issuer"], str):
+            errors["issuer"] = "issuer provided is not a str"
+        return errors
