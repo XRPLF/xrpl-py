@@ -19,8 +19,8 @@ class BaseModel(ABC):
         Args:
             value: The value to construct the BaseModel from.
 
-        Raises:
-            NotImplementedError: Always.
+        Returns:
+            A new BaseModel object, constructed using the given parameters.
         """
         return cls(**value)
 
@@ -29,6 +29,9 @@ class BaseModel(ABC):
         Returns the JSON representation of a BaseModel.
 
         If not overridden, returns the object dict with all non-None values.
+
+        Returns:
+            The JSON representation of a BaseModel.
         """
         return {
             key: value for (key, value) in self.__dict__.items() if value is not None
