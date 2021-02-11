@@ -1,4 +1,5 @@
-"""Class for serializing and deserializing an 8-bit UInt.
+"""
+Class for serializing and deserializing an 8-bit UInt.
 See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
 """
 from __future__ import annotations
