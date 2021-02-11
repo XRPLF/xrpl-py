@@ -22,7 +22,7 @@ class TestLedgerObj(TestCase):
         regular_key = "regular_key"
         signer_lists = []
         tick_size = 1
-        # transfer_rate = 1
+        transfer_rate = 1
 
         account_root_dict = {
             "account": account,
@@ -40,6 +40,7 @@ class TestLedgerObj(TestCase):
             "regular_key": regular_key,
             "signer_lists": signer_lists,
             "tick_size": tick_size,
+            "transfer_rate": transfer_rate,
         }
 
         account_root_object = AccountRootObject.from_dict(account_root_dict)
@@ -48,7 +49,3 @@ class TestLedgerObj(TestCase):
             "type": LedgerObjectType.AccountRoot,
         }
         self.assertEqual(account_root_object.to_json(), expected_dict)
-        self.assertEqual(
-            LedgerObjectType.AccountRoot,
-            account_root_object.__dict__["type"],
-        )
