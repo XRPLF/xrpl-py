@@ -1,10 +1,10 @@
 """DOCSTRING"""
-from typing import TypeVar
+from typing import Generic, TypeVar
 
 T = TypeVar("T")
 
 
-class Wrapper:
+class Wrapper(Generic[T]):
     """DOCSTRING"""
 
     value: T
