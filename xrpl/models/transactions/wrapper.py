@@ -5,6 +5,6 @@ T = TypeVar("T")
 
 
 class Wrapper(Generic[T]):
-    """DOCSTRING"""
+    """A typed wrapper for single values."""
 
     value: T

@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from xrpl.models.ledger.ledger_object import LedgerObject, LedgerObjectType
+from xrpl.models.transactions.hash256 import Hash256
 
 
 @dataclass(frozen=True)
@@ -45,7 +46,7 @@ class AccountRootObject(LedgerObject):
     balance: str
     flags: int
     # TODO: Use Hash256 type
-    index: str
+    index: Hash256
     owner_count: int
     # TODO: Use Hash256 type
     previous_transaction_id: str
@@ -62,3 +63,5 @@ class AccountRootObject(LedgerObject):
     signer_lists: Optional[List] = None
     tick_size: Optional[int] = None
     transfer_rate: Optional[int] = None
+
+    # Will need to do some validation here

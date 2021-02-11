@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from xrpl.models.ledger.account_root_object import AccountRootObject
 from xrpl.models.ledger.ledger_object import LedgerObjectType
+from xrpl.models.transactions.hash256 import Hash256
 
 
 class TestLedgerModels(TestCase):
@@ -9,7 +10,7 @@ class TestLedgerModels(TestCase):
         account = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
         balance = "0.0001"
         flags = 1
-        index = "ahash256"
+        index = Hash256("ahash256")
         owner_count = 1
         previous_transaction_id = "1"
         previous_transaction_sequence = 1
