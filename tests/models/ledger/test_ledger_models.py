@@ -5,18 +5,22 @@ from xrpl.models.ledger.ledger_object import LedgerObjectType
 from xrpl.models.transactions.hash256 import Hash256
 
 
-class TestLedgerModels(TestCase):
-    def test_account_root_from_dict_to_json(self):
+class TestAccountRootObject(TestCase):
+    def test_from_dict_to_json(self):
+        index_value = "ahash256"
+        previous_transaction_id_value = "1"
+        account_transaction_id_value = "account_transaction_id"
+
         account = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
         balance = "0.0001"
         flags = 1
-        index = Hash256("ahash256")
+        index = Hash256(index_value)
         owner_count = 1
-        previous_transaction_id = "1"
+        previous_transaction_id = Hash256(previous_transaction_id_value)
         previous_transaction_sequence = 1
         sequence = 1
 
-        account_transaction_id = "id"
+        account_transaction_id = Hash256(account_transaction_id_value)
         domain = "domain"
         email_hash = "email_hash"
         message_key = "message_key"
@@ -48,5 +52,8 @@ class TestLedgerModels(TestCase):
         expected_dict = {
             **account_root_dict,
             "type": LedgerObjectType.AccountRoot,
+            "index": index_value,
+            "previous_transaction_id": previous_transaction_id_value,
+            "account_transaction_id": account_transaction_id_value,
         }
         self.assertEqual(account_root_object.to_json_object(), expected_dict)

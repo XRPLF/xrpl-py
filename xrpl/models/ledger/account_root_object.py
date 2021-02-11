@@ -45,15 +45,12 @@ class AccountRootObject(LedgerObject):
     # TODO: Use XrpCurrencyAmount type
     balance: str
     flags: int
-    # TODO: Use Hash256 type
     index: Hash256
     owner_count: int
-    # TODO: Use Hash256 type
-    previous_transaction_id: str
+    previous_transaction_id: Hash256
     previous_transaction_ledger_sequence: int
     sequence: int
-    # TODO: Use Hash256 type
-    account_transaction_id: Optional[str] = None
+    account_transaction_id: Optional[Hash256] = None
     domain: Optional[str] = None
     email_hash: Optional[str] = None
     message_key: Optional[str] = None

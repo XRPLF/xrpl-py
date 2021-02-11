@@ -13,11 +13,14 @@ class Hash256(Wrapper):
     """A hash256."""
 
     # TODO: Add some validation
-
+    # TODO: Can this be genericized somehow?
     def __eq__(self: Hash256, object: object) -> bool:
         """Evaluates whether or not two Hash256s are equal."""
-        if not isinstance(object, Hash256):
-            raise XRPLModelValidationException("Can only compare with another Hash256.")
+        # TODO: Uppercase?
+        if isinstance(object, str):
+            return self.value == object
 
-        # TODO: uppercase since these are magic strings?
-        return self.value == object.value
+        if isinstance(object, Hash256):
+            return self.value == object.value
+
+        raise XRPLModelValidationException("Can only compare with another Hash256.")
