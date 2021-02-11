@@ -15,7 +15,8 @@ _WIDTH: Final[int] = 4  # 32 / 8
 
 
 class UInt32(UInt):
-    """Class for serializing and deserializing a 32-bit UInt.
+    """
+    Class for serializing and deserializing a 32-bit UInt.
     See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
     """
 
