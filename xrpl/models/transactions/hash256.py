@@ -9,7 +9,7 @@ from xrpl.models.transactions.wrapper import Wrapper
 
 # Should this subclass a wrapper? What do we think of that?
 @dataclass(frozen=True)
-class Hash256(Wrapper[str]):
+class Hash256(Wrapper):
     """A hash256."""
 
     # TODO: Add some validation
