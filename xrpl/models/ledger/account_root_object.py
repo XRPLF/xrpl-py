@@ -2,7 +2,7 @@
 Represents the AccountRoot ledger object, which describes a single account,
 its settings, and XRP balance.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 
 from xrpl.models.ledger.ledger_object import LedgerObject, LedgerObjectType
@@ -33,7 +33,9 @@ class AccountRootObject(LedgerObject):
         transfer_rate: The transfer rate
     """
 
-    type = LedgerObjectType.AccountRoot
+    type: LedgerObjectType = field(
+        default_factory=lambda: LedgerObjectType.AccountRoot, init=False
+    )
 
     # TODO: Use Address type
     account: str
