@@ -10,7 +10,8 @@ from xrpl.binarycodec.types.serialized_type import SerializedType
 
 
 class Blob(SerializedType):
-    """Codec for serializing and deserializing blob fields.
+    """
+    Codec for serializing and deserializing blob fields.
     See `Blob Fields <https://xrpl.org/serialization.html#blob-fields>`_
     """
 
