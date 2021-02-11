@@ -19,7 +19,8 @@ _HEX_REGEX: Final[re.Pattern] = re.compile("^[A-F0-9]{16}$")
 
 
 class UInt64(UInt):
-    """Class for serializing and deserializing a 64-bit UInt.
+    """
+    Class for serializing and deserializing a 64-bit UInt.
     See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
     """
 
