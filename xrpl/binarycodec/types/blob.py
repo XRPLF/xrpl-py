@@ -1,5 +1,7 @@
-"""Variable length encoded type."""
-
+"""
+Codec for serializing and deserializing blob fields.
+See `Blob Fields <https://xrpl.org/serialization.html#blob-fields>`_
+"""
 from __future__ import annotations
 
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
@@ -8,7 +10,10 @@ from xrpl.binarycodec.types.serialized_type import SerializedType
 
 
 class Blob(SerializedType):
-    """Variable length encoded type."""
+    """
+    Codec for serializing and deserializing blob fields.
+    See `Blob Fields <https://xrpl.org/serialization.html#blob-fields>`_
+    """
 
     def __init__(self: Blob, buffer: bytes) -> None:
         """Construct a new Blob type from a `bytes` value."""
@@ -42,6 +47,13 @@ class Blob(SerializedType):
         Raises:
             XRPLBinaryCodecException: If the Blob can't be constructed from value.
         """
+        if not isinstance(value, str):
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a Blob: expected str, received {}.".format(
+                    value.__class__.__name__
+                )
+            )
+
         if isinstance(value, str):
             return cls(bytes.fromhex(value))
 
