@@ -1,4 +1,5 @@
-"""Codec for serializing and deserializing blob fields.
+"""
+Codec for serializing and deserializing blob fields.
 See `Blob Fields <https://xrpl.org/serialization.html#blob-fields>`_
 """
 from __future__ import annotations
