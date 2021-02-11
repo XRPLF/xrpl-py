@@ -13,7 +13,8 @@ _WIDTH: Final[int] = 1  # 8 / 8
 
 
 class UInt8(UInt):
-    """Class for serializing and deserializing an 8-bit UInt.
+    """
+    Class for serializing and deserializing an 8-bit UInt.
     See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
     """
 
