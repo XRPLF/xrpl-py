@@ -19,7 +19,7 @@ class TestOfferCreateTransaction(unittest.TestCase):
                 taker_pays,
             )
 
-    def test_init_to_json(self):
+    def test_init_to_json_object(self):
         account = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
         fee = "0.00001"
         taker_gets = "3000000"
@@ -40,9 +40,9 @@ class TestOfferCreateTransaction(unittest.TestCase):
             "sequence": sequence,
             "transaction_type": "OfferCreate",
         }
-        self.assertEqual(transaction.to_json(), expected_dict)
+        self.assertEqual(transaction.to_json_object(), expected_dict)
 
-    def test_from_dict_to_json(self):
+    def test_from_dict_to_json_object(self):
         account = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
         fee = "0.00001"
         taker_gets = {
@@ -61,4 +61,4 @@ class TestOfferCreateTransaction(unittest.TestCase):
         }
         transaction = OfferCreateTransaction.from_dict(transaction_dict)
         expected_dict = {**transaction_dict, "transaction_type": "OfferCreate"}
-        self.assertEqual(transaction.to_json(), expected_dict)
+        self.assertEqual(transaction.to_json_object(), expected_dict)

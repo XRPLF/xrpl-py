@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, Union
 
-from xrpl.models import IssuedCurrency
+from xrpl.models.issued_currency import IssuedCurrency
 
 
 def currency_amount_to_json_object(
