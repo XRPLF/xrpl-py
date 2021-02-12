@@ -48,4 +48,4 @@ class TestAccountRootObject(TestCase):
             **account_root_dict,
             "type": LedgerObjectType.AccountRoot,
         }
-        self.assertEqual(account_root_object.to_json(), expected_dict)
+        self.assertEqual(account_root_object.to_json_object(), expected_dict)
