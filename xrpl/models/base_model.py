@@ -32,9 +32,12 @@ class BaseModel(ABC):
         """
         Raises an error if the arguments provided are invalid for a BaseModel object.
 
+        Args:
+            value: The value to construct the BaseModel from.
+
         Raises:
             XRPLModelValidationException: if the arguments provided are invalid for the
-            creation of a BaseModel object.
+                creation of a BaseModel object.
         """
         validation_errors = self._get_validation_errors(value)
         if len(validation_errors) > 0:
@@ -44,6 +47,9 @@ class BaseModel(ABC):
     def is_valid(cls: BaseModel, value: Dict[str, Any]) -> bool:
         """
         Returns whether the dictionary provided contains valid arguments.
+
+        Args:
+            value: The value to construct the BaseModel from.
 
         Returns:
             Whether the dictionary provided contains valid arguments.
