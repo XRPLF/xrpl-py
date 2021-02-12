@@ -1,17 +1,24 @@
-"""Derived UInt class for serializing/deserializing 32 bit UInt."""
+"""Class for serializing and deserializing a 32-bit UInt.
+See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
+"""
 from __future__ import annotations
 
 from typing import Union
+
+from typing_extensions import Final
 
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.uint import UInt
 
-_WIDTH = 4  # 32 / 8
+_WIDTH: Final[int] = 4  # 32 / 8
 
 
 class UInt32(UInt):
-    """Derived UInt class for serializing/deserializing 32 bit UInt."""
+    """
+    Class for serializing and deserializing a 32-bit UInt.
+    See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
+    """
 
     def __init__(self: UInt32, buffer: bytes = bytes(_WIDTH)) -> None:
         """Construct a new UInt32 type from a `bytes` value."""
@@ -44,6 +51,12 @@ class UInt32(UInt):
         Raises:
             XRPLBinaryCodecException: If a UInt32 could not be constructed from value.
         """
+        if not isinstance(value, (str, int)):
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a UInt32: expected str or int,"
+                " received {}.".format(value.__class__.__name__)
+            )
+
         if isinstance(value, int):
             value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=False)
             return cls(value_bytes)

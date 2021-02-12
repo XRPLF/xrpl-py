@@ -1,15 +1,23 @@
-"""Derived UInt class for serializing/deserializing 8 bit UInt."""
+"""
+Class for serializing and deserializing an 8-bit UInt.
+See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
+"""
 from __future__ import annotations
+
+from typing_extensions import Final
 
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.uint import UInt
 
-_WIDTH = 1  # 8 / 8
+_WIDTH: Final[int] = 1  # 8 / 8
 
 
 class UInt8(UInt):
-    """Derived UInt class for serializing/deserializing 8 bit UInt."""
+    """
+    Class for serializing and deserializing an 8-bit UInt.
+    See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
+    """
 
     def __init__(self: UInt8, buffer: bytes = bytes(_WIDTH)) -> None:
         """Construct a new UInt8 type from a `bytes` value."""
@@ -42,6 +50,13 @@ class UInt8(UInt):
         Raises:
             XRPLBinaryCodecException: If a UInt8 cannot be constructed.
         """
+        if not isinstance(value, int):
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a UInt8: expected int, received {}.".format(
+                    value.__class__.__name__
+                )
+            )
+
         if isinstance(value, int):
             value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=False)
             return cls(value_bytes)

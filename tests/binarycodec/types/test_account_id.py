@@ -1,5 +1,6 @@
 import unittest
 
+from xrpl.binarycodec import XRPLBinaryCodecException
 from xrpl.binarycodec.types.account_id import AccountID
 
 HEX_ENCODING = "5E7B112523F68D2F5E879DB4EAC51C6698A69304"
@@ -17,3 +18,7 @@ class TestAccountID(unittest.TestCase):
         # We may want to decide if we want the implemention of `to_hex` in
         # SerializedType to return uppercase hex by default.
         self.assertEqual(account_id.to_hex(), HEX_ENCODING)
+
+    def test_raises_invalid_value_type(self):
+        invalid_value = 30
+        self.assertRaises(XRPLBinaryCodecException, AccountID.from_value, invalid_value)

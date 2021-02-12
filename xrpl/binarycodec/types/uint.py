@@ -1,4 +1,6 @@
-"""Base class for serializing and deserializing unsigned integers."""
+"""Base class for serializing and deserializing unsigned integers.
+See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
+"""
 from __future__ import annotations
 
 from typing import Union
@@ -8,7 +10,9 @@ from xrpl.binarycodec.types.serialized_type import SerializedType
 
 
 class UInt(SerializedType):
-    """Base class for serializing and deserializing unsigned integers."""
+    """Base class for serializing and deserializing unsigned integers.
+    See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
+    """
 
     def __init__(self: UInt, buffer: bytes) -> None:
         """Construct a new UInt type from a `bytes` value."""

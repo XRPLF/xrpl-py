@@ -51,3 +51,11 @@ class TestSerializedList(unittest.TestCase):
         obj = [123]
         with self.assertRaises(XRPLBinaryCodecException):
             SerializedList.from_value(obj)
+
+    def test_raises_invalid_value_type(self):
+        invalid_value = 1
+        self.assertRaises(
+            XRPLBinaryCodecException,
+            SerializedList.from_value,
+            invalid_value,
+        )
