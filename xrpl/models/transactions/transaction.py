@@ -8,7 +8,7 @@ See https://xrpl.org/transaction-common-fields.html.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from xrpl.models.base_model import BaseModel
 
@@ -58,3 +58,12 @@ class Transaction(BaseModel):
         self.source_tag = source_tag
         self.signing_public_key = signing_public_key
         self.transaction_signature = transaction_signature
+
+    def to_json_object(self: Transaction) -> Dict[str, Any]:
+        """
+        Returns the JSON representation of a Transaction.
+
+        Returns:
+            The JSON representation of a Transaction.
+        """
+        return {**super().to_json_object(), "type": self.type.name}
