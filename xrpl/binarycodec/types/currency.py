@@ -3,12 +3,14 @@ from __future__ import annotations  # Requires Python 3.7+
 
 import re
 
+from typing_extensions import Final
+
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.hash160 import Hash160
 
-_ISO_REGEX = re.compile("^[A-Z0-9]{3}$")
-_HEX_REGEX = re.compile("^[A-F0-9]{40}$")
-_CURRENCY_CODE_LENGTH = 20  # bytes
+_ISO_REGEX: Final[re.Pattern] = re.compile("^[A-Z0-9]{3}$")
+_HEX_REGEX: Final[re.Pattern] = re.compile("^[A-F0-9]{40}$")
+_CURRENCY_CODE_LENGTH: Final[int] = 20  # bytes
 
 
 def _is_iso_code(value: str) -> bool:
@@ -49,7 +51,7 @@ def _iso_to_bytes(iso: str) -> bytes:
 
 class Currency(Hash160):
     """
-    Defines how to encode and decode currency codes in issued currency amounts.
+    Codec for serializing and deserializing currency codes in issued currency amounts.
     `Amount fields <https://xrpl.org/serialization.html#amount-fields>`_
 
     Attributes:
@@ -58,7 +60,7 @@ class Currency(Hash160):
         _is_native: True if the currency code is "XRP"
     """
 
-    LENGTH = 20
+    LENGTH: Final[int] = 20
 
     def __init__(self: Currency, buffer: bytes = None) -> None:
         """Construct a Currency."""
@@ -102,6 +104,12 @@ class Currency(Hash160):
         Raises:
             XRPLBinaryCodecException: If the Currency representation is invalid.
         """
+        if not isinstance(value, str):
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a Currency: expected str,"
+                " received {}.".format(value.__class__.__name__)
+            )
+
         if _is_iso_code(value):
             return Currency(_iso_to_bytes(value))
         if _is_hex(value):

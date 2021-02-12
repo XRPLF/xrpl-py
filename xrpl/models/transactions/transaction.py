@@ -1,5 +1,6 @@
 """
-The base class for all transaction types.
+The base class for all transaction types. Represents fields common to all transaction
+types.
 
 See https://xrpl.org/transaction-types.html.
 See https://xrpl.org/transaction-common-fields.html.
@@ -13,7 +14,8 @@ from xrpl.models.base_model import BaseModel
 
 class Transaction(BaseModel):
     """
-    The base class for all transaction types.
+    The base class for all transaction types. Represents fields common to all
+    transaction types.
 
     See https://xrpl.org/transaction-types.html.
     See https://xrpl.org/transaction-common-fields.html.
@@ -35,7 +37,7 @@ class Transaction(BaseModel):
         signing_public_key: Optional[str] = None,
         transaction_signature: Optional[str] = None,
     ) -> None:
-        """Construct an OfferCreateTransaction from the given parameters."""
+        """Construct a Transaction from the given parameters."""
         self.account = account
         self.transaction_type = transaction_type
         self.fee = fee

@@ -1,4 +1,4 @@
-"""Class for serializing/deserializing transactions."""
+"""Class for serializing/deserializing Dicts of objects."""
 
 from __future__ import annotations
 
@@ -21,13 +21,13 @@ from xrpl.binarycodec.definitions.field_instance import FieldInstance
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.serialized_type import SerializedType
 
-_OBJECT_END_MARKER_BYTE: Final = bytes([0xE1])
-_OBJECT_END_MARKER: Final = "ObjectEndMarker"
-_SERIALIZED_TRANSACTION: Final = "SerializedTransaction"
-_DESTINATION: Final = "Destination"
-_ACCOUNT: Final = "Account"
-_SOURCE_TAG: Final = "SourceTag"
-_DEST_TAG: Final = "DestinationTag"
+_OBJECT_END_MARKER_BYTE: Final[bytes] = bytes([0xE1])
+_OBJECT_END_MARKER: Final[str] = "ObjectEndMarker"
+_SERIALIZED_DICT: Final[str] = "SerializedDict"
+_DESTINATION: Final[str] = "Destination"
+_ACCOUNT: Final[str] = "Account"
+_SOURCE_TAG: Final[str] = "SourceTag"
+_DEST_TAG: Final[str] = "DestinationTag"
 
 
 def _handle_xaddress(field: str, xaddress: str) -> Dict[str, str]:
@@ -79,21 +79,19 @@ def _enum_to_str(field: str, value: Any) -> Any:
     return value
 
 
-class SerializedTransaction(SerializedType):
-    """Class for serializing/deserializing transactions."""
+class SerializedDict(SerializedType):
+    """Class for serializing/deserializing Dicts of objects."""
 
     @classmethod
-    def from_parser(
-        cls: SerializedTransaction, parser: BinaryParser
-    ) -> SerializedTransaction:
+    def from_parser(cls: SerializedDict, parser: BinaryParser) -> SerializedDict:
         """
-        Construct a SerializedTransaction from a BinaryParser.
+        Construct a SerializedDict from a BinaryParser.
 
         Args:
-            parser: The parser to construct a SerializedTransaction from.
+            parser: The parser to construct a SerializedDict from.
 
         Returns:
-            The SerializedTransaction constructed from parser.
+            The SerializedDict constructed from parser.
         """
         from xrpl.binarycodec.binary_wrappers.binary_serializer import BinarySerializer
 
@@ -106,27 +104,27 @@ class SerializedTransaction(SerializedType):
 
             associated_value = parser.read_field_value(field)
             serializer.write_field_and_value(field, associated_value)
-            if field.type == _SERIALIZED_TRANSACTION:
+            if field.type == _SERIALIZED_DICT:
                 serializer.put(_OBJECT_END_MARKER_BYTE)
 
-        return SerializedTransaction(serializer.to_bytes())
+        return SerializedDict(serializer.to_bytes())
 
     @classmethod
     def from_value(
-        cls: SerializedTransaction, value: Dict[str, Any], signing_only: bool = False
-    ) -> SerializedTransaction:
+        cls: SerializedDict, value: Dict[str, Any], only_signing: bool = False
+    ) -> SerializedDict:
         """
-        Create a SerializedTransaction object from a dictionary.
+        Create a SerializedDict object from a dictionary.
 
         Args:
-            value: The dictionary to construct a SerializedTransaction from.
-            signing_only: whether only the signing fields should be included.
+            value: The dictionary to construct a SerializedDict from.
+            only_signing: whether only the signing fields should be included.
 
         Returns:
-            The SerializedTransaction object constructed from value.
+            The SerializedDict object constructed from value.
 
         Raises:
-            XRPLBinaryCodecException: If the SerializedTransaction can't be constructed
+            XRPLBinaryCodecException: If the SerializedDict can't be constructed
                 from value.
         """
         from xrpl.binarycodec.binary_wrappers.binary_serializer import BinarySerializer
@@ -170,7 +168,7 @@ class SerializedTransaction(SerializedType):
                 sorted_keys.append(field_instance)
         sorted_keys.sort(key=lambda x: x.ordinal)
 
-        if signing_only:
+        if only_signing:
             sorted_keys = list(filter(lambda x: x.is_signing, sorted_keys))
 
         for field in sorted_keys:
@@ -178,17 +176,17 @@ class SerializedTransaction(SerializedType):
                 xaddress_decoded[field.name]
             )
             serializer.write_field_and_value(field, associated_value)
-            if field.type == _SERIALIZED_TRANSACTION:
+            if field.type == _SERIALIZED_DICT:
                 serializer.put(_OBJECT_END_MARKER_BYTE)
 
-        return SerializedTransaction(serializer.to_bytes())
+        return SerializedDict(serializer.to_bytes())
 
-    def to_json(self: SerializedTransaction) -> Dict[str, Any]:
+    def to_json(self: SerializedDict) -> Dict[str, Any]:
         """
-        Returns the JSON representation of a SerializedTransaction.
+        Returns the JSON representation of a SerializedDict.
 
         Returns:
-            The JSON representation of a SerializedTransaction.
+            The JSON representation of a SerializedDict.
         """
         parser = BinaryParser(self.to_string())
         accumulator = {}

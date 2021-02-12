@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.types.account_id import AccountID
 from xrpl.binarycodec.types.hash256 import Hash256
-from xrpl.binarycodec.types.serialized_transaction import SerializedTransaction
+from xrpl.binarycodec.types.serialized_dict import SerializedDict
 from xrpl.binarycodec.types.uint64 import UInt64
 
 
@@ -97,7 +97,7 @@ def decode(buffer: str) -> Union[List[Any], Dict[str, Any]]:
         The JSON representation of the transaction.
     """
     parser = BinaryParser(buffer)
-    return parser.read_type(SerializedTransaction).to_json()
+    return parser.read_type(SerializedDict).to_json()
 
 
 def _serialize_json(
@@ -110,7 +110,7 @@ def _serialize_json(
     if prefix is not None:
         buffer += prefix
 
-    buffer += SerializedTransaction.from_value(json, signing_only).to_bytes()
+    buffer += SerializedDict.from_value(json, signing_only).to_bytes()
 
     if suffix is not None:
         buffer += suffix
