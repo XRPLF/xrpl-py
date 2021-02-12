@@ -39,39 +39,24 @@ class AccountRootObject(LedgerObject):
 
     # TODO: Use Address type
     account: str
-
     # TODO: Use XrpCurrencyAmount type
     balance: str
-
     flags: int
-
     # TODO: Use Hash256 type
     index: str
-
     owner_count: int
-
     # TODO: Use Hash256 type
     previous_transaction_id: str
-
     previous_transaction_ledger_sequence: int
-
     sequence: int
-
     # TODO: Use Hash256 type
     account_transaction_id: Optional[str] = None
-
     domain: Optional[str] = None
-
     email_hash: Optional[str] = None
-
     message_key: Optional[str] = None
-
     # TODO: Use Address type
     regular_key: Optional[str] = None
-
     # TODO: Use SignerListObject once implemented
     signer_lists: Optional[List] = None
-
     tick_size: Optional[int] = None
-
     transfer_rate: Optional[int] = None
