@@ -60,7 +60,7 @@ class BaseModel(ABC):
     def _get_validation_errors(cls: BaseModel, value: Dict[str, Any]) -> Dict[str, str]:
         return {}
 
-    def to_json(self: BaseModel) -> Dict[str, Any]:
+    def to_json_object(self: BaseModel) -> Dict[str, Any]:
         """
         Returns the JSON representation of a BaseModel.
 
@@ -77,11 +77,11 @@ class BaseModel(ABC):
         """Compares a BaseModel to another object to determine if they are equal."""
         if not isinstance(other, BaseModel):
             return False
-        return self.to_json() == other.to_json()
+        return self.to_json_object() == other.to_json_object()
 
     def __repr__(self: BaseModel) -> str:
         """Returns a string representation of a BaseModel object"""
         repr_items = []
-        for key, value in self.to_json().items():
+        for key, value in self.to_json_object().items():
             repr_items.append(f"{key}={repr(value)}")
         return "{}({})".format(type(self).__name__, ", ".join(repr_items))

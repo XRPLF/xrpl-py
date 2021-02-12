@@ -11,14 +11,10 @@ from typing import Any, Dict, List, Optional, Union
 
 from xrpl.models.issued_currency import IssuedCurrency
 from xrpl.models.transactions.transaction import Transaction
-
-
-def _currency_amount_to_json(
-    amount: Union[str, IssuedCurrency]
-) -> Union[Dict[str, Any], str]:
-    if isinstance(amount, str):
-        return amount
-    return amount.to_json()
+from xrpl.models.utils import (
+    currency_amount_to_json_object,
+    json_object_to_currency_amount,
+)
 
 
 class OfferCreateTransaction(Transaction):
@@ -51,16 +47,8 @@ class OfferCreateTransaction(Transaction):
         transaction_signature: Optional[str] = None,
     ) -> None:
         """Construct an OfferCreateTransaction from the given parameters."""
-        if isinstance(taker_gets, dict):
-            self.taker_gets = IssuedCurrency.from_dict(taker_gets)
-        else:
-            self.taker_gets = taker_gets
-
-        if isinstance(taker_pays, dict):
-            self.taker_pays = IssuedCurrency.from_dict(taker_pays)
-        else:
-            self.taker_pays = taker_pays
-
+        self.taker_gets = json_object_to_currency_amount(taker_gets)
+        self.taker_pays = json_object_to_currency_amount(taker_pays)
         self.expiration = expiration
         self.offer_sequence = offer_sequence
 
@@ -79,16 +67,15 @@ class OfferCreateTransaction(Transaction):
             transaction_signature=transaction_signature,
         )
 
-    def to_json(self: OfferCreateTransaction) -> Dict[str, Any]:
+    def to_json_object(self: OfferCreateTransaction) -> Dict[str, Any]:
         """
         Return the value of this OfferCreateTransaction encoded as a dictionary.
 
         Returns:
-            The JSON representation of the OfferCreateTransaction.
+            The dictionary representation of the OfferCreateTransaction.
         """
-        return_dict = {
-            **super().to_json(),
-            "taker_gets": _currency_amount_to_json(self.taker_gets),
-            "taker_pays": _currency_amount_to_json(self.taker_pays),
+        return {
+            **super().to_json_object(),
+            "taker_gets": currency_amount_to_json_object(self.taker_gets),
+            "taker_pays": currency_amount_to_json_object(self.taker_pays),
         }
-        return return_dict
