@@ -4,8 +4,8 @@ from xrpl.models.ledger.account_root_object import AccountRootObject
 from xrpl.models.ledger.ledger_object import LedgerObjectType
 
 
-class TestAccountRootObject(TestCase):
-    def test_from_dict_to_json(self):
+class TestLedgerModels(TestCase):
+    def test_account_root_from_dict_to_json(self):
         account = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
         balance = "0.0001"
         flags = 1
