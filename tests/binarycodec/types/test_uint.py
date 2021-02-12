@@ -1,5 +1,6 @@
 import unittest
 
+from xrpl.binarycodec import XRPLBinaryCodecException
 from xrpl.binarycodec.types.uint8 import UInt8
 from xrpl.binarycodec.types.uint16 import UInt16
 from xrpl.binarycodec.types.uint32 import UInt32
@@ -35,3 +36,10 @@ class TestUInt(unittest.TestCase):
         self.assertEqual(uint16, uint32)
         self.assertEqual(uint32, uint64)
         self.assertEqual(uint64, const)
+
+    def test_raises_invalid_value_type(self):
+        invalid_value = [1, 2, 3]
+        self.assertRaises(XRPLBinaryCodecException, UInt8.from_value, invalid_value)
+        self.assertRaises(XRPLBinaryCodecException, UInt16.from_value, invalid_value)
+        self.assertRaises(XRPLBinaryCodecException, UInt32.from_value, invalid_value)
+        self.assertRaises(XRPLBinaryCodecException, UInt64.from_value, invalid_value)

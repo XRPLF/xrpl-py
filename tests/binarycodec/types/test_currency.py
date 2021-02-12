@@ -68,3 +68,9 @@ class TestCurrency(unittest.TestCase):
     def test_construction_from_hex_nonstandard(self):
         currency_object = currency.Currency.from_value(NONSTANDARD_HEX_CODE)
         self.assertEqual(currency_object.to_json(), NONSTANDARD_HEX_CODE)
+
+    def test_raises_invalid_value_type(self):
+        invalid_value = [1, 2, 3]
+        self.assertRaises(
+            XRPLBinaryCodecException, currency.Currency.from_value, invalid_value
+        )

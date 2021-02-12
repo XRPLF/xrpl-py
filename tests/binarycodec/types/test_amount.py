@@ -124,6 +124,12 @@ class TestAmount(TestSerializedType):
         for case in cases:
             amount.verify_iou_value(case)
 
+    def test_raises_invalid_value_type(self):
+        invalid_value = [1, 2, 3]
+        self.assertRaises(
+            XRPLBinaryCodecException, amount.Amount.from_value, invalid_value
+        )
+
     def test_from_value_issued_currency(self):
         for json, serialized in IOU_CASES:
             amount_object = amount.Amount.from_value(json)

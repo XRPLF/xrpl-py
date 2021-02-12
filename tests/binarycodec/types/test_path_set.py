@@ -1,5 +1,6 @@
 import unittest
 
+from xrpl.binarycodec import XRPLBinaryCodecException
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.types.path_set import PathSet
 
@@ -103,3 +104,7 @@ class TestPathSet(unittest.TestCase):
         parser = BinaryParser(buffer)
         pathset = PathSet.from_parser(parser)
         self.assertEqual(pathset.to_json(), expected_json)
+
+    def test_raises_invalid_value_type(self):
+        invalid_value = 1
+        self.assertRaises(XRPLBinaryCodecException, PathSet.from_value, invalid_value)

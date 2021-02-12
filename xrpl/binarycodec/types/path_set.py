@@ -1,8 +1,12 @@
-"""Classes and methods related to serializing and deserializing PathSets."""
+"""Codec for serializing and deserializing PathSet fields.
+See `PathSet Fields <https://xrpl.org/serialization.html#pathset-fields>`_
+"""
 
 from __future__ import annotations
 
 from typing import Dict, List
+
+from typing_extensions import Final
 
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
@@ -11,13 +15,13 @@ from xrpl.binarycodec.types.currency import Currency
 from xrpl.binarycodec.types.serialized_type import SerializedType
 
 # Constant for masking types of a PathStep
-TYPE_ACCOUNT = 0x01
-TYPE_CURRENCY = 0x10
-TYPE_ISSUER = 0x20
+_TYPE_ACCOUNT: Final[int] = 0x01
+_TYPE_CURRENCY: Final[int] = 0x10
+_TYPE_ISSUER: Final[int] = 0x20
 
 # Constants for separating Paths in a PathSet
-PATHSET_END_BYTE = 0x00
-PATH_SEPARATOR_BYTE = 0xFF
+_PATHSET_END_BYTE: Final[int] = 0x00
+_PATH_SEPARATOR_BYTE: Final[int] = 0xFF
 
 
 def _is_path_step(value: Dict[str, str]) -> bool:
@@ -43,21 +47,30 @@ class PathStep(SerializedType):
 
         Returns:
             The PathStep constructed from value.
+
+        Raises:
+            XRPLBinaryCodecException: If the supplied value is of the wrong type.
         """
+        if not isinstance(value, dict):
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a PathStep: expected dict,"
+                " received {}.".format(value.__class__.__name__)
+            )
+
         data_type = 0x00
         buffer = b""
         if "account" in value:
             account_id = AccountID.from_value(value["account"])
             buffer += account_id.to_bytes()
-            data_type |= TYPE_ACCOUNT
+            data_type |= _TYPE_ACCOUNT
         if "currency" in value:
             currency = Currency.from_value(value["currency"])
             buffer += currency.to_bytes()
-            data_type |= TYPE_CURRENCY
+            data_type |= _TYPE_CURRENCY
         if "issuer" in value:
             issuer = AccountID.from_value(value["issuer"])
             buffer += issuer.to_bytes()
-            data_type |= TYPE_ISSUER
+            data_type |= _TYPE_ISSUER
 
         return PathStep(bytes([data_type]) + buffer)
 
@@ -75,13 +88,13 @@ class PathStep(SerializedType):
         data_type = parser.read_uint8()
         buffer = b""
 
-        if data_type & TYPE_ACCOUNT:
+        if data_type & _TYPE_ACCOUNT:
             account_id = parser.read(AccountID.LENGTH)
             buffer += account_id
-        if data_type & TYPE_CURRENCY:
+        if data_type & _TYPE_CURRENCY:
             currency = parser.read(Currency.LENGTH)
             buffer += currency
-        if data_type & TYPE_ISSUER:
+        if data_type & _TYPE_ISSUER:
             issuer = parser.read(AccountID.LENGTH)
             buffer += issuer
 
@@ -98,13 +111,13 @@ class PathStep(SerializedType):
         data_type = parser.read_uint8()
         json = {}
 
-        if data_type & TYPE_ACCOUNT:
+        if data_type & _TYPE_ACCOUNT:
             account_id = AccountID.from_parser(parser).to_json()
             json["account"] = account_id
-        if data_type & TYPE_CURRENCY:
+        if data_type & _TYPE_CURRENCY:
             currency = Currency.from_parser(parser).to_json()
             json["currency"] = currency
-        if data_type & TYPE_ISSUER:
+        if data_type & _TYPE_ISSUER:
             issuer = AccountID.from_parser(parser).to_json()
             json["issuer"] = issuer
 
@@ -134,7 +147,17 @@ class Path(SerializedType):
 
         Returns:
             The Path constructed from value.
+
+        Raises:
+            XRPLBinaryCodecException: If the supplied value is of the wrong type.
         """
+        if not isinstance(value, list):
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a Path: expected list, received {}.".format(
+                    value.__class__.__name__
+                )
+            )
+
         buffer: bytes = b""
         for PathStep_dict in value:
             pathstep = PathStep.from_value(PathStep_dict)
@@ -158,8 +181,8 @@ class Path(SerializedType):
             buffer.append(pathstep.to_bytes())
 
             if (
-                parser.peek() == PATHSET_END_BYTE
-                or parser.peek() == PATH_SEPARATOR_BYTE
+                parser.peek() == _PATHSET_END_BYTE
+                or parser.peek() == _PATH_SEPARATOR_BYTE
             ):
                 break
         return Path(b"".join(buffer))
@@ -182,7 +205,9 @@ class Path(SerializedType):
 
 
 class PathSet(SerializedType):
-    """Deserialize and Serialize the PathSet type."""
+    """Codec for serializing and deserializing PathSet fields.
+    See `PathSet Fields <https://xrpl.org/serialization.html#pathset-fields>`_
+    """
 
     @classmethod
     def from_value(cls: PathSet, value: List[List[Dict[str, str]]]) -> PathSet:
@@ -198,14 +223,20 @@ class PathSet(SerializedType):
         Raises:
             XRPLBinaryCodecException: If the PathSet representation is invalid.
         """
+        if not isinstance(value, list):
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a PathSet: expected list,"
+                " received {}.".format(value.__class__.__name__)
+            )
+
         if _is_path_set(value):
             buffer: List[bytes] = []
             for path_dict in value:
                 path = Path.from_value(path_dict)
                 buffer.append(path.to_bytes())
-                buffer.append(bytes([PATH_SEPARATOR_BYTE]))
+                buffer.append(bytes([_PATH_SEPARATOR_BYTE]))
 
-            buffer[-1] = bytes([PATHSET_END_BYTE])
+            buffer[-1] = bytes([_PATHSET_END_BYTE])
             return PathSet(b"".join(buffer))
 
         raise XRPLBinaryCodecException("Cannot construct PathSet from given value")
@@ -227,7 +258,7 @@ class PathSet(SerializedType):
             buffer.append(path.to_bytes())
             buffer.append(parser.read(1))
 
-            if buffer[-1][0] == PATHSET_END_BYTE:
+            if buffer[-1][0] == _PATHSET_END_BYTE:
                 break
         return PathSet(b"".join(buffer))
 

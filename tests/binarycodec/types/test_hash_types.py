@@ -23,17 +23,16 @@ class TestHash128(unittest.TestCase):
         self.assertEqual(from_value.to_hex(), self.hex_128_bits)
         self.assertEqual(from_parser.to_hex(), self.hex_128_bits)
 
-        # Assert objects have correct width
-        self.assertEqual(from_constructor._width, self.expected_width)
-        self.assertEqual(from_value._width, self.expected_width)
-        self.assertEqual(from_parser._width, self.expected_width)
-
     def test_constructor_raises_invalid_length(self):
         # 17 bytes, 34 nibbles
         too_many_bytes_hex = "1000000000200000000030000000001234"
         self.assertRaises(
             XRPLBinaryCodecException, Hash128.from_value, too_many_bytes_hex
         )
+
+    def test_raises_invalid_value_type(self):
+        invalid_value = 1
+        self.assertRaises(XRPLBinaryCodecException, Hash128.from_value, invalid_value)
 
 
 class TestHash160(unittest.TestCase):
@@ -52,17 +51,16 @@ class TestHash160(unittest.TestCase):
         self.assertEqual(from_value.to_hex(), self.hex_160_bits)
         self.assertEqual(from_parser.to_hex(), self.hex_160_bits)
 
-        # Assert objects have correct width
-        self.assertEqual(from_constructor._width, self.expected_width)
-        self.assertEqual(from_value._width, self.expected_width)
-        self.assertEqual(from_parser._width, self.expected_width)
-
     def test_constructor_raises_invalid_length(self):
         # 21 bytes, 42 nibbles
         too_many_bytes_hex = "100000000020000000003000000000400000000012"
         self.assertRaises(
             XRPLBinaryCodecException, Hash160.from_value, too_many_bytes_hex
         )
+
+    def test_raises_invalid_value_type(self):
+        invalid_value = 1
+        self.assertRaises(XRPLBinaryCodecException, Hash160.from_value, invalid_value)
 
 
 class TestHash256(unittest.TestCase):
@@ -83,11 +81,6 @@ class TestHash256(unittest.TestCase):
         self.assertEqual(from_value.to_hex(), self.hex_256_bits)
         self.assertEqual(from_parser.to_hex(), self.hex_256_bits)
 
-        # Assert objects have correct width
-        self.assertEqual(from_constructor._width, self.expected_width)
-        self.assertEqual(from_value._width, self.expected_width)
-        self.assertEqual(from_parser._width, self.expected_width)
-
     def test_constructor_raises_invalid_length(self):
         # 33 bytes, 66 nibbles
         too_many_bytes_hex = (
@@ -96,3 +89,7 @@ class TestHash256(unittest.TestCase):
         self.assertRaises(
             XRPLBinaryCodecException, Hash256.from_value, too_many_bytes_hex
         )
+
+    def test_raises_invalid_value_type(self):
+        invalid_value = 1
+        self.assertRaises(XRPLBinaryCodecException, Hash256.from_value, invalid_value)

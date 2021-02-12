@@ -10,11 +10,11 @@ from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.types.hash256 import Hash256
 from xrpl.binarycodec.types.serialized_type import SerializedType
 
-_HASH_LENGTH_BYTES: Final = 32
+_HASH_LENGTH_BYTES: Final[int] = 32
 
 
 class Vector256(SerializedType):
-    """A vector of Hash256 objects."""
+    """Codec for serializing and deserializing vectors of Hash256."""
 
     def __init__(self: Vector256, buffer: bytes) -> None:
         """Construct a Vector256."""
@@ -29,7 +29,16 @@ class Vector256(SerializedType):
 
         Returns:
             A Vector256 object representing these hashes.
+
+        Raises:
+            XRPLBinaryCodecException: If the supplied value is of the wrong type.
         """
+        if not isinstance(value, list):
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a Vector256: expected list,"
+                " received {}.".format(value.__class__.__name__)
+            )
+
         byte_list = []
         for string in value:
             byte_list.append(Hash256.from_value(string).to_bytes())

@@ -1,4 +1,6 @@
-"""Class for serializing and deserializing Lists of objects."""
+"""Class for serializing and deserializing Lists of objects.
+See `Array Fields <https://xrpl.org/serialization.html#array-fields>`_
+"""
 
 from __future__ import annotations
 
@@ -11,14 +13,16 @@ from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.serialized_transaction import SerializedTransaction
 from xrpl.binarycodec.types.serialized_type import SerializedType
 
-_ARRAY_END_MARKER: Final = bytes([0xF1])
-_ARRAY_END_MARKER_NAME: Final = "ArrayEndMarker"
+_ARRAY_END_MARKER: Final[bytes] = bytes([0xF1])
+_ARRAY_END_MARKER_NAME: Final[str] = "ArrayEndMarker"
 
-_OBJECT_END_MARKER: Final = bytes([0xE1])
+_OBJECT_END_MARKER: Final[bytes] = bytes([0xE1])
 
 
 class SerializedTransactionList(SerializedType):
-    """Class for serializing and deserializing Lists of objects."""
+    """Class for serializing and deserializing Lists of objects.
+    See `Array Fields <https://xrpl.org/serialization.html#array-fields>`_
+    """
 
     @classmethod
     def from_parser(
@@ -65,7 +69,8 @@ class SerializedTransactionList(SerializedType):
         """
         if not isinstance(value, list):
             raise XRPLBinaryCodecException(
-                "Cannot construct SerializedTransactionList from a non-list object"
+                "Invalid type to construct a SerializedTransactionList:"
+                " expected list, received {}.".format(value.__class__.__name__)
             )
 
         if len(value) > 0 and not isinstance(value[0], dict):
