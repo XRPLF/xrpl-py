@@ -1,7 +1,7 @@
 import unittest
 
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
-from xrpl.binarycodec.types.serialized_transaction import SerializedTransaction
+from xrpl.binarycodec.types.serialized_dict import SerializedDict
 
 expected_json = {
     "Account": "raD5qJMAShLeHZXf9wjUmo6vRK4arj9cF3",
@@ -37,18 +37,18 @@ buffer = (
 )
 
 
-class TestSerializedTransaction(unittest.TestCase):
+class TestSerializedDict(unittest.TestCase):
     maxDiff = 1000
 
     def test_from_value(self):
-        transaction = SerializedTransaction.from_value(expected_json)
+        transaction = SerializedDict.from_value(expected_json)
         self.assertEqual(buffer, transaction.to_string().upper())
 
     def test_from_value_to_json(self):
-        transaction = SerializedTransaction.from_value(expected_json)
+        transaction = SerializedDict.from_value(expected_json)
         self.assertEqual(transaction.to_json(), expected_json)
 
     def test_from_parser_to_json(self):
         parser = BinaryParser(buffer)
-        transaction = SerializedTransaction.from_parser(parser)
+        transaction = SerializedDict.from_parser(parser)
         self.assertEqual(transaction.to_json(), expected_json)

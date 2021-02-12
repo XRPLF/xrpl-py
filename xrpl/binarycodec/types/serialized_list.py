@@ -10,7 +10,7 @@ from typing_extensions import Final
 
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
-from xrpl.binarycodec.types.serialized_transaction import SerializedTransaction
+from xrpl.binarycodec.types.serialized_dict import SerializedDict
 from xrpl.binarycodec.types.serialized_type import SerializedType
 
 _ARRAY_END_MARKER: Final[bytes] = bytes([0xF1])
@@ -19,23 +19,21 @@ _ARRAY_END_MARKER_NAME: Final[str] = "ArrayEndMarker"
 _OBJECT_END_MARKER: Final[bytes] = bytes([0xE1])
 
 
-class SerializedTransactionList(SerializedType):
+class SerializedList(SerializedType):
     """Class for serializing and deserializing Lists of objects.
     See `Array Fields <https://xrpl.org/serialization.html#array-fields>`_
     """
 
     @classmethod
-    def from_parser(
-        cls: SerializedTransactionList, parser: BinaryParser
-    ) -> SerializedTransactionList:
+    def from_parser(cls: SerializedList, parser: BinaryParser) -> SerializedList:
         """
-        Construct a SerializedTransactionList from a BinaryParser.
+        Construct a SerializedList from a BinaryParser.
 
         Args:
-            parser: The parser to construct a SerializedTransactionList from.
+            parser: The parser to construct a SerializedList from.
 
         Returns:
-            The SerializedTransactionList constructed from parser.
+            The SerializedList constructed from parser.
         """
         bytestring = b""
 
@@ -48,20 +46,18 @@ class SerializedTransactionList(SerializedType):
             bytestring += _OBJECT_END_MARKER
 
         bytestring += _ARRAY_END_MARKER
-        return SerializedTransactionList(bytestring)
+        return SerializedList(bytestring)
 
     @classmethod
-    def from_value(
-        cls: SerializedTransactionList, value: List[Any]
-    ) -> SerializedTransactionList:
+    def from_value(cls: SerializedList, value: List[Any]) -> SerializedList:
         """
-        Create a SerializedTransactionList object from a dictionary.
+        Create a SerializedList object from a dictionary.
 
         Args:
-            value: The dictionary to construct a SerializedTransactionList from.
+            value: The dictionary to construct a SerializedList from.
 
         Returns:
-            The SerializedTransactionList object constructed from value.
+            The SerializedList object constructed from value.
 
         Raises:
             XRPLBinaryCodecException: If the provided value isn't a list or contains
@@ -69,31 +65,28 @@ class SerializedTransactionList(SerializedType):
         """
         if not isinstance(value, list):
             raise XRPLBinaryCodecException(
-                "Invalid type to construct a SerializedTransactionList:"
+                "Invalid type to construct a SerializedList:"
                 " expected list, received {}.".format(value.__class__.__name__)
             )
 
         if len(value) > 0 and not isinstance(value[0], dict):
             raise XRPLBinaryCodecException(
-                (
-                    "Cannot construct SerializedTransactionList from a list of non-dict"
-                    " objects"
-                )
+                ("Cannot construct SerializedList from a list of non-dict" " objects")
             )
 
         bytestring = b""
         for obj in value:
-            transaction = SerializedTransaction.from_value(obj)
+            transaction = SerializedDict.from_value(obj)
             bytestring += transaction.to_bytes()
         bytestring += _ARRAY_END_MARKER
-        return SerializedTransactionList(bytestring)
+        return SerializedList(bytestring)
 
-    def to_json(self: SerializedTransactionList) -> List[Any]:
+    def to_json(self: SerializedList) -> List[Any]:
         """
-        Returns the JSON representation of a SerializedTransactionList.
+        Returns the JSON representation of a SerializedList.
 
         Returns:
-            The JSON representation of a SerializedTransactionList.
+            The JSON representation of a SerializedList.
         """
         result = []
         parser = BinaryParser(self.to_string())
@@ -104,6 +97,6 @@ class SerializedTransactionList(SerializedType):
                 break
 
             outer = {}
-            outer[field.name] = SerializedTransaction.from_parser(parser).to_json()
+            outer[field.name] = SerializedDict.from_parser(parser).to_json()
             result.append(outer)
         return result
