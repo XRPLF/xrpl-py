@@ -6,6 +6,7 @@ from abc import ABC
 from typing import Any, Dict
 
 from xrpl.models.exceptions import XRPLModelValidationException
+from xrpl.models.transactions.wrapper import Wrapper
 
 
 class BaseModel(ABC):
@@ -70,8 +71,16 @@ class BaseModel(ABC):
             The JSON representation of a BaseModel.
         """
         return {
-            key: value for (key, value) in self.__dict__.items() if value is not None
+            key: value
+            for (key, value) in self.__dict__.items()
+            if self._serialize_value(value) is not None
         }
+
+    def _serialize_value(self: BaseModel, value: object) -> Any:
+        if isinstance(value, Wrapper):
+            return value.to_string()
+
+        return value
 
     def __eq__(self: BaseModel, other: object) -> bool:
         """Compares a BaseModel to another object to determine if they are equal."""
