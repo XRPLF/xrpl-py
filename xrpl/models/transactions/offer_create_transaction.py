@@ -10,7 +10,7 @@ from __future__ import annotations  # Requires Python 3.7+
 from typing import Any, Dict, List, Optional, Union
 
 from xrpl.models.issued_currency import IssuedCurrency
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import Transaction, TransactionType
 from xrpl.models.utils import (
     currency_amount_to_json_object,
     json_object_to_currency_amount,
@@ -54,7 +54,7 @@ class OfferCreateTransaction(Transaction):
 
         super().__init__(
             account=account,
-            transaction_type="OfferCreate",
+            transaction_type=TransactionType.OfferCreate,
             fee=fee,
             sequence=sequence,
             account_transaction_id=account_transaction_id,

@@ -7,9 +7,17 @@ See https://xrpl.org/transaction-common-fields.html.
 """
 from __future__ import annotations
 
+from enum import Enum
 from typing import Any, List, Optional
 
 from xrpl.models.base_model import BaseModel
+
+
+class TransactionType(str, Enum):
+    """Enum containing the different Transaction types."""
+
+    OfferCreate = "OfferCreate"
+    OfferCancel = "OfferCancel"
 
 
 class Transaction(BaseModel):
@@ -25,7 +33,7 @@ class Transaction(BaseModel):
         self: Transaction,
         *,
         account: str,
-        transaction_type: str,
+        transaction_type: TransactionType,
         fee: str,
         sequence: int,
         account_transaction_id: Optional[str] = None,
@@ -39,7 +47,7 @@ class Transaction(BaseModel):
     ) -> None:
         """Construct a Transaction from the given parameters."""
         self.account = account
-        self.transaction_type = transaction_type
+        self.type = transaction_type
         self.fee = fee
         self.sequence = sequence
         self.account_transaction_id = account_transaction_id
