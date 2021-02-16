@@ -16,8 +16,9 @@ from xrpl.models.base_model import BaseModel
 class TransactionType(str, Enum):
     """Enum containing the different Transaction types."""
 
-    OfferCreate = "OfferCreate"
+    AccountSet = "AccountSet"
     OfferCancel = "OfferCancel"
+    OfferCreate = "OfferCreate"
 
 
 class Transaction(BaseModel):
