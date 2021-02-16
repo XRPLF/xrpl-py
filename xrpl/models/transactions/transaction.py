@@ -16,9 +16,9 @@ from xrpl.models.base_model import BaseModel
 class TransactionType(str, Enum):
     """Enum containing the different Transaction types."""
 
-    SetRegularKey = "SetRegularKey"
     OfferCancel = "OfferCancel"
     OfferCreate = "OfferCreate"
+    SetRegularKey = "SetRegularKey"
 
 
 class Transaction(BaseModel):
