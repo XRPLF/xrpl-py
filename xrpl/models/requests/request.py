@@ -1,8 +1,6 @@
 """
 The base class for all network request types. Represents fields common to all request
 types.
-
-
 """
 from __future__ import annotations
 
@@ -13,7 +11,7 @@ from xrpl.models.base_model import BaseModel
 
 
 class RequestMethod(str, Enum):
-    """TODO: docstring"""
+    """Represents the different options for the `method` field in a request."""
 
     # account methods
     AccountChannels = "account_channels"
@@ -29,6 +27,9 @@ class RequestMethod(str, Enum):
 
 @dataclass(frozen=True)
 class Request(BaseModel):
-    """TODO: docstring"""
+    """
+    The base class for all network request types. Represents fields common to all
+    request types.
+    """
 
     method: RequestMethod = field(init=False)
