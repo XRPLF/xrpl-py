@@ -54,7 +54,7 @@ class BaseModel(ABC):
         Returns:
             Whether the dictionary provided contains valid arguments.
         """
-        return len(cls._get_validation_errors(value))
+        return len(cls._get_validation_errors(value)) == 0
 
     @classmethod
     def _get_validation_errors(cls: BaseModel, value: Dict[str, Any]) -> Dict[str, str]:

@@ -21,7 +21,7 @@ _MAX_TICK_SIZE = 15
 _DISABLE_TICK_SIZE = 0
 
 
-def _validate_transfer_rate(transfer_rate):
+def _validate_transfer_rate(transfer_rate: Optional[int]) -> None:
     if transfer_rate is None:
         return
     if transfer_rate > _MAX_TRANSFER_RATE:
@@ -43,16 +43,16 @@ def _validate_transfer_rate(transfer_rate):
         )
 
 
-def _validate_tick_size(tick_size):
+def _validate_tick_size(tick_size: Optional[int]) -> None:
     if tick_size is None:
         return
     if tick_size > _MAX_TICK_SIZE:
         raise XRPLModelValidationException(
-            f"AccountSetTransaction field `tick_size` is below {_MIN_TICK_SIZE}."
+            f"AccountSetTransaction field `tick_size` is above {_MAX_TICK_SIZE}."
         )
     if tick_size < _MIN_TICK_SIZE and tick_size != _DISABLE_TICK_SIZE:
         raise XRPLModelValidationException(
-            f"AccountSetTransaction field `tick_size` is above {_MAX_TICK_SIZE}."
+            f"AccountSetTransaction field `tick_size` is below {_MIN_TICK_SIZE}."
         )
 
 
