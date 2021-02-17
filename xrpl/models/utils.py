@@ -1,40 +1,23 @@
 """Helper functions for the Models package."""
+from typing import Any, Dict, NewType, Union
 
-from typing import Any, Dict, Union
+from xrpl.models.base_model import BaseModel
 
-from xrpl.models.issued_currency import IssuedCurrency
+_JSON_Primatives = NewType("_JSON_Primatives", Union[int, float, str])
 
 
-def currency_amount_to_json_object(
-    amount: Union[str, IssuedCurrency]
-) -> Union[Dict[str, Any], str]:
+def to_json_object(
+    value: Union[_JSON_Primatives, BaseModel],
+) -> Union[_JSON_Primatives, Dict[str, Any]]:
     """
-    Converts a currency amount to JSON object form.
+    Converts a value to JSON object form.
 
     Args:
-        amount: the string XRP amount or issued currency amount.
+        value: the value to convert
 
     Returns:
         A JSON-safe representation of the currency amount.
     """
-    if isinstance(amount, str):
-        return amount
-    return amount.to_json_object()
-
-
-def json_object_to_currency_amount(
-    amount: Union[str, IssuedCurrency, Dict[str, Any]]
-) -> Union[str, IssuedCurrency]:
-    """
-    Converts a currency amount to JSON object form.
-
-    Args:
-        amount: the string XRP amount or issued currency dictionary representation.
-
-    Returns:
-        An object representing the amount (str for XRP, IssuedCurrency for issued
-            currency).
-    """
-    if isinstance(amount, dict):
-        return IssuedCurrency.from_dict(amount)
-    return amount
+    if isinstance(value, BaseModel):
+        return value.to_json_object()
+    return value

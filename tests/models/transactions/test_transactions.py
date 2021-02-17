@@ -3,6 +3,7 @@ import unittest
 from xrpl.models.exceptions import XRPLModelValidationException
 from xrpl.models.transactions.account_set_transaction import AccountSetTransaction
 from xrpl.models.transactions.offer_cancel_transaction import OfferCancelTransaction
+from xrpl.models.amount import IssuedCurrencyAmount
 from xrpl.models.transactions.offer_create_transaction import OfferCreateTransaction
 from xrpl.models.transactions.set_regular_key_transaction import (
     SetRegularKeyTransaction,
@@ -172,16 +173,32 @@ class TestOfferCreateTransaction(unittest.TestCase):
         self.assertEqual(transaction.to_json_object(), expected_dict)
 
     def test_from_dict_to_json_object(self):
+<<<<<<< HEAD
         taker_gets = {
             "currency": "BTC",
             "value": 100,
             "issuer": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
         }
+=======
+        account = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
+        fee = "0.00001"
+        taker_gets = IssuedCurrencyAmount(
+            currency="BTC",
+            value="100",
+            issuer="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+        )
+>>>>>>> eeabcd8 (base type consolidation)
         taker_pays = "3000000"
         transaction_dict = {
+<<<<<<< HEAD
             "account": _ACCOUNT,
             "fee": _FEE,
             "taker_gets": taker_gets,
+=======
+            "account": account,
+            "fee": fee,
+            "taker_gets": taker_gets.to_json_object(),
+>>>>>>> eeabcd8 (base type consolidation)
             "taker_pays": taker_pays,
             "sequence": _SEQUENCE,
         }
