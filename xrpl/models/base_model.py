@@ -24,40 +24,39 @@ class BaseModel(ABC):
         Returns:
             A new BaseModel object, constructed using the given parameters.
         """
-        cls.validate(value)
         return cls(**value)
 
-    @classmethod
-    def validate(self: BaseModel, value: Dict[str, Any]) -> None:
-        """
-        Raises an error if the arguments provided are invalid for a BaseModel object.
+    def __post_init__(self: BaseModel) -> None:
+        """Called by dataclasses immediately after __init__."""
+        self.validate()
 
-        Args:
-            value: The value to construct the BaseModel from.
+    def validate(self: BaseModel) -> None:
+        """
+        Raises if this object is invalid.
 
         Raises:
-            XRPLModelValidationException: if the arguments provided are invalid for the
-                creation of a BaseModel object.
+            XRPLModelValidationException: if this object is invalid.
         """
-        validation_errors = self._get_validation_errors(value)
-        if len(validation_errors) > 0:
-            raise XRPLModelValidationException(str(validation_errors))
+        errors = self._get_errors()
+        if len(errors) > 0:
+            raise XRPLModelValidationException(str(errors))
 
-    @classmethod
-    def is_valid(cls: BaseModel, value: Dict[str, Any]) -> bool:
+    def is_valid(self: BaseModel) -> bool:
         """
-        Returns whether the dictionary provided contains valid arguments.
-
-        Args:
-            value: The value to construct the BaseModel from.
+        Returns whether this BaseModel is valid.
 
         Returns:
-            Whether the dictionary provided contains valid arguments.
+            Whether this BaseModel is valid.
         """
-        return len(cls._get_validation_errors(value))
+        return len(self._get_errors()) == 0
 
-    @classmethod
-    def _get_validation_errors(cls: BaseModel, value: Dict[str, Any]) -> Dict[str, str]:
+    def _get_errors(self: BaseModel) -> Dict[str, str]:
+        """
+        Overridden in subclasses to define custom validation logic.
+
+        Returns:
+            Dictionary of any errors found on self.
+        """
         return {}
 
     def to_json_object(self: BaseModel) -> Dict[str, Any]:
