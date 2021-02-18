@@ -181,7 +181,7 @@ class GatewayBalancesRequest(AccountRequest):
         default_factory=lambda: RequestMethod.GatewayBalances, init=False
     )
     strict: bool = False
-    hotwallet: Optional[str, List[str]] = None
+    hotwallet: Optional[Union[str, List[str]]] = None
 
 
 class NoRippleCheckRole(str, Enum):
