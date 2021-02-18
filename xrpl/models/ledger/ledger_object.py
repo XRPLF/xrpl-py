@@ -1,5 +1,4 @@
 """Base object for ledger objects on XRPL"""
-from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -7,13 +6,17 @@ from xrpl.models.base_model import BaseModel
 
 
 class LedgerObjectType(str, Enum):
-    """Enum containing the different LedgerObject types."""
+    """
+    Enum containing the different LedgerObject types.
+
+    See https://xrpl.org/ledger-object-types.html.
+    """
 
     AccountRoot = "AccountRoot"
 
 
 @dataclass(frozen=True)
-class LedgerObject(BaseModel, ABC):
+class LedgerObject(BaseModel):
     """
     Base object for ledger objects on the XRPL.
 
