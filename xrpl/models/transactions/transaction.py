@@ -7,9 +7,17 @@ See https://xrpl.org/transaction-common-fields.html.
 """
 from __future__ import annotations
 
-from typing import Any, List, Optional
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 from xrpl.models.base_model import BaseModel
+
+
+class TransactionType(str, Enum):
+    """Enum containing the different Transaction types."""
+
+    OfferCreate = "OfferCreate"
+    OfferCancel = "OfferCancel"
 
 
 class Transaction(BaseModel):
@@ -25,7 +33,7 @@ class Transaction(BaseModel):
         self: Transaction,
         *,
         account: str,
-        transaction_type: str,
+        transaction_type: TransactionType,
         fee: str,
         sequence: int,
         account_transaction_id: Optional[str] = None,
@@ -39,7 +47,7 @@ class Transaction(BaseModel):
     ) -> None:
         """Construct a Transaction from the given parameters."""
         self.account = account
-        self.transaction_type = transaction_type
+        self.type = transaction_type
         self.fee = fee
         self.sequence = sequence
         self.account_transaction_id = account_transaction_id
@@ -50,3 +58,15 @@ class Transaction(BaseModel):
         self.source_tag = source_tag
         self.signing_public_key = signing_public_key
         self.transaction_signature = transaction_signature
+        # we have to call this explicitly because Transaction is not a
+        # dataclass
+        self.__post_init__()
+
+    def to_json_object(self: Transaction) -> Dict[str, Any]:
+        """
+        Returns the JSON representation of a Transaction.
+
+        Returns:
+            The JSON representation of a Transaction.
+        """
+        return {**super().to_json_object(), "type": self.type.name}
