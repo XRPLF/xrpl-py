@@ -5,7 +5,7 @@ types.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Enum
+from enum import Enum
 
 from xrpl.models.base_model import BaseModel
 
