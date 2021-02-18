@@ -191,19 +191,20 @@ class NoRippleCheckRole(str, Enum):
     User = "user"
 
 
-@dataclass(frozen=True)
-class NoRippleCheckRequest(AccountRequest):
-    """
-    This request provides a quick way to check the status of the Default Ripple field
-    for an account and the No Ripple flag of its trust lines, compared with the
-    recommended settings.
+# TODO: get this class working properly once greg's solution to default args is pushed
+# @dataclass(frozen=True)
+# class NoRippleCheckRequest(AccountRequest):
+#     """
+#     This request provides a quick way to check the status of the Default Ripple field
+#     for an account and the No Ripple flag of its trust lines, compared with the
+#     recommended settings.
 
-    `See noripple_check <https://xrpl.org/noripple_check.html>`_
-    """
+#     `See noripple_check <https://xrpl.org/noripple_check.html>`_
+#     """
 
-    method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.NoRippleCheck, init=False
-    )
-    role: NoRippleCheckRole
-    transactions: bool = False
-    limit: Optional[int] = 300
+#     method: RequestMethod = field(
+#         default_factory=lambda: RequestMethod.NoRippleCheck, init=False
+#     )
+#     role: NoRippleCheckRole
+#     transactions: bool = False
+#     limit: Optional[int] = 300
