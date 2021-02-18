@@ -4,7 +4,8 @@ These request objects represent network client interactions that work with accou
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Enum, List, Optional, Union
+from enum import Enum
+from typing import Any, List, Optional, Union
 
 from xrpl.models.requests.request import Request, RequestMethod
 
