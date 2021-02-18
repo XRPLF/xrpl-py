@@ -1,6 +1,8 @@
 """
 Represents the AccountRoot ledger object, which describes a single account,
 its settings, and XRP balance.
+
+See https://xrpl.org/accountroot.html.
 """
 from dataclasses import dataclass, field
 from typing import List, Optional
