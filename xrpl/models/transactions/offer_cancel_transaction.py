@@ -3,7 +3,7 @@ Represents an OfferCancel transaction on the XRP Ledger.
 
 An OfferCancel transaction removes an Offer object from the XRP Ledger.
 
-See https://xrpl.org/offercancel.html.
+`See OfferCancel <https://xrpl.org/offercancel.html>`_
 """
 from __future__ import annotations  # Requires Python 3.7+
 
