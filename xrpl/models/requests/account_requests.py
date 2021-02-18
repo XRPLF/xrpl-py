@@ -30,6 +30,8 @@ class AccountChannelsRequest(AccountRequest):
     destination. (A channel's "source" and "owner" are the same.)
 
     All information retrieved is relative to a particular version of the ledger.
+
+    `See account_channels <https://xrpl.org/account_channels.html>`_
     """
 
     method: RequestMethod = field(
@@ -48,6 +50,8 @@ class AccountCurrenciesRequest(AccountRequest):
 
     This is not a thoroughly confirmed list, but it can be used to populate user
     interfaces.
+
+    `See account_currencies <https://xrpl.org/account_currencies.html>`_
     """
 
     method: RequestMethod = field(
@@ -63,6 +67,8 @@ class AccountInfoRequest(AccountRequest):
     balance.
 
     All information retrieved is relative to a particular version of the ledger.
+
+    `See account_info <https://xrpl.org/account_info.html>`_
     """
 
     method: RequestMethod = field(
@@ -79,6 +85,8 @@ class AccountLinesRequest(AccountRequest):
     This request returns information about an account's trust lines, including balances
     in all non-XRP currencies and assets. All information retrieved is relative to a
     particular version of the ledger.
+
+    `See account_lines <https://xrpl.org/account_lines.html>`_
     """
 
     method: RequestMethod = field(
@@ -109,6 +117,8 @@ class AccountObjectsRequest(AccountRequest):
 
     For a higher-level view of an account's trust lines and balances, see
     AccountLinesRequest instead.
+
+    `See account_objects <https://xrpl.org/account_objects.html>`_
     """
 
     method: RequestMethod = field(
@@ -125,6 +135,8 @@ class AccountOffersRequest(AccountRequest):
     """
     This request retrieves a list of offers made by a given account that are
     outstanding as of a particular ledger version.
+
+    `See account_offers <https://xrpl.org/account_offers.html>`_
     """
 
     method: RequestMethod = field(
@@ -140,6 +152,8 @@ class AccountTransactionsRequest(AccountRequest):
     """
     This request retrieves from the ledger a list of transactions that involved the
     specified account.
+
+    `See account_tx <https://xrpl.org/account_tx.html>`_
     """
 
     method: RequestMethod = field(
@@ -158,6 +172,8 @@ class GatewayBalancesRequest(AccountRequest):
     """
     This request calculates the total balances issued by a given account, optionally
     excluding amounts held by operational addresses.
+
+    `See gateway_balances <https://xrpl.org/gateway_balances.html>`_
     """
 
     method: RequestMethod = field(
@@ -180,6 +196,8 @@ class NoRippleCheckRequest(AccountRequest):
     This request provides a quick way to check the status of the Default Ripple field
     for an account and the No Ripple flag of its trust lines, compared with the
     recommended settings.
+
+    `See noripple_check <https://xrpl.org/noripple_check.html>`_
     """
 
     method: RequestMethod = field(

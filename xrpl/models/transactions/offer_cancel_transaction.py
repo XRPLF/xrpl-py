@@ -18,7 +18,7 @@ class OfferCancelTransaction(Transaction):
 
     An OfferCancel transaction removes an Offer object from the XRP Ledger.
 
-    See https://xrpl.org/offercancel.html.
+    `See OfferCancel <https://xrpl.org/offercancel.html>`_
     """
 
     def __init__(
