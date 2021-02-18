@@ -1,25 +1,23 @@
 """Public interface for keypairs module."""
 from secrets import token_bytes
-from typing import Any, Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 from typing_extensions import Final
 
 from xrpl import CryptoAlgorithm, addresscodec
-from xrpl.keypairs import ed25519, secp256k1
+from xrpl.keypairs.crypto_implementation import CryptoImplementation
+from xrpl.keypairs.ed25519 import ED25519
+from xrpl.keypairs.ed25519 import PREFIX as ED_PREFIX
 from xrpl.keypairs.exceptions import XRPLKeypairsException
 from xrpl.keypairs.helpers import get_account_id
-
-# using Any type here because the overhead of an abstract class or protocol
-# for these two modules would be overkill and we'll raise in tests if they do
-# not satisfy the implicit interface
-_ALGORITHM_TO_MODULE_MAP: Final[Dict[CryptoAlgorithm, Any]] = {
-    CryptoAlgorithm.ED25519: ed25519,
-    CryptoAlgorithm.SECP256K1: secp256k1,
-}
-# Ensure all CryptoAlgorithms have a module
-assert len(_ALGORITHM_TO_MODULE_MAP) == len(CryptoAlgorithm)
+from xrpl.keypairs.secp256k1 import SECP256K1
 
 _VERIFICATION_MESSAGE: Final[bytes] = b"This test message should verify."
+
+_ALGORITHM_TO_MODULE_MAP: Final[Dict[CryptoAlgorithm, CryptoImplementation]] = {
+    CryptoAlgorithm.ED25519: ED25519,
+    CryptoAlgorithm.SECP256K1: SECP256K1,
+}
 
 
 def generate_seed(
@@ -130,7 +128,7 @@ def is_valid_message(message: bytes, signature: bytes, public_key: str) -> bool:
     )
 
 
-def _get_module_from_key(key: str) -> Any:
-    if key.startswith(ed25519.PREFIX):
-        return _ALGORITHM_TO_MODULE_MAP[CryptoAlgorithm.ED25519]
-    return _ALGORITHM_TO_MODULE_MAP[CryptoAlgorithm.SECP256K1]
+def _get_module_from_key(key: str) -> CryptoImplementation:
+    if key.startswith(ED_PREFIX):
+        return ED25519
+    return SECP256K1
