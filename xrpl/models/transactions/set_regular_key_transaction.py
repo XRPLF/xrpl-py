@@ -7,7 +7,7 @@ pair to it and using it instead of the master key pair to sign transactions when
 possible. If your regular key pair is compromised, but your master key pair is not, you
 can use a SetRegularKey transaction to regain control of your account.
 
-See https://xrpl.org/setregularkey.html.
+`See SetRegularKey <https://xrpl.org/setregularkey.html>`_
 """
 from __future__ import annotations  # Requires Python 3.7+
 
@@ -27,7 +27,7 @@ class SetRegularKeyTransaction(Transaction):
     pair is not, you can use a SetRegularKey transaction to regain control of your
     account.
 
-    See https://xrpl.org/setregularkey.html.
+    `See SetRegularKey <https://xrpl.org/setregularkey.html>`_
     """
 
     def __init__(
