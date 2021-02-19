@@ -7,20 +7,18 @@ from xrpl.models.exceptions import XRPLModelValidationException
 from xrpl.models.transactions.wrapper import Wrapper
 
 
-# Should this subclass a wrapper? What do we think of that?
 @dataclass(frozen=True)
-class Hash256(Wrapper):
+class Hash256(Wrapper[str]):
     """A hash256."""
 
-    # TODO: Add some validation
-    # TODO: Can this be genericized somehow?
     def __eq__(self: Hash256, object: object) -> bool:
         """Evaluates whether or not two Hash256s are equal."""
-        # TODO: Uppercase?
-        # if isinstance(object, str):
-        #     return self.value == object
+        # Convert to uppercase so we can ignore casing in our comparison.
+        uppercased_value = self.value.upper()
+        if isinstance(object, str):
+            return uppercased_value == object.upper()
 
         if isinstance(object, Hash256):
-            return self.value == object.value
+            return uppercased_value == object.value.upper()
 
         raise XRPLModelValidationException("Can only compare with another Hash256.")

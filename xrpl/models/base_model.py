@@ -71,9 +71,9 @@ class BaseModel(ABC):
             The JSON representation of a BaseModel.
         """
         return {
-            key: value
+            key: self._serialize_value(value)
             for (key, value) in self.__dict__.items()
-            if self._serialize_value(value) is not None
+            if value is not None
         }
 
     def _serialize_value(self: BaseModel, value: object) -> Any:
