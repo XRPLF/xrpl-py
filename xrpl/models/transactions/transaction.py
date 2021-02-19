@@ -59,6 +59,9 @@ class Transaction(BaseModel):
         self.source_tag = source_tag
         self.signing_public_key = signing_public_key
         self.transaction_signature = transaction_signature
+        # we have to call this explicitly because Transaction is not a
+        # dataclass
+        self.__post_init__()
 
     def to_json_object(self: Transaction) -> Dict[str, Any]:
         """
