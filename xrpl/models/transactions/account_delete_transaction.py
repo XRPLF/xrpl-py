@@ -34,7 +34,7 @@ class AccountDeleteTransaction(Transaction):
         fee: str,
         sequence: int,
         destination: str,
-        destination_tag: Optional[str] = None,
+        destination_tag: Optional[int] = None,
         account_transaction_id: Optional[str] = None,
         flags: Optional[int] = None,
         last_ledger_sequence: Optional[int] = None,
