@@ -3,7 +3,7 @@ Represents an AccountSet transaction on the XRP Ledger.
 
 An AccountSet transaction modifies the properties of an account in the XRP Ledger.
 
-See https://xrpl.org/accountset.html.
+`See AccountSet <https://xrpl.org/accountset.html>`_
 """
 from __future__ import annotations  # Requires Python 3.7+
 
@@ -62,7 +62,7 @@ class AccountSetTransaction(Transaction):
 
     An AccountSet transaction modifies the properties of an account in the XRP Ledger.
 
-    See https://xrpl.org/accountset.html.
+    `See AccountSet <https://xrpl.org/accountset.html>`_
     """
 
     def __init__(
