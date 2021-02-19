@@ -24,6 +24,7 @@ class AccountDeleteTransaction(Transaction):
     account. See Deletion of Accounts for the requirements to delete an account.
 
     `See AccountDelete <https://xrpl.org/accountdelete.html>`_
+    `See Deletion of Accounts <https://xrpl.org/accounts.html#deletion-of-accounts>`_
     """
 
     def __init__(
