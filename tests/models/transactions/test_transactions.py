@@ -2,12 +2,6 @@ import unittest
 
 from xrpl.models.exceptions import XRPLModelValidationException
 from xrpl.models.transactions.account_set_transaction import AccountSetTransaction
-from xrpl.models.transactions.offer_cancel_transaction import OfferCancelTransaction
-from xrpl.models.transactions.offer_create import OfferCreate
-from xrpl.models.amount import IssuedCurrencyAmount
-from xrpl.models.transactions.set_regular_key_transaction import (
-    SetRegularKeyTransaction,
-)
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _FEE = "0.00001"
@@ -15,44 +9,6 @@ _SEQUENCE = 19048
 
 
 class TestAccountSetTransaction(unittest.TestCase):
-    def test_init_to_json_object(self):
-        set_flag = 2
-        transaction = AccountSetTransaction(
-            account=_ACCOUNT, fee=_FEE, sequence=_SEQUENCE, set_flag=set_flag
-        )
-        expected_dict = {
-            "account": _ACCOUNT,
-            "fee": _FEE,
-            "sequence": _SEQUENCE,
-            "set_flag": set_flag,
-            "type": "AccountSet",
-        }
-        self.assertEqual(transaction.to_json_object(), expected_dict)
-
-    def test_from_dict_to_json_object(self):
-        set_flag = 7
-        clear_flag = 3
-        domain = "asjcsodafsaid0f9asdfasdf"
-        transfer_rate = 1000000009
-        tick_size = 8
-        email_hash = "aosdijfaoisdf"
-        message_key = "zoxicjvosidfas"
-        transaction_dict = {
-            "account": _ACCOUNT,
-            "fee": _FEE,
-            "sequence": _SEQUENCE,
-            "clear_flag": clear_flag,
-            "set_flag": set_flag,
-            "domain": domain,
-            "transfer_rate": transfer_rate,
-            "tick_size": tick_size,
-            "email_hash": email_hash,
-            "message_key": message_key,
-        }
-        transaction = AccountSetTransaction.from_dict(transaction_dict)
-        expected_dict = {**transaction_dict, "type": "AccountSet"}
-        self.assertEqual(transaction.to_json_object(), expected_dict)
-
     def test_set_flag_and_clear_flag(self):
         set_flag = 3
         clear_flag = 3
@@ -106,90 +62,3 @@ class TestAccountSetTransaction(unittest.TestCase):
         }
         with self.assertRaises(XRPLModelValidationException):
             AccountSetTransaction.from_dict(transaction_dict)
-
-
-class TestOfferCancelTransaction(unittest.TestCase):
-    def test_init_to_json_object(self):
-        offer_sequence = 29384723
-        transaction = OfferCancelTransaction(
-            account=_ACCOUNT,
-            fee=_FEE,
-            sequence=_SEQUENCE,
-            offer_sequence=offer_sequence,
-        )
-        expected_dict = {
-            "account": _ACCOUNT,
-            "fee": _FEE,
-            "sequence": _SEQUENCE,
-            "offer_sequence": offer_sequence,
-            "type": "OfferCancel",
-        }
-        self.assertEqual(transaction.to_json_object(), expected_dict)
-
-    def test_from_dict_to_json_object(self):
-        offer_sequence = 29384723
-        transaction_dict = {
-            "account": _ACCOUNT,
-            "fee": _FEE,
-            "offer_sequence": offer_sequence,
-            "sequence": _SEQUENCE,
-        }
-        transaction = OfferCancelTransaction.from_dict(transaction_dict)
-        expected_dict = {**transaction_dict, "type": "OfferCancel"}
-        self.assertEqual(transaction.to_json_object(), expected_dict)
-
-
-class TestOfferCreate(unittest.TestCase):
-    def test_init_to_json_object(self):
-        taker_gets = "3000000"
-        taker_pays = "3000000"
-        transaction = OfferCreate(
-            account=_ACCOUNT,
-            fee=_FEE,
-            sequence=_SEQUENCE,
-            taker_gets=taker_gets,
-            taker_pays=taker_pays,
-        )
-        expected_dict = {
-            "account": _ACCOUNT,
-            "fee": _FEE,
-            "taker_gets": taker_gets,
-            "taker_pays": taker_pays,
-            "sequence": _SEQUENCE,
-            "type": "OfferCreate",
-        }
-        self.assertEqual(transaction.to_json_object(), expected_dict)
-
-    def test_from_dict_to_json_object(self):
-        taker_gets = IssuedCurrencyAmount(
-            currency="BTC",
-            value="100",
-            issuer="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-        )
-        taker_pays = "3000000"
-        transaction_dict = {
-            "account": _ACCOUNT,
-            "fee": _FEE,
-            "taker_gets": taker_gets,
-            "taker_pays": taker_pays,
-            "sequence": _SEQUENCE,
-        }
-        transaction = OfferCreate.from_dict(transaction_dict)
-        expected_dict = {**transaction_dict, "type": "OfferCreate"}
-        self.assertEqual(transaction.to_json_object(), expected_dict)
-
-
-class TestSetRegularKeyTransaction(unittest.TestCase):
-    def test_init_to_json_object(self):
-        regular_key = "randomkeyasdoifjasidfs"
-        transaction = SetRegularKeyTransaction(
-            account=_ACCOUNT, fee=_FEE, sequence=_SEQUENCE, regular_key=regular_key
-        )
-        expected_dict = {
-            "account": _ACCOUNT,
-            "fee": _FEE,
-            "sequence": _SEQUENCE,
-            "regular_key": regular_key,
-            "type": "SetRegularKey",
-        }
-        self.assertEqual(transaction.to_json_object(), expected_dict)
