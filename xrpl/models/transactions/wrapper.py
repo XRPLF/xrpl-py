@@ -1,4 +1,4 @@
-"""DOCSTRING"""
+"""A typed wrapper for single values."""
 from __future__ import annotations
 
 from abc import ABC
@@ -14,8 +14,11 @@ class Wrapper(ABC, Generic[T]):
 
     value: T
 
-    # Should validation go in __pre_init__?
-    def to_string(self: Wrapper) -> str:
+    def __post_init__(self: Wrapper[T]) -> None:
+        """Validation after init."""
+        self.validate()
+
+    def to_string(self: Wrapper[T]) -> str:
         """
         Converts the value to a string.
 
@@ -23,3 +26,7 @@ class Wrapper(ABC, Generic[T]):
             A string representation of the underlying value.
         """
         return str(self.value)
+
+    def validate(self: Wrapper[T]) -> None:
+        """Validates the value being wrapped."""
+        pass
