@@ -19,6 +19,7 @@ class TransactionType(str, Enum):
     AccountSet = "AccountSet"
     OfferCancel = "OfferCancel"
     OfferCreate = "OfferCreate"
+    SetRegularKey = "SetRegularKey"
 
 
 class Transaction(BaseModel):
