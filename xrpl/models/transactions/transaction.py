@@ -65,11 +65,11 @@ class Transaction(BaseModel):
         # dataclass
         self.__post_init__()
 
-    def to_json_object(self: Transaction) -> Dict[str, Any]:
+    def to_dict(self: Transaction) -> Dict[str, Any]:
         """
-        Returns the JSON representation of a Transaction.
+        Returns the dictionary representation of a Transaction.
 
         Returns:
-            The JSON representation of a Transaction.
+            The dictionary representation of a Transaction.
         """
-        return {**super().to_json_object(), "type": self.type.name}
+        return {**super().to_dict(), "type": self.type.name}

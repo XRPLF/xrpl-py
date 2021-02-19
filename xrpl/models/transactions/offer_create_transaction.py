@@ -11,10 +11,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from xrpl.models.issued_currency import IssuedCurrency
 from xrpl.models.transactions.transaction import Transaction, TransactionType
-from xrpl.models.utils import (
-    currency_amount_to_json_object,
-    json_object_to_currency_amount,
-)
+from xrpl.models.utils import currency_amount_to_dict, dict_to_currency_amount
 
 
 class OfferCreateTransaction(Transaction):
@@ -47,8 +44,8 @@ class OfferCreateTransaction(Transaction):
         transaction_signature: Optional[str] = None,
     ) -> None:
         """Construct an OfferCreateTransaction from the given parameters."""
-        self.taker_gets = json_object_to_currency_amount(taker_gets)
-        self.taker_pays = json_object_to_currency_amount(taker_pays)
+        self.taker_gets = dict_to_currency_amount(taker_gets)
+        self.taker_pays = dict_to_currency_amount(taker_pays)
         self.expiration = expiration
         self.offer_sequence = offer_sequence
 
@@ -67,7 +64,7 @@ class OfferCreateTransaction(Transaction):
             transaction_signature=transaction_signature,
         )
 
-    def to_json_object(self: OfferCreateTransaction) -> Dict[str, Any]:
+    def to_dict(self: OfferCreateTransaction) -> Dict[str, Any]:
         """
         Return the value of this OfferCreateTransaction encoded as a dictionary.
 
@@ -75,7 +72,7 @@ class OfferCreateTransaction(Transaction):
             The dictionary representation of the OfferCreateTransaction.
         """
         return {
-            **super().to_json_object(),
-            "taker_gets": currency_amount_to_json_object(self.taker_gets),
-            "taker_pays": currency_amount_to_json_object(self.taker_pays),
+            **super().to_dict(),
+            "taker_gets": currency_amount_to_dict(self.taker_gets),
+            "taker_pays": currency_amount_to_dict(self.taker_pays),
         }

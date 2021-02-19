@@ -59,14 +59,14 @@ class BaseModel(ABC):
         """
         return {}
 
-    def to_json_object(self: BaseModel) -> Dict[str, Any]:
+    def to_dict(self: BaseModel) -> Dict[str, Any]:
         """
-        Returns the JSON representation of a BaseModel.
+        Returns the dictionary representation of a BaseModel.
 
         If not overridden, returns the object dict with all non-None values.
 
         Returns:
-            The JSON representation of a BaseModel.
+            The dictionary representation of a BaseModel.
         """
         return {
             key: value for (key, value) in self.__dict__.items() if value is not None
@@ -76,11 +76,11 @@ class BaseModel(ABC):
         """Compares a BaseModel to another object to determine if they are equal."""
         if not isinstance(other, BaseModel):
             return False
-        return self.to_json_object() == other.to_json_object()
+        return self.to_dict() == other.to_dict()
 
     def __repr__(self: BaseModel) -> str:
         """Returns a string representation of a BaseModel object"""
         repr_items = []
-        for key, value in self.to_json_object().items():
+        for key, value in self.to_dict().items():
             repr_items.append(f"{key}={repr(value)}")
         return "{}({})".format(type(self).__name__, ", ".join(repr_items))
