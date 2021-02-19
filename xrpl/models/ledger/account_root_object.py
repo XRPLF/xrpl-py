@@ -60,5 +60,3 @@ class AccountRootObject(LedgerObject):
     signer_lists: Optional[List] = None
     tick_size: Optional[int] = None
     transfer_rate: Optional[int] = None
-
-    # Will need to do some validation here
