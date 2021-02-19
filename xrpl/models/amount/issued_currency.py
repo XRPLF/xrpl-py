@@ -1,4 +1,8 @@
-"""Specifies an amount in an issued currency."""
+"""
+Specifies an amount in an issued currency.
+
+See https://xrpl.org/currency-formats.html#issued-currency-amounts.
+"""
 from __future__ import annotations
 
 import re
@@ -19,7 +23,11 @@ _VALIDATOR: Final[re.Pattern] = re.compile(
 
 @dataclass(frozen=True)
 class IssuedCurrency(BaseModel):
-    """Specifies an amount in an issued currency."""
+    """
+    Specifies an amount in an issued currency.
+
+    See https://xrpl.org/currency-formats.html#issued-currency-amounts.
+    """
 
     currency: str
     value: str
@@ -27,7 +35,7 @@ class IssuedCurrency(BaseModel):
 
     def _get_errors(self: IssuedCurrency) -> Dict[str, str]:
         errors = {}
-        if self.currency == "XRP":
+        if self.currency.upper() == "XRP":
             errors["currency"] = "Currency must not be XRP for issued currency"
         elif not _VALIDATOR.fullmatch(self.currency):
             errors["currency"] = f"Invalid currency {self.currency}"
