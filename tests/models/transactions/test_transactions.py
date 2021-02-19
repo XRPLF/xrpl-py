@@ -46,44 +46,6 @@ class TestAccountDeleteTransaction(unittest.TestCase):
 
 
 class TestAccountSetTransaction(unittest.TestCase):
-    def test_init_to_json_object(self):
-        set_flag = 2
-        transaction = AccountSetTransaction(
-            account=_ACCOUNT, fee=_FEE, sequence=_SEQUENCE, set_flag=set_flag
-        )
-        expected_dict = {
-            "account": _ACCOUNT,
-            "fee": _FEE,
-            "sequence": _SEQUENCE,
-            "set_flag": set_flag,
-            "type": "AccountSet",
-        }
-        self.assertEqual(transaction.to_json_object(), expected_dict)
-
-    def test_from_dict_to_json_object(self):
-        set_flag = 7
-        clear_flag = 3
-        domain = "asjcsodafsaid0f9asdfasdf"
-        transfer_rate = 1000000009
-        tick_size = 8
-        email_hash = "aosdijfaoisdf"
-        message_key = "zoxicjvosidfas"
-        transaction_dict = {
-            "account": _ACCOUNT,
-            "fee": _FEE,
-            "sequence": _SEQUENCE,
-            "clear_flag": clear_flag,
-            "set_flag": set_flag,
-            "domain": domain,
-            "transfer_rate": transfer_rate,
-            "tick_size": tick_size,
-            "email_hash": email_hash,
-            "message_key": message_key,
-        }
-        transaction = AccountSetTransaction.from_dict(transaction_dict)
-        expected_dict = {**transaction_dict, "type": "AccountSet"}
-        self.assertEqual(transaction.to_json_object(), expected_dict)
-
     def test_set_flag_and_clear_flag(self):
         set_flag = 3
         clear_flag = 3
@@ -137,6 +99,7 @@ class TestAccountSetTransaction(unittest.TestCase):
         }
         with self.assertRaises(XRPLModelValidationException):
             AccountSetTransaction.from_dict(transaction_dict)
+<<<<<<< HEAD
 
 
 class TestOfferCancelTransaction(unittest.TestCase):
