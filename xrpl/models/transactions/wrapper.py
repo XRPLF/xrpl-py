@@ -15,7 +15,7 @@ class Wrapper(ABC, Generic[T]):
     value: T
 
     def __post_init__(self: Wrapper[T]) -> None:
-        """Validation after init."""
+        """Validation called after the Wrapper is initialized."""
         self.validate()
 
     def to_string(self: Wrapper[T]) -> str:
