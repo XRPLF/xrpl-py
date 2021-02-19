@@ -7,9 +7,13 @@ from xrpl.models.transactions.hash256 import Hash256
 
 class TestAccountRootObject(TestCase):
     def test_from_dict_to_json(self):
-        index_value = "ahash256"
-        previous_transaction_id_value = "1"
-        account_transaction_id_value = "account_transaction_id"
+        index_value = "2W4Z7DV0C4KZNXHV8I0U3W2Q0LMMUR95ZB4IF2UCIN2KWMQN8XPCTUWKFU5BK5QN"
+        previous_transaction_id_value = (
+            "4A2OAJWEVNPGHXBD5IP6LQKFKWWCWCIHLLHP1B01KSPXXJHY17PJI5HXPBK73UAW"
+        )
+        account_transaction_id_value = (
+            "J4VTVY9AVO7EG9AQX2XK9JT0T59TZUFHI5NPOB5BUPJH7DGOEYLS3A65OVT8JFZ3"
+        )
 
         account = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
         balance = "0.0001"
