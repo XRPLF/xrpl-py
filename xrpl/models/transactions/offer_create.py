@@ -20,7 +20,7 @@ class OfferCreate(Transaction):
     currencies, and creates an Offer object if not completely fulfilled when
     placed. Offers can be partially fulfilled.
 
-    See https://xrpl.org/offercreate.html.
+    `See OfferCreate <https://xrpl.org/offercreate.html>`_
     """
 
     taker_gets: Amount = REQUIRED
