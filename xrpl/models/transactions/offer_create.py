@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from xrpl.models.amount import Amount
-from xrpl.models.transactions.transaction import REQUIRED, Transaction
+from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
 
 
 @dataclass(frozen=True)
@@ -29,4 +29,4 @@ class OfferCreate(Transaction):
     taker_pays: Amount = REQUIRED
     expiration: Optional[int] = None
     offer_sequence: Optional[int] = None
-    transaction_type: str = "OfferCreate"
+    transaction_type: str = TransactionType.OfferCreate

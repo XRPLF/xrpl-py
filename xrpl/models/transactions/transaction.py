@@ -7,14 +7,17 @@ See https://xrpl.org/transaction-common-fields.html.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional
-from dataclasses import dataclass
 
 from typing_extensions import Final
 
 from xrpl.models.base_model import BaseModel
 
+# A sentinel object used to determine if a given field is not set. Using this
+# allows us to not worry about argument ordering and treat all arguments to
+# __init__ as kwargs.
 REQUIRED: Final[object] = object()
 
 

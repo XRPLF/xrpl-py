@@ -15,7 +15,7 @@ amount_dict = {
 class TestBaseModel(unittest.TestCase):
     def test_eq(self):
         amount = IssuedCurrency(**amount_dict)
-        self.assertEqual(amount, IssuedCurrency.from_dict(amount_dict))
+        self.assertEqual(amount, IssuedCurrency(**amount_dict))
 
     def test_repr(self):
         amount = IssuedCurrency(**amount_dict)
