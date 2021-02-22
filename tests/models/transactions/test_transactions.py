@@ -15,7 +15,7 @@ _SEQUENCE = 19048
 
 
 class TestAccountDeleteTransaction(unittest.TestCase):
-    def test_init_to_json_object(self):
+    def test_init_to_dict(self):
         transaction = AccountDeleteTransaction(
             account=_ACCOUNT,
             fee=_FEE,
@@ -29,9 +29,9 @@ class TestAccountDeleteTransaction(unittest.TestCase):
             "destination": _ACCOUNT,
             "type": "AccountDelete",
         }
-        self.assertEqual(transaction.to_json_object(), expected_dict)
+        self.assertEqual(transaction.to_dict(), expected_dict)
 
-    def test_from_dict_to_json_object(self):
+    def test_from_dict_to_dict(self):
         destination_tag = 20394
         transaction_dict = {
             "account": _ACCOUNT,
@@ -42,11 +42,11 @@ class TestAccountDeleteTransaction(unittest.TestCase):
         }
         transaction = AccountDeleteTransaction.from_dict(transaction_dict)
         expected_dict = {**transaction_dict, "type": "AccountDelete"}
-        self.assertEqual(transaction.to_json_object(), expected_dict)
+        self.assertEqual(transaction.to_dict(), expected_dict)
 
 
 class TestAccountSetTransaction(unittest.TestCase):
-    def test_init_to_json_object(self):
+    def test_init_to_dict(self):
         set_flag = 2
         transaction = AccountSetTransaction(
             account=_ACCOUNT, fee=_FEE, sequence=_SEQUENCE, set_flag=set_flag
@@ -58,9 +58,9 @@ class TestAccountSetTransaction(unittest.TestCase):
             "set_flag": set_flag,
             "type": "AccountSet",
         }
-        self.assertEqual(transaction.to_json_object(), expected_dict)
+        self.assertEqual(transaction.to_dict(), expected_dict)
 
-    def test_from_dict_to_json_object(self):
+    def test_from_dict_to_dict(self):
         set_flag = 7
         clear_flag = 3
         domain = "asjcsodafsaid0f9asdfasdf"
@@ -82,7 +82,7 @@ class TestAccountSetTransaction(unittest.TestCase):
         }
         transaction = AccountSetTransaction.from_dict(transaction_dict)
         expected_dict = {**transaction_dict, "type": "AccountSet"}
-        self.assertEqual(transaction.to_json_object(), expected_dict)
+        self.assertEqual(transaction.to_dict(), expected_dict)
 
     def test_set_flag_and_clear_flag(self):
         set_flag = 3
@@ -140,7 +140,7 @@ class TestAccountSetTransaction(unittest.TestCase):
 
 
 class TestOfferCancelTransaction(unittest.TestCase):
-    def test_init_to_json_object(self):
+    def test_init_to_dict(self):
         offer_sequence = 29384723
         transaction = OfferCancelTransaction(
             account=_ACCOUNT,
@@ -155,9 +155,9 @@ class TestOfferCancelTransaction(unittest.TestCase):
             "offer_sequence": offer_sequence,
             "type": "OfferCancel",
         }
-        self.assertEqual(transaction.to_json_object(), expected_dict)
+        self.assertEqual(transaction.to_dict(), expected_dict)
 
-    def test_from_dict_to_json_object(self):
+    def test_from_dict_to_dict(self):
         offer_sequence = 29384723
         transaction_dict = {
             "account": _ACCOUNT,
@@ -167,7 +167,7 @@ class TestOfferCancelTransaction(unittest.TestCase):
         }
         transaction = OfferCancelTransaction.from_dict(transaction_dict)
         expected_dict = {**transaction_dict, "type": "OfferCancel"}
-        self.assertEqual(transaction.to_json_object(), expected_dict)
+        self.assertEqual(transaction.to_dict(), expected_dict)
 
 
 class TestOfferCreateTransaction(unittest.TestCase):
@@ -183,7 +183,7 @@ class TestOfferCreateTransaction(unittest.TestCase):
                 taker_pays,
             )
 
-    def test_init_to_json_object(self):
+    def test_init_to_dict(self):
         taker_gets = "3000000"
         taker_pays = "3000000"
         transaction = OfferCreateTransaction(
@@ -201,9 +201,9 @@ class TestOfferCreateTransaction(unittest.TestCase):
             "sequence": _SEQUENCE,
             "type": "OfferCreate",
         }
-        self.assertEqual(transaction.to_json_object(), expected_dict)
+        self.assertEqual(transaction.to_dict(), expected_dict)
 
-    def test_from_dict_to_json_object(self):
+    def test_from_dict_to_dict(self):
         taker_gets = {
             "currency": "BTC",
             "value": 100,
@@ -219,11 +219,11 @@ class TestOfferCreateTransaction(unittest.TestCase):
         }
         transaction = OfferCreateTransaction.from_dict(transaction_dict)
         expected_dict = {**transaction_dict, "type": "OfferCreate"}
-        self.assertEqual(transaction.to_json_object(), expected_dict)
+        self.assertEqual(transaction.to_dict(), expected_dict)
 
 
 class TestSetRegularKeyTransaction(unittest.TestCase):
-    def test_init_to_json_object(self):
+    def test_init_to_dict(self):
         regular_key = "randomkeyasdoifjasidfs"
         transaction = SetRegularKeyTransaction(
             account=_ACCOUNT, fee=_FEE, sequence=_SEQUENCE, regular_key=regular_key
@@ -235,9 +235,9 @@ class TestSetRegularKeyTransaction(unittest.TestCase):
             "regular_key": regular_key,
             "type": "SetRegularKey",
         }
-        self.assertEqual(transaction.to_json_object(), expected_dict)
+        self.assertEqual(transaction.to_dict(), expected_dict)
 
-    def test_from_dict_to_json_object(self):
+    def test_from_dict_to_dict(self):
         regular_key = "randomkeyasdoifjasidfs"
         transaction_dict = {
             "account": _ACCOUNT,
@@ -247,4 +247,4 @@ class TestSetRegularKeyTransaction(unittest.TestCase):
         }
         transaction = SetRegularKeyTransaction.from_dict(transaction_dict)
         expected_dict = {**transaction_dict, "type": "SetRegularKey"}
-        self.assertEqual(transaction.to_json_object(), expected_dict)
+        self.assertEqual(transaction.to_dict(), expected_dict)
