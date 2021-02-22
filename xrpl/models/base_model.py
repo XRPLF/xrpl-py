@@ -69,7 +69,7 @@ class BaseModel(ABC):
             The dictionary representation of a BaseModel.
         """
         return {
-            key: value.to_json_object() if isinstance(value, BaseModel) else value
+            key: value.to_dict() if isinstance(value, BaseModel) else value
             for key, value in self.__dict__.items()
             if value is not None
         }
