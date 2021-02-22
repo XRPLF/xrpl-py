@@ -1,9 +1,10 @@
 """
-Represents an OfferCreate transaction on the XRP Ledger. An OfferCreate transaction is
-effectively a limit order. It defines an intent to exchange currencies, and creates an
-Offer object if not completely fulfilled when placed. Offers can be partially fulfilled.
+Represents a DepositPreauth transaction on the XRP Ledger.
 
-See https://xrpl.org/offercreate.html.
+A DepositPreAuth transaction gives another account pre-approval to deliver payments
+to the sender of this transaction.
+
+`See DepositPreauth <https://xrpl.org/depositauth.html>`_
 """
 from __future__ import annotations
 
