@@ -1,6 +1,7 @@
 import unittest
 
 from xrpl.models.exceptions import XRPLModelValidationException
+from xrpl.models.transactions.account_delete_transaction import AccountDeleteTransaction
 from xrpl.models.transactions.account_set_transaction import AccountSetTransaction
 from xrpl.models.transactions.offer_cancel_transaction import OfferCancelTransaction
 from xrpl.models.transactions.offer_create_transaction import OfferCreateTransaction
@@ -11,6 +12,37 @@ from xrpl.models.transactions.set_regular_key_transaction import (
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _FEE = "0.00001"
 _SEQUENCE = 19048
+
+
+class TestAccountDeleteTransaction(unittest.TestCase):
+    def test_init_to_json_object(self):
+        transaction = AccountDeleteTransaction(
+            account=_ACCOUNT,
+            fee=_FEE,
+            sequence=_SEQUENCE,
+            destination=_ACCOUNT,
+        )
+        expected_dict = {
+            "account": _ACCOUNT,
+            "fee": _FEE,
+            "sequence": _SEQUENCE,
+            "destination": _ACCOUNT,
+            "type": "AccountDelete",
+        }
+        self.assertEqual(transaction.to_json_object(), expected_dict)
+
+    def test_from_dict_to_json_object(self):
+        destination_tag = 20394
+        transaction_dict = {
+            "account": _ACCOUNT,
+            "fee": _FEE,
+            "destination": _ACCOUNT,
+            "destination_tag": destination_tag,
+            "sequence": _SEQUENCE,
+        }
+        transaction = AccountDeleteTransaction.from_dict(transaction_dict)
+        expected_dict = {**transaction_dict, "type": "AccountDelete"}
+        self.assertEqual(transaction.to_json_object(), expected_dict)
 
 
 class TestAccountSetTransaction(unittest.TestCase):
