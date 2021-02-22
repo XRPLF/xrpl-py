@@ -40,7 +40,7 @@ poetry run nox -rs tests
 From the `docs` folder,
 
 ```bash
-sphinx-apidoc -o source/ ../xrpl
+poetry run sphinx-apidoc -o source/ ../xrpl
 make html
 ```
 
