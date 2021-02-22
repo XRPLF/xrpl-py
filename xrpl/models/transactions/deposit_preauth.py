@@ -1,0 +1,48 @@
+"""
+Represents an OfferCreate transaction on the XRP Ledger. An OfferCreate transaction is
+effectively a limit order. It defines an intent to exchange currencies, and creates an
+Offer object if not completely fulfilled when placed. Offers can be partially fulfilled.
+
+See https://xrpl.org/offercreate.html.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Dict, Optional
+
+from xrpl.models.transactions.transaction import Transaction
+
+
+@dataclass(frozen=True)
+class DepositPreauth(Transaction):
+    """
+    Represents a DepositPreauth transaction on the XRP Ledger.
+
+    A DepositPreAuth transaction gives another account pre-approval to deliver payments
+    to the sender of this transaction.
+
+    `See DepositPreauth <https://xrpl.org/depositauth.html>`_
+    """
+
+    authorize: Optional[str] = None
+    deauthorize: Optional[str] = None
+
+    def _get_errors(self: DepositPreauth) -> Dict[str, str]:
+        errors = {}
+        if self.authorize and self.deauthorize:
+            errors[
+                "authorize"
+            ] = "One of authorize and deauthorize must be set, not both."
+            errors[
+                "deauthorize"
+            ] = "One of authorize and deauthorize must be set, not both."
+
+        if not self.authorie and not self.deauthorize:
+            errors[
+                "authorize"
+            ] = "One of authorize and deauthorize must be set, not both."
+            errors[
+                "deauthorize"
+            ] = "One of authorize and deauthorize must be set, not both."
+
+        return errors
