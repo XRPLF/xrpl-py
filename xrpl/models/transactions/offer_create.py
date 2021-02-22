@@ -5,8 +5,6 @@ Offer object if not completely fulfilled when placed. Offers can be partially fu
 
 See https://xrpl.org/offercreate.html.
 """
-from __future__ import annotations  # Requires Python 3.7+
-
 from dataclasses import dataclass
 from typing import Optional
 

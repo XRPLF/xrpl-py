@@ -9,8 +9,6 @@ can use a SetRegularKey transaction to regain control of your account.
 
 `See SetRegularKey <https://xrpl.org/setregularkey.html>`_
 """
-from __future__ import annotations  # Requires Python 3.7+
-
 from dataclasses import dataclass
 from typing import Optional
 
