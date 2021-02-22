@@ -1,7 +1,10 @@
 """
 An account in the XRP Ledger represents a holder of XRP and a sender of transactions.
+
 See https://xrpl.org/accounts.html.
-These request objects represent network client interactions that query account-level information.
+
+These request objects represent network client interactions that query account-level
+information.
 """
 
 from dataclasses import dataclass, field
@@ -17,6 +20,11 @@ class AccountRequest(Request):
     An account in the XRP Ledger represents a holder of XRP and a sender of
     transactions. These request objects represent network client interactions that work
     with account info.
+
+    `See accounts <https://xrpl.org/accounts.html>`_
+
+    These request objects represent network client interactions that query
+    account-level information.
     """
 
     account: str
@@ -37,7 +45,7 @@ class AccountChannelsRequest(AccountRequest):
     """
 
     method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.AccountChannels, init=False
+        default_factory=lambda: RequestMethod.ACCOUNT_CHANNELS, init=False
     )
     destination_account: Optional[str] = None
     limit: int = 200
@@ -57,7 +65,7 @@ class AccountCurrenciesRequest(AccountRequest):
     """
 
     method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.AccountCurrencies, init=False
+        default_factory=lambda: RequestMethod.ACCOUNT_CURRENCIES, init=False
     )
     strict: bool = False
 
@@ -74,7 +82,7 @@ class AccountInfoRequest(AccountRequest):
     """
 
     method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.AccountInfo, init=False
+        default_factory=lambda: RequestMethod.ACCOUNT_INFO, init=False
     )
     queue: bool = False
     signer_lists: bool = False
@@ -92,7 +100,7 @@ class AccountLinesRequest(AccountRequest):
     """
 
     method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.AccountLines, init=False
+        default_factory=lambda: RequestMethod.ACCOUNT_LINES, init=False
     )
     peer: Optional[str] = None
     limit: Optional[int] = None
@@ -102,14 +110,14 @@ class AccountLinesRequest(AccountRequest):
 class AccountObjectType(str, Enum):
     """Represents the object types that an AccountObjectsRequest can ask for."""
 
-    Check = "check"
-    DepositPreauth = "deposit_preauth"
-    Escrow = "escrow"
-    Offer = "offer"
-    PaymentChannel = "payment_channel"
-    SignerList = "signer_list"
-    State = "state"
-    Ticket = "ticket"
+    CHECK = "check"
+    DEPOSIT_PREAUTH = "deposit_preauth"
+    ESCROW = "escrow"
+    OFFER = "offer"
+    PAYMENT_CHANNEL = "payment_channel"
+    SIGNER_LIST = "signer_list"
+    STATE = "state"
+    TICKET = "ticket"
 
 
 @dataclass(frozen=True)
@@ -124,7 +132,7 @@ class AccountObjectsRequest(AccountRequest):
     """
 
     method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.AccountObjects, init=False
+        default_factory=lambda: RequestMethod.ACCOUNT_OBJECTS, init=False
     )
     type: Optional[AccountObjectType] = None
     deletion_blockers_only: bool = False
@@ -142,7 +150,7 @@ class AccountOffersRequest(AccountRequest):
     """
 
     method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.AccountOffers, init=False
+        default_factory=lambda: RequestMethod.ACCOUNT_OFFERS, init=False
     )
     limit: Optional[int] = None
     marker: Optional[Any] = None
@@ -159,7 +167,7 @@ class AccountTransactionsRequest(AccountRequest):
     """
 
     method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.AccountTransactions, init=False
+        default_factory=lambda: RequestMethod.ACCOUNT_TRANSACTIONS, init=False
     )
     ledger_index_min: Optional[int] = None
     ledger_index_max: Optional[int] = None
@@ -179,7 +187,7 @@ class GatewayBalancesRequest(AccountRequest):
     """
 
     method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.GatewayBalances, init=False
+        default_factory=lambda: RequestMethod.GATEWAY_BALANCES, init=False
     )
     strict: bool = False
     hotwallet: Optional[Union[str, List[str]]] = None
@@ -188,8 +196,8 @@ class GatewayBalancesRequest(AccountRequest):
 class NoRippleCheckRole(str, Enum):
     """Represents the options for the address role in a NoRippleCheckRequest."""
 
-    Gateway = "gateway"
-    User = "user"
+    GATEWAY = "gateway"
+    USER = "user"
 
 
 # TODO: get this class working properly once greg's solution to default args is pushed
@@ -204,7 +212,7 @@ class NoRippleCheckRole(str, Enum):
 #     """
 
 #     method: RequestMethod = field(
-#         default_factory=lambda: RequestMethod.NoRippleCheck, init=False
+#         default_factory=lambda: RequestMethod.NO_RIPPLE_CHECK, init=False
 #     )
 #     role: NoRippleCheckRole
 #     transactions: bool = False
