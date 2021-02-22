@@ -1,5 +1,6 @@
 """
 The base class for all network response types.
+
 Represents fields common to all response types.
 """
 from __future__ import annotations
@@ -12,13 +13,13 @@ from xrpl.models.base_model import BaseModel
 
 
 class ResponseStatus(str, Enum):
-    """TODO: docstring"""
+    """Represents the different status possibilities."""
 
     SUCCESS = "success"
 
 
 class ResponseType(str, Enum):
-    """TODO: docstring"""
+    """Represents the different response types a Response can have."""
 
     RESPONSE = "response"
     LEDGER_CLOSED = "ledgerClosed"
@@ -29,6 +30,7 @@ class ResponseType(str, Enum):
 class Response(BaseModel):
     """
     The base class for all network response types.
+
     Represents fields common to all response types.
     """
 
@@ -38,5 +40,11 @@ class Response(BaseModel):
     type: Optional[ResponseType] = None
 
     def is_successful(self):
-        """TODO: docstring"""
+        """
+        Returns whether the request was successfully received and understood by the
+        server.
+
+        Returns:
+            Whether the request was successfully received and understood by the server.
+        """
         return self.status == ResponseStatus.SUCCESS
