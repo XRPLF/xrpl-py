@@ -1,6 +1,7 @@
 """
 An account in the XRP Ledger represents a holder of XRP and a sender of transactions.
-These request objects represent network client interactions that work with account info.
+See https://xrpl.org/accounts.html.
+These request objects represent network client interactions that query account-level information.
 """
 
 from dataclasses import dataclass, field

@@ -1,6 +1,6 @@
 """
-The base class for all network request types. Represents fields common to all request
-types.
+The base class for all network request types. 
+Represents fields common to all request types.
 """
 from __future__ import annotations
 
@@ -28,8 +28,8 @@ class RequestMethod(str, Enum):
 @dataclass(frozen=True)
 class Request(BaseModel):
     """
-    The base class for all network request types. Represents fields common to all
-    request types.
+    The base class for all network request types. 
+    Represents fields common to all request types.
     """
 
     method: RequestMethod = field(init=False)
