@@ -3,7 +3,7 @@ Represents an OfferCreate transaction on the XRP Ledger. An OfferCreate transact
 effectively a limit order. It defines an intent to exchange currencies, and creates an
 Offer object if not completely fulfilled when placed. Offers can be partially fulfilled.
 
-See https://xrpl.org/offercreate.html.
+`See OfferCreate <https://xrpl.org/offercreate.html>`_
 """
 from dataclasses import dataclass
 from typing import Optional
@@ -20,7 +20,7 @@ class OfferCreate(Transaction):
     currencies, and creates an Offer object if not completely fulfilled when
     placed. Offers can be partially fulfilled.
 
-    See https://xrpl.org/offercreate.html.
+    `See OfferCreate <https://xrpl.org/offercreate.html>`_
     """
 
     taker_gets: Amount = REQUIRED
