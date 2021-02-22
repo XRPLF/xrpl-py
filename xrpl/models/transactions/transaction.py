@@ -40,6 +40,7 @@ class Transaction(BaseModel):
     See https://xrpl.org/transaction-types.html.
     See https://xrpl.org/transaction-common-fields.html.
     """
+
     account: str = REQUIRED
     fee: str = REQUIRED
     sequence: int = REQUIRED
@@ -61,7 +62,7 @@ class Transaction(BaseModel):
         Returns:
             The dictionary representation of a Transaction.
         """
-        return {**super().to_dict(), "type": self.type.name}
+        return {**super().to_dict(), "transaction_type": self.transaction_type.name}
 
     def _get_errors(self: Transaction) -> Dict[str, str]:
         return {

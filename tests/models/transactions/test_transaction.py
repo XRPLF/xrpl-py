@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelValidationException
+from xrpl.models.transactions import AccountSet
 from xrpl.models.transactions.transaction import Transaction
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
@@ -24,3 +25,12 @@ class TestTransaction(TestCase):
             sequence=_SEQUENCE,
         )
         self.assertTrue(tx.is_valid())
+
+    def test_to_dict_includes_type_as_string(self):
+        tx = AccountSet(
+            account=_ACCOUNT,
+            fee=_FEE,
+            sequence=_SEQUENCE,
+        )
+        value = tx.to_dict()["transaction_type"]
+        self.assertEqual(type(value), str)
