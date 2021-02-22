@@ -28,6 +28,7 @@ class TransactionType(str, Enum):
     AccountSet = "AccountSet"
     OfferCancel = "OfferCancel"
     OfferCreate = "OfferCreate"
+    Payment = "Payment"
     SetRegularKey = "SetRegularKey"
 
 
@@ -70,3 +71,12 @@ class Transaction(BaseModel):
             for attr, value in self.__dict__.items()
             if value is REQUIRED
         }
+
+    def has_flag(self: Transaction, flag: int) -> bool:
+        """
+        Returns whether the transaction has the given flag value set.
+
+        Returns:
+            Whether the transaction has the given flag value set.
+        """
+        return self.flags & flag != 0
