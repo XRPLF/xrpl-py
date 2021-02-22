@@ -69,7 +69,9 @@ class BaseModel(ABC):
             The JSON representation of a BaseModel.
         """
         return {
-            key: value for (key, value) in self.__dict__.items() if value is not None
+            key: value.to_json_object() if isinstance(value, BaseModel) else value
+            for key, value in self.__dict__.items()
+            if value is not None
         }
 
     def __eq__(self: BaseModel, other: object) -> bool:
@@ -80,7 +82,7 @@ class BaseModel(ABC):
 
     def __repr__(self: BaseModel) -> str:
         """Returns a string representation of a BaseModel object"""
-        repr_items = []
-        for key, value in self.to_json_object().items():
-            repr_items.append(f"{key}={repr(value)}")
-        return "{}({})".format(type(self).__name__, ", ".join(repr_items))
+        repr_items = [
+            f"{key}={repr(value)}" for key, value in self.to_json_object().items()
+        ]
+        return f"{type(self).__name__}({repr_items})"

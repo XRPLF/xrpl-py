@@ -7,14 +7,10 @@ See https://xrpl.org/offercreate.html.
 """
 from __future__ import annotations  # Requires Python 3.7+
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, List, Optional
 
-from xrpl.models.issued_currency import IssuedCurrency
+from xrpl.models.amount import Amount
 from xrpl.models.transactions.transaction import Transaction, TransactionType
-from xrpl.models.utils import (
-    currency_amount_to_json_object,
-    json_object_to_currency_amount,
-)
 
 
 class OfferCreateTransaction(Transaction):
@@ -33,8 +29,8 @@ class OfferCreateTransaction(Transaction):
         account: str,
         fee: str,
         sequence: int,
-        taker_gets: Union[str, IssuedCurrency, Dict[str, Any]],
-        taker_pays: Union[str, IssuedCurrency, Dict[str, Any]],
+        taker_gets: Amount,
+        taker_pays: Amount,
         expiration: Optional[int] = None,
         offer_sequence: Optional[int] = None,
         account_transaction_id: Optional[str] = None,
@@ -47,8 +43,8 @@ class OfferCreateTransaction(Transaction):
         transaction_signature: Optional[str] = None,
     ) -> None:
         """Construct an OfferCreateTransaction from the given parameters."""
-        self.taker_gets = json_object_to_currency_amount(taker_gets)
-        self.taker_pays = json_object_to_currency_amount(taker_pays)
+        self.taker_gets = taker_gets
+        self.taker_pays = taker_pays
         self.expiration = expiration
         self.offer_sequence = offer_sequence
 
@@ -66,16 +62,3 @@ class OfferCreateTransaction(Transaction):
             signing_public_key=signing_public_key,
             transaction_signature=transaction_signature,
         )
-
-    def to_json_object(self: OfferCreateTransaction) -> Dict[str, Any]:
-        """
-        Return the value of this OfferCreateTransaction encoded as a dictionary.
-
-        Returns:
-            The dictionary representation of the OfferCreateTransaction.
-        """
-        return {
-            **super().to_json_object(),
-            "taker_gets": currency_amount_to_json_object(self.taker_gets),
-            "taker_pays": currency_amount_to_json_object(self.taker_pays),
-        }
