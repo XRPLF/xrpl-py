@@ -34,3 +34,14 @@ poetry run flake8 ./xrpl
 ```bash
 poetry run nox -rs tests
 ```
+
+### Generating Documentation
+
+From the `docs` folder,
+
+```bash
+sphinx-apidoc -o source/ ../xrpl
+make html
+```
+
+Sphinx generated docs will be in `docs/_build`.
