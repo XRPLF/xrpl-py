@@ -37,7 +37,7 @@ class DepositPreauth(Transaction):
                 "deauthorize"
             ] = "One of authorize and deauthorize must be set, not both."
 
-        if not self.authorie and not self.deauthorize:
+        if not self.authorize and not self.deauthorize:
             errors[
                 "authorize"
             ] = "One of authorize and deauthorize must be set, not both."
