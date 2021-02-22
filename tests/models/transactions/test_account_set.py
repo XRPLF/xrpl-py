@@ -9,7 +9,7 @@ _SEQUENCE = 19048
 
 
 class TestAccountSet(TestCase):
-    def test_set_flag_and_clear_flag(self):
+    def test_same_set_flag_and_clear_flag(self):
         set_flag = 3
         clear_flag = 3
         domain = "asjcsodafsaid0f9asdfasdf"
