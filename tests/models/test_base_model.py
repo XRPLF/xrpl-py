@@ -1,28 +1,26 @@
 import unittest
 
-from xrpl.models.issued_currency import IssuedCurrency
+from xrpl.models.amount import IssuedCurrency
 
 currency = "BTC"
-value = 100
+value = "100"
 issuer = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
-issued_currency_dict = {
+amount_dict = {
     "currency": currency,
-    "value": value,
     "issuer": issuer,
+    "value": value,
 }
 
 
 class TestBaseModel(unittest.TestCase):
     def test_eq(self):
-        issued_currency = IssuedCurrency(currency=currency, value=value, issuer=issuer)
-        self.assertEqual(
-            issued_currency, IssuedCurrency.from_dict(issued_currency_dict)
-        )
+        amount = IssuedCurrency(**amount_dict)
+        self.assertEqual(amount, IssuedCurrency(**amount_dict))
 
     def test_repr(self):
-        issued_currency = IssuedCurrency.from_dict(issued_currency_dict)
+        amount = IssuedCurrency(**amount_dict)
         expected_repr = (
-            "IssuedCurrency(currency='BTC', value=100, "
+            "IssuedCurrency(currency='BTC', value='100', "
             "issuer='r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ')"
         )
-        self.assertEqual(repr(issued_currency), expected_repr)
+        self.assertEqual(repr(amount), expected_repr)
