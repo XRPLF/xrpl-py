@@ -20,7 +20,10 @@ from xrpl.models.transactions.transaction import REQUIRED, Transaction, Transact
 
 
 class PaymentFlag(int, Enum):
-    """TODO: docstring"""
+    """
+    Transactions of the Payment type support additional values in the Flags field.
+    This enum represents those options.
+    """
 
     TF_NO_DIRECT_RIPPLE = 0x00010000
     TF_PARTIAL_PAYMENT = 0x00020000
