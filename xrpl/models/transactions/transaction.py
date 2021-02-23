@@ -26,6 +26,7 @@ class TransactionType(str, Enum):
 
     AccountDelete = "AccountDelete"
     AccountSet = "AccountSet"
+    EscrowCreate = "EscrowCreate"
     OfferCancel = "OfferCancel"
     OfferCreate = "OfferCreate"
     SetRegularKey = "SetRegularKey"
