@@ -14,6 +14,9 @@ def is_xrp(amount: Amount) -> bool:
     """
     Returns whether amount is an XRP value, as opposed to an issued currency.
 
+    Args:
+        amount: The Amount object whose type is being checked.
+
     Returns:
         Whether the amount is an XRP value.
     """
@@ -23,6 +26,9 @@ def is_xrp(amount: Amount) -> bool:
 def is_issued_currency(amount: Amount) -> bool:
     """
     Returns whether amount is an issued currency value, as opposed to an XRP value.
+
+    Args:
+        amount: The Amount object whose type is being checked.
 
     Returns:
         Whether the amount is an issued currency value.

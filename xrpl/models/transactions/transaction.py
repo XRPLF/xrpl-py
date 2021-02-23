@@ -77,6 +77,10 @@ class Transaction(BaseModel):
         """
         Returns whether the transaction has the given flag value set.
 
+        Args:
+            flag: The given flag value for which the function will determine whether it
+                is set.
+
         Returns:
             Whether the transaction has the given flag value set.
         """
