@@ -16,6 +16,7 @@ class ResponseStatus(str, Enum):
     """Represents the different status possibilities."""
 
     SUCCESS = "success"
+    ERROR = "error"
 
 
 class ResponseType(str, Enum):
