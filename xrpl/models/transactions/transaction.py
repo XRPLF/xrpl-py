@@ -29,6 +29,7 @@ class TransactionType(str, Enum):
     OfferCancel = "OfferCancel"
     OfferCreate = "OfferCreate"
     SetRegularKey = "SetRegularKey"
+    TrustSet = "TrustSet"
 
 
 @dataclass(frozen=True)
