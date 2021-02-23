@@ -28,4 +28,4 @@ class OfferCreate(Transaction):
     taker_pays: Amount = REQUIRED
     expiration: Optional[int] = None
     offer_sequence: Optional[int] = None
-    transaction_type: str = TransactionType.OfferCreate
+    transaction_type: TransactionType = TransactionType.OfferCreate
