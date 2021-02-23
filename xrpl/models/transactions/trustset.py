@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, Optional
 
-from xrpl.models.amount import Amount
+from xrpl.models.amount import Amount, is_issued_currency
 from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
 
 
@@ -40,5 +40,9 @@ class TrustSet(Transaction):
     transaction_type: TransactionType = TransactionType.TrustSet
 
     def _get_errors(self: Transaction) -> Dict[str, str]:
-        # errors = super()._get_errors()
-        pass
+        errors = super()._get_errors()
+        if not is_issued_currency(self.limit_amount):
+            errors[
+                "limit_amount"
+            ] = "limit amount of a trust line must be an issued currency"
+        return errors
