@@ -48,14 +48,14 @@ class Payment(Transaction):
     paths: Optional[List[Any]] = None
     send_max: Optional[Amount] = None
     deliver_min: Optional[Amount] = None
-    transaction_type: str = TransactionType.Payment
+    transaction_type: TransactionType = TransactionType.Payment
 
     def _get_errors(self: Payment) -> Dict[str, str]:
         errors = super()._get_errors()
 
         # XRP transaction errors
         if is_xrp(self.amount) and self.send_max is None:
-            if self.path is not None:
+            if self.paths is not None:
                 errors["paths"] = "An XRP-to-XRP payment cannot contain paths."
             if self.account == self.destination:
                 errors["destination"] = (
@@ -73,16 +73,21 @@ class Payment(Transaction):
                 "deliver_min"
             ] = "A non-partial payment cannot have a `deliver_min` field."
 
+        elif (
+            is_xrp(self.amount)
+            and is_xrp(self.send_max)
+            and not self.has_flag(PaymentFlag.TF_PARTIAL_PAYMENT)
+        ):
+            errors["send_max"] = (
+                "A non-partial payment cannot have both `amount` and `send_max` be "
+                "XRP."
+            )
+
         # currency conversion errors
         elif self.account == self.destination:
             if self.send_max is None:
                 errors[
                     "send_max"
                 ] = "A currency conversion requires a `send_max` value."
-            elif is_xrp(self.amount) and is_xrp(self.send_max):
-                errors["send_max"] = (
-                    "A currency conversion cannot have both `amount` and `send_max` be "
-                    "XRP."
-                )
 
         return errors

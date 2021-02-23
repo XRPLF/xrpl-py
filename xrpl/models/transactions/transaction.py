@@ -46,7 +46,7 @@ class Transaction(BaseModel):
     fee: str = REQUIRED
     sequence: int = REQUIRED
     account_txn_id: Optional[str] = None
-    flags: Optional[int] = None
+    flags: int = 0
     last_ledger_sequence: Optional[int] = None
     # TODO make type
     memos: Optional[List[Any]] = None
