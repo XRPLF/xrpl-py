@@ -39,7 +39,7 @@ class Response(BaseModel):
     id: Optional[Union[int, str]] = None
     type: Optional[ResponseType] = None
 
-    def is_successful(self):
+    def is_successful(self: Response) -> bool:
         """
         Returns whether the request was successfully received and understood by the
         server.
