@@ -4,7 +4,7 @@ from xrpl.models.exceptions import XRPLModelValidationException
 from xrpl.models.transactions import EscrowCreate
 
 
-class TestAccountSet(TestCase):
+class TestEscrowCreate(TestCase):
     def test_final_after_less_than_cancel_after(self):
         cancel_after = 2
         finish_after = 1

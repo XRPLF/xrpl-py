@@ -2,7 +2,9 @@
 
 from xrpl.models.transactions.account_delete import AccountDelete
 from xrpl.models.transactions.account_set import AccountSet
+from xrpl.models.transactions.escrow_cancel import EscrowCancel
 from xrpl.models.transactions.escrow_create import EscrowCreate
+from xrpl.models.transactions.escrow_finish import EscrowFinish
 from xrpl.models.transactions.offer_cancel import OfferCancel
 from xrpl.models.transactions.offer_create import OfferCreate
 from xrpl.models.transactions.set_regular_key import SetRegularKey
@@ -10,7 +12,9 @@ from xrpl.models.transactions.set_regular_key import SetRegularKey
 __all__ = [
     "AccountDelete",
     "AccountSet",
+    "EscrowCancel",
     "EscrowCreate",
+    "EscrowFinish",
     "OfferCancel",
     "OfferCreate",
     "SetRegularKey",
