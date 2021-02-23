@@ -1,8 +1,7 @@
 from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelValidationException
-from xrpl.models.transactions import AccountSet
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import Transaction, TransactionType
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _FEE = "0.00001"
@@ -16,6 +15,7 @@ class TestTransaction(TestCase):
             Transaction(
                 fee=_FEE,
                 sequence=_SEQUENCE,
+                transaction_type=TransactionType.AccountDelete,
             )
 
     def test_initializes_if_all_required_fields_present(self):
@@ -23,14 +23,16 @@ class TestTransaction(TestCase):
             account=_ACCOUNT,
             fee=_FEE,
             sequence=_SEQUENCE,
+            transaction_type=TransactionType.AccountDelete,
         )
         self.assertTrue(tx.is_valid())
 
     def test_to_dict_includes_type_as_string(self):
-        tx = AccountSet(
+        tx = Transaction(
             account=_ACCOUNT,
             fee=_FEE,
             sequence=_SEQUENCE,
+            transaction_type=TransactionType.AccountDelete,
         )
         value = tx.to_dict()["transaction_type"]
         self.assertEqual(type(value), str)

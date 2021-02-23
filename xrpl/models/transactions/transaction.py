@@ -45,6 +45,7 @@ class Transaction(BaseModel):
     account: str = REQUIRED
     fee: str = REQUIRED
     sequence: int = REQUIRED
+    transaction_type: TransactionType = REQUIRED
     account_txn_id: Optional[str] = None
     flags: int = 0
     last_ledger_sequence: Optional[int] = None
