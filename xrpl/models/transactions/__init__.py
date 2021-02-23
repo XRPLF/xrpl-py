@@ -5,6 +5,7 @@ from xrpl.models.transactions.account_set import AccountSet
 from xrpl.models.transactions.offer_cancel import OfferCancel
 from xrpl.models.transactions.offer_create import OfferCreate
 from xrpl.models.transactions.set_regular_key import SetRegularKey
+from xrpl.models.transactions.trustset import TrustSet
 
 __all__ = [
     "AccountDelete",
@@ -12,4 +13,5 @@ __all__ = [
     "OfferCancel",
     "OfferCreate",
     "SetRegularKey",
+    "TrustSet",
 ]
