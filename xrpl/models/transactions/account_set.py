@@ -52,11 +52,8 @@ class AccountSet(Transaction):
             errors["domain"] = f"Domain {self.domain} is not lowercase"
         if self.clear_flag is not None and self.clear_flag == self.set_flag:
             errors[
-                "clear_flag"
+                "AccountSet"
             ] = f"Clear flag {self.clear_flag} is equal to set flag {self.set_flag}"
-            errors[
-                "set_flag"
-            ] = f"Set flag {self.set_flag} is equal to clear flag {self.clear_flag}"
 
         return errors
 
