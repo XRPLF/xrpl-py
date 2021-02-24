@@ -10,7 +10,7 @@ from __future__ import annotations  # Requires Python 3.7+
 from dataclasses import dataclass
 from typing import Dict, Optional
 
-from xrpl.models.transactions.transaction import REQUIRED, Transaction
+from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
 
 
 @dataclass(frozen=True)
@@ -27,6 +27,7 @@ class EscrowFinish(Transaction):
     offer_sequence: int = REQUIRED
     condition: Optional[str] = None
     fulfillment: Optional[str] = None
+    transaction_type: TransactionType = TransactionType.EscrowFinish
 
     def _get_errors(self: EscrowFinish) -> Dict[str, str]:
         errors = {}

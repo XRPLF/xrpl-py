@@ -9,7 +9,7 @@ from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass
 
-from xrpl.models.transactions.transaction import REQUIRED, Transaction
+from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
 
 
 @dataclass(frozen=True)
@@ -24,3 +24,4 @@ class EscrowCancel(Transaction):
 
     owner: str = REQUIRED
     offer_sequence: int = REQUIRED
+    transaction_type: TransactionType = TransactionType.EscrowCancel
