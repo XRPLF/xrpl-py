@@ -12,6 +12,7 @@ from enum import Enum
 from typing import Any, List, Optional, Union
 
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.transactions.transaction import REQUIRED
 
 
 @dataclass(frozen=True)
@@ -27,7 +28,7 @@ class AccountRequest(Request):
     account-level information.
     """
 
-    account: str
+    account: str = REQUIRED
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
 

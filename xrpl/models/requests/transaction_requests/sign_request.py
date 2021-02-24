@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
 
 from xrpl.models.requests.request import Request, RequestMethod
-from xrpl.models.transaction import Transaction
+from xrpl.models.transactions.transaction import REQUIRED, Transaction
 
 
 @dataclass(frozen=True)
@@ -46,7 +46,7 @@ class SignRequest(Request):
     method: RequestMethod = field(
         default_factory=lambda: RequestMethod.SIGN, init=False
     )
-    transaction: Transaction
+    transaction: Transaction = REQUIRED
     secret: Optional[str] = None
     seed: Optional[str] = None
     seed_hex: Optional[str] = None
@@ -82,13 +82,11 @@ class SignRequest(Request):
                 "`passphrase`."
             )
         elif self.seed is not None and (
-            self.seed is not None
-            or self.seed_hex is not None
-            or self.passphrase is not None
+            self.seed_hex is not None or self.passphrase is not None
         ):
             errors[
                 "SignRequest"
-            ] = "`seed` cannot be used with `seed_hex`, or `passphrase`."
+            ] = "`seed` cannot be used with `seed_hex` or `passphrase`."
         elif self.seed_hex is not None and self.passphrase is not None:
             errors["SignRequest"] = "`seed` cannot be used with `passphrase`."
         elif self.key_type is None and (
