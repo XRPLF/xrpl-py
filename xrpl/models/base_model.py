@@ -3,9 +3,14 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Any, Dict
+from typing import Any, Dict, Final
 
 from xrpl.models.exceptions import XRPLModelValidationException
+
+# A sentinel object used to determine if a given field is not set. Using this
+# allows us to not worry about argument ordering and treat all arguments to
+# __init__ as kwargs.
+REQUIRED: Final[object] = object()
 
 
 class BaseModel(ABC):
