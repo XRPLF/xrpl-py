@@ -1,10 +1,18 @@
 """
-An account in the XRP Ledger represents a holder of XRP and a sender of transactions.
+The sign method takes a transaction in JSON format and a seed value, and returns a
+signed binary representation of the transaction. To contribute one signature to a
+multi-signed transaction, use the sign_for method instead.
 
-See https://xrpl.org/accounts.html.
+By default, this method is admin-only. It can be used as a public method if the server
+has enabled public signing.
 
-These request objects represent network client interactions that query account-level
-information.
+Caution:
+Unless you run the rippled server yourself, you should do local signing with RippleAPI
+instead of using this command. An untrustworthy server could change the transaction
+before signing it, or use your secret key to sign additional arbitrary transactions as
+if they came from you.
+
+`See sign <https://xrpl.org/sign.html>`_
 """
 
 from __future__ import annotations
@@ -18,7 +26,22 @@ from xrpl.models.transaction import Transaction
 
 @dataclass(frozen=True)
 class SignRequest(Request):
-    """TODO: docstring"""
+    """
+    The sign method takes a transaction in JSON format and a seed value, and returns a
+    signed binary representation of the transaction. To contribute one signature to a
+    multi-signed transaction, use the sign_for method instead.
+
+    By default, this method is admin-only. It can be used as a public method if the
+    server has enabled public signing.
+
+    Caution:
+    Unless you run the rippled server yourself, you should do local signing with
+    RippleAPI instead of using this command. An untrustworthy server could change the
+    transaction before signing it, or use your secret key to sign additional arbitrary
+    transactions as if they came from you.
+
+    `See sign <https://xrpl.org/sign.html>`_
+    """
 
     method: RequestMethod = field(
         default_factory=lambda: RequestMethod.SIGN, init=False
@@ -47,7 +70,6 @@ class SignRequest(Request):
         return return_dict
 
     def _get_errors(self: SignRequest) -> Dict[str, str]:
-        """TODO: docstring"""
         errors = super()._get_errors()
         if self.secret is not None and (
             self.key_type is not None
