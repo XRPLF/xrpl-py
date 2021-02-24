@@ -28,6 +28,7 @@ class TransactionType(str, Enum):
     AccountSet = "AccountSet"
     OfferCancel = "OfferCancel"
     OfferCreate = "OfferCreate"
+    Payment = "Payment"
     PaymentChannelClaim = "PaymentChannelClaim"
     PaymentChannelCreate = "PaymentChannelCreate"
     PaymentChannelFund = "PaymentChannelFund"
@@ -49,7 +50,7 @@ class Transaction(BaseModel):
     sequence: int = REQUIRED
     transaction_type: TransactionType = REQUIRED
     account_txn_id: Optional[str] = None
-    flags: Optional[int] = None
+    flags: int = 0
     last_ledger_sequence: Optional[int] = None
     # TODO make type
     memos: Optional[List[Any]] = None
@@ -74,3 +75,16 @@ class Transaction(BaseModel):
             for attr, value in self.__dict__.items()
             if value is REQUIRED
         }
+
+    def has_flag(self: Transaction, flag: int) -> bool:
+        """
+        Returns whether the transaction has the given flag value set.
+
+        Args:
+            flag: The given flag value for which the function will determine whether it
+                is set.
+
+        Returns:
+            Whether the transaction has the given flag value set.
+        """
+        return self.flags & flag != 0
