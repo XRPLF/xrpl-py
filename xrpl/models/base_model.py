@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Any, Dict, Final
+from typing import Any, Dict
+
+from typing_extensions import Final
 
 from xrpl.models.exceptions import XRPLModelValidationException
 
