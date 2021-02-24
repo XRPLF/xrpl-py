@@ -29,6 +29,9 @@ class TransactionType(str, Enum):
     OfferCancel = "OfferCancel"
     OfferCreate = "OfferCreate"
     Payment = "Payment"
+    PaymentChannelClaim = "PaymentChannelClaim"
+    PaymentChannelCreate = "PaymentChannelCreate"
+    PaymentChannelFund = "PaymentChannelFund"
     SetRegularKey = "SetRegularKey"
     TrustSet = "TrustSet"
 
