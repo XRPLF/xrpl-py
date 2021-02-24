@@ -23,6 +23,8 @@ class PaymentFlag(int, Enum):
     """
     Transactions of the Payment type support additional values in the Flags field.
     This enum represents those options.
+
+    `See Payment Flags <https://xrpl.org/payment.html#payment-flags>`_
     """
 
     TF_NO_DIRECT_RIPPLE = 0x00010000
