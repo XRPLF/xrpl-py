@@ -32,6 +32,7 @@ class TransactionType(str, Enum):
     PaymentChannelCreate = "PaymentChannelCreate"
     PaymentChannelFund = "PaymentChannelFund"
     SetRegularKey = "SetRegularKey"
+    SignerListSet = "SignerListSet"
 
 
 @dataclass(frozen=True)
