@@ -44,5 +44,5 @@ class TrustSet(Transaction):
         if not is_issued_currency(self.limit_amount):
             errors[
                 "limit_amount"
-            ] = "limit amount of a trust line must be an issued currency"
+            ] = "limit_amount of a trust line must be an issued currency"
         return errors
