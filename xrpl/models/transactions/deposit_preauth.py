@@ -1,9 +1,10 @@
 """
 Represents a DepositPreauth transaction on the XRP Ledger.
 
-A DepositPreAuth transaction gives another account pre-approval to deliver payments
+A DepositPreauth transaction gives another account pre-approval to deliver payments
 to the sender of this transaction.
 
+`See Deposit Authorization <https://xrpl.org/depositauth.html>`_
 `See DepositPreauth <https://xrpl.org/depositauth.html>`_
 """
 from __future__ import annotations
@@ -19,9 +20,10 @@ class DepositPreauth(Transaction):
     """
     Represents a DepositPreauth transaction on the XRP Ledger.
 
-    A DepositPreAuth transaction gives another account pre-approval to deliver payments
+    A DepositPreauth transaction gives another account pre-approval to deliver payments
     to the sender of this transaction.
 
+    `See Deposit Authorization <https://xrpl.org/depositauth.html>`_
     `See DepositPreauth <https://xrpl.org/depositauth.html>`_
     """
 
@@ -32,12 +34,10 @@ class DepositPreauth(Transaction):
         errors = {}
         if self.authorize and self.deauthorize:
             errors[
-                "deposit_preauth"
+                "DepositPreauth"
             ] = "One of authorize and deauthorize must be set, not both."
 
         if not self.authorize and not self.deauthorize:
-            errors[
-                "deposit_preauth"
-            ] = "One of authorize and deauthorize must be set, not both."
+            errors["DepositPreauth"] = "One of authorize and deauthorize must be set."
 
         return errors
