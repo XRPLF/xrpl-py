@@ -41,7 +41,7 @@ class EscrowCreate(Transaction):
             and self.finish_after < self.cancel_after
         ):
             errors[
-                "escrow_create"
+                "EscrowCreate"
             ] = "The finish_after time must be before the cancel_after time."
 
         return errors
