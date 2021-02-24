@@ -23,7 +23,7 @@ class PaymentFlag(int, Enum):
     """
     Transactions of the Payment type support additional values in the Flags field.
     This enum represents those options.
-    
+
     `See Payment Flags <https://xrpl.org/payment.html#payment-flags>`_
     """
 
