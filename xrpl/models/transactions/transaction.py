@@ -31,6 +31,9 @@ class TransactionType(str, Enum):
     EscrowFinish = "EscrowFinish"
     OfferCancel = "OfferCancel"
     OfferCreate = "OfferCreate"
+    PaymentChannelClaim = "PaymentChannelClaim"
+    PaymentChannelCreate = "PaymentChannelCreate"
+    PaymentChannelFund = "PaymentChannelFund"
     SetRegularKey = "SetRegularKey"
 
 
