@@ -74,7 +74,7 @@ class SignerListSet(Transaction):
                 or "SignerEntry" not in signer_entry
             ):
                 errors["signer_entries"] = "One of the signer entries is malformed."
-                break
+                return errors
             entry = signer_entry["SignerEntry"]
             if (
                 not isinstance(entry, dict)
@@ -83,20 +83,20 @@ class SignerListSet(Transaction):
                 or "SignerWeight" not in entry
             ):
                 errors["signer_entries"] = "One of the signer entries is malformed."
-                break
+                return errors
             entry_account = entry["Account"]
             if self.account == entry_account:
                 errors["signer_entries"] = (
                     "The account submitting the transaction cannot appear in a "
                     "signer entry."
                 )
-                break
+                return errors
             if entry_account in accounts:
                 errors["signer_entries"] = (
                     "An account cannot appear multiple times in the list of signer "
                     "entries."
                 )
-                break
+                return errors
             accounts.add(entry_account)
             signer_weight_sum += entry["SignerWeight"]
 
