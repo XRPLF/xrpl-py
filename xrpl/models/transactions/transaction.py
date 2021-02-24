@@ -33,6 +33,7 @@ class TransactionType(str, Enum):
     PaymentChannelCreate = "PaymentChannelCreate"
     PaymentChannelFund = "PaymentChannelFund"
     SetRegularKey = "SetRegularKey"
+    TrustSet = "TrustSet"
 
 
 @dataclass(frozen=True)
