@@ -11,6 +11,7 @@ from __future__ import annotations  # Requires Python 3.7+
 from dataclasses import dataclass
 from typing import Dict, Optional
 
+from xrpl.models.amount import Amount
 from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
 
 
@@ -25,7 +26,7 @@ class EscrowCreate(Transaction):
     `See EscrowCreate <https://xrpl.org/escrowcreate.html>`_
     """
 
-    amount: int = REQUIRED
+    amount: Amount = REQUIRED
     destination: str = REQUIRED
     destination_tag: Optional[int] = None
     cancel_after: Optional[int] = None

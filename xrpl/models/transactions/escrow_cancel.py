@@ -5,7 +5,6 @@ An EscrowCancel transaction returns escrowed XRP to the sender.
 
 `See EscrowCancel <https://xrpl.org/escrowcancel.html>`_
 """
-from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass
 
