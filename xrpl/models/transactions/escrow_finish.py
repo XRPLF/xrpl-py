@@ -30,6 +30,7 @@ class EscrowFinish(Transaction):
     transaction_type: TransactionType = TransactionType.EscrowFinish
 
     def _get_errors(self: EscrowFinish) -> Dict[str, str]:
+        super()._get_errors()
         errors = {}
         if self.condition and not self.fulfillment:
             errors[
