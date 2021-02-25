@@ -13,7 +13,6 @@ from typing import Any, List, Optional, Union
 
 from xrpl.models.base_model import REQUIRED
 from xrpl.models.requests.request import Request, RequestMethod
-from xrpl.models.transactions.transaction import REQUIRED
 
 
 @dataclass(frozen=True)
