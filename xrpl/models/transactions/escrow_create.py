@@ -1,7 +1,7 @@
 """
 Represents an EscrowCreate transaction on the XRP Ledger.
 
-An EscrowCreate transaction Sequester XRP until the escrow process either finishes or
+An EscrowCreate transaction sequesters XRP until the escrow process either finishes or
 is canceled.
 
 `See EscrowCreate <https://xrpl.org/escrowcreate.html>`_
@@ -19,7 +19,7 @@ class EscrowCreate(Transaction):
     """
     Represents an EscrowCreate transaction on the XRP Ledger.
 
-    An EscrowCreate transaction Sequester XRP until the escrow process either finishes
+    An EscrowCreate transaction sequesters XRP until the escrow process either finishes
     or is canceled.
 
     `See EscrowCreate <https://xrpl.org/escrowcreate.html>`_
