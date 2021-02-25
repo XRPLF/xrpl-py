@@ -11,14 +11,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from typing_extensions import Final
-
-from xrpl.models.base_model import BaseModel
-
-# A sentinel object used to determine if a given field is not set. Using this
-# allows us to not worry about argument ordering and treat all arguments to
-# __init__ as kwargs.
-REQUIRED: Final[object] = object()
+from xrpl.models.base_model import REQUIRED, BaseModel
 
 
 class TransactionType(str, Enum):
@@ -26,6 +19,10 @@ class TransactionType(str, Enum):
 
     AccountDelete = "AccountDelete"
     AccountSet = "AccountSet"
+    CheckCancel = "CheckCancel"
+    CheckCash = "CheckCash"
+    CheckCreate = "CheckCreate"
+    DepositPreauth = "DepositPreauth"
     OfferCancel = "OfferCancel"
     OfferCreate = "OfferCreate"
     Payment = "Payment"

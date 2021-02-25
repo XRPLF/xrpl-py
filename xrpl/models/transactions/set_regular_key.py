@@ -31,4 +31,4 @@ class SetRegularKey(Transaction):
     """
 
     regular_key: Optional[str] = None
-    transaction_type: str = TransactionType.SetRegularKey
+    transaction_type: TransactionType = TransactionType.SetRegularKey

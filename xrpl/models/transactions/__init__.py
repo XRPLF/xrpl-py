@@ -2,6 +2,9 @@
 
 from xrpl.models.transactions.account_delete import AccountDelete
 from xrpl.models.transactions.account_set import AccountSet
+from xrpl.models.transactions.check_cancel import CheckCancel
+from xrpl.models.transactions.check_cash import CheckCash
+from xrpl.models.transactions.check_create import CheckCreate
 from xrpl.models.transactions.deposit_preauth import DepositPreauth
 from xrpl.models.transactions.offer_cancel import OfferCancel
 from xrpl.models.transactions.offer_create import OfferCreate
@@ -16,6 +19,9 @@ from xrpl.models.transactions.trustset import TrustSet
 __all__ = [
     "AccountDelete",
     "AccountSet",
+    "CheckCancel",
+    "CheckCash",
+    "CheckCreate",
     "DepositPreauth",
     "OfferCancel",
     "OfferCreate",

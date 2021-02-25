@@ -11,7 +11,8 @@ account. See Deletion of Accounts for the requirements to delete an account.
 from dataclasses import dataclass
 from typing import Optional
 
-from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
+from xrpl.models.base_model import REQUIRED
+from xrpl.models.transactions.transaction import Transaction, TransactionType
 
 
 @dataclass(frozen=True)
@@ -29,4 +30,4 @@ class AccountDelete(Transaction):
 
     destination: str = REQUIRED
     destination_tag: Optional[int] = None
-    transaction_type: str = TransactionType.AccountDelete
+    transaction_type: TransactionType = TransactionType.AccountDelete
