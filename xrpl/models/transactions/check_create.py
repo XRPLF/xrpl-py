@@ -1,5 +1,6 @@
 """
-Create a Check object in the ledger, which is a deferred payment
+Represents a CheckCreate transaction on the XRP ledger, which
+creates a Check object. A Check object is a deferred payment
 that can be cashed by its intended destination. The sender of this
 transaction is the sender of the Check.
 
@@ -15,7 +16,8 @@ from xrpl.models.transactions.transaction import REQUIRED, Transaction, Transact
 @dataclass(frozen=True)
 class CheckCreate(Transaction):
     """
-    Create a Check object in the ledger, which is a deferred payment
+    Represents a CheckCreate transaction on the XRP ledger, which
+    creates a Check object. A Check object is a deferred payment
     that can be cashed by its intended destination. The sender of this
     transaction is the sender of the Check.
 

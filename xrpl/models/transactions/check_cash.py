@@ -1,5 +1,6 @@
 """
-Attempts to redeem a Check object in the ledger to receive up to the amount
+Represents a CheckCash transaction on the XRP ledger. CheckCash transactions
+attempt to redeem a Check object in the ledger to receive up to the amount
 authorized by the corresponding CheckCreate transaction. Only the Destination
 address of a Check can cash it with a CheckCash transaction. Cashing a check
 this way is similar to executing a Payment initiated by the destination.
@@ -24,7 +25,8 @@ from xrpl.models.transactions.transaction import REQUIRED, Transaction, Transact
 @dataclass(frozen=True)
 class CheckCash(Transaction):
     """
-    Attempts to redeem a Check object in the ledger to receive up to the amount
+    Represents a CheckCash transaction on the XRP ledger. CheckCash transactions
+    attempt to redeem a Check object in the ledger to receive up to the amount
     authorized by the corresponding CheckCreate transaction. Only the Destination
     address of a Check can cash it with a CheckCash transaction. Cashing a check
     this way is similar to executing a Payment initiated by the destination.
