@@ -193,8 +193,8 @@ class TestSignerListSet(TestCase):
         signer_entries = [
             {
                 "SignerEntry": {
-                    "account": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
-                    "SignerWeight": 5,
+                    "Account": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+                    "signer_weight": 5,
                 }
             }
         ]

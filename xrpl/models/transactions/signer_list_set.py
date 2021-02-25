@@ -15,6 +15,10 @@ from typing import Any, Dict, List, Optional
 
 from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
 
+_SIGNER_ENTRY_KEY = "SignerEntry"
+_ACCOUNT_KEY = "Account"
+_SIGNER_WEIGHT_KEY = "SignerWeight"
+
 
 @dataclass(frozen=True)
 class SignerListSet(Transaction):
@@ -30,6 +34,7 @@ class SignerListSet(Transaction):
     """
 
     signer_quorum: int = REQUIRED
+    # TODO: potentially create a SignerEntry object
     signer_entries: Optional[List[Dict[str, Dict[str, Any]]]] = None
     transaction_type: TransactionType = TransactionType.SignerListSet
 
@@ -71,20 +76,20 @@ class SignerListSet(Transaction):
             if (
                 not isinstance(signer_entry, dict)
                 or len(signer_entry) != 1
-                or "SignerEntry" not in signer_entry
+                or _SIGNER_ENTRY_KEY not in signer_entry
             ):
                 errors["signer_entries"] = "One of the signer entries is malformed."
                 return errors
-            entry = signer_entry["SignerEntry"]
+            entry = signer_entry[_SIGNER_ENTRY_KEY]
             if (
                 not isinstance(entry, dict)
                 or len(entry) != 2
-                or "Account" not in entry
-                or "SignerWeight" not in entry
+                or _ACCOUNT_KEY not in entry
+                or _SIGNER_WEIGHT_KEY not in entry
             ):
                 errors["signer_entries"] = "One of the signer entries is malformed."
                 return errors
-            entry_account = entry["Account"]
+            entry_account = entry[_ACCOUNT_KEY]
             if self.account == entry_account:
                 errors["signer_entries"] = (
                     "The account submitting the transaction cannot appear in a "
@@ -98,7 +103,7 @@ class SignerListSet(Transaction):
                 )
                 return errors
             accounts.add(entry_account)
-            signer_weight_sum += entry["SignerWeight"]
+            signer_weight_sum += entry[_SIGNER_WEIGHT_KEY]
 
         if self.signer_quorum > signer_weight_sum:
             errors["signer_quorum"] = (
