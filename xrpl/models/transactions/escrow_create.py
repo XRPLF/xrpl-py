@@ -34,8 +34,7 @@ class EscrowCreate(Transaction):
     transaction_type: TransactionType = TransactionType.EscrowCreate
 
     def _get_errors(self: EscrowCreate) -> Dict[str, str]:
-        super()._get_errors()
-        errors = {}
+        errors = super()._get_errors()
         if (
             self.cancel_after is not None
             and self.finish_after is not None
