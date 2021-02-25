@@ -12,7 +12,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Optional
 
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import Transaction, TransactionType
 
 
 @dataclass(frozen=True)
@@ -28,16 +28,17 @@ class DepositPreauth(Transaction):
     """
 
     authorize: Optional[str] = None
-    deauthorize: Optional[str] = None
+    unauthorize: Optional[str] = None
+    transaction_type: TransactionType = TransactionType.DepositPreauth
 
     def _get_errors(self: DepositPreauth) -> Dict[str, str]:
-        errors = {}
-        if self.authorize and self.deauthorize:
+        errors = super()._get_errors()
+        if self.authorize and self.unauthorize:
             errors[
                 "DepositPreauth"
-            ] = "One of authorize and deauthorize must be set, not both."
+            ] = "One of authorize and unauthorize must be set, not both."
 
-        if not self.authorize and not self.deauthorize:
-            errors["DepositPreauth"] = "One of authorize and deauthorize must be set."
+        if not self.authorize and not self.unauthorize:
+            errors["DepositPreauth"] = "One of authorize and unauthorize must be set."
 
         return errors
