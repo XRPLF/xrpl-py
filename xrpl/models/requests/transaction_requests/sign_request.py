@@ -55,7 +55,7 @@ class SignRequest(Request):
     offline: bool = False
     build_path: Optional[bool] = None
     fee_mult_max: int = 10
-    fee_div_max = 1
+    fee_div_max: int = 1
 
     def to_dict(self: SignRequest) -> Dict[str, Any]:
         """
