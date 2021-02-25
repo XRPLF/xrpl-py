@@ -22,6 +22,7 @@ class TransactionType(str, Enum):
     CheckCancel = "CheckCancel"
     CheckCash = "CheckCash"
     CheckCreate = "CheckCreate"
+    DepositPreauth = "DepositPreauth"
     OfferCancel = "OfferCancel"
     OfferCreate = "OfferCreate"
     Payment = "Payment"
