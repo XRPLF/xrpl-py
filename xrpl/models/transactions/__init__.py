@@ -6,6 +6,9 @@ from xrpl.models.transactions.deposit_preauth import DepositPreauth
 from xrpl.models.transactions.offer_cancel import OfferCancel
 from xrpl.models.transactions.offer_create import OfferCreate
 from xrpl.models.transactions.payment import Payment, PaymentFlag
+from xrpl.models.transactions.payment_channel_claim import PaymentChannelClaim
+from xrpl.models.transactions.payment_channel_create import PaymentChannelCreate
+from xrpl.models.transactions.payment_channel_fund import PaymentChannelFund
 from xrpl.models.transactions.set_regular_key import SetRegularKey
 from xrpl.models.transactions.trustset import TrustSet
 
@@ -17,6 +20,9 @@ __all__ = [
     "OfferCreate",
     "Payment",
     "PaymentFlag",
+    "PaymentChannelClaim",
+    "PaymentChannelCreate",
+    "PaymentChannelFund",
     "SetRegularKey",
     "TrustSet",
 ]
