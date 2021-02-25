@@ -38,7 +38,7 @@ class AccountSet(Transaction):
     set_flag: Optional[int] = None
     transfer_rate: Optional[int] = None
     tick_size: Optional[int] = None
-    transaction_type: str = TransactionType.AccountSet
+    transaction_type: TransactionType = TransactionType.AccountSet
 
     def _get_errors(self: AccountSet) -> Dict[str, str]:
         errors = super()._get_errors()
@@ -52,11 +52,8 @@ class AccountSet(Transaction):
             errors["domain"] = f"Domain {self.domain} is not lowercase"
         if self.clear_flag is not None and self.clear_flag == self.set_flag:
             errors[
-                "clear_flag"
+                "AccountSet"
             ] = f"Clear flag {self.clear_flag} is equal to set flag {self.set_flag}"
-            errors[
-                "set_flag"
-            ] = f"Set flag {self.set_flag} is equal to clear flag {self.clear_flag}"
 
         return errors
 

@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, List, Optional, Union
 
+from xrpl.models.base_model import REQUIRED
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.transactions.transaction import REQUIRED
 
@@ -201,20 +202,19 @@ class NoRippleCheckRole(str, Enum):
     USER = "user"
 
 
-# TODO: get this class working properly once greg's solution to default args is pushed
-# @dataclass(frozen=True)
-# class NoRippleCheckRequest(AccountRequest):
-#     """
-#     This request provides a quick way to check the status of the Default Ripple field
-#     for an account and the No Ripple flag of its trust lines, compared with the
-#     recommended settings.
+@dataclass(frozen=True)
+class NoRippleCheckRequest(AccountRequest):
+    """
+    This request provides a quick way to check the status of the Default Ripple field
+    for an account and the No Ripple flag of its trust lines, compared with the
+    recommended settings.
 
-#     `See noripple_check <https://xrpl.org/noripple_check.html>`_
-#     """
+    `See noripple_check <https://xrpl.org/noripple_check.html>`_
+    """
 
-#     method: RequestMethod = field(
-#         default_factory=lambda: RequestMethod.NO_RIPPLE_CHECK, init=False
-#     )
-#     role: NoRippleCheckRole
-#     transactions: bool = False
-#     limit: Optional[int] = 300
+    method: RequestMethod = field(
+        default_factory=lambda: RequestMethod.NO_RIPPLE_CHECK, init=False
+    )
+    role: NoRippleCheckRole = REQUIRED
+    transactions: bool = False
+    limit: Optional[int] = 300
