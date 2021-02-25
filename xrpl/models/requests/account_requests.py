@@ -28,7 +28,7 @@ class AccountRequest(Request):
     account-level information.
     """
 
-    account: str
+    account: str = REQUIRED
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
 

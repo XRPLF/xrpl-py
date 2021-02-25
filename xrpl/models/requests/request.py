@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Optional
 
 from xrpl.models.base_model import BaseModel
 
@@ -24,6 +25,15 @@ class RequestMethod(str, Enum):
     GATEWAY_BALANCES = "gateway_balances"
     NO_RIPPLE_CHECK = "noripple_check"
 
+    # transaction methods
+    SIGN = "sign"
+    SIGN_FOR = "sign_for"
+    SUBMIT = "submit"
+    SUBMIT_MULTISIGNED = "submit_multisigned"
+    TRANSACTION_ENTRY = "transaction_entry"
+    TRANSACTION = "tx"
+    TRANSACTION_HISTORY = "tx_history"
+
 
 @dataclass(frozen=True)
 class Request(BaseModel):
@@ -33,3 +43,4 @@ class Request(BaseModel):
     """
 
     method: RequestMethod = field(init=False)
+    id: Optional[int] = None
