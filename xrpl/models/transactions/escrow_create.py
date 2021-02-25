@@ -39,7 +39,7 @@ class EscrowCreate(Transaction):
         if (
             self.cancel_after is not None
             and self.finish_after is not None
-            and self.finish_after < self.cancel_after
+            and self.finish_after >= self.cancel_after
         ):
             errors[
                 "EscrowCreate"
