@@ -18,6 +18,7 @@ Install pre-commit globally to get access to the pre-commit hooks:
 
 ```bash
 pip install pre-commit
+pre-commit install
 ```
 
 ### Linting

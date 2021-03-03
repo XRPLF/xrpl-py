@@ -71,13 +71,6 @@ class Transaction(BaseModel):
         """
         return {**super().to_dict(), "transaction_type": self.transaction_type.name}
 
-    def _get_errors(self: Transaction) -> Dict[str, str]:
-        return {
-            attr: f"{attr} is not set"
-            for attr, value in self.__dict__.items()
-            if value is REQUIRED
-        }
-
     def has_flag(self: Transaction, flag: int) -> bool:
         """
         Returns whether the transaction has the given flag value set.
