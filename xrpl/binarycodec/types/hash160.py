@@ -53,7 +53,9 @@ class Hash160(Hash):
 
     @classmethod
     def from_parser(
-        cls: Hash160, parser: BinaryParser, length_hint: Optional[int] = None
+        cls: Hash160,
+        parser: BinaryParser,
+        length_hint: Optional[int] = None,
     ) -> Hash160:
         """
         Construct a Hash160 object from an existing BinaryParser.
