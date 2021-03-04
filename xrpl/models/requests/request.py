@@ -34,6 +34,10 @@ class RequestMethod(str, Enum):
     TRANSACTION = "tx"
     TRANSACTION_HISTORY = "tx_history"
 
+    # channel methods
+    CHANNEL_AUTHORIZE = "channel_authorize"
+    CHANNEL_VERIFY = "channel_verify"
+
 
 @dataclass(frozen=True)
 class Request(BaseModel):
