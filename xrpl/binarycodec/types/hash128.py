@@ -54,9 +54,7 @@ class Hash128(Hash):
 
     @classmethod
     def from_parser(
-        cls: Hash128,
-        parser: BinaryParser,
-        length_hint: Optional[int] = None,
+        cls: Hash128, parser: BinaryParser, length_hint: Optional[int] = None
     ) -> Hash128:
         """
         Construct a Hash128 object from an existing BinaryParser.
