@@ -5,9 +5,9 @@ that holds the value. For XRP, there is no counterparty.
 """
 from typing import NewType, Union
 
-from xrpl.models.amount.issued_currency import IssuedCurrency
+from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 
-Amount = NewType("Amount", Union[str, IssuedCurrency])
+Amount = NewType("Amount", Union[str, IssuedCurrencyAmount])
 
 
 def is_xrp(amount: Amount) -> bool:
@@ -33,4 +33,4 @@ def is_issued_currency(amount: Amount) -> bool:
     Returns:
         Whether the amount is an issued currency value.
     """
-    return isinstance(amount, IssuedCurrency)
+    return isinstance(amount, IssuedCurrencyAmount)

@@ -9,7 +9,7 @@ funds it with XRP. The address sending this transaction becomes the
 from dataclasses import dataclass
 from typing import Optional
 
-from xrpl.models.amount import Amount
+from xrpl.models.amounts import Amount
 from xrpl.models.base_model import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionType
 
