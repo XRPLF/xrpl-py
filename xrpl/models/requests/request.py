@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from xrpl.models.base_model import BaseModel
 
@@ -44,3 +44,12 @@ class Request(BaseModel):
 
     method: RequestMethod = field(init=False)
     id: Optional[int] = None
+
+    def to_dict(self: BaseModel) -> Dict[str, Any]:
+        """
+        Returns the dictionary representation of a Request.
+
+        Returns:
+            The dictionary representation of a Request.
+        """
+        return {**super().to_dict(), "method": self.method.name}
