@@ -6,12 +6,13 @@ Use these methods to work with paths and other books.
 """
 from xrpl.models.requests.paths.book_offers import BookOffers
 from xrpl.models.requests.paths.deposit_authorized import DepositAuthorized
-from xrpl.models.requests.paths.path_find import PathFind
+from xrpl.models.requests.paths.path_find import PathFind, PathFindSubcommand
 from xrpl.models.requests.paths.ripple_path_find import RipplePathFind
 
 __all__ = [
     "BookOffers",
     "DepositAuthorized",
     "PathFind",
+    "PathFindSubcommand",
     "RipplePathFind",
 ]

@@ -27,13 +27,27 @@ results is not necessarily proof of malicious behavior; it could also be
 a symptom of heavy server load.)
 """
 from dataclasses import dataclass
-from typing import Any, Literal, NewType, Optional
+from enum import Enum
+from typing import Any, List, Optional
 
 from xrpl.models.amounts import Amount
 from xrpl.models.base_model import REQUIRED
 from xrpl.models.requests.request import Request, RequestMethod
 
-SUBCOMMAND = NewType("SUBCOMMAND", Literal["create", "close", "status"])
+
+class PathFindSubcommand(str, Enum):
+    """
+    There are three different modes, or sub-commands, of the path_find
+    command. Specify which one you want with the subcommand parameter:
+
+    create - Start sending pathfinding information
+    close - Stop sending pathfinding information
+    status - Get the information of the currently-open pathfinding request
+    """
+
+    CREATE = "create"
+    CLOSE = "close"
+    STATUS = "status"
 
 
 @dataclass(frozen=True)
@@ -47,12 +61,6 @@ class PathFind(Request):
     it is not necessary to find a path, because XRP can be sent
     directly to any account.
 
-    There are three different modes, or sub-commands, of the path_find
-    command. Specify which one you want with the subcommand parameter:
-
-    create - Start sending pathfinding information
-    close - Stop sending pathfinding information
-    status - Get the information of the currently-open pathfinding request
     Although the rippled server tries to find the cheapest path or combination
     of paths for making a payment, it is not guaranteed that the paths returned
     by this method are, in fact, the best paths. Due to server load,
@@ -67,11 +75,11 @@ class PathFind(Request):
     a symptom of heavy server load.)
     """
 
-    subcommand: SUBCOMMAND = REQUIRED
+    subcommand: PathFindSubcommand = REQUIRED
     source_account: str = REQUIRED
     destination_account: str = REQUIRED
     destination_amount: Amount = REQUIRED
     method: RequestMethod = RequestMethod.PATH_FIND
     send_max: Optional[Amount] = None
     # TODO create path type
-    paths: Optional[list[Any]] = None
+    paths: Optional[List[Any]] = None
