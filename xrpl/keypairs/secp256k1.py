@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from hashlib import sha256
-from typing import Callable, Tuple
+from typing import Callable, Tuple, Type
 
 from ecpy.curves import Curve  # type: ignore
 from ecpy.ecdsa import ECDSA  # type: ignore
@@ -43,7 +43,7 @@ class SECP256K1(CryptoImplementation):
 
     @classmethod
     def derive_keypair(
-        cls: SECP256K1, decoded_seed: bytes, is_validator: bool
+        cls: Type[SECP256K1], decoded_seed: bytes, is_validator: bool
     ) -> Tuple[str, str]:
         """
         Derives a keypair using SECP256k1.
@@ -73,7 +73,7 @@ class SECP256K1(CryptoImplementation):
         return cls._format_keys(final_public, final_private)
 
     @classmethod
-    def sign(cls: SECP256K1, message: str, private_key: str) -> bytes:
+    def sign(cls: Type[SECP256K1], message: str, private_key: str) -> bytes:
         """
         Signs message in SECP256k1 using the given private key.
 
@@ -94,7 +94,7 @@ class SECP256K1(CryptoImplementation):
 
     @classmethod
     def is_valid_message(
-        cls: SECP256K1, message: str, signature: bytes, public_key: str
+        cls: Type[SECP256K1], message: str, signature: bytes, public_key: str
     ) -> bool:
         """
         Verifies that message matches signature given public_key.
@@ -113,7 +113,7 @@ class SECP256K1(CryptoImplementation):
 
     @classmethod
     def _format_keys(
-        cls: SECP256K1, public: ECPublicKey, private: ECPrivateKey
+        cls: Type[SECP256K1], public: ECPublicKey, private: ECPrivateKey
     ) -> Tuple[str, str]:
         # returning a list comprehension triggers mypy (appropriately, because
         # then we're actually returning a list), so doing this very inelegantly
@@ -123,24 +123,24 @@ class SECP256K1(CryptoImplementation):
         )
 
     @classmethod
-    def _format_key(cls: SECP256K1, keystr: str) -> str:
+    def _format_key(cls: Type[SECP256K1], keystr: str) -> str:
         return keystr.rjust(_KEY_LENGTH, _PADDING_PREFIX).upper()
 
     @classmethod
-    def _public_key_to_bytes(cls: SECP256K1, key: ECPublicKey) -> bytes:
+    def _public_key_to_bytes(cls: Type[SECP256K1], key: ECPublicKey) -> bytes:
         return bytes(_CURVE.encode_point(key.W, compressed=True))
 
     @classmethod
-    def _public_key_to_str(cls: SECP256K1, key: ECPublicKey) -> str:
+    def _public_key_to_str(cls: Type[SECP256K1], key: ECPublicKey) -> str:
         return cls._public_key_to_bytes(key).hex()
 
     @classmethod
-    def _private_key_to_str(cls: SECP256K1, key: ECPrivateKey) -> str:
+    def _private_key_to_str(cls: Type[SECP256K1], key: ECPrivateKey) -> str:
         return format(key.d, "x")
 
     @classmethod
     def _do_derive_part(
-        cls: SECP256K1, bytes_input: bytes, phase: Literal["root", "mid"]
+        cls: Type[SECP256K1], bytes_input: bytes, phase: Literal["root", "mid"]
     ) -> Tuple[ECPublicKey, ECPrivateKey]:
         """
         Given bytes_input determine public/private keypair for a given phase of
@@ -161,7 +161,7 @@ class SECP256K1(CryptoImplementation):
 
     @classmethod
     def _derive_final_pair(
-        cls: SECP256K1,
+        cls: Type[SECP256K1],
         root_public: ECPublicKey,
         root_private: ECPrivateKey,
         mid_public: ECPublicKey,
@@ -174,7 +174,7 @@ class SECP256K1(CryptoImplementation):
 
     @classmethod
     def _get_secret(
-        cls: SECP256K1, candidate_merger: Callable[[bytes], bytes]
+        cls: Type[SECP256K1], candidate_merger: Callable[[bytes], bytes]
     ) -> bytes:
         """
         Given a function `candidate_merger` that knows how
@@ -198,6 +198,6 @@ class SECP256K1(CryptoImplementation):
         )
 
     @classmethod
-    def _is_secret_valid(cls: SECP256K1, secret: bytes) -> bool:
+    def _is_secret_valid(cls: Type[SECP256K1], secret: bytes) -> bool:
         numerical_secret = int.from_bytes(secret, "big")
         return numerical_secret in range(1, _GROUP_ORDER)

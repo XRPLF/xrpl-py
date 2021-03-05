@@ -5,7 +5,7 @@ shared type.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Tuple
+from typing import Tuple, Type
 
 
 class CryptoImplementation(ABC):
@@ -17,7 +17,7 @@ class CryptoImplementation(ABC):
     @classmethod
     @abstractmethod
     def derive_keypair(
-        cls: CryptoImplementation,
+        cls: Type[CryptoImplementation],
         decoded_seed: bytes,
         is_validator: bool,
     ) -> Tuple[str, str]:  # noqa: D102
@@ -26,13 +26,13 @@ class CryptoImplementation(ABC):
     @classmethod
     @abstractmethod
     def sign(
-        cls: CryptoImplementation, message: str, private_key: str
+        cls: Type[CryptoImplementation], message: str, private_key: str
     ) -> bytes:  # noqa: D102
         ...
 
     @classmethod
     @abstractmethod
     def is_valid_message(
-        cls: CryptoImplementation, message: str, signature: bytes, public_key: str
+        cls: Type[CryptoImplementation], message: str, signature: bytes, public_key: str
     ) -> bool:  # noqa: D102
         ...
