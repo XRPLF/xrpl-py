@@ -4,7 +4,7 @@ of 160 bits (20 bytes).
 """
 from __future__ import annotations
 
-from typing import Optional, Type
+from typing import Final, Optional, Type
 
 from xrpl.binarycodec import XRPLBinaryCodecException
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
@@ -22,7 +22,7 @@ class Hash160(Hash):
         _LENGTH: The length of this hash in bytes.
     """
 
-    _LENGTH = 20
+    _LENGTH: Final[int] = 20
 
     def __init__(self: Hash160, buffer: bytes = None) -> None:
         """Construct a Hash160."""

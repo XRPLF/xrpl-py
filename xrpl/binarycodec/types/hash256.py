@@ -5,7 +5,7 @@ of 256 bits (32 bytes).
 """
 from __future__ import annotations
 
-from typing import Optional, Type
+from typing import Final, Optional, Type
 
 from xrpl.binarycodec import XRPLBinaryCodecException
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
@@ -23,7 +23,7 @@ class Hash256(Hash):
         : The length of this hash in bytes.
     """
 
-    _LENGTH = 32
+    _LENGTH: Final[int] = 32
 
     def __init__(self: Hash256, buffer: bytes = None) -> None:
         """Construct a Hash256."""
