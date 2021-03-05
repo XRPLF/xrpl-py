@@ -11,7 +11,7 @@ from __future__ import annotations  # Requires Python 3.7+
 from dataclasses import dataclass
 from typing import Dict, Optional
 
-from xrpl.models.amount import Amount
+from xrpl.models.amounts import Amount
 from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
 
 

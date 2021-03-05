@@ -59,12 +59,16 @@ class BaseModel(ABC):
 
     def _get_errors(self: BaseModel) -> Dict[str, str]:
         """
-        Overridden in subclasses to define custom validation logic.
+        Extended in subclasses to define custom validation logic.
 
         Returns:
             Dictionary of any errors found on self.
         """
-        return {}
+        return {
+            attr: f"{attr} is not set"
+            for attr, value in self.__dict__.items()
+            if value is REQUIRED
+        }
 
     def to_dict(self: BaseModel) -> Dict[str, Any]:
         """
