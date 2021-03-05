@@ -34,7 +34,7 @@ class SignFor(Request):
     method: RequestMethod = field(
         default_factory=lambda: RequestMethod.SIGN_FOR, init=False
     )
-    account: str
+    account: str = REQUIRED
     transaction: Transaction = REQUIRED
     secret: Optional[str] = None
     seed: Optional[str] = None
