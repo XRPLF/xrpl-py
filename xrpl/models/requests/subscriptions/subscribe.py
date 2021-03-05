@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, List, Optional
 
-from xrpl.models.requests import Request, RequestMethod
+from xrpl.models.requests.request import Request, RequestMethod
 
 
 class StreamParameter(str, Enum):

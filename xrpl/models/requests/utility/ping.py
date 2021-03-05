@@ -4,7 +4,7 @@ clients can test the connection status and latency.
 """
 from dataclasses import dataclass
 
-from xrpl.models.requests import Request, RequestMethod
+from xrpl.models.requests.request import Request, RequestMethod
 
 
 @dataclass(frozen=True)
