@@ -38,6 +38,12 @@ class RequestMethod(str, Enum):
     CHANNEL_AUTHORIZE = "channel_authorize"
     CHANNEL_VERIFY = "channel_verify"
 
+    # path methods
+    BOOK_OFFERS = "book_offers"
+    DEPOSIT_AUTHORIZED = "deposit_authorized"
+    PATH_FIND = "path_find"
+    RIPPLE_PATH_FIND = "ripple_path_find"
+
 
 @dataclass(frozen=True)
 class Request(BaseModel):

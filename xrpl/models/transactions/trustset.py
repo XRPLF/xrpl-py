@@ -6,9 +6,9 @@ Creates or modifies a trust line linking two accounts.
 """
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Optional
+from typing import Optional
 
-from xrpl.models.amount import Amount, is_issued_currency
+from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
 
 
@@ -34,15 +34,7 @@ class TrustSet(Transaction):
     `See TrustSet <https://xrpl.org/trustset.html>`_
     """
 
-    limit_amount: Amount = REQUIRED
+    limit_amount: IssuedCurrencyAmount = REQUIRED
     quality_in: Optional[int] = None
     quality_out: Optional[int] = None
     transaction_type: TransactionType = TransactionType.TrustSet
-
-    def _get_errors(self: Transaction) -> Dict[str, str]:
-        errors = super()._get_errors()
-        if not is_issued_currency(self.limit_amount):
-            errors[
-                "limit_amount"
-            ] = "limit_amount of a trust line must be an issued currency"
-        return errors
