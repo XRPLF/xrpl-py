@@ -1,11 +1,14 @@
 """A collection of serialization information about a specific field type."""
 from __future__ import annotations  # Requires Python 3.7+
 
-from typing import Type
+from typing import TYPE_CHECKING, Type
 
 from xrpl.binarycodec.definitions.field_header import FieldHeader
 from xrpl.binarycodec.definitions.field_info import FieldInfo
-from xrpl.binarycodec.types.serialized_type import SerializedType
+
+if TYPE_CHECKING:
+    # To prevent a circular dependency.
+    from xrpl.binarycodec.types.serialized_type import SerializedType
 
 
 def _get_type_by_name(name: str) -> Type[SerializedType]:
