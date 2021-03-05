@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from hashlib import sha512
-from typing import Tuple
+from typing import Tuple, Type
 
 from ecpy.curves import Curve  # type: ignore
 from ecpy.eddsa import EDDSA  # type: ignore
@@ -23,7 +23,7 @@ class ED25519(CryptoImplementation):
 
     @classmethod
     def derive_keypair(
-        cls: ED25519, decoded_seed: bytes, is_validator: bool
+        cls: Type[ED25519], decoded_seed: bytes, is_validator: bool
     ) -> Tuple[str, str]:
         """
         Derives a keypair.
@@ -52,7 +52,7 @@ class ED25519(CryptoImplementation):
         )
 
     @classmethod
-    def sign(cls: ED25519, message: str, private_key: str) -> bytes:
+    def sign(cls: Type[ED25519], message: str, private_key: str) -> bytes:
         """
         Signs a message.
 
@@ -69,7 +69,7 @@ class ED25519(CryptoImplementation):
 
     @classmethod
     def is_valid_message(
-        cls: ED25519, message: str, signature: bytes, public_key: str
+        cls: Type[ED25519], message: str, signature: bytes, public_key: str
     ) -> bool:
         """
         Checks whether or not a message is valid.
@@ -89,13 +89,13 @@ class ED25519(CryptoImplementation):
         return _SIGNER.verify(message, signature, wrapped_public)
 
     @classmethod
-    def _public_key_to_str(cls: ED25519, key: ECPublicKey) -> str:
+    def _public_key_to_str(cls: Type[ED25519], key: ECPublicKey) -> str:
         return _CURVE.encode_point(key.W).hex()
 
     @classmethod
-    def _private_key_to_str(cls: ED25519, key: ECPrivateKey) -> str:
+    def _private_key_to_str(cls: Type[ED25519], key: ECPrivateKey) -> str:
         return format(key.d, "x")
 
     @classmethod
-    def _format_key(cls: ED25519, keystr: str) -> str:
+    def _format_key(cls: Type[ED25519], keystr: str) -> str:
         return (PREFIX + keystr).upper()
