@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from xrpl.models.amount import IssuedCurrency
+from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.exceptions import XRPLModelValidationException
 from xrpl.models.transactions import Payment, PaymentFlag
 
@@ -8,7 +8,9 @@ _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _FEE = "0.00001"
 _SEQUENCE = 19048
 _XRP_AMOUNT = "10000"
-_ISSUED_CURRENCY_AMOUNT = IssuedCurrency(currency="BTC", value="1.002", issuer=_ACCOUNT)
+_ISSUED_CURRENCY_AMOUNT = IssuedCurrencyAmount(
+    currency="BTC", value="1.002", issuer=_ACCOUNT
+)
 _DESTINATION = "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
 
 

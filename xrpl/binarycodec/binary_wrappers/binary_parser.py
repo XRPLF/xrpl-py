@@ -1,13 +1,16 @@
 """Context manager and helpers for the deserialization of bytes into JSON."""
 from __future__ import annotations  # Requires Python 3.7+
 
-from typing import Optional, Tuple, Type
+from typing import TYPE_CHECKING, Optional, Tuple, Type
 
 from xrpl.binarycodec.definitions import definitions
 from xrpl.binarycodec.definitions.field_header import FieldHeader
 from xrpl.binarycodec.definitions.field_instance import FieldInstance
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
-from xrpl.binarycodec.types.serialized_type import SerializedType
+
+if TYPE_CHECKING:
+    # To prevent a circular dependency.
+    from xrpl.binarycodec.types.serialized_type import SerializedType
 
 # Constants used in length prefix decoding:
 # Max length that can be represented in a single byte per XRPL serialization encoding

@@ -6,6 +6,9 @@ from xrpl.models.transactions.check_cancel import CheckCancel
 from xrpl.models.transactions.check_cash import CheckCash
 from xrpl.models.transactions.check_create import CheckCreate
 from xrpl.models.transactions.deposit_preauth import DepositPreauth
+from xrpl.models.transactions.escrow_cancel import EscrowCancel
+from xrpl.models.transactions.escrow_create import EscrowCreate
+from xrpl.models.transactions.escrow_finish import EscrowFinish
 from xrpl.models.transactions.offer_cancel import OfferCancel
 from xrpl.models.transactions.offer_create import OfferCreate
 from xrpl.models.transactions.payment import Payment, PaymentFlag
@@ -23,6 +26,9 @@ __all__ = [
     "CheckCash",
     "CheckCreate",
     "DepositPreauth",
+    "EscrowCancel",
+    "EscrowCreate",
+    "EscrowFinish",
     "OfferCancel",
     "OfferCreate",
     "Payment",

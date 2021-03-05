@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
-from xrpl.models.base_model import BaseModel
+from xrpl.models.base_model import REQUIRED, BaseModel
 
 
 class ResponseStatus(str, Enum):
@@ -35,8 +35,8 @@ class Response(BaseModel):
     Represents fields common to all response types.
     """
 
-    status: ResponseStatus
-    result: Union[List[Any], Dict[Any]]
+    status: ResponseStatus = REQUIRED
+    result: Union[List[Any], Dict[Any]] = REQUIRED
     id: Optional[Union[int, str]] = None
     type: Optional[ResponseType] = None
 

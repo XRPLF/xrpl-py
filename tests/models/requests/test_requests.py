@@ -1,14 +1,10 @@
-# flake8: noqa F401
+from unittest import TestCase
 
-from xrpl.models.requests.account_requests import (
-    AccountChannelsRequest,
-    AccountCurrenciesRequest,
-    AccountInfoRequest,
-    AccountLinesRequest,
-    AccountObjectsRequest,
-    AccountOffersRequest,
-    AccountRequest,
-    AccountTransactionsRequest,
-    GatewayBalancesRequest,
-    NoRippleCheckRequest,
-)
+from xrpl.models.requests import Fee
+
+
+class TestRequest(TestCase):
+    def test_to_dict_includes_method_as_string(self):
+        tx = Fee()
+        value = tx.to_dict()["method"]
+        self.assertEqual(type(value), str)
