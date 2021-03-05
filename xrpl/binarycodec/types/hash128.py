@@ -5,7 +5,7 @@ of 128 bits (16 bytes).
 """
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Type
 
 from xrpl.binarycodec import XRPLBinaryCodecException
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
@@ -31,7 +31,7 @@ class Hash128(Hash):
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls: Hash128, value: str) -> Hash128:
+    def from_value(cls: Type[Hash128], value: str) -> Hash128:
         """
         Construct a Hash128 object from a hex string.
 
@@ -54,7 +54,7 @@ class Hash128(Hash):
 
     @classmethod
     def from_parser(
-        cls: Hash128, parser: BinaryParser, length_hint: Optional[int] = None
+        cls: Type[Hash128], parser: BinaryParser, length_hint: Optional[int] = None
     ) -> Hash128:
         """
         Construct a Hash128 object from an existing BinaryParser.
