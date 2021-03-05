@@ -30,7 +30,7 @@ from xrpl.models.transactions.transaction import REQUIRED, Transaction
 
 
 @dataclass(frozen=True)
-class SignRequest(Request):
+class Sign(Request):
     """
     The submit method applies a transaction and sends it to the network to be confirmed
     and included in future ledgers.
@@ -67,19 +67,19 @@ class SignRequest(Request):
     fee_mult_max: int = 10
     fee_div_max: int = 1
 
-    def to_dict(self: SignRequest) -> Dict[str, Any]:
+    def to_dict(self: Sign) -> Dict[str, Any]:
         """
-        Returns the dictionary representation of a SignRequest.
+        Returns the dictionary representation of a Sign.
 
         Returns:
-            The dictionary representation of a SignRequest.
+            The dictionary representation of a Sign.
         """
         return_dict = super().to_dict()
         del return_dict["transaction"]
         return_dict["tx_json"] = self.transaction.to_dict()
         return return_dict
 
-    def _get_errors(self: SignRequest) -> Dict[str, str]:
+    def _get_errors(self: Sign) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.secret is not None and (
             self.key_type is not None
@@ -87,18 +87,16 @@ class SignRequest(Request):
             or self.seed_hex is not None
             or self.passphrase is not None
         ):
-            errors["SignRequest"] = (
+            errors["Sign"] = (
                 "`secret` cannot be used with `key_type`, `seed`, `seed_hex`, or "
                 "`passphrase`."
             )
         elif self.seed is not None and (
             self.seed_hex is not None or self.passphrase is not None
         ):
-            errors[
-                "SignRequest"
-            ] = "`seed` cannot be used with `seed_hex` or `passphrase`."
+            errors["Sign"] = "`seed` cannot be used with `seed_hex` or `passphrase`."
         elif self.seed_hex is not None and self.passphrase is not None:
-            errors["SignRequest"] = "`seed` cannot be used with `passphrase`."
+            errors["Sign"] = "`seed` cannot be used with `passphrase`."
         elif self.key_type is None and (
             self.seed is not None
             or self.seed_hex is not None

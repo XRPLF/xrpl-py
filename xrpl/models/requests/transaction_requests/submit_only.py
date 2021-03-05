@@ -29,7 +29,7 @@ from xrpl.models.requests.request import Request, RequestMethod
 
 
 @dataclass(frozen=True)
-class SubmitOnlyRequest(Request):
+class SubmitOnly(Request):
     """
     The submit method applies a transaction and sends it to the network to be confirmed
     and included in future ledgers.
