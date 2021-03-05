@@ -12,7 +12,7 @@ combination of paths for making a payment, it is not guaranteed that
 the paths returned by this method are, in fact, the best paths.
 """
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from xrpl.models.amounts import Amount
 from xrpl.models.base_model import REQUIRED
@@ -41,6 +41,6 @@ class RipplePathFind(Request):
     destination_amount: Amount = REQUIRED
     method: RequestMethod = RequestMethod.RIPPLE_PATH_FIND
     send_max: Optional[Amount] = None
-    source_currencies: Optional[list[Currency]] = None
+    source_currencies: Optional[List[Currency]] = None
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
