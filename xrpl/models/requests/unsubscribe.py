@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Any, List, Optional
 
 from xrpl.models.requests.request import Request, RequestMethod
-from xrpl.models.requests.subscriptions.subscribe import StreamParameter
+from xrpl.models.requests.subscribe import StreamParameter
 
 
 @dataclass(frozen=True)

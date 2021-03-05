@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelValidationException
-from xrpl.models.requests.ledgers.ledger_entry import LedgerEntry
+from xrpl.models.requests import LedgerEntry
 
 
 class TestLedgerEntry(TestCase):
