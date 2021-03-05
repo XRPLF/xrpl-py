@@ -24,5 +24,6 @@ class LedgerData(Request):
     ledger_index: Optional[Union[str, int]] = None
     binary: Optional[bool] = False
     limit: Optional[int] = None
-    # TODO make type
+    # marker data shape is actually undefined in the spec, up to the
+    # implementation of an individual server
     marker: Optional[Any] = None
