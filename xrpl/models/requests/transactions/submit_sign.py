@@ -22,15 +22,15 @@ twice since it has the same sequence number as the old transaction.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
-from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.transactions.submit import Submit
 from xrpl.models.transactions.transaction import REQUIRED, Transaction
 
 
 @dataclass(frozen=True)
-class Sign(Request):
+class Sign(Submit):
     """
     The submit method applies a transaction and sends it to the network to be confirmed
     and included in future ledgers.
@@ -53,9 +53,6 @@ class Sign(Request):
     `See submit <https://xrpl.org/submit.html>`_
     """
 
-    method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.SUBMIT, init=False
-    )
     transaction: Transaction = REQUIRED
     secret: Optional[str] = None
     seed: Optional[str] = None

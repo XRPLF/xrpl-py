@@ -22,14 +22,13 @@ twice since it has the same sequence number as the old transaction.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from xrpl.models.base_model import REQUIRED
-from xrpl.models.transactions.submit import Submit
+from xrpl.models.requests.request import Request, RequestMethod
 
 
 @dataclass(frozen=True)
-class SubmitOnly(Submit):
+class Submit(Request):
     """
     The submit method applies a transaction and sends it to the network to be confirmed
     and included in future ledgers.
@@ -52,6 +51,6 @@ class SubmitOnly(Submit):
     `See submit <https://xrpl.org/submit.html>`_
     """
 
-    # submit-only mode
-    tx_blob: str = REQUIRED
-    fail_hard: bool = False
+    method: RequestMethod = field(
+        default_factory=lambda: RequestMethod.SUBMIT, init=False
+    )
