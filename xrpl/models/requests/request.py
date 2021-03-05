@@ -4,11 +4,11 @@ Represents fields common to all request types.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
+from typing import Any, Dict, Optional
 
-from xrpl.models.base_model import BaseModel
+from xrpl.models.base_model import REQUIRED, BaseModel
 
 
 class RequestMethod(str, Enum):
@@ -44,6 +44,27 @@ class RequestMethod(str, Enum):
     PATH_FIND = "path_find"
     RIPPLE_PATH_FIND = "ripple_path_find"
 
+    # ledger methods
+    LEDGER = "ledger"
+    LEDGER_CLOSED = "ledger_closed"
+    LEDGER_CURRENT = "ledger_current"
+    LEDGER_DATA = "ledger_data"
+    LEDGER_ENTRY = "ledger_entry"
+
+    # subscription methods
+    SUBSCRIBE = "subscribe"
+    UNSUBSCRIBE = "unsubscribe"
+
+    # server info methods
+    FEE = "fee"
+    MANIFEST = "manifest"
+    SERVER_INFO = "server_info"
+    SERVER_STATE = "server_state"
+
+    # utility methods
+    PING = "ping"
+    RANDOM = "random"
+
 
 @dataclass(frozen=True)
 class Request(BaseModel):
@@ -52,5 +73,14 @@ class Request(BaseModel):
     Represents fields common to all request types.
     """
 
-    method: RequestMethod = field(init=False)
+    method: RequestMethod = REQUIRED
     id: Optional[int] = None
+
+    def to_dict(self: Request) -> Dict[str, Any]:
+        """
+        Returns the dictionary representation of a Request.
+
+        Returns:
+            The dictionary representation of a Request.
+        """
+        return {**super().to_dict(), "method": self.method.name}
