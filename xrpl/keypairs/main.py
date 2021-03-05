@@ -1,6 +1,6 @@
 """Public interface for keypairs module."""
 from secrets import token_bytes
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Type
 
 from typing_extensions import Final
 
@@ -14,7 +14,7 @@ from xrpl.keypairs.secp256k1 import SECP256K1
 
 _VERIFICATION_MESSAGE: Final[bytes] = b"This test message should verify."
 
-_ALGORITHM_TO_MODULE_MAP: Final[Dict[CryptoAlgorithm, CryptoImplementation]] = {
+_ALGORITHM_TO_MODULE_MAP: Final[Dict[CryptoAlgorithm, Type[CryptoImplementation]]] = {
     CryptoAlgorithm.ED25519: ED25519,
     CryptoAlgorithm.SECP256K1: SECP256K1,
 }
@@ -128,7 +128,7 @@ def is_valid_message(message: bytes, signature: bytes, public_key: str) -> bool:
     )
 
 
-def _get_module_from_key(key: str) -> CryptoImplementation:
+def _get_module_from_key(key: str) -> Type[CryptoImplementation]:
     if key.startswith(ED_PREFIX):
         return ED25519
     return SECP256K1
