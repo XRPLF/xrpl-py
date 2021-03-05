@@ -5,7 +5,7 @@ See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
 from __future__ import annotations
 
 import re
-from typing import Union
+from typing import Optional, Type, Union
 
 from typing_extensions import Final
 
@@ -15,7 +15,7 @@ from xrpl.binarycodec.types.uint import UInt
 
 _WIDTH: Final[int] = 8  # 64 / 8
 
-_HEX_REGEX: Final[re.Pattern] = re.compile("^[A-F0-9]{16}$")
+_HEX_REGEX: Final[re.Pattern[str]] = re.compile("^[A-F0-9]{16}$")
 
 
 class UInt64(UInt):
@@ -29,12 +29,15 @@ class UInt64(UInt):
         super().__init__(buffer)
 
     @classmethod
-    def from_parser(cls: UInt64, parser: BinaryParser) -> UInt64:
+    def from_parser(
+        cls: Type[UInt64], parser: BinaryParser, length_hint: Optional[int] = None
+    ) -> UInt64:
         """
         Construct a new UInt64 type from a BinaryParser.
 
         Args:
             parser: The BinaryParser to construct a UInt64 from.
+            length_hint: The number of bytes to consume from the parser.
 
         Returns:
             The UInt64 constructed from parser.
@@ -42,7 +45,7 @@ class UInt64(UInt):
         return cls(parser.read(_WIDTH))
 
     @classmethod
-    def from_value(cls: UInt64, value: Union[str, int]) -> UInt64:
+    def from_value(cls: Type[UInt64], value: Union[str, int]) -> UInt64:
         """
         Construct a new UInt64 type from a number.
 

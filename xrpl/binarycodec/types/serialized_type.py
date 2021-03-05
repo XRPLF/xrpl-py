@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Union
+from typing import Any, Optional, Type, Union
 
 
 class SerializedType(ABC):
@@ -12,9 +12,10 @@ class SerializedType(ABC):
         """Construct a new SerializedType."""
         self.buffer = buffer
 
+    @classmethod
     @abstractmethod
     def from_parser(
-        self: SerializedType,
+        cls: Type[SerializedType],
         parser: Any,
         length_hint: Optional[int] = None
         # TODO: resolve Any (can't be `BinaryParser` because of circular imports)
@@ -31,10 +32,9 @@ class SerializedType(ABC):
         """
         raise NotImplementedError("SerializedType.from_parser not implemented.")
 
+    @classmethod
     @abstractmethod
-    def from_value(
-        self: SerializedType, value: Union[SerializedType, str]
-    ) -> SerializedType:
+    def from_value(cls: Type[SerializedType], value: Any) -> SerializedType:
         """
         Construct a new SerializedType from a literal value.
 
@@ -66,7 +66,7 @@ class SerializedType(ABC):
         """
         return self.buffer
 
-    def to_json(self: SerializedType) -> str:
+    def to_json(self: SerializedType) -> Union[str, int]:
         """
         Returns the JSON representation of a SerializedType.
 

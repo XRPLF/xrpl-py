@@ -20,7 +20,7 @@ class Hash(SerializedType, ABC):
         _LENGTH:  The length of this hash in bytes.
     """
 
-    _LENGTH: Final[int]
+    _LENGTH: Final[int] = -1
 
     def __init__(self: Hash, buffer: bytes) -> None:
         """
