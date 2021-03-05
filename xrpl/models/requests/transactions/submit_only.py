@@ -23,8 +23,8 @@ twice since it has the same sequence number as the old transaction.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
 
+from xrpl.models.base_model import REQUIRED
 from xrpl.models.requests.request import Request, RequestMethod
 
 
@@ -56,5 +56,5 @@ class SubmitOnly(Request):
         default_factory=lambda: RequestMethod.SUBMIT, init=False
     )
     # submit-only mode
-    tx_blob: Optional[str] = None
+    tx_blob: str = REQUIRED
     fail_hard: bool = False
