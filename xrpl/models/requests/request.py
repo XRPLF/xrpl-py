@@ -45,7 +45,7 @@ class Request(BaseModel):
     method: RequestMethod = field(init=False)
     id: Optional[int] = None
 
-    def to_dict(self: BaseModel) -> Dict[str, Any]:
+    def to_dict(self: Request) -> Dict[str, Any]:
         """
         Returns the dictionary representation of a Request.
 
