@@ -32,7 +32,6 @@ class RequestMethod(str, Enum):
     SUBMIT_MULTISIGNED = "submit_multisigned"
     TRANSACTION_ENTRY = "transaction_entry"
     TX = "tx"
-    TX_HISTORY = "tx_history"
 
     # channel methods
     CHANNEL_AUTHORIZE = "channel_authorize"
