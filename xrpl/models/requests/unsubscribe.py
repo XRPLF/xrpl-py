@@ -1,6 +1,8 @@
 """
 The unsubscribe command tells the server to stop sending
 messages for a particular subscription or set of subscriptions.
+
+WebSocket API only.
 """
 from dataclasses import dataclass
 from typing import Any, List, Optional
@@ -14,6 +16,8 @@ class Unsubscribe(Request):
     """
     The unsubscribe command tells the server to stop sending
     messages for a particular subscription or set of subscriptions.
+
+    WebSocket API only.
     """
 
     method: RequestMethod = RequestMethod.UNSUBSCRIBE

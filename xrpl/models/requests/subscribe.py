@@ -1,6 +1,8 @@
 """
 The subscribe method requests periodic notifications from the server
 when certain events happen.
+
+WebSocket API only.
 """
 from dataclasses import dataclass
 from enum import Enum
@@ -27,6 +29,8 @@ class Subscribe(Request):
     """
     The subscribe method requests periodic notifications from the server
     when certain events happen.
+
+    WebSocket API only.
     """
 
     method: RequestMethod = RequestMethod.SUBSCRIBE
