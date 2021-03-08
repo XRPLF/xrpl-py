@@ -22,7 +22,7 @@ class Hash256(Hash):
 
 
     Attributes:
-        : The length of this hash in bytes.
+        _LENGTH: The length of this hash in bytes.
     """
 
     _LENGTH: Final[int] = 32
@@ -64,3 +64,6 @@ class Hash256(Hash):
         """
         num_bytes = length_hint if length_hint is not None else cls._LENGTH
         return cls(parser.read(num_bytes))
+
+    def _get_length(self: Hash256) -> int:
+        return self._LENGTH

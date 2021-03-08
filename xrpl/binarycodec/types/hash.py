@@ -3,10 +3,8 @@
 """
 from __future__ import annotations  # Requires Python 3.7+
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Optional
-
-from typing_extensions import Final
 
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.serialized_type import SerializedType
@@ -16,12 +14,7 @@ class Hash(SerializedType, ABC):
     """
     Base class for XRPL Hash types.
     `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
-
-    Attributes:
-        _LENGTH:  The length of this hash in bytes.
     """
-
-    _LENGTH: Final[int] = -1
 
     def __init__(self: Hash, buffer: Optional[bytes] = None) -> None:
         """
@@ -31,12 +24,16 @@ class Hash(SerializedType, ABC):
             buffer: The byte buffer that will be used to store the serialized encoding
             of this field.
         """
-        buffer = buffer if buffer is not None else bytes(self._LENGTH)
+        buffer = buffer if buffer is not None else bytes(self._get_length())
 
-        if len(buffer) != self._LENGTH:
+        if len(buffer) != self._get_length():
             raise XRPLBinaryCodecException("Invalid hash length {}".format(len(buffer)))
         super().__init__(buffer)
 
     def __str__(self: Hash) -> str:
         """Returns a hex-encoded string representation of the bytes buffer."""
         return self.to_hex()
+
+    @abstractmethod
+    def _get_length(self: Hash) -> int:
+        pass
