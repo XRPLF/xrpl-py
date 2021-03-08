@@ -16,6 +16,7 @@ class Wallet:
 
     def __str__(self: Wallet) -> str:
         """Returns a string representation of a Wallet."""
-        return "seed: {}\npub_key: {}\npriv_key: {}\nclassic_address: {}\n".format(
-            self.seed, self.pub_key, self.priv_key, self.classic_address
+        return (
+            f"seed: {self.seed}\npub_key: {self.pub_key}\n"
+            f"priv_key: {self.priv_key}\nclassic_address: {self.classic_address}\n"
         )
