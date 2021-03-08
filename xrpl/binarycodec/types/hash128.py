@@ -5,7 +5,9 @@ of 128 bits (16 bytes).
 """
 from __future__ import annotations
 
-from typing import Final, Optional, Type
+from typing import Optional, Type
+
+from typing_extensions import Final
 
 from xrpl.binarycodec import XRPLBinaryCodecException
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
@@ -24,11 +26,6 @@ class Hash128(Hash):
     """
 
     _LENGTH: Final[int] = 16
-
-    def __init__(self: Hash128, buffer: Optional[bytes] = None) -> None:
-        """Construct a Hash128."""
-        buffer = buffer if buffer is not None else bytes(self._LENGTH)
-        super().__init__(buffer)
 
     @classmethod
     def from_value(cls: Type[Hash128], value: str) -> Hash128:

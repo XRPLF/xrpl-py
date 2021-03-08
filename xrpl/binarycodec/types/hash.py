@@ -31,6 +31,8 @@ class Hash(SerializedType, ABC):
             buffer: The byte buffer that will be used to store the serialized encoding
             of this field.
         """
+        buffer = buffer if buffer is not None else bytes(self._LENGTH)
+
         if len(buffer) != self._LENGTH:
             raise XRPLBinaryCodecException("Invalid hash length {}".format(len(buffer)))
         super().__init__(buffer)
