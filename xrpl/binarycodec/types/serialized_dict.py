@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Type, Union
 
 from typing_extensions import Final
 
@@ -30,7 +30,7 @@ _SOURCE_TAG: Final[str] = "SourceTag"
 _DEST_TAG: Final[str] = "DestinationTag"
 
 
-def _handle_xaddress(field: str, xaddress: str) -> Dict[str, str]:
+def _handle_xaddress(field: str, xaddress: str) -> Dict[str, Union[str, int]]:
     """Break down an X-Address into a classic address and a tag.
 
     Args:
@@ -83,7 +83,11 @@ class SerializedDict(SerializedType):
     """Class for serializing/deserializing Dicts of objects."""
 
     @classmethod
-    def from_parser(cls: SerializedDict, parser: BinaryParser) -> SerializedDict:
+    def from_parser(
+        cls: Type[SerializedDict],
+        parser: BinaryParser,
+        _length_hint: Optional[None] = None,
+    ) -> SerializedDict:
         """
         Construct a SerializedDict from a BinaryParser.
 
@@ -111,7 +115,7 @@ class SerializedDict(SerializedType):
 
     @classmethod
     def from_value(
-        cls: SerializedDict, value: Dict[str, Any], only_signing: bool = False
+        cls: Type[SerializedDict], value: Dict[str, Any], only_signing: bool = False
     ) -> SerializedDict:
         """
         Create a SerializedDict object from a dictionary.
