@@ -26,6 +26,7 @@ class BaseModel(ABC):
             A new BaseModel object, constructed using the given parameters.
         """
         from xrpl.models.amounts import Amount, IssuedCurrencyAmount
+        from xrpl.models.currencies import XRP, Currency, IssuedCurrency
 
         class_types = get_type_hints(cls)
         args = {}
@@ -42,6 +43,20 @@ class BaseModel(ABC):
                 if param_type == Amount:  # special case, NewType
                     if isinstance(value[param], dict):
                         new_obj = IssuedCurrencyAmount.from_dict(value[param])
+                        args[param] = new_obj
+                elif param_type == Currency:
+                    if isinstance(value[param], dict):
+                        if "currency" in value[param] and "issuer" in value[param]:
+                            new_obj = IssuedCurrency.from_dict(value[param])
+                        elif "currency" in value[param]:
+                            new_obj = XRP.from_dict(value[param])
+                        else:
+                            raise XRPLModelValidationException(
+                                f"No valid type for {param}"
+                            )
+                        args[param] = new_obj
+                    if isinstance(value[param], str):
+                        new_obj = XRP(currency=value[param])
                         args[param] = new_obj
         return cls(**args)
 

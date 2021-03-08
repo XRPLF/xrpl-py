@@ -70,7 +70,7 @@ class Transaction(BaseModel):
         Returns:
             The dictionary representation of a Transaction.
         """
-        return {**super().to_dict(), "transaction_type": self.transaction_type.name}
+        return {**super().to_dict(), "transaction_type": self.transaction_type.value}
 
     def has_flag(self: Transaction, flag: int) -> bool:
         """

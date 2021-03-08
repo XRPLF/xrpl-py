@@ -1,6 +1,7 @@
 import unittest
 
 from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.models.requests.paths.book_offers import BookOffers
 from xrpl.models.transactions import CheckCreate
 
 currency = "BTC"
@@ -47,3 +48,22 @@ class TestBaseModel(unittest.TestCase):
             "flags": 0,
         }
         self.assertEqual(expected_dict, check_create.to_dict())
+
+    def test_from_dict_recursive_currency(self):
+        xrp = "XRP"
+        issued_currency = {
+            "currency": currency,
+            "issuer": issuer,
+        }
+        book_offers_dict = {
+            "taker_gets": xrp,
+            "taker_pays": issued_currency,
+        }
+        book_offers = BookOffers.from_dict(book_offers_dict)
+
+        expected_dict = {
+            **book_offers_dict,
+            "method": "book_offers",
+            "taker_gets": {"currency": "XRP"},
+        }
+        self.assertEqual(expected_dict, book_offers.to_dict())
