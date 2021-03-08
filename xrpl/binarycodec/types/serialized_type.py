@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Type
+from typing import Any, Type
 
 
 class SerializedType(ABC):
@@ -16,9 +16,10 @@ class SerializedType(ABC):
     @abstractmethod
     def from_parser(
         cls: Type[SerializedType],
+        # TODO: Resolve Any (can't be `BinaryParser` because of circular imports)
         parser: Any,
-        length_hint: Optional[int] = None
-        # TODO: resolve Any (can't be `BinaryParser` because of circular imports)
+        # length_hint is Any so that subclasses can choose whether or not to require it.
+        length_hint: Any,
     ) -> SerializedType:
         """
         Constructs a new SerializedType from a BinaryParser.
