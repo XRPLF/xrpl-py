@@ -50,7 +50,7 @@ def _contains_decimal(string: str) -> bool:
     return string.find(".") == -1
 
 
-def _is_valid_issued_currency_amount(value: Dict) -> bool:
+def _is_valid_issued_currency_amount(value: Dict[str, str]) -> bool:
     """
     Determines whether given dictionary represents a valid issued currency amount,
     which must contain exactly "currency", "issuer" and "value" keys.
@@ -217,7 +217,7 @@ def _serialize_xrp_amount(value: str) -> bytes:
     return value_with_pos_bit.to_bytes(8, byteorder="big")
 
 
-def _serialize_issued_currency_amount(value: Dict) -> bytes:
+def _serialize_issued_currency_amount(value: Dict[str, str]) -> bytes:
     """Serializes an issued currency amount.
 
     Args:
