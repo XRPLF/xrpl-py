@@ -1,10 +1,21 @@
-"""TODO: docstring"""
+"""Utility functions for transaction methods."""
+
+from typing import Any, Dict
 
 from xrpl.models.response import Response, ResponseStatus, ResponseType
 
 
-def json_to_response(json: dict) -> Response:
-    """Converts a JSON response from the rippled server into a Response object."""
+def json_to_response(json: Dict[str, Any]) -> Response:
+    """
+    Converts a JSON response from the rippled server into a Response object.
+
+    Args:
+        json: The dictionary that was received from the rippled server.
+
+    Returns:
+        A Response object that contains all the information from the server in a more
+        usable form.
+    """
     result = json["result"]
     raw_status = result["status"]
     if raw_status == "success":
