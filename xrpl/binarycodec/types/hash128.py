@@ -25,7 +25,7 @@ class Hash128(Hash):
 
     _LENGTH: Final[int] = 16
 
-    def __init__(self: Hash128, buffer: bytes = None) -> None:
+    def __init__(self: Hash128, buffer: Optional[bytes] = None) -> None:
         """Construct a Hash128."""
         buffer = buffer if buffer is not None else bytes(self._LENGTH)
         super().__init__(buffer)

@@ -25,7 +25,7 @@ class Hash256(Hash):
 
     _LENGTH: Final[int] = 32
 
-    def __init__(self: Hash256, buffer: bytes = None) -> None:
+    def __init__(self: Hash256, buffer: Optional[bytes] = None) -> None:
         """Construct a Hash256."""
         buffer = buffer if buffer is not None else bytes(self._LENGTH)
         super().__init__(buffer)

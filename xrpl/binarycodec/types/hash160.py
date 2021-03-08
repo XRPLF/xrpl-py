@@ -24,7 +24,7 @@ class Hash160(Hash):
 
     _LENGTH: Final[int] = 20
 
-    def __init__(self: Hash160, buffer: bytes = None) -> None:
+    def __init__(self: Hash160, buffer: Optional[bytes] = None) -> None:
         """Construct a Hash160."""
         buffer = buffer if buffer is not None else bytes(self._LENGTH)
         super().__init__(buffer)

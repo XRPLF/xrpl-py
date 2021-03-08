@@ -4,6 +4,7 @@
 from __future__ import annotations  # Requires Python 3.7+
 
 from abc import ABC
+from typing import Optional
 
 from typing_extensions import Final
 
@@ -22,12 +23,13 @@ class Hash(SerializedType, ABC):
 
     _LENGTH: Final[int] = -1
 
-    def __init__(self: Hash, buffer: bytes) -> None:
+    def __init__(self: Hash, buffer: Optional[bytes] = None) -> None:
         """
         Construct a Hash.
 
-        :param buffer: The byte buffer that will be used to store
-                        the serialized encoding of this field.
+        Args:
+            buffer: The byte buffer that will be used to store the serialized encoding
+            of this field.
         """
         if len(buffer) != self._LENGTH:
             raise XRPLBinaryCodecException("Invalid hash length {}".format(len(buffer)))
