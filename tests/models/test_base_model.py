@@ -14,6 +14,15 @@ amount_dict = {
     "value": value,
 }
 
+account = issuer
+destination = issuer
+send_max = amount_dict
+check_create_dict = {
+    "account": account,
+    "destination": destination,
+    "send_max": send_max,
+}
+
 
 class TestBaseModel(unittest.TestCase):
     maxDiff = 1000
@@ -35,14 +44,6 @@ class TestBaseModel(unittest.TestCase):
         self.assertEqual(amount, IssuedCurrencyAmount(**amount_dict))
 
     def test_from_dict_recursive_amount(self):
-        account = issuer
-        destination = issuer
-        send_max = amount_dict
-        check_create_dict = {
-            "account": account,
-            "destination": destination,
-            "send_max": send_max,
-        }
         check_create = CheckCreate.from_dict(check_create_dict)
 
         expected_dict = {
@@ -72,16 +73,7 @@ class TestBaseModel(unittest.TestCase):
         self.assertEqual(expected_dict, book_offers.to_dict())
 
     def test_from_dict_recursive_transaction(self):
-        account = issuer
-        destination = issuer
-        send_max = amount_dict
-        check_create_dict = {
-            "account": account,
-            "destination": destination,
-            "send_max": send_max,
-        }
         transaction = CheckCreate.from_dict(check_create_dict)
-
         sign_request_dict = {"transaction": transaction.to_dict()}
         sign_request = SignRequest.from_dict(sign_request_dict)
 
@@ -95,16 +87,7 @@ class TestBaseModel(unittest.TestCase):
         self.assertEqual(expected_dict, sign_request.to_dict())
 
     def test_from_dict_recursive_transaction_tx_json(self):
-        account = issuer
-        destination = issuer
-        send_max = amount_dict
-        check_create_dict = {
-            "account": account,
-            "destination": destination,
-            "send_max": send_max,
-        }
         transaction = CheckCreate.from_dict(check_create_dict)
-
         sign_request_dict = {"tx_json": transaction.to_dict()}
         sign_request = SignRequest.from_dict(sign_request_dict)
 
