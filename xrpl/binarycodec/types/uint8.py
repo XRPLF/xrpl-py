@@ -4,6 +4,8 @@ See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
 """
 from __future__ import annotations
 
+from typing import Optional, Type
+
 from typing_extensions import Final
 
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
@@ -24,7 +26,9 @@ class UInt8(UInt):
         super().__init__(buffer)
 
     @classmethod
-    def from_parser(cls: UInt8, parser: BinaryParser) -> UInt8:
+    def from_parser(
+        cls: Type[UInt8], parser: BinaryParser, _length_hint: Optional[int] = None
+    ) -> UInt8:
         """
         Construct a new UInt8 type from a BinaryParser.
 
@@ -37,7 +41,7 @@ class UInt8(UInt):
         return cls(parser.read(_WIDTH))
 
     @classmethod
-    def from_value(cls: UInt8, value: int) -> UInt8:
+    def from_value(cls: Type[UInt8], value: int) -> UInt8:
         """
         Construct a new UInt8 type from a number.
 
