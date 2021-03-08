@@ -34,7 +34,7 @@ class BaseModel(ABC):
                 raise XRPLModelValidationException(
                     f"{param} not a valid parameter for {cls.__name__}"
                 )
-            if isinstance(value[param], class_types[param]):
+            if type(value[param]) == class_types[param]:
                 args[param] = value[param]
             else:
                 param_type = class_types[param]

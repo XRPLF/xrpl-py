@@ -40,4 +40,10 @@ class TestBaseModel(unittest.TestCase):
             "send_max": send_max,
         }
         check_create = CheckCreate.from_dict(check_create_dict)
-        print(check_create.to_dict())
+
+        expected_dict = {
+            **check_create_dict,
+            "transaction_type": "CheckCreate",
+            "flags": 0,
+        }
+        self.assertEqual(expected_dict, check_create.to_dict())
