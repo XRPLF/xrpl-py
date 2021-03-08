@@ -88,7 +88,7 @@ class SECP256K1(CryptoImplementation):
         return cast(
             bytes,
             _SIGNER.sign_rfc6979(
-                sha512_first_half(message),
+                sha512_first_half(cast(bytes, message)),
                 wrapped_private,
                 sha256,
                 canonical=True,
@@ -113,7 +113,10 @@ class SECP256K1(CryptoImplementation):
         public_key_point = _CURVE.decode_point(bytes.fromhex(public_key))
         wrapped_public = ECPublicKey(public_key_point)
         return cast(
-            bool, _SIGNER.verify(sha512_first_half(message), signature, wrapped_public)
+            bool,
+            _SIGNER.verify(
+                sha512_first_half(cast(bytes, message)), signature, wrapped_public
+            ),
         )
 
     @classmethod
