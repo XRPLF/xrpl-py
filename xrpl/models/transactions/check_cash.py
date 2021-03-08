@@ -43,7 +43,7 @@ class CheckCash(Transaction):
     check_id: str = REQUIRED
     amount: Optional[Amount] = None
     deliver_min: Optional[Amount] = None
-    transaction_type: TransactionType = TransactionType.CheckCash
+    transaction_type: TransactionType = TransactionType.CHECK_CASH
 
     def _get_errors(self: CheckCash) -> Dict[str, str]:
         errors = super()._get_errors()

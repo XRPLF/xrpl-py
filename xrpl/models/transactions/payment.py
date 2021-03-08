@@ -53,7 +53,7 @@ class Payment(Transaction):
     paths: Optional[List[Any]] = None
     send_max: Optional[Amount] = None
     deliver_min: Optional[Amount] = None
-    transaction_type: TransactionType = TransactionType.Payment
+    transaction_type: TransactionType = TransactionType.PAYMENT
 
     def _get_errors(self: Payment) -> Dict[str, str]:
         errors = super()._get_errors()

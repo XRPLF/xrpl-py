@@ -25,4 +25,4 @@ class CheckCancel(Transaction):
     """
 
     check_id: str = REQUIRED
-    transaction_type: TransactionType = TransactionType.CheckCancel
+    transaction_type: TransactionType = TransactionType.CHECK_CANCEL

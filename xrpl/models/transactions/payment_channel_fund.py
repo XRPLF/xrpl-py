@@ -27,4 +27,4 @@ class PaymentChannelFund(Transaction):
     channel: str = REQUIRED
     amount: str = REQUIRED
     expiration: Optional[int] = None
-    transaction_type: TransactionType = TransactionType.PaymentChannelFund
+    transaction_type: TransactionType = TransactionType.PAYMENT_CHANNEL_FUND
