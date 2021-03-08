@@ -31,8 +31,8 @@ from enum import Enum
 from typing import Any, List, Optional
 
 from xrpl.models.amounts import Amount
-from xrpl.models.base_model import REQUIRED
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.required import REQUIRED
 
 
 class PathFindSubcommand(str, Enum):

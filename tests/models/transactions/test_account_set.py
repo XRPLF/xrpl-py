@@ -22,7 +22,7 @@ class TestAccountSet(TestCase):
             "sequence": _SEQUENCE,
         }
         with self.assertRaises(XRPLModelValidationException):
-            AccountSet.from_dict(transaction_dict)
+            AccountSet(**transaction_dict)
 
     def test_uppercase_domain(self):
         clear_flag = 3
@@ -35,7 +35,7 @@ class TestAccountSet(TestCase):
             "sequence": _SEQUENCE,
         }
         with self.assertRaises(XRPLModelValidationException):
-            AccountSet.from_dict(transaction_dict)
+            AccountSet(**transaction_dict)
 
     def test_invalid_tick_size(self):
         clear_flag = 3
@@ -48,7 +48,7 @@ class TestAccountSet(TestCase):
             "sequence": _SEQUENCE,
         }
         with self.assertRaises(XRPLModelValidationException):
-            AccountSet.from_dict(transaction_dict)
+            AccountSet(**transaction_dict)
 
     def test_invalid_transfer_rate(self):
         clear_flag = 3
@@ -61,4 +61,4 @@ class TestAccountSet(TestCase):
             "sequence": _SEQUENCE,
         }
         with self.assertRaises(XRPLModelValidationException):
-            AccountSet.from_dict(transaction_dict)
+            AccountSet(**transaction_dict)

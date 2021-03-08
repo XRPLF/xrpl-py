@@ -15,9 +15,9 @@ from dataclasses import dataclass
 from typing import List, Optional, Union
 
 from xrpl.models.amounts import Amount
-from xrpl.models.base_model import REQUIRED
 from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.required import REQUIRED
 
 
 @dataclass(frozen=True)
