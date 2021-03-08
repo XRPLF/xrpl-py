@@ -24,6 +24,9 @@ class BaseModel(ABC):
 
         Returns:
             A new BaseModel object, constructed using the given parameters.
+
+        Raises:
+            XRPLModelValidationException: If the dictionary provided is invalid.
         """
         from xrpl.models.amounts import IssuedCurrencyAmount
         from xrpl.models.currencies import XRP, IssuedCurrency
