@@ -4,7 +4,7 @@ of 160 bits (20 bytes).
 """
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Type
 
 from xrpl.binarycodec import XRPLBinaryCodecException
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
@@ -53,7 +53,7 @@ class Hash160(Hash):
 
     @classmethod
     def from_parser(
-        cls: Hash160, parser: BinaryParser, length_hint: Optional[int] = None
+        cls: Type[Hash160], parser: BinaryParser, length_hint: Optional[int] = None
     ) -> Hash160:
         """
         Construct a Hash160 object from an existing BinaryParser.
