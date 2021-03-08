@@ -1,6 +1,6 @@
 """Public interface for keypairs module."""
 from secrets import token_bytes
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Type, cast
 
 from typing_extensions import Final
 
@@ -14,7 +14,7 @@ from xrpl.keypairs.secp256k1 import SECP256K1
 
 _VERIFICATION_MESSAGE: Final[bytes] = b"This test message should verify."
 
-_ALGORITHM_TO_MODULE_MAP: Final[Dict[CryptoAlgorithm, CryptoImplementation]] = {
+_ALGORITHM_TO_MODULE_MAP: Final[Dict[CryptoAlgorithm, Type[CryptoImplementation]]] = {
     CryptoAlgorithm.ED25519: ED25519,
     CryptoAlgorithm.SECP256K1: SECP256K1,
 }
@@ -61,8 +61,10 @@ def derive_keypair(seed: str, validator: bool = False) -> Tuple[str, str]:
     decoded_seed, algorithm = addresscodec.decode_seed(seed)
     module = _ALGORITHM_TO_MODULE_MAP[algorithm]
     public_key, private_key = module.derive_keypair(decoded_seed, validator)
-    signature = module.sign(_VERIFICATION_MESSAGE, private_key)
-    if not module.is_valid_message(_VERIFICATION_MESSAGE, signature, public_key):
+    signature = module.sign(cast(str, _VERIFICATION_MESSAGE), private_key)
+    if not module.is_valid_message(
+        cast(str, _VERIFICATION_MESSAGE), signature, public_key
+    ):
         raise XRPLKeypairsException(
             "Derived keypair did not generate verifiable signature",
         )
@@ -100,7 +102,7 @@ def sign(message: bytes, private_key: str) -> str:
     return (
         _get_module_from_key(private_key)
         .sign(
-            message,
+            cast(str, message),
             private_key,
         )
         .hex()
@@ -122,13 +124,13 @@ def is_valid_message(message: bytes, signature: bytes, public_key: str) -> bool:
         True if message is valid given signature and public key.
     """
     return _get_module_from_key(public_key).is_valid_message(
-        message,
+        cast(str, message),
         signature,
         public_key,
     )
 
 
-def _get_module_from_key(key: str) -> CryptoImplementation:
+def _get_module_from_key(key: str) -> Type[CryptoImplementation]:
     if key.startswith(ED_PREFIX):
         return ED25519
     return SECP256K1
