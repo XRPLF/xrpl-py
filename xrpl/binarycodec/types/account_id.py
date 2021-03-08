@@ -4,6 +4,7 @@ See `AccountID Fields <https://xrpl.org/serialization.html#accountid-fields>`_
 from __future__ import annotations  # Requires Python 3.7+
 
 import re
+from typing import Type
 
 from typing_extensions import Final
 
@@ -32,7 +33,7 @@ class AccountID(Hash160):
             super().__init__(bytes(self.LENGTH))
 
     @classmethod
-    def from_value(cls: AccountID, value: str) -> AccountID:
+    def from_value(cls: Type[AccountID], value: str) -> AccountID:
         """
         Construct an AccountID from a hex string or a base58 r-Address.
 

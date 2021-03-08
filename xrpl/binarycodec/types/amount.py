@@ -5,7 +5,7 @@ See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
 from __future__ import annotations
 
 from decimal import Context, Decimal, setcontext
-from typing import Dict, Optional, Union
+from typing import Any, Dict, Optional, Type, Union
 
 from typing_extensions import Final
 
@@ -50,7 +50,7 @@ def _contains_decimal(string: str) -> bool:
     return string.find(".") == -1
 
 
-def _is_valid_issued_currency_amount(value: Dict) -> bool:
+def _is_valid_issued_currency_amount(value: Dict[str, str]) -> bool:
     """
     Determines whether given dictionary represents a valid issued currency amount,
     which must contain exactly "currency", "issuer" and "value" keys.
@@ -217,7 +217,7 @@ def _serialize_xrp_amount(value: str) -> bytes:
     return value_with_pos_bit.to_bytes(8, byteorder="big")
 
 
-def _serialize_issued_currency_amount(value: Dict) -> bytes:
+def _serialize_issued_currency_amount(value: Dict[str, str]) -> bytes:
     """Serializes an issued currency amount.
 
     Args:
@@ -243,7 +243,7 @@ class Amount(SerializedType):
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls: Amount, value: Union[str, Dict]) -> Amount:
+    def from_value(cls: Type[Amount], value: Union[str, Dict[str, str]]) -> Amount:
         """
          Construct an Amount from an issued currency amount or (for XRP),
         a string amount.
@@ -259,22 +259,19 @@ class Amount(SerializedType):
         Raises:
             XRPLBinaryCodecException: if an Amount cannot be constructed.
         """
-        if not isinstance(value, (str, dict)):
-            raise XRPLBinaryCodecException(
-                "Invalid type to construct an Amount: expected str or dict,"
-                " received {}.".format(value.__class__.__name__)
-            )
-
         if isinstance(value, str):
             return cls(_serialize_xrp_amount(value))
-        if _is_valid_issued_currency_amount(value):
+        if isinstance(value, dict) and _is_valid_issued_currency_amount(value):
             return cls(_serialize_issued_currency_amount(value))
 
-        raise XRPLBinaryCodecException("Invalid type to construct an Amount")
+        raise XRPLBinaryCodecException(
+            "Invalid type to construct an Amount: expected str or dict,"
+            " received {}.".format(value.__class__.__name__)
+        )
 
     @classmethod
     def from_parser(
-        cls: Amount, parser: BinaryParser, length_hint: Optional[int] = None
+        cls: Type[Amount], parser: BinaryParser, length_hint: Optional[int] = None
     ) -> Amount:
         """Construct an Amount from an existing BinaryParser.
 
@@ -292,7 +289,7 @@ class Amount(SerializedType):
             num_bytes = _NATIVE_AMOUNT_BYTE_LENGTH
         return cls(parser.read(num_bytes))
 
-    def to_json(self: Amount) -> Union[str, Dict]:
+    def to_json(self: Amount) -> Union[str, Dict[Any, Any]]:
         """Construct a JSON object representing this Amount.
 
         Returns:

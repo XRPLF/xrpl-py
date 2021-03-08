@@ -31,4 +31,4 @@ class PaymentChannelCreate(Transaction):
     public_key: str = REQUIRED
     cancel_after: Optional[int] = None
     destination_tag: Optional[int] = None
-    transaction_type: TransactionType = TransactionType.PaymentChannelCreate
+    transaction_type: TransactionType = TransactionType.PAYMENT_CHANNEL_CREATE

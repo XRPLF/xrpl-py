@@ -3,7 +3,7 @@ See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
 """
 from __future__ import annotations
 
-from typing import Union
+from typing import Optional, Type, Union
 
 from typing_extensions import Final
 
@@ -25,7 +25,9 @@ class UInt32(UInt):
         super().__init__(buffer)
 
     @classmethod
-    def from_parser(cls: UInt32, parser: BinaryParser) -> UInt32:
+    def from_parser(
+        cls: Type[UInt32], parser: BinaryParser, _length_hint: Optional[int] = None
+    ) -> UInt32:
         """
         Construct a new UInt32 type from a BinaryParser.
 
@@ -38,7 +40,7 @@ class UInt32(UInt):
         return cls(parser.read(_WIDTH))
 
     @classmethod
-    def from_value(cls: UInt32, value: Union[str, int]) -> UInt32:
+    def from_value(cls: Type[UInt32], value: Union[str, int]) -> UInt32:
         """
         Construct a new UInt32 type from a number.
 

@@ -37,4 +37,4 @@ class TrustSet(Transaction):
     limit_amount: IssuedCurrencyAmount = REQUIRED
     quality_in: Optional[int] = None
     quality_out: Optional[int] = None
-    transaction_type: TransactionType = TransactionType.TrustSet
+    transaction_type: TransactionType = TransactionType.TRUST_SET

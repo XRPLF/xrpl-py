@@ -28,5 +28,5 @@ class CheckCreate(Transaction):
     send_max: Amount = REQUIRED
     destination_tag: Optional[int] = None
     expiration: Optional[int] = None
-    invoice_id: Optional[int] = None
-    transaction_type: TransactionType = TransactionType.CheckCreate
+    invoice_id: Optional[str] = None
+    transaction_type: TransactionType = TransactionType.CHECK_CREATE
