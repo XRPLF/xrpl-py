@@ -25,8 +25,9 @@ class BaseModel(ABC):
         Returns:
             A new BaseModel object, constructed using the given parameters.
         """
-        from xrpl.models.amounts import Amount, IssuedCurrencyAmount
-        from xrpl.models.currencies import XRP, Currency, IssuedCurrency
+        from xrpl.models.amounts import IssuedCurrencyAmount
+        from xrpl.models.currencies import XRP, IssuedCurrency
+        from xrpl.models.transactions.transaction import Transaction
 
         class_types = get_type_hints(cls)
         args = {}
@@ -40,11 +41,11 @@ class BaseModel(ABC):
             else:
                 param_type = class_types[param]
                 # TODO: figure out how to make NewTypes work generically (if possible)
-                if param_type == Amount:  # special case, NewType
+                if param_type.__name__ == "Amount":  # special case, NewType
                     if isinstance(value[param], dict):
                         new_obj = IssuedCurrencyAmount.from_dict(value[param])
                         args[param] = new_obj
-                elif param_type == Currency:
+                elif param_type.__name__ == "Currency":  # special case, NewType
                     if isinstance(value[param], dict):
                         if "currency" in value[param] and "issuer" in value[param]:
                             new_obj = IssuedCurrency.from_dict(value[param])
@@ -58,6 +59,23 @@ class BaseModel(ABC):
                     if isinstance(value[param], str):
                         new_obj = XRP(currency=value[param])
                         args[param] = new_obj
+                elif param_type.__name__ == "Transaction":
+                    if "transaction_type" not in value[param]:
+                        raise XRPLModelValidationException(
+                            f"{param} not a valid parameter for {cls.__name__}"
+                        )
+                    type_str = value[param]["transaction_type"]
+                    transaction_type = Transaction.get_transaction_type(type_str)
+                    new_obj = transaction_type.from_dict(value[param])
+                    args[param] = new_obj
+                elif issubclass(param_type, BaseModel):
+                    if not isinstance(value[param], dict):
+                        raise XRPLModelValidationException(
+                            f"{param_type} requires a dictionary of params"
+                        )
+                    new_obj = param_type.from_dict(value[param])
+                    args[param] = new_obj
+
         return cls(**args)
 
     def __post_init__(self: BaseModel) -> None:

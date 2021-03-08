@@ -2,6 +2,7 @@ import unittest
 
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests.paths.book_offers import BookOffers
+from xrpl.models.requests.transactions.sign_request import SignRequest
 from xrpl.models.transactions import CheckCreate
 
 currency = "BTC"
@@ -15,6 +16,8 @@ amount_dict = {
 
 
 class TestBaseModel(unittest.TestCase):
+    maxDiff = 1000
+
     def test_eq(self):
         amount = IssuedCurrencyAmount(**amount_dict)
         self.assertEqual(amount, IssuedCurrencyAmount(**amount_dict))
@@ -67,3 +70,49 @@ class TestBaseModel(unittest.TestCase):
             "taker_gets": {"currency": "XRP"},
         }
         self.assertEqual(expected_dict, book_offers.to_dict())
+
+    def test_from_dict_recursive_transaction(self):
+        account = issuer
+        destination = issuer
+        send_max = amount_dict
+        check_create_dict = {
+            "account": account,
+            "destination": destination,
+            "send_max": send_max,
+        }
+        transaction = CheckCreate.from_dict(check_create_dict)
+
+        sign_request_dict = {"transaction": transaction.to_dict()}
+        sign_request = SignRequest.from_dict(sign_request_dict)
+
+        expected_dict = {
+            "tx_json": transaction.to_dict(),
+            "method": "sign",
+            "fee_mult_max": 10,
+            "fee_div_max": 1,
+            "offline": False,
+        }
+        self.assertEqual(expected_dict, sign_request.to_dict())
+
+    def test_from_dict_recursive_transaction_tx_json(self):
+        account = issuer
+        destination = issuer
+        send_max = amount_dict
+        check_create_dict = {
+            "account": account,
+            "destination": destination,
+            "send_max": send_max,
+        }
+        transaction = CheckCreate.from_dict(check_create_dict)
+
+        sign_request_dict = {"tx_json": transaction.to_dict()}
+        sign_request = SignRequest.from_dict(sign_request_dict)
+
+        expected_dict = {
+            "tx_json": transaction.to_dict(),
+            "method": "sign",
+            "fee_mult_max": 10,
+            "fee_div_max": 1,
+            "offline": False,
+        }
+        self.assertEqual(expected_dict, sign_request.to_dict())
