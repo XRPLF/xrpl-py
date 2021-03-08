@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Any, Dict
+from typing import Any, Dict, get_type_hints
 
 from xrpl.models.exceptions import XRPLModelValidationException
 from xrpl.models.required import REQUIRED
@@ -25,7 +25,25 @@ class BaseModel(ABC):
         Returns:
             A new BaseModel object, constructed using the given parameters.
         """
-        return cls(**value)
+        from xrpl.models.amounts import Amount, IssuedCurrencyAmount
+
+        class_types = get_type_hints(cls)
+        args = {}
+        for param in value:
+            if param not in class_types:
+                raise XRPLModelValidationException(
+                    f"{param} not a valid parameter for {cls.__name__}"
+                )
+            if isinstance(value[param], class_types[param]):
+                args[param] = value[param]
+            else:
+                param_type = class_types[param]
+                # TODO: figure out how to make NewTypes work generically (if possible)
+                if param_type == Amount:  # special case, NewType
+                    if isinstance(value[param], dict):
+                        new_obj = IssuedCurrencyAmount.from_dict(value[param])
+                        args[param] = new_obj
+        return cls(**args)
 
     def __post_init__(self: BaseModel) -> None:
         """Called by dataclasses immediately after __init__."""
