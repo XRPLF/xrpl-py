@@ -5,7 +5,7 @@ See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
 from __future__ import annotations
 
 from decimal import Context, Decimal, setcontext
-from typing import Dict, Optional, Type, Union
+from typing import Any, Dict, Optional, Type, Union
 
 from typing_extensions import Final
 
@@ -243,7 +243,7 @@ class Amount(SerializedType):
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls: Type[Amount], value: Union[str, Dict]) -> Amount:
+    def from_value(cls: Type[Amount], value: Union[str, Dict[str, str]]) -> Amount:
         """
          Construct an Amount from an issued currency amount or (for XRP),
         a string amount.
@@ -259,18 +259,15 @@ class Amount(SerializedType):
         Raises:
             XRPLBinaryCodecException: if an Amount cannot be constructed.
         """
-        if not isinstance(value, (str, dict)):
-            raise XRPLBinaryCodecException(
-                "Invalid type to construct an Amount: expected str or dict,"
-                " received {}.".format(value.__class__.__name__)
-            )
-
         if isinstance(value, str):
             return cls(_serialize_xrp_amount(value))
-        if _is_valid_issued_currency_amount(value):
+        if isinstance(value, dict) and _is_valid_issued_currency_amount(value):
             return cls(_serialize_issued_currency_amount(value))
 
-        raise XRPLBinaryCodecException("Invalid type to construct an Amount")
+        raise XRPLBinaryCodecException(
+            "Invalid type to construct an Amount: expected str or dict,"
+            " received {}.".format(value.__class__.__name__)
+        )
 
     @classmethod
     def from_parser(
@@ -292,7 +289,7 @@ class Amount(SerializedType):
             num_bytes = _NATIVE_AMOUNT_BYTE_LENGTH
         return cls(parser.read(num_bytes))
 
-    def to_json(self: Amount) -> Union[str, Dict]:
+    def to_json(self: Amount) -> Union[str, Dict[Any, Any]]:
         """Construct a JSON object representing this Amount.
 
         Returns:

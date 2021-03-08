@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Type, Union
+from typing import Any, Optional, Type
 
 
 class SerializedType(ABC):
@@ -66,7 +66,7 @@ class SerializedType(ABC):
         """
         return self.buffer
 
-    def to_json(self: SerializedType) -> Union[str, int]:
+    def to_json(self: SerializedType) -> Any:
         """
         Returns the JSON representation of a SerializedType.
 
