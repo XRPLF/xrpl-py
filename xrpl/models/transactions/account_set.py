@@ -38,7 +38,7 @@ class AccountSet(Transaction):
     set_flag: Optional[int] = None
     transfer_rate: Optional[int] = None
     tick_size: Optional[int] = None
-    transaction_type: TransactionType = TransactionType.AccountSet
+    transaction_type: TransactionType = TransactionType.ACCOUNT_SET
 
     def _get_errors(self: AccountSet) -> Dict[str, str]:
         errors = super()._get_errors()

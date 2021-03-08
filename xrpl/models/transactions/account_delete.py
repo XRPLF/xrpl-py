@@ -30,4 +30,4 @@ class AccountDelete(Transaction):
 
     destination: str = REQUIRED
     destination_tag: Optional[int] = None
-    transaction_type: TransactionType = TransactionType.AccountDelete
+    transaction_type: TransactionType = TransactionType.ACCOUNT_DELETE

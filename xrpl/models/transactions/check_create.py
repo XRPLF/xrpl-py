@@ -29,4 +29,4 @@ class CheckCreate(Transaction):
     destination_tag: Optional[int] = None
     expiration: Optional[int] = None
     invoice_id: Optional[int] = None
-    transaction_type: TransactionType = TransactionType.CheckCreate
+    transaction_type: TransactionType = TransactionType.CHECK_CREATE

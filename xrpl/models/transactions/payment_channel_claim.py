@@ -29,4 +29,4 @@ class PaymentChannelClaim(Transaction):
     amount: Optional[str] = None
     signature: Optional[str] = None
     public_key: Optional[str] = None
-    transaction_type: TransactionType = TransactionType.PaymentChannelClaim
+    transaction_type: TransactionType = TransactionType.PAYMENT_CHANNEL_CLAIM

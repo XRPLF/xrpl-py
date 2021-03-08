@@ -22,4 +22,4 @@ class OfferCancel(Transaction):
     """
 
     offer_sequence: Optional[int] = None
-    transaction_type: TransactionType = TransactionType.OfferCancel
+    transaction_type: TransactionType = TransactionType.OFFER_CANCEL

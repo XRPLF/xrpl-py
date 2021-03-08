@@ -29,7 +29,7 @@ class DepositPreauth(Transaction):
 
     authorize: Optional[str] = None
     unauthorize: Optional[str] = None
-    transaction_type: TransactionType = TransactionType.DepositPreauth
+    transaction_type: TransactionType = TransactionType.DEPOSIT_PREAUTH
 
     def _get_errors(self: DepositPreauth) -> Dict[str, str]:
         errors = super()._get_errors()
