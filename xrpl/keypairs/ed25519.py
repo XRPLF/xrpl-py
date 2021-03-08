@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from hashlib import sha512
-from typing import Tuple
+from typing import Tuple, Type, cast
 
 from ecpy.curves import Curve  # type: ignore
 from ecpy.eddsa import EDDSA  # type: ignore
@@ -23,7 +23,7 @@ class ED25519(CryptoImplementation):
 
     @classmethod
     def derive_keypair(
-        cls: ED25519, decoded_seed: bytes, is_validator: bool
+        cls: Type[ED25519], decoded_seed: bytes, is_validator: bool
     ) -> Tuple[str, str]:
         """
         Derives a keypair.
@@ -52,7 +52,7 @@ class ED25519(CryptoImplementation):
         )
 
     @classmethod
-    def sign(cls: ED25519, message: str, private_key: str) -> bytes:
+    def sign(cls: Type[ED25519], message: str, private_key: str) -> bytes:
         """
         Signs a message.
 
@@ -65,11 +65,11 @@ class ED25519(CryptoImplementation):
         """
         raw_private = private_key[len(PREFIX) :]
         wrapped_private = ECPrivateKey(int(raw_private, 16), _CURVE)
-        return _SIGNER.sign(message, wrapped_private)
+        return cast(bytes, _SIGNER.sign(message, wrapped_private))
 
     @classmethod
     def is_valid_message(
-        cls: ED25519, message: str, signature: bytes, public_key: str
+        cls: Type[ED25519], message: str, signature: bytes, public_key: str
     ) -> bool:
         """
         Checks whether or not a message is valid.
@@ -82,20 +82,21 @@ class ED25519(CryptoImplementation):
 
         Returns:
             Whether message is valid given signature and public_key
+
         """
         raw_public = public_key[len(PREFIX) :]
         public_key_point = _CURVE.decode_point(bytes.fromhex(raw_public))
         wrapped_public = ECPublicKey(public_key_point)
-        return _SIGNER.verify(message, signature, wrapped_public)
+        return cast(bool, _SIGNER.verify(message, signature, wrapped_public))
 
     @classmethod
-    def _public_key_to_str(cls: ED25519, key: ECPublicKey) -> str:
-        return _CURVE.encode_point(key.W).hex()
+    def _public_key_to_str(cls: Type[ED25519], key: ECPublicKey) -> str:
+        return cast(str, _CURVE.encode_point(key.W).hex())
 
     @classmethod
-    def _private_key_to_str(cls: ED25519, key: ECPrivateKey) -> str:
+    def _private_key_to_str(cls: Type[ED25519], key: ECPrivateKey) -> str:
         return format(key.d, "x")
 
     @classmethod
-    def _format_key(cls: ED25519, keystr: str) -> str:
+    def _format_key(cls: Type[ED25519], keystr: str) -> str:
         return (PREFIX + keystr).upper()
