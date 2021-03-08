@@ -2,6 +2,7 @@
 from __future__ import annotations  # Requires Python 3.7+
 
 import re
+from typing import Type
 
 from typing_extensions import Final
 
@@ -91,7 +92,7 @@ class Currency(Hash160):
                 self._iso = None
 
     @classmethod
-    def from_value(cls: Currency, value: str) -> Currency:
+    def from_value(cls: Type[Currency], value: str) -> Currency:
         """
         Construct a Currency object from a string representation of a currency.
 
