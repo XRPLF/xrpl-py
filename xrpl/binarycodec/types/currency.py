@@ -2,15 +2,15 @@
 from __future__ import annotations  # Requires Python 3.7+
 
 import re
-from typing import Type
+from typing import Optional, Type
 
 from typing_extensions import Final
 
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.hash160 import Hash160
 
-_ISO_REGEX: Final[re.Pattern] = re.compile("^[A-Z0-9]{3}$")
-_HEX_REGEX: Final[re.Pattern] = re.compile("^[A-F0-9]{40}$")
+_ISO_REGEX: Final[re.Pattern[str]] = re.compile("^[A-Z0-9]{3}$")
+_HEX_REGEX: Final[re.Pattern[str]] = re.compile("^[A-F0-9]{40}$")
 _CURRENCY_CODE_LENGTH: Final[int] = 20  # bytes
 
 
@@ -62,8 +62,9 @@ class Currency(Hash160):
     """
 
     LENGTH: Final[int] = 20
+    _iso: Optional[str] = None
 
-    def __init__(self: Currency, buffer: bytes = None) -> None:
+    def __init__(self: Currency, buffer: Optional[bytes] = None) -> None:
         """Construct a Currency."""
         if buffer is not None:
             super().__init__(buffer)
