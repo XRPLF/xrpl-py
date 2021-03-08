@@ -3,9 +3,10 @@
 """
 from __future__ import annotations  # Requires Python 3.7+
 
-from abc import ABC, abstractmethod
-from typing import Optional
+from abc import ABC, abstractclassmethod
+from typing import Optional, Type
 
+from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.serialized_type import SerializedType
 
@@ -34,6 +35,44 @@ class Hash(SerializedType, ABC):
         """Returns a hex-encoded string representation of the bytes buffer."""
         return self.to_hex()
 
-    @abstractmethod
-    def _get_length(self: Hash) -> int:
+    @classmethod
+    def from_value(cls: Type[Hash], value: str) -> Hash:
+        """
+        Construct a Hash object from a hex string.
+
+        Args:
+            value: The string to construct a Hash object from.
+
+        Returns:
+            The Hash constructed from value.
+
+        Raises:
+            XRPLBinaryCodecException: If the supplied value is of the wrong type.
+        """
+        if not isinstance(value, str):
+            raise XRPLBinaryCodecException(
+                "Invalid type to construct a {}: expected str,"
+                " received {}.".format(cls.__name__, value.__class__.__name__)
+            )
+        return cls(bytes.fromhex(value))
+
+    @classmethod
+    def from_parser(
+        cls: Type[Hash], parser: BinaryParser, length_hint: Optional[int] = None
+    ) -> Hash:
+        """
+        Construct a Hash object from an existing BinaryParser.
+
+        Args:
+            parser: The parser to construct Hash from.
+            length_hint: The number of bytes to consume from the parser.
+
+        Returns:
+            The Hash constructed from the parser.
+        """
+        num_bytes = length_hint if length_hint is not None else cls._get_length()
+        return cls(parser.read(num_bytes))
+
+    @abstractclassmethod
+    def _get_length(cls: Hash) -> int:
         pass
