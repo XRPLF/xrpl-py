@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from hashlib import sha256
-from typing import Callable, Tuple, Type
+from typing import Callable, Tuple, Type, cast
 
 from ecpy.curves import Curve  # type: ignore
 from ecpy.ecdsa import ECDSA  # type: ignore
@@ -85,11 +85,14 @@ class SECP256K1(CryptoImplementation):
             The signed message.
         """
         wrapped_private = ECPrivateKey(int(private_key, 16), _CURVE)
-        return _SIGNER.sign_rfc6979(
-            sha512_first_half(message),
-            wrapped_private,
-            sha256,
-            canonical=True,
+        return cast(
+            bytes,
+            _SIGNER.sign_rfc6979(
+                sha512_first_half(cast(bytes, message)),
+                wrapped_private,
+                sha256,
+                canonical=True,
+            ),
         )
 
     @classmethod
@@ -109,7 +112,12 @@ class SECP256K1(CryptoImplementation):
         """
         public_key_point = _CURVE.decode_point(bytes.fromhex(public_key))
         wrapped_public = ECPublicKey(public_key_point)
-        return _SIGNER.verify(sha512_first_half(message), signature, wrapped_public)
+        return cast(
+            bool,
+            _SIGNER.verify(
+                sha512_first_half(cast(bytes, message)), signature, wrapped_public
+            ),
+        )
 
     @classmethod
     def _format_keys(
