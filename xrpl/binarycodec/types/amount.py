@@ -5,7 +5,7 @@ See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
 from __future__ import annotations
 
 from decimal import Context, Decimal, setcontext
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Type, Union
 
 from typing_extensions import Final
 
@@ -243,7 +243,7 @@ class Amount(SerializedType):
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls: Amount, value: Union[str, Dict]) -> Amount:
+    def from_value(cls: Type[Amount], value: Union[str, Dict]) -> Amount:
         """
          Construct an Amount from an issued currency amount or (for XRP),
         a string amount.
@@ -274,7 +274,7 @@ class Amount(SerializedType):
 
     @classmethod
     def from_parser(
-        cls: Amount, parser: BinaryParser, length_hint: Optional[int] = None
+        cls: Type[Amount], parser: BinaryParser, length_hint: Optional[int] = None
     ) -> Amount:
         """Construct an Amount from an existing BinaryParser.
 
