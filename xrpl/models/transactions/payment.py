@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from xrpl.models.amount import Amount, is_xrp
+from xrpl.models.amounts import Amount, is_xrp
 from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
 
 

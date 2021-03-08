@@ -8,7 +8,7 @@ Offer object if not completely fulfilled when placed. Offers can be partially fu
 from dataclasses import dataclass
 from typing import Optional
 
-from xrpl.models.amount import Amount
+from xrpl.models.amounts import Amount
 from xrpl.models.base_model import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionType
 
