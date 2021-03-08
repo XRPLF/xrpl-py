@@ -15,7 +15,7 @@ class TestTransaction(TestCase):
             Transaction(
                 fee=_FEE,
                 sequence=_SEQUENCE,
-                transaction_type=TransactionType.AccountDelete,
+                transaction_type=TransactionType.ACCOUNT_DELETE,
             )
 
     def test_initializes_if_all_required_fields_present(self):
@@ -23,7 +23,7 @@ class TestTransaction(TestCase):
             account=_ACCOUNT,
             fee=_FEE,
             sequence=_SEQUENCE,
-            transaction_type=TransactionType.AccountDelete,
+            transaction_type=TransactionType.ACCOUNT_DELETE,
         )
         self.assertTrue(tx.is_valid())
 
@@ -32,7 +32,7 @@ class TestTransaction(TestCase):
             account=_ACCOUNT,
             fee=_FEE,
             sequence=_SEQUENCE,
-            transaction_type=TransactionType.AccountDelete,
+            transaction_type=TransactionType.ACCOUNT_DELETE,
         )
         value = tx.to_dict()["transaction_type"]
         self.assertEqual(type(value), str)

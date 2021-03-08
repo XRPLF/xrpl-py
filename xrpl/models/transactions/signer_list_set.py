@@ -36,7 +36,7 @@ class SignerListSet(Transaction):
     signer_quorum: int = REQUIRED
     # TODO: potentially create a SignerEntry object
     signer_entries: Optional[List[Dict[str, Dict[str, Any]]]] = None
-    transaction_type: TransactionType = TransactionType.SignerListSet
+    transaction_type: TransactionType = TransactionType.SIGNER_LIST_SET
 
     def _get_errors(self: SignerListSet) -> Dict[str, str]:
         errors = super()._get_errors()

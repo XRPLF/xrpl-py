@@ -27,7 +27,7 @@ class EscrowFinish(Transaction):
     offer_sequence: int = REQUIRED
     condition: Optional[str] = None
     fulfillment: Optional[str] = None
-    transaction_type: TransactionType = TransactionType.EscrowFinish
+    transaction_type: TransactionType = TransactionType.ESCROW_FINISH
 
     def _get_errors(self: EscrowFinish) -> Dict[str, str]:
         errors = super()._get_errors()

@@ -23,4 +23,4 @@ class EscrowCancel(Transaction):
 
     owner: str = REQUIRED
     offer_sequence: int = REQUIRED
-    transaction_type: TransactionType = TransactionType.EscrowCancel
+    transaction_type: TransactionType = TransactionType.ESCROW_CANCEL
