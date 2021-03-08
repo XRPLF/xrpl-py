@@ -78,6 +78,8 @@ class BaseModel(ABC):
                         )
                     new_obj = param_type.from_dict(value[param])
                     args[param] = new_obj
+                else:
+                    args[param] = value[param]
 
         return cls(**args)
 
