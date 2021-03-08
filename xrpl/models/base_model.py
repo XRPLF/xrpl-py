@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC
+from enum import Enum
 from typing import Any, Dict, get_type_hints
 
 from xrpl.models.exceptions import XRPLModelValidationException
@@ -78,6 +79,8 @@ class BaseModel(ABC):
                         )
                     new_obj = param_type.from_dict(value[param])
                     args[param] = new_obj
+                elif issubclass(param_type, Enum):
+                    args[param] = param_type[value[param]]
                 else:
                     args[param] = value[param]
 
