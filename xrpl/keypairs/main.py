@@ -1,6 +1,6 @@
 """Public interface for keypairs module."""
 from secrets import token_bytes
-from typing import Dict, Optional, Tuple, Type
+from typing import Dict, Optional, Tuple, Type, cast
 
 from typing_extensions import Final
 
@@ -61,8 +61,10 @@ def derive_keypair(seed: str, validator: bool = False) -> Tuple[str, str]:
     decoded_seed, algorithm = addresscodec.decode_seed(seed)
     module = _ALGORITHM_TO_MODULE_MAP[algorithm]
     public_key, private_key = module.derive_keypair(decoded_seed, validator)
-    signature = module.sign(str(_VERIFICATION_MESSAGE), private_key)
-    if not module.is_valid_message(str(_VERIFICATION_MESSAGE), signature, public_key):
+    signature = module.sign(cast(str, _VERIFICATION_MESSAGE), private_key)
+    if not module.is_valid_message(
+        cast(str, _VERIFICATION_MESSAGE), signature, public_key
+    ):
         raise XRPLKeypairsException(
             "Derived keypair did not generate verifiable signature",
         )
@@ -100,7 +102,7 @@ def sign(message: bytes, private_key: str) -> str:
     return (
         _get_module_from_key(private_key)
         .sign(
-            str(message),
+            cast(str, message),
             private_key,
         )
         .hex()
@@ -122,7 +124,7 @@ def is_valid_message(message: bytes, signature: bytes, public_key: str) -> bool:
         True if message is valid given signature and public key.
     """
     return _get_module_from_key(public_key).is_valid_message(
-        str(message),
+        cast(str, message),
         signature,
         public_key,
     )
