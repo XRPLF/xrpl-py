@@ -1,7 +1,7 @@
 """Helper util functions for the models module."""
 
 from dataclasses import is_dataclass
-from typing import Any, Callable, Dict, List, Type, TypeVar
+from typing import Any, Dict, List, Type, TypeVar
 
 from xrpl.models.exceptions import XRPLModelException
 
@@ -32,6 +32,15 @@ def require_kwargs_on_init(cls: Type[_T]) -> Type[_T]:
         class Foo:
             bar: str
         require_kwargs_on_init(Foo)
+
+    Args:
+        cls: The class that requires keyword arguments (must be a dataclass).
+
+    Returns:
+        The provided class, adding an error on init if positional args are provided.
+
+    Raises:
+        TypeError: If cls is None or is not a dataclass.
     """
     # error messages for dev help
     if cls is None:
@@ -45,20 +54,14 @@ def require_kwargs_on_init(cls: Type[_T]) -> Type[_T]:
     original_init = cls.__init__
 
     def new_init(self: _Self, *args: _VarArgs, **kwargs: _KWArgs) -> None:
-        _kwarg_only_init_wrapper(self, original_init, *args, **kwargs)
+        if len(args) > 0:
+            raise XRPLModelException(
+                f"{type(self).__name__}.__init__ only allows keyword arguments. "
+                f"Found the following positional arguments: {args}"
+            )
+        original_init(self, **kwargs)
 
     # noinspection PyTypeHints
     cls.__init__ = new_init  # type: ignore
 
     return cls
-
-
-def _kwarg_only_init_wrapper(
-    self: _Self, init: Callable[..., None], *args: _VarArgs, **kwargs: _KWArgs
-) -> None:
-    if len(args) > 0:
-        raise XRPLModelException(
-            f"{type(self).__name__}.__init__(self, ...) only allows keyword arguments. "
-            f"Found the following positional arguments: {args}"
-        )
-    init(self, **kwargs)
