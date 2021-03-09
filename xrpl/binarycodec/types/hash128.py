@@ -7,11 +7,11 @@ from __future__ import annotations
 
 from typing import Optional, Type
 
-from typing_extensions import Final
-
 from xrpl.binarycodec import XRPLBinaryCodecException
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.types.hash import Hash
+
+_LENGTH = 16
 
 
 class Hash128(Hash):
@@ -19,13 +19,7 @@ class Hash128(Hash):
     Codec for serializing and deserializing a hash field with a width
     of 128 bits (16 bytes).
     `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
-
-
-    Attributes:
-        _LENGTH: The length of this hash in bytes.
     """
-
-    _LENGTH: Final[int] = 16
 
     @classmethod
     def from_value(cls: Type[Hash128], value: str) -> Hash128:
@@ -63,5 +57,9 @@ class Hash128(Hash):
         Returns:
             The Hash128 object constructed from a parser.
         """
-        num_bytes = length_hint if length_hint is not None else cls._LENGTH
+        num_bytes = length_hint if length_hint is not None else cls._get_length()
         return cls(parser.read(num_bytes))
+
+    @classmethod
+    def _get_length(cls: Type[Hash]) -> int:
+        return _LENGTH

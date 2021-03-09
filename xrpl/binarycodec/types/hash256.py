@@ -7,11 +7,11 @@ from __future__ import annotations
 
 from typing import Optional, Type
 
-from typing_extensions import Final
-
 from xrpl.binarycodec import XRPLBinaryCodecException
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.types.hash import Hash
+
+_LENGTH = 32
 
 
 class Hash256(Hash):
@@ -19,13 +19,7 @@ class Hash256(Hash):
     Codec for serializing and deserializing a hash field with a width
     of 256 bits (32 bytes).
     `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
-
-
-    Attributes:
-        : The length of this hash in bytes.
     """
-
-    _LENGTH: Final[int] = 32
 
     @classmethod
     def from_value(cls: Type[Hash256], value: str) -> Hash256:
@@ -62,5 +56,9 @@ class Hash256(Hash):
         Returns:
             The Hash256 constructed from parser.
         """
-        num_bytes = length_hint if length_hint is not None else cls._LENGTH
+        num_bytes = length_hint if length_hint is not None else cls._get_length()
         return cls(parser.read(num_bytes))
+
+    @classmethod
+    def _get_length(cls: Type[Hash]) -> int:
+        return _LENGTH

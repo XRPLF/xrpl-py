@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from typing import Optional, Type
 
-from typing_extensions import Final
-
 from xrpl.binarycodec import XRPLBinaryCodecException
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.types.hash import Hash
+
+_LENGTH = 20
 
 
 class Hash160(Hash):
@@ -18,13 +18,7 @@ class Hash160(Hash):
     Codec for serializing and deserializing a hash field with a width
     of 160 bits (20 bytes).
     `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
-
-
-    Attributes:
-        _LENGTH: The length of this hash in bytes.
     """
-
-    _LENGTH: Final[int] = 20
 
     @classmethod
     def from_value(cls: Type[Hash160], value: str) -> Hash160:
@@ -62,5 +56,9 @@ class Hash160(Hash):
         Returns:
             The Hash160 constructed from the parser.
         """
-        num_bytes = length_hint if length_hint is not None else cls._LENGTH
+        num_bytes = length_hint if length_hint is not None else cls._get_length()
         return cls(parser.read(num_bytes))
+
+    @classmethod
+    def _get_length(cls: Type[Hash]) -> int:
+        return 20
