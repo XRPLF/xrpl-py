@@ -51,6 +51,7 @@ class BaseModel(ABC):
     def _from_dict_special_cases(
         cls: BaseModel, param: str, param_type: Type, param_value: Dict[str, Any]
     ) -> Any:
+        """Handles all the recursive/more complex cases for `from_dict`."""
         from xrpl.models.amounts import IssuedCurrencyAmount
         from xrpl.models.currencies import XRP, IssuedCurrency
         from xrpl.models.transactions.transaction import Transaction
