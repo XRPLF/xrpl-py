@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC
 from enum import Enum
-from typing import Any, Dict, get_type_hints
+from typing import Any, Dict, Type, get_type_hints
 
 from xrpl.models.exceptions import XRPLModelValidationException
 from xrpl.models.required import REQUIRED
@@ -29,10 +29,7 @@ class BaseModel(ABC):
         Raises:
             XRPLModelValidationException: If the dictionary provided is invalid.
         """
-        from xrpl.models.amounts import IssuedCurrencyAmount
-        from xrpl.models.currencies import XRP, IssuedCurrency
-        from xrpl.models.transactions.transaction import Transaction
-
+        # returns a dictionary mapping class params to their types
         class_types = get_type_hints(cls)
         args = {}
         for param in value:
@@ -41,47 +38,68 @@ class BaseModel(ABC):
                     f"{param} not a valid parameter for {cls.__name__}"
                 )
             if type(value[param]) == class_types[param]:
+                # the type of the param provided matches the type expected for the param
                 args[param] = value[param]
             else:
-                param_type = class_types[param]
-                # TODO: figure out how to make NewTypes work generically (if possible)
-                if param_type.__name__ == "Amount":  # special case, NewType
-                    if isinstance(value[param], dict):
-                        new_obj = IssuedCurrencyAmount.from_dict(value[param])
-                        args[param] = new_obj
-                elif param_type.__name__ == "Currency":  # special case, NewType
-                    if isinstance(value[param], dict):
-                        if "currency" in value[param] and "issuer" in value[param]:
-                            new_obj = IssuedCurrency.from_dict(value[param])
-                        elif "currency" in value[param]:
-                            new_obj = XRP.from_dict(value[param])
-                        else:
-                            raise XRPLModelValidationException(
-                                f"No valid type for {param}"
-                            )
-                        args[param] = new_obj
-                elif param_type.__name__ == "Transaction":
-                    if "transaction_type" not in value[param]:
-                        raise XRPLModelValidationException(
-                            f"{param} not a valid parameter for {cls.__name__}"
-                        )
-                    type_str = value[param]["transaction_type"]
-                    transaction_type = Transaction.get_transaction_type(type_str)
-                    new_obj = transaction_type.from_dict(value[param])
-                    args[param] = new_obj
-                elif issubclass(param_type, BaseModel):
-                    if not isinstance(value[param], dict):
-                        raise XRPLModelValidationException(
-                            f"{param_type} requires a dictionary of params"
-                        )
-                    new_obj = param_type.from_dict(value[param])
-                    args[param] = new_obj
-                elif issubclass(param_type, Enum):
-                    args[param] = param_type[value[param]]
-                else:
-                    args[param] = value[param]
+                args[param] = cls._from_dict_special_cases(
+                    param, class_types[param], value[param]
+                )
 
         return cls(**args)
+
+    @classmethod
+    def _from_dict_special_cases(
+        cls: BaseModel, param: str, param_type: Type, param_value: Dict[str, Any]
+    ) -> Any:
+        from xrpl.models.amounts import IssuedCurrencyAmount
+        from xrpl.models.currencies import XRP, IssuedCurrency
+        from xrpl.models.transactions.transaction import Transaction
+
+        # TODO: figure out how to make NewTypes work generically (if possible)
+
+        if param_type.__name__ == "Amount":
+            # special case, NewType
+            if not isinstance(param_value, dict):
+                raise XRPLModelValidationException(
+                    f"{param_type} requires a dictionary of params"
+                )
+            return IssuedCurrencyAmount.from_dict(param_value)
+
+        if param_type.__name__ == "Currency":
+            # special case, NewType
+            if not isinstance(param_value, dict):
+                raise XRPLModelValidationException(
+                    f"{param_type} requires a dictionary of params"
+                )
+            if "currency" in param_value and "issuer" in param_value:
+                return IssuedCurrency.from_dict(param_value)
+            if "currency" in param_value:
+                return XRP.from_dict(param_value)
+            raise XRPLModelValidationException(f"No valid type for {param}")
+
+        if param_type.__name__ == "Transaction":
+            # special case, multiple options (could be any Transaction type)
+            if "transaction_type" not in param_value:
+                raise XRPLModelValidationException(
+                    f"{param} not a valid parameter for {cls.__name__}"
+                )
+            type_str = param_value["transaction_type"]
+            # safely convert type string into the actual type
+            transaction_type = Transaction.get_transaction_type(type_str)
+            return transaction_type.from_dict(param_value)
+
+        if issubclass(param_type, BaseModel):
+            # any other BaseModel
+            if not isinstance(param_value, dict):
+                raise XRPLModelValidationException(
+                    f"{param_type} requires a dictionary of params"
+                )
+            return param_type.from_dict(param_value)
+
+        if issubclass(param_type, Enum):
+            return param_type[param_value]
+
+        return param_value
 
     def __post_init__(self: BaseModel) -> None:
         """Called by dataclasses immediately after __init__."""

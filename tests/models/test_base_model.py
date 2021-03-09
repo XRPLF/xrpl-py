@@ -54,7 +54,7 @@ class TestBaseModel(unittest.TestCase):
         self.assertEqual(expected_dict, check_create.to_dict())
 
     def test_from_dict_recursive_currency(self):
-        xrp = "XRP"
+        xrp = {"currency": "XRP"}
         issued_currency = {
             "currency": currency,
             "issuer": issuer,
