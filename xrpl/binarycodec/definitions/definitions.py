@@ -2,7 +2,7 @@
 
 import json
 import os
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Tuple, cast
 
 from xrpl.binarycodec.definitions.field_header import FieldHeader
 from xrpl.binarycodec.definitions.field_info import FieldInfo
@@ -208,7 +208,7 @@ def get_transaction_type_code(transaction_type: str) -> int:
     Returns:
         An integer representing the given transaction type string in an enum.
     """
-    return DEFINITIONS["TRANSACTION_TYPES"][transaction_type]
+    return cast(int, DEFINITIONS["TRANSACTION_TYPES"][transaction_type])
 
 
 def get_transaction_type_name(transaction_type: int) -> str:
@@ -221,7 +221,7 @@ def get_transaction_type_name(transaction_type: int) -> str:
     Returns:
         The string name of the transaction type.
     """
-    return TRANSACTION_TYPE_CODE_TO_STR_MAP[transaction_type]
+    return cast(str, TRANSACTION_TYPE_CODE_TO_STR_MAP[transaction_type])
 
 
 def get_transaction_result_code(transaction_result_type: str) -> int:
@@ -235,7 +235,7 @@ def get_transaction_result_code(transaction_result_type: str) -> int:
     Returns:
         An integer representing the given transaction result type string in an enum.
     """
-    return DEFINITIONS["TRANSACTION_RESULTS"][transaction_result_type]
+    return cast(int, DEFINITIONS["TRANSACTION_RESULTS"][transaction_result_type])
 
 
 def get_transaction_result_name(transaction_result_type: int) -> str:
@@ -248,7 +248,7 @@ def get_transaction_result_name(transaction_result_type: int) -> str:
     Returns:
         The string name of the transaction result type.
     """
-    return TRANSACTION_RESULTS_CODE_TO_STR_MAP[transaction_result_type]
+    return cast(str, TRANSACTION_RESULTS_CODE_TO_STR_MAP[transaction_result_type])
 
 
 def get_ledger_entry_type_code(ledger_entry_type: str) -> int:
@@ -261,7 +261,7 @@ def get_ledger_entry_type_code(ledger_entry_type: str) -> int:
     Returns:
         An integer representing the given ledger entry type string in an enum.
     """
-    return DEFINITIONS["LEDGER_ENTRY_TYPES"][ledger_entry_type]
+    return cast(int, DEFINITIONS["LEDGER_ENTRY_TYPES"][ledger_entry_type])
 
 
 def get_ledger_entry_type_name(ledger_entry_type: int) -> str:
@@ -274,4 +274,4 @@ def get_ledger_entry_type_name(ledger_entry_type: int) -> str:
     Returns:
         The string name of the ledger entry type.
     """
-    return LEDGER_ENTRY_TYPES_CODE_TO_STR_MAP[ledger_entry_type]
+    return cast(str, LEDGER_ENTRY_TYPES_CODE_TO_STR_MAP[ledger_entry_type])
