@@ -4,7 +4,7 @@ See `PathSet Fields <https://xrpl.org/serialization.html#pathset-fields>`_
 
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Dict, List, Optional, Type, cast
 
 from typing_extensions import Final
 
@@ -38,7 +38,7 @@ class PathStep(SerializedType):
     """Serialize and deserialize a single step in a Path."""
 
     @classmethod
-    def from_value(cls: PathStep, value: Dict[str, str]) -> PathStep:
+    def from_value(cls: Type[PathStep], value: Dict[str, str]) -> PathStep:
         """
         Construct a PathStep object from a dictionary.
 
@@ -75,7 +75,9 @@ class PathStep(SerializedType):
         return PathStep(bytes([data_type]) + buffer)
 
     @classmethod
-    def from_parser(cls: PathStep, parser: BinaryParser) -> PathStep:
+    def from_parser(
+        cls: Type[PathStep], parser: BinaryParser, _length_hint: Optional[None] = None
+    ) -> PathStep:
         """
         Construct a PathStep object from an existing BinaryParser.
 
@@ -138,7 +140,7 @@ class Path(SerializedType):
     """Class for serializing/deserializing Paths."""
 
     @classmethod
-    def from_value(cls: Path, value: List[Dict[str, str]]) -> Path:
+    def from_value(cls: Type[Path], value: List[Dict[str, str]]) -> Path:
         """
         Construct a Path from an array of dictionaries describing PathSteps.
 
@@ -165,7 +167,9 @@ class Path(SerializedType):
         return Path(buffer)
 
     @classmethod
-    def from_parser(cls: Path, parser: BinaryParser) -> Path:
+    def from_parser(
+        cls: Type[Path], parser: BinaryParser, _length_hint: Optional[None] = None
+    ) -> Path:
         """
         Construct a Path object from an existing BinaryParser.
 
@@ -180,9 +184,8 @@ class Path(SerializedType):
             pathstep = PathStep.from_parser(parser)
             buffer.append(pathstep.to_bytes())
 
-            if (
-                parser.peek() == _PATHSET_END_BYTE
-                or parser.peek() == _PATH_SEPARATOR_BYTE
+            if parser.peek() == cast(bytes, _PATHSET_END_BYTE) or parser.peek() == cast(
+                bytes, _PATH_SEPARATOR_BYTE
             ):
                 break
         return Path(b"".join(buffer))
@@ -210,7 +213,7 @@ class PathSet(SerializedType):
     """
 
     @classmethod
-    def from_value(cls: PathSet, value: List[List[Dict[str, str]]]) -> PathSet:
+    def from_value(cls: Type[PathSet], value: List[List[Dict[str, str]]]) -> PathSet:
         """
         Construct a PathSet from a List of Lists representing paths.
 
@@ -242,7 +245,9 @@ class PathSet(SerializedType):
         raise XRPLBinaryCodecException("Cannot construct PathSet from given value")
 
     @classmethod
-    def from_parser(cls: PathSet, parser: BinaryParser) -> PathSet:
+    def from_parser(
+        cls: Type[PathSet], parser: BinaryParser, _length_hint: Optional[None] = None
+    ) -> PathSet:
         """
         Construct a PathSet object from an existing BinaryParser.
 
