@@ -7,7 +7,7 @@ from typing import Any, Dict
 
 from typing_extensions import Final
 
-from xrpl.models.exceptions import XRPLModelValidationException
+from xrpl.models.exceptions import XRPLModelException
 
 # A sentinel object used to determine if a given field is not set. Using this
 # allows us to not worry about argument ordering and treat all arguments to
@@ -42,11 +42,11 @@ class BaseModel(ABC):
         Raises if this object is invalid.
 
         Raises:
-            XRPLModelValidationException: if this object is invalid.
+            XRPLModelException: if this object is invalid.
         """
         errors = self._get_errors()
         if len(errors) > 0:
-            raise XRPLModelValidationException(str(errors))
+            raise XRPLModelException(str(errors))
 
     def is_valid(self: BaseModel) -> bool:
         """
