@@ -4,7 +4,7 @@ See `PathSet Fields <https://xrpl.org/serialization.html#pathset-fields>`_
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Type
+from typing import Dict, List, Optional, Type, cast
 
 from typing_extensions import Final
 
@@ -184,9 +184,8 @@ class Path(SerializedType):
             pathstep = PathStep.from_parser(parser)
             buffer.append(pathstep.to_bytes())
 
-            if (
-                parser.peek() == _PATHSET_END_BYTE
-                or parser.peek() == _PATH_SEPARATOR_BYTE
+            if parser.peek() == cast(bytes, _PATHSET_END_BYTE) or parser.peek() == cast(
+                bytes, _PATH_SEPARATOR_BYTE
             ):
                 break
         return Path(b"".join(buffer))
