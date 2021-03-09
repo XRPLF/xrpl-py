@@ -4,7 +4,7 @@ See `PathSet Fields <https://xrpl.org/serialization.html#pathset-fields>`_
 
 from __future__ import annotations
 
-from typing import Dict, List, Type
+from typing import Dict, List, Optional, Type
 
 from typing_extensions import Final
 
@@ -75,7 +75,9 @@ class PathStep(SerializedType):
         return PathStep(bytes([data_type]) + buffer)
 
     @classmethod
-    def from_parser(cls: Type[PathStep], parser: BinaryParser) -> PathStep:
+    def from_parser(
+        cls: Type[PathStep], parser: BinaryParser, _length_hint: Optional[None] = None
+    ) -> PathStep:
         """
         Construct a PathStep object from an existing BinaryParser.
 
@@ -165,7 +167,9 @@ class Path(SerializedType):
         return Path(buffer)
 
     @classmethod
-    def from_parser(cls: Type[Path], parser: BinaryParser) -> Path:
+    def from_parser(
+        cls: Type[Path], parser: BinaryParser, _length_hint: Optional[None] = None
+    ) -> Path:
         """
         Construct a Path object from an existing BinaryParser.
 
@@ -242,7 +246,9 @@ class PathSet(SerializedType):
         raise XRPLBinaryCodecException("Cannot construct PathSet from given value")
 
     @classmethod
-    def from_parser(cls: Type[PathSet], parser: BinaryParser) -> PathSet:
+    def from_parser(
+        cls: Type[PathSet], parser: BinaryParser, _length_hint: Optional[None] = None
+    ) -> PathSet:
         """
         Construct a PathSet object from an existing BinaryParser.
 
