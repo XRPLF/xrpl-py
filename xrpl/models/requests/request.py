@@ -82,4 +82,4 @@ class Request(BaseModel):
         Returns:
             The dictionary representation of a Request.
         """
-        return {**super().to_dict(), "method": self.method.name}
+        return {**super().to_dict(), "method": self.method.value}
