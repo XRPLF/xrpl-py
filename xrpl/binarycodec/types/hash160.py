@@ -4,10 +4,8 @@ of 160 bits (20 bytes).
 """
 from __future__ import annotations
 
-from typing import Optional, Type
+from typing import Type
 
-from xrpl.binarycodec import XRPLBinaryCodecException
-from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.types.hash import Hash
 
 _LENGTH = 20
@@ -21,44 +19,5 @@ class Hash160(Hash):
     """
 
     @classmethod
-    def from_value(cls: Type[Hash160], value: str) -> Hash160:
-        """
-        Construct a Hash160 object from a hex string.
-
-        Args:
-            value: The string to construct a Hash160 from.
-
-        Returns:
-            The Hash160 constructed from value.
-
-        Raises:
-            XRPLBinaryCodecException: If the supplied value is of the wrong type.
-        """
-        if not isinstance(value, str):
-            raise XRPLBinaryCodecException(
-                "Invalid type to construct a Hash160: expected str,"
-                " received {}.".format(value.__class__.__name__)
-            )
-
-        return cls(bytes.fromhex(value))
-
-    @classmethod
-    def from_parser(
-        cls: Type[Hash160], parser: BinaryParser, length_hint: Optional[int] = None
-    ) -> Hash160:
-        """
-        Construct a Hash160 object from an existing BinaryParser.
-
-        Args:
-            parser: The parser to construct Hash160 from.
-            length_hint: The number of bytes to consume from the parser.
-
-        Returns:
-            The Hash160 constructed from the parser.
-        """
-        num_bytes = length_hint if length_hint is not None else cls._get_length()
-        return cls(parser.read(num_bytes))
-
-    @classmethod
-    def _get_length(cls: Type[Hash]) -> int:
-        return 20
+    def _get_length(cls: Type[Hash160]) -> int:
+        return _LENGTH
