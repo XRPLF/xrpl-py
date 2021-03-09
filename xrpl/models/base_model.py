@@ -31,6 +31,7 @@ class BaseModel(ABC):
         """
         # returns a dictionary mapping class params to their types
         class_types = get_type_hints(cls)
+
         args = {}
         for param in value:
             if param not in class_types:
