@@ -99,7 +99,7 @@ class BaseModel(ABC):
             return param_type.from_dict(param_value)
 
         if issubclass(param_type, Enum):
-            return param_type[param_value]
+            return param_type(param_value)
 
         return param_value
 
