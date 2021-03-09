@@ -5,7 +5,7 @@ from __future__ import annotations  # Requires Python 3.7+
 
 from abc import ABC
 
-from typing_extensions import Final
+from typing_extensions import Optional
 
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.serialized_type import SerializedType
@@ -20,9 +20,7 @@ class Hash(SerializedType, ABC):
         _LENGTH:  The length of this hash in bytes.
     """
 
-    _LENGTH: Final[int]
-
-    def __init__(self: Hash, buffer: bytes) -> None:
+    def __init__(self: Hash, buffer: Optional[bytes]) -> None:
         """
         Construct a Hash.
 

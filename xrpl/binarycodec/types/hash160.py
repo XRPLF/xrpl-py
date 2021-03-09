@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from typing import Optional, Type
 
+from typing_extensions import Final
+
 from xrpl.binarycodec import XRPLBinaryCodecException
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.types.hash import Hash
@@ -22,15 +24,15 @@ class Hash160(Hash):
         _LENGTH: The length of this hash in bytes.
     """
 
-    _LENGTH = 20
+    _LENGTH: Final[int] = 20
 
-    def __init__(self: Hash160, buffer: bytes = None) -> None:
+    def __init__(self: Hash160, buffer: Optional[bytes] = None) -> None:
         """Construct a Hash160."""
-        buffer = buffer if buffer is not None else bytes(self._width)
+        buffer = buffer if buffer is not None else bytes(self._LENGTH)
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls: Hash160, value: str) -> Hash160:
+    def from_value(cls: Type[Hash160], value: str) -> Hash160:
         """
         Construct a Hash160 object from a hex string.
 
