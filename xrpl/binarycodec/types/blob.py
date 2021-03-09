@@ -4,6 +4,8 @@ See `Blob Fields <https://xrpl.org/serialization.html#blob-fields>`_
 """
 from __future__ import annotations
 
+from typing import Type
+
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.serialized_type import SerializedType
@@ -20,7 +22,7 @@ class Blob(SerializedType):
         super().__init__(buffer)
 
     @classmethod
-    def from_parser(cls: Blob, parser: BinaryParser, length_hint: int) -> Blob:
+    def from_parser(cls: Type[Blob], parser: BinaryParser, length_hint: int) -> Blob:
         """
         Defines how to read a Blob from a BinaryParser.
 
@@ -34,7 +36,7 @@ class Blob(SerializedType):
         return cls(parser.read(length_hint))
 
     @classmethod
-    def from_value(cls: Blob, value: str) -> Blob:
+    def from_value(cls: Type[Blob], value: str) -> Blob:
         """
         Create a Blob object from a hex-string.
 

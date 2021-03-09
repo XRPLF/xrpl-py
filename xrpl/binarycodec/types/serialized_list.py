@@ -4,7 +4,7 @@ See `Array Fields <https://xrpl.org/serialization.html#array-fields>`_
 
 from __future__ import annotations
 
-from typing import Any, List
+from typing import Any, List, Optional, Type
 
 from typing_extensions import Final
 
@@ -25,7 +25,11 @@ class SerializedList(SerializedType):
     """
 
     @classmethod
-    def from_parser(cls: SerializedList, parser: BinaryParser) -> SerializedList:
+    def from_parser(
+        cls: Type[SerializedList],
+        parser: BinaryParser,
+        _length_hint: Optional[None] = None,
+    ) -> SerializedList:
         """
         Construct a SerializedList from a BinaryParser.
 
@@ -49,7 +53,7 @@ class SerializedList(SerializedType):
         return SerializedList(bytestring)
 
     @classmethod
-    def from_value(cls: SerializedList, value: List[Any]) -> SerializedList:
+    def from_value(cls: Type[SerializedList], value: List[Any]) -> SerializedList:
         """
         Create a SerializedList object from a dictionary.
 
