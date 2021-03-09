@@ -8,8 +8,6 @@ from typing import Type
 
 from xrpl.binarycodec.types.hash import Hash
 
-_LENGTH = 20
-
 
 class Hash160(Hash):
     """
@@ -20,4 +18,4 @@ class Hash160(Hash):
 
     @classmethod
     def _get_length(cls: Type[Hash160]) -> int:
-        return _LENGTH
+        return 20

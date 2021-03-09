@@ -9,8 +9,6 @@ from typing import Type
 
 from xrpl.binarycodec.types.hash import Hash
 
-_LENGTH = 16
-
 
 class Hash128(Hash):
     """
@@ -21,4 +19,4 @@ class Hash128(Hash):
 
     @classmethod
     def _get_length(cls: Type[Hash128]) -> int:
-        return _LENGTH
+        return 16

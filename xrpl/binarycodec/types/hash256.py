@@ -9,8 +9,6 @@ from typing import Type
 
 from xrpl.binarycodec.types.hash import Hash
 
-_LENGTH = 32
-
 
 class Hash256(Hash):
     """
@@ -21,4 +19,4 @@ class Hash256(Hash):
 
     @classmethod
     def _get_length(cls: Type[Hash256]) -> int:
-        return _LENGTH
+        return 32
