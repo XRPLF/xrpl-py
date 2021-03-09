@@ -1,7 +1,7 @@
 """Context manager and helpers for the deserialization of bytes into JSON."""
 from __future__ import annotations  # Requires Python 3.7+
 
-from typing import TYPE_CHECKING, Optional, Tuple, Type
+from typing import TYPE_CHECKING, Optional, Tuple, Type, cast
 
 from xrpl.binarycodec.definitions import definitions
 from xrpl.binarycodec.definitions.field_header import FieldHeader
@@ -36,7 +36,7 @@ class BinaryParser:
         """Return the number of bytes in this parser's buffer."""
         return len(self.bytes)
 
-    def peek(self: BinaryParser) -> bytes:
+    def peek(self: BinaryParser) -> Optional[bytes]:
         """
         Peek the first byte of the BinaryParser.
 
@@ -44,7 +44,7 @@ class BinaryParser:
             The first byte of the BinaryParser.
         """
         if len(self.bytes) > 0:
-            return self.bytes[0]
+            return cast(bytes, self.bytes[0])
         return None
 
     def skip(self: BinaryParser, n: int) -> None:
@@ -209,7 +209,7 @@ class BinaryParser:
         field_name = definitions.get_field_name_from_header(field_header)
         return definitions.get_field_instance(field_name)
 
-    def read_type(self: BinaryParser, field_type: SerializedType) -> None:
+    def read_type(self: BinaryParser, field_type: SerializedType) -> SerializedType:
         """
         Read next bytes from BinaryParser as the given type.
 
@@ -219,7 +219,7 @@ class BinaryParser:
         Returns:
             None
         """
-        return field_type.from_parser(self)
+        return field_type.from_parser(self, None)
 
     def type_for_field(
         self: BinaryParser, field: FieldInstance
@@ -254,7 +254,7 @@ class BinaryParser:
             size_hint = self._read_length_prefix()
             value = field_type.from_parser(self, size_hint)
         else:
-            value = field_type.from_parser(self)
+            value = field_type.from_parser(self, None)
         if value is None:
             raise XRPLBinaryCodecException(
                 "from_parser for {}, {} returned None.".format(field.name, field.type)

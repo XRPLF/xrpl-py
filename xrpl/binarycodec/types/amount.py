@@ -282,7 +282,10 @@ class Amount(SerializedType):
         Returns:
             An Amount object.
         """
-        not_xrp = int(parser.peek()) & 0x80
+        parser_first_byte = parser.peek()
+        not_xrp = (
+            int(parser_first_byte) if parser_first_byte is not None else 0x00
+        ) & 0x80
         if not_xrp:
             num_bytes = _CURRENCY_AMOUNT_BYTE_LENGTH
         else:
