@@ -4,7 +4,7 @@ See `AccountID Fields <https://xrpl.org/serialization.html#accountid-fields>`_
 from __future__ import annotations  # Requires Python 3.7+
 
 import re
-from typing import Type
+from typing import Optional, Type
 
 from typing_extensions import Final
 
@@ -12,7 +12,7 @@ from xrpl.addresscodec import decode_classic_address, encode_classic_address
 from xrpl.binarycodec import XRPLBinaryCodecException
 from xrpl.binarycodec.types.hash160 import Hash160
 
-_HEX_REGEX: Final[re.Pattern] = re.compile("^[A-F0-9]{40}$")
+_HEX_REGEX: Final[re.Pattern[str]] = re.compile("^[A-F0-9]{40}$")
 
 
 class AccountID(Hash160):
@@ -22,7 +22,7 @@ class AccountID(Hash160):
 
     LENGTH: Final[int] = 20  # bytes
 
-    def __init__(self: AccountID, buffer: bytes = None) -> None:
+    def __init__(self: AccountID, buffer: Optional[bytes] = None) -> None:
         """
         Construct an AccountID from given bytes.
         If buffer is not provided, default to 20 zero bytes.
