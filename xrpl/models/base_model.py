@@ -60,9 +60,6 @@ class BaseModel(ABC):
                                 f"No valid type for {param}"
                             )
                         args[param] = new_obj
-                    if isinstance(value[param], str):
-                        new_obj = XRP(currency=value[param])
-                        args[param] = new_obj
                 elif param_type.__name__ == "Transaction":
                     if "transaction_type" not in value[param]:
                         raise XRPLModelValidationException(
