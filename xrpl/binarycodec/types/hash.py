@@ -3,7 +3,7 @@
 """
 from __future__ import annotations  # Requires Python 3.7+
 
-from abc import ABC, abstractclassmethod
+from abc import ABC, abstractmethod
 from typing import Optional, Type
 
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
@@ -75,6 +75,6 @@ class Hash(SerializedType, ABC):
         return cls(parser.read(num_bytes))
 
     @classmethod
-    @abstractclassmethod
+    @abstractmethod
     def _get_length(cls: Type[Hash]) -> int:
         raise NotImplementedError("Hash._get_length not implemented")
