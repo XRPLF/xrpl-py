@@ -9,6 +9,7 @@ from enum import Enum
 from typing import Any, List, Optional
 
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.utils import require_kwargs_on_init
 
 
 class StreamParameter(str, Enum):
@@ -24,6 +25,7 @@ class StreamParameter(str, Enum):
     VALIDATIONS = "validations"
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Subscribe(Request):
     """

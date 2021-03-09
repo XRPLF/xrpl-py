@@ -9,8 +9,10 @@ from typing import Any, List, Optional
 
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.requests.subscribe import StreamParameter
+from xrpl.models.utils import require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Unsubscribe(Request):
     """

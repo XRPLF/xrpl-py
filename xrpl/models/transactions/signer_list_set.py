@@ -14,12 +14,14 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
+from xrpl.models.utils import require_kwargs_on_init
 
 _SIGNER_ENTRY_KEY = "SignerEntry"
 _ACCOUNT_KEY = "Account"
 _SIGNER_WEIGHT_KEY = "SignerWeight"
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class SignerListSet(Transaction):
     """

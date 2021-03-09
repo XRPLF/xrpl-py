@@ -5,6 +5,9 @@ from typing import Any, Callable, Dict, List, Type, TypeVar
 
 from xrpl.models.exceptions import XRPLModelException
 
+# Code source for requiring kwargs:
+# https://gist.github.com/mikeholler/4be180627d3f8fceb55704b729464adb
+
 _T = TypeVar("_T")
 _Self = TypeVar("_Self")
 _VarArgs = List[Any]
@@ -29,8 +32,6 @@ def require_kwargs_on_init(cls: Type[_T]) -> Type[_T]:
         class Foo:
             bar: str
         require_kwargs_on_init(Foo)
-
-    Code source: https://gist.github.com/mikeholler/4be180627d3f8fceb55704b729464adb
     """
     # error messages for dev help
     if cls is None:

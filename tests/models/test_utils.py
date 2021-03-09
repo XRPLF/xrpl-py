@@ -1,6 +1,7 @@
 import unittest
 
 from xrpl.models.currencies import IssuedCurrency
+from xrpl.models.exceptions import XRPLModelException
 
 currency = "BTC"
 value = "100"
@@ -14,5 +15,5 @@ currency_dict = {
 
 class TestUtils(unittest.TestCase):
     def test_kwargs_req(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(XRPLModelException):
             IssuedCurrency(currency, issuer)

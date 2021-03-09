@@ -10,14 +10,16 @@ This command requires the MultiSign amendment to be enabled.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Dict
 
 from xrpl.models.base_model import REQUIRED
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.transactions import Transaction
+from xrpl.models.utils import field, require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class SubmitMultisigned(Request):
     """

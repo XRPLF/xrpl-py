@@ -22,11 +22,13 @@ twice since it has the same sequence number as the old transaction.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.utils import field, require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Submit(Request):
     """
