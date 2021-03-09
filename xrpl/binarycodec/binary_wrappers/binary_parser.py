@@ -209,7 +209,9 @@ class BinaryParser:
         field_name = definitions.get_field_name_from_header(field_header)
         return definitions.get_field_instance(field_name)
 
-    def read_type(self: BinaryParser, field_type: SerializedType) -> SerializedType:
+    def read_type(
+        self: BinaryParser, field_type: Type[SerializedType]
+    ) -> SerializedType:
         """
         Read next bytes from BinaryParser as the given type.
 
