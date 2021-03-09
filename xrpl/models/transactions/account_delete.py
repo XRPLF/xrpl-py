@@ -11,7 +11,7 @@ account. See Deletion of Accounts for the requirements to delete an account.
 from dataclasses import dataclass
 from typing import Optional
 
-from xrpl.models.base_model import REQUIRED
+from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionType
 
 

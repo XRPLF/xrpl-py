@@ -3,16 +3,11 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Any, Dict
-
-from typing_extensions import Final
+from enum import Enum
+from typing import Any, Dict, Type, get_type_hints
 
 from xrpl.models.exceptions import XRPLModelValidationException
-
-# A sentinel object used to determine if a given field is not set. Using this
-# allows us to not worry about argument ordering and treat all arguments to
-# __init__ as kwargs.
-REQUIRED: Final[object] = object()
+from xrpl.models.required import REQUIRED
 
 
 class BaseModel(ABC):
@@ -30,8 +25,83 @@ class BaseModel(ABC):
 
         Returns:
             A new BaseModel object, constructed using the given parameters.
+
+        Raises:
+            XRPLModelValidationException: If the dictionary provided is invalid.
         """
-        return cls(**value)
+        # returns a dictionary mapping class params to their types
+        class_types = get_type_hints(cls)
+
+        args = {}
+        for param in value:
+            if param not in class_types:
+                raise XRPLModelValidationException(
+                    f"{param} not a valid parameter for {cls.__name__}"
+                )
+            if type(value[param]) == class_types[param]:
+                # the type of the param provided matches the type expected for the param
+                args[param] = value[param]
+            else:
+                args[param] = cls._from_dict_special_cases(
+                    param, class_types[param], value[param]
+                )
+
+        return cls(**args)
+
+    @classmethod
+    def _from_dict_special_cases(
+        cls: BaseModel, param: str, param_type: Type, param_value: Dict[str, Any]
+    ) -> Any:
+        """Handles all the recursive/more complex cases for `from_dict`."""
+        from xrpl.models.amounts import IssuedCurrencyAmount
+        from xrpl.models.currencies import XRP, IssuedCurrency
+        from xrpl.models.transactions.transaction import Transaction
+
+        # TODO: figure out how to make NewTypes work generically (if possible)
+
+        if param_type.__name__ == "Amount":
+            # special case, NewType
+            if not isinstance(param_value, dict):
+                raise XRPLModelValidationException(
+                    f"{param_type} requires a dictionary of params"
+                )
+            return IssuedCurrencyAmount.from_dict(param_value)
+
+        if param_type.__name__ == "Currency":
+            # special case, NewType
+            if not isinstance(param_value, dict):
+                raise XRPLModelValidationException(
+                    f"{param_type} requires a dictionary of params"
+                )
+            if "currency" in param_value and "issuer" in param_value:
+                return IssuedCurrency.from_dict(param_value)
+            if "currency" in param_value:
+                return XRP.from_dict(param_value)
+            raise XRPLModelValidationException(f"No valid type for {param}")
+
+        if param_type.__name__ == "Transaction":
+            # special case, multiple options (could be any Transaction type)
+            if "transaction_type" not in param_value:
+                raise XRPLModelValidationException(
+                    f"{param} not a valid parameter for {cls.__name__}"
+                )
+            type_str = param_value["transaction_type"]
+            # safely convert type string into the actual type
+            transaction_type = Transaction.get_transaction_type(type_str)
+            return transaction_type.from_dict(param_value)
+
+        if issubclass(param_type, BaseModel):
+            # any other BaseModel
+            if not isinstance(param_value, dict):
+                raise XRPLModelValidationException(
+                    f"{param_type} requires a dictionary of params"
+                )
+            return param_type.from_dict(param_value)
+
+        if issubclass(param_type, Enum):
+            return param_type[param_value]
+
+        return param_value
 
     def __post_init__(self: BaseModel) -> None:
         """Called by dataclasses immediately after __init__."""

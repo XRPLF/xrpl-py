@@ -12,7 +12,8 @@ from typing import Dict
 
 from typing_extensions import Final
 
-from xrpl.models.base_model import REQUIRED, BaseModel
+from xrpl.models.base_model import BaseModel
+from xrpl.models.required import REQUIRED
 
 _CHAR: Final[str] = r"[A-Za-z\d\?!@#\$%\^&\*<>\(\){}\[\]\|]"
 _CURRENCY_CODE: Final[str] = f"{_CHAR}{{3}}"

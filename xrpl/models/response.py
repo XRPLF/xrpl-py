@@ -9,7 +9,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
-from xrpl.models.base_model import REQUIRED, BaseModel
+from xrpl.models.base_model import BaseModel
+from xrpl.models.required import REQUIRED
 
 
 class ResponseStatus(str, Enum):

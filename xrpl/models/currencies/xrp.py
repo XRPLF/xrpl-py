@@ -34,5 +34,5 @@ class XRP(BaseModel):
     def _get_errors(self: XRP) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.currency.upper() != "XRP":
-            errors["currency"] = "Currency be XRP for XRP currency"
+            errors["currency"] = "Currency must be XRP for XRP currency"
         return errors

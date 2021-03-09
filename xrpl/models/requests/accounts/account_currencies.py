@@ -10,8 +10,8 @@ interfaces.
 from dataclasses import dataclass
 from typing import Optional, Union
 
-from xrpl.models.base_model import REQUIRED
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.required import REQUIRED
 
 
 @dataclass(frozen=True)

@@ -6,8 +6,8 @@ of that validator's configured token.
 """
 from dataclasses import dataclass
 
-from xrpl.models.base_model import REQUIRED
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.required import REQUIRED
 
 
 @dataclass(frozen=True)

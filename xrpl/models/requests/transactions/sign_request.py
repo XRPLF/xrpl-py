@@ -57,6 +57,26 @@ class SignRequest(Request):
     fee_mult_max: int = 10
     fee_div_max: int = 1
 
+    @classmethod
+    def from_dict(cls: SignRequest, value: Dict[str, Any]) -> SignRequest:
+        """
+        Construct a new SignRequest from a dictionary of parameters.
+
+        If not overridden, passes the dictionary as args to the constructor.
+
+        Args:
+            value: The value to construct the SignRequest from.
+
+        Returns:
+            A new SignRequest object, constructed using the given parameters.
+        """
+        if "tx_json" in value:
+            fixed_value = {**value, "transaction": value["tx_json"]}
+            del fixed_value["tx_json"]
+        else:
+            fixed_value = value
+        return super(SignRequest, cls).from_dict(fixed_value)
+
     def to_dict(self: SignRequest) -> Dict[str, Any]:
         """
         Returns the dictionary representation of a SignRequest.
