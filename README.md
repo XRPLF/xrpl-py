@@ -1,6 +1,6 @@
 # xrpl-py
 
-Supports Python 3.5 and later.
+Supports Python 3.7 and later.
 
 ## Contributing
 
@@ -42,7 +42,7 @@ From the `docs` folder,
 
 ```bash
 poetry run sphinx-apidoc -o source/ ../xrpl
-make html
+poetry run make html
 ```
 
 Sphinx generated docs will be in `docs/_build`.

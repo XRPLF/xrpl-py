@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from xrpl.models.exceptions import XRPLModelValidationException
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import EscrowCreate
 
 
@@ -14,7 +14,7 @@ class TestEscrowCreate(TestCase):
         fee = "0.00001"
         sequence = 19048
 
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             EscrowCreate(
                 account=account,
                 amount=amount,

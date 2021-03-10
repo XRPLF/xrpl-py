@@ -61,7 +61,7 @@ def encode_for_signing_claim(json: Dict[str, Any]) -> str:
     channel = Hash256.from_value(json["channel"])
     amount = UInt64.from_value(int(json["amount"]))
 
-    buffer = prefix + channel.to_bytes() + amount.to_bytes()
+    buffer = prefix + bytes(channel) + bytes(amount)
     return buffer.hex().upper()
 
 
@@ -77,7 +77,7 @@ def encode_for_multisigning(json: Dict[str, Any], signing_account: str) -> str:
         A hex string of the encoded transaction.
     """
     assert json["SigningPubKey"] == ""
-    signing_account_id = AccountID.from_value(signing_account).to_bytes()
+    signing_account_id = bytes(AccountID.from_value(signing_account))
 
     return cast(
         str,
@@ -115,7 +115,7 @@ def _serialize_json(
     if prefix is not None:
         buffer += prefix
 
-    buffer += SerializedDict.from_value(json, signing_only).to_bytes()
+    buffer += bytes(SerializedDict.from_value(json, signing_only))
 
     if suffix is not None:
         buffer += suffix

@@ -59,9 +59,7 @@ class BinaryParser:
         """
         if n > len(self.bytes):
             raise XRPLBinaryCodecException(
-                "BinaryParser can't skip {} bytes, only contains {}.".format(
-                    n, len(self.bytes)
-                )
+                f"BinaryParser can't skip {n} bytes, only contains {len(self.bytes)}."
             )
         self.bytes = self.bytes[n:]
 
@@ -108,10 +106,11 @@ class BinaryParser:
 
     def is_end(self: BinaryParser, custom_end: Optional[int] = None) -> bool:
         """
-        TODO: I'm not sure what this actually does yet.
+        Returns whether the binary parser has finished parsing (e.g. there is nothing
+        left in the buffer that needs to be processed).
 
         Args:
-            custom_end: A custom end?
+            custom_end: An ending byte-phrase.
 
         Returns:
             Whether or not it's the end.
@@ -223,20 +222,6 @@ class BinaryParser:
         """
         return field_type.from_parser(self, None)
 
-    def type_for_field(
-        self: BinaryParser, field: FieldInstance
-    ) -> Type[SerializedType]:
-        """
-        Get the type associated with a given field.
-
-        Args:
-            field: The field that you want to get the type of.
-
-        Returns:
-            The type associated with the given field.
-        """
-        return field.associated_type
-
     def read_field_value(self: BinaryParser, field: FieldInstance) -> SerializedType:
         """
         Read value of the type specified by field from the BinaryParser.
@@ -250,7 +235,7 @@ class BinaryParser:
         Raises:
             XRPLBinaryCodecException: If a parser cannot be constructed from field.
         """
-        field_type = self.type_for_field(field)
+        field_type = field.associated_type
         # TODO: error handling for unsupported type?
         if field.is_variable_length_encoded:
             size_hint = self._read_length_prefix()
@@ -259,7 +244,7 @@ class BinaryParser:
             value = field_type.from_parser(self, None)
         if value is None:
             raise XRPLBinaryCodecException(
-                "from_parser for {}, {} returned None.".format(field.name, field.type)
+                f"from_parser for {field.name}, {field.type} returned None."
             )
         return value
 

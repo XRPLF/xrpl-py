@@ -5,10 +5,21 @@ messages for a particular subscription or set of subscriptions.
 WebSocket API only.
 """
 from dataclasses import dataclass
-from typing import Any, List, Optional
+from typing import List, Optional
 
+from xrpl.models.base_model import REQUIRED, BaseModel
+from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.requests.subscribe import StreamParameter
+
+
+@dataclass(frozen=True)
+class UnsubscribeBook(BaseModel):
+    """Format for elements in the `books` array for Unsubscribe only."""
+
+    taker_gets: Currency = REQUIRED
+    taker_pays: Currency = REQUIRED
+    both: Optional[bool] = False
 
 
 @dataclass(frozen=True)
@@ -24,5 +35,4 @@ class Unsubscribe(Request):
     streams: Optional[List[StreamParameter]] = None
     accounts: Optional[List[str]] = None
     accounts_proposed: Optional[List[str]] = None
-    # TODO need type
-    books: Optional[List[Any]] = None
+    books: Optional[List[UnsubscribeBook]] = None
