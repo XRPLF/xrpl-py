@@ -45,8 +45,8 @@ class SerializedList(SerializedType):
             field = parser.read_field()
             if field.name == _ARRAY_END_MARKER_NAME:
                 break
-            bytestring += field.header.to_bytes()
-            bytestring += parser.read_field_value(field).to_bytes()
+            bytestring += bytes(field.header)
+            bytestring += bytes(parser.read_field_value(field))
             bytestring += _OBJECT_END_MARKER
 
         bytestring += _ARRAY_END_MARKER
@@ -70,7 +70,7 @@ class SerializedList(SerializedType):
         if not isinstance(value, list):
             raise XRPLBinaryCodecException(
                 "Invalid type to construct a SerializedList:"
-                " expected list, received {}.".format(value.__class__.__name__)
+                " expected list, received {value.__class__.__name__}."
             )
 
         if len(value) > 0 and not isinstance(value[0], dict):
@@ -81,7 +81,7 @@ class SerializedList(SerializedType):
         bytestring = b""
         for obj in value:
             transaction = SerializedDict.from_value(obj)
-            bytestring += transaction.to_bytes()
+            bytestring += bytes(transaction)
         bytestring += _ARRAY_END_MARKER
         return SerializedList(bytestring)
 
@@ -93,7 +93,7 @@ class SerializedList(SerializedType):
             The JSON representation of a SerializedList.
         """
         result = []
-        parser = BinaryParser(self.to_string())
+        parser = BinaryParser(str(self))
 
         while not parser.is_end():
             field = parser.read_field()

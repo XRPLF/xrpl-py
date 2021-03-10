@@ -80,28 +80,28 @@ class PathStep(BaseModel):
 
     def _get_account_error(self: PathStep) -> Optional[str]:
         if self.account is None:
-            return None
+            return
         if self.currency is not None or self.issuer is not None:
             return "Cannot set account if currency or issuer are set"
-        return None
+        return
 
     def _get_currency_error(self: PathStep) -> Optional[str]:
         if self.currency is None:
-            return None
+            return
         if self.account is not None:
             return "Cannot set currency if account is set"
         if self.issuer is not None and self.currency.upper() == "XRP":
             return "Cannot set issuer if currency is XRP"
-        return None
+        return
 
     def _get_issuer_error(self: PathStep) -> Optional[str]:
         if self.issuer is None:
-            return None
+            return
         if self.account is not None:
             return "Cannot set issuer if account is set"
         if self.currency is not None and self.currency.upper() == "XRP":
             return "Cannot set issuer if currency is XRP"
-        return None
+        return
 
 
 @dataclass(frozen=True)
