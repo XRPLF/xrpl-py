@@ -26,11 +26,14 @@ returning poor results. (Note: A server returning less-than-optimal
 results is not necessarily proof of malicious behavior; it could also be
 a symptom of heavy server load.)
 """
+from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, List, Optional
+from typing import Dict, List, Optional
 
 from xrpl.models.amounts import Amount
+from xrpl.models.base_model import BaseModel
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
 
@@ -48,6 +51,58 @@ class PathFindSubcommand(str, Enum):
     CREATE = "create"
     CLOSE = "close"
     STATUS = "status"
+
+
+@dataclass(frozen=True)
+class PathStep(BaseModel):
+    """
+    A path set is an array. Each member of the path set is another array that
+    represents an individual path. Each member of a path is an object that
+    specifies the step. A step has the following fields.
+    """
+
+    account: Optional[str] = None
+    currency: Optional[str] = None
+    issuer: Optional[str] = None
+    type: Optional[int] = None
+    type_hex: Optional[str] = None
+
+    def _get_errors(self: PathStep) -> Dict[str, str]:
+        return {
+            key: value
+            for key, value in {
+                **super()._get_errors(),
+                "account": self._get_account_error(),
+                "currency": self._get_currency_error(),
+                "issuer": self._get_issuer_error(),
+            }.items()
+            if value is not None
+        }
+
+    def _get_account_error(self: PathStep) -> Optional[str]:
+        if self.account is None:
+            return
+        if self.currency is not None or self.issuer is not None:
+            return "Cannot set account if currency or issuer are set"
+        return
+
+    def _get_currency_error(self: PathStep) -> Optional[str]:
+        if self.currency is None:
+            return
+        if self.account is not None:
+            return "Cannot set currency if account is set"
+        if self.issuer is not None and self.currency.upper() == "XRP":
+            return "Cannot set issuer if currency is XRP"
+        return
+
+    def _get_issuer_error(self: PathStep) -> Optional[str]:
+        if self.issuer is None:
+            return
+        if self.account is not None:
+            return "Cannot set issuer if account is set"
+        if self.currency is not None and self.currency.upper() == "XRP":
+            return "Cannot set issuer if currency is XRP"
+        return
 
 
 @dataclass(frozen=True)
@@ -81,5 +136,4 @@ class PathFind(Request):
     destination_amount: Amount = REQUIRED
     method: RequestMethod = RequestMethod.PATH_FIND
     send_max: Optional[Amount] = None
-    # TODO create path type
-    paths: Optional[List[Any]] = None
+    paths: Optional[List[List[PathStep]]] = None

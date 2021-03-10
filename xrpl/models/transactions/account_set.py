@@ -59,16 +59,16 @@ class AccountSet(Transaction):
 
     def _tick_size_error(self: AccountSet) -> Optional[str]:
         if self.tick_size is None:
-            return None
+            return
         if self.tick_size > _MAX_TICK_SIZE:
             return f"`tick_size` is above {_MAX_TICK_SIZE}."
         if self.tick_size < _MIN_TICK_SIZE and self.tick_size != _DISABLE_TICK_SIZE:
             return f"`tick_size` is below {_MIN_TICK_SIZE}."
-        return None
+        return
 
     def _transfer_rate_error(self: AccountSet) -> Optional[str]:
         if self.transfer_rate is None:
-            return None
+            return
         if self.transfer_rate > _MAX_TRANSFER_RATE:
             return f"`transfer_rate` is above {_MAX_TRANSFER_RATE}."
         if (
@@ -76,4 +76,4 @@ class AccountSet(Transaction):
             and self.transfer_rate != _SPECIAL_CASE_TRANFER_RATE
         ):
             return f"`transfer_rate` is below {_MIN_TRANSFER_RATE}."
-        return None
+        return

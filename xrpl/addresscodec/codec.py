@@ -75,12 +75,10 @@ def encode_seed(entropy: bytes, encoding_type: CryptoAlgorithm) -> str:
             or the encoding type is not one of CryptoAlgorithm.
     """
     if len(entropy) != SEED_LENGTH:
-        raise XRPLAddressCodecException(
-            "Entropy must have length {}".format(SEED_LENGTH)
-        )
+        raise XRPLAddressCodecException(f"Entropy must have length {SEED_LENGTH}")
     if encoding_type not in CryptoAlgorithm:
         raise XRPLAddressCodecException(
-            "Encoding type must be one of {}".format(CryptoAlgorithm)
+            f"Encoding type must be one of {CryptoAlgorithm}"
         )
 
     prefix = _ALGORITHM_TO_PREFIX_MAP[encoding_type]

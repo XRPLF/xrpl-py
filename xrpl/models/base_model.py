@@ -6,7 +6,7 @@ from abc import ABC
 from enum import Enum
 from typing import Any, Dict, Type, get_type_hints
 
-from xrpl.models.exceptions import XRPLModelValidationException
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 
 
@@ -27,7 +27,7 @@ class BaseModel(ABC):
             A new BaseModel object, constructed using the given parameters.
 
         Raises:
-            XRPLModelValidationException: If the dictionary provided is invalid.
+            XRPLModelException: If the dictionary provided is invalid.
         """
         # returns a dictionary mapping class params to their types
         class_types = get_type_hints(cls)
@@ -35,7 +35,7 @@ class BaseModel(ABC):
         args = {}
         for param in value:
             if param not in class_types:
-                raise XRPLModelValidationException(
+                raise XRPLModelException(
                     f"{param} not a valid parameter for {cls.__name__}"
                 )
             if type(value[param]) == class_types[param]:
@@ -62,7 +62,7 @@ class BaseModel(ABC):
         if param_type.__name__ == "Amount":
             # special case, NewType
             if not isinstance(param_value, dict):
-                raise XRPLModelValidationException(
+                raise XRPLModelException(
                     f"{param_type} requires a dictionary of params"
                 )
             return IssuedCurrencyAmount.from_dict(param_value)
@@ -70,19 +70,19 @@ class BaseModel(ABC):
         if param_type.__name__ == "Currency":
             # special case, NewType
             if not isinstance(param_value, dict):
-                raise XRPLModelValidationException(
+                raise XRPLModelException(
                     f"{param_type} requires a dictionary of params"
                 )
             if "currency" in param_value and "issuer" in param_value:
                 return IssuedCurrency.from_dict(param_value)
             if "currency" in param_value:
                 return XRP.from_dict(param_value)
-            raise XRPLModelValidationException(f"No valid type for {param}")
+            raise XRPLModelException(f"No valid type for {param}")
 
         if param_type.__name__ == "Transaction":
             # special case, multiple options (could be any Transaction type)
             if "transaction_type" not in param_value:
-                raise XRPLModelValidationException(
+                raise XRPLModelException(
                     f"{param} not a valid parameter for {cls.__name__}"
                 )
             type_str = param_value["transaction_type"]
@@ -93,7 +93,7 @@ class BaseModel(ABC):
         if issubclass(param_type, BaseModel):
             # any other BaseModel
             if not isinstance(param_value, dict):
-                raise XRPLModelValidationException(
+                raise XRPLModelException(
                     f"{param_type} requires a dictionary of params"
                 )
             return param_type.from_dict(param_value)
@@ -112,11 +112,11 @@ class BaseModel(ABC):
         Raises if this object is invalid.
 
         Raises:
-            XRPLModelValidationException: if this object is invalid.
+            XRPLModelException: if this object is invalid.
         """
         errors = self._get_errors()
         if len(errors) > 0:
-            raise XRPLModelValidationException(str(errors))
+            raise XRPLModelException(str(errors))
 
     def is_valid(self: BaseModel) -> bool:
         """
@@ -149,8 +149,18 @@ class BaseModel(ABC):
         Returns:
             The dictionary representation of a BaseModel.
         """
+
+        def _format_elem(elem: Any) -> Any:
+            if isinstance(elem, BaseModel):
+                return elem.to_dict()
+            if isinstance(elem, list):
+                return [
+                    _format_elem(sub_elem) for sub_elem in elem if sub_elem is not None
+                ]
+            return elem
+
         return {
-            key: value.to_dict() if isinstance(value, BaseModel) else value
+            key: _format_elem(value)
             for key, value in self.__dict__.items()
             if value is not None
         }

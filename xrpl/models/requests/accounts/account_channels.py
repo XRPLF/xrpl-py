@@ -30,7 +30,8 @@ class AccountChannels(Request):
     account: str = REQUIRED
     destination_account: Optional[str] = None
     limit: int = 200
-    # TODO make type
+    # marker data shape is actually undefined in the spec, up to the
+    # implementation of an individual server
     marker: Optional[Any] = None
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
