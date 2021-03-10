@@ -42,7 +42,7 @@ class TestSerializedDict(unittest.TestCase):
 
     def test_from_value(self):
         transaction = SerializedDict.from_value(expected_json)
-        self.assertEqual(buffer, transaction.to_string().upper())
+        self.assertEqual(buffer, str(transaction).upper())
 
     def test_from_value_to_json(self):
         transaction = SerializedDict.from_value(expected_json)

@@ -79,8 +79,18 @@ class BaseModel(ABC):
         Returns:
             The dictionary representation of a BaseModel.
         """
+
+        def _format_elem(elem: Any) -> Any:
+            if isinstance(elem, BaseModel):
+                return elem.to_dict()
+            if isinstance(elem, list):
+                return [
+                    _format_elem(sub_elem) for sub_elem in elem if sub_elem is not None
+                ]
+            return elem
+
         return {
-            key: value.to_dict() if isinstance(value, BaseModel) else value
+            key: _format_elem(value)
             for key, value in self.__dict__.items()
             if value is not None
         }

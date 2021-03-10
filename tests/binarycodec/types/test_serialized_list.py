@@ -24,12 +24,12 @@ class TestSerializedList(unittest.TestCase):
 
     def test_from_value(self):
         serialized_list = SerializedList.from_value(EXPECTED_JSON)
-        self.assertEqual(BUFFER, serialized_list.to_string())
+        self.assertEqual(BUFFER, str(serialized_list))
 
     def test_from_parser(self):
         parser = BinaryParser(BUFFER)
         serialized_list = SerializedList.from_parser(parser)
-        self.assertEqual(BUFFER, serialized_list.to_string())
+        self.assertEqual(BUFFER, str(serialized_list))
 
     def test_from_value_to_json(self):
         serialized_list = SerializedList.from_value(EXPECTED_JSON)
