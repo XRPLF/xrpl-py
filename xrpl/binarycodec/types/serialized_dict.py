@@ -109,7 +109,7 @@ class SerializedDict(SerializedType):
             associated_value = parser.read_field_value(field)
             serializer.write_field_and_value(field, associated_value)
             if field.type == _SERIALIZED_DICT:
-                serializer.put(_OBJECT_END_MARKER_BYTE)
+                serializer.append(_OBJECT_END_MARKER_BYTE)
 
         return SerializedDict(bytes(serializer))
 
@@ -181,7 +181,7 @@ class SerializedDict(SerializedType):
             )
             serializer.write_field_and_value(field, associated_value)
             if field.type == _SERIALIZED_DICT:
-                serializer.put(_OBJECT_END_MARKER_BYTE)
+                serializer.append(_OBJECT_END_MARKER_BYTE)
 
         return SerializedDict(bytes(serializer))
 

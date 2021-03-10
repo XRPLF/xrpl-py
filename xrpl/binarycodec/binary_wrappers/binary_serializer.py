@@ -58,7 +58,7 @@ class BinarySerializer:
         """Construct a BinarySerializer."""
         self.bytesink = bytes()
 
-    def put(self: BinarySerializer, bytes_object: bytes) -> None:
+    def append(self: BinarySerializer, bytes_object: bytes) -> None:
         """
         Write given bytes to this BinarySerializer's bytesink.
 
