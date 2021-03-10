@@ -13,7 +13,6 @@ from typing import Dict
 from typing_extensions import Final
 
 from xrpl.models.base_model import REQUIRED, BaseModel
-from xrpl.models.utils import require_kwargs_on_init
 
 _CHAR: Final[str] = r"[A-Za-z\d\?!@#\$%\^&\*<>\(\){}\[\]\|]"
 _CURRENCY_CODE: Final[str] = f"{_CHAR}{{3}}"
@@ -23,7 +22,6 @@ _VALIDATOR: Final[re.Pattern] = re.compile(
 )
 
 
-@require_kwargs_on_init
 @dataclass(frozen=True)
 class IssuedCurrency(BaseModel):
     """

@@ -11,7 +11,6 @@ from dataclasses import dataclass
 from typing import Dict, Optional
 
 from xrpl.models.transactions.transaction import Transaction, TransactionType
-from xrpl.models.utils import require_kwargs_on_init
 
 _MAX_TRANSFER_RATE = 2000000000
 _MIN_TRANSFER_RATE = 1000000000
@@ -22,7 +21,6 @@ _MAX_TICK_SIZE = 15
 _DISABLE_TICK_SIZE = 0
 
 
-@require_kwargs_on_init
 @dataclass(frozen=True)
 class AccountSet(Transaction):
     """

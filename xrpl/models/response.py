@@ -10,7 +10,6 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
 from xrpl.models.base_model import REQUIRED, BaseModel
-from xrpl.models.utils import require_kwargs_on_init
 
 
 class ResponseStatus(str, Enum):
@@ -28,7 +27,6 @@ class ResponseType(str, Enum):
     TRANSACTION = "transaction"
 
 
-@require_kwargs_on_init
 @dataclass(frozen=True)
 class Response(BaseModel):
     """

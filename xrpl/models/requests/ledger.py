@@ -3,10 +3,8 @@ from dataclasses import dataclass
 from typing import Optional, Union
 
 from xrpl.models.requests.request import Request, RequestMethod
-from xrpl.models.utils import require_kwargs_on_init
 
 
-@require_kwargs_on_init
 @dataclass(frozen=True)
 class Ledger(Request):
     """Retrieve information about the public ledger."""

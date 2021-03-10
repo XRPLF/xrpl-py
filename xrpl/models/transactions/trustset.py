@@ -10,7 +10,6 @@ from typing import Optional
 
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
-from xrpl.models.utils import require_kwargs_on_init
 
 
 class TrustSetFlag(int, Enum):
@@ -26,7 +25,6 @@ class TrustSetFlag(int, Enum):
     TF_CLEAR_FREEZE = 0x00200000
 
 
-@require_kwargs_on_init
 @dataclass(frozen=True)
 class TrustSet(Transaction):
     """

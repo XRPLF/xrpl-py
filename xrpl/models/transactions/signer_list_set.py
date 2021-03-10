@@ -15,10 +15,8 @@ from typing import Any, Dict, List, Optional
 
 from xrpl.models.base_model import REQUIRED, BaseModel
 from xrpl.models.transactions.transaction import Transaction, TransactionType
-from xrpl.models.utils import require_kwargs_on_init
 
 
-@require_kwargs_on_init
 @dataclass(frozen=True)
 class SignerEntry(BaseModel):
     """
@@ -39,7 +37,6 @@ class SignerEntry(BaseModel):
         return {"SignerEntry": super().to_dict()}
 
 
-@require_kwargs_on_init
 @dataclass(frozen=True)
 class SignerListSet(Transaction):
     """

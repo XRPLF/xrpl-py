@@ -11,10 +11,8 @@ from xrpl.models.base_model import REQUIRED, BaseModel
 from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.requests.subscribe import StreamParameter
-from xrpl.models.utils import require_kwargs_on_init
 
 
-@require_kwargs_on_init
 @dataclass(frozen=True)
 class UnsubscribeBook(BaseModel):
     """Format for elements in the `books` array for Unsubscribe only."""
