@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from xrpl.models.exceptions import XRPLModelValidationException
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions.check_cash import CheckCash
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
@@ -12,7 +12,7 @@ _AMOUNT = "300"
 
 class TestCheckCash(TestCase):
     def test_amount_and_deliver_min_is_invalid(self):
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             CheckCash(
                 account=_ACCOUNT,
                 fee=_FEE,
@@ -23,7 +23,7 @@ class TestCheckCash(TestCase):
             )
 
     def test_neither_amount_not_deliver_min_is_invalid(self):
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             CheckCash(
                 account=_ACCOUNT,
                 fee=_FEE,

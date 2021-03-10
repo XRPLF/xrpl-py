@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from xrpl.models.exceptions import XRPLModelValidationException
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests import LedgerEntry
 from xrpl.models.requests.ledger_entry import RippleState
 
@@ -70,11 +70,11 @@ class TestLedgerEntry(TestCase):
         self.assertTrue(req.is_valid())
 
     def test_has_no_query_param_is_invalid(self):
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             LedgerEntry()
 
     def test_has_multiple_query_params_is_invalid(self):
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             LedgerEntry(
                 index="hello",
                 account_root="hello",
