@@ -1,5 +1,6 @@
 from time import sleep
 
+from https import JsonRpcClient, json_to_response
 from requests import post
 
 from xrpl.binarycodec.main import encode, encode_for_signing
@@ -14,7 +15,6 @@ from xrpl.models.requests.accounts.account_info import AccountInfo
 from xrpl.models.requests.fee import Fee
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.network_clients import JsonRpcClient, json_to_response
 
 JSON_RPC_URL = "http://test.xrp.xpring.io:51234"
 JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
@@ -128,8 +128,8 @@ def _get_account_info(address: str) -> Response:
 
 def _prepare_transaction_json_for_binary_codec(dictionary: dict) -> dict:
     """
-    Returns a new dictionary in which the keys have been formatted as
-    CamelCase and standardized to be serialized by the binary codec.
+    Returns a new dictionary in which the first letter of every original
+    key is capitalized.
     """
     formatted_dict = {
         _snake_to_capital_camel(key): value for (key, value) in dictionary.items()
