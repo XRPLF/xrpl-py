@@ -8,7 +8,8 @@ from typing_extensions import Final
 
 from xrpl.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
-from xrpl.binarycodec.definitions.definitions import (
+from xrpl.binarycodec.definitions import (
+    FieldInstance,
     get_field_instance,
     get_ledger_entry_type_code,
     get_ledger_entry_type_name,
@@ -17,7 +18,6 @@ from xrpl.binarycodec.definitions.definitions import (
     get_transaction_type_code,
     get_transaction_type_name,
 )
-from xrpl.binarycodec.definitions.field_instance import FieldInstance
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.serialized_type import SerializedType
 

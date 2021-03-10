@@ -48,26 +48,26 @@ def load_definitions(filename: str = "definitions.json") -> Dict[str, Any]:
         }
 
 
-DEFINITIONS = load_definitions()
-TRANSACTION_TYPE_CODE_TO_STR_MAP = {
-    value: key for (key, value) in DEFINITIONS["TRANSACTION_TYPES"].items()
+_DEFINITIONS = load_definitions()
+_TRANSACTION_TYPE_CODE_TO_STR_MAP = {
+    value: key for (key, value) in _DEFINITIONS["TRANSACTION_TYPES"].items()
 }
-TRANSACTION_RESULTS_CODE_TO_STR_MAP = {
-    value: key for (key, value) in DEFINITIONS["TRANSACTION_RESULTS"].items()
+_TRANSACTION_RESULTS_CODE_TO_STR_MAP = {
+    value: key for (key, value) in _DEFINITIONS["TRANSACTION_RESULTS"].items()
 }
-LEDGER_ENTRY_TYPES_CODE_TO_STR_MAP = {
-    value: key for (key, value) in DEFINITIONS["LEDGER_ENTRY_TYPES"].items()
+_LEDGER_ENTRY_TYPES_CODE_TO_STR_MAP = {
+    value: key for (key, value) in _DEFINITIONS["LEDGER_ENTRY_TYPES"].items()
 }
 
-TYPE_ORDINAL_MAP = DEFINITIONS["TYPES"]
+_TYPE_ORDINAL_MAP = _DEFINITIONS["TYPES"]
 
-FIELD_INFO_MAP = {}
-FIELD_HEADER_NAME_MAP: Dict[FieldHeader, str] = {}
+_FIELD_INFO_MAP = {}
+_FIELD_HEADER_NAME_MAP: Dict[FieldHeader, str] = {}
 
-# Populate FIELD_INFO_MAP and FIELD_HEADER_NAME_MAP
+# Populate _FIELD_INFO_MAP and _FIELD_HEADER_NAME_MAP
 try:
-    for field in DEFINITIONS["FIELDS"]:
-        field_entry = DEFINITIONS["FIELDS"][field]
+    for field in _DEFINITIONS["FIELDS"]:
+        field_entry = _DEFINITIONS["FIELDS"][field]
         field_info = FieldInfo(
             field_entry["nth"],
             field_entry["isVLEncoded"],
@@ -75,9 +75,9 @@ try:
             field_entry["isSigningField"],
             field_entry["type"],
         )
-        header = FieldHeader(TYPE_ORDINAL_MAP[field_entry["type"]], field_entry["nth"])
-        FIELD_INFO_MAP[field] = field_info
-        FIELD_HEADER_NAME_MAP[header] = field
+        header = FieldHeader(_TYPE_ORDINAL_MAP[field_entry["type"]], field_entry["nth"])
+        _FIELD_INFO_MAP[field] = field_info
+        _FIELD_HEADER_NAME_MAP[header] = field
 except KeyError as e:
     raise XRPLBinaryCodecException(
         f"Malformed definitions.json file. (Original exception: KeyError: {e})"
@@ -95,7 +95,7 @@ def get_field_type_name(field_name: str) -> str:
     Returns:
         The serialization data type for the given field name.
     """
-    return FIELD_INFO_MAP[field_name].type
+    return _FIELD_INFO_MAP[field_name].type
 
 
 def get_field_type_code(field_name: str) -> int:
@@ -113,7 +113,7 @@ def get_field_type_code(field_name: str) -> int:
         XRPLBinaryCodecException: If definitions.json is invalid.
     """
     field_type_name = get_field_type_name(field_name)
-    field_type_code = TYPE_ORDINAL_MAP[field_type_name]
+    field_type_code = _TYPE_ORDINAL_MAP[field_type_name]
     if not isinstance(field_type_code, int):
         raise XRPLBinaryCodecException(
             "Field type codes in definitions.json must be ints."
@@ -133,7 +133,7 @@ def get_field_code(field_name: str) -> int:
     Returns:
         The field code associated with the given field.
     """
-    return FIELD_INFO_MAP[field_name].nth
+    return _FIELD_INFO_MAP[field_name].nth
 
 
 def get_field_header_from_name(field_name: str) -> FieldHeader:
@@ -159,7 +159,7 @@ def get_field_name_from_header(field_header: FieldHeader) -> str:
     Returns:
         The name of the field described by the given FieldHeader.
     """
-    return FIELD_HEADER_NAME_MAP[field_header]
+    return _FIELD_HEADER_NAME_MAP[field_header]
 
 
 def get_field_instance(field_name: str) -> FieldInstance:
@@ -172,7 +172,7 @@ def get_field_instance(field_name: str) -> FieldInstance:
     Returns:
         A FieldInstance object for the given field name.
     """
-    info = FIELD_INFO_MAP[field_name]
+    info = _FIELD_INFO_MAP[field_name]
     field_header = get_field_header_from_name(field_name)
     return FieldInstance(
         info,
@@ -191,7 +191,7 @@ def get_transaction_type_code(transaction_type: str) -> int:
     Returns:
         An integer representing the given transaction type string in an enum.
     """
-    return DEFINITIONS["TRANSACTION_TYPES"][transaction_type]
+    return _DEFINITIONS["TRANSACTION_TYPES"][transaction_type]
 
 
 def get_transaction_type_name(transaction_type: int) -> str:
@@ -204,7 +204,7 @@ def get_transaction_type_name(transaction_type: int) -> str:
     Returns:
         The string name of the transaction type.
     """
-    return TRANSACTION_TYPE_CODE_TO_STR_MAP[transaction_type]
+    return _TRANSACTION_TYPE_CODE_TO_STR_MAP[transaction_type]
 
 
 def get_transaction_result_code(transaction_result_type: str) -> int:
@@ -218,7 +218,7 @@ def get_transaction_result_code(transaction_result_type: str) -> int:
     Returns:
         An integer representing the given transaction result type string in an enum.
     """
-    return DEFINITIONS["TRANSACTION_RESULTS"][transaction_result_type]
+    return _DEFINITIONS["TRANSACTION_RESULTS"][transaction_result_type]
 
 
 def get_transaction_result_name(transaction_result_type: int) -> str:
@@ -231,7 +231,7 @@ def get_transaction_result_name(transaction_result_type: int) -> str:
     Returns:
         The string name of the transaction result type.
     """
-    return TRANSACTION_RESULTS_CODE_TO_STR_MAP[transaction_result_type]
+    return _TRANSACTION_RESULTS_CODE_TO_STR_MAP[transaction_result_type]
 
 
 def get_ledger_entry_type_code(ledger_entry_type: str) -> int:
@@ -244,7 +244,7 @@ def get_ledger_entry_type_code(ledger_entry_type: str) -> int:
     Returns:
         An integer representing the given ledger entry type string in an enum.
     """
-    return DEFINITIONS["LEDGER_ENTRY_TYPES"][ledger_entry_type]
+    return _DEFINITIONS["LEDGER_ENTRY_TYPES"][ledger_entry_type]
 
 
 def get_ledger_entry_type_name(ledger_entry_type: int) -> str:
@@ -257,4 +257,4 @@ def get_ledger_entry_type_name(ledger_entry_type: int) -> str:
     Returns:
         The string name of the ledger entry type.
     """
-    return LEDGER_ENTRY_TYPES_CODE_TO_STR_MAP[ledger_entry_type]
+    return _LEDGER_ENTRY_TYPES_CODE_TO_STR_MAP[ledger_entry_type]
