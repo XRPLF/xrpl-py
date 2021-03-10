@@ -54,26 +54,16 @@ class SignFor(Request):
 
     def _get_errors(self: SignFor) -> Dict[str, str]:
         errors = super()._get_errors()
-        if self.secret is not None and (
-            self.key_type is not None
-            or self.seed is not None
-            or self.seed_hex is not None
-            or self.passphrase is not None
-        ):
-            errors["SignFor"] = (
-                "`secret` cannot be used with `key_type`, `seed`, `seed_hex`, or "
-                "`passphrase`."
-            )
-        elif self.seed is not None and (
-            self.seed_hex is not None or self.passphrase is not None
-        ):
-            errors["SignFor"] = "`seed` cannot be used with `seed_hex` or `passphrase`."
-        elif self.seed_hex is not None and self.passphrase is not None:
-            errors["SignFor"] = "`seed` cannot be used with `passphrase`."
-        elif self.key_type is None and (
-            self.seed is not None
-            or self.seed_hex is not None
-            or self.passphrase is not None
-        ):
-            self.key_type = "secp256k1"  # default
+        if not self._has_only_one_seed():
+            errors[
+                "Sign"
+            ] = "Must have only one of `secret`, `seed`, `seed_hex`, and `passphrase."
+
+        if self.secret is not None and self.key_type is not None:
+            errors["key_type"] = "Must omit `key_type` if `secret` is provided."
+
         return errors
+
+    def _has_only_one_seed(self: SignFor) -> bool:
+        items = [self.secret, self.seed, self.seed_hex, self.passphrase]
+        return len([item for item in items if item is not None]) == 1
