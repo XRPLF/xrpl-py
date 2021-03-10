@@ -54,7 +54,7 @@ class PathStep(SerializedType):
         if not isinstance(value, dict):
             raise XRPLBinaryCodecException(
                 "Invalid type to construct a PathStep: expected dict,"
-                " received {}.".format(value.__class__.__name__)
+                f" received {value.__class__.__name__}."
             )
 
         data_type = 0x00
@@ -155,9 +155,8 @@ class Path(SerializedType):
         """
         if not isinstance(value, list):
             raise XRPLBinaryCodecException(
-                "Invalid type to construct a Path: expected list, received {}.".format(
-                    value.__class__.__name__
-                )
+                "Invalid type to construct a Path: expected list, "
+                f"received {value.__class__.__name__}."
             )
 
         buffer: bytes = b""
@@ -229,7 +228,7 @@ class PathSet(SerializedType):
         if not isinstance(value, list):
             raise XRPLBinaryCodecException(
                 "Invalid type to construct a PathSet: expected list,"
-                " received {}.".format(value.__class__.__name__)
+                f" received {value.__class__.__name__}."
             )
 
         if _is_path_set(value):

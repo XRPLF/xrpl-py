@@ -59,9 +59,7 @@ class BinaryParser:
         """
         if n > len(self.bytes):
             raise XRPLBinaryCodecException(
-                "BinaryParser can't skip {} bytes, only contains {}.".format(
-                    n, len(self.bytes)
-                )
+                f"BinaryParser can't skip {n} bytes, only contains {len(self.bytes)}."
             )
         self.bytes = self.bytes[n:]
 
@@ -108,10 +106,11 @@ class BinaryParser:
 
     def is_end(self: BinaryParser, custom_end: Optional[int] = None) -> bool:
         """
-        TODO: I'm not sure what this actually does yet.
+        Returns whether the binary parser has finished parsing (e.g. there is nothing
+        left in the buffer that needs to be processed).
 
         Args:
-            custom_end: A custom end?
+            custom_end: An ending byte-phrase.
 
         Returns:
             Whether or not it's the end.
@@ -243,7 +242,7 @@ class BinaryParser:
             value = field_type.from_parser(self)
         if value is None:
             raise XRPLBinaryCodecException(
-                "from_parser for {}, {} returned None.".format(field.name, field.type)
+                f"from_parser for {field.name}, {field.type} returned None."
             )
         return value
 

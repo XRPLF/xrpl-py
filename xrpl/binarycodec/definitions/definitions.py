@@ -80,7 +80,7 @@ try:
         FIELD_HEADER_NAME_MAP[header] = field
 except KeyError as e:
     raise XRPLBinaryCodecException(
-        "Malformed definitions.json file. (Original exception: KeyError: {})".format(e)
+        f"Malformed definitions.json file. (Original exception: KeyError: {e})"
     )
 
 

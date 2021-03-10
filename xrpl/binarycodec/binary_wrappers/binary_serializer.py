@@ -46,9 +46,7 @@ def _encode_variable_length_prefix(length: int) -> bytes:
         byte3 = (length & 0xFF).to_bytes(1, byteorder="big", signed=False)
         return byte1 + byte2 + byte3
 
-    raise ValueError(
-        "VariableLength field must be <= {} bytes long".format(MAX_LENGTH_VALUE)
-    )
+    raise ValueError(f"VariableLength field must be <= {MAX_LENGTH_VALUE} bytes long")
 
 
 class BinarySerializer:

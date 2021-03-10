@@ -49,7 +49,7 @@ def _handle_xaddress(field: str, xaddress: str) -> Dict[str, Union[str, int]]:
     elif field == _ACCOUNT:
         tag_name = _SOURCE_TAG
     elif tag is not None:
-        raise XRPLBinaryCodecException("{} cannot have an associated tag".format(field))
+        raise XRPLBinaryCodecException(f"{field} cannot have an associated tag")
 
     if tag is not None:
         return {field: classic_address, tag_name: tag}

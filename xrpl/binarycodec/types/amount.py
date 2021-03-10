@@ -88,7 +88,7 @@ def verify_xrp_value(xrp_value: str) -> None:
     """
     # Contains no decimal point
     if not _contains_decimal(xrp_value):
-        raise XRPLBinaryCodecException("{} is an invalid XRP amount.".format(xrp_value))
+        raise XRPLBinaryCodecException(f"{xrp_value} is an invalid XRP amount.")
 
     # Within valid range
     decimal = Decimal(xrp_value)
@@ -96,7 +96,7 @@ def verify_xrp_value(xrp_value: str) -> None:
     if decimal.is_zero():
         return
     if (decimal.compare(_MIN_XRP) == -1) or (decimal.compare(_MAX_DROPS) == 1):
-        raise XRPLBinaryCodecException("{} is an invalid XRP amount.".format(xrp_value))
+        raise XRPLBinaryCodecException(f"{xrp_value} is an invalid XRP amount.")
 
 
 def verify_iou_value(issued_currency_value: str) -> None:
@@ -178,7 +178,7 @@ def _serialize_issued_currency_value(value: str) -> bytes:
     while mantissa > _MAX_MANTISSA:
         if exp >= _MAX_IOU_EXPONENT:
             raise XRPLBinaryCodecException(
-                "Amount overflow in issued currency value {}".format(str(value))
+                f"Amount overflow in issued currency value {str(value)}"
             )
         mantissa //= 10
         exp += 1
@@ -189,7 +189,7 @@ def _serialize_issued_currency_value(value: str) -> bytes:
 
     if exp > _MAX_IOU_EXPONENT or mantissa > _MAX_MANTISSA:
         raise XRPLBinaryCodecException(
-            "Amount overflow in issued currency value {}".format(str(value))
+            f"Amount overflow in issued currency value {str(value)}"
         )
 
     # Convert to bytes -----------------------------------------------------
@@ -266,7 +266,7 @@ class Amount(SerializedType):
 
         raise XRPLBinaryCodecException(
             "Invalid type to construct an Amount: expected str or dict,"
-            " received {}.".format(value.__class__.__name__)
+            f" received {value.__class__.__name__}."
         )
 
     @classmethod
@@ -300,7 +300,7 @@ class Amount(SerializedType):
             masked_bytes = (
                 int.from_bytes(self.buffer, byteorder="big") & 0x3FFFFFFFFFFFFFFF
             )
-            return "{}{}".format(sign, masked_bytes)
+            return f"{sign}{masked_bytes}"
         parser = BinaryParser(str(self))
         value_bytes = parser.read(8)
         currency = Currency.from_parser(parser)
@@ -312,9 +312,7 @@ class Amount(SerializedType):
         exponent = ((b1 & 0x3F) << 2) + ((b2 & 0xFF) >> 6) - 97
         hex_mantissa = hex(b2 & 0x3F) + value_bytes[2:].hex()
         int_mantissa = int(hex_mantissa[2:], 16)
-        value = Decimal("{}{}".format(sign, int_mantissa)) * Decimal(
-            "1e{}".format(exponent)
-        )
+        value = Decimal(f"{sign}{int_mantissa}") * Decimal(f"1e{exponent}")
 
         if value.is_zero():
             value_str = "0"
