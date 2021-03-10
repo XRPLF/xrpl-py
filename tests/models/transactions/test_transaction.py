@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from xrpl.models.exceptions import XRPLModelValidationException
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions.transaction import Transaction, TransactionType
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
@@ -10,7 +10,7 @@ _SEQUENCE = 19048
 
 class TestTransaction(TestCase):
     def test_missing_required_field(self):
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             # missing account
             Transaction(
                 fee=_FEE,

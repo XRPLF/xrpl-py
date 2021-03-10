@@ -60,27 +60,23 @@ class UInt64(UInt):
         if not isinstance(value, (str, int)):
             raise XRPLBinaryCodecException(
                 "Invalid type to construct a UInt64: expected str or int,"
-                " received {}.".format(value.__class__.__name__)
+                " received {value.__class__.__name__}."
             )
 
         if isinstance(value, int):
             if value < 0:
-                raise XRPLBinaryCodecException(
-                    "{} must be an unsigned integer".format(value)
-                )
+                raise XRPLBinaryCodecException("{value} must be an unsigned integer")
             value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=False)
             return cls(value_bytes)
 
         if isinstance(value, str):
             if not _HEX_REGEX.fullmatch(value):
-                raise XRPLBinaryCodecException(
-                    "{} is not a valid hex string".format(value)
-                )
+                raise XRPLBinaryCodecException("{value} is not a valid hex string")
             value_bytes = bytes.fromhex(value)
             return cls(value_bytes)
 
         raise XRPLBinaryCodecException(
-            "Cannot construct UInt64 from given value {}".format(value)
+            "Cannot construct UInt64 from given value {value}"
         )
 
     def to_json(self: UInt64) -> str:

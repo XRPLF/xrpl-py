@@ -36,12 +36,12 @@ class Vector256(SerializedType):
         if not isinstance(value, list):
             raise XRPLBinaryCodecException(
                 "Invalid type to construct a Vector256: expected list,"
-                " received {}.".format(value.__class__.__name__)
+                " received {value.__class__.__name__}."
             )
 
         byte_list = []
         for string in value:
-            byte_list.append(Hash256.from_value(string).to_bytes())
+            byte_list.append(bytes(Hash256.from_value(string)))
         return cls(b"".join(byte_list))
 
     @classmethod
@@ -61,7 +61,7 @@ class Vector256(SerializedType):
         num_bytes = length_hint if length_hint is not None else len(parser)
         num_hashes = num_bytes // _HASH_LENGTH_BYTES
         for i in range(num_hashes):
-            byte_list.append(Hash256.from_parser(parser).to_bytes())
+            byte_list.append(bytes(Hash256.from_parser(parser)))
         return cls(b"".join(byte_list))
 
     def to_json(self: Vector256) -> List[str]:
