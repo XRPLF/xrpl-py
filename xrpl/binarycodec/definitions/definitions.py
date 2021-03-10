@@ -2,7 +2,7 @@
 
 import json
 import os
-from typing import Any, Dict, Tuple
+from typing import Any, Dict
 
 from xrpl.binarycodec.definitions.field_header import FieldHeader
 from xrpl.binarycodec.definitions.field_info import FieldInfo
@@ -134,23 +134,6 @@ def get_field_code(field_name: str) -> int:
         The field code associated with the given field.
     """
     return FIELD_INFO_MAP[field_name].nth
-
-
-# TODO: may be able to remove this method,
-#  since a FieldHeader object provides this info.
-def get_field_sort_key(field_name: str) -> Tuple[int, int]:
-    """
-    Returns a tuple sort key for a given field name.
-    `Serialization Canonical Field Order
-    <https://xrpl.org/serialization.html#canonical-field-order>`_
-
-    Args:
-        field_name: The name of the field to get a sort key for.
-
-    Returns:
-        A tuple sort key for field_name.
-    """
-    return get_field_type_code(field_name), get_field_code(field_name)
 
 
 def get_field_header_from_name(field_name: str) -> FieldHeader:

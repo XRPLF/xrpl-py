@@ -43,11 +43,6 @@ class TestDefinitionService(unittest.TestCase):
         field_code = definitions.get_field_code(self.test_field_name)
         self.assertEqual(expected_field_code, field_code)
 
-    def test_get_field_sort_key(self):
-        expected_field_sort_key = (2, 4)
-        field_sort_key = definitions.get_field_sort_key(self.test_field_name)
-        self.assertEqual(expected_field_sort_key, field_sort_key)
-
     def test_get_field_header_from_name(self):
         expected_field_header = definitions.FieldHeader(2, 4)
         field_header = definitions.get_field_header_from_name(self.test_field_name)
