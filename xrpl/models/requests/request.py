@@ -9,6 +9,7 @@ from enum import Enum
 from typing import Any, Dict, Optional
 
 from xrpl.models.base_model import REQUIRED, BaseModel
+from xrpl.models.utils import require_kwargs_on_init
 
 
 class RequestMethod(str, Enum):
@@ -65,6 +66,7 @@ class RequestMethod(str, Enum):
     RANDOM = "random"
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Request(BaseModel):
     """
