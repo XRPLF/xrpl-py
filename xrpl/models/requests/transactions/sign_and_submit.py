@@ -30,7 +30,7 @@ from xrpl.models.transactions.transaction import REQUIRED, Transaction
 
 
 @dataclass(frozen=True)
-class Sign(Submit):
+class SignAndSubmit(Submit):
     """
     The submit method applies a transaction and sends it to the network to be confirmed
     and included in future ledgers.
@@ -64,19 +64,19 @@ class Sign(Submit):
     fee_mult_max: int = 10
     fee_div_max: int = 1
 
-    def to_dict(self: Sign) -> Dict[str, Any]:
+    def to_dict(self: SignAndSubmit) -> Dict[str, Any]:
         """
-        Returns the dictionary representation of a Sign.
+        Returns the dictionary representation of a SignAndSubmit.
 
         Returns:
-            The dictionary representation of a Sign.
+            The dictionary representation of a SignAndSubmit.
         """
         return_dict = super().to_dict()
         del return_dict["transaction"]
         return_dict["tx_json"] = self.transaction.to_dict()
         return return_dict
 
-    def _get_errors(self: Sign) -> Dict[str, str]:
+    def _get_errors(self: SignAndSubmit) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.secret is not None and (
             self.key_type is not None
@@ -84,16 +84,18 @@ class Sign(Submit):
             or self.seed_hex is not None
             or self.passphrase is not None
         ):
-            errors["Sign"] = (
+            errors["SignAndSubmit"] = (
                 "`secret` cannot be used with `key_type`, `seed`, `seed_hex`, or "
                 "`passphrase`."
             )
         elif self.seed is not None and (
             self.seed_hex is not None or self.passphrase is not None
         ):
-            errors["Sign"] = "`seed` cannot be used with `seed_hex` or `passphrase`."
+            errors[
+                "SignAndSubmit"
+            ] = "`seed` cannot be used with `seed_hex` or `passphrase`."
         elif self.seed_hex is not None and self.passphrase is not None:
-            errors["Sign"] = "`seed` cannot be used with `passphrase`."
+            errors["SignAndSubmit"] = "`seed` cannot be used with `passphrase`."
         elif self.key_type is None and (
             self.seed is not None
             or self.seed_hex is not None
