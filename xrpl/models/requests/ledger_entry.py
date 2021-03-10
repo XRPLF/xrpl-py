@@ -20,8 +20,8 @@ class DepositPreauth(BaseModel):
     object ID.
     """
 
-    owner: str = REQUIRED
-    authorized: str = REQUIRED
+    owner: str = REQUIRED  # type: ignore
+    authorized: str = REQUIRED  # type: ignore
 
 
 @dataclass(frozen=True)
@@ -31,8 +31,8 @@ class Directory(BaseModel):
     object ID.
     """
 
-    owner: str = REQUIRED
-    dir_root: str = REQUIRED
+    owner: str = REQUIRED  # type: ignore
+    dir_root: str = REQUIRED  # type: ignore
     sub_index: Optional[int] = None
 
 
@@ -43,8 +43,8 @@ class Escrow(BaseModel):
     object ID.
     """
 
-    owner: str = REQUIRED
-    seq: int = REQUIRED
+    owner: str = REQUIRED  # type: ignore
+    seq: int = REQUIRED  # type: ignore
 
 
 @dataclass(frozen=True)
@@ -54,16 +54,16 @@ class Offer(BaseModel):
     object ID.
     """
 
-    account: str = REQUIRED
-    seq: int = REQUIRED
+    account: str = REQUIRED  # type: ignore
+    seq: int = REQUIRED  # type: ignore
 
 
 @dataclass(frozen=True)
 class RippleState(BaseModel):
     """Required fields for requesting a RippleState."""
 
-    accounts: List[str] = REQUIRED
-    currency: str = REQUIRED
+    accounts: List[str] = REQUIRED  # type: ignore
+    currency: str = REQUIRED  # type: ignore
 
 
 @dataclass(frozen=True)
@@ -73,8 +73,8 @@ class Ticket(BaseModel):
     object ID.
     """
 
-    owner: str = REQUIRED
-    ticket_sequence: int = REQUIRED
+    owner: str = REQUIRED  # type: ignore
+    ticket_sequence: int = REQUIRED  # type: ignore
 
 
 @dataclass(frozen=True)
