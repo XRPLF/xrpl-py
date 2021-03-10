@@ -13,12 +13,30 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
+from xrpl.models.base_model import REQUIRED, BaseModel
+from xrpl.models.transactions.transaction import Transaction, TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
-_SIGNER_ENTRY_KEY = "SignerEntry"
-_ACCOUNT_KEY = "Account"
-_SIGNER_WEIGHT_KEY = "SignerWeight"
+
+@require_kwargs_on_init
+@dataclass(frozen=True)
+class SignerEntry(BaseModel):
+    """
+    Each member of the SignerEntries field is an object that describes that
+    signer in the list.
+    """
+
+    account: str = REQUIRED
+    signer_weight: int = REQUIRED
+
+    def to_dict(self: SignerEntry) -> Dict[str, Any]:
+        """
+        Returns the dictionary representation of a SignerEntry.
+
+        Returns:
+            The dictionary representation of a BaseModel.
+        """
+        return {"SignerEntry": super().to_dict()}
 
 
 @require_kwargs_on_init
@@ -36,8 +54,7 @@ class SignerListSet(Transaction):
     """
 
     signer_quorum: int = REQUIRED
-    # TODO: potentially create a SignerEntry object
-    signer_entries: Optional[List[Dict[str, Dict[str, Any]]]] = None
+    signer_entries: Optional[List[SignerEntry]] = None
     transaction_type: TransactionType = TransactionType.SIGNER_LIST_SET
 
     def _get_errors(self: SignerListSet) -> Dict[str, str]:
@@ -72,40 +89,17 @@ class SignerListSet(Transaction):
             )
             return errors
 
-        accounts = set()
+        account_set = set()
         signer_weight_sum = 0
+
         for signer_entry in self.signer_entries:
-            if (
-                not isinstance(signer_entry, dict)
-                or len(signer_entry) != 1
-                or _SIGNER_ENTRY_KEY not in signer_entry
-            ):
-                errors["signer_entries"] = "One of the signer entries is malformed."
-                return errors
-            entry = signer_entry[_SIGNER_ENTRY_KEY]
-            if (
-                not isinstance(entry, dict)
-                or len(entry) != 2
-                or _ACCOUNT_KEY not in entry
-                or _SIGNER_WEIGHT_KEY not in entry
-            ):
-                errors["signer_entries"] = "One of the signer entries is malformed."
-                return errors
-            entry_account = entry[_ACCOUNT_KEY]
-            if self.account == entry_account:
+            if signer_entry.account == self.account:
                 errors["signer_entries"] = (
                     "The account submitting the transaction cannot appear in a "
                     "signer entry."
                 )
-                return errors
-            if entry_account in accounts:
-                errors["signer_entries"] = (
-                    "An account cannot appear multiple times in the list of signer "
-                    "entries."
-                )
-                return errors
-            accounts.add(entry_account)
-            signer_weight_sum += entry[_SIGNER_WEIGHT_KEY]
+            account_set.add(signer_entry.account)
+            signer_weight_sum += signer_entry.signer_weight
 
         if self.signer_quorum > signer_weight_sum:
             errors["signer_quorum"] = (
@@ -113,4 +107,9 @@ class SignerListSet(Transaction):
                 "SignerWeight values in the `signer_entries` list."
             )
 
+        if len(account_set) != len(self.signer_entries):
+            errors["signer_entries"] = (
+                "An account cannot appear multiple times in the list of signer "
+                "entries."
+            )
         return errors

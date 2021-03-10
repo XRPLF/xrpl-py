@@ -104,7 +104,7 @@ def _decode_field_id(field_id: str) -> FieldHeader:
 
     raise XRPLBinaryCodecException(
         "Field ID must be between 1 and 3 bytes. "
-        "This field ID contained {} bytes.".format(len(byte_array))
+        f"This field ID contained {len(byte_array)} bytes."
     )
 
 

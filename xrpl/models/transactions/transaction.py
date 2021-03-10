@@ -40,6 +40,50 @@ class TransactionType(str, Enum):
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
+class Memo(BaseModel):
+    """
+    The Memos field includes arbitrary messaging data with
+    the transaction. It is presented as an array of objects.
+    Each object has only one field, Memo, which in turn contains
+    another object with one or more of the following fields.
+    """
+
+    memo_data: Optional[str] = None
+    memo_format: Optional[str] = None
+    memo_type: Optional[str] = None
+
+    def _get_errors(self: Memo) -> Dict[str, str]:
+        errors = super()._get_errors()
+        present_memo_fields = [
+            field
+            for field in [
+                self.memo_data,
+                self.memo_format,
+                self.memo_type,
+            ]
+            if field is not None
+        ]
+        if len(present_memo_fields) < 1:
+            errors["Memo"] = "Memo must contain at least one field"
+        return errors
+
+
+@dataclass(frozen=True)
+class Signer(BaseModel):
+    """
+    The Signers field contains a multi-signature, which has
+    signatures from up to 8 key pairs, that together should
+    authorize the transaction. The Signers list is an array
+    of objects, each with one field, Signer. The Signer field
+    has the following nested fields.
+    """
+
+    account: str = REQUIRED
+    txn_signature: str = REQUIRED
+    signing_pub_key: str = REQUIRED
+
+
+@dataclass(frozen=True)
 class Transaction(BaseModel):
     """
     The base class for all transaction types. Represents fields common to all
@@ -56,10 +100,8 @@ class Transaction(BaseModel):
     account_txn_id: Optional[str] = None
     flags: int = 0
     last_ledger_sequence: Optional[int] = None
-    # TODO make type
-    memos: Optional[List[Any]] = None
-    # TODO make type
-    signers: Optional[List[Any]] = None
+    memos: Optional[List[Memo]] = None
+    signers: Optional[List[Signer]] = None
     source_tag: Optional[int] = None
     signing_pub_key: Optional[str] = None
     txn_signature: Optional[str] = None
