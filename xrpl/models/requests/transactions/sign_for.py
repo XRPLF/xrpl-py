@@ -65,5 +65,9 @@ class SignFor(Request):
         return errors
 
     def _has_only_one_seed(self: SignFor) -> bool:
-        items = [self.secret, self.seed, self.seed_hex, self.passphrase]
-        return len([item for item in items if item is not None]) == 1
+        present_items = [
+            item
+            for item in [self.secret, self.seed, self.seed_hex, self.passphrase]
+            if item is not None
+        ]
+        return len(present_items) == 1
