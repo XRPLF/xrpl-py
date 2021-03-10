@@ -4,7 +4,7 @@ messages for a particular subscription or set of subscriptions.
 
 WebSocket API only.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 
 from xrpl.models.base_model import REQUIRED, BaseModel
@@ -31,7 +31,7 @@ class Unsubscribe(Request):
     WebSocket API only.
     """
 
-    method: RequestMethod = RequestMethod.UNSUBSCRIBE
+    method: RequestMethod = field(default=RequestMethod.UNSUBSCRIBE, init=False)
     streams: Optional[List[StreamParameter]] = None
     accounts: Optional[List[str]] = None
     accounts_proposed: Optional[List[str]] = None

@@ -4,7 +4,7 @@ when certain events happen.
 
 WebSocket API only.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Optional
 
@@ -46,7 +46,7 @@ class Subscribe(Request):
     WebSocket API only.
     """
 
-    method: RequestMethod = RequestMethod.SUBSCRIBE
+    method: RequestMethod = field(default=RequestMethod.SUBSCRIBE, init=False)
     streams: Optional[List[StreamParameter]] = None
     accounts: Optional[List[str]] = None
     accounts_proposed: Optional[List[str]] = None
