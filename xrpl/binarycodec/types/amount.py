@@ -116,7 +116,7 @@ def verify_iou_value(issued_currency_value: str) -> None:
     """
     decimal_value = Decimal(issued_currency_value)
     if decimal_value.is_zero():
-        return None
+        return
     exponent = decimal_value.as_tuple().exponent
     if (
         (_calculate_precision(issued_currency_value) > _MAX_IOU_PRECISION)
