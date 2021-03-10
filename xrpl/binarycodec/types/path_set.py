@@ -61,15 +61,15 @@ class PathStep(SerializedType):
         buffer = b""
         if "account" in value:
             account_id = AccountID.from_value(value["account"])
-            buffer += account_id.to_bytes()
+            buffer += bytes(account_id)
             data_type |= _TYPE_ACCOUNT
         if "currency" in value:
             currency = Currency.from_value(value["currency"])
-            buffer += currency.to_bytes()
+            buffer += bytes(currency)
             data_type |= _TYPE_CURRENCY
         if "issuer" in value:
             issuer = AccountID.from_value(value["issuer"])
-            buffer += issuer.to_bytes()
+            buffer += bytes(issuer)
             data_type |= _TYPE_ISSUER
 
         return PathStep(bytes([data_type]) + buffer)
@@ -163,7 +163,7 @@ class Path(SerializedType):
         buffer: bytes = b""
         for PathStep_dict in value:
             pathstep = PathStep.from_value(PathStep_dict)
-            buffer += pathstep.to_bytes()
+            buffer += bytes(pathstep)
         return Path(buffer)
 
     @classmethod
@@ -182,7 +182,7 @@ class Path(SerializedType):
         buffer: List[bytes] = []
         while not parser.is_end():
             pathstep = PathStep.from_parser(parser)
-            buffer.append(pathstep.to_bytes())
+            buffer.append(bytes(pathstep))
 
             if parser.peek() == cast(bytes, _PATHSET_END_BYTE) or parser.peek() == cast(
                 bytes, _PATH_SEPARATOR_BYTE
@@ -236,7 +236,7 @@ class PathSet(SerializedType):
             buffer: List[bytes] = []
             for path_dict in value:
                 path = Path.from_value(path_dict)
-                buffer.append(path.to_bytes())
+                buffer.append(bytes(path))
                 buffer.append(bytes([_PATH_SEPARATOR_BYTE]))
 
             buffer[-1] = bytes([_PATHSET_END_BYTE])
@@ -260,7 +260,7 @@ class PathSet(SerializedType):
         buffer: List[bytes] = []
         while not parser.is_end():
             path = Path.from_parser(parser)
-            buffer.append(path.to_bytes())
+            buffer.append(bytes(path))
             buffer.append(parser.read(1))
 
             if buffer[-1][0] == _PATHSET_END_BYTE:

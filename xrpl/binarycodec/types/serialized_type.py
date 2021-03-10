@@ -58,7 +58,7 @@ class SerializedType(ABC):
         """
         bytesink.extend(self.buffer)
 
-    def to_bytes(self: SerializedType) -> bytes:
+    def __bytes__(self: SerializedType) -> bytes:
         """
         Get the bytes representation of a SerializedType.
 

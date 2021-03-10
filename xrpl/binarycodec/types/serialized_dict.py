@@ -111,7 +111,7 @@ class SerializedDict(SerializedType):
             if field.type == _SERIALIZED_DICT:
                 serializer.put(_OBJECT_END_MARKER_BYTE)
 
-        return SerializedDict(serializer.to_bytes())
+        return SerializedDict(bytes(serializer))
 
     @classmethod
     def from_value(
@@ -183,7 +183,7 @@ class SerializedDict(SerializedType):
             if field.type == _SERIALIZED_DICT:
                 serializer.put(_OBJECT_END_MARKER_BYTE)
 
-        return SerializedDict(serializer.to_bytes())
+        return SerializedDict(bytes(serializer))
 
     def to_json(self: SerializedDict) -> Dict[str, Any]:
         """

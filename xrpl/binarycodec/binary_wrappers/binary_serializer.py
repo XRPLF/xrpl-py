@@ -67,7 +67,7 @@ class BinarySerializer:
         """
         self.bytesink += bytes_object
 
-    def to_bytes(self: BinarySerializer) -> bytes:
+    def __bytes__(self: BinarySerializer) -> bytes:
         """
         Get the bytes representation of a BinarySerializer.
 
@@ -99,9 +99,9 @@ class BinarySerializer:
             field: The field to write to the buffer.
             value: The value to write to the buffer.
         """
-        self.bytesink += field.header.to_bytes()
+        self.bytesink += bytes(field.header)
 
         if field.is_variable_length_encoded:
             self.write_length_encoded(value)
         else:
-            self.bytesink += value.to_bytes()
+            self.bytesink += bytes(value)

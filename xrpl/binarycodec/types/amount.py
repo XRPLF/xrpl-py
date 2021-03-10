@@ -228,8 +228,8 @@ def _serialize_issued_currency_amount(value: Dict[str, str]) -> bytes:
     """
     amount_string = value["value"]
     amount_bytes = _serialize_issued_currency_value(amount_string)
-    currency_bytes = Currency.from_value(value["currency"]).to_bytes()
-    issuer_bytes = AccountID.from_value(value["issuer"]).to_bytes()
+    currency_bytes = bytes(Currency.from_value(value["currency"]))
+    issuer_bytes = bytes(AccountID.from_value(value["issuer"]))
     return amount_bytes + currency_bytes + issuer_bytes
 
 
@@ -344,4 +344,4 @@ class Amount(SerializedType):
             True if 2nd bit in 1st byte is set to 1 (positive amount),
             False otherwise.
         """
-        return (self.to_bytes()[0] & 0x40) > 0
+        return (bytes(self)[0] & 0x40) > 0
