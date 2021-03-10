@@ -7,7 +7,7 @@ All information retrieved is relative to a particular version of the ledger.
 
 `See account_channels <https://xrpl.org/account_channels.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Optional, Union
 
 from xrpl.models.base_model import REQUIRED
@@ -28,7 +28,7 @@ class AccountChannels(Request):
     `See account_channels <https://xrpl.org/account_channels.html>`_
     """
 
-    method: RequestMethod = RequestMethod.ACCOUNT_CHANNELS
+    method: RequestMethod = field(default=RequestMethod.ACCOUNT_CHANNELS, init=False)
     account: str = REQUIRED
     destination_account: Optional[str] = None
     limit: int = 200

@@ -45,9 +45,7 @@ class Sign(Request):
     `See sign <https://xrpl.org/sign.html>`_
     """
 
-    method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.SIGN, init=False
-    )
+    method: RequestMethod = field(default=RequestMethod.SIGN, init=False)
     transaction: Transaction = REQUIRED
     secret: Optional[str] = None
     seed: Optional[str] = None
@@ -73,26 +71,20 @@ class Sign(Request):
 
     def _get_errors(self: Sign) -> Dict[str, str]:
         errors = super()._get_errors()
-        if self.secret is not None and (
-            self.key_type is not None
-            or self.seed is not None
-            or self.seed_hex is not None
-            or self.passphrase is not None
-        ):
-            errors["Sign"] = (
-                "`secret` cannot be used with `key_type`, `seed`, `seed_hex`, or "
-                "`passphrase`."
-            )
-        elif self.seed is not None and (
-            self.seed_hex is not None or self.passphrase is not None
-        ):
-            errors["Sign"] = "`seed` cannot be used with `seed_hex` or `passphrase`."
-        elif self.seed_hex is not None and self.passphrase is not None:
-            errors["Sign"] = "`seed` cannot be used with `passphrase`."
-        elif self.key_type is None and (
-            self.seed is not None
-            or self.seed_hex is not None
-            or self.passphrase is not None
-        ):
-            self.key_type = "secp256k1"  # default
+        if not self._has_only_one_seed():
+            errors[
+                "Sign"
+            ] = "Must have only one of `secret`, `seed`, `seed_hex`, and `passphrase."
+
+        if self.secret is not None and self.key_type is not None:
+            errors["key_type"] = "Must omit `key_type` if `secret` is provided."
+
         return errors
+
+    def _has_only_one_seed(self: Sign) -> bool:
+        present_items = [
+            item
+            for item in [self.secret, self.seed, self.seed_hex, self.passphrase]
+            if item is not None
+        ]
+        return len(present_items) == 1

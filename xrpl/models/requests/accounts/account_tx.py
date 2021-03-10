@@ -4,7 +4,7 @@ specified account.
 
 `See account_tx <https://xrpl.org/account_tx.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Optional, Union
 
 from xrpl.models.base_model import REQUIRED
@@ -25,7 +25,7 @@ class AccountTx(Request):
     account: str = REQUIRED
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
-    method: RequestMethod = RequestMethod.ACCOUNT_TX
+    method: RequestMethod = field(default=RequestMethod.ACCOUNT_TX, init=False)
     ledger_index_min: Optional[int] = None
     ledger_index_max: Optional[int] = None
     binary: Optional[bool] = False

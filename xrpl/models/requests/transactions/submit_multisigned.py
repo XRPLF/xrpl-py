@@ -32,9 +32,7 @@ class SubmitMultisigned(Request):
     `See submit_multisigned <https://xrpl.org/submit_multisigned.html>`_
     """
 
-    method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.SUBMIT_MULTISIGNED, init=False
-    )
+    method: RequestMethod = field(default=RequestMethod.SUBMIT_MULTISIGNED, init=False)
     transaction: Transaction = REQUIRED
     fail_hard: bool = False
 

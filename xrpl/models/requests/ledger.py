@@ -1,5 +1,5 @@
 """Retrieve information about the public ledger."""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, Union
 
 from xrpl.models.requests.request import Request, RequestMethod
@@ -11,7 +11,7 @@ from xrpl.models.utils import require_kwargs_on_init
 class Ledger(Request):
     """Retrieve information about the public ledger."""
 
-    method: RequestMethod = RequestMethod.LEDGER
+    method: RequestMethod = field(default=RequestMethod.LEDGER, init=False)
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
     full: Optional[bool] = None

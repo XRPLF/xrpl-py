@@ -4,7 +4,7 @@ be used to redeem a specific amount of XRP from a payment channel.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, Optional
 
 from xrpl.models.base_model import REQUIRED
@@ -20,7 +20,7 @@ class ChannelAuthorize(Request):
     be used to redeem a specific amount of XRP from a payment channel.
     """
 
-    method: RequestMethod = RequestMethod.CHANNEL_AUTHORIZE
+    method: RequestMethod = field(default=RequestMethod.CHANNEL_AUTHORIZE, init=False)
     channel_id: str = REQUIRED
     amount: str = REQUIRED
     secret: Optional[str] = None

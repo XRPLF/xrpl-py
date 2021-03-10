@@ -6,7 +6,7 @@ AccountLinesRequest instead.
 
 `See account_objects <https://xrpl.org/account_objects.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Optional, Union
 
@@ -43,7 +43,7 @@ class AccountObjects(Request):
     account: str = REQUIRED
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
-    method: RequestMethod = RequestMethod.ACCOUNT_OBJECTS
+    method: RequestMethod = field(default=RequestMethod.ACCOUNT_OBJECTS, init=False)
     type: Optional[AccountObjectType] = None
     deletion_blockers_only: Optional[bool] = False
     limit: Optional[int] = None

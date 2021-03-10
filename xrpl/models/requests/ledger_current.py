@@ -4,7 +4,7 @@ identifiers of the current in-progress ledger.
 This command is mostly useful for testing,
 because the ledger returned is still in flux.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.utils import require_kwargs_on_init
@@ -20,4 +20,4 @@ class LedgerCurrent(Request):
     because the ledger returned is still in flux.
     """
 
-    method: RequestMethod = RequestMethod.LEDGER_CURRENT
+    method: RequestMethod = field(default=RequestMethod.LEDGER_CURRENT, init=False)

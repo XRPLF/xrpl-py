@@ -27,9 +27,7 @@ class TransactionEntry(Request):
     `See transaction_entry <https://xrpl.org/transaction_entry.html>`_
     """
 
-    method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.TRANSACTION_ENTRY, init=False
-    )
+    method: RequestMethod = field(default=RequestMethod.TRANSACTION_ENTRY, init=False)
     ledger_hash: Optional[str] = None
     ledger_index: [Optional[Union[str, int]]] = None
     tx_hash: str = REQUIRED

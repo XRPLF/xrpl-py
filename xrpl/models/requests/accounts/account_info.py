@@ -6,7 +6,7 @@ All information retrieved is relative to a particular version of the ledger.
 
 `See account_info <https://xrpl.org/account_info.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, Union
 
 from xrpl.models.base_model import REQUIRED
@@ -29,7 +29,7 @@ class AccountInfo(Request):
     account: str = REQUIRED
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
-    method: RequestMethod = RequestMethod.ACCOUNT_INFO
+    method: RequestMethod = field(default=RequestMethod.ACCOUNT_INFO, init=False)
     queue: Optional[bool] = None
     signer_lists: Optional[bool] = None
     strict: Optional[bool] = False

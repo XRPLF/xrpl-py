@@ -53,6 +53,4 @@ class Submit(Request):
     `See submit <https://xrpl.org/submit.html>`_
     """
 
-    method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.SUBMIT, init=False
-    )
+    method: RequestMethod = field(default=RequestMethod.SUBMIT, init=False)

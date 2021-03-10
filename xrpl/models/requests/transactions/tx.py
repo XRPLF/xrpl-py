@@ -23,7 +23,7 @@ class Tx(Request):
     `See tx <https://xrpl.org/tx.html>`_
     """
 
-    method: RequestMethod = field(default_factory=lambda: RequestMethod.TX, init=False)
+    method: RequestMethod = field(default=RequestMethod.TX, init=False)
     transaction: str = REQUIRED
     binary: bool = False
     min_ledger: Optional[int] = None
