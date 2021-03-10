@@ -1,7 +1,7 @@
 """Codec for serializing and deserializing vectors of Hash256."""
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Optional, Type
 
 from typing_extensions import Final
 
@@ -21,7 +21,7 @@ class Vector256(SerializedType):
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls: Vector256, value: List[str]) -> Vector256:
+    def from_value(cls: Type[Vector256], value: List[str]) -> Vector256:
         """Construct a Vector256 from a list of strings.
 
         Args:
@@ -46,7 +46,7 @@ class Vector256(SerializedType):
 
     @classmethod
     def from_parser(
-        cls: Vector256, parser: BinaryParser, length_hint: Optional[int] = None
+        cls: Type[Vector256], parser: BinaryParser, length_hint: Optional[int] = None
     ) -> SerializedType:
         """Construct a Vector256 from a BinaryParser.
 
