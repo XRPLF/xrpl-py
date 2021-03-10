@@ -31,9 +31,7 @@ class SignFor(Request):
     `See sign_for <https://xrpl.org/sign_for.html>`_
     """
 
-    method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.SIGN_FOR, init=False
-    )
+    method: RequestMethod = field(default=RequestMethod.SIGN_FOR, init=False)
     account: str = REQUIRED
     transaction: Transaction = REQUIRED
     secret: Optional[str] = None

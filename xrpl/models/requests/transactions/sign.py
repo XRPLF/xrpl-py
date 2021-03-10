@@ -43,9 +43,7 @@ class Sign(Request):
     `See sign <https://xrpl.org/sign.html>`_
     """
 
-    method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.SIGN, init=False
-    )
+    method: RequestMethod = field(default=RequestMethod.SIGN, init=False)
     transaction: Transaction = REQUIRED
     secret: Optional[str] = None
     seed: Optional[str] = None
