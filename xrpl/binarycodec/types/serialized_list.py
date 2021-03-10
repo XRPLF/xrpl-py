@@ -93,7 +93,7 @@ class SerializedList(SerializedType):
             The JSON representation of a SerializedList.
         """
         result = []
-        parser = BinaryParser(self.to_string())
+        parser = BinaryParser(str(self))
 
         while not parser.is_end():
             field = parser.read_field()

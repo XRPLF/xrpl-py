@@ -78,7 +78,7 @@ class SerializedType(ABC):
         """
         return self.to_hex()
 
-    def to_string(self: SerializedType) -> str:
+    def __str__(self: SerializedType) -> str:
         """
         Returns the hex string representation of self.buffer.
 

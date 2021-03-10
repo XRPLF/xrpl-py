@@ -192,7 +192,7 @@ class SerializedDict(SerializedType):
         Returns:
             The JSON representation of a SerializedDict.
         """
-        parser = BinaryParser(self.to_string())
+        parser = BinaryParser(str(self))
         accumulator = {}
 
         while not parser.is_end():

@@ -301,7 +301,7 @@ class Amount(SerializedType):
                 int.from_bytes(self.buffer, byteorder="big") & 0x3FFFFFFFFFFFFFFF
             )
             return "{}{}".format(sign, masked_bytes)
-        parser = BinaryParser(self.to_string())
+        parser = BinaryParser(str(self))
         value_bytes = parser.read(8)
         currency = Currency.from_parser(parser)
         issuer = AccountID.from_parser(parser)

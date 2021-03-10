@@ -109,7 +109,7 @@ class PathStep(SerializedType):
         Returns:
             The JSON representation of a PathStep.
         """
-        parser = BinaryParser(self.to_string())
+        parser = BinaryParser(str(self))
         data_type = parser.read_uint8()
         json = {}
 
@@ -198,7 +198,7 @@ class Path(SerializedType):
             The JSON representation of a Path.
         """
         json = []
-        path_parser = BinaryParser(self.to_string())
+        path_parser = BinaryParser(str(self))
 
         while not path_parser.is_end():
             pathstep = PathStep.from_parser(path_parser)
@@ -275,7 +275,7 @@ class PathSet(SerializedType):
             The JSON representation of a PathSet.
         """
         json = []
-        pathset_parser = BinaryParser(self.to_string())
+        pathset_parser = BinaryParser(str(self))
 
         while not pathset_parser.is_end():
             path = Path.from_parser(pathset_parser)
