@@ -20,8 +20,8 @@ class DepositAuthorized(Request):
     authorization to deliver money to your account.
     """
 
-    source_account: str = REQUIRED
-    destination_account: str = REQUIRED
+    source_account: str = REQUIRED  # type: ignore
+    destination_account: str = REQUIRED  # type: ignore
     method: RequestMethod = RequestMethod.DEPOSIT_AUTHORIZED
     ledger_hash: Optional[str] = None
     ledger_index: Optional[str] = None
