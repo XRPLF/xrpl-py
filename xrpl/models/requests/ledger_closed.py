@@ -20,5 +20,5 @@ class LedgerClosed(Request):
     """
 
     method: RequestMethod = RequestMethod.LEDGER_CLOSED
-    ledger_hash: str = REQUIRED
-    ledger_index: int = REQUIRED
+    ledger_hash: str = REQUIRED  # type: ignore
+    ledger_index: int = REQUIRED  # type: ignore
