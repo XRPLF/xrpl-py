@@ -34,7 +34,7 @@ class UInt(SerializedType):
             return self.value == other
         if isinstance(other, UInt):
             return self.value == other.value
-        raise XRPLBinaryCodecException("Cannot compare UInt and {}".format(type(other)))
+        raise XRPLBinaryCodecException(f"Cannot compare UInt and {type(other)}")
 
     def __ne__(self: UInt, other: object) -> bool:
         """Determine whether two UInt objects are unequal."""
@@ -42,7 +42,7 @@ class UInt(SerializedType):
             return self.value != other
         if isinstance(other, UInt):
             return self.value != other.value
-        raise XRPLBinaryCodecException("Cannot compare UInt and {}".format(type(other)))
+        raise XRPLBinaryCodecException(f"Cannot compare UInt and {type(other)}")
 
     def __lt__(self: UInt, other: object) -> bool:
         """Determine whether one UInt object is less than another."""
@@ -50,7 +50,7 @@ class UInt(SerializedType):
             return self.value < other
         if isinstance(other, UInt):
             return self.value < other.value
-        raise XRPLBinaryCodecException("Cannot compare UInt and {}".format(type(other)))
+        raise XRPLBinaryCodecException(f"Cannot compare UInt and {type(other)}")
 
     def __le__(self: UInt, other: object) -> bool:
         """Determine whether one UInt object is less than or equal to another."""
@@ -58,7 +58,7 @@ class UInt(SerializedType):
             return self.value <= other
         if isinstance(other, UInt):
             return self.value <= other.value
-        raise XRPLBinaryCodecException("Cannot compare UInt and {}".format(type(other)))
+        raise XRPLBinaryCodecException(f"Cannot compare UInt and {type(other)}")
 
     def __gt__(self: UInt, other: object) -> bool:
         """Determine whether one UInt object is greater than another."""
@@ -66,7 +66,7 @@ class UInt(SerializedType):
             return self.value > other
         if isinstance(other, UInt):
             return self.value > other.value
-        raise XRPLBinaryCodecException("Cannot compare UInt and {}".format(type(other)))
+        raise XRPLBinaryCodecException(f"Cannot compare UInt and {type(other)}")
 
     def __ge__(self: UInt, other: object) -> bool:
         """Determine whether one UInt object is greater than or equal to another."""
@@ -74,7 +74,7 @@ class UInt(SerializedType):
             return self.value >= other
         if isinstance(other, UInt):
             return self.value >= other.value
-        raise XRPLBinaryCodecException("Cannot compare UInt and {}".format(type(other)))
+        raise XRPLBinaryCodecException(f"Cannot compare UInt and {type(other)}")
 
     def to_json(self: UInt) -> Union[str, int]:
         """

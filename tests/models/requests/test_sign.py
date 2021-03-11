@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from xrpl.models.exceptions import XRPLModelValidationException
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests.transactions.sign import Sign
 from xrpl.models.transactions import AccountSet
 
@@ -24,11 +24,11 @@ _PASSPHRASE = "mytopsecretpassphrasethatwillneverbehacked"
 
 class TestSign(TestCase):
     def test_invalid_secret_and_seed(self):
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             Sign(transaction=_TRANSACTION, secret=_SECRET, seed=_SEED)
 
     def test_invalid_seed_and_seed_hex(self):
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             Sign(
                 transaction=_TRANSACTION,
                 seed=_SEED,
@@ -36,7 +36,7 @@ class TestSign(TestCase):
             )
 
     def test_invalid_seed_hex_and_passphrase(self):
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             Sign(
                 transaction=_TRANSACTION,
                 seed_hex=_SEED_HEX,
@@ -44,7 +44,7 @@ class TestSign(TestCase):
             )
 
     def test_invalid_secret_and_passphrase(self):
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             Sign(
                 transaction=_TRANSACTION,
                 secret=_SECRET,
@@ -52,7 +52,7 @@ class TestSign(TestCase):
             )
 
     def test_invalid_secret_and_key_type(self):
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             Sign(
                 transaction=_TRANSACTION,
                 secret=_SECRET,

@@ -7,7 +7,7 @@ All information retrieved is relative to a particular version of the ledger.
 
 `See account_channels <https://xrpl.org/account_channels.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Optional, Union
 
 from xrpl.models.base_model import REQUIRED
@@ -26,11 +26,12 @@ class AccountChannels(Request):
     `See account_channels <https://xrpl.org/account_channels.html>`_
     """
 
-    method: RequestMethod = RequestMethod.ACCOUNT_CHANNELS
+    method: RequestMethod = field(default=RequestMethod.ACCOUNT_CHANNELS, init=False)
     account: str = REQUIRED
     destination_account: Optional[str] = None
     limit: int = 200
-    # TODO make type
+    # marker data shape is actually undefined in the spec, up to the
+    # implementation of an individual server
     marker: Optional[Any] = None
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None

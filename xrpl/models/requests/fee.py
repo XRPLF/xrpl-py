@@ -5,7 +5,7 @@ enabled.
 
 This is a public command available to unprivileged users.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import Request, RequestMethod
 
@@ -20,4 +20,4 @@ class Fee(Request):
     This is a public command available to unprivileged users.
     """
 
-    method: RequestMethod = RequestMethod.FEE
+    method: RequestMethod = field(default=RequestMethod.FEE, init=False)

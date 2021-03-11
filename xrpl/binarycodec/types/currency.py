@@ -32,7 +32,7 @@ def _iso_to_bytes(iso: str) -> bytes:
     `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
     """
     if not _is_iso_code(iso):
-        raise XRPLBinaryCodecException("Invalid ISO code: {}".format(iso))
+        raise XRPLBinaryCodecException(f"Invalid ISO code: {iso}")
 
     if iso == "XRP":
         # This code (160 bit all zeroes) is used to indicate XRP in
@@ -109,16 +109,14 @@ class Currency(Hash160):
         if not isinstance(value, str):
             raise XRPLBinaryCodecException(
                 "Invalid type to construct a Currency: expected str,"
-                " received {}.".format(value.__class__.__name__)
+                f" received {value.__class__.__name__}."
             )
 
         if _is_iso_code(value):
             return Currency(_iso_to_bytes(value))
         if _is_hex(value):
             return cls(bytes.fromhex(value))
-        raise XRPLBinaryCodecException(
-            "Unsupported Currency representation: {}".format(value)
-        )
+        raise XRPLBinaryCodecException("Unsupported Currency representation: {value}")
 
     def to_json(self: Currency) -> str:
         """

@@ -28,7 +28,7 @@ class FieldHeader:
         """Two equal FieldHeaders must have the same hash value."""
         return hash((self.type_code, self.field_code))
 
-    def to_bytes(self: FieldHeader) -> bytes:
+    def __bytes__(self: FieldHeader) -> bytes:
         """
         Get the bytes representation of a FieldHeader.
 

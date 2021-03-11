@@ -8,7 +8,7 @@ values are given in integer drops instead of scientific
 notation or decimal values, and time is given in
 milliseconds instead of seconds.)
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import Request, RequestMethod
 
@@ -26,4 +26,4 @@ class ServerState(Request):
     milliseconds instead of seconds.)
     """
 
-    method: RequestMethod = RequestMethod.SERVER_STATE
+    method: RequestMethod = field(default=RequestMethod.SERVER_STATE, init=False)
