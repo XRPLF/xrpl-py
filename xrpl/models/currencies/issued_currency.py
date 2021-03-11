@@ -17,7 +17,7 @@ from xrpl.models.base_model import REQUIRED, BaseModel
 _CHAR: Final[str] = r"[A-Za-z\d\?!@#\$%\^&\*<>\(\){}\[\]\|]"
 _CURRENCY_CODE: Final[str] = f"{_CHAR}{{3}}"
 _HEX: Final[str] = f"{_CHAR}{{40}}"
-_VALIDATOR: Final[re.Pattern] = re.compile(
+_VALIDATOR: Final[re.Pattern[str]] = re.compile(
     f"(?:{_CURRENCY_CODE}|{_HEX})",
 )
 
@@ -31,8 +31,8 @@ class IssuedCurrency(BaseModel):
     See https://xrpl.org/currency-formats.html#specifying-currency-amounts
     """
 
-    currency: str = REQUIRED
-    issuer: str = REQUIRED
+    currency: str = REQUIRED  # type: ignore
+    issuer: str = REQUIRED  # type: ignore
 
     def _get_errors(self: IssuedCurrency) -> Dict[str, str]:
         errors = super()._get_errors()
