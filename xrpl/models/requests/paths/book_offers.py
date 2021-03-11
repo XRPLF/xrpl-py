@@ -17,8 +17,8 @@ class BookOffers(Request):
     as the order book, between two currencies.
     """
 
-    taker_gets: Currency = REQUIRED
-    taker_pays: Currency = REQUIRED
+    taker_gets: Currency = REQUIRED  # type: ignore
+    taker_pays: Currency = REQUIRED  # type: ignore
     method: RequestMethod = RequestMethod.BOOK_OFFERS
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
