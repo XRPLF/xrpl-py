@@ -27,8 +27,10 @@ from typing import Any, Dict, Optional
 
 from xrpl.models.requests.transactions.submit import Submit
 from xrpl.models.transactions.transaction import REQUIRED, Transaction
+from xrpl.models.utils import require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class SignAndSubmit(Submit):
     """

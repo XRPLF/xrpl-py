@@ -11,6 +11,7 @@ from typing import List, Optional
 from xrpl.models.base_model import REQUIRED, BaseModel
 from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.utils import require_kwargs_on_init
 
 
 class StreamParameter(str, Enum):
@@ -26,6 +27,7 @@ class StreamParameter(str, Enum):
     VALIDATIONS = "validations"
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class SubscribeBook(BaseModel):
     """Format for elements in the `books` array for Subscribe only."""
@@ -37,6 +39,7 @@ class SubscribeBook(BaseModel):
     both: Optional[bool] = False
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Subscribe(Request):
     """
