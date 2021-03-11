@@ -18,10 +18,11 @@ if they came from you.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Type
 
 from xrpl.models.requests.request import Request, RequestMethod
-from xrpl.models.transactions.transaction import REQUIRED, Transaction
+from xrpl.models.required import REQUIRED
+from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.utils import require_kwargs_on_init
 
 
@@ -46,7 +47,7 @@ class Sign(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.SIGN, init=False)
-    transaction: Transaction = REQUIRED
+    transaction: Transaction = REQUIRED  # type: ignore
     secret: Optional[str] = None
     seed: Optional[str] = None
     seed_hex: Optional[str] = None
@@ -58,7 +59,7 @@ class Sign(Request):
     fee_div_max: int = 1
 
     @classmethod
-    def from_dict(cls: Sign, value: Dict[str, Any]) -> Sign:
+    def from_dict(cls: Type[Sign], value: Dict[str, Any]) -> Sign:
         """
         Construct a new Sign from a dictionary of parameters.
 
