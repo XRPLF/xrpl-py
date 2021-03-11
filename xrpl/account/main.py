@@ -6,6 +6,7 @@ from xrpl.models.response import Response
 from xrpl.network_clients import JsonRpcClient
 
 
+# TODO: make this general for any type of network client
 def get_fee(client: JsonRpcClient) -> str:
     """
     Query the ledger for the current minimum transaction fee.
