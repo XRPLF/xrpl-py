@@ -11,8 +11,10 @@ from typing import Optional
 from xrpl.models.amounts import Amount
 from xrpl.models.base_model import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionType
+from xrpl.models.utils import require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class OfferCreate(Transaction):
     """
@@ -24,8 +26,8 @@ class OfferCreate(Transaction):
     `See OfferCreate <https://xrpl.org/offercreate.html>`_
     """
 
-    taker_gets: Amount = REQUIRED
-    taker_pays: Amount = REQUIRED
+    taker_gets: Amount = REQUIRED  # type: ignore
+    taker_pays: Amount = REQUIRED  # type: ignore
     expiration: Optional[int] = None
     offer_sequence: Optional[int] = None
     transaction_type: TransactionType = TransactionType.OFFER_CREATE

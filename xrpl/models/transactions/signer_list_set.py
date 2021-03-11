@@ -15,8 +15,10 @@ from typing import Any, Dict, List, Optional
 
 from xrpl.models.base_model import REQUIRED, BaseModel
 from xrpl.models.transactions.transaction import Transaction, TransactionType
+from xrpl.models.utils import require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class SignerEntry(BaseModel):
     """
@@ -24,8 +26,8 @@ class SignerEntry(BaseModel):
     signer in the list.
     """
 
-    account: str = REQUIRED
-    signer_weight: int = REQUIRED
+    account: str = REQUIRED  # type: ignore
+    signer_weight: int = REQUIRED  # type: ignore
 
     def to_dict(self: SignerEntry) -> Dict[str, Any]:
         """
@@ -37,6 +39,7 @@ class SignerEntry(BaseModel):
         return {"SignerEntry": super().to_dict()}
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class SignerListSet(Transaction):
     """
@@ -50,7 +53,7 @@ class SignerListSet(Transaction):
     `See MultiSign Amendment <https://xrpl.org/known-amendments.html#multisign>`_
     """
 
-    signer_quorum: int = REQUIRED
+    signer_quorum: int = REQUIRED  # type: ignore
     signer_entries: Optional[List[SignerEntry]] = None
     transaction_type: TransactionType = TransactionType.SIGNER_LIST_SET
 

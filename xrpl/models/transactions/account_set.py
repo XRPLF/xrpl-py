@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import Dict, Optional
 
 from xrpl.models.transactions.transaction import Transaction, TransactionType
+from xrpl.models.utils import require_kwargs_on_init
 
 _MAX_TRANSFER_RATE = 2000000000
 _MIN_TRANSFER_RATE = 1000000000
@@ -21,6 +22,7 @@ _MAX_TICK_SIZE = 15
 _DISABLE_TICK_SIZE = 0
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class AccountSet(Transaction):
     """
@@ -59,16 +61,16 @@ class AccountSet(Transaction):
 
     def _tick_size_error(self: AccountSet) -> Optional[str]:
         if self.tick_size is None:
-            return
+            return None
         if self.tick_size > _MAX_TICK_SIZE:
             return f"`tick_size` is above {_MAX_TICK_SIZE}."
         if self.tick_size < _MIN_TICK_SIZE and self.tick_size != _DISABLE_TICK_SIZE:
             return f"`tick_size` is below {_MIN_TICK_SIZE}."
-        return
+        return None
 
     def _transfer_rate_error(self: AccountSet) -> Optional[str]:
         if self.transfer_rate is None:
-            return
+            return None
         if self.transfer_rate > _MAX_TRANSFER_RATE:
             return f"`transfer_rate` is above {_MAX_TRANSFER_RATE}."
         if (
@@ -76,4 +78,4 @@ class AccountSet(Transaction):
             and self.transfer_rate != _SPECIAL_CASE_TRANFER_RATE
         ):
             return f"`transfer_rate` is below {_MIN_TRANSFER_RATE}."
-        return
+        return None
