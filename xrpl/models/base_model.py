@@ -18,10 +18,6 @@ REQUIRED: Final[object] = object()
 class BaseModel(ABC):
     """The base class for all model types."""
 
-    def __init__(self: BaseModel, **kwargs: str) -> None:
-        """Constructs a new BaseModel from a set of keyword arguments."""
-        self.__dict__.update(kwargs)
-
     @classmethod
     def from_dict(cls: Type[BaseModel], value: Dict[str, Any]) -> BaseModel:
         """
@@ -35,7 +31,8 @@ class BaseModel(ABC):
         Returns:
             A new BaseModel object, constructed using the given parameters.
         """
-        return cls(**value)
+        # Ignore type-checking on this for now to simplify subclass constructors.
+        return cls(**value)  # type: ignore
 
     def __post_init__(self: BaseModel) -> None:
         """Called by dataclasses immediately after __init__."""
