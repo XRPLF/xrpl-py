@@ -8,7 +8,8 @@ An EscrowCancel transaction returns escrowed XRP to the sender.
 
 from dataclasses import dataclass
 
-from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
+from xrpl.models.base_model import REQUIRED
+from xrpl.models.transactions.transaction import Transaction, TransactionType
 
 
 @dataclass(frozen=True)
@@ -21,6 +22,6 @@ class EscrowCancel(Transaction):
     `See EscrowCancel <https://xrpl.org/escrowcancel.html>`_
     """
 
-    owner: str = REQUIRED
-    offer_sequence: int = REQUIRED
+    owner: str = REQUIRED  # type: ignore
+    offer_sequence: int = REQUIRED  # type: ignore
     transaction_type: TransactionType = TransactionType.ESCROW_CANCEL
