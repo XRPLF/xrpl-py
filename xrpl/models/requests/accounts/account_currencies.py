@@ -7,7 +7,7 @@ interfaces.
 
 `See account_currencies <https://xrpl.org/account_currencies.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, Union
 
 from xrpl.models.base_model import REQUIRED
@@ -29,5 +29,5 @@ class AccountCurrencies(Request):
     account: str = REQUIRED
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
-    method: RequestMethod = RequestMethod.ACCOUNT_CURRENCIES
+    method: RequestMethod = field(default=RequestMethod.ACCOUNT_CURRENCIES, init=False)
     strict: Optional[bool] = False
