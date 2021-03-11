@@ -31,7 +31,8 @@ class BaseModel(ABC):
         Returns:
             A new BaseModel object, constructed using the given parameters.
         """
-        # Ignore type-checking on this for now to simplify subclass constructors.
+        # Ignore type-checking on this for now to simplify subclass constructors
+        # which might pass non kwargs.
         return cls(**value)  # type: ignore
 
     def __post_init__(self: BaseModel) -> None:
