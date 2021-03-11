@@ -31,7 +31,7 @@ class BaseModel(ABC):
         Returns:
             A new BaseModel object, constructed using the given parameters.
         """
-        return cls(**value)
+        return cls(**value)  # type: ignore
 
     def __post_init__(self: BaseModel) -> None:
         """Called by dataclasses immediately after __init__."""
