@@ -24,8 +24,8 @@ class SignerEntry(BaseModel):
     signer in the list.
     """
 
-    account: str = REQUIRED
-    signer_weight: int = REQUIRED
+    account: str = REQUIRED  # type: ignore
+    signer_weight: int = REQUIRED  # type: ignore
 
     def to_dict(self: SignerEntry) -> Dict[str, Any]:
         """
@@ -50,7 +50,7 @@ class SignerListSet(Transaction):
     `See MultiSign Amendment <https://xrpl.org/known-amendments.html#multisign>`_
     """
 
-    signer_quorum: int = REQUIRED
+    signer_quorum: int = REQUIRED  # type: ignore
     signer_entries: Optional[List[SignerEntry]] = None
     transaction_type: TransactionType = TransactionType.SIGNER_LIST_SET
 
