@@ -18,7 +18,7 @@ class ChannelVerify(Request):
     """
 
     method: RequestMethod = RequestMethod.CHANNEL_VERIFY
-    channel_id: str = REQUIRED
-    amount: str = REQUIRED
-    public_key: str = REQUIRED
-    signature: str = REQUIRED
+    channel_id: str = REQUIRED  # type: ignore
+    amount: str = REQUIRED  # type: ignore
+    public_key: str = REQUIRED  # type: ignore
+    signature: str = REQUIRED  # type: ignore
