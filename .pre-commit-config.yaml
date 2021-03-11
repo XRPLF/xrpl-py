@@ -24,3 +24,9 @@ repos:
         entry: poetry run flake8
         language: system
         types: [python]
+      - id: mypy
+        name: mypy
+        entry: poetry run mypy
+        args: ["--strict"]
+        language: system
+        types: [python]
