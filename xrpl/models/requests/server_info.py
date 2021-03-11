@@ -3,11 +3,13 @@ The server_info command asks the server for a
 human-readable version of various information
 about the rippled server being queried.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.utils import require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class ServerInfo(Request):
     """
@@ -16,4 +18,4 @@ class ServerInfo(Request):
     about the rippled server being queried.
     """
 
-    method: RequestMethod = RequestMethod.SERVER_INFO
+    method: RequestMethod = field(default=RequestMethod.SERVER_INFO, init=False)

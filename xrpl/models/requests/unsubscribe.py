@@ -4,15 +4,17 @@ messages for a particular subscription or set of subscriptions.
 
 WebSocket API only.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 
 from xrpl.models.base_model import REQUIRED, BaseModel
 from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.requests.subscribe import StreamParameter
+from xrpl.models.utils import require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class UnsubscribeBook(BaseModel):
     """Format for elements in the `books` array for Unsubscribe only."""
@@ -22,6 +24,7 @@ class UnsubscribeBook(BaseModel):
     both: Optional[bool] = False
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Unsubscribe(Request):
     """
@@ -31,7 +34,7 @@ class Unsubscribe(Request):
     WebSocket API only.
     """
 
-    method: RequestMethod = RequestMethod.UNSUBSCRIBE
+    method: RequestMethod = field(default=RequestMethod.UNSUBSCRIBE, init=False)
     streams: Optional[List[StreamParameter]] = None
     accounts: Optional[List[str]] = None
     accounts_proposed: Optional[List[str]] = None

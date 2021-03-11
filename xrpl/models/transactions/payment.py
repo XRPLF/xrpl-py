@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional
 
 from xrpl.models.amounts import Amount, is_xrp
 from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
+from xrpl.models.utils import require_kwargs_on_init
 
 
 class PaymentFlag(int, Enum):
@@ -32,6 +33,7 @@ class PaymentFlag(int, Enum):
     TF_LIMIT_QUALITY = 0x00040000
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Payment(Transaction):
     """

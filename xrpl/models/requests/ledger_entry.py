@@ -6,13 +6,15 @@ different types of objects you can retrieve.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Union
 
 from xrpl.models.base_model import REQUIRED, BaseModel
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.utils import require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class DepositPreauth(BaseModel):
     """
@@ -24,6 +26,7 @@ class DepositPreauth(BaseModel):
     authorized: str = REQUIRED
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Directory(BaseModel):
     """
@@ -36,6 +39,7 @@ class Directory(BaseModel):
     sub_index: Optional[int] = None
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Escrow(BaseModel):
     """
@@ -47,6 +51,7 @@ class Escrow(BaseModel):
     seq: int = REQUIRED
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Offer(BaseModel):
     """
@@ -58,6 +63,7 @@ class Offer(BaseModel):
     seq: int = REQUIRED
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class RippleState(BaseModel):
     """Required fields for requesting a RippleState."""
@@ -66,6 +72,7 @@ class RippleState(BaseModel):
     currency: str = REQUIRED
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Ticket(BaseModel):
     """
@@ -77,6 +84,7 @@ class Ticket(BaseModel):
     ticket_sequence: int = REQUIRED
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class LedgerEntry(Request):
     """
@@ -86,7 +94,7 @@ class LedgerEntry(Request):
     different types of objects you can retrieve.
     """
 
-    method: RequestMethod = RequestMethod.LEDGER_ENTRY
+    method: RequestMethod = field(default=RequestMethod.LEDGER_ENTRY, init=False)
     index: Optional[str] = None
     account_root: Optional[str] = None
     check: Optional[str] = None

@@ -11,15 +11,17 @@ Although the rippled server tries to find the cheapest path or
 combination of paths for making a payment, it is not guaranteed that
 the paths returned by this method are, in fact, the best paths.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional, Union
 
 from xrpl.models.amounts import Amount
 from xrpl.models.base_model import REQUIRED
 from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.utils import require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class RipplePathFind(Request):
     """
@@ -39,7 +41,7 @@ class RipplePathFind(Request):
     source_account: str = REQUIRED
     destination_account: str = REQUIRED
     destination_amount: Amount = REQUIRED
-    method: RequestMethod = RequestMethod.RIPPLE_PATH_FIND
+    method: RequestMethod = field(default=RequestMethod.RIPPLE_PATH_FIND, init=False)
     send_max: Optional[Amount] = None
     source_currencies: Optional[List[Currency]] = None
     ledger_hash: Optional[str] = None
