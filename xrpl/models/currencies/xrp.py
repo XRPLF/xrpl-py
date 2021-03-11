@@ -11,7 +11,7 @@ See https://xrpl.org/currency-formats.html#specifying-currency-amounts
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict
+from typing import Any, Dict, Literal
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.utils import require_kwargs_on_init
@@ -31,7 +31,7 @@ class XRP(BaseModel):
     See https://xrpl.org/currency-formats.html#specifying-currency-amounts
     """
 
-    currency: str = field(default="XRP", init=False)
+    currency: Literal["XRP"] = field(default="XRP", init=False)
 
     def to_dict(self: XRP) -> Dict[str, Any]:
         """
