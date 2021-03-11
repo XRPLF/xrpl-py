@@ -59,7 +59,7 @@ def require_kwargs_on_init(cls: Type[_T]) -> Type[_T]:
                 f"{type(self).__name__}.__init__ only allows keyword arguments. "
                 f"Found the following positional arguments: {args}"
             )
-        original_init(self, **kwargs)
+        original_init(self, **kwargs)  # type: ignore
 
     # noinspection PyTypeHints
     cls.__init__ = new_init  # type: ignore
