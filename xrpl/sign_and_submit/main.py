@@ -67,7 +67,6 @@ def submit_transaction_blob(
     Returns:
         The response from the ledger.
     """
-    # TODO: use our model objects when those are implemented for `submit`
     submit_request = SubmitOnly(tx_blob=transaction_blob)
     return send_transaction(submit_request)
 
