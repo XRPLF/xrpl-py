@@ -10,7 +10,8 @@ from __future__ import annotations  # Requires Python 3.7+
 from dataclasses import dataclass
 from typing import Dict, Optional
 
-from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
+from xrpl.models.base_model import REQUIRED
+from xrpl.models.transactions.transaction import Transaction, TransactionType
 
 
 @dataclass(frozen=True)
@@ -23,8 +24,8 @@ class EscrowFinish(Transaction):
     `See EscrowFinish <https://xrpl.org/escrowfinish.html>`_
     """
 
-    owner: str = REQUIRED
-    offer_sequence: int = REQUIRED
+    owner: str = REQUIRED  # type: ignore
+    offer_sequence: int = REQUIRED  # type: ignore
     condition: Optional[str] = None
     fulfillment: Optional[str] = None
     transaction_type: TransactionType = TransactionType.ESCROW_FINISH
