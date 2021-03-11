@@ -9,7 +9,7 @@ to the sender of this transaction.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, Optional
 
 from xrpl.models.transactions.transaction import Transaction, TransactionType
@@ -31,7 +31,10 @@ class DepositPreauth(Transaction):
 
     authorize: Optional[str] = None
     unauthorize: Optional[str] = None
-    transaction_type: TransactionType = TransactionType.DEPOSIT_PREAUTH
+    transaction_type: TransactionType = field(
+        default=TransactionType.DEPOSIT_PREAUTH,
+        init=False,
+    )
 
     def _get_errors(self: DepositPreauth) -> Dict[str, str]:
         errors = super()._get_errors()

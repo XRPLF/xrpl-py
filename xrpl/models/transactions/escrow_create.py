@@ -8,7 +8,7 @@ is canceled.
 """
 from __future__ import annotations  # Requires Python 3.7+
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, Optional
 
 from xrpl.models.amounts import Amount
@@ -35,7 +35,10 @@ class EscrowCreate(Transaction):
     cancel_after: Optional[int] = None
     finish_after: Optional[int] = None
     condition: Optional[str] = None
-    transaction_type: TransactionType = TransactionType.ESCROW_CREATE
+    transaction_type: TransactionType = field(
+        default=TransactionType.ESCROW_CREATE,
+        init=False,
+    )
 
     def _get_errors(self: EscrowCreate) -> Dict[str, str]:
         errors = super()._get_errors()

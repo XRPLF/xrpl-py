@@ -7,7 +7,7 @@ An AccountSet transaction modifies the properties of an account in the XRP Ledge
 """
 from __future__ import annotations  # Requires Python 3.7+
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, Optional
 
 from xrpl.models.transactions.transaction import Transaction, TransactionType
@@ -40,7 +40,10 @@ class AccountSet(Transaction):
     set_flag: Optional[int] = None
     transfer_rate: Optional[int] = None
     tick_size: Optional[int] = None
-    transaction_type: TransactionType = TransactionType.ACCOUNT_SET
+    transaction_type: TransactionType = field(
+        default=TransactionType.ACCOUNT_SET,
+        init=False,
+    )
 
     def _get_errors(self: AccountSet) -> Dict[str, str]:
         errors = super()._get_errors()

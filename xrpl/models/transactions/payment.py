@@ -11,7 +11,7 @@ Payments are also the only way to create accounts.
 """
 from __future__ import annotations  # Requires Python 3.7+
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -56,7 +56,10 @@ class Payment(Transaction):
     paths: Optional[List[Any]] = None
     send_max: Optional[Amount] = None
     deliver_min: Optional[Amount] = None
-    transaction_type: TransactionType = TransactionType.PAYMENT
+    transaction_type: TransactionType = field(
+        default=TransactionType.PAYMENT,
+        init=False,
+    )
 
     def _get_errors(self: Payment) -> Dict[str, str]:
         errors = super()._get_errors()
