@@ -8,7 +8,7 @@ from xrpl.models.requests.request import Request
 from xrpl.models.requests.transactions.submit_only import SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions import Transaction
-from xrpl.sign_and_submit.wallet import Wallet
+from xrpl.wallet import Wallet
 
 
 def sign_and_submit_transaction(

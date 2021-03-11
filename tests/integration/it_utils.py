@@ -2,37 +2,16 @@ from time import sleep
 
 from requests import post
 
-from xrpl.keypairs.main import (
-    CryptoAlgorithm,
-    derive_classic_address,
-    derive_keypair,
-    generate_seed,
-)
 from xrpl.models.requests.accounts.account_info import AccountInfo
 from xrpl.models.requests.fee import Fee
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.network_clients import JsonRpcClient
 from xrpl.sign_and_submit import sign_and_submit_transaction
+from xrpl.wallet import Wallet
 
 JSON_RPC_URL = "http://test.xrp.xpring.io:51234"
 JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
-
-
-class Wallet:
-    """The information needed to control an XRPL account."""
-
-    def __init__(self, crypto_algorithm=CryptoAlgorithm.SECP256K1):
-        """Generate a new Wallet. Defaults to SECP256K1."""
-        self.seed = generate_seed(algorithm=crypto_algorithm)
-        self.pub_key, self.priv_key = derive_keypair(self.seed)
-        self.classic_address = derive_classic_address(self.pub_key)
-        self.next_sequence_num = None
-
-    def __str__(self):
-        return "seed: {}\npub_key: {}\npriv_key: {}\nclassic_address: {}\n".format(
-            self.seed, self.pub_key, self.priv_key, self.classic_address
-        )
 
 
 def submit_transaction(transaction: Transaction, wallet: Wallet) -> Response:
@@ -44,9 +23,9 @@ def generate_faucet_wallet():
     """Generates a random wallet and funds it using the XRPL Testnet Faucet."""
     timeout_seconds = 40
     try:
-        wallet = Wallet()
+        wallet = Wallet.generate_seed_and_wallet()
     except Exception as e:
-        raise Exception("Could not generate wallet: " + e)
+        raise Exception("Could not generate wallet: " + str(e))
 
     address = wallet.classic_address
     # The faucet *can* be flakey... by printing info about this it's easier to
