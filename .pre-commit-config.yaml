@@ -29,6 +29,7 @@ repos:
         entry: poetry run mypy
         args: ["--strict"]
         language: system
+        types: [python]
       - id: sphinx
         name: sphinx
         entry: poetry run sphinx-apidoc -o docs/source xrpl
