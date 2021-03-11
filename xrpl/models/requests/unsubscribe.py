@@ -24,6 +24,7 @@ class UnsubscribeBook(BaseModel):
     both: Optional[bool] = False
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Unsubscribe(Request):
     """

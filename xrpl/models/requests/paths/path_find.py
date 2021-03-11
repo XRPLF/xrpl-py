@@ -106,6 +106,7 @@ class PathStep(BaseModel):
         return
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class PathFind(Request):
     """

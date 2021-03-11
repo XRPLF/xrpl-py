@@ -68,6 +68,7 @@ class Memo(BaseModel):
         return errors
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Signer(BaseModel):
     """
@@ -83,6 +84,7 @@ class Signer(BaseModel):
     signing_pub_key: str = REQUIRED
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Transaction(BaseModel):
     """

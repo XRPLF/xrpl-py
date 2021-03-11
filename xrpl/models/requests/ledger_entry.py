@@ -26,6 +26,7 @@ class DepositPreauth(BaseModel):
     authorized: str = REQUIRED
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Directory(BaseModel):
     """
@@ -38,6 +39,7 @@ class Directory(BaseModel):
     sub_index: Optional[int] = None
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Escrow(BaseModel):
     """
@@ -49,6 +51,7 @@ class Escrow(BaseModel):
     seq: int = REQUIRED
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Offer(BaseModel):
     """
@@ -60,6 +63,7 @@ class Offer(BaseModel):
     seq: int = REQUIRED
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class RippleState(BaseModel):
     """Required fields for requesting a RippleState."""
@@ -68,6 +72,7 @@ class RippleState(BaseModel):
     currency: str = REQUIRED
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Ticket(BaseModel):
     """
@@ -79,6 +84,7 @@ class Ticket(BaseModel):
     ticket_sequence: int = REQUIRED
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class LedgerEntry(Request):
     """
