@@ -16,7 +16,8 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from xrpl.models.amounts import Amount, is_xrp
-from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
+from xrpl.models.base_model import REQUIRED
+from xrpl.models.transactions.transaction import Transaction, TransactionType
 
 
 class PaymentFlag(int, Enum):
@@ -46,8 +47,8 @@ class Payment(Transaction):
     `See Payment <https://xrpl.org/payment.html>`_
     """
 
-    amount: Amount = REQUIRED
-    destination: str = REQUIRED
+    amount: Amount = REQUIRED  # type: ignore
+    destination: str = REQUIRED  # type: ignore
     destination_tag: Optional[int] = None
     invoice_id: Optional[str] = None  # TODO: should be a 256 bit hash
     paths: Optional[List[Any]] = None
@@ -80,7 +81,7 @@ class Payment(Transaction):
 
         elif (
             is_xrp(self.amount)
-            and is_xrp(self.send_max)
+            and (self.send_max and is_xrp(self.send_max))
             and not self.has_flag(PaymentFlag.TF_PARTIAL_PAYMENT)
         ):
             errors["send_max"] = (
