@@ -17,6 +17,6 @@ class TestBinarySerializer(unittest.TestCase):
             binary_serializer = BinarySerializer()
             binary_serializer.write_length_encoded(blob)
 
-            binary_parser = BinaryParser(binary_serializer.to_bytes().hex())
+            binary_parser = BinaryParser(bytes(binary_serializer).hex())
             decoded_length = binary_parser._read_length_prefix()
             self.assertEqual(case, decoded_length)

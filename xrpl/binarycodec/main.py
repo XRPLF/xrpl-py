@@ -1,6 +1,6 @@
 """High-level binary codec methods."""
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, cast
 
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.binarycodec.types.account_id import AccountID
@@ -18,7 +18,7 @@ _PAYMENT_CHANNEL_CLAIM_PREFIX = _num_to_bytes(0x434C4D00)
 _TRANSACTION_MULTISIG_PREFIX = _num_to_bytes(0x534D5400)
 
 
-def encode(json: Union[List[Any], Dict[str, Any]]) -> str:
+def encode(json: Dict[str, Any]) -> str:
     """
     Encode a transaction.
 
@@ -28,10 +28,10 @@ def encode(json: Union[List[Any], Dict[str, Any]]) -> str:
     Returns:
         A hex-string of the encoded transaction.
     """
-    return _serialize_json(json)
+    return cast(str, _serialize_json(json))
 
 
-def encode_for_signing(json: Union[List[Any], Dict[str, Any]]) -> str:
+def encode_for_signing(json: Dict[str, Any]) -> str:
     """
     Encode a transaction and prepare for signing.
 
@@ -41,8 +41,9 @@ def encode_for_signing(json: Union[List[Any], Dict[str, Any]]) -> str:
     Returns:
         A hex string of the encoded transaction.
     """
-    return _serialize_json(
-        json, prefix=_TRANSACTION_SIGNATURE_PREFIX, signing_only=True
+    return cast(
+        str,
+        _serialize_json(json, prefix=_TRANSACTION_SIGNATURE_PREFIX, signing_only=True),
     )
 
 
@@ -60,7 +61,7 @@ def encode_for_signing_claim(json: Dict[str, Any]) -> str:
     channel = Hash256.from_value(json["channel"])
     amount = UInt64.from_value(int(json["amount"]))
 
-    buffer = prefix + channel.to_bytes() + amount.to_bytes()
+    buffer = prefix + bytes(channel) + bytes(amount)
     return buffer.hex().upper()
 
 
@@ -76,17 +77,20 @@ def encode_for_multisigning(json: Dict[str, Any], signing_account: str) -> str:
         A hex string of the encoded transaction.
     """
     assert json["SigningPubKey"] == ""
-    signing_account_id = AccountID.from_value(signing_account).to_bytes()
+    signing_account_id = bytes(AccountID.from_value(signing_account))
 
-    return _serialize_json(
-        json,
-        prefix=_TRANSACTION_MULTISIG_PREFIX,
-        suffix=signing_account_id,
-        signing_only=True,
+    return cast(
+        str,
+        _serialize_json(
+            json,
+            prefix=_TRANSACTION_MULTISIG_PREFIX,
+            suffix=signing_account_id,
+            signing_only=True,
+        ),
     )
 
 
-def decode(buffer: str) -> Union[List[Any], Dict[str, Any]]:
+def decode(buffer: str) -> Dict[str, Any]:
     """
     Decode a transaction.
 
@@ -97,11 +101,12 @@ def decode(buffer: str) -> Union[List[Any], Dict[str, Any]]:
         The JSON representation of the transaction.
     """
     parser = BinaryParser(buffer)
-    return parser.read_type(SerializedDict).to_json()
+    parsed_type = cast(SerializedDict, parser.read_type(SerializedDict))
+    return parsed_type.to_json()
 
 
 def _serialize_json(
-    json: Union[List[Any], Dict[str, Any]],
+    json: Dict[str, Any],
     prefix: Optional[bytes] = None,
     suffix: Optional[bytes] = None,
     signing_only: bool = False,
@@ -110,9 +115,9 @@ def _serialize_json(
     if prefix is not None:
         buffer += prefix
 
-    buffer += SerializedDict.from_value(json, signing_only).to_bytes()
+    buffer += bytes(SerializedDict.from_value(json, signing_only))
 
     if suffix is not None:
         buffer += suffix
 
-    return buffer.hex().upper()
+    return cast(bytes, buffer.hex().upper())

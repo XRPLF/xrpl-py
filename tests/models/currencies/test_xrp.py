@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from xrpl.models.currencies import XRP
-from xrpl.models.exceptions import XRPLModelValidationException
+from xrpl.models.exceptions import XRPLModelException
 
 
 class TestXRP(TestCase):
@@ -22,5 +22,5 @@ class TestXRP(TestCase):
         self.assertTrue(obj.is_valid())
 
     def test_currency_non_xrp_invalid(self):
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             XRP(currency="usd")
