@@ -4,12 +4,14 @@ identifiers of the most recently closed ledger.
 (This ledger is not necessarily validated and
 immutable yet.)
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
+from xrpl.models.utils import require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class LedgerClosed(Request):
     """
@@ -19,6 +21,6 @@ class LedgerClosed(Request):
     immutable yet.)
     """
 
-    method: RequestMethod = RequestMethod.LEDGER_CLOSED
-    ledger_hash: str = REQUIRED
-    ledger_index: int = REQUIRED
+    method: RequestMethod = field(default=RequestMethod.LEDGER_CLOSED, init=False)
+    ledger_hash: str = REQUIRED  # type: ignore
+    ledger_index: int = REQUIRED  # type: ignore

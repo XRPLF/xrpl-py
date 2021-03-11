@@ -28,7 +28,7 @@ a symptom of heavy server load.)
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional
 
@@ -36,6 +36,7 @@ from xrpl.models.amounts import Amount
 from xrpl.models.base_model import BaseModel
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
+from xrpl.models.utils import require_kwargs_on_init
 
 
 class PathFindSubcommand(str, Enum):
@@ -53,6 +54,7 @@ class PathFindSubcommand(str, Enum):
     STATUS = "status"
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class PathStep(BaseModel):
     """
@@ -81,30 +83,31 @@ class PathStep(BaseModel):
 
     def _get_account_error(self: PathStep) -> Optional[str]:
         if self.account is None:
-            return
+            return None
         if self.currency is not None or self.issuer is not None:
             return "Cannot set account if currency or issuer are set"
-        return
+        return None
 
     def _get_currency_error(self: PathStep) -> Optional[str]:
         if self.currency is None:
-            return
+            return None
         if self.account is not None:
             return "Cannot set currency if account is set"
         if self.issuer is not None and self.currency.upper() == "XRP":
             return "Cannot set issuer if currency is XRP"
-        return
+        return None
 
     def _get_issuer_error(self: PathStep) -> Optional[str]:
         if self.issuer is None:
-            return
+            return None
         if self.account is not None:
             return "Cannot set issuer if account is set"
         if self.currency is not None and self.currency.upper() == "XRP":
             return "Cannot set issuer if currency is XRP"
-        return
+        return None
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class PathFind(Request):
     """
@@ -130,10 +133,10 @@ class PathFind(Request):
     a symptom of heavy server load.)
     """
 
-    subcommand: PathFindSubcommand = REQUIRED
-    source_account: str = REQUIRED
-    destination_account: str = REQUIRED
-    destination_amount: Amount = REQUIRED
-    method: RequestMethod = RequestMethod.PATH_FIND
+    subcommand: PathFindSubcommand = REQUIRED  # type: ignore
+    source_account: str = REQUIRED  # type: ignore
+    destination_account: str = REQUIRED  # type: ignore
+    destination_amount: Amount = REQUIRED  # type: ignore
+    method: RequestMethod = field(default=RequestMethod.PATH_FIND, init=False)
     send_max: Optional[Amount] = None
     paths: Optional[List[List[PathStep]]] = None

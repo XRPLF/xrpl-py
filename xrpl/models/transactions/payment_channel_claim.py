@@ -11,8 +11,10 @@ from typing import Optional
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionType
+from xrpl.models.utils import require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class PaymentChannelClaim(Transaction):
     """
@@ -24,7 +26,7 @@ class PaymentChannelClaim(Transaction):
     `See PaymentChannelClaim <https://xrpl.org/paymentchannelclaim.html>`_
     """
 
-    channel: str = REQUIRED
+    channel: str = REQUIRED  # type: ignore
     balance: Optional[str] = None
     amount: Optional[str] = None
     signature: Optional[str] = None

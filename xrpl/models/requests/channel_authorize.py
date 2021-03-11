@@ -4,13 +4,15 @@ be used to redeem a specific amount of XRP from a payment channel.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, Optional
 
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
+from xrpl.models.utils import require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class ChannelAuthorize(Request):
     """
@@ -18,9 +20,9 @@ class ChannelAuthorize(Request):
     be used to redeem a specific amount of XRP from a payment channel.
     """
 
-    method: RequestMethod = RequestMethod.CHANNEL_AUTHORIZE
-    channel_id: str = REQUIRED
-    amount: str = REQUIRED
+    method: RequestMethod = field(default=RequestMethod.CHANNEL_AUTHORIZE, init=False)
+    channel_id: str = REQUIRED  # type: ignore
+    amount: str = REQUIRED  # type: ignore
     secret: Optional[str] = None
     seed: Optional[str] = None
     seed_hex: Optional[str] = None

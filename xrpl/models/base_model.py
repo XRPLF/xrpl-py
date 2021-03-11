@@ -14,7 +14,7 @@ class BaseModel(ABC):
     """The base class for all model types."""
 
     @classmethod
-    def from_dict(cls: BaseModel, value: Dict[str, Any]) -> BaseModel:
+    def from_dict(cls: Type[BaseModel], value: Dict[str, Any]) -> BaseModel:
         """
         Construct a new BaseModel from a dictionary of parameters.
 
@@ -46,20 +46,22 @@ class BaseModel(ABC):
                     param, class_types[param], value[param]
                 )
 
-        return cls(**args)
+        # Ignore type-checking on this for now to simplify subclass constructors
+        # which might pass non kwargs.
+        return cls(**args)  # type: ignore
 
     @classmethod
     def _from_dict_special_cases(
         cls: BaseModel, param: str, param_type: Type, param_value: Dict[str, Any]
-    ) -> Any:
+    ) -> BaseModel:
         """Handles all the recursive/more complex cases for `from_dict`."""
-        from xrpl.models.amounts import IssuedCurrencyAmount
-        from xrpl.models.currencies import XRP, IssuedCurrency
+        from xrpl.models.amounts import Amount, IssuedCurrencyAmount
+        from xrpl.models.currencies import XRP, Currency, IssuedCurrency
         from xrpl.models.transactions.transaction import Transaction
 
         # TODO: figure out how to make NewTypes work generically (if possible)
 
-        if param_type.__name__ == "Amount":
+        if param_type == Amount:
             # special case, NewType
             if not isinstance(param_value, dict):
                 raise XRPLModelException(
@@ -67,7 +69,7 @@ class BaseModel(ABC):
                 )
             return IssuedCurrencyAmount.from_dict(param_value)
 
-        if param_type.__name__ == "Currency":
+        if param_type == Currency:
             # special case, NewType
             if not isinstance(param_value, dict):
                 raise XRPLModelException(
@@ -79,7 +81,7 @@ class BaseModel(ABC):
                 return XRP.from_dict(param_value)
             raise XRPLModelException(f"No valid type for {param}")
 
-        if param_type.__name__ == "Transaction":
+        if param_type == Transaction:
             # special case, multiple options (could be any Transaction type)
             if "transaction_type" not in param_value:
                 raise XRPLModelException(
@@ -90,7 +92,8 @@ class BaseModel(ABC):
             transaction_type = Transaction.get_transaction_type(type_str)
             return transaction_type.from_dict(param_value)
 
-        if issubclass(param_type, BaseModel):
+        # print(param_type, param_type == BaseModel, BaseModel.__subclasses__())
+        if param_type in BaseModel.__subclasses__():
             # any other BaseModel
             if not isinstance(param_value, dict):
                 raise XRPLModelException(
@@ -98,7 +101,7 @@ class BaseModel(ABC):
                 )
             return param_type.from_dict(param_value)
 
-        if issubclass(param_type, Enum):
+        if param_type in Enum.__subclasses__():
             return param_type(param_value)
 
         return param_value

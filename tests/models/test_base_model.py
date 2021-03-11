@@ -2,7 +2,7 @@ import unittest
 
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests.paths.book_offers import BookOffers
-from xrpl.models.requests.transactions.sign_request import SignRequest
+from xrpl.models.requests.transactions.sign import Sign
 from xrpl.models.transactions import CheckCreate
 
 currency = "BTC"
@@ -22,6 +22,8 @@ check_create_dict = {
     "destination": destination,
     "send_max": send_max,
 }
+
+secret = "topsecretpassword"
 
 
 class TestBaseModel(unittest.TestCase):
@@ -74,28 +76,31 @@ class TestBaseModel(unittest.TestCase):
 
     def test_from_dict_recursive_transaction(self):
         transaction = CheckCreate.from_dict(check_create_dict)
-        sign_request_dict = {"transaction": transaction.to_dict()}
-        sign_request = SignRequest.from_dict(sign_request_dict)
+        sign_dict = {"secret": secret, "transaction": transaction.to_dict()}
+        sign = Sign.from_dict(sign_dict)
 
         expected_dict = {
+            **sign_dict,
             "tx_json": transaction.to_dict(),
             "method": "sign",
             "fee_mult_max": 10,
             "fee_div_max": 1,
             "offline": False,
         }
-        self.assertEqual(expected_dict, sign_request.to_dict())
+        del expected_dict["transaction"]
+        self.assertEqual(expected_dict, sign.to_dict())
 
     def test_from_dict_recursive_transaction_tx_json(self):
         transaction = CheckCreate.from_dict(check_create_dict)
-        sign_request_dict = {"tx_json": transaction.to_dict()}
-        sign_request = SignRequest.from_dict(sign_request_dict)
+        sign_dict = {"secret": secret, "tx_json": transaction.to_dict()}
+        sign = Sign.from_dict(sign_dict)
 
         expected_dict = {
+            **sign_dict,
             "tx_json": transaction.to_dict(),
             "method": "sign",
             "fee_mult_max": 10,
             "fee_div_max": 1,
             "offline": False,
         }
-        self.assertEqual(expected_dict, sign_request.to_dict())
+        self.assertEqual(expected_dict, sign.to_dict())

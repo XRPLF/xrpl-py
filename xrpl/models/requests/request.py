@@ -10,6 +10,7 @@ from typing import Any, Dict, Optional
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
+from xrpl.models.utils import require_kwargs_on_init
 
 
 class RequestMethod(str, Enum):
@@ -32,8 +33,7 @@ class RequestMethod(str, Enum):
     SUBMIT = "submit"
     SUBMIT_MULTISIGNED = "submit_multisigned"
     TRANSACTION_ENTRY = "transaction_entry"
-    TRANSACTION = "tx"
-    TRANSACTION_HISTORY = "tx_history"
+    TX = "tx"
 
     # channel methods
     CHANNEL_AUTHORIZE = "channel_authorize"
@@ -67,6 +67,7 @@ class RequestMethod(str, Enum):
     RANDOM = "random"
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Request(BaseModel):
     """
@@ -74,7 +75,7 @@ class Request(BaseModel):
     Represents fields common to all request types.
     """
 
-    method: RequestMethod = REQUIRED
+    method: RequestMethod = REQUIRED  # type: ignore
     id: Optional[int] = None
 
     def to_dict(self: Request) -> Dict[str, Any]:

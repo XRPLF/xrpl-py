@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
+from xrpl.models.utils import require_kwargs_on_init
 
 STR_TO_TRANSACTION_DICT = {}
 
@@ -40,6 +41,7 @@ class TransactionType(str, Enum):
     TRUST_SET = "TrustSet"
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Memo(BaseModel):
     """
@@ -69,6 +71,7 @@ class Memo(BaseModel):
         return errors
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Signer(BaseModel):
     """
@@ -79,11 +82,12 @@ class Signer(BaseModel):
     has the following nested fields.
     """
 
-    account: str = REQUIRED
-    txn_signature: str = REQUIRED
-    signing_pub_key: str = REQUIRED
+    account: str = REQUIRED  # type: ignore
+    txn_signature: str = REQUIRED  # type: ignore
+    signing_pub_key: str = REQUIRED  # type: ignore
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Transaction(BaseModel):
     """
@@ -94,8 +98,8 @@ class Transaction(BaseModel):
     See https://xrpl.org/transaction-common-fields.html.
     """
 
-    account: str = REQUIRED
-    transaction_type: TransactionType = REQUIRED
+    account: str = REQUIRED  # type: ignore
+    transaction_type: TransactionType = REQUIRED  # type: ignore
     fee: Optional[str] = None  # auto-fillable
     sequence: Optional[int] = None  # auto-fillable
     account_txn_id: Optional[str] = None

@@ -22,10 +22,12 @@ from typing import Any, Dict, Optional
 
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.transactions.transaction import REQUIRED, Transaction
+from xrpl.models.utils import require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
-class SignRequest(Request):
+class Sign(Request):
     """
     The sign method takes a transaction in JSON format and a seed value, and returns a
     signed binary representation of the transaction. To contribute one signature to a
@@ -43,9 +45,7 @@ class SignRequest(Request):
     `See sign <https://xrpl.org/sign.html>`_
     """
 
-    method: RequestMethod = field(
-        default_factory=lambda: RequestMethod.SIGN, init=False
-    )
+    method: RequestMethod = field(default=RequestMethod.SIGN, init=False)
     transaction: Transaction = REQUIRED
     secret: Optional[str] = None
     seed: Optional[str] = None
@@ -58,61 +58,53 @@ class SignRequest(Request):
     fee_div_max: int = 1
 
     @classmethod
-    def from_dict(cls: SignRequest, value: Dict[str, Any]) -> SignRequest:
+    def from_dict(cls: Sign, value: Dict[str, Any]) -> Sign:
         """
-        Construct a new SignRequest from a dictionary of parameters.
+        Construct a new Sign from a dictionary of parameters.
 
         If not overridden, passes the dictionary as args to the constructor.
 
         Args:
-            value: The value to construct the SignRequest from.
+            value: The value to construct the Sign from.
 
         Returns:
-            A new SignRequest object, constructed using the given parameters.
+            A new Sign object, constructed using the given parameters.
         """
         if "tx_json" in value:
             fixed_value = {**value, "transaction": value["tx_json"]}
             del fixed_value["tx_json"]
         else:
             fixed_value = value
-        return super(SignRequest, cls).from_dict(fixed_value)
+        return super(Sign, cls).from_dict(fixed_value)
 
-    def to_dict(self: SignRequest) -> Dict[str, Any]:
+    def to_dict(self: Sign) -> Dict[str, Any]:
         """
-        Returns the dictionary representation of a SignRequest.
+        Returns the dictionary representation of a Sign.
 
         Returns:
-            The dictionary representation of a SignRequest.
+            The dictionary representation of a Sign.
         """
         return_dict = super().to_dict()
         del return_dict["transaction"]
         return_dict["tx_json"] = self.transaction.to_dict()
         return return_dict
 
-    def _get_errors(self: SignRequest) -> Dict[str, str]:
+    def _get_errors(self: Sign) -> Dict[str, str]:
         errors = super()._get_errors()
-        if self.secret is not None and (
-            self.key_type is not None
-            or self.seed is not None
-            or self.seed_hex is not None
-            or self.passphrase is not None
-        ):
-            errors["SignRequest"] = (
-                "`secret` cannot be used with `key_type`, `seed`, `seed_hex`, or "
-                "`passphrase`."
-            )
-        elif self.seed is not None and (
-            self.seed_hex is not None or self.passphrase is not None
-        ):
+        if not self._has_only_one_seed():
             errors[
-                "SignRequest"
-            ] = "`seed` cannot be used with `seed_hex` or `passphrase`."
-        elif self.seed_hex is not None and self.passphrase is not None:
-            errors["SignRequest"] = "`seed` cannot be used with `passphrase`."
-        elif self.key_type is None and (
-            self.seed is not None
-            or self.seed_hex is not None
-            or self.passphrase is not None
-        ):
-            self.key_type = "secp256k1"  # default
+                "Sign"
+            ] = "Must have only one of `secret`, `seed`, `seed_hex`, and `passphrase."
+
+        if self.secret is not None and self.key_type is not None:
+            errors["key_type"] = "Must omit `key_type` if `secret` is provided."
+
         return errors
+
+    def _has_only_one_seed(self: Sign) -> bool:
+        present_items = [
+            item
+            for item in [self.secret, self.seed, self.seed_hex, self.passphrase]
+            if item is not None
+        ]
+        return len(present_items) == 1

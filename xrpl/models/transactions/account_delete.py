@@ -13,8 +13,10 @@ from typing import Optional
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionType
+from xrpl.models.utils import require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class AccountDelete(Transaction):
     """
@@ -28,6 +30,6 @@ class AccountDelete(Transaction):
     `See Deletion of Accounts <https://xrpl.org/accounts.html#deletion-of-accounts>`_
     """
 
-    destination: str = REQUIRED
+    destination: str = REQUIRED  # type: ignore
     destination_tag: Optional[int] = None
     transaction_type: TransactionType = TransactionType.ACCOUNT_DELETE
