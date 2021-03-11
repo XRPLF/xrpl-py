@@ -9,8 +9,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Union
 
-from xrpl.models.base_model import REQUIRED, BaseModel
+from xrpl.models.base_model import BaseModel
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 

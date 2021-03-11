@@ -25,8 +25,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
-from xrpl.models.transactions.submit import Submit
-from xrpl.models.transactions.transaction import REQUIRED, Transaction
+from xrpl.models.requests.transactions.submit import Submit
+from xrpl.models.required import REQUIRED
+from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.utils import require_kwargs_on_init
 
 
@@ -55,7 +56,7 @@ class SignAndSubmit(Submit):
     `See submit <https://xrpl.org/submit.html>`_
     """
 
-    transaction: Transaction = REQUIRED
+    transaction: Transaction = REQUIRED  # type: ignore
     secret: Optional[str] = None
     seed: Optional[str] = None
     seed_hex: Optional[str] = None
@@ -80,28 +81,20 @@ class SignAndSubmit(Submit):
 
     def _get_errors(self: SignAndSubmit) -> Dict[str, str]:
         errors = super()._get_errors()
-        if self.secret is not None and (
-            self.key_type is not None
-            or self.seed is not None
-            or self.seed_hex is not None
-            or self.passphrase is not None
-        ):
-            errors["SignAndSubmit"] = (
-                "`secret` cannot be used with `key_type`, `seed`, `seed_hex`, or "
-                "`passphrase`."
-            )
-        elif self.seed is not None and (
-            self.seed_hex is not None or self.passphrase is not None
-        ):
+        if not self._has_only_one_seed():
             errors[
                 "SignAndSubmit"
-            ] = "`seed` cannot be used with `seed_hex` or `passphrase`."
-        elif self.seed_hex is not None and self.passphrase is not None:
-            errors["SignAndSubmit"] = "`seed` cannot be used with `passphrase`."
-        elif self.key_type is None and (
-            self.seed is not None
-            or self.seed_hex is not None
-            or self.passphrase is not None
-        ):
-            self.key_type = "secp256k1"  # default
+            ] = "Must have only one of `secret`, `seed`, `seed_hex`, and `passphrase."
+
+        if self.secret is not None and self.key_type is not None:
+            errors["key_type"] = "Must omit `key_type` if `secret` is provided."
+
         return errors
+
+    def _has_only_one_seed(self: SignAndSubmit) -> bool:
+        present_items = [
+            item
+            for item in [self.secret, self.seed, self.seed_hex, self.passphrase]
+            if item is not None
+        ]
+        return len(present_items) == 1

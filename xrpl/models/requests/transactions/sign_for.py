@@ -15,7 +15,8 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
 
 from xrpl.models.requests.request import Request, RequestMethod
-from xrpl.models.transactions.transaction import REQUIRED, Transaction
+from xrpl.models.required import REQUIRED
+from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.utils import require_kwargs_on_init
 
 
@@ -34,8 +35,8 @@ class SignFor(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.SIGN_FOR, init=False)
-    account: str = REQUIRED
-    transaction: Transaction = REQUIRED
+    account: str = REQUIRED  # type: ignore
+    transaction: Transaction = REQUIRED  # type: ignore
     secret: Optional[str] = None
     seed: Optional[str] = None
     seed_hex: Optional[str] = None
@@ -58,7 +59,7 @@ class SignFor(Request):
         errors = super()._get_errors()
         if not self._has_only_one_seed():
             errors[
-                "Sign"
+                "SignFor"
             ] = "Must have only one of `secret`, `seed`, `seed_hex`, and `passphrase."
 
         if self.secret is not None and self.key_type is not None:

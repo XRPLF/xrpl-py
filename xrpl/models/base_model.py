@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC
 from enum import Enum
-from typing import Any, Dict, Type, get_type_hints
+from typing import Any, Dict, Type, Union, get_type_hints
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
@@ -52,8 +52,11 @@ class BaseModel(ABC):
 
     @classmethod
     def _from_dict_special_cases(
-        cls: BaseModel, param: str, param_type: Type, param_value: Dict[str, Any]
-    ) -> BaseModel:
+        cls: Type[BaseModel],
+        param: str,
+        param_type: Type[Any],
+        param_value: Dict[str, Any],
+    ) -> Union[Enum, BaseModel, Dict[str, Any]]:
         """Handles all the recursive/more complex cases for `from_dict`."""
         from xrpl.models.amounts import Amount, IssuedCurrencyAmount
         from xrpl.models.currencies import XRP, Currency, IssuedCurrency
@@ -99,10 +102,12 @@ class BaseModel(ABC):
                 raise XRPLModelException(
                     f"{param_type} requires a dictionary of params"
                 )
-            return param_type.from_dict(param_value)
+            # mypy doesn't know that the If checks that it's a subclass of BaseModel
+            return param_type.from_dict(param_value)  # type: ignore
 
         if param_type in Enum.__subclasses__():
-            return param_type(param_value)
+            # mypy doesn't know that the If checks that it's a subclass of Enum
+            return param_type(param_value)  # type: ignore
 
         return param_value
 

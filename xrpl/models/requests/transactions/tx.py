@@ -9,8 +9,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
-from xrpl.models.base_model import REQUIRED
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
@@ -24,7 +24,7 @@ class Tx(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.TX, init=False)
-    transaction: str = REQUIRED
+    transaction: str = REQUIRED  # type: ignore
     binary: bool = False
     min_ledger: Optional[int] = None
     max_ledger: Optional[int] = None

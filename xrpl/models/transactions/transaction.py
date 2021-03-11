@@ -9,13 +9,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type
 
 from xrpl.models.base_model import BaseModel
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
-
-STR_TO_TRANSACTION_DICT = {}
 
 
 class TransactionType(str, Enum):
@@ -134,7 +133,9 @@ class Transaction(BaseModel):
         return self.flags & flag != 0
 
     @classmethod
-    def get_transaction_type(cls: Transaction, transaction_type: str) -> Transaction:
+    def get_transaction_type(
+        cls: Type[Transaction], transaction_type: str
+    ) -> Type[Transaction]:
         """
         Returns the correct transaction type based on the string name.
 
@@ -143,76 +144,81 @@ class Transaction(BaseModel):
 
         Returns:
             The transaction class with the given name.
+
+        Raises:
+            XRPLModelException: If `transaction_type` is not a valid Transaction type.
         """
         if transaction_type == "AccountDelete":
             from xrpl.models.transactions import AccountDelete
 
             return AccountDelete
-        elif transaction_type == "AccountSet":
+        if transaction_type == "AccountSet":
             from xrpl.models.transactions import AccountSet
 
             return AccountSet
-        elif transaction_type == "CheckCancel":
+        if transaction_type == "CheckCancel":
             from xrpl.models.transactions import CheckCancel
 
             return CheckCancel
-        elif transaction_type == "CheckCash":
+        if transaction_type == "CheckCash":
             from xrpl.models.transactions import CheckCash
 
             return CheckCash
-        elif transaction_type == "CheckCreate":
+        if transaction_type == "CheckCreate":
             from xrpl.models.transactions import CheckCreate
 
             return CheckCreate
-        elif transaction_type == "DepositPreauth":
+        if transaction_type == "DepositPreauth":
             from xrpl.models.transactions import DepositPreauth
 
             return DepositPreauth
-        elif transaction_type == "EscrowCancel":
+        if transaction_type == "EscrowCancel":
             from xrpl.models.transactions import EscrowCancel
 
             return EscrowCancel
-        elif transaction_type == "EscrowCreate":
+        if transaction_type == "EscrowCreate":
             from xrpl.models.transactions import EscrowCreate
 
             return EscrowCreate
-        elif transaction_type == "EscrowFinish":
+        if transaction_type == "EscrowFinish":
             from xrpl.models.transactions import EscrowFinish
 
             return EscrowFinish
-        elif transaction_type == "OfferCancel":
+        if transaction_type == "OfferCancel":
             from xrpl.models.transactions import OfferCancel
 
             return OfferCancel
-        elif transaction_type == "OfferCreate":
+        if transaction_type == "OfferCreate":
             from xrpl.models.transactions import OfferCreate
 
             return OfferCreate
-        elif transaction_type == "Payment":
+        if transaction_type == "Payment":
             from xrpl.models.transactions import Payment
 
             return Payment
-        elif transaction_type == "PaymentChannelClaim":
+        if transaction_type == "PaymentChannelClaim":
             from xrpl.models.transactions import PaymentChannelClaim
 
             return PaymentChannelClaim
-        elif transaction_type == "PaymentChannelCreate":
+        if transaction_type == "PaymentChannelCreate":
             from xrpl.models.transactions import PaymentChannelCreate
 
             return PaymentChannelCreate
-        elif transaction_type == "PaymentChannelFund":
+        if transaction_type == "PaymentChannelFund":
             from xrpl.models.transactions import PaymentChannelFund
 
             return PaymentChannelFund
-        elif transaction_type == "SetRegularKey":
+        if transaction_type == "SetRegularKey":
             from xrpl.models.transactions import SetRegularKey
 
             return SetRegularKey
-        elif transaction_type == "SignerListSet":
+        if transaction_type == "SignerListSet":
             from xrpl.models.transactions import SignerListSet
 
             return SignerListSet
-        elif transaction_type == "TrustSet":
+        if transaction_type == "TrustSet":
             from xrpl.models.transactions import TrustSet
 
             return TrustSet
+
+        raise XRPLModelException(f"{transaction_type} is not a valid Transaction type")
