@@ -28,7 +28,7 @@ class Hash(SerializedType, ABC):
         buffer = buffer if buffer is not None else bytes(self._get_length())
 
         if len(buffer) != self._get_length():
-            raise XRPLBinaryCodecException("Invalid hash length {}".format(len(buffer)))
+            raise XRPLBinaryCodecException("Invalid hash length {len(buffer)}")
         super().__init__(buffer)
 
     def __str__(self: Hash) -> str:
@@ -51,8 +51,8 @@ class Hash(SerializedType, ABC):
         """
         if not isinstance(value, str):
             raise XRPLBinaryCodecException(
-                "Invalid type to construct a {}: expected str,"
-                " received {}.".format(cls.__name__, value.__class__.__name__)
+                f"Invalid type to construct a {cls.__name__}: expected str,"
+                f" received {value.__class__.__name__}."
             )
 
         return cls(bytes.fromhex(value))

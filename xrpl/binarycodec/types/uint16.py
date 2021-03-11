@@ -54,9 +54,8 @@ class UInt16(UInt):
         """
         if not isinstance(value, int):
             raise XRPLBinaryCodecException(
-                "Invalid type to construct a UInt16: expected int, received {}.".format(
-                    value.__class__.__name__
-                )
+                "Invalid type to construct a UInt16: expected int, "
+                "received {value.__class__.__name__}."
             )
 
         if isinstance(value, int):

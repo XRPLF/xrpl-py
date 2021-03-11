@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from xrpl.models.exceptions import XRPLModelValidationException
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AccountSet
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
@@ -21,7 +21,7 @@ class TestAccountSet(TestCase):
             "domain": domain,
             "sequence": _SEQUENCE,
         }
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             AccountSet.from_dict(transaction_dict)
 
     def test_uppercase_domain(self):
@@ -34,7 +34,7 @@ class TestAccountSet(TestCase):
             "domain": domain,
             "sequence": _SEQUENCE,
         }
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             AccountSet.from_dict(transaction_dict)
 
     def test_invalid_tick_size(self):
@@ -47,7 +47,7 @@ class TestAccountSet(TestCase):
             "tick_size": tick_size,
             "sequence": _SEQUENCE,
         }
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             AccountSet.from_dict(transaction_dict)
 
     def test_invalid_transfer_rate(self):
@@ -60,5 +60,5 @@ class TestAccountSet(TestCase):
             "transfer_rate": transfer_rate,
             "sequence": _SEQUENCE,
         }
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             AccountSet.from_dict(transaction_dict)
