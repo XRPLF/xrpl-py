@@ -1,4 +1,4 @@
-"""Utility functions for integration tests."""
+"""Utility functions and variables for integration tests."""
 
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
