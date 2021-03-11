@@ -4,6 +4,7 @@ from time import sleep
 
 from requests import post
 
+from xrpl import XRPLException
 from xrpl.models.requests.accounts.account_info import AccountInfo
 from xrpl.models.requests.fee import Fee
 from xrpl.models.response import Response
@@ -11,6 +12,12 @@ from xrpl.network_clients import JsonRpcClient
 from xrpl.wallet.main import Wallet
 
 FAUCET_URL = "https://faucet.altnet.rippletest.net/accounts"
+
+
+class XRPLFaucetException(XRPLException):
+    """Faucet generation exception."""
+
+    pass
 
 
 # TODO: make this general for any type of network client
@@ -25,13 +32,10 @@ def generate_faucet_wallet(client: JsonRpcClient) -> Wallet:
         A Wallet on the testnet that contains some amount of XRP.
 
     Raises:
-        Exception: if an address could not be funded with the faucet.
+        XRPLFaucetException: if an address could not be funded with the faucet.
     """
     timeout_seconds = 40
-    try:
-        wallet = Wallet.generate_seed_and_wallet()
-    except Exception as e:
-        raise Exception("Could not generate wallet: " + str(e))
+    wallet = Wallet.generate_seed_and_wallet()
 
     address = wallet.classic_address
     # The faucet *can* be flakey... by printing info about this it's easier to
@@ -39,8 +43,8 @@ def generate_faucet_wallet(client: JsonRpcClient) -> Wallet:
     print("Attempting to fund address {}".format(address))
     # Balance prior to asking for more funds
     try:
-        starting_balance = _get_balance(address)
-    except Exception:
+        starting_balance = _get_balance(address, client)
+    except KeyError:
         starting_balance = 0
 
     # Ask the faucet to send funds to the given address
@@ -51,17 +55,19 @@ def generate_faucet_wallet(client: JsonRpcClient) -> Wallet:
     for _ in range(timeout_seconds):
         sleep(1)
         try:
-            current_balance = _get_balance(address)
-        except Exception:
+            current_balance = _get_balance(address, client)
+        except KeyError:
             current_balance = 0
         # If our current balance has changed, then return
         if starting_balance != current_balance:
             print("Faucet fund successful.")
-            wallet.next_sequence_num = get_next_valid_seq_number(wallet.classic_address)
+            wallet.next_sequence_num = get_next_valid_seq_number(
+                wallet.classic_address, client
+            )
             return wallet
 
     # Otherwise, timeout before balance updates
-    raise Exception(
+    raise XRPLFaucetException(
         "Unable to fund address with faucet after waiting {} seconds".format(
             timeout_seconds
         )

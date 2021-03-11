@@ -1,14 +1,14 @@
 from unittest import TestCase
 
-from tests.integration.it_utils import JSON_RPC_CLIENT, get_fee, submit_transaction
+from tests.integration.it_utils import JSON_RPC_CLIENT, submit_transaction
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountSet
-from xrpl.wallet import generate_faucet_wallet
+from xrpl.wallet import generate_faucet_wallet, get_fee
 
-WALLET = generate_faucet_wallet(JSON_RPC_CLIENT.request)
+WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
 
 ACCOUNT = WALLET.classic_address
-FEE = get_fee()
+FEE = get_fee(JSON_RPC_CLIENT)
 SEQUENCE = WALLET.next_sequence_num
 
 

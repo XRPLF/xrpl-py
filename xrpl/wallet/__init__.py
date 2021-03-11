@@ -1,5 +1,5 @@
 """Top-level exports for the wallet generation package."""
 from xrpl.wallet.main import Wallet
-from xrpl.wallet.wallet_generation import generate_faucet_wallet
+from xrpl.wallet.wallet_generation import generate_faucet_wallet, get_fee
 
-__all__ = ["Wallet", "generate_faucet_wallet"]
+__all__ = ["Wallet", "generate_faucet_wallet", "get_fee"]
