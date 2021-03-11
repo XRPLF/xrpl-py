@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Any, Dict
+from typing import Any, Dict, Type
 
 from typing_extensions import Final
 
@@ -19,7 +19,7 @@ class BaseModel(ABC):
     """The base class for all model types."""
 
     @classmethod
-    def from_dict(cls: BaseModel, value: Dict[str, Any]) -> BaseModel:
+    def from_dict(cls: Type[BaseModel], value: Dict[str, Any]) -> BaseModel:
         """
         Construct a new BaseModel from a dictionary of parameters.
 
@@ -31,7 +31,9 @@ class BaseModel(ABC):
         Returns:
             A new BaseModel object, constructed using the given parameters.
         """
-        return cls(**value)
+        # Ignore type-checking on this for now to simplify subclass constructors
+        # which might pass non kwargs.
+        return cls(**value)  # type: ignore
 
     def __post_init__(self: BaseModel) -> None:
         """Called by dataclasses immediately after __init__."""

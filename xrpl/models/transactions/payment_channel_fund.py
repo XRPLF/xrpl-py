@@ -26,7 +26,7 @@ class PaymentChannelFund(Transaction):
     `See PaymentChannelFund <https://xrpl.org/paymentchannelfund.html>`_
     """
 
-    channel: str = REQUIRED
-    amount: str = REQUIRED
+    channel: str = REQUIRED  # type: ignore
+    amount: str = REQUIRED  # type: ignore
     expiration: Optional[int] = None
     transaction_type: TransactionType = TransactionType.PAYMENT_CHANNEL_FUND
