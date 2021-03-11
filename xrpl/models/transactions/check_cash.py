@@ -19,7 +19,8 @@ from dataclasses import dataclass
 from typing import Dict, Optional
 
 from xrpl.models.amounts import Amount
-from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
+from xrpl.models.base_model import REQUIRED
+from xrpl.models.transactions.transaction import Transaction, TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 
@@ -42,7 +43,7 @@ class CheckCash(Transaction):
     `See CheckCash <https://xrpl.org/checkcash.html>`_
     """
 
-    check_id: str = REQUIRED
+    check_id: str = REQUIRED  # type: ignore
     amount: Optional[Amount] = None
     deliver_min: Optional[Amount] = None
     transaction_type: TransactionType = TransactionType.CHECK_CASH

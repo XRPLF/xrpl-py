@@ -74,7 +74,7 @@ class Request(BaseModel):
     Represents fields common to all request types.
     """
 
-    method: RequestMethod = REQUIRED
+    method: RequestMethod = REQUIRED  # type: ignore
     id: Optional[int] = None
 
     def to_dict(self: Request) -> Dict[str, Any]:

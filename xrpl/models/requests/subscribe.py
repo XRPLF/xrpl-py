@@ -32,9 +32,9 @@ class StreamParameter(str, Enum):
 class SubscribeBook(BaseModel):
     """Format for elements in the `books` array for Subscribe only."""
 
-    taker_gets: Currency = REQUIRED
-    taker_pays: Currency = REQUIRED
-    taker: str = REQUIRED
+    taker_gets: Currency = REQUIRED  # type: ignore
+    taker_pays: Currency = REQUIRED  # type: ignore
+    taker: str = REQUIRED  # type: ignore
     snapshot: Optional[bool] = False
     both: Optional[bool] = False
 

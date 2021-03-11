@@ -22,7 +22,7 @@ class GatewayBalances(Request):
     `See gateway_balances <https://xrpl.org/gateway_balances.html>`_
     """
 
-    account: str = REQUIRED
+    account: str = REQUIRED  # type: ignore
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
     method: RequestMethod = field(default=RequestMethod.GATEWAY_BALANCES, init=False)

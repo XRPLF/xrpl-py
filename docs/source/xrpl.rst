@@ -8,8 +8,9 @@ Subpackages
    :maxdepth: 4
 
    xrpl.addresscodec
-   xrpl.binary_codec
+   xrpl.binarycodec
    xrpl.keypairs
+   xrpl.models
 
 Submodules
 ----------
