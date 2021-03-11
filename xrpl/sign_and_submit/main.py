@@ -14,7 +14,7 @@ from xrpl.wallet import Wallet
 def sign_and_submit_transaction(
     transaction: Transaction,
     wallet: Wallet,
-    send_transaction: Callable[[Dict[str, Any]], Response],
+    send_transaction: Callable[[Request], Response],
 ) -> Response:
     """
     Signs a transaction and submits it to the XRPL.
@@ -55,7 +55,7 @@ def sign_transaction(transaction: Transaction, wallet: Wallet) -> str:
 
 def submit_transaction_blob(
     transaction_blob: str,
-    send_transaction: Callable[[str, Request], Response],
+    send_transaction: Callable[[Request], Response],
 ) -> Response:
     """
     Submits a transaction blob to the ledger.
@@ -71,7 +71,7 @@ def submit_transaction_blob(
     return send_transaction(submit_request)
 
 
-def transaction_json_to_binary_codec_form(dictionary: dict) -> dict:
+def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[str, Any]:
     """
     Returns a new dictionary in which the first letter of every original key is
     capitalized.

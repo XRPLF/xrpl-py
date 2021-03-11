@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-from xrpl.keypairs.main import (
-    CryptoAlgorithm,
-    derive_classic_address,
-    derive_keypair,
-    generate_seed,
-)
+from typing import Type
+
+from xrpl import CryptoAlgorithm
+from xrpl.keypairs import derive_classic_address, derive_keypair, generate_seed
 
 
 class Wallet:
@@ -23,11 +21,11 @@ class Wallet:
         self.seed = seed
         self.pub_key, self.priv_key = derive_keypair(self.seed)
         self.classic_address = derive_classic_address(self.pub_key)
-        self.next_sequence_num = None
+        self.next_sequence_num = 0
 
     @classmethod
     def generate_seed_and_wallet(
-        cls: Wallet, crypto_algorithm: CryptoAlgorithm = CryptoAlgorithm.SECP256K1
+        cls: Type[Wallet], crypto_algorithm: CryptoAlgorithm = CryptoAlgorithm.SECP256K1
     ) -> Wallet:
         """
         Generates a new seed and Wallet.

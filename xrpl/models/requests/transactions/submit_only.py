@@ -55,5 +55,5 @@ class SubmitOnly(Submit):
     """
 
     # submit-only mode
-    tx_blob: str = REQUIRED
+    tx_blob: str = REQUIRED  # type: ignore
     fail_hard: bool = False

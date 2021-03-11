@@ -1,5 +1,7 @@
 """High-level methods to obtain information about accounts."""
 
+from typing import cast
+
 from xrpl.models.requests.accounts.account_info import AccountInfo
 from xrpl.models.requests.fee import Fee
 from xrpl.models.response import Response
@@ -19,7 +21,8 @@ def get_fee(client: JsonRpcClient) -> str:
     """
     fee_request = Fee()
     response = client.request(fee_request)
-    return str(response.result["drops"]["minimum_fee"])
+    assert isinstance(response.result, dict)
+    return cast(str, response.result["drops"]["minimum_fee"])
 
 
 def get_next_valid_seq_number(address: str, client: JsonRpcClient) -> int:
@@ -34,7 +37,8 @@ def get_next_valid_seq_number(address: str, client: JsonRpcClient) -> int:
         The next valid sequence number for the address.
     """
     account_info = get_account_info(address, client)
-    return account_info.result["account_data"]["Sequence"]
+    assert isinstance(account_info.result, dict)
+    return cast(int, account_info.result["account_data"]["Sequence"])
 
 
 def get_balance(address: str, client: JsonRpcClient) -> int:
@@ -49,7 +53,8 @@ def get_balance(address: str, client: JsonRpcClient) -> int:
         The balance of the address.
     """
     account_info = get_account_info(address, client)
-    return int(account_info.result["account_data"]["Balance"])
+    assert isinstance(account_info.result, dict)
+    return cast(int, account_info.result["account_data"]["Balance"])
 
 
 def get_account_info(address: str, client: JsonRpcClient) -> Response:
