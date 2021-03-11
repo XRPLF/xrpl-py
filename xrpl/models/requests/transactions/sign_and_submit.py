@@ -25,7 +25,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
-from xrpl.models.transactions.submit import Submit
+from xrpl.models.requests.transactions.submit import Submit
 from xrpl.models.transactions.transaction import REQUIRED, Transaction
 
 

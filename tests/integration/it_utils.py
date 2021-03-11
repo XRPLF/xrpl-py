@@ -2,19 +2,18 @@ from time import sleep
 
 from requests import post
 
-from xrpl.binarycodec.main import encode, encode_for_signing
 from xrpl.keypairs.main import (
     CryptoAlgorithm,
     derive_classic_address,
     derive_keypair,
     generate_seed,
-    sign,
 )
 from xrpl.models.requests.accounts.account_info import AccountInfo
 from xrpl.models.requests.fee import Fee
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.network_clients import JsonRpcClient, json_to_response
+from xrpl.network_clients import JsonRpcClient
+from xrpl.sign_and_submit import sign_and_submit_transaction
 
 JSON_RPC_URL = "http://test.xrp.xpring.io:51234"
 JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
@@ -38,20 +37,7 @@ class Wallet:
 
 def submit_transaction(transaction: Transaction, wallet: Wallet) -> Response:
     """Signs and submits a transaction to the XRPL."""
-    # Increment the wallet sequence number, since we're about to use one.
-    wallet.next_sequence_num += 1
-    transaction_json = _prepare_transaction_json_for_binary_codec(transaction.to_dict())
-    transaction_json["SigningPubKey"] = wallet.pub_key
-    serialized_for_signing = encode_for_signing(transaction_json)
-    serialized_bytes = bytes.fromhex(serialized_for_signing)
-    signature = sign(serialized_bytes, wallet.priv_key)
-    transaction_json["TxnSignature"] = signature
-    txn_blob = encode(transaction_json)
-
-    # TODO: use our model objects when those are implemented for `submit`
-    submit_request = {"method": "submit", "params": [{"tx_blob": txn_blob}]}
-    response = post(JSON_RPC_URL, json=submit_request)
-    return json_to_response(response.json())
+    return sign_and_submit_transaction(transaction, wallet, JSON_RPC_CLIENT.request)
 
 
 def generate_faucet_wallet():
