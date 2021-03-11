@@ -1,9 +1,10 @@
 from unittest import TestCase
 
 from tests.integration.it_utils import JSON_RPC_CLIENT, submit_transaction
+from xrpl.account import get_fee
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountSet
-from xrpl.wallet import generate_faucet_wallet, get_fee
+from xrpl.wallet import generate_faucet_wallet
 
 WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
 

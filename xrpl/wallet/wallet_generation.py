@@ -5,9 +5,7 @@ from time import sleep
 from requests import post
 
 from xrpl import XRPLException
-from xrpl.models.requests.accounts.account_info import AccountInfo
-from xrpl.models.requests.fee import Fee
-from xrpl.models.response import Response
+from xrpl.account import get_balance, get_next_valid_seq_number
 from xrpl.network_clients import JsonRpcClient
 from xrpl.wallet.main import Wallet
 
@@ -43,7 +41,7 @@ def generate_faucet_wallet(client: JsonRpcClient) -> Wallet:
     print("Attempting to fund address {}".format(address))
     # Balance prior to asking for more funds
     try:
-        starting_balance = _get_balance(address, client)
+        starting_balance = get_balance(address, client)
     except KeyError:
         starting_balance = 0
 
@@ -55,7 +53,7 @@ def generate_faucet_wallet(client: JsonRpcClient) -> Wallet:
     for _ in range(timeout_seconds):
         sleep(1)
         try:
-            current_balance = _get_balance(address, client)
+            current_balance = get_balance(address, client)
         except KeyError:
             current_balance = 0
         # If our current balance has changed, then return
@@ -72,48 +70,3 @@ def generate_faucet_wallet(client: JsonRpcClient) -> Wallet:
             timeout_seconds
         )
     )
-
-
-def get_fee(client: JsonRpcClient) -> str:
-    """
-    Query the ledger for the current minimum transaction fee.
-
-    Args:
-        client: the network client used to make network calls.
-
-    Returns:
-        The minimum fee for transactions.
-    """
-    fee_request = Fee()
-    response = client.request(fee_request)
-    return str(response.result["drops"]["minimum_fee"])
-
-
-def get_next_valid_seq_number(address: str, client: JsonRpcClient) -> int:
-    """
-    Query the ledger for the next available sequence number for an account.
-
-    Args:
-        address: the account to query.
-        client: the network client used to make network calls.
-
-    Returns:
-        The next valid sequence number for the address.
-    """
-    account_info = _get_account_info(address, client)
-    return account_info.result["account_data"]["Sequence"]
-
-
-def _get_balance(address: str, client: JsonRpcClient) -> int:
-    """Query the ledger for the balance of the given account."""
-    account_info = _get_account_info(address, client)
-    return int(account_info.result["account_data"]["Balance"])
-
-
-def _get_account_info(address: str, client: JsonRpcClient) -> Response:
-    """Query the ledger for account info of given address."""
-    account_info_request = AccountInfo(
-        account=address,
-        ledger_index="validated",
-    )
-    return client.request(account_info_request)
