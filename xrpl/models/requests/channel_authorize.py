@@ -21,8 +21,8 @@ class ChannelAuthorize(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.CHANNEL_AUTHORIZE, init=False)
-    channel_id: str = REQUIRED
-    amount: str = REQUIRED
+    channel_id: str = REQUIRED  # type: ignore
+    amount: str = REQUIRED  # type: ignore
     secret: Optional[str] = None
     seed: Optional[str] = None
     seed_hex: Optional[str] = None

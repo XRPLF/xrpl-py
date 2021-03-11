@@ -30,6 +30,6 @@ class AccountDelete(Transaction):
     `See Deletion of Accounts <https://xrpl.org/accounts.html#deletion-of-accounts>`_
     """
 
-    destination: str = REQUIRED
+    destination: str = REQUIRED  # type: ignore
     destination_tag: Optional[int] = None
     transaction_type: TransactionType = TransactionType.ACCOUNT_DELETE

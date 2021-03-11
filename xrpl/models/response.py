@@ -37,8 +37,8 @@ class Response(BaseModel):
     Represents fields common to all response types.
     """
 
-    status: ResponseStatus = REQUIRED
-    result: Union[List[Any], Dict[Any]] = REQUIRED
+    status: ResponseStatus = REQUIRED  # type: ignore
+    result: Union[List[Any], Dict[Any]] = REQUIRED  # type: ignore
     id: Optional[Union[int, str]] = None
     type: Optional[ResponseType] = None
 

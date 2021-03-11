@@ -26,7 +26,7 @@ class AccountInfo(Request):
     `See account_info <https://xrpl.org/account_info.html>`_
     """
 
-    account: str = REQUIRED
+    account: str = REQUIRED  # type: ignore
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_INFO, init=False)

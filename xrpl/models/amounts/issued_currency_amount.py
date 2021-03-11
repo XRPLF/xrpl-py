@@ -19,4 +19,4 @@ class IssuedCurrencyAmount(IssuedCurrency):
     See https://xrpl.org/currency-formats.html#issued-currency-amounts.
     """
 
-    value: str = REQUIRED
+    value: str = REQUIRED  # type: ignore
