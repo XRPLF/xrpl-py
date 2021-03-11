@@ -12,7 +12,7 @@ This command requires the MultiSign amendment to be enabled.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Type, cast
 
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
@@ -42,6 +42,26 @@ class SignFor(Request):
     seed_hex: Optional[str] = None
     passphrase: Optional[str] = None
     key_type: Optional[str] = None
+
+    @classmethod
+    def from_dict(cls: Type[SignFor], value: Dict[str, Any]) -> SignFor:
+        """
+        Construct a new SignFor from a dictionary of parameters.
+
+        If not overridden, passes the dictionary as args to the constructor.
+
+        Args:
+            value: The value to construct the SignFor from.
+
+        Returns:
+            A new SignFor object, constructed using the given parameters.
+        """
+        if "tx_json" in value:
+            fixed_value = {**value, "transaction": value["tx_json"]}
+            del fixed_value["tx_json"]
+        else:
+            fixed_value = value
+        return cast(SignFor, super(SignFor, cls).from_dict(fixed_value))
 
     def to_dict(self: SignFor) -> Dict[str, Any]:
         """
