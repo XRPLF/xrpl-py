@@ -44,10 +44,11 @@ test-3.9:
     - poetry run nox -rs tests-3.9
   retry: 2
 
-lint:
+lint-and-type-check:
   image: python:3-alpine
   stage: lint
   extends: .test
   script:
+    - poetry run mypy --strict xrpl
     - poetry run flake8 xrpl tests
   retry: 2
