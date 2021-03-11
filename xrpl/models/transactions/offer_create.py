@@ -24,8 +24,8 @@ class OfferCreate(Transaction):
     `See OfferCreate <https://xrpl.org/offercreate.html>`_
     """
 
-    taker_gets: Amount = REQUIRED
-    taker_pays: Amount = REQUIRED
+    taker_gets: Amount = REQUIRED  # type: ignore
+    taker_pays: Amount = REQUIRED  # type: ignore
     expiration: Optional[int] = None
     offer_sequence: Optional[int] = None
     transaction_type: TransactionType = TransactionType.OFFER_CREATE

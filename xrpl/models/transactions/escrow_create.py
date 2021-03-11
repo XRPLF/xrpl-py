@@ -12,7 +12,8 @@ from dataclasses import dataclass
 from typing import Dict, Optional
 
 from xrpl.models.amounts import Amount
-from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
+from xrpl.models.base_model import REQUIRED
+from xrpl.models.transactions.transaction import Transaction, TransactionType
 
 
 @dataclass(frozen=True)
@@ -26,8 +27,8 @@ class EscrowCreate(Transaction):
     `See EscrowCreate <https://xrpl.org/escrowcreate.html>`_
     """
 
-    amount: Amount = REQUIRED
-    destination: str = REQUIRED
+    amount: Amount = REQUIRED  # type: ignore
+    destination: str = REQUIRED  # type: ignore
     destination_tag: Optional[int] = None
     cancel_after: Optional[int] = None
     finish_after: Optional[int] = None
