@@ -44,7 +44,7 @@ def sign_transaction(transaction: Transaction, wallet: Wallet) -> str:
     """
     # Increment the wallet sequence number, since we're about to use one.
     wallet.next_sequence_num += 1
-    transaction_json = _prepare_transaction_json_for_binary_codec(transaction.to_dict())
+    transaction_json = transaction_json_to_binary_codec_form(transaction.to_dict())
     transaction_json["SigningPubKey"] = wallet.pub_key
     serialized_for_signing = encode_for_signing(transaction_json)
     serialized_bytes = bytes.fromhex(serialized_for_signing)
@@ -72,10 +72,16 @@ def submit_transaction_blob(
     return send_transaction(submit_request)
 
 
-def _prepare_transaction_json_for_binary_codec(dictionary: dict) -> dict:
+def transaction_json_to_binary_codec_form(dictionary: dict) -> dict:
     """
     Returns a new dictionary in which the first letter of every original key is
     capitalized.
+
+    Args:
+        dictionary: The dictionary to be reformatted.
+
+    Returns:
+        A new dictionary object that has been reformatted.
     """
     formatted_dict = {
         _snake_to_capital_camel(key): value for (key, value) in dictionary.items()
