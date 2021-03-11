@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC
+from dataclasses import fields
 from enum import Enum
 from typing import Any, Dict, Type, Union, get_type_hints
 
@@ -46,9 +47,10 @@ class BaseModel(ABC):
                     param, class_types[param], value[param]
                 )
 
+        init = cls._get_only_init_args(args)
         # Ignore type-checking on this for now to simplify subclass constructors
         # which might pass non kwargs.
-        return cls(**args)  # type: ignore
+        return cls(**init)  # type: ignore
 
     @classmethod
     def _from_dict_special_cases(
@@ -95,7 +97,6 @@ class BaseModel(ABC):
             transaction_type = Transaction.get_transaction_type(type_str)
             return transaction_type.from_dict(param_value)
 
-        # print(param_type, param_type == BaseModel, BaseModel.__subclasses__())
         if param_type in BaseModel.__subclasses__():
             # any other BaseModel
             if not isinstance(param_value, dict):
@@ -110,6 +111,14 @@ class BaseModel(ABC):
             return param_type(param_value)  # type: ignore
 
         return param_value
+
+    @classmethod
+    def _get_only_init_args(
+        cls: Type[BaseModel], args: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        init_keys = {field.name for field in fields(cls)}
+        valid_args = {key: value for key, value in args.items() if key in init_keys}
+        return valid_args
 
     def __post_init__(self: BaseModel) -> None:
         """Called by dataclasses immediately after __init__."""
