@@ -15,7 +15,7 @@ different amount.
 """
 from __future__ import annotations  # Requires Python 3.7+
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, Optional
 
 from xrpl.models.amounts import Amount
@@ -46,7 +46,10 @@ class CheckCash(Transaction):
     check_id: str = REQUIRED  # type: ignore
     amount: Optional[Amount] = None
     deliver_min: Optional[Amount] = None
-    transaction_type: TransactionType = TransactionType.CHECK_CASH
+    transaction_type: TransactionType = field(
+        default=TransactionType.CHECK_CASH,
+        init=False,
+    )
 
     def _get_errors(self: CheckCash) -> Dict[str, str]:
         errors = super()._get_errors()
