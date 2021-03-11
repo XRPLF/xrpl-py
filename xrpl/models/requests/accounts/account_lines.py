@@ -5,7 +5,7 @@ particular version of the ledger.
 
 `See account_lines <https://xrpl.org/account_lines.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Optional, Union
 
 from xrpl.models.base_model import REQUIRED
@@ -25,7 +25,7 @@ class AccountLines(Request):
     account: str = REQUIRED
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
-    method: RequestMethod = RequestMethod.ACCOUNT_LINES
+    method: RequestMethod = field(default=RequestMethod.ACCOUNT_LINES, init=False)
     peer: Optional[str] = None
     limit: Optional[int] = None
     marker: Optional[Any] = None

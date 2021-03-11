@@ -28,7 +28,7 @@ a symptom of heavy server load.)
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional
 
@@ -133,6 +133,6 @@ class PathFind(Request):
     source_account: str = REQUIRED
     destination_account: str = REQUIRED
     destination_amount: Amount = REQUIRED
-    method: RequestMethod = RequestMethod.PATH_FIND
+    method: RequestMethod = field(default=RequestMethod.PATH_FIND, init=False)
     send_max: Optional[Amount] = None
     paths: Optional[List[List[PathStep]]] = None

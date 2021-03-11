@@ -4,7 +4,7 @@ identifiers of the most recently closed ledger.
 (This ledger is not necessarily validated and
 immutable yet.)
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from xrpl.models.base_model import REQUIRED
 from xrpl.models.requests.request import Request, RequestMethod
@@ -19,6 +19,6 @@ class LedgerClosed(Request):
     immutable yet.)
     """
 
-    method: RequestMethod = RequestMethod.LEDGER_CLOSED
+    method: RequestMethod = field(default=RequestMethod.LEDGER_CLOSED, init=False)
     ledger_hash: str = REQUIRED
     ledger_index: int = REQUIRED

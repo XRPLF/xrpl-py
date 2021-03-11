@@ -6,7 +6,7 @@ different types of objects you can retrieve.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Union
 
 from xrpl.models.base_model import REQUIRED, BaseModel
@@ -86,7 +86,7 @@ class LedgerEntry(Request):
     different types of objects you can retrieve.
     """
 
-    method: RequestMethod = RequestMethod.LEDGER_ENTRY
+    method: RequestMethod = field(default=RequestMethod.LEDGER_ENTRY, init=False)
     index: Optional[str] = None
     account_root: Optional[str] = None
     check: Optional[str] = None
