@@ -12,6 +12,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from xrpl.models.base_model import REQUIRED, BaseModel
+from xrpl.models.utils import require_kwargs_on_init
 
 
 class TransactionType(str, Enum):
@@ -37,6 +38,7 @@ class TransactionType(str, Enum):
     TRUST_SET = "TrustSet"
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Memo(BaseModel):
     """
@@ -66,6 +68,7 @@ class Memo(BaseModel):
         return errors
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Signer(BaseModel):
     """
@@ -81,6 +84,7 @@ class Signer(BaseModel):
     signing_pub_key: str = REQUIRED  # type: ignore
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Transaction(BaseModel):
     """
