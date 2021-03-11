@@ -36,9 +36,9 @@ class RipplePathFind(Request):
     the paths returned by this method are, in fact, the best paths.
     """
 
-    source_account: str = REQUIRED
-    destination_account: str = REQUIRED
-    destination_amount: Amount = REQUIRED
+    source_account: str = REQUIRED  # type: ignore
+    destination_account: str = REQUIRED  # type: ignore
+    destination_amount: Amount = REQUIRED  # type: ignore
     method: RequestMethod = RequestMethod.RIPPLE_PATH_FIND
     send_max: Optional[Amount] = None
     source_currencies: Optional[List[Currency]] = None
