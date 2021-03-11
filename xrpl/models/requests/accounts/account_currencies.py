@@ -28,7 +28,7 @@ class AccountCurrencies(Request):
     `See account_currencies <https://xrpl.org/account_currencies.html>`_
     """
 
-    account: str = REQUIRED
+    account: str = REQUIRED  # type: ignore
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_CURRENCIES, init=False)

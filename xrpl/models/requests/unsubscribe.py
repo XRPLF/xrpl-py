@@ -19,8 +19,8 @@ from xrpl.models.utils import require_kwargs_on_init
 class UnsubscribeBook(BaseModel):
     """Format for elements in the `books` array for Unsubscribe only."""
 
-    taker_gets: Currency = REQUIRED
-    taker_pays: Currency = REQUIRED
+    taker_gets: Currency = REQUIRED  # type: ignore
+    taker_pays: Currency = REQUIRED  # type: ignore
     both: Optional[bool] = False
 
 

@@ -26,7 +26,7 @@ class PaymentChannelClaim(Transaction):
     `See PaymentChannelClaim <https://xrpl.org/paymentchannelclaim.html>`_
     """
 
-    channel: str = REQUIRED
+    channel: str = REQUIRED  # type: ignore
     balance: Optional[str] = None
     amount: Optional[str] = None
     signature: Optional[str] = None
