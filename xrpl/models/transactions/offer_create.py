@@ -5,7 +5,7 @@ Offer object if not completely fulfilled when placed. Offers can be partially fu
 
 `See OfferCreate <https://xrpl.org/offercreate.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 from xrpl.models.amounts import Amount
@@ -30,4 +30,7 @@ class OfferCreate(Transaction):
     taker_pays: Amount = REQUIRED  # type: ignore
     expiration: Optional[int] = None
     offer_sequence: Optional[int] = None
-    transaction_type: TransactionType = TransactionType.OFFER_CREATE
+    transaction_type: TransactionType = field(
+        default=TransactionType.OFFER_CREATE,
+        init=False,
+    )

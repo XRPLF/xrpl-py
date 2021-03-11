@@ -10,8 +10,8 @@ See https://xrpl.org/currency-formats.html#specifying-currency-amounts
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Dict
+from dataclasses import dataclass, field
+from typing import Any, Dict
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.utils import require_kwargs_on_init
@@ -31,10 +31,13 @@ class XRP(BaseModel):
     See https://xrpl.org/currency-formats.html#specifying-currency-amounts
     """
 
-    currency: str = "XRP"
+    currency: str = field(default="XRP", init=False)
 
-    def _get_errors(self: XRP) -> Dict[str, str]:
-        errors = super()._get_errors()
-        if self.currency.upper() != "XRP":
-            errors["currency"] = "Currency must be XRP for XRP currency"
-        return errors
+    def to_dict(self: XRP) -> Dict[str, Any]:
+        """
+        Returns the dictionary representation of an XRP currency object.
+
+        Returns:
+            The dictionary representation of an XRP currency object.
+        """
+        return {**super().to_dict(), "currency": "XRP"}

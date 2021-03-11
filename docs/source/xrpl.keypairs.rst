@@ -4,6 +4,14 @@ xrpl.keypairs package
 Submodules
 ----------
 
+xrpl.keypairs.crypto\_implementation module
+-------------------------------------------
+
+.. automodule:: xrpl.keypairs.crypto_implementation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 xrpl.keypairs.ed25519 module
 ----------------------------
 

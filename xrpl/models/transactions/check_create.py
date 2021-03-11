@@ -6,7 +6,7 @@ transaction is the sender of the Check.
 
 `See CheckCreate <https://xrpl.org/checkcreate.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 from xrpl.models.amounts import Amount
@@ -32,4 +32,7 @@ class CheckCreate(Transaction):
     destination_tag: Optional[int] = None
     expiration: Optional[int] = None
     invoice_id: Optional[str] = None
-    transaction_type: TransactionType = TransactionType.CHECK_CREATE
+    transaction_type: TransactionType = field(
+        default=TransactionType.CHECK_CREATE,
+        init=False,
+    )

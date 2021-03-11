@@ -7,7 +7,7 @@ Check has expired, any address can cancel it.
 
 `See CheckCancel <https://xrpl.org/checkcancel.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionType
@@ -28,4 +28,7 @@ class CheckCancel(Transaction):
     """
 
     check_id: str = REQUIRED  # type: ignore
-    transaction_type: TransactionType = TransactionType.CHECK_CANCEL
+    transaction_type: TransactionType = field(
+        default=TransactionType.CHECK_CANCEL,
+        init=False,
+    )

@@ -6,7 +6,7 @@ funds it with XRP. The address sending this transaction becomes the
 
 `See PaymentChannelCreate <https://xrpl.org/paymentchannelcreate.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 from xrpl.models.amounts import Amount
@@ -33,4 +33,7 @@ class PaymentChannelCreate(Transaction):
     public_key: str = REQUIRED  # type: ignore
     cancel_after: Optional[int] = None
     destination_tag: Optional[int] = None
-    transaction_type: TransactionType = TransactionType.PAYMENT_CHANNEL_CREATE
+    transaction_type: TransactionType = field(
+        default=TransactionType.PAYMENT_CHANNEL_CREATE,
+        init=False,
+    )
