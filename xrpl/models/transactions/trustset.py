@@ -9,7 +9,8 @@ from enum import Enum
 from typing import Optional
 
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
+from xrpl.models.base_model import REQUIRED
+from xrpl.models.transactions.transaction import Transaction, TransactionType
 
 
 class TrustSetFlag(int, Enum):
@@ -34,7 +35,7 @@ class TrustSet(Transaction):
     `See TrustSet <https://xrpl.org/trustset.html>`_
     """
 
-    limit_amount: IssuedCurrencyAmount = REQUIRED
+    limit_amount: IssuedCurrencyAmount = REQUIRED  # type: ignore
     quality_in: Optional[int] = None
     quality_out: Optional[int] = None
     transaction_type: TransactionType = TransactionType.TRUST_SET
