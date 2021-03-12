@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.exceptions import XRPLModelValidationException
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import Payment, PaymentFlag
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
@@ -24,7 +24,7 @@ class TestPayment(TestCase):
             "destination": _DESTINATION,
             "paths": ["random path stuff"],
         }
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             Payment(**transaction_dict)
 
     def test_xrp_payment_same_account_destination(self):
@@ -35,7 +35,7 @@ class TestPayment(TestCase):
             "amount": _XRP_AMOUNT,
             "destination": _ACCOUNT,
         }
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             Payment(**transaction_dict)
 
     def test_partial_payment_no_sendmax(self):
@@ -47,7 +47,7 @@ class TestPayment(TestCase):
             "destination": _DESTINATION,
             "flags": PaymentFlag.TF_PARTIAL_PAYMENT,
         }
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             Payment(**transaction_dict)
 
     def test_deliver_min_no_partial_payment(self):
@@ -59,7 +59,7 @@ class TestPayment(TestCase):
             "destination": _DESTINATION,
             "deliver_min": _ISSUED_CURRENCY_AMOUNT,
         }
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             Payment(**transaction_dict)
 
     def test_currency_conversion_no_sendmax(self):
@@ -70,7 +70,7 @@ class TestPayment(TestCase):
             "amount": _ISSUED_CURRENCY_AMOUNT,
             "destination": _ACCOUNT,
         }
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             Payment(**transaction_dict)
 
     def test_amount_send_max_xrp_no_partial_payment(self):
@@ -82,7 +82,7 @@ class TestPayment(TestCase):
             "send_max": _XRP_AMOUNT,
             "destination": _DESTINATION,
         }
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             Payment(**transaction_dict)
 
     def test_valid_xrp_payment(self):

@@ -6,12 +6,13 @@ AccountLinesRequest instead.
 
 `See account_objects <https://xrpl.org/account_objects.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Optional, Union
 
 from xrpl.models.base_model import REQUIRED
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.utils import require_kwargs_on_init
 
 
 class AccountObjectType(str, Enum):
@@ -27,6 +28,7 @@ class AccountObjectType(str, Enum):
     TICKET = "ticket"
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class AccountObjects(Request):
     """
@@ -38,10 +40,10 @@ class AccountObjects(Request):
     `See account_objects <https://xrpl.org/account_objects.html>`_
     """
 
-    account: str = REQUIRED
+    account: str = REQUIRED  # type: ignore
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
-    method: RequestMethod = RequestMethod.ACCOUNT_OBJECTS
+    method: RequestMethod = field(default=RequestMethod.ACCOUNT_OBJECTS, init=False)
     type: Optional[AccountObjectType] = None
     deletion_blockers_only: Optional[bool] = False
     limit: Optional[int] = None

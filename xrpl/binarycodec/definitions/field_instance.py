@@ -1,7 +1,7 @@
 """A collection of serialization information about a specific field type."""
 from __future__ import annotations  # Requires Python 3.7+
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Dict, Type
 
 from xrpl.binarycodec.definitions.field_header import FieldHeader
 from xrpl.binarycodec.definitions.field_info import FieldInfo
@@ -37,7 +37,7 @@ def _get_type_by_name(name: str) -> Type[SerializedType]:
     from xrpl.binarycodec.types.uint64 import UInt64
     from xrpl.binarycodec.types.vector256 import Vector256
 
-    type_map = {
+    type_map: Dict[str, Type[SerializedType]] = {
         "AccountID": AccountID,
         "Amount": Amount,
         "Blob": Blob,

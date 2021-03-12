@@ -8,13 +8,16 @@ is canceled.
 """
 from __future__ import annotations  # Requires Python 3.7+
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, Optional
 
 from xrpl.models.amounts import Amount
-from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
+from xrpl.models.base_model import REQUIRED
+from xrpl.models.transactions.transaction import Transaction, TransactionType
+from xrpl.models.utils import require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class EscrowCreate(Transaction):
     """
@@ -26,13 +29,16 @@ class EscrowCreate(Transaction):
     `See EscrowCreate <https://xrpl.org/escrowcreate.html>`_
     """
 
-    amount: Amount = REQUIRED
-    destination: str = REQUIRED
+    amount: Amount = REQUIRED  # type: ignore
+    destination: str = REQUIRED  # type: ignore
     destination_tag: Optional[int] = None
     cancel_after: Optional[int] = None
     finish_after: Optional[int] = None
     condition: Optional[str] = None
-    transaction_type: TransactionType = TransactionType.ESCROW_CREATE
+    transaction_type: TransactionType = field(
+        default=TransactionType.ESCROW_CREATE,
+        init=False,
+    )
 
     def _get_errors(self: EscrowCreate) -> Dict[str, str]:
         errors = super()._get_errors()

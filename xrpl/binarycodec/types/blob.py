@@ -51,9 +51,8 @@ class Blob(SerializedType):
         """
         if not isinstance(value, str):
             raise XRPLBinaryCodecException(
-                "Invalid type to construct a Blob: expected str, received {}.".format(
-                    value.__class__.__name__
-                )
+                "Invalid type to construct a Blob: expected str, received "
+                f"{value.__class__.__name__}."
             )
 
         if isinstance(value, str):

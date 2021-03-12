@@ -11,12 +11,14 @@ Payments are also the only way to create accounts.
 """
 from __future__ import annotations  # Requires Python 3.7+
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from xrpl.models.amounts import Amount, is_xrp
-from xrpl.models.transactions.transaction import REQUIRED, Transaction, TransactionType
+from xrpl.models.base_model import REQUIRED
+from xrpl.models.transactions.transaction import Transaction, TransactionType
+from xrpl.models.utils import require_kwargs_on_init
 
 
 class PaymentFlag(int, Enum):
@@ -32,6 +34,7 @@ class PaymentFlag(int, Enum):
     TF_LIMIT_QUALITY = 0x00040000
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class Payment(Transaction):
     """
@@ -46,14 +49,17 @@ class Payment(Transaction):
     `See Payment <https://xrpl.org/payment.html>`_
     """
 
-    amount: Amount = REQUIRED
-    destination: str = REQUIRED
+    amount: Amount = REQUIRED  # type: ignore
+    destination: str = REQUIRED  # type: ignore
     destination_tag: Optional[int] = None
     invoice_id: Optional[str] = None  # TODO: should be a 256 bit hash
     paths: Optional[List[Any]] = None
     send_max: Optional[Amount] = None
     deliver_min: Optional[Amount] = None
-    transaction_type: TransactionType = TransactionType.PAYMENT
+    transaction_type: TransactionType = field(
+        default=TransactionType.PAYMENT,
+        init=False,
+    )
 
     def _get_errors(self: Payment) -> Dict[str, str]:
         errors = super()._get_errors()
@@ -80,7 +86,7 @@ class Payment(Transaction):
 
         elif (
             is_xrp(self.amount)
-            and is_xrp(self.send_max)
+            and (self.send_max and is_xrp(self.send_max))
             and not self.has_flag(PaymentFlag.TF_PARTIAL_PAYMENT)
         ):
             errors["send_max"] = (

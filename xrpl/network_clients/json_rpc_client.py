@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any, Dict
+
 import requests
 
 from xrpl.models.requests.request import Request
@@ -20,7 +22,7 @@ from xrpl.models.response import Response, ResponseStatus, ResponseType
 # - error handling!
 
 
-def request_to_json_rpc(request_object: Request) -> dict:
+def request_to_json_rpc(request_object: Request) -> Dict[str, Any]:
     """Converts a request model object to the appropriate JSON format for
     interacting with the rippled API.
 
@@ -38,7 +40,7 @@ def request_to_json_rpc(request_object: Request) -> dict:
     return {"method": method, "params": [params]}
 
 
-def json_to_response(json: dict) -> Response:
+def json_to_response(json: Dict[str, Any]) -> Response:
     """Converts a JSON response from the rippled server into a Response object.
 
     Args:
@@ -54,16 +56,11 @@ def json_to_response(json: dict) -> Response:
         status = ResponseStatus.SUCCESS
     else:
         status = ResponseStatus.ERROR
-    try:
-        response_id = result["id"]
-    except KeyError:
-        response_id = None
     # TODO: response_type changes based on what we're getting back... where/how do we
     #  differentiate based on that?
     # TODO: should we pull fields "status" OUT of result dict?
-    #  (and maybe "id" too if that's where it lives)
     response_type = ResponseType.RESPONSE
-    return Response(status=status, result=result, id=response_id, type=response_type)
+    return Response(status=status, result=result, type=response_type)
 
 
 class JsonRpcClient:

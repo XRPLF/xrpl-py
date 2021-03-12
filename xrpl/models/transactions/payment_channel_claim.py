@@ -6,13 +6,15 @@ depending on the transaction sender's role in the specified channel.
 
 `See PaymentChannelClaim <https://xrpl.org/paymentchannelclaim.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 from xrpl.models.base_model import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionType
+from xrpl.models.utils import require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class PaymentChannelClaim(Transaction):
     """
@@ -24,9 +26,12 @@ class PaymentChannelClaim(Transaction):
     `See PaymentChannelClaim <https://xrpl.org/paymentchannelclaim.html>`_
     """
 
-    channel: str = REQUIRED
+    channel: str = REQUIRED  # type: ignore
     balance: Optional[str] = None
     amount: Optional[str] = None
     signature: Optional[str] = None
     public_key: Optional[str] = None
-    transaction_type: TransactionType = TransactionType.PAYMENT_CHANNEL_CLAIM
+    transaction_type: TransactionType = field(
+        default=TransactionType.PAYMENT_CHANNEL_CLAIM,
+        init=False,
+    )
