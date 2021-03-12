@@ -19,6 +19,8 @@ from xrpl.network_clients import JsonRpcClient, json_to_response
 JSON_RPC_URL = "http://test.xrp.xpring.io:51234"
 JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
 
+FAUCET_URL = "https://faucet.altnet.rippletest.net/accounts"
+
 
 class Wallet:
     """The information needed to control an XRPL account."""
@@ -31,7 +33,9 @@ class Wallet:
         self.next_sequence_num = None
 
     def __str__(self):
-        return f"seed: {self.seed}\npub_key: {self.pub_key}\npriv_key: {self.priv_key}\nclassic_address: {self.classic_address}\n"
+        return (
+            f"seed: {self.seed}\npub_key: {self.pub_key}\npriv_key: "
+            f"{self.priv_key}\nclassic_address: {self.classic_address}\n"
         )
 
 
@@ -72,8 +76,7 @@ def generate_faucet_wallet():
         starting_balance = 0
 
     # Ask the faucet to send funds to the given address
-    faucet_url = "https://faucet.altnet.rippletest.net/accounts"
-    post(url=faucet_url, json={"destination": address})
+    post(url=FAUCET_URL, json={"destination": address})
     # Wait for the faucet to fund our account or until timeout
     # Waits one second checks if balance has changed
     # If balance doesn't change it will attempt again until timeout_seconds
