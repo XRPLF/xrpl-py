@@ -5,7 +5,7 @@ An OfferCancel transaction removes an Offer object from the XRP Ledger.
 
 `See OfferCancel <https://xrpl.org/offercancel.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 from xrpl.models.transactions.transaction import Transaction, TransactionType
@@ -24,4 +24,7 @@ class OfferCancel(Transaction):
     """
 
     offer_sequence: Optional[int] = None
-    transaction_type: TransactionType = TransactionType.OFFER_CANCEL
+    transaction_type: TransactionType = field(
+        default=TransactionType.OFFER_CANCEL,
+        init=False,
+    )

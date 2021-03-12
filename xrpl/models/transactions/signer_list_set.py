@@ -10,7 +10,7 @@ MultiSign amendment.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from xrpl.models.base_model import REQUIRED, BaseModel
@@ -55,7 +55,10 @@ class SignerListSet(Transaction):
 
     signer_quorum: int = REQUIRED  # type: ignore
     signer_entries: Optional[List[SignerEntry]] = None
-    transaction_type: TransactionType = TransactionType.SIGNER_LIST_SET
+    transaction_type: TransactionType = field(
+        default=TransactionType.SIGNER_LIST_SET,
+        init=False,
+    )
 
     def _get_errors(self: SignerListSet) -> Dict[str, str]:
         errors = super()._get_errors()
