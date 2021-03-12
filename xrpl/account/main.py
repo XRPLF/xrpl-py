@@ -19,8 +19,7 @@ def get_fee(client: JsonRpcClient) -> str:
     Returns:
         The minimum fee for transactions.
     """
-    fee_request = Fee()
-    response = client.request(fee_request)
+    response = client.request(Fee())
     assert isinstance(response.result, dict)
     return cast(str, response.result["drops"]["minimum_fee"])
 
@@ -68,8 +67,9 @@ def get_account_info(address: str, client: JsonRpcClient) -> Response:
     Returns:
         The account info for the address.
     """
-    account_info_request = AccountInfo(
-        account=address,
-        ledger_index="validated",
+    return client.request(
+        AccountInfo(
+            account=address,
+            ledger_index="validated",
+        )
     )
-    return client.request(account_info_request)
