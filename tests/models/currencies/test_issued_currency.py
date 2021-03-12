@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from xrpl.models.currencies import IssuedCurrency
-from xrpl.models.exceptions import XRPLModelValidationException
+from xrpl.models.exceptions import XRPLModelException
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 
@@ -24,7 +24,7 @@ class TestIssuedCurrency(TestCase):
 
     def test_incorrect_currency_code_format(self):
         # the "+" is not allowed in a currency format"
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             IssuedCurrency(
                 currency="+XX",
                 issuer=_ACCOUNT,
@@ -39,7 +39,7 @@ class TestIssuedCurrency(TestCase):
 
     def test_incorrect_hex_format(self):
         # the "+" is not allowed in a currency format"
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             IssuedCurrency(
                 currency="+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
                 issuer=_ACCOUNT,
@@ -47,7 +47,7 @@ class TestIssuedCurrency(TestCase):
 
     def test_invalid_currency_length(self):
         # length of currency must be either 3 or 40
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             IssuedCurrency(
                 currency="XXXX",
                 issuer=_ACCOUNT,
@@ -55,7 +55,7 @@ class TestIssuedCurrency(TestCase):
 
     def test_xrp_currency_is_invalid(self):
         # issued currencies can't use XRP (just use a string amount then)
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             IssuedCurrency(
                 currency="XRP",
                 issuer=_ACCOUNT,
@@ -63,7 +63,7 @@ class TestIssuedCurrency(TestCase):
 
     def test_xrp_lower_currency_is_invalid(self):
         # issued currencies can't use XRP (just use a string amount then)
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             IssuedCurrency(
                 currency="xrp",
                 issuer=_ACCOUNT,

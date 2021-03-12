@@ -9,6 +9,7 @@ Subpackages
 
    xrpl.binarycodec.binary_wrappers
    xrpl.binarycodec.definitions
+   xrpl.binarycodec.types
 
 Submodules
 ----------

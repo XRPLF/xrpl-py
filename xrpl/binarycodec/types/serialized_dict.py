@@ -8,7 +8,8 @@ from typing_extensions import Final
 
 from xrpl.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
-from xrpl.binarycodec.definitions.definitions import (
+from xrpl.binarycodec.definitions import (
+    FieldInstance,
     get_field_instance,
     get_ledger_entry_type_code,
     get_ledger_entry_type_name,
@@ -17,7 +18,6 @@ from xrpl.binarycodec.definitions.definitions import (
     get_transaction_type_code,
     get_transaction_type_name,
 )
-from xrpl.binarycodec.definitions.field_instance import FieldInstance
 from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.binarycodec.types.serialized_type import SerializedType
 
@@ -49,7 +49,7 @@ def _handle_xaddress(field: str, xaddress: str) -> Dict[str, Union[str, int]]:
     elif field == _ACCOUNT:
         tag_name = _SOURCE_TAG
     elif tag is not None:
-        raise XRPLBinaryCodecException("{} cannot have an associated tag".format(field))
+        raise XRPLBinaryCodecException(f"{field} cannot have an associated tag")
 
     if tag is not None:
         return {field: classic_address, tag_name: tag}
@@ -109,9 +109,9 @@ class SerializedDict(SerializedType):
             associated_value = parser.read_field_value(field)
             serializer.write_field_and_value(field, associated_value)
             if field.type == _SERIALIZED_DICT:
-                serializer.put(_OBJECT_END_MARKER_BYTE)
+                serializer.append(_OBJECT_END_MARKER_BYTE)
 
-        return SerializedDict(serializer.to_bytes())
+        return SerializedDict(bytes(serializer))
 
     @classmethod
     def from_value(
@@ -181,9 +181,9 @@ class SerializedDict(SerializedType):
             )
             serializer.write_field_and_value(field, associated_value)
             if field.type == _SERIALIZED_DICT:
-                serializer.put(_OBJECT_END_MARKER_BYTE)
+                serializer.append(_OBJECT_END_MARKER_BYTE)
 
-        return SerializedDict(serializer.to_bytes())
+        return SerializedDict(bytes(serializer))
 
     def to_json(self: SerializedDict) -> Dict[str, Any]:
         """
@@ -192,7 +192,7 @@ class SerializedDict(SerializedType):
         Returns:
             The JSON representation of a SerializedDict.
         """
-        parser = BinaryParser(self.to_string())
+        parser = BinaryParser(str(self))
         accumulator = {}
 
         while not parser.is_end():
