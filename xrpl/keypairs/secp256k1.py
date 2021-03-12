@@ -3,10 +3,8 @@
 #
 # See https://xrpl.org/cryptographic-keys.html#secp256k1-key-derivation
 # for an overview of the algorithm.
-from __future__ import annotations
-
 from hashlib import sha256
-from typing import Callable, Tuple, Type, cast
+from typing import Callable, Tuple, cast
 
 from ecpy.curves import Curve  # type: ignore
 from ecpy.ecdsa import ECDSA  # type: ignore
@@ -41,10 +39,8 @@ _INTERMEDIATE_KEYPAIR_PADDING: Final[bytes] = (0).to_bytes(
 class SECP256K1(CryptoImplementation):
     """Methods for deriving keypairs given an SECP256k1-encoded seed."""
 
-    @classmethod
-    def derive_keypair(
-        cls: Type[SECP256K1], decoded_seed: bytes, is_validator: bool
-    ) -> Tuple[str, str]:
+    @staticmethod
+    def derive_keypair(decoded_seed: bytes, is_validator: bool) -> Tuple[str, str]:
         """
         Derives a keypair using SECP256k1.
 
@@ -55,25 +51,25 @@ class SECP256K1(CryptoImplementation):
         Returns:
             A private and public key pair.
         """
-        root_public, root_private = cls._do_derive_part(decoded_seed, "root")
+        root_public, root_private = SECP256K1._do_derive_part(decoded_seed, "root")
         # validator keys just stop at the first pass
         if is_validator:
-            return cls._format_keys(root_public, root_private)
+            return SECP256K1._format_keys(root_public, root_private)
 
-        mid_public, mid_private = cls._do_derive_part(
-            cls._public_key_to_bytes(root_public),
+        mid_public, mid_private = SECP256K1._do_derive_part(
+            SECP256K1._public_key_to_bytes(root_public),
             "mid",
         )
-        final_public, final_private = cls._derive_final_pair(
+        final_public, final_private = SECP256K1._derive_final_pair(
             root_public,
             root_private,
             mid_public,
             mid_private,
         )
-        return cls._format_keys(final_public, final_private)
+        return SECP256K1._format_keys(final_public, final_private)
 
-    @classmethod
-    def sign(cls: Type[SECP256K1], message: str, private_key: str) -> bytes:
+    @staticmethod
+    def sign(message: bytes, private_key: str) -> bytes:
         """
         Signs message in SECP256k1 using the given private key.
 
@@ -88,17 +84,15 @@ class SECP256K1(CryptoImplementation):
         return cast(
             bytes,
             _SIGNER.sign_rfc6979(
-                sha512_first_half(cast(bytes, message)),
+                sha512_first_half(message),
                 wrapped_private,
                 sha256,
                 canonical=True,
             ),
         )
 
-    @classmethod
-    def is_valid_message(
-        cls: Type[SECP256K1], message: str, signature: bytes, public_key: str
-    ) -> bool:
+    @staticmethod
+    def is_valid_message(message: bytes, signature: bytes, public_key: str) -> bool:
         """
         Verifies that message matches signature given public_key.
 
@@ -114,41 +108,37 @@ class SECP256K1(CryptoImplementation):
         wrapped_public = ECPublicKey(public_key_point)
         return cast(
             bool,
-            _SIGNER.verify(
-                sha512_first_half(cast(bytes, message)), signature, wrapped_public
-            ),
+            _SIGNER.verify(sha512_first_half(message), signature, wrapped_public),
         )
 
-    @classmethod
-    def _format_keys(
-        cls: Type[SECP256K1], public: ECPublicKey, private: ECPrivateKey
-    ) -> Tuple[str, str]:
+    @staticmethod
+    def _format_keys(public: ECPublicKey, private: ECPrivateKey) -> Tuple[str, str]:
         # returning a list comprehension triggers mypy (appropriately, because
         # then we're actually returning a list), so doing this very inelegantly
         return (
-            cls._format_key(cls._public_key_to_str(public)),
-            cls._format_key(cls._private_key_to_str(private)),
+            SECP256K1._format_key(SECP256K1._public_key_to_str(public)),
+            SECP256K1._format_key(SECP256K1._private_key_to_str(private)),
         )
 
-    @classmethod
-    def _format_key(cls: Type[SECP256K1], keystr: str) -> str:
+    @staticmethod
+    def _format_key(keystr: str) -> str:
         return keystr.rjust(_KEY_LENGTH, _PADDING_PREFIX).upper()
 
-    @classmethod
-    def _public_key_to_bytes(cls: Type[SECP256K1], key: ECPublicKey) -> bytes:
+    @staticmethod
+    def _public_key_to_bytes(key: ECPublicKey) -> bytes:
         return bytes(_CURVE.encode_point(key.W, compressed=True))
 
-    @classmethod
-    def _public_key_to_str(cls: Type[SECP256K1], key: ECPublicKey) -> str:
-        return cls._public_key_to_bytes(key).hex()
+    @staticmethod
+    def _public_key_to_str(key: ECPublicKey) -> str:
+        return SECP256K1._public_key_to_bytes(key).hex()
 
-    @classmethod
-    def _private_key_to_str(cls: Type[SECP256K1], key: ECPrivateKey) -> str:
+    @staticmethod
+    def _private_key_to_str(key: ECPrivateKey) -> str:
         return format(key.d, "x")
 
-    @classmethod
+    @staticmethod
     def _do_derive_part(
-        cls: Type[SECP256K1], bytes_input: bytes, phase: Literal["root", "mid"]
+        bytes_input: bytes, phase: Literal["root", "mid"]
     ) -> Tuple[ECPublicKey, ECPrivateKey]:
         """
         Given bytes_input determine public/private keypair for a given phase of
@@ -163,13 +153,12 @@ class SECP256K1(CryptoImplementation):
                 return bytes_input + candidate
             return bytes_input + _INTERMEDIATE_KEYPAIR_PADDING + candidate
 
-        raw_private = cls._get_secret(_candidate_merger)
+        raw_private = SECP256K1._get_secret(_candidate_merger)
         wrapped_private = ECPrivateKey(int.from_bytes(raw_private, "big"), _CURVE)
         return wrapped_private.get_public_key(), wrapped_private
 
-    @classmethod
+    @staticmethod
     def _derive_final_pair(
-        cls: Type[SECP256K1],
         root_public: ECPublicKey,
         root_private: ECPrivateKey,
         mid_public: ECPublicKey,
@@ -180,10 +169,8 @@ class SECP256K1(CryptoImplementation):
         wrapped_public = ECPublicKey(_CURVE.add_point(root_public.W, mid_public.W))
         return wrapped_public, wrapped_private
 
-    @classmethod
-    def _get_secret(
-        cls: Type[SECP256K1], candidate_merger: Callable[[bytes], bytes]
-    ) -> bytes:
+    @staticmethod
+    def _get_secret(candidate_merger: Callable[[bytes], bytes]) -> bytes:
         """
         Given a function `candidate_merger` that knows how
         to prepare a sequence candidate bytestring into
@@ -198,14 +185,14 @@ class SECP256K1(CryptoImplementation):
                 signed=False,
             )
             candidate = sha512_first_half(candidate_merger(root))
-            if cls._is_secret_valid(candidate):
+            if SECP256K1._is_secret_valid(candidate):
                 return candidate
         raise XRPLKeypairsException(
             """Could not determine a key pair.
             This is extremely improbable. Please try again.""",
         )
 
-    @classmethod
-    def _is_secret_valid(cls: Type[SECP256K1], secret: bytes) -> bool:
+    @staticmethod
+    def _is_secret_valid(secret: bytes) -> bool:
         numerical_secret = int.from_bytes(secret, "big")
         return numerical_secret in range(1, _GROUP_ORDER)
