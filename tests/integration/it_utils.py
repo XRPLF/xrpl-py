@@ -130,8 +130,8 @@ def _get_account_info(address: str) -> Response:
 
 def _prepare_transaction_json_for_binary_codec(dictionary: dict) -> dict:
     """
-    Returns a new dictionary in which the first letter of every original
-    key is capitalized.
+    Returns a new dictionary in which the keys have been formatted as
+    CamelCase and standardized to be serialized by the binary codec.
     """
     formatted_dict = {
         _snake_to_capital_camel(key): value for (key, value) in dictionary.items()
