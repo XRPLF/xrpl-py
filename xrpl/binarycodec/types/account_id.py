@@ -49,7 +49,7 @@ class AccountID(Hash160):
         if not isinstance(value, str):
             raise XRPLBinaryCodecException(
                 "Invalid type to construct an AccountID: expected str,"
-                " received {}.".format(value.__class__.__name__)
+                f" received {value.__class__.__name__}."
             )
 
         if value == "":

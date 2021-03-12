@@ -7,7 +7,9 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   xrpl.models.amount
+   xrpl.models.amounts
+   xrpl.models.currencies
+   xrpl.models.requests
    xrpl.models.transactions
 
 Submodules
@@ -25,6 +27,22 @@ xrpl.models.exceptions module
 -----------------------------
 
 .. automodule:: xrpl.models.exceptions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+xrpl.models.response module
+---------------------------
+
+.. automodule:: xrpl.models.response
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+xrpl.models.utils module
+------------------------
+
+.. automodule:: xrpl.models.utils
    :members:
    :undoc-members:
    :show-inheritance:

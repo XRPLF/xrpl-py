@@ -58,7 +58,7 @@ class SerializedType(ABC):
         """
         bytesink.extend(self.buffer)
 
-    def to_bytes(self: SerializedType) -> bytes:
+    def __bytes__(self: SerializedType) -> bytes:
         """
         Get the bytes representation of a SerializedType.
 
@@ -78,7 +78,7 @@ class SerializedType(ABC):
         """
         return self.to_hex()
 
-    def to_string(self: SerializedType) -> str:
+    def __str__(self: SerializedType) -> str:
         """
         Returns the hex string representation of self.buffer.
 
