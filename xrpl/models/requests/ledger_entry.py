@@ -3,6 +3,7 @@ The ledger_entry method returns a single ledger
 object from the XRP Ledger in its raw format.
 See ledger format for information on the
 different types of objects you can retrieve.
+`See ledger entry <https://xrpl.org/ledger_entry.html>`_
 """
 from __future__ import annotations
 
@@ -93,6 +94,7 @@ class LedgerEntry(Request):
     object from the XRP Ledger in its raw format.
     See ledger format for information on the
     different types of objects you can retrieve.
+    `See ledger entry <https://xrpl.org/ledger_entry.html>`_
     """
 
     method: RequestMethod = field(default=RequestMethod.LEDGER_ENTRY, init=False)
@@ -106,7 +108,7 @@ class LedgerEntry(Request):
     payment_channel: Optional[str] = None
     ripple_state: Optional[RippleState] = None
     ticket: Optional[Union[str, Ticket]] = None
-    binary: Optional[bool] = False
+    binary: bool = False
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
 

@@ -64,7 +64,7 @@ class SignAndSubmit(Submit):
     passphrase: Optional[str] = None
     key_type: Optional[CryptoAlgorithm] = CryptoAlgorithm.SECP256K1
     offline: bool = False
-    build_path: Optional[bool] = None
+    build_path: Optional[bool] = None  # note: None does have meaning here
     fee_mult_max: int = 10
     fee_div_max: int = 1
 

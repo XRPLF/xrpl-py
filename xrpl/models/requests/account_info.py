@@ -30,6 +30,6 @@ class AccountInfo(Request):
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_INFO, init=False)
-    queue: Optional[bool] = None
-    signer_lists: Optional[bool] = None
-    strict: Optional[bool] = False
+    queue: bool = False
+    signer_lists: bool = False
+    strict: bool = False

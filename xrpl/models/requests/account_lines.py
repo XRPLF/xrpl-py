@@ -30,4 +30,6 @@ class AccountLines(Request):
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_LINES, init=False)
     peer: Optional[str] = None
     limit: Optional[int] = None
+    # marker data shape is actually undefined in the spec, up to the
+    # implementation of an individual server
     marker: Optional[Any] = None

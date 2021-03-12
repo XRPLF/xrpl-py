@@ -27,5 +27,7 @@ class AccountOffers(Request):
     ledger_index: Optional[Union[str, int]] = None
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_OFFERS, init=False)
     limit: Optional[int] = None
+    # marker data shape is actually undefined in the spec, up to the
+    # implementation of an individual server
     marker: Optional[Any] = None
-    strict: Optional[bool] = False
+    strict: bool = False

@@ -3,6 +3,8 @@ The subscribe method requests periodic notifications from the server
 when certain events happen.
 
 WebSocket API only.
+
+`See subscribe <https://xrpl.org/subscribe.html>`_
 """
 from dataclasses import dataclass, field
 from enum import Enum
@@ -36,8 +38,8 @@ class SubscribeBook(BaseModel):
     taker_gets: Currency = REQUIRED  # type: ignore
     taker_pays: Currency = REQUIRED  # type: ignore
     taker: str = REQUIRED  # type: ignore
-    snapshot: Optional[bool] = False
-    both: Optional[bool] = False
+    snapshot: bool = False
+    both: bool = False
 
 
 @require_kwargs_on_init
@@ -48,6 +50,8 @@ class Subscribe(Request):
     when certain events happen.
 
     WebSocket API only.
+
+    `See subscribe <https://xrpl.org/subscribe.html>`_
     """
 
     method: RequestMethod = field(default=RequestMethod.SUBSCRIBE, init=False)

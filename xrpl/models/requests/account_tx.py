@@ -28,7 +28,9 @@ class AccountTx(Request):
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_TX, init=False)
     ledger_index_min: Optional[int] = None
     ledger_index_max: Optional[int] = None
-    binary: Optional[bool] = False
+    binary: bool = False
     forward: bool = False
     limit: Optional[int] = None
+    # marker data shape is actually undefined in the spec, up to the
+    # implementation of an individual server
     marker: Optional[Any] = None

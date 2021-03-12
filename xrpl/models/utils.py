@@ -10,8 +10,6 @@ from xrpl.models.exceptions import XRPLModelException
 
 _T = TypeVar("_T")
 _Self = TypeVar("_Self")
-_VarArgs = List[Any]
-_KWArgs = Dict[str, Any]
 
 
 def require_kwargs_on_init(cls: Type[_T]) -> Type[_T]:
@@ -53,7 +51,7 @@ def require_kwargs_on_init(cls: Type[_T]) -> Type[_T]:
 
     original_init = cls.__init__
 
-    def new_init(self: _Self, *args: _VarArgs, **kwargs: _KWArgs) -> None:
+    def new_init(self: _Self, *args: List[Any], **kwargs: Dict[str, Any]) -> None:
         if len(args) > 0:
             raise XRPLModelException(
                 f"{type(self).__name__}.__init__ only allows keyword arguments. "

@@ -26,5 +26,5 @@ class GatewayBalances(Request):
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
     method: RequestMethod = field(default=RequestMethod.GATEWAY_BALANCES, init=False)
-    strict: Optional[bool] = False
+    strict: bool = False
     hotwallet: Optional[Union[str, List[str]]] = None

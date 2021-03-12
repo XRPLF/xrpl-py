@@ -3,6 +3,8 @@ The unsubscribe command tells the server to stop sending
 messages for a particular subscription or set of subscriptions.
 
 WebSocket API only.
+
+`See unsubscribe <https://xrpl.org/unsubscribe.html>`_
 """
 from dataclasses import dataclass, field
 from typing import List, Optional
@@ -22,7 +24,7 @@ class UnsubscribeBook(BaseModel):
 
     taker_gets: Currency = REQUIRED  # type: ignore
     taker_pays: Currency = REQUIRED  # type: ignore
-    both: Optional[bool] = False
+    both: bool = False
 
 
 @require_kwargs_on_init
@@ -33,6 +35,8 @@ class Unsubscribe(Request):
     messages for a particular subscription or set of subscriptions.
 
     WebSocket API only.
+
+    `See unsubscribe <https://xrpl.org/unsubscribe.html>`_
     """
 
     method: RequestMethod = field(default=RequestMethod.UNSUBSCRIBE, init=False)
