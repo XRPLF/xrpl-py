@@ -10,8 +10,6 @@ JSON_RPC_URL = "http://test.xrp.xpring.io:51234"
 JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
 
 ACCOUNT = WALLET.classic_address
-OWNER = "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
-OFFER_SEQUENCE = 7
 
 AMOUNT = "10000"
 DESTINATION = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
@@ -30,7 +28,13 @@ class TestEscrowCreate(TestCase):
             account=ACCOUNT,
             fee=FEE,
             sequence=WALLET.next_sequence_num,
+            amount=AMOUNT,
+            destination=DESTINATION,
+            destination_tag=DESTINATION_TAG,
+            cancel_after=CANCEL_AFTER,
+            finish_after=FINISH_AFTER,
+            source_tag=SOURCE_TAG,
         )
         response = submit_transaction(escrow_create, WALLET)
-        print(response)
+        # Actual engine_result will be `tecNO_PERMISSION`
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
