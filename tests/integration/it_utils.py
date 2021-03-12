@@ -14,7 +14,7 @@ from xrpl.models.requests.accounts.account_info import AccountInfo
 from xrpl.models.requests.fee import Fee
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.network_clients import JsonRpcClient, json_to_response
+from xrpl.network_clients.json_rpc_client import JsonRpcClient, json_to_response
 
 JSON_RPC_URL = "http://test.xrp.xpring.io:51234"
 JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
