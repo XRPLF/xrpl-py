@@ -1,8 +1,8 @@
 import unittest
 
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.requests.paths.book_offers import BookOffers
-from xrpl.models.requests.transactions.sign import Sign
+from xrpl.models.requests.book_offers import BookOffers
+from xrpl.models.requests.sign import Sign
 from xrpl.models.transactions import CheckCreate
 
 currency = "BTC"

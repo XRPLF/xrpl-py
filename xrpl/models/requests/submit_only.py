@@ -20,20 +20,16 @@ twice since it has the same sequence number as the old transaction.
 `See submit <https://xrpl.org/submit.html>`_
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Type, cast
 
-from xrpl.models.requests.transactions.submit import Submit
+from xrpl.models.requests.submit import Submit
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.utils import require_kwargs_on_init
 
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class SignAndSubmit(Submit):
+class SubmitOnly(Submit):
     """
     The submit method applies a transaction and sends it to the network to be confirmed
     and included in future ledgers.
@@ -56,65 +52,6 @@ class SignAndSubmit(Submit):
     `See submit <https://xrpl.org/submit.html>`_
     """
 
-    transaction: Transaction = REQUIRED  # type: ignore
-    secret: Optional[str] = None
-    seed: Optional[str] = None
-    seed_hex: Optional[str] = None
-    passphrase: Optional[str] = None
-    key_type: Optional[str] = None
-    offline: bool = False
-    build_path: Optional[bool] = None
-    fee_mult_max: int = 10
-    fee_div_max: int = 1
-
-    @classmethod
-    def from_dict(cls: Type[SignAndSubmit], value: Dict[str, Any]) -> SignAndSubmit:
-        """
-        Construct a new SignAndSubmit from a dictionary of parameters.
-
-        If not overridden, passes the dictionary as args to the constructor.
-
-        Args:
-            value: The value to construct the SignAndSubmit from.
-
-        Returns:
-            A new SignAndSubmit object, constructed using the given parameters.
-        """
-        if "tx_json" in value:
-            fixed_value = {**value, "transaction": value["tx_json"]}
-            del fixed_value["tx_json"]
-        else:
-            fixed_value = value
-        return cast(SignAndSubmit, super(SignAndSubmit, cls).from_dict(fixed_value))
-
-    def to_dict(self: SignAndSubmit) -> Dict[str, Any]:
-        """
-        Returns the dictionary representation of a SignAndSubmit.
-
-        Returns:
-            The dictionary representation of a SignAndSubmit.
-        """
-        return_dict = super().to_dict()
-        del return_dict["transaction"]
-        return_dict["tx_json"] = self.transaction.to_dict()
-        return return_dict
-
-    def _get_errors(self: SignAndSubmit) -> Dict[str, str]:
-        errors = super()._get_errors()
-        if not self._has_only_one_seed():
-            errors[
-                "SignAndSubmit"
-            ] = "Must have only one of `secret`, `seed`, `seed_hex`, and `passphrase."
-
-        if self.secret is not None and self.key_type is not None:
-            errors["key_type"] = "Must omit `key_type` if `secret` is provided."
-
-        return errors
-
-    def _has_only_one_seed(self: SignAndSubmit) -> bool:
-        present_items = [
-            item
-            for item in [self.secret, self.seed, self.seed_hex, self.passphrase]
-            if item is not None
-        ]
-        return len(present_items) == 1
+    # submit-only mode
+    tx_blob: str = REQUIRED  # type: ignore
+    fail_hard: bool = False

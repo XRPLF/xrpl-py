@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.requests.transactions.sign import Sign
+from xrpl.models.requests import Sign
 from xrpl.models.transactions import AccountSet
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"

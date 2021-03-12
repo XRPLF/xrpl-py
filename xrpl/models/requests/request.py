@@ -85,4 +85,6 @@ class Request(BaseModel):
         Returns:
             The dictionary representation of a Request.
         """
+        # we need to override this because method is using `field`
+        # which will not include the value in the objects __dict__
         return {**super().to_dict(), "method": self.method.value}
