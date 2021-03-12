@@ -31,8 +31,7 @@ class Wallet:
         self.next_sequence_num = None
 
     def __str__(self):
-        return "seed: {}\npub_key: {}\npriv_key: {}\nclassic_address: {}\n".format(
-            self.seed, self.pub_key, self.priv_key, self.classic_address
+        return f"seed: {self.seed}\npub_key: {self.pub_key}\npriv_key: {self.priv_key}\nclassic_address: {self.classic_address}\n"
         )
 
 
