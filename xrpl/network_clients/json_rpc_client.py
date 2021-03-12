@@ -56,16 +56,11 @@ def json_to_response(json: Dict[str, Any]) -> Response:
         status = ResponseStatus.SUCCESS
     else:
         status = ResponseStatus.ERROR
-    try:
-        response_id = result["id"]
-    except KeyError:
-        response_id = None
     # TODO: response_type changes based on what we're getting back... where/how do we
     #  differentiate based on that?
     # TODO: should we pull fields "status" OUT of result dict?
-    #  (and maybe "id" too if that's where it lives)
     response_type = ResponseType.RESPONSE
-    return Response(status=status, result=result, id=response_id, type=response_type)
+    return Response(status=status, result=result, type=response_type)
 
 
 class JsonRpcClient:

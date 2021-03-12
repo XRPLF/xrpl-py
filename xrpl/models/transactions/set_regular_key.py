@@ -9,7 +9,7 @@ can use a SetRegularKey transaction to regain control of your account.
 
 `See SetRegularKey <https://xrpl.org/setregularkey.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 from xrpl.models.transactions.transaction import Transaction, TransactionType
@@ -33,4 +33,7 @@ class SetRegularKey(Transaction):
     """
 
     regular_key: Optional[str] = None
-    transaction_type: TransactionType = TransactionType.SET_REGULAR_KEY
+    transaction_type: TransactionType = field(
+        default=TransactionType.SET_REGULAR_KEY,
+        init=False,
+    )
