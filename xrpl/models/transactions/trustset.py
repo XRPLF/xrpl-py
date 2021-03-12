@@ -4,7 +4,7 @@ Creates or modifies a trust line linking two accounts.
 
 `See TrustSet <https://xrpl.org/trustset.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 
@@ -40,4 +40,7 @@ class TrustSet(Transaction):
     limit_amount: IssuedCurrencyAmount = REQUIRED  # type: ignore
     quality_in: Optional[int] = None
     quality_out: Optional[int] = None
-    transaction_type: TransactionType = TransactionType.TRUST_SET
+    transaction_type: TransactionType = field(
+        default=TransactionType.TRUST_SET,
+        init=False,
+    )
