@@ -1,13 +1,15 @@
 from unittest import TestCase
 
 from tests.integration.it_utils import JSON_RPC_CLIENT, submit_transaction
+from tests.integration.transactions.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountDelete
 from xrpl.wallet import generate_faucet_wallet
 
-WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
 DESTINATION_WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
 
+# We can re-use the shared wallet bc this test should fail to actually delete
+# the associated account.
 ACCOUNT = WALLET.classic_address
 
 # AccountDelete transactions have a special fee.
@@ -15,9 +17,6 @@ ACCOUNT = WALLET.classic_address
 FEE = "5000000"
 
 DESTINATION_TAG = 3
-
-# TODO: Figure out how to handle the `tecTOO_SOON` error code... Sleep??  It'd be long.
-# See https://xrpl.org/accountdelete.html#error-cases
 
 
 class TestAccountDelete(TestCase):
