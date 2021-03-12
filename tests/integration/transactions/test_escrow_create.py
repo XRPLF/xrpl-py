@@ -36,5 +36,6 @@ class TestEscrowCreate(TestCase):
             source_tag=SOURCE_TAG,
         )
         response = submit_transaction(escrow_create, WALLET)
-        # Actual engine_result will be `tecNO_PERMISSION`
+        # Actual engine_result will be `tecNO_PERMISSION`...
+        # maybe due to CONDITION or something
         self.assertEqual(response.status, ResponseStatus.SUCCESS)

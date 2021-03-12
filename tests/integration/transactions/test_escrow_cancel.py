@@ -24,5 +24,5 @@ class TestEscrowCancel(TestCase):
             offer_sequence=OFFER_SEQUENCE,
         )
         response = submit_transaction(escrow_cancel, WALLET)
-        print(response)
+        # Actual engine_result is `tecNO_TARGET since OWNER account doesn't exist
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
