@@ -54,22 +54,22 @@ class PathStep(SerializedType):
         if not isinstance(value, dict):
             raise XRPLBinaryCodecException(
                 "Invalid type to construct a PathStep: expected dict,"
-                " received {}.".format(value.__class__.__name__)
+                f" received {value.__class__.__name__}."
             )
 
         data_type = 0x00
         buffer = b""
         if "account" in value:
             account_id = AccountID.from_value(value["account"])
-            buffer += account_id.to_bytes()
+            buffer += bytes(account_id)
             data_type |= _TYPE_ACCOUNT
         if "currency" in value:
             currency = Currency.from_value(value["currency"])
-            buffer += currency.to_bytes()
+            buffer += bytes(currency)
             data_type |= _TYPE_CURRENCY
         if "issuer" in value:
             issuer = AccountID.from_value(value["issuer"])
-            buffer += issuer.to_bytes()
+            buffer += bytes(issuer)
             data_type |= _TYPE_ISSUER
 
         return PathStep(bytes([data_type]) + buffer)
@@ -109,7 +109,7 @@ class PathStep(SerializedType):
         Returns:
             The JSON representation of a PathStep.
         """
-        parser = BinaryParser(self.to_string())
+        parser = BinaryParser(str(self))
         data_type = parser.read_uint8()
         json = {}
 
@@ -155,15 +155,14 @@ class Path(SerializedType):
         """
         if not isinstance(value, list):
             raise XRPLBinaryCodecException(
-                "Invalid type to construct a Path: expected list, received {}.".format(
-                    value.__class__.__name__
-                )
+                "Invalid type to construct a Path: expected list, "
+                f"received {value.__class__.__name__}."
             )
 
         buffer: bytes = b""
         for PathStep_dict in value:
             pathstep = PathStep.from_value(PathStep_dict)
-            buffer += pathstep.to_bytes()
+            buffer += bytes(pathstep)
         return Path(buffer)
 
     @classmethod
@@ -182,7 +181,7 @@ class Path(SerializedType):
         buffer: List[bytes] = []
         while not parser.is_end():
             pathstep = PathStep.from_parser(parser)
-            buffer.append(pathstep.to_bytes())
+            buffer.append(bytes(pathstep))
 
             if parser.peek() == cast(bytes, _PATHSET_END_BYTE) or parser.peek() == cast(
                 bytes, _PATH_SEPARATOR_BYTE
@@ -198,7 +197,7 @@ class Path(SerializedType):
             The JSON representation of a Path.
         """
         json = []
-        path_parser = BinaryParser(self.to_string())
+        path_parser = BinaryParser(str(self))
 
         while not path_parser.is_end():
             pathstep = PathStep.from_parser(path_parser)
@@ -229,14 +228,14 @@ class PathSet(SerializedType):
         if not isinstance(value, list):
             raise XRPLBinaryCodecException(
                 "Invalid type to construct a PathSet: expected list,"
-                " received {}.".format(value.__class__.__name__)
+                f" received {value.__class__.__name__}."
             )
 
         if _is_path_set(value):
             buffer: List[bytes] = []
             for path_dict in value:
                 path = Path.from_value(path_dict)
-                buffer.append(path.to_bytes())
+                buffer.append(bytes(path))
                 buffer.append(bytes([_PATH_SEPARATOR_BYTE]))
 
             buffer[-1] = bytes([_PATHSET_END_BYTE])
@@ -260,7 +259,7 @@ class PathSet(SerializedType):
         buffer: List[bytes] = []
         while not parser.is_end():
             path = Path.from_parser(parser)
-            buffer.append(path.to_bytes())
+            buffer.append(bytes(path))
             buffer.append(parser.read(1))
 
             if buffer[-1][0] == _PATHSET_END_BYTE:
@@ -275,7 +274,7 @@ class PathSet(SerializedType):
             The JSON representation of a PathSet.
         """
         json = []
-        pathset_parser = BinaryParser(self.to_string())
+        pathset_parser = BinaryParser(str(self))
 
         while not pathset_parser.is_end():
             path = Path.from_parser(pathset_parser)

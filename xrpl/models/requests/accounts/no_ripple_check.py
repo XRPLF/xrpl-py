@@ -5,12 +5,13 @@ recommended settings.
 
 `See noripple_check <https://xrpl.org/noripple_check.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional, Union
 
 from xrpl.models.base_model import REQUIRED
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.utils import require_kwargs_on_init
 
 
 class NoRippleCheckRole(str, Enum):
@@ -20,6 +21,7 @@ class NoRippleCheckRole(str, Enum):
     USER = "user"
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class NoRippleCheck(Request):
     """
@@ -30,10 +32,10 @@ class NoRippleCheck(Request):
     `See noripple_check <https://xrpl.org/noripple_check.html>`_
     """
 
-    account: str = REQUIRED
+    account: str = REQUIRED  # type: ignore
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
-    method: RequestMethod = RequestMethod.NO_RIPPLE_CHECK
-    role: NoRippleCheckRole = REQUIRED
+    method: RequestMethod = field(default=RequestMethod.NO_RIPPLE_CHECK, init=False)
+    role: NoRippleCheckRole = REQUIRED  # type: ignore
     transactions: Optional[bool] = False
     limit: Optional[int] = 300

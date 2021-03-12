@@ -6,13 +6,15 @@ of the channel can use this transaction.
 
 `See PaymentChannelFund <https://xrpl.org/paymentchannelfund.html>`_
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 from xrpl.models.base_model import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionType
+from xrpl.models.utils import require_kwargs_on_init
 
 
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class PaymentChannelFund(Transaction):
     """
@@ -24,7 +26,10 @@ class PaymentChannelFund(Transaction):
     `See PaymentChannelFund <https://xrpl.org/paymentchannelfund.html>`_
     """
 
-    channel: str = REQUIRED
-    amount: str = REQUIRED
+    channel: str = REQUIRED  # type: ignore
+    amount: str = REQUIRED  # type: ignore
     expiration: Optional[int] = None
-    transaction_type: TransactionType = TransactionType.PAYMENT_CHANNEL_FUND
+    transaction_type: TransactionType = field(
+        default=TransactionType.PAYMENT_CHANNEL_FUND,
+        init=False,
+    )

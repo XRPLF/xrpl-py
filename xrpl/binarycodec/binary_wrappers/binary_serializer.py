@@ -46,9 +46,7 @@ def _encode_variable_length_prefix(length: int) -> bytes:
         byte3 = (length & 0xFF).to_bytes(1, byteorder="big", signed=False)
         return byte1 + byte2 + byte3
 
-    raise ValueError(
-        "VariableLength field must be <= {} bytes long".format(MAX_LENGTH_VALUE)
-    )
+    raise ValueError(f"VariableLength field must be <= {MAX_LENGTH_VALUE} bytes long")
 
 
 class BinarySerializer:
@@ -58,7 +56,7 @@ class BinarySerializer:
         """Construct a BinarySerializer."""
         self.bytesink = bytes()
 
-    def put(self: BinarySerializer, bytes_object: bytes) -> None:
+    def append(self: BinarySerializer, bytes_object: bytes) -> None:
         """
         Write given bytes to this BinarySerializer's bytesink.
 
@@ -67,7 +65,7 @@ class BinarySerializer:
         """
         self.bytesink += bytes_object
 
-    def to_bytes(self: BinarySerializer) -> bytes:
+    def __bytes__(self: BinarySerializer) -> bytes:
         """
         Get the bytes representation of a BinarySerializer.
 
@@ -99,9 +97,9 @@ class BinarySerializer:
             field: The field to write to the buffer.
             value: The value to write to the buffer.
         """
-        self.bytesink += field.header.to_bytes()
+        self.bytesink += bytes(field.header)
 
         if field.is_variable_length_encoded:
             self.write_length_encoded(value)
         else:
-            self.bytesink += value.to_bytes()
+            self.bytesink += bytes(value)

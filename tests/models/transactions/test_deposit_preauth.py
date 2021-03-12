@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from xrpl.models.exceptions import XRPLModelValidationException
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import DepositPreauth
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
@@ -10,7 +10,7 @@ _SEQUENCE = 19048
 
 class TestDepositPreauth(TestCase):
     def test_authorize_unauthorize_both_set(self):
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             DepositPreauth(
                 account=_ACCOUNT,
                 fee=_FEE,
@@ -20,7 +20,7 @@ class TestDepositPreauth(TestCase):
             )
 
     def test_authorize_unauthorize_neither_set(self):
-        with self.assertRaises(XRPLModelValidationException):
+        with self.assertRaises(XRPLModelException):
             DepositPreauth(
                 account=_ACCOUNT,
                 fee=_FEE,
