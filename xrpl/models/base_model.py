@@ -83,7 +83,9 @@ class BaseModel(ABC):
             if "currency" in param_value and "issuer" in param_value:
                 return IssuedCurrency.from_dict(param_value)
             if "currency" in param_value:
-                return XRP.from_dict(param_value)
+                param_value_copy = {**param_value}
+                del param_value_copy["currency"]
+                return XRP.from_dict(param_value_copy)
             raise XRPLModelException(f"No valid type for {param}")
 
         if param_type == Transaction:
@@ -95,7 +97,9 @@ class BaseModel(ABC):
             type_str = param_value["transaction_type"]
             # safely convert type string into the actual type
             transaction_type = Transaction.get_transaction_type(type_str)
-            return transaction_type.from_dict(param_value)
+            param_value_copy = {**param_value}
+            del param_value_copy["transaction_type"]
+            return transaction_type.from_dict(param_value_copy)
 
         if param_type in BaseModel.__subclasses__():
             # any other BaseModel
