@@ -2,8 +2,12 @@
 This is just used to allow the ED25519 and SECP256K1 modules to have a
 shared type.
 """
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Tuple
+from typing import Tuple, Type
+
+from ecpy.keys import ECPrivateKey  # type: ignore
 
 
 class CryptoImplementation(ABC):
@@ -12,22 +16,34 @@ class CryptoImplementation(ABC):
     shared type and interface.
     """
 
-    @staticmethod
+    @classmethod
     @abstractmethod
     def derive_keypair(
+        cls: Type[CryptoImplementation],
         decoded_seed: bytes,
         is_validator: bool,
     ) -> Tuple[str, str]:  # noqa: D102
         pass
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def sign(message: bytes, private_key: str) -> bytes:  # noqa: D102
+    def sign(
+        cls: Type[CryptoImplementation],
+        message: bytes,
+        private_key: str,
+    ) -> bytes:  # noqa: D102
         pass
 
-    @staticmethod
+    @classmethod
     @abstractmethod
     def is_valid_message(
-        message: bytes, signature: bytes, public_key: str
+        cls: Type[CryptoImplementation],
+        message: bytes,
+        signature: bytes,
+        public_key: str,
     ) -> bool:  # noqa: D102
         pass
+
+    @classmethod
+    def _private_key_to_str(cls: Type[CryptoImplementation], key: ECPrivateKey) -> str:
+        return format(key.d, "x")
