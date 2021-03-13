@@ -43,8 +43,8 @@ class ED25519(CryptoImplementation):
         private = ECPrivateKey(int.from_bytes(raw_private, "big"), _CURVE)
         public = EDDSA.get_public_key(private, sha512)
         return (
-            ED25519._format_key(ED25519._public_key_to_str(public)),
-            ED25519._format_key(ED25519._private_key_to_str(private)),
+            _format_key(_public_key_to_str(public)),
+            _format_key(_private_key_to_str(private)),
         )
 
     @staticmethod
@@ -83,14 +83,14 @@ class ED25519(CryptoImplementation):
         wrapped_public = ECPublicKey(public_key_point)
         return cast(bool, _SIGNER.verify(message, signature, wrapped_public))
 
-    @staticmethod
-    def _public_key_to_str(key: ECPublicKey) -> str:
-        return cast(str, _CURVE.encode_point(key.W).hex())
 
-    @staticmethod
-    def _private_key_to_str(key: ECPrivateKey) -> str:
-        return format(key.d, "x")
+def _public_key_to_str(key: ECPublicKey) -> str:
+    return cast(str, _CURVE.encode_point(key.W).hex())
 
-    @staticmethod
-    def _format_key(keystr: str) -> str:
-        return (PREFIX + keystr).upper()
+
+def _private_key_to_str(key: ECPrivateKey) -> str:
+    return format(key.d, "x")
+
+
+def _format_key(keystr: str) -> str:
+    return (PREFIX + keystr).upper()
