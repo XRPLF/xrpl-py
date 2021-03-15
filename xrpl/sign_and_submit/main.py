@@ -73,8 +73,8 @@ def submit_transaction_blob(
 
 def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Returns a new dictionary in which the first letter of every original key is
-    capitalized.
+    Returns a new dictionary in which the keys have been formatted as CamelCase and
+    standardized to be serialized by the binary codec.
 
     Args:
         dictionary: The dictionary to be reformatted.
@@ -85,6 +85,13 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
     formatted_dict = {
         _snake_to_capital_camel(key): value for (key, value) in dictionary.items()
     }
+    # one-off conversion cases for transaction field names
+    if "CheckId" in formatted_dict:
+        formatted_dict["CheckID"] = formatted_dict["CheckId"]
+        del formatted_dict["CheckId"]
+    if "InvoiceId" in formatted_dict:
+        formatted_dict["InvoiceID"] = formatted_dict["InvoiceId"]
+        del formatted_dict["InvoiceId"]
     return formatted_dict
 
 

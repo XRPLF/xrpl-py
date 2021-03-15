@@ -1,16 +1,13 @@
 from unittest import TestCase
 
-from tests.integration.it_utils import generate_faucet_wallet, submit_transaction
+from tests.integration.it_utils import JSON_RPC_CLIENT, submit_transaction
 from tests.integration.transactions.reusable_values import FEE, WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import CheckCreate
-from xrpl.network_clients import JsonRpcClient
-
-JSON_RPC_URL = "http://test.xrp.xpring.io:51234"
-JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
+from xrpl.wallet import generate_faucet_wallet
 
 ACCOUNT = WALLET.classic_address
-DESTINATION = generate_faucet_wallet().classic_address
+DESTINATION = generate_faucet_wallet(JSON_RPC_CLIENT).classic_address
 DESTINATION_TAG = 1
 SENDMAX = "100000000"
 EXPIRATION = 970113521
