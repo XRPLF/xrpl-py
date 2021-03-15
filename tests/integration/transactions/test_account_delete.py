@@ -1,11 +1,12 @@
 from unittest import TestCase
 
-from tests.integration.it_utils import generate_faucet_wallet, submit_transaction
+from tests.integration.it_utils import JSON_RPC_CLIENT, submit_transaction
 from tests.integration.transactions.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountDelete
+from xrpl.wallet import generate_faucet_wallet
 
-DESTINATION_WALLET = generate_faucet_wallet()
+DESTINATION_WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
 
 # We can re-use the shared wallet bc this test should fail to actually delete
 # the associated account.
