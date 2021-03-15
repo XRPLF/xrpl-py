@@ -7,8 +7,6 @@ from xrpl.models.transactions import AccountSet
 
 ACCOUNT = WALLET.classic_address
 
-ACCOUNT = WALLET.classic_address
-
 CLEAR_FLAG = 3
 DOMAIN = "6578616D706C652E636F6D".lower()
 EMAIL_HASH = "10000000002000000000300000000012"
