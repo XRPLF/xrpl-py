@@ -24,8 +24,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from xrpl.models.base_model import REQUIRED
 from xrpl.models.requests.transactions.submit import Submit
+from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 

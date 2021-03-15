@@ -13,7 +13,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-from xrpl.models.base_model import REQUIRED, BaseModel
+from xrpl.models.base_model import BaseModel
+from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 

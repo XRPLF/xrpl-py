@@ -18,10 +18,10 @@ if they came from you.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Type, cast
 
-from xrpl.models.base_model import REQUIRED
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.utils import require_kwargs_on_init
 
@@ -57,6 +57,26 @@ class Sign(Request):
     build_path: Optional[bool] = None
     fee_mult_max: int = 10
     fee_div_max: int = 1
+
+    @classmethod
+    def from_dict(cls: Type[Sign], value: Dict[str, Any]) -> Sign:
+        """
+        Construct a new Sign from a dictionary of parameters.
+
+        If not overridden, passes the dictionary as args to the constructor.
+
+        Args:
+            value: The value to construct the Sign from.
+
+        Returns:
+            A new Sign object, constructed using the given parameters.
+        """
+        if "tx_json" in value:
+            fixed_value = {**value, "transaction": value["tx_json"]}
+            del fixed_value["tx_json"]
+        else:
+            fixed_value = value
+        return cast(Sign, super(Sign, cls).from_dict(fixed_value))
 
     def to_dict(self: Sign) -> Dict[str, Any]:
         """

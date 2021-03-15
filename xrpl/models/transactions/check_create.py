@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from xrpl.models.amounts import Amount
-from xrpl.models.base_model import REQUIRED
+from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 

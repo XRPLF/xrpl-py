@@ -9,9 +9,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type
 
-from xrpl.models.base_model import REQUIRED, BaseModel
+from xrpl.models.base_model import BaseModel
+from xrpl.models.exceptions import XRPLModelException
+from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
@@ -129,3 +131,94 @@ class Transaction(BaseModel):
             Whether the transaction has the given flag value set.
         """
         return self.flags & flag != 0
+
+    @classmethod
+    def get_transaction_type(
+        cls: Type[Transaction], transaction_type: str
+    ) -> Type[Transaction]:
+        """
+        Returns the correct transaction type based on the string name.
+
+        Args:
+            transaction_type: The String name of the Transaction object.
+
+        Returns:
+            The transaction class with the given name.
+
+        Raises:
+            XRPLModelException: If `transaction_type` is not a valid Transaction type.
+        """
+        if transaction_type == TransactionType.ACCOUNT_DELETE:
+            from xrpl.models.transactions import AccountDelete
+
+            return AccountDelete
+        if transaction_type == TransactionType.ACCOUNT_SET:
+            from xrpl.models.transactions import AccountSet
+
+            return AccountSet
+        if transaction_type == TransactionType.CHECK_CANCEL:
+            from xrpl.models.transactions import CheckCancel
+
+            return CheckCancel
+        if transaction_type == TransactionType.CHECK_CASH:
+            from xrpl.models.transactions import CheckCash
+
+            return CheckCash
+        if transaction_type == TransactionType.CHECK_CREATE:
+            from xrpl.models.transactions import CheckCreate
+
+            return CheckCreate
+        if transaction_type == TransactionType.DEPOSIT_PREAUTH:
+            from xrpl.models.transactions import DepositPreauth
+
+            return DepositPreauth
+        if transaction_type == TransactionType.ESCROW_CANCEL:
+            from xrpl.models.transactions import EscrowCancel
+
+            return EscrowCancel
+        if transaction_type == TransactionType.ESCROW_CREATE:
+            from xrpl.models.transactions import EscrowCreate
+
+            return EscrowCreate
+        if transaction_type == TransactionType.ESCROW_FINISH:
+            from xrpl.models.transactions import EscrowFinish
+
+            return EscrowFinish
+        if transaction_type == TransactionType.OFFER_CANCEL:
+            from xrpl.models.transactions import OfferCancel
+
+            return OfferCancel
+        if transaction_type == TransactionType.OFFER_CREATE:
+            from xrpl.models.transactions import OfferCreate
+
+            return OfferCreate
+        if transaction_type == TransactionType.PAYMENT:
+            from xrpl.models.transactions import Payment
+
+            return Payment
+        if transaction_type == TransactionType.PAYMENT_CHANNEL_CLAIM:
+            from xrpl.models.transactions import PaymentChannelClaim
+
+            return PaymentChannelClaim
+        if transaction_type == TransactionType.PAYMENT_CHANNEL_CREATE:
+            from xrpl.models.transactions import PaymentChannelCreate
+
+            return PaymentChannelCreate
+        if transaction_type == TransactionType.PAYMENT_CHANNEL_FUND:
+            from xrpl.models.transactions import PaymentChannelFund
+
+            return PaymentChannelFund
+        if transaction_type == TransactionType.SET_REGULAR_KEY:
+            from xrpl.models.transactions import SetRegularKey
+
+            return SetRegularKey
+        if transaction_type == TransactionType.SIGNER_LIST_SET:
+            from xrpl.models.transactions import SignerListSet
+
+            return SignerListSet
+        if transaction_type == TransactionType.TRUST_SET:
+            from xrpl.models.transactions import TrustSet
+
+            return TrustSet
+
+        raise XRPLModelException(f"{transaction_type} is not a valid Transaction type")

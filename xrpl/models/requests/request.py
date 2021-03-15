@@ -8,7 +8,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, Optional
 
-from xrpl.models.base_model import REQUIRED, BaseModel
+from xrpl.models.base_model import BaseModel
+from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 

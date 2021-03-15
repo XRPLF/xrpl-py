@@ -10,8 +10,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Optional, Union
 
-from xrpl.models.base_model import REQUIRED
 from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
