@@ -17,6 +17,7 @@ from xrpl.models.transactions.payment_channel_create import PaymentChannelCreate
 from xrpl.models.transactions.payment_channel_fund import PaymentChannelFund
 from xrpl.models.transactions.set_regular_key import SetRegularKey
 from xrpl.models.transactions.signer_list_set import SignerListSet
+from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.trustset import TrustSet
 
 __all__ = [
@@ -38,5 +39,6 @@ __all__ = [
     "PaymentChannelFund",
     "SetRegularKey",
     "SignerListSet",
+    "Transaction",
     "TrustSet",
 ]

@@ -4,10 +4,6 @@ from tests.integration.it_utils import generate_faucet_wallet, submit_transactio
 from tests.integration.transactions.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountDelete
-from xrpl.network_clients import JsonRpcClient
-
-JSON_RPC_URL = "http://test.xrp.xpring.io:51234"
-JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
 
 DESTINATION_WALLET = generate_faucet_wallet()
 

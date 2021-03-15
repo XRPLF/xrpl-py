@@ -33,7 +33,7 @@ class SubmitMultisigned(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.SUBMIT_MULTISIGNED, init=False)
-    transaction: Transaction = REQUIRED
+    transaction: Transaction = REQUIRED  # type: ignore
     fail_hard: bool = False
 
     def to_dict(self: SubmitMultisigned) -> Dict[str, Any]:
