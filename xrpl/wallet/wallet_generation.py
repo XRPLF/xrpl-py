@@ -18,7 +18,6 @@ class XRPLFaucetException(XRPLException):
     pass
 
 
-# TODO: make this general for any type of network client
 def generate_faucet_wallet(client: NetworkClient) -> Wallet:
     """
     Generates a random wallet and funds it using the XRPL Testnet Faucet.
