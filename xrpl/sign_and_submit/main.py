@@ -1,20 +1,20 @@
 """High-level sign-and-submit methods with XRPL transactions."""
 
-from typing import Any, Callable, Dict
+from typing import Any, Dict
 
 from xrpl.binarycodec import encode, encode_for_signing
 from xrpl.keypairs.main import sign
-from xrpl.models.requests.request import Request
 from xrpl.models.requests.transactions.submit_only import SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions import Transaction
+from xrpl.network_clients import NetworkClient
 from xrpl.wallet import Wallet
 
 
 def sign_and_submit_transaction(
     transaction: Transaction,
     wallet: Wallet,
-    send_transaction: Callable[[Request], Response],
+    network_client: NetworkClient,
 ) -> Response:
     """
     Signs a transaction and submits it to the XRPL.
@@ -22,13 +22,13 @@ def sign_and_submit_transaction(
     Args:
         transaction: the transaction to be signed and submitted.
         wallet: the wallet with which to sign the transaction.
-        send_transaction: the function with which to submit the transaction.
+        network_client: the network client with which to submit the transaction.
 
     Returns:
         The response from the ledger.
     """
     tx_blob = sign_transaction(transaction, wallet)
-    return submit_transaction_blob(tx_blob, send_transaction)
+    return submit_transaction_blob(tx_blob, network_client)
 
 
 def sign_transaction(transaction: Transaction, wallet: Wallet) -> str:
@@ -55,20 +55,20 @@ def sign_transaction(transaction: Transaction, wallet: Wallet) -> str:
 
 def submit_transaction_blob(
     transaction_blob: str,
-    send_transaction: Callable[[Request], Response],
+    network_client: NetworkClient,
 ) -> Response:
     """
     Submits a transaction blob to the ledger.
 
     Args:
         transaction_blob: the transaction blob to be submitted.
-        send_transaction: the function with which to submit the transaction.
+        network_client: the network client with which to submit the transaction.
 
     Returns:
         The response from the ledger.
     """
     submit_request = SubmitOnly(tx_blob=transaction_blob)
-    return send_transaction(submit_request)
+    return network_client.request(submit_request)
 
 
 def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[str, Any]:
