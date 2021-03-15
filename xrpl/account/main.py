@@ -2,14 +2,13 @@
 
 from typing import Any, Dict, cast
 
+from xrpl.clients import Client
 from xrpl.models.requests.accounts.account_info import AccountInfo
 from xrpl.models.requests.fee import Fee
 from xrpl.models.response import Response
-from xrpl.network_clients import JsonRpcClient
 
 
-# TODO: make this general for any type of network client
-def get_fee(client: JsonRpcClient) -> str:
+def get_fee(client: Client) -> str:
     """
     Query the ledger for the current minimum transaction fee.
 
@@ -24,7 +23,7 @@ def get_fee(client: JsonRpcClient) -> str:
     return cast(str, result["drops"]["minimum_fee"])
 
 
-def get_next_valid_seq_number(address: str, client: JsonRpcClient) -> int:
+def get_next_valid_seq_number(address: str, client: Client) -> int:
     """
     Query the ledger for the next available sequence number for an account.
 
@@ -40,7 +39,7 @@ def get_next_valid_seq_number(address: str, client: JsonRpcClient) -> int:
     return cast(int, result["account_data"]["Sequence"])
 
 
-def get_balance(address: str, client: JsonRpcClient) -> int:
+def get_balance(address: str, client: Client) -> int:
     """
     Query the ledger for the balance of the given account.
 
@@ -56,7 +55,7 @@ def get_balance(address: str, client: JsonRpcClient) -> int:
     return cast(int, result["account_data"]["Balance"])
 
 
-def get_account_info(address: str, client: JsonRpcClient) -> Response:
+def get_account_info(address: str, client: Client) -> Response:
     """
     Query the ledger for account info of given address.
 

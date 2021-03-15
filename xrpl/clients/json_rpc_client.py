@@ -6,6 +6,7 @@ from typing import Any, Dict
 
 import requests
 
+from xrpl.clients.client import Client
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response, ResponseStatus, ResponseType
 
@@ -63,16 +64,8 @@ def json_to_response(json: Dict[str, Any]) -> Response:
     return Response(status=status, result=result, type=response_type)
 
 
-class JsonRpcClient:
+class JsonRpcClient(Client):
     """A client for interacting with the rippled JSON RPC."""
-
-    def __init__(self: JsonRpcClient, url: str) -> None:
-        """Constructs a JsonRpcClient.
-
-        Arguments:
-            url: The URL of the rippled node to submit requests to.
-        """
-        self.url = url
 
     def request(self: JsonRpcClient, request_object: Request) -> Response:
         """
@@ -83,7 +76,7 @@ class JsonRpcClient:
             request_object: An object representing information about a rippled request.
 
         Returns:
-            The response from the server, as JSON, if successful.
+            The response from the server, as a Response object, if successful.
         """
         formatted_request = request_to_json_rpc(request_object)
         response = requests.post(self.url, json=formatted_request)

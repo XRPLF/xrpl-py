@@ -1,7 +1,7 @@
 import unittest
 
+from xrpl.clients.json_rpc_client import JsonRpcClient
 from xrpl.models.requests.accounts import AccountInfo
-from xrpl.network_clients.json_rpc_client import JsonRpcClient
 
 JSON_RPC_URL = "http://test.xrp.xpring.io:51234"
 

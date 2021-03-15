@@ -6,7 +6,7 @@ from requests import post
 
 from xrpl import XRPLException
 from xrpl.account import get_balance, get_next_valid_seq_number
-from xrpl.network_clients import JsonRpcClient
+from xrpl.clients import Client
 from xrpl.wallet.main import Wallet
 
 FAUCET_URL = "https://faucet.altnet.rippletest.net/accounts"
@@ -18,8 +18,7 @@ class XRPLFaucetException(XRPLException):
     pass
 
 
-# TODO: make this general for any type of network client
-def generate_faucet_wallet(client: JsonRpcClient) -> Wallet:
+def generate_faucet_wallet(client: Client) -> Wallet:
     """
     Generates a random wallet and funds it using the XRPL Testnet Faucet.
 
