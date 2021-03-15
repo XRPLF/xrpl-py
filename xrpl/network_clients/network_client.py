@@ -31,4 +31,4 @@ class NetworkClient(ABC):
         Raises:
             NotImplementedError: Always.
         """
-        raise NotImplementedError("{self.__class__.__name__}.request not implemented.")
+        raise NotImplementedError(f"{self.__class__.__name__}.request not implemented.")
