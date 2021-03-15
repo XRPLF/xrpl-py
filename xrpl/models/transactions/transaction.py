@@ -148,75 +148,75 @@ class Transaction(BaseModel):
         Raises:
             XRPLModelException: If `transaction_type` is not a valid Transaction type.
         """
-        if transaction_type == "AccountDelete":
+        if transaction_type == TransactionType.ACCOUNT_DELETE:
             from xrpl.models.transactions import AccountDelete
 
             return AccountDelete
-        if transaction_type == "AccountSet":
+        if transaction_type == TransactionType.ACCOUNT_SET:
             from xrpl.models.transactions import AccountSet
 
             return AccountSet
-        if transaction_type == "CheckCancel":
+        if transaction_type == TransactionType.CHECK_CANCEL:
             from xrpl.models.transactions import CheckCancel
 
             return CheckCancel
-        if transaction_type == "CheckCash":
+        if transaction_type == TransactionType.CHECK_CASH:
             from xrpl.models.transactions import CheckCash
 
             return CheckCash
-        if transaction_type == "CheckCreate":
+        if transaction_type == TransactionType.CHECK_CREATE:
             from xrpl.models.transactions import CheckCreate
 
             return CheckCreate
-        if transaction_type == "DepositPreauth":
+        if transaction_type == TransactionType.DEPOSIT_PREAUTH:
             from xrpl.models.transactions import DepositPreauth
 
             return DepositPreauth
-        if transaction_type == "EscrowCancel":
+        if transaction_type == TransactionType.ESCROW_CANCEL:
             from xrpl.models.transactions import EscrowCancel
 
             return EscrowCancel
-        if transaction_type == "EscrowCreate":
+        if transaction_type == TransactionType.ESCROW_CREATE:
             from xrpl.models.transactions import EscrowCreate
 
             return EscrowCreate
-        if transaction_type == "EscrowFinish":
+        if transaction_type == TransactionType.ESCROW_FINISH:
             from xrpl.models.transactions import EscrowFinish
 
             return EscrowFinish
-        if transaction_type == "OfferCancel":
+        if transaction_type == TransactionType.OFFER_CANCEL:
             from xrpl.models.transactions import OfferCancel
 
             return OfferCancel
-        if transaction_type == "OfferCreate":
+        if transaction_type == TransactionType.OFFER_CREATE:
             from xrpl.models.transactions import OfferCreate
 
             return OfferCreate
-        if transaction_type == "Payment":
+        if transaction_type == TransactionType.PAYMENT:
             from xrpl.models.transactions import Payment
 
             return Payment
-        if transaction_type == "PaymentChannelClaim":
+        if transaction_type == TransactionType.PAYMENT_CHANNEL_CLAIM:
             from xrpl.models.transactions import PaymentChannelClaim
 
             return PaymentChannelClaim
-        if transaction_type == "PaymentChannelCreate":
+        if transaction_type == TransactionType.PAYMENT_CHANNEL_CREATE:
             from xrpl.models.transactions import PaymentChannelCreate
 
             return PaymentChannelCreate
-        if transaction_type == "PaymentChannelFund":
+        if transaction_type == TransactionType.PAYMENT_CHANNEL_FUND:
             from xrpl.models.transactions import PaymentChannelFund
 
             return PaymentChannelFund
-        if transaction_type == "SetRegularKey":
+        if transaction_type == TransactionType.SET_REGULAR_KEY:
             from xrpl.models.transactions import SetRegularKey
 
             return SetRegularKey
-        if transaction_type == "SignerListSet":
+        if transaction_type == TransactionType.SIGNER_LIST_SET:
             from xrpl.models.transactions import SignerListSet
 
             return SignerListSet
-        if transaction_type == "TrustSet":
+        if transaction_type == TransactionType.TRUST_SET:
             from xrpl.models.transactions import TrustSet
 
             return TrustSet
