@@ -14,6 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional, Type, cast
 
+from xrpl import CryptoAlgorithm
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -41,7 +42,7 @@ class SignFor(Request):
     seed: Optional[str] = None
     seed_hex: Optional[str] = None
     passphrase: Optional[str] = None
-    key_type: Optional[str] = None
+    key_type: Optional[CryptoAlgorithm] = None
 
     @classmethod
     def from_dict(cls: Type[SignFor], value: Dict[str, Any]) -> SignFor:

@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from xrpl import CryptoAlgorithm
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests import Sign
 from xrpl.models.transactions import AccountSet
@@ -67,5 +68,7 @@ class TestSign(TestCase):
         self.assertTrue(request.is_valid())
 
     def test_valid_seed(self):
-        request = Sign(transaction=_TRANSACTION, seed=_SEED, key_type="secp256k1")
+        request = Sign(
+            transaction=_TRANSACTION, seed=_SEED, key_type=CryptoAlgorithm.SECP256K1
+        )
         self.assertTrue(request.is_valid())

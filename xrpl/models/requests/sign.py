@@ -20,6 +20,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional, Type, cast
 
+from xrpl import CryptoAlgorithm
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -52,7 +53,7 @@ class Sign(Request):
     seed: Optional[str] = None
     seed_hex: Optional[str] = None
     passphrase: Optional[str] = None
-    key_type: Optional[str] = None
+    key_type: Optional[CryptoAlgorithm] = None
     offline: bool = False
     build_path: Optional[bool] = None  # note: None does have meaning here
     fee_mult_max: int = 10
