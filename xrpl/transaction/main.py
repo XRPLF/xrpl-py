@@ -3,18 +3,18 @@
 from typing import Any, Dict
 
 from xrpl.binarycodec import encode, encode_for_signing
+from xrpl.clients import Client
 from xrpl.keypairs.main import sign
 from xrpl.models.requests.transactions.submit_only import SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions import Transaction
-from xrpl.network_clients import NetworkClient
 from xrpl.wallet import Wallet
 
 
 def transaction_transaction(
     transaction: Transaction,
     wallet: Wallet,
-    network_client: NetworkClient,
+    client: Client,
 ) -> Response:
     """
     Signs a transaction and submits it to the XRPL.
@@ -22,13 +22,13 @@ def transaction_transaction(
     Args:
         transaction: the transaction to be signed and submitted.
         wallet: the wallet with which to sign the transaction.
-        network_client: the network client with which to submit the transaction.
+        client: the network client with which to submit the transaction.
 
     Returns:
         The response from the ledger.
     """
     tx_blob = sign_transaction(transaction, wallet)
-    return submit_transaction_blob(tx_blob, network_client)
+    return submit_transaction_blob(tx_blob, client)
 
 
 def sign_transaction(transaction: Transaction, wallet: Wallet) -> str:
@@ -55,20 +55,20 @@ def sign_transaction(transaction: Transaction, wallet: Wallet) -> str:
 
 def submit_transaction_blob(
     transaction_blob: str,
-    network_client: NetworkClient,
+    client: Client,
 ) -> Response:
     """
     Submits a transaction blob to the ledger.
 
     Args:
         transaction_blob: the transaction blob to be submitted.
-        network_client: the network client with which to submit the transaction.
+        client: the network client with which to submit the transaction.
 
     Returns:
         The response from the ledger.
     """
     submit_request = SubmitOnly(tx_blob=transaction_blob)
-    return network_client.request(submit_request)
+    return client.request(submit_request)
 
 
 def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[str, Any]:

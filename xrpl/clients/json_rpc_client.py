@@ -6,9 +6,9 @@ from typing import Any, Dict
 
 import requests
 
+from xrpl.clients.client import Client
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response, ResponseStatus, ResponseType
-from xrpl.network_clients.network_client import NetworkClient
 
 # from rippled_exception import RippledException
 
@@ -64,7 +64,7 @@ def json_to_response(json: Dict[str, Any]) -> Response:
     return Response(status=status, result=result, type=response_type)
 
 
-class JsonRpcClient(NetworkClient):
+class JsonRpcClient(Client):
     """A client for interacting with the rippled JSON RPC."""
 
     def request(self: JsonRpcClient, request_object: Request) -> Response:

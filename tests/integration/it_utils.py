@@ -1,8 +1,8 @@
 """Utility functions and variables for integration tests."""
 
+from xrpl.clients import JsonRpcClient
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.network_clients import JsonRpcClient
 from xrpl.sign_and_submit import sign_and_submit_transaction
 from xrpl.wallet import Wallet
 

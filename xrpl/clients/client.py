@@ -7,12 +7,12 @@ from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
 
 
-class NetworkClient(ABC):
+class Client(ABC):
     """Interface for all network clients to follow."""
 
-    def __init__(self: NetworkClient, url: str) -> None:
+    def __init__(self: Client, url: str) -> None:
         """
-        Constructs a NetworkClient.
+        Constructs a Client.
 
         Arguments:
             url: The URL of the rippled node to submit requests to.
@@ -20,7 +20,7 @@ class NetworkClient(ABC):
         self.url = url
 
     @abstractmethod
-    def request(self: NetworkClient, request_object: Request) -> Response:
+    def request(self: Client, request_object: Request) -> Response:
         """
         Submit the request represented by the request_object to the rippled node
         specified by this client's URL.
