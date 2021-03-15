@@ -1,6 +1,6 @@
 """High-level methods to obtain information about accounts."""
 
-from typing import cast
+from typing import Any, Dict, cast
 
 from xrpl.models.requests.accounts.account_info import AccountInfo
 from xrpl.models.requests.fee import Fee
@@ -19,8 +19,8 @@ def get_fee(client: NetworkClient) -> str:
         The minimum fee for transactions.
     """
     response = client.request(Fee())
-    assert isinstance(response.result, dict)
-    return cast(str, response.result["drops"]["minimum_fee"])
+    result = cast(Dict[str, Any], response.result)
+    return cast(str, result["drops"]["minimum_fee"])
 
 
 def get_next_valid_seq_number(address: str, client: NetworkClient) -> int:
@@ -35,8 +35,8 @@ def get_next_valid_seq_number(address: str, client: NetworkClient) -> int:
         The next valid sequence number for the address.
     """
     account_info = get_account_info(address, client)
-    assert isinstance(account_info.result, dict)
-    return cast(int, account_info.result["account_data"]["Sequence"])
+    result = cast(Dict[str, Any], account_info.result)
+    return cast(int, result["account_data"]["Sequence"])
 
 
 def get_balance(address: str, client: NetworkClient) -> int:
@@ -51,8 +51,8 @@ def get_balance(address: str, client: NetworkClient) -> int:
         The balance of the address.
     """
     account_info = get_account_info(address, client)
-    assert isinstance(account_info.result, dict)
-    return cast(int, account_info.result["account_data"]["Balance"])
+    result = cast(Dict[str, Any], account_info.result)
+    return cast(int, result["account_data"]["Balance"])
 
 
 def get_account_info(address: str, client: NetworkClient) -> Response:

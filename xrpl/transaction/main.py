@@ -11,7 +11,7 @@ from xrpl.network_clients import NetworkClient
 from xrpl.wallet import Wallet
 
 
-def sign_and_submit_transaction(
+def transaction_transaction(
     transaction: Transaction,
     wallet: Wallet,
     network_client: NetworkClient,
