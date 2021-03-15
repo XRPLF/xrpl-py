@@ -11,7 +11,7 @@ from xrpl.models.transactions import Transaction
 from xrpl.wallet import Wallet
 
 
-def sign_and_submit_transaction(
+def transaction_transaction(
     transaction: Transaction,
     wallet: Wallet,
     send_transaction: Callable[[Request], Response],
