@@ -24,7 +24,7 @@ class Tx(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.TX, init=False)
-    transaction: str = REQUIRED
+    transaction: str = REQUIRED  # type: ignore
     binary: bool = False
     min_ledger: Optional[int] = None
     max_ledger: Optional[int] = None

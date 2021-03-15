@@ -25,7 +25,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from xrpl.models.base_model import REQUIRED
-from xrpl.models.transactions.submit import Submit
+from xrpl.models.requests.transactions.submit import Submit
 from xrpl.models.utils import require_kwargs_on_init
 
 
@@ -55,5 +55,5 @@ class SubmitOnly(Submit):
     """
 
     # submit-only mode
-    tx_blob: str = REQUIRED
+    tx_blob: str = REQUIRED  # type: ignore
     fail_hard: bool = False

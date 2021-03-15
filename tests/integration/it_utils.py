@@ -12,6 +12,7 @@ from xrpl.keypairs.main import (
 )
 from xrpl.models.requests.accounts.account_info import AccountInfo
 from xrpl.models.requests.fee import Fee
+from xrpl.models.requests.transactions import SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.network_clients.json_rpc_client import JsonRpcClient, json_to_response
@@ -52,7 +53,7 @@ def submit_transaction(transaction: Transaction, wallet: Wallet) -> Response:
     txn_blob = encode(transaction_json)
 
     # TODO: use our model objects when those are implemented for `submit`
-    submit_request = {"method": "submit", "params": [{"tx_blob": txn_blob}]}
+    submit_request = SubmitOnly(tx_blob=txn_blob)
     response = post(JSON_RPC_URL, json=submit_request)
     return json_to_response(response.json())
 
