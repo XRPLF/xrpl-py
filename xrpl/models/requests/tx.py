@@ -4,8 +4,6 @@ The tx method retrieves information on a single transaction.
 `See tx <https://xrpl.org/tx.html>`_
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
 from typing import Optional
 

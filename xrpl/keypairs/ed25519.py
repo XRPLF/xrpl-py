@@ -52,7 +52,7 @@ class ED25519(CryptoImplementation):
         )
 
     @classmethod
-    def sign(cls: Type[ED25519], message: str, private_key: str) -> bytes:
+    def sign(cls: Type[ED25519], message: bytes, private_key: str) -> bytes:
         """
         Signs a message.
 
@@ -69,7 +69,7 @@ class ED25519(CryptoImplementation):
 
     @classmethod
     def is_valid_message(
-        cls: Type[ED25519], message: str, signature: bytes, public_key: str
+        cls: Type[ED25519], message: bytes, signature: bytes, public_key: str
     ) -> bool:
         """
         Checks whether or not a message is valid.
@@ -92,10 +92,6 @@ class ED25519(CryptoImplementation):
     @classmethod
     def _public_key_to_str(cls: Type[ED25519], key: ECPublicKey) -> str:
         return cast(str, _CURVE.encode_point(key.W).hex())
-
-    @classmethod
-    def _private_key_to_str(cls: Type[ED25519], key: ECPrivateKey) -> str:
-        return format(key.d, "x")
 
     @classmethod
     def _format_key(cls: Type[ED25519], keystr: str) -> str:

@@ -170,27 +170,28 @@ class BaseModel(ABC):
         Returns:
             The dictionary representation of a BaseModel.
         """
-
-        def _format_elem(elem: Any) -> Any:
-            if isinstance(elem, BaseModel):
-                return elem.to_dict()
-            if isinstance(elem, list):
-                return [
-                    _format_elem(sub_elem) for sub_elem in elem if sub_elem is not None
-                ]
-            return elem
-
         return {
-            key: _format_elem(value)
+            key: self._to_dict_elem(value)
             for key, value in self.__dict__.items()
             if value is not None
         }
 
+    def _to_dict_elem(self: BaseModel, elem: Any) -> Any:
+        if isinstance(elem, BaseModel):
+            return elem.to_dict()
+        if isinstance(elem, Enum):
+            return elem.value
+        if isinstance(elem, list):
+            return [
+                self._to_dict_elem(sub_elem)
+                for sub_elem in elem
+                if sub_elem is not None
+            ]
+        return elem
+
     def __eq__(self: BaseModel, other: object) -> bool:
         """Compares a BaseModel to another object to determine if they are equal."""
-        if not isinstance(other, BaseModel):
-            return False
-        return self.to_dict() == other.to_dict()
+        return isinstance(other, BaseModel) and self.to_dict() == other.to_dict()
 
     def __repr__(self: BaseModel) -> str:
         """Returns a string representation of a BaseModel object"""

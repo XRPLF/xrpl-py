@@ -45,6 +45,8 @@ class AccountObjects(Request):
     ledger_index: Optional[Union[str, int]] = None
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_OBJECTS, init=False)
     type: Optional[AccountObjectType] = None
-    deletion_blockers_only: Optional[bool] = False
+    deletion_blockers_only: bool = False
     limit: Optional[int] = None
+    # marker data shape is actually undefined in the spec, up to the
+    # implementation of an individual server
     marker: Optional[Any] = None

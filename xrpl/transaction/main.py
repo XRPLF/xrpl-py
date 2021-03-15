@@ -5,9 +5,9 @@ from typing import Any, Dict
 from xrpl.binarycodec import encode, encode_for_signing
 from xrpl.clients import Client
 from xrpl.keypairs.main import sign
-from xrpl.models.requests.transactions.submit_only import SubmitOnly
+from xrpl.models.requests import SubmitOnly
 from xrpl.models.response import Response
-from xrpl.models.transactions import Transaction
+from xrpl.models.transactions.transaction import Transaction
 from xrpl.wallet import Wallet
 
 

@@ -37,5 +37,5 @@ class NoRippleCheck(Request):
     ledger_index: Optional[Union[str, int]] = None
     method: RequestMethod = field(default=RequestMethod.NO_RIPPLE_CHECK, init=False)
     role: NoRippleCheckRole = REQUIRED  # type: ignore
-    transactions: Optional[bool] = False
+    transactions: bool = False
     limit: Optional[int] = 300

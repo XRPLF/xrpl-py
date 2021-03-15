@@ -15,7 +15,7 @@ from typing import Any, Dict
 
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions import Transaction
+from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.utils import require_kwargs_on_init
 
 

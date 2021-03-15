@@ -73,7 +73,7 @@ class SECP256K1(CryptoImplementation):
         return cls._format_keys(final_public, final_private)
 
     @classmethod
-    def sign(cls: Type[SECP256K1], message: str, private_key: str) -> bytes:
+    def sign(cls: Type[SECP256K1], message: bytes, private_key: str) -> bytes:
         """
         Signs message in SECP256k1 using the given private key.
 
@@ -88,7 +88,7 @@ class SECP256K1(CryptoImplementation):
         return cast(
             bytes,
             _SIGNER.sign_rfc6979(
-                sha512_first_half(cast(bytes, message)),
+                sha512_first_half(message),
                 wrapped_private,
                 sha256,
                 canonical=True,
@@ -97,7 +97,7 @@ class SECP256K1(CryptoImplementation):
 
     @classmethod
     def is_valid_message(
-        cls: Type[SECP256K1], message: str, signature: bytes, public_key: str
+        cls: Type[SECP256K1], message: bytes, signature: bytes, public_key: str
     ) -> bool:
         """
         Verifies that message matches signature given public_key.
@@ -114,17 +114,13 @@ class SECP256K1(CryptoImplementation):
         wrapped_public = ECPublicKey(public_key_point)
         return cast(
             bool,
-            _SIGNER.verify(
-                sha512_first_half(cast(bytes, message)), signature, wrapped_public
-            ),
+            _SIGNER.verify(sha512_first_half(message), signature, wrapped_public),
         )
 
     @classmethod
     def _format_keys(
         cls: Type[SECP256K1], public: ECPublicKey, private: ECPrivateKey
     ) -> Tuple[str, str]:
-        # returning a list comprehension triggers mypy (appropriately, because
-        # then we're actually returning a list), so doing this very inelegantly
         return (
             cls._format_key(cls._public_key_to_str(public)),
             cls._format_key(cls._private_key_to_str(private)),
@@ -141,10 +137,6 @@ class SECP256K1(CryptoImplementation):
     @classmethod
     def _public_key_to_str(cls: Type[SECP256K1], key: ECPublicKey) -> str:
         return cls._public_key_to_bytes(key).hex()
-
-    @classmethod
-    def _private_key_to_str(cls: Type[SECP256K1], key: ECPrivateKey) -> str:
-        return format(key.d, "x")
 
     @classmethod
     def _do_derive_part(
