@@ -1,15 +1,11 @@
 from unittest import TestCase
 
-from tests.integration.it_utils import JSON_RPC_CLIENT, submit_transaction
-from xrpl.account import get_fee
+from tests.integration.it_utils import submit_transaction
+from tests.integration.transactions.reusable_values import FEE, WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountSet
-from xrpl.wallet import generate_faucet_wallet
-
-WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
 
 ACCOUNT = WALLET.classic_address
-FEE = get_fee(JSON_RPC_CLIENT)
 
 CLEAR_FLAG = 3
 DOMAIN = "6578616D706C652E636F6D".lower()
