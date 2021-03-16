@@ -46,7 +46,6 @@ def sign_transaction(transaction: Transaction, wallet: Wallet) -> str:
     wallet.next_sequence_num += 1
     transaction_json = transaction_json_to_binary_codec_form(transaction.to_dict())
     transaction_json["SigningPubKey"] = wallet.pub_key
-    print(transaction_json)
     serialized_for_signing = encode_for_signing(transaction_json)
     serialized_bytes = bytes.fromhex(serialized_for_signing)
     signature = sign(serialized_bytes, wallet.priv_key)
