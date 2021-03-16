@@ -84,12 +84,17 @@ def send_reliable_submission(
         The response from a validated ledger.
 
     Raises:
-        XRPLReliableSubmissionException: if the transaction fails.
+        XRPLReliableSubmissionException: if the transaction fails or is misisng a
+            `last_ledger_sequence` param.
         LastLedgerSequenceExpiredException: if the transaction will not be validated
             because the current ledger number has passed the last ledger sequence
             included in the transaction. # noqa: DAR402
     """
-    assert transaction.last_ledger_sequence is not None  # TODO make this a better error
+    if transaction.last_ledger_sequence is None:
+        raise XRPLReliableSubmissionException(
+            "Reliable submission requires that the transaction has a "
+            "`last_ledger_sequence` parameter."
+        )
     submit_response = sign_and_submit_transaction(transaction, wallet, client)
     result = cast(Dict[str, Any], submit_response.result)
     if result["engine_result"] != "tesSUCCESS":
