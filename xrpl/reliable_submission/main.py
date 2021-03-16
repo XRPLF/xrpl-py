@@ -88,7 +88,7 @@ def send_reliable_submission(
             `last_ledger_sequence` param.
         LastLedgerSequenceExpiredException: if the transaction will not be validated
             because the current ledger number has passed the last ledger sequence
-            included in the transaction. # noqa: DAR402
+            included in the transaction. # noqa: DAR402 occurs in private method
     """
     if transaction.last_ledger_sequence is None:
         raise XRPLReliableSubmissionException(
