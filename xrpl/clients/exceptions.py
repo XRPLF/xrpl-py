@@ -20,4 +20,5 @@ class XRPLTransactionFailureException(XRPLException):
             error_message: the more human-readable version of the error code returned
                 by the ledger.
         """
+        self.error_code = error_code
         self.message = f"{error_code}: {error_message}"

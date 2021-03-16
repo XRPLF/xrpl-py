@@ -21,15 +21,13 @@ def does_account_exist(address: str, client: Client) -> bool:
     Raises:
         XRPLTransactionFailureException: if the transaction fails.
     """
-    account_info = get_account_info(address, client)
-    if account_info.is_successful():
+    try:
+        get_account_info(address, client)
         return True
-
-    result = cast(Dict[str, Any], account_info.result)
-    if result["error"] == "actNotFound":
-        return False
-
-    raise XRPLTransactionFailureException(result["error"], result["error_message"])
+    except XRPLTransactionFailureException as e:
+        if e.error_code == "actNotFound":
+            return False
+        raise
 
 
 def get_next_valid_seq_number(address: str, client: Client) -> int:
@@ -86,10 +84,18 @@ def get_account_info(address: str, client: Client) -> Response:
 
     Returns:
         The account info for the address.
+
+    Raises:
+        XRPLTransactionFailureException: if the transaction fails.
     """
-    return client.request(
+    response = client.request(
         AccountInfo(
             account=address,
             ledger_index="validated",
         )
     )
+    if response.is_successful():
+        return response
+
+    result = cast(Dict[str, Any], response.result)
+    raise XRPLTransactionFailureException(result["error"], result["error_message"])
