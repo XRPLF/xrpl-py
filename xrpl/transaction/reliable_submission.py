@@ -4,32 +4,18 @@ from time import sleep
 from typing import Any, Dict, cast
 
 from xrpl.clients import Client
-from xrpl.models.requests import Ledger, Tx
+from xrpl.ledger import get_latest_validated_ledger_sequence
+from xrpl.models.requests import Tx
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.reliable_submission.exceptions import (
+from xrpl.transaction import sign_and_submit_transaction
+from xrpl.transaction.exceptions import (
     LastLedgerSequenceExpiredException,
     XRPLReliableSubmissionException,
 )
-from xrpl.transaction import sign_and_submit_transaction
 from xrpl.wallet import Wallet
 
 _LEDGER_CLOSE_TIME = 4
-
-
-def get_latest_validated_ledger_sequence(client: Client) -> int:
-    """
-    Returns the sequence number of the latest validated ledger.
-
-    Args:
-        client: The network client to use to send the request.
-
-    Returns:
-        The sequence number of the latest validated ledger.
-    """
-    response = client.request(Ledger(ledger_index="validated"))
-    result = cast(Dict[str, Any], response.result)
-    return cast(int, result["ledger_index"])
 
 
 def _wait_for_final_transaction_outcome(

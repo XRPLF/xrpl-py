@@ -4,9 +4,8 @@ from tests.integration.it_utils import JSON_RPC_CLIENT
 from tests.integration.reusable_values import FEE
 from tests.integration.reusable_values import WALLET as DESTINATION_WALLET
 from xrpl.account import get_next_valid_seq_number
-from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountSet, Payment
-from xrpl.reliable_submission import (
+from xrpl.transaction import (
     LastLedgerSequenceExpiredException,
     send_reliable_submission,
 )
@@ -39,7 +38,7 @@ class TestReliableSubmission(TestCase):
         response = send_reliable_submission(account_set, WALLET, JSON_RPC_CLIENT)
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
-        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertTrue(response.is_successful())
 
     def test_payment(self):
         WALLET.next_sequence_num = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
@@ -57,7 +56,7 @@ class TestReliableSubmission(TestCase):
         )
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
-        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertTrue(response.is_successful())
 
     def test_last_ledger_expiration(self):
         WALLET.next_sequence_num = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)

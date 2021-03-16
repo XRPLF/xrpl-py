@@ -1,4 +1,4 @@
-"""General XRPL Reliable Submission Exceptions."""
+"""General XRPL Transaction Exceptions."""
 
 from __future__ import annotations
 
