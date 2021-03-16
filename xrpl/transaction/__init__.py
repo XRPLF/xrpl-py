@@ -1,14 +1,22 @@
-"""Top-level exports for the sign-and-submit transactions package."""
+"""Top-level exports for the transaction package."""
+from xrpl.transaction.exceptions import (
+    LastLedgerSequenceExpiredException,
+    XRPLReliableSubmissionException,
+)
 from xrpl.transaction.main import (
+    sign_and_submit_transaction,
     sign_transaction,
     submit_transaction_blob,
     transaction_json_to_binary_codec_form,
-    transaction_transaction,
 )
+from xrpl.transaction.reliable_submission import send_reliable_submission
 
 __all__ = [
-    "transaction_transaction",
+    "sign_and_submit_transaction",
     "sign_transaction",
     "submit_transaction_blob",
     "transaction_json_to_binary_codec_form",
+    "send_reliable_submission",
+    "LastLedgerSequenceExpiredException",
+    "XRPLReliableSubmissionException",
 ]

@@ -176,9 +176,16 @@ class SerializedDict(SerializedType):
             sorted_keys = list(filter(lambda x: x.is_signing, sorted_keys))
 
         for field in sorted_keys:
-            associated_value = field.associated_type.from_value(
-                xaddress_decoded[field.name]
-            )
+            try:
+                associated_value = field.associated_type.from_value(
+                    xaddress_decoded[field.name]
+                )
+            except XRPLBinaryCodecException as e:
+                # mildly hacky way to get more context in the error
+                # provides the field name and not just the type it's expecting
+                # keeps the original stack trace
+                e.args = (f"Error processing {field.name}: {e.args[0]}",) + e.args[1:]
+                raise
             serializer.write_field_and_value(field, associated_value)
             if field.type == _SERIALIZED_DICT:
                 serializer.append(_OBJECT_END_MARKER_BYTE)

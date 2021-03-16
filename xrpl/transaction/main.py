@@ -1,4 +1,4 @@
-"""High-level sign-and-submit methods with XRPL transactions."""
+"""High-level transaction methods with XRPL transactions."""
 
 from typing import Any, Dict
 
@@ -11,7 +11,7 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.wallet import Wallet
 
 
-def transaction_transaction(
+def sign_and_submit_transaction(
     transaction: Transaction,
     wallet: Wallet,
     client: Client,

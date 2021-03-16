@@ -58,16 +58,18 @@ class BaseModel(ABC):
         param: str,
         param_type: Type[Any],
         param_value: Dict[str, Any],
-    ) -> Union[Enum, BaseModel, Dict[str, Any]]:
+    ) -> Union[str, Enum, BaseModel, Dict[str, Any]]:
         """Handles all the recursive/more complex cases for `from_dict`."""
         from xrpl.models.amounts import Amount, IssuedCurrencyAmount
         from xrpl.models.currencies import XRP, Currency, IssuedCurrency
         from xrpl.models.transactions.transaction import Transaction
 
-        # TODO: figure out how to make NewTypes work generically (if possible)
+        # TODO: figure out how to make Unions work generically (if possible)
 
         if param_type == Amount:
-            # special case, NewType
+            # special case, Union
+            if isinstance(param_value, str):
+                return param_value
             if not isinstance(param_value, dict):
                 raise XRPLModelException(
                     f"{param_type} requires a dictionary of params"
@@ -75,7 +77,7 @@ class BaseModel(ABC):
             return IssuedCurrencyAmount.from_dict(param_value)
 
         if param_type == Currency:
-            # special case, NewType
+            # special case, Union
             if not isinstance(param_value, dict):
                 raise XRPLModelException(
                     f"{param_type} requires a dictionary of params"
