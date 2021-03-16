@@ -7,7 +7,10 @@ from xrpl.clients import Client
 from xrpl.models.requests import Ledger, Tx
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.reliable_submission.exceptions import LastLedgerSequenceExpiredException
+from xrpl.reliable_submission.exceptions import (
+    LastLedgerSequenceExpiredException,
+    XRPLReliableSubmissionException,
+)
 from xrpl.transaction import sign_and_submit_transaction
 from xrpl.wallet import Wallet
 
@@ -24,8 +27,7 @@ def get_latest_validated_ledger_sequence(client: Client) -> int:
     Returns:
         The sequence number of the latest validated ledger.
     """
-    ledger_request = Ledger(ledger_index="validated")
-    response = client.request(ledger_request)
+    response = client.request(Ledger(ledger_index="validated"))
     result = cast(Dict[str, Any], response.result)
     return cast(int, result["ledger_index"])
 
@@ -43,11 +45,10 @@ def _wait_for_final_transaction_outcome(
     # new persisted transaction
 
     # query transaction by hash
-    transaction_request = Tx(transaction=transaction_hash)
-    transaction_response = client.request(transaction_request)
+    transaction_response = client.request(Tx(transaction=transaction_hash))
 
     result = cast(Dict[str, Any], transaction_response.result)
-    if result["validated"]:
+    if "validated" in result and result["validated"]:
         # result is in a validated ledger, outcome is final
         return transaction_response
 
@@ -74,16 +75,29 @@ def send_reliable_submission(
     <https://xrpl.org/reliable-transaction-submission.html>`_
 
     Args:
-        transaction: the transaction to submit to the ledger.
+        transaction: the transaction to submit to the ledger. Requires a
+            `last_ledger_sequence` param.
         wallet: the wallet used to sign the transaction.
         client: the network client used to submit the transaction to a rippled node.
 
     Returns:
         The response from a validated ledger.
+
+    Raises:
+        XRPLReliableSubmissionException: if the transaction fails.
+        LastLedgerSequenceExpiredException: if the transaction will not be validated
+            because the current ledger number has passed the last ledger sequence
+            included in the transaction. # noqa: DAR402
     """
     assert transaction.last_ledger_sequence is not None  # TODO make this a better error
     submit_response = sign_and_submit_transaction(transaction, wallet, client)
     result = cast(Dict[str, Any], submit_response.result)
+    if result["engine_result"] != "tesSUCCESS":
+        result_code = result["engine_result"]
+        result_message = result["engine_result_message"]
+        raise XRPLReliableSubmissionException(
+            f"Transaction failed, {result_code}: {result_message}"
+        )
     transaction_hash = result["tx_json"]["hash"]
 
     outcome_response = _wait_for_final_transaction_outcome(
