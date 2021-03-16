@@ -4,23 +4,7 @@ from typing import Any, Dict, Union, cast
 
 from xrpl.clients import Client
 from xrpl.models.requests import AccountInfo
-from xrpl.models.requests.fee import Fee
 from xrpl.models.response import Response
-
-
-def get_fee(client: Client) -> str:
-    """
-    Query the ledger for the current minimum transaction fee.
-
-    Args:
-        client: the network client used to make network calls.
-
-    Returns:
-        The minimum fee for transactions.
-    """
-    response = client.request(Fee())
-    result = cast(Dict[str, Any], response.result)
-    return cast(str, result["drops"]["minimum_fee"])
 
 
 def get_next_valid_seq_number(address: str, client: Client) -> int:
