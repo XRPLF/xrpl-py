@@ -1,20 +1,12 @@
 from unittest import TestCase
 
 from tests.integration.it_utils import JSON_RPC_CLIENT
-from tests.integration.reusable_values import FEE
-from tests.integration.reusable_values import WALLET as DESTINATION_WALLET
-from xrpl.account import get_next_valid_seq_number
-from xrpl.models.transactions import AccountSet, Payment
-from xrpl.transaction import (
-    LastLedgerSequenceExpiredException,
-    send_reliable_submission,
-)
-from xrpl.wallet import generate_faucet_wallet
-
-WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
+from tests.integration.reusable_values import FEE, WALLET
+from xrpl.models.response import ResponseStatus
+from xrpl.models.transactions import AccountSet
+from xrpl.reliable_submission import send_reliable_submission
 
 ACCOUNT = WALLET.classic_address
-DESTINATION = DESTINATION_WALLET.classic_address
 
 CLEAR_FLAG = 3
 DOMAIN = "6578616D706C652E636F6D".lower()
@@ -27,7 +19,6 @@ TICK_SIZE = 10
 
 class TestReliableSubmission(TestCase):
     def test_simple(self):
-        WALLET.next_sequence_num = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
         account_set = AccountSet(
             account=ACCOUNT,
             fee=FEE,
@@ -38,36 +29,4 @@ class TestReliableSubmission(TestCase):
         response = send_reliable_submission(account_set, WALLET, JSON_RPC_CLIENT)
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
-        self.assertTrue(response.is_successful())
-
-    def test_payment(self):
-        WALLET.next_sequence_num = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
-        payment_dict = {
-            "account": ACCOUNT,
-            "sequence": WALLET.next_sequence_num,
-            "last_ledger_sequence": WALLET.next_sequence_num + 10,
-            "fee": "10000",
-            "amount": "10",
-            "destination": DESTINATION,
-        }
-        payment_transaction = Payment.from_dict(payment_dict)
-        response = send_reliable_submission(
-            payment_transaction, WALLET, JSON_RPC_CLIENT
-        )
-        self.assertTrue(response.result["validated"])
-        self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
-        self.assertTrue(response.is_successful())
-
-    def test_last_ledger_expiration(self):
-        WALLET.next_sequence_num = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
-        payment_dict = {
-            "account": ACCOUNT,
-            "sequence": WALLET.next_sequence_num,
-            "last_ledger_sequence": WALLET.next_sequence_num + 1,
-            "fee": "10000",
-            "amount": "100",
-            "destination": DESTINATION,
-        }
-        payment_transaction = Payment.from_dict(payment_dict)
-        with self.assertRaises(LastLedgerSequenceExpiredException):
-            send_reliable_submission(payment_transaction, WALLET, JSON_RPC_CLIENT)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
