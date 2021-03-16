@@ -3,7 +3,7 @@
 from typing import Any, Dict, Union, cast
 
 from xrpl.clients import Client
-from xrpl.models.requests.account_info import AccountInfo
+from xrpl.models.requests import AccountInfo
 from xrpl.models.requests.fee import Fee
 from xrpl.models.response import Response
 
