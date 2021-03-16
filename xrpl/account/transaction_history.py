@@ -5,7 +5,7 @@ from xrpl.clients import Client, XRPLTransactionFailureException
 from xrpl.models.requests import AccountTx
 
 
-def get_account_payment_transaactions(
+def get_account_payment_transactions(
     address: str, client: Client
 ) -> List[Dict[str, Any]]:
     """
