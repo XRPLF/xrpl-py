@@ -2,9 +2,34 @@
 
 from typing import Any, Dict, Union, cast
 
-from xrpl.clients import Client
+from xrpl.clients import Client, XRPLTransactionFailureException
 from xrpl.models.requests import AccountInfo
 from xrpl.models.response import Response
+
+
+def does_account_exist(address: str, client: Client) -> bool:
+    """
+    Query the ledger for whether the account exists.
+
+    Args:
+        address: the account to query.
+        client: the network client used to make network calls.
+
+    Returns:
+        Whether the account exists on the ledger.
+
+    Raises:
+        XRPLTransactionFailureException: if the transaction fails.
+    """
+    account_info = get_account_info(address, client)
+    if account_info.is_successful():
+        return True
+
+    result = cast(Dict[str, Any], account_info.result)
+    if result["error"] == "actNotFound":
+        return False
+
+    raise XRPLTransactionFailureException(result["error"], result["error_message"])
 
 
 def get_next_valid_seq_number(address: str, client: Client) -> int:
