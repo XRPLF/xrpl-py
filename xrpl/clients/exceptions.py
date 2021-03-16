@@ -21,4 +21,4 @@ class XRPLTransactionFailureException(XRPLException):
                 by the ledger.
         """
         self.error_code = error_code
-        self.message = f"{error_code}: {error_message}"
+        self.message = f"Transaction failed, {error_code}: {error_message}"
