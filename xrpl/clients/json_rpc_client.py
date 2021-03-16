@@ -57,6 +57,7 @@ def json_to_response(json: Dict[str, Any]) -> Response:
         status = ResponseStatus.SUCCESS
     else:
         status = ResponseStatus.ERROR
+    del result["status"]
     # TODO: response_type changes based on what we're getting back... where/how do we
     #  differentiate based on that?
     # TODO: should we pull fields "status" OUT of result dict?

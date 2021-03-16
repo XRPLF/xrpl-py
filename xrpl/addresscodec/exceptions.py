@@ -1,4 +1,4 @@
-"""This module contains custom `addresscodec` exceptions."""
+"""General XRPL Address Codec Exceptions."""
 from xrpl import XRPLException
 
 

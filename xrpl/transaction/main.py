@@ -1,4 +1,4 @@
-"""High-level sign-and-submit methods with XRPL transactions."""
+"""High-level transaction methods with XRPL transactions."""
 
 from typing import Any, Dict
 

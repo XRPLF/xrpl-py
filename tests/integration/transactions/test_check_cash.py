@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from tests.integration.it_utils import submit_transaction
-from tests.integration.transactions.reusable_values import FEE, WALLET
+from tests.integration.reusable_values import FEE, WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import CheckCash
 
