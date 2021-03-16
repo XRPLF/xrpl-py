@@ -18,12 +18,13 @@ class XRPLFaucetException(XRPLException):
     pass
 
 
-def generate_faucet_wallet(client: Client) -> Wallet:
+def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
     """
     Generates a random wallet and funds it using the XRPL Testnet Faucet.
 
     Args:
         client: the network client used to make network calls.
+        debug: Whether to print debug information as it creates the wallet.
 
     Returns:
         A Wallet on the testnet that contains some amount of XRP.
@@ -37,7 +38,8 @@ def generate_faucet_wallet(client: Client) -> Wallet:
     address = wallet.classic_address
     # The faucet *can* be flakey... by printing info about this it's easier to
     # understand if tests are actually failing, or if it was just a faucet failure.
-    print("Attempting to fund address {}".format(address))
+    if debug:
+        print("Attempting to fund address {}".format(address))
     # Balance prior to asking for more funds
     try:
         starting_balance = get_balance(address, client)
@@ -57,7 +59,8 @@ def generate_faucet_wallet(client: Client) -> Wallet:
             current_balance = 0
         # If our current balance has changed, then return
         if starting_balance != current_balance:
-            print("Faucet fund successful.")
+            if debug:
+                print("Faucet fund successful.")
             wallet.next_sequence_num = get_next_valid_seq_number(
                 wallet.classic_address, client
             )
