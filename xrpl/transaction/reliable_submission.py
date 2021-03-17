@@ -5,7 +5,6 @@ from typing import Any, Dict, cast
 
 from xrpl.clients import Client
 from xrpl.ledger import get_latest_validated_ledger_sequence
-from xrpl.models.requests import Tx
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.transaction import sign_and_submit_transaction
@@ -13,6 +12,7 @@ from xrpl.transaction.exceptions import (
     LastLedgerSequenceExpiredException,
     XRPLReliableSubmissionException,
 )
+from xrpl.transaction.ledger import get_transaction_from_hash
 from xrpl.wallet import Wallet
 
 _LEDGER_CLOSE_TIME = 4
@@ -31,7 +31,7 @@ def _wait_for_final_transaction_outcome(
     # new persisted transaction
 
     # query transaction by hash
-    transaction_response = client.request(Tx(transaction=transaction_hash))
+    transaction_response = get_transaction_from_hash(transaction_hash, client)
 
     result = cast(Dict[str, Any], transaction_response.result)
     if "validated" in result and result["validated"]:
