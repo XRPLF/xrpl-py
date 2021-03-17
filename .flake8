@@ -13,6 +13,8 @@ max-line-length = 88
 
 per-file-ignores =
   # For tests, disable type annotation and docstring linting.
+  noxfile.py: DAR
+  tests/*: ANN D DAR
 
 # Select other tools to enable.
 
