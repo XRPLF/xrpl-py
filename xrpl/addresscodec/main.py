@@ -140,13 +140,13 @@ def _get_tag_from_buffer(buffer: bytes) -> Optional[int]:
 
 def is_valid_xaddress(xaddress: str) -> bool:
     """
-    Returns whether `xaddress` is a valid X-Address.
+    Returns whether ``xaddress`` is a valid X-Address.
 
     Args:
         xaddress: The X-Address to check for validity.
 
     Returns:
-        Whether `xaddress` is a valid X-Address.
+        Whether ``xaddress`` is a valid X-Address.
     """
     try:
         xaddress_to_classic_address(xaddress)

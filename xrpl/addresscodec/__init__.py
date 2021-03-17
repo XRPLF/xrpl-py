@@ -1,4 +1,4 @@
-"""TODO: D104 Missing docstring in public package."""
+"""Functions for encoding and decoding XRP Ledger addresses and seeds."""
 from xrpl.addresscodec.codec import (
     SEED_LENGTH,
     decode_account_public_key,
