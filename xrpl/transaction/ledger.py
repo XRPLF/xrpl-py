@@ -1,6 +1,8 @@
 """High-level methods that fetch transaction information from the XRP Ledger."""
 
-from xrpl.clients import Client
+from typing import Any, Dict, cast
+
+from xrpl.clients import Client, XRPLTransactionFailureException
 from xrpl.models.requests import Tx
 from xrpl.models.response import Response
 
@@ -15,6 +17,12 @@ def get_transaction_from_hash(tx_hash: str, client: Client) -> Response:
 
     Returns:
         The Response object containing the transaction info.
+
+    Raises:
+        XRPLTransactionFailureException: if the transaction fails.
     """
     response = client.request(Tx(transaction=tx_hash))
+    if not response.is_successful():
+        result = cast(Dict[str, Any], response.result)
+        raise XRPLTransactionFailureException(result["error"], result["error_message"])
     return response
