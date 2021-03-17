@@ -23,26 +23,10 @@ xrpl.models.base\_model module
    :undoc-members:
    :show-inheritance:
 
-xrpl.models.exceptions module
------------------------------
-
-.. automodule:: xrpl.models.exceptions
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 xrpl.models.response module
 ---------------------------
 
 .. automodule:: xrpl.models.response
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-xrpl.models.utils module
-------------------------
-
-.. automodule:: xrpl.models.utils
    :members:
    :undoc-members:
    :show-inheritance:
