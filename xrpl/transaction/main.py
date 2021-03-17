@@ -11,13 +11,14 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.wallet import Wallet
 
 
-def sign_and_submit_transaction(
+def safe_sign_and_submit_transaction(
     transaction: Transaction,
     wallet: Wallet,
     client: Client,
 ) -> Response:
     """
-    Signs a transaction and submits it to the XRPL.
+    Signs a transaction (locally, without trusting external rippled nodes) and submits
+    it to the XRPL.
 
     Args:
         transaction: the transaction to be signed and submitted.
@@ -27,13 +28,13 @@ def sign_and_submit_transaction(
     Returns:
         The response from the ledger.
     """
-    tx_blob = sign_transaction(transaction, wallet)
+    tx_blob = safe_sign_transaction(transaction, wallet)
     return submit_transaction_blob(tx_blob, client)
 
 
-def sign_transaction(transaction: Transaction, wallet: Wallet) -> str:
+def safe_sign_transaction(transaction: Transaction, wallet: Wallet) -> str:
     """
-    Signs a transaction.
+    Signs a transaction locally, without trusting external rippled nodes.
 
     Args:
         transaction: the transaction to be signed.
