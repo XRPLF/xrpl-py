@@ -24,7 +24,7 @@ class Wallet:
         self.next_sequence_num = 0
 
     @classmethod
-    def generate_seed_and_wallet(
+    def create(
         cls: Type[Wallet], crypto_algorithm: CryptoAlgorithm = CryptoAlgorithm.SECP256K1
     ) -> Wallet:
         """
