@@ -1,4 +1,4 @@
-"""TODO: D104 Missing docstring in public package."""
+"""Top-level exports for the addresscodec package."""
 from xrpl.core.addresscodec.codec import (
     SEED_LENGTH,
     decode_account_public_key,

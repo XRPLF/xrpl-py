@@ -236,7 +236,6 @@ class BinaryParser:
             XRPLBinaryCodecException: If a parser cannot be constructed from field.
         """
         field_type = field.associated_type
-        # TODO: error handling for unsupported type?
         if field.is_variable_length_encoded:
             size_hint = self._read_length_prefix()
             value = field_type.from_parser(self, size_hint)
