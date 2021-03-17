@@ -2,9 +2,9 @@
 
 from typing import Any, Dict
 
-from xrpl.binarycodec import encode, encode_for_signing
 from xrpl.clients import Client
-from xrpl.keypairs.main import sign
+from xrpl.core.binarycodec import encode, encode_for_signing
+from xrpl.core.keypairs.main import sign
 from xrpl.models.requests import SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction

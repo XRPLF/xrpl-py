@@ -3,8 +3,8 @@ import os
 import unittest
 
 from tests.binarycodec.fixtures.data_driven_fixtures import get_whole_object_tests
-from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
-from xrpl.binarycodec.main import (
+from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
+from xrpl.core.binarycodec.main import (
     decode,
     encode,
     encode_for_multisigning,

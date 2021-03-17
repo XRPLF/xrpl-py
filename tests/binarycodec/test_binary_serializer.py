@@ -1,8 +1,8 @@
 import unittest
 
-from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
-from xrpl.binarycodec.binary_wrappers.binary_serializer import BinarySerializer
-from xrpl.binarycodec.types.blob import Blob
+from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
+from xrpl.core.binarycodec.binary_wrappers.binary_serializer import BinarySerializer
+from xrpl.core.binarycodec.types.blob import Blob
 
 
 class TestBinarySerializer(unittest.TestCase):
