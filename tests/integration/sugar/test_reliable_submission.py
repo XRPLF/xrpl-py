@@ -5,10 +5,7 @@ from tests.integration.reusable_values import FEE
 from tests.integration.reusable_values import WALLET as DESTINATION_WALLET
 from xrpl.account import get_next_valid_seq_number
 from xrpl.models.transactions import AccountSet, Payment
-from xrpl.transaction import (
-    LastLedgerSequenceExpiredException,
-    send_reliable_submission,
-)
+from xrpl.transaction import XRPLReliableSubmissionException, send_reliable_submission
 from xrpl.wallet import generate_faucet_wallet
 
 WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
@@ -69,5 +66,5 @@ class TestReliableSubmission(TestCase):
             "destination": DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
-        with self.assertRaises(LastLedgerSequenceExpiredException):
+        with self.assertRaises(XRPLReliableSubmissionException):
             send_reliable_submission(payment_transaction, WALLET, JSON_RPC_CLIENT)

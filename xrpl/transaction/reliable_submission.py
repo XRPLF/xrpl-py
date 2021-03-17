@@ -8,10 +8,7 @@ from xrpl.ledger import get_latest_validated_ledger_sequence
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.transaction import sign_and_submit_transaction
-from xrpl.transaction.exceptions import (
-    LastLedgerSequenceExpiredException,
-    XRPLReliableSubmissionException,
-)
+from xrpl.transaction.exceptions import XRPLReliableSubmissionException
 from xrpl.transaction.ledger import get_transaction_from_hash
 from xrpl.wallet import Wallet
 
@@ -45,8 +42,9 @@ def _wait_for_final_transaction_outcome(
         # outcome is not yet final
         return _wait_for_final_transaction_outcome(transaction_hash, wallet, client)
 
-    raise LastLedgerSequenceExpiredException(
-        last_ledger_sequence, latest_ledger_sequence
+    raise XRPLReliableSubmissionException(
+        f"The latest ledger sequence {latest_ledger_sequence} is greater than the "
+        f"last ledger sequence {last_ledger_sequence} in the transaction."
     )
 
 
@@ -72,9 +70,6 @@ def send_reliable_submission(
     Raises:
         XRPLReliableSubmissionException: if the transaction fails or is misisng a
             `last_ledger_sequence` param.
-        LastLedgerSequenceExpiredException: if the transaction will not be validated
-            because the current ledger number has passed the last ledger sequence
-            included in the transaction. # noqa: DAR402 occurs in private method
     """
     if transaction.last_ledger_sequence is None:
         raise XRPLReliableSubmissionException(

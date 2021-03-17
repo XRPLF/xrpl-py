@@ -3,10 +3,7 @@ from xrpl.transaction.exceptions import (
     LastLedgerSequenceExpiredException,
     XRPLReliableSubmissionException,
 )
-from xrpl.transaction.ledger import (
-    get_latest_transaction_from_account,
-    get_transaction_from_hash,
-)
+from xrpl.transaction.ledger import get_transaction_from_hash
 from xrpl.transaction.main import (
     sign_and_submit_transaction,
     sign_transaction,
@@ -24,5 +21,4 @@ __all__ = [
     "LastLedgerSequenceExpiredException",
     "XRPLReliableSubmissionException",
     "get_transaction_from_hash",
-    "get_latest_transaction_from_account",
 ]

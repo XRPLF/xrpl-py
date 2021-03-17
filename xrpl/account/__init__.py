@@ -9,6 +9,7 @@ from xrpl.account.main import (
 from xrpl.account.transaction_history import (
     get_account_payment_transactions,
     get_account_transactions,
+    get_latest_transaction,
 )
 
 __all__ = [
@@ -18,4 +19,5 @@ __all__ = [
     "get_account_payment_transactions",
     "get_account_transactions",
     "does_account_exist",
+    "get_latest_transaction",
 ]
