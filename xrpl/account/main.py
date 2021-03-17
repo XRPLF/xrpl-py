@@ -55,7 +55,7 @@ def get_balance(address: str, client: Client) -> int:
     Returns:
         The balance of the address.
     """
-    return cast(int, get_account_root(address, client)["Balance"])
+    return int(get_account_root(address, client)["Balance"])
 
 
 def get_account_root(address: str, client: Client) -> Dict[str, Union[int, str]]:
