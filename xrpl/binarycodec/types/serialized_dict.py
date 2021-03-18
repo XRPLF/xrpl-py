@@ -144,18 +144,20 @@ class SerializedDict(SerializedType):
                     and handled[_SOURCE_TAG] is not None
                     and _SOURCE_TAG in value
                     and value[_SOURCE_TAG] is not None
+                    and handled[_SOURCE_TAG] != value[_SOURCE_TAG]
                 ):
                     raise XRPLBinaryCodecException(
-                        "Cannot have Account X-Address and SourceTag"
+                        "Cannot have mismatched Account X-Address and SourceTag"
                     )
                 if (
                     _DEST_TAG in handled
                     and handled[_DEST_TAG] is not None
                     and _DEST_TAG in value
                     and value[_DEST_TAG] is not None
+                    and handled[_DEST_TAG] != value[_DEST_TAG]
                 ):
                     raise XRPLBinaryCodecException(
-                        "Cannot have Destination X-Address and DestinationTag"
+                        "Cannot have mismatched Destination X-Address and DestinationTag"
                     )
                 xaddress_decoded.update(handled)
             else:
