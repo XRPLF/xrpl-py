@@ -1,8 +1,8 @@
 import unittest
 
-from xrpl.binarycodec import XRPLBinaryCodecException
-from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
-from xrpl.binarycodec.types.path_set import PathSet
+from xrpl.core.binarycodec import XRPLBinaryCodecException
+from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
+from xrpl.core.binarycodec.types.path_set import PathSet
 
 buffer = (
     "31585E1F3BD02A15D6"

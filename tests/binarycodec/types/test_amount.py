@@ -1,10 +1,10 @@
-import xrpl.binarycodec.types.amount as amount
+import xrpl.core.binarycodec.types.amount as amount
 from tests.binarycodec.types.test_serialized_type import (
     TestSerializedType,
     data_driven_fixtures_for_type,
 )
-from xrpl.binarycodec.binary_wrappers import BinaryParser
-from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
+from xrpl.core.binarycodec.binary_wrappers import BinaryParser
+from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 
 # [IOU dict, expected serialized hex]
 IOU_CASES = [
