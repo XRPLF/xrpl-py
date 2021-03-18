@@ -80,6 +80,7 @@ class JsonRpcClient(Client):
             The response from the server, as a Response object, if successful.
         """
         formatted_request = request_to_json_rpc(request_object)
+        print(formatted_request)
         response = requests.post(self.url, json=formatted_request)
         # TODO: error checking here - raise if the response from server was error?
         # OR just return a Response object with ResponseStatus.ERROR?

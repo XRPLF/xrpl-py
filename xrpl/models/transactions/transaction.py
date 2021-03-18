@@ -136,6 +136,7 @@ class Transaction(BaseModel):
             XRPLModelException: If the dictionary provided is invalid.
         """
         if cls.__name__ == "Transaction":
+            # using `Transaction.from_dict` and not a subclass
             if "transaction_type" not in value:
                 raise XRPLModelException(
                     "Transaction does not include transaction_type."

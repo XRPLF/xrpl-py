@@ -2,13 +2,25 @@
 
 from __future__ import annotations
 
+import json
 from abc import ABC
 from dataclasses import fields
 from enum import Enum
-from typing import Any, Dict, Type, Union, get_type_hints
+from re import split
+from typing import Any, Dict, Type, Union, cast, get_type_hints
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
+
+
+def _camel_to_snake(field: str) -> str:
+    """
+    Transforms (upper or lower) camel case to snake case. For example, 'TransactionType'
+    becomes 'transaction_type'.
+    """
+    words = split(r"(?=[A-Z])", field)
+    lower_words = [word.lower() for word in words if word]
+    return "_".join(lower_words)
 
 
 class BaseModel(ABC):
@@ -123,6 +135,35 @@ class BaseModel(ABC):
         init_keys = {field.name for field in fields(cls)}
         valid_args = {key: value for key, value in args.items() if key in init_keys}
         return valid_args
+
+    @classmethod
+    def from_xrpl(cls: Type[BaseModel], value: Union[str, Dict[str, Any]]) -> BaseModel:
+        """
+        Creates a BaseModel object based on a JSON-like dictionary of keys in the JSON
+        format used by the binary codec, or an actual JSON string representing the same
+        data.
+
+        Args:
+            value: The dictionary or JSON string to be instantiated.
+
+        Returns:
+            A BaseModel object instantiated from the input.
+        """
+        if isinstance(value, str):
+            value = json.loads(value)
+
+        formatted_dict = {
+            _camel_to_snake(k): v for (k, v) in cast(Dict[str, Any], value).items()
+        }
+        # one-off conversion cases for transaction field names
+        if "check_i_d" in formatted_dict:
+            formatted_dict["check_id"] = formatted_dict["check_i_d"]
+            del formatted_dict["check_i_d"]
+        if "invoice_i_d" in formatted_dict:
+            formatted_dict["invoice_id"] = formatted_dict["invoice_i_d"]
+            del formatted_dict["invoice_i_d"]
+
+        return cls.from_dict(formatted_dict)
 
     def __post_init__(self: BaseModel) -> None:
         """Called by dataclasses immediately after __init__."""
