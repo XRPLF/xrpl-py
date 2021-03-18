@@ -32,7 +32,6 @@ nox = "^2020.12.31"
 darglint = "^1.5.8"
 nox-poetry = "^0.7.1"
 Sphinx = "^3.5.1"
-sphinx-rtd-theme = "^0.5.1"
 
 [tool.isort]
 # Make sure that isort's settings line up with black
