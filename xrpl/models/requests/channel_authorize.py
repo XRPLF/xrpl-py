@@ -49,5 +49,5 @@ class ChannelAuthorize(Request):
         if len(signing_methods) != 1:
             errors[
                 "ChannelAuthorize"
-            ] = "Must set exactly one of `secret`, `seed`, `seed_hex`, or `passphrase`."
+            ] = "Must set exactly one of `secret`, `seed, `seed_hex`, or `passphrase`"
         return errors

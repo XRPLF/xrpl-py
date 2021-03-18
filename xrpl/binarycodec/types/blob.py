@@ -18,7 +18,7 @@ class Blob(SerializedType):
     """
 
     def __init__(self: Blob, buffer: bytes) -> None:
-        """Construct a new Blob type from a ``bytes`` value."""
+        """Construct a new Blob type from a `bytes` value."""
         super().__init__(buffer)
 
     @classmethod

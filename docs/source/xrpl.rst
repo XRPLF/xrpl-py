@@ -5,18 +5,12 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 4
 
-   tutorial
    xrpl.addresscodec
    xrpl.binarycodec
    xrpl.keypairs
    xrpl.models
-   xrpl.account
-   xrpl.clients
-   xrpl.ledger
-   xrpl.transaction
-   xrpl.wallet
 
 Submodules
 ----------

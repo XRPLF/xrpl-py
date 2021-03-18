@@ -14,7 +14,7 @@ from xrpl.models.utils import require_kwargs_on_init
 
 
 class RequestMethod(str, Enum):
-    """Represents the different options for the ``method`` field in a request."""
+    """Represents the different options for the `method` field in a request."""
 
     # account methods
     ACCOUNT_CHANNELS = "account_channels"
@@ -85,6 +85,6 @@ class Request(BaseModel):
         Returns:
             The dictionary representation of a Request.
         """
-        # we need to override this because method is using ``field``
+        # we need to override this because method is using `field`
         # which will not include the value in the objects __dict__
         return {**super().to_dict(), "method": self.method.value}

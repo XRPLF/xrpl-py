@@ -117,7 +117,7 @@ class Transaction(BaseModel):
         Returns:
             The dictionary representation of a Transaction.
         """
-        # we need to override this because transaction_type is using ``field``
+        # we need to override this because transaction_type is using `field`
         # which will not include the value in the objects __dict__
         return {**super().to_dict(), "transaction_type": self.transaction_type.value}
 

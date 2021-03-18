@@ -15,7 +15,7 @@ class UInt(SerializedType):
     """
 
     def __init__(self: UInt, buffer: bytes) -> None:
-        """Construct a new UInt type from a ``bytes`` value."""
+        """Construct a new UInt type from a `bytes` value."""
         self.buffer = buffer
 
     @property

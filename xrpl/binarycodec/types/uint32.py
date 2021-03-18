@@ -21,7 +21,7 @@ class UInt32(UInt):
     """
 
     def __init__(self: UInt32, buffer: bytes = bytes(_WIDTH)) -> None:
-        """Construct a new UInt32 type from a ``bytes`` value."""
+        """Construct a new UInt32 type from a `bytes` value."""
         super().__init__(buffer)
 
     @classmethod

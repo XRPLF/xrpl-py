@@ -20,7 +20,7 @@ class UInt16(UInt):
     """
 
     def __init__(self: UInt16, buffer: bytes = bytes(_WIDTH)) -> None:
-        """Construct a new UInt16 type from a ``bytes`` value."""
+        """Construct a new UInt16 type from a `bytes` value."""
         super().__init__(buffer)
 
     @classmethod

@@ -33,7 +33,7 @@ class StreamParameter(str, Enum):
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class SubscribeBook(BaseModel):
-    """Format for elements in the ``books`` array for Subscribe only."""
+    """Format for elements in the `books` array for Subscribe only."""
 
     taker_gets: Currency = REQUIRED  # type: ignore
     taker_pays: Currency = REQUIRED  # type: ignore

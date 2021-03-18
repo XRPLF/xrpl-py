@@ -22,7 +22,7 @@ class UInt8(UInt):
     """
 
     def __init__(self: UInt8, buffer: bytes = bytes(_WIDTH)) -> None:
-        """Construct a new UInt8 type from a ``bytes`` value."""
+        """Construct a new UInt8 type from a `bytes` value."""
         super().__init__(buffer)
 
     @classmethod

@@ -5,4 +5,3 @@ xrpl
    :maxdepth: 4
 
    xrpl
-   tutorial

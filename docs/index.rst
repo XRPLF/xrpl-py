@@ -8,9 +8,7 @@ Welcome to xrpl-py's documentation!
 
 .. toctree::
    :maxdepth: 2
-
-   source/tutorial
-   source/xrpl
+   :caption: Contents:
 
 
 

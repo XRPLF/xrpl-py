@@ -90,7 +90,7 @@ class Payment(Transaction):
             and not self.has_flag(PaymentFlag.TF_PARTIAL_PAYMENT)
         ):
             errors["send_max"] = (
-                "A non-partial payment cannot have both ``amount`` and `send_max` be "
+                "A non-partial payment cannot have both `amount` and `send_max` be "
                 "XRP."
             )
 
