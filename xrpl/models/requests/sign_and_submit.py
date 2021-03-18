@@ -73,8 +73,6 @@ class SignAndSubmit(Submit):
         """
         Construct a new SignAndSubmit from a dictionary of parameters.
 
-        If not overridden, passes the dictionary as args to the constructor.
-
         Args:
             value: The value to construct the SignAndSubmit from.
 

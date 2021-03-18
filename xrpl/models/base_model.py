@@ -19,8 +19,6 @@ class BaseModel(ABC):
         """
         Construct a new BaseModel from a dictionary of parameters.
 
-        If not overridden, passes the dictionary as args to the constructor.
-
         Args:
             value: The value to construct the BaseModel from.
 

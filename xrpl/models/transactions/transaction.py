@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type, cast
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
@@ -120,6 +120,39 @@ class Transaction(BaseModel):
         # we need to override this because transaction_type is using ``field``
         # which will not include the value in the objects __dict__
         return {**super().to_dict(), "transaction_type": self.transaction_type.value}
+
+    @classmethod
+    def from_dict(cls: Type[Transaction], value: Dict[str, Any]) -> Transaction:
+        """
+        Construct a new Transaction from a dictionary of parameters.
+
+        Args:
+            value: The value to construct the Transaction from.
+
+        Returns:
+            A new Transaction object, constructed using the given parameters.
+
+        Raises:
+            XRPLModelException: If the dictionary provided is invalid.
+        """
+        if cls.__name__ == "Transaction":
+            if "transaction_type" not in value:
+                raise XRPLModelException(
+                    "Transaction does not include transaction_type."
+                )
+            correct_type = cls.get_transaction_type(value["transaction_type"])
+            return correct_type.from_dict(value)
+        else:
+            if "transaction_type" in value:
+                if value["transaction_type"] != cls.__name__:
+                    transaction_type = value["transaction_type"]
+                    raise XRPLModelException(
+                        f"Using wrong constructor: using f{cls.__name__} constructor "
+                        f"with transaction type f{transaction_type}."
+                    )
+                value = {**value}
+                del value["transaction_type"]
+            return cast(Transaction, super(Transaction, cls).from_dict(value))
 
     def has_flag(self: Transaction, flag: int) -> bool:
         """

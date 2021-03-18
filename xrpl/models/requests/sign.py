@@ -64,8 +64,6 @@ class Sign(Request):
         """
         Construct a new Sign from a dictionary of parameters.
 
-        If not overridden, passes the dictionary as args to the constructor.
-
         Args:
             value: The value to construct the Sign from.
 
