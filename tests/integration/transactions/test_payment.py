@@ -6,7 +6,7 @@ from xrpl.models.transactions import Payment
 
 
 class TestPayment(TestCase):
-    def test_all_fields(self):
+    def test_basic_functionality(self):
         response = submit_transaction(
             Payment(
                 account=WALLET.classic_address,

@@ -12,14 +12,14 @@ OFFER = send_reliable_submission(
     OfferCreate(
         account=WALLET.classic_address,
         fee=FEE,
+        sequence=WALLET.next_sequence_num,
+        last_ledger_sequence=WALLET.next_sequence_num + 10,
         taker_gets="13100000",
         taker_pays=IssuedCurrencyAmount(
             currency="USD",
             issuer=WALLET.classic_address,
             value="10",
         ),
-        sequence=WALLET.next_sequence_num,
-        last_ledger_sequence=WALLET.next_sequence_num + 10,
     ),
     WALLET,
     JSON_RPC_CLIENT,
@@ -27,9 +27,9 @@ OFFER = send_reliable_submission(
 PAYMENT_CHANNEL = send_reliable_submission(
     PaymentChannelCreate(
         account=WALLET.classic_address,
+        fee=FEE,
         sequence=WALLET.next_sequence_num,
         last_ledger_sequence=WALLET.next_sequence_num + 10,
-        fee=FEE,
         amount="1",
         destination=DESTINATION.classic_address,
         settle_delay=86400,

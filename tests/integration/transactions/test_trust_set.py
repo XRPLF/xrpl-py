@@ -8,7 +8,7 @@ from xrpl.wallet import Wallet
 
 
 class TestTrustSet(TestCase):
-    def test_all_fields(self):
+    def test_basic_functionality(self):
         issuer_wallet = Wallet.create()
         response = submit_transaction(
             TrustSet(

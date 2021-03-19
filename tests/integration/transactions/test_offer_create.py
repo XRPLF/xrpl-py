@@ -4,6 +4,6 @@ from tests.integration.reusable_values import OFFER
 
 
 class TestOfferCreate(TestCase):
-    def test_all_fields(self):
+    def test_basic_functionality(self):
         # we already create this elsewhere
         self.assertTrue(OFFER.is_successful())
