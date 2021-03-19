@@ -104,3 +104,17 @@ class TestBaseModel(unittest.TestCase):
             "offline": False,
         }
         self.assertEqual(expected_dict, sign.to_dict())
+
+    def test_is_dict_of_model_when_true(self):
+        self.assertTrue(
+            IssuedCurrencyAmount.is_dict_of_model(
+                IssuedCurrencyAmount.from_dict(amount_dict).to_dict(),
+            ),
+        )
+
+    def test_is_dict_of_model_when_not_true(self):
+        self.assertFalse(
+            Sign.is_dict_of_model(
+                IssuedCurrencyAmount.from_dict(amount_dict).to_dict(),
+            ),
+        )

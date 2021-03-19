@@ -32,8 +32,9 @@ class BaseModel(ABC):
             True if dictionary is a dict representation of an instance of this
             class.
         """
-        cls_fields = set(get_type_hints(cls).keys())
-        return isinstance(dictionary, dict) and cls_fields == set(dictionary.keys())
+        return isinstance(dictionary, dict) and set(get_type_hints(cls).keys()) == set(
+            dictionary.keys()
+        )
 
     @classmethod
     def from_dict(cls: Type[BaseModel], value: Dict[str, Any]) -> BaseModel:
