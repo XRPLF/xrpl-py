@@ -9,7 +9,7 @@ from xrpl.wallet import Wallet
 
 class TestTrustSet(TestCase):
     def test_all_fields(self):
-        issuer_wallet = Wallet.generate_seed_and_wallet()
+        issuer_wallet = Wallet.create()
         response = submit_transaction(
             TrustSet(
                 account=WALLET.classic_address,

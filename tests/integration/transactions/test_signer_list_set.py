@@ -9,7 +9,7 @@ from xrpl.wallet import Wallet
 class TestSignerListSet(TestCase):
     def test_all_fields(self):
         # sets up another signer for this account
-        other_signer = Wallet.generate_seed_and_wallet()
+        other_signer = Wallet.create()
         response = submit_transaction(
             SignerListSet(
                 account=WALLET.classic_address,
