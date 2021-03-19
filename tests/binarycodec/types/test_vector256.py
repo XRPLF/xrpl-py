@@ -1,4 +1,4 @@
-import unittest
+from unittest import TestCase
 
 from xrpl.core.binarycodec import XRPLBinaryCodecException
 from xrpl.core.binarycodec.binary_wrappers import BinaryParser
@@ -10,7 +10,7 @@ HASH_LIST = [HASH1, HASH2]
 SERIALIZED = HASH1 + HASH2
 
 
-class TestVector256(unittest.TestCase):
+class TestVector256(TestCase):
     def test_from_value(self):
         vector256_object = Vector256.from_value(HASH_LIST)
         self.assertEqual(vector256_object.to_hex(), SERIALIZED)

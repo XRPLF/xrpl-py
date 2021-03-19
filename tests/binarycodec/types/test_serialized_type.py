@@ -1,4 +1,4 @@
-import unittest
+from unittest import TestCase
 
 from tests.binarycodec.fixtures.data_driven_fixtures import ValueTest, get_value_tests
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -41,7 +41,7 @@ def data_driven_fixtures_for_type(type_string: str):
     return [value_test for value_test in VALUE_TESTS if value_test.type == type_string]
 
 
-class TestSerializedType(unittest.TestCase):
+class TestSerializedType(TestCase):
     def fixture_test(self, fixture: ValueTest):
         """Run the appropriate test for given fixture case."""
         serialized_type: SerializedType = TYPE_MAP[fixture.type]

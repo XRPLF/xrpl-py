@@ -1,4 +1,4 @@
-import unittest
+from unittest import TestCase
 
 from xrpl.core.binarycodec.binary_wrappers import BinaryParser, BinarySerializer
 from xrpl.core.binarycodec.types.blob import Blob
@@ -7,7 +7,7 @@ from xrpl.core.binarycodec.types.blob import Blob
 # specific field type classes. These tests just sanity-check key helper methods.
 
 
-class TestBinaryParser(unittest.TestCase):
+class TestBinaryParser(TestCase):
     def test_peek_skip_read_methods(self):
         test_hex = "00112233445566"
         test_bytes = bytes.fromhex(test_hex)

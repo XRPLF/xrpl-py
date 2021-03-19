@@ -1,4 +1,4 @@
-import unittest
+from unittest import TestCase
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.types.serialized_dict import SerializedDict
@@ -37,7 +37,7 @@ buffer = (
 )
 
 
-class TestSerializedDict(unittest.TestCase):
+class TestSerializedDict(TestCase):
     maxDiff = 1000
 
     def test_from_value(self):

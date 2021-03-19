@@ -1,4 +1,4 @@
-import unittest
+from unittest import TestCase
 
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests.book_offers import BookOffers
@@ -26,7 +26,7 @@ check_create_dict = {
 secret = "topsecretpassword"
 
 
-class TestBaseModel(unittest.TestCase):
+class TestBaseModel(TestCase):
     maxDiff = 1000
 
     def test_eq(self):
