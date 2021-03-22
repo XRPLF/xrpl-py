@@ -11,7 +11,7 @@ MultiSign amendment.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
@@ -32,6 +32,30 @@ class SignerEntry(BaseModel):
     #: This field is required.
     signer_weight: int = REQUIRED  # type: ignore
 
+    @classmethod
+    def is_dict_of_model(cls: Type[SignerEntry], dictionary: Dict[str, Any]) -> bool:
+        """
+        Returns True if the input dictionary was derived by the `to_dict`
+        method of an instance of this class. In other words, True if this is
+        a dictionary representation of an instance of this class.
+
+        NOTE: does not account for model inheritance, IE will only return True
+        if dictionary represents an instance of this class, but not if
+        dictionary represents an instance of a subclass of this class.
+
+        Args:
+            dictionary: The dictionary to check.
+
+        Returns:
+            True if dictionary is a dict representation of an instance of this
+            class.
+        """
+        return (
+            isinstance(dictionary, dict)
+            and "signer_entry" in dictionary
+            and super().is_dict_of_model(dictionary["signer_entry"])
+        )
+
     def to_dict(self: SignerEntry) -> Dict[str, Any]:
         """
         Returns the dictionary representation of a SignerEntry.
@@ -39,7 +63,7 @@ class SignerEntry(BaseModel):
         Returns:
             The dictionary representation of a BaseModel.
         """
-        return {"SignerEntry": super().to_dict()}
+        return {"signer_entry": super().to_dict()}
 
 
 @require_kwargs_on_init

@@ -1,9 +1,9 @@
-import unittest
+from unittest import TestCase
 
 import xrpl.core.binarycodec.definitions.definitions as definitions
 
 
-class TestDefinitionService(unittest.TestCase):
+class TestDefinitionService(TestCase):
     def setUp(self):
         self.test_field_name = "Sequence"
 
