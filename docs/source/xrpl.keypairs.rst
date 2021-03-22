@@ -1,5 +1,5 @@
-xrpl.keypairs package
-=====================
+XRPL Keypairs Codec
+===================
 
 .. automodule:: xrpl.keypairs
    :members:

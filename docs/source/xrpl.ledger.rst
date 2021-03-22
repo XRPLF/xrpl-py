@@ -1,4 +1,4 @@
-xrpl.ledger package
+XRPL Ledger Methods
 ===================
 
 .. automodule:: xrpl.ledger

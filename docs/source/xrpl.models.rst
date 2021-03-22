@@ -1,11 +1,11 @@
-xrpl.models package
-===================
+XRPL Models
+===========
 
 Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
 
    xrpl.models.amounts
    xrpl.models.currencies

@@ -20,6 +20,15 @@ First, ensure that you have Python 3.7 or later. Then, you can download the pack
    :maxdepth: 1
 
    source/tutorial
+   source/xrpl.account
+   source/xrpl.ledger
+   source/xrpl.transaction
+   source/xrpl.wallet
+   source/xrpl.clients
+   source/xrpl.models
+   source/xrpl.addresscodec
+   source/xrpl.binarycodec
+   source/xrpl.keypairs
    source/xrpl
 
 

@@ -1,5 +1,5 @@
-xrpl.addresscodec package
-=========================
+XRPL Address Codec
+==================
 
 .. automodule:: xrpl.addresscodec
    :members:

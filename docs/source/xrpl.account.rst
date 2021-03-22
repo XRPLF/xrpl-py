@@ -1,4 +1,4 @@
-xrpl.account package
+XRPL Account Methods
 ====================
 
 .. automodule:: xrpl.account

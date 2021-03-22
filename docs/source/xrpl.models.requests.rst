@@ -1,5 +1,5 @@
-Request Models
-==============
+XRPL Request Models
+===================
 
 .. automodule:: xrpl.models.requests
    :members:

@@ -1,5 +1,5 @@
-Transaction Models
-==================
+XRPL Transaction Models
+=======================
 
 .. automodule:: xrpl.models.transactions
    :members:
