@@ -6,21 +6,33 @@ import json
 from abc import ABC
 from dataclasses import fields
 from enum import Enum
-from re import split
+from re import split, sub
 from typing import Any, Dict, Type, Union, cast, get_type_hints
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 
 
-def _camel_to_snake(field: str) -> str:
+def _key_to_json(field: str) -> str:
     """
     Transforms (upper or lower) camel case to snake case. For example, 'TransactionType'
     becomes 'transaction_type'.
     """
     words = split(r"(?=[A-Z])", field)
     lower_words = [word.lower() for word in words if word]
-    return "_".join(lower_words)
+    snaked = "_".join(lower_words)
+    return sub("i_d", "id", snaked)
+
+
+def _value_to_json(value: str) -> str:
+    if isinstance(value, dict):
+        return {
+            _key_to_json(k): _value_to_json(v)
+            for (k, v) in cast(Dict[str, Any], value).items()
+        }
+    if isinstance(value, list):
+        return [_value_to_json(sub_value) for sub_value in value]
+    return value
 
 
 class BaseModel(ABC):
@@ -153,15 +165,9 @@ class BaseModel(ABC):
             value = json.loads(value)
 
         formatted_dict = {
-            _camel_to_snake(k): v for (k, v) in cast(Dict[str, Any], value).items()
+            _key_to_json(k): _value_to_json(v)
+            for (k, v) in cast(Dict[str, Any], value).items()
         }
-        # one-off conversion cases for transaction field names
-        if "check_i_d" in formatted_dict:
-            formatted_dict["check_id"] = formatted_dict["check_i_d"]
-            del formatted_dict["check_i_d"]
-        if "invoice_i_d" in formatted_dict:
-            formatted_dict["invoice_id"] = formatted_dict["invoice_i_d"]
-            del formatted_dict["invoice_i_d"]
 
         return cls.from_dict(formatted_dict)
 
