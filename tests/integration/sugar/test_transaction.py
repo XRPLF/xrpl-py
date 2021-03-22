@@ -19,8 +19,8 @@ TRANSFER_RATE = 0
 TICK_SIZE = 10
 
 
-class TestReliableSubmission(TestCase):
-    def test_simple(self):
+class TestTransaction(TestCase):
+    def test_reliable_submission_simple(self):
         WALLET.next_sequence_num = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
         account_set = AccountSet(
             account=ACCOUNT,
@@ -34,7 +34,7 @@ class TestReliableSubmission(TestCase):
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
 
-    def test_payment(self):
+    def test_reliable_submission_payment(self):
         WALLET.next_sequence_num = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
         payment_dict = {
             "account": ACCOUNT,
@@ -52,7 +52,7 @@ class TestReliableSubmission(TestCase):
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
 
-    def test_last_ledger_expiration(self):
+    def test_reliable_submission_last_ledger_expiration(self):
         WALLET.next_sequence_num = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
         payment_dict = {
             "account": ACCOUNT,
