@@ -1,5 +1,4 @@
 XRPL Global Variables
-=====================
 
 .. automodule:: xrpl.constants
    :members:
