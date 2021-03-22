@@ -21,6 +21,21 @@ def get_latest_validated_ledger_sequence(client: Client) -> int:
     return cast(int, result["ledger_index"])
 
 
+def get_latest_open_ledger_sequence(client: Client) -> int:
+    """
+    Returns the sequence number of the latest open ledger.
+
+    Args:
+        client: The network client to use to send the request.
+
+    Returns:
+        The sequence number of the latest open ledger.
+    """
+    response = client.request(Ledger(ledger_index="open"))
+    result = cast(Dict[str, Any], response.result)
+    return cast(int, result["ledger_index"])
+
+
 def get_fee(client: Client) -> str:
     """
     Query the ledger for the current minimum transaction fee.
