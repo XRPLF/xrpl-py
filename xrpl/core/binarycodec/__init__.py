@@ -1,4 +1,7 @@
-"""Top-level exports for the binarycodec package."""
+"""
+Functions for encoding objects into the XRP Ledger's canonical
+binary format and decoding them.
+"""
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.main import (
     decode,
