@@ -18,8 +18,8 @@ First, ensure that you have Python 3.7 or later. Then, you can download the pack
 
 .. toctree::
    :maxdepth: 1
+   :caption: Table of Contents
 
-   source/tutorial
    source/xrpl.account
    source/xrpl.ledger
    source/xrpl.transaction

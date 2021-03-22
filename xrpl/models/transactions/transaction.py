@@ -100,6 +100,9 @@ class Transaction(BaseModel):
     See https://xrpl.org/transaction-common-fields.html.
     """
 
+    # TODO: figure out how to get documentation to ignore the default value
+    # in theory this should be doable with `#: :meta hide-value:` but it's not quite
+    # working
     #: This field is required.
     account: str = REQUIRED  # type: ignore
     transaction_type: TransactionType = REQUIRED  # type: ignore

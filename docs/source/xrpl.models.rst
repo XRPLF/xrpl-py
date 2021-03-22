@@ -1,40 +1,35 @@
 XRPL Models
 ===========
 
-Subpackages
------------
-
 .. toctree::
    :maxdepth: 1
+   :titlesonly:
 
    xrpl.models.amounts
    xrpl.models.currencies
    xrpl.models.requests
    xrpl.models.transactions
 
-Submodules
+Base Model
 ----------
-
-xrpl.models.base\_model module
-------------------------------
 
 .. automodule:: xrpl.models.base_model
    :members:
    :undoc-members:
    :show-inheritance:
 
-xrpl.models.response module
----------------------------
+Response Model
+--------------
 
 .. automodule:: xrpl.models.response
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+Exceptions
+----------
 
-.. automodule:: xrpl.models
+.. automodule:: xrpl.models.exceptions
    :members:
    :undoc-members:
    :show-inheritance:
