@@ -26,6 +26,7 @@ def does_account_exist(address: str, client: Client) -> bool:
         return True
     except XRPLTransactionFailureException as e:
         if e.error_code == "actNotFound":
+            # error code for if the account is not found on the ledger
             return False
         raise
 

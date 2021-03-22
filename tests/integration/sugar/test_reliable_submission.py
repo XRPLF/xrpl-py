@@ -1,17 +1,14 @@
 from unittest import TestCase
 
 from tests.integration.it_utils import JSON_RPC_CLIENT
-from tests.integration.reusable_values import FEE
-from tests.integration.reusable_values import WALLET as DESTINATION_WALLET
+from tests.integration.reusable_values import DESTINATION as DESTINATION_WALLET
+from tests.integration.reusable_values import FEE, WALLET
 from xrpl.account import get_next_valid_seq_number
 from xrpl.models.transactions import AccountSet, Payment
 from xrpl.transaction import (
     LastLedgerSequenceExpiredException,
     send_reliable_submission,
 )
-from xrpl.wallet import generate_faucet_wallet
-
-WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
 
 ACCOUNT = WALLET.classic_address
 DESTINATION = DESTINATION_WALLET.classic_address

@@ -1,5 +1,5 @@
 from tests.integration.it_utils import JSON_RPC_CLIENT
-from xrpl.account import get_fee
+from xrpl.ledger import get_fee
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.transactions import OfferCreate, PaymentChannelCreate
 from xrpl.transaction import send_reliable_submission
