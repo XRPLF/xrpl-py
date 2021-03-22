@@ -14,6 +14,7 @@ from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.account_id import AccountID
 from xrpl.core.binarycodec.types.currency import Currency
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
+from xrpl.models.amounts import IssuedCurrencyAmount
 
 # Constants for validating amounts.
 _MIN_IOU_EXPONENT: Final[int] = -96
@@ -48,28 +49,6 @@ def _contains_decimal(string: str) -> bool:
         True if the string contains a decimal point character.
     """
     return string.find(".") == -1
-
-
-def _is_valid_issued_currency_amount(value: Dict[str, str]) -> bool:
-    """
-    Determines whether given dictionary represents a valid issued currency amount,
-    which must contain exactly "currency", "issuer" and "value" keys.
-
-    Args:
-        value: A dictionary representing an issued currency amount.
-
-    Returns:
-        None, but raises if value is an invalid issued currency amount.
-
-    Raises:
-        XRPLBinaryCodecException: If value is an invalid issued currency amount.
-    """
-    if len(value.keys()) != 3:
-        return False
-    expected_keys = {"currency", "issuer", "value"}
-    if set(value.keys()) == expected_keys:
-        return True
-    return False
 
 
 def verify_xrp_value(xrp_value: str) -> None:
@@ -245,7 +224,7 @@ class Amount(SerializedType):
     @classmethod
     def from_value(cls: Type[Amount], value: Union[str, Dict[str, str]]) -> Amount:
         """
-         Construct an Amount from an issued currency amount or (for XRP),
+        Construct an Amount from an issued currency amount or (for XRP),
         a string amount.
 
         See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
@@ -261,7 +240,7 @@ class Amount(SerializedType):
         """
         if isinstance(value, str):
             return cls(_serialize_xrp_amount(value))
-        if isinstance(value, dict) and _is_valid_issued_currency_amount(value):
+        if IssuedCurrencyAmount.is_dict_of_model(value):
             return cls(_serialize_issued_currency_amount(value))
 
         raise XRPLBinaryCodecException(

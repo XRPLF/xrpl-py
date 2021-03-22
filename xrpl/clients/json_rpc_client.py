@@ -9,8 +9,6 @@ from xrpl.clients.utils import json_to_response, request_to_json_rpc
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
 
-# from rippled_exception import RippledException
-
 # QUESTIONS:
 # Should we have different exception types for network exceptions
 # (i.e. an invalid URL) v.s. actual rippled exceptions

@@ -16,9 +16,9 @@ from xrpl.models.transactions.payment_channel_claim import PaymentChannelClaim
 from xrpl.models.transactions.payment_channel_create import PaymentChannelCreate
 from xrpl.models.transactions.payment_channel_fund import PaymentChannelFund
 from xrpl.models.transactions.set_regular_key import SetRegularKey
-from xrpl.models.transactions.signer_list_set import SignerListSet
+from xrpl.models.transactions.signer_list_set import SignerEntry, SignerListSet
 from xrpl.models.transactions.transaction import Memo, Signer
-from xrpl.models.transactions.trustset import TrustSet
+from xrpl.models.transactions.trust_set import TrustSet, TrustSetFlag
 
 __all__ = [
     "AccountDelete",
@@ -40,6 +40,8 @@ __all__ = [
     "PaymentChannelFund",
     "SetRegularKey",
     "Signer",
+    "SignerEntry",
     "SignerListSet",
     "TrustSet",
+    "TrustSetFlag",
 ]

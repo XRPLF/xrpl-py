@@ -34,7 +34,9 @@ class IssuedCurrency(BaseModel):
     See https://xrpl.org/currency-formats.html#specifying-currency-amounts
     """
 
+    #: This field is required.
     currency: str = REQUIRED  # type: ignore
+    #: This field is required.
     issuer: str = REQUIRED  # type: ignore
 
     def _get_errors(self: IssuedCurrency) -> Dict[str, str]:

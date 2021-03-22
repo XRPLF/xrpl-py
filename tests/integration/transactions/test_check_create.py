@@ -1,13 +1,11 @@
 from unittest import TestCase
 
-from tests.integration.it_utils import JSON_RPC_CLIENT, submit_transaction
-from tests.integration.reusable_values import FEE, WALLET
+from tests.integration.it_utils import submit_transaction
+from tests.integration.reusable_values import DESTINATION, FEE, WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import CheckCreate
-from xrpl.wallet import generate_faucet_wallet
 
 ACCOUNT = WALLET.classic_address
-DESTINATION = generate_faucet_wallet(JSON_RPC_CLIENT).classic_address
 DESTINATION_TAG = 1
 SENDMAX = "100000000"
 EXPIRATION = 970113521
@@ -20,7 +18,7 @@ class TestCheckCreate(TestCase):
             account=ACCOUNT,
             fee=FEE,
             sequence=WALLET.next_sequence_num,
-            destination=DESTINATION,
+            destination=DESTINATION.classic_address,
             destination_tag=DESTINATION_TAG,
             send_max=SENDMAX,
             expiration=EXPIRATION,

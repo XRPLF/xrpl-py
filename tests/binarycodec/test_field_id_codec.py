@@ -1,10 +1,10 @@
-import unittest
+from unittest import TestCase
 
 import xrpl.core.binarycodec.field_id_codec as field_id_codec
 from tests.binarycodec.fixtures import data_driven_fixtures
 
 
-class TestFieldIDCodec(unittest.TestCase):
+class TestFieldIDCodec(TestCase):
     """`See FieldIDs <https://xrpl.org/serialization.html#field-ids>`_."""
 
     def setUp(self):

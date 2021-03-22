@@ -1,6 +1,6 @@
 import json
 import os
-import unittest
+from unittest import TestCase
 
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests.book_offers import BookOffers
@@ -30,7 +30,7 @@ check_create_dict = {
 secret = "topsecretpassword"
 
 
-class TestBaseModel(unittest.TestCase):
+class TestBaseModel(TestCase):
     maxDiff = 1000
 
     def test_eq(self):
@@ -126,3 +126,17 @@ class TestBaseModel(unittest.TestCase):
                     tx = Transaction.from_xrpl(r_json)
                     translated_tx = transaction_json_to_binary_codec_form(tx.to_dict())
                     self.assertEqual(r_json, translated_tx)
+
+    def test_is_dict_of_model_when_true(self):
+        self.assertTrue(
+            IssuedCurrencyAmount.is_dict_of_model(
+                IssuedCurrencyAmount.from_dict(amount_dict).to_dict(),
+            ),
+        )
+
+    def test_is_dict_of_model_when_not_true(self):
+        self.assertFalse(
+            Sign.is_dict_of_model(
+                IssuedCurrencyAmount.from_dict(amount_dict).to_dict(),
+            ),
+        )

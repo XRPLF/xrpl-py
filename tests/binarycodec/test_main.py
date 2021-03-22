@@ -1,6 +1,6 @@
 import json
 import os
-import unittest
+from unittest import TestCase
 
 from tests.binarycodec.fixtures.data_driven_fixtures import get_whole_object_tests
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -131,7 +131,7 @@ signing_json = {
 }
 
 
-class TestMainSimple(unittest.TestCase):
+class TestMainSimple(TestCase):
     def test_simple(self):
         encoded = encode(TX_JSON)
         decoded = decode(encoded)
@@ -233,7 +233,7 @@ class TestMainSimple(unittest.TestCase):
         self.assertEqual(decode(encode(json_blank_acct)), json_dict)
 
 
-class TestXAddress(unittest.TestCase):
+class TestXAddress(TestCase):
     def test_xaddress_encode(self):
         self.assertEqual(encode(json_x1), encode(json_r1))
 
@@ -256,7 +256,7 @@ class TestXAddress(unittest.TestCase):
             encode(invalid_json_x_and_tagged)
 
 
-class TestMainFixtures(unittest.TestCase):
+class TestMainFixtures(TestCase):
     maxDiff = 1000
 
     def _check_binary_and_json(self, test):
@@ -304,7 +304,7 @@ class TestMainFixtures(unittest.TestCase):
             self.assertEqual(decode(whole_object.expected_hex), whole_object.tx_json)
 
 
-class TestMainSigning(unittest.TestCase):
+class TestMainSigning(TestCase):
     maxDiff = 1000
 
     def test_single_signing(self):

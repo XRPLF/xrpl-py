@@ -1,4 +1,4 @@
-import unittest
+from unittest import TestCase
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -22,7 +22,7 @@ EXPECTED_JSON = [MEMO, MEMO]
 BUFFER = MEMO_HEX + MEMO_HEX + _ARRAY_END_MARKER.hex().upper()
 
 
-class TestSerializedList(unittest.TestCase):
+class TestSerializedList(TestCase):
     maxDiff = 1000
 
     def test_from_value(self):

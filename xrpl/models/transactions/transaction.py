@@ -81,8 +81,11 @@ class Signer(BaseModel):
     has the following nested fields.
     """
 
+    #: This field is required.
     account: str = REQUIRED  # type: ignore
+    #: This field is required.
     txn_signature: str = REQUIRED  # type: ignore
+    #: This field is required.
     signing_pub_key: str = REQUIRED  # type: ignore
 
 
@@ -97,6 +100,10 @@ class Transaction(BaseModel):
     See https://xrpl.org/transaction-common-fields.html.
     """
 
+    # TODO: figure out how to get documentation to ignore the default value
+    # in theory this should be doable with `#: :meta hide-value:` but it's not quite
+    # working
+    #: This field is required.
     account: str = REQUIRED  # type: ignore
     transaction_type: TransactionType = REQUIRED  # type: ignore
     fee: Optional[str] = None  # auto-fillable
@@ -117,7 +124,7 @@ class Transaction(BaseModel):
         Returns:
             The dictionary representation of a Transaction.
         """
-        # we need to override this because transaction_type is using `field`
+        # we need to override this because transaction_type is using ``field``
         # which will not include the value in the objects __dict__
         return {**super().to_dict(), "transaction_type": self.transaction_type.value}
 

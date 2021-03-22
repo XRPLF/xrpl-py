@@ -1,10 +1,10 @@
-import unittest
+from unittest import TestCase
 
 from xrpl.core.binarycodec import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.blob import Blob
 
 
-class TestBlob(unittest.TestCase):
+class TestBlob(TestCase):
     def test_from_value(self):
         value = "00AA"
         value_bytes = bytes.fromhex(value)

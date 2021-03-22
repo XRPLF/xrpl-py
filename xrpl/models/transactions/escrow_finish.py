@@ -26,7 +26,9 @@ class EscrowFinish(Transaction):
     `See EscrowFinish <https://xrpl.org/escrowfinish.html>`_
     """
 
+    #: This field is required.
     owner: str = REQUIRED  # type: ignore
+    #: This field is required.
     offer_sequence: int = REQUIRED  # type: ignore
     condition: Optional[str] = None
     fulfillment: Optional[str] = None

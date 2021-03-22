@@ -37,6 +37,7 @@ class TrustSet(Transaction):
     `See TrustSet <https://xrpl.org/trustset.html>`_
     """
 
+    #: This field is required.
     limit_amount: IssuedCurrencyAmount = REQUIRED  # type: ignore
     quality_in: Optional[int] = None
     quality_out: Optional[int] = None

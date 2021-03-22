@@ -1,4 +1,4 @@
-"""Top-level exports for the addresscodec package."""
+"""Functions for encoding and decoding XRP Ledger addresses and seeds."""
 from xrpl.core.addresscodec.codec import (
     SEED_LENGTH,
     decode_account_public_key,

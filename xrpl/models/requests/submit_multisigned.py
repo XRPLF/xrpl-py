@@ -33,6 +33,7 @@ class SubmitMultisigned(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.SUBMIT_MULTISIGNED, init=False)
+    #: This field is required.
     transaction: Transaction = REQUIRED  # type: ignore
     fail_hard: bool = False
 

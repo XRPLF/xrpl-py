@@ -8,11 +8,11 @@ from xrpl.ledger import get_latest_validated_ledger_sequence
 from xrpl.models.requests import Tx
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.transaction import safe_sign_and_submit_transaction
 from xrpl.transaction.exceptions import (
     LastLedgerSequenceExpiredException,
     XRPLReliableSubmissionException,
 )
+from xrpl.transaction.main import safe_sign_and_submit_transaction
 from xrpl.wallet import Wallet
 
 _LEDGER_CLOSE_TIME = 4

@@ -1,4 +1,4 @@
-import unittest
+from unittest import TestCase
 
 from xrpl.core.binarycodec.binary_wrappers import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -7,7 +7,7 @@ from xrpl.core.binarycodec.types.hash160 import Hash160
 from xrpl.core.binarycodec.types.hash256 import Hash256
 
 
-class TestHash128(unittest.TestCase):
+class TestHash128(TestCase):
     def setUp(self):
         # 16 bytes, 32 nibbles
         self.hex_128_bits = "10000000002000000000300000000012"
@@ -35,7 +35,7 @@ class TestHash128(unittest.TestCase):
         self.assertRaises(XRPLBinaryCodecException, Hash128.from_value, invalid_value)
 
 
-class TestHash160(unittest.TestCase):
+class TestHash160(TestCase):
     def setUp(self):
         # 20 bytes, 40 nibbles
         self.hex_160_bits = "1000000000200000000030000000004000000000"
@@ -63,7 +63,7 @@ class TestHash160(unittest.TestCase):
         self.assertRaises(XRPLBinaryCodecException, Hash160.from_value, invalid_value)
 
 
-class TestHash256(unittest.TestCase):
+class TestHash256(TestCase):
     def setUp(self):
         # 32 bytes, 64 nibbles
         self.hex_256_bits = (
