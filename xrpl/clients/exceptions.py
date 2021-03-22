@@ -1,11 +1,11 @@
-"""General XRPL Transaction Exceptions."""
+"""General XRPL Client Exceptions."""
 from __future__ import annotations
 
 from xrpl import XRPLException
 
 
 class XRPLRequestFailureException(XRPLException):
-    """XRPL Transaction Exception, when the transaction fails."""
+    """XRPL Request Exception, when the request fails."""
 
     def __init__(
         self: XRPLRequestFailureException,
@@ -21,4 +21,4 @@ class XRPLRequestFailureException(XRPLException):
                 by the ledger.
         """
         self.error_code = error_code
-        self.message = f"Transaction failed, {error_code}: {error_message}"
+        self.message = f"Request failed, {error_code}: {error_message}"
