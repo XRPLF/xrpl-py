@@ -4,16 +4,16 @@ from __future__ import annotations
 from xrpl import XRPLException
 
 
-class XRPLTransactionFailureException(XRPLException):
+class XRPLRequestFailureException(XRPLException):
     """XRPL Transaction Exception, when the transaction fails."""
 
     def __init__(
-        self: XRPLTransactionFailureException,
+        self: XRPLRequestFailureException,
         error_code: str,
         error_message: str,
     ) -> None:
         """
-        Initializes a XRPLTransactionFailureException.
+        Initializes a XRPLRequestFailureException.
 
         Args:
             error_code: an XRPL error code (usually starts with `te`).
