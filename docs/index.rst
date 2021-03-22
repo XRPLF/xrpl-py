@@ -26,9 +26,7 @@ First, ensure that you have Python 3.7 or later. Then, you can download the pack
    source/xrpl.wallet
    source/xrpl.clients
    source/xrpl.models
-   source/xrpl.core.addresscodec
-   source/xrpl.core.binarycodec
-   source/xrpl.core.keypairs
+   source/xrpl.core
    source/xrpl
 
 
