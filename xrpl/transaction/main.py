@@ -1,23 +1,25 @@
 """High-level transaction methods with XRPL transactions."""
-
+import re
 from typing import Any, Dict
 
-from xrpl.binarycodec import encode, encode_for_signing
 from xrpl.clients import Client
-from xrpl.keypairs.main import sign
+from xrpl.core.binarycodec import encode, encode_for_signing
+from xrpl.core.keypairs.main import sign
+from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.wallet import Wallet
 
 
-def sign_and_submit_transaction(
+def safe_sign_and_submit_transaction(
     transaction: Transaction,
     wallet: Wallet,
     client: Client,
 ) -> Response:
     """
-    Signs a transaction and submits it to the XRPL.
+    Signs a transaction (locally, without trusting external rippled nodes) and submits
+    it to the XRPL.
 
     Args:
         transaction: the transaction to be signed and submitted.
@@ -27,13 +29,13 @@ def sign_and_submit_transaction(
     Returns:
         The response from the ledger.
     """
-    tx_blob = sign_transaction(transaction, wallet)
+    tx_blob = safe_sign_transaction(transaction, wallet)
     return submit_transaction_blob(tx_blob, client)
 
 
-def sign_transaction(transaction: Transaction, wallet: Wallet) -> str:
+def safe_sign_transaction(transaction: Transaction, wallet: Wallet) -> str:
     """
-    Signs a transaction.
+    Signs a transaction locally, without trusting external rippled nodes.
 
     Args:
         transaction: the transaction to be signed.
@@ -82,23 +84,23 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
     Returns:
         A new dictionary object that has been reformatted.
     """
-    formatted_dict = {
-        _snake_to_capital_camel(key): value for (key, value) in dictionary.items()
+    return {
+        _key_to_tx_json(key): _value_to_tx_json(value)
+        for (key, value) in dictionary.items()
     }
-    # one-off conversion cases for transaction field names
-    if "CheckId" in formatted_dict:
-        formatted_dict["CheckID"] = formatted_dict["CheckId"]
-        del formatted_dict["CheckId"]
-    if "InvoiceId" in formatted_dict:
-        formatted_dict["InvoiceID"] = formatted_dict["InvoiceId"]
-        del formatted_dict["InvoiceId"]
-    return formatted_dict
 
 
-def _snake_to_capital_camel(field: str) -> str:
-    """Transforms snake case to capitalized camel case.
-    For example, 'transaction_type' becomes 'TransactionType'.
-    """
-    words = field.split("_")
-    capitalized_words = [word.capitalize() for word in words]
-    return "".join(capitalized_words)
+def _key_to_tx_json(key: str) -> str:
+    snaked = "".join([word.capitalize() for word in key.split("_")])
+    return re.sub(r"Id", r"ID", snaked)
+
+
+def _value_to_tx_json(value: Any) -> Any:
+    # IssuedCurrencyAmount is a special case and should not be snake cased
+    if IssuedCurrencyAmount.is_dict_of_model(value):
+        return {key: _value_to_tx_json(sub_value) for (key, sub_value) in value.items()}
+    if isinstance(value, dict):
+        return transaction_json_to_binary_codec_form(value)
+    if isinstance(value, list):
+        return [_value_to_tx_json(sub_value) for sub_value in value]
+    return value

@@ -6,10 +6,28 @@
 Welcome to xrpl-py's documentation!
 ===================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+xrpl-py is a pure Python implementation of the core functionality necessary to interact with the
+XRPL Ledger. This library supports the difficult tasks of XRPL serialization and transaction signing,
+and provides useful native Python models for XRP Ledger objects and rippled request and response
+objects.
 
+How to Install
+--------------
+First, ensure that you have Python 3.7 or later. Then, you can download the package via pip:
+``pip3 install xrpl``
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Table of Contents
+
+   source/xrpl.account
+   source/xrpl.ledger
+   source/xrpl.transaction
+   source/xrpl.wallet
+   source/xrpl.clients
+   source/xrpl.models
+   source/xrpl.core
+   source/xrpl
 
 
 Indices and tables

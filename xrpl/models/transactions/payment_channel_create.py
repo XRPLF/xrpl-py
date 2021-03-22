@@ -27,9 +27,13 @@ class PaymentChannelCreate(Transaction):
     `See PaymentChannelCreate <https://xrpl.org/paymentchannelcreate.html>`_
     """
 
+    #: This field is required.
     amount: Amount = REQUIRED  # type: ignore
+    #: This field is required.
     destination: str = REQUIRED  # type: ignore
+    #: This field is required.
     settle_delay: int = REQUIRED  # type: ignore
+    #: This field is required.
     public_key: str = REQUIRED  # type: ignore
     cancel_after: Optional[int] = None
     destination_tag: Optional[int] = None

@@ -24,7 +24,9 @@ class EscrowCancel(Transaction):
     `See EscrowCancel <https://xrpl.org/escrowcancel.html>`_
     """
 
+    #: This field is required.
     owner: str = REQUIRED  # type: ignore
+    #: This field is required.
     offer_sequence: int = REQUIRED  # type: ignore
     transaction_type: TransactionType = field(
         default=TransactionType.ESCROW_CANCEL,

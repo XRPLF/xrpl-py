@@ -10,8 +10,6 @@ from xrpl.clients.client import Client
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response, ResponseStatus, ResponseType
 
-# from rippled_exception import RippledException
-
 # QUESTIONS:
 # Should we have different exception types for network exceptions
 # (i.e. an invalid URL) v.s. actual rippled exceptions
@@ -77,7 +75,7 @@ class JsonRpcClient(Client):
             request_object: An object representing information about a rippled request.
 
         Returns:
-            The response from the server, as a Response object, if successful.
+            The response from the server, as a Response object.
         """
         formatted_request = request_to_json_rpc(request_object)
         response = requests.post(self.url, json=formatted_request)

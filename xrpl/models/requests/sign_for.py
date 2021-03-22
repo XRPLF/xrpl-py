@@ -36,7 +36,9 @@ class SignFor(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.SIGN_FOR, init=False)
+    #: This field is required.
     account: str = REQUIRED  # type: ignore
+    #: This field is required.
     transaction: Transaction = REQUIRED  # type: ignore
     secret: Optional[str] = None
     seed: Optional[str] = None
@@ -81,7 +83,7 @@ class SignFor(Request):
         if not self._has_only_one_seed():
             errors[
                 "SignFor"
-            ] = "Must have only one of `secret`, `seed`, `seed_hex`, and `passphrase."
+            ] = "Must have only one of `secret`, `seed`, `seed_hex`, and `passphrase`."
 
         if self.secret is not None and self.key_type is not None:
             errors["key_type"] = "Must omit `key_type` if `secret` is provided."

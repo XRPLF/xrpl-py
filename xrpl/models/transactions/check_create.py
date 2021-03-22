@@ -27,7 +27,9 @@ class CheckCreate(Transaction):
     `See CheckCreate <https://xrpl.org/checkcreate.html>`_
     """
 
+    #: This field is required.
     destination: str = REQUIRED  # type: ignore
+    #: This field is required.
     send_max: Amount = REQUIRED  # type: ignore
     destination_tag: Optional[int] = None
     expiration: Optional[int] = None

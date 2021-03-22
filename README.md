@@ -36,6 +36,22 @@ poetry run flake8 ./xrpl
 poetry run nox -rs tests
 ```
 
+## Running integration tests
+
+Integration tests are expensive and often flaky. As a result, they don't run
+by default with the above command. You'll need to currently run integration
+tests manually for each package like so:
+
+```bash
+poetry run python -m unittest discover tests.integration.transactions
+```
+
+or
+
+```bash
+poetry run python -m unittest discover tests.integration.reliable_submission
+```
+
 ### Generating Documentation
 
 From the `docs` folder,

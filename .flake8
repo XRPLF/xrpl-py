@@ -2,9 +2,8 @@
 # As defined at https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
 docstring-convention=google
 
-# D205, D212, and D415 have to do with more opinionated docstring formatting
-# so I'm going to fix them in the next PR.
-# TODO tedkalaw: Remove D205/D212
+# D212 and D213 are mutually exclusive, so we're only allowing D213.
+# D205 and D415 don't like multi-line summary statements, which is annoying.
 # E203 and W503 don't interact well with black
 ignore = D205,D212,D415,E203,W503
 
@@ -16,7 +15,6 @@ per-file-ignores =
   # For tests, disable type annotation and docstring linting.
   noxfile.py: DAR
   tests/*: ANN D DAR
-  # TODO: Remove these after we've migrated to having everything typed.
 
 # Select other tools to enable.
 

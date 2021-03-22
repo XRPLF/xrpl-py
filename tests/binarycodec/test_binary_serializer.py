@@ -1,11 +1,11 @@
-import unittest
+from unittest import TestCase
 
-from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
-from xrpl.binarycodec.binary_wrappers.binary_serializer import BinarySerializer
-from xrpl.binarycodec.types.blob import Blob
+from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
+from xrpl.core.binarycodec.binary_wrappers.binary_serializer import BinarySerializer
+from xrpl.core.binarycodec.types.blob import Blob
 
 
-class TestBinarySerializer(unittest.TestCase):
+class TestBinarySerializer(TestCase):
     # This is currently a sanity check for private _encode_variable_length_prefix,
     # which is called by BinarySerializer.write_length_encoded
     def test_write_length_encoded(self):

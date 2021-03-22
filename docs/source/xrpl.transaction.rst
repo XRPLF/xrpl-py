@@ -1,19 +1,5 @@
-xrpl.transaction package
+XRPL Transaction Methods
 ========================
-
-Submodules
-----------
-
-xrpl.transaction.main module
-----------------------------
-
-.. automodule:: xrpl.transaction.main
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
 
 .. automodule:: xrpl.transaction
    :members:

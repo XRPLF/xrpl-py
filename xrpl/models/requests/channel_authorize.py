@@ -26,7 +26,9 @@ class ChannelAuthorize(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.CHANNEL_AUTHORIZE, init=False)
+    #: This field is required.
     channel_id: str = REQUIRED  # type: ignore
+    #: This field is required.
     amount: str = REQUIRED  # type: ignore
     secret: Optional[str] = None
     seed: Optional[str] = None
@@ -49,5 +51,5 @@ class ChannelAuthorize(Request):
         if len(signing_methods) != 1:
             errors[
                 "ChannelAuthorize"
-            ] = "Must set exactly one of `secret`, `seed, `seed_hex`, or `passphrase`"
+            ] = "Must set exactly one of `secret`, `seed`, `seed_hex`, or `passphrase`."
         return errors
