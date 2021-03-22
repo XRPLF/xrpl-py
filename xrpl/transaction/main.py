@@ -91,9 +91,6 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
 
 
 def _key_to_tx_json(key: str) -> str:
-    """Transforms snake case to capitalized camel case.
-    For example, 'transaction_type' becomes 'TransactionType'.
-    """
     snaked = "".join([word.capitalize() for word in key.split("_")])
     return re.sub(r"Id", r"ID", snaked)
 
