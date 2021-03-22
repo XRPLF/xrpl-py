@@ -26,7 +26,7 @@ def encode(json: Dict[str, Any]) -> str:
     Encode a transaction or other object into the canonical binary format.
 
     Args:
-        json: A JSON-like dictionary representation of a object.
+        json: A JSON-like dictionary representation of an object.
 
     Returns:
         The binary-encoded object, as a hexadecimal string.
