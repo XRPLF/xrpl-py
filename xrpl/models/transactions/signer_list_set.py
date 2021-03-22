@@ -27,7 +27,9 @@ class SignerEntry(BaseModel):
     signer in the list.
     """
 
+    #: This field is required.
     account: str = REQUIRED  # type: ignore
+    #: This field is required.
     signer_weight: int = REQUIRED  # type: ignore
 
     def to_dict(self: SignerEntry) -> Dict[str, Any]:
@@ -54,6 +56,7 @@ class SignerListSet(Transaction):
     `See MultiSign Amendment <https://xrpl.org/known-amendments.html#multisign>`_
     """
 
+    #: This field is required.
     signer_quorum: int = REQUIRED  # type: ignore
     signer_entries: Optional[List[SignerEntry]] = None
     transaction_type: TransactionType = field(

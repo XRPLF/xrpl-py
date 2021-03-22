@@ -27,6 +27,7 @@ class CheckCancel(Transaction):
     `See CheckCancel <https://xrpl.org/checkcancel.html>`_
     """
 
+    #: This field is required.
     check_id: str = REQUIRED  # type: ignore
     transaction_type: TransactionType = field(
         default=TransactionType.CHECK_CANCEL,

@@ -36,7 +36,9 @@ class SignFor(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.SIGN_FOR, init=False)
+    #: This field is required.
     account: str = REQUIRED  # type: ignore
+    #: This field is required.
     transaction: Transaction = REQUIRED  # type: ignore
     secret: Optional[str] = None
     seed: Optional[str] = None

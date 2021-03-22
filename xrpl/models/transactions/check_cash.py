@@ -43,6 +43,7 @@ class CheckCash(Transaction):
     `See CheckCash <https://xrpl.org/checkcash.html>`_
     """
 
+    #: This field is required.
     check_id: str = REQUIRED  # type: ignore
     amount: Optional[Amount] = None
     deliver_min: Optional[Amount] = None

@@ -81,8 +81,11 @@ class Signer(BaseModel):
     has the following nested fields.
     """
 
+    #: This field is required.
     account: str = REQUIRED  # type: ignore
+    #: This field is required.
     txn_signature: str = REQUIRED  # type: ignore
+    #: This field is required.
     signing_pub_key: str = REQUIRED  # type: ignore
 
 
@@ -97,6 +100,7 @@ class Transaction(BaseModel):
     See https://xrpl.org/transaction-common-fields.html.
     """
 
+    #: This field is required.
     account: str = REQUIRED  # type: ignore
     transaction_type: TransactionType = REQUIRED  # type: ignore
     fee: Optional[str] = None  # auto-fillable

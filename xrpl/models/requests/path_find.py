@@ -133,9 +133,13 @@ class PathFind(Request):
     a symptom of heavy server load.)
     """
 
+    #: This field is required.
     subcommand: PathFindSubcommand = REQUIRED  # type: ignore
+    #: This field is required.
     source_account: str = REQUIRED  # type: ignore
+    #: This field is required.
     destination_account: str = REQUIRED  # type: ignore
+    #: This field is required.
     destination_amount: Amount = REQUIRED  # type: ignore
     method: RequestMethod = field(default=RequestMethod.PATH_FIND, init=False)
     send_max: Optional[Amount] = None

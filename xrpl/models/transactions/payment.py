@@ -49,7 +49,9 @@ class Payment(Transaction):
     `See Payment <https://xrpl.org/payment.html>`_
     """
 
+    #: This field is required.
     amount: Amount = REQUIRED  # type: ignore
+    #: This field is required.
     destination: str = REQUIRED  # type: ignore
     destination_tag: Optional[int] = None
     invoice_id: Optional[str] = None  # TODO: should be a 256 bit hash

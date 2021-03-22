@@ -38,8 +38,11 @@ class RipplePathFind(Request):
     the paths returned by this method are, in fact, the best paths.
     """
 
+    #: This field is required.
     source_account: str = REQUIRED  # type: ignore
+    #: This field is required.
     destination_account: str = REQUIRED  # type: ignore
+    #: This field is required.
     destination_amount: Amount = REQUIRED  # type: ignore
     method: RequestMethod = field(default=RequestMethod.RIPPLE_PATH_FIND, init=False)
     send_max: Optional[Amount] = None

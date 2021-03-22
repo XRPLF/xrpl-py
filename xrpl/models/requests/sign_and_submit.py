@@ -57,6 +57,7 @@ class SignAndSubmit(Submit):
     `See submit <https://xrpl.org/submit.html>`_
     """
 
+    #: This field is required.
     transaction: Transaction = REQUIRED  # type: ignore
     secret: Optional[str] = None
     seed: Optional[str] = None

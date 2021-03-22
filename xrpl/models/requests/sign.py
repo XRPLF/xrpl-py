@@ -48,6 +48,7 @@ class Sign(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.SIGN, init=False)
+    #: This field is required.
     transaction: Transaction = REQUIRED  # type: ignore
     secret: Optional[str] = None
     seed: Optional[str] = None
