@@ -1,4 +1,4 @@
-"""TODO: D104 Missing docstring in public package."""
+"""High-level XRPL exports."""
 from xrpl.constants import CryptoAlgorithm, XRPLException
 
 __all__ = [

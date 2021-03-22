@@ -1,8 +1,8 @@
 import unittest
 
-from xrpl.binarycodec import XRPLBinaryCodecException
-from xrpl.binarycodec.binary_wrappers import BinaryParser
-from xrpl.binarycodec.types.vector256 import Vector256
+from xrpl.core.binarycodec import XRPLBinaryCodecException
+from xrpl.core.binarycodec.binary_wrappers import BinaryParser
+from xrpl.core.binarycodec.types.vector256 import Vector256
 
 HASH1 = "42426C4D4F1009EE67080A9B7965B44656D7714D104A72F9B4369F97ABF044EE"
 HASH2 = "4C97EBA926031A7CF7D7B36FDE3ED66DDA5421192D63DE53FFB46E43B9DC8373"

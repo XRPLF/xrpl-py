@@ -7,9 +7,9 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   xrpl.addresscodec
-   xrpl.binarycodec
-   xrpl.keypairs
+   xrpl.core.addresscodec
+   xrpl.core.binarycodec
+   xrpl.core.keypairs
    xrpl.models
 
 Submodules
