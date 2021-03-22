@@ -1,7 +1,7 @@
 import unittest
 
-from xrpl.binarycodec import XRPLBinaryCodecException
-from xrpl.binarycodec.types.account_id import AccountID
+from xrpl.core.binarycodec import XRPLBinaryCodecException
+from xrpl.core.binarycodec.types.account_id import AccountID
 
 HEX_ENCODING = "5E7B112523F68D2F5E879DB4EAC51C6698A69304"
 BASE58_ENCODING = "r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59"

@@ -1,10 +1,10 @@
 import unittest
 
-from xrpl.binarycodec.binary_wrappers import BinaryParser
-from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
-from xrpl.binarycodec.types.hash128 import Hash128
-from xrpl.binarycodec.types.hash160 import Hash160
-from xrpl.binarycodec.types.hash256 import Hash256
+from xrpl.core.binarycodec.binary_wrappers import BinaryParser
+from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
+from xrpl.core.binarycodec.types.hash128 import Hash128
+from xrpl.core.binarycodec.types.hash160 import Hash160
+from xrpl.core.binarycodec.types.hash256 import Hash256
 
 
 class TestHash128(unittest.TestCase):

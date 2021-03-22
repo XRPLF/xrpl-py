@@ -1,8 +1,11 @@
 import unittest
 
-from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
-from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
-from xrpl.binarycodec.types.serialized_list import _ARRAY_END_MARKER, SerializedList
+from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
+from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
+from xrpl.core.binarycodec.types.serialized_list import (
+    _ARRAY_END_MARKER,
+    SerializedList,
+)
 
 MEMO = {
     "Memo": {
