@@ -1,9 +1,10 @@
-import unittest
+from unittest import TestCase
 
-from xrpl import CryptoAlgorithm, addresscodec
+from xrpl import CryptoAlgorithm
+from xrpl.core import addresscodec
 
 
-class TestCodec(unittest.TestCase):
+class TestCodec(TestCase):
     # seed tests
 
     def test_seed_encode_decode_secp256k1(self):

@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Type
 
 from xrpl import CryptoAlgorithm
-from xrpl.keypairs import derive_classic_address, derive_keypair, generate_seed
+from xrpl.core.keypairs import derive_classic_address, derive_keypair, generate_seed
 
 
 class Wallet:
@@ -24,7 +24,7 @@ class Wallet:
         self.next_sequence_num = 0
 
     @classmethod
-    def generate_seed_and_wallet(
+    def create(
         cls: Type[Wallet], crypto_algorithm: CryptoAlgorithm = CryptoAlgorithm.SECP256K1
     ) -> Wallet:
         """

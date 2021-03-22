@@ -7,7 +7,7 @@ from xrpl.clients import Client
 from xrpl.ledger import get_latest_validated_ledger_sequence
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.transaction import sign_and_submit_transaction
+from xrpl.transaction import safe_sign_and_submit_transaction
 from xrpl.transaction.exceptions import XRPLReliableSubmissionException
 from xrpl.transaction.ledger import get_transaction_from_hash
 from xrpl.wallet import Wallet
@@ -77,7 +77,7 @@ def send_reliable_submission(
             "`last_ledger_sequence` parameter."
         )
 
-    submit_response = sign_and_submit_transaction(transaction, wallet, client)
+    submit_response = safe_sign_and_submit_transaction(transaction, wallet, client)
     result = cast(Dict[str, Any], submit_response.result)
 
     if result["engine_result"] != "tesSUCCESS":

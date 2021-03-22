@@ -1,7 +1,7 @@
-import unittest
+from unittest import TestCase
 
-import xrpl.binarycodec.types.currency as currency
-from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
+import xrpl.core.binarycodec.types.currency as currency
+from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 
 XRP_HEX_CODE = "0000000000000000000000000000000000000000"
 USD_HEX_CODE = "0000000000000000000000005553440000000000"
@@ -10,7 +10,7 @@ XRP_ISO = "XRP"
 USD_ISO = "USD"
 
 
-class TestCurrency(unittest.TestCase):
+class TestCurrency(TestCase):
     def test_is_iso_code(self):
         valid_code = "ABC"
         valid_code_numeric = "123"

@@ -15,6 +15,28 @@ class BaseModel(ABC):
     """The base class for all model types."""
 
     @classmethod
+    def is_dict_of_model(cls: Type[BaseModel], dictionary: Dict[str, Any]) -> bool:
+        """
+        Returns True if the input dictionary was derived by the `to_dict`
+        method of an instance of this class. In other words, True if this is
+        a dictionary representation of an instance of this class.
+
+        NOTE: does not account for model inheritance, IE will only return True
+        if dictionary represents an instance of this class, but not if
+        dictionary represents an instance of a subclass of this class.
+
+        Args:
+            dictionary: The dictionary to check.
+
+        Returns:
+            True if dictionary is a dict representation of an instance of this
+            class.
+        """
+        return isinstance(dictionary, dict) and set(get_type_hints(cls).keys()) == set(
+            dictionary.keys()
+        )
+
+    @classmethod
     def from_dict(cls: Type[BaseModel], value: Dict[str, Any]) -> BaseModel:
         """
         Construct a new BaseModel from a dictionary of parameters.

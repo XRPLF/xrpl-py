@@ -26,7 +26,7 @@ class TestAccount(TestCase):
 
     def test_get_balance(self):
         self.assertEqual(
-            get_balance(WALLET.classic_address, JSON_RPC_CLIENT), 1000000000
+            get_balance(NEW_WALLET.classic_address, JSON_RPC_CLIENT), 1000000000
         )
 
     def test_get_account_transactions(self):

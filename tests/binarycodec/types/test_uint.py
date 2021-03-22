@@ -1,13 +1,13 @@
-import unittest
+from unittest import TestCase
 
-from xrpl.binarycodec import XRPLBinaryCodecException
-from xrpl.binarycodec.types.uint8 import UInt8
-from xrpl.binarycodec.types.uint16 import UInt16
-from xrpl.binarycodec.types.uint32 import UInt32
-from xrpl.binarycodec.types.uint64 import UInt64
+from xrpl.core.binarycodec import XRPLBinaryCodecException
+from xrpl.core.binarycodec.types.uint8 import UInt8
+from xrpl.core.binarycodec.types.uint16 import UInt16
+from xrpl.core.binarycodec.types.uint32 import UInt32
+from xrpl.core.binarycodec.types.uint64 import UInt64
 
 
-class TestUInt(unittest.TestCase):
+class TestUInt(TestCase):
     def test_from_value(self):
         value1 = UInt8.from_value(124)
         value2 = UInt8.from_value(123)

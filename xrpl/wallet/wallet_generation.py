@@ -6,7 +6,7 @@ from requests import post
 
 from xrpl import XRPLException
 from xrpl.account import get_balance, get_next_valid_seq_number
-from xrpl.clients import Client, XRPLTransactionFailureException
+from xrpl.clients import Client, XRPLRequestFailureException
 from xrpl.wallet.main import Wallet
 
 FAUCET_URL = "https://faucet.altnet.rippletest.net/accounts"
@@ -33,7 +33,7 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
         XRPLFaucetException: if an address could not be funded with the faucet.
     """
     timeout_seconds = 40
-    wallet = Wallet.generate_seed_and_wallet()
+    wallet = Wallet.create()
 
     address = wallet.classic_address
     # The faucet *can* be flakey... by printing info about this it's easier to
@@ -43,7 +43,7 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
     # Balance prior to asking for more funds
     try:
         starting_balance = get_balance(address, client)
-    except XRPLTransactionFailureException:
+    except XRPLRequestFailureException:
         starting_balance = 0
 
     # Ask the faucet to send funds to the given address
@@ -55,7 +55,7 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
         sleep(1)
         try:
             current_balance = get_balance(address, client)
-        except XRPLTransactionFailureException:
+        except XRPLRequestFailureException:
             current_balance = 0
         # If our current balance has changed, then return
         if starting_balance != current_balance:

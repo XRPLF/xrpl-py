@@ -1,8 +1,11 @@
-import unittest
+from unittest import TestCase
 
-from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
-from xrpl.binarycodec.exceptions import XRPLBinaryCodecException
-from xrpl.binarycodec.types.serialized_list import _ARRAY_END_MARKER, SerializedList
+from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
+from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
+from xrpl.core.binarycodec.types.serialized_list import (
+    _ARRAY_END_MARKER,
+    SerializedList,
+)
 
 MEMO = {
     "Memo": {
@@ -19,7 +22,7 @@ EXPECTED_JSON = [MEMO, MEMO]
 BUFFER = MEMO_HEX + MEMO_HEX + _ARRAY_END_MARKER.hex().upper()
 
 
-class TestSerializedList(unittest.TestCase):
+class TestSerializedList(TestCase):
     maxDiff = 1000
 
     def test_from_value(self):

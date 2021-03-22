@@ -29,7 +29,9 @@ class EscrowCreate(Transaction):
     `See EscrowCreate <https://xrpl.org/escrowcreate.html>`_
     """
 
+    #: This field is required.
     amount: Amount = REQUIRED  # type: ignore
+    #: This field is required.
     destination: str = REQUIRED  # type: ignore
     destination_tag: Optional[int] = None
     cancel_after: Optional[int] = None

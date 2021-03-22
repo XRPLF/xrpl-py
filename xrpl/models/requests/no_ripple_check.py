@@ -32,10 +32,12 @@ class NoRippleCheck(Request):
     `See noripple_check <https://xrpl.org/noripple_check.html>`_
     """
 
+    #: This field is required.
     account: str = REQUIRED  # type: ignore
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
     method: RequestMethod = field(default=RequestMethod.NO_RIPPLE_CHECK, init=False)
+    #: This field is required.
     role: NoRippleCheckRole = REQUIRED  # type: ignore
     transactions: bool = False
     limit: Optional[int] = 300

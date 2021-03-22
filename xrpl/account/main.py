@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, Union, cast
 
-from xrpl.clients import Client, XRPLTransactionFailureException
+from xrpl.clients import Client, XRPLRequestFailureException
 from xrpl.models.requests import AccountInfo
 from xrpl.models.response import Response
 
@@ -19,13 +19,14 @@ def does_account_exist(address: str, client: Client) -> bool:
         Whether the account exists on the ledger.
 
     Raises:
-        XRPLTransactionFailureException: if the transaction fails.
+        XRPLRequestFailureException: if the transaction fails.
     """
     try:
         get_account_info(address, client)
         return True
-    except XRPLTransactionFailureException as e:
+    except XRPLRequestFailureException as e:
         if e.error_code == "actNotFound":
+            # error code for if the account is not found on the ledger
             return False
         raise
 
@@ -86,7 +87,7 @@ def get_account_info(address: str, client: Client) -> Response:
         The account info for the address.
 
     Raises:
-        XRPLTransactionFailureException: if the transaction fails.
+        XRPLRequestFailureException: if the transaction fails.
     """
     response = client.request(
         AccountInfo(
@@ -98,4 +99,4 @@ def get_account_info(address: str, client: Client) -> Response:
         return response
 
     result = cast(Dict[str, Any], response.result)
-    raise XRPLTransactionFailureException(result["error"], result["error_message"])
+    raise XRPLRequestFailureException(result["error"], result["error_message"])

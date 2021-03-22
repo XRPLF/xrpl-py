@@ -1,7 +1,7 @@
-import unittest
+from unittest import TestCase
 
-from xrpl.binarycodec.binary_wrappers.binary_parser import BinaryParser
-from xrpl.binarycodec.types.serialized_dict import SerializedDict
+from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
+from xrpl.core.binarycodec.types.serialized_dict import SerializedDict
 
 expected_json = {
     "Account": "raD5qJMAShLeHZXf9wjUmo6vRK4arj9cF3",
@@ -37,7 +37,7 @@ buffer = (
 )
 
 
-class TestSerializedDict(unittest.TestCase):
+class TestSerializedDict(TestCase):
     maxDiff = 1000
 
     def test_from_value(self):

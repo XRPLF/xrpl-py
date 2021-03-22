@@ -1,11 +1,11 @@
-import unittest
+from unittest import TestCase
 
 from tests.addresscodec.test_main_test_cases import test_cases
-from xrpl import addresscodec
-from xrpl.addresscodec.main import MAX_32_BIT_UNSIGNED_INT
+from xrpl.core import addresscodec
+from xrpl.core.addresscodec.main import MAX_32_BIT_UNSIGNED_INT
 
 
-class TestMain(unittest.TestCase):
+class TestMain(TestCase):
     def test_classic_address_to_xaddress(self):
         for test_case in test_cases:
             (
