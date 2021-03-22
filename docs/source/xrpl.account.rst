@@ -1,19 +1,5 @@
-xrpl.account package
+XRPL Account Methods
 ====================
-
-Submodules
-----------
-
-xrpl.account.main module
-------------------------
-
-.. automodule:: xrpl.account.main
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
 
 .. automodule:: xrpl.account
    :members:

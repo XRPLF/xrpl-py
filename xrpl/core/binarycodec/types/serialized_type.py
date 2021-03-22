@@ -16,7 +16,7 @@ class SerializedType(ABC):
     @abstractmethod
     def from_parser(
         cls: Type[SerializedType],
-        # TODO: Resolve Any (can't be `BinaryParser` because of circular imports)
+        # TODO: Resolve Any (can't be ``BinaryParser`` because of circular imports)
         parser: Any,
         # length_hint is Any so that subclasses can choose whether or not to require it.
         length_hint: Any,

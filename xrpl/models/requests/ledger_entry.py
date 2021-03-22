@@ -24,7 +24,9 @@ class DepositPreauth(BaseModel):
     object ID.
     """
 
+    #: This field is required.
     owner: str = REQUIRED  # type: ignore
+    #: This field is required.
     authorized: str = REQUIRED  # type: ignore
 
 
@@ -36,7 +38,9 @@ class Directory(BaseModel):
     object ID.
     """
 
+    #: This field is required.
     owner: str = REQUIRED  # type: ignore
+    #: This field is required.
     dir_root: str = REQUIRED  # type: ignore
     sub_index: Optional[int] = None
 
@@ -49,7 +53,9 @@ class Escrow(BaseModel):
     object ID.
     """
 
+    #: This field is required.
     owner: str = REQUIRED  # type: ignore
+    #: This field is required.
     seq: int = REQUIRED  # type: ignore
 
 
@@ -61,7 +67,9 @@ class Offer(BaseModel):
     object ID.
     """
 
+    #: This field is required.
     account: str = REQUIRED  # type: ignore
+    #: This field is required.
     seq: int = REQUIRED  # type: ignore
 
 
@@ -71,6 +79,7 @@ class RippleState(BaseModel):
     """Required fields for requesting a RippleState."""
 
     accounts: List[str] = REQUIRED  # type: ignore
+    #: This field is required.
     currency: str = REQUIRED  # type: ignore
 
 
@@ -82,7 +91,9 @@ class Ticket(BaseModel):
     object ID.
     """
 
+    #: This field is required.
     owner: str = REQUIRED  # type: ignore
+    #: This field is required.
     ticket_sequence: int = REQUIRED  # type: ignore
 
 

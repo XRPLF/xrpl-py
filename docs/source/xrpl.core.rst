@@ -1,20 +1,12 @@
-xrpl.core package
-=================
+Core Codecs
+===========
 
-Subpackages
------------
+The address codec, binary codec, and keypairs codec all contain the underlying functionality
+necessary to work with the XRPL, such as signing and serialization and key generation.
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
 
    xrpl.core.addresscodec
    xrpl.core.binarycodec
    xrpl.core.keypairs
-
-Module contents
----------------
-
-.. automodule:: xrpl.core
-   :members:
-   :undoc-members:
-   :show-inheritance:

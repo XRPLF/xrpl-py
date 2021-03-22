@@ -29,6 +29,7 @@ class AccountChannels(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_CHANNELS, init=False)
+    #: This field is required.
     account: str = REQUIRED  # type: ignore
     destination_account: Optional[str] = None
     limit: int = 200

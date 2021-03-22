@@ -245,7 +245,7 @@ class Amount(SerializedType):
     @classmethod
     def from_value(cls: Type[Amount], value: Union[str, Dict[str, str]]) -> Amount:
         """
-         Construct an Amount from an issued currency amount or (for XRP),
+        Construct an Amount from an issued currency amount or (for XRP),
         a string amount.
 
         See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_

@@ -22,4 +22,5 @@ class Manifest(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.MANIFEST, init=False)
+    #: This field is required.
     public_key: str = REQUIRED  # type: ignore

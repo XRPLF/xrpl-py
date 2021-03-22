@@ -1,5 +1,5 @@
-xrpl.models.currencies package
-==============================
+XRPL Currency Models
+====================
 
 Submodules
 ----------

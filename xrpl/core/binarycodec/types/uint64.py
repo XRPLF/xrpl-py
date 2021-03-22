@@ -25,7 +25,7 @@ class UInt64(UInt):
     """
 
     def __init__(self: UInt64, buffer: bytes = bytes(_WIDTH)) -> None:
-        """Construct a new UInt64 type from a `bytes` value."""
+        """Construct a new UInt64 type from a ``bytes`` value."""
         super().__init__(buffer)
 
     @classmethod
