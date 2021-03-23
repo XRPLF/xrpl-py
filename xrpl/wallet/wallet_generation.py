@@ -31,6 +31,7 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
 
     Raises:
         XRPLFaucetException: if an address could not be funded with the faucet.
+        XRPLRequestFailureException: if a request to the ledger fails.
     """
     timeout_seconds = 40
     wallet = Wallet.create()
@@ -64,12 +65,11 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
             try:
                 wallet.next_sequence_num = get_next_valid_seq_number(address, client)
             except XRPLRequestFailureException as e:
-                if e.error_code == "actNotFound":
-                    # try again after waiting a bit
-                    sleep(1)
-                    wallet.next_sequence_num = get_next_valid_seq_number(
-                        address, client
-                    )
+                if e.error_code != "actNotFound":
+                    raise
+                # try again after waiting a bit
+                sleep(1)
+                wallet.next_sequence_num = get_next_valid_seq_number(address, client)
             return wallet
 
     # Otherwise, timeout before balance updates
