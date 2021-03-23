@@ -3,6 +3,29 @@ from typing import Any, Dict, List, cast
 
 from xrpl.clients import Client, XRPLRequestFailureException
 from xrpl.models.requests import AccountTx
+from xrpl.models.response import Response
+
+
+def get_latest_transaction(account: str, client: Client) -> Response:
+    """
+    Fetches the most recent transaction on the ledger associated with an account.
+
+    Args:
+        account: the classic address of the account.
+        client: the network client used to communicate with a rippled node.
+
+    Returns:
+        The Response object containing the transaction info.
+
+    Raises:
+        XRPLRequestFailureException: if the transaction fails.
+    """
+    # max == -1 means that it's the most recent validated ledger version
+    response = client.request(AccountTx(account=account, ledger_index_max=-1, limit=1))
+    if not response.is_successful():
+        result = cast(Dict[str, Any], response.result)
+        raise XRPLRequestFailureException(result["error"], result["error_message"])
+    return response
 
 
 def get_account_transactions(address: str, client: Client) -> List[Dict[str, Any]]:
