@@ -61,9 +61,15 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
         if starting_balance != current_balance:
             if debug:
                 print("Faucet fund successful.")
-            wallet.next_sequence_num = get_next_valid_seq_number(
-                wallet.classic_address, client
-            )
+            try:
+                wallet.next_sequence_num = get_next_valid_seq_number(address, client)
+            except XRPLRequestFailureException as e:
+                if e.error_code == "actNotFound":
+                    # try again after waiting a bit
+                    sleep(1)
+                    wallet.next_sequence_num = get_next_valid_seq_number(
+                        address, client
+                    )
             return wallet
 
     # Otherwise, timeout before balance updates

@@ -27,7 +27,7 @@ class TestTransaction(TestCase):
             fee=FEE,
             sequence=WALLET.next_sequence_num,
             set_flag=SET_FLAG,
-            last_ledger_sequence=WALLET.next_sequence_num + 10,
+            last_ledger_sequence=WALLET.next_sequence_num + 20,
         )
         response = send_reliable_submission(account_set, WALLET, JSON_RPC_CLIENT)
         self.assertTrue(response.result["validated"])
@@ -39,7 +39,7 @@ class TestTransaction(TestCase):
         payment_dict = {
             "account": ACCOUNT,
             "sequence": WALLET.next_sequence_num,
-            "last_ledger_sequence": WALLET.next_sequence_num + 10,
+            "last_ledger_sequence": WALLET.next_sequence_num + 20,
             "fee": "10000",
             "amount": "10",
             "destination": DESTINATION,
