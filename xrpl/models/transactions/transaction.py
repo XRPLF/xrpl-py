@@ -1,10 +1,4 @@
-"""
-The base class for all transaction types. Represents fields common to all transaction
-types.
-
-See https://xrpl.org/transaction-types.html.
-See https://xrpl.org/transaction-common-fields.html.
-"""
+"""The base model for all transactions and their nested object types."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -44,14 +38,25 @@ class TransactionType(str, Enum):
 @dataclass(frozen=True)
 class Memo(BaseModel):
     """
-    The Memos field includes arbitrary messaging data with
-    the transaction. It is presented as an array of objects.
-    Each object has only one field, Memo, which in turn contains
-    another object with one or more of the following fields.
+    An arbitrary piece of data attached to a transaction. A transaction can
+    have multiple Memo objects as an array in the Memos field.
+    Must contain one or more of ``memo_data``, ``memo_format``, and
+    ``memo_type``.
     """
 
+    #: The data of the memo, as a hexadecimal string.
     memo_data: Optional[str] = None
+
+    #: The format of the memo, as a hexadecimal string. Conventionally, this
+    #: should be the `MIME type
+    #: <http://www.iana.org/assignments/media-types/media-types.xhtml>`_
+    #: of the memo data.
     memo_format: Optional[str] = None
+
+    #: The type of the memo, as a hexadecimal string. Conventionally, this
+    #: should be an `RFC 5988 relation
+    #: <http://tools.ietf.org/html/rfc5988#section-4>`_ defining the format of
+    #: the memo data.
     memo_type: Optional[str] = None
 
     def _get_errors(self: Memo) -> Dict[str, str]:
@@ -74,17 +79,21 @@ class Memo(BaseModel):
 @dataclass(frozen=True)
 class Signer(BaseModel):
     """
-    The Signers field contains a multi-signature, which has
-    signatures from up to 8 key pairs, that together should
-    authorize the transaction. The Signers list is an array
-    of objects, each with one field, Signer. The Signer field
-    has the following nested fields.
+    One Signer in a multi-signature. A multi-signed transaction can have an
+    array of up to 8 Signers, each contributing a signature, in the Signers
+    field.
     """
 
+    #: The address of the Signer. This can be a funded account in the XRP
+    #: Ledger or an unfunded address.
     #: This field is required.
     account: str = REQUIRED  # type: ignore
+
+    #: The signature that this Signer provided for this transaction.
     #: This field is required.
     txn_signature: str = REQUIRED  # type: ignore
+
+    #: The public key that should be used to verify this Signer's signature.
     #: This field is required.
     signing_pub_key: str = REQUIRED  # type: ignore
 
@@ -93,28 +102,69 @@ class Signer(BaseModel):
 @dataclass(frozen=True)
 class Transaction(BaseModel):
     """
-    The base class for all transaction types. Represents fields common to all
-    transaction types.
-
-    See https://xrpl.org/transaction-types.html.
-    See https://xrpl.org/transaction-common-fields.html.
+    The base class for all `transaction types
+    <https://xrpl.org/transaction-types.html>`_. Represents `fields common to all
+    transaction types <https://xrpl.org/transaction-common-fields.html>`_.
     """
 
     # TODO: figure out how to get documentation to ignore the default value
     # in theory this should be doable with `#: :meta hide-value:` but it's not quite
     # working
+
+    #: The address of the sender of the transaction.
     #: This field is required.
     account: str = REQUIRED  # type: ignore
+
     transaction_type: TransactionType = REQUIRED  # type: ignore
+
+    #: (Auto-fillable) The amount of XRP to destroy as a cost to send this
+    #: transaction. See `Transaction Cost
+    #: <https://xrpl.org/transaction-cost.html>`_ for details.
     fee: Optional[str] = None  # auto-fillable
+
+    #: (Auto-fillable) The sequence number of the transaction. Must match the
+    #: sending account's next unused sequence number. See `Account Sequence
+    #: <https://xrpl.org/basic-data-types.html#account-sequence>`_ for details.
     sequence: Optional[int] = None  # auto-fillable
+
+    #: A hash value identifying a previous transaction from the same sender. If
+    #: provided, this transaction is only considered valid if the identified
+    #: transaction is the most recent transaction sent by this address. See
+    #: `AccountTxnID
+    #: <https://xrpl.org/transaction-common-fields.html#accounttxnid>`_ for
+    #: details.
     account_txn_id: Optional[str] = None
+
+    #: A bitwise map of flags modifying this transaction's behavior. See `Flags
+    #: Field <https://xrpl.org/transaction-common-fields.html#flags-field>`_ for
+    #: more details.
     flags: int = 0
+
+    #: The highest ledger index this transaction can appear in. Specifying this
+    #: field places a strict upper limit on how long the transaction can wait
+    #: to be validated or rejected. See `Reliable Transaction Submission
+    #: <https://xrpl.org/reliable-transaction-submission.html>`_ for details.
     last_ledger_sequence: Optional[int] = None
+
+    #: Additional arbitrary information attached to this transaction.
     memos: Optional[List[Memo]] = None
+
+    #: Signing data authorizing a multi-signed transaction. Added during
+    #: multi-signing.
     signers: Optional[List[Signer]] = None
+
+    #: An arbitrary tag `source tag
+    #: <https://xrpl.org/source-and-destination-tags.html>`_ representing a
+    #: hosted user or specific purpose at the sending account where this
+    #: transaction comes from.
     source_tag: Optional[int] = None
+
+    #: The public key authorizing a single-signed transaction. Automatically
+    #: added during signing.
     signing_pub_key: Optional[str] = None
+
+    #: The cryptographic signature from the sender that authorizes this
+    #: transaction. Automatically added during signing.
     txn_signature: Optional[str] = None
 
     def to_dict(self: Transaction) -> Dict[str, Any]:
