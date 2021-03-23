@@ -1,3 +1,5 @@
+[![Documentation Status](https://readthedocs.org/projects/xrpl-py/badge)](https://xrpl-py.readthedocs.io/)
+
 # xrpl-py
 
 Supports Python 3.7 and later.
