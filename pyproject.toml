@@ -1,16 +1,25 @@
 [tool.poetry]
 name = "xrpl"
-version = "0.1.0"
-description = "Foundational XRPL ledger tools"
+version = "1.0.0"
+description = "A complete Python library for interacting with the XRP ledger"
 readme = "README.md"
-repository = "https://github.com/xpring-eng/xrpl-py"
+repository = "https://github.com/XRPLF/xrpl-py"
 authors = [
-    "Amie Corso <acorso@ripple.com>",
-    "Ted Kalaw <tkalaw@ripple.com>",
-    "Mayukha Vadari <mvadari@ripple.com>",
-    "Greg Weisbrod <gweisbrod@ripple.com>",
+  "Amie Corso <acorso@ripple.com>",
+  "Ted Kalaw <tkalaw@ripple.com>",
+  "Mayukha Vadari <mvadari@ripple.com>",
+  "Greg Weisbrod <gweisbrod@ripple.com>",
 ]
-
+keywords = [
+  "xrp",
+  "xrpl",
+  "cryptocurrency",
+]
+license = "ISC"
+documentation = "https://xrpl-py.readthedocs.io"
+include = [
+  "LICENSE",
+]
 
 [tool.poetry.dependencies]
 python = "^3.7"
