@@ -24,7 +24,7 @@ To make it easy to manage your Python environment with `xrpl-py`, including swit
 
 ### Set up shell environment
 
-To enable autcompletion and other functionality from your shell, add `pyenv` to your environment.
+To enable autocompletion and other functionality from your shell, add `pyenv` to your environment.
 
 These steps assume that you're using a [Zsh](http://zsh.sourceforge.net/) shell. For other shells, see the [`pyenv` README](https://github.com/pyenv/pyenv#basic-github-checkout).
 
@@ -50,7 +50,7 @@ To simplify managing library dependencies and the virtual environment, `xrpl-py`
 
 To run linting and other checks, `xrpl-py` uses [`pre-commit`](https://pre-commit.com/).
 
-**Note:** You only need to install `pre-commit` if you want to contribute code to `xrpl-py` or generate the reference documentation locally.
+**Note:** You only need to install `pre-commit` if you want to contribute code to `xrpl-py`.
 
 
 * Install `pre-commit`:
@@ -77,7 +77,7 @@ poetry run python3 -m unittest discover tests
 
 ### Generate reference docs
 
-You can see the SDK reference docs at <<<TODO: add location>>>. You can also generate them locally using `poetry` and `sphinx`:
+You can see the complete reference documentation at [`xrpl-py` docs](https://xrpl-py.readthedocs.io/en/latest/index.html). You can also generate them locally using `poetry` and `sphinx`:
 
 ```bash
 # Go to the docs/ folder
@@ -95,5 +95,5 @@ To see the output:
 cd docs/_build/html/
 
 # Open the index file to view it in a browser:
-open docs/_build/html/index.html
+open _build/html/index.html
 ```
