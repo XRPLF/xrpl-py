@@ -7,11 +7,7 @@ This command requires the MultiSign amendment to be enabled.
 
 `See submit_multisigned <https://xrpl.org/submit_multisigned.html>`_
 """
-
-from __future__ import annotations
-
 from dataclasses import dataclass, field
-from typing import Any, Dict
 
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
@@ -34,17 +30,5 @@ class SubmitMultisigned(Request):
 
     method: RequestMethod = field(default=RequestMethod.SUBMIT_MULTISIGNED, init=False)
     #: This field is required.
-    transaction: Transaction = REQUIRED  # type: ignore
+    tx_json: Transaction = REQUIRED  # type: ignore
     fail_hard: bool = False
-
-    def to_dict(self: SubmitMultisigned) -> Dict[str, Any]:
-        """
-        Returns the dictionary representation of a SubmitMultisigned.
-
-        Returns:
-            The dictionary representation of a SubmitMultisigned.
-        """
-        return_dict = super().to_dict()
-        del return_dict["transaction"]
-        return_dict["tx_json"] = self.transaction.to_dict()
-        return return_dict

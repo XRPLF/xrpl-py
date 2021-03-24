@@ -1,5 +1,4 @@
 """High-level binary codec methods."""
-
 from typing import Any, Dict, Optional, cast
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
@@ -28,7 +27,7 @@ def encode(json: Dict[str, Any]) -> str:
     Returns:
         A hex-string of the encoded transaction.
     """
-    return cast(str, _serialize_json(json))
+    return _serialize_json(json)
 
 
 def encode_for_signing(json: Dict[str, Any]) -> str:
@@ -41,9 +40,10 @@ def encode_for_signing(json: Dict[str, Any]) -> str:
     Returns:
         A hex string of the encoded transaction.
     """
-    return cast(
-        str,
-        _serialize_json(json, prefix=_TRANSACTION_SIGNATURE_PREFIX, signing_only=True),
+    return _serialize_json(
+        json,
+        prefix=_TRANSACTION_SIGNATURE_PREFIX,
+        signing_only=True,
     )
 
 
@@ -76,17 +76,13 @@ def encode_for_multisigning(json: Dict[str, Any], signing_account: str) -> str:
     Returns:
         A hex string of the encoded transaction.
     """
-    assert json["SigningPubKey"] == ""
     signing_account_id = bytes(AccountID.from_value(signing_account))
 
-    return cast(
-        str,
-        _serialize_json(
-            json,
-            prefix=_TRANSACTION_MULTISIG_PREFIX,
-            suffix=signing_account_id,
-            signing_only=True,
-        ),
+    return _serialize_json(
+        json,
+        prefix=_TRANSACTION_MULTISIG_PREFIX,
+        suffix=signing_account_id,
+        signing_only=True,
     )
 
 
@@ -110,7 +106,7 @@ def _serialize_json(
     prefix: Optional[bytes] = None,
     suffix: Optional[bytes] = None,
     signing_only: bool = False,
-) -> bytes:
+) -> str:
     buffer = b""
     if prefix is not None:
         buffer += prefix
@@ -120,4 +116,4 @@ def _serialize_json(
     if suffix is not None:
         buffer += suffix
 
-    return cast(bytes, buffer.hex().upper())
+    return buffer.hex().upper()

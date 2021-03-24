@@ -88,6 +88,39 @@ class Signer(BaseModel):
     #: This field is required.
     signing_pub_key: str = REQUIRED  # type: ignore
 
+    @classmethod
+    def is_dict_of_model(cls: Type[Signer], dictionary: Dict[str, Any]) -> bool:
+        """
+        Returns True if the input dictionary was derived by the `to_dict`
+        method of an instance of this class. In other words, True if this is
+        a dictionary representation of an instance of this class.
+
+        NOTE: does not account for model inheritance, IE will only return True
+        if dictionary represents an instance of this class, but not if
+        dictionary represents an instance of a subclass of this class.
+
+        Args:
+            dictionary: The dictionary to check.
+
+        Returns:
+            True if dictionary is a dict representation of an instance of this
+            class.
+        """
+        return (
+            isinstance(dictionary, dict)
+            and "signer" in dictionary
+            and super().is_dict_of_model(dictionary["signer"])
+        )
+
+    def to_dict(self: Signer) -> Dict[str, Any]:
+        """
+        Returns the dictionary representation of a Signer.
+
+        Returns:
+            The dictionary representation of a Signer.
+        """
+        return {"signer": super().to_dict()}
+
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
@@ -114,7 +147,7 @@ class Transaction(BaseModel):
     memos: Optional[List[Memo]] = None
     signers: Optional[List[Signer]] = None
     source_tag: Optional[int] = None
-    signing_pub_key: Optional[str] = None
+    signing_pub_key: str = ""
     txn_signature: Optional[str] = None
 
     def to_dict(self: Transaction) -> Dict[str, Any]:

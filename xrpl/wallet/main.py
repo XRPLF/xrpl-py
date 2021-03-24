@@ -1,44 +1,57 @@
 """The information needed to control an XRPL account."""
-
 from __future__ import annotations
 
-from typing import Type
+from typing import Optional, cast
 
-from xrpl import CryptoAlgorithm
+from xrpl import CryptoAlgorithm, XRPLException
 from xrpl.core.keypairs import derive_classic_address, derive_keypair, generate_seed
 
 
 class Wallet:
     """The information needed to control an XRPL account."""
 
-    def __init__(self: Wallet, seed: str) -> None:
+    def __init__(
+        self: Wallet,
+        seed: Optional[str] = None,
+        pub_key: Optional[str] = None,
+        priv_key: Optional[str] = None,
+    ) -> None:
         """
-        Generate a new Wallet.
+        Generate a new Wallet. There are three ways to instantiate a Wallet:
+
+        1) Explicitly with each key: in this case, you must pass both pub_key
+        and priv_key. The seed argument will not have an effect.
+
+        2) Generated from a seed: in this case, you must pass only the seed
+        argument.
+
+        3) Generated from entropy: in this case, you must pass no arguments
+        and the seed with be generated for you.
 
         Args:
-            seed: The seed from which the public and private keys are derived.
+            seed: The seed from which public and private keys are derived.
+            pub_key: The public key of this Wallet.
+            priv_key: The private key of this Wallet.
+
+        Raises:
+            XRPLException: If pub_key is passed without priv_key, or priv_key
+            is passed without pub_key.
         """
-        self.seed = seed
-        self.pub_key, self.priv_key = derive_keypair(self.seed)
+        if (pub_key is None) ^ (priv_key is None):
+            raise XRPLException(
+                "Must pass both pub_key and priv_key or neither",
+            )
+        if pub_key is not None:
+            self.seed = None
+            self.pub_key = pub_key
+            # have to cast because mypy doesn't realize priv_key must be
+            # not-None here
+            self.priv_key = cast(str, priv_key)
+        else:
+            self.seed = seed or generate_seed(algorithm=CryptoAlgorithm.SECP256K1)
+            self.pub_key, self.priv_key = derive_keypair(self.seed)
         self.classic_address = derive_classic_address(self.pub_key)
         self.next_sequence_num = 0
-
-    @classmethod
-    def create(
-        cls: Type[Wallet], crypto_algorithm: CryptoAlgorithm = CryptoAlgorithm.SECP256K1
-    ) -> Wallet:
-        """
-        Generates a new seed and Wallet.
-
-        Args:
-            crypto_algorithm: The key-generation algorithm to use when generating the
-                seed. Defaults to SECP256K1.
-
-        Returns:
-            The wallet that is generated from the given seed.
-        """
-        seed = generate_seed(algorithm=crypto_algorithm)
-        return cls(seed)
 
     def __str__(self: Wallet) -> str:
         """
@@ -49,5 +62,5 @@ class Wallet:
         """
         return (
             f"seed: {self.seed}\npub_key: {self.pub_key}\n"
-            f"priv_key: {self.priv_key}\nclassic_address: {self.classic_address}\n"
+            f"priv_key: -HIDDEN-\nclassic_address: {self.classic_address}\n"
         )

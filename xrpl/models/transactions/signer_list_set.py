@@ -61,7 +61,7 @@ class SignerEntry(BaseModel):
         Returns the dictionary representation of a SignerEntry.
 
         Returns:
-            The dictionary representation of a BaseModel.
+            The dictionary representation of a Signer.
         """
         return {"signer_entry": super().to_dict()}
 

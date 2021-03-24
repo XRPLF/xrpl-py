@@ -52,6 +52,7 @@ class TestBaseModel(TestCase):
             **check_create_dict,
             "transaction_type": "CheckCreate",
             "flags": 0,
+            "signing_pub_key": "",
         }
         self.assertEqual(expected_dict, check_create.to_dict())
 
