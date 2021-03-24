@@ -83,8 +83,6 @@ See the complete [`xrpl-py` reference documentation on Read the Docs](https://xr
 
 The following sections describe some of the most commonly used modules in the `xrpl-py` library and provide sample code.
 
-For complete reference documentation, see the [`xrpl-py` docs](https://xrpl-py.readthedocs.io/en/latest/index.html).
-
 ### Network client
 
 Use the `xrpl.clients` library to create a network client for connecting to the XRP Ledger.
