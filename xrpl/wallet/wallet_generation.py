@@ -34,7 +34,7 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
         XRPLRequestFailureException: if a request to the ledger fails.
     """
     timeout_seconds = 40
-    wallet = Wallet()
+    wallet = Wallet.create()
 
     address = wallet.classic_address
     # The faucet *can* be flakey... by printing info about this it's easier to

@@ -14,7 +14,7 @@ from xrpl.transaction import send_reliable_submission
 from xrpl.wallet import Wallet, generate_faucet_wallet
 
 NEW_WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
-EMPTY_WALLET = Wallet()
+EMPTY_WALLET = Wallet.create()
 
 
 class TestAccount(TestCase):

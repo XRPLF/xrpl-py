@@ -8,7 +8,7 @@ from xrpl.wallet import Wallet
 
 class TestSetRegularKey(TestCase):
     def test_all_fields(self):
-        regular_key = Wallet().classic_address
+        regular_key = Wallet.create().classic_address
         response = submit_transaction(
             SetRegularKey(
                 account=WALLET.classic_address,

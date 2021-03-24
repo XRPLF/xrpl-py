@@ -21,8 +21,8 @@ from xrpl.wallet import Wallet
 
 #
 # Set up signer list
-FIRST_SIGNER = Wallet()
-SECOND_SIGNER = Wallet()
+FIRST_SIGNER = Wallet.create()
+SECOND_SIGNER = Wallet.create()
 LIST_SET_TX = send_reliable_submission(
     SignerListSet(
         account=WALLET.classic_address,
@@ -54,7 +54,7 @@ class TestSubmitMultisigned(TestCase):
         # NOTE: If you need to use xrpl-py for multisigning, please create an issue on
         # the repo. We'd like to gauge interest in higher level multisigning
         # functionality.
-        issuer = Wallet()
+        issuer = Wallet.create()
         tx = TrustSet(
             account=WALLET.classic_address,
             sequence=WALLET.next_sequence_num,
