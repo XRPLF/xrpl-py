@@ -6,10 +6,11 @@ A pure Python implementation for interacting with the XRP Ledger, the `xrpl-py` 
 
 ```py
 >>> import xrpl
-# create a wallet on the testnet
+# create a network client
 >>> from xrpl.clients.json_rpc_client import JsonRpcClient
 >>> JSON_RPC_URL_TESTNET = "https://s.altnet.rippletest.net:51234/"
 >>> JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL_TESTNET)
+# create a wallet on the testnet
 >>> from xrpl.wallet import generate_faucet_wallet, Wallet
 >>> TESTNET_WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
 >>> TESTNET_CLASSIC_ACCOUNT = TESTNET_WALLET.classic_address
@@ -38,28 +39,6 @@ ra9cjuPRq7tmR3Uin3y6fUPKLZ317JLvbN
     "Sequence": 16007556,
     "index": "EEE14A3994B4067813CEF0E6B94F1FCD2B66204DEF1B8DB6E3E6909770132F7B"
 }
-# convert classic address to x-address
->>> from xrpl.core import addresscodec
->>> TESNET_XADDRESS = addresscodec.classic_address_to_xaddress(TESTNET_CLASSIC_ACCOUNT, False, True)
->>> print(TESNET_XADDRESS)
-T7CiH636SkvWbU17fKdttaHE97SXQRW1NfMESd67VDcoZTn
-# prepare and submit an AccountSet transaction
->>> from xrpl.account import get_next_valid_seq_number
->>> _FEE = "10"
->>> SET_FLAG = 8
->>> TESTNET_WALLET.next_sequence_num = get_next_valid_seq_number(TESTNET_CLASSIC_ACCOUNT, JSON_RPC_CLIENT)
->>> from xrpl.models.transactions import AccountSet, Payment
->>> account_set = AccountSet(
-...         account=TESTNET_CLASSIC_ACCOUNT,
-...         fee=_FEE,
-...         sequence=TESTNET_WALLET.next_sequence_num,
-...         set_flag=SET_FLAG,
-...     )
->>> print(account_set)
-AccountSet(account='ra9cjuPRq7tmR3Uin3y6fUPKLZ317JLvbN', transaction_type=<TransactionType.ACCOUNT_SET: 'AccountSet'>, fee='10', sequence=16007556, account_txn_id=None, flags=0, last_ledger_sequence=None, memos=None, signers=None, source_tag=None, signing_pub_key=None, txn_signature=None, clear_flag=None, domain=None, email_hash=None, message_key=None, set_flag=8, transfer_rate=None, tick_size=None)
->>> response = safe_sign_and_submit_transaction(account_set, TESTNET_WALLET, JSON_RPC_CLIENT)
->>> print("response.status: ", response.status)
-response.status:  ResponseStatus.SUCCESS
 ```
 
 
@@ -89,10 +68,12 @@ Use `xrpl-py` to build Python applications that leverage the [XRP Ledger](https:
 * Serialization
 * Transaction Signing
 
-`xrpl-py` also provides various other convenience methods, including:
+`xrpl-py` also provides:
 
-* Network client: See [`xrpl.clients`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.clients.html) for more information.
-* Methods for insepcting accounts: See [XRPL Account Methods](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.account.html)
+* A network client — See [`xrpl.clients`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.clients.html) for more information.
+* Methods for insepcting accounts — See [XRPL Account Methods](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.account.html) for more information.
+* Codecs for encoding and decoding addresses and other objects — See [Core Codecs](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.core.html) for more information.
+
 
 ## Usage
 
@@ -100,10 +81,17 @@ The following sections describe some of the most commonly used modules in the `x
 
 For complete reference documentation, see the [`xrpl-py` docs](https://xrpl-py.readthedocs.io/en/latest/index.html).
 
+### Network client
+
+Use the `xrpl.clients` library to create a network client for connecting to the XRP Ledger.
+
+```py
+from xrpl.clients.json_rpc_client import JsonRpcClient
+JSON_RPC_URL = "https://s.altnet.rippletest.net:51234/"
+JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
+```
+
 ### Manage keys and wallets
-
-The `xrpl.keypairs` module provides methods for generating seeds, deriving, and validating keypairs.
-
 
 #### `xrpl.wallet`
 
@@ -137,8 +125,7 @@ Classic address:
 
 #### `xrpl.core.keypairs`
 
-
-Use the [`xrpl.core.keypairs`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.core.keypairs.html#module-xrpl.core.keypairs) module to generate seeds and derive keypairs and addresses from seeds.
+Use the [`xrpl.core.keypairs`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.core.keypairs.html#module-xrpl.core.keypairs) module to generate seeds and derive keypairs and addresses from those seed values.
 
 Here's an example of how to generate a `seed` value and derive an [XRP Ledger "classic" address](https://xrpl.org/cryptographic-keys.html#account-id-and-address) from that seed.
 
@@ -155,64 +142,72 @@ print(f"Here's the private key:\n", private +  "\nStore this in a secure place."
 **Note:** You can use `xrpl.core.keypairs.sign` to sign transactions but `xrpl-py` also provides explicit methods for safely signing and submitting transactions. See [Transaction Signing](#transaction-signing) and [XRPL Transaction Methods](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.transaction.html#module-xrpl.transaction) for more information.
 
 
+### Serialize and sign transactions
+
+To securely submit transactions to the XRP Ledger, you need to first serialize data from JSON and other formats into the [binary format accepted by the XRP Ledger and its core server (`rippled`)](https://xrpl.org/serialization.html#serialization-format), then to [authorize the transaction](https://xrpl.org/transaction-basics.html#authorizing-transactions) by digitally [signing it](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.core.keypairs.html?highlight=sign#xrpl.core.keypairs.sign) with the account's private key. Because this can be error-prone, `xrpl-py` provides methods that simplify the process.
 
 
-### Serialization
+Use the [`xrpl.transaction`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.transaction.html) module to sign and submit transactions. The module offers three ways to do this:
 
-To securely sign the contents of transactions submitted to the XRP Ledger, you need to serialize data from JSON and other formats into the [binary format accepted by the XRP Ledger and its core server (`rippled`)](https://xrpl.org/serialization.html#serialization-format).
+* [`safe_sign_and_submit_transaction`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.transaction.html#xrpl.transaction.safe_sign_and_submit_transaction) — Signs a transaction locally, then submits it to the XRP Ledger. This method does not implement [reliable transaction submission](https://xrpl.org/reliable-transaction-submission.html#reliable-transaction-submission) best practices, so only use it for development or testing purposes.
 
-Use the `xrpl.models.transactions` module to prepare transactions in the formats expected by the XRP Ledger.
+* [`safe_sign_transaction`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.transaction.html#xrpl.transaction.safe_sign_transaction) — Signs a transaction locally. This method **does  not** submit the transaction to the XRP Ledger.
+
+* [`send_reliable_submission`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.transaction.html#xrpl.transaction.send_reliable_submission) — An implementation of the [reliable transaction submission guidelines](https://xrpl.org/reliable-transaction-submission.html#reliable-transaction-submission), this method signs a transaction locally, submits the transaction to the XRP Ledger, and then verifies that it has been included in a validated ledger (or has failed to do so). Use this method to submit transactions for production purposes.
+
 
 ```py
-from xrpl.models.transactions import AccountSet, Payment
-from xrpl.models.transactions.transaction import Transaction, TransactionType, Memo
-from xrpl.core.binarycodec import encode_for_signing
+from xrpl.models.transactions import Payment
+from xrpl.models.transactions.transaction import Transaction
+from xrpl.transaction import send_reliable_submission
+from xrpl.ledger import get_fee
+
+FEE = get_fee(JSON_RPC_CLIENT)
+
+# prepare the transaction
 my_tx_payment = Payment(
     account=TESTNET_CLASSIC_ACCOUNT,
     amount=_AMOUNT,
     destination=TESTNET_DESTINATION_ACCOUNT,
-    memos=_MEMO,
+    signing_pub_key=TESTNET_WALLET.pub_key,
+    last_ledger_sequence=TESTNET_WALLET.next_sequence_num + 10,
+    sequence=TESTNET_WALLET.next_sequence_num,
+    fee=FEE,
 )
-print(my_tx_payment)
-serialized_tx_payment = encode_for_signing(my_tx_payment)
-serialized_tx_payment = encode(my_tx_payment)
+# sign the transaction
+my_tx_payment_signed = safe_sign_transaction(my_tx_payment,TESTNET_WALLET)
 
-
-# print output
-Payment(account='rnCvKZut85Zgvvx3PjALvjQpn25RNTgj9T', transaction_type=<TransactionType.PAYMENT: 'Payment'>, fee=None, sequence=None, account_txn_id=None, flags=0, last_ledger_sequence=None, memos='I sent this with xrpl-py!', signers=None, source_tag=None, signing_pub_key=None, txn_signature=None, amount='20', destination='rBCLR6TTxUf171Dshu92AMbrKLVXLVceRy', destination_tag=None, invoice_id=None, paths=None, send_max=None, deliver_min=None)
-
-my_tx_account_set = AccountSet(
-        account=TESTNET_CLASSIC_ACCOUNT,
-        fee=_FEE,
-        sequence=TESTNET_WALLET.next_sequence_num,
-        set_flag=SET_FLAG,
-)
-print(my_tx_account_set)
-
-# print output
-AccountSet(account='rnCvKZut85Zgvvx3PjALvjQpn25RNTgj9T', transaction_type=<TransactionType.ACCOUNT_SET: 'AccountSet'>, fee='10', sequence=16011745, account_txn_id=None, flags=0, last_ledger_sequence=None, memos=None, signers=None, source_tag=None, signing_pub_key=None, txn_signature=None, clear_flag=None, domain=None, email_hash=None, message_key=None, set_flag=8, transfer_rate=None, tick_size=None)
+# submit the transaction
+tx_response = send_reliable_submission(my_tx_payment, TESTNET_WALLET, JSON_RPC_CLIENT_TESTNET)
 ```
 
-TODO: add more examples
+### Encode addresses
 
+Use the [`xrpl.core.addresscodec`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.core.addresscodec.html) to encode and decode addresses into the "classic" and X-address formats.
 
-### Transaction Signing
-
-TODO: add description and examples
-
+```py
+# convert classic address to x-address
+>>> from xrpl.core import addresscodec
+>>> TESNET_XADDRESS = addresscodec.classic_address_to_xaddress(TESTNET_CLASSIC_ACCOUNT, False, True)
+>>> print(TESNET_XADDRESS)
+T7CiH636SkvWbU17fKdttaHE97SXQRW1NfMESd67VDcoZTn
+```
 
 ## Documentation
 
-In progress, will be linked/discussed here.
+For complete reference documentation for the library, see [`xrpl-py` docs](https://xrpl-py.readthedocs.io/en/latest/index.html).
+
 
 ## Contributing
 
-If to contribute to this project in [CONTRIBUTING.md].
+If you want to contribute to this project, see [CONTRIBUTING.md].
 
-[CONTRIBUTING.md]: CONTRIBUTING.md
 
 ## License
 
-TODO: figure out license
+The `xrpl-py` library is licensed under the ISC License. See [LICENSE] for more information.
 
-????
+
+
+[CONTRIBUTING.md]: CONTRIBUTING.md
+[LICENSE]: LICENSE
