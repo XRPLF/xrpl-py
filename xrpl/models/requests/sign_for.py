@@ -51,8 +51,6 @@ class SignFor(Request):
         """
         Construct a new SignFor from a dictionary of parameters.
 
-        If not overridden, passes the dictionary as args to the constructor.
-
         Args:
             value: The value to construct the SignFor from.
 
