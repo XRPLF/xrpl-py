@@ -27,6 +27,7 @@ First, ensure that you have Python 3.7 or later. Then, you can download the pack
    source/xrpl.clients
    source/xrpl.models
    source/xrpl.core
+   source/xrpl.utils
    source/xrpl
 
 
