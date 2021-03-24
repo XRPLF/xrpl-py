@@ -9,8 +9,11 @@ from xrpl.account import get_balance, get_next_valid_seq_number
 from xrpl.clients import Client, XRPLRequestFailureException
 from xrpl.wallet.main import Wallet
 
-_FAUCET_URL = "https://faucet.altnet.rippletest.net/accounts"
+_TEST_FAUCET_URL = "https://faucet.altnet.rippletest.net/accounts"
+_DEV_FAUCET_URL = "https://faucet.devnet.rippletest.net/accounts"
+
 _TIMEOUT_SECONDS = 40
+_LEDGER_CLOSE_TIME = 4
 
 
 class XRPLFaucetException(XRPLException):
@@ -32,7 +35,16 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
 
     Raises:
         XRPLFaucetException: if an address could not be funded with the faucet.
+        XRPLRequestFailureException: if a request to the ledger fails.
     """
+    if "dev" in client.url:  # devnet
+        faucet_url = _DEV_FAUCET_URL
+    elif "altnet" in client.url or "test" in client.url:  # testnet
+        faucet_url = _TEST_FAUCET_URL
+    else:
+        raise XRPLFaucetException(
+            "Cannot fund an account with a client that is not on the testnet or devnet."
+        )
     wallet = Wallet.create()
 
     address = wallet.classic_address
@@ -47,7 +59,7 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
         starting_balance = 0
 
     # Ask the faucet to send funds to the given address
-    post(url=_FAUCET_URL, json={"destination": address})
+    post(url=faucet_url, json={"destination": address})
     # Wait for the faucet to fund our account or until timeout
     # Waits one second checks if balance has changed
     # If balance doesn't change it will attempt again until _TIMEOUT_SECONDS
@@ -57,12 +69,20 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
             current_balance = get_balance(address, client)
         except XRPLRequestFailureException:
             current_balance = 0
-        # If our current balance has changed, then return
-        if current_balance > starting_balance:
-            if debug:
-                print("Faucet fund successful.")
+        # If our current balance has not changed, then try again
+        if current_balance <= starting_balance:
+            continue
+        if debug:
+            print("Faucet fund successful.")
+        try:
             wallet.next_sequence_num = get_next_valid_seq_number(address, client)
-            return wallet
+        except XRPLRequestFailureException as e:
+            if e.error_code == "actNotFound":
+                sleep(_LEDGER_CLOSE_TIME)
+                wallet.next_sequence_num = get_next_valid_seq_number(address, client)
+            else:
+                raise
+        return wallet
 
     # Otherwise, timeout before balance updates
     raise XRPLFaucetException(
