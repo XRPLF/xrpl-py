@@ -26,19 +26,18 @@ class TestTransaction(TestCase):
             account=ACCOUNT,
             sequence=WALLET.next_sequence_num,
             set_flag=SET_FLAG,
-            last_ledger_sequence=WALLET.next_sequence_num + 20,
         )
         response = send_reliable_submission(account_set, WALLET, JSON_RPC_CLIENT)
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
+        WALLET.next_sequence_num += 1
 
     def test_reliable_submission_payment(self):
         WALLET.next_sequence_num = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
         payment_dict = {
             "account": ACCOUNT,
             "sequence": WALLET.next_sequence_num,
-            "last_ledger_sequence": WALLET.next_sequence_num + 20,
             "fee": "10000",
             "amount": "10",
             "destination": DESTINATION,
@@ -50,6 +49,7 @@ class TestTransaction(TestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
+        WALLET.next_sequence_num += 1
 
     def test_reliable_submission_last_ledger_expiration(self):
         WALLET.next_sequence_num = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
