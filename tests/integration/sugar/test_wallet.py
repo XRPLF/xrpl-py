@@ -37,5 +37,4 @@ class TestWallet(TestCase):
             wallet,
             client=DEV_JSON_RPC_CLIENT,
         )
-        print(response)
         self.assertTrue(response.is_successful())
