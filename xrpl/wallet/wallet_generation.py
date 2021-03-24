@@ -63,28 +63,35 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
     # Wait for the faucet to fund our account or until timeout
     # Waits one second checks if balance has changed
     # If balance doesn't change it will attempt again until _TIMEOUT_SECONDS
-    for _ in range(_TIMEOUT_SECONDS):
+    i = 0
+    while i < _TIMEOUT_SECONDS:
         sleep(1)
         try:
             current_balance = get_balance(address, client)
         except XRPLRequestFailureException:
             current_balance = 0
-        # If our current balance has not changed, then try again
-        if current_balance <= starting_balance:
-            continue
-        if debug:
-            print("Faucet fund successful.")
+        # If our current balance has changed, then finish
+        if current_balance > starting_balance:
+            if debug:
+                print("Faucet fund successful.")
+            break
+        i += 1
+
+    # only enters the loop if above loop did not time out
+    # try to initialize the account's next sequence number
+    while i < _TIMEOUT_SECONDS:
         try:
             wallet.next_sequence_num = get_next_valid_seq_number(address, client)
+            return wallet
         except XRPLRequestFailureException as e:
             if e.error_code == "actNotFound":
-                sleep(_LEDGER_CLOSE_TIME)
-                wallet.next_sequence_num = get_next_valid_seq_number(address, client)
+                # faucet gen has not fully gone through, try again
+                sleep(1)
+                i += 1
+                continue
             else:
                 raise
-        return wallet
 
-    # Otherwise, timeout before balance updates
     raise XRPLFaucetException(
         "Unable to fund address with faucet after waiting {} seconds".format(
             _TIMEOUT_SECONDS
