@@ -77,7 +77,7 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
             break
         i += 1
 
-    # only enters the loop if above loop did not time out
+    # only enters this loop if above loop did not time out
     # try to initialize the account's next sequence number
     while i < _TIMEOUT_SECONDS:
         try:
