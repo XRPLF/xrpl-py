@@ -197,6 +197,31 @@ print(FEE)
 10
 ```
 
+#### Auto-filled fields
+
+The `xrpl-py` library automatically populates the `fee` and `last_ledger_sequence` fields when you create transactions. In the example above, you could omit those fields and let the library fill them in for you.
+
+```py
+from xrpl.models.transactions import Payment
+from xrpl.transaction import send_reliable_submission
+
+# prepare the transaction
+# the amount is expressed in drops, not XRP
+# see https://xrpl.org/basic-data-types.html#specifying-currency-amounts
+my_tx_payment = Payment(
+    account="rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz",
+    amount="2200000",
+    destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+    sequence=test_wallet.next_sequence_num,
+)
+# sign the transaction
+my_tx_payment_signed = safe_sign_transaction(my_tx_payment,test_wallet)
+
+# submit the transaction
+tx_response = send_reliable_submission(my_tx_payment, test_wallet, client)
+```
+
+
 ### Encode addresses
 
 Use the [`xrpl.core.addresscodec`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.core.addresscodec.html) to encode and decode addresses into and from the ["classic" and X-address formats](https://xrpl.org/accounts.html#addresses).

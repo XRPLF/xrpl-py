@@ -11,13 +11,20 @@ A pure Python implementation for interacting with the XRP Ledger, the ``xrpl-py`
 
 See the `project README <https://github.com/XRPLF/xrpl-py/blob/master/README.md>`_ for more information about its features and usage examples.
 
-How to Install
+
+
+Install
 --------------
 First, ensure that you have `Python 3.7 <https://www.python.org/downloads/>`_ or later.
 
 Then, download the package via ``pip``:
 
 ``pip3 install xrpl``
+
+Report Issues
+--------------
+
+If you run into any bugs or other problems with the library, please report them as issues in the `xrpl-py repo <https://github.com/XRPLF/xrpl-py/issues>`_.
 
 .. toctree::
    :maxdepth: 1
