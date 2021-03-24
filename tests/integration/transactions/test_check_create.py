@@ -27,3 +27,4 @@ class TestCheckCreate(TestCase):
         response = submit_transaction(check_create, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+        WALLET.next_sequence_num += 1

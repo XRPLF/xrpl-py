@@ -18,3 +18,4 @@ class TestPayment(TestCase):
             WALLET,
         )
         self.assertTrue(response.is_successful())
+        WALLET.next_sequence_num += 1

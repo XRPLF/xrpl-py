@@ -22,3 +22,4 @@ class TestOfferCancel(TestCase):
         #
         # This TX will result in a success essentially as long as it is
         # correctly formatted.
+        WALLET.next_sequence_num += 1

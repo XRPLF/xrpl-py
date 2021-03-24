@@ -27,6 +27,7 @@ class TestAccountSet(TestCase):
         response = submit_transaction(account_set, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+        WALLET.next_sequence_num += 1
 
     def test_all_fields_minus_set_flag(self):
         account_set = AccountSet(
@@ -43,3 +44,4 @@ class TestAccountSet(TestCase):
         response = submit_transaction(account_set, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+        WALLET.next_sequence_num += 1

@@ -71,12 +71,6 @@ def send_reliable_submission(
         XRPLReliableSubmissionException: if the transaction fails or is misisng a
             `last_ledger_sequence` param.
     """
-    if transaction.last_ledger_sequence is None:
-        raise XRPLReliableSubmissionException(
-            "Reliable submission requires that the transaction has a "
-            "`last_ledger_sequence` parameter."
-        )
-
     submit_response = safe_sign_and_submit_transaction(transaction, wallet, client)
     result = cast(Dict[str, Any], submit_response.result)
 

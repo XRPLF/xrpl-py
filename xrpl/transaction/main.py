@@ -8,12 +8,14 @@ from xrpl.clients import Client
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec import encode, encode_for_signing
 from xrpl.core.keypairs.main import sign
-from xrpl.ledger import get_fee
+from xrpl.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.wallet import Wallet
+
+_LEDGER_OFFSET = 20
 
 
 def safe_sign_and_submit_transaction(
@@ -33,25 +35,26 @@ def safe_sign_and_submit_transaction(
     Returns:
         The response from the ledger.
     """
-    tx_blob = safe_sign_transaction(transaction, wallet)
+    tx_blob = safe_sign_transaction(transaction, wallet, client)
     return submit_transaction_blob(tx_blob, client)
 
 
-def safe_sign_transaction(transaction: Transaction, wallet: Wallet) -> str:
+def safe_sign_transaction(
+    transaction: Transaction, wallet: Wallet, client: Client
+) -> str:
     """
     Signs a transaction locally, without trusting external rippled nodes.
 
     Args:
         transaction: the transaction to be signed.
         wallet: the wallet with which to sign the transaction.
+        client: a network client, used to handle autofilling.
 
     Returns:
         The signed transaction blob.
     """
     # Increment the wallet sequence number, since we're about to use one.
-    wallet.next_sequence_num += 1
-    transaction_json = transaction_json_to_binary_codec_form(transaction.to_dict())
-    transaction_json["SigningPubKey"] = wallet.pub_key
+    transaction_json = _prepare_transaction(transaction, wallet, client)
     serialized_for_signing = encode_for_signing(transaction_json)
     serialized_bytes = bytes.fromhex(serialized_for_signing)
     signature = sign(serialized_bytes, wallet.priv_key)
@@ -77,7 +80,7 @@ def submit_transaction_blob(
     return client.request(submit_request)
 
 
-def prepare_transaction(
+def _prepare_transaction(
     transaction: Transaction,
     wallet: Wallet,
     client: Client,
@@ -102,7 +105,6 @@ def prepare_transaction(
         XRPLException: if both LastLedgerSequence and `ledger_offset` are provided, or
             if an address tag is provided that does not match the X-Address tag.
     """
-    wallet.next_sequence_num += 1
     transaction_json = transaction_json_to_binary_codec_form(transaction.to_dict())
     transaction_json["SigningPubKey"] = wallet.pub_key
 
@@ -118,22 +120,15 @@ def prepare_transaction(
     # SetRegularKey
     _convert_to_classic_address(transaction_json, "RegularKey")
 
-    sequence = None
     if "Sequence" not in transaction_json:
         sequence = get_next_valid_seq_number(transaction_json["Account"], client)
         transaction_json["Sequence"] = sequence
     if "Fee" not in transaction_json:
         transaction_json["Fee"] = get_fee(client)
 
-    if "LastLedgerSequence" in transaction_json and ledger_offset is not None:
-        raise XRPLException(
-            "Cannot have LastLedgerSequence defined in transaction and have a ledger "
-            "offset parameter."
-        )
-    if "LastLedgerSequence" not in transaction_json and ledger_offset is not None:
-        if sequence is None:
-            sequence = get_next_valid_seq_number(transaction.account, client)
-        transaction_json["LastLedgerSequence"] = sequence + ledger_offset
+    if "LastLedgerSequence" not in transaction_json:
+        ledger_sequence = get_latest_validated_ledger_sequence(client)
+        transaction_json["LastLedgerSequence"] = ledger_sequence + _LEDGER_OFFSET
 
     return transaction_json
 

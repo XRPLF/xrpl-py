@@ -58,7 +58,6 @@ class TestAccount(TestCase):
             account=WALLET.classic_address,
             destination=DESTINATION.classic_address,
             fee=FEE,
-            sequence=WALLET.next_sequence_num,
             amount=amount,
             last_ledger_sequence=WALLET.next_sequence_num + 20,
         )

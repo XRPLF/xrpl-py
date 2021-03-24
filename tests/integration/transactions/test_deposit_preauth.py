@@ -19,6 +19,7 @@ class TestDepositPreauth(TestCase):
         )
         response = submit_transaction(deposit_preauth, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        WALLET.next_sequence_num += 1
 
     def test_unauthorize(self):
         deposit_preauth = DepositPreauth(
@@ -29,3 +30,4 @@ class TestDepositPreauth(TestCase):
         )
         response = submit_transaction(deposit_preauth, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        WALLET.next_sequence_num += 1

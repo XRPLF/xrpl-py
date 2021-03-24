@@ -28,3 +28,4 @@ class TestCheckCancel(TestCase):
         # transaction or the transaction may have an incorrect value in an
         # ID field such as CheckID, Channel, Unauthorize."
         self.assertEqual(response.result["engine_result"], "tecNO_ENTRY")
+        WALLET.next_sequence_num += 1
