@@ -1,5 +1,4 @@
 from tests.integration.it_utils import JSON_RPC_CLIENT
-from xrpl.ledger import get_fee
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.transactions import OfferCreate, PaymentChannelCreate
 from xrpl.transaction import send_reliable_submission
@@ -7,7 +6,6 @@ from xrpl.wallet import generate_faucet_wallet
 
 WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
 DESTINATION = generate_faucet_wallet(JSON_RPC_CLIENT)
-FEE = get_fee(JSON_RPC_CLIENT)
 OFFER = send_reliable_submission(
     OfferCreate(
         account=WALLET.classic_address,
