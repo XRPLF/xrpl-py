@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from tests.integration.it_utils import submit_transaction
-from tests.integration.reusable_values import FEE, WALLET
+from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountSet
 
@@ -20,7 +20,6 @@ class TestAccountSet(TestCase):
     def test_required_fields_and_set_flag(self):
         account_set = AccountSet(
             account=ACCOUNT,
-            fee=FEE,
             sequence=WALLET.next_sequence_num,
             set_flag=SET_FLAG,
         )
@@ -32,7 +31,6 @@ class TestAccountSet(TestCase):
     def test_all_fields_minus_set_flag(self):
         account_set = AccountSet(
             account=ACCOUNT,
-            fee=FEE,
             sequence=WALLET.next_sequence_num,
             clear_flag=CLEAR_FLAG,
             domain=DOMAIN,

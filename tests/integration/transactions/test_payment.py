@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from tests.integration.it_utils import submit_transaction
-from tests.integration.reusable_values import DESTINATION, FEE, WALLET
+from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.models.transactions import Payment
 
 
@@ -11,7 +11,6 @@ class TestPayment(TestCase):
             Payment(
                 account=WALLET.classic_address,
                 sequence=WALLET.next_sequence_num,
-                fee=FEE,
                 amount="1",
                 destination=DESTINATION.classic_address,
             ),

@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from tests.integration.it_utils import submit_transaction
-from tests.integration.reusable_values import FEE, WALLET
+from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import CheckCash
 
@@ -15,7 +15,6 @@ class TestCheckCreate(TestCase):
     def test_required_fields_with_amount(self):
         check_cash = CheckCash(
             account=ACCOUNT,
-            fee=FEE,
             sequence=WALLET.next_sequence_num,
             check_id=CHECK_ID,
             amount=AMOUNT,
@@ -29,7 +28,6 @@ class TestCheckCreate(TestCase):
     def test_required_fields_with_deliver_min(self):
         check_cash = CheckCash(
             account=ACCOUNT,
-            fee=FEE,
             sequence=WALLET.next_sequence_num,
             check_id=CHECK_ID,
             deliver_min=DELIVER_MIN,

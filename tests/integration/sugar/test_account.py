@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from tests.integration.it_utils import JSON_RPC_CLIENT
-from tests.integration.reusable_values import DESTINATION, FEE, WALLET
+from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.account import (
     does_account_exist,
     get_account_transactions,
@@ -57,7 +57,6 @@ class TestAccount(TestCase):
         payment = Payment(
             account=WALLET.classic_address,
             destination=DESTINATION.classic_address,
-            fee=FEE,
             amount=amount,
             last_ledger_sequence=WALLET.next_sequence_num + 20,
         )

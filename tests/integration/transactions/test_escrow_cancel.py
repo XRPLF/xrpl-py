@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from tests.integration.it_utils import submit_transaction
-from tests.integration.reusable_values import FEE, WALLET
+from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import EscrowCancel
 
@@ -14,7 +14,6 @@ class TestEscrowCancel(TestCase):
     def test_all_fields(self):
         escrow_cancel = EscrowCancel(
             account=ACCOUNT,
-            fee=FEE,
             sequence=WALLET.next_sequence_num,
             owner=OWNER,
             offer_sequence=OFFER_SEQUENCE,

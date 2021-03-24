@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from tests.integration.it_utils import JSON_RPC_CLIENT
 from tests.integration.reusable_values import DESTINATION as DESTINATION_WALLET
-from tests.integration.reusable_values import FEE, WALLET
+from tests.integration.reusable_values import WALLET
 from xrpl.account import get_next_valid_seq_number
 from xrpl.models.transactions import AccountSet, Payment
 from xrpl.transaction import XRPLReliableSubmissionException, send_reliable_submission
@@ -24,7 +24,6 @@ class TestTransaction(TestCase):
         WALLET.next_sequence_num = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
         account_set = AccountSet(
             account=ACCOUNT,
-            fee=FEE,
             sequence=WALLET.next_sequence_num,
             set_flag=SET_FLAG,
             last_ledger_sequence=WALLET.next_sequence_num + 20,
