@@ -79,7 +79,13 @@ def send_reliable_submission(
 
     submit_response = safe_sign_and_submit_transaction(transaction, wallet, client)
     result = cast(Dict[str, Any], submit_response.result)
-
+    if not submit_response.is_successful() and "engine_result" not in result:
+        # error
+        result_code = result["error"]
+        result_message = result["error_exception"]
+        raise XRPLReliableSubmissionException(
+            f"Transaction failed, {result_code}: {result_message}"
+        )
     if result["engine_result"] != "tesSUCCESS":
         result_code = result["engine_result"]
         result_message = result["engine_result_message"]
