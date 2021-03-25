@@ -9,7 +9,11 @@ from xrpl.core.keypairs import derive_classic_address, derive_keypair, generate_
 
 
 class Wallet:
-    """The information needed to control an XRPL account."""
+    """
+    The cryptographic keys needed to control an XRP Ledger account. See
+    `Cryptographic Keys <https://xrpl.org/cryptographic-keys.html>`_ for
+    details.
+    """
 
     def __init__(self: Wallet, seed: str) -> None:
         """
@@ -18,9 +22,23 @@ class Wallet:
         Args:
             seed: The seed from which the public and private keys are derived.
         """
+        #: The core value that is used to derive all other information about
+        #: this wallet. MUST be kept secret!
         self.seed = seed
-        self.pub_key, self.priv_key = derive_keypair(self.seed)
+
+        pk, sk = derive_keypair(self.seed)
+        #: The public key that is used to identify this wallet's signatures, as
+        #: a hexadecimal string.
+        self.pub_key = pk
+        #: The private key that is used to create signatures, as a hexadecimal
+        #: string. MUST be kept secret!
+        self.priv_key = sk
+
+        #: The address that publicly identifies this wallet, as a base58 string.
         self.classic_address = derive_classic_address(self.pub_key)
+
+        #: The next available sequence number to use for transactions from this
+        #: wallet.
         self.next_sequence_num = 0
 
     @classmethod
@@ -32,7 +50,7 @@ class Wallet:
 
         Args:
             crypto_algorithm: The key-generation algorithm to use when generating the
-                seed. Defaults to SECP256K1.
+                seed. The default is secp256k1.
 
         Returns:
             The wallet that is generated from the given seed.
