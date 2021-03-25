@@ -1,10 +1,4 @@
-"""
-Represents an OfferCreate transaction on the XRP Ledger. An OfferCreate transaction is
-effectively a limit order. It defines an intent to exchange currencies, and creates an
-Offer object if not completely fulfilled when placed. Offers can be partially fulfilled.
-
-`See OfferCreate <https://xrpl.org/offercreate.html>`_
-"""
+"""Model for OfferCreate transaction type."""
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -18,20 +12,28 @@ from xrpl.models.utils import require_kwargs_on_init
 @dataclass(frozen=True)
 class OfferCreate(Transaction):
     """
-    Represents an OfferCreate transaction on the XRP Ledger. An OfferCreate
-    transaction is effectively a limit order. It defines an intent to exchange
-    currencies, and creates an Offer object if not completely fulfilled when
-    placed. Offers can be partially fulfilled.
-
-    `See OfferCreate <https://xrpl.org/offercreate.html>`_
+    Represents an `OfferCreate <https://xrpl.org/offercreate.html>`_ transaction,
+    which executes a limit order in the `decentralized exchange
+    <https://xrpl.org/decentralized-exchange.html>`_. If the specified exchange
+    cannot be completely fulfilled, it creates an Offer object for the remainder.
+    Offers can be partially fulfilled.
     """
 
-    #: This field is required.
+    #: The amount and type of currency being provided by the sender of this
+    #: transaction. This field is required.
     taker_gets: Amount = REQUIRED  # type: ignore
-    #: This field is required.
+    #: The amount and type of currency the sender of this transaction wants in
+    #: exchange for the full ``taker_gets`` amount. This field is required.
     taker_pays: Amount = REQUIRED  # type: ignore
+
+    #: Time after which the offer is no longer active, in seconds since the
+    #: Ripple Epoch.
     expiration: Optional[int] = None
+
+    #: The Sequence number (or Ticket number) of a previous OfferCreate to cancel
+    #: when placing this Offer.
     offer_sequence: Optional[int] = None
+
     transaction_type: TransactionType = field(
         default=TransactionType.OFFER_CREATE,
         init=False,

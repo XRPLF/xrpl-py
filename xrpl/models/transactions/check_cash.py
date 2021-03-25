@@ -1,18 +1,4 @@
-"""
-Represents a CheckCash transaction on the XRP ledger. CheckCash transactions
-attempt to redeem a Check object in the ledger to receive up to the amount
-authorized by the corresponding CheckCreate transaction. Only the Destination
-address of a Check can cash it with a CheckCash transaction. Cashing a check
-this way is similar to executing a Payment initiated by the destination.
-
-Since the funds for a check are not guaranteed, redeeming a Check can fail
-because the sender does not have a high enough balance or because there is
-not enough liquidity to deliver the funds. If this happens, the Check remains
-in the ledger and the destination can try to cash it again later, or for a
-different amount.
-
-`See CheckCash <https://xrpl.org/checkcash.html>`_
-"""
+"""Model for CheckCash transaction type."""
 from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
@@ -28,25 +14,27 @@ from xrpl.models.utils import require_kwargs_on_init
 @dataclass(frozen=True)
 class CheckCash(Transaction):
     """
-    Represents a CheckCash transaction on the XRP ledger. CheckCash transactions
-    attempt to redeem a Check object in the ledger to receive up to the amount
-    authorized by the corresponding CheckCreate transaction. Only the Destination
-    address of a Check can cash it with a CheckCash transaction. Cashing a check
-    this way is similar to executing a Payment initiated by the destination.
-
-    Since the funds for a check are not guaranteed, redeeming a Check can fail
-    because the sender does not have a high enough balance or because there is
-    not enough liquidity to deliver the funds. If this happens, the Check remains
-    in the ledger and the destination can try to cash it again later, or for a
-    different amount.
-
-    `See CheckCash <https://xrpl.org/checkcash.html>`_
+    Represents a `CheckCash transaction <https://xrpl.org/checkcash.html>`_,
+    which redeems a Check object to receive up to the amount authorized by the
+    corresponding CheckCreate transaction. Only the Destination address of a
+    Check can cash it.
     """
 
-    #: This field is required.
+    #: The ID of the `Check ledger object
+    #: <https://xrpl.org/check.html>`_ to cash, as a 64-character
+    #: hexadecimal string. This field is required.
     check_id: str = REQUIRED  # type: ignore
+
+    #: Redeem the Check for exactly this amount, if possible. The currency must
+    #: match that of the SendMax of the corresponding CheckCreate transaction.
+    #: You must provide either this field or ``DeliverMin``.
     amount: Optional[Amount] = None
+
+    #: Redeem the Check for at least this amount and for as much as possible.
+    #: The currency must match that of the ``SendMax`` of the corresponding
+    #: CheckCreate transaction. You must provide either this field or ``Amount``.
     deliver_min: Optional[Amount] = None
+
     transaction_type: TransactionType = field(
         default=TransactionType.CHECK_CASH,
         init=False,
