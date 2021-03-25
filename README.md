@@ -43,8 +43,9 @@ classic_address: rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz
 }
 ```
 
-
+<!-- TODO: correct this link
 [![Downloads](https://pepy.tech/badge/xrpl-py/month)](https://pepy.tech/project/xrpl-py/month)
+-->
 [![Contributors](https://img.shields.io/github/contributors/xpring-eng/xrpl-py.svg)](https://github.com/xpring-eng/xrpl-py/graphs/contributors)
 
 
@@ -59,7 +60,9 @@ pip3 install xrpl-py
 
 The library supports [Python 3.7](https://www.python.org/downloads/) and later.
 
+<!-- TODO: correct this link
 [![Supported Versions](https://img.shields.io/pypi/pyversions/xrpl-py.svg)](https://pypi.org/project/xrpl-py)
+-->
 
 
 ## Features
