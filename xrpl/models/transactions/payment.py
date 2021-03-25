@@ -45,8 +45,9 @@ class Payment(Transaction):
     #: The address of the account receiving the payment. This field is required.
     destination: str = REQUIRED  # type: ignore
 
-    #: Arbitrary `tag <https://xrpl.org/source-and-destination-tags.html>`_
-    #: that identifies the reason for the payment, or a hosted recipient to pay.
+    #: An arbitrary `destination tag
+    #: <https://xrpl.org/source-and-destination-tags.html>`_ that
+    #: identifies the reason for the Payment, or a hosted recipient to pay.
     destination_tag: Optional[int] = None
 
     #: Arbitrary 256-bit hash representing a specific reason or identifier for

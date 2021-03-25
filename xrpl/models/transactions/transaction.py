@@ -153,7 +153,7 @@ class Transaction(BaseModel):
     #: multi-signing.
     signers: Optional[List[Signer]] = None
 
-    #: An arbitrary tag `source tag
+    #: An arbitrary `source tag
     #: <https://xrpl.org/source-and-destination-tags.html>`_ representing a
     #: hosted user or specific purpose at the sending account where this
     #: transaction comes from.

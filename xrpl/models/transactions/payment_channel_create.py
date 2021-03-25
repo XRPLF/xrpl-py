@@ -43,8 +43,9 @@ class PaymentChannelCreate(Transaction):
     #: later than this time.
     cancel_after: Optional[int] = None
 
-    #: Arbitrary `tag <https://xrpl.org/source-and-destination-tags.html>`_
-    #: that identifies the reason for the channel, or a hosted recipient to pay.
+    #: An arbitrary `destination tag
+    #: <https://xrpl.org/source-and-destination-tags.html>`_ that
+    #: identifies the reason for the Payment Channel, or a hosted recipient to pay.
     destination_tag: Optional[int] = None
 
     transaction_type: TransactionType = field(

@@ -18,8 +18,9 @@ class CheckCreate(Transaction):
     transaction is the sender of the Check.
     """
 
-    #: The address of the `account <https://xrpl.org/accounts.html>`_ that can
-    #: cash the Check. This field is required.
+    #: The address of the `account
+    #: <https://xrpl.org/accounts.html>`_ that can cash the Check. This field is
+    #: required.
     destination: str = REQUIRED  # type: ignore
 
     #: Maximum amount of source token the Check is allowed to debit the
@@ -28,8 +29,9 @@ class CheckCreate(Transaction):
     #: non-XRP tokens). This field is required.
     send_max: Amount = REQUIRED  # type: ignore
 
-    #: Arbitrary `tag <https://xrpl.org/source-and-destination-tags.html>`_
-    #: that identifies the reason for the Check, or a hosted recipient to pay.
+    #: An arbitrary `destination tag
+    #: <https://xrpl.org/source-and-destination-tags.html>`_ that
+    #: identifies the reason for the Check, or a hosted recipient to pay.
     destination_tag: Optional[int] = None
 
     #: Time after which the Check is no longer valid, in seconds since the

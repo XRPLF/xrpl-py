@@ -26,8 +26,9 @@ class EscrowCreate(Transaction):
     #: condition is met. This field is required.
     destination: str = REQUIRED  # type: ignore
 
-    #: Arbitrary `tag <https://xrpl.org/source-and-destination-tags.html>`_
-    #: that identifies the reason for the Escrow, or a hosted recipient to pay.
+    #: An arbitrary `destination tag
+    #: <https://xrpl.org/source-and-destination-tags.html>`_ that
+    #: identifies the reason for the Escrow, or a hosted recipient to pay.
     destination_tag: Optional[int] = None
 
     #: The time, in seconds since the Ripple Epoch, when this escrow expires.

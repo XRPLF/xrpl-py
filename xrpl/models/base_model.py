@@ -17,20 +17,19 @@ class BaseModel(ABC):
     @classmethod
     def is_dict_of_model(cls: Type[BaseModel], dictionary: Dict[str, Any]) -> bool:
         """
-        Returns True if the input dictionary was derived by the `to_dict`
-        method of an instance of this class. In other words, True if this is
-        a dictionary representation of an instance of this class.
+        Checks whether the provided ``dictionary`` is a dictionary representation
+        of this class.
 
-        NOTE: does not account for model inheritance, IE will only return True
-        if dictionary represents an instance of this class, but not if
-        dictionary represents an instance of a subclass of this class.
+        **Note:** This only checks the exact model, and does not count model
+        inheritance. This method returns ``False`` if the dictionary represents
+        a subclass of this class.
 
         Args:
             dictionary: The dictionary to check.
 
         Returns:
             True if dictionary is a dict representation of an instance of this
-            class.
+            class; False if not.
         """
         return isinstance(dictionary, dict) and set(get_type_hints(cls).keys()) == set(
             dictionary.keys()

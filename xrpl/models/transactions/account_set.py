@@ -45,7 +45,7 @@ class AccountSet(Transaction):
     set_flag: Optional[int] = None
 
     #: Set the transfer fee to use for tokens issued by this account. See
-    #: `TransferRate <https://xrpl.org/accountset.html#transferrate`_ for
+    #: `TransferRate <https://xrpl.org/accountset.html#transferrate>`_ for
     #: details.
     transfer_rate: Optional[int] = None
 
