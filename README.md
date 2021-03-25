@@ -185,7 +185,8 @@ tx_response = send_reliable_submission(my_tx_payment, test_wallet, client)
 
 #### Get fee from the XRP Ledger
 
-In most cases, you should specify `10` for the `fee` field unless you have a strong reason not to. But if you want to get the [current transaction cost](https://xrpl.org/transaction-cost.html#current-transaction-cost) from the XRP Ledger, you can use the `get_fee` function:
+
+In most cases, you can specify the minimum [transaction cost](https://xrpl.org/transaction-cost.html#current-transaction-cost) of `"10"` for the `fee` field unless you have a strong reason not to. But if you want to get the [current load-balanced transaction cost](https://xrpl.org/transaction-cost.html#current-transaction-cost) from the network, you can use the `get_fee` function:
 
 ```py
 from xrpl.ledger import get_fee
@@ -214,11 +215,15 @@ my_tx_payment = Payment(
     destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
     sequence=test_wallet.next_sequence_num,
 )
+
 # sign the transaction
 my_tx_payment_signed = safe_sign_transaction(my_tx_payment,test_wallet)
 
 # submit the transaction
 tx_response = send_reliable_submission(my_tx_payment, test_wallet, client)
+
+print(my_tx_payment)
+Payment(account='rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz', transaction_type=<TransactionType.PAYMENT: 'Payment'>, fee=10000, sequence=16034065, account_txn_id=None, flags=0, last_ledger_sequence=10268600, memos=None, signers=None, source_tag=None, signing_pub_key=None, txn_signature=None, amount='2200000', destination='rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe', destination_tag=None, invoice_id=None, paths=None, send_max=None, deliver_min=None)
 ```
 
 
