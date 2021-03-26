@@ -6,10 +6,14 @@ data types
 from datetime import datetime, timezone
 from typing import Union
 
+from typing_extensions import Final
+
 from xrpl import XRPLException
 
-RIPPLE_EPOCH = 946684800  #: The "Ripple Epoch" of 2000-01-01T00:00:00 UTC
-MAX_XRPL_TIME = 2 ** 32  #: The maximum time that can be expressed on the XRPL
+RIPPLE_EPOCH: Final[int] = 946684800  #: The "Ripple Epoch" of 2000-01-01T00:00:00 UTC
+MAX_XRPL_TIME: Final[int] = (
+    2 ** 32
+)  #: The maximum time that can be expressed on the XRPL
 
 
 def ripple_time_to_datetime(ripple_time: int) -> datetime:

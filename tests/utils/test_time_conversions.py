@@ -36,18 +36,19 @@ class TestMain(TestCase):
             time.strptime("1999-01-01T00:00 UTC", "%Y-%m-%dT%M:%S %Z")
         )
         with self.assertRaises(xrpl.utils.XRPLTimeRangeException):
-            xrpl.utils.datetime_to_ripple_time(year_1999)
+            xrpl.utils.posix_to_ripple_time(year_1999)
 
     def test_datetime_overflow(self):
-        # "Ripple Epoch" time has the "Year 2038 problem", but 30 years later
-        year_2069 = datetime(2069, 1, 1, 0, 0, tzinfo=timezone.utc)
+        # "Ripple Epoch" time's eqvualent to the "Year 2038 problem", isn't until
+        # 2136 because it uses an *unsigned* 32-bit int starting 30 years after
+        # UNIX time's signed 32-bit int.
+        year_2137 = datetime(2137, 1, 1, 0, 0, tzinfo=timezone.utc)
         with self.assertRaises(xrpl.utils.XRPLTimeRangeException):
-            xrpl.utils.datetime_to_ripple_time(year_2069)
+            xrpl.utils.datetime_to_ripple_time(year_2137)
 
     def test_posix_overflow(self):
-        # "Ripple Epoch" time has the "Year 2038 problem", but 30 years later
-        year_2069 = time.mktime(
-            time.strptime("2069-01-01T00:00 UTC", "%Y-%m-%dT%M:%S %Z")
+        year_2137 = time.mktime(
+            time.strptime("2137-01-01T00:00 UTC", "%Y-%m-%dT%M:%S %Z")
         )
         with self.assertRaises(xrpl.utils.XRPLTimeRangeException):
-            xrpl.utils.datetime_to_ripple_time(year_2069)
+            xrpl.utils.posix_to_ripple_time(year_2137)
