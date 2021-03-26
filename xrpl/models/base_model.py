@@ -2,13 +2,37 @@
 
 from __future__ import annotations
 
+import json
 from abc import ABC
 from dataclasses import fields
 from enum import Enum
-from typing import Any, Dict, Type, Union, get_type_hints
+from re import split, sub
+from typing import Any, Dict, Type, Union, cast, get_type_hints
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
+
+
+def _key_to_json(field: str) -> str:
+    """
+    Transforms (upper or lower) camel case to snake case. For example, 'TransactionType'
+    becomes 'transaction_type'.
+    """
+    words = split(r"(?=[A-Z])", field)
+    lower_words = [word.lower() for word in words if word]
+    snaked = "_".join(lower_words)
+    return sub("i_d", "id", snaked)
+
+
+def _value_to_json(value: str) -> str:
+    if isinstance(value, dict):
+        return {
+            _key_to_json(k): _value_to_json(v)
+            for (k, v) in cast(Dict[str, Any], value).items()
+        }
+    if isinstance(value, list):
+        return [_value_to_json(sub_value) for sub_value in value]
+    return value
 
 
 class BaseModel(ABC):
@@ -40,8 +64,6 @@ class BaseModel(ABC):
     def from_dict(cls: Type[BaseModel], value: Dict[str, Any]) -> BaseModel:
         """
         Construct a new BaseModel from a dictionary of parameters.
-
-        If not overridden, passes the dictionary as args to the constructor.
 
         Args:
             value: The value to construct the BaseModel from.
@@ -147,6 +169,29 @@ class BaseModel(ABC):
         init_keys = {field.name for field in fields(cls)}
         valid_args = {key: value for key, value in args.items() if key in init_keys}
         return valid_args
+
+    @classmethod
+    def from_xrpl(cls: Type[BaseModel], value: Union[str, Dict[str, Any]]) -> BaseModel:
+        """
+        Creates a BaseModel object based on a JSON-like dictionary of keys in the JSON
+        format used by the binary codec, or an actual JSON string representing the same
+        data.
+
+        Args:
+            value: The dictionary or JSON string to be instantiated.
+
+        Returns:
+            A BaseModel object instantiated from the input.
+        """
+        if isinstance(value, str):
+            value = json.loads(value)
+
+        formatted_dict = {
+            _key_to_json(k): _value_to_json(v)
+            for (k, v) in cast(Dict[str, Any], value).items()
+        }
+
+        return cls.from_dict(formatted_dict)
 
     def __post_init__(self: BaseModel) -> None:
         """Called by dataclasses immediately after __init__."""

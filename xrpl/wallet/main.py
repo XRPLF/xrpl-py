@@ -7,7 +7,11 @@ from xrpl.core.keypairs import derive_classic_address, derive_keypair, generate_
 
 
 class Wallet:
-    """The information needed to control an XRPL account."""
+    """
+    The cryptographic keys needed to control an XRP Ledger account. See
+    `Cryptographic Keys <https://xrpl.org/cryptographic-keys.html>`_ for
+    details.
+    """
 
     def __init__(self: Wallet, public_key: str, private_key: str) -> None:
         """
@@ -17,9 +21,18 @@ class Wallet:
             public_key: The public key for this Wallet.
             private_key: The private key for this Wallet.
         """
+        #: The public key that is used to identify this wallet's signatures, as
+        #: a hexadecimal string.
         self.public_key = public_key
+        #: The private key that is used to create signatures, as a hexadecimal
+        #: string. MUST be kept secret!
         self.private_key = private_key
+
+        #: The address that publicly identifies this wallet, as a base58 string.
         self.classic_address = derive_classic_address(self.public_key)
+
+        #: The next available sequence number to use for transactions from this
+        #: wallet.
         self.next_sequence_num = 0
 
     @classmethod

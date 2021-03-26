@@ -1,4 +1,8 @@
-"""High-level binary codec methods."""
+"""
+Codec for encoding objects into the XRP Ledger's canonical binary format and
+decoding them.
+"""
+
 from typing import Any, Dict, Optional, cast
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
@@ -19,26 +23,27 @@ _TRANSACTION_MULTISIG_PREFIX = _num_to_bytes(0x534D5400)
 
 def encode(json: Dict[str, Any]) -> str:
     """
-    Encode a transaction.
+    Encode a transaction or other object into the canonical binary format.
 
     Args:
-        json: the JSON representation of a transaction.
+        json: A JSON-like dictionary representation of an object.
 
     Returns:
-        A hex-string of the encoded transaction.
+        The binary-encoded object, as a hexadecimal string.
     """
     return _serialize_json(json)
 
 
 def encode_for_signing(json: Dict[str, Any]) -> str:
     """
-    Encode a transaction and prepare for signing.
+    Encode a transaction into binary format in preparation for signing. (Only
+    encodes fields that are intended to be signed.)
 
     Args:
-        json: JSON object representing the transaction.
+        json: A JSON-like dictionary representation of a transaction.
 
     Returns:
-        A hex string of the encoded transaction.
+        The binary-encoded transaction, ready to be signed.
     """
     return _serialize_json(
         json,
@@ -49,13 +54,14 @@ def encode_for_signing(json: Dict[str, Any]) -> str:
 
 def encode_for_signing_claim(json: Dict[str, Any]) -> str:
     """
-    Encode a transaction and prepare for signing with a claim.
+    Encode a `payment channel <https://xrpl.org/payment-channels.html>`_ Claim
+    to be signed.
 
     Args:
-        json: JSON object representing the transaction.
+        json: A JSON-like dictionary representation of a Claim.
 
     Returns:
-        A hex string of the encoded transaction.
+        The binary-encoded claim, ready to be signed.
     """
     prefix = _PAYMENT_CHANNEL_CLAIM_PREFIX
     channel = Hash256.from_value(json["channel"])
@@ -67,11 +73,13 @@ def encode_for_signing_claim(json: Dict[str, Any]) -> str:
 
 def encode_for_multisigning(json: Dict[str, Any], signing_account: str) -> str:
     """
-    Encode a transaction and prepare for multi-signing.
+    Encode a transaction into binary format in preparation for providing one
+    signature towards a multi-signed transaction.
+    (Only encodes fields that are intended to be signed.)
 
     Args:
-        json: JSON object representing the transaction.
-        signing_account: string representing the account to sign the transaction with.
+        json: A JSON-like dictionary representation of a transaction.
+        signing_account: The address of the signer who'll provide the signature.
 
     Returns:
         A hex string of the encoded transaction.
@@ -88,13 +96,14 @@ def encode_for_multisigning(json: Dict[str, Any], signing_account: str) -> str:
 
 def decode(buffer: str) -> Dict[str, Any]:
     """
-    Decode a transaction.
+    Decode a transaction from binary format to a JSON-like dictionary
+    representation.
 
     Args:
-        buffer: a hex-string of the encoded transaction.
+        buffer: The encoded transaction binary, as a hexadecimal string.
 
     Returns:
-        The JSON representation of the transaction.
+        A JSON-like dictionary representation of the transaction.
     """
     parser = BinaryParser(buffer)
     parsed_type = cast(SerializedDict, parser.read_type(SerializedDict))

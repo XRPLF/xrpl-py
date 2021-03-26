@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type, cast
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
@@ -161,6 +161,40 @@ class Transaction(BaseModel):
         # which will not include the value in the objects __dict__
         return {**super().to_dict(), "transaction_type": self.transaction_type.value}
 
+    @classmethod
+    def from_dict(cls: Type[Transaction], value: Dict[str, Any]) -> Transaction:
+        """
+        Construct a new Transaction from a dictionary of parameters.
+
+        Args:
+            value: The value to construct the Transaction from.
+
+        Returns:
+            A new Transaction object, constructed using the given parameters.
+
+        Raises:
+            XRPLModelException: If the dictionary provided is invalid.
+        """
+        if cls.__name__ == "Transaction":
+            # using `Transaction.from_dict` and not a subclass
+            if "transaction_type" not in value:
+                raise XRPLModelException(
+                    "Transaction does not include transaction_type."
+                )
+            correct_type = cls.get_transaction_type(value["transaction_type"])
+            return correct_type.from_dict(value)
+        else:
+            if "transaction_type" in value:
+                if value["transaction_type"] != cls.__name__:
+                    transaction_type = value["transaction_type"]
+                    raise XRPLModelException(
+                        f"Using wrong constructor: using f{cls.__name__} constructor "
+                        f"with transaction type f{transaction_type}."
+                    )
+                value = {**value}
+                del value["transaction_type"]
+            return cast(Transaction, super(Transaction, cls).from_dict(value))
+
     def has_flag(self: Transaction, flag: int) -> bool:
         """
         Returns whether the transaction has the given flag value set.
@@ -190,77 +224,13 @@ class Transaction(BaseModel):
         Raises:
             XRPLModelException: If `transaction_type` is not a valid Transaction type.
         """
-        if transaction_type == TransactionType.ACCOUNT_DELETE:
-            from xrpl.models.transactions import AccountDelete
+        import xrpl.models.transactions as transaction_models
 
-            return AccountDelete
-        if transaction_type == TransactionType.ACCOUNT_SET:
-            from xrpl.models.transactions import AccountSet
-
-            return AccountSet
-        if transaction_type == TransactionType.CHECK_CANCEL:
-            from xrpl.models.transactions import CheckCancel
-
-            return CheckCancel
-        if transaction_type == TransactionType.CHECK_CASH:
-            from xrpl.models.transactions import CheckCash
-
-            return CheckCash
-        if transaction_type == TransactionType.CHECK_CREATE:
-            from xrpl.models.transactions import CheckCreate
-
-            return CheckCreate
-        if transaction_type == TransactionType.DEPOSIT_PREAUTH:
-            from xrpl.models.transactions import DepositPreauth
-
-            return DepositPreauth
-        if transaction_type == TransactionType.ESCROW_CANCEL:
-            from xrpl.models.transactions import EscrowCancel
-
-            return EscrowCancel
-        if transaction_type == TransactionType.ESCROW_CREATE:
-            from xrpl.models.transactions import EscrowCreate
-
-            return EscrowCreate
-        if transaction_type == TransactionType.ESCROW_FINISH:
-            from xrpl.models.transactions import EscrowFinish
-
-            return EscrowFinish
-        if transaction_type == TransactionType.OFFER_CANCEL:
-            from xrpl.models.transactions import OfferCancel
-
-            return OfferCancel
-        if transaction_type == TransactionType.OFFER_CREATE:
-            from xrpl.models.transactions import OfferCreate
-
-            return OfferCreate
-        if transaction_type == TransactionType.PAYMENT:
-            from xrpl.models.transactions import Payment
-
-            return Payment
-        if transaction_type == TransactionType.PAYMENT_CHANNEL_CLAIM:
-            from xrpl.models.transactions import PaymentChannelClaim
-
-            return PaymentChannelClaim
-        if transaction_type == TransactionType.PAYMENT_CHANNEL_CREATE:
-            from xrpl.models.transactions import PaymentChannelCreate
-
-            return PaymentChannelCreate
-        if transaction_type == TransactionType.PAYMENT_CHANNEL_FUND:
-            from xrpl.models.transactions import PaymentChannelFund
-
-            return PaymentChannelFund
-        if transaction_type == TransactionType.SET_REGULAR_KEY:
-            from xrpl.models.transactions import SetRegularKey
-
-            return SetRegularKey
-        if transaction_type == TransactionType.SIGNER_LIST_SET:
-            from xrpl.models.transactions import SignerListSet
-
-            return SignerListSet
-        if transaction_type == TransactionType.TRUST_SET:
-            from xrpl.models.transactions import TrustSet
-
-            return TrustSet
+        transaction_types: Dict[str, Type[Transaction]] = {
+            t.value: getattr(transaction_models, t)
+            for t in transaction_models.transaction.TransactionType
+        }
+        if transaction_type in transaction_types:
+            return transaction_types[transaction_type]
 
         raise XRPLModelException(f"{transaction_type} is not a valid Transaction type")

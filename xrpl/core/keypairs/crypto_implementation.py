@@ -1,6 +1,6 @@
 """
-This is just used to allow the ED25519 and SECP256K1 modules to have a
-shared type.
+Abstract base class for cryptographic algorithms in the XRP Ledger. The classes
+for all cryptographic algorithms are derived from this interface.
 """
 from __future__ import annotations
 
@@ -12,8 +12,8 @@ from ecpy.keys import ECPrivateKey  # type: ignore
 
 class CryptoImplementation(ABC):
     """
-    This is just used to allow the ED25519 and SECP256K1 modules to have a
-    shared type and interface.
+    Abstract base class for cryptographic algorithms in the XRP Ledger. The
+    classes for all cryptographic algorithms are derived from this interface.
     """
 
     @classmethod
