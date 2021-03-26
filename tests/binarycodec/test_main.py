@@ -97,19 +97,21 @@ invalid_json_issuer_tagged = {
 
 valid_json_x_and_tags = {
     "TransactionType": "Payment",
-    "Account": "XVXdn5wEVm5G4UhEHWDPqjvdeH361P7BsapL4m2D2XnPSwT", # Tag: 12345
+    "Account": "XVXdn5wEVm5G4UhEHWDPqjvdeH361P7BsapL4m2D2XnPSwT",  # Tag: 12345
     "SourceTag": 12345,
-    "Destination": "X7c6XhVKioTMkCS8eEc3PsAoeHTdFjEa1sRcUiULHd265yt", #Tag: 13
+    "Destination": "X7c6XhVKioTMkCS8eEc3PsAoeHTdFjEa1sRcUiULHd265yt",  # Tag: 13
     "DestinationTag": 13,
     "Flags": 0,
     "Sequence": 1,
-    "Amount": "1000000"
+    "Amount": "1000000",
 }
 invalid_json_x_and_source_tag = {**valid_json_x_and_tags, "SourceTag": 999}
 invalid_json_x_and_dest_tag = {**valid_json_x_and_tags, "DestinationTag": 999}
-valid_json_no_x_tags = {**valid_json_x_and_tags,
+valid_json_no_x_tags = {
+    **valid_json_x_and_tags,
     "Account": "rLs1MzkFWCxTbuAHgjeTZK4fcCDDnf2KRv",
-    "Destination": "rso13LJmsQvPzzV3q1keJjn6dLRFJm95F2"}
+    "Destination": "rso13LJmsQvPzzV3q1keJjn6dLRFJm95F2",
+}
 
 
 signing_json = {
