@@ -37,6 +37,7 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
     Raises:
         XRPLFaucetException: if an address could not be funded with the faucet.
         XRPLRequestFailureException: if a request to the ledger fails.
+        requests.exceptions.HTTPError: if the request to the faucet fails.
 
     .. # noqa: DAR402 exception raised in private method
     """
@@ -62,7 +63,9 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
         starting_balance = 0
 
     # Ask the faucet to send funds to the given address
-    post(url=faucet_url, json={"destination": address})
+    response = post(url=faucet_url, json={"destination": address})
+    if not response.ok:
+        response.raise_for_status()
     # Wait for the faucet to fund our account or until timeout
     # Waits one second checks if balance has changed
     # If balance doesn't change it will attempt again until _TIMEOUT_SECONDS
