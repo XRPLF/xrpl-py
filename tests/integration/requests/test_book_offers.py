@@ -6,7 +6,7 @@ from xrpl.models.currencies import XRP, IssuedCurrency
 from xrpl.models.requests import BookOffers
 
 
-class TestTx(TestCase):
+class TestBookOffers(TestCase):
     def test_basic_functionality(self):
         response = JSON_RPC_CLIENT.request(
             BookOffers(

@@ -74,7 +74,7 @@ class TestSubmitMultisigned(TestCase):
                     FIRST_SIGNER.classic_address,
                 )
             ),
-            FIRST_SIGNER.priv_key,
+            FIRST_SIGNER.private_key,
         )
         second_sig = sign(
             bytes.fromhex(
@@ -83,7 +83,7 @@ class TestSubmitMultisigned(TestCase):
                     SECOND_SIGNER.classic_address,
                 )
             ),
-            SECOND_SIGNER.priv_key,
+            SECOND_SIGNER.private_key,
         )
         multisigned_tx = TrustSet(
             account=WALLET.classic_address,
@@ -99,12 +99,12 @@ class TestSubmitMultisigned(TestCase):
                 Signer(
                     account=FIRST_SIGNER.classic_address,
                     txn_signature=first_sig,
-                    signing_pub_key=FIRST_SIGNER.pub_key,
+                    signing_pub_key=FIRST_SIGNER.public_key,
                 ),
                 Signer(
                     account=SECOND_SIGNER.classic_address,
                     txn_signature=second_sig,
-                    signing_pub_key=SECOND_SIGNER.pub_key,
+                    signing_pub_key=SECOND_SIGNER.public_key,
                 ),
             ],
         )

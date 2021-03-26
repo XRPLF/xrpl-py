@@ -9,17 +9,17 @@ from xrpl.core.keypairs import derive_classic_address, derive_keypair, generate_
 class Wallet:
     """The information needed to control an XRPL account."""
 
-    def __init__(self: Wallet, pub_key: str, priv_key: str) -> None:
+    def __init__(self: Wallet, public_key: str, private_key: str) -> None:
         """
         Generate a new Wallet.
 
         Args:
-            pub_key: The public key for this Wallet.
-            priv_key: The private key for this Wallet.
+            public_key: The public key for this Wallet.
+            private_key: The private key for this Wallet.
         """
-        self.pub_key = pub_key
-        self.priv_key = priv_key
-        self.classic_address = derive_classic_address(self.pub_key)
+        self.public_key = public_key
+        self.private_key = private_key
+        self.classic_address = derive_classic_address(self.public_key)
         self.next_sequence_num = 0
 
     @classmethod
@@ -35,8 +35,8 @@ class Wallet:
         Returns:
             The wallet that is generated from the given seed.
         """
-        pub_key, priv_key = derive_keypair(seed or generate_seed())
-        return cls(pub_key, priv_key)
+        public_key, private_key = derive_keypair(seed or generate_seed())
+        return cls(public_key, private_key)
 
     def __str__(self: Wallet) -> str:
         """
@@ -47,8 +47,8 @@ class Wallet:
         """
         return "\n".join(
             [
-                f"pub_key: {self.pub_key}",
-                "priv_key: -HIDDEN-",
+                f"public_key: {self.public_key}",
+                "private_key: -HIDDEN-",
                 f"classic_address: {self.classic_address}",
             ]
         )
