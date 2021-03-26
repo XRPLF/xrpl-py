@@ -161,7 +161,8 @@ class SerializedDict(SerializedType):
                     and handled[_DEST_TAG] != value[_DEST_TAG]
                 ):
                     raise XRPLBinaryCodecException(
-                        "Cannot have mismatched Destination X-Address and DestinationTag"
+                        "Cannot have mismatched Destination X-Address and "
+                        "DestinationTag"
                     )
                 xaddress_decoded.update(handled)
             else:
