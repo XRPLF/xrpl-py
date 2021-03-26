@@ -19,5 +19,4 @@ class TestTx(TestCase):
                 ledger_index="validated",
             ),
         )
-        print(response)
         self.assertTrue(response.is_successful())
