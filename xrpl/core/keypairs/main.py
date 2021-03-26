@@ -4,7 +4,7 @@ from typing import Dict, Optional, Tuple, Type
 
 from typing_extensions import Final
 
-from xrpl import CryptoAlgorithm
+from xrpl.constants import CryptoAlgorithm
 from xrpl.core import addresscodec
 from xrpl.core.keypairs.crypto_implementation import CryptoImplementation
 from xrpl.core.keypairs.ed25519 import ED25519
