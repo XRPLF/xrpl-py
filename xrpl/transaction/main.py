@@ -1,8 +1,8 @@
 """High-level transaction methods with XRPL transactions."""
 import re
-from typing import Any, Dict
+from typing import Any, Dict, cast
 
-from xrpl.clients import Client
+from xrpl.clients import Client, XRPLRequestFailureException
 from xrpl.core.binarycodec import encode, encode_for_signing
 from xrpl.core.keypairs.main import sign
 from xrpl.models.amounts import IssuedCurrencyAmount
@@ -68,9 +68,16 @@ def submit_transaction_blob(
 
     Returns:
         The response from the ledger.
+
+    Raises:
+        XRPLRequestFailureException: if the rippled API call fails.
     """
-    submit_request = SubmitOnly(tx_blob=transaction_blob)
-    return client.request(submit_request)
+    response = client.request(SubmitOnly(tx_blob=transaction_blob))
+    if response.is_successful():
+        return response
+
+    result = cast(Dict[str, Any], response.result)
+    raise XRPLRequestFailureException(result["error"], result["error_message"])
 
 
 def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[str, Any]:
