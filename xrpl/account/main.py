@@ -87,7 +87,7 @@ def get_account_info(address: str, client: Client) -> Response:
         The account info for the address.
 
     Raises:
-        XRPLRequestFailureException: if the transaction fails.
+        XRPLRequestFailureException: if the rippled API call fails.
     """
     response = client.request(
         AccountInfo(
