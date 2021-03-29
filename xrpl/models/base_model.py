@@ -7,7 +7,7 @@ from abc import ABC
 from dataclasses import fields
 from enum import Enum
 from re import split, sub
-from typing import Any, Dict, Type, Union, cast, get_type_hints
+from typing import Any, Dict, List, Type, Union, cast, get_type_hints
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
@@ -102,53 +102,15 @@ class BaseModel(ABC):
         param: str,
         param_type: Type[Any],
         param_value: Dict[str, Any],
-    ) -> Union[str, Enum, BaseModel, Dict[str, Any]]:
+    ) -> Union[int, str, Enum, BaseModel, Dict[str, Any]]:
         """Handles all the recursive/more complex cases for `from_dict`."""
-        from xrpl.models.amounts import Amount, IssuedCurrencyAmount
-        from xrpl.models.currencies import XRP, Currency, IssuedCurrency
         from xrpl.models.transactions.transaction import Transaction
 
-        # TODO: figure out how to make Unions work generically (if possible)
-
-        if param_type == Amount:
-            # special case, Union
-            if isinstance(param_value, str):
-                return param_value
-            if not isinstance(param_value, dict):
-                raise XRPLModelException(
-                    f"{param_type} requires a dictionary of params"
-                )
-            return IssuedCurrencyAmount.from_dict(param_value)
-
-        if param_type == Currency:
-            # special case, Union
-            if not isinstance(param_value, dict):
-                raise XRPLModelException(
-                    f"{param_type} requires a dictionary of params"
-                )
-            if "currency" in param_value and "issuer" in param_value:
-                return IssuedCurrency.from_dict(param_value)
-            if "currency" in param_value:
-                param_value_copy = {**param_value}
-                del param_value_copy["currency"]
-                return XRP.from_dict(param_value_copy)
-            raise XRPLModelException(f"No valid type for {param}")
-
         if param_type == Transaction:
-            # special case, multiple options (could be any Transaction type)
-            if "transaction_type" not in param_value:
-                raise XRPLModelException(
-                    f"{param} not a valid parameter for {cls.__name__}"
-                )
-            type_str = param_value["transaction_type"]
-            # safely convert type string into the actual type
-            transaction_type = Transaction.get_transaction_type(type_str)
-            param_value_copy = {**param_value}
-            del param_value_copy["transaction_type"]
-            return transaction_type.from_dict(param_value_copy)
+            return Transaction.from_dict(param_value)
 
-        if param_type in BaseModel.__subclasses__():
-            # any other BaseModel
+        if "xrpl.models" in param_type.__module__:
+            # any model defined in xrpl.models
             if not isinstance(param_value, dict):
                 raise XRPLModelException(
                     f"{param_type} requires a dictionary of params"
@@ -160,7 +122,36 @@ class BaseModel(ABC):
             # mypy doesn't know that the If checks that it's a subclass of Enum
             return param_type(param_value)  # type: ignore
 
-        return param_value
+        for param_type_option in param_type.__args__:
+            if param_type_option.__module__ == "builtins" and isinstance(
+                param_value, param_type_option
+            ):
+                # built-in Python type
+                return param_value  # type: ignore
+            if "xrpl.models" in param_type_option.__module__ and isinstance(
+                param_value, Dict
+            ):
+                try:
+                    return cast(BaseModel, param_type_option).from_dict(param_value)
+                except XRPLModelException:
+                    continue
+            if param_type_option.__module__ == "typing":
+                # something defined in `typing` e.g. List, Dict
+                if param_type_option.__reduce__()[1][0] == List:
+                    if not isinstance(param_value, List):
+                        raise XRPLModelException(
+                            f"{param} expected a List, received a {type(param_value)}"
+                        )
+
+                    list_type = param_type_option.__reduce__()[1][1]
+                    new_list = []
+                    for item in param_value:
+                        new_list.append(list_type.from_dict(item))
+                    return new_list
+
+        raise XRPLModelException(
+            f"something went wrong: {param}, {param_type}, {param_value}"
+        )
 
     @classmethod
     def _get_only_init_args(

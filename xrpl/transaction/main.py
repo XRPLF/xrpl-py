@@ -29,11 +29,11 @@ def safe_sign_and_submit_transaction(
     Returns:
         The response from the ledger.
     """
-    tx_blob = safe_sign_transaction(transaction, wallet)
-    return submit_transaction_blob(tx_blob, client)
+    transaction = safe_sign_transaction(transaction, wallet)
+    return submit_transaction(transaction, client)
 
 
-def safe_sign_transaction(transaction: Transaction, wallet: Wallet) -> str:
+def safe_sign_transaction(transaction: Transaction, wallet: Wallet) -> Transaction:
     """
     Signs a transaction locally, without trusting external rippled nodes.
 
@@ -52,18 +52,18 @@ def safe_sign_transaction(transaction: Transaction, wallet: Wallet) -> str:
     serialized_bytes = bytes.fromhex(serialized_for_signing)
     signature = sign(serialized_bytes, wallet.priv_key)
     transaction_json["TxnSignature"] = signature
-    return encode(transaction_json)
+    return cast(Transaction, Transaction.from_xrpl(transaction_json))
 
 
-def submit_transaction_blob(
-    transaction_blob: str,
+def submit_transaction(
+    transaction: Transaction,
     client: Client,
 ) -> Response:
     """
     Submits a transaction blob to the ledger.
 
     Args:
-        transaction_blob: the transaction blob to be submitted.
+        transaction: the transaction blob to be submitted.
         client: the network client with which to submit the transaction.
 
     Returns:
@@ -72,6 +72,8 @@ def submit_transaction_blob(
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
     """
+    transaction_json = transaction_json_to_binary_codec_form(transaction.to_dict())
+    transaction_blob = encode(transaction_json)
     response = client.request(SubmitOnly(tx_blob=transaction_blob))
     if response.is_successful():
         return response
