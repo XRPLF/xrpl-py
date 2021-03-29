@@ -102,52 +102,69 @@ class BaseModel(ABC):
         param: str,
         param_type: Type[Any],
         param_value: Dict[str, Any],
-    ) -> Union[int, str, Enum, BaseModel, Dict[str, Any]]:
+    ) -> Any:
         """Handles all the recursive/more complex cases for `from_dict`."""
-        from xrpl.models.transactions.transaction import Transaction
-
-        if param_type == Transaction:
-            return Transaction.from_dict(param_value)
-
-        if "xrpl.models" in param_type.__module__:
-            # any model defined in xrpl.models
+        if "xrpl.models" in param_type.__module__:  # any model defined in xrpl.models
             if not isinstance(param_value, dict):
                 raise XRPLModelException(
                     f"{param_type} requires a dictionary of params"
                 )
-            # mypy doesn't know that the If checks that it's a subclass of BaseModel
-            return param_type.from_dict(param_value)  # type: ignore
+            return cast(BaseModel, param_type).from_dict(param_value)
 
-        if param_type in Enum.__subclasses__():
-            # mypy doesn't know that the If checks that it's a subclass of Enum
-            return param_type(param_value)  # type: ignore
+        if param_type in Enum.__subclasses__():  # an Enum
+            return param_type(param_value)
 
-        for param_type_option in param_type.__args__:
-            if param_type_option.__module__ == "builtins" and isinstance(
-                param_value, param_type_option
-            ):
-                # built-in Python type
-                return param_value  # type: ignore
-            if "xrpl.models" in param_type_option.__module__ and isinstance(
-                param_value, Dict
-            ):
+        # param_type must be something from typing - e.g. List, Union, Any
+        if param_type == Any:
+            # param_type is Any
+            return param_value
+
+        if param_type.__reduce__()[1][0] == List:
+            # param_type is a List
+            if not isinstance(param_value, List):
+                raise XRPLModelException(
+                    f"{param} expected a List, received a {type(param_value)}"
+                )
+            list_type = param_type.__reduce__()[1][1]
+            new_list = []
+            for item in param_value:
+                new_list.append(cls._from_dict_special_cases(param, list_type, item))
+            return new_list
+
+        if param_type.__reduce__()[1][0] == Union:
+            # param_type is a Union
+            for param_type_option in param_type.__args__:
+                # iterate through the types Union-ed together
                 try:
-                    return cast(BaseModel, param_type_option).from_dict(param_value)
+                    # try to use this Union-ed type to process param_value
+                    return cls._handle_union_type_option(
+                        param, param_type_option, param_value
+                    )
                 except XRPLModelException:
+                    # this Union-ed type did not work
+                    # move onto the next one
                     continue
-            if param_type_option.__module__ == "typing":
-                # something defined in `typing` e.g. List, Dict
-                if param_type_option.__reduce__()[1][0] == List:
-                    if not isinstance(param_value, List):
-                        raise XRPLModelException(
-                            f"{param} expected a List, received a {type(param_value)}"
-                        )
 
-                    list_type = param_type_option.__reduce__()[1][1]
-                    new_list = []
-                    for item in param_value:
-                        new_list.append(list_type.from_dict(item))
-                    return new_list
+        raise XRPLModelException(
+            f"something went wrong: {param}, {param_type}, {param_value}"
+        )
+
+    @classmethod
+    def _handle_union_type_option(
+        cls: Type[BaseModel],
+        param: str,
+        param_type: Type[Any],
+        param_value: Dict[str, Any],
+    ) -> Any:
+        if param_type.__module__ == "builtins" and isinstance(param_value, param_type):
+            # built-in Python type
+            return param_value
+        if "xrpl.models" in param_type.__module__ and isinstance(param_value, Dict):
+            # any model defined in xrpl.models
+            return cast(BaseModel, param_type).from_dict(param_value)
+        if param_type.__module__ == "typing":
+            # something defined in `typing` e.g. List, Dict, Union
+            return cls._from_dict_special_cases(param, param_type, param_value)
 
         raise XRPLModelException(
             f"something went wrong: {param}, {param_type}, {param_value}"

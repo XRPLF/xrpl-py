@@ -3,8 +3,14 @@ import os
 from unittest import TestCase
 
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.requests.book_offers import BookOffers
-from xrpl.models.requests.sign import Sign
+from xrpl.models.requests import (
+    AccountChannels,
+    BookOffers,
+    PathFind,
+    PathFindSubcommand,
+    PathStep,
+    Sign,
+)
 from xrpl.models.transactions import CheckCreate, SignerEntry, SignerListSet, TrustSet
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.transaction import transaction_json_to_binary_codec_form
@@ -162,6 +168,35 @@ class TestBaseModel(TestCase):
             ),
         )
         actual = TrustSet.from_dict(dictionary)
+        self.assertEqual(actual, expected)
+
+    def test_from_dict_list_of_lists(self):
+        path_step_dict = {"account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr"}
+        path_find_dict = {
+            "subcommand": PathFindSubcommand.CREATE,
+            "source_account": "raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
+            "destination_account": "rJjusz1VauNA9XaHxJoiwHe38bmQFz1sUV",
+            "destination_amount": "100",
+            "paths": [[path_step_dict]],
+        }
+        path_step = PathStep.from_dict(path_step_dict)
+        expected = PathFind(
+            subcommand=PathFindSubcommand.CREATE,
+            source_account="raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
+            destination_account="rJjusz1VauNA9XaHxJoiwHe38bmQFz1sUV",
+            destination_amount="100",
+            paths=[[path_step]],
+        )
+        actual = PathFind.from_dict(path_find_dict)
+        self.assertEqual(actual, expected)
+
+    def test_from_dict_any(self):
+        account_channels_dict = {
+            "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
+            "marker": "something",
+        }
+        expected = AccountChannels(**account_channels_dict)
+        actual = AccountChannels.from_dict(account_channels_dict)
         self.assertEqual(actual, expected)
 
     def test_from_xrpl(self):

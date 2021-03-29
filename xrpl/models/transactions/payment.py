@@ -55,7 +55,7 @@ class Payment(Transaction):
     destination: str = REQUIRED  # type: ignore
     destination_tag: Optional[int] = None
     invoice_id: Optional[str] = None  # TODO: should be a 256 bit hash
-    paths: Optional[List[Any]] = None
+    paths: Optional[List[Any]] = None  # TODO: should be better typed
     send_max: Optional[Amount] = None
     deliver_min: Optional[Amount] = None
     transaction_type: TransactionType = field(
