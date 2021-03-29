@@ -40,7 +40,9 @@ def safe_sign_and_submit_transaction(
 
 
 def safe_sign_transaction(
-    transaction: Transaction, wallet: Wallet, client: Client
+    transaction: Transaction,
+    wallet: Wallet,
+    client: Optional[Client] = None,
 ) -> str:
     """
     Signs a transaction locally, without trusting external rippled nodes.
@@ -48,7 +50,7 @@ def safe_sign_transaction(
     Args:
         transaction: the transaction to be signed.
         wallet: the wallet with which to sign the transaction.
-        client: a network client, used to handle autofilling.
+        client: a network client. If provided, this method handles autofilling.
 
     Returns:
         The signed transaction blob.
@@ -83,20 +85,18 @@ def submit_transaction_blob(
 def _prepare_transaction(
     transaction: Transaction,
     wallet: Wallet,
-    client: Client,
-    ledger_offset: Optional[int] = None,
+    client: Optional[Client] = None,
 ) -> Dict[str, Any]:
     """
-    Prepares a Transaction by converting it to a JSON-like dictionary, filling in all
-    the auto-fill fields, and converting the field names to CamelCase.
+    Prepares a Transaction by converting it to a JSON-like dictionary, converting the
+    field names to CamelCase. If a Client is provided, then it also autofills any
+    relevant fields.
 
     Args:
         transaction: the Transaction to be prepared.
         wallet: the wallet that will be used for signing.
-        client: the API client used for any network calls.
-        ledger_offset: If LastLedgerSequence is not provided in the transaction, then
-            this value is used as an offset from the current sequence number for the
-            LastLedgerSequence.
+        client: the API client used for any network calls. Optional, only sends network
+        calls if provided.
 
     Returns:
         A JSON-like dictionary that is ready to be signed.
@@ -120,15 +120,16 @@ def _prepare_transaction(
     # SetRegularKey
     _convert_to_classic_address(transaction_json, "RegularKey")
 
-    if "Sequence" not in transaction_json:
-        sequence = get_next_valid_seq_number(transaction_json["Account"], client)
-        transaction_json["Sequence"] = sequence
-    if "Fee" not in transaction_json:
-        transaction_json["Fee"] = get_fee(client)
+    if client:
+        if "Sequence" not in transaction_json:
+            sequence = get_next_valid_seq_number(transaction_json["Account"], client)
+            transaction_json["Sequence"] = sequence
+        if "Fee" not in transaction_json:
+            transaction_json["Fee"] = get_fee(client)
 
-    if "LastLedgerSequence" not in transaction_json:
-        ledger_sequence = get_latest_validated_ledger_sequence(client)
-        transaction_json["LastLedgerSequence"] = ledger_sequence + _LEDGER_OFFSET
+        if "LastLedgerSequence" not in transaction_json:
+            ledger_sequence = get_latest_validated_ledger_sequence(client)
+            transaction_json["LastLedgerSequence"] = ledger_sequence + _LEDGER_OFFSET
 
     return transaction_json
 
