@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from tests.integration.it_utils import JSON_RPC_CLIENT
-from tests.integration.reusable_values import DESTINATION, FEE, WALLET
+from tests.integration.it_utils import JSON_RPC_CLIENT, sign_and_reliable_submission
+from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.account import (
     does_account_exist,
     get_account_info,
@@ -10,7 +10,6 @@ from xrpl.account import (
     get_latest_transaction,
 )
 from xrpl.models.transactions import Payment
-from xrpl.transaction import send_reliable_submission
 from xrpl.wallet import Wallet, generate_faucet_wallet
 
 NEW_WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
@@ -58,12 +57,12 @@ class TestAccount(TestCase):
         payment = Payment(
             account=WALLET.classic_address,
             destination=DESTINATION.classic_address,
-            fee=FEE,
-            sequence=WALLET.next_sequence_num,
             amount=amount,
             last_ledger_sequence=WALLET.next_sequence_num + 20,
         )
-        send_reliable_submission(payment, WALLET, JSON_RPC_CLIENT)
+        sign_and_reliable_submission(payment, WALLET)
+        WALLET.next_sequence_num += 1
+
         response = get_latest_transaction(WALLET.classic_address, JSON_RPC_CLIENT)
         self.assertEqual(len(response.result["transactions"]), 1)
         transaction = response.result["transactions"][0]["tx"]

@@ -25,7 +25,7 @@ def does_account_exist(address: str, client: Client) -> bool:
         get_account_info(address, client)
         return True
     except XRPLRequestFailureException as e:
-        if e.error_code == "actNotFound":
+        if e.error == "actNotFound":
             # error code for if the account is not found on the ledger
             return False
         raise
@@ -99,4 +99,4 @@ def get_account_info(address: str, client: Client) -> Response:
         return response
 
     result = cast(Dict[str, Any], response.result)
-    raise XRPLRequestFailureException(result["error"], result["error_message"])
+    raise XRPLRequestFailureException(result)
