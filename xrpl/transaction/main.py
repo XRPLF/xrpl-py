@@ -47,10 +47,10 @@ def safe_sign_transaction(transaction: Transaction, wallet: Wallet) -> Transacti
     # Increment the wallet sequence number, since we're about to use one.
     wallet.next_sequence_num += 1
     transaction_json = transaction_json_to_binary_codec_form(transaction.to_dict())
-    transaction_json["SigningPubKey"] = wallet.pub_key
+    transaction_json["SigningPubKey"] = wallet.public_key
     serialized_for_signing = encode_for_signing(transaction_json)
     serialized_bytes = bytes.fromhex(serialized_for_signing)
-    signature = sign(serialized_bytes, wallet.priv_key)
+    signature = sign(serialized_bytes, wallet.private_key)
     transaction_json["TxnSignature"] = signature
     return cast(Transaction, Transaction.from_xrpl(transaction_json))
 

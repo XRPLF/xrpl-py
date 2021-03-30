@@ -33,7 +33,7 @@ PAYMENT_CHANNEL = send_reliable_submission(
         amount="1",
         destination=DESTINATION.classic_address,
         settle_delay=86400,
-        public_key=WALLET.pub_key,
+        public_key=WALLET.public_key,
     ),
     WALLET,
     JSON_RPC_CLIENT,

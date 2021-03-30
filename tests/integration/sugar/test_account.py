@@ -4,6 +4,7 @@ from tests.integration.it_utils import JSON_RPC_CLIENT
 from tests.integration.reusable_values import DESTINATION, FEE, WALLET
 from xrpl.account import (
     does_account_exist,
+    get_account_info,
     get_account_transactions,
     get_balance,
     get_latest_transaction,
@@ -69,3 +70,11 @@ class TestAccount(TestCase):
         self.assertEqual(transaction["TransactionType"], "Payment")
         self.assertEqual(transaction["Amount"], amount)
         self.assertEqual(transaction["Account"], WALLET.classic_address)
+
+    def test_get_account_info(self):
+        response = get_account_info(WALLET.classic_address, JSON_RPC_CLIENT)
+        self.assertTrue(response.is_successful())
+        self.assertEqual(
+            response.result["account_data"]["Account"],
+            WALLET.classic_address,
+        )
