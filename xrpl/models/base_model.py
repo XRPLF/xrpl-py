@@ -28,7 +28,7 @@ class BaseModel(ABC):
             dictionary: The dictionary to check.
 
         Returns:
-            True if dictionary is a dict representation of an instance of this
+            True if dictionary is a ``dict`` representation of an instance of this
             class; False if not.
         """
         return isinstance(dictionary, dict) and set(get_type_hints(cls).keys()) == set(
