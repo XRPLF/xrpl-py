@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from xrpl import CryptoAlgorithm
+from xrpl.constants import CryptoAlgorithm
 from xrpl.core import keypairs
 from xrpl.core.keypairs.exceptions import XRPLKeypairsException
 

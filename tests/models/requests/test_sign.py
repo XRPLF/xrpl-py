@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from xrpl import CryptoAlgorithm
+from xrpl.constants import CryptoAlgorithm
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests import Sign
 from xrpl.models.transactions import AccountSet

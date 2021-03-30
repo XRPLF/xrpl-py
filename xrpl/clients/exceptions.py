@@ -1,7 +1,7 @@
 """General XRPL Client Exceptions."""
 from __future__ import annotations
 
-from xrpl import XRPLException
+from xrpl.constants import XRPLException
 
 
 class XRPLRequestFailureException(XRPLException):

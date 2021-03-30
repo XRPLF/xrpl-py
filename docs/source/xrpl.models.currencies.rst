@@ -1,9 +1,6 @@
 XRPL Currency Models
 ====================
 
-Submodules
-----------
-
 .. automodule:: xrpl.models.currencies
    :members:
    :undoc-members:
