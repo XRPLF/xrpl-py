@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from tests.integration.it_utils import submit_transaction
-from tests.integration.reusable_values import FEE, OFFER, WALLET
+from tests.integration.reusable_values import OFFER, WALLET
 from xrpl.models.transactions import OfferCancel
 
 
@@ -10,7 +10,6 @@ class TestOfferCancel(TestCase):
         response = submit_transaction(
             OfferCancel(
                 account=WALLET.classic_address,
-                fee=FEE,
                 sequence=WALLET.next_sequence_num,
                 offer_sequence=OFFER.result["Sequence"],
             ),
@@ -22,3 +21,4 @@ class TestOfferCancel(TestCase):
         #
         # This TX will result in a success essentially as long as it is
         # correctly formatted.
+        WALLET.next_sequence_num += 1

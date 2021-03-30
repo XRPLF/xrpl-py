@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from tests.integration.it_utils import submit_transaction
-from tests.integration.reusable_values import DESTINATION, FEE, WALLET
+from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import CheckCreate
 
@@ -16,7 +16,6 @@ class TestCheckCreate(TestCase):
     def test_all_fields(self):
         check_create = CheckCreate(
             account=ACCOUNT,
-            fee=FEE,
             sequence=WALLET.next_sequence_num,
             destination=DESTINATION.classic_address,
             destination_tag=DESTINATION_TAG,
@@ -27,3 +26,4 @@ class TestCheckCreate(TestCase):
         response = submit_transaction(check_create, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+        WALLET.next_sequence_num += 1
