@@ -1,6 +1,9 @@
 XRPL Models
 ===========
 
+Use these classes to validate the formats for all types of data coming from or
+going to the XRP Ledger.
+
 .. toctree::
    :maxdepth: 1
    :titlesonly:

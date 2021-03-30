@@ -1,4 +1,7 @@
-"""Model objects representing different types of transactions on the XRPL ledger."""
+"""
+Model objects for specific `types of Transactions
+<https://xrpl.org/transaction-types.html>`_ in the XRP Ledger.
+"""
 
 from xrpl.models.transactions.account_delete import AccountDelete
 from xrpl.models.transactions.account_set import AccountSet
