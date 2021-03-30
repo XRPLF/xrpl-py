@@ -24,7 +24,7 @@ def get_latest_transaction(account: str, client: Client) -> Response:
     response = client.request(AccountTx(account=account, ledger_index_max=-1, limit=1))
     if not response.is_successful():
         result = cast(Dict[str, Any], response.result)
-        raise XRPLRequestFailureException(result["error"], result["error_message"])
+        raise XRPLRequestFailureException(result)
     return response
 
 
@@ -46,7 +46,7 @@ def get_account_transactions(address: str, client: Client) -> List[Dict[str, Any
     response = client.request(request)
     result = cast(Dict[str, Any], response.result)
     if not response.is_successful():
-        raise XRPLRequestFailureException(result["error"], result["error_message"])
+        raise XRPLRequestFailureException(result)
     return cast(List[Dict[str, Any]], result["transactions"])
 
 

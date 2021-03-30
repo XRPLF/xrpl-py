@@ -8,9 +8,8 @@ from xrpl.constants import XRPLException
 from xrpl.ledger import get_latest_validated_ledger_sequence
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.transaction import safe_sign_and_submit_transaction
+from xrpl.transaction import submit_transaction
 from xrpl.transaction.ledger import get_transaction_from_hash
-from xrpl.wallet import Wallet
 
 _LEDGER_CLOSE_TIME = 4
 
@@ -22,7 +21,7 @@ class XRPLReliableSubmissionException(XRPLException):
 
 
 def _wait_for_final_transaction_outcome(
-    transaction_hash: str, wallet: Wallet, client: Client
+    transaction_hash: str, client: Client
 ) -> Response:
     """
     The core logic of reliable submission.  Polls the ledger until the result of the
@@ -46,7 +45,7 @@ def _wait_for_final_transaction_outcome(
 
     if last_ledger_sequence > latest_ledger_sequence:
         # outcome is not yet final
-        return _wait_for_final_transaction_outcome(transaction_hash, wallet, client)
+        return _wait_for_final_transaction_outcome(transaction_hash, client)
 
     raise XRPLReliableSubmissionException(
         f"The latest ledger sequence {latest_ledger_sequence} is greater than the "
@@ -54,9 +53,7 @@ def _wait_for_final_transaction_outcome(
     )
 
 
-def send_reliable_submission(
-    transaction: Transaction, wallet: Wallet, client: Client
-) -> Response:
+def send_reliable_submission(transaction: Transaction, client: Client) -> Response:
     """
     Submits a transaction and verifies that it has been included in a validated ledger
     (or has errored/will not be included for some reason).
@@ -65,9 +62,8 @@ def send_reliable_submission(
     <https://xrpl.org/reliable-transaction-submission.html>`_
 
     Args:
-        transaction: the transaction to submit to the ledger. Requires a
+        transaction: the signed transaction to submit to the ledger. Requires a
             `last_ledger_sequence` param.
-        wallet: the wallet used to sign the transaction.
         client: the network client used to submit the transaction to a rippled node.
 
     Returns:
@@ -77,15 +73,8 @@ def send_reliable_submission(
         XRPLReliableSubmissionException: if the transaction fails or is misisng a
             `last_ledger_sequence` param.
     """
-    submit_response = safe_sign_and_submit_transaction(transaction, wallet, client)
+    submit_response = submit_transaction(transaction, client)
     result = cast(Dict[str, Any], submit_response.result)
-    if not submit_response.is_successful() and "engine_result" not in result:
-        # error
-        result_code = result["error"]
-        result_message = result["error_exception"]
-        raise XRPLReliableSubmissionException(
-            f"Transaction failed, {result_code}: {result_message}"
-        )
     if result["engine_result"] != "tesSUCCESS":
         result_code = result["engine_result"]
         result_message = result["engine_result_message"]
@@ -94,4 +83,4 @@ def send_reliable_submission(
         )
 
     transaction_hash = result["tx_json"]["hash"]
-    return _wait_for_final_transaction_outcome(transaction_hash, wallet, client)
+    return _wait_for_final_transaction_outcome(transaction_hash, client)

@@ -35,7 +35,7 @@ def safe_sign_and_submit_transaction(
         The response from the ledger.
     """
     if autofill:
-        transaction = safe_sign_transaction_and_autofill(transaction, wallet, client)
+        transaction = safe_sign_and_autofill_transaction(transaction, wallet, client)
     else:
         transaction = safe_sign_transaction(transaction, wallet)
     return submit_transaction(transaction, client)
@@ -63,7 +63,7 @@ def safe_sign_transaction(
     return cast(Transaction, Transaction.from_xrpl(transaction_json))
 
 
-def safe_sign_transaction_and_autofill(
+def safe_sign_and_autofill_transaction(
     transaction: Transaction, wallet: Wallet, client: Client
 ) -> Transaction:
     """
@@ -105,7 +105,7 @@ def submit_transaction(
         return response
 
     result = cast(Dict[str, Any], response.result)
-    raise XRPLRequestFailureException(result["error"], result["error_message"])
+    raise XRPLRequestFailureException(result)
 
 
 def _prepare_transaction(

@@ -24,5 +24,5 @@ def get_transaction_from_hash(tx_hash: str, client: Client) -> Response:
     response = client.request(Tx(transaction=tx_hash))
     if not response.is_successful():
         result = cast(Dict[str, Any], response.result)
-        raise XRPLRequestFailureException(result["error"], result["error_message"])
+        raise XRPLRequestFailureException(result)
     return response

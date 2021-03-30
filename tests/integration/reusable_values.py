@@ -1,12 +1,11 @@
-from tests.integration.it_utils import JSON_RPC_CLIENT
+from tests.integration.it_utils import JSON_RPC_CLIENT, sign_and_reliable_submission
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.transactions import OfferCreate, PaymentChannelCreate
-from xrpl.transaction import send_reliable_submission
 from xrpl.wallet import generate_faucet_wallet
 
 WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
 DESTINATION = generate_faucet_wallet(JSON_RPC_CLIENT)
-OFFER = send_reliable_submission(
+OFFER = sign_and_reliable_submission(
     OfferCreate(
         account=WALLET.classic_address,
         sequence=WALLET.next_sequence_num,
@@ -18,10 +17,9 @@ OFFER = send_reliable_submission(
         ),
     ),
     WALLET,
-    JSON_RPC_CLIENT,
 )
 WALLET.next_sequence_num += 1
-PAYMENT_CHANNEL = send_reliable_submission(
+PAYMENT_CHANNEL = sign_and_reliable_submission(
     PaymentChannelCreate(
         account=WALLET.classic_address,
         sequence=WALLET.next_sequence_num,
@@ -31,6 +29,5 @@ PAYMENT_CHANNEL = send_reliable_submission(
         public_key=WALLET.pub_key,
     ),
     WALLET,
-    JSON_RPC_CLIENT,
 )
 WALLET.next_sequence_num += 1

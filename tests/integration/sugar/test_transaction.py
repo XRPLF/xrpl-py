@@ -5,7 +5,12 @@ from tests.integration.reusable_values import DESTINATION as DESTINATION_WALLET
 from tests.integration.reusable_values import WALLET
 from xrpl.account import get_next_valid_seq_number
 from xrpl.models.transactions import AccountSet, Payment
-from xrpl.transaction import XRPLReliableSubmissionException, send_reliable_submission
+from xrpl.transaction import (
+    XRPLReliableSubmissionException,
+    safe_sign_and_autofill_transaction,
+    safe_sign_transaction,
+    send_reliable_submission,
+)
 
 ACCOUNT = WALLET.classic_address
 DESTINATION = DESTINATION_WALLET.classic_address
@@ -27,7 +32,10 @@ class TestTransaction(TestCase):
             sequence=WALLET.next_sequence_num,
             set_flag=SET_FLAG,
         )
-        response = send_reliable_submission(account_set, WALLET, JSON_RPC_CLIENT)
+        signed_account_set = safe_sign_and_autofill_transaction(
+            account_set, WALLET, JSON_RPC_CLIENT
+        )
+        response = send_reliable_submission(signed_account_set, JSON_RPC_CLIENT)
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
@@ -43,9 +51,10 @@ class TestTransaction(TestCase):
             "destination": DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
-        response = send_reliable_submission(
+        signed_payment_transaction = safe_sign_and_autofill_transaction(
             payment_transaction, WALLET, JSON_RPC_CLIENT
         )
+        response = send_reliable_submission(signed_payment_transaction, JSON_RPC_CLIENT)
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
@@ -62,8 +71,11 @@ class TestTransaction(TestCase):
             "destination": DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
+        signed_payment_transaction = safe_sign_and_autofill_transaction(
+            payment_transaction, WALLET, JSON_RPC_CLIENT
+        )
         with self.assertRaises(XRPLReliableSubmissionException):
-            send_reliable_submission(payment_transaction, WALLET, JSON_RPC_CLIENT)
+            send_reliable_submission(signed_payment_transaction, JSON_RPC_CLIENT)
         WALLET.next_sequence_num -= 1
 
     def test_reliable_submission_bad_transaction(self):
@@ -76,6 +88,7 @@ class TestTransaction(TestCase):
             "destination": DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
+        signed_payment_transaction = safe_sign_transaction(payment_transaction, WALLET)
         with self.assertRaises(XRPLReliableSubmissionException):
-            send_reliable_submission(payment_transaction, WALLET, JSON_RPC_CLIENT)
+            send_reliable_submission(signed_payment_transaction, JSON_RPC_CLIENT)
         WALLET.next_sequence_num -= 1

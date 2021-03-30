@@ -65,7 +65,7 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
             try:
                 wallet.next_sequence_num = get_next_valid_seq_number(address, client)
             except XRPLRequestFailureException as e:
-                if e.error_code != "actNotFound":
+                if e.error != "actNotFound":
                     raise
                 # try again after waiting a bit
                 sleep(1)

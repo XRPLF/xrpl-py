@@ -38,7 +38,7 @@ class Wallet:
         self.classic_address = derive_classic_address(self.pub_key)
 
         #: The next available sequence number to use for transactions from this
-        #: wallet.
+        #: wallet. Must be maintained by the user; is not updated by the system.
         self.next_sequence_num = 0
 
     @classmethod
