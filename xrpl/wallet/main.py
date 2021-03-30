@@ -15,12 +15,13 @@ class Wallet:
     details.
     """
 
-    def __init__(self: Wallet, seed: str) -> None:
+    def __init__(self: Wallet, seed: str, sequence: int) -> None:
         """
         Generate a new Wallet.
 
         Args:
             seed: The seed from which the public and private keys are derived.
+            sequence: The next sequence number for the account.
         """
         #: The core value that is used to derive all other information about
         #: this wallet. MUST be kept secret!
@@ -38,8 +39,11 @@ class Wallet:
         self.classic_address = derive_classic_address(self.public_key)
 
         #: The next available sequence number to use for transactions from this
-        #: wallet. Must be updated by the user.
-        self.next_sequence_num = 0
+        #: wallet.
+        #: Must be updated by the user. Increments on the ledger with every successful
+        #: transaction submission, and stays the same with every failed transaction
+        #: submission.
+        self.next_sequence_num = sequence
 
     @classmethod
     def create(
@@ -56,7 +60,7 @@ class Wallet:
             The wallet that is generated from the given seed.
         """
         seed = generate_seed(algorithm=crypto_algorithm)
-        return cls(seed)
+        return cls(seed, sequence=0)
 
     def __str__(self: Wallet) -> str:
         """
