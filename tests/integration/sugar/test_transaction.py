@@ -4,6 +4,7 @@ from tests.integration.it_utils import JSON_RPC_CLIENT
 from tests.integration.reusable_values import DESTINATION as DESTINATION_WALLET
 from tests.integration.reusable_values import WALLET
 from xrpl.account import get_next_valid_seq_number
+from xrpl.clients import XRPLRequestFailureException
 from xrpl.models.transactions import AccountSet, Payment
 from xrpl.transaction import (
     XRPLReliableSubmissionException,
@@ -89,6 +90,6 @@ class TestTransaction(TestCase):
         }
         payment_transaction = Payment.from_dict(payment_dict)
         signed_payment_transaction = safe_sign_transaction(payment_transaction, WALLET)
-        with self.assertRaises(XRPLReliableSubmissionException):
+        with self.assertRaises(XRPLRequestFailureException):
             send_reliable_submission(signed_payment_transaction, JSON_RPC_CLIENT)
         WALLET.next_sequence_num -= 1

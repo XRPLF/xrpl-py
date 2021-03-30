@@ -1,9 +1,10 @@
 from unittest import TestCase
 
-from tests.integration.it_utils import JSON_RPC_CLIENT
-from tests.integration.reusable_values import FEE, WALLET
+from tests.integration.it_utils import JSON_RPC_CLIENT, sign_and_reliable_submission
+from tests.integration.reusable_values import WALLET
 from xrpl.core.binarycodec import encode_for_multisigning
 from xrpl.core.keypairs import sign
+from xrpl.ledger import get_fee
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import SubmitMultisigned
 from xrpl.models.transactions import (
@@ -13,17 +14,16 @@ from xrpl.models.transactions import (
     TrustSet,
     TrustSetFlag,
 )
-from xrpl.transaction import (
-    send_reliable_submission,
-    transaction_json_to_binary_codec_form,
-)
+from xrpl.transaction import transaction_json_to_binary_codec_form
 from xrpl.wallet import Wallet
+
+FEE = get_fee(JSON_RPC_CLIENT)
 
 #
 # Set up signer list
 FIRST_SIGNER = Wallet.create()
 SECOND_SIGNER = Wallet.create()
-LIST_SET_TX = send_reliable_submission(
+LIST_SET_TX = sign_and_reliable_submission(
     SignerListSet(
         account=WALLET.classic_address,
         sequence=WALLET.next_sequence_num,
@@ -42,7 +42,6 @@ LIST_SET_TX = send_reliable_submission(
         ],
     ),
     WALLET,
-    JSON_RPC_CLIENT,
 )
 
 

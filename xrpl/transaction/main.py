@@ -153,7 +153,6 @@ def _autofill_transaction(transaction: Transaction, client: Client) -> Transacti
         transaction_json["sequence"] = sequence
     if "fee" not in transaction_json:
         transaction_json["fee"] = get_fee(client)
-
     if "last_ledger_sequence" not in transaction_json:
         ledger_sequence = get_latest_validated_ledger_sequence(client)
         transaction_json["last_ledger_sequence"] = ledger_sequence + _LEDGER_OFFSET
