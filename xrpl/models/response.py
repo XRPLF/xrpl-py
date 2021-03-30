@@ -52,7 +52,7 @@ class Response(BaseModel):
         super().__post_init__()
         if self.contains_partial_payment():
             warnings.warn(
-                """This response contains a partial payment, please confirm
+                """This response contains a partial payment. Please confirm
                 the delivered amount is correct""",
                 stacklevel=2,
             )
