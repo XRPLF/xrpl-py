@@ -2,9 +2,9 @@
 import re
 from typing import Any, Dict
 
-from xrpl import XRPLException
 from xrpl.account import get_next_valid_seq_number
 from xrpl.clients import Client
+from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec import encode, encode_for_signing
 from xrpl.core.keypairs.main import sign
