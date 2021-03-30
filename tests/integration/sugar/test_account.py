@@ -58,10 +58,10 @@ class TestAccount(TestCase):
             account=WALLET.classic_address,
             destination=DESTINATION.classic_address,
             amount=amount,
-            last_ledger_sequence=WALLET.next_sequence_num + 20,
+            last_ledger_sequence=WALLET.sequence + 20,
         )
         sign_and_reliable_submission(payment, WALLET)
-        WALLET.next_sequence_num += 1
+        WALLET.sequence += 1
 
         response = get_latest_transaction(WALLET.classic_address, JSON_RPC_CLIENT)
         self.assertEqual(len(response.result["transactions"]), 1)

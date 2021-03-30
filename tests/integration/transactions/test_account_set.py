@@ -20,18 +20,18 @@ class TestAccountSet(TestCase):
     def test_required_fields_and_set_flag(self):
         account_set = AccountSet(
             account=ACCOUNT,
-            sequence=WALLET.next_sequence_num,
+            sequence=WALLET.sequence,
             set_flag=SET_FLAG,
         )
         response = submit_transaction(account_set, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-        WALLET.next_sequence_num += 1
+        WALLET.sequence += 1
 
     def test_all_fields_minus_set_flag(self):
         account_set = AccountSet(
             account=ACCOUNT,
-            sequence=WALLET.next_sequence_num,
+            sequence=WALLET.sequence,
             clear_flag=CLEAR_FLAG,
             domain=DOMAIN,
             email_hash=EMAIL_HASH,
@@ -42,4 +42,4 @@ class TestAccountSet(TestCase):
         response = submit_transaction(account_set, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-        WALLET.next_sequence_num += 1
+        WALLET.sequence += 1

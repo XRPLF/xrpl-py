@@ -10,7 +10,7 @@ class TestOfferCancel(TestCase):
         response = submit_transaction(
             OfferCancel(
                 account=WALLET.classic_address,
-                sequence=WALLET.next_sequence_num,
+                sequence=WALLET.sequence,
                 offer_sequence=OFFER.result["Sequence"],
             ),
             WALLET,
@@ -21,4 +21,4 @@ class TestOfferCancel(TestCase):
         #
         # This TX will result in a success essentially as long as it is
         # correctly formatted.
-        WALLET.next_sequence_num += 1
+        WALLET.sequence += 1

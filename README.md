@@ -175,7 +175,7 @@ my_tx_payment = Payment(
     amount="2200000",
     destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
     last_ledger_sequence=current_validated_ledger + 20,
-    sequence=test_wallet.next_sequence_num,
+    sequence=test_wallet.sequence,
     fee="10",
 )
 # sign the transaction
@@ -215,7 +215,7 @@ my_tx_payment = Payment(
     account="rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz",
     amount="2200000",
     destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
-    sequence=test_wallet.next_sequence_num,
+    sequence=test_wallet.sequence,
 )
 
 # sign the transaction

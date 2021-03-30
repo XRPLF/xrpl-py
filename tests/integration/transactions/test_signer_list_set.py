@@ -13,7 +13,7 @@ class TestSignerListSet(TestCase):
         response = submit_transaction(
             SignerListSet(
                 account=WALLET.classic_address,
-                sequence=WALLET.next_sequence_num,
+                sequence=WALLET.sequence,
                 signer_quorum=1,
                 signer_entries=[
                     SignerEntry(
@@ -25,4 +25,4 @@ class TestSignerListSet(TestCase):
             WALLET,
         )
         self.assertTrue(response.is_successful())
-        WALLET.next_sequence_num += 1
+        WALLET.sequence += 1

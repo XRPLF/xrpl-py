@@ -16,7 +16,7 @@ class TestWallet(TestCase):
         account_set = AccountSet(
             account=wallet.classic_address,
             fee="10",
-            sequence=wallet.next_sequence_num,
+            sequence=wallet.sequence,
             set_flag=3,
         )
         response = submit_transaction(account_set, wallet, client=DEV_JSON_RPC_CLIENT)
@@ -29,7 +29,7 @@ class TestWallet(TestCase):
         response = submit_transaction(
             Payment(
                 account=wallet.classic_address,
-                sequence=wallet.next_sequence_num,
+                sequence=wallet.sequence,
                 fee="10",
                 amount="1",
                 destination=destination.classic_address,

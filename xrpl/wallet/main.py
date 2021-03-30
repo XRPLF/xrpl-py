@@ -43,7 +43,7 @@ class Wallet:
         #: Must be updated by the user. Increments on the ledger with every successful
         #: transaction submission, and stays the same with every failed transaction
         #: submission.
-        self.next_sequence_num = sequence
+        self.sequence = sequence
 
     @classmethod
     def create(

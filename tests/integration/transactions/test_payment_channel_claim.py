@@ -10,10 +10,10 @@ class TestPaymentChannelClaim(TestCase):
         response = submit_transaction(
             PaymentChannelClaim(
                 account=WALLET.classic_address,
-                sequence=WALLET.next_sequence_num,
+                sequence=WALLET.sequence,
                 channel=PAYMENT_CHANNEL.result["hash"],
             ),
             WALLET,
         )
         self.assertTrue(response.is_successful())
-        WALLET.next_sequence_num += 1
+        WALLET.sequence += 1

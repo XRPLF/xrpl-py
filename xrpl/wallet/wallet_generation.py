@@ -83,7 +83,7 @@ def generate_faucet_wallet(
         else:  # wallet has been funded, now the ledger needs to know the account exists
             next_seq_num = _try_to_get_next_seq(address, client)
             if next_seq_num is not None:
-                wallet.next_sequence_num = next_seq_num
+                wallet.sequence = next_seq_num
                 return wallet
 
     raise XRPLFaucetException(
