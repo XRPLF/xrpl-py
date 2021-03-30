@@ -5,12 +5,15 @@ Represents fields common to all response types.
 """
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
+from xrpl.models.transactions import PaymentFlag
+from xrpl.models.transactions.transaction import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 
@@ -44,6 +47,16 @@ class Response(BaseModel):
     id: Optional[Union[int, str]] = None
     type: Optional[ResponseType] = None
 
+    def __post_init__(self: Response) -> None:
+        """Called by dataclasses immediately after __init__."""
+        super().__post_init__()
+        if self.contains_partial_payment():
+            warnings.warn(
+                """This response contains a partial payment. Please confirm
+                the delivered amount is correct""",
+                stacklevel=2,
+            )
+
     def is_successful(self: Response) -> bool:
         """
         Returns whether the request was successfully received and understood by the
@@ -53,3 +66,44 @@ class Response(BaseModel):
             Whether the request was successfully received and understood by the server.
         """
         return self.status == ResponseStatus.SUCCESS
+
+    def contains_partial_payment(self: Response) -> bool:
+        """
+        Returns whether the request contains at least one transactions with
+        the partial payment flag set.
+
+        Returns:
+            True if at least one transaction in this Response has the partial
+            payment flag set. False otherwise.
+        """
+        return self._do_contains_partial_payment(self.result)
+
+    def _do_contains_partial_payment(self: Response, val: Any) -> bool:
+        flagged = []
+        if isinstance(val, dict):
+            formatted = {key.strip().lower(): value for key, value in val.items()}
+            if (
+                "transactiontype" in formatted
+                and formatted["transactiontype"] == TransactionType.PAYMENT
+            ):
+                flagged = [
+                    True
+                    for key, value in val.items()
+                    if self._is_partial_payment(key, value)
+                ]
+        if isinstance(val, list):
+            flagged = [
+                True for sub_val in val if self._do_contains_partial_payment(sub_val)
+            ]
+        return len(flagged) > 0
+
+    def _is_partial_payment(self: Response, key: str, val: Any) -> bool:
+        if isinstance(val, dict):
+            return self._do_contains_partial_payment(val)
+        try:
+            int_val = int(val)
+        except (TypeError, ValueError):
+            return False
+        return key.strip().lower() == "flags" and (
+            int_val & PaymentFlag.TF_PARTIAL_PAYMENT != 0
+        )
