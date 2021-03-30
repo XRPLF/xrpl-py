@@ -60,10 +60,10 @@ def submit_transaction(
     client: Client,
 ) -> Response:
     """
-    Submits a transaction blob to the ledger.
+    Submits a transaction to the ledger.
 
     Args:
-        transaction: the transaction blob to be submitted.
+        transaction: the Transaction to be submitted.
         client: the network client with which to submit the transaction.
 
     Returns:
