@@ -6,7 +6,7 @@ from typing import Union
 
 from typing_extensions import Final
 
-from xrpl import XRPLException
+from xrpl.constants import XRPLException
 
 ONE_DROP: Final[Decimal] = Decimal("0.000001")  #: Indivisible unit of XRP
 MAX_XRP: Final[Decimal] = Decimal(10 ** 11)  #: 100 billion decimal XRP

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type, cast
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
@@ -43,6 +43,23 @@ class SignerEntry(BaseModel):
             and "signer_entry" in dictionary
             and super().is_dict_of_model(dictionary["signer_entry"])
         )
+
+    @classmethod
+    def from_dict(cls: Type[SignerEntry], value: Dict[str, Any]) -> SignerEntry:
+        """
+        Construct a new SignerEntry from a dictionary of parameters.
+
+        Args:
+            value: The value to construct the SignerEntry from.
+
+        Returns:
+            A new SignerEntry object, constructed using the given parameters.
+        """
+        if len(value) == 1 and "signer_entry" in value:
+            return cast(
+                SignerEntry, super(SignerEntry, cls).from_dict(value["signer_entry"])
+            )
+        return cast(SignerEntry, super(SignerEntry, cls).from_dict(value))
 
     def to_dict(self: SignerEntry) -> Dict[str, Any]:
         """

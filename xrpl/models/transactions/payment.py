@@ -56,7 +56,7 @@ class Payment(Transaction):
 
     #: Array of payment paths to be used (for a cross-currency payment). Must be
     #: omitted for XRP-to-XRP transactions.
-    paths: Optional[List[Any]] = None
+    paths: Optional[List[Any]] = None  # TODO: should be better typed
 
     #: Maximum amount of source currency this transaction is allowed to cost,
     #: including `transfer fees <http://xrpl.local/transfer-fees.html>`_,
