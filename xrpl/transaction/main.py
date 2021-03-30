@@ -58,7 +58,7 @@ def safe_sign_transaction(
     transaction_json = _prepare_transaction(transaction, wallet)
     serialized_for_signing = encode_for_signing(transaction_json)
     serialized_bytes = bytes.fromhex(serialized_for_signing)
-    signature = sign(serialized_bytes, wallet.priv_key)
+    signature = sign(serialized_bytes, wallet.private_key)
     transaction_json["TxnSignature"] = signature
     return cast(Transaction, Transaction.from_xrpl(transaction_json))
 
@@ -129,7 +129,7 @@ def _prepare_transaction(
             if an address tag is provided that does not match the X-Address tag.
     """
     transaction_json = transaction_json_to_binary_codec_form(transaction.to_dict())
-    transaction_json["SigningPubKey"] = wallet.pub_key
+    transaction_json["SigningPubKey"] = wallet.public_key
 
     _validate_account_xaddress(transaction_json, "Account", "SourceTag")
     if "Destination" in transaction_json:
