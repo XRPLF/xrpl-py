@@ -23,12 +23,15 @@ class XRPLFaucetException(XRPLException):
     pass
 
 
-def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
+def generate_faucet_wallet(
+    client: Client, wallet: Optional[Wallet] = None, debug: bool = False
+) -> Wallet:
     """
     Generates a random wallet and funds it using the XRPL Testnet Faucet.
 
     Args:
         client: the network client used to make network calls.
+        wallet: the wallet to fund. If omitted or `None`, a new wallet is created.
         debug: Whether to print debug information as it creates the wallet.
 
     Returns:
@@ -49,7 +52,8 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
         raise XRPLFaucetException(
             "Cannot fund an account with a client that is not on the testnet or devnet."
         )
-    wallet = Wallet.create()
+    if wallet is None:
+        wallet = Wallet.create()
 
     address = wallet.classic_address
     # The faucet *can* be flakey... by printing info about this it's easier to
