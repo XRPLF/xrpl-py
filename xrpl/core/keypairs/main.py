@@ -1,10 +1,10 @@
-"""Public interface for keypairs module."""
+"""Interface for cryptographic key pairs for use with the XRP Ledger."""
 from secrets import token_bytes
 from typing import Dict, Optional, Tuple, Type
 
 from typing_extensions import Final
 
-from xrpl import CryptoAlgorithm
+from xrpl.constants import CryptoAlgorithm
 from xrpl.core import addresscodec
 from xrpl.core.keypairs.crypto_implementation import CryptoImplementation
 from xrpl.core.keypairs.ed25519 import ED25519
@@ -26,15 +26,17 @@ def generate_seed(
     algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
 ) -> str:
     """
-    Generates a seed suitable for use with derive.
+    Generate a seed value that cryptographic keys can be derived from.
 
     Args:
         entropy: Must be at least addresscodec.SEED_LENGTH bytes long and
             will be truncated to that length
-        algorithm: CryptoAlgorithm to use for seed generation
+        algorithm: CryptoAlgorithm to use for seed generation. The  default is
+            :data:`CryptoAlgorithm.ED25519 <xrpl.CryptoAlgorithm.ED25519>`.
 
     Returns:
-        A seed suitable for use with derive
+        A seed value that can be used to derive a key pair with the given
+            cryptographic algorithm.
     """
     if entropy is None:
         parsed_entropy = token_bytes(addresscodec.SEED_LENGTH)
@@ -45,15 +47,16 @@ def generate_seed(
 
 def derive_keypair(seed: str, validator: bool = False) -> Tuple[str, str]:
     """
-    Given seed, which can be generated via `generate_seed`, returns
-    public and private keypair.
+    Derive the public and private keys from a given seed value.
 
     Args:
-        seed: Value from which to derive keypair
+        seed: Seed to derive the key pair from. Use
+            :func:`generate_seed() <xrpl.core.keypairs.generate_seed>` to generate an
+            appropriate value.
         validator: Whether the keypair is a validator keypair.
 
     Returns:
-        A public and private keypair.
+        A (public key, private key) pair derived from the given seed.
 
     Raises:
         XRPLKeypairsException: If the derived keypair did not generate a
@@ -72,15 +75,16 @@ def derive_keypair(seed: str, validator: bool = False) -> Tuple[str, str]:
 
 def derive_classic_address(public_key: str) -> str:
     """
-    Returns the classic address for the given public key. See
-    https://xrpl.org/cryptographic-keys.html#account-id-and-address
+    Derive the XRP Ledger classic address for a given public key. See
+    `Address Derivation
+    <https://xrpl.org/cryptographic-keys.html#account-id-and-address>`_
     for more information.
 
     Args:
-        public_key: Public key from which to derive address.
+        public_key: The public key to derive the address from, as hexadecimal.
 
     Returns:
-        Classic address corresponding to public key.
+        The classic address corresponding to the given public key.
     """
     account_id = get_account_id(bytes.fromhex(public_key))
     return addresscodec.encode_classic_address(account_id)
@@ -88,15 +92,14 @@ def derive_classic_address(public_key: str) -> str:
 
 def sign(message: bytes, private_key: str) -> str:
     """
-    Given message and private key returns signed message.
+    Sign a message using a given private key.
 
     Args:
-        message: Message to sign.
-        private_key: Private key generated using any of the supported
-            CryptoAlgorithm.
+        message: The message to sign, as bytes.
+        private_key: The private key to use to sign the message.
 
     Returns:
-        Signed message.
+        Signed message, as hexadecimal.
     """
     return (
         _get_module_from_key(private_key)
@@ -111,16 +114,16 @@ def sign(message: bytes, private_key: str) -> str:
 
 def is_valid_message(message: bytes, signature: bytes, public_key: str) -> bool:
     """
-    Returns True if message is valid given signature and public key.
+    Verifies the signature on a given message.
 
     Args:
-        message: Message to check against signature.
-        signature: Signature of message as created with private key.
-        public_key: Public key corresponding to private key used to generate
+        message: The message to validate.
+        signature: The signature of the message.
+        public_key: The public key to use to verify the message and
             signature.
 
     Returns:
-        True if message is valid given signature and public key.
+        Whether the message is valid for the given signature and public key.
     """
     return _get_module_from_key(public_key).is_valid_message(
         message,

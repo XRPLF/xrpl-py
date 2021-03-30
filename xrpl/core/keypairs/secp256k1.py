@@ -1,4 +1,4 @@
-"""Methods for deriving keypairs given an SECP256k1-encoded seed."""
+"""secp256k1 elliptic curve cryptography interface."""
 # The process for using SECP256k1 is complex and more involved than ED25519.
 #
 # See https://xrpl.org/cryptographic-keys.html#secp256k1-key-derivation
@@ -39,21 +39,24 @@ _INTERMEDIATE_KEYPAIR_PADDING: Final[bytes] = (0).to_bytes(
 
 
 class SECP256K1(CryptoImplementation):
-    """Methods for deriving keypairs given an SECP256k1-encoded seed."""
+    """
+    Methods for using the ECDSA cryptographic system with the secp256k1
+    elliptic curve.
+    """
 
     @classmethod
     def derive_keypair(
         cls: Type[SECP256K1], decoded_seed: bytes, is_validator: bool
     ) -> Tuple[str, str]:
         """
-        Derives a keypair using SECP256k1.
+        Derive the public and private secp256k1 keys from a given seed value.
 
         Args:
-            decoded_seed: Decoded seed.
-            is_validator: Whether to derive a validator keypair from this seed.
+            decoded_seed: The secp256k1 seed to derive a key pair from, as bytes.
+            is_validator: Whether to derive a validator keypair.
 
         Returns:
-            A private and public key pair.
+            A (public key, private key) pair derived from the given seed.
         """
         root_public, root_private = cls._do_derive_part(decoded_seed, "root")
         # validator keys just stop at the first pass
@@ -75,14 +78,14 @@ class SECP256K1(CryptoImplementation):
     @classmethod
     def sign(cls: Type[SECP256K1], message: bytes, private_key: str) -> bytes:
         """
-        Signs message in SECP256k1 using the given private key.
+        Signs a message using a given secp256k1 private key.
 
         Args:
-            message: The message to sign in SECP256k1.
+            message: The message to sign, as bytes.
             private_key: The private key to use to sign the message.
 
         Returns:
-            The signed message.
+            The signature of the message, as bytes.
         """
         wrapped_private = ECPrivateKey(int(private_key, 16), _CURVE)
         return cast(
@@ -100,15 +103,16 @@ class SECP256K1(CryptoImplementation):
         cls: Type[SECP256K1], message: bytes, signature: bytes, public_key: str
     ) -> bool:
         """
-        Verifies that message matches signature given public_key.
+        Verifies the signature on a given message.
 
         Args:
             message: The message to validate.
             signature: The signature of the message.
-            public_key: The public_key to use to verify the message.
+            public_key: The public key to use to verify the message and
+                signature.
 
         Returns:
-            Whether the message matches the signature given the public key.
+            Whether the message is valid for the given signature and public key.
         """
         public_key_point = _CURVE.decode_point(bytes.fromhex(public_key))
         wrapped_public = ECPublicKey(public_key_point)

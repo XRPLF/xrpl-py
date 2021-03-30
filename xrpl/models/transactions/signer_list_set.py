@@ -1,13 +1,4 @@
-"""
-Represents a SignerListSet transaction on the XRP Ledger.
-
-The SignerListSet transaction creates, replaces, or removes a list of signers that can
-be used to multi-sign a transaction. This transaction type was introduced by the
-MultiSign amendment.
-
-`See SignerListSet <https://xrpl.org/signerlistset.html>`_
-`See MultiSign Amendment <https://xrpl.org/known-amendments.html#multisign>`_
-"""
+"""Model for SignerListSet transaction type."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -22,10 +13,7 @@ from xrpl.models.utils import require_kwargs_on_init
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class SignerEntry(BaseModel):
-    """
-    Each member of the SignerEntries field is an object that describes that
-    signer in the list.
-    """
+    """Represents one entry in a list of multi-signers authorized to an account."""
 
     #: This field is required.
     account: str = REQUIRED  # type: ignore
@@ -70,14 +58,10 @@ class SignerEntry(BaseModel):
 @dataclass(frozen=True)
 class SignerListSet(Transaction):
     """
-    Represents a SignerListSet transaction on the XRP Ledger.
-
-    The SignerListSet transaction creates, replaces, or removes a list of signers that
-    can be used to multi-sign a transaction. This transaction type was introduced by the
-    MultiSign amendment.
-
-    `See SignerListSet <https://xrpl.org/signerlistset.html>`_
-    `See MultiSign Amendment <https://xrpl.org/known-amendments.html#multisign>`_
+    Represents a `SignerListSet <https://xrpl.org/signerlistset.html>`_
+    transaction, which creates, replaces, or removes a list of signers that
+    can be used to `multi-sign a transaction
+    <https://xrpl.org/multi-signing.html>`_.
     """
 
     #: This field is required.

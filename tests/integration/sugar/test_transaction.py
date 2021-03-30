@@ -64,3 +64,18 @@ class TestTransaction(TestCase):
         payment_transaction = Payment.from_dict(payment_dict)
         with self.assertRaises(XRPLReliableSubmissionException):
             send_reliable_submission(payment_transaction, WALLET, JSON_RPC_CLIENT)
+        WALLET.next_sequence_num -= 1
+
+    def test_reliable_submission_bad_transaction(self):
+        WALLET.next_sequence_num = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
+        payment_dict = {
+            "account": ACCOUNT,
+            "last_ledger_sequence": WALLET.next_sequence_num + 20,
+            "fee": "10",
+            "amount": "100",
+            "destination": DESTINATION,
+        }
+        payment_transaction = Payment.from_dict(payment_dict)
+        with self.assertRaises(XRPLReliableSubmissionException):
+            send_reliable_submission(payment_transaction, WALLET, JSON_RPC_CLIENT)
+        WALLET.next_sequence_num -= 1

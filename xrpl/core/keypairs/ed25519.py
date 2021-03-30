@@ -1,4 +1,4 @@
-"""Methods for deriving keypairs given an ED25519-encoded seed."""
+"""Ed25519 elliptic curve cryptography interface."""
 from __future__ import annotations
 
 from hashlib import sha512
@@ -19,29 +19,31 @@ _SIGNER: Final[EDDSA] = EDDSA(sha512)
 
 
 class ED25519(CryptoImplementation):
-    """Methods for deriving keypairs given an ED25519-encoded seed."""
+    """Methods for using the Ed25519 cryptographic system."""
 
     @classmethod
     def derive_keypair(
         cls: Type[ED25519], decoded_seed: bytes, is_validator: bool
     ) -> Tuple[str, str]:
         """
-        Derives a keypair.
+        Derives a key pair in Ed25519 format for use with the XRP Ledger from a
+        seed value.
 
         Args:
-            decoded_seed: an ED25519 seed from which to derive keypair.
-            is_validator: if True indicates that caller wishes to derive a validator
-                keypair from this seed, however, that is always invalid for this
-                algorithm and will cause this function to raise.
+            decoded_seed: The Ed25519 seed to derive a key pair from, as bytes.
+            is_validator: Whether to derive a validator keypair.
+                However, validator signing keys cannot use Ed25519.
+                (See `#3434 <https://github.com/ripple/rippled/issues/3434>`_
+                for more information.)
 
         Returns:
-            A (private key, public key) derived from seed
+            A (public key, private key) pair derived from the given seed.
 
         Raises:
             XRPLKeypairsException: If the keypair is a validator keypair.
         """
         if is_validator:
-            raise XRPLKeypairsException("validator keypairs cannot use ED25519")
+            raise XRPLKeypairsException("Validator key pairs cannot use Ed25519")
 
         raw_private = sha512_first_half(decoded_seed)
         private = ECPrivateKey(int.from_bytes(raw_private, "big"), _CURVE)
@@ -54,14 +56,14 @@ class ED25519(CryptoImplementation):
     @classmethod
     def sign(cls: Type[ED25519], message: bytes, private_key: str) -> bytes:
         """
-        Signs a message.
+        Signs a message using a given Ed25519 private key.
 
         Args:
-            message: Message to sign
-            private_key: Key with which to sign message
+            message: The message to sign, as bytes.
+            private_key: The private key to use to sign the message.
 
         Returns:
-            The signature of message signed using private_key.
+            The signature of the message.
         """
         raw_private = private_key[len(PREFIX) :]
         wrapped_private = ECPrivateKey(int(raw_private, 16), _CURVE)
@@ -72,17 +74,16 @@ class ED25519(CryptoImplementation):
         cls: Type[ED25519], message: bytes, signature: bytes, public_key: str
     ) -> bool:
         """
-        Checks whether or not a message is valid.
+        Verifies the signature on a given message.
 
         Args:
-            message: Message to check against signature
-            signature: Signature of message to to verify
-            public_key: Public key corresponding to private key used to
-                generate signature
+            message: The message to validate.
+            signature: The signature of the message.
+            public_key: The public key to use to verify the message and
+                signature.
 
         Returns:
-            Whether message is valid given signature and public_key
-
+            Whether the message is valid for the given signature and public key.
         """
         raw_public = public_key[len(PREFIX) :]
         public_key_point = _CURVE.decode_point(bytes.fromhex(raw_public))

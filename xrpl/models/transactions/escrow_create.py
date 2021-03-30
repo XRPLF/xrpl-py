@@ -1,11 +1,4 @@
-"""
-Represents an EscrowCreate transaction on the XRP Ledger.
-
-An EscrowCreate transaction sequesters XRP until the escrow process either finishes or
-is canceled.
-
-`See EscrowCreate <https://xrpl.org/escrowcreate.html>`_
-"""
+"""Model for EscrowCreate transaction type."""
 from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
@@ -21,22 +14,39 @@ from xrpl.models.utils import require_kwargs_on_init
 @dataclass(frozen=True)
 class EscrowCreate(Transaction):
     """
-    Represents an EscrowCreate transaction on the XRP Ledger.
-
-    An EscrowCreate transaction sequesters XRP until the escrow process either finishes
-    or is canceled.
-
-    `See EscrowCreate <https://xrpl.org/escrowcreate.html>`_
+    Represents an `EscrowCreate <https://xrpl.org/escrowcreate.html>`_
+    transaction, which locks up XRP until a specific time or condition is met.
     """
 
-    #: This field is required.
+    #: Amount of XRP, in drops, to deduct from the sender's balance and set
+    #: aside in escrow. This field is required.
     amount: Amount = REQUIRED  # type: ignore
-    #: This field is required.
+
+    #: The address that should receive the escrowed XRP when the time or
+    #: condition is met. This field is required.
     destination: str = REQUIRED  # type: ignore
+
+    #: An arbitrary `destination tag
+    #: <https://xrpl.org/source-and-destination-tags.html>`_ that
+    #: identifies the reason for the Escrow, or a hosted recipient to pay.
     destination_tag: Optional[int] = None
+
+    #: The time, in seconds since the Ripple Epoch, when this escrow expires.
+    #: This value is immutable; the funds can only be returned the sender after
+    #: this time.
     cancel_after: Optional[int] = None
+
+    #: The time, in seconds since the Ripple Epoch, when the escrowed XRP can
+    #: be released to the recipient. This value is immutable; the funds cannot
+    #: move until this time is reached.
     finish_after: Optional[int] = None
+
+    #: Hex value representing a `PREIMAGE-SHA-256 crypto-condition
+    #: <https://tools.ietf.org/html/draft-thomas-crypto-conditions-04#section-8.1.>`_
+    #: The funds can only be delivered to the recipient if this condition is
+    #: fulfilled.
     condition: Optional[str] = None
+
     transaction_type: TransactionType = field(
         default=TransactionType.ESCROW_CREATE,
         init=False,

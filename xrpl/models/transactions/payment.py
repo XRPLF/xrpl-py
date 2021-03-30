@@ -1,14 +1,4 @@
-"""
-Represents a Payment transaction on the XRP Ledger.
-
-A Payment transaction represents a transfer of value from one account to another.
-(Depending on the path taken, this can involve additional exchanges of value, which
-occur atomically.) This transaction type can be used for several types of payments.
-
-Payments are also the only way to create accounts.
-
-`See Payment <https://xrpl.org/payment.html>`_
-"""
+"""Model for Payment transaction type and related flags."""
 from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
@@ -38,26 +28,48 @@ class PaymentFlag(int, Enum):
 @dataclass(frozen=True)
 class Payment(Transaction):
     """
-    Represents a Payment transaction on the XRP Ledger.
+    Represents a Payment <https://xrpl.org/payment.html>`_ transaction, which
+    sends value from one account to another. (Depending on the path taken, this
+    can involve additional exchanges of value, which occur atomically.) This
+    transaction type can be used for several `types of payments
+    <http://xrpl.local/payment.html#types-of-payments>`_.
 
-    A Payment transaction represents a transfer of value from one account to another.
-    (Depending on the path taken, this can involve additional exchanges of value, which
-    occur atomically.) This transaction type can be used for several types of payments.
-
-    Payments are also the only way to create accounts.
-
-    `See Payment <https://xrpl.org/payment.html>`_
+    Payments are also the only way to `create accounts
+    <http://xrpl.local/payment.html#creating-accounts>`_.
     """
 
-    #: This field is required.
+    #: The amount of currency to deliver. If the Partial Payment flag is set,
+    #: deliver *up to* this amount instead. This field is required.
     amount: Amount = REQUIRED  # type: ignore
-    #: This field is required.
+
+    #: The address of the account receiving the payment. This field is required.
     destination: str = REQUIRED  # type: ignore
+
+    #: An arbitrary `destination tag
+    #: <https://xrpl.org/source-and-destination-tags.html>`_ that
+    #: identifies the reason for the Payment, or a hosted recipient to pay.
     destination_tag: Optional[int] = None
+
+    #: Arbitrary 256-bit hash representing a specific reason or identifier for
+    #: this Check.
     invoice_id: Optional[str] = None  # TODO: should be a 256 bit hash
+
+    #: Array of payment paths to be used (for a cross-currency payment). Must be
+    #: omitted for XRP-to-XRP transactions.
     paths: Optional[List[Any]] = None
+
+    #: Maximum amount of source currency this transaction is allowed to cost,
+    #: including `transfer fees <http://xrpl.local/transfer-fees.html>`_,
+    #: exchange rates, and slippage. Does not include the XRP destroyed as a
+    #: cost for submitting the transaction. Must be supplied for cross-currency
+    #: or cross-issue payments. Must be omitted for XRP-to-XRP payments.
     send_max: Optional[Amount] = None
+
+    #: Minimum amount of destination currency this transaction should deliver.
+    #: Only valid if this is a partial payment. If omitted, any positive amount
+    #: is considered a success.
     deliver_min: Optional[Amount] = None
+
     transaction_type: TransactionType = field(
         default=TransactionType.PAYMENT,
         init=False,

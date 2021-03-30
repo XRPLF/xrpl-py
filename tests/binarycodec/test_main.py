@@ -95,17 +95,24 @@ invalid_json_issuer_tagged = {
     "Balance": "10000000000",
 }
 
-invalid_json_x_and_tagged = {
-    "OwnerCount": 0,
-    "Account": "XVXdn5wEVm5G4UhEHWDPqjvdeH361P7BsapL4m2D2XnPSwT",
-    "PreviousTxnLgrSeq": 7,
-    "LedgerEntryType": "AccountRoot",
-    "PreviousTxnID": "DF530FB14C5304852F20080B0A8EEF3A6BDD044F41F4EBBD68B8B321145FE4FF",
+valid_json_x_and_tags = {
+    "TransactionType": "Payment",
+    "Account": "XVXdn5wEVm5G4UhEHWDPqjvdeH361P7BsapL4m2D2XnPSwT",  # Tag: 12345
+    "SourceTag": 12345,
+    "Destination": "X7c6XhVKioTMkCS8eEc3PsAoeHTdFjEa1sRcUiULHd265yt",  # Tag: 13
+    "DestinationTag": 13,
     "Flags": 0,
     "Sequence": 1,
-    "Balance": "10000000000",
-    "SourceTag": 12345,
+    "Amount": "1000000",
 }
+invalid_json_x_and_source_tag = {**valid_json_x_and_tags, "SourceTag": 999}
+invalid_json_x_and_dest_tag = {**valid_json_x_and_tags, "DestinationTag": 999}
+valid_json_no_x_tags = {
+    **valid_json_x_and_tags,
+    "Account": "rLs1MzkFWCxTbuAHgjeTZK4fcCDDnf2KRv",
+    "Destination": "rso13LJmsQvPzzV3q1keJjn6dLRFJm95F2",
+}
+
 
 signing_json = {
     "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
@@ -251,9 +258,16 @@ class TestXAddress(TestCase):
         with self.assertRaises(XRPLBinaryCodecException):
             encode(invalid_json_issuer_tagged)
 
-    def test_xaddress_xaddr_and_dest_tag(self):
+    def test_xaddress_xaddr_and_mismatched_source_tag(self):
         with self.assertRaises(XRPLBinaryCodecException):
-            encode(invalid_json_x_and_tagged)
+            encode(invalid_json_x_and_source_tag)
+
+    def test_xaddress_xaddr_and_mismatched_dest_tag(self):
+        with self.assertRaises(XRPLBinaryCodecException):
+            encode(invalid_json_x_and_dest_tag)
+
+    def test_xaddress_xaddr_and_matching_source_tag(self):
+        self.assertEqual(encode(valid_json_x_and_tags), encode(valid_json_no_x_tags))
 
 
 class TestMainFixtures(TestCase):
