@@ -3,9 +3,15 @@ import os
 from unittest import TestCase
 
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.requests.book_offers import BookOffers
-from xrpl.models.requests.sign import Sign
-from xrpl.models.transactions import CheckCreate
+from xrpl.models.requests import (
+    AccountChannels,
+    BookOffers,
+    PathFind,
+    PathFindSubcommand,
+    PathStep,
+    Sign,
+)
+from xrpl.models.transactions import CheckCreate, SignerEntry, SignerListSet, TrustSet
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.transaction import transaction_json_to_binary_codec_form
 
@@ -108,6 +114,90 @@ class TestBaseModel(TestCase):
             "offline": False,
         }
         self.assertEqual(expected_dict, sign.to_dict())
+
+    def test_from_dict_signer(self):
+        dictionary = {
+            "account": "rpqBNcDpWaqZC2Rksayf8UyG66Fyv2JTQy",
+            "fee": "10",
+            "sequence": 16175710,
+            "flags": 0,
+            "signer_quorum": 1,
+            "signer_entries": [
+                {
+                    "signer_entry": {
+                        "account": "rJjusz1VauNA9XaHxJoiwHe38bmQFz1sUV",
+                        "signer_weight": 1,
+                    }
+                }
+            ],
+        }
+        expected = SignerListSet(
+            account="rpqBNcDpWaqZC2Rksayf8UyG66Fyv2JTQy",
+            fee="10",
+            sequence=16175710,
+            flags=0,
+            signer_quorum=1,
+            signer_entries=[
+                SignerEntry(
+                    account="rJjusz1VauNA9XaHxJoiwHe38bmQFz1sUV", signer_weight=1
+                )
+            ],
+        )
+        actual = SignerListSet.from_dict(dictionary)
+        self.assertEqual(actual, expected)
+
+    def test_from_dict_trust_set(self):
+        dictionary = {
+            "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
+            "fee": "10",
+            "sequence": 16178313,
+            "flags": 131072,
+            "limit_amount": {
+                "currency": "USD",
+                "issuer": "raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
+                "value": "100",
+            },
+        }
+        expected = TrustSet(
+            account="rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
+            fee="10",
+            sequence=16178313,
+            flags=131072,
+            limit_amount=IssuedCurrencyAmount(
+                currency="USD", issuer="raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT", value="100"
+            ),
+        )
+        actual = TrustSet.from_dict(dictionary)
+        self.assertEqual(actual, expected)
+
+    def test_from_dict_list_of_lists(self):
+        path_step_dict = {"account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr"}
+        path_find_dict = {
+            "subcommand": PathFindSubcommand.CREATE,
+            "source_account": "raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
+            "destination_account": "rJjusz1VauNA9XaHxJoiwHe38bmQFz1sUV",
+            "destination_amount": "100",
+            "paths": [[path_step_dict]],
+        }
+        path_step = PathStep.from_dict(path_step_dict)
+        expected = PathFind(
+            subcommand=PathFindSubcommand.CREATE,
+            source_account="raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
+            destination_account="rJjusz1VauNA9XaHxJoiwHe38bmQFz1sUV",
+            destination_amount="100",
+            paths=[[path_step]],
+        )
+        actual = PathFind.from_dict(path_find_dict)
+        self.assertEqual(actual, expected)
+
+    def test_from_dict_any(self):
+        account_channels_dict = {
+            "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
+            "marker": "something",
+        }
+        expected = AccountChannels(**account_channels_dict)
+        actual = AccountChannels.from_dict(account_channels_dict)
+        self.assertEqual(actual, expected)
 
     def test_from_xrpl(self):
         dirname = os.path.dirname(__file__)

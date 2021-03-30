@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, cast
 
-from xrpl.clients import Client
+from xrpl.clients import Client, XRPLRequestFailureException
 from xrpl.models.requests import Fee, Ledger
 
 
@@ -15,10 +15,16 @@ def get_latest_validated_ledger_sequence(client: Client) -> int:
 
     Returns:
         The sequence number of the latest validated ledger.
+
+    Raises:
+        XRPLRequestFailureException: if the rippled API call fails.
     """
     response = client.request(Ledger(ledger_index="validated"))
     result = cast(Dict[str, Any], response.result)
-    return cast(int, result["ledger_index"])
+    if response.is_successful():
+        return cast(int, result["ledger_index"])
+
+    raise XRPLRequestFailureException(result["error"], result["error_message"])
 
 
 def get_latest_open_ledger_sequence(client: Client) -> int:
@@ -30,10 +36,16 @@ def get_latest_open_ledger_sequence(client: Client) -> int:
 
     Returns:
         The sequence number of the latest open ledger.
+
+    Raises:
+        XRPLRequestFailureException: if the rippled API call fails.
     """
     response = client.request(Ledger(ledger_index="open"))
     result = cast(Dict[str, Any], response.result)
-    return cast(int, result["ledger_index"])
+    if response.is_successful():
+        return cast(int, result["ledger_index"])
+
+    raise XRPLRequestFailureException(result["error"], result["error_message"])
 
 
 def get_fee(client: Client) -> str:
@@ -45,7 +57,13 @@ def get_fee(client: Client) -> str:
 
     Returns:
         The minimum fee for transactions.
+
+    Raises:
+        XRPLRequestFailureException: if the rippled API call fails.
     """
     response = client.request(Fee())
     result = cast(Dict[str, Any], response.result)
-    return cast(str, result["drops"]["minimum_fee"])
+    if response.is_successful():
+        return cast(str, result["drops"]["minimum_fee"])
+
+    raise XRPLRequestFailureException(result["error"], result["error_message"])

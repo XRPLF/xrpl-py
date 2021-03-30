@@ -11,9 +11,10 @@ See https://xrpl.org/currency-formats.html#specifying-currency-amounts
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict
+from typing import Any, Dict, Type
 
 from xrpl.models.base_model import BaseModel
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.utils import require_kwargs_on_init
 
 
@@ -32,6 +33,24 @@ class XRP(BaseModel):
     """
 
     currency: str = field(default="XRP", init=False)
+
+    @classmethod
+    def from_dict(cls: Type[XRP], value: Dict[str, Any]) -> XRP:
+        """
+        Construct a new XRP from a dictionary of parameters.
+
+        Args:
+            value: The value to construct the XRP from.
+
+        Returns:
+            A new XRP object, constructed using the given parameters.
+
+        Raises:
+            XRPLModelException: If the dictionary provided is invalid.
+        """
+        if len(value) != 1 or "currency" not in value or value["currency"] != "XRP":
+            raise XRPLModelException("Not a valid XRP type")
+        return XRP()
 
     def to_dict(self: XRP) -> Dict[str, Any]:
         """
