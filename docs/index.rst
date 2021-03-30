@@ -37,6 +37,7 @@ If you run into any bugs or other problems with the library, please report them 
    source/xrpl.clients
    source/xrpl.models
    source/xrpl.core
+   source/xrpl.utils
    source/xrpl
 
 

@@ -1,12 +1,4 @@
-"""
-Represents a DepositPreauth transaction on the XRP Ledger.
-
-A DepositPreauth transaction gives another account pre-approval to deliver payments
-to the sender of this transaction.
-
-`See Deposit Authorization <https://xrpl.org/depositauth.html>`_
-`See DepositPreauth <https://xrpl.org/depositauth.html>`_
-"""
+"""Model for DepositPreauth transaction type."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -20,17 +12,20 @@ from xrpl.models.utils import require_kwargs_on_init
 @dataclass(frozen=True)
 class DepositPreauth(Transaction):
     """
-    Represents a DepositPreauth transaction on the XRP Ledger.
-
-    A DepositPreauth transaction gives another account pre-approval to deliver payments
-    to the sender of this transaction.
-
-    `See Deposit Authorization <https://xrpl.org/depositauth.html>`_
-    `See DepositPreauth <https://xrpl.org/depositauth.html>`_
+    Represents a `DepositPreauth <https://xrpl.org/depositpreauth.html>`_
+    transaction, which gives another account pre-approval to deliver payments to
+    the sender of this transaction, if this account is using
+    `Deposit Authorization <https://xrpl.org/depositauth.html>`_.
     """
 
+    #: Grant preauthorization to this address. You must provide this OR
+    #: ``unauthorize`` but not both.
     authorize: Optional[str] = None
+
+    #: Revoke preauthorization from this address. You must provide this OR
+    #: ``authorize`` but not both.
     unauthorize: Optional[str] = None
+
     transaction_type: TransactionType = field(
         default=TransactionType.DEPOSIT_PREAUTH,
         init=False,

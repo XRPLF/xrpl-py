@@ -1,14 +1,4 @@
-"""
-Represents a SetRegularKey transaction on the XRP Ledger.
-
-A SetRegularKey transaction assigns, changes, or removes the regular key pair
-associated with an account. You can protect your account by assigning a regular key
-pair to it and using it instead of the master key pair to sign transactions whenever
-possible. If your regular key pair is compromised, but your master key pair is not, you
-can use a SetRegularKey transaction to regain control of your account.
-
-`See SetRegularKey <https://xrpl.org/setregularkey.html>`_
-"""
+"""Model for SetRegularKey transaction type."""
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -20,19 +10,16 @@ from xrpl.models.utils import require_kwargs_on_init
 @dataclass(frozen=True)
 class SetRegularKey(Transaction):
     """
-    Represents a SetRegularKey transaction on the XRP Ledger.
-
-    A SetRegularKey transaction assigns, changes, or removes the regular key pair
-    associated with an account.You can protect your account by assigning a regular key
-    pair to it and using it instead of the master key pair to sign transactions
-    whenever possible. If your regular key pair is compromised, but your master key
-    pair is not, you can use a SetRegularKey transaction to regain control of your
-    account.
-
-    `See SetRegularKey <https://xrpl.org/setregularkey.html>`_
+    Represents a `SetRegularKey <https://xrpl.org/setregularkey.html>`_
+    transaction, which assigns, changes, or removes a secondary "regular" key pair
+    associated with an account.
     """
 
+    #: The classic address derived from the key pair to authorize for this
+    #: account. If omitted, removes any existing regular key pair from the
+    #: account. Must not match the account's master key pair.
     regular_key: Optional[str] = None
+
     transaction_type: TransactionType = field(
         default=TransactionType.SET_REGULAR_KEY,
         init=False,

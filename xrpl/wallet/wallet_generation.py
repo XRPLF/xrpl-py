@@ -4,9 +4,9 @@ from time import sleep
 
 from requests import post
 
-from xrpl import XRPLException
 from xrpl.account import get_balance, get_next_valid_seq_number
 from xrpl.clients import Client, XRPLRequestFailureException
+from xrpl.constants import XRPLException
 from xrpl.wallet.main import Wallet
 
 FAUCET_URL = "https://faucet.altnet.rippletest.net/accounts"
