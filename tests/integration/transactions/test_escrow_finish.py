@@ -22,7 +22,6 @@ class TestEscrowFinish(TestCase):
     def test_all_fields(self):
         escrow_finish = EscrowFinish(
             account=ACCOUNT,
-            fee=FEE,
             sequence=WALLET.next_sequence_num,
             owner=OWNER,
             offer_sequence=OFFER_SEQUENCE,

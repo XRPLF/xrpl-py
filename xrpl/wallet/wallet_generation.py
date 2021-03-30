@@ -93,7 +93,7 @@ def _check_wallet_balance(address: str, client: Client) -> int:
     try:
         return get_balance(address, client)
     except XRPLRequestFailureException as e:
-        if e.error_code == "actNotFound":  # transaction has not gone through
+        if e.error == "actNotFound":  # transaction has not gone through
             return 0
         else:  # some other error
             raise
@@ -103,7 +103,7 @@ def _try_to_get_next_seq(address: str, client: Client) -> Optional[int]:
     try:
         return get_next_valid_seq_number(address, client)
     except XRPLRequestFailureException as e:
-        if e.error_code == "actNotFound":
+        if e.error == "actNotFound":
             # faucet gen has not fully gone through, try again
             return None
         else:  # some other error

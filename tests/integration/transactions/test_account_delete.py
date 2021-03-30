@@ -27,6 +27,7 @@ class TestAccountDelete(TestCase):
         )
         response = submit_transaction(account_delete, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        WALLET.next_sequence_num += 1
 
         # Note, we can't test the `engine_result` without waiting a significant
         # amount of time because accounts can't be deleted until some number of

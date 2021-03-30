@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from tests.integration.it_utils import submit_transaction
-from tests.integration.reusable_values import FEE, WALLET
+from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import EscrowCreate
 
@@ -22,7 +22,6 @@ class TestEscrowCreate(TestCase):
     def test_all_fields(self):
         escrow_create = EscrowCreate(
             account=ACCOUNT,
-            fee=FEE,
             sequence=WALLET.next_sequence_num,
             amount=AMOUNT,
             destination=DESTINATION,

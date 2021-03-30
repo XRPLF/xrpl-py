@@ -24,7 +24,7 @@ def get_latest_validated_ledger_sequence(client: Client) -> int:
     if response.is_successful():
         return cast(int, result["ledger_index"])
 
-    raise XRPLRequestFailureException(result["error"], result["error_message"])
+    raise XRPLRequestFailureException(result)
 
 
 def get_latest_open_ledger_sequence(client: Client) -> int:
@@ -45,7 +45,7 @@ def get_latest_open_ledger_sequence(client: Client) -> int:
     if response.is_successful():
         return cast(int, result["ledger_index"])
 
-    raise XRPLRequestFailureException(result["error"], result["error_message"])
+    raise XRPLRequestFailureException(result)
 
 
 def get_fee(client: Client) -> str:
@@ -66,4 +66,4 @@ def get_fee(client: Client) -> str:
     if response.is_successful():
         return cast(str, result["drops"]["minimum_fee"])
 
-    raise XRPLRequestFailureException(result["error"], result["error_message"])
+    raise XRPLRequestFailureException(result)
