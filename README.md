@@ -104,7 +104,7 @@ Use the [`xrpl.wallet`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.wal
 To create a wallet from a seed (in this case, the value generated using [`xrpl.keypairs`](#xrpl-keypairs)):
 
 ```py
-wallet_from_seed = xrpl.wallet.Wallet(seed)
+wallet_from_seed = xrpl.wallet.Wallet(seed, 0)
 print(wallet_from_seed)
 
 # print output
