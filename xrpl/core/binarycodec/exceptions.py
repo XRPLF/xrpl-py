@@ -1,5 +1,5 @@
 """General XRPL Binary Codec Exceptions."""
-from xrpl import XRPLException
+from xrpl.constants import XRPLException
 
 
 class XRPLBinaryCodecException(XRPLException):

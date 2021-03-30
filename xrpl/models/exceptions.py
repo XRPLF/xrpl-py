@@ -1,5 +1,5 @@
 """General XRPL Model Exceptions."""
-from xrpl import XRPLException
+from xrpl.constants import XRPLException
 
 
 class XRPLModelException(XRPLException):

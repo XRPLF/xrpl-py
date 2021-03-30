@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Type
 
-from xrpl import CryptoAlgorithm
+from xrpl.constants import CryptoAlgorithm
 from xrpl.core.keypairs import derive_classic_address, derive_keypair, generate_seed
 
 

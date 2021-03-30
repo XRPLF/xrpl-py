@@ -4,7 +4,7 @@ from typing import List, Tuple
 
 import base58
 
-from xrpl import CryptoAlgorithm
+from xrpl.constants import CryptoAlgorithm
 from xrpl.core.addresscodec.exceptions import XRPLAddressCodecException
 from xrpl.core.addresscodec.utils import XRPL_ALPHABET
 

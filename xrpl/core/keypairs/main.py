@@ -4,7 +4,7 @@ from typing import Dict, Optional, Tuple, Type
 
 from typing_extensions import Final
 
-from xrpl import CryptoAlgorithm
+from xrpl.constants import CryptoAlgorithm
 from xrpl.core import addresscodec
 from xrpl.core.keypairs.crypto_implementation import CryptoImplementation
 from xrpl.core.keypairs.ed25519 import ED25519
@@ -32,7 +32,7 @@ def generate_seed(
         entropy: Must be at least addresscodec.SEED_LENGTH bytes long and
             will be truncated to that length
         algorithm: CryptoAlgorithm to use for seed generation. The  default is
-            :ref:`CryptoAlgorithm.ED25519`.
+            :data:`CryptoAlgorithm.ED25519 <xrpl.CryptoAlgorithm.ED25519>`.
 
     Returns:
         A seed value that can be used to derive a key pair with the given
@@ -50,8 +50,9 @@ def derive_keypair(seed: str, validator: bool = False) -> Tuple[str, str]:
     Derive the public and private keys from a given seed value.
 
     Args:
-        seed: Seed to derive the key pair from. Use :ref:`generate_seed` to
-            generate an appropriate value.
+        seed: Seed to derive the key pair from. Use
+            :func:`generate_seed() <xrpl.core.keypairs.generate_seed>` to generate an
+            appropriate value.
         validator: Whether the keypair is a validator keypair.
 
     Returns:

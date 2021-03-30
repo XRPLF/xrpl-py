@@ -3,8 +3,8 @@
 from time import sleep
 from typing import Any, Dict, cast
 
-from xrpl import XRPLException
 from xrpl.clients import Client
+from xrpl.constants import XRPLException
 from xrpl.ledger import get_latest_validated_ledger_sequence
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
