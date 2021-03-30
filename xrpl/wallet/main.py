@@ -1,8 +1,10 @@
 """The information needed to control an XRPL account."""
+
 from __future__ import annotations
 
-from typing import Optional, Type
+from typing import Type
 
+from xrpl.constants import CryptoAlgorithm
 from xrpl.core.keypairs import derive_classic_address, derive_keypair, generate_seed
 
 
@@ -13,20 +15,24 @@ class Wallet:
     details.
     """
 
-    def __init__(self: Wallet, public_key: str, private_key: str) -> None:
+    def __init__(self: Wallet, seed: str) -> None:
         """
         Generate a new Wallet.
 
         Args:
-            public_key: The public key for this Wallet.
-            private_key: The private key for this Wallet.
+            seed: The seed from which the public and private keys are derived.
         """
+        #: The core value that is used to derive all other information about
+        #: this wallet. MUST be kept secret!
+        self.seed = seed
+
+        pk, sk = derive_keypair(self.seed)
         #: The public key that is used to identify this wallet's signatures, as
         #: a hexadecimal string.
-        self.public_key = public_key
+        self.public_key = pk
         #: The private key that is used to create signatures, as a hexadecimal
         #: string. MUST be kept secret!
-        self.private_key = private_key
+        self.private_key = sk
 
         #: The address that publicly identifies this wallet, as a base58 string.
         self.classic_address = derive_classic_address(self.public_key)
@@ -36,20 +42,21 @@ class Wallet:
         self.next_sequence_num = 0
 
     @classmethod
-    def create(cls: Type[Wallet], seed: Optional[str] = None) -> Wallet:
+    def create(
+        cls: Type[Wallet], crypto_algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519
+    ) -> Wallet:
         """
         Generates a new seed and Wallet.
 
         Args:
-            seed: A seed from which to derive public and private keys. If none
-                is provided, one will be generated for you automatically (using
-                Ed25519).
+            crypto_algorithm: The key-generation algorithm to use when generating the
+                seed. The default is Ed25519.
 
         Returns:
             The wallet that is generated from the given seed.
         """
-        public_key, private_key = derive_keypair(seed or generate_seed())
-        return cls(public_key, private_key)
+        seed = generate_seed(algorithm=crypto_algorithm)
+        return cls(seed)
 
     def __str__(self: Wallet) -> str:
         """
