@@ -57,10 +57,7 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
     if debug:
         print("Attempting to fund address {}".format(address))
     # Balance prior to asking for more funds
-    try:
-        starting_balance = get_balance(address, client)
-    except XRPLRequestFailureException:
-        starting_balance = 0
+    starting_balance = _check_wallet_balance(address, client)
 
     # Ask the faucet to send funds to the given address
     response = post(url=faucet_url, json={"destination": address})
@@ -73,7 +70,7 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
     for _ in range(_TIMEOUT_SECONDS):
         sleep(1)
         if not is_funded:  # faucet transaction hasn't been validated yet
-            current_balance = _check_if_wallet_funded(address, client)
+            current_balance = _check_wallet_balance(address, client)
             # If our current balance has changed, then the account has been funded
             if current_balance > starting_balance:
                 if debug:
@@ -92,7 +89,7 @@ def generate_faucet_wallet(client: Client, debug: bool = False) -> Wallet:
     )
 
 
-def _check_if_wallet_funded(address: str, client: Client) -> int:
+def _check_wallet_balance(address: str, client: Client) -> int:
     try:
         return get_balance(address, client)
     except XRPLRequestFailureException as e:
