@@ -4,15 +4,21 @@ from time import sleep
 from typing import Any, Dict, cast
 
 from xrpl.clients import Client
+from xrpl.constants import XRPLException
 from xrpl.ledger import get_latest_validated_ledger_sequence
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.transaction import safe_sign_and_submit_transaction
-from xrpl.transaction.exceptions import XRPLReliableSubmissionException
 from xrpl.transaction.ledger import get_transaction_from_hash
 from xrpl.wallet import Wallet
 
 _LEDGER_CLOSE_TIME = 4
+
+
+class XRPLReliableSubmissionException(XRPLException):
+    """General XRPL Reliable Submission Exception."""
+
+    pass
 
 
 def _wait_for_final_transaction_outcome(

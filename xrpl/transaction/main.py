@@ -1,9 +1,9 @@
 """High-level transaction methods with XRPL transactions."""
 import re
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 from xrpl.account import get_next_valid_seq_number
-from xrpl.clients import Client
+from xrpl.clients import Client, XRPLRequestFailureException
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec import encode, encode_for_signing
@@ -35,15 +35,15 @@ def safe_sign_and_submit_transaction(
     Returns:
         The response from the ledger.
     """
-    tx_blob = safe_sign_transaction(transaction, wallet, client)
-    return submit_transaction_blob(tx_blob, client)
+    transaction = safe_sign_transaction(transaction, wallet)
+    return submit_transaction(transaction, client)
 
 
 def safe_sign_transaction(
     transaction: Transaction,
     wallet: Wallet,
     client: Optional[Client] = None,
-) -> str:
+) -> Transaction:
     """
     Signs a transaction locally, without trusting external rippled nodes.
 
@@ -61,25 +61,34 @@ def safe_sign_transaction(
     serialized_bytes = bytes.fromhex(serialized_for_signing)
     signature = sign(serialized_bytes, wallet.priv_key)
     transaction_json["TxnSignature"] = signature
-    return encode(transaction_json)
+    return cast(Transaction, Transaction.from_xrpl(transaction_json))
 
 
-def submit_transaction_blob(
-    transaction_blob: str,
+def submit_transaction(
+    transaction: Transaction,
     client: Client,
 ) -> Response:
     """
-    Submits a transaction blob to the ledger.
+    Submits a transaction to the ledger.
 
     Args:
-        transaction_blob: the transaction blob to be submitted.
+        transaction: the Transaction to be submitted.
         client: the network client with which to submit the transaction.
 
     Returns:
         The response from the ledger.
+
+    Raises:
+        XRPLRequestFailureException: if the rippled API call fails.
     """
-    submit_request = SubmitOnly(tx_blob=transaction_blob)
-    return client.request(submit_request)
+    transaction_json = transaction_json_to_binary_codec_form(transaction.to_dict())
+    transaction_blob = encode(transaction_json)
+    response = client.request(SubmitOnly(tx_blob=transaction_blob))
+    if response.is_successful():
+        return response
+
+    result = cast(Dict[str, Any], response.result)
+    raise XRPLRequestFailureException(result["error"], result["error_message"])
 
 
 def _prepare_transaction(
