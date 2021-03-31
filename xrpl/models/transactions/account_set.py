@@ -34,11 +34,11 @@ class AccountSetFlag(int, Enum):
     #: Track the ID of this account's most recent transaction. Required for
     #: `AccountTxnID <https://xrpl.org/transaction-common-fields.html#accounttxnid>`_
     ASF_ACCOUNT_TXN_ID = 5
-    #: Enable `rippling <https://xrpl.org/rippling.html>`_ on this account's trust
-    #: lines by default.
+    #: Enable `rippling
+    #: <https://xrpl.org/rippling.html>`_ on this account's trust lines by default.
     ASF_DEFAULT_RIPPLE = 8
-    #: Enable `Deposit Authorization <https://xrpl.org/depositauth.html>`_ on this
-    #: account.
+    #: Enable `Deposit Authorization
+    #: <https://xrpl.org/depositauth.html>`_ on this account.
     ASF_DEPOSIT_AUTH = 9
     #: Disallow use of the master key pair. Can only be enabled if the account has
     #: configured another way to sign transactions, such as a `Regular Key
@@ -47,7 +47,8 @@ class AccountSetFlag(int, Enum):
     ASF_DIISABLE_MASTER = 4
     #: XRP should not be sent to this account. (Enforced by client applications)
     ASF_DISALLOW_XRP = 3
-    #: `Freeze <https://xrpl.org/freezes.html>`_ all assets issued by this account.
+    #: `Freeze
+    #: <https://xrpl.org/freezes.html>`_ all assets issued by this account.
     ASF_GLOBAL_FREEZE = 7
     #: Permanently give up the ability to `freeze individual trust lines or disable
     #: Global Freeze <https://xrpl.org/freezes.html>`_. This flag can never be disabled
