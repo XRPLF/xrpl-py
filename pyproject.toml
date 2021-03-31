@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "xrpl"
+name = "xrpl-py"
 version = "1.0.0"
 description = "A complete Python library for interacting with the XRP ledger"
 readme = "README.md"
@@ -19,6 +19,9 @@ license = "ISC"
 documentation = "https://xrpl-py.readthedocs.io"
 include = [
   "LICENSE",
+]
+packages = [
+  { include = "xrpl" },
 ]
 
 [tool.poetry.dependencies]
