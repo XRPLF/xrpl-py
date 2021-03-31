@@ -1,11 +1,6 @@
 """Miscellaneous functions that are private to xrpl.core.keypairs."""
 import hashlib
 
-assert (
-    "ripemd160" in hashlib.algorithms_available
-), """Your OpenSSL implementation does not include the RIPEMD160 algorithm,
-    which is required by XRPL"""
-
 
 def sha512_first_half(message: bytes) -> bytes:
     """

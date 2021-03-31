@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from tests.addresscodec.test_main_test_cases import test_cases
+from tests.unit.core.addresscodec.test_main_test_cases import test_cases
 from xrpl.core import addresscodec
 from xrpl.core.addresscodec.main import MAX_32_BIT_UNSIGNED_INT
 

@@ -13,7 +13,7 @@ from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.wallet import Wallet
+from xrpl.wallet.main import Wallet
 
 _LEDGER_OFFSET = 20
 
