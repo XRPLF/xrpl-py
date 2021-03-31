@@ -15,13 +15,13 @@ A pure Python implementation for interacting with the XRP Ledger, the `xrpl-py` 
 >>> test_wallet = generate_faucet_wallet(client)
 >>> print(test_wallet)
 seed: shA5izLnSNFxNwGMV1ar6WJnnsNbo
-pub_key: 029234B7F15318156A762E5411E6E3FE5A170D49FFC50286C38D7E68AE16B7B412
-priv_key: 0031DFF36F8F22287BAD4137DA182635F3E0F0F510698E50A3039BB5CE170B941A
-classic_address: rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz
+public_key: ED3CC1BBD0952A60088E89FA502921895FC81FBD79CAE9109A8FE2D23659AD5D56
+private_key: -HIDDEN-
+classic_address: rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo
 # look up account info
 >>> from xrpl.models.requests.account_info import AccountInfo
 >>> acct_info = AccountInfo(
-...         account="rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz",
+...         account="rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo",
 ...         ledger_index="current",
 ...         queue=True,
 ...         strict=True,
@@ -31,15 +31,15 @@ classic_address: rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz
 >>> import json
 >>> print(json.dumps(result["account_data"], indent=4, sort_keys=True))
 {
-    "Account": "rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz",
+    "Account": "rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo",
     "Balance": "1000000000",
     "Flags": 0,
     "LedgerEntryType": "AccountRoot",
     "OwnerCount": 0,
-    "PreviousTxnID": "E9100102A987CCB133BDDD141162A8AA90D6CE2FC7D8322D207D4E23E0077591",
-    "PreviousTxnLgrSeq": 16034060,
-    "Sequence": 16034060,
-    "index": "519467AED2AFDBA971BE5E14EA0B622BF4E1C6CF1859AA91675E1EE061F7EBC7"
+    "PreviousTxnID": "73CD4A37537A992270AAC8472F6681F44E400CBDE04EC8983C34B519F56AB107",
+    "PreviousTxnLgrSeq": 16233962,
+    "Sequence": 16233962,
+    "index": "FD66EC588B52712DCE74831DCB08B24157DC3198C29A0116AA64D310A58512D7"
 }
 ```
 
