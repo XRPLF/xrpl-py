@@ -13,19 +13,19 @@ class TestDepositPreauth(TestCase):
     def test_authorize(self):
         deposit_preauth = DepositPreauth(
             account=ACCOUNT,
-            sequence=WALLET.next_sequence_num,
+            sequence=WALLET.sequence,
             authorize=ADDRESS,
         )
         response = submit_transaction(deposit_preauth, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
-        WALLET.next_sequence_num += 1
+        WALLET.sequence += 1
 
     def test_unauthorize(self):
         deposit_preauth = DepositPreauth(
             account=ACCOUNT,
-            sequence=WALLET.next_sequence_num,
+            sequence=WALLET.sequence,
             unauthorize=ADDRESS,
         )
         response = submit_transaction(deposit_preauth, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
-        WALLET.next_sequence_num += 1
+        WALLET.sequence += 1

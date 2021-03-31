@@ -10,7 +10,7 @@ class TestPaymentChannelFund(TestCase):
         response = submit_transaction(
             PaymentChannelFund(
                 account=WALLET.classic_address,
-                sequence=WALLET.next_sequence_num,
+                sequence=WALLET.sequence,
                 channel=PAYMENT_CHANNEL.result["hash"],
                 amount="1",
             ),

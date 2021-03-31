@@ -27,10 +27,10 @@ TICK_SIZE = 10
 
 class TestTransaction(TestCase):
     def test_reliable_submission_simple(self):
-        WALLET.next_sequence_num = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
+        WALLET.sequence = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
         account_set = AccountSet(
             account=ACCOUNT,
-            sequence=WALLET.next_sequence_num,
+            sequence=WALLET.sequence,
             set_flag=SET_FLAG,
         )
         signed_account_set = safe_sign_and_autofill_transaction(
@@ -40,13 +40,13 @@ class TestTransaction(TestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        WALLET.next_sequence_num += 1
+        WALLET.sequence += 1
 
     def test_reliable_submission_payment(self):
-        WALLET.next_sequence_num = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
+        WALLET.sequence = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
         payment_dict = {
             "account": ACCOUNT,
-            "sequence": WALLET.next_sequence_num,
+            "sequence": WALLET.sequence,
             "fee": "10000",
             "amount": "10",
             "destination": DESTINATION,
@@ -59,14 +59,14 @@ class TestTransaction(TestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        WALLET.next_sequence_num += 1
+        WALLET.sequence += 1
 
     def test_reliable_submission_last_ledger_expiration(self):
-        WALLET.next_sequence_num = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
+        WALLET.sequence = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
         payment_dict = {
             "account": ACCOUNT,
-            "sequence": WALLET.next_sequence_num,
-            "last_ledger_sequence": WALLET.next_sequence_num + 1,
+            "sequence": WALLET.sequence,
+            "last_ledger_sequence": WALLET.sequence + 1,
             "fee": "10000",
             "amount": "100",
             "destination": DESTINATION,
@@ -77,13 +77,13 @@ class TestTransaction(TestCase):
         )
         with self.assertRaises(XRPLReliableSubmissionException):
             send_reliable_submission(signed_payment_transaction, JSON_RPC_CLIENT)
-        WALLET.next_sequence_num -= 1
+        WALLET.sequence -= 1
 
     def test_reliable_submission_bad_transaction(self):
-        WALLET.next_sequence_num = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
+        WALLET.sequence = get_next_valid_seq_number(ACCOUNT, JSON_RPC_CLIENT)
         payment_dict = {
             "account": ACCOUNT,
-            "last_ledger_sequence": WALLET.next_sequence_num + 20,
+            "last_ledger_sequence": WALLET.sequence + 20,
             "fee": "10",
             "amount": "100",
             "destination": DESTINATION,
@@ -92,4 +92,4 @@ class TestTransaction(TestCase):
         signed_payment_transaction = safe_sign_transaction(payment_transaction, WALLET)
         with self.assertRaises(XRPLRequestFailureException):
             send_reliable_submission(signed_payment_transaction, JSON_RPC_CLIENT)
-        WALLET.next_sequence_num -= 1
+        WALLET.sequence -= 1

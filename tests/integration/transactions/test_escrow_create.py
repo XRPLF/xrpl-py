@@ -22,7 +22,7 @@ class TestEscrowCreate(TestCase):
     def test_all_fields(self):
         escrow_create = EscrowCreate(
             account=ACCOUNT,
-            sequence=WALLET.next_sequence_num,
+            sequence=WALLET.sequence,
             amount=AMOUNT,
             destination=DESTINATION,
             destination_tag=DESTINATION_TAG,

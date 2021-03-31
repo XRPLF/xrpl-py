@@ -26,8 +26,8 @@ SECOND_SIGNER = Wallet.create()
 LIST_SET_TX = sign_and_reliable_submission(
     SignerListSet(
         account=WALLET.classic_address,
-        sequence=WALLET.next_sequence_num,
-        last_ledger_sequence=WALLET.next_sequence_num + 10,
+        sequence=WALLET.sequence,
+        last_ledger_sequence=WALLET.sequence + 10,
         fee=FEE,
         signer_quorum=2,
         signer_entries=[
@@ -56,7 +56,7 @@ class TestSubmitMultisigned(TestCase):
         issuer = Wallet.create()
         tx = TrustSet(
             account=WALLET.classic_address,
-            sequence=WALLET.next_sequence_num,
+            sequence=WALLET.sequence,
             fee=FEE,
             flags=TrustSetFlag.TF_SET_NO_RIPPLE,
             limit_amount=IssuedCurrencyAmount(
@@ -86,7 +86,7 @@ class TestSubmitMultisigned(TestCase):
         )
         multisigned_tx = TrustSet(
             account=WALLET.classic_address,
-            sequence=WALLET.next_sequence_num,
+            sequence=WALLET.sequence,
             fee=FEE,
             flags=TrustSetFlag.TF_SET_NO_RIPPLE,
             limit_amount=IssuedCurrencyAmount(

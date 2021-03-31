@@ -13,8 +13,8 @@ from xrpl.transaction import (
 
 TX = OfferCreate(
     account=WALLET.classic_address,
-    sequence=WALLET.next_sequence_num,
-    last_ledger_sequence=WALLET.next_sequence_num + 10,
+    sequence=WALLET.sequence,
+    last_ledger_sequence=WALLET.sequence + 10,
     taker_gets="13100000",
     taker_pays=IssuedCurrencyAmount(
         currency="USD",

@@ -16,7 +16,7 @@ class TestCheckCreate(TestCase):
     def test_all_fields(self):
         check_create = CheckCreate(
             account=ACCOUNT,
-            sequence=WALLET.next_sequence_num,
+            sequence=WALLET.sequence,
             destination=DESTINATION.classic_address,
             destination_tag=DESTINATION_TAG,
             send_max=SENDMAX,
@@ -26,4 +26,4 @@ class TestCheckCreate(TestCase):
         response = submit_transaction(check_create, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-        WALLET.next_sequence_num += 1
+        WALLET.sequence += 1

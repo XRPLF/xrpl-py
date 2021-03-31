@@ -12,10 +12,10 @@ class TestSetRegularKey(TestCase):
         response = submit_transaction(
             SetRegularKey(
                 account=WALLET.classic_address,
-                sequence=WALLET.next_sequence_num,
+                sequence=WALLET.sequence,
                 regular_key=regular_key,
             ),
             WALLET,
         )
         self.assertTrue(response.is_successful())
-        WALLET.next_sequence_num += 1
+        WALLET.sequence += 1

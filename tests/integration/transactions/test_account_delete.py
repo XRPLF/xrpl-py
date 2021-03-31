@@ -21,13 +21,13 @@ class TestAccountDelete(TestCase):
         account_delete = AccountDelete(
             account=ACCOUNT,
             fee=FEE,
-            sequence=WALLET.next_sequence_num,
+            sequence=WALLET.sequence,
             destination=DESTINATION.classic_address,
             destination_tag=DESTINATION_TAG,
         )
         response = submit_transaction(account_delete, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
-        WALLET.next_sequence_num += 1
+        WALLET.sequence += 1
 
         # Note, we can't test the `engine_result` without waiting a significant
         # amount of time because accounts can't be deleted until some number of

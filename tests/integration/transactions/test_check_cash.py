@@ -15,7 +15,7 @@ class TestCheckCreate(TestCase):
     def test_required_fields_with_amount(self):
         check_cash = CheckCash(
             account=ACCOUNT,
-            sequence=WALLET.next_sequence_num,
+            sequence=WALLET.sequence,
             check_id=CHECK_ID,
             amount=AMOUNT,
         )
@@ -23,16 +23,16 @@ class TestCheckCreate(TestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         # Getting `tecNO_ENTRY` codes because using a non-existent check ID
         self.assertEqual(response.result["engine_result"], "tecNO_ENTRY")
-        WALLET.next_sequence_num += 1
+        WALLET.sequence += 1
 
     def test_required_fields_with_deliver_min(self):
         check_cash = CheckCash(
             account=ACCOUNT,
-            sequence=WALLET.next_sequence_num,
+            sequence=WALLET.sequence,
             check_id=CHECK_ID,
             deliver_min=DELIVER_MIN,
         )
         response = submit_transaction(check_cash, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tecNO_ENTRY")
-        WALLET.next_sequence_num += 1
+        WALLET.sequence += 1

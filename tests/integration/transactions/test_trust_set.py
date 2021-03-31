@@ -13,7 +13,7 @@ class TestTrustSet(TestCase):
         response = submit_transaction(
             TrustSet(
                 account=WALLET.classic_address,
-                sequence=WALLET.next_sequence_num,
+                sequence=WALLET.sequence,
                 flags=TrustSetFlag.TF_SET_NO_RIPPLE,
                 limit_amount=IssuedCurrencyAmount(
                     issuer=issuer_wallet.classic_address,
@@ -24,4 +24,4 @@ class TestTrustSet(TestCase):
             WALLET,
         )
         self.assertTrue(response.is_successful())
-        WALLET.next_sequence_num += 1
+        WALLET.sequence += 1

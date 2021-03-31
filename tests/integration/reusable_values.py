@@ -8,7 +8,7 @@ DESTINATION = generate_faucet_wallet(JSON_RPC_CLIENT)
 OFFER = sign_and_reliable_submission(
     OfferCreate(
         account=WALLET.classic_address,
-        sequence=WALLET.next_sequence_num,
+        sequence=WALLET.sequence,
         taker_gets="13100000",
         taker_pays=IssuedCurrencyAmount(
             currency="USD",
@@ -18,11 +18,11 @@ OFFER = sign_and_reliable_submission(
     ),
     WALLET,
 )
-WALLET.next_sequence_num += 1
+WALLET.sequence += 1
 PAYMENT_CHANNEL = sign_and_reliable_submission(
     PaymentChannelCreate(
         account=WALLET.classic_address,
-        sequence=WALLET.next_sequence_num,
+        sequence=WALLET.sequence,
         amount="1",
         destination=DESTINATION.classic_address,
         settle_delay=86400,
@@ -30,4 +30,4 @@ PAYMENT_CHANNEL = sign_and_reliable_submission(
     ),
     WALLET,
 )
-WALLET.next_sequence_num += 1
+WALLET.sequence += 1
