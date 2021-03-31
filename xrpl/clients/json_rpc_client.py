@@ -1,5 +1,4 @@
 """A client for interacting with the rippled JSON RPC."""
-
 from __future__ import annotations
 
 import requests
@@ -8,16 +7,6 @@ from xrpl.clients.client import Client
 from xrpl.clients.utils import json_to_response, request_to_json_rpc
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
-
-# QUESTIONS:
-# Should we have different exception types for network exceptions
-# (i.e. an invalid URL) v.s. actual rippled exceptions
-#   (such as maybe complaining about a malformed request, etc.)
-# Will we need different exception types for the JSON RPC client v.s.
-# the websockets client?  Unclear
-
-# TODO:
-# - error handling!
 
 
 class JsonRpcClient(Client):

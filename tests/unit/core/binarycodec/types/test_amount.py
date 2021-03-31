@@ -1,5 +1,5 @@
 import xrpl.core.binarycodec.types.amount as amount
-from tests.binarycodec.types.test_serialized_type import (
+from tests.unit.core.binarycodec.types.test_serialized_type import (
     TestSerializedType,
     data_driven_fixtures_for_type,
 )

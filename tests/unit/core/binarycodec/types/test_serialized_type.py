@@ -1,6 +1,9 @@
 from unittest import TestCase
 
-from tests.binarycodec.fixtures.data_driven_fixtures import ValueTest, get_value_tests
+from tests.unit.core.binarycodec.fixtures.data_driven_fixtures import (
+    ValueTest,
+    get_value_tests,
+)
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.account_id import AccountID
 from xrpl.core.binarycodec.types.amount import Amount

@@ -1,31 +1,36 @@
 """This module encodes and decodes various types of base58 encodings."""
 
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 import base58
+from typing_extensions import Final
 
 from xrpl.constants import CryptoAlgorithm
 from xrpl.core.addresscodec.exceptions import XRPLAddressCodecException
 from xrpl.core.addresscodec.utils import XRPL_ALPHABET
 
 # base58 encodings: https://xrpl.org/base58-encodings.html
-CLASSIC_ADDRESS_PREFIX = [0x0]  # Account address (20 bytes)
-ACCOUNT_PUBLIC_KEY_PREFIX = [0x23]  # value is 35; Account public key (33 bytes)
-FAMILY_SEED_PREFIX = [0x21]  # value is 33; Seed value (for secret keys) (16 bytes)
-NODE_PUBLIC_KEY_PREFIX = [0x1C]  # value is 28; Validation public key (33 bytes)
-ED25519_SEED_PREFIX = [0x01, 0xE1, 0x4B]  # [1, 225, 75]
+# Account address (20 bytes)
+_CLASSIC_ADDRESS_PREFIX: Final[List[int]] = [0x0]
+# value is 35; Account public key (33 bytes)
+_ACCOUNT_PUBLIC_KEY_PREFIX: Final[List[int]] = [0x23]
+# value is 33; Seed value (for secret keys) (16 bytes)
+_FAMILY_SEED_PREFIX: Final[List[int]] = [0x21]
+# value is 28; Validation public key (33 bytes)
+_NODE_PUBLIC_KEY_PREFIX: Final[List[int]] = [0x1C]
+# [1, 225, 75]
+_ED25519_SEED_PREFIX: Final[List[int]] = [0x01, 0xE1, 0x4B]
 
-SEED_LENGTH = 16
-CLASSIC_ADDRESS_LENGTH = 20
-NODE_PUBLIC_KEY_LENGTH = 33
-ACCOUNT_PUBLIC_KEY_LENGTH = 33
+SEED_LENGTH: Final[int] = 16
 
-_ALGORITHM_TO_PREFIX_MAP = {
-    CryptoAlgorithm.ED25519: ED25519_SEED_PREFIX,
-    CryptoAlgorithm.SECP256K1: FAMILY_SEED_PREFIX,
+_CLASSIC_ADDRESS_LENGTH: Final[int] = 20
+_NODE_PUBLIC_KEY_LENGTH: Final[int] = 33
+_ACCOUNT_PUBLIC_KEY_LENGTH: Final[int] = 33
+
+_ALGORITHM_TO_PREFIX_MAP: Final[Dict[CryptoAlgorithm, List[int]]] = {
+    CryptoAlgorithm.ED25519: _ED25519_SEED_PREFIX,
+    CryptoAlgorithm.SECP256K1: _FAMILY_SEED_PREFIX,
 }
-# Ensure that each algorithm has a prefix
-assert len(_ALGORITHM_TO_PREFIX_MAP) == len(CryptoAlgorithm)
 
 
 def _encode(bytestring: bytes, prefix: List[int], expected_length: int) -> str:
@@ -119,7 +124,7 @@ def encode_classic_address(bytestring: bytes) -> str:
     Returns:
         The classic address encoding of these bytes as a base58 string.
     """
-    return _encode(bytestring, CLASSIC_ADDRESS_PREFIX, CLASSIC_ADDRESS_LENGTH)
+    return _encode(bytestring, _CLASSIC_ADDRESS_PREFIX, _CLASSIC_ADDRESS_LENGTH)
 
 
 def decode_classic_address(classic_address: str) -> bytes:
@@ -132,7 +137,7 @@ def decode_classic_address(classic_address: str) -> bytes:
     Returns:
         The decoded bytes of the classic address.
     """
-    return _decode(classic_address, bytes(CLASSIC_ADDRESS_PREFIX))
+    return _decode(classic_address, bytes(_CLASSIC_ADDRESS_PREFIX))
 
 
 def encode_node_public_key(bytestring: bytes) -> str:
@@ -145,7 +150,7 @@ def encode_node_public_key(bytestring: bytes) -> str:
     Returns:
         The node public key encoding of these bytes as a base58 string.
     """
-    return _encode(bytestring, NODE_PUBLIC_KEY_PREFIX, NODE_PUBLIC_KEY_LENGTH)
+    return _encode(bytestring, _NODE_PUBLIC_KEY_PREFIX, _NODE_PUBLIC_KEY_LENGTH)
 
 
 def decode_node_public_key(node_public_key: str) -> bytes:
@@ -159,7 +164,7 @@ def decode_node_public_key(node_public_key: str) -> bytes:
         The decoded bytes of the node public key.
 
     """
-    return _decode(node_public_key, bytes(NODE_PUBLIC_KEY_PREFIX))
+    return _decode(node_public_key, bytes(_NODE_PUBLIC_KEY_PREFIX))
 
 
 def encode_account_public_key(bytestring: bytes) -> str:
@@ -172,7 +177,7 @@ def encode_account_public_key(bytestring: bytes) -> str:
     Returns:
         The account public key encoding of these bytes as a base58 string.
     """
-    return _encode(bytestring, ACCOUNT_PUBLIC_KEY_PREFIX, ACCOUNT_PUBLIC_KEY_LENGTH)
+    return _encode(bytestring, _ACCOUNT_PUBLIC_KEY_PREFIX, _ACCOUNT_PUBLIC_KEY_LENGTH)
 
 
 def decode_account_public_key(account_public_key: str) -> bytes:
@@ -185,7 +190,7 @@ def decode_account_public_key(account_public_key: str) -> bytes:
     Returns:
         The decoded bytes of the account public key.
     """
-    return _decode(account_public_key, bytes(ACCOUNT_PUBLIC_KEY_PREFIX))
+    return _decode(account_public_key, bytes(_ACCOUNT_PUBLIC_KEY_PREFIX))
 
 
 def is_valid_classic_address(classic_address: str) -> bool:
