@@ -25,7 +25,8 @@ class AccountSetFlag(int, Enum):
     Account options are represented by different types of flags depending on the
     situation. The AccountSet transaction type has several "AccountSet Flags" (prefixed
     `asf`) that can enable an option when passed as the SetFlag parameter, or disable
-    an option when passed as the ClearFlag parameter.
+    an option when passed as the ClearFlag parameter. This enum represents those
+    options.
 
     `See AccountSet Flags <https://xrpl.org/accountset.html#accountset-flags>`_
     """
