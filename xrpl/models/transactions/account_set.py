@@ -44,7 +44,7 @@ class AccountSetFlag(int, Enum):
     #: configured another way to sign transactions, such as a `Regular Key
     #: <https://xrpl.org/cryptographic-keys.html>`_ or a `Signer List
     #: <https://xrpl.org/multi-signing.html>`_.
-    ASF_DIISABLE_MASTER = 4
+    ASF_DISABLE_MASTER = 4
     #: XRP should not be sent to this account. (Enforced by client applications)
     ASF_DISALLOW_XRP = 3
     #: `Freeze
