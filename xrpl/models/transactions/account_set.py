@@ -2,6 +2,7 @@
 from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Dict, Optional
 
 from typing_extensions import Final
@@ -16,6 +17,46 @@ _SPECIAL_CASE_TRANFER_RATE: Final[int] = 0
 _MIN_TICK_SIZE: Final[int] = 3
 _MAX_TICK_SIZE: Final[int] = 15
 _DISABLE_TICK_SIZE: Final[int] = 0
+
+
+class AccountSetFlag(int, Enum):
+    """
+    There are several options which can be either enabled or disabled for an account.
+    Account options are represented by different types of flags depending on the
+    situation. The AccountSet transaction type has several "AccountSet Flags" (prefixed
+    `asf`) that can enable an option when passed as the SetFlag parameter, or disable
+    an option when passed as the ClearFlag parameter.
+
+    `See AccountSet Flags <https://xrpl.org/accountset.html#accountset-flags>`_
+    """
+
+    #: Track the ID of this account's most recent transaction. Required for
+    #: `AccountTxnID <https://xrpl.org/transaction-common-fields.html#accounttxnid>`_
+    ASF_ACCOUNT_TXN_ID = 5
+    #: Enable `rippling <https://xrpl.org/rippling.html>`_ on this account's trust
+    #: lines by default.
+    ASF_DEFAULT_RIPPLE = 8
+    #: Enable `Deposit Authorization <https://xrpl.org/depositauth.html>`_ on this
+    #: account.
+    ASF_DEPOSIT_AUTH = 9
+    #: Disallow use of the master key pair. Can only be enabled if the account has
+    #: configured another way to sign transactions, such as a `Regular Key
+    #: <https://xrpl.org/cryptographic-keys.html>`_ or a `Signer List
+    #: <https://xrpl.org/multi-signing.html>`_.
+    ASF_DIISABLE_MASTER = 4
+    #: XRP should not be sent to this account. (Enforced by client applications)
+    ASF_DISALLOW_XRP = 3
+    #: `Freeze <https://xrpl.org/freezes.html>`_ all assets issued by this account.
+    ASF_GLOBAL_FREEZE = 7
+    #: Permanently give up the ability to `freeze individual trust lines or disable
+    #: Global Freeze <https://xrpl.org/freezes.html>`_. This flag can never be disabled
+    #: after being enabled.
+    ASF_NO_FREEZE = 6
+    #: Require authorization for users to hold balances issued by this address. Can
+    #: only be enabled if the address has no trust lines connected to it.
+    ASF_REQUIRE_AUTH = 2
+    #: Require a destination tag to send transactions to this account.
+    ASF_REQUIRE_DEST = 1
 
 
 @require_kwargs_on_init
