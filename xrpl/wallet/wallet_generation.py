@@ -1,20 +1,20 @@
 """Handles wallet generation from a faucet."""
-
 from time import sleep
 from typing import Optional
 
-from requests import post
+import requests
+from typing_extensions import Final
 
 from xrpl.account import get_balance, get_next_valid_seq_number
 from xrpl.clients import Client, XRPLRequestFailureException
 from xrpl.constants import XRPLException
 from xrpl.wallet.main import Wallet
 
-_TEST_FAUCET_URL = "https://faucet.altnet.rippletest.net/accounts"
-_DEV_FAUCET_URL = "https://faucet.devnet.rippletest.net/accounts"
+_TEST_FAUCET_URL: Final[str] = "https://faucet.altnet.rippletest.net/accounts"
+_DEV_FAUCET_URL: Final[str] = "https://faucet.devnet.rippletest.net/accounts"
 
-_TIMEOUT_SECONDS = 40
-_LEDGER_CLOSE_TIME = 4
+_TIMEOUT_SECONDS: Final[int] = 40
+_LEDGER_CLOSE_TIME: Final[int] = 4
 
 
 class XRPLFaucetException(XRPLException):
@@ -64,7 +64,7 @@ def generate_faucet_wallet(
     starting_balance = _check_wallet_balance(address, client)
 
     # Ask the faucet to send funds to the given address
-    response = post(url=faucet_url, json={"destination": address})
+    response = requests.post(url=faucet_url, json={"destination": address})
     if not response.ok:
         response.raise_for_status()
     # Wait for the faucet to fund our account or until timeout

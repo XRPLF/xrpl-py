@@ -2,6 +2,8 @@
 import re
 from typing import Any, Dict, cast
 
+from typing_extensions import Final
+
 from xrpl.account import get_next_valid_seq_number
 from xrpl.clients import Client, XRPLRequestFailureException
 from xrpl.constants import XRPLException
@@ -13,9 +15,9 @@ from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.wallet import Wallet
+from xrpl.wallet.main import Wallet
 
-_LEDGER_OFFSET = 20
+_LEDGER_OFFSET: Final[int] = 20
 
 
 def safe_sign_and_submit_transaction(

@@ -67,4 +67,4 @@ jobs:
 
       - name: Unit test
         run: |
-          poetry run nox -rs tests-${{ matrix.nox-session || matrix.python-version }}
+          poetry run nox -rs unit_tests-${{ matrix.nox-session || matrix.python-version }}

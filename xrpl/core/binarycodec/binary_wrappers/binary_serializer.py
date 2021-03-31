@@ -2,18 +2,20 @@
 
 from __future__ import annotations  # Requires Python 3.7+
 
+from typing_extensions import Final
+
 from xrpl.core.binarycodec.definitions.field_instance import FieldInstance
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
 
 # Constants used in length prefix encoding:
 # max length that can be represented in a single byte per XRPL serialization encoding
-MAX_SINGLE_BYTE_LENGTH = 192
+_MAX_SINGLE_BYTE_LENGTH: Final[int] = 192
 # max length that can be represented in 2 bytes per XRPL serialization encoding
-MAX_DOUBLE_BYTE_LENGTH = 12481
+_MAX_DOUBLE_BYTE_LENGTH: Final[int] = 12481
 # max value that can be used in the second byte of a length field
-MAX_SECOND_BYTE_VALUE = 240
+_MAX_SECOND_BYTE_VALUE: Final[int] = 240
 # maximum length that can be encoded in a length prefix per XRPL serialization encoding
-MAX_LENGTH_VALUE = 918744
+_MAX_LENGTH_VALUE: Final[int] = 918744
 
 
 def _encode_variable_length_prefix(length: int) -> bytes:
@@ -28,25 +30,25 @@ def _encode_variable_length_prefix(length: int) -> bytes:
 
     `See Length Prefixing <https://xrpl.org/serialization.html#length-prefixing>`_
     """
-    if length <= MAX_SINGLE_BYTE_LENGTH:
+    if length <= _MAX_SINGLE_BYTE_LENGTH:
         return length.to_bytes(1, byteorder="big", signed=False)
-    if length < MAX_DOUBLE_BYTE_LENGTH:
-        length -= MAX_SINGLE_BYTE_LENGTH + 1
-        byte1 = ((length >> 8) + (MAX_SINGLE_BYTE_LENGTH + 1)).to_bytes(
+    if length < _MAX_DOUBLE_BYTE_LENGTH:
+        length -= _MAX_SINGLE_BYTE_LENGTH + 1
+        byte1 = ((length >> 8) + (_MAX_SINGLE_BYTE_LENGTH + 1)).to_bytes(
             1, byteorder="big", signed=False
         )
         byte2 = (length & 0xFF).to_bytes(1, byteorder="big", signed=False)
         return byte1 + byte2
-    if length <= MAX_LENGTH_VALUE:
-        length -= MAX_DOUBLE_BYTE_LENGTH
-        byte1 = ((MAX_SECOND_BYTE_VALUE + 1) + (length >> 16)).to_bytes(
+    if length <= _MAX_LENGTH_VALUE:
+        length -= _MAX_DOUBLE_BYTE_LENGTH
+        byte1 = ((_MAX_SECOND_BYTE_VALUE + 1) + (length >> 16)).to_bytes(
             1, byteorder="big", signed=False
         )
         byte2 = ((length >> 8) & 0xFF).to_bytes(1, byteorder="big", signed=False)
         byte3 = (length & 0xFF).to_bytes(1, byteorder="big", signed=False)
         return byte1 + byte2 + byte3
 
-    raise ValueError(f"VariableLength field must be <= {MAX_LENGTH_VALUE} bytes long")
+    raise ValueError(f"VariableLength field must be <= {_MAX_LENGTH_VALUE} bytes long")
 
 
 class BinarySerializer:

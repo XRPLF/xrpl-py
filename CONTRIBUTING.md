@@ -68,10 +68,16 @@ poetry run flake8 ./xrpl
 
 ### Running Tests
 
-To run tests:
+To run unit tests:
 
 ```bash
-poetry run python3 -m unittest discover tests
+poetry run python3 -m unittest discover tests/unit
+```
+
+To run integration tests:
+
+```bash
+poetry run python3 -m unittest discover tests/integration
 ```
 
 

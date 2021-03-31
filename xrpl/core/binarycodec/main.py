@@ -5,6 +5,8 @@ decoding them.
 
 from typing import Any, Dict, Optional, cast
 
+from typing_extensions import Final
+
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.types.account_id import AccountID
 from xrpl.core.binarycodec.types.hash256 import Hash256
@@ -16,9 +18,9 @@ def _num_to_bytes(num: int) -> bytes:
     return (num).to_bytes(4, byteorder="big", signed=False)
 
 
-_TRANSACTION_SIGNATURE_PREFIX = _num_to_bytes(0x53545800)
-_PAYMENT_CHANNEL_CLAIM_PREFIX = _num_to_bytes(0x434C4D00)
-_TRANSACTION_MULTISIG_PREFIX = _num_to_bytes(0x534D5400)
+_TRANSACTION_SIGNATURE_PREFIX: Final[bytes] = _num_to_bytes(0x53545800)
+_PAYMENT_CHANNEL_CLAIM_PREFIX: Final[bytes] = _num_to_bytes(0x434C4D00)
+_TRANSACTION_MULTISIG_PREFIX: Final[bytes] = _num_to_bytes(0x534D5400)
 
 
 def encode(json: Dict[str, Any]) -> str:

@@ -1,5 +1,4 @@
 """Public interface for XRPL account sugar methods."""
-
 from xrpl.account.main import (
     does_account_exist,
     get_account_info,

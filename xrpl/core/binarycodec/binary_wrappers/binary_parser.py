@@ -3,6 +3,8 @@ from __future__ import annotations  # Requires Python 3.7+
 
 from typing import TYPE_CHECKING, Optional, Tuple, Type, cast
 
+from typing_extensions import Final
+
 from xrpl.core.binarycodec.definitions import definitions
 from xrpl.core.binarycodec.definitions.field_header import FieldHeader
 from xrpl.core.binarycodec.definitions.field_instance import FieldInstance
@@ -14,15 +16,15 @@ if TYPE_CHECKING:
 
 # Constants used in length prefix decoding:
 # Max length that can be represented in a single byte per XRPL serialization encoding
-MAX_SINGLE_BYTE_LENGTH = 192
+_MAX_SINGLE_BYTE_LENGTH: Final[int] = 192
 # Max length that can be represented in 2 bytes per XRPL serialization restrictions
-MAX_DOUBLE_BYTE_LENGTH = 12481
+_MAX_DOUBLE_BYTE_LENGTH: Final[int] = 12481
 # Max value that can be used in the second byte of a length field
-MAX_SECOND_BYTE_VALUE = 240
+_MAX_SECOND_BYTE_VALUE: Final[int] = 240
 # Max value that can be represented using one 8-bit byte (2^8)
-MAX_BYTE_VALUE = 256
+_MAX_BYTE_VALUE: Final[int] = 256
 # Max value that can be represented in using two 8-bit bytes (2^16)
-MAX_DOUBLE_BYTE_VALUE = 65536
+_MAX_DOUBLE_BYTE_VALUE: Final[int] = 65536
 
 
 class BinaryParser:
@@ -138,16 +140,16 @@ class BinaryParser:
         byte1 = self.read_uint8()
         # If the field contains 0 to 192 bytes of data, the first byte defines
         # the length of the contents
-        if byte1 <= MAX_SINGLE_BYTE_LENGTH:
+        if byte1 <= _MAX_SINGLE_BYTE_LENGTH:
             return byte1
         # If the field contains 193 to 12480 bytes of data, the first two bytes
         # indicate the length of the field with the following formula:
         #    193 + ((byte1 - 193) * 256) + byte2
-        if byte1 <= MAX_SECOND_BYTE_VALUE:
+        if byte1 <= _MAX_SECOND_BYTE_VALUE:
             byte2 = self.read_uint8()
             return (
-                (MAX_SINGLE_BYTE_LENGTH + 1)
-                + ((byte1 - (MAX_SINGLE_BYTE_LENGTH + 1)) * MAX_BYTE_VALUE)
+                (_MAX_SINGLE_BYTE_LENGTH + 1)
+                + ((byte1 - (_MAX_SINGLE_BYTE_LENGTH + 1)) * _MAX_BYTE_VALUE)
                 + byte2
             )
         # If the field contains 12481 to 918744 bytes of data, the first three
@@ -157,9 +159,9 @@ class BinaryParser:
             byte2 = self.read_uint8()
             byte3 = self.read_uint8()
             return (
-                MAX_DOUBLE_BYTE_LENGTH
-                + ((byte1 - (MAX_SECOND_BYTE_VALUE + 1)) * MAX_DOUBLE_BYTE_VALUE)
-                + (byte2 * MAX_BYTE_VALUE)
+                _MAX_DOUBLE_BYTE_LENGTH
+                + ((byte1 - (_MAX_SECOND_BYTE_VALUE + 1)) * _MAX_DOUBLE_BYTE_VALUE)
+                + (byte2 * _MAX_BYTE_VALUE)
                 + byte3
             )
         raise XRPLBinaryCodecException(
