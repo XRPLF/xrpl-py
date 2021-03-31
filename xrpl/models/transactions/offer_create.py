@@ -1,11 +1,44 @@
 """Model for OfferCreate transaction type."""
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Optional
 
 from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionType
 from xrpl.models.utils import require_kwargs_on_init
+
+
+class OfferCreateFlag(int, Enum):
+    """
+    Transactions of the OfferCreate type support additional values in the Flags field.
+    This enum represents those options.
+
+    `See OfferCreate Flags <https://xrpl.org/offercreate.html#offercreate-flags>`_
+    """
+
+    #: If enabled, the offer does not consume offers that exactly match it, and instead
+    # becomes an Offer object in the ledger. It still consumes offers that cross it.
+    TF_PASSIVE = 0x00010000
+    #: Treat the offer as an `Immediate or Cancel order
+    #: <https://en.wikipedia.org/wiki/Immediate_or_cancel>`_. If enabled, the offer
+    #: never becomes a ledger object: it only tries to match existing offers in the
+    #: ledger. If the offer cannot match any offers immediately, it executes
+    #: "successfully" without trading any currency. In this case, the transaction has
+    #: the result code `tesSUCCESS`, but creates no Offer objects in the ledger.
+    TF_IMMEDIATE_OR_CANCEL = 0x00020000
+    #: Treat the offer as a `Fill or Kill order
+    #: <https://en.wikipedia.org/wiki/Fill_or_kill>`_. Only try to match existing
+    #: offers in the ledger, and only do so if the entire `TakerPays` quantity can be
+    #: obtained. If the `fix1578 amendment
+    #: <https://xrpl.org/known-amendments.html#fix1578>`_ is enabled and the offer
+    #: cannot be executed when placed, the transaction has the result code `tecKILLED`;
+    #: otherwise, the transaction uses the result code `tesSUCCESS` even when it was
+    #: killed without trading any currency.
+    TF_FILL_OR_KILL = 0x00040000
+    #: Exchange the entire `TakerGets` amount, even if it means obtaining more than the
+    #: `TakerPays amount` in exchange.
+    TF_SELL = 0x00080000
 
 
 @require_kwargs_on_init
