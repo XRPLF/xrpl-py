@@ -14,9 +14,9 @@ MAX_DROPS: Final[Decimal] = Decimal(10 ** 17)  #: Maximum possible drops of XRP
 
 # Drops should be an integer string. MAY have (positive) exponent.
 # See also: https://xrpl.org/currency-formats.html#string-numbers
-_DROPS_REGEX = r"[1-9][0-9Ee-]{0,17}|0"
+_DROPS_REGEX: Final[str] = r"[1-9][0-9Ee-]{0,17}|0"
 
-_DROPS_CONTEXT = Context(prec=18, Emin=0, Emax=18)
+_DROPS_CONTEXT: Final[Context] = Context(prec=18, Emin=0, Emax=18)
 
 
 def xrp_to_drops(xrp: Union[int, float, Decimal]) -> str:

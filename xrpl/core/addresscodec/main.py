@@ -3,15 +3,16 @@
 from typing import Optional, Tuple
 
 import base58
+from typing_extensions import Final
 
 from xrpl.core.addresscodec.codec import decode_classic_address, encode_classic_address
 from xrpl.core.addresscodec.exceptions import XRPLAddressCodecException
 from xrpl.core.addresscodec.utils import XRPL_ALPHABET
 
-MAX_32_BIT_UNSIGNED_INT = 4294967295
+MAX_32_BIT_UNSIGNED_INT: Final[int] = 4294967295
 
-PREFIX_BYTES_MAIN = bytes([0x05, 0x44])  # 5, 68
-PREFIX_BYTES_TEST = bytes([0x04, 0x93])  # 4, 147
+_PREFIX_BYTES_MAIN: Final[bytes] = bytes([0x05, 0x44])  # 5, 68
+_PREFIX_BYTES_TEST: Final[bytes] = bytes([0x04, 0x93])  # 4, 147
 
 # To better understand the cryptographic details, visit
 # https://github.com/xrp-community/standards-drafts/issues/6
@@ -49,7 +50,7 @@ def classic_address_to_xaddress(
     if tag is None:
         tag = 0
 
-    bytestring = PREFIX_BYTES_TEST if is_test_network else PREFIX_BYTES_MAIN
+    bytestring = _PREFIX_BYTES_TEST if is_test_network else _PREFIX_BYTES_MAIN
     bytestring += classic_address_bytes
     encoded_tag = bytes(
         [
@@ -107,9 +108,9 @@ def _is_test_address(prefix: bytes) -> bool:
     Raises:
         XRPLAddressCodecException: If the prefix is invalid.
     """
-    if PREFIX_BYTES_MAIN == prefix:
+    if _PREFIX_BYTES_MAIN == prefix:
         return False
-    if PREFIX_BYTES_TEST == prefix:
+    if _PREFIX_BYTES_TEST == prefix:
         return True
     raise XRPLAddressCodecException("Invalid X-Address: bad prefix")
 

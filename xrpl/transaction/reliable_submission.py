@@ -3,6 +3,8 @@
 from time import sleep
 from typing import Any, Dict, cast
 
+from typing_extensions import Final
+
 from xrpl.clients import Client
 from xrpl.constants import XRPLException
 from xrpl.ledger import get_latest_validated_ledger_sequence
@@ -11,7 +13,7 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.transaction import submit_transaction
 from xrpl.transaction.ledger import get_transaction_from_hash
 
-_LEDGER_CLOSE_TIME = 4
+_LEDGER_CLOSE_TIME: Final[int] = 4
 
 
 class XRPLReliableSubmissionException(XRPLException):
