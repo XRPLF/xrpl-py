@@ -110,7 +110,8 @@ def verify_iou_value(issued_currency_value: str) -> None:
 
 def _calculate_precision(value: str) -> int:
     """Calculate the precision of given value as a string."""
-    no_decimal_point = value.replace(".", "")
+    absolute_value = value.replace("-", "")
+    no_decimal_point = absolute_value.replace(".", "")
     no_leading_or_trailing_zeros = no_decimal_point.strip("0")
     return len(no_leading_or_trailing_zeros)
 

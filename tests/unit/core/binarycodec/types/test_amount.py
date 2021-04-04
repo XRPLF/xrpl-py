@@ -119,7 +119,9 @@ class TestAmount(TestSerializedType):
             "-1",
             "-1.1",
             "1111111111111111.0",
+            "-1111111111111111.0",
             "0.00000000001",
+            "-0.001111111111111111",
         ]
         for case in cases:
             amount.verify_iou_value(case)
