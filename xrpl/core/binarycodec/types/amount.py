@@ -96,9 +96,12 @@ def verify_iou_value(issued_currency_value: str) -> None:
     decimal_value = Decimal(issued_currency_value)
     if decimal_value.is_zero():
         return
+
     exponent = decimal_value.as_tuple().exponent
+    precision = len(decimal_value.normalize(Context()).as_tuple().digits)
+
     if (
-        (_calculate_precision(issued_currency_value) > _MAX_IOU_PRECISION)
+        (precision > _MAX_IOU_PRECISION)
         or (exponent > _MAX_IOU_EXPONENT)
         or (exponent < _MIN_IOU_EXPONENT)
     ):
@@ -106,14 +109,6 @@ def verify_iou_value(issued_currency_value: str) -> None:
             "Decimal precision out of range for issued currency value."
         )
     _verify_no_decimal(decimal_value)
-
-
-def _calculate_precision(value: str) -> int:
-    """Calculate the precision of given value as a string."""
-    absolute_value = value.replace("-", "")
-    no_decimal_point = absolute_value.replace(".", "")
-    no_leading_or_trailing_zeros = no_decimal_point.strip("0")
-    return len(no_leading_or_trailing_zeros)
 
 
 def _verify_no_decimal(decimal: Decimal) -> None:
