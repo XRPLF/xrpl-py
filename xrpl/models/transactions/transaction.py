@@ -309,11 +309,19 @@ class Transaction(BaseModel):
 
     def get_hash(self: Transaction) -> str:
         """
-        Hashes the Transaction object as it appears on the ledger.
+        Hashes the Transaction object as the ledger does. Only valid for signed
+        Transaction objects.
 
         Returns:
             The hash of the Transaction object.
+
+        Raises:
+            XRPLModelException: if the Transaction is unsigned.
         """
+        if self.txn_signature is None:
+            raise XRPLModelException(
+                "Cannot get the hash from an unsigned Transaction."
+            )
         prefix = hex(_TRANSACTION_HASH_PREFIX)[2:].upper()
         encoded_str = bytes.fromhex(prefix + encode(self.to_xrpl()))
         return sha512(encoded_str).digest().hex().upper()[:64]
