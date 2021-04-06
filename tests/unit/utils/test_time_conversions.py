@@ -39,7 +39,7 @@ class TestMain(TestCase):
             xrpl.utils.posix_to_ripple_time(year_1999)
 
     def test_datetime_overflow(self):
-        # "Ripple Epoch" time's eqvualent to the "Year 2038 problem", isn't until
+        # "Ripple Epoch" time's equivalent to the "Year 2038 problem" is not until
         # 2136 because it uses an *unsigned* 32-bit int starting 30 years after
         # UNIX time's signed 32-bit int.
         year_2137 = datetime(2137, 1, 1, 0, 0, tzinfo=timezone.utc)

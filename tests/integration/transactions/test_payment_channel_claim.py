@@ -6,7 +6,7 @@ from xrpl.models.transactions import PaymentChannelClaim
 
 
 class TestPaymentChannelClaim(TestCase):
-    def test_reciever_claim(self):
+    def test_receiver_claim(self):
         response = submit_transaction(
             PaymentChannelClaim(
                 account=WALLET.classic_address,

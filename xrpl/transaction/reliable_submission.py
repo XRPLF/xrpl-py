@@ -72,7 +72,7 @@ def send_reliable_submission(transaction: Transaction, client: Client) -> Respon
         The response from a validated ledger.
 
     Raises:
-        XRPLReliableSubmissionException: if the transaction fails or is misisng a
+        XRPLReliableSubmissionException: if the transaction fails or is missing a
             `last_ledger_sequence` param.
     """
     submit_response = submit_transaction(transaction, client)
