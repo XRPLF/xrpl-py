@@ -5,17 +5,19 @@ from xrpl.wallet import generate_faucet_wallet
 
 WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
 DESTINATION = generate_faucet_wallet(JSON_RPC_CLIENT)
-OFFER = sign_and_reliable_submission(
-    OfferCreate(
-        account=WALLET.classic_address,
-        sequence=WALLET.sequence,
-        taker_gets="13100000",
-        taker_pays=IssuedCurrencyAmount(
-            currency="USD",
-            issuer=WALLET.classic_address,
-            value="10",
-        ),
+
+OFFER_OBJECT = OfferCreate(
+    account=WALLET.classic_address,
+    sequence=WALLET.sequence,
+    taker_gets="13100000",
+    taker_pays=IssuedCurrencyAmount(
+        currency="USD",
+        issuer=WALLET.classic_address,
+        value="10",
     ),
+)
+OFFER = sign_and_reliable_submission(
+    OFFER_OBJECT,
     WALLET,
 )
 WALLET.sequence += 1

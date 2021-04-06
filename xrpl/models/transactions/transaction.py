@@ -4,13 +4,17 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from enum import Enum
+from hashlib import sha512
 from typing import Any, Dict, List, Optional, Type, cast
 
+from xrpl.core.binarycodec import encode
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
+
+_TRANSACTION_HASH_PREFIX = 0x54584E00
 
 
 def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[str, Any]:
@@ -302,6 +306,18 @@ class Transaction(BaseModel):
             Whether the transaction has the given flag value set.
         """
         return self.flags & flag != 0
+
+    def get_hash(self: Transaction) -> str:
+        """
+        Hashes the Transaction object as it appears on the ledger.
+
+        Returns:
+            The hash of the Transaction object.
+        """
+        prefix = hex(_TRANSACTION_HASH_PREFIX)[2:].upper()
+        print(prefix + encode(self.to_xrpl()))
+        encoded_str = bytes.fromhex(prefix + encode(self.to_xrpl()))
+        return sha512(encoded_str).digest().hex().upper()  # [:64]
 
     @classmethod
     def get_transaction_type(

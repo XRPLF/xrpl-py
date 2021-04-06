@@ -128,7 +128,7 @@ def _prepare_transaction(
         XRPLException: if both LastLedgerSequence and `ledger_offset` are provided, or
             if an address tag is provided that does not match the X-Address tag.
     """
-    transaction_json = transaction.to_dict()
+    transaction_json = transaction.to_xrpl()
     transaction_json["SigningPubKey"] = wallet.public_key
 
     _validate_account_xaddress(transaction_json, "Account", "SourceTag")
