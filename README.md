@@ -154,7 +154,7 @@ Use the [`xrpl.transaction`](https://xrpl-py.readthedocs.io/en/latest/source/xrp
 
 * [`safe_sign_transaction`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.transaction.html#xrpl.transaction.safe_sign_transaction) — Signs a transaction locally. This method **does  not** submit the transaction to the XRP Ledger.
 
-* [`send_reliable_submission`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.transaction.html#xrpl.transaction.send_reliable_submission) — An implementation of the [reliable transaction submission guidelines](https://xrpl.org/reliable-transaction-submission.html#reliable-transaction-submission), this method signs a transaction locally, submits the transaction to the XRP Ledger, and then verifies that it has been included in a validated ledger (or has failed to do so). Use this method to submit transactions for production purposes.
+* [`send_reliable_submission`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.transaction.html#xrpl.transaction.send_reliable_submission) — An implementation of the [reliable transaction submission guidelines](https://xrpl.org/reliable-transaction-submission.html#reliable-transaction-submission), this method submits a signed transaction to the XRP Ledger, and then verifies that it has been included in a validated ledger (or has failed to do so). Use this method to submit transactions for production purposes.
 
 
 ```py
@@ -179,7 +179,7 @@ my_tx_payment = Payment(
 my_tx_payment_signed = safe_sign_transaction(my_tx_payment,test_wallet)
 
 # submit the transaction
-tx_response = send_reliable_submission(my_tx_payment, test_wallet, client)
+tx_response = send_reliable_submission(my_tx_payment_signed, client)
 ```
 
 #### Get fee from the XRP Ledger
@@ -211,9 +211,9 @@ The `xrpl-py` library automatically populates the `fee` and `last_ledger_sequenc
 >>>     sequence=test_wallet.sequence,
 >>> )
 >>> # sign the transaction
->>> my_tx_payment_signed = safe_sign_transaction(my_tx_payment,test_wallet)
+>>> my_tx_payment_signed = safe_sign_transaction(my_tx_payment, test_wallet)
 >>> # submit the transaction
->>> tx_response = send_reliable_submission(my_tx_payment, test_wallet, client)
+>>> tx_response = send_reliable_submission(my_tx_payment_signed, client)
 >>> my_tx_payment
 Payment(
     account='rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz',
