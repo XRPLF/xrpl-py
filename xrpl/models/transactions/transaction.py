@@ -317,7 +317,7 @@ class Transaction(BaseModel):
         prefix = hex(_TRANSACTION_HASH_PREFIX)[2:].upper()
         print(prefix + encode(self.to_xrpl()))
         encoded_str = bytes.fromhex(prefix + encode(self.to_xrpl()))
-        return sha512(encoded_str).digest().hex().upper()  # [:64]
+        return sha512(encoded_str).digest().hex().upper()[:64]
 
     @classmethod
     def get_transaction_type(
