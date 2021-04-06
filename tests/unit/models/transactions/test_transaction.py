@@ -57,7 +57,7 @@ class TestTransaction(TestCase):
             "TransactionType": "OfferCreate",
             "TxnSignature": (
                 "71135999783658A0CB4EBCF02E59ACD94C4D06D5BF909E05E6B97588155482BBA5985"
-                "35AD4728ACA1F90C4DE73FFC741B0A6AB87141BDA8BCC2F2DF9CD8C3703",
+                "35AD4728ACA1F90C4DE73FFC741B0A6AB87141BDA8BCC2F2DF9CD8C3703"
             ),
         }
 
