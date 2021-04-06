@@ -236,6 +236,15 @@ Payment(
     send_max=None,
     deliver_min=None
 )
+
+# sign the transaction
+my_tx_payment_signed = safe_sign_transaction(my_tx_payment,test_wallet)
+
+# submit the transaction
+tx_response = send_reliable_submission(my_tx_payment_signed, client)
+
+print(my_tx_payment)
+Payment(account='rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz', transaction_type=<TransactionType.PAYMENT: 'Payment'>, fee=10000, sequence=16034065, account_txn_id=None, flags=0, last_ledger_sequence=10268600, memos=None, signers=None, source_tag=None, signing_pub_key=None, txn_signature=None, amount='2200000', destination='rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe', destination_tag=None, invoice_id=None, paths=None, send_max=None, deliver_min=None)
 ```
 
 
