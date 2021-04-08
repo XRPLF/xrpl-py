@@ -13,10 +13,6 @@ from xrpl.models.requests import (
     Sign,
 )
 from xrpl.models.transactions import CheckCreate, SignerEntry, SignerListSet, TrustSet
-from xrpl.models.transactions.pseudo_transactions import EnableAmendment
-from xrpl.models.transactions.pseudo_transactions.pseudo_transaction import (
-    PseudoTransaction,
-)
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.transaction import transaction_json_to_binary_codec_form
 
@@ -237,27 +233,6 @@ class TestBaseModel(TestCase):
                     tx = Transaction.from_xrpl(r_json)
                     translated_tx = transaction_json_to_binary_codec_form(tx.to_dict())
                     self.assertEqual(r_json, translated_tx)
-
-    def test_from_xrpl_pseudo_transaction(self):
-        amendment_dict = {
-            "Account": "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
-            "Amendment": (
-                "42426C4D4F1009EE67080A9B7965B44656D7714D104A72F9B4369F97ABF044EE"
-            ),
-            "Fee": "0",
-            "LedgerSequence": 21225473,
-            "Sequence": 0,
-            "SigningPubKey": "",
-            "TransactionType": "EnableAmendment",
-        }
-        expected = EnableAmendment(
-            amendment=(
-                "42426C4D4F1009EE67080A9B7965B44656D7714D104A72F9B4369F97ABF044EE"
-            ),
-            ledger_sequence=21225473,
-        )
-        actual = PseudoTransaction.from_xrpl(amendment_dict)
-        self.assertEqual(actual, expected)
 
     def test_is_dict_of_model_when_true(self):
         self.assertTrue(

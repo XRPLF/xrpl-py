@@ -40,6 +40,6 @@ class SetFee(PseudoTransaction):
     ledger_sequence: Optional[int] = None
 
     transaction_type: PseudoTransactionType = field(
-        default=PseudoTransactionType.ENABLE_AMENDMENT,
+        default=PseudoTransactionType.SET_FEE,
         init=False,
     )

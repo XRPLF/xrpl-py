@@ -28,7 +28,7 @@ class UNLModify(PseudoTransaction):
     #: The ledger index where this pseudo-transaction appears. This distinguishes the
     #: pseudo-transaction from other occurrences of the same change.
     #: This field is required.
-    ledger_sequence: str = REQUIRED  # type: ignore
+    ledger_sequence: int = REQUIRED  # type: ignore
 
     #: If 1, this change represents adding a validator to the Negative UNL. If 0, this
     #: change represents removing a validator from the Negative UNL. (No other values
