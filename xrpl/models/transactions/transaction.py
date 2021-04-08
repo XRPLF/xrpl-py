@@ -5,13 +5,16 @@ import re
 from dataclasses import dataclass
 from enum import Enum
 from hashlib import sha512
-from typing import Any, Dict, List, Optional, Type, cast
+from typing import Any, Dict, List, Optional, Type, Union, cast
 
 from xrpl.core.binarycodec import encode
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
+from xrpl.models.transactions.pseudo_transactions.pseudo_transaction_type import (
+    PseudoTransactionType,
+)
 from xrpl.models.utils import require_kwargs_on_init
 
 _TRANSACTION_HASH_PREFIX = 0x54584E00
@@ -187,7 +190,9 @@ class Transaction(BaseModel):
     #: This field is required.
     account: str = REQUIRED  # type: ignore
 
-    transaction_type: TransactionType = REQUIRED  # type: ignore
+    transaction_type: Union[
+        TransactionType, PseudoTransactionType
+    ] = REQUIRED  # type: ignore
 
     #: (Auto-fillable) The amount of XRP to destroy as a cost to send this
     #: transaction. See `Transaction Cost
