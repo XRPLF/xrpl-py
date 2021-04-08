@@ -322,6 +322,7 @@ class Transaction(BaseModel):
             XRPLModelException: If `transaction_type` is not a valid Transaction type.
         """
         import xrpl.models.transactions as transaction_models
+        import xrpl.models.transactions.pseudo_transactions as pseudo_transaction_models
 
         transaction_types: Dict[str, Type[Transaction]] = {
             t.value: getattr(transaction_models, t)
@@ -329,5 +330,12 @@ class Transaction(BaseModel):
         }
         if transaction_type in transaction_types:
             return transaction_types[transaction_type]
+
+        pseudo_transaction_types: Dict[str, Type[Transaction]] = {
+            t.value: getattr(pseudo_transaction_models, t)
+            for t in transaction_models.types.PseudoTransactionType
+        }
+        if transaction_type in pseudo_transaction_types:
+            return pseudo_transaction_types[transaction_type]
 
         raise XRPLModelException(f"{transaction_type} is not a valid Transaction type")
