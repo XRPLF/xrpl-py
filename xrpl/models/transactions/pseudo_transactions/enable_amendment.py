@@ -7,9 +7,7 @@ from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.pseudo_transactions.pseudo_transaction import (
     PseudoTransaction,
 )
-from xrpl.models.transactions.pseudo_transactions.pseudo_transaction_type import (
-    PseudoTransactionType,
-)
+from xrpl.models.transactions.types import PseudoTransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 
@@ -40,6 +38,7 @@ class EnableAmendment(PseudoTransaction):
     """
     An EnableAmendment pseudo-transaction marks a change in status of an amendment to
     the XRP Ledger protocol, including:
+
     * A proposed amendment gained supermajority approval from validators.
     * A proposed amendment lost supermajority approval.
     * A proposed amendment has been enabled.
@@ -52,6 +51,7 @@ class EnableAmendment(PseudoTransaction):
 
     #: The ledger index where this pseudo-transaction appears. This distinguishes the
     #: pseudo-transaction from other occurrences of the same change.
+    #: This field is required.
     ledger_sequence: str = REQUIRED  # type: ignore
 
     transaction_type: PseudoTransactionType = field(

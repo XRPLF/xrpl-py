@@ -7,7 +7,8 @@ from typing import Any, Dict, List, Optional
 
 from xrpl.models.amounts import Amount, is_xrp
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Transaction, TransactionType
+from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 

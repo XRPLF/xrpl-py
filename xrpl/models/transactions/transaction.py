@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from enum import Enum
 from hashlib import sha512
 from typing import Any, Dict, List, Optional, Type, Union, cast
 
@@ -12,9 +11,7 @@ from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.pseudo_transactions.pseudo_transaction_type import (
-    PseudoTransactionType,
-)
+from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 _TRANSACTION_HASH_PREFIX = 0x54584E00
@@ -51,29 +48,6 @@ def _value_to_tx_json(value: Any) -> Any:
     if isinstance(value, list):
         return [_value_to_tx_json(sub_value) for sub_value in value]
     return value
-
-
-class TransactionType(str, Enum):
-    """Enum containing the different Transaction types."""
-
-    ACCOUNT_DELETE = "AccountDelete"
-    ACCOUNT_SET = "AccountSet"
-    CHECK_CANCEL = "CheckCancel"
-    CHECK_CASH = "CheckCash"
-    CHECK_CREATE = "CheckCreate"
-    DEPOSIT_PREAUTH = "DepositPreauth"
-    ESCROW_CANCEL = "EscrowCancel"
-    ESCROW_CREATE = "EscrowCreate"
-    ESCROW_FINISH = "EscrowFinish"
-    OFFER_CANCEL = "OfferCancel"
-    OFFER_CREATE = "OfferCreate"
-    PAYMENT = "Payment"
-    PAYMENT_CHANNEL_CLAIM = "PaymentChannelClaim"
-    PAYMENT_CHANNEL_CREATE = "PaymentChannelCreate"
-    PAYMENT_CHANNEL_FUND = "PaymentChannelFund"
-    SET_REGULAR_KEY = "SetRegularKey"
-    SIGNER_LIST_SET = "SignerListSet"
-    TRUST_SET = "TrustSet"
 
 
 @require_kwargs_on_init
@@ -351,7 +325,7 @@ class Transaction(BaseModel):
 
         transaction_types: Dict[str, Type[Transaction]] = {
             t.value: getattr(transaction_models, t)
-            for t in transaction_models.transaction.TransactionType
+            for t in transaction_models.types.TransactionType
         }
         if transaction_type in transaction_types:
             return transaction_types[transaction_type]

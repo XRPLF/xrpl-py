@@ -12,6 +12,7 @@ going to the XRP Ledger.
    xrpl.models.currencies
    xrpl.models.requests
    xrpl.models.transactions
+   xrpl.models.transactions.pseudo_transactions
 
 Base Model
 ----------

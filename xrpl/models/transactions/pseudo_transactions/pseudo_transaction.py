@@ -1,13 +1,10 @@
 """The base model for all pseudo-transactions and their nested object types."""
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.pseudo_transactions.pseudo_transaction_type import (
-    PseudoTransactionType,
-)
 from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.types import PseudoTransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 _ACCOUNT_ZERO = "rrrrrrrrrrrrrrrrrrrrrhoLvTp"  # base58 encoding of the value `0`
@@ -25,28 +22,23 @@ class PseudoTransaction(Transaction):
     thereafter.
     """
 
-    account: str = field(
-        default=_ACCOUNT_ZERO,
-        init=False,
-    )
-    fee: str = field(
-        default="0",
-        init=False,
-    )
-    sequence: int = field(
-        default=0,
-        init=False,
-    )
-    signing_pub_key: str = field(
-        default="",
-        init=False,
-    )
-    txn_signature: str = field(
-        default="",
-        init=False,
-    )
-    source_tag: Optional[int] = field(
-        default=None,
-        init=False,
-    )
+    #: All pseudo-transactions have an account value of the base58 encoding of the
+    #: value `0`.
+    account: str = field(default=_ACCOUNT_ZERO, init=False)
+
+    #: All pseudo-transactions have a fee value of 0.
+    fee: str = field(default="0", init=False)
+
+    #: All pseudo-transactions have a sequence value of 0.
+    sequence: int = field(default=0, init=False)
+
+    #: All pseudo-transactions have an empty signing_pub_key.
+    signing_pub_key: str = field(default="", init=False)
+
+    #: All pseudo-transactions have an empty txn_signature.
+    txn_signature: str = field(default="", init=False)
+
+    #: All pseudo-transactions do not have an empty source_tag.
+    source_tag: None = field(default=None, init=False)
+
     transaction_type: PseudoTransactionType = REQUIRED  # type: ignore
