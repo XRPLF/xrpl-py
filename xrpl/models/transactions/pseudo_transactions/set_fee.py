@@ -1,7 +1,7 @@
-"""Model for EnableAmendment pseudo-transaction type."""
+"""Model for SetFee pseudo-transaction type."""
 
 from dataclasses import dataclass, field
-from enum import Enum
+from typing import Optional
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.pseudo_transactions.pseudo_transaction import (
@@ -11,56 +11,35 @@ from xrpl.models.transactions.types import PseudoTransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 
-class SetFeeFlag(int, Enum):
-    """
-    The Flags value of the SetFee pseudo-transaction indicates the status of
-    the amendment at the time of the ledger including the pseudo-transaction.
-
-    A Flags value of 0 (no flags) or an omitted Flags field indicates that the
-    amendment has been enabled, and applies to all ledgers afterward.
-
-    `See SetFee Flags
-    <https://xrpl.org/SetFee.html#SetFee-flags>`_
-    """
-
-    #: Support for this amendment increased to at least 80% of trusted validators
-    #: starting with this ledger version.
-    TF_GOT_MAJORITY = 0x00010000
-
-    #: Support for this amendment decreased to less than 80% of trusted validators
-    #: starting with this ledger version.
-    TF_LOST_MAJORITY = 0x00020000
-
-
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class SetFee(PseudoTransaction):
     """
-    An SetFee pseudo-transaction marks a change in status of an amendment to
-    the XRP Ledger protocol, including:
-
-    * A proposed amendment gained supermajority approval from validators.
-    * A proposed amendment lost supermajority approval.
-    * A proposed amendment has been enabled.
+    A SetFee pseudo-transaction marks a change in `transaction cost
+    <https://xrpl.org/transaction-cost.html>`_ or `reserve requirements
+    <https://xrpl.org/reserves.html>`_ as a result of `Fee Voting
+    <https://xrpl.org/fee-voting.html>`_.
     """
 
-    #: A unique identifier for the amendment. This is not intended to be a
-    #: human-readable name. See `Amendments <https://xrpl.org/amendments.html>`_ for a
-    #: list of known amendments.
-    amendment: str = REQUIRED  # type: ignore
+    #: The charge, in drops of XRP, for the reference transaction, as hex. (This is the
+    #: transaction cost before scaling for load.)
+    base_fee: str = REQUIRED  # type: ignore
 
-    #: The ledger index where this pseudo-transaction appears. This distinguishes the
-    #: pseudo-transaction from other occurrences of the same change.
-    #: This field is required.
-    ledger_sequence: str = REQUIRED  # type: ignore
+    #: The cost, in fee units, of the reference transaction
+    reference_fee_units: int = REQUIRED  # type: ignore
+
+    #: The base reserve, in drops
+    reserve_base: int = REQUIRED  # type: ignore
+
+    #: The incremental reserve, in drops
+    reserve_increment: int = REQUIRED  # type: ignore
+
+    #: The index of the ledger version where this pseudo-transaction appears. This
+    #: distinguishes the pseudo-transaction from other occurrences of the same change.
+    #: This field is omitted for some historical SetFee pseudo-transactions.
+    ledger_sequence: Optional[int] = None
 
     transaction_type: PseudoTransactionType = field(
         default=PseudoTransactionType.ENABLE_AMENDMENT,
         init=False,
     )
-
-    #: The Flags value of the EnableAmendment pseudo-transaction indicates the status
-    #: of the amendment at the time of the ledger including the pseudo-transaction.
-    #: A Flags value of 0 (no flags) or an omitted Flags field indicates that the
-    #: amendment has been enabled, and applies to all ledgers afterward.
-    flags: int = 0
