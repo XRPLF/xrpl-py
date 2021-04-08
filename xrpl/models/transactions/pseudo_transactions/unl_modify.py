@@ -1,7 +1,9 @@
 """Model for EnableAmendment pseudo-transaction type."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from enum import Enum
+from typing import Dict
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.pseudo_transactions.pseudo_transaction import (
@@ -9,27 +11,6 @@ from xrpl.models.transactions.pseudo_transactions.pseudo_transaction import (
 )
 from xrpl.models.transactions.types import PseudoTransactionType
 from xrpl.models.utils import require_kwargs_on_init
-
-
-class UNLModifyFlag(int, Enum):
-    """
-    The Flags value of the UNLModify pseudo-transaction indicates the status of
-    the amendment at the time of the ledger including the pseudo-transaction.
-
-    A Flags value of 0 (no flags) or an omitted Flags field indicates that the
-    amendment has been enabled, and applies to all ledgers afterward.
-
-    `See UNLModify Flags
-    <https://xrpl.org/UNLModify.html#UNLModify-flags>`_
-    """
-
-    #: Support for this amendment increased to at least 80% of trusted validators
-    #: starting with this ledger version.
-    TF_GOT_MAJORITY = 0x00010000
-
-    #: Support for this amendment decreased to less than 80% of trusted validators
-    #: starting with this ledger version.
-    TF_LOST_MAJORITY = 0x00020000
 
 
 @require_kwargs_on_init
@@ -44,18 +25,21 @@ class UNLModify(PseudoTransaction):
     * A proposed amendment has been enabled.
     """
 
-    #: A unique identifier for the amendment. This is not intended to be a
-    #: human-readable name. See `Amendments <https://xrpl.org/amendments.html>`_ for a
-    #: list of known amendments.
-    amendment: str = REQUIRED  # type: ignore
-
     #: The ledger index where this pseudo-transaction appears. This distinguishes the
     #: pseudo-transaction from other occurrences of the same change.
     #: This field is required.
     ledger_sequence: str = REQUIRED  # type: ignore
 
+    #: If 1, this change represents adding a validator to the Negative UNL. If 0, this
+    #: change represents removing a validator from the Negative UNL. (No other values
+    #: are allowed.)
+    unl_modify_disabling: int = REQUIRED  # type: ignore
+
+    #: The validator to add or remove, as identified by its master public key.
+    unl_modify_validator: str = REQUIRED  # type: ignore
+
     transaction_type: PseudoTransactionType = field(
-        default=PseudoTransactionType.ENABLE_AMENDMENT,
+        default=PseudoTransactionType.UNL_MODIFY,
         init=False,
     )
 
@@ -64,3 +48,12 @@ class UNLModify(PseudoTransaction):
     #: A Flags value of 0 (no flags) or an omitted Flags field indicates that the
     #: amendment has been enabled, and applies to all ledgers afterward.
     flags: int = 0
+
+    def _get_errors(self: UNLModify) -> Dict[str, str]:
+        errors = super()._get_errors()
+        if self.unl_modify_disabling not in {0, 1}:
+            errors[
+                "unl_modify_disabling"
+            ] = "`unl_modify_disabling` is not equal to 0 or 1."
+
+        return errors
