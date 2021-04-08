@@ -1,4 +1,4 @@
-"""Model for EnableAmendment pseudo-transaction type."""
+"""Model for UNLModify pseudo-transaction type."""
 
 from __future__ import annotations
 
@@ -17,12 +17,9 @@ from xrpl.models.utils import require_kwargs_on_init
 @dataclass(frozen=True)
 class UNLModify(PseudoTransaction):
     """
-    An UNLModify pseudo-transaction marks a change in status of an amendment to
-    the XRP Ledger protocol, including:
-
-    * A proposed amendment gained supermajority approval from validators.
-    * A proposed amendment lost supermajority approval.
-    * A proposed amendment has been enabled.
+    A UNLModify pseudo-transaction marks a change to the `Negative UNL
+    <https://xrpl.org/negative-unl.html>`_, indicating that a trusted validator has
+    gone offline or come back online.
     """
 
     #: The ledger index where this pseudo-transaction appears. This distinguishes the
