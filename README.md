@@ -236,6 +236,7 @@ Payment(
     send_max=None,
     deliver_min=None
 )
+```
 
 
 ### Encode addresses
