@@ -163,7 +163,7 @@ class BaseModel(ABC):
     def _get_only_init_args(
         cls: Type[BaseModel], args: Dict[str, Any]
     ) -> Dict[str, Any]:
-        init_keys = {field.name for field in fields(cls)}
+        init_keys = {field.name for field in fields(cls) if field.init is True}
         valid_args = {key: value for key, value in args.items() if key in init_keys}
         return valid_args
 

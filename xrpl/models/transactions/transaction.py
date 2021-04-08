@@ -253,8 +253,8 @@ class Transaction(BaseModel):
         Raises:
             XRPLModelException: If the dictionary provided is invalid.
         """
-        if cls.__name__ == "Transaction":
-            # using `Transaction.from_dict` and not a subclass
+        if cls.__name__ == "Transaction" or cls.__name__ == "PseudoTransaction":
+            # using `(Pseudo)Transaction.from_dict` and not a subclass
             if "transaction_type" not in value:
                 raise XRPLModelException(
                     "Transaction does not include transaction_type."
@@ -266,8 +266,8 @@ class Transaction(BaseModel):
                 if value["transaction_type"] != cls.__name__:
                     transaction_type = value["transaction_type"]
                     raise XRPLModelException(
-                        f"Using wrong constructor: using f{cls.__name__} constructor "
-                        f"with transaction type f{transaction_type}."
+                        f"Using wrong constructor: using {cls.__name__} constructor "
+                        f"with transaction type {transaction_type}."
                     )
                 value = {**value}
                 del value["transaction_type"]

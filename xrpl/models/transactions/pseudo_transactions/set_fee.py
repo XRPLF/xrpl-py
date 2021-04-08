@@ -11,16 +11,16 @@ from xrpl.models.transactions.types import PseudoTransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 
-class EnableAmendmentFlag(int, Enum):
+class SetFeeFlag(int, Enum):
     """
-    The Flags value of the EnableAmendment pseudo-transaction indicates the status of
+    The Flags value of the SetFee pseudo-transaction indicates the status of
     the amendment at the time of the ledger including the pseudo-transaction.
 
     A Flags value of 0 (no flags) or an omitted Flags field indicates that the
     amendment has been enabled, and applies to all ledgers afterward.
 
-    `See EnableAmendment Flags
-    <https://xrpl.org/enableamendment.html#enableamendment-flags>`_
+    `See SetFee Flags
+    <https://xrpl.org/SetFee.html#SetFee-flags>`_
     """
 
     #: Support for this amendment increased to at least 80% of trusted validators
@@ -34,9 +34,9 @@ class EnableAmendmentFlag(int, Enum):
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class EnableAmendment(PseudoTransaction):
+class SetFee(PseudoTransaction):
     """
-    An EnableAmendment pseudo-transaction marks a change in status of an amendment to
+    An SetFee pseudo-transaction marks a change in status of an amendment to
     the XRP Ledger protocol, including:
 
     * A proposed amendment gained supermajority approval from validators.
@@ -52,7 +52,7 @@ class EnableAmendment(PseudoTransaction):
     #: The ledger index where this pseudo-transaction appears. This distinguishes the
     #: pseudo-transaction from other occurrences of the same change.
     #: This field is required.
-    ledger_sequence: int = REQUIRED  # type: ignore
+    ledger_sequence: str = REQUIRED  # type: ignore
 
     transaction_type: PseudoTransactionType = field(
         default=PseudoTransactionType.ENABLE_AMENDMENT,

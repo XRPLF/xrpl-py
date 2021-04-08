@@ -6,5 +6,7 @@ from xrpl.models.transactions.pseudo_transactions.enable_amendment import (
     EnableAmendment,
     EnableAmendmentFlag,
 )
+from xrpl.models.transactions.pseudo_transactions.set_fee import SetFee
+from xrpl.models.transactions.pseudo_transactions.unl_modify import UNLModify
 
-__all__ = ["EnableAmendment", "EnableAmendmentFlag"]
+__all__ = ["EnableAmendment", "EnableAmendmentFlag", "SetFee", "UNLModify"]
