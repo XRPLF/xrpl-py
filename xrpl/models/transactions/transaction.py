@@ -36,8 +36,7 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
 
 def _key_to_tx_json(key: str) -> str:
     snaked = "".join([word.capitalize() for word in key.split("_")])
-    first_sub = re.sub(r"Id", r"ID", snaked)
-    return re.sub(r"Unl", r"UNL", first_sub)
+    return re.sub(r"Unl", r"UNL", re.sub(r"Id", r"ID", snaked))
 
 
 def _value_to_tx_json(value: Any) -> Any:

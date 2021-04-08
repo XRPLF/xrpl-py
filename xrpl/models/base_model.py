@@ -21,8 +21,7 @@ def _key_to_json(field: str) -> str:
     words = split(r"(?=[A-Z])", field)
     lower_words = [word.lower() for word in words if word]
     snaked = "_".join(lower_words)
-    first_sub = sub("i_d", "id", snaked)
-    return sub("u_n_l", "unl", first_sub)
+    return sub("u_n_l", "unl", sub("i_d", "id", snaked))
 
 
 def _value_to_json(value: str) -> str:
