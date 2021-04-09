@@ -7,13 +7,16 @@ from xrpl.models.requests import Tx
 from xrpl.models.response import Response
 
 
-def get_transaction_from_hash(tx_hash: str, client: Client) -> Response:
+def get_transaction_from_hash(tx_hash: str, client: Client, binary: bool = False, min_ledger: int = None, max_ledger: int = None) -> Response:
     """
     Given a transaction hash, fetch the corresponding transaction from the ledger.
 
     Args:
         tx_hash: the transaction hash.
         client: the network client used to communicate with a rippled node.
+        binary: (Optional) If true, return transaction data and metadata as binary serialized to hexadecimal strings. If false, return transaction data and metadata as JSON. The default is false.
+        min_ledger: (Optional) Use this with max_ledger to specify a range of up to 1000 ledger indexes, starting with this ledger (inclusive). If the server cannot find the transaction, it confirms whether it was able to search all the ledgers in this range.
+        max_ledger: (Optional) Use this with min_ledger to specify a range of up to 1000 ledger indexes, ending with this ledger (inclusive). If the server cannot find the transaction, it confirms whether it was able to search all the ledgers in the requested range.
 
     Returns:
         The Response object containing the transaction info.
@@ -21,7 +24,7 @@ def get_transaction_from_hash(tx_hash: str, client: Client) -> Response:
     Raises:
         XRPLRequestFailureException: if the transaction fails.
     """
-    response = client.request(Tx(transaction=tx_hash))
+    response = client.request(Tx(transaction=tx_hash, binary=binary, max_ledger=max_ledger, min_ledger=min_ledger))
     if not response.is_successful():
         result = cast(Dict[str, Any], response.result)
         raise XRPLRequestFailureException(result)
