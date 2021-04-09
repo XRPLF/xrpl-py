@@ -2,7 +2,8 @@ from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import OfferCreate
-from xrpl.models.transactions.transaction import Transaction, TransactionType
+from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.types.transaction_type import TransactionType
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _FEE = "0.00001"
