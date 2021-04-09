@@ -28,6 +28,7 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
     Returns:
         A new dictionary object that has been reformatted.
     """
+    # This method should be made private when it is removed from `xrpl.transactions`
     return {
         _key_to_tx_json(key): _value_to_tx_json(value)
         for (key, value) in dictionary.items()

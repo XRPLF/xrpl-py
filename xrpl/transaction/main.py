@@ -13,6 +13,9 @@ from xrpl.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.models.requests import SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import (
+    transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
+)
 from xrpl.wallet.main import Wallet
 
 _LEDGER_OFFSET: Final[int] = 20
@@ -181,3 +184,17 @@ def _convert_to_classic_address(json: Dict[str, Any], field: str) -> None:
     """
     if field in json and is_valid_xaddress(json[field]):
         json[field] = xaddress_to_classic_address(json[field])
+
+
+def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Returns a new dictionary in which the keys have been formatted as CamelCase and
+    standardized to be serialized by the binary codec.
+
+    Args:
+        dictionary: The dictionary to be reformatted.
+
+    Returns:
+        A new dictionary object that has been reformatted.
+    """
+    return model_transaction_to_binary_codec(dictionary)

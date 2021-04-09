@@ -1,11 +1,11 @@
 """Top-level exports for the transaction package."""
-from xrpl.models.transactions.transaction import transaction_json_to_binary_codec_form
 from xrpl.transaction.ledger import get_transaction_from_hash
 from xrpl.transaction.main import (
     safe_sign_and_autofill_transaction,
     safe_sign_and_submit_transaction,
     safe_sign_transaction,
     submit_transaction,
+    transaction_json_to_binary_codec_form,
 )
 from xrpl.transaction.reliable_submission import (
     XRPLReliableSubmissionException,
