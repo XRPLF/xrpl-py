@@ -1,14 +1,54 @@
 """The base model for all transactions and their nested object types."""
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from enum import Enum
+from hashlib import sha512
 from typing import Any, Dict, List, Optional, Type, Union, cast
 
+from xrpl.core.binarycodec import encode
+from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
+
+_TRANSACTION_HASH_PREFIX = 0x54584E00
+
+
+def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Returns a new dictionary in which the keys have been formatted as CamelCase and
+    standardized to be serialized by the binary codec.
+
+    Args:
+        dictionary: The dictionary to be reformatted.
+
+    Returns:
+        A new dictionary object that has been reformatted.
+    """
+    # This method should be made private when it is removed from `xrpl.transactions`
+    return {
+        _key_to_tx_json(key): _value_to_tx_json(value)
+        for (key, value) in dictionary.items()
+    }
+
+
+def _key_to_tx_json(key: str) -> str:
+    snaked = "".join([word.capitalize() for word in key.split("_")])
+    return re.sub(r"Id", r"ID", snaked)
+
+
+def _value_to_tx_json(value: Any) -> Any:
+    # IssuedCurrencyAmount is a special case and should not be snake cased
+    if IssuedCurrencyAmount.is_dict_of_model(value):
+        return {key: _value_to_tx_json(sub_value) for (key, sub_value) in value.items()}
+    if isinstance(value, dict):
+        return transaction_json_to_binary_codec_form(value)
+    if isinstance(value, list):
+        return [_value_to_tx_json(sub_value) for sub_value in value]
+    return value
 
 
 class TransactionType(str, Enum):
@@ -223,6 +263,16 @@ class Transaction(BaseModel):
             accumulator |= flag
         return accumulator
 
+    def to_xrpl(self: Transaction) -> Dict[str, Any]:
+        """
+        Creates a JSON-like dictionary in the JSON format used by the binary codec
+        based on the Transaction object.
+
+        Returns:
+            A JSON-like dictionary in the JSON format used by the binary codec.
+        """
+        return transaction_json_to_binary_codec_form(self.to_dict())
+
     @classmethod
     def from_dict(cls: Type[Transaction], value: Dict[str, Any]) -> Transaction:
         """
@@ -272,6 +322,25 @@ class Transaction(BaseModel):
             return self.flags & flag != 0
         else:  # is List[int]
             return flag in self.flags
+
+    def get_hash(self: Transaction) -> str:
+        """
+        Hashes the Transaction object as the ledger does. Only valid for signed
+        Transaction objects.
+
+        Returns:
+            The hash of the Transaction object.
+
+        Raises:
+            XRPLModelException: if the Transaction is unsigned.
+        """
+        if self.txn_signature is None:
+            raise XRPLModelException(
+                "Cannot get the hash from an unsigned Transaction."
+            )
+        prefix = hex(_TRANSACTION_HASH_PREFIX)[2:].upper()
+        encoded_str = bytes.fromhex(prefix + encode(self.to_xrpl()))
+        return sha512(encoded_str).digest().hex().upper()[:64]
 
     @classmethod
     def get_transaction_type(

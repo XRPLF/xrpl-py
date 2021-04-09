@@ -2,6 +2,7 @@ import json
 import os
 from unittest import TestCase
 
+from xrpl.models import XRPLModelException
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import (
     AccountChannels,
@@ -199,6 +200,21 @@ class TestBaseModel(TestCase):
         expected = AccountChannels(**account_channels_dict)
         actual = AccountChannels.from_dict(account_channels_dict)
         self.assertEqual(actual, expected)
+
+    def test_from_dict_bad_str(self):
+        dictionary = {
+            "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
+            "fee": 10,
+            "sequence": 16178313,
+            "flags": 131072,
+            "limit_amount": {
+                "currency": "USD",
+                "issuer": "raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
+                "value": "100",
+            },
+        }
+        with self.assertRaises(XRPLModelException):
+            TrustSet.from_dict(dictionary)
 
     def test_from_xrpl(self):
         dirname = os.path.dirname(__file__)

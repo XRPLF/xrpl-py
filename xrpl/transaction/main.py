@@ -1,5 +1,4 @@
 """High-level transaction methods with XRPL transactions."""
-import re
 from typing import Any, Dict, cast
 
 from typing_extensions import Final
@@ -11,10 +10,12 @@ from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_addres
 from xrpl.core.binarycodec import encode, encode_for_signing
 from xrpl.core.keypairs.main import sign
 from xrpl.ledger import get_fee, get_latest_validated_ledger_sequence
-from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import (
+    transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
+)
 from xrpl.wallet.main import Wallet
 
 _LEDGER_OFFSET: Final[int] = 20
@@ -100,7 +101,7 @@ def submit_transaction(
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
     """
-    transaction_json = transaction_json_to_binary_codec_form(transaction.to_dict())
+    transaction_json = transaction.to_xrpl()
     transaction_blob = encode(transaction_json)
     response = client.request(SubmitOnly(tx_blob=transaction_blob))
     if response.is_successful():
@@ -130,7 +131,7 @@ def _prepare_transaction(
         XRPLException: if both LastLedgerSequence and `ledger_offset` are provided, or
             if an address tag is provided that does not match the X-Address tag.
     """
-    transaction_json = transaction_json_to_binary_codec_form(transaction.to_dict())
+    transaction_json = transaction.to_xrpl()
     transaction_json["SigningPubKey"] = wallet.public_key
 
     _validate_account_xaddress(transaction_json, "Account", "SourceTag")
@@ -196,23 +197,4 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
     Returns:
         A new dictionary object that has been reformatted.
     """
-    return {
-        _key_to_tx_json(key): _value_to_tx_json(value)
-        for (key, value) in dictionary.items()
-    }
-
-
-def _key_to_tx_json(key: str) -> str:
-    snaked = "".join([word.capitalize() for word in key.split("_")])
-    return re.sub(r"Id", r"ID", snaked)
-
-
-def _value_to_tx_json(value: Any) -> Any:
-    # IssuedCurrencyAmount is a special case and should not be snake cased
-    if IssuedCurrencyAmount.is_dict_of_model(value):
-        return {key: _value_to_tx_json(sub_value) for (key, sub_value) in value.items()}
-    if isinstance(value, dict):
-        return transaction_json_to_binary_codec_form(value)
-    if isinstance(value, list):
-        return [_value_to_tx_json(sub_value) for sub_value in value]
-    return value
+    return model_transaction_to_binary_codec(dictionary)

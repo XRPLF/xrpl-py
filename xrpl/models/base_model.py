@@ -120,6 +120,15 @@ class BaseModel(ABC):
             # param_type is Any
             return param_value
 
+        if param_type.__module__ != "typing":
+            # Should be in `typing` if it reaches here
+            # If the type is a builtin type here, it means there was a mismatch
+            # somewhere above
+            raise XRPLModelException(
+                f"{param} expected a {param_type.__name__}, received a "
+                f"{type(param_value).__name__}"
+            )
+
         if param_type.__reduce__()[1][0] == List:
             # param_type is a List
             if not isinstance(param_value, List):
