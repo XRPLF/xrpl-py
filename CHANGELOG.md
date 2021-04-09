@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Added pseudotransaction models.
+- Pseudo-transaction models.
+- Instance method in `Transaction` objects to calculate their hashes locally
+- Option for `Transaction.flags` to be a `List` of `int`s instead of just an `int`
 
 ## [1.0.0] - 2021-03-31
 ### Added

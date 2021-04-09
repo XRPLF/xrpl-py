@@ -87,7 +87,7 @@ class RippleState(BaseModel):
 @dataclass(frozen=True)
 class Ticket(BaseModel):
     """
-    Required fields for requesting a Ticketif not querying by
+    Required fields for requesting a Ticket, if not querying by
     object ID.
     """
 

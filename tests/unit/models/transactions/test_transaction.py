@@ -67,3 +67,15 @@ class TestTransaction(TestCase):
             "66F3D6158CAB6E53405F8C264DB39F07D8D0454433A63DDFB98218ED1BC99B60"
         )
         self.assertEqual(offer_create.get_hash(), expected_hash)
+
+    def test_to_dict_flag_list(self):
+        tx = Transaction(
+            account=_ACCOUNT,
+            fee=_FEE,
+            sequence=_SEQUENCE,
+            transaction_type=TransactionType.ACCOUNT_DELETE,
+            flags=[0b1, 0b10, 0b100],
+        )
+        expected_flags = 0b111
+        value = tx.to_dict()["flags"]
+        self.assertEqual(value, expected_flags)

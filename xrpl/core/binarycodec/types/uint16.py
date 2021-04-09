@@ -44,7 +44,7 @@ class UInt16(UInt):
         Construct a new UInt16 type from a number.
 
         Args:
-            value: The value to consutrct a UInt16 from.
+            value: The value to construct a UInt16 from.
 
         Returns:
             The UInt16 constructed from value.
