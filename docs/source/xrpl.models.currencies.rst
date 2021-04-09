@@ -5,5 +5,6 @@ XRPL Currency Models
    :members:
    :undoc-members:
    :show-inheritance:
+   :inherited-members:
 
 .. autodata:: Currency
