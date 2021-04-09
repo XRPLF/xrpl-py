@@ -8,10 +8,10 @@ from xrpl.clients import XRPLRequestFailureException
 from xrpl.models.transactions import AccountSet, Payment
 from xrpl.transaction import (
     XRPLReliableSubmissionException,
+    get_transaction_from_hash,
     safe_sign_and_autofill_transaction,
     safe_sign_transaction,
     send_reliable_submission,
-    get_transaction_from_hash
 )
 
 ACCOUNT = WALLET.classic_address
@@ -97,10 +97,14 @@ class TestTransaction(TestCase):
 
     def test_get_transaction_from_hash(self):
         # GIVEN a new transaction (payment)
-        payment_transaction = Payment(account=WALLET.classic_address, amount="100", destination=DESTINATION)
+        payment_transaction = Payment(
+            account=WALLET.classic_address, amount="100", destination=DESTINATION
+        )
 
         # WHEN we sign locally and autofill the transaction
-        signed_payment_transaction = safe_sign_and_autofill_transaction(payment_transaction, WALLET, JSON_RPC_CLIENT)
+        signed_payment_transaction = safe_sign_and_autofill_transaction(
+            payment_transaction, WALLET, JSON_RPC_CLIENT
+        )
 
         # AND submit the transaction
         response = send_reliable_submission(signed_payment_transaction, JSON_RPC_CLIENT)
@@ -108,7 +112,7 @@ class TestTransaction(TestCase):
         # THEN we expect to retrieve this transaction from its hash
         payment = get_transaction_from_hash(response.result["hash"], JSON_RPC_CLIENT)
 
-        # AND we expect the result Account to be the same as the original payment Account
+        # AND we expect the result Account to be the same as the original payment Acct
         self.assertEqual(payment.result["Account"], ACCOUNT)
         # AND we expect the response to be successful (200)
         self.assertTrue(payment.is_successful())
@@ -117,16 +121,21 @@ class TestTransaction(TestCase):
 
     def test_get_transaction_from_hash_with_binary(self):
         # GIVEN a new transaction (payment)
-        payment_transaction = Payment(account=WALLET.classic_address, amount="100", destination=DESTINATION)
-        
+        payment_transaction = Payment(
+            account=WALLET.classic_address, amount="100", destination=DESTINATION
+        )
+
         # WHEN we sign locally and autofill the transaction
-        signed_payment_transaction = safe_sign_and_autofill_transaction(payment_transaction, WALLET, JSON_RPC_CLIENT)
+        signed_payment_transaction = safe_sign_and_autofill_transaction(
+            payment_transaction, WALLET, JSON_RPC_CLIENT
+        )
 
         # AND submit the transaction
         response = send_reliable_submission(signed_payment_transaction, JSON_RPC_CLIENT)
         payment_hash = response.result["hash"]
 
-        # THEN we expect to retrieve this transaction from its hash with the binary parameter set to true
+        # THEN we expect to retrieve this transaction from its hash with the
+        # binary parameter set to true
         payment = get_transaction_from_hash(payment_hash, JSON_RPC_CLIENT, True)
 
         # AND we expect the result hash to be the same as the original payment hash
@@ -138,20 +147,31 @@ class TestTransaction(TestCase):
 
     def test_get_transaction_from_hash_with_min_max_ledgers(self):
         # GIVEN a new transaction (payment)
-        payment_transaction = Payment(account=WALLET.classic_address, amount="100", destination=DESTINATION)
-        
+        payment_transaction = Payment(
+            account=WALLET.classic_address, amount="100", destination=DESTINATION
+        )
+
         # WHEN we sign locally and autofill the transaction
-        signed_payment_transaction = safe_sign_and_autofill_transaction(payment_transaction, WALLET, JSON_RPC_CLIENT)
+        signed_payment_transaction = safe_sign_and_autofill_transaction(
+            payment_transaction, WALLET, JSON_RPC_CLIENT
+        )
 
         # AND submit the transaction
         response = send_reliable_submission(signed_payment_transaction, JSON_RPC_CLIENT)
         payment_hash = response.result["hash"]
         payment_ledger_index = response.result["ledger_index"]
 
-        # THEN we expect to retrieve this transaction from its hash with min_ledger and max_ledger parameters
-        payment = get_transaction_from_hash(payment_hash, JSON_RPC_CLIENT, False, payment_ledger_index - 500, payment_ledger_index + 500)
+        # THEN we expect to retrieve this transaction from its hash with
+        # min_ledger and max_ledger parameters
+        payment = get_transaction_from_hash(
+            payment_hash,
+            JSON_RPC_CLIENT,
+            False,
+            payment_ledger_index - 500,
+            payment_ledger_index + 500,
+        )
 
-        # AND we expect the result Account to be the same as the original payment Account
+        # AND we expect the result Account to be the same as the original payment Acct
         self.assertEqual(payment.result["Account"], ACCOUNT)
         # AND we expect the response to be successful (200)
         self.assertTrue(payment.is_successful())
