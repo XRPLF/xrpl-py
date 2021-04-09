@@ -209,15 +209,19 @@ class Transaction(BaseModel):
         """
         # we need to override this because transaction_type is using ``field``
         # which will not include the value in the objects __dict__
-        dictionary = {
+        return {
             **super().to_dict(),
             "transaction_type": self.transaction_type.value,
+            "flags": self._flags_to_int(),
         }
-        if isinstance(self.flags, list):
-            dictionary["flags"] = 0
-            for flag in self.flags:
-                dictionary["flags"] |= flag
-        return dictionary
+
+    def _flags_to_int(self: Transaction) -> int:
+        if isinstance(self.flags, int):
+            return self.flags
+        accumulator = 0
+        for flag in self.flags:
+            accumulator |= flag
+        return accumulator
 
     @classmethod
     def from_dict(cls: Type[Transaction], value: Dict[str, Any]) -> Transaction:
