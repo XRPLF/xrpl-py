@@ -5,5 +5,6 @@ XRPL Amount Models
    :members:
    :undoc-members:
    :show-inheritance:
+   :inherited-members:
 
 .. autodata:: Amount
