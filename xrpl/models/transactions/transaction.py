@@ -168,9 +168,9 @@ class Transaction(BaseModel):
     #: details.
     account_txn_id: Optional[str] = None
 
-    #: A bitwise map of flags modifying this transaction's behavior. See `Flags
-    #: Field <https://xrpl.org/transaction-common-fields.html#flags-field>`_ for
-    #: more details.
+    #: A List of flags, or a bitwise map of flags, modifying this transaction's
+    #: behavior. See `Flags Field
+    #: <https://xrpl.org/transaction-common-fields.html#flags-field>`_ for more details.
     flags: Union[int, List[int]] = 0
 
     #: The highest ledger index this transaction can appear in. Specifying this
