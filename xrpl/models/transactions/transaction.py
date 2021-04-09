@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Type, cast
+from typing import Any, Dict, List, Optional, Type, Union, cast
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
@@ -168,10 +168,10 @@ class Transaction(BaseModel):
     #: details.
     account_txn_id: Optional[str] = None
 
-    #: A bitwise map of flags modifying this transaction's behavior. See `Flags
-    #: Field <https://xrpl.org/transaction-common-fields.html#flags-field>`_ for
-    #: more details.
-    flags: int = 0
+    #: A List of flags, or a bitwise map of flags, modifying this transaction's
+    #: behavior. See `Flags Field
+    #: <https://xrpl.org/transaction-common-fields.html#flags-field>`_ for more details.
+    flags: Union[int, List[int]] = 0
 
     #: The highest ledger index this transaction can appear in. Specifying this
     #: field places a strict upper limit on how long the transaction can wait
@@ -209,7 +209,19 @@ class Transaction(BaseModel):
         """
         # we need to override this because transaction_type is using ``field``
         # which will not include the value in the objects __dict__
-        return {**super().to_dict(), "transaction_type": self.transaction_type.value}
+        return {
+            **super().to_dict(),
+            "transaction_type": self.transaction_type.value,
+            "flags": self._flags_to_int(),
+        }
+
+    def _flags_to_int(self: Transaction) -> int:
+        if isinstance(self.flags, int):
+            return self.flags
+        accumulator = 0
+        for flag in self.flags:
+            accumulator |= flag
+        return accumulator
 
     @classmethod
     def from_dict(cls: Type[Transaction], value: Dict[str, Any]) -> Transaction:
@@ -256,7 +268,10 @@ class Transaction(BaseModel):
         Returns:
             Whether the transaction has the given flag value set.
         """
-        return self.flags & flag != 0
+        if isinstance(self.flags, int):
+            return self.flags & flag != 0
+        else:  # is List[int]
+            return flag in self.flags
 
     @classmethod
     def get_transaction_type(
