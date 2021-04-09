@@ -36,3 +36,15 @@ class TestTransaction(TestCase):
         )
         value = tx.to_dict()["transaction_type"]
         self.assertEqual(type(value), str)
+
+    def test_to_dict_flag_list(self):
+        tx = Transaction(
+            account=_ACCOUNT,
+            fee=_FEE,
+            sequence=_SEQUENCE,
+            transaction_type=TransactionType.ACCOUNT_DELETE,
+            flags=[0b1, 0b10, 0b100],
+        )
+        expected_flags = 0b111
+        value = tx.to_dict()["flags"]
+        self.assertEqual(value, expected_flags)
