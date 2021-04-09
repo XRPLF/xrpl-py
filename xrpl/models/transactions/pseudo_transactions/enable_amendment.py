@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import List, Union
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.pseudo_transactions.pseudo_transaction import (
@@ -63,4 +64,4 @@ class EnableAmendment(PseudoTransaction):
     #: of the amendment at the time of the ledger including the pseudo-transaction.
     #: A Flags value of 0 (no flags) or an omitted Flags field indicates that the
     #: amendment has been enabled, and applies to all ledgers afterward.
-    flags: int = 0
+    flags: Union[int, List[int]] = 0
