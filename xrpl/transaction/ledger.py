@@ -20,14 +20,14 @@ def get_transaction_from_hash(
     Args:
         tx_hash: the transaction hash.
         client: the network client used to communicate with a rippled node.
-        binary: (Optional) If true, return transaction data and metadata as binary
+        binary: If true, return transaction data and metadata as binary
             serialized to hexadecimal strings. If false, return transaction data and
             metadata as JSON. The default is false.
-        min_ledger: (Optional) Use this with max_ledger to specify a range of up to
+        min_ledger: Use this with max_ledger to specify a range of up to
             1000 ledger indexes, starting with this ledger (inclusive). If the server
             cannot find the transaction, it confirms whether it was able to search all
             the ledgers in this range.
-        max_ledger: (Optional) Use this with min_ledger to specify a range of up to
+        max_ledger: Use this with min_ledger to specify a range of up to
             1000 ledger indexes, ending with this ledger (inclusive). If the server
             cannot find the transaction, it confirms whether it was able to search
             all the ledgers in the requested range.
