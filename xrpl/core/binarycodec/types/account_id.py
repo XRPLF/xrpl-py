@@ -8,7 +8,13 @@ from typing import Optional, Type
 
 from typing_extensions import Final
 
-from xrpl.core.addresscodec import decode_classic_address, encode_classic_address
+from xrpl.core.addresscodec import (
+    decode_classic_address,
+    encode_classic_address,
+    is_valid_classic_address,
+    is_valid_xaddress,
+    xaddress_to_classic_address,
+)
 from xrpl.core.binarycodec import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.hash160 import Hash160
 
@@ -59,7 +65,16 @@ class AccountID(Hash160):
         if _HEX_REGEX.fullmatch(value):
             return cls(bytes.fromhex(value))
         # base58 case
-        return cls(decode_classic_address(value))
+        if is_valid_classic_address(value):
+            return cls(decode_classic_address(value))
+        if is_valid_xaddress(value):
+            classic_address, _, _ = xaddress_to_classic_address(value)
+            return cls(decode_classic_address(classic_address))
+
+        raise XRPLBinaryCodecException(
+            "Invalid value to construct an AccountID: expected valid classic address "
+            f"or X-Address, received {value.__class__.__name__}."
+        )
 
     def to_json(self: AccountID) -> str:
         """
