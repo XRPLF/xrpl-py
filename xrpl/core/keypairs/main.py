@@ -10,7 +10,7 @@ from xrpl.core.keypairs.crypto_implementation import CryptoImplementation
 from xrpl.core.keypairs.ed25519 import ED25519
 from xrpl.core.keypairs.ed25519 import PREFIX as ED_PREFIX
 from xrpl.core.keypairs.exceptions import XRPLKeypairsException
-from xrpl.core.keypairs.helpers import get_account_id
+from xrpl.core.keypairs.helpers import get_classic_address
 from xrpl.core.keypairs.secp256k1 import SECP256K1
 
 _VERIFICATION_MESSAGE: Final[bytes] = b"This test message should verify."
@@ -86,8 +86,8 @@ def derive_classic_address(public_key: str) -> str:
     Returns:
         The classic address corresponding to the given public key.
     """
-    account_id = get_account_id(bytes.fromhex(public_key))
-    return addresscodec.encode_classic_address(account_id)
+    classic_address = get_classic_address(bytes.fromhex(public_key))
+    return addresscodec.encode_classic_address(classic_address)
 
 
 def sign(message: bytes, private_key: str) -> str:
