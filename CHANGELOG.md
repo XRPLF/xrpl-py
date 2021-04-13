@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pseudo-transaction models.
 - Instance method in `Transaction` objects to calculate their hashes locally
 - Option for `Transaction.flags` to be a `List` of `int`s instead of just an `int`
+- Additional reliability to `send_reliable_submission` by getting the hash before submitting
+- Additional X-Address support in the binary codec and account sugar
+- Method to the `Wallet` class that generates the X-Address for the wallet's account
+- Improved readability of the README/documentation
+
+### Fixed
+- Typos in docs/tests
+- Expose `xrpl.utils` at the top level
+- Expose `xrpl.accounts.get_account_root`
+- Invalid X-Addresses in the XRPL Binary Codec now error with
+`XRPLBinaryCodecException` instead of `ValueError`
+
 
 ## [1.0.0] - 2021-03-31
 ### Added
