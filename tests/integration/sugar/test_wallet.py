@@ -1,7 +1,9 @@
 from unittest import TestCase
 
 from tests.integration.it_utils import submit_transaction
+from tests.integration.reusable_values import WALLET
 from xrpl.clients import JsonRpcClient
+from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountSet, Payment
 from xrpl.wallet import generate_faucet_wallet
@@ -38,3 +40,7 @@ class TestWallet(TestCase):
             client=DEV_JSON_RPC_CLIENT,
         )
         self.assertTrue(response.is_successful())
+
+    def test_wallet_get_xaddress(self):
+        expected = classic_address_to_xaddress(WALLET.classic_address, None, False)
+        self.assertEqual(WALLET.get_xaddress(), expected)

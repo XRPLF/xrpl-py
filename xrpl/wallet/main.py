@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Type
+from typing import Optional, Type
 
 from xrpl.constants import CryptoAlgorithm
+from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.core.keypairs import derive_classic_address, derive_keypair, generate_seed
 
 
@@ -61,6 +62,21 @@ class Wallet:
         """
         seed = generate_seed(algorithm=crypto_algorithm)
         return cls(seed, sequence=0)
+
+    def get_xaddress(
+        self: Wallet, *, tag: Optional[int] = None, is_test: bool = False
+    ) -> str:
+        """
+        Returns the X-Address of the Wallet's account.
+
+        Args:
+            tag: the destination tag of the address. Defaults to `None`.
+            is_test: whether the address corresponds to an address on the test network.
+
+        Returns:
+            The X-Address of the Wallet's account.
+        """
+        return classic_address_to_xaddress(self.classic_address, tag, is_test)
 
     def __str__(self: Wallet) -> str:
         """
