@@ -1,6 +1,7 @@
 """Utility functions and variables for integration tests."""
 
 from xrpl.clients import Client, JsonRpcClient
+from xrpl.models.parameters import ClientParameters
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.transaction import (
@@ -11,7 +12,10 @@ from xrpl.transaction import (
 from xrpl.wallet import Wallet
 
 JSON_RPC_URL = "https://s.altnet.rippletest.net:51234"
-JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
+JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL, ClientParameters())
+JSON_RPC_CLIENT_WITH_CUSTOM_PARAMETERS = JsonRpcClient(
+    JSON_RPC_URL, ClientParameters(max_fee="6000000")
+)
 
 
 def submit_transaction(

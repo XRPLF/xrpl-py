@@ -14,7 +14,7 @@ class TestTrustSet(TestCase):
             TrustSet(
                 account=WALLET.classic_address,
                 sequence=WALLET.sequence,
-                flags=TrustSetFlag.TF_SET_NO_RIPPLE,
+                flags=TrustSetFlag.TF_SET_NO_RIPPLE.value,
                 limit_amount=IssuedCurrencyAmount(
                     issuer=issuer_wallet.classic_address,
                     currency="USD",

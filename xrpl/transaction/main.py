@@ -16,6 +16,7 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )
+from xrpl.utils import drops_to_xrp
 from xrpl.wallet.main import Wallet
 
 _LEDGER_OFFSET: Final[int] = 20
@@ -40,13 +41,12 @@ def safe_sign_and_submit_transaction(
     if autofill:
         transaction = safe_sign_and_autofill_transaction(transaction, wallet, client)
     else:
-        transaction = safe_sign_transaction(transaction, wallet)
+        transaction = safe_sign_transaction(transaction, wallet, client)
     return submit_transaction(transaction, client)
 
 
 def safe_sign_transaction(
-    transaction: Transaction,
-    wallet: Wallet,
+    transaction: Transaction, wallet: Wallet, client: Client
 ) -> Transaction:
     """
     Signs a transaction locally, without trusting external rippled nodes.
@@ -54,10 +54,12 @@ def safe_sign_transaction(
     Args:
         transaction: the transaction to be signed.
         wallet: the wallet with which to sign the transaction.
+        client: the network client with which to submit the transaction.
 
     Returns:
         The signed transaction blob.
     """
+    _get_errors(transaction, client)
     transaction_json = _prepare_transaction(transaction, wallet)
     serialized_for_signing = encode_for_signing(transaction_json)
     serialized_bytes = bytes.fromhex(serialized_for_signing)
@@ -81,7 +83,10 @@ def safe_sign_and_autofill_transaction(
     Returns:
         The signed transaction.
     """
-    return safe_sign_transaction(_autofill_transaction(transaction, client), wallet)
+    _get_errors(transaction, client)
+    return safe_sign_transaction(
+        _autofill_transaction(transaction, client), wallet, client
+    )
 
 
 def submit_transaction(
@@ -198,3 +203,34 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
         A new dictionary object that has been reformatted.
     """
     return model_transaction_to_binary_codec(dictionary)
+
+
+def _get_errors(transaction: Transaction, client: Client) -> None:
+    """Apply custom Transaction validations based on the Client parameters"""
+    # Default check that no Transaction can have fee higher than 2 XRP
+    if (
+        client.client_parameters is None
+        and transaction.fee is not None
+        and int(transaction.fee) > 2000000
+    ):
+        raise XRPLException(
+            "Fee value: "
+            + str(drops_to_xrp(transaction.fee))
+            + " XRP exceeds the default 2 XRP limit, consider defining"
+            + " ClientParameters.max_fee in the Client to override it."
+        )
+
+    # Check that fee is not higher than custom max_fee defined in the Client
+    if (
+        client.client_parameters is not None
+        and client.client_parameters.max_fee is not None
+        and transaction.fee is not None
+        and int(transaction.fee) > int(client.client_parameters.max_fee)
+    ):
+        raise XRPLException(
+            "Fee value: "
+            + str(drops_to_xrp(transaction.fee))
+            + " XRP exceeds max_fee: "
+            + str(drops_to_xrp(client.client_parameters.max_fee))
+            + " XRP"
+        )
