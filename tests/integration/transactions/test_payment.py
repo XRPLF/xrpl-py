@@ -43,6 +43,24 @@ class TestPayment(TestCase):
                 # allow more than 2 XRP fee
             )
 
+    def test_high_fee_greater_than_max_fee_unauthorized(self):
+        # We expect an XRPLException to be raised
+        with self.assertRaises(XRPLException):
+            submit_transaction(
+                # GIVEN a new Payment transaction
+                Payment(
+                    account=WALLET.classic_address,
+                    sequence=WALLET.sequence,
+                    amount="1",
+                    # WITH the fee set to 10 XRP
+                    fee="10000000",
+                    destination=DESTINATION.classic_address,
+                ),
+                WALLET,
+                # WITH the Json RPC Client allowing more than 2 XRP BUT less than 10 XRP
+                JSON_RPC_CLIENT_WITH_CUSTOM_PARAMETERS,
+            )
+
     def test_high_fee_authorized(self):
         # GIVEN a new Payment transaction
         response = submit_transaction(
