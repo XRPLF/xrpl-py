@@ -2,10 +2,4 @@
 from xrpl.models import amounts, currencies, requests, transactions
 from xrpl.models.exceptions import XRPLModelException
 
-__all__ = [
-    "XRPLModelException",
-    "amounts",
-    "currencies",
-    "requests",
-    "transactions",
-]
+__all__ = ["XRPLModelException", "amounts", "currencies", "requests", "transactions"]
