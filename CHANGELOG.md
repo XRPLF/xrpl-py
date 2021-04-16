@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pseudo-transaction models.
 - Instance method in `Transaction` objects to calculate their hashes locally
 - Option for `Transaction.flags` to be a `List` of `int`s instead of just an `int`
-- Ability to define custom parameters for the `Client`. Currently only `max_fee`.
+- Optional parameters for `get_transaction_from_hash`: `binary`, `min_ledger` and `max_ledger`
+- Optional parameter to check if the fee is higher than 2 XRP during a Transaction
 
 ## [1.0.0] - 2021-03-31
 ### Added
