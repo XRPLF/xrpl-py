@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from xrpl.models.parameters import ClientParameters
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
 
@@ -11,16 +10,14 @@ from xrpl.models.response import Response
 class Client(ABC):
     """Interface for all network clients to follow."""
 
-    def __init__(self: Client, url: str, client_parameters: ClientParameters) -> None:
+    def __init__(self: Client, url: str) -> None:
         """
         Constructs a Client.
 
         Arguments:
             url: The URL of the rippled node to submit requests to.
-            client_parameters: The parameters to update some default values
         """
         self.url = url
-        self.client_parameters = client_parameters
 
     @abstractmethod
     def request(self: Client, request_object: Request) -> Response:

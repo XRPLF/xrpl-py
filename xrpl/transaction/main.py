@@ -20,10 +20,15 @@ from xrpl.utils import drops_to_xrp
 from xrpl.wallet.main import Wallet
 
 _LEDGER_OFFSET: Final[int] = 20
+_MAX_FEE: str = "2000000"  # Default maximum fee per Transaction
 
 
 def safe_sign_and_submit_transaction(
-    transaction: Transaction, wallet: Wallet, client: Client, autofill: bool = True
+    transaction: Transaction,
+    wallet: Wallet,
+    client: Client,
+    autofill: bool = True,
+    check_fee: bool = True,
 ) -> Response:
     """
     Signs a transaction (locally, without trusting external rippled nodes) and submits
@@ -34,19 +39,22 @@ def safe_sign_and_submit_transaction(
         wallet: the wallet with which to sign the transaction.
         client: the network client with which to submit the transaction.
         autofill: whether to autofill the relevant fields. Defaults to True.
+        check_fee: whether to check the fee is higher than 2 XRP. Defaults to True.
 
     Returns:
         The response from the ledger.
     """
     if autofill:
-        transaction = safe_sign_and_autofill_transaction(transaction, wallet, client)
+        transaction = safe_sign_and_autofill_transaction(
+            transaction, wallet, client, check_fee
+        )
     else:
-        transaction = safe_sign_transaction(transaction, wallet, client)
+        transaction = safe_sign_transaction(transaction, wallet, check_fee)
     return submit_transaction(transaction, client)
 
 
 def safe_sign_transaction(
-    transaction: Transaction, wallet: Wallet, client: Client
+    transaction: Transaction, wallet: Wallet, check_fee: bool = True
 ) -> Transaction:
     """
     Signs a transaction locally, without trusting external rippled nodes.
@@ -54,12 +62,13 @@ def safe_sign_transaction(
     Args:
         transaction: the transaction to be signed.
         wallet: the wallet with which to sign the transaction.
-        client: the network client with which to submit the transaction.
+        check_fee: whether to check the fee is higher than 2 XRP. Defaults to True.
 
     Returns:
         The signed transaction blob.
     """
-    _get_errors(transaction, client)
+    if check_fee:
+        _check_fee(transaction)
     transaction_json = _prepare_transaction(transaction, wallet)
     serialized_for_signing = encode_for_signing(transaction_json)
     serialized_bytes = bytes.fromhex(serialized_for_signing)
@@ -69,7 +78,7 @@ def safe_sign_transaction(
 
 
 def safe_sign_and_autofill_transaction(
-    transaction: Transaction, wallet: Wallet, client: Client
+    transaction: Transaction, wallet: Wallet, client: Client, check_fee: bool = True
 ) -> Transaction:
     """
     Signs a transaction locally, without trusting external rippled nodes. Autofills
@@ -79,13 +88,13 @@ def safe_sign_and_autofill_transaction(
         transaction: the transaction to be signed.
         wallet: the wallet with which to sign the transaction.
         client: a network client.
+        check_fee: whether to check the fee is higher than 2 XRP. Defaults to True.
 
     Returns:
         The signed transaction.
     """
-    _get_errors(transaction, client)
     return safe_sign_transaction(
-        _autofill_transaction(transaction, client), wallet, client
+        _autofill_transaction(transaction, client), wallet, check_fee
     )
 
 
@@ -205,32 +214,14 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
     return model_transaction_to_binary_codec(dictionary)
 
 
-def _get_errors(transaction: Transaction, client: Client) -> None:
-    """Apply custom Transaction validations based on the Client parameters"""
-    # Default check that no Transaction can have fee higher than 2 XRP
-    if (
-        client.client_parameters is None
-        and transaction.fee is not None
-        and int(transaction.fee) > 2000000
-    ):
+def _check_fee(transaction: Transaction) -> None:
+    """Checks the Transaction fee"""
+    # Checks that no Transaction can have fee higher than 2 XRP
+    if transaction.fee is not None and int(transaction.fee) > int(_MAX_FEE):
         raise XRPLException(
             "Fee value: "
             + str(drops_to_xrp(transaction.fee))
-            + " XRP exceeds the default 2 XRP limit, consider defining"
-            + " ClientParameters.max_fee in the Client to override it."
-        )
-
-    # Check that fee is not higher than custom max_fee defined in the Client
-    if (
-        client.client_parameters is not None
-        and client.client_parameters.max_fee is not None
-        and transaction.fee is not None
-        and int(transaction.fee) > int(client.client_parameters.max_fee)
-    ):
-        raise XRPLException(
-            "Fee value: "
-            + str(drops_to_xrp(transaction.fee))
-            + " XRP exceeds max_fee: "
-            + str(drops_to_xrp(client.client_parameters.max_fee))
-            + " XRP"
+            + " XRP exceeds the default "
+            + str(drops_to_xrp(_MAX_FEE))
+            + " XRP limit."
         )

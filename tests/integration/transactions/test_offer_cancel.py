@@ -39,6 +39,4 @@ class TestOfferCancel(TestCase):
                     fee=FEE,
                 ),
                 WALLET,
-                # WITH the default Json RPC Client which doesn't
-                # allow more than 2 XRP fee
             )

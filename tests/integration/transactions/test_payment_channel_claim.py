@@ -1,9 +1,6 @@
 from unittest import TestCase
 
-from tests.integration.it_utils import (
-    JSON_RPC_CLIENT_WITH_CUSTOM_PARAMETERS,
-    submit_transaction,
-)
+from tests.integration.it_utils import JSON_RPC_CLIENT, submit_transaction
 from tests.integration.reusable_values import PAYMENT_CHANNEL, WALLET
 from xrpl.models.exceptions import XRPLException
 from xrpl.models.transactions import PaymentChannelClaim
@@ -37,8 +34,6 @@ class TestPaymentChannelClaim(TestCase):
                     channel=PAYMENT_CHANNEL.result["hash"],
                 ),
                 WALLET,
-                # WITH the default Json RPC Client which doesn't
-                # allow more than 2 XRP fee
             )
 
     def test_receiver_claim_with_high_fee_authorized(self):
@@ -52,9 +47,10 @@ class TestPaymentChannelClaim(TestCase):
                 channel=PAYMENT_CHANNEL.result["hash"],
             ),
             WALLET,
-            # WITH the Json RPC Client allowing more than 2 XRP
-            JSON_RPC_CLIENT_WITH_CUSTOM_PARAMETERS,
+            JSON_RPC_CLIENT,
+            # WITHOUT checking the fee value
+            False,
         )
-
+        # THEN we expect a successful response
         self.assertTrue(response.is_successful())
         WALLET.sequence += 1

@@ -52,6 +52,4 @@ class TestCheckCreate(TestCase):
         )
         # We expect an XRPLException to be raised
         with self.assertRaises(XRPLException):
-            # WITH the default Json RPC Client which doesn't
-            # allow more than 2 XRP fee
             submit_transaction(check_cash, WALLET)

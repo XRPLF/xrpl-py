@@ -1,9 +1,6 @@
 from unittest import TestCase
 
-from tests.integration.it_utils import (
-    JSON_RPC_CLIENT_WITH_CUSTOM_PARAMETERS,
-    submit_transaction,
-)
+from tests.integration.it_utils import JSON_RPC_CLIENT, submit_transaction
 from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.models.exceptions import XRPLException
 from xrpl.models.response import ResponseStatus
@@ -29,9 +26,7 @@ class TestAccountDelete(TestCase):
             destination=DESTINATION.classic_address,
             destination_tag=DESTINATION_TAG,
         )
-        response = submit_transaction(
-            account_delete, WALLET, JSON_RPC_CLIENT_WITH_CUSTOM_PARAMETERS
-        )
+        response = submit_transaction(account_delete, WALLET, JSON_RPC_CLIENT, False)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         WALLET.sequence += 1
 
@@ -57,6 +52,4 @@ class TestAccountDelete(TestCase):
                 destination=DESTINATION.classic_address,
                 destination_tag=DESTINATION_TAG,
             )
-            # WITH the default Json RPC Client which doesn't
-            # allow more than 2 XRP fee
             submit_transaction(account_delete, WALLET)
