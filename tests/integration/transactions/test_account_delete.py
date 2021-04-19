@@ -1,8 +1,7 @@
 from unittest import TestCase
 
-from tests.integration.it_utils import JSON_RPC_CLIENT, submit_transaction
+from tests.integration.it_utils import submit_transaction
 from tests.integration.reusable_values import DESTINATION, WALLET
-from xrpl.models.exceptions import XRPLException
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountDelete
 
@@ -26,7 +25,7 @@ class TestAccountDelete(TestCase):
             destination=DESTINATION.classic_address,
             destination_tag=DESTINATION_TAG,
         )
-        response = submit_transaction(account_delete, WALLET, JSON_RPC_CLIENT, False)
+        response = submit_transaction(account_delete, WALLET, check_fee=False)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         WALLET.sequence += 1
 
@@ -39,17 +38,3 @@ class TestAccountDelete(TestCase):
         # Sequence number that is too high. The current ledger index must be at least
         # 256 higher than the account's sequence number."
         # self.assertEqual(response.result['engine_result'], 'tesSUCCESS')
-
-    def test_high_fee_unauthorized(self):
-        # We expect an XRPLException to be raised
-        with self.assertRaises(XRPLException):
-            # GIVEN a new AccountDelete transaction
-            account_delete = AccountDelete(
-                account=ACCOUNT,
-                # WITH fee higher than 2 XRP
-                fee=FEE,
-                sequence=WALLET.sequence,
-                destination=DESTINATION.classic_address,
-                destination_tag=DESTINATION_TAG,
-            )
-            submit_transaction(account_delete, WALLET)

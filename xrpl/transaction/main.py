@@ -39,7 +39,7 @@ def safe_sign_and_submit_transaction(
         wallet: the wallet with which to sign the transaction.
         client: the network client with which to submit the transaction.
         autofill: whether to autofill the relevant fields. Defaults to True.
-        check_fee: whether to check the fee is higher than 2 XRP. Defaults to True.
+        check_fee: whether to check if the fee is higher than 2 XRP. Defaults to True.
 
     Returns:
         The response from the ledger.
@@ -223,5 +223,5 @@ def _check_fee(transaction: Transaction) -> None:
             + str(drops_to_xrp(transaction.fee))
             + " XRP exceeds the default "
             + str(drops_to_xrp(_MAX_FEE))
-            + " XRP limit."
+            + " maximum XRP fee limit."
         )

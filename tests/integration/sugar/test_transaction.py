@@ -1,11 +1,12 @@
 from unittest import TestCase
 
-from tests.integration.it_utils import JSON_RPC_CLIENT
+from tests.integration.it_utils import JSON_RPC_CLIENT, submit_transaction
 from tests.integration.reusable_values import DESTINATION as DESTINATION_WALLET
 from tests.integration.reusable_values import WALLET
 from xrpl.account import get_next_valid_seq_number
 from xrpl.clients import XRPLRequestFailureException
-from xrpl.models.transactions import AccountSet, Payment
+from xrpl.models.exceptions import XRPLException
+from xrpl.models.transactions import AccountDelete, AccountSet, Payment
 from xrpl.transaction import (
     XRPLReliableSubmissionException,
     get_transaction_from_hash,
@@ -24,6 +25,8 @@ MESSAGE_KEY = "03AB40A0490F9B7ED8DF29D246BF2D6269820A0EE7742ACDD457BEA7C7D0931ED
 SET_FLAG = 8
 TRANSFER_RATE = 0
 TICK_SIZE = 10
+FEE = "5000000"
+DESTINATION_TAG = 3
 
 
 class TestTransaction(TestCase):
@@ -177,3 +180,35 @@ class TestTransaction(TestCase):
         self.assertTrue(payment.is_successful())
 
         WALLET.sequence += 1
+
+    def test_high_fee_account_delete_unauthorized(self):
+        # We expect an XRPLException to be raised
+        with self.assertRaises(XRPLException):
+            # GIVEN a new AccountDelete transaction
+            account_delete = AccountDelete(
+                account=ACCOUNT,
+                # WITH fee higher than 2 XRP
+                fee=FEE,
+                sequence=WALLET.sequence,
+                destination=DESTINATION,
+                destination_tag=DESTINATION_TAG,
+            )
+            submit_transaction(account_delete, WALLET)
+
+    def test_high_fee_account_set_unauthorized(self):
+        # GIVEN a new AccountSet transaction
+        account_set = AccountSet(
+            account=ACCOUNT,
+            sequence=WALLET.sequence,
+            clear_flag=CLEAR_FLAG,
+            domain=DOMAIN,
+            email_hash=EMAIL_HASH,
+            message_key=MESSAGE_KEY,
+            transfer_rate=TRANSFER_RATE,
+            tick_size=TICK_SIZE,
+            # WITH fee higher than 2 XRP
+            fee=FEE,
+        )
+        # We expect an XRPLException to be raised
+        with self.assertRaises(XRPLException):
+            submit_transaction(account_set, WALLET)

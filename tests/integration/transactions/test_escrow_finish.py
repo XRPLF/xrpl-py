@@ -2,7 +2,6 @@ from unittest import TestCase
 
 from tests.integration.it_utils import submit_transaction
 from tests.integration.reusable_values import WALLET
-from xrpl.models.exceptions import XRPLException
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import EscrowFinish
 
@@ -33,19 +32,3 @@ class TestEscrowFinish(TestCase):
         # Actual engine_result will be 'tecNO_TARGET' since using non-extant
         # account for OWNER
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
-
-    def test_high_fee_unauthorized(self):
-        # GIVEN a new EscrowFinish transaction
-        escrow_finish = EscrowFinish(
-            account=ACCOUNT,
-            sequence=WALLET.sequence,
-            owner=OWNER,
-            offer_sequence=OFFER_SEQUENCE,
-            condition=CONDITION,
-            fulfillment=FULFILLMENT,
-            # WITH fee higher than 2 XRP
-            fee=FEE,
-        )
-        # We expect an XRPLException to be raised
-        with self.assertRaises(XRPLException):
-            submit_transaction(escrow_finish, WALLET)

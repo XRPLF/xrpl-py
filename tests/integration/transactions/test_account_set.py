@@ -2,7 +2,6 @@ from unittest import TestCase
 
 from tests.integration.it_utils import submit_transaction
 from tests.integration.reusable_values import WALLET
-from xrpl.models.exceptions import XRPLException
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountSet
 
@@ -45,21 +44,3 @@ class TestAccountSet(TestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
         WALLET.sequence += 1
-
-    def test_high_fee_unauthorized(self):
-        # GIVEN a new AccountSet transaction
-        account_set = AccountSet(
-            account=ACCOUNT,
-            sequence=WALLET.sequence,
-            clear_flag=CLEAR_FLAG,
-            domain=DOMAIN,
-            email_hash=EMAIL_HASH,
-            message_key=MESSAGE_KEY,
-            transfer_rate=TRANSFER_RATE,
-            tick_size=TICK_SIZE,
-            # WITH fee higher than 2 XRP
-            fee=FEE,
-        )
-        # We expect an XRPLException to be raised
-        with self.assertRaises(XRPLException):
-            submit_transaction(account_set, WALLET)

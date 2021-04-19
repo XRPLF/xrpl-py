@@ -2,7 +2,6 @@ from unittest import TestCase
 
 from tests.integration.it_utils import submit_transaction
 from tests.integration.reusable_values import WALLET
-from xrpl.models.exceptions import XRPLException
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import CheckCancel
 
@@ -30,16 +29,3 @@ class TestCheckCancel(TestCase):
         # ID field such as CheckID, Channel, Unauthorize."
         self.assertEqual(response.result["engine_result"], "tecNO_ENTRY")
         WALLET.sequence += 1
-
-    def test_high_fee_unauthorized(self):
-        # GIVEN a new CheckCancel transaction
-        check_cancel = CheckCancel(
-            account=ACCOUNT,
-            sequence=WALLET.sequence,
-            check_id=CHECK_ID,
-            # WITH fee higher than 2 XRP
-            fee=FEE,
-        )
-        # We expect an XRPLException to be raised
-        with self.assertRaises(XRPLException):
-            submit_transaction(check_cancel, WALLET)
