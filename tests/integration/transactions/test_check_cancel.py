@@ -8,7 +8,6 @@ from xrpl.models.transactions import CheckCancel
 ACCOUNT = WALLET.classic_address
 
 CHECK_ID = "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
-FEE = "3000000"
 
 
 class TestCheckCancel(TestCase):
