@@ -6,7 +6,7 @@ A pure Python implementation for interacting with the XRP Ledger, the `xrpl-py` 
 
 
 
-```py
+```pycon
 # create a network client
 >>> from xrpl.clients.json_rpc_client import JsonRpcClient
 >>> client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
@@ -103,11 +103,9 @@ Use the [`xrpl.wallet`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.wal
 
 To create a wallet from a seed (in this case, the value generated using [`xrpl.keypairs`](#xrpl-keypairs)):
 
-```py
-wallet_from_seed = xrpl.wallet.Wallet(seed, 0)
-print(wallet_from_seed)
-
-# print output
+```pycon
+>>> wallet_from_seed = xrpl.wallet.Wallet(seed, 0)
+>>> print(wallet_from_seed)
 seed: sEdTNFV69uSpcHpCppa6VzMvmC68CVY
 pub_key: ED46949E414A3D6D758D347BAEC9340DC78F7397FEE893132AAF5D56E4D7DE77B0
 priv_key: EDE65EE7882847EF5345A43BFB8E6F5EEC60F45461696C384639B99B26AAA7A5CD
@@ -116,15 +114,11 @@ classic_address: rG5ZvYsK5BPi9f1Nb8mhFGDTNMJhEhufn6
 
 To create a wallet from a Testnet faucet:
 
-```py
-test_wallet = generate_faucet_wallet(client)
-test_account = test_wallet.classic_address
-print("Classic address:\n", test_account)
-
-# print output
-Classic address:
-
- rEQB2hhp3rg7sHj6L8YyR4GG47Cb7pfcuw
+```pycon
+>>> test_wallet = generate_faucet_wallet(client)
+>>> test_account = test_wallet.classic_address
+>>> print("Classic address:", test_account)
+Classic address: rEQB2hhp3rg7sHj6L8YyR4GG47Cb7pfcuw
 ```
 
 #### `xrpl.core.keypairs`
@@ -139,8 +133,11 @@ from xrpl.core import keypairs
 seed = keypairs.generate_seed()
 public, private = keypairs.derive_keypair(seed)
 test_account = keypairs.derive_classic_address(public)
-print(f"Here's the public key:\n", public)
-print(f"Here's the private key:\n", private +  "\nStore this in a secure place.")
+print("Here's the public key:")
+print(public)
+print("Here's the private key:")
+print(private)
+print("Store this in a secure place!")
 ```
 
 **Note:** You can use `xrpl.core.keypairs.sign` to sign transactions but `xrpl-py` also provides explicit methods for safely signing and submitting transactions. See [Transaction Signing](#transaction-signing) and [XRPL Transaction Methods](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.transaction.html#module-xrpl.transaction) for more information.
@@ -157,7 +154,7 @@ Use the [`xrpl.transaction`](https://xrpl-py.readthedocs.io/en/latest/source/xrp
 
 * [`safe_sign_transaction`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.transaction.html#xrpl.transaction.safe_sign_transaction) — Signs a transaction locally. This method **does  not** submit the transaction to the XRP Ledger.
 
-* [`send_reliable_submission`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.transaction.html#xrpl.transaction.send_reliable_submission) — An implementation of the [reliable transaction submission guidelines](https://xrpl.org/reliable-transaction-submission.html#reliable-transaction-submission), this method signs a transaction locally, submits the transaction to the XRP Ledger, and then verifies that it has been included in a validated ledger (or has failed to do so). Use this method to submit transactions for production purposes.
+* [`send_reliable_submission`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.transaction.html#xrpl.transaction.send_reliable_submission) — An implementation of the [reliable transaction submission guidelines](https://xrpl.org/reliable-transaction-submission.html#reliable-transaction-submission), this method submits a signed transaction to the XRP Ledger and then verifies that it has been included in a validated ledger (or has failed to do so). Use this method to submit transactions for production purposes.
 
 
 ```py
@@ -182,7 +179,7 @@ my_tx_payment = Payment(
 my_tx_payment_signed = safe_sign_transaction(my_tx_payment,test_wallet)
 
 # submit the transaction
-tx_response = send_reliable_submission(my_tx_payment, test_wallet, client)
+tx_response = send_reliable_submission(my_tx_payment_signed, client)
 ```
 
 #### Get fee from the XRP Ledger
@@ -190,13 +187,10 @@ tx_response = send_reliable_submission(my_tx_payment, test_wallet, client)
 
 In most cases, you can specify the minimum [transaction cost](https://xrpl.org/transaction-cost.html#current-transaction-cost) of `"10"` for the `fee` field unless you have a strong reason not to. But if you want to get the [current load-balanced transaction cost](https://xrpl.org/transaction-cost.html#current-transaction-cost) from the network, you can use the `get_fee` function:
 
-```py
-from xrpl.ledger import get_fee
-
-FEE = get_fee(client)
-print(FEE)
-
-# print output
+```pycon
+>>> from xrpl.ledger import get_fee
+>>> fee = get_fee(client)
+>>> print(fee)
 10
 ```
 
@@ -204,28 +198,44 @@ print(FEE)
 
 The `xrpl-py` library automatically populates the `fee` and `last_ledger_sequence` fields when you create transactions. In the example above, you could omit those fields and let the library fill them in for you.
 
-```py
-from xrpl.models.transactions import Payment
-from xrpl.transaction import send_reliable_submission
-
-# prepare the transaction
-# the amount is expressed in drops, not XRP
-# see https://xrpl.org/basic-data-types.html#specifying-currency-amounts
-my_tx_payment = Payment(
-    account="rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz",
-    amount="2200000",
-    destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
-    sequence=test_wallet.sequence,
+```pycon
+>>> from xrpl.models.transactions import Payment
+>>> from xrpl.transaction import send_reliable_submission
+>>> # prepare the transaction
+>>> # the amount is expressed in drops, not XRP
+>>> # see https://xrpl.org/basic-data-types.html#specifying-currency-amounts
+>>> my_tx_payment = Payment(
+>>>     account="rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz",
+>>>     amount="2200000",
+>>>     destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+>>>     sequence=test_wallet.sequence,
+>>> )
+>>> # sign the transaction
+>>> my_tx_payment_signed = safe_sign_transaction(my_tx_payment, test_wallet)
+>>> # submit the transaction
+>>> tx_response = send_reliable_submission(my_tx_payment_signed, client)
+>>> my_tx_payment
+Payment(
+    account='rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz',
+    transaction_type=<TransactionType.PAYMENT: 'Payment'>,
+    fee=10000,
+    sequence=16034065,
+    account_txn_id=None,
+    flags=0,
+    last_ledger_sequence=10268600,
+    memos=None,
+    signers=None,
+    source_tag=None,
+    signing_pub_key=None,
+    txn_signature=None,
+    amount='2200000',
+    destination='rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe',
+    destination_tag=None,
+    invoice_id=None,
+    paths=None,
+    send_max=None,
+    deliver_min=None
 )
-
-# sign the transaction
-my_tx_payment_signed = safe_sign_transaction(my_tx_payment,test_wallet)
-
-# submit the transaction
-tx_response = send_reliable_submission(my_tx_payment, test_wallet, client)
-
-print(my_tx_payment)
-Payment(account='rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz', transaction_type=<TransactionType.PAYMENT: 'Payment'>, fee=10000, sequence=16034065, account_txn_id=None, flags=0, last_ledger_sequence=10268600, memos=None, signers=None, source_tag=None, signing_pub_key=None, txn_signature=None, amount='2200000', destination='rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe', destination_tag=None, invoice_id=None, paths=None, send_max=None, deliver_min=None)
 ```
 
 
@@ -233,10 +243,16 @@ Payment(account='rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz', transaction_type=<Transacti
 
 Use the [`xrpl.core.addresscodec`](https://xrpl-py.readthedocs.io/en/latest/source/xrpl.core.addresscodec.html) to encode and decode addresses into and from the ["classic" and X-address formats](https://xrpl.org/accounts.html#addresses).
 
-```py
-# convert classic address to x-address
+```pycon
+>>> # convert classic address to x-address
 >>> from xrpl.core import addresscodec
->>> tesnet_xaddress = addresscodec.classic_address_to_xaddress("rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz", tag=0, is_test_network=True)
+>>> tesnet_xaddress = (
+...     addresscodec.classic_address_to_xaddress(
+...         "rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz",
+...         tag=0,
+...         is_test_network=True,
+...         )
+...     )
 >>> print(tesnet_xaddress)
 T7QDemmxnuN7a52A62nx2fxGPWcRahLCf3qaswfrsNW9Lps
 ```

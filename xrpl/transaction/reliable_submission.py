@@ -72,9 +72,10 @@ def send_reliable_submission(transaction: Transaction, client: Client) -> Respon
         The response from a validated ledger.
 
     Raises:
-        XRPLReliableSubmissionException: if the transaction fails or is misisng a
+        XRPLReliableSubmissionException: if the transaction fails or is missing a
             `last_ledger_sequence` param.
     """
+    transaction_hash = transaction.get_hash()
     submit_response = submit_transaction(transaction, client)
     result = cast(Dict[str, Any], submit_response.result)
     if result["engine_result"] != "tesSUCCESS":
@@ -84,5 +85,4 @@ def send_reliable_submission(transaction: Transaction, client: Client) -> Respon
             f"Transaction failed, {result_code}: {result_message}"
         )
 
-    transaction_hash = result["tx_json"]["hash"]
     return _wait_for_final_transaction_outcome(transaction_hash, client)

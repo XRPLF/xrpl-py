@@ -21,7 +21,7 @@ def _key_to_json(field: str) -> str:
     words = split(r"(?=[A-Z])", field)
     lower_words = [word.lower() for word in words if word]
     snaked = "_".join(lower_words)
-    return sub("i_d", "id", snaked)
+    return sub("u_n_l", "unl", sub("i_d", "id", snaked))
 
 
 def _value_to_json(value: str) -> str:
@@ -120,6 +120,15 @@ class BaseModel(ABC):
             # param_type is Any
             return param_value
 
+        if param_type.__module__ != "typing":
+            # Should be in `typing` if it reaches here
+            # If the type is a builtin type here, it means there was a mismatch
+            # somewhere above
+            raise XRPLModelException(
+                f"{param} expected a {param_type.__name__}, received a "
+                f"{type(param_value).__name__}"
+            )
+
         if param_type.__reduce__()[1][0] == List:
             # param_type is a List
             if not isinstance(param_value, List):
@@ -154,7 +163,7 @@ class BaseModel(ABC):
     def _get_only_init_args(
         cls: Type[BaseModel], args: Dict[str, Any]
     ) -> Dict[str, Any]:
-        init_keys = {field.name for field in fields(cls)}
+        init_keys = {field.name for field in fields(cls) if field.init is True}
         valid_args = {key: value for key, value in args.items() if key in init_keys}
         return valid_args
 
@@ -227,10 +236,12 @@ class BaseModel(ABC):
         Returns:
             The dictionary representation of a BaseModel.
         """
+        # mypy doesn't realize that BaseModel has a field called __dataclass_fields__
+        dataclass_fields = self.__dataclass_fields__.keys()  # type: ignore
         return {
-            key: self._to_dict_elem(value)
-            for key, value in self.__dict__.items()
-            if value is not None
+            key: self._to_dict_elem(getattr(self, key))
+            for key in dataclass_fields
+            if getattr(self, key) is not None
         }
 
     def _to_dict_elem(self: BaseModel, elem: Any) -> Any:

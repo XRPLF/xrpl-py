@@ -5,8 +5,3 @@ XRPL Global Variables
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. automodule:: xrpl
-   :members:
-   :undoc-members:
-   :show-inheritance:

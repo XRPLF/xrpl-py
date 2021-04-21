@@ -5,6 +5,7 @@ from xrpl.wallet import generate_faucet_wallet
 
 WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
 DESTINATION = generate_faucet_wallet(JSON_RPC_CLIENT)
+
 OFFER = sign_and_reliable_submission(
     OfferCreate(
         account=WALLET.classic_address,
@@ -19,6 +20,7 @@ OFFER = sign_and_reliable_submission(
     WALLET,
 )
 WALLET.sequence += 1
+
 PAYMENT_CHANNEL = sign_and_reliable_submission(
     PaymentChannelCreate(
         account=WALLET.classic_address,

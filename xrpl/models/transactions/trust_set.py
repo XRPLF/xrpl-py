@@ -10,7 +10,8 @@ from typing import Optional
 
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Transaction, TransactionType
+from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 

@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Union
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions import PaymentFlag
-from xrpl.models.transactions.transaction import TransactionType
+from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 

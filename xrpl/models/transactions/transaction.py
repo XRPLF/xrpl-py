@@ -1,37 +1,54 @@
 """The base model for all transactions and their nested object types."""
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
-from enum import Enum
-from typing import Any, Dict, List, Optional, Type, cast
+from hashlib import sha512
+from typing import Any, Dict, List, Optional, Type, Union, cast
 
+from xrpl.core.binarycodec import encode
+from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
+from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
+_TRANSACTION_HASH_PREFIX = 0x54584E00
 
-class TransactionType(str, Enum):
-    """Enum containing the different Transaction types."""
 
-    ACCOUNT_DELETE = "AccountDelete"
-    ACCOUNT_SET = "AccountSet"
-    CHECK_CANCEL = "CheckCancel"
-    CHECK_CASH = "CheckCash"
-    CHECK_CREATE = "CheckCreate"
-    DEPOSIT_PREAUTH = "DepositPreauth"
-    ESCROW_CANCEL = "EscrowCancel"
-    ESCROW_CREATE = "EscrowCreate"
-    ESCROW_FINISH = "EscrowFinish"
-    OFFER_CANCEL = "OfferCancel"
-    OFFER_CREATE = "OfferCreate"
-    PAYMENT = "Payment"
-    PAYMENT_CHANNEL_CLAIM = "PaymentChannelClaim"
-    PAYMENT_CHANNEL_CREATE = "PaymentChannelCreate"
-    PAYMENT_CHANNEL_FUND = "PaymentChannelFund"
-    SET_REGULAR_KEY = "SetRegularKey"
-    SIGNER_LIST_SET = "SignerListSet"
-    TRUST_SET = "TrustSet"
+def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Returns a new dictionary in which the keys have been formatted as CamelCase and
+    standardized to be serialized by the binary codec.
+
+    Args:
+        dictionary: The dictionary to be reformatted.
+
+    Returns:
+        A new dictionary object that has been reformatted.
+    """
+    # This method should be made private when it is removed from `xrpl.transactions`
+    return {
+        _key_to_tx_json(key): _value_to_tx_json(value)
+        for (key, value) in dictionary.items()
+    }
+
+
+def _key_to_tx_json(key: str) -> str:
+    snaked = "".join([word.capitalize() for word in key.split("_")])
+    return re.sub(r"Unl", r"UNL", re.sub(r"Id", r"ID", snaked))
+
+
+def _value_to_tx_json(value: Any) -> Any:
+    # IssuedCurrencyAmount is a special case and should not be snake cased
+    if IssuedCurrencyAmount.is_dict_of_model(value):
+        return {key: _value_to_tx_json(sub_value) for (key, sub_value) in value.items()}
+    if isinstance(value, dict):
+        return transaction_json_to_binary_codec_form(value)
+    if isinstance(value, list):
+        return [_value_to_tx_json(sub_value) for sub_value in value]
+    return value
 
 
 @require_kwargs_on_init
@@ -148,7 +165,9 @@ class Transaction(BaseModel):
     #: This field is required.
     account: str = REQUIRED  # type: ignore
 
-    transaction_type: TransactionType = REQUIRED  # type: ignore
+    transaction_type: Union[
+        TransactionType, PseudoTransactionType
+    ] = REQUIRED  # type: ignore
 
     #: (Auto-fillable) The amount of XRP to destroy as a cost to send this
     #: transaction. See `Transaction Cost
@@ -168,10 +187,10 @@ class Transaction(BaseModel):
     #: details.
     account_txn_id: Optional[str] = None
 
-    #: A bitwise map of flags modifying this transaction's behavior. See `Flags
-    #: Field <https://xrpl.org/transaction-common-fields.html#flags-field>`_ for
-    #: more details.
-    flags: int = 0
+    #: A List of flags, or a bitwise map of flags, modifying this transaction's
+    #: behavior. See `Flags Field
+    #: <https://xrpl.org/transaction-common-fields.html#flags-field>`_ for more details.
+    flags: Union[int, List[int]] = 0
 
     #: The highest ledger index this transaction can appear in. Specifying this
     #: field places a strict upper limit on how long the transaction can wait
@@ -209,7 +228,29 @@ class Transaction(BaseModel):
         """
         # we need to override this because transaction_type is using ``field``
         # which will not include the value in the objects __dict__
-        return {**super().to_dict(), "transaction_type": self.transaction_type.value}
+        return {
+            **super().to_dict(),
+            "transaction_type": self.transaction_type.value,
+            "flags": self._flags_to_int(),
+        }
+
+    def _flags_to_int(self: Transaction) -> int:
+        if isinstance(self.flags, int):
+            return self.flags
+        accumulator = 0
+        for flag in self.flags:
+            accumulator |= flag
+        return accumulator
+
+    def to_xrpl(self: Transaction) -> Dict[str, Any]:
+        """
+        Creates a JSON-like dictionary in the JSON format used by the binary codec
+        based on the Transaction object.
+
+        Returns:
+            A JSON-like dictionary in the JSON format used by the binary codec.
+        """
+        return transaction_json_to_binary_codec_form(self.to_dict())
 
     @classmethod
     def from_dict(cls: Type[Transaction], value: Dict[str, Any]) -> Transaction:
@@ -225,8 +266,8 @@ class Transaction(BaseModel):
         Raises:
             XRPLModelException: If the dictionary provided is invalid.
         """
-        if cls.__name__ == "Transaction":
-            # using `Transaction.from_dict` and not a subclass
+        if cls.__name__ == "Transaction" or cls.__name__ == "PseudoTransaction":
+            # using `(Pseudo)Transaction.from_dict` and not a subclass
             if "transaction_type" not in value:
                 raise XRPLModelException(
                     "Transaction does not include transaction_type."
@@ -238,8 +279,8 @@ class Transaction(BaseModel):
                 if value["transaction_type"] != cls.__name__:
                     transaction_type = value["transaction_type"]
                     raise XRPLModelException(
-                        f"Using wrong constructor: using f{cls.__name__} constructor "
-                        f"with transaction type f{transaction_type}."
+                        f"Using wrong constructor: using {cls.__name__} constructor "
+                        f"with transaction type {transaction_type}."
                     )
                 value = {**value}
                 del value["transaction_type"]
@@ -256,7 +297,29 @@ class Transaction(BaseModel):
         Returns:
             Whether the transaction has the given flag value set.
         """
-        return self.flags & flag != 0
+        if isinstance(self.flags, int):
+            return self.flags & flag != 0
+        else:  # is List[int]
+            return flag in self.flags
+
+    def get_hash(self: Transaction) -> str:
+        """
+        Hashes the Transaction object as the ledger does. Only valid for signed
+        Transaction objects.
+
+        Returns:
+            The hash of the Transaction object.
+
+        Raises:
+            XRPLModelException: if the Transaction is unsigned.
+        """
+        if self.txn_signature is None:
+            raise XRPLModelException(
+                "Cannot get the hash from an unsigned Transaction."
+            )
+        prefix = hex(_TRANSACTION_HASH_PREFIX)[2:].upper()
+        encoded_str = bytes.fromhex(prefix + encode(self.to_xrpl()))
+        return sha512(encoded_str).digest().hex().upper()[:64]
 
     @classmethod
     def get_transaction_type(
@@ -275,12 +338,20 @@ class Transaction(BaseModel):
             XRPLModelException: If `transaction_type` is not a valid Transaction type.
         """
         import xrpl.models.transactions as transaction_models
+        import xrpl.models.transactions.pseudo_transactions as pseudo_transaction_models
 
         transaction_types: Dict[str, Type[Transaction]] = {
             t.value: getattr(transaction_models, t)
-            for t in transaction_models.transaction.TransactionType
+            for t in transaction_models.types.TransactionType
         }
         if transaction_type in transaction_types:
             return transaction_types[transaction_type]
+
+        pseudo_transaction_types: Dict[str, Type[Transaction]] = {
+            t.value: getattr(pseudo_transaction_models, t)
+            for t in transaction_models.types.PseudoTransactionType
+        }
+        if transaction_type in pseudo_transaction_types:
+            return pseudo_transaction_types[transaction_type]
 
         raise XRPLModelException(f"{transaction_type} is not a valid Transaction type")

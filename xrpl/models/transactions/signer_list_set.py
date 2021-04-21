@@ -6,7 +6,8 @@ from typing import Any, Dict, List, Optional, Type, cast
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Transaction, TransactionType
+from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 
