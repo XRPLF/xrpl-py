@@ -47,9 +47,6 @@ def safe_sign_and_submit_transaction(
     Returns:
         The response from the ledger.
     """
-    # if check_fee:
-    #     _check_fee(transaction, client)
-
     if autofill:
         transaction = safe_sign_and_autofill_transaction(
             transaction, wallet, client, check_fee
