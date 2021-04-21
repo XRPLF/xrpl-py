@@ -5,8 +5,9 @@ from tests.integration.reusable_values import DESTINATION as DESTINATION_WALLET
 from tests.integration.reusable_values import WALLET
 from xrpl.account import get_next_valid_seq_number
 from xrpl.clients import XRPLRequestFailureException
+from xrpl.ledger import get_fee
 from xrpl.models.exceptions import XRPLException
-from xrpl.models.transactions import AccountDelete, AccountSet, Payment
+from xrpl.models.transactions import AccountDelete, AccountSet, EscrowFinish, Payment
 from xrpl.transaction import (
     XRPLReliableSubmissionException,
     get_transaction_from_hash,
@@ -14,6 +15,7 @@ from xrpl.transaction import (
     safe_sign_transaction,
     send_reliable_submission,
 )
+from xrpl.transaction.main import _calculate_fee_per_transaction_type
 
 ACCOUNT = WALLET.classic_address
 DESTINATION = DESTINATION_WALLET.classic_address
@@ -25,8 +27,14 @@ MESSAGE_KEY = "03AB40A0490F9B7ED8DF29D246BF2D6269820A0EE7742ACDD457BEA7C7D0931ED
 SET_FLAG = 8
 TRANSFER_RATE = 0
 TICK_SIZE = 10
-FEE = "5000000"
+FEE = "6000000"
 DESTINATION_TAG = 3
+OFFER_SEQUENCE = 7
+CONDITION = (
+    "A0258020E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855810100"
+)
+FULFILLMENT = "A0028000"
+OWNER = "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
 
 
 class TestTransaction(TestCase):
@@ -44,6 +52,7 @@ class TestTransaction(TestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["fee"], get_fee(JSON_RPC_CLIENT))
         WALLET.sequence += 1
 
     def test_reliable_submission_payment(self):
@@ -51,7 +60,7 @@ class TestTransaction(TestCase):
         payment_dict = {
             "account": ACCOUNT,
             "sequence": WALLET.sequence,
-            "fee": "10000",
+            "fee": "10",
             "amount": "10",
             "destination": DESTINATION,
         }
@@ -63,6 +72,7 @@ class TestTransaction(TestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["fee"], get_fee(JSON_RPC_CLIENT))
         WALLET.sequence += 1
 
     def test_reliable_submission_last_ledger_expiration(self):
@@ -71,7 +81,7 @@ class TestTransaction(TestCase):
             "account": ACCOUNT,
             "sequence": WALLET.sequence,
             "last_ledger_sequence": WALLET.sequence + 1,
-            "fee": "10000",
+            "fee": "10",
             "amount": "100",
             "destination": DESTINATION,
         }
@@ -187,7 +197,7 @@ class TestTransaction(TestCase):
             # GIVEN a new AccountDelete transaction
             account_delete = AccountDelete(
                 account=ACCOUNT,
-                # WITH fee higher than 2 XRP
+                # WITH fee higher than 5 XRP
                 fee=FEE,
                 sequence=WALLET.sequence,
                 destination=DESTINATION,
@@ -212,3 +222,72 @@ class TestTransaction(TestCase):
         # We expect an XRPLException to be raised
         with self.assertRaises(XRPLException):
             submit_transaction(account_set, WALLET)
+
+    def test_payment_high_fee_authorized(self):
+        # GIVEN a new Payment transaction
+        response = submit_transaction(
+            Payment(
+                account=WALLET.classic_address,
+                sequence=WALLET.sequence,
+                amount="1",
+                # WITH the fee higher than 2 XRP
+                fee=FEE,
+                destination=DESTINATION,
+            ),
+            WALLET,
+            # WITHOUT checking the fee value
+            check_fee=False,
+        )
+        # THEN we expect the transaction to be successful
+        self.assertTrue(response.is_successful())
+        WALLET.sequence += 1
+
+    def test_calculate_account_delete_fee(self):
+        # GIVEN a new AccountDelete transaction
+        account_delete = AccountDelete(
+            account=ACCOUNT,
+            fee=FEE,
+            sequence=WALLET.sequence,
+            destination=DESTINATION,
+            destination_tag=DESTINATION_TAG,
+        )
+        # We expect the calculated fee to be 5000000 drops (5 XRP)
+        self.assertEqual(
+            _calculate_fee_per_transaction_type(account_delete, JSON_RPC_CLIENT),
+            "5000000",
+        )
+
+    def test_calculate_escrow_finish_fee(self):
+        # GIVEN a new EscrowFinish transaction
+        escrow_finish = EscrowFinish(
+            account=ACCOUNT,
+            sequence=WALLET.sequence,
+            owner=OWNER,
+            offer_sequence=OFFER_SEQUENCE,
+            condition=CONDITION,
+            fulfillment=FULFILLMENT,
+        )
+
+        # Expected fee calculation is:
+        # 10 drops × (33 + (Fulfillment size in bytes ÷ 16))
+        net_fee = int(get_fee(JSON_RPC_CLIENT))
+        fulfillment_in_bytes = FULFILLMENT.encode("ascii")
+        expected_fee = net_fee * (33 + len(fulfillment_in_bytes) / 16)
+
+        self.assertEqual(
+            float(_calculate_fee_per_transaction_type(escrow_finish, JSON_RPC_CLIENT)),
+            float(expected_fee),
+        )
+
+    def test_calculate_payment_fee(self):
+        # GIVEN a Payment transaction
+        payment = Payment(
+            account=WALLET.classic_address, amount="100", destination=DESTINATION
+        )
+
+        net_fee = get_fee(JSON_RPC_CLIENT)
+        # We expect the fee to be the default network fee (usually 10 drops)
+        self.assertEqual(
+            float(_calculate_fee_per_transaction_type(payment, JSON_RPC_CLIENT)),
+            float(net_fee),
+        )

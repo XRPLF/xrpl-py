@@ -1,5 +1,6 @@
 """High-level transaction methods with XRPL transactions."""
-from typing import Any, Dict, cast
+import math
+from typing import Any, Dict, Optional, cast
 
 from typing_extensions import Final
 
@@ -12,15 +13,16 @@ from xrpl.core.keypairs.main import sign
 from xrpl.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.models.requests import SubmitOnly
 from xrpl.models.response import Response
+from xrpl.models.transactions.escrow_finish import EscrowFinish
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )
+from xrpl.models.transactions.types.transaction_type import TransactionType
 from xrpl.utils import drops_to_xrp
 from xrpl.wallet.main import Wallet
 
 _LEDGER_OFFSET: Final[int] = 20
-_MAX_FEE: str = "2000000"  # Default maximum fee per Transaction
 
 
 def safe_sign_and_submit_transaction(
@@ -39,11 +41,15 @@ def safe_sign_and_submit_transaction(
         wallet: the wallet with which to sign the transaction.
         client: the network client with which to submit the transaction.
         autofill: whether to autofill the relevant fields. Defaults to True.
-        check_fee: whether to check if the fee is higher than 2 XRP. Defaults to True.
+        check_fee: whether to check if the fee is higher than the expected transaction
+            type fee. Defaults to True.
 
     Returns:
         The response from the ledger.
     """
+    # if check_fee:
+    #     _check_fee(transaction, client)
+
     if autofill:
         transaction = safe_sign_and_autofill_transaction(
             transaction, wallet, client, check_fee
@@ -54,7 +60,9 @@ def safe_sign_and_submit_transaction(
 
 
 def safe_sign_transaction(
-    transaction: Transaction, wallet: Wallet, check_fee: bool = True
+    transaction: Transaction,
+    wallet: Wallet,
+    check_fee: bool = True,
 ) -> Transaction:
     """
     Signs a transaction locally, without trusting external rippled nodes.
@@ -62,7 +70,8 @@ def safe_sign_transaction(
     Args:
         transaction: the transaction to be signed.
         wallet: the wallet with which to sign the transaction.
-        check_fee: whether to check the fee is higher than 2 XRP. Defaults to True.
+        check_fee: whether to check if the fee is higher than the expected transaction
+            type fee. Defaults to True.
 
     Returns:
         The signed transaction blob.
@@ -78,7 +87,10 @@ def safe_sign_transaction(
 
 
 def safe_sign_and_autofill_transaction(
-    transaction: Transaction, wallet: Wallet, client: Client, check_fee: bool = True
+    transaction: Transaction,
+    wallet: Wallet,
+    client: Client,
+    check_fee: bool = True,
 ) -> Transaction:
     """
     Signs a transaction locally, without trusting external rippled nodes. Autofills
@@ -88,13 +100,20 @@ def safe_sign_and_autofill_transaction(
         transaction: the transaction to be signed.
         wallet: the wallet with which to sign the transaction.
         client: a network client.
-        check_fee: whether to check the fee is higher than 2 XRP. Defaults to True.
+        check_fee: whether to check if the fee is higher than the expected transaction
+            type fee. Defaults to True.
 
     Returns:
         The signed transaction.
     """
+    # We do the transaction fee check here as we have the Client available.
+    # The fee check will be done if transaction.fee exists. Otherwise the fee
+    # will be auto-filled in _autofill_transaction()
+    if check_fee:
+        _check_fee(transaction, client)
+
     return safe_sign_transaction(
-        _autofill_transaction(transaction, client), wallet, check_fee
+        _autofill_transaction(transaction, client), wallet, False
     )
 
 
@@ -169,7 +188,9 @@ def _autofill_transaction(transaction: Transaction, client: Client) -> Transacti
         sequence = get_next_valid_seq_number(transaction_json["account"], client)
         transaction_json["sequence"] = sequence
     if "fee" not in transaction_json:
-        transaction_json["fee"] = get_fee(client)
+        transaction_json["fee"] = _calculate_fee_per_transaction_type(
+            transaction, client
+        )
     if "last_ledger_sequence" not in transaction_json:
         ledger_sequence = get_latest_validated_ledger_sequence(client)
         transaction_json["last_ledger_sequence"] = ledger_sequence + _LEDGER_OFFSET
@@ -214,14 +235,65 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
     return model_transaction_to_binary_codec(dictionary)
 
 
-def _check_fee(transaction: Transaction) -> None:
-    """Checks the Transaction fee"""
-    # Checks that no Transaction can have fee higher than 2 XRP
-    if transaction.fee is not None and int(transaction.fee) > int(_MAX_FEE):
+def _check_fee(transaction: Transaction, client: Optional[Client] = None) -> None:
+    """Checks if the Transaction fee is lower than the expected Transaction type fee"""
+    # Calculate the expected fee from the network load and transaction type
+    expected_fee = _calculate_fee_per_transaction_type(transaction, client)
+
+    if transaction.fee and int(transaction.fee) > int(expected_fee):
         raise XRPLException(
             "Fee value: "
             + str(drops_to_xrp(transaction.fee))
-            + " XRP exceeds the default "
-            + str(drops_to_xrp(_MAX_FEE))
-            + " maximum XRP fee limit."
+            + " XRP exceeds the "
+            + str(drops_to_xrp(expected_fee))
+            + " maximum XRP fee limit for "
+            + transaction.transaction_type
+            + " transaction"
         )
+
+
+def _calculate_fee_per_transaction_type(
+    transaction: Transaction, client: Optional[Client] = None
+) -> str:
+    """
+    Calculate the total fee in drops for a transaction based on:
+    - the network fee
+    - the transaction condition
+
+    https://xrpl.org/transaction-cost.html#special-transaction-costs
+
+    Args:
+        transaction: the Transaction to be submitted.
+        client: the network client with which to submit the transaction.
+
+    Returns:
+        The expected Transaction fee in drops
+    """
+    # Reference Transaction (Most transactions)
+    if not client:
+        net_fee = 10  # 10 drops
+    else:
+        net_fee = int(get_fee(client))  # Usually 0.00001 XRP (10 drops)
+
+    base_fee = net_fee
+
+    # EscrowFinish Transaction with Fulfillment
+    # https://xrpl.org/escrowfinish.html#escrowfinish-fields
+    if transaction.transaction_type == TransactionType.ESCROW_FINISH:
+        escrow_finish = cast(EscrowFinish, transaction)
+        if escrow_finish.fulfillment:
+            fulfillment_bytes = escrow_finish.fulfillment.encode("ascii")
+            # 10 drops × (33 + (Fulfillment size in bytes / 16))
+            base_fee = math.ceil(net_fee * (33 + (len(fulfillment_bytes) / 16)))
+
+    # AccountDelete Transaction
+    if transaction.transaction_type == TransactionType.ACCOUNT_DELETE:
+        base_fee = 5000000
+
+    # Multi-signed Transaction
+    # 10 drops × (1 + Number of Signatures Provided)
+    if transaction.signers and len(transaction.signers) > 0:
+        base_fee = net_fee * (1 + len(transaction.signers)) + base_fee
+
+    # Round Up base_fee and return it as a String
+    return str(math.ceil(base_fee))
