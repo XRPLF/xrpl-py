@@ -3,11 +3,13 @@ from xrpl.clients.client import Client
 from xrpl.clients.exceptions import XRPLRequestFailureException
 from xrpl.clients.json_rpc_client import JsonRpcClient
 from xrpl.clients.utils import json_to_response, request_to_json_rpc
+from xrpl.clients.websocket_client import WebsocketClient
 
 __all__ = [
     "JsonRpcClient",
     "json_to_response",
     "Client",
     "request_to_json_rpc",
+    "WebsocketClient",
     "XRPLRequestFailureException",
 ]
