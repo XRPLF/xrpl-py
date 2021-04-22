@@ -23,6 +23,7 @@ from xrpl.utils import drops_to_xrp
 from xrpl.wallet.main import Wallet
 
 _LEDGER_OFFSET: Final[int] = 20
+_ACCOUNT_DELETE_FEE: Final[int] = 5000000
 
 
 def safe_sign_and_submit_transaction(
@@ -267,7 +268,7 @@ def _calculate_fee_per_transaction_type(
         The expected Transaction fee in drops
     """
     # Reference Transaction (Most transactions)
-    if not client:
+    if client is None:
         net_fee = 10  # 10 drops
     else:
         net_fee = int(get_fee(client))  # Usually 0.00001 XRP (10 drops)
@@ -278,14 +279,14 @@ def _calculate_fee_per_transaction_type(
     # https://xrpl.org/escrowfinish.html#escrowfinish-fields
     if transaction.transaction_type == TransactionType.ESCROW_FINISH:
         escrow_finish = cast(EscrowFinish, transaction)
-        if escrow_finish.fulfillment:
+        if escrow_finish.fulfillment is not None:
             fulfillment_bytes = escrow_finish.fulfillment.encode("ascii")
             # 10 drops × (33 + (Fulfillment size in bytes / 16))
             base_fee = math.ceil(net_fee * (33 + (len(fulfillment_bytes) / 16)))
 
     # AccountDelete Transaction
     if transaction.transaction_type == TransactionType.ACCOUNT_DELETE:
-        base_fee = 5000000
+        base_fee = _ACCOUNT_DELETE_FEE
 
     # Multi-signed Transaction
     # 10 drops × (1 + Number of Signatures Provided)

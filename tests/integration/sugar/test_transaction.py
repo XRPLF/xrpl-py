@@ -15,7 +15,6 @@ from xrpl.transaction import (
     safe_sign_transaction,
     send_reliable_submission,
 )
-from xrpl.transaction.main import _calculate_fee_per_transaction_type
 
 ACCOUNT = WALLET.classic_address
 DESTINATION = DESTINATION_WALLET.classic_address
@@ -52,7 +51,7 @@ class TestTransaction(TestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["fee"], get_fee(JSON_RPC_CLIENT))
+        self.assertEqual(response.result["Fee"], get_fee(JSON_RPC_CLIENT))
         WALLET.sequence += 1
 
     def test_reliable_submission_payment(self):
@@ -60,7 +59,6 @@ class TestTransaction(TestCase):
         payment_dict = {
             "account": ACCOUNT,
             "sequence": WALLET.sequence,
-            "fee": "10",
             "amount": "10",
             "destination": DESTINATION,
         }
@@ -72,7 +70,7 @@ class TestTransaction(TestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["fee"], get_fee(JSON_RPC_CLIENT))
+        self.assertEqual(response.result["Fee"], get_fee(JSON_RPC_CLIENT))
         WALLET.sequence += 1
 
     def test_reliable_submission_last_ledger_expiration(self):
@@ -246,16 +244,19 @@ class TestTransaction(TestCase):
         # GIVEN a new AccountDelete transaction
         account_delete = AccountDelete(
             account=ACCOUNT,
-            fee=FEE,
             sequence=WALLET.sequence,
             destination=DESTINATION,
             destination_tag=DESTINATION_TAG,
         )
-        # We expect the calculated fee to be 5000000 drops (5 XRP)
-        self.assertEqual(
-            _calculate_fee_per_transaction_type(account_delete, JSON_RPC_CLIENT),
-            "5000000",
+
+        # AFTER autofilling the transaction fee
+        account_delete_signed = safe_sign_and_autofill_transaction(
+            account_delete, WALLET, JSON_RPC_CLIENT
         )
+
+        # THEN we expect the calculated fee to be 5000000 drops (5 XRP)
+        expected_fee = "5000000"
+        self.assertEqual(account_delete_signed.fee, expected_fee)
 
     def test_calculate_escrow_finish_fee(self):
         # GIVEN a new EscrowFinish transaction
@@ -268,26 +269,31 @@ class TestTransaction(TestCase):
             fulfillment=FULFILLMENT,
         )
 
-        # Expected fee calculation is:
+        # AFTER autofilling the transaction fee
+        escrow_finish_signed = safe_sign_and_autofill_transaction(
+            escrow_finish, WALLET, JSON_RPC_CLIENT
+        )
+
+        # AND calculating the expected fee with the formula
         # 10 drops × (33 + (Fulfillment size in bytes ÷ 16))
         net_fee = int(get_fee(JSON_RPC_CLIENT))
         fulfillment_in_bytes = FULFILLMENT.encode("ascii")
         expected_fee = net_fee * (33 + len(fulfillment_in_bytes) / 16)
 
-        self.assertEqual(
-            float(_calculate_fee_per_transaction_type(escrow_finish, JSON_RPC_CLIENT)),
-            float(expected_fee),
-        )
+        # THEN we expect the fee to be the calculation result above
+        self.assertEqual(float(escrow_finish_signed.fee), float(expected_fee))
 
     def test_calculate_payment_fee(self):
-        # GIVEN a Payment transaction
+        # GIVEN a new Payment transaction
         payment = Payment(
             account=WALLET.classic_address, amount="100", destination=DESTINATION
         )
 
-        net_fee = get_fee(JSON_RPC_CLIENT)
-        # We expect the fee to be the default network fee (usually 10 drops)
-        self.assertEqual(
-            float(_calculate_fee_per_transaction_type(payment, JSON_RPC_CLIENT)),
-            float(net_fee),
+        # AFTER autofilling the transaction fee
+        payment_signed = safe_sign_and_autofill_transaction(
+            payment, WALLET, JSON_RPC_CLIENT
         )
+
+        # THEN We expect the fee to be the default network fee (usually 10 drops)
+        expected_fee = get_fee(JSON_RPC_CLIENT)
+        self.assertEqual(payment_signed.fee, expected_fee)

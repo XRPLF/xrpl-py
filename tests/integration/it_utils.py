@@ -21,11 +21,9 @@ def submit_transaction(
     check_fee: bool = True,
 ) -> Response:
     """Signs and submits a transaction to the XRPL."""
-    if check_fee is False:
-        return safe_sign_and_submit_transaction(
-            transaction, wallet, client, True, check_fee
-        )
-    return safe_sign_and_submit_transaction(transaction, wallet, client)
+    return safe_sign_and_submit_transaction(
+        transaction, wallet, client, check_fee=check_fee
+    )
 
 
 def sign_and_reliable_submission(
