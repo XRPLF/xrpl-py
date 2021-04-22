@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pseudo-transaction models.
 - Instance method in `Transaction` objects to calculate their hashes locally
 - Option for `Transaction.flags` to be a `List` of `int`s instead of just an `int`
+- Optional parameters for `get_transaction_from_hash`: `binary`, `min_ledger` and `max_ledger`
+- Enum for `PaymentChannelClaim` flags
 - Async version of reliable submission
 
 ## [1.0.0] - 2021-03-31
