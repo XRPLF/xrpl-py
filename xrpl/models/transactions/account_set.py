@@ -7,7 +7,8 @@ from typing import Dict, Optional
 
 from typing_extensions import Final
 
-from xrpl.models.transactions.transaction import Transaction, TransactionType
+from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 _MAX_TRANSFER_RATE: Final[int] = 2000000000
