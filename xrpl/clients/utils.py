@@ -79,6 +79,7 @@ def websocket_to_response(response_dict: Dict[str, Any]) -> Response:
     """
     result = response_dict["result"]
     raw_status = response_dict["status"]
+    request_id = response_dict["id"]
     if raw_status == "success":
         status = ResponseStatus.SUCCESS
     else:
@@ -87,4 +88,4 @@ def websocket_to_response(response_dict: Dict[str, Any]) -> Response:
     #  differentiate based on that?
     # TODO: should we pull fields "status" OUT of result dict?
     response_type = ResponseType.RESPONSE
-    return Response(status=status, result=result, type=response_type)
+    return Response(status=status, result=result, id=request_id, type=response_type)
