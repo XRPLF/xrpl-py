@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Method to the `Wallet` class that generates the X-Address for the wallet's account
 - Improved readability of the README/documentation
 - Async versions of all high-level functionality within the `asyncio` package
+- WebSocket client
 
 ### Fixed
 - Typos in docs/tests
