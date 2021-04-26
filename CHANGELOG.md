@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional parameters for `get_transaction_from_hash`: `binary`, `min_ledger` and `max_ledger`
 - Enum for `PaymentChannelClaim` flags
 - Async version of reliable submission
+- WebSocket client
 
 ## [1.0.0] - 2021-03-31
 ### Added
