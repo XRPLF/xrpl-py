@@ -15,11 +15,11 @@ def sha512_first_half(message: bytes) -> bytes:
     return hashlib.sha512(message).digest()[:32]
 
 
-def get_classic_address(public_key: bytes) -> bytes:
+def get_account_id(public_key: bytes) -> bytes:
     """
-    Returns the classic address for a given public key. See
+    Returns the account ID for a given public key. See
     https://xrpl.org/cryptographic-keys.html#account-id-and-address
-    to learn about the relationship between keys and classic addresses.
+    to learn about the relationship between keys and account IDs.
 
     Args:
         public_key: Unencoded public key.
