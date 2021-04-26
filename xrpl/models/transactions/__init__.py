@@ -15,7 +15,10 @@ from xrpl.models.transactions.escrow_finish import EscrowFinish
 from xrpl.models.transactions.offer_cancel import OfferCancel
 from xrpl.models.transactions.offer_create import OfferCreate, OfferCreateFlag
 from xrpl.models.transactions.payment import Payment, PaymentFlag
-from xrpl.models.transactions.payment_channel_claim import PaymentChannelClaim
+from xrpl.models.transactions.payment_channel_claim import (
+    PaymentChannelClaim,
+    PaymentChannelClaimFlag,
+)
 from xrpl.models.transactions.payment_channel_create import PaymentChannelCreate
 from xrpl.models.transactions.payment_channel_fund import PaymentChannelFund
 from xrpl.models.transactions.set_regular_key import SetRegularKey
@@ -41,6 +44,7 @@ __all__ = [
     "Payment",
     "PaymentFlag",
     "PaymentChannelClaim",
+    "PaymentChannelClaimFlag",
     "PaymentChannelCreate",
     "PaymentChannelFund",
     "SetRegularKey",

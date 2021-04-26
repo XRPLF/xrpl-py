@@ -1,11 +1,39 @@
 """Model for PaymentChannelClaim transaction type."""
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Optional
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
+
+
+class PaymentChannelClaimFlag(int, Enum):
+    """
+    Transactions of the PaymentChannelClaim type support additional values in the Flags
+    field. This enum represents those options.
+
+    `See PaymentChannelClaim Flags
+    <https://xrpl.org/paymentchannelclaim.html#paymentchannelclaim-flags>`_
+    """
+
+    #: Clear the channel's `Expiration` time. (`Expiration` is different from the
+    #: channel's immutable `CancelAfter` time.) Only the source address of the payment
+    #: channel can use this flag.
+    TF_RENEW = 0x00010000
+
+    #: Request to close the channel. Only the channel source and destination addresses
+    #: can use this flag. This flag closes the channel immediately if it has no more
+    #: XRP allocated to it after processing the current claim, or if the destination
+    #: address uses it. If the source address uses this flag when the channel still
+    #: holds XRP, this schedules the channel to close after `SettleDelay` seconds have
+    #: passed. (Specifically, this sets the `Expiration` of the channel to the close
+    #: time of the previous ledger plus the channel's `SettleDelay` time, unless the
+    #: channel already has an earlier `Expiration` time.) If the destination address
+    #: uses this flag when the channel still holds XRP, any XRP that remains after
+    #: processing the claim is returned to the source address.
+    TF_CLOSE = 0x00020000
 
 
 @require_kwargs_on_init
