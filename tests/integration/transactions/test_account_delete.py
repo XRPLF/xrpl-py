@@ -38,3 +38,15 @@ class TestAccountDelete(TestCase):
         # Sequence number that is too high. The current ledger index must be at least
         # 256 higher than the account's sequence number."
         # self.assertEqual(response.result['engine_result'], 'tesSUCCESS')
+
+    def test_all_fields_websocket(self):
+        account_delete = AccountDelete(
+            account=ACCOUNT,
+            fee=FEE,
+            sequence=WALLET.sequence,
+            destination=DESTINATION.classic_address,
+            destination_tag=DESTINATION_TAG,
+        )
+        response = submit_transaction(account_delete, WALLET, False)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        WALLET.sequence += 1
