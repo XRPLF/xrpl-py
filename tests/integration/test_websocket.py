@@ -1,28 +1,23 @@
-import asyncio
 from unittest import TestCase
 
-from tests.integration.it_utils import WEBSOCKET_CLIENT
+from tests.integration.it_utils import JSON_RPC_CLIENT, WEBSOCKET_CLIENT, WEBSOCKET_URL
+from xrpl.clients import WebsocketClient
 from xrpl.ledger import get_fee
+from xrpl.models.requests import StreamParameter, Subscribe
 
 
 class TestWebsocket(TestCase):
     def test_get_fee(self):
-        print(get_fee(WEBSOCKET_CLIENT))
+        self.assertEqual(get_fee(WEBSOCKET_CLIENT), get_fee(JSON_RPC_CLIENT))
 
     def test_connection(self):
-        async def test():
-            def handler(message: str) -> None:
-                print(type(message))
-                print(message)
+        websocket = WebsocketClient(WEBSOCKET_URL)
+        id_val = "stream_test"
 
-            handler = asyncio.create_task(WEBSOCKET_CLIENT.handle_async(handler))
-            send = asyncio.create_task(WEBSOCKET_CLIENT.send("message"))
+        def handler(response):
+            self.assertEqual(response.status, "success")
+            self.assertEqual(response.id, id_val)
+            websocket.close()
 
-            print("starting")
-            await handler
-            print("set up")
-            await send
-            print("sent?")
-            WEBSOCKET_CLIENT.close()
-
-        asyncio.get_event_loop().run_until_complete(test())
+        subscribe = Subscribe(id=id_val, streams=[StreamParameter.LEDGER])
+        websocket.listen(subscribe, handler)

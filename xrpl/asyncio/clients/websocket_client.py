@@ -85,13 +85,15 @@ class WebsocketClient(Client):
 
         async with websockets.connect(self.url) as websocket:
             await websocket.send(json.dumps(formatted_request))
-
-            async for message in websocket:
-                await websocket.send(json.dumps(formatted_request))
-                response = await websocket.recv()
-                response_dict = json.loads(response)
-                assert response_dict["id"] == formatted_request["id"]
-                handler(websocket_to_response(response_dict))
+            try:
+                async for message in websocket:
+                    await websocket.send(json.dumps(formatted_request))
+                    response = await websocket.recv()
+                    response_dict = json.loads(response)
+                    assert response_dict["id"] == formatted_request["id"]
+                    handler(websocket_to_response(response_dict))
+            except asyncio.exceptions.CancelledError:
+                return
 
     def listen(
         self: WebsocketClient,
@@ -111,10 +113,9 @@ class WebsocketClient(Client):
         asyncio.get_event_loop().run_until_complete(
             self.listen_async(request_object, handler)
         )
-        asyncio.get_event_loop().run_forever()
+        # asyncio.get_event_loop().run_forever()
 
     def close(self: WebsocketClient) -> None:
         """Closes any open WebSocket connections."""
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(loop.shutdown_asyncgens())
-        loop.close()
+        for task in asyncio.all_tasks():
+            task.cancel()
