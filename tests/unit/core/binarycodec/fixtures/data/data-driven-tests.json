@@ -2884,21 +2884,6 @@
     {
       "test_json": {
         "currency": "USD",
-        "value": "100000000000000000000000000000000000000000000000000000000000000000000000000000",
-        "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji"
-      },
-      "significant_digits": 1,
-      "type_id": 6,
-      "is_native": false,
-      "mantissa": "00038D7EA4C68000",
-      "type": "Amount",
-      "expected_hex": "E7C38D7EA4C6800000000000000000000000000055534400000000000000000000000000000000000000000000000001",
-      "is_negative": false,
-      "exponent": 62
-    },
-    {
-      "test_json": {
-        "currency": "USD",
         "value": "1.111111111111111",
         "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji"
       },
