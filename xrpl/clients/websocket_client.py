@@ -12,8 +12,6 @@ from xrpl.clients.utils import request_to_websocket, websocket_to_response
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
 
-# from xrpl.models.response import Response
-
 
 class WebsocketClient(Client):
     """A client for interacting with the rippled WebSocket API."""
