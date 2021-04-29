@@ -3,14 +3,22 @@ from __future__ import annotations
 
 import asyncio
 import json
-from typing import Callable
+from typing import Any, Callable, Dict
 
 import websockets
 
 from xrpl.clients.client import Client
+from xrpl.clients.exceptions import XRPLWebsocketException
 from xrpl.clients.utils import request_to_websocket, websocket_to_response
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
+
+
+def _check_ids(request_dict: Dict[str, Any], response_dict: Dict[str, Any]) -> None:
+    if response_dict["id"] != response_dict["id"]:
+        raise XRPLWebsocketException(
+            "ID of the response does not match ID of the request"
+        )
 
 
 class WebsocketClient(Client):
@@ -44,7 +52,7 @@ class WebsocketClient(Client):
             await websocket.send(json.dumps(formatted_request))
             response = await websocket.recv()
             response_dict = json.loads(response)
-            assert response_dict["id"] == formatted_request["id"]
+            _check_ids(formatted_request, response_dict)
             return websocket_to_response(response_dict)
 
     def request(self: WebsocketClient, request_object: Request) -> Response:
@@ -88,7 +96,7 @@ class WebsocketClient(Client):
                     await websocket.send(json.dumps(formatted_request))
                     response = await websocket.recv()
                     response_dict = json.loads(response)
-                    assert response_dict["id"] == formatted_request["id"]
+                    _check_ids(formatted_request, response_dict)
                     handler(websocket_to_response(response_dict))
             except asyncio.exceptions.CancelledError:
                 return
@@ -111,7 +119,6 @@ class WebsocketClient(Client):
         asyncio.get_event_loop().run_until_complete(
             self.listen_async(request_object, handler)
         )
-        # asyncio.get_event_loop().run_forever()
 
     def close(self: WebsocketClient) -> None:
         """Closes any open WebSocket connections."""
