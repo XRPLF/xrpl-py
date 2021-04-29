@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import json
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Set
 
 import websockets
 
@@ -15,7 +15,7 @@ from xrpl.models.response import Response
 
 
 def _check_ids(request_dict: Dict[str, Any], response_dict: Dict[str, Any]) -> None:
-    if response_dict["id"] != response_dict["id"]:
+    if request_dict["id"] != response_dict["id"]:
         raise XRPLWebsocketException(
             "ID of the response does not match ID of the request"
         )
@@ -32,7 +32,7 @@ class WebsocketClient(Client):
             url: The URL of the rippled node to submit requests to.
         """
         self.url = url
-        self.websocket = None
+        self.websockets: Set[websockets.client.WebSocketClientProtocol] = set()
 
     async def request_async(self: WebsocketClient, request_object: Request) -> Response:
         """
@@ -44,13 +44,27 @@ class WebsocketClient(Client):
 
         Returns:
             The response from the server, as a Response object.
+
+        Raises:
+            XRPLWebsocketException: If the connection is closed before a response is
+                received.
         """
         formatted_request = request_to_websocket(request_object)
         if "id" not in formatted_request:
             formatted_request["id"] = "request_{}".format(formatted_request["command"])
         async with websockets.connect(self.url) as websocket:
-            await websocket.send(json.dumps(formatted_request))
-            response = await websocket.recv()
+            self.websockets.add(websocket)
+            try:
+                await websocket.send(json.dumps(formatted_request))
+                response = await websocket.recv()
+            except websockets.exceptions.ConnectionClosedOK:
+                raise XRPLWebsocketException(
+                    "Connection closed before a response was received."
+                )
+            finally:
+                if websocket in self.websockets:
+                    # could have been removed by self.close_async()
+                    self.websockets.remove(websocket)
             response_dict = json.loads(response)
             _check_ids(formatted_request, response_dict)
             return websocket_to_response(response_dict)
@@ -90,6 +104,7 @@ class WebsocketClient(Client):
             formatted_request["id"] = "request_{}".format(formatted_request["command"])
 
         async with websockets.connect(self.url) as websocket:
+            self.websockets.add(websocket)
             await websocket.send(json.dumps(formatted_request))
             try:
                 async for message in websocket:
@@ -98,8 +113,12 @@ class WebsocketClient(Client):
                     response_dict = json.loads(response)
                     _check_ids(formatted_request, response_dict)
                     handler(websocket_to_response(response_dict))
-            except asyncio.exceptions.CancelledError:
+            except websockets.exceptions.ConnectionClosedOK:
                 return
+            finally:
+                if websocket in self.websockets:
+                    # could have been removed by self.close_async()
+                    self.websockets.remove(websocket)
 
     def listen(
         self: WebsocketClient,
@@ -120,7 +139,12 @@ class WebsocketClient(Client):
             self.listen_async(request_object, handler)
         )
 
+    async def close_async(self: WebsocketClient) -> None:
+        """Closes any open WebSocket connections."""
+        while len(self.websockets) != 0:
+            websocket = self.websockets.pop()
+            await websocket.close()
+
     def close(self: WebsocketClient) -> None:
         """Closes any open WebSocket connections."""
-        for task in asyncio.all_tasks():
-            task.cancel()
+        asyncio.get_event_loop().create_task(self.close_async())
