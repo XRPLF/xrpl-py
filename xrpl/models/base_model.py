@@ -97,11 +97,16 @@ class BaseModel(ABC):
         cls: Type[BaseModel],
         param: str,
         param_type: Type[Any],
-        param_value: Dict[str, Any],
+        param_value: Union[int, str, bool, BaseModel, Enum, List[Any], Dict[str, Any]],
     ) -> Any:
         """Recursively handles each individual param in `from_dict`."""
         if type(param_value) == param_type:
             # the type of the param provided matches the type expected for the param
+            return param_value
+
+        if param_type.__module__ == "builtins" and isinstance(param_value, param_type):
+            # expecting a built-in type
+            # `param_value` is an object inherited from the type
             return param_value
 
         if "xrpl.models" in param_type.__module__:  # any model defined in xrpl.models
@@ -135,7 +140,7 @@ class BaseModel(ABC):
                 raise XRPLModelException(
                     f"{param} expected a List, received a {type(param_value)}"
                 )
-            list_type = param_type.__reduce__()[1][1]
+            list_type = cast(Type[Any], param_type.__reduce__()[1][1])
             new_list = []
             for item in param_value:
                 new_list.append(cls._from_dict_single_param(param, list_type, item))
