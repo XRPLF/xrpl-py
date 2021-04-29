@@ -140,11 +140,11 @@ class WebsocketClient(Client):
         )
 
     async def close_async(self: WebsocketClient) -> None:
-        """Closes any open WebSocket connections."""
+        """Asynchronously closes any open WebSocket connections."""
         while len(self.websockets) != 0:
             websocket = self.websockets.pop()
             await websocket.close()
 
     def close(self: WebsocketClient) -> None:
-        """Closes any open WebSocket connections."""
+        """Synchronously closes any open WebSocket connections."""
         asyncio.get_event_loop().create_task(self.close_async())
