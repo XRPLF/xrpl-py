@@ -18,11 +18,14 @@ WEBSOCKET_CLIENT = WebsocketClient(WEBSOCKET_URL)
 
 
 def submit_transaction(
-    transaction: Transaction, wallet: Wallet, use_json_client: bool = True
+    transaction: Transaction,
+    wallet: Wallet,
+    use_json_client: bool = True,
+    check_fee: bool = True,
 ) -> Response:
     """Signs and submits a transaction to the XRPL."""
     return safe_sign_and_submit_transaction(
-        transaction, wallet, _choose_client(use_json_client)
+        transaction, wallet, _choose_client(use_json_client), check_fee=check_fee
     )
 
 

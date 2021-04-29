@@ -4,7 +4,7 @@ See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
 """
 from __future__ import annotations
 
-from decimal import Context, Decimal, setcontext
+from decimal import MAX_PREC, Context, Decimal, setcontext
 from typing import Any, Dict, Optional, Type, Union
 
 from typing_extensions import Final
@@ -110,9 +110,14 @@ def verify_iou_value(issued_currency_value: str) -> None:
 
 def _calculate_precision(value: str) -> int:
     """Calculate the precision of given value as a string."""
-    no_decimal_point = value.replace(".", "")
-    no_leading_or_trailing_zeros = no_decimal_point.strip("0")
-    return len(no_leading_or_trailing_zeros)
+    decimal_value = Decimal(value, Context(prec=MAX_PREC))
+    if decimal_value == decimal_value.to_integral():
+        return len(
+            decimal_value.quantize(Decimal(1), context=Context(prec=MAX_PREC))
+            .as_tuple()
+            .digits
+        )
+    return len(decimal_value.normalize(Context()).as_tuple().digits)
 
 
 def _verify_no_decimal(decimal: Decimal) -> None:

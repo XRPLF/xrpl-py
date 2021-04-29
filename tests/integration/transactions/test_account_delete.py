@@ -25,7 +25,7 @@ class TestAccountDelete(TestCase):
             destination=DESTINATION.classic_address,
             destination_tag=DESTINATION_TAG,
         )
-        response = submit_transaction(account_delete, WALLET)
+        response = submit_transaction(account_delete, WALLET, check_fee=False)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         WALLET.sequence += 1
 

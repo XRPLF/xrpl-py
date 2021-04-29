@@ -184,5 +184,49 @@
       "TransactionType": "Payment",
       "TxnSignature": "304502210091DCA7AF189CD9DC93BDE24DEAE87381FBF16789C43113EE312241D648982B2402201C6055FEFFF1F119640AAC0B32C4F37375B0A96033E0527A21C1366920D6A524"
     }
+  },
+  {
+    "rjson": {
+      "PreviousTxnLgrSeq": 239,
+      "LedgerEntryType": "RippleState",
+      "LowLimit": {
+        "currency": "USD",
+        "value": "0",
+        "issuer": "rnziParaNb8nsU4aruQdwYE3j5jUcqjzFm"
+      },
+      "PreviousTxnID": "C6A2521BBCCF13282C4FFEBC00D47BBA18C6CE5F5E4E0EFC3E3FCE364BAFC6B8",
+      "Flags": 131072,
+      "Balance": {
+        "currency": "USD",
+        "value": "0",
+        "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji"
+      },
+      "HighLimit": {
+        "currency": "USD",
+        "value": "10",
+        "issuer": "rMYBVwiY95QyUnCeuBQA1D47kXA9zuoBui"
+      }
+    },
+    "xjson": {
+      "PreviousTxnLgrSeq": 239,
+      "LedgerEntryType": "RippleState",
+      "LowLimit": {
+        "currency": "USD",
+        "value": "0",
+        "issuer": "X7jqKn4UidCF7AQ7Eeyfn3vJubztfhF1LwTD9PV2QhPpnvx"
+      },
+      "PreviousTxnID": "C6A2521BBCCF13282C4FFEBC00D47BBA18C6CE5F5E4E0EFC3E3FCE364BAFC6B8",
+      "Flags": 131072,
+      "Balance": {
+        "currency": "USD",
+        "value": "0",
+        "issuer": "X7TYFRtYHMcHtT2qNycMwgXzFbcRvdrhMLy5kJrYHpJDkc2"
+      },
+      "HighLimit": {
+        "currency": "USD",
+        "value": "10",
+        "issuer": "XVc7LPeF5cfwQ1XRmz6Ursck9i8yWpb1yqApvW4ZGuDNZbD"
+      }
+    }
   }]
 }
