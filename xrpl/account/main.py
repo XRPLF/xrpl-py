@@ -3,6 +3,7 @@
 from typing import Any, Dict, Union, cast
 
 from xrpl.clients import Client, XRPLRequestFailureException
+from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.models.requests import AccountInfo
 from xrpl.models.response import Response
 
@@ -89,6 +90,8 @@ def get_account_info(address: str, client: Client) -> Response:
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
     """
+    if is_valid_xaddress(address):
+        address, _, _ = xaddress_to_classic_address(address)
     response = client.request(
         AccountInfo(
             account=address,
