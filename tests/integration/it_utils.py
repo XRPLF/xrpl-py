@@ -15,10 +15,15 @@ JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
 
 
 def submit_transaction(
-    transaction: Transaction, wallet: Wallet, client: Client = JSON_RPC_CLIENT
+    transaction: Transaction,
+    wallet: Wallet,
+    client: Client = JSON_RPC_CLIENT,
+    check_fee: bool = True,
 ) -> Response:
     """Signs and submits a transaction to the XRPL."""
-    return safe_sign_and_submit_transaction(transaction, wallet, client)
+    return safe_sign_and_submit_transaction(
+        transaction, wallet, client, check_fee=check_fee
+    )
 
 
 def sign_and_reliable_submission(
