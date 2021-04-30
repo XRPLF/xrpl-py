@@ -107,9 +107,7 @@ class WebsocketClient(Client):
             self.websockets.add(websocket)
             await websocket.send(json.dumps(formatted_request))
             try:
-                async for message in websocket:
-                    await websocket.send(json.dumps(formatted_request))
-                    response = await websocket.recv()
+                async for response in websocket:
                     response_dict = json.loads(response)
                     _check_ids(formatted_request, response_dict)
                     handler(websocket_to_response(response_dict))
