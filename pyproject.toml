@@ -29,12 +29,8 @@ python = "^3.7"
 base58 = "^2.1.0"
 ECPy = "^1.2.5"
 typing-extensions = "^3.7.4"
-<<<<<<< HEAD
-httpx = "^0.18.1"
-=======
 requests = "^2.25.1"
-websockets = "^8.1"
->>>>>>> cd1836c (first attempt at websocket client)
+websockets = "^9.0.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
