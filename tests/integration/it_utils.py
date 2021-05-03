@@ -15,6 +15,7 @@ JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
 
 WEBSOCKET_URL = "wss://s.altnet.rippletest.net/"
 WEBSOCKET_CLIENT = WebsocketClient(WEBSOCKET_URL)
+WEBSOCKET_CLIENT.open()
 
 
 def submit_transaction(

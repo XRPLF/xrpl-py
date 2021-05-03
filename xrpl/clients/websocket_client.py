@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import json
-from typing import Any, Callable, Dict, Set
+from typing import Any, Dict
 
 import websockets
 
@@ -32,116 +32,75 @@ class WebsocketClient(Client):
             url: The URL of the rippled node to submit requests to.
         """
         self.url = url
-        self.websockets: Set[websockets.client.WebSocketClientProtocol] = set()
+        self.websocket = None
+        self.handler_task = None
+        self.open_requests = {}
+        self._next_response_id = 0
+
+    @property
+    def next_response_id(self: WebsocketClient) -> int:
+        ret = self._next_response_id
+        self._next_response_id += 1
+        return ret
+
+    async def open_async(self: WebsocketClient) -> None:
+        self.websocket = await websockets.connect(self.url)
+        self.handler_task = asyncio.get_event_loop().create_task(self.handler())
+
+    def open(self: WebsocketClient) -> None:
+        return asyncio.get_event_loop().run_until_complete(self.open_async())
+
+    async def handler(self: WebsocketClient) -> None:
+        print("handler on")
+        try:
+            async for response in self.websocket:
+                print(response)
+                response_dict = json.loads(response)
+                if "id" in response_dict:
+                    if response_dict["id"] in self.open_requests:
+                        self.open_requests[response_dict["id"]] = response_dict
+                    # else:
+                    #     raise XRPLWebsocketException("somehow got a non-open request")
+                    # this else doesn't handle subscribe stuff
+        except asyncio.CancelledError:
+            pass
+
+    async def send(self: WebsocketClient, request_object: Request) -> None:
+        print(f"sending message {request_object}")
+        formatted_request = request_to_websocket(request_object)
+        await self.websocket.send(json.dumps(formatted_request))
+        print("sent")
 
     async def request_async(self: WebsocketClient, request_object: Request) -> Response:
-        """
-        Asynchronously submit the request represented by the request_object to the
-        rippled node specified by this client's URL.
-
-        Arguments:
-            request_object: An object representing information about a rippled request.
-
-        Returns:
-            The response from the server, as a Response object.
-
-        Raises:
-            XRPLWebsocketException: If the connection is closed before a response is
-                received.
-        """
-        formatted_request = request_to_websocket(request_object)
-        if "id" not in formatted_request:
-            formatted_request["id"] = "request_{}".format(formatted_request["command"])
-        async with websockets.connect(self.url) as websocket:
-            self.websockets.add(websocket)
-            try:
-                await websocket.send(json.dumps(formatted_request))
-                response = await websocket.recv()
-            except websockets.exceptions.ConnectionClosedOK:
-                raise XRPLWebsocketException(
-                    "Connection closed before a response was received."
-                )
-            finally:
-                if websocket in self.websockets:
-                    # could have been removed by self.close_async()
-                    self.websockets.remove(websocket)
-            response_dict = json.loads(response)
-            _check_ids(formatted_request, response_dict)
-            return websocket_to_response(response_dict)
+        if request_object.id is None:
+            request_dict = request_object.to_dict()
+            request_dict[
+                "id"
+            ] = f"request_{request_object.method}_{self.next_response_id}"
+            print(request_dict)
+            request_object = Request.from_dict(request_dict)
+        if request_object.id in self.open_requests:
+            raise XRPLWebsocketException("ALready have an open reqeust by that ID")
+        self.open_requests[request_object.id] = None
+        await self.send(request_object)
+        while self.open_requests[request_object.id] is None:
+            await asyncio.sleep(1)  # TODO: make this smaller
+        response_dict = self.open_requests[request_object.id]
+        return websocket_to_response(response_dict)
 
     def request(self: WebsocketClient, request_object: Request) -> Response:
-        """
-        Synchronously submit the request represented by the request_object to the
-        rippled node specified by this client's URL.
-
-        Arguments:
-            request_object: An object representing information about a rippled request.
-
-        Returns:
-            The response from the server, as a Response object.
-        """
         return asyncio.get_event_loop().run_until_complete(
             self.request_async(request_object)
         )
 
-    async def listen_async(
-        self: WebsocketClient,
-        request_object: Request,
-        handler: Callable[[Response], None],
-    ) -> None:
-        """
-        Asynchronously submits a request represented by the request_object to the
-        rippled node specified by this client's URL, and listens to (and processes) all
-        responses from the server.
-
-        Arguments:
-            request_object: An object representing information about a rippled request.
-            handler: The method that handles the Response objects from the server.
-                Takes a Response object as a parameter and returns None.
-        """
-        formatted_request = request_to_websocket(request_object)
-        if "id" not in formatted_request:
-            formatted_request["id"] = "request_{}".format(formatted_request["command"])
-
-        async with websockets.connect(self.url) as websocket:
-            self.websockets.add(websocket)
-            await websocket.send(json.dumps(formatted_request))
-            try:
-                async for response in websocket:
-                    response_dict = json.loads(response)
-                    _check_ids(formatted_request, response_dict)
-                    handler(websocket_to_response(response_dict))
-            except websockets.exceptions.ConnectionClosedOK:
-                return
-            finally:
-                if websocket in self.websockets:
-                    # could have been removed by self.close_async()
-                    self.websockets.remove(websocket)
-
-    def listen(
-        self: WebsocketClient,
-        request_object: Request,
-        handler: Callable[[Response], None],
-    ) -> None:
-        """
-        Synchronously submits a request represented by the request_object to the
-        rippled node specified by this client's URL, and listens to (and processes) all
-        responses from the server.
-
-        Arguments:
-            request_object: An object representing information about a rippled request.
-            handler: The method that handles the Response objects from the server.
-                Takes a Response object as a parameter and returns None.
-        """
-        asyncio.get_event_loop().run_until_complete(
-            self.listen_async(request_object, handler)
-        )
-
     async def close_async(self: WebsocketClient) -> None:
         """Asynchronously closes any open WebSocket connections."""
-        while len(self.websockets) != 0:
-            websocket = self.websockets.pop()
-            await websocket.close()
+        self.handler_task.cancel()
+        try:
+            await self.handler_task
+        except asyncio.CancelledError:
+            print("main(): cancel_me is cancelled now")
+        await self.websocket.close()
 
     def close(self: WebsocketClient) -> None:
         """Synchronously closes any open WebSocket connections."""

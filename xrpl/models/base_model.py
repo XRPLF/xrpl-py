@@ -104,15 +104,15 @@ class BaseModel(ABC):
             # the type of the param provided matches the type expected for the param
             return param_value
 
+        if param_type in Enum.__subclasses__():  # an Enum
+            return param_type(param_value)
+
         if "xrpl.models" in param_type.__module__:  # any model defined in xrpl.models
             if not isinstance(param_value, dict):
                 raise XRPLModelException(
                     f"{param_type} requires a dictionary of params"
                 )
             return cast(BaseModel, param_type).from_dict(param_value)
-
-        if param_type in Enum.__subclasses__():  # an Enum
-            return param_type(param_value)
 
         # param_type must be something from typing - e.g. List, Union, Any
         # there are no models that have Dict params

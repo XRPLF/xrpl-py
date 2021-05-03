@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
@@ -76,7 +76,7 @@ class Request(BaseModel):
     """
 
     method: RequestMethod = REQUIRED  # type: ignore
-    id: Optional[int] = None
+    id: Optional[Union[str, int]] = None
 
     def to_dict(self: Request) -> Dict[str, Any]:
         """
