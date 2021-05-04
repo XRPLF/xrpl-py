@@ -51,7 +51,6 @@ class WebsocketClient(Client):
         self._next_response_id += 1
         return ret
 
-    @property
     def is_open(self: WebsocketClient) -> bool:
         """
         Returns whether the Websocket client is currently open.
