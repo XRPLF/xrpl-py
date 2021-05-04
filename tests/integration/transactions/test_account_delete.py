@@ -1,6 +1,4 @@
-from unittest import TestCase
-
-from tests.integration.it_utils import submit_transaction
+from tests.integration.it_utils import IntegrationTestCase, submit_transaction
 from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountDelete
@@ -16,7 +14,7 @@ FEE = "5000000"
 DESTINATION_TAG = 3
 
 
-class TestAccountDelete(TestCase):
+class TestAccountDelete(IntegrationTestCase):
     def test_all_fields(self):
         account_delete = AccountDelete(
             account=ACCOUNT,
@@ -38,3 +36,15 @@ class TestAccountDelete(TestCase):
         # Sequence number that is too high. The current ledger index must be at least
         # 256 higher than the account's sequence number."
         # self.assertEqual(response.result['engine_result'], 'tesSUCCESS')
+
+    def test_all_fields_websocket(self):
+        account_delete = AccountDelete(
+            account=ACCOUNT,
+            fee=FEE,
+            sequence=WALLET.sequence,
+            destination=DESTINATION.classic_address,
+            destination_tag=DESTINATION_TAG,
+        )
+        response = submit_transaction(account_delete, WALLET, False)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        WALLET.sequence += 1

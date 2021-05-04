@@ -332,7 +332,7 @@ class Transaction(BaseModel):
             transaction_type: The String name of the Transaction object.
 
         Returns:
-            The transaction class with the given name.
+            The Transaction class with the given name.
 
         Raises:
             XRPLModelException: If `transaction_type` is not a valid Transaction type.

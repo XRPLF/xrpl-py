@@ -23,7 +23,9 @@ twice since it has the same sequence number as the old transaction.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any, Dict, Type, cast
 
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.utils import require_kwargs_on_init
 
@@ -54,3 +56,30 @@ class Submit(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.SUBMIT, init=False)
+
+    @classmethod
+    def from_dict(cls: Type[Submit], value: Dict[str, Any]) -> Submit:
+        """
+        Construct a new Submit from a dictionary of parameters.
+
+        Args:
+            value: The value to construct the Submit from.
+
+        Returns:
+            A new Submit object, constructed using the given parameters.
+
+        Raises:
+            XRPLModelException: If the dictionary provided is invalid.
+        """
+        if cls.__name__ == "Submit":
+            import xrpl.models.requests as requests
+
+            if "tx_blob" in value:
+                return requests.SubmitOnly.from_dict(value)
+
+            try:
+                return requests.SignAndSubmit.from_dict(value)
+            except XRPLModelException:
+                raise XRPLModelException("Not a valid `Submit` format")
+        else:
+            return cast(Submit, super(Submit, cls).from_dict(value))

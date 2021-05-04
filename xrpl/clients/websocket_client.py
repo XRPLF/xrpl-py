@@ -120,7 +120,7 @@ class WebsocketClient(Client):
             request_dict[
                 "id"
             ] = f"request_{request_object.method}_{self.next_response_id}"
-            request_object = cast(Request, Request.from_dict(request_dict))
+            request_object = Request.from_dict(request_dict)
 
         if request_object.id in self._open_requests:
             raise XRPLWebsocketException("Already have an open request by that ID")
