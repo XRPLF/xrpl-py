@@ -1,5 +1,7 @@
 """Utility functions and variables for integration tests."""
 
+from unittest import IsolatedAsyncioTestCase
+
 from xrpl.clients import Client, JsonRpcClient, WebsocketClient
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
@@ -42,3 +44,11 @@ def _choose_client(use_json_client: bool) -> Client:
         return JSON_RPC_CLIENT
     else:
         return WEBSOCKET_CLIENT
+
+
+class IntegrationTestCase(IsolatedAsyncioTestCase):
+    async def asyncSetUp(self):
+        await WEBSOCKET_CLIENT.open_async()
+
+    async def asyncTearDown(self):
+        await WEBSOCKET_CLIENT.close_async()

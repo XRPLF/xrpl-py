@@ -1,18 +1,15 @@
 from asyncio import sleep
-from unittest import IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import JSON_RPC_CLIENT, WEBSOCKET_CLIENT
+from tests.integration.it_utils import (
+    JSON_RPC_CLIENT,
+    WEBSOCKET_CLIENT,
+    IntegrationTestCase,
+)
 from xrpl.ledger import get_fee
 from xrpl.models.requests import StreamParameter, Subscribe
 
 
-class TestWebsocket(IsolatedAsyncioTestCase):
-    async def asyncSetUp(self):
-        await WEBSOCKET_CLIENT.open_async()
-
-    async def asyncTearDown(self):
-        await WEBSOCKET_CLIENT.close_async()
-
+class TestWebsocket(IntegrationTestCase):
     def test_get_fee(self):
         self.assertEqual(get_fee(WEBSOCKET_CLIENT), get_fee(JSON_RPC_CLIENT))
 
