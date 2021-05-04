@@ -130,7 +130,7 @@ class WebsocketClient(Client):
 
         await self.send(request_object)
         while self._open_requests[request_object.id] is None:
-            await asyncio.sleep(1)  # TODO: make this smaller
+            await asyncio.sleep(0.1)  # TODO: make this smaller
 
         response_dict = self._open_requests[request_object.id]
         return websocket_to_response(cast(Dict[str, Any], response_dict))
