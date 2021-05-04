@@ -14,13 +14,6 @@ from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
 
 
-def _check_ids(request_dict: Dict[str, Any], response_dict: Dict[str, Any]) -> None:
-    if request_dict["id"] != response_dict["id"]:
-        raise XRPLWebsocketException(
-            "ID of the response does not match ID of the request"
-        )
-
-
 class WebsocketClient(Client):
     """A client for interacting with the rippled WebSocket API."""
 
