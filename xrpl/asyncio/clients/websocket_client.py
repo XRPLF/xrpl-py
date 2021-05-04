@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 import json
 from typing import Any, Dict
+import traceback
 
 import websockets
 
@@ -45,7 +46,8 @@ class WebsocketClient(Client):
 
     async def open_async(self: WebsocketClient) -> None:
         self.websocket = await websockets.connect(self.url)
-        self.handler_task = asyncio.get_event_loop().create_task(self.handler())
+        self.loop = asyncio.get_event_loop()
+        self.handler_task = self.loop.create_task(self.handler())
 
     def open(self: WebsocketClient) -> None:
         return asyncio.get_event_loop().run_until_complete(self.open_async())
@@ -63,7 +65,10 @@ class WebsocketClient(Client):
                     #     raise XRPLWebsocketException("somehow got a non-open request")
                     # this else doesn't handle subscribe stuff
         except asyncio.CancelledError:
+            print("CLOSING HANDLER")
             pass
+        finally:
+            print("FINALLY HANDLER")
 
     async def send(self: WebsocketClient, request_object: Request) -> None:
         print(f"sending message {request_object}")
@@ -95,12 +100,8 @@ class WebsocketClient(Client):
 
     async def close_async(self: WebsocketClient) -> None:
         """Asynchronously closes any open WebSocket connections."""
-        self.handler_task.cancel()
-        try:
-            await self.handler_task
-        except asyncio.CancelledError:
-            print("main(): cancel_me is cancelled now")
         await self.websocket.close()
+        self.handler_task.cancel()
 
     def close(self: WebsocketClient) -> None:
         """Synchronously closes any open WebSocket connections."""
