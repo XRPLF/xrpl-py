@@ -47,8 +47,24 @@ def _choose_client(use_json_client: bool) -> Client:
 
 
 class IntegrationTestCase(IsolatedAsyncioTestCase):
-    async def asyncSetUp(self):
-        await WEBSOCKET_CLIENT.open_async()
+    @classmethod
+    def setUpClass(cls):
+        super(IntegrationTestCase, cls).setUpClass()
+        # loop = asyncio.new_event_loop()
+        # asyncio.set_event_loop(loop)
+        print("opening1")
+        WEBSOCKET_CLIENT.open()
 
-    async def asyncTearDown(self):
-        await WEBSOCKET_CLIENT.close_async()
+    @classmethod
+    def tearDownClass(cls):
+        print("closing1")
+        #     WEBSOCKET_CLIENT.close()
+        super(IntegrationTestCase, cls).tearDownClass()
+
+    # def setUp(self):
+    #     print("opening")
+    #     WEBSOCKET_CLIENT.open()
+
+    # def tearDown(self):
+    #     print("closing")
+    #     WEBSOCKET_CLIENT.close()

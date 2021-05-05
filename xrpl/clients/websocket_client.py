@@ -62,6 +62,9 @@ class WebsocketClient(Client):
 
     async def open_async(self: WebsocketClient) -> None:
         """Asynchronously connects the client to the Web Socket API at the given URL."""
+        print("in open")
+        if self._open:
+            return
         self.websocket = await connect(self.url)
         self._handler_task = asyncio.get_event_loop().create_task(self._handler())
         self._open = True
@@ -157,6 +160,9 @@ class WebsocketClient(Client):
 
     async def close_async(self: WebsocketClient) -> None:
         """Asynchronously closes any open WebSocket connections."""
+        print("in close")
+        if not self._open:
+            return
         await self.websocket.close()
         self._handler_task.cancel()
         self._open = False
