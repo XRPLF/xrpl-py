@@ -23,3 +23,12 @@ class XRPLRequestFailureException(XRPLException):
             self.error_message = result["error_exception"]
         self.message = f"Request failed, {self.error}: {self.error_message}"
         super().__init__(self.message)
+
+
+class XRPLWebsocketException(XRPLException):
+    """
+    XRPL Websocket Exception. Thrown when something goes wrong with the Web Socket
+    client.
+    """
+
+    pass
