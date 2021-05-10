@@ -107,7 +107,12 @@ class BaseModel(ABC):
         if param_type.__module__ == "builtins" and isinstance(param_value, param_type):
             # expecting a built-in type
             # `param_value` is an object inherited from the type
+            # This has to be separate from above because you can't use `isinstance`
+            #     with a non-builtin Class object
             return param_value
+
+        if param_type in Enum.__subclasses__():  # an Enum
+            return param_type(param_value)
 
         if "xrpl.models" in param_type.__module__:  # any model defined in xrpl.models
             if not isinstance(param_value, dict):
@@ -115,15 +120,6 @@ class BaseModel(ABC):
                     f"{param_type} requires a dictionary of params"
                 )
             return cast(BaseModel, param_type).from_dict(param_value)
-
-        if param_type in Enum.__subclasses__():  # an Enum
-            return param_type(param_value)
-
-        # param_type must be something from typing - e.g. List, Union, Any
-        # there are no models that have Dict params
-        if param_type == Any:
-            # param_type is Any
-            return param_value
 
         if param_type.__module__ != "typing":
             # Should be in `typing` if it reaches here
@@ -134,6 +130,12 @@ class BaseModel(ABC):
                 f"{type(param_value).__name__}"
             )
 
+        # param_type must be something from typing - e.g. List, Union, Any
+        # there are no models that have Dict params
+        if param_type == Any:
+            # param_type is Any (e.g. will accept anything)
+            return param_value
+
         if param_type.__reduce__()[1][0] == List:
             # param_type is a List
             if not isinstance(param_value, List):
@@ -141,10 +143,10 @@ class BaseModel(ABC):
                     f"{param} expected a List, received a {type(param_value)}"
                 )
             list_type = cast(Type[Any], param_type.__reduce__()[1][1])
-            new_list = []
-            for item in param_value:
-                new_list.append(cls._from_dict_single_param(param, list_type, item))
-            return new_list
+            return [
+                cls._from_dict_single_param(param, list_type, item)
+                for item in param_value
+            ]
 
         if param_type.__reduce__()[1][0] == Union:
             # param_type is a Union
