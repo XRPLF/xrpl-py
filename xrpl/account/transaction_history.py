@@ -2,6 +2,7 @@
 from typing import Any, Dict, List, cast
 
 from xrpl.clients import Client, XRPLRequestFailureException
+from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.models.requests import AccountTx
 from xrpl.models.response import Response
 
@@ -11,7 +12,7 @@ def get_latest_transaction(account: str, client: Client) -> Response:
     Fetches the most recent transaction on the ledger associated with an account.
 
     Args:
-        account: the classic address of the account.
+        account: the account to query.
         client: the network client used to communicate with a rippled node.
 
     Returns:
@@ -21,6 +22,8 @@ def get_latest_transaction(account: str, client: Client) -> Response:
         XRPLRequestFailureException: if the transaction fails.
     """
     # max == -1 means that it's the most recent validated ledger version
+    if is_valid_xaddress(account):
+        account, _, _ = xaddress_to_classic_address(account)
     response = client.request(AccountTx(account=account, ledger_index_max=-1, limit=1))
     if not response.is_successful():
         result = cast(Dict[str, Any], response.result)
@@ -42,6 +45,8 @@ def get_account_transactions(address: str, client: Client) -> List[Dict[str, Any
     Raises:
         XRPLRequestFailureException: if the transaction fails.
     """
+    if is_valid_xaddress(address):
+        address, _, _ = xaddress_to_classic_address(address)
     request = AccountTx(account=address)
     response = client.request(request)
     result = cast(Dict[str, Any], response.result)

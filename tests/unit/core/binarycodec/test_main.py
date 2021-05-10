@@ -253,7 +253,7 @@ class TestXAddress(TestCase):
         self.assertEqual(encode(json_null_x), encode(json_null_r))
 
     def test_xaddress_invalid(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(XRPLBinaryCodecException):
             encode(json_invalid_x)
 
     def test_xaddress_invalid_field(self):

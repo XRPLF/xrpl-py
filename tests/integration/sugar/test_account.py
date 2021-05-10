@@ -9,6 +9,7 @@ from xrpl.account import (
     get_balance,
     get_latest_transaction,
 )
+from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.transactions import Payment
 from xrpl.wallet import Wallet, generate_faucet_wallet
 
@@ -23,6 +24,10 @@ class TestAccount(TestCase):
     def test_does_account_exist_false(self):
         address = "rG1QQv2nh2gr7RCZ1P8YYcBUcCCN633jCn"
         self.assertFalse(does_account_exist(address, JSON_RPC_CLIENT))
+
+    def test_does_account_exist_xaddress(self):
+        xaddress = classic_address_to_xaddress(WALLET.classic_address, None, True)
+        self.assertTrue(does_account_exist(xaddress, JSON_RPC_CLIENT))
 
     def test_get_balance(self):
         self.assertEqual(
@@ -47,6 +52,13 @@ class TestAccount(TestCase):
         transactions = get_account_transactions(
             NEW_WALLET.classic_address, JSON_RPC_CLIENT
         )
+        self.assertEqual(len(transactions), 1)
+        self.assertEqual(transactions[0]["tx"]["TransactionType"], "Payment")
+        self.assertEqual(transactions[0]["tx"]["Amount"], "1000000000")
+
+    def test_payment_transactions_xaddress(self):
+        xaddress = classic_address_to_xaddress(NEW_WALLET.classic_address, None, True)
+        transactions = get_account_transactions(xaddress, JSON_RPC_CLIENT)
         self.assertEqual(len(transactions), 1)
         self.assertEqual(transactions[0]["tx"]["TransactionType"], "Payment")
         self.assertEqual(transactions[0]["tx"]["Amount"], "1000000000")
