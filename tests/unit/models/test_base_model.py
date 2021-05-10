@@ -12,7 +12,13 @@ from xrpl.models.requests import (
     PathStep,
     Sign,
 )
-from xrpl.models.transactions import CheckCreate, SignerEntry, SignerListSet, TrustSet
+from xrpl.models.transactions import (
+    CheckCreate,
+    SignerEntry,
+    SignerListSet,
+    TrustSet,
+    TrustSetFlag,
+)
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.transaction import transaction_json_to_binary_codec_form
 
@@ -153,7 +159,7 @@ class TestBaseModel(TestCase):
             "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
             "fee": "10",
             "sequence": 16178313,
-            "flags": 131072,
+            "flags": TrustSetFlag.TF_SET_NO_RIPPLE,
             "limit_amount": {
                 "currency": "USD",
                 "issuer": "raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
@@ -164,7 +170,7 @@ class TestBaseModel(TestCase):
             account="rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
             fee="10",
             sequence=16178313,
-            flags=131072,
+            flags=TrustSetFlag.TF_SET_NO_RIPPLE.value,
             limit_amount=IssuedCurrencyAmount(
                 currency="USD", issuer="raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT", value="100"
             ),
