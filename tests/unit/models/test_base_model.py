@@ -222,6 +222,46 @@ class TestBaseModel(TestCase):
         with self.assertRaises(XRPLModelException):
             TrustSet.from_dict(dictionary)
 
+    def test_from_dict_explicit_none(self):
+        dictionary = {
+            "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
+            "fee": "10",
+            "sequence": None,
+            "flags": TrustSetFlag.TF_SET_NO_RIPPLE,
+            "limit_amount": {
+                "currency": "USD",
+                "issuer": "raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
+                "value": "100",
+            },
+        }
+        expected = TrustSet(
+            account="rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
+            fee="10",
+            flags=TrustSetFlag.TF_SET_NO_RIPPLE.value,
+            limit_amount=IssuedCurrencyAmount(
+                currency="USD", issuer="raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT", value="100"
+            ),
+        )
+        actual = TrustSet.from_dict(dictionary)
+        self.assertEqual(actual, expected)
+
+    def test_from_dict_bad_list(self):
+        dictionary = {
+            "account": "rpqBNcDpWaqZC2Rksayf8UyG66Fyv2JTQy",
+            "fee": "10",
+            "sequence": 16175710,
+            "flags": 0,
+            "signer_quorum": 1,
+            "signer_entries": {
+                "signer_entry": {
+                    "account": "rJjusz1VauNA9XaHxJoiwHe38bmQFz1sUV",
+                    "signer_weight": 1,
+                }
+            },
+        }
+        with self.assertRaises(XRPLModelException):
+            SignerListSet.from_dict(dictionary)
+
     def test_from_xrpl(self):
         dirname = os.path.dirname(__file__)
         full_filename = "x-codec-fixtures.json"
