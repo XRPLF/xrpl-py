@@ -210,7 +210,7 @@ class TestBaseModel(TestCase):
     def test_from_dict_bad_str(self):
         dictionary = {
             "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
-            "fee": 10,
+            "fee": 10,  # this should be a str instead ("10")
             "sequence": 16178313,
             "flags": 131072,
             "limit_amount": {
@@ -257,7 +257,7 @@ class TestBaseModel(TestCase):
                     "account": "rJjusz1VauNA9XaHxJoiwHe38bmQFz1sUV",
                     "signer_weight": 1,
                 }
-            },
+            },  # this should be a List of signer entries instead
         }
         with self.assertRaises(XRPLModelException):
             SignerListSet.from_dict(dictionary)
