@@ -7,17 +7,9 @@ from abc import ABC
 from dataclasses import fields
 from enum import Enum
 from re import split, sub
-from typing import (
-    Any,
-    Dict,
-    List,
-    Type,
-    Union,
-    cast,
-    get_args,
-    get_origin,
-    get_type_hints,
-)
+from typing import Any, Dict, List, Type, Union, cast, get_type_hints
+
+from typing_extensions import get_args, get_origin
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
