@@ -144,7 +144,7 @@ class BaseModel(ABC):
             return cast(BaseModel, param_type).from_dict(param_value)
 
         # received something we didn't expect, raise an error
-        if "xrpl.models" in param_type.__module__:
+        if isinstance(param_type, type) and issubclass(param_type, BaseModel):
             error_message = (
                 f"{param} expected a {param_type} or a Dict representing {param_type}, "
                 f"received a {type(param_value)}"
