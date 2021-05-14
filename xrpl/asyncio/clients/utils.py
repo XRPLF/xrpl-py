@@ -77,13 +77,14 @@ def websocket_to_response(response_dict: Dict[str, Any]) -> Response:
     Returns:
         A Response object containing the information in the rippled server's response.
     """
-    result = response_dict["result"]
     raw_status = response_dict["status"]
     request_id = response_dict["id"]
     if raw_status == "success":
         status = ResponseStatus.SUCCESS
+        result = response_dict["result"]
     else:
         status = ResponseStatus.ERROR
+        result = response_dict
     # TODO: response_type changes based on what we're getting back... where/how do we
     #  differentiate based on that?
     # TODO: should we pull fields "status" OUT of result dict?

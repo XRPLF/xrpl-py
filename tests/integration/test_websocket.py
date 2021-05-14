@@ -1,27 +1,37 @@
-from asyncio import sleep
-from unittest import IsolatedAsyncioTestCase
+import asyncio
+
+from later.unittest import TestCase
 
 from tests.integration.it_utils import JSON_RPC_CLIENT, WEBSOCKET_CLIENT
-from xrpl.ledger import get_fee
+from xrpl.asyncio.ledger import get_fee, get_latest_open_ledger_sequence
 from xrpl.models.requests import StreamParameter, Subscribe
 
 
-class TestWebsocket(IsolatedAsyncioTestCase):
+class TestWebsocket(TestCase):
     async def asyncSetUp(self):
-        await WEBSOCKET_CLIENT.open_async()
+        await WEBSOCKET_CLIENT.open()
 
     async def asyncTearDown(self):
-        await WEBSOCKET_CLIENT.close_async()
+        await WEBSOCKET_CLIENT.close()
 
-    def test_get_fee(self):
-        self.assertEqual(get_fee(WEBSOCKET_CLIENT), get_fee(JSON_RPC_CLIENT))
+    async def test_get_fee(self):
+        a, b = await asyncio.gather(get_fee(WEBSOCKET_CLIENT), get_fee(JSON_RPC_CLIENT))
+        self.assertEqual(a, b)
+
+    async def test_get_latest_open_ledger_sequence(self):
+        a, b = await asyncio.gather(
+            get_latest_open_ledger_sequence(WEBSOCKET_CLIENT),
+            get_latest_open_ledger_sequence(JSON_RPC_CLIENT),
+        )
+        self.assertEqual(a, b)
 
     async def test_connection(self):
-        id_val = "stream_test"
-        subscribe = Subscribe(id=id_val, streams=[StreamParameter.LEDGER])
-        await WEBSOCKET_CLIENT.send(subscribe)
-        subscribe2 = Subscribe(
-            id="test2", accounts=["rJHjA2WqqYWSh4ttCPW1b9aSyFkisfz93j"]
+        subscribe = Subscribe(streams=[StreamParameter.LEDGER])
+        subscribe2 = Subscribe(accounts=["rJHjA2WqqYWSh4ttCPW1b9aSyFkisfz93j"])
+        await asyncio.gather(
+            WEBSOCKET_CLIENT.send(subscribe),
+            WEBSOCKET_CLIENT.send(subscribe2),
         )
-        await WEBSOCKET_CLIENT.send(subscribe2)
-        await sleep(4)
+        async for message in WEBSOCKET_CLIENT:
+            break
+        self.assertEqual(True, True)
