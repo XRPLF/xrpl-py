@@ -12,23 +12,19 @@ class Client(ABC):
 
     def __init__(self: Client, url: str) -> None:
         """
-        Constructs a Client.
+        Initialize this Client.
 
         Arguments:
-            url: The URL of the rippled node to submit requests to.
+            url: The url to which to connect.
         """
         self.url = url
 
     @abstractmethod
-    def request(self: Client, request_object: Request) -> Response:
-        """
-        Submit the request represented by the request_object to the rippled node
-        specified by this client's URL.
+    async def request_async(
+        self: Client, request_object: Request
+    ) -> Response:  # noqa: D102
+        raise NotImplementedError(f"{self.__class__.__name__}.request not implemented.")
 
-        Arguments:
-            request_object: An object representing information about a rippled request.
-
-        Raises:
-            NotImplementedError: Always.
-        """
+    @abstractmethod
+    def request(self: Client, request_object: Request) -> Response:  # noqa: D102
         raise NotImplementedError(f"{self.__class__.__name__}.request not implemented.")

@@ -1,14 +1,13 @@
 """High-level methods that fetch transaction information from the XRP Ledger."""
 
-import asyncio
-from typing import Optional
+from typing import Any, Dict, Optional, cast
 
-from xrpl.async_support.transaction import ledger
-from xrpl.clients import Client
+from xrpl.clients import Client, XRPLRequestFailureException
+from xrpl.models.requests import Tx
 from xrpl.models.response import Response
 
 
-def get_transaction_from_hash(
+async def get_transaction_from_hash(
     tx_hash: str,
     client: Client,
     binary: bool = False,
@@ -39,12 +38,15 @@ def get_transaction_from_hash(
     Raises:
         XRPLRequestFailureException: if the transaction fails.
     """
-    return asyncio.run(
-        ledger.get_transaction_from_hash(
-            tx_hash,
-            client,
-            binary,
-            min_ledger,
-            max_ledger,
+    response = await client.request_async(
+        Tx(
+            transaction=tx_hash,
+            binary=binary,
+            max_ledger=max_ledger,
+            min_ledger=min_ledger,
         )
     )
+    if not response.is_successful():
+        result = cast(Dict[str, Any], response.result)
+        raise XRPLRequestFailureException(result)
+    return response

@@ -1,16 +1,16 @@
 """Top-level exports for the transaction package."""
-from xrpl.async_support.transaction import (
-    XRPLReliableSubmissionException,
-    transaction_json_to_binary_codec_form,
-)
-from xrpl.transaction.ledger import get_transaction_from_hash
-from xrpl.transaction.main import (
+from xrpl.async_support.transaction.ledger import get_transaction_from_hash
+from xrpl.async_support.transaction.main import (
     safe_sign_and_autofill_transaction,
     safe_sign_and_submit_transaction,
     safe_sign_transaction,
     submit_transaction,
+    transaction_json_to_binary_codec_form,
 )
-from xrpl.transaction.reliable_submission import send_reliable_submission
+from xrpl.async_support.transaction.reliable_submission import (
+    XRPLReliableSubmissionException,
+    send_reliable_submission,
+)
 
 __all__ = [
     "get_transaction_from_hash",
@@ -20,6 +20,5 @@ __all__ = [
     "submit_transaction",
     "transaction_json_to_binary_codec_form",
     "send_reliable_submission",
-    "send_reliable_submission_async",
     "XRPLReliableSubmissionException",
 ]

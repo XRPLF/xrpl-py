@@ -1,10 +1,10 @@
 """High-level methods to obtain information about accounts."""
 
-from typing import Any, Dict, Union, cast
+import asyncio
+from typing import Dict, Union
 
-from xrpl.clients import Client, XRPLRequestFailureException
-from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
-from xrpl.models.requests import AccountInfo
+from xrpl.async_support.account import main
+from xrpl.clients import Client
 from xrpl.models.response import Response
 
 
@@ -22,14 +22,7 @@ def does_account_exist(address: str, client: Client) -> bool:
     Raises:
         XRPLRequestFailureException: if the transaction fails.
     """
-    try:
-        get_account_info(address, client)
-        return True
-    except XRPLRequestFailureException as e:
-        if e.error == "actNotFound":
-            # error code for if the account is not found on the ledger
-            return False
-        raise
+    return asyncio.run(main.does_account_exist(address, client))
 
 
 def get_next_valid_seq_number(address: str, client: Client) -> int:
@@ -43,7 +36,7 @@ def get_next_valid_seq_number(address: str, client: Client) -> int:
     Returns:
         The next valid sequence number for the address.
     """
-    return cast(int, get_account_root(address, client)["Sequence"])
+    return asyncio.run(main.get_next_valid_seq_number(address, client))
 
 
 def get_balance(address: str, client: Client) -> int:
@@ -57,7 +50,7 @@ def get_balance(address: str, client: Client) -> int:
     Returns:
         The balance of the address.
     """
-    return int(get_account_root(address, client)["Balance"])
+    return asyncio.run(main.get_balance(address, client))
 
 
 def get_account_root(address: str, client: Client) -> Dict[str, Union[int, str]]:
@@ -71,9 +64,7 @@ def get_account_root(address: str, client: Client) -> Dict[str, Union[int, str]]
     Returns:
         The AccountRoot dictionary for the address.
     """
-    account_info = get_account_info(address, client)
-    result = cast(Dict[str, Any], account_info.result)
-    return cast(Dict[str, Union[int, str]], result["account_data"])
+    return asyncio.run(main.get_account_root(address, client))
 
 
 def get_account_info(address: str, client: Client) -> Response:
@@ -90,16 +81,4 @@ def get_account_info(address: str, client: Client) -> Response:
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
     """
-    if is_valid_xaddress(address):
-        address, _, _ = xaddress_to_classic_address(address)
-    response = client.request(
-        AccountInfo(
-            account=address,
-            ledger_index="validated",
-        )
-    )
-    if response.is_successful():
-        return response
-
-    result = cast(Dict[str, Any], response.result)
-    raise XRPLRequestFailureException(result)
+    return asyncio.run(main.get_account_info(address, client))
