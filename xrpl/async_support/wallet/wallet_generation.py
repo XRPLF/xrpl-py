@@ -6,7 +6,7 @@ import httpx
 from typing_extensions import Final
 
 from xrpl.async_support.account import get_balance, get_next_valid_seq_number
-from xrpl.clients import Client, XRPLRequestFailureException
+from xrpl.async_support.clients import Client, XRPLRequestFailureException
 from xrpl.constants import XRPLException
 from xrpl.wallet.main import Wallet
 

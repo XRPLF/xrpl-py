@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, Union, cast
 
-from xrpl.clients import Client, XRPLRequestFailureException
+from xrpl.async_support.clients import Client, XRPLRequestFailureException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.models.requests import AccountInfo
 from xrpl.models.response import Response
@@ -92,7 +92,7 @@ async def get_account_info(address: str, client: Client) -> Response:
     """
     if is_valid_xaddress(address):
         address, _, _ = xaddress_to_classic_address(address)
-    response = await client.request_async(
+    response = await client.request_impl(
         AccountInfo(
             account=address,
             ledger_index="validated",

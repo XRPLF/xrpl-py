@@ -2,7 +2,7 @@
 import asyncio
 
 from xrpl.async_support.transaction import main
-from xrpl.clients import Client
+from xrpl.clients.sync_client import SyncClient
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.wallet.main import Wallet
@@ -11,7 +11,7 @@ from xrpl.wallet.main import Wallet
 def safe_sign_and_submit_transaction(
     transaction: Transaction,
     wallet: Wallet,
-    client: Client,
+    client: SyncClient,
     autofill: bool = True,
     check_fee: bool = True,
 ) -> Response:
@@ -43,7 +43,7 @@ def safe_sign_and_submit_transaction(
 
 def submit_transaction(
     transaction: Transaction,
-    client: Client,
+    client: SyncClient,
 ) -> Response:
     """
     Submits a transaction to the ledger.
@@ -95,7 +95,7 @@ def safe_sign_transaction(
 def safe_sign_and_autofill_transaction(
     transaction: Transaction,
     wallet: Wallet,
-    client: Client,
+    client: SyncClient,
     check_fee: bool = True,
 ) -> Transaction:
     """

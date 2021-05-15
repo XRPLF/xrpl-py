@@ -3,11 +3,11 @@ import asyncio
 from typing import Any, Dict, List
 
 from xrpl.async_support.account import transaction_history
-from xrpl.clients import Client
+from xrpl.clients.sync_client import SyncClient
 from xrpl.models.response import Response
 
 
-def get_latest_transaction(account: str, client: Client) -> Response:
+def get_latest_transaction(account: str, client: SyncClient) -> Response:
     """
     Fetches the most recent transaction on the ledger associated with an account.
 
@@ -24,7 +24,7 @@ def get_latest_transaction(account: str, client: Client) -> Response:
     return asyncio.run(transaction_history.get_latest_transaction(account, client))
 
 
-def get_account_transactions(address: str, client: Client) -> List[Dict[str, Any]]:
+def get_account_transactions(address: str, client: SyncClient) -> List[Dict[str, Any]]:
     """
     Query the ledger for a list of transactions that involved a given account.
 
@@ -42,7 +42,7 @@ def get_account_transactions(address: str, client: Client) -> List[Dict[str, Any
 
 
 def get_account_payment_transactions(
-    address: str, client: Client
+    address: str, client: SyncClient
 ) -> List[Dict[str, Any]]:
     """
     Query the ledger for a list of payment transactions that involved a given account.

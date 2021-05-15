@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, Optional, cast
 
-from xrpl.clients import Client, XRPLRequestFailureException
+from xrpl.async_support.clients import Client, XRPLRequestFailureException
 from xrpl.models.requests import Tx
 from xrpl.models.response import Response
 
@@ -38,7 +38,7 @@ async def get_transaction_from_hash(
     Raises:
         XRPLRequestFailureException: if the transaction fails.
     """
-    response = await client.request_async(
+    response = await client.request_impl(
         Tx(
             transaction=tx_hash,
             binary=binary,

@@ -5,8 +5,8 @@ from typing import Any, Dict, Optional, cast
 from typing_extensions import Final
 
 from xrpl.async_support.account import get_next_valid_seq_number
+from xrpl.async_support.clients import Client, XRPLRequestFailureException
 from xrpl.async_support.ledger import get_fee, get_latest_validated_ledger_sequence
-from xrpl.clients import Client, XRPLRequestFailureException
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec import encode, encode_for_signing
@@ -134,7 +134,7 @@ async def submit_transaction(
     """
     transaction_json = transaction.to_xrpl()
     transaction_blob = encode(transaction_json)
-    response = await client.request_async(SubmitOnly(tx_blob=transaction_blob))
+    response = await client.request_impl(SubmitOnly(tx_blob=transaction_blob))
     if response.is_successful():
         return response
 

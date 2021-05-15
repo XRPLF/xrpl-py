@@ -4,11 +4,11 @@ import asyncio
 from typing import Dict, Union
 
 from xrpl.async_support.account import main
-from xrpl.clients import Client
+from xrpl.clients.sync_client import SyncClient
 from xrpl.models.response import Response
 
 
-def does_account_exist(address: str, client: Client) -> bool:
+def does_account_exist(address: str, client: SyncClient) -> bool:
     """
     Query the ledger for whether the account exists.
 
@@ -25,7 +25,7 @@ def does_account_exist(address: str, client: Client) -> bool:
     return asyncio.run(main.does_account_exist(address, client))
 
 
-def get_next_valid_seq_number(address: str, client: Client) -> int:
+def get_next_valid_seq_number(address: str, client: SyncClient) -> int:
     """
     Query the ledger for the next available sequence number for an account.
 
@@ -39,7 +39,7 @@ def get_next_valid_seq_number(address: str, client: Client) -> int:
     return asyncio.run(main.get_next_valid_seq_number(address, client))
 
 
-def get_balance(address: str, client: Client) -> int:
+def get_balance(address: str, client: SyncClient) -> int:
     """
     Query the ledger for the balance of the given account.
 
@@ -53,7 +53,7 @@ def get_balance(address: str, client: Client) -> int:
     return asyncio.run(main.get_balance(address, client))
 
 
-def get_account_root(address: str, client: Client) -> Dict[str, Union[int, str]]:
+def get_account_root(address: str, client: SyncClient) -> Dict[str, Union[int, str]]:
     """
     Query the ledger for the AccountRoot object associated with a given address.
 
@@ -67,7 +67,7 @@ def get_account_root(address: str, client: Client) -> Dict[str, Union[int, str]]
     return asyncio.run(main.get_account_root(address, client))
 
 
-def get_account_info(address: str, client: Client) -> Response:
+def get_account_info(address: str, client: SyncClient) -> Response:
     """
     Query the ledger for account info of given address.
 

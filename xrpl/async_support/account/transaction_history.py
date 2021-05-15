@@ -1,7 +1,7 @@
 """High-level methods to obtain information about account transaction history."""
 from typing import Any, Dict, List, cast
 
-from xrpl.clients import Client, XRPLRequestFailureException
+from xrpl.async_support.clients import Client, XRPLRequestFailureException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.models.requests import AccountTx
 from xrpl.models.response import Response
@@ -24,7 +24,7 @@ async def get_latest_transaction(account: str, client: Client) -> Response:
     # max == -1 means that it's the most recent validated ledger version
     if is_valid_xaddress(account):
         account, _, _ = xaddress_to_classic_address(account)
-    response = await client.request_async(
+    response = await client.request_impl(
         AccountTx(account=account, ledger_index_max=-1, limit=1)
     )
     if not response.is_successful():
@@ -52,7 +52,7 @@ async def get_account_transactions(
     if is_valid_xaddress(address):
         address, _, _ = xaddress_to_classic_address(address)
     request = AccountTx(account=address)
-    response = await client.request_async(request)
+    response = await client.request_impl(request)
     result = cast(Dict[str, Any], response.result)
     if not response.is_successful():
         raise XRPLRequestFailureException(result)

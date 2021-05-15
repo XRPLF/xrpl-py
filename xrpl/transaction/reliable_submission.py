@@ -5,12 +5,12 @@ import asyncio
 from xrpl.async_support.transaction import (
     send_reliable_submission as async_send_reliable_submission,
 )
-from xrpl.clients import Client
+from xrpl.clients.sync_client import SyncClient
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 
 
-def send_reliable_submission(transaction: Transaction, client: Client) -> Response:
+def send_reliable_submission(transaction: Transaction, client: SyncClient) -> Response:
     """
     Submits a transaction and verifies that it has been included in a validated ledger
     (or has errored/will not be included for some reason).

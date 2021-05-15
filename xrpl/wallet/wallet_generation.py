@@ -5,12 +5,12 @@ from typing import Optional
 from xrpl.async_support.wallet import (
     generate_faucet_wallet as async_generate_faucet_wallet,
 )
-from xrpl.clients import Client
+from xrpl.clients.sync_client import SyncClient
 from xrpl.wallet.main import Wallet
 
 
 def generate_faucet_wallet(
-    client: Client, wallet: Optional[Wallet] = None, debug: bool = False
+    client: SyncClient, wallet: Optional[Wallet] = None, debug: bool = False
 ) -> Wallet:
     """
     Generates a random wallet and funds it using the XRPL Testnet Faucet.

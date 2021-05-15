@@ -5,10 +5,10 @@ from typing import Any, Dict, cast
 
 from typing_extensions import Final
 
+from xrpl.async_support.clients import Client
 from xrpl.async_support.ledger import get_latest_validated_ledger_sequence
 from xrpl.async_support.transaction.ledger import get_transaction_from_hash
 from xrpl.async_support.transaction.main import submit_transaction
-from xrpl.clients import Client
 from xrpl.constants import XRPLException
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction

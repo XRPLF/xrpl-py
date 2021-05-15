@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, cast
 
-from xrpl.clients import Client, XRPLRequestFailureException
+from xrpl.async_support.clients import Client, XRPLRequestFailureException
 from xrpl.models.requests import Fee, Ledger
 
 
@@ -19,7 +19,7 @@ async def get_latest_validated_ledger_sequence(client: Client) -> int:
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
     """
-    response = await client.request_async(Ledger(ledger_index="validated"))
+    response = await client.request_impl(Ledger(ledger_index="validated"))
     result = cast(Dict[str, Any], response.result)
     if response.is_successful():
         return cast(int, result["ledger_index"])
@@ -40,7 +40,7 @@ async def get_latest_open_ledger_sequence(client: Client) -> int:
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
     """
-    response = await client.request_async(Ledger(ledger_index="open"))
+    response = await client.request_impl(Ledger(ledger_index="open"))
     result = cast(Dict[str, Any], response.result)
     if response.is_successful():
         return cast(int, result["ledger_index"])
@@ -61,7 +61,7 @@ async def get_fee(client: Client) -> str:
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
     """
-    response = await client.request_async(Fee())
+    response = await client.request_impl(Fee())
     result = cast(Dict[str, Any], response.result)
     if response.is_successful():
         return cast(str, result["drops"]["minimum_fee"])

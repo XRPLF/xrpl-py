@@ -4,13 +4,13 @@ import asyncio
 from typing import Optional
 
 from xrpl.async_support.transaction import ledger
-from xrpl.clients import Client
+from xrpl.clients.sync_client import SyncClient
 from xrpl.models.response import Response
 
 
 def get_transaction_from_hash(
     tx_hash: str,
-    client: Client,
+    client: SyncClient,
     binary: bool = False,
     min_ledger: Optional[int] = None,
     max_ledger: Optional[int] = None,
