@@ -8,6 +8,7 @@ from xrpl.asyncio.clients.utils import (
     websocket_to_response,
 )
 from xrpl.clients.json_rpc_client import JsonRpcClient
+from xrpl.clients.websocket_client import WebsocketClient
 
 __all__ = [
     "Client",
@@ -17,4 +18,5 @@ __all__ = [
     "request_to_websocket",
     "XRPLRequestFailureException",
     "websocket_to_response",
+    "WebsocketClient",
 ]
