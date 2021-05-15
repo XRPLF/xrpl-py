@@ -31,11 +31,3 @@ repos:
         language: system
         files: xrpl/
         types: [python]
-      - id: sphinx
-        name: sphinx
-        entry: poetry run sphinx-apidoc -o docs/source xrpl
-        language: system
-        pass_filenames: false
-        files: __init__
-        exclude: ^tests
-        types: [python]

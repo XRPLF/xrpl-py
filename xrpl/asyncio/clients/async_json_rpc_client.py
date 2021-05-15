@@ -1,8 +1,8 @@
 """An async client for interacting with the rippled JSON RPC."""
 from __future__ import annotations
 
-from xrpl.async_support.clients.async_client import AsyncClient
-from xrpl.async_support.clients.json_rpc_base import JsonRpcBase
+from xrpl.asyncio.clients.async_client import AsyncClient
+from xrpl.asyncio.clients.json_rpc_base import JsonRpcBase
 
 
 class AsyncJsonRpcClient(AsyncClient, JsonRpcBase):

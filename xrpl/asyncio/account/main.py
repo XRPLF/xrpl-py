@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, Union, cast
 
-from xrpl.async_support.clients import Client, XRPLRequestFailureException
+from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.models.requests import AccountInfo
 from xrpl.models.response import Response

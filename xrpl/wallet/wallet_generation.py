@@ -2,9 +2,7 @@
 import asyncio
 from typing import Optional
 
-from xrpl.async_support.wallet import (
-    generate_faucet_wallet as async_generate_faucet_wallet,
-)
+from xrpl.asyncio.wallet import generate_faucet_wallet as async_generate_faucet_wallet
 from xrpl.clients.sync_client import SyncClient
 from xrpl.wallet.main import Wallet
 

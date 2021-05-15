@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import asyncio
 
-from xrpl.async_support.clients.client import Client
+from xrpl.asyncio.clients.client import Client
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
 

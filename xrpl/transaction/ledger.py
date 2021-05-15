@@ -3,7 +3,7 @@
 import asyncio
 from typing import Optional
 
-from xrpl.async_support.transaction import ledger
+from xrpl.asyncio.transaction import ledger
 from xrpl.clients.sync_client import SyncClient
 from xrpl.models.response import Response
 

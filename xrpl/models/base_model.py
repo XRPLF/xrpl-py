@@ -9,6 +9,8 @@ from enum import Enum
 from re import split, sub
 from typing import Any, Dict, List, Type, Union, cast, get_type_hints
 
+from typing_extensions import get_args, get_origin
+
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 
@@ -97,53 +99,22 @@ class BaseModel(ABC):
         cls: Type[BaseModel],
         param: str,
         param_type: Type[Any],
-        param_value: Dict[str, Any],
+        param_value: Union[int, str, bool, BaseModel, Enum, List[Any], Dict[str, Any]],
     ) -> Any:
         """Recursively handles each individual param in `from_dict`."""
-        if type(param_value) == param_type:
-            # the type of the param provided matches the type expected for the param
-            return param_value
+        param_type_origin = get_origin(param_type)
+        # returns `list` if a List, `Union` if a Union, None otherwise
 
-        if "xrpl.models" in param_type.__module__:  # any model defined in xrpl.models
-            if not isinstance(param_value, dict):
-                raise XRPLModelException(
-                    f"{param_type} requires a dictionary of params"
-                )
-            return cast(BaseModel, param_type).from_dict(param_value)
+        if param_type_origin is list and isinstance(param_value, list):
+            # expected a List, received a List
+            list_type = get_args(param_type)[0]
+            return [
+                cls._from_dict_single_param(param, list_type, item)
+                for item in param_value
+            ]
 
-        if param_type in Enum.__subclasses__():  # an Enum
-            return param_type(param_value)
-
-        # param_type must be something from typing - e.g. List, Union, Any
-        # there are no models that have Dict params
-        if param_type == Any:
-            # param_type is Any
-            return param_value
-
-        if param_type.__module__ != "typing":
-            # Should be in `typing` if it reaches here
-            # If the type is a builtin type here, it means there was a mismatch
-            # somewhere above
-            raise XRPLModelException(
-                f"{param} expected a {param_type.__name__}, received a "
-                f"{type(param_value).__name__}"
-            )
-
-        if param_type.__reduce__()[1][0] == List:
-            # param_type is a List
-            if not isinstance(param_value, List):
-                raise XRPLModelException(
-                    f"{param} expected a List, received a {type(param_value)}"
-                )
-            list_type = param_type.__reduce__()[1][1]
-            new_list = []
-            for item in param_value:
-                new_list.append(cls._from_dict_single_param(param, list_type, item))
-            return new_list
-
-        if param_type.__reduce__()[1][0] == Union:
-            # param_type is a Union
-            for param_type_option in param_type.__args__:
+        if param_type_origin is Union:
+            for param_type_option in get_args(param_type):
                 # iterate through the types Union-ed together
                 try:
                     # try to use this Union-ed type to process param_value
@@ -151,13 +122,38 @@ class BaseModel(ABC):
                         param, param_type_option, param_value
                     )
                 except XRPLModelException:
-                    # this Union-ed type did not work
-                    # move onto the next one
-                    continue
+                    # this Union-ed type did not work, move onto the next one
+                    pass
 
-        raise XRPLModelException(
-            f"{param} expected a {param_type}, received a {type(param_value)}"
-        )
+        # no more collections (no params expect a Dict)
+
+        if param_type is Any:
+            # param_type is Any (e.g. will accept anything)
+            return param_value
+
+        if isinstance(param_type, type) and isinstance(param_value, param_type):
+            # expected an object, received the correct object
+            return param_value
+
+        if (
+            isinstance(param_type, type)
+            and issubclass(param_type, BaseModel)
+            and isinstance(param_value, dict)
+        ):
+            # expected an XRPL Model, received a Dict
+            return cast(BaseModel, param_type).from_dict(param_value)
+
+        # received something we didn't expect, raise an error
+        if isinstance(param_type, type) and issubclass(param_type, BaseModel):
+            error_message = (
+                f"{param} expected a {param_type} or a Dict representing {param_type}, "
+                f"received a {type(param_value)}"
+            )
+        else:
+            error_message = (
+                f"{param} expected a {param_type}, received a {type(param_value)}"
+            )
+        raise XRPLModelException(error_message)
 
     @classmethod
     def _get_only_init_args(

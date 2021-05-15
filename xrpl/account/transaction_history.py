@@ -2,7 +2,7 @@
 import asyncio
 from typing import Any, Dict, List
 
-from xrpl.async_support.account import transaction_history
+from xrpl.asyncio.account import transaction_history
 from xrpl.clients.sync_client import SyncClient
 from xrpl.models.response import Response
 

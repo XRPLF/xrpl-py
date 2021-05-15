@@ -5,8 +5,8 @@ from typing import Optional
 import httpx
 from typing_extensions import Final
 
-from xrpl.async_support.account import get_balance, get_next_valid_seq_number
-from xrpl.async_support.clients import Client, XRPLRequestFailureException
+from xrpl.asyncio.account import get_balance, get_next_valid_seq_number
+from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.constants import XRPLException
 from xrpl.wallet.main import Wallet
 
@@ -102,8 +102,8 @@ async def _check_wallet_balance(address: str, client: Client) -> int:
 
 
 async def _request_funding(url: str, address: str) -> None:
-    async with httpx.AsyncClient() as client:
-        response = await client.post(url=url, json={"destination": address})
+    async with httpx.AsyncClient() as http_client:
+        response = await http_client.post(url=url, json={"destination": address})
     if not response.status_code == httpx.codes.OK:
         response.raise_for_status()
 

@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, Optional, cast
 
-from xrpl.async_support.clients import Client, XRPLRequestFailureException
+from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.models.requests import Tx
 from xrpl.models.response import Response
 

@@ -2,7 +2,7 @@
 
 import asyncio
 
-from xrpl.async_support.transaction import (
+from xrpl.asyncio.transaction import (
     send_reliable_submission as async_send_reliable_submission,
 )
 from xrpl.clients.sync_client import SyncClient

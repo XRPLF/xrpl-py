@@ -1,5 +1,5 @@
 """Top-level exports for the transaction package."""
-from xrpl.async_support.transaction import (
+from xrpl.asyncio.transaction import (
     XRPLReliableSubmissionException,
     transaction_json_to_binary_codec_form,
 )
@@ -20,6 +20,5 @@ __all__ = [
     "submit_transaction",
     "transaction_json_to_binary_codec_form",
     "send_reliable_submission",
-    "send_reliable_submission_async",
     "XRPLReliableSubmissionException",
 ]

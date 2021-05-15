@@ -1,5 +1,5 @@
 """Top-level exports for the ledger package."""
-from xrpl.async_support.ledger.main import (
+from xrpl.asyncio.ledger.main import (
     get_fee,
     get_latest_open_ledger_sequence,
     get_latest_validated_ledger_sequence,

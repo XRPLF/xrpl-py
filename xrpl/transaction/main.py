@@ -1,7 +1,7 @@
 """High-level transaction methods with XRPL transactions."""
 import asyncio
 
-from xrpl.async_support.transaction import main
+from xrpl.asyncio.transaction import main
 from xrpl.clients.sync_client import SyncClient
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction

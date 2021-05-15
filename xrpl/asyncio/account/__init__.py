@@ -1,12 +1,12 @@
 """Public interface for XRPL account sugar methods."""
-from xrpl.async_support.account.main import (
+from xrpl.asyncio.account.main import (
     does_account_exist,
     get_account_info,
     get_account_root,
     get_balance,
     get_next_valid_seq_number,
 )
-from xrpl.async_support.account.transaction_history import (
+from xrpl.asyncio.account.transaction_history import (
     get_account_payment_transactions,
     get_account_transactions,
     get_latest_transaction,

@@ -12,7 +12,13 @@ from xrpl.models.requests import (
     PathStep,
     Sign,
 )
-from xrpl.models.transactions import CheckCreate, SignerEntry, SignerListSet, TrustSet
+from xrpl.models.transactions import (
+    CheckCreate,
+    SignerEntry,
+    SignerListSet,
+    TrustSet,
+    TrustSetFlag,
+)
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.transaction import transaction_json_to_binary_codec_form
 
@@ -153,7 +159,7 @@ class TestBaseModel(TestCase):
             "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
             "fee": "10",
             "sequence": 16178313,
-            "flags": 131072,
+            "flags": TrustSetFlag.TF_SET_NO_RIPPLE,
             "limit_amount": {
                 "currency": "USD",
                 "issuer": "raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
@@ -164,7 +170,7 @@ class TestBaseModel(TestCase):
             account="rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
             fee="10",
             sequence=16178313,
-            flags=131072,
+            flags=TrustSetFlag.TF_SET_NO_RIPPLE.value,
             limit_amount=IssuedCurrencyAmount(
                 currency="USD", issuer="raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT", value="100"
             ),
@@ -204,7 +210,7 @@ class TestBaseModel(TestCase):
     def test_from_dict_bad_str(self):
         dictionary = {
             "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
-            "fee": 10,
+            "fee": 10,  # this should be a str instead ("10")
             "sequence": 16178313,
             "flags": 131072,
             "limit_amount": {
@@ -215,6 +221,46 @@ class TestBaseModel(TestCase):
         }
         with self.assertRaises(XRPLModelException):
             TrustSet.from_dict(dictionary)
+
+    def test_from_dict_explicit_none(self):
+        dictionary = {
+            "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
+            "fee": "10",
+            "sequence": None,
+            "flags": TrustSetFlag.TF_SET_NO_RIPPLE,
+            "limit_amount": {
+                "currency": "USD",
+                "issuer": "raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
+                "value": "100",
+            },
+        }
+        expected = TrustSet(
+            account="rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
+            fee="10",
+            flags=TrustSetFlag.TF_SET_NO_RIPPLE.value,
+            limit_amount=IssuedCurrencyAmount(
+                currency="USD", issuer="raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT", value="100"
+            ),
+        )
+        actual = TrustSet.from_dict(dictionary)
+        self.assertEqual(actual, expected)
+
+    def test_from_dict_bad_list(self):
+        dictionary = {
+            "account": "rpqBNcDpWaqZC2Rksayf8UyG66Fyv2JTQy",
+            "fee": "10",
+            "sequence": 16175710,
+            "flags": 0,
+            "signer_quorum": 1,
+            "signer_entries": {
+                "signer_entry": {
+                    "account": "rJjusz1VauNA9XaHxJoiwHe38bmQFz1sUV",
+                    "signer_weight": 1,
+                }
+            },  # this should be a List of signer entries instead
+        }
+        with self.assertRaises(XRPLModelException):
+            SignerListSet.from_dict(dictionary)
 
     def test_from_xrpl(self):
         dirname = os.path.dirname(__file__)

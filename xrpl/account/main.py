@@ -3,7 +3,7 @@
 import asyncio
 from typing import Dict, Union
 
-from xrpl.async_support.account import main
+from xrpl.asyncio.account import main
 from xrpl.clients.sync_client import SyncClient
 from xrpl.models.response import Response
 

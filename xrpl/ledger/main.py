@@ -2,7 +2,7 @@
 
 import asyncio
 
-from xrpl.async_support.ledger import main
+from xrpl.asyncio.ledger import main
 from xrpl.clients.sync_client import SyncClient
 
 

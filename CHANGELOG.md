@@ -17,8 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Additional X-Address support in the binary codec and account sugar
 - Method to the `Wallet` class that generates the X-Address for the wallet's account
 - Improved readability of the README/documentation
-- Async versions of all high-level functionality within the `async_support`
-  package
+- Async versions of all high-level functionality within the `asyncio` package
 
 ### Fixed
 - Typos in docs/tests
