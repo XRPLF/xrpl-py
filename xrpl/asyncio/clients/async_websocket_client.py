@@ -1,7 +1,6 @@
 """A client for interacting with the rippled WebSocket API."""
 from __future__ import annotations
 
-from asyncio import Queue
 from collections.abc import AsyncIterator
 from types import TracebackType
 from typing import Any, Dict, Type
@@ -14,25 +13,6 @@ from xrpl.models.requests.request import Request
 class AsyncWebsocketClient(AsyncClient, WebsocketBase):
     """A client for interacting with the rippled WebSocket API."""
 
-    def __init__(self: AsyncWebsocketClient, url: str) -> None:
-        """
-        Constructs a AsyncWebsocketClient.
-
-        Arguments:
-            url: The URL of the rippled node to submit requests to.
-        """
-        self.url = url
-        super().__init__()
-
-    def is_open(self: AsyncWebsocketClient) -> bool:
-        """
-        Returns whether the AsyncWebsocket client is currently open.
-
-        Returns:
-            Whether the AsyncWebsocket client is currently open.
-        """
-        return self._messages is not None and super().is_open()
-
     async def open(self: AsyncWebsocketClient) -> None:
         """
         Connects the client to the Web Socket API at the given URL.
@@ -40,7 +20,6 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
         Raises:
             XRPLWebsocketException: If the AsyncWebsocket is already open.
         """
-        self._messages = Queue()
         await self._do_open()
 
     async def close(self: AsyncWebsocketClient) -> None:
@@ -51,12 +30,6 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
             XRPLWebsocketException: If the AsyncWebsocket is already closed.
         """
         await self._do_close()
-        # clear the message queue
-        assert self._messages is not None  # mypy
-        for _ in range(self._messages.qsize()):
-            self._messages.get_nowait()
-            self._messages.task_done()
-        self._messages = None
 
     async def __aenter__(self: AsyncWebsocketClient) -> AsyncWebsocketClient:
         """
@@ -80,12 +53,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
     async def __aiter__(self: AsyncWebsocketClient) -> AsyncIterator[Dict[str, Any]]:
         """Iterate on received messages."""
         while self.is_open():
-            assert self._messages is not None
-
-            # wait for the next message on the message queue
-            message = await self._messages.get()
-            self._messages.task_done()
-            yield message
+            yield await self._do_pop_message()
 
     async def send(self: AsyncWebsocketClient, request: Request) -> None:
         """

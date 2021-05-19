@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 from asyncio import AbstractEventLoop, new_event_loop, run_coroutine_threadsafe
+from concurrent.futures import CancelledError, TimeoutError
 from threading import Thread
 from types import TracebackType
-from typing import Any, Callable, Dict, Optional, Type
+from typing import Any, Dict, Iterator, Optional, Type, Union
 
 from xrpl.asyncio.clients.exceptions import XRPLWebsocketException
 from xrpl.asyncio.clients.websocket_base import WebsocketBase
@@ -17,23 +18,21 @@ class WebsocketClient(SyncClient, WebsocketBase):
     """A sync client for interacting with the rippled WebSocket API."""
 
     def __init__(
-        self: WebsocketClient,
-        url: str,
-        onmessage: Callable[[Dict[str, Any]], Any],
+        self: WebsocketClient, url: str, timeout: Optional[Union[int, float]] = None
     ) -> None:
         """
         Constructs a WebsocketClient.
 
         Arguments:
             url: The URL of the rippled node to submit requests to.
-            onmessage: A function to call *from another thread* with each
-                received message.
+            timeout: Maximum seconds to wait for a new message when
+                iterating. A value of 0 or None will result in no limit.
+                If this limit is met, iteration will stop.
         """
-        self.url = url
-        self._onmessage = onmessage
+        self.timeout = timeout
         self._loop: Optional[AbstractEventLoop] = None
         self._thread: Optional[Thread] = None
-        super().__init__()
+        super().__init__(url)
 
     def is_open(self: WebsocketClient) -> bool:
         """
@@ -95,6 +94,25 @@ class WebsocketClient(SyncClient, WebsocketBase):
     ) -> None:
         """Exits a context after closing itself."""
         self.close()
+
+    def __iter__(self: WebsocketClient) -> Iterator[Dict[str, Any]]:
+        """
+        Iterate on received messages. This iterator will block until
+        a message is received. If no message is received within
+        `self.timeout` seconds then the iterator will exit. If
+        `self.timeout` is `None` or `0` then the iterator will block
+        indefinetly for the next messsage.
+        """
+        while self.is_open():
+            assert self._loop is not None  # mypy
+            future = run_coroutine_threadsafe(self._do_pop_message(), self._loop)
+            try:
+                yield future.result(self.timeout)
+            except TimeoutError:
+                future.cancel()
+                break
+            except CancelledError:
+                break
 
     def send(self: WebsocketClient, request: Request) -> None:
         """

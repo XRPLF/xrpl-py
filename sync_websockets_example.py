@@ -19,11 +19,25 @@ def main():
     start = time.time()
     print("starting main program")
     url = "wss://s.altnet.rippletest.net/"
-    with WebsocketClient(url, onmessage) as client:
-        client.send(Subscribe(streams=[StreamParameter.LEDGER]))
+    msg_count = 0
+
+    # open client
+    with WebsocketClient(url) as client:
+        # example usage of sugar
         fee = get_fee(client)
         print(f"FEE!: {fee}")
-        time.sleep(10)
+
+        # set up subscription
+        client.send(Subscribe(streams=[StreamParameter.LEDGER]))
+
+        # example of reading 10 messages from the socket
+        # and processing them. each iteration here will block waiting for a
+        # message.
+        for message in client:
+            msg_count += 1
+            onmessage(message)
+            if msg_count > 10:
+                break
 
     print(f"stopping main program: took {time.time() - start} seconds")
 

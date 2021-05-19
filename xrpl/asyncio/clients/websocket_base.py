@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from asyncio import Future, Queue, Task, create_task, get_running_loop
 from random import randrange
-from typing import Any, Callable, Dict, Optional, cast
+from typing import Any, Dict, Optional, cast
 
 from typing_extensions import Final
 from websockets.legacy.client import WebSocketClientProtocol, connect
@@ -31,14 +31,18 @@ def _inject_request_id(request: Request) -> Request:
 class WebsocketBase(Client):
     """A client for interacting with the rippled WebSocket API."""
 
-    def __init__(self: WebsocketBase) -> None:
-        """Constructs a WebsocketBase."""
+    def __init__(self: WebsocketBase, url: str) -> None:
+        """
+        Constructs a WebsocketBase.
+
+        Arguments:
+            url: The URL of the rippled node to submit requests to.
+        """
+        self.url = url
         self._open_requests: Dict[str, Future[Dict[str, Any]]] = {}
         self._websocket: Optional[WebSocketClientProtocol] = None
         self._handler_task: Optional[Task[None]] = None
         self._messages: Optional[Queue[Dict[str, Any]]] = None
-        if not hasattr(self, "_onmessage"):
-            self._onmessage: Optional[Callable[[Dict[str, Any]], Any]] = None
 
     def is_open(self: WebsocketBase) -> bool:
         """
@@ -49,6 +53,7 @@ class WebsocketBase(Client):
         """
         return (
             self._handler_task is not None
+            and self._messages is not None
             and self._websocket is not None
             and self._websocket.open
         )
@@ -66,6 +71,9 @@ class WebsocketBase(Client):
         # open the connection
         self._websocket = await connect(self.url)
 
+        # make a message queue
+        self._messages = Queue()
+
         # start the handler
         self._handler_task = create_task(self._handler())
 
@@ -80,6 +88,7 @@ class WebsocketBase(Client):
             raise XRPLWebsocketException("Websocket is not open")
         assert self._handler_task is not None  # mypy
         assert self._websocket is not None  # mypy
+        assert self._messages is not None  # mypy
 
         # cancel the handler
         self._handler_task.cancel()
@@ -89,6 +98,12 @@ class WebsocketBase(Client):
         for future in self._open_requests.values():
             future.cancel()
         self._open_requests = {}
+
+        # clear the message queue
+        for _ in range(self._messages.qsize()):
+            self._messages.get_nowait()
+            self._messages.task_done()
+        self._messages = None
 
         # close the connection
         await self._websocket.close()
@@ -105,6 +120,7 @@ class WebsocketBase(Client):
         As long as a given client remains open, this handler will be running as a Task.
         """
         assert self._websocket is not None  # mypy
+        assert self._messages is not None  # mypy
         async for response in self._websocket:
             response_dict = json.loads(response)
 
@@ -112,13 +128,8 @@ class WebsocketBase(Client):
             if "id" in response_dict and response_dict["id"] in self._open_requests:
                 self._open_requests[response_dict["id"]].set_result(response_dict)
 
-            # call callback
-            if self._onmessage is not None:
-                self._onmessage(response_dict)
-
             # enqueue the response for the message queue
-            if self._messages is not None:
-                self._messages.put_nowait(response_dict)
+            self._messages.put_nowait(response_dict)
 
     def _set_up_future(self: WebsocketBase, request: Request) -> None:
         """
@@ -165,6 +176,12 @@ class WebsocketBase(Client):
         # that if a user submits a few requests with the same ID they fail.
         self._set_up_future(request)
         await self._do_send_no_future(request)
+
+    async def _do_pop_message(self: WebsocketBase) -> Dict[str, Any]:
+        assert self._messages is not None  # mypy
+        msg = await self._messages.get()
+        self._messages.task_done()
+        return msg
 
     async def request_impl(self: WebsocketBase, request: Request) -> Response:
         """
