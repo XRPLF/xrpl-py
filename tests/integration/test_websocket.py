@@ -1,13 +1,12 @@
 import asyncio
-
-from later.unittest import TestCase
+from unittest import IsolatedAsyncioTestCase
 
 from tests.integration.it_utils import JSON_RPC_CLIENT, WEBSOCKET_CLIENT
 from xrpl.asyncio.ledger import get_fee, get_latest_open_ledger_sequence
 from xrpl.models.requests import StreamParameter, Subscribe
 
 
-class TestWebsocket(TestCase):
+class TestWebsocket(IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         await WEBSOCKET_CLIENT.open()
 

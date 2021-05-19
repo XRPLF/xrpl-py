@@ -135,7 +135,11 @@ class BaseModel(ABC):
             # expected an object, received the correct object
             return param_value
 
-        if issubclass(param_type, Enum) and param_value in list(param_type):
+        if (
+            isinstance(param_type, type)
+            and issubclass(param_type, Enum)
+            and param_value in list(param_type)
+        ):
             # expected an Enum and received a valid value for it
             return param_value
 
