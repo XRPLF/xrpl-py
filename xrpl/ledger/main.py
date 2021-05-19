@@ -1,12 +1,12 @@
 """High-level ledger methods with the XRPL ledger."""
 
-from typing import Any, Dict, cast
+import asyncio
 
-from xrpl.clients import Client, XRPLRequestFailureException
-from xrpl.models.requests import Fee, Ledger
+from xrpl.asyncio.ledger import main
+from xrpl.clients.sync_client import SyncClient
 
 
-def get_latest_validated_ledger_sequence(client: Client) -> int:
+def get_latest_validated_ledger_sequence(client: SyncClient) -> int:
     """
     Returns the sequence number of the latest validated ledger.
 
@@ -19,15 +19,10 @@ def get_latest_validated_ledger_sequence(client: Client) -> int:
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
     """
-    response = client.request(Ledger(ledger_index="validated"))
-    result = cast(Dict[str, Any], response.result)
-    if response.is_successful():
-        return cast(int, result["ledger_index"])
-
-    raise XRPLRequestFailureException(result)
+    return asyncio.run(main.get_latest_validated_ledger_sequence(client))
 
 
-def get_latest_open_ledger_sequence(client: Client) -> int:
+def get_latest_open_ledger_sequence(client: SyncClient) -> int:
     """
     Returns the sequence number of the latest open ledger.
 
@@ -40,15 +35,10 @@ def get_latest_open_ledger_sequence(client: Client) -> int:
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
     """
-    response = client.request(Ledger(ledger_index="open"))
-    result = cast(Dict[str, Any], response.result)
-    if response.is_successful():
-        return cast(int, result["ledger_index"])
-
-    raise XRPLRequestFailureException(result)
+    return asyncio.run(main.get_latest_open_ledger_sequence(client))
 
 
-def get_fee(client: Client) -> str:
+def get_fee(client: SyncClient) -> str:
     """
     Query the ledger for the current minimum transaction fee.
 
@@ -61,9 +51,4 @@ def get_fee(client: Client) -> str:
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
     """
-    response = client.request(Fee())
-    result = cast(Dict[str, Any], response.result)
-    if response.is_successful():
-        return cast(str, result["drops"]["minimum_fee"])
-
-    raise XRPLRequestFailureException(result)
+    return asyncio.run(main.get_fee(client))

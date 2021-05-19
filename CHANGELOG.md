@@ -13,11 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option for `Transaction.flags` to be a `List` of `int`s instead of just an `int`
 - Optional parameters for `get_transaction_from_hash`: `binary`, `min_ledger` and `max_ledger`
 - Enum for `PaymentChannelClaim` flags
-- Async version of reliable submission
 - Optional parameter to check if the `Transaction` fee is not too high before signing it
 - Additional X-Address support in the binary codec and account sugar
 - Method to the `Wallet` class that generates the X-Address for the wallet's account
 - Improved readability of the README/documentation
+- Async versions of all high-level functionality within the `asyncio` package
 
 ### Fixed
 - Typos in docs/tests

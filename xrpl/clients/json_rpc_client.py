@@ -1,30 +1,18 @@
-"""A client for interacting with the rippled JSON RPC."""
+"""A sync client for interacting with the rippled JSON RPC."""
 from __future__ import annotations
 
-import requests
-
-from xrpl.clients.client import Client
-from xrpl.clients.utils import json_to_response, request_to_json_rpc
-from xrpl.models.requests.request import Request
-from xrpl.models.response import Response
+from xrpl.asyncio.clients.json_rpc_base import JsonRpcBase
+from xrpl.clients.sync_client import SyncClient
 
 
-class JsonRpcClient(Client):
-    """A client for interacting with the rippled JSON RPC."""
+class JsonRpcClient(SyncClient, JsonRpcBase):
+    """A sync client for interacting with the rippled JSON RPC."""
 
-    def request(self: JsonRpcClient, request_object: Request) -> Response:
+    def __init__(self: JsonRpcClient, url: str) -> None:
         """
-        Submit the request represented by the request_object to the rippled node
-        specified by this client's URL.
+        Initialize this JsonRpcClient.
 
         Arguments:
-            request_object: An object representing information about a rippled request.
-
-        Returns:
-            The response from the server, as a Response object.
+            url: The url to which to connect.
         """
-        formatted_request = request_to_json_rpc(request_object)
-        response = requests.post(self.url, json=formatted_request)
-        # TODO: error checking here - raise if the response from server was error?
-        # OR just return a Response object with ResponseStatus.ERROR?
-        return json_to_response(response.json())
+        self.url = url

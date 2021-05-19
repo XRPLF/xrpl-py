@@ -1,5 +1,6 @@
 """Utility functions and variables for integration tests."""
 
+from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.clients import Client, JsonRpcClient
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
@@ -12,6 +13,11 @@ from xrpl.wallet import Wallet
 
 JSON_RPC_URL = "https://s.altnet.rippletest.net:51234"
 JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
+ASYNC_JSON_RPC_CLIENT = AsyncJsonRpcClient(JSON_RPC_URL)
+CLIENTS = [
+    JsonRpcClient(JSON_RPC_URL),
+    AsyncJsonRpcClient(JSON_RPC_URL),
+]
 
 
 def submit_transaction(
