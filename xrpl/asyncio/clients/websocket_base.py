@@ -59,14 +59,9 @@ class WebsocketBase(Client):
         )
 
     async def _do_open(self: WebsocketBase) -> None:
-        """
-        Connects the client to the Web Socket API at the given URL.
-
-        Raises:
-            XRPLWebsocketException: If the client is already open.
-        """
+        """Connects the client to the Web Socket API at the given URL."""
         if self.is_open():
-            raise XRPLWebsocketException("Websocket is already open")
+            return
 
         # open the connection
         self._websocket = await connect(self.url)
@@ -78,14 +73,9 @@ class WebsocketBase(Client):
         self._handler_task = create_task(self._handler())
 
     async def _do_close(self: WebsocketBase) -> None:
-        """
-        Closes the connection.
-
-        Raises:
-            XRPLWebsocketException: If the client is already closed.
-        """
+        """Closes the connection."""
         if not self.is_open():
-            raise XRPLWebsocketException("Websocket is not open")
+            return
         assert self._handler_task is not None  # mypy
         assert self._websocket is not None  # mypy
         assert self._messages is not None  # mypy
@@ -169,9 +159,6 @@ class WebsocketBase(Client):
             XRPLWebsocketException: If there is already an open request by the
                 request's ID, or if this WebsocketBase is not open.
         """
-        if not self.is_open():
-            raise XRPLWebsocketException("Websocket is not open")
-
         # we need to set up a future here, even if no one cares about it, so
         # that if a user submits a few requests with the same ID they fail.
         self._set_up_future(request)

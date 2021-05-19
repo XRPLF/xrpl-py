@@ -9,20 +9,24 @@ from xrpl.ledger import get_fee
 from xrpl.models.requests import StreamParameter, Subscribe
 
 
-def onmessage(message):
-    print(f"Got {message}")
-    rand_millis = random.randint(1, 5000) / 1000
-    time.sleep(rand_millis)
+def consumer(client):
+    msg_count = 0
+    for message in client:
+        msg_count += 1
+        print(f"Got {message}")
+        rand_millis = random.randint(1, 5000) / 1000
+        time.sleep(rand_millis)
+        if msg_count > 10:
+            return
 
 
 def main():
     start = time.time()
     print("starting main program")
     url = "wss://s.altnet.rippletest.net/"
-    msg_count = 0
 
     # open client
-    with WebsocketClient(url) as client:
+    with WebsocketClient(url, 10) as client:
         # example usage of sugar
         fee = get_fee(client)
         print(f"FEE!: {fee}")
@@ -33,11 +37,8 @@ def main():
         # example of reading 10 messages from the socket
         # and processing them. each iteration here will block waiting for a
         # message.
-        for message in client:
-            msg_count += 1
-            onmessage(message)
-            if msg_count > 10:
-                break
+        consumer(client)
+        client.close()
 
     print(f"stopping main program: took {time.time() - start} seconds")
 

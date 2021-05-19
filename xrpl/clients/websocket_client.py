@@ -59,14 +59,9 @@ class WebsocketClient(SyncClient, WebsocketBase):
         run_coroutine_threadsafe(self._do_open(), self._loop).result()
 
     def close(self: WebsocketClient) -> None:
-        """
-        Closes the connection.
-
-        Raises:
-            XRPLWebsocketException: If the AsyncWebsocket is already open.
-        """
+        """Closes the connection."""
         if not self.is_open():
-            raise XRPLWebsocketException("Websocket is not open")
+            return
 
         assert self._loop is not None  # mypy
         assert self._thread is not None  # mypy

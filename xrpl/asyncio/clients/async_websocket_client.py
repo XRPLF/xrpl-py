@@ -6,6 +6,7 @@ from types import TracebackType
 from typing import Any, Dict, Type
 
 from xrpl.asyncio.clients.async_client import AsyncClient
+from xrpl.asyncio.clients.exceptions import XRPLWebsocketException
 from xrpl.asyncio.clients.websocket_base import WebsocketBase
 from xrpl.models.requests.request import Request
 
@@ -67,4 +68,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
             XRPLWebsocketException: If there is already an open request by the
                 request's ID, or if this WebsocketBase is not open.
         """
+        if not self.is_open():
+            raise XRPLWebsocketException("Websocket is not open")
+
         await self._do_send(request)
