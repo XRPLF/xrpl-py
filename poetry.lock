@@ -29,14 +29,6 @@ importlib-metadata = {version = ">=0.23,<4", markers = "python_version == \"3.7\
 test = ["coverage", "flake8", "pexpect", "wheel"]
 
 [[package]]
-name = "async-timeout"
-version = "3.0.1"
-description = "Timeout context manager for asyncio programs"
-category = "dev"
-optional = false
-python-versions = ">=3.5.3"
-
-[[package]]
 name = "babel"
 version = "2.9.0"
 description = "Internationalization utilities"
@@ -339,17 +331,6 @@ MarkupSafe = ">=0.23"
 
 [package.extras]
 i18n = ["Babel (>=0.8)"]
-
-[[package]]
-name = "later"
-version = "20.10.1"
-description = "A toolbox for asyncio services"
-category = "dev"
-optional = false
-python-versions = ">3.7"
-
-[package.dependencies]
-async-timeout = ">=2.0.0,<5.0.0"
 
 [[package]]
 name = "markupsafe"
@@ -779,7 +760,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.1"
-content-hash = "77fb7fa848ff368cc80bd36f4bccd3523d0261ec73134c19a7503c2ff56076e9"
+content-hash = "1dde310e4f1c0d0d0db1d7f4eaaa25994b8fa638a539eb6abb13064c9f71fdb8"
 
 [metadata.files]
 alabaster = [
@@ -793,10 +774,6 @@ appdirs = [
 argcomplete = [
     {file = "argcomplete-1.12.2-py2.py3-none-any.whl", hash = "sha256:17f01a9b9b9ece3e6b07058eae737ad6e10de8b4e149105f84614783913aba71"},
     {file = "argcomplete-1.12.2.tar.gz", hash = "sha256:de0e1282330940d52ea92a80fea2e4b9e0da1932aaa570f84d268939d1897b04"},
-]
-async-timeout = [
-    {file = "async-timeout-3.0.1.tar.gz", hash = "sha256:0c3c816a028d47f659d6ff5c745cb2acf1f966da1fe5c19c77a70282b25f4c5f"},
-    {file = "async_timeout-3.0.1-py3-none-any.whl", hash = "sha256:4291ca197d287d274d0b6cb5d6f8f8f82d434ed288f962539ff18cc9012f9ea3"},
 ]
 babel = [
     {file = "Babel-2.9.0-py2.py3-none-any.whl", hash = "sha256:9d35c22fcc79893c3ecc85ac4a56cde1ecf3f19c540bba0922308a6c06ca6fa5"},
@@ -903,10 +880,6 @@ isort = [
 jinja2 = [
     {file = "Jinja2-2.11.3-py2.py3-none-any.whl", hash = "sha256:03e47ad063331dd6a3f04a43eddca8a966a26ba0c5b7207a9a9e4e08f1b29419"},
     {file = "Jinja2-2.11.3.tar.gz", hash = "sha256:a6d58433de0ae800347cab1fa3043cebbabe8baa9d29e668f1c768cb87a333c6"},
-]
-later = [
-    {file = "later-20.10.1-py3-none-any.whl", hash = "sha256:a8e04381b5403e645abf204e80291e55a86e349f5a2e86b7331c3a73b289544f"},
-    {file = "later-20.10.1.tar.gz", hash = "sha256:ef2d44608b997021f4f983cb0219e8fc3e7d5e03c74e3b7f22a1f1908b4bc811"},
 ]
 markupsafe = [
     {file = "MarkupSafe-1.1.1-cp27-cp27m-macosx_10_6_intel.whl", hash = "sha256:09027a7803a62ca78792ad89403b1b7a73a01c8cb65909cd876f7fcebd79b161"},
