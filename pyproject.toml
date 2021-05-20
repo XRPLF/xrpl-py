@@ -30,6 +30,7 @@ base58 = "^2.1.0"
 ECPy = "^1.2.5"
 typing-extensions = "^3.7.4"
 httpx = "^0.18.1"
+websockets = "^9.0.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"

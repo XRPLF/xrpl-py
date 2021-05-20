@@ -13,7 +13,7 @@ class SyncClient(Client):
 
     def request(self: SyncClient, request: Request) -> Response:
         """
-        Requests the specified ledger request and returns its result.
+        Makes a request with a SyncClient.
 
         Arguments:
             request: The Request to send.

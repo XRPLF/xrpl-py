@@ -1,7 +1,7 @@
 """Utility functions and variables for integration tests."""
 
-from xrpl.asyncio.clients import AsyncJsonRpcClient
-from xrpl.clients import Client, JsonRpcClient
+from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
+from xrpl.clients import Client, JsonRpcClient, WebsocketClient
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.transaction import (
@@ -12,11 +12,17 @@ from xrpl.transaction import (
 from xrpl.wallet import Wallet
 
 JSON_RPC_URL = "https://s.altnet.rippletest.net:51234"
+WEBSOCKET_URL = "wss://s.altnet.rippletest.net/"
 JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
 ASYNC_JSON_RPC_CLIENT = AsyncJsonRpcClient(JSON_RPC_URL)
+WEBSOCKET_CLIENT = WebsocketClient(WEBSOCKET_URL)
+ASYNC_WEBSOCKET_CLIENT = AsyncWebsocketClient(WEBSOCKET_URL)
+
 CLIENTS = [
-    JsonRpcClient(JSON_RPC_URL),
-    AsyncJsonRpcClient(JSON_RPC_URL),
+    JSON_RPC_CLIENT,
+    ASYNC_JSON_RPC_CLIENT,
+    WEBSOCKET_CLIENT,
+    ASYNC_WEBSOCKET_CLIENT,
 ]
 
 
@@ -33,7 +39,15 @@ def submit_transaction(
 
 
 def sign_and_reliable_submission(
-    transaction: Transaction, wallet: Wallet, client=JSON_RPC_CLIENT
+    transaction: Transaction, wallet: Wallet, use_json_client: bool = True
 ) -> Response:
+    client = _choose_client(use_json_client)
     signed_tx = safe_sign_and_autofill_transaction(transaction, wallet, client)
     return send_reliable_submission(signed_tx, client)
+
+
+def _choose_client(use_json_client: bool) -> Client:
+    if use_json_client:
+        return JSON_RPC_CLIENT
+    else:
+        return WEBSOCKET_CLIENT

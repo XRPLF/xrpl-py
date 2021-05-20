@@ -738,6 +738,14 @@ docs = ["proselint (>=0.10.2)", "sphinx (>=3)", "sphinx-argparse (>=0.2.5)", "sp
 testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", "pytest (>=4)", "pytest-env (>=0.6.2)", "pytest-freezegun (>=0.4.1)", "pytest-mock (>=2)", "pytest-randomly (>=1)", "pytest-timeout (>=1)", "packaging (>=20.0)", "xonsh (>=0.9.16)"]
 
 [[package]]
+name = "websockets"
+version = "9.0.1"
+description = "An implementation of the WebSocket Protocol (RFC 6455 & 7692)"
+category = "main"
+optional = false
+python-versions = ">=3.6.1"
+
+[[package]]
 name = "zipp"
 version = "3.4.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
@@ -751,8 +759,8 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.7"
-content-hash = "ad07656370977b79f15259efe3c3967eed9a388b0e5ba063a418c191d84a154d"
+python-versions = "^3.7.1"
+content-hash = "1dde310e4f1c0d0d0db1d7f4eaaa25994b8fa638a539eb6abb13064c9f71fdb8"
 
 [metadata.files]
 alabaster = [
@@ -1146,6 +1154,41 @@ urllib3 = [
 virtualenv = [
     {file = "virtualenv-20.4.0-py2.py3-none-any.whl", hash = "sha256:227a8fed626f2f20a6cdb0870054989f82dd27b2560a911935ba905a2a5e0034"},
     {file = "virtualenv-20.4.0.tar.gz", hash = "sha256:219ee956e38b08e32d5639289aaa5bd190cfbe7dafcb8fa65407fca08e808f9c"},
+]
+websockets = [
+    {file = "websockets-9.0.1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:69a5972956759224c5201007ff49398a78a23baca344185533093602f56cbbbe"},
+    {file = "websockets-9.0.1-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:33c59a9151bd0b133e6314063f5a5924273e6ff038e7ac9ec7dcea40d0619723"},
+    {file = "websockets-9.0.1-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:77866cba716a78a056612541f9cc47de93ba70cee3395337131cd3cb87a10273"},
+    {file = "websockets-9.0.1-cp36-cp36m-manylinux2010_i686.whl", hash = "sha256:7cfbe5339dc5a2dc813e96626fa9e659e252df78fbef5b8e67ad17578a78c147"},
+    {file = "websockets-9.0.1-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:966fe1574708927322d0b5caff0b49fd7ab5f889eb4ba6aefa5718be3e7c879f"},
+    {file = "websockets-9.0.1-cp36-cp36m-manylinux2014_aarch64.whl", hash = "sha256:ccce35e8ab229a5b518bc72391ea5989fb6fec9817e772897d67ff1a12cc1a8b"},
+    {file = "websockets-9.0.1-cp36-cp36m-win32.whl", hash = "sha256:a96ed836dae26d50ef69648ac804c7e53aca81dd9c90ef1128acef3925b7e055"},
+    {file = "websockets-9.0.1-cp36-cp36m-win_amd64.whl", hash = "sha256:16c1875f957c685e8bd815cd164eaf46373940c14b01b0baff81169249c95922"},
+    {file = "websockets-9.0.1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:9b0ac168c258c6e42cabfef699c1282043e9fa0e7d6a211f93998dc8b2249238"},
+    {file = "websockets-9.0.1-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:66c112ef31a8b419dac4a1a5baaa2e76610ed184801123e80a0ba9c7173177ff"},
+    {file = "websockets-9.0.1-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:9480bb6f41f76de3fd7a8937834f740fd331a3af2d92dd15d45a2c27c6b546e6"},
+    {file = "websockets-9.0.1-cp37-cp37m-manylinux2010_i686.whl", hash = "sha256:8d084ac3da927dd252fe11cb082a75dbb377fbb11e8ebdc095297ef44d0764aa"},
+    {file = "websockets-9.0.1-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:3f768eeaa001efc23d140701e666b18f76b9aaaefc38889bdb3a47afabdbd199"},
+    {file = "websockets-9.0.1-cp37-cp37m-manylinux2014_aarch64.whl", hash = "sha256:a864ecd9e3a862342b6288129cd0557e2d0a785ec82ded4b562254e326e5a566"},
+    {file = "websockets-9.0.1-cp37-cp37m-win32.whl", hash = "sha256:55299ba19717d6cfc5341d1653d2ada41986073978bf1f6128cdf0fd4bc240c1"},
+    {file = "websockets-9.0.1-cp37-cp37m-win_amd64.whl", hash = "sha256:1cf7b0b78ed8134c6043d6425d53ee1232de1d07e4df02d446e4d0bff93270c1"},
+    {file = "websockets-9.0.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:e496386bfb8e1e89824bb488f387bca8eff304c67fd030f1bd40d0c41a8f8734"},
+    {file = "websockets-9.0.1-cp38-cp38-manylinux1_i686.whl", hash = "sha256:f876ae0e6acfcce6cd03601f9bda37f210b568888cba99075f64503bf2174a08"},
+    {file = "websockets-9.0.1-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:163c6cfdf74e2034b22c51c727b7f7b4aae2fa949555aeafd79dcffab34b2bd3"},
+    {file = "websockets-9.0.1-cp38-cp38-manylinux2010_i686.whl", hash = "sha256:40a73c4f9d0a5796688753c115b3b5a29269e0bcb8661f5d0f9e1352b81839fd"},
+    {file = "websockets-9.0.1-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:0b5c20681b1e12df80499e3323e3cdb2b813553e2553aa392d3db8a063100fb8"},
+    {file = "websockets-9.0.1-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:3b61adeb0bc4b34a62ec231b320967d7ca61b40ee26f8ec8d93d1d5ae292deef"},
+    {file = "websockets-9.0.1-cp38-cp38-win32.whl", hash = "sha256:3437fd1fce7a40fa315080ab61c7744695a2ca3e8d5d6e7576d09c4b697b7f38"},
+    {file = "websockets-9.0.1-cp38-cp38-win_amd64.whl", hash = "sha256:0943a856b38ecafc5ab96261687d1e744d4307815927911eb76ae609b5d21e0e"},
+    {file = "websockets-9.0.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:b15043e495ff7a601a98d4d5f019f1ae4b6b643d9dbcf3d9398af58fe5545148"},
+    {file = "websockets-9.0.1-cp39-cp39-manylinux1_i686.whl", hash = "sha256:60ecbc6ce686dc1d640d9771342e3f4477f21fa65a10235b390c45c28b3c2399"},
+    {file = "websockets-9.0.1-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:407a215d4d92576b582dac3bb8a66e0d7d1428abb1c48b2c0cf7e8e71c87e2f1"},
+    {file = "websockets-9.0.1-cp39-cp39-manylinux2010_i686.whl", hash = "sha256:5a1f7580a035e97d015963c6935d5ba9aabca8fca056aaef73e82d3bcfee6d79"},
+    {file = "websockets-9.0.1-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:3a69e07ed385b383adc0731effe47680caa60232cb32bf43e38dd1e48c602126"},
+    {file = "websockets-9.0.1-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:a508a1e2630ebd88c4a60e0443a4bc3b6370d2a9c2c2d534ab0d718cd63ad589"},
+    {file = "websockets-9.0.1-cp39-cp39-win32.whl", hash = "sha256:8c0a414ffebb1cd5fc603cc1cb5347f5e564762aa8f12c411507c7345907781f"},
+    {file = "websockets-9.0.1-cp39-cp39-win_amd64.whl", hash = "sha256:73a9195c6e009d0c34d0519eb75c5d78e5bd0d2e3998f35b0c35e1e23b3f5a6b"},
+    {file = "websockets-9.0.1.tar.gz", hash = "sha256:2ab64e9fd18e57a66b63a8774e337d81d6366412bef65c7d71f87ad5c4faeed5"},
 ]
 zipp = [
     {file = "zipp-3.4.0-py3-none-any.whl", hash = "sha256:102c24ef8f171fd729d46599845e95c7ab894a4cf45f5de11a44cc7444fb1108"},

@@ -245,6 +245,19 @@ class TestBaseModel(TestCase):
         actual = TrustSet.from_dict(dictionary)
         self.assertEqual(actual, expected)
 
+    def test_from_dict_with_str_enum_value(self):
+        dictionary = {
+            "method": "account_channels",
+            "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
+            "limit": 100,
+        }
+        expected = AccountChannels(
+            account="rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
+            limit=100,
+        )
+        actual = AccountChannels.from_dict(dictionary)
+        self.assertEqual(actual, expected)
+
     def test_from_dict_bad_list(self):
         dictionary = {
             "account": "rpqBNcDpWaqZC2Rksayf8UyG66Fyv2JTQy",

@@ -11,7 +11,7 @@ class AsyncClient(Client):
 
     async def request(self: AsyncClient, request: Request) -> Response:
         """
-        Requests the specified ledger request and returns its result.
+        Makes a request with an AsyncClient.
 
         Arguments:
             request: The Request to send.

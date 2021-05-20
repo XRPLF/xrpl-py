@@ -137,6 +137,15 @@ class BaseModel(ABC):
 
         if (
             isinstance(param_type, type)
+            and issubclass(param_type, Enum)
+            and param_value in list(param_type)
+        ):
+            # expected an Enum and received a valid value for it.
+            # for some reason required for string enums.
+            return param_value
+
+        if (
+            isinstance(param_type, type)
             and issubclass(param_type, BaseModel)
             and isinstance(param_value, dict)
         ):
