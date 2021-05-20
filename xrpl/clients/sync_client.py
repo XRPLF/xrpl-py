@@ -13,7 +13,7 @@ class SyncClient(Client):
 
     def request(self: SyncClient, request: Request) -> Response:
         """
-        Make a request with a SyncClient.
+        Makes a request with a SyncClient.
 
         Arguments:
             request: The Request to send.

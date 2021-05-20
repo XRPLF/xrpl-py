@@ -140,7 +140,8 @@ class BaseModel(ABC):
             and issubclass(param_type, Enum)
             and param_value in list(param_type)
         ):
-            # expected an Enum and received a valid value for it
+            # expected an Enum and received a valid value for it.
+            # for some reason required for string enums.
             return param_value
 
         if (

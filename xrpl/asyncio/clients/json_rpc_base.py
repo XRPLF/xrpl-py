@@ -1,7 +1,7 @@
 """A common interface for JsonRpc requests."""
 from __future__ import annotations
 
-import httpx
+from httpx import AsyncClient
 
 from xrpl.asyncio.clients.client import Client
 from xrpl.asyncio.clients.utils import json_to_response, request_to_json_rpc
@@ -11,6 +11,15 @@ from xrpl.models.response import Response
 
 class JsonRpcBase(Client):
     """A common interface for JsonRpc requests."""
+
+    def __init__(self: JsonRpcBase, url: str) -> None:
+        """
+        Initialize this JsonRpcClient.
+
+        Arguments:
+            url: The url to which to connect.
+        """
+        self.url = url
 
     async def request_impl(self: JsonRpcBase, request: Request) -> Response:
         """
@@ -23,7 +32,7 @@ class JsonRpcBase(Client):
         Returns:
             The response from the server, as a Response object.
         """
-        async with httpx.AsyncClient() as http_client:
+        async with AsyncClient() as http_client:
             response = await http_client.post(
                 self.url,
                 json=request_to_json_rpc(request),

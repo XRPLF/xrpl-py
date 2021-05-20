@@ -17,8 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Additional X-Address support in the binary codec and account sugar
 - Method to the `Wallet` class that generates the X-Address for the wallet's account
 - Improved readability of the README/documentation
-- Async versions of all high-level functionality within the `asyncio` package
-- WebSocket client
+- Async versions of all high-level functionality within the `xrpl.asyncio` package
+- Adds a web socket client under `xrpl.clients.WebsocketClient`
+- Adds an async web socket client under `xrpl.asyncio.clients.AsyncWebsocketClient`
 
 ### Fixed
 - Typos in docs/tests
@@ -26,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Expose `xrpl.accounts.get_account_root`
 - Invalid X-Addresses in the XRPL Binary Codec now error with `XRPLBinaryCodecException` instead of `ValueError`
 - Issue with calculating IOU precision
+- Issue with converting certain dictionaries to a model using `BaseModel.from_dict`
 
 ## [1.0.0] - 2021-03-31
 ### Added
