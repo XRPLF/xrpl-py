@@ -44,12 +44,9 @@ class WebsocketClient(SyncClient, WebsocketBase):
         return self._loop is not None and self._thread is not None and super().is_open()
 
     def open(self: WebsocketClient) -> None:
-        """
-        Connects the client to the Web Socket API at the given URL.
-
-        Raises:
-            XRPLWebsocketException: If the AsyncWebsocket is already open.
-        """
+        """Connects the client to the Web Socket API at the given URL."""
+        if self.is_open():
+            return
         self._loop = new_event_loop()
         self._thread = Thread(
             target=self._loop.run_forever,
@@ -62,7 +59,6 @@ class WebsocketClient(SyncClient, WebsocketBase):
         """Closes the connection."""
         if not self.is_open():
             return
-
         assert self._loop is not None  # mypy
         assert self._thread is not None  # mypy
         run_coroutine_threadsafe(self._do_close(), self._loop).result()

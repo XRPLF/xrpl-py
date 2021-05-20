@@ -15,21 +15,11 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
     """A client for interacting with the rippled WebSocket API."""
 
     async def open(self: AsyncWebsocketClient) -> None:
-        """
-        Connects the client to the Web Socket API at the given URL.
-
-        Raises:
-            XRPLWebsocketException: If the AsyncWebsocket is already open.
-        """
+        """Connects the client to the Web Socket API at the given URL."""
         await self._do_open()
 
     async def close(self: AsyncWebsocketClient) -> None:
-        """
-        Closes the connection.
-
-        Raises:
-            XRPLWebsocketException: If the AsyncWebsocket is already closed.
-        """
+        """Closes the connection."""
         await self._do_close()
 
     async def __aenter__(self: AsyncWebsocketClient) -> AsyncWebsocketClient:

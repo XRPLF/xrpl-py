@@ -148,17 +148,6 @@ class WebsocketBase(Client):
         )
 
     async def _do_send(self: WebsocketBase, request: Request) -> None:
-        """
-        Submit the request represented by the request to the
-        rippled node specified by this client's URL.
-
-        Arguments:
-            request: A Request object representing information about a rippled request.
-
-        Raises:
-            XRPLWebsocketException: If there is already an open request by the
-                request's ID, or if this WebsocketBase is not open.
-        """
         # we need to set up a future here, even if no one cares about it, so
         # that if a user submits a few requests with the same ID they fail.
         self._set_up_future(request)
