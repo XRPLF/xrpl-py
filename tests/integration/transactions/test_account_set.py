@@ -17,7 +17,7 @@ TICK_SIZE = 10
 
 
 class TestAccountSet(IsolatedAsyncioTestCase):
-    def test_required_fields_and_set_flag(self):
+    def test_required_fields_and_set_flag_sync(self):
         account_set = AccountSet(
             account=ACCOUNT,
             sequence=WALLET.sequence,
@@ -28,7 +28,7 @@ class TestAccountSet(IsolatedAsyncioTestCase):
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
         WALLET.sequence += 1
 
-    def test_all_fields_minus_set_flag(self):
+    def test_all_fields_minus_set_flag_sync(self):
         account_set = AccountSet(
             account=ACCOUNT,
             sequence=WALLET.sequence,
