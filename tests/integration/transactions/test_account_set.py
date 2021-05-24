@@ -1,4 +1,4 @@
-from unittest import IsolatedAsyncioTestCase, TestCase
+from unittest import IsolatedAsyncioTestCase
 
 from tests.integration.it_utils import submit_transaction, submit_transaction_async
 from tests.integration.reusable_values import WALLET
@@ -16,7 +16,7 @@ TRANSFER_RATE = 0
 TICK_SIZE = 10
 
 
-class TestAccountSetSync(TestCase):
+class TestAccountSet(IsolatedAsyncioTestCase):
     def test_required_fields_and_set_flag(self):
         account_set = AccountSet(
             account=ACCOUNT,
@@ -44,9 +44,7 @@ class TestAccountSetSync(TestCase):
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
         WALLET.sequence += 1
 
-
-class TestAccountSetAsync(IsolatedAsyncioTestCase):
-    async def test_required_fields_and_set_flag(self):
+    async def test_required_fields_and_set_flag_async(self):
         account_set = AccountSet(
             account=ACCOUNT,
             sequence=WALLET.sequence,
@@ -57,7 +55,7 @@ class TestAccountSetAsync(IsolatedAsyncioTestCase):
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
         WALLET.sequence += 1
 
-    async def test_all_fields_minus_set_flag(self):
+    async def test_all_fields_minus_set_flag_async(self):
         account_set = AccountSet(
             account=ACCOUNT,
             sequence=WALLET.sequence,

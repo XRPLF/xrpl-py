@@ -1,6 +1,6 @@
-from unittest import TestCase
+from unittest import IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import submit_transaction
+from tests.integration.it_utils import submit_transaction, submit_transaction_async
 from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountDelete
@@ -12,12 +12,11 @@ ACCOUNT = WALLET.classic_address
 # AccountDelete transactions have a special fee.
 # See https://xrpl.org/accountdelete.html#special-transaction-cost.
 FEE = "5000000"
-
 DESTINATION_TAG = 3
 
 
-class TestAccountDelete(TestCase):
-    def test_all_fields(self):
+class TestAccountDelete(IsolatedAsyncioTestCase):
+    def test_all_fields_sync(self):
         account_delete = AccountDelete(
             account=ACCOUNT,
             fee=FEE,
@@ -38,3 +37,17 @@ class TestAccountDelete(TestCase):
         # Sequence number that is too high. The current ledger index must be at least
         # 256 higher than the account's sequence number."
         # self.assertEqual(response.result['engine_result'], 'tesSUCCESS')
+
+    async def test_all_fields_async(self):
+        account_delete = AccountDelete(
+            account=ACCOUNT,
+            fee=FEE,
+            sequence=WALLET.sequence,
+            destination=DESTINATION.classic_address,
+            destination_tag=DESTINATION_TAG,
+        )
+        response = await submit_transaction_async(
+            account_delete, WALLET, check_fee=False
+        )
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        WALLET.sequence += 1
