@@ -1,6 +1,6 @@
-from unittest import TestCase
+from unittest import IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import submit_transaction
+from tests.integration.it_utils import submit_transaction, submit_transaction_async
 from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import EscrowFinish
@@ -18,8 +18,8 @@ CONDITION = (
 FULFILLMENT = "A0028000"
 
 
-class TestEscrowFinish(TestCase):
-    def test_all_fields(self):
+class TestEscrowFinish(IsolatedAsyncioTestCase):
+    def test_all_fields_sync(self):
         escrow_finish = EscrowFinish(
             account=ACCOUNT,
             sequence=WALLET.sequence,
@@ -29,6 +29,20 @@ class TestEscrowFinish(TestCase):
             fulfillment=FULFILLMENT,
         )
         response = submit_transaction(escrow_finish, WALLET)
+        # Actual engine_result will be 'tecNO_TARGET' since using non-extant
+        # account for OWNER
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+
+    async def test_all_fields_async(self):
+        escrow_finish = EscrowFinish(
+            account=ACCOUNT,
+            sequence=WALLET.sequence,
+            owner=OWNER,
+            offer_sequence=OFFER_SEQUENCE,
+            condition=CONDITION,
+            fulfillment=FULFILLMENT,
+        )
+        response = await submit_transaction_async(escrow_finish, WALLET)
         # Actual engine_result will be 'tecNO_TARGET' since using non-extant
         # account for OWNER
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
