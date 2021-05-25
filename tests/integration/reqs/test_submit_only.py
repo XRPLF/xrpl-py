@@ -1,7 +1,13 @@
-from unittest import TestCase
+from unittest import IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import JSON_RPC_CLIENT
+from tests.integration.it_utils import ASYNC_JSON_RPC_CLIENT, JSON_RPC_CLIENT
 from tests.integration.reusable_values import WALLET
+from xrpl.asyncio.transaction import (
+    safe_sign_and_autofill_transaction as safe_sign_and_autofill_transaction_async,
+)
+from xrpl.asyncio.transaction import (
+    transaction_json_to_binary_codec_form as transaction_to_binary_async,
+)
 from xrpl.core.binarycodec import encode
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import SubmitOnly
@@ -22,16 +28,29 @@ TX = OfferCreate(
         value="10",
     ),
 )
-TRANSACTION = safe_sign_and_autofill_transaction(TX, WALLET, JSON_RPC_CLIENT)
-TX_JSON = transaction_json_to_binary_codec_form(TRANSACTION.to_dict())
-TX_BLOB = encode(TX_JSON)
 
 
-class TestSubmitOnly(TestCase):
-    def test_basic_functionality(self):
+class TestSubmitOnly(IsolatedAsyncioTestCase):
+    def test_basic_functionality_sync(self):
+        transaction = safe_sign_and_autofill_transaction(TX, WALLET, JSON_RPC_CLIENT)
+        tx_json = transaction_json_to_binary_codec_form(transaction.to_dict())
+        tx_blob = encode(tx_json)
         response = JSON_RPC_CLIENT.request(
             SubmitOnly(
-                tx_blob=TX_BLOB,
+                tx_blob=tx_blob,
+            )
+        )
+        self.assertTrue(response.is_successful())
+
+    async def test_basic_functionality_async(self):
+        transaction = await safe_sign_and_autofill_transaction_async(
+            TX, WALLET, ASYNC_JSON_RPC_CLIENT
+        )
+        tx_json = transaction_to_binary_async(transaction.to_dict())
+        tx_blob = encode(tx_json)
+        response = await ASYNC_JSON_RPC_CLIENT.request(
+            SubmitOnly(
+                tx_blob=tx_blob,
             )
         )
         self.assertTrue(response.is_successful())

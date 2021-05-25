@@ -1,10 +1,14 @@
-from unittest import TestCase
+from unittest import IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import JSON_RPC_CLIENT
+from tests.integration.it_utils import ASYNC_JSON_RPC_CLIENT, JSON_RPC_CLIENT
 from xrpl.models.requests import ServerInfo
 
 
-class TestServerInfo(TestCase):
-    def test_basic_functionality(self):
+class TestServerInfo(IsolatedAsyncioTestCase):
+    def test_basic_functionality_sync(self):
         response = JSON_RPC_CLIENT.request(ServerInfo())
+        self.assertTrue(response.is_successful())
+
+    async def test_basic_functionality_async(self):
+        response = await ASYNC_JSON_RPC_CLIENT.request(ServerInfo())
         self.assertTrue(response.is_successful())
