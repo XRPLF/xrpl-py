@@ -77,7 +77,6 @@ class TestAccount(IsolatedAsyncioTestCase):
             account=WALLET.classic_address,
             destination=DESTINATION.classic_address,
             amount=amount,
-            last_ledger_sequence=WALLET.sequence + 20,
         )
         await sign_and_reliable_submission_async(payment, WALLET)
         WALLET.sequence += 1

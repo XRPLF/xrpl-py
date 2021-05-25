@@ -70,7 +70,6 @@ class TestAccount(TestCase):
             account=WALLET.classic_address,
             destination=DESTINATION.classic_address,
             amount=amount,
-            last_ledger_sequence=WALLET.sequence + 20,
         )
         sign_and_reliable_submission(payment, WALLET)
         WALLET.sequence += 1

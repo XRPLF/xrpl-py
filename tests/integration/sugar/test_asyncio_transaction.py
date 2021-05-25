@@ -317,7 +317,6 @@ class TestReliableSubmission(IsolatedAsyncioTestCase):
             await send_reliable_submission(
                 signed_payment_transaction, ASYNC_JSON_RPC_CLIENT
             )
-        # WALLET.sequence -= 1
 
     async def test_reliable_submission_bad_transaction(self):
         WALLET.sequence = await get_next_valid_seq_number(
@@ -338,4 +337,3 @@ class TestReliableSubmission(IsolatedAsyncioTestCase):
             await send_reliable_submission(
                 signed_payment_transaction, ASYNC_JSON_RPC_CLIENT
             )
-        # WALLET.sequence -= 1
