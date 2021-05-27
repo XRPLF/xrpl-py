@@ -2,6 +2,7 @@
 import asyncio
 import importlib
 import inspect
+from time import sleep
 
 import xrpl  # noqa: F401 - needed for sync tests
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
@@ -101,7 +102,7 @@ def test_async_and_sync(original_globals, modules=None, dev=False):
         )
         # add an actual call to the function
         first_line = lines[0]
-        sync_code += first_line.replace("def ", "").replace(":", "")
+        sync_code += first_line.replace("    async def ", "").replace(":", "")
 
         sync_modules_to_import = {}
         if modules is not None:
@@ -141,6 +142,21 @@ def _get_non_decorator_code(function):
     code_lines = inspect.getsourcelines(function)[0]
     line = 0
     while line < len(code_lines):
-        if "def" in code_lines[line]:
+        if "def " in code_lines[line]:
             return code_lines[line:]
         line += 1
+
+
+def retry(test_function):
+    NUM_RETRIES = 10
+
+    def modified_test(self):
+        for i in range(NUM_RETRIES):
+            try:
+                test_function(self)
+            except Exception:
+                if i == NUM_RETRIES - 1:
+                    raise
+                sleep(2)
+
+    return modified_test

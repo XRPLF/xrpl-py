@@ -20,7 +20,7 @@ DESTINATION_TAG = 3
 
 class TestAccountDelete(IsolatedAsyncioTestCase):
     @test_async_and_sync(globals())
-    async def test_all_fields_async(self, client):
+    async def test_all_fields(self, client):
         account_delete = AccountDelete(
             account=ACCOUNT,
             fee=FEE,

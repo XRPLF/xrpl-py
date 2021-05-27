@@ -3,7 +3,11 @@ try:
 except ImportError:
     from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
+from tests.integration.it_utils import (
+    retry,
+    submit_transaction_async,
+    test_async_and_sync,
+)
 from tests.integration.reusable_values import WALLET
 from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.asyncio.wallet import generate_faucet_wallet
@@ -16,6 +20,7 @@ DEV_JSON_RPC_CLIENT = AsyncJsonRpcClient(DEV_JSON_RPC_URL)
 
 
 class TestWallet(IsolatedAsyncioTestCase):
+    @retry
     @test_async_and_sync(globals(), ["xrpl.wallet.generate_faucet_wallet"], True)
     async def test_generate_faucet_wallet_dev(self, client):
         wallet = await generate_faucet_wallet(DEV_JSON_RPC_CLIENT)
@@ -31,6 +36,7 @@ class TestWallet(IsolatedAsyncioTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
+    @retry
     @test_async_and_sync(globals(), ["xrpl.wallet.generate_faucet_wallet"])
     async def test_generate_faucet_wallet_rel_sub(self, client):
         destination = await generate_faucet_wallet(DEV_JSON_RPC_CLIENT)
