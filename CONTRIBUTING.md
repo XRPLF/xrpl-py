@@ -80,6 +80,15 @@ To run integration tests:
 poetry run python3 -m unittest discover tests/integration
 ```
 
+To switch your python version before running tests:
+
+```bash
+poetry env use python3.9
+poetry install
+```
+Replace `python3.9` with whatever version of Python you want to use (you must have it installed with `pyenv` for it to work).
+<!-- TODO: talk about nox tests here -->
+
 
 ### Generate reference docs
 
