@@ -3,34 +3,15 @@ try:
 except ImportError:
     from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import submit_transaction, submit_transaction_async
+from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.models.transactions import SignerEntry, SignerListSet
 from xrpl.wallet import Wallet
 
 
 class TestSignerListSet(IsolatedAsyncioTestCase):
-    def test_add_signer_sync(self):
-        # sets up another signer for this account
-        other_signer = Wallet.create()
-        response = submit_transaction(
-            SignerListSet(
-                account=WALLET.classic_address,
-                sequence=WALLET.sequence,
-                signer_quorum=1,
-                signer_entries=[
-                    SignerEntry(
-                        account=other_signer.classic_address,
-                        signer_weight=1,
-                    ),
-                ],
-            ),
-            WALLET,
-        )
-        self.assertTrue(response.is_successful())
-        WALLET.sequence += 1
-
-    async def test_add_signer_async(self):
+    @test_async_and_sync(globals())
+    async def test_add_signer(self, client):
         # sets up another signer for this account
         other_signer = Wallet.create()
         response = await submit_transaction_async(

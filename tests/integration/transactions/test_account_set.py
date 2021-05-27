@@ -3,7 +3,7 @@ try:
 except ImportError:
     from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import submit_transaction, submit_transaction_async
+from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountSet
@@ -20,34 +20,8 @@ TICK_SIZE = 10
 
 
 class TestAccountSet(IsolatedAsyncioTestCase):
-    def test_required_fields_and_set_flag_sync(self):
-        account_set = AccountSet(
-            account=ACCOUNT,
-            sequence=WALLET.sequence,
-            set_flag=SET_FLAG,
-        )
-        response = submit_transaction(account_set, WALLET)
-        self.assertEqual(response.status, ResponseStatus.SUCCESS)
-        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-        WALLET.sequence += 1
-
-    def test_all_fields_minus_set_flag_sync(self):
-        account_set = AccountSet(
-            account=ACCOUNT,
-            sequence=WALLET.sequence,
-            clear_flag=CLEAR_FLAG,
-            domain=DOMAIN,
-            email_hash=EMAIL_HASH,
-            message_key=MESSAGE_KEY,
-            transfer_rate=TRANSFER_RATE,
-            tick_size=TICK_SIZE,
-        )
-        response = submit_transaction(account_set, WALLET)
-        self.assertEqual(response.status, ResponseStatus.SUCCESS)
-        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-        WALLET.sequence += 1
-
-    async def test_required_fields_and_set_flag_async(self):
+    @test_async_and_sync(globals())
+    async def test_required_fields_and_set_flag(self, client):
         account_set = AccountSet(
             account=ACCOUNT,
             sequence=WALLET.sequence,
@@ -58,7 +32,8 @@ class TestAccountSet(IsolatedAsyncioTestCase):
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
         WALLET.sequence += 1
 
-    async def test_all_fields_minus_set_flag_async(self):
+    @test_async_and_sync(globals())
+    async def test_all_fields_minus_set_flag(self, client):
         account_set = AccountSet(
             account=ACCOUNT,
             sequence=WALLET.sequence,

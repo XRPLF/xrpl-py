@@ -3,17 +3,14 @@ try:
 except ImportError:
     from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import submit_transaction_async
-from tests.integration.reusable_values import DESTINATION, PAYMENT_CHANNEL, WALLET
+from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
+from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.models.transactions import PaymentChannelCreate
 
 
 class TestPaymentChannelCreate(IsolatedAsyncioTestCase):
-    def test_basic_functionality(self):
-        # we're already requiring this elsewhere
-        self.assertTrue(PAYMENT_CHANNEL.is_successful())
-
-    async def test_basic_functionality_async(self):
+    @test_async_and_sync(globals())
+    async def test_basic_functionality(self, client):
         payment_channel = await submit_transaction_async(
             PaymentChannelCreate(
                 account=WALLET.classic_address,

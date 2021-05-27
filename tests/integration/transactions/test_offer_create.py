@@ -3,18 +3,15 @@ try:
 except ImportError:
     from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import submit_transaction_async
-from tests.integration.reusable_values import OFFER, WALLET
+from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
+from tests.integration.reusable_values import WALLET
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.transactions import OfferCreate
 
 
 class TestOfferCreate(IsolatedAsyncioTestCase):
-    def test_basic_functionality(self):
-        # we already create this elsewhere
-        self.assertTrue(OFFER.is_successful())
-
-    async def test_basic_functionality_async(self):
+    @test_async_and_sync(globals())
+    async def test_basic_functionality(self, client):
         offer = await submit_transaction_async(
             OfferCreate(
                 account=WALLET.classic_address,

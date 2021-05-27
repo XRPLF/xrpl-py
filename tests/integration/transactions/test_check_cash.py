@@ -3,7 +3,7 @@ try:
 except ImportError:
     from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import submit_transaction, submit_transaction_async
+from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import CheckCash
@@ -15,32 +15,8 @@ DELIVER_MIN = "100000000"
 
 
 class TestCheckCreate(IsolatedAsyncioTestCase):
-    def test_required_fields_with_amount_sync(self):
-        check_cash = CheckCash(
-            account=ACCOUNT,
-            sequence=WALLET.sequence,
-            check_id=CHECK_ID,
-            amount=AMOUNT,
-        )
-        response = submit_transaction(check_cash, WALLET)
-        self.assertEqual(response.status, ResponseStatus.SUCCESS)
-        # Getting `tecNO_ENTRY` codes because using a non-existent check ID
-        self.assertEqual(response.result["engine_result"], "tecNO_ENTRY")
-        WALLET.sequence += 1
-
-    def test_required_fields_with_deliver_min_sync(self):
-        check_cash = CheckCash(
-            account=ACCOUNT,
-            sequence=WALLET.sequence,
-            check_id=CHECK_ID,
-            deliver_min=DELIVER_MIN,
-        )
-        response = submit_transaction(check_cash, WALLET)
-        self.assertEqual(response.status, ResponseStatus.SUCCESS)
-        self.assertEqual(response.result["engine_result"], "tecNO_ENTRY")
-        WALLET.sequence += 1
-
-    async def test_required_fields_with_amount_async(self):
+    @test_async_and_sync(globals())
+    async def test_required_fields_with_amount(self, client):
         check_cash = CheckCash(
             account=ACCOUNT,
             sequence=WALLET.sequence,
@@ -53,7 +29,8 @@ class TestCheckCreate(IsolatedAsyncioTestCase):
         self.assertEqual(response.result["engine_result"], "tecNO_ENTRY")
         WALLET.sequence += 1
 
-    async def test_required_fields_with_deliver_min_async(self):
+    @test_async_and_sync(globals())
+    async def test_required_fields_with_deliver_min(self, client):
         check_cash = CheckCash(
             account=ACCOUNT,
             sequence=WALLET.sequence,

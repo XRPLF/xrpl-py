@@ -3,7 +3,7 @@ try:
 except ImportError:
     from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import submit_transaction, submit_transaction_async
+from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import EscrowCreate
@@ -22,23 +22,8 @@ SOURCE_TAG = 11747
 
 
 class TestEscrowCreate(IsolatedAsyncioTestCase):
-    def test_all_fields_sync(self):
-        escrow_create = EscrowCreate(
-            account=ACCOUNT,
-            sequence=WALLET.sequence,
-            amount=AMOUNT,
-            destination=DESTINATION,
-            destination_tag=DESTINATION_TAG,
-            cancel_after=CANCEL_AFTER,
-            finish_after=FINISH_AFTER,
-            source_tag=SOURCE_TAG,
-        )
-        response = submit_transaction(escrow_create, WALLET)
-        # Actual engine_result will be `tecNO_PERMISSION`...
-        # maybe due to CONDITION or something
-        self.assertEqual(response.status, ResponseStatus.SUCCESS)
-
-    async def test_all_fields_async(self):
+    @test_async_and_sync(globals())
+    async def test_all_fields(self, client):
         escrow_create = EscrowCreate(
             account=ACCOUNT,
             sequence=WALLET.sequence,
