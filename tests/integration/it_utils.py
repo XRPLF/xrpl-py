@@ -88,7 +88,7 @@ def _choose_client_async(use_json_client: bool) -> Client:
         return ASYNC_WEBSOCKET_CLIENT
 
 
-def test_async_and_sync(globals):
+def test_async_and_sync(original_globals):
     def decorator(test_function):
         lines = inspect.getsourcelines(test_function)[0][1:]
         sync_code = "".join(lines)
@@ -106,9 +106,13 @@ def test_async_and_sync(globals):
         def modified_test(self):
             with self.subTest(version="sync"):
                 try:
-                    exec(sync_code, globals, {"self": self, "client": JSON_RPC_CLIENT})
+                    exec(
+                        sync_code,
+                        {**original_globals, **globals()},
+                        {"self": self, "client": JSON_RPC_CLIENT},
+                    )
                 except Exception as e:
-                    print(sync_code)
+                    print(sync_code)  # for ease of debugging, since there's no codefile
                     raise e
                 # NOTE: passing `globals()` into `exec` is really bad practice and not
                 # safe at all, but in this case it's fine because it's only running
