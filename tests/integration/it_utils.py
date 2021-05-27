@@ -25,18 +25,16 @@ from xrpl.transaction import (
 from xrpl.wallet import Wallet
 
 JSON_RPC_URL = "https://s.altnet.rippletest.net:51234"
+DEV_JSON_RPC_URL = "https://s.devnet.rippletest.net:51234"
 WEBSOCKET_URL = "wss://s.altnet.rippletest.net/"
+
 JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
 ASYNC_JSON_RPC_CLIENT = AsyncJsonRpcClient(JSON_RPC_URL)
 WEBSOCKET_CLIENT = WebsocketClient(WEBSOCKET_URL)
 ASYNC_WEBSOCKET_CLIENT = AsyncWebsocketClient(WEBSOCKET_URL)
 
-CLIENTS = [
-    JSON_RPC_CLIENT,
-    ASYNC_JSON_RPC_CLIENT,
-    WEBSOCKET_CLIENT,
-    ASYNC_WEBSOCKET_CLIENT,
-]
+DEV_JSON_RPC_CLIENT = JsonRpcClient(DEV_JSON_RPC_URL)
+DEV_ASYNC_JSON_RPC_CLIENT = AsyncJsonRpcClient(DEV_JSON_RPC_URL)
 
 
 def submit_transaction(
@@ -90,7 +88,7 @@ def _choose_client_async(use_json_client: bool) -> Client:
         return ASYNC_WEBSOCKET_CLIENT
 
 
-def test_async_and_sync(original_globals, modules=None):
+def test_async_and_sync(original_globals, modules=None, dev=False):
     def decorator(test_function):
         lines = inspect.getsourcelines(test_function)[0][1:]
         sync_code = "".join(lines)
@@ -117,11 +115,12 @@ def test_async_and_sync(original_globals, modules=None):
 
         def modified_test(self):
             with self.subTest(version="sync"):
+                client = DEV_JSON_RPC_CLIENT if dev else JSON_RPC_CLIENT
                 try:
                     exec(
                         sync_code,
                         all_modules,
-                        {"self": self, "client": JSON_RPC_CLIENT},
+                        {"self": self, "client": client},
                     )
                 except Exception as e:
                     print(sync_code)  # for ease of debugging, since there's no codefile
@@ -130,7 +129,8 @@ def test_async_and_sync(original_globals, modules=None):
                 # safe at all, but in this case it's fine because it's only running
                 # test code
             with self.subTest(version="async"):
-                asyncio.run(test_function(self, ASYNC_JSON_RPC_CLIENT))
+                client = DEV_ASYNC_JSON_RPC_CLIENT if dev else ASYNC_JSON_RPC_CLIENT
+                asyncio.run(test_function(self, client))
 
         return modified_test
 
