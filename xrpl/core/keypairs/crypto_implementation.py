@@ -18,30 +18,30 @@ class CryptoImplementation(ABC):
 
     @classmethod
     @abstractmethod
-    def derive_keypair(
+    def derive_keypair(  # noqa: D102
         cls: Type[CryptoImplementation],
         decoded_seed: bytes,
         is_validator: bool,
-    ) -> Tuple[str, str]:  # noqa: D102
+    ) -> Tuple[str, str]:
         pass
 
     @classmethod
     @abstractmethod
-    def sign(
+    def sign(  # noqa: D102
         cls: Type[CryptoImplementation],
         message: bytes,
         private_key: str,
-    ) -> bytes:  # noqa: D102
+    ) -> bytes:
         pass
 
     @classmethod
     @abstractmethod
-    def is_valid_message(
+    def is_valid_message(  # noqa: D102
         cls: Type[CryptoImplementation],
         message: bytes,
         signature: bytes,
         public_key: str,
-    ) -> bool:  # noqa: D102
+    ) -> bool:
         pass
 
     @classmethod
