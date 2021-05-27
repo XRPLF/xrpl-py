@@ -1,4 +1,7 @@
-from unittest import IsolatedAsyncioTestCase
+try:
+    from unittest import IsolatedAsyncioTestCase
+except ImportError:
+    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
 from tests.integration.it_utils import submit_transaction_async
 from tests.integration.reusable_values import OFFER, WALLET

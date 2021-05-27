@@ -1,5 +1,9 @@
 import inspect
-from unittest import IsolatedAsyncioTestCase
+
+try:
+    from unittest import IsolatedAsyncioTestCase
+except ImportError:
+    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
 from tests.integration.it_utils import ASYNC_JSON_RPC_CLIENT, JSON_RPC_CLIENT
 from xrpl.models.requests import Ledger
