@@ -90,7 +90,7 @@ def _choose_client_async(use_json_client: bool) -> Client:
 
 def test_async_and_sync(original_globals, modules=None, dev=False):
     def decorator(test_function):
-        lines = inspect.getsourcelines(test_function)[0][1:]
+        lines = _get_non_decorator_code(test_function)
         sync_code = "".join(lines)
         sync_code = (
             sync_code.replace("async def", "def")  # convert method from async to sync
@@ -100,7 +100,7 @@ def test_async_and_sync(original_globals, modules=None, dev=False):
             .replace("    def", "def")  # remove more indenting
         )
         # add an actual call to the function
-        first_line = sync_code.split("\n")[0]
+        first_line = lines[0]
         sync_code += first_line.replace("def ", "").replace(":", "")
 
         sync_modules_to_import = {}
@@ -135,3 +135,12 @@ def test_async_and_sync(original_globals, modules=None, dev=False):
         return modified_test
 
     return decorator
+
+
+def _get_non_decorator_code(function):
+    code_lines = inspect.getsourcelines(function)[0]
+    line = 0
+    while line < len(code_lines):
+        if "def" in code_lines[line]:
+            return code_lines[line:]
+        line += 1
