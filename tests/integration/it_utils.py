@@ -1,7 +1,9 @@
 """Utility functions and variables for integration tests."""
 import asyncio
+import importlib
 import inspect
 
+import xrpl  # noqa: F401
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.transaction import (
     safe_sign_and_autofill_transaction as sign_and_autofill_async,
@@ -88,7 +90,7 @@ def _choose_client_async(use_json_client: bool) -> Client:
         return ASYNC_WEBSOCKET_CLIENT
 
 
-def test_async_and_sync(original_globals):
+def test_async_and_sync(original_globals, modules=None):
     def decorator(test_function):
         lines = inspect.getsourcelines(test_function)[0][1:]
         sync_code = "".join(lines)
@@ -103,12 +105,22 @@ def test_async_and_sync(original_globals):
         first_line = sync_code.split("\n")[0]
         sync_code += first_line.replace("def ", "").replace(":", "")
 
+        sync_modules_to_import = {}
+        if modules is not None:
+            for module_str in modules:
+                function = module_str.split(".")[-1]
+                location = module_str[: -1 * len(function) - 1]
+                module = getattr(importlib.import_module(location), function)
+                sync_modules_to_import[function] = module
+
+        all_modules = {**original_globals, **globals(), **sync_modules_to_import}
+
         def modified_test(self):
             with self.subTest(version="sync"):
                 try:
                     exec(
                         sync_code,
-                        {**original_globals, **globals()},
+                        all_modules,
                         {"self": self, "client": JSON_RPC_CLIENT},
                     )
                 except Exception as e:
