@@ -3,7 +3,7 @@ import asyncio
 import importlib
 import inspect
 
-import xrpl  # noqa: F401
+import xrpl  # noqa: F401 - needed for sync tests
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.transaction import (
     safe_sign_and_autofill_transaction as sign_and_autofill_async,

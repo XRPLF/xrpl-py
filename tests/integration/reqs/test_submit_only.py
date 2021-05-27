@@ -12,10 +12,7 @@ from xrpl.core.binarycodec import encode
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import SubmitOnly
 from xrpl.models.transactions import OfferCreate
-from xrpl.transaction import (  # noqa: F401 - safe_sign needed for sync tests
-    safe_sign_and_autofill_transaction,
-    transaction_json_to_binary_codec_form,
-)
+from xrpl.transaction import transaction_json_to_binary_codec_form
 
 TX = OfferCreate(
     account=WALLET.classic_address,
