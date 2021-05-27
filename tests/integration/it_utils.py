@@ -95,13 +95,13 @@ def test_async_and_sync(globals):
         sync_code = (
             sync_code.replace("async def", "def")  # convert method from async to sync
             .replace("await ", "")  # replace function calls
-            # .replace("_async", "") # change methods
+            .replace("_async(", "(")  # change methods
             .replace("\n    ", "\n")  # remove indenting (syntax error otherwise)
             .replace("    def", "def")  # remove more indenting
         )
         # add an actual call to the function
-        first_line = lines[0]
-        sync_code += first_line.replace("    async def ", "").replace(":", "")
+        first_line = sync_code.split("\n")[0]
+        sync_code += first_line.replace("def ", "").replace(":", "")
 
         def modified_test(self):
             with self.subTest(version="sync"):
