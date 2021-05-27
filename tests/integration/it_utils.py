@@ -1,4 +1,6 @@
 """Utility functions and variables for integration tests."""
+import asyncio
+import inspect
 
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.transaction import (
@@ -84,3 +86,28 @@ def _choose_client_async(use_json_client: bool) -> Client:
         return ASYNC_JSON_RPC_CLIENT
     else:
         return ASYNC_WEBSOCKET_CLIENT
+
+
+def test_async_and_sync(test_function):
+    sync_code = inspect.getsource(test_function)
+    sync_code = (
+        sync_code.replace("async def", "def")  # convert method from async to sync
+        .replace("await ", "")  # replace function calls
+        .replace("@test_async_and_sync\n    ", "")  # avoid decorator recursion
+        # .replace("_async", "") # change methods
+        .replace("\n    ", "\n")  # remove indenting (syntax error otherwise)
+        .replace("    def", "def")  # remove more indenting
+    )
+    # add an actual call to the function
+    first_line = inspect.getsourcelines(test_function)[0][1]
+    sync_code += first_line.replace("    async def ", "").replace(":", "")
+
+    def modified_test(self):
+        with self.subTest(version="sync"):
+            exec(sync_code, globals(), {"self": self, "client": JSON_RPC_CLIENT})
+            # NOTE: passing `globals()` into `exec` is really bad practice and not safe
+            # at all, but in this case it's fine because it's only running test code
+        with self.subTest(version="async"):
+            asyncio.run(test_function(self, ASYNC_JSON_RPC_CLIENT))
+
+    return modified_test
