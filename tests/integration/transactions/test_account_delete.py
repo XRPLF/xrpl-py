@@ -1,6 +1,9 @@
-from unittest import TestCase
+try:
+    from unittest import IsolatedAsyncioTestCase
+except ImportError:
+    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import submit_transaction
+from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountDelete
@@ -12,12 +15,12 @@ ACCOUNT = WALLET.classic_address
 # AccountDelete transactions have a special fee.
 # See https://xrpl.org/accountdelete.html#special-transaction-cost.
 FEE = "5000000"
-
 DESTINATION_TAG = 3
 
 
-class TestAccountDelete(TestCase):
-    def test_all_fields(self):
+class TestAccountDelete(IsolatedAsyncioTestCase):
+    @test_async_and_sync(globals())
+    async def test_all_fields(self, client):
         account_delete = AccountDelete(
             account=ACCOUNT,
             fee=FEE,
@@ -25,7 +28,9 @@ class TestAccountDelete(TestCase):
             destination=DESTINATION.classic_address,
             destination_tag=DESTINATION_TAG,
         )
-        response = submit_transaction(account_delete, WALLET, check_fee=False)
+        response = await submit_transaction_async(
+            account_delete, WALLET, check_fee=False
+        )
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         WALLET.sequence += 1
 

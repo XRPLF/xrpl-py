@@ -1,16 +1,20 @@
-from unittest import TestCase
+try:
+    from unittest import IsolatedAsyncioTestCase
+except ImportError:
+    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import submit_transaction
+from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.transactions import TrustSet, TrustSetFlag
 from xrpl.wallet import Wallet
 
 
-class TestTrustSet(TestCase):
-    def test_basic_functionality(self):
+class TestTrustSet(IsolatedAsyncioTestCase):
+    @test_async_and_sync(globals())
+    async def test_basic_functionality(self, client):
         issuer_wallet = Wallet.create()
-        response = submit_transaction(
+        response = await submit_transaction_async(
             TrustSet(
                 account=WALLET.classic_address,
                 sequence=WALLET.sequence,

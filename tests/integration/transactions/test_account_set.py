@@ -1,6 +1,9 @@
-from unittest import TestCase
+try:
+    from unittest import IsolatedAsyncioTestCase
+except ImportError:
+    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import submit_transaction
+from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountSet
@@ -16,19 +19,21 @@ TRANSFER_RATE = 0
 TICK_SIZE = 10
 
 
-class TestAccountSet(TestCase):
-    def test_required_fields_and_set_flag(self):
+class TestAccountSet(IsolatedAsyncioTestCase):
+    @test_async_and_sync(globals())
+    async def test_required_fields_and_set_flag(self, client):
         account_set = AccountSet(
             account=ACCOUNT,
             sequence=WALLET.sequence,
             set_flag=SET_FLAG,
         )
-        response = submit_transaction(account_set, WALLET)
+        response = await submit_transaction_async(account_set, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
         WALLET.sequence += 1
 
-    def test_all_fields_minus_set_flag(self):
+    @test_async_and_sync(globals())
+    async def test_all_fields_minus_set_flag(self, client):
         account_set = AccountSet(
             account=ACCOUNT,
             sequence=WALLET.sequence,
@@ -39,7 +44,7 @@ class TestAccountSet(TestCase):
             transfer_rate=TRANSFER_RATE,
             tick_size=TICK_SIZE,
         )
-        response = submit_transaction(account_set, WALLET)
+        response = await submit_transaction_async(account_set, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
         WALLET.sequence += 1

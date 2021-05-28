@@ -1,16 +1,20 @@
-from unittest import TestCase
+try:
+    from unittest import IsolatedAsyncioTestCase
+except ImportError:
+    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import submit_transaction
+from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.models.transactions import SignerEntry, SignerListSet
 from xrpl.wallet import Wallet
 
 
-class TestSignerListSet(TestCase):
-    def test_add_signer(self):
+class TestSignerListSet(IsolatedAsyncioTestCase):
+    @test_async_and_sync(globals())
+    async def test_add_signer(self, client):
         # sets up another signer for this account
         other_signer = Wallet.create()
-        response = submit_transaction(
+        response = await submit_transaction_async(
             SignerListSet(
                 account=WALLET.classic_address,
                 sequence=WALLET.sequence,

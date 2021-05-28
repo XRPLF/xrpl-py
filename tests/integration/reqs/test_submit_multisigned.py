@@ -1,6 +1,13 @@
-from unittest import TestCase
+try:
+    from unittest import IsolatedAsyncioTestCase
+except ImportError:
+    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import JSON_RPC_CLIENT, sign_and_reliable_submission
+from tests.integration.it_utils import (
+    JSON_RPC_CLIENT,
+    sign_and_reliable_submission,
+    test_async_and_sync,
+)
 from tests.integration.reusable_values import WALLET
 from xrpl.core.binarycodec import encode_for_multisigning
 from xrpl.core.keypairs import sign
@@ -45,8 +52,9 @@ LIST_SET_TX = sign_and_reliable_submission(
 )
 
 
-class TestSubmitMultisigned(TestCase):
-    def test_basic_functionality(self):
+class TestSubmitMultisigned(IsolatedAsyncioTestCase):
+    @test_async_and_sync(globals())
+    async def test_basic_functionality(self, client):
         #
         # Perform multisign
         #
@@ -109,7 +117,7 @@ class TestSubmitMultisigned(TestCase):
         )
 
         # submit tx
-        response = JSON_RPC_CLIENT.request(
+        response = await client.request(
             SubmitMultisigned(
                 tx_json=transaction_json_to_binary_codec_form(multisigned_tx.to_dict()),
             )

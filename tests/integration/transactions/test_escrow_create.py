@@ -1,6 +1,9 @@
-from unittest import TestCase
+try:
+    from unittest import IsolatedAsyncioTestCase
+except ImportError:
+    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import submit_transaction
+from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import EscrowCreate
@@ -18,8 +21,9 @@ DESTINATION_TAG = 23480
 SOURCE_TAG = 11747
 
 
-class TestEscrowCreate(TestCase):
-    def test_all_fields(self):
+class TestEscrowCreate(IsolatedAsyncioTestCase):
+    @test_async_and_sync(globals())
+    async def test_all_fields(self, client):
         escrow_create = EscrowCreate(
             account=ACCOUNT,
             sequence=WALLET.sequence,
@@ -30,7 +34,7 @@ class TestEscrowCreate(TestCase):
             finish_after=FINISH_AFTER,
             source_tag=SOURCE_TAG,
         )
-        response = submit_transaction(escrow_create, WALLET)
+        response = await submit_transaction_async(escrow_create, WALLET)
         # Actual engine_result will be `tecNO_PERMISSION`...
         # maybe due to CONDITION or something
         self.assertEqual(response.status, ResponseStatus.SUCCESS)

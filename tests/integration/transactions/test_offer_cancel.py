@@ -1,13 +1,17 @@
-from unittest import TestCase
+try:
+    from unittest import IsolatedAsyncioTestCase
+except ImportError:
+    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import submit_transaction
+from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import OFFER, WALLET
 from xrpl.models.transactions import OfferCancel
 
 
-class TestOfferCancel(TestCase):
-    def test_all_fields(self):
-        response = submit_transaction(
+class TestOfferCancel(IsolatedAsyncioTestCase):
+    @test_async_and_sync(globals())
+    async def test_all_fields(self, client):
+        response = await submit_transaction_async(
             OfferCancel(
                 account=WALLET.classic_address,
                 sequence=WALLET.sequence,

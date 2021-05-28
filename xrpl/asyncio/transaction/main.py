@@ -132,8 +132,7 @@ async def submit_transaction(
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
     """
-    transaction_json = transaction.to_xrpl()
-    transaction_blob = encode(transaction_json)
+    transaction_blob = encode(transaction.to_xrpl())
     response = await client.request_impl(SubmitOnly(tx_blob=transaction_blob))
     if response.is_successful():
         return response

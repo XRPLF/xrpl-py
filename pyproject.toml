@@ -47,6 +47,7 @@ darglint = "^1.5.8"
 nox-poetry = "^0.7.1"
 Sphinx = "^3.5.1"
 sphinx-rtd-theme = "^0.5.1"
+aiounittest = "^1.4.0"
 
 [tool.isort]
 # Make sure that isort's settings line up with black
