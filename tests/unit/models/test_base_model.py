@@ -10,7 +10,10 @@ from xrpl.models.requests import (
     PathFind,
     PathFindSubcommand,
     PathStep,
+    Request,
     Sign,
+    SubmitMultisigned,
+    SubmitOnly,
 )
 from xrpl.models.transactions import (
     CheckCreate,
@@ -291,6 +294,91 @@ class TestFromDict(TestCase):
         }
         with self.assertRaises(XRPLModelException):
             SignerListSet.from_dict(dictionary)
+
+    def test_from_dict_multisign(self):
+        txn_sig1 = (
+            "F80E201FE295AA08678F8542D8FC18EA18D582A0BD19BE77B9A24479418ADBCF4CAD28E7BD"
+            "96137F88DE7736827C7AC6204FBA8DDADB7394E6D704CD1F4CD609"
+        )
+        txn_sig2 = (
+            "036E95B8100EBA2A4A447A3AF24500261BF480A0E8D62EE15D03A697C85E73237A5202BD9A"
+            "F2D9C68B8E8A5FA8B8DA4F8DABABE95E8401C5E57EC783291EF80C"
+        )
+        pubkey1 = "ED621D6D4FF54E809397195C4E24EF05E8500A7CE45CDD211F523A892CDBCDCDB2"
+        pubkey2 = "EDD3ABCFF008ECE9ED3073B41913619341519BFF01F07331B56E5D6D2EC4A94A57"
+        request = {
+            "method": "submit_multisigned",
+            "tx_json": {
+                "Account": "rnD6t3JF9RTG4VgNLoc4i44bsQLgJUSi6h",
+                "TransactionType": "TrustSet",
+                "Fee": "10",
+                "Sequence": 17896798,
+                "Flags": 131072,
+                "Signers": [
+                    {
+                        "Signer": {
+                            "Account": "rGoKUCwJ2C4oHUsqnd8PVxZhFiBMV2T42G",
+                            "TxnSignature": txn_sig1,
+                            "SigningPubKey": pubkey1,
+                        }
+                    },
+                    {
+                        "Signer": {
+                            "Account": "rsi3GL27pstEYUJ28ZM3q155rmFCCTBCZ1",
+                            "TxnSignature": txn_sig2,
+                            "SigningPubKey": pubkey2,
+                        }
+                    },
+                ],
+                "SigningPubKey": "",
+                "LimitAmount": {
+                    "currency": "USD",
+                    "issuer": "rH5gvkKxGHrFAMAACeu9CB3FMu7pQ9jfZm",
+                    "value": "10",
+                },
+            },
+            "fail_hard": False,
+        }
+        expected = SubmitMultisigned(
+            tx_json=TrustSet(
+                account="rnD6t3JF9RTG4VgNLoc4i44bsQLgJUSi6h",
+                fee="10",
+                sequence=17896798,
+                flags=131072,
+                signers=[
+                    Signer(
+                        account="rGoKUCwJ2C4oHUsqnd8PVxZhFiBMV2T42G",
+                        txn_signature=txn_sig1,
+                        signing_pub_key=pubkey1,
+                    ),
+                    Signer(
+                        account="rsi3GL27pstEYUJ28ZM3q155rmFCCTBCZ1",
+                        txn_signature=txn_sig2,
+                        signing_pub_key=pubkey2,
+                    ),
+                ],
+                limit_amount=IssuedCurrencyAmount(
+                    currency="USD",
+                    issuer="rH5gvkKxGHrFAMAACeu9CB3FMu7pQ9jfZm",
+                    value="10",
+                ),
+            ),
+        )
+        actual = Request.from_dict(request)
+        self.assertEqual(actual, expected)
+
+    def test_from_dict_submit(self):
+        blob = "SOISUSF9SD0839W8U98J98SF"
+        id_val = "submit_786514"
+        request = {
+            "method": "submit",
+            "tx_blob": blob,
+            "fail_hard": False,
+            "id": id_val,
+        }
+        expected = SubmitOnly(tx_blob=blob, id=id_val)
+        actual = Request.from_dict(request)
+        self.assertEqual(actual, expected)
 
     def test_from_xrpl(self):
         dirname = os.path.dirname(__file__)

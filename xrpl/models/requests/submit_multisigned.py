@@ -50,8 +50,11 @@ class SubmitMultisigned(Request):
             A new SubmitMultisigned object, constructed using the given parameters.
         """
         fixed_value = {**value}
-        fixed_value["tx_json"] = Transaction.from_xrpl(fixed_value["tx_json"])
-        return cast(SubmitMultisigned, super(SubmitMultisigned, cls).from_dict(value))
+        if "TransactionType" in fixed_value["tx_json"]:  # xrpl format
+            fixed_value["tx_json"] = Transaction.from_xrpl(fixed_value["tx_json"])
+        return cast(
+            SubmitMultisigned, super(SubmitMultisigned, cls).from_dict(fixed_value)
+        )
 
     def to_dict(self: SubmitMultisigned) -> Dict[str, Any]:
         """

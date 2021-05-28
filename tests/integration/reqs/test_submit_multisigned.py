@@ -1,8 +1,4 @@
-try:
-    from unittest import IsolatedAsyncioTestCase
-except ImportError:
-    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
-
+from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     JSON_RPC_CLIENT,
     sign_and_reliable_submission,
@@ -52,7 +48,7 @@ LIST_SET_TX = sign_and_reliable_submission(
 )
 
 
-class TestSubmitMultisigned(IsolatedAsyncioTestCase):
+class TestSubmitMultisigned(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
         #
@@ -119,7 +115,7 @@ class TestSubmitMultisigned(IsolatedAsyncioTestCase):
         # submit tx
         response = await client.request(
             SubmitMultisigned(
-                tx_json=transaction_json_to_binary_codec_form(multisigned_tx.to_dict()),
+                tx_json=multisigned_tx,
             )
         )
         self.assertTrue(response.is_successful())
