@@ -64,6 +64,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
         run_coroutine_threadsafe(self._do_close(), self._loop).result()
         self._loop.call_soon_threadsafe(self._loop.stop)
         self._thread.join()
+        self._loop.close()
         self._loop = None
         self._thread = None
 
