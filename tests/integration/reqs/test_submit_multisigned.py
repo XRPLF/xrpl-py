@@ -17,7 +17,6 @@ from xrpl.models.transactions import (
     TrustSet,
     TrustSetFlag,
 )
-from xrpl.transaction import transaction_json_to_binary_codec_form
 from xrpl.wallet import Wallet
 
 FEE = get_fee(JSON_RPC_CLIENT)
@@ -69,7 +68,7 @@ class TestSubmitMultisigned(IntegrationTestCase):
                 value="10",
             ),
         )
-        tx_json = transaction_json_to_binary_codec_form(tx.to_dict())
+        tx_json = tx.to_xrpl()
         first_sig = sign(
             bytes.fromhex(
                 encode_for_multisigning(
