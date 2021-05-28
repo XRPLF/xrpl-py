@@ -138,6 +138,24 @@ class Signer(BaseModel):
             and super().is_dict_of_model(dictionary["signer"])
         )
 
+    @classmethod
+    def from_dict(cls: Type[Signer], value: Dict[str, Any]) -> Signer:
+        """
+        Construct a new Signer from a dictionary of parameters.
+
+        Args:
+            value: The value to construct the Signer from.
+
+        Returns:
+            A new Signer object, constructed using the given parameters.
+
+        Raises:
+            XRPLModelException: If the dictionary provided is invalid.
+        """
+        if "signer" not in value:
+            return cast(Signer, super(Signer, cls).from_dict(value))
+        return cast(Signer, super(Signer, cls).from_dict(value["signer"]))
+
     def to_dict(self: Signer) -> Dict[str, Any]:
         """
         Returns the dictionary representation of a Signer.
