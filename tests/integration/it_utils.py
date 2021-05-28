@@ -92,9 +92,9 @@ def _choose_client_async(use_json_client: bool) -> Client:
 def test_async_and_sync(original_globals, modules=None, dev=False):
     def decorator(test_function):
         lines = _get_non_decorator_code(test_function)
-        sync_code = "".join(lines)
         sync_code = (
-            sync_code.replace("async def", "def")  # convert method from async to sync
+            "".join(lines)
+            .replace("async def", "def")  # convert method from async to sync
             .replace("await ", "")  # replace function calls
             .replace("_async(", "(")  # change methods
             .replace("\n    ", "\n")  # remove indenting (syntax error otherwise)
