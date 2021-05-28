@@ -14,6 +14,11 @@ from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
 
 
+def _thread_main(loop: AbstractEventLoop) -> None:
+    loop.run_forever()
+    loop.close()
+
+
 class WebsocketClient(SyncClient, WebsocketBase):
     """A sync client for interacting with the rippled WebSocket API."""
 
@@ -49,7 +54,8 @@ class WebsocketClient(SyncClient, WebsocketBase):
             return
         self._loop = new_event_loop()
         self._thread = Thread(
-            target=self._loop.run_forever,
+            target=_thread_main,
+            args=(self._loop,),
             daemon=True,
         )
         self._thread.start()
@@ -64,7 +70,6 @@ class WebsocketClient(SyncClient, WebsocketBase):
         run_coroutine_threadsafe(self._do_close(), self._loop).result()
         self._loop.call_soon_threadsafe(self._loop.stop)
         self._thread.join()
-        self._loop.close()
         self._loop = None
         self._thread = None
 

@@ -131,8 +131,10 @@ def test_async_and_sync(original_globals, modules=None, dev=False):
             if isinstance(client, AsyncWebsocketClient):
                 await client.open()
                 # this is happening with each test because IsolatedAsyncioTestCase is
-                # setting up a loop for eacch test cases, so this is the best way to do
+                # setting up a loop for each test cases, so this is the best way to do
                 # this
+                # happening in `IntegrationTestCase` for the sync client for the sake
+                # of efficiency
             await test_function(self, client)
             if isinstance(client, AsyncWebsocketClient):
                 await client.close()
