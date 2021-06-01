@@ -91,6 +91,33 @@ class Memo(BaseModel):
             errors["Memo"] = "Memo must contain at least one field"
         return errors
 
+    @classmethod
+    def from_dict(cls: Type[Memo], value: Dict[str, Any]) -> Memo:
+        """
+        Construct a new Memo from a dictionary of parameters.
+
+        Args:
+            value: The value to construct the Memo from.
+
+        Returns:
+            A new Memo object, constructed using the given parameters.
+
+        Raises:
+            XRPLModelException: If the dictionary provided is invalid.
+        """
+        if "memo" not in value:
+            return cast(Memo, super(Memo, cls).from_dict(value))
+        return cast(Memo, super(Memo, cls).from_dict(value["memo"]))
+
+    def to_dict(self: Memo) -> Dict[str, Any]:
+        """
+        Returns the dictionary representation of a Memo.
+
+        Returns:
+            The dictionary representation of a Memo.
+        """
+        return {"memo": super().to_dict()}
+
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
