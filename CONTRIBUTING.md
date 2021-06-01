@@ -87,7 +87,20 @@ poetry env use python3.9
 poetry install
 ```
 Replace `python3.9` with whatever version of Python you want to use (you must have it installed with `pyenv` for it to work).
-<!-- TODO: talk about nox tests here -->
+
+To run the tests on all supported versions of Python without needing to switch your poetry Python version, run:
+```bash
+poetry run nox -rs unit_tests # for unit tests
+poetry run nox -rs unit_tests-3.7 # for a specific version of Python
+poetry run nox -rs integration_tests # for integration tests
+```
+
+To run a specific unit test:
+```bash
+poetry run nox -rs unit_tests -- <directory or module> # for unit tets
+poetry run nox -rs unit_tests-3.7 -- <directory or module> # for a specific version of Python
+poetry run nox -rs integration_tests -- <directory or module> # for integration tests
+```
 
 
 ### Generate reference docs
