@@ -22,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Async web socket client under `xrpl.asyncio.clients.AsyncWebsocketClient`
 - A general `from_dict` method for `Request` models, analogous to `Transaction.from_dict`
 
-
 ### Fixed
 - Typos in docs/tests
 - Expose `xrpl.utils` at the top level
