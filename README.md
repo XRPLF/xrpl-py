@@ -14,7 +14,6 @@ A pure Python implementation for interacting with the XRP Ledger, the `xrpl-py` 
 >>> from xrpl.wallet import generate_faucet_wallet
 >>> test_wallet = generate_faucet_wallet(client)
 >>> print(test_wallet)
-seed: shA5izLnSNFxNwGMV1ar6WJnnsNbo
 public_key: ED3CC1BBD0952A60088E89FA502921895FC81FBD79CAE9109A8FE2D23659AD5D56
 private_key: -HIDDEN-
 classic_address: rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo
@@ -106,9 +105,8 @@ To create a wallet from a seed (in this case, the value generated using [`xrpl.k
 ```pycon
 >>> wallet_from_seed = xrpl.wallet.Wallet(seed, 0)
 >>> print(wallet_from_seed)
-seed: sEdTNFV69uSpcHpCppa6VzMvmC68CVY
 pub_key: ED46949E414A3D6D758D347BAEC9340DC78F7397FEE893132AAF5D56E4D7DE77B0
-priv_key: EDE65EE7882847EF5345A43BFB8E6F5EEC60F45461696C384639B99B26AAA7A5CD
+priv_key: -HIDDEN-
 classic_address: rG5ZvYsK5BPi9f1Nb8mhFGDTNMJhEhufn6
 ```
 
@@ -159,16 +157,18 @@ Use the [`xrpl.transaction`](https://xrpl-py.readthedocs.io/en/stable/source/xrp
 
 ```py
 from xrpl.models.transactions import Payment
-from xrpl.transaction import send_reliable_submission
+from xrpl.transaction import safe_sign_transaction, send_reliable_submission
 from xrpl.ledger import get_latest_validated_ledger_sequence
+from xrpl.account import get_next_valid_seq_number
 
 current_validated_ledger = get_latest_validated_ledger_sequence(client)
+test_wallet.sequence = get_next_valid_seq_number(test_wallet.classic_address, client)
 
 # prepare the transaction
 # the amount is expressed in drops, not XRP
 # see https://xrpl.org/basic-data-types.html#specifying-currency-amounts
 my_tx_payment = Payment(
-    account="rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz",
+    account=test_wallet.classic_address,
     amount="2200000",
     destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
     last_ledger_sequence=current_validated_ledger + 20,
@@ -196,22 +196,22 @@ In most cases, you can specify the minimum [transaction cost](https://xrpl.org/t
 
 #### Auto-filled fields
 
-The `xrpl-py` library automatically populates the `fee` and `last_ledger_sequence` fields when you create transactions. In the example above, you could omit those fields and let the library fill them in for you.
+The `xrpl-py` library automatically populates the `fee`, `sequence` and `last_ledger_sequence` fields when you create transactions. In the example above, you could omit those fields and let the library fill them in for you.
 
 ```pycon
 >>> from xrpl.models.transactions import Payment
->>> from xrpl.transaction import send_reliable_submission
+>>> from xrpl.transaction import send_reliable_submission, safe_sign_and_autofill_transaction
 >>> # prepare the transaction
 >>> # the amount is expressed in drops, not XRP
 >>> # see https://xrpl.org/basic-data-types.html#specifying-currency-amounts
 >>> my_tx_payment = Payment(
->>>     account="rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz",
+>>>     account=test_wallet.classic_address,
 >>>     amount="2200000",
->>>     destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
->>>     sequence=test_wallet.sequence,
+>>>     destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
 >>> )
->>> # sign the transaction
->>> my_tx_payment_signed = safe_sign_transaction(my_tx_payment, test_wallet)
+>>> # sign the transaction with the autofill method
+>>> # (this will auto-populate the fee, sequence, and last_ledger_sequence)
+>>> my_tx_payment_signed = safe_sign_and_autofill_transaction(my_tx_payment, test_wallet, client)
 >>> # submit the transaction
 >>> tx_response = send_reliable_submission(my_tx_payment_signed, client)
 >>> my_tx_payment
@@ -246,14 +246,14 @@ Use the [`xrpl.core.addresscodec`](https://xrpl-py.readthedocs.io/en/stable/sour
 ```pycon
 >>> # convert classic address to x-address
 >>> from xrpl.core import addresscodec
->>> tesnet_xaddress = (
+>>> testnet_xaddress = (
 ...     addresscodec.classic_address_to_xaddress(
 ...         "rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz",
 ...         tag=0,
 ...         is_test_network=True,
 ...         )
 ...     )
->>> print(tesnet_xaddress)
+>>> print(testnet_xaddress)
 T7QDemmxnuN7a52A62nx2fxGPWcRahLCf3qaswfrsNW9Lps
 ```
 
