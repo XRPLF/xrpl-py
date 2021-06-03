@@ -1,5 +1,5 @@
-XRPL Async Methods
-==================
+XRPL Async Features
+===================
 
 The `xrpl-py` library supports `Python's asyncio implementation <https://docs.python.org/3/library/asyncio.html>`_. All of these methods are analogous to the synchronous ones.
 
@@ -10,7 +10,7 @@ If working with asynchronous code, **do not** use synchronous methods. Due to th
    :titlesonly:
 
    xrpl.asyncio.account
-   xrpl.asyncio.clients
    xrpl.asyncio.ledger
    xrpl.asyncio.transaction
    xrpl.asyncio.wallet
+   xrpl.asyncio.clients
