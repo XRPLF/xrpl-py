@@ -1,4 +1,4 @@
-"""Async methods for working with transactions on the XRP Ledger."""
+"""Useful async methods for working with transactions on the XRP Ledger."""
 from xrpl.asyncio.transaction.ledger import get_transaction_from_hash
 from xrpl.asyncio.transaction.main import (
     safe_sign_and_autofill_transaction,

@@ -1,4 +1,4 @@
-"""Methods for working with transactions on the XRP Ledger."""
+"""Useful methods for working with transactions on the XRP Ledger."""
 from xrpl.asyncio.transaction import (
     XRPLReliableSubmissionException,
     transaction_json_to_binary_codec_form,

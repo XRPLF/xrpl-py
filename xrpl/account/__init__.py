@@ -1,4 +1,4 @@
-"""Methods for interacting with XRPL accounts."""
+"""Useful methods for interacting with XRPL accounts."""
 from xrpl.account.main import (
     does_account_exist,
     get_account_info,
