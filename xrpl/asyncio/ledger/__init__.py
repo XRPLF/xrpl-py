@@ -1,4 +1,4 @@
-"""Top-level exports for the ledger package."""
+"""Useful async methods for obtaining information about the status of the XRP Ledger."""
 from xrpl.asyncio.ledger.main import (
     get_fee,
     get_latest_open_ledger_sequence,

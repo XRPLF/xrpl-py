@@ -6,7 +6,7 @@ Use these models to prepare or process XRP Ledger transactions.
 Base Transaction Model
 ----------------------
 
-.. automodule:: xrpl.models.transactions.transaction
+.. autoclass:: xrpl.models.transactions.transaction.Transaction
    :members:
    :undoc-members:
    :show-inheritance:

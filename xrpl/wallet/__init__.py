@@ -1,4 +1,4 @@
-"""Top-level exports for the wallet generation package."""
+"""Useful methods for working with XRPL wallets."""
 from xrpl.asyncio.wallet import XRPLFaucetException
 from xrpl.wallet.main import Wallet
 from xrpl.wallet.wallet_generation import generate_faucet_wallet
