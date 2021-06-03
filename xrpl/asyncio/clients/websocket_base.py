@@ -179,6 +179,8 @@ class WebsocketBase(Client):
         Raises:
             XRPLWebsocketException: If there is already an open request by the
                 request's ID, or if this WebsocketBase is not open.
+
+        :meta private:
         """
         if not self.is_open():
             raise XRPLWebsocketException("Websocket is not open")
