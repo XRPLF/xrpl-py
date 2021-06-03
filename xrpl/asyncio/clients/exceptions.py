@@ -17,6 +17,7 @@ class XRPLRequestFailureException(XRPLException):
             result: the error result returned by the ledger.
         """
         self.error = result["error"]
+        self.error_message = None
         if "error_message" in result and result["error_message"] is not None:
             self.error_message = result["error_message"]
         elif "error_exception" in result:
