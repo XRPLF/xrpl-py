@@ -6,7 +6,7 @@ A pure Python implementation for interacting with the XRP Ledger, the `xrpl-py` 
 
 
 
-```pycon
+```py
 # create a network client
 from xrpl.clients import JsonRpcClient
 client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
@@ -42,10 +42,8 @@ print(json.dumps(result["account_data"], indent=4, sort_keys=True))
 # }
 ```
 
-
 [![Downloads](https://pepy.tech/badge/xrpl-py/month)](https://pepy.tech/project/xrpl-py/month)
 [![Contributors](https://img.shields.io/github/contributors/xpring-eng/xrpl-py.svg)](https://github.com/xpring-eng/xrpl-py/graphs/contributors)
-
 
 ## Installation and supported versions
 
@@ -102,7 +100,7 @@ Use the [`xrpl.wallet`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.wal
 
 To create a wallet from a seed (in this case, the value generated using [`xrpl.keypairs`](#xrpl-keypairs)):
 
-```pycon
+```py
 wallet_from_seed = xrpl.wallet.Wallet(seed, 0)
 print(wallet_from_seed)
 # pub_key: ED46949E414A3D6D758D347BAEC9340DC78F7397FEE893132AAF5D56E4D7DE77B0
@@ -112,7 +110,7 @@ print(wallet_from_seed)
 
 To create a wallet from a Testnet faucet:
 
-```pycon
+```py
 test_wallet = generate_faucet_wallet(client)
 test_account = test_wallet.classic_address
 print("Classic address:", test_account)
@@ -187,7 +185,7 @@ tx_response = send_reliable_submission(my_tx_payment_signed, client)
 
 In most cases, you can specify the minimum [transaction cost](https://xrpl.org/transaction-cost.html#current-transaction-cost) of `"10"` for the `fee` field unless you have a strong reason not to. But if you want to get the [current load-balanced transaction cost](https://xrpl.org/transaction-cost.html#current-transaction-cost) from the network, you can use the `get_fee` function:
 
-```pycon
+```py
 from xrpl.ledger import get_fee
 fee = get_fee(client)
 print(fee)
@@ -198,7 +196,7 @@ print(fee)
 
 The `xrpl-py` library automatically populates the `fee`, `sequence` and `last_ledger_sequence` fields when you create transactions. In the example above, you could omit those fields and let the library fill them in for you.
 
-```pycon
+```py
 from xrpl.models.transactions import Payment
 from xrpl.transaction import send_reliable_submission, safe_sign_and_autofill_transaction
 # prepare the transaction
@@ -243,7 +241,7 @@ my_tx_payment
 
 You can send `subscribe` and `unsubscribe` requests only using the WebSocket network client. These request methods allow you to be alerted of certain situations as they occur, such as when a new ledger is declared.
 
-```pycon
+```py
 from xrpl.clients import WebsocketClient
 url = "wss://s.altnet.rippletest.net/"
 client = WebsocketClient(url)
@@ -266,7 +264,7 @@ This library supports Python's [`asyncio`](https://docs.python.org/3/library/asy
 
 This sample code is the asynchronous equivalent of the above section on submitting a transaction.
 
-```pycon
+```py
 import asyncio
 from xrpl.models.transactions import Payment
 from xrpl.asyncio.transaction import safe_sign_transaction, send_reliable_submission
@@ -305,7 +303,7 @@ asyncio.run(submit_sample_transaction())
 
 Use [`xrpl.core.addresscodec`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.core.addresscodec.html) to encode and decode addresses into and from the ["classic" and X-address formats](https://xrpl.org/accounts.html#addresses).
 
-```pycon
+```py
 # convert classic address to x-address
 from xrpl.core import addresscodec
 testnet_xaddress = (
