@@ -1,8 +1,4 @@
-try:
-    from unittest import IsolatedAsyncioTestCase
-except ImportError:
-    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
-
+from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     retry,
     submit_transaction_async,
@@ -19,7 +15,7 @@ DEV_JSON_RPC_URL = "https://s.devnet.rippletest.net:51234"
 DEV_JSON_RPC_CLIENT = AsyncJsonRpcClient(DEV_JSON_RPC_URL)
 
 
-class TestWallet(IsolatedAsyncioTestCase):
+class TestWallet(IntegrationTestCase):
     @retry
     @test_async_and_sync(globals(), ["xrpl.wallet.generate_faucet_wallet"], True)
     async def test_generate_faucet_wallet_dev(self, client):

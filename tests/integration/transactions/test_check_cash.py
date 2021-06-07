@@ -1,8 +1,4 @@
-try:
-    from unittest import IsolatedAsyncioTestCase
-except ImportError:
-    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
-
+from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
@@ -14,7 +10,7 @@ AMOUNT = "100000000"
 DELIVER_MIN = "100000000"
 
 
-class TestCheckCreate(IsolatedAsyncioTestCase):
+class TestCheckCreate(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_required_fields_with_amount(self, client):
         check_cash = CheckCash(

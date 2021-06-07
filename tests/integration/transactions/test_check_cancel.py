@@ -1,8 +1,4 @@
-try:
-    from unittest import IsolatedAsyncioTestCase
-except ImportError:
-    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
-
+from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
@@ -13,7 +9,7 @@ ACCOUNT = WALLET.classic_address
 CHECK_ID = "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
 
 
-class TestCheckCancel(IsolatedAsyncioTestCase):
+class TestCheckCancel(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_all_fields(self, client):
         check_cancel = CheckCancel(

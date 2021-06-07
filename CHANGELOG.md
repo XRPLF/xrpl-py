@@ -18,8 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Method to the `Wallet` class that generates the X-Address for the wallet's account
 - Improved readability of the README/documentation
 - Async versions of all high-level functionality within the `xrpl.asyncio` package
-- Adds a web socket client under `xrpl.clients.WebsocketClient`
-- Adds an async web socket client under `xrpl.asyncio.clients.AsyncWebsocketClient`
+- Web socket client under `xrpl.clients.WebsocketClient`
+- Async web socket client under `xrpl.asyncio.clients.AsyncWebsocketClient`
+- A general `from_dict` method for `Request` models, analogous to `Transaction.from_dict`
 
 ### Fixed
 - Typos in docs/tests

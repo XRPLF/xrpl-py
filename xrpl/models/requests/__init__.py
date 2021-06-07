@@ -22,6 +22,7 @@ from xrpl.models.requests.no_ripple_check import NoRippleCheck, NoRippleCheckRol
 from xrpl.models.requests.path_find import PathFind, PathFindSubcommand, PathStep
 from xrpl.models.requests.ping import Ping
 from xrpl.models.requests.random import Random
+from xrpl.models.requests.request import Request
 from xrpl.models.requests.ripple_path_find import RipplePathFind
 from xrpl.models.requests.server_info import ServerInfo
 from xrpl.models.requests.server_state import ServerState
@@ -64,6 +65,7 @@ __all__ = [
     "PathStep",
     "Ping",
     "Random",
+    "Request",
     "RipplePathFind",
     "ServerInfo",
     "ServerState",

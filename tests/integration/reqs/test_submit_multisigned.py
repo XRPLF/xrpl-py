@@ -1,8 +1,4 @@
-try:
-    from unittest import IsolatedAsyncioTestCase
-except ImportError:
-    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
-
+from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     JSON_RPC_CLIENT,
     sign_and_reliable_submission,
@@ -21,7 +17,6 @@ from xrpl.models.transactions import (
     TrustSet,
     TrustSetFlag,
 )
-from xrpl.transaction import transaction_json_to_binary_codec_form
 from xrpl.wallet import Wallet
 
 FEE = get_fee(JSON_RPC_CLIENT)
@@ -52,7 +47,7 @@ LIST_SET_TX = sign_and_reliable_submission(
 )
 
 
-class TestSubmitMultisigned(IsolatedAsyncioTestCase):
+class TestSubmitMultisigned(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
         #
@@ -73,7 +68,7 @@ class TestSubmitMultisigned(IsolatedAsyncioTestCase):
                 value="10",
             ),
         )
-        tx_json = transaction_json_to_binary_codec_form(tx.to_dict())
+        tx_json = tx.to_xrpl()
         first_sig = sign(
             bytes.fromhex(
                 encode_for_multisigning(
@@ -119,7 +114,7 @@ class TestSubmitMultisigned(IsolatedAsyncioTestCase):
         # submit tx
         response = await client.request(
             SubmitMultisigned(
-                tx_json=transaction_json_to_binary_codec_form(multisigned_tx.to_dict()),
+                tx_json=multisigned_tx,
             )
         )
         self.assertTrue(response.is_successful())
