@@ -1,15 +1,11 @@
-try:
-    from unittest import IsolatedAsyncioTestCase
-except ImportError:
-    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
-
+from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.transactions import OfferCreate
 
 
-class TestOfferCreate(IsolatedAsyncioTestCase):
+class TestOfferCreate(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
         offer = await submit_transaction_async(

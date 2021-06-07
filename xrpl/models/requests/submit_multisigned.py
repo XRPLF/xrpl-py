@@ -7,7 +7,10 @@ This command requires the MultiSign amendment to be enabled.
 
 `See submit_multisigned <https://xrpl.org/submit_multisigned.html>`_
 """
+from __future__ import annotations
+
 from dataclasses import dataclass, field
+from typing import Any, Dict, Type, cast
 
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
@@ -32,3 +35,34 @@ class SubmitMultisigned(Request):
     #: This field is required.
     tx_json: Transaction = REQUIRED  # type: ignore
     fail_hard: bool = False
+
+    @classmethod
+    def from_dict(
+        cls: Type[SubmitMultisigned], value: Dict[str, Any]
+    ) -> SubmitMultisigned:
+        """
+        Construct a new SubmitMultisigned object from a dictionary of parameters.
+
+        Args:
+            value: The value to construct the SubmitMultisigned from.
+
+        Returns:
+            A new SubmitMultisigned object, constructed using the given parameters.
+        """
+        fixed_value = {**value}
+        if "TransactionType" in fixed_value["tx_json"]:  # xrpl format
+            fixed_value["tx_json"] = Transaction.from_xrpl(fixed_value["tx_json"])
+        return cast(
+            SubmitMultisigned, super(SubmitMultisigned, cls).from_dict(fixed_value)
+        )
+
+    def to_dict(self: SubmitMultisigned) -> Dict[str, Any]:
+        """
+        Returns the dictionary representation of a SubmitMultisigned object.
+
+        Returns:
+            The dictionary representation of a SubmitMultisigned object.
+        """
+        xrpl_dict = super().to_dict()
+        xrpl_dict["tx_json"] = self.tx_json.to_xrpl()
+        return xrpl_dict

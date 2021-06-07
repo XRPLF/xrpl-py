@@ -113,25 +113,42 @@ def test_async_and_sync(original_globals, modules=None, dev=False):
                 sync_modules_to_import[function] = module
 
         all_modules = {**original_globals, **globals(), **sync_modules_to_import}
+        # NOTE: passing `globals()` into `exec` is really bad practice and not safe at
+        # all, but in this case it's fine because it's only running test code
+
+        def _run_sync_test(self, client):
+            try:
+                exec(
+                    sync_code,
+                    all_modules,
+                    {"self": self, "client": client},
+                )
+            except Exception as e:
+                print(sync_code)  # for ease of debugging, since there's no codefile
+                raise e
+
+        async def _run_async_test(self, client):
+            if isinstance(client, AsyncWebsocketClient):
+                await client.open()
+                # this is happening with each test because IsolatedAsyncioTestCase is
+                # setting up a loop for each test cases, so this is the best way to do
+                # this
+                # happening in `IntegrationTestCase` for the sync client for the sake
+                # of efficiency
+            await test_function(self, client)
+            if isinstance(client, AsyncWebsocketClient):
+                await client.close()
 
         def modified_test(self):
-            with self.subTest(version="sync"):
-                client = DEV_JSON_RPC_CLIENT if dev else JSON_RPC_CLIENT
-                try:
-                    exec(
-                        sync_code,
-                        all_modules,
-                        {"self": self, "client": client},
-                    )
-                except Exception as e:
-                    print(sync_code)  # for ease of debugging, since there's no codefile
-                    raise e
-                # NOTE: passing `globals()` into `exec` is really bad practice and not
-                # safe at all, but in this case it's fine because it's only running
-                # test code
-            with self.subTest(version="async"):
+            with self.subTest(version="sync", client="json"):
+                _run_sync_test(self, DEV_JSON_RPC_CLIENT if dev else JSON_RPC_CLIENT)
+            with self.subTest(version="sync", client="websocket"):
+                _run_sync_test(self, WEBSOCKET_CLIENT)
+            with self.subTest(version="async", client="json"):
                 client = DEV_ASYNC_JSON_RPC_CLIENT if dev else ASYNC_JSON_RPC_CLIENT
-                asyncio.run(test_function(self, client))
+                asyncio.run(_run_async_test(self, client))
+            with self.subTest(version="async", client="websocket"):
+                asyncio.run(_run_async_test(self, ASYNC_WEBSOCKET_CLIENT))
 
         return modified_test
 
@@ -158,5 +175,7 @@ def retry(test_function):
                 if i == NUM_RETRIES - 1:
                     raise
                 sleep(2)
+                # This can't be async because `test_function` will not work in an async
+                # function
 
     return modified_test

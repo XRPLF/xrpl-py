@@ -6,11 +6,17 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Type, Union, cast
 
 from xrpl.models.base_model import BaseModel
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
+
+
+def _method_to_class_name(method: str) -> str:
+    snaked = "".join([word.capitalize() for word in method.split("_")])
+    return snaked
 
 
 class RequestMethod(str, Enum):
@@ -77,6 +83,66 @@ class Request(BaseModel):
 
     method: RequestMethod = REQUIRED  # type: ignore
     id: Optional[Union[str, int]] = None
+
+    @classmethod
+    def from_dict(cls: Type[Request], value: Dict[str, Any]) -> Request:
+        """
+        Construct a new Request from a dictionary of parameters.
+
+        Args:
+            value: The value to construct the Request from.
+
+        Returns:
+            A new Request object, constructed using the given parameters.
+
+        Raises:
+            XRPLModelException: If the dictionary provided is invalid.
+        """
+        if cls.__name__ == "Request":
+            if "method" not in value:
+                raise XRPLModelException("Request does not include method.")
+            correct_type = cls.get_method(value["method"])
+            return correct_type.from_dict(value)
+
+        if "method" in value:
+            method = value["method"]
+            if _method_to_class_name(method) != cls.__name__ and not (
+                method == "submit" and cls.__name__ in ("SignAndSubmit", "SubmitOnly")
+            ):
+                raise XRPLModelException(
+                    f"Using wrong constructor: using {cls.__name__} constructor "
+                    f"with Request method {method}."
+                )
+            value = {**value}
+            del value["method"]
+
+        return cast(Request, super(Request, cls).from_dict(value))
+
+    @classmethod
+    def get_method(cls: Type[Request], method: str) -> Type[Request]:
+        """
+        Returns the correct request method based on the string name.
+
+        Args:
+            method: The String name of the Request object.
+
+        Returns:
+            The request class with the given name.
+
+        Raises:
+            XRPLModelException: If `method` is not a valid Request method.
+        """
+        import xrpl.models.requests as request_models
+
+        request_methods: Dict[str, Type[Request]] = {}
+        for r in RequestMethod:
+            method_name = _method_to_class_name(r.name)
+            request_methods[r.value] = getattr(request_models, method_name)
+
+        if method in request_methods:
+            return request_methods[method]
+
+        raise XRPLModelException(f"{method} is not a valid Request method")
 
     def to_dict(self: Request) -> Dict[str, Any]:
         """

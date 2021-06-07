@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from asyncio import Future, Queue, Task, create_task, get_running_loop
 from random import randrange
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, Optional
 
 from typing_extensions import Final
 from websockets.legacy.client import WebSocketClientProtocol, connect
@@ -23,7 +23,7 @@ def _inject_request_id(request: Request) -> Request:
         return request
     request_dict = request.to_dict()
     request_dict["id"] = f"{request.method}_{randrange(_REQ_ID_MAX)}"
-    resp = cast(Request, request.from_dict(request_dict))
+    resp = Request.from_dict(request_dict)
     assert resp.id is not None  # mypy
     return resp
 

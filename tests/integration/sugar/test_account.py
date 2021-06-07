@@ -1,8 +1,4 @@
-try:
-    from unittest import IsolatedAsyncioTestCase
-except ImportError:
-    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
-
+from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     JSON_RPC_CLIENT,
     sign_and_reliable_submission_async,
@@ -24,7 +20,7 @@ NEW_WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
 EMPTY_WALLET = Wallet.create()
 
 
-class TestAccount(IsolatedAsyncioTestCase):
+class TestAccount(IntegrationTestCase):
     @test_async_and_sync(globals(), ["xrpl.account.does_account_exist"])
     async def test_does_account_exist_true(self, client):
         self.assertTrue(await does_account_exist(WALLET.classic_address, client))

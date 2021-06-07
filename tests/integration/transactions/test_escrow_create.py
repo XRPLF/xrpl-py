@@ -1,8 +1,4 @@
-try:
-    from unittest import IsolatedAsyncioTestCase
-except ImportError:
-    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
-
+from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
@@ -21,7 +17,7 @@ DESTINATION_TAG = 23480
 SOURCE_TAG = 11747
 
 
-class TestEscrowCreate(IsolatedAsyncioTestCase):
+class TestEscrowCreate(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_all_fields(self, client):
         escrow_create = EscrowCreate(
