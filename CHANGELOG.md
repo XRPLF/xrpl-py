@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Expose `xrpl.accounts.get_account_root`
 - Invalid X-Addresses in the XRPL Binary Codec now error with `XRPLBinaryCodecException` instead of `ValueError`
 - Issue with calculating IOU precision
-- Issue with converting certain dictionaries to a model using `BaseModel.from_dict`
+- Issues with converting certain dictionaries to/from a model using `BaseModel.from_dict`
 
 ## [1.0.0] - 2021-03-31
 ### Added

@@ -17,6 +17,7 @@ from xrpl.models.requests import (
 )
 from xrpl.models.transactions import (
     CheckCreate,
+    Memo,
     Signer,
     SignerEntry,
     SignerListSet,
@@ -454,6 +455,46 @@ class TestFromDict(TestCase):
                     txn_signature=txn_sig2,
                     signing_pub_key=pubkey2,
                 ),
+            ],
+            limit_amount=IssuedCurrencyAmount(
+                currency="USD", issuer="rBPvTKisx7UCGLDtiUZ6mDssXNREuVuL8Y", value="10"
+            ),
+        )
+        self.assertEqual(Transaction.from_xrpl(tx), expected)
+
+    def test_from_xrpl_memos(self):
+        memo_type = "687474703a2f2f6578616d706c652e636f6d2f6d656d6f2f67656e65726963"
+        tx = {
+            "Account": "rnoGkgSpt6AX1nQxZ2qVGx7Fgw6JEcoQas",
+            "TransactionType": "TrustSet",
+            "Fee": "10",
+            "Sequence": 17892983,
+            "Flags": 131072,
+            "Memos": [
+                {
+                    "Memo": {
+                        "MemoType": memo_type,
+                        "MemoData": "72656e74",
+                    }
+                }
+            ],
+            "SigningPubKey": "",
+            "LimitAmount": {
+                "currency": "USD",
+                "issuer": "rBPvTKisx7UCGLDtiUZ6mDssXNREuVuL8Y",
+                "value": "10",
+            },
+        }
+        expected = TrustSet(
+            account="rnoGkgSpt6AX1nQxZ2qVGx7Fgw6JEcoQas",
+            fee="10",
+            sequence=17892983,
+            flags=131072,
+            memos=[
+                Memo(
+                    memo_type=memo_type,
+                    memo_data="72656e74",
+                )
             ],
             limit_amount=IssuedCurrencyAmount(
                 currency="USD", issuer="rBPvTKisx7UCGLDtiUZ6mDssXNREuVuL8Y", value="10"
