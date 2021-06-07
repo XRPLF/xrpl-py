@@ -8,7 +8,7 @@ A pure Python implementation for interacting with the XRP Ledger, the `xrpl-py` 
 
 ```pycon
 # create a network client
->>> from xrpl.clients.json_rpc_client import JsonRpcClient
+>>> from xrpl.clients import JsonRpcClient
 >>> client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
 # create a wallet on the testnet
 >>> from xrpl.wallet import generate_faucet_wallet
@@ -89,7 +89,7 @@ The following sections describe some of the most commonly used modules in the `x
 Use the `xrpl.clients` library to create a network client for connecting to the XRP Ledger.
 
 ```py
-from xrpl.clients.json_rpc_client import JsonRpcClient
+from xrpl.clients import JsonRpcClient
 JSON_RPC_URL = "https://s.altnet.rippletest.net:51234/"
 client = JsonRpcClient(JSON_RPC_URL)
 ```
@@ -260,9 +260,50 @@ You can send `subscribe` and `unsubscribe` requests only using the WebSocket net
 ```
 
 
+### Asynchronous Code
+
+This library supports Python's [`asyncio`](https://docs.python.org/3/library/asyncio.html) package, which is used to run asynchronous code. All the async code is in [`xrpl.asyncio`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.asyncio.html) If you are writing asynchronous code, please note that you will not be able to use any synchronous sugar functions, due to how event loops are handled. However, every synchronous method has a corresponding asynchronous method that you can use.
+
+This sample code is the asynchronous equivalent of the above section on submitting a transaction.
+
+```pycon
+import asyncio
+from xrpl.models.transactions import Payment
+from xrpl.asyncio.transaction import safe_sign_transaction, send_reliable_submission
+from xrpl.asyncio.ledger import get_latest_validated_ledger_sequence
+from xrpl.asyncio.account import get_next_valid_seq_number
+from xrpl.asyncio.clients import AsyncJsonRpcClient
+
+async_client = AsyncJsonRpcClient(JSON_RPC_URL)
+
+async def submit_sample_transaction():
+    current_validated_ledger = await get_latest_validated_ledger_sequence(async_client)
+    test_wallet.sequence = await get_next_valid_seq_number(test_wallet.classic_address, async_client)
+
+    # prepare the transaction
+    # the amount is expressed in drops, not XRP
+    # see https://xrpl.org/basic-data-types.html#specifying-currency-amounts
+    my_tx_payment = Payment(
+        account=test_wallet.classic_address,
+        amount="2200000",
+        destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+        last_ledger_sequence=current_validated_ledger + 20,
+        sequence=test_wallet.sequence,
+        fee="10",
+    )
+    # sign the transaction
+    my_tx_payment_signed = await safe_sign_transaction(my_tx_payment,test_wallet)
+
+    # submit the transaction
+    tx_response = await send_reliable_submission(my_tx_payment_signed, async_client)
+    print(tx_response)
+
+asyncio.run(submit_sample_transaction())
+```
+
 ### Encode addresses
 
-Use the [`xrpl.core.addresscodec`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.core.addresscodec.html) to encode and decode addresses into and from the ["classic" and X-address formats](https://xrpl.org/accounts.html#addresses).
+Use [`xrpl.core.addresscodec`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.core.addresscodec.html) to encode and decode addresses into and from the ["classic" and X-address formats](https://xrpl.org/accounts.html#addresses).
 
 ```pycon
 >>> # convert classic address to x-address
