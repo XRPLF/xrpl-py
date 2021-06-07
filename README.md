@@ -10,6 +10,7 @@ A pure Python implementation for interacting with the XRP Ledger, the `xrpl-py` 
 # create a network client
 from xrpl.clients import JsonRpcClient
 client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+
 # create a wallet on the testnet
 from xrpl.wallet import generate_faucet_wallet
 test_wallet = generate_faucet_wallet(client)
@@ -17,6 +18,7 @@ print(test_wallet)
 public_key: ED3CC1BBD0952A60088E89FA502921895FC81FBD79CAE9109A8FE2D23659AD5D56
 private_key: -HIDDEN-
 classic_address: rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo
+
 # look up account info
 from xrpl.models.requests.account_info import AccountInfo
 acct_info = AccountInfo(
@@ -134,6 +136,11 @@ print(public)
 print("Here's the private key:")
 print(private)
 print("Store this in a secure place!")
+# Here's the public key:
+# ED3CC1BBD0952A60088E89FA502921895FC81FBD79CAE9109A8FE2D23659AD5D56
+# Here's the private key:
+# EDE65EE7882847EF5345A43BFB8E6F5EEC60F45461696C384639B99B26AAA7A5CD
+# Store this in a secure place!
 ```
 
 **Note:** You can use `xrpl.core.keypairs.sign` to sign transactions but `xrpl-py` also provides explicit methods for safely signing and submitting transactions. See [Transaction Signing](#transaction-signing) and [XRPL Transaction Methods](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.transaction.html#module-xrpl.transaction) for more information.
