@@ -103,20 +103,20 @@ class Request(BaseModel):
                 raise XRPLModelException("Request does not include method.")
             correct_type = cls.get_method(value["method"])
             return correct_type.from_dict(value)
-        else:
-            if "method" in value:
-                method = value["method"]
-                if _method_to_class_name(method) != cls.__name__ and not (
-                    method == "submit"
-                    and cls.__name__ in ("SignAndSubmit", "SubmitOnly")
-                ):
-                    raise XRPLModelException(
-                        f"Using wrong constructor: using {cls.__name__} constructor "
-                        f"with Request method {method}."
-                    )
-                value = {**value}
-                del value["method"]
-            return cast(Request, super(Request, cls).from_dict(value))
+
+        if "method" in value:
+            method = value["method"]
+            if _method_to_class_name(method) != cls.__name__ and not (
+                method == "submit" and cls.__name__ in ("SignAndSubmit", "SubmitOnly")
+            ):
+                raise XRPLModelException(
+                    f"Using wrong constructor: using {cls.__name__} constructor "
+                    f"with Request method {method}."
+                )
+            value = {**value}
+            del value["method"]
+
+        return cast(Request, super(Request, cls).from_dict(value))
 
     @classmethod
     def get_method(cls: Type[Request], method: str) -> Type[Request]:
