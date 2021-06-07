@@ -8,38 +8,38 @@ A pure Python implementation for interacting with the XRP Ledger, the `xrpl-py` 
 
 ```pycon
 # create a network client
->>> from xrpl.clients import JsonRpcClient
->>> client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+from xrpl.clients import JsonRpcClient
+client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
 # create a wallet on the testnet
->>> from xrpl.wallet import generate_faucet_wallet
->>> test_wallet = generate_faucet_wallet(client)
->>> print(test_wallet)
+from xrpl.wallet import generate_faucet_wallet
+test_wallet = generate_faucet_wallet(client)
+print(test_wallet)
 public_key: ED3CC1BBD0952A60088E89FA502921895FC81FBD79CAE9109A8FE2D23659AD5D56
 private_key: -HIDDEN-
 classic_address: rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo
 # look up account info
->>> from xrpl.models.requests.account_info import AccountInfo
->>> acct_info = AccountInfo(
-...         account="rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo",
-...         ledger_index="current",
-...         queue=True,
-...         strict=True,
-...     )
->>> response = client.request(acct_info)
->>> result = response.result
->>> import json
->>> print(json.dumps(result["account_data"], indent=4, sort_keys=True))
-{
-    "Account": "rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo",
-    "Balance": "1000000000",
-    "Flags": 0,
-    "LedgerEntryType": "AccountRoot",
-    "OwnerCount": 0,
-    "PreviousTxnID": "73CD4A37537A992270AAC8472F6681F44E400CBDE04EC8983C34B519F56AB107",
-    "PreviousTxnLgrSeq": 16233962,
-    "Sequence": 16233962,
-    "index": "FD66EC588B52712DCE74831DCB08B24157DC3198C29A0116AA64D310A58512D7"
-}
+from xrpl.models.requests.account_info import AccountInfo
+acct_info = AccountInfo(
+    account="rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo",
+    ledger_index="current",
+    queue=True,
+    strict=True,
+)
+response = client.request(acct_info)
+result = response.result
+import json
+print(json.dumps(result["account_data"], indent=4, sort_keys=True))
+# {
+#     "Account": "rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo",
+#     "Balance": "1000000000",
+#     "Flags": 0,
+#     "LedgerEntryType": "AccountRoot",
+#     "OwnerCount": 0,
+#     "PreviousTxnID": "73CD4A37537A992270AAC8472F6681F44E400CBDE04EC8983C34B519F56AB107",
+#     "PreviousTxnLgrSeq": 16233962,
+#     "Sequence": 16233962,
+#     "index": "FD66EC588B52712DCE74831DCB08B24157DC3198C29A0116AA64D310A58512D7"
+# }
 ```
 
 
@@ -103,20 +103,20 @@ Use the [`xrpl.wallet`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.wal
 To create a wallet from a seed (in this case, the value generated using [`xrpl.keypairs`](#xrpl-keypairs)):
 
 ```pycon
->>> wallet_from_seed = xrpl.wallet.Wallet(seed, 0)
->>> print(wallet_from_seed)
-pub_key: ED46949E414A3D6D758D347BAEC9340DC78F7397FEE893132AAF5D56E4D7DE77B0
-priv_key: -HIDDEN-
-classic_address: rG5ZvYsK5BPi9f1Nb8mhFGDTNMJhEhufn6
+wallet_from_seed = xrpl.wallet.Wallet(seed, 0)
+print(wallet_from_seed)
+# pub_key: ED46949E414A3D6D758D347BAEC9340DC78F7397FEE893132AAF5D56E4D7DE77B0
+# priv_key: -HIDDEN-
+# classic_address: rG5ZvYsK5BPi9f1Nb8mhFGDTNMJhEhufn6
 ```
 
 To create a wallet from a Testnet faucet:
 
 ```pycon
->>> test_wallet = generate_faucet_wallet(client)
->>> test_account = test_wallet.classic_address
->>> print("Classic address:", test_account)
-Classic address: rEQB2hhp3rg7sHj6L8YyR4GG47Cb7pfcuw
+test_wallet = generate_faucet_wallet(client)
+test_account = test_wallet.classic_address
+print("Classic address:", test_account)
+# Classic address: rEQB2hhp3rg7sHj6L8YyR4GG47Cb7pfcuw
 ```
 
 #### `xrpl.core.keypairs`
@@ -188,10 +188,10 @@ tx_response = send_reliable_submission(my_tx_payment_signed, client)
 In most cases, you can specify the minimum [transaction cost](https://xrpl.org/transaction-cost.html#current-transaction-cost) of `"10"` for the `fee` field unless you have a strong reason not to. But if you want to get the [current load-balanced transaction cost](https://xrpl.org/transaction-cost.html#current-transaction-cost) from the network, you can use the `get_fee` function:
 
 ```pycon
->>> from xrpl.ledger import get_fee
->>> fee = get_fee(client)
->>> print(fee)
-10
+from xrpl.ledger import get_fee
+fee = get_fee(client)
+print(fee)
+# 10
 ```
 
 #### Auto-filled fields
@@ -199,43 +199,43 @@ In most cases, you can specify the minimum [transaction cost](https://xrpl.org/t
 The `xrpl-py` library automatically populates the `fee`, `sequence` and `last_ledger_sequence` fields when you create transactions. In the example above, you could omit those fields and let the library fill them in for you.
 
 ```pycon
->>> from xrpl.models.transactions import Payment
->>> from xrpl.transaction import send_reliable_submission, safe_sign_and_autofill_transaction
->>> # prepare the transaction
->>> # the amount is expressed in drops, not XRP
->>> # see https://xrpl.org/basic-data-types.html#specifying-currency-amounts
->>> my_tx_payment = Payment(
->>>     account=test_wallet.classic_address,
->>>     amount="2200000",
->>>     destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
->>> )
->>> # sign the transaction with the autofill method
->>> # (this will auto-populate the fee, sequence, and last_ledger_sequence)
->>> my_tx_payment_signed = safe_sign_and_autofill_transaction(my_tx_payment, test_wallet, client)
->>> # submit the transaction
->>> tx_response = send_reliable_submission(my_tx_payment_signed, client)
->>> my_tx_payment
-Payment(
-    account='rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz',
-    transaction_type=<TransactionType.PAYMENT: 'Payment'>,
-    fee=10000,
-    sequence=16034065,
-    account_txn_id=None,
-    flags=0,
-    last_ledger_sequence=10268600,
-    memos=None,
-    signers=None,
-    source_tag=None,
-    signing_pub_key=None,
-    txn_signature=None,
-    amount='2200000',
-    destination='rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe',
-    destination_tag=None,
-    invoice_id=None,
-    paths=None,
-    send_max=None,
-    deliver_min=None
+from xrpl.models.transactions import Payment
+from xrpl.transaction import send_reliable_submission, safe_sign_and_autofill_transaction
+# prepare the transaction
+# the amount is expressed in drops, not XRP
+# see https://xrpl.org/basic-data-types.html#specifying-currency-amounts
+my_tx_payment = Payment(
+    account=test_wallet.classic_address,
+    amount="2200000",
+    destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
 )
+# sign the transaction with the autofill method
+# (this will auto-populate the fee, sequence, and last_ledger_sequence)
+my_tx_payment_signed = safe_sign_and_autofill_transaction(my_tx_payment, test_wallet, client)
+# submit the transaction
+tx_response = send_reliable_submission(my_tx_payment_signed, client)
+my_tx_payment
+# Payment(
+#     account='rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz',
+#     transaction_type=<TransactionType.PAYMENT: 'Payment'>,
+#     fee=10000,
+#     sequence=16034065,
+#     account_txn_id=None,
+#     flags=0,
+#     last_ledger_sequence=10268600,
+#     memos=None,
+#     signers=None,
+#     source_tag=None,
+#     signing_pub_key=None,
+#     txn_signature=None,
+#     amount='2200000',
+#     destination='rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe',
+#     destination_tag=None,
+#     invoice_id=None,
+#     paths=None,
+#     send_max=None,
+#     deliver_min=None
+# )
 ```
 
 
@@ -244,19 +244,19 @@ Payment(
 You can send `subscribe` and `unsubscribe` requests only using the WebSocket network client. These request methods allow you to be alerted of certain situations as they occur, such as when a new ledger is declared.
 
 ```pycon
->>> from xrpl.clients import WebsocketClient
->>> url = "wss://s.altnet.rippletest.net/"
->>> client = WebsocketClient(url)
->>> from xrpl.models.requests import Subscribe, StreamParameter
->>> req = Subscribe(streams=[StreamParameter.LEDGER])
->>> client.open()
->>> client.send(req)
->>> for message in client:
-...     print(message)
-{'result': {'fee_base': 10, 'fee_ref': 10, 'ledger_hash': '7CD50477F23FF158B430772D8E82A961376A7B40E13C695AA849811EDF66C5C0', 'ledger_index': 18183504, 'ledger_time': 676412962, 'reserve_base': 20000000, 'reserve_inc': 5000000, 'validated_ledgers': '17469391-18183504'}, 'status': 'success', 'type': 'response'}
-{'fee_base': 10, 'fee_ref': 10, 'ledger_hash': 'BAA743DABD168BD434804416C8087B7BDEF7E6D7EAD412B9102281DD83B10D00', 'ledger_index': 18183505, 'ledger_time': 676412970, 'reserve_base': 20000000, 'reserve_inc': 5000000, 'txn_count': 0, 'type': 'ledgerClosed', 'validated_ledgers': '17469391-18183505'}
-{'fee_base': 10, 'fee_ref': 10, 'ledger_hash': 'D8227DAF8F745AE3F907B251D40B4081E019D013ABC23B68C0B1431DBADA1A46', 'ledger_index': 18183506, 'ledger_time': 676412971, 'reserve_base': 20000000, 'reserve_inc': 5000000, 'txn_count': 0, 'type': 'ledgerClosed', 'validated_ledgers': '17469391-18183506'}
-{'fee_base': 10, 'fee_ref': 10, 'ledger_hash': 'CFC412B6DDB9A402662832A781C23F0F2E842EAE6CFC539FEEB287318092C0DE', 'ledger_index': 18183507, 'ledger_time': 676412972, 'reserve_base': 20000000, 'reserve_inc': 5000000, 'txn_count': 0, 'type': 'ledgerClosed', 'validated_ledgers': '17469391-18183507'}
+from xrpl.clients import WebsocketClient
+url = "wss://s.altnet.rippletest.net/"
+client = WebsocketClient(url)
+from xrpl.models.requests import Subscribe, StreamParameter
+req = Subscribe(streams=[StreamParameter.LEDGER])
+client.open()
+client.send(req)
+for message in client:
+    print(message)
+# {'result': {'fee_base': 10, 'fee_ref': 10, 'ledger_hash': '7CD50477F23FF158B430772D8E82A961376A7B40E13C695AA849811EDF66C5C0', 'ledger_index': 18183504, 'ledger_time': 676412962, 'reserve_base': 20000000, 'reserve_inc': 5000000, 'validated_ledgers': '17469391-18183504'}, 'status': 'success', 'type': 'response'}
+# {'fee_base': 10, 'fee_ref': 10, 'ledger_hash': 'BAA743DABD168BD434804416C8087B7BDEF7E6D7EAD412B9102281DD83B10D00', 'ledger_index': 18183505, 'ledger_time': 676412970, 'reserve_base': 20000000, 'reserve_inc': 5000000, 'txn_count': 0, 'type': 'ledgerClosed', 'validated_ledgers': '17469391-18183505'}
+# {'fee_base': 10, 'fee_ref': 10, 'ledger_hash': 'D8227DAF8F745AE3F907B251D40B4081E019D013ABC23B68C0B1431DBADA1A46', 'ledger_index': 18183506, 'ledger_time': 676412971, 'reserve_base': 20000000, 'reserve_inc': 5000000, 'txn_count': 0, 'type': 'ledgerClosed', 'validated_ledgers': '17469391-18183506'}
+# {'fee_base': 10, 'fee_ref': 10, 'ledger_hash': 'CFC412B6DDB9A402662832A781C23F0F2E842EAE6CFC539FEEB287318092C0DE', 'ledger_index': 18183507, 'ledger_time': 676412972, 'reserve_base': 20000000, 'reserve_inc': 5000000, 'txn_count': 0, 'type': 'ledgerClosed', 'validated_ledgers': '17469391-18183507'}
 ```
 
 
@@ -306,17 +306,17 @@ asyncio.run(submit_sample_transaction())
 Use [`xrpl.core.addresscodec`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.core.addresscodec.html) to encode and decode addresses into and from the ["classic" and X-address formats](https://xrpl.org/accounts.html#addresses).
 
 ```pycon
->>> # convert classic address to x-address
->>> from xrpl.core import addresscodec
->>> testnet_xaddress = (
-...     addresscodec.classic_address_to_xaddress(
-...         "rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz",
-...         tag=0,
-...         is_test_network=True,
-...         )
-...     )
->>> print(testnet_xaddress)
-T7QDemmxnuN7a52A62nx2fxGPWcRahLCf3qaswfrsNW9Lps
+# convert classic address to x-address
+from xrpl.core import addresscodec
+testnet_xaddress = (
+    addresscodec.classic_address_to_xaddress(
+        "rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz",
+        tag=0,
+        is_test_network=True,
+    )
+)
+print(testnet_xaddress)
+# T7QDemmxnuN7a52A62nx2fxGPWcRahLCf3qaswfrsNW9Lps
 ```
 
 
