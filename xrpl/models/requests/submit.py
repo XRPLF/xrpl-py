@@ -23,6 +23,7 @@ twice since it has the same sequence number as the old transaction.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any, Dict, Type, cast
 
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.utils import require_kwargs_on_init
@@ -32,6 +33,9 @@ from xrpl.models.utils import require_kwargs_on_init
 @dataclass(frozen=True)
 class Submit(Request):
     """
+    WARNING: This object should never be created. You should create an object of type
+    `SignAndSubmit` or `SubmitOnly` instead.
+
     The submit method applies a transaction and sends it to the network to be confirmed
     and included in future ledgers.
 
@@ -54,3 +58,25 @@ class Submit(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.SUBMIT, init=False)
+
+    @classmethod
+    def from_dict(cls: Type[Submit], value: Dict[str, Any]) -> Submit:
+        """
+        Construct a new Submit from a dictionary of parameters.
+
+        Args:
+            value: The value to construct the Submit from.
+
+        Returns:
+            A new Submit object, constructed using the given parameters.
+
+        Raises:
+            XRPLModelException: If the dictionary provided is invalid.
+        """
+        from xrpl.models.requests import SignAndSubmit, SubmitOnly
+
+        if cls.__name__ == "Submit":
+            if "tx_blob" in value:
+                return SubmitOnly.from_dict(value)
+            return SignAndSubmit.from_dict(value)
+        return cast(Submit, super(Submit, cls).from_dict(value))
