@@ -125,3 +125,27 @@ cd docs/_build/html/
 # Open the index file to view it in a browser:
 open _build/html/index.html
 ```
+
+
+## Release process
+
+### Pre-release
+
+
+
+### Release
+1. Run integration tests on `master`, locally or using [Github Actions](https://github.com/XRPLF/xrpl-py/actions/workflows/integration_test.yml).
+2. Create a PR off master that properly increments the version in `pyproject.toml` and updates the `CHANGELOG` appropriately. the branch should be named `vMAJOR.MINOR.PATCH` (IE v1.0.0)
+    * Increment MAJOR version when you make incompatible API changes
+    * Increment MINOR version when you add functionality in a backwards compatible manner
+    * Increment PATCH version when you make backwards compatible bug fixes
+3. Merge this branch into `master`.
+4. Run integration tests on `master` again just in case.
+5. Create a new Github release/tag off of this commit to master
+7. Locally build and download the package.
+    1. Pull master locally.
+    2. Locally download the package by running `pip install path/to/local/xrpl-py/dist/.whl`
+    3. Make sure that this local installation works as intended, and that changes are reflected properly
+8. Run `poetry publish --dry-run` and make sure everything looks good
+9. Actually publish the update by running `poetry publish`
+    * This will require entering PyPI login info
