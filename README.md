@@ -219,20 +219,20 @@ my_tx_payment = Payment(
 my_tx_payment_signed = safe_sign_and_autofill_transaction(my_tx_payment, test_wallet, client)
 # submit the transaction
 tx_response = send_reliable_submission(my_tx_payment_signed, client)
-print(my_tx_payment)
+print(my_tx_payment_signed)
 # Payment(
 #     account='rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz',
 #     transaction_type=<TransactionType.PAYMENT: 'Payment'>,
-#     fee=10000,
 #     sequence=16034065,
+#     fee='10',
 #     account_txn_id=None,
 #     flags=0,
 #     last_ledger_sequence=10268600,
 #     memos=None,
 #     signers=None,
 #     source_tag=None,
-#     signing_pub_key=None,
-#     txn_signature=None,
+#     signing_pub_key='EDD9540FA398915F0BCBD6E65579C03BE5424836CB68B7EB1D6573F2382156B444',
+#     txn_signature='938FB22AE7FE76CF26FD11F8F97668E175DFAABD2977BCA397233117E7E1C4A1E39681091CC4D6DF21403682803AB54CC21DC4FA2F6848811DEE10FFEF74D809',
 #     amount='2200000',
 #     destination='rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe',
 #     destination_tag=None,
