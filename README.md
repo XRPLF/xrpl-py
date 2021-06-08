@@ -225,6 +225,7 @@ print(my_tx_payment_signed)
 #     fee='10',
 #     sequence=16034065,
 #     fee='10',
+#     sequence=16034065,
 #     account_txn_id=None,
 #     flags=0,
 #     last_ledger_sequence=10268600,
