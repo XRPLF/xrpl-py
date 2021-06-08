@@ -223,8 +223,8 @@ print(my_tx_payment_signed)
 # Payment(
 #     account='rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz',
 #     transaction_type=<TransactionType.PAYMENT: 'Payment'>,
-#     sequence=16034065,
 #     fee='10',
+#     sequence=16034065,
 #     account_txn_id=None,
 #     flags=0,
 #     last_ledger_sequence=10268600,
