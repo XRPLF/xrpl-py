@@ -219,7 +219,7 @@ my_tx_payment = Payment(
 my_tx_payment_signed = safe_sign_and_autofill_transaction(my_tx_payment, test_wallet, client)
 # submit the transaction
 tx_response = send_reliable_submission(my_tx_payment_signed, client)
-my_tx_payment
+print(my_tx_payment)
 # Payment(
 #     account='rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz',
 #     transaction_type=<TransactionType.PAYMENT: 'Payment'>,
@@ -301,7 +301,6 @@ async def submit_sample_transaction():
 
     # submit the transaction
     tx_response = await send_reliable_submission(my_tx_payment_signed, async_client)
-    print(tx_response)
 
 asyncio.run(submit_sample_transaction())
 ```
