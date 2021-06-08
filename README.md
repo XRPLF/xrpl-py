@@ -214,11 +214,10 @@ my_tx_payment = Payment(
     amount="2200000",
     destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
 )
+
 # sign the transaction with the autofill method
 # (this will auto-populate the fee, sequence, and last_ledger_sequence)
 my_tx_payment_signed = safe_sign_and_autofill_transaction(my_tx_payment, test_wallet, client)
-# submit the transaction
-tx_response = send_reliable_submission(my_tx_payment_signed, client)
 print(my_tx_payment_signed)
 # Payment(
 #     account='rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz',
@@ -241,6 +240,9 @@ print(my_tx_payment_signed)
 #     send_max=None,
 #     deliver_min=None
 # )
+
+# submit the transaction
+tx_response = send_reliable_submission(my_tx_payment_signed, client)
 ```
 
 
