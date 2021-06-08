@@ -129,11 +129,17 @@ open _build/html/index.html
 
 ## Release process
 
-### Pre-release
+### Editing the Code
 
-
+* Your changes should be on a branch.
+* Your changes should have unit and/or integration tests, depending on what the changes are for.
+* Your changes should pass the linter via the pre-commit hook/on Github.
+* Your code should pass all the unit tests (locally and on Github).
+* Get a full code review.
+* Push to Github and merge to `master`.
 
 ### Release
+
 1. Run integration tests on `master`, locally or using [Github Actions](https://github.com/XRPLF/xrpl-py/actions/workflows/integration_test.yml).
 2. Create a PR off master that properly increments the version in `pyproject.toml` and updates the `CHANGELOG` appropriately. the branch should be named `vMAJOR.MINOR.PATCH` (IE v1.0.0)
     * Increment MAJOR version when you make incompatible API changes
