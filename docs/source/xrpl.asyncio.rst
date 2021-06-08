@@ -3,7 +3,7 @@ XRPL Async Features
 
 The `xrpl-py` library supports `Python's asyncio implementation <https://docs.python.org/3/library/asyncio.html>`_. All of these methods are equivalent to the synchronous ones.
 
-If working with asynchronous code, you cannot use synchronous methods. Due to the way that loops are handled, this will not work. Each synchronous method has an equivalent asynchronous method in this module that should be used instead.
+Due to the way that loops are handled, you cannot use synchronous methods if you are working with asynchronous code. Each synchronous method has an equivalent asynchronous method in this module that should be used instead.
 
 .. toctree::
    :maxdepth: 1
