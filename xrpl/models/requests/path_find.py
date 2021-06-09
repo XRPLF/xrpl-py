@@ -160,6 +160,7 @@ class PathFind(Request):
 
     :meta hide-value:
     """
+
     method: RequestMethod = field(default=RequestMethod.PATH_FIND, init=False)
     send_max: Optional[Amount] = None
     paths: Optional[List[List[PathStep]]] = None

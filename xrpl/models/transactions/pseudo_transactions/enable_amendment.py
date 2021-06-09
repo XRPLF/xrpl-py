@@ -24,13 +24,17 @@ class EnableAmendmentFlag(int, Enum):
     <https://xrpl.org/enableamendment.html#enableamendment-flags>`_
     """
 
-    #: Support for this amendment increased to at least 80% of trusted validators
-    #: starting with this ledger version.
     TF_GOT_MAJORITY = 0x00010000
+    """
+    Support for this amendment increased to at least 80% of trusted validators
+    starting with this ledger version.
+    """
 
-    #: Support for this amendment decreased to less than 80% of trusted validators
-    #: starting with this ledger version.
     TF_LOST_MAJORITY = 0x00020000
+    """
+    Support for this amendment decreased to less than 80% of trusted validators
+    starting with this ledger version.
+    """
 
 
 @require_kwargs_on_init
@@ -68,8 +72,10 @@ class EnableAmendment(PseudoTransaction):
         init=False,
     )
 
-    #: The Flags value of the EnableAmendment pseudo-transaction indicates the status
-    #: of the amendment at the time of the ledger including the pseudo-transaction.
-    #: A Flags value of 0 (no flags) or an omitted Flags field indicates that the
-    #: amendment has been enabled, and applies to all ledgers afterward.
     flags: Union[int, List[int]] = 0
+    """
+    The Flags value of the EnableAmendment pseudo-transaction indicates the status
+    of the amendment at the time of the ledger including the pseudo-transaction.
+    A Flags value of 0 (no flags) or an omitted Flags field indicates that the
+    amendment has been enabled, and applies to all ledgers afterward.
+    """

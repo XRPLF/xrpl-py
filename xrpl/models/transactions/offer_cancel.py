@@ -16,11 +16,13 @@ class OfferCancel(Transaction):
     <https://xrpl.org/decentralized-exchange.html>`_.
     """
 
-    #: The Sequence number (or Ticket number) of a previous OfferCreate
-    #: transaction. If specified, cancel any Offer object in the ledger that was
-    #: created by that transaction. It is not considered an error if the Offer
-    #: specified does not exist.
     offer_sequence: int = REQUIRED  # type: ignore
+    """
+    The Sequence number (or Ticket number) of a previous OfferCreate
+    transaction. If specified, cancel any Offer object in the ledger that was
+    created by that transaction. It is not considered an error if the Offer
+    specified does not exist.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.OFFER_CANCEL,

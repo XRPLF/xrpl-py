@@ -55,15 +55,19 @@ class PaymentChannelCreate(Transaction):
     :meta hide-value:
     """
 
-    #: An immutable expiration time for the channel, in seconds since the Ripple
-    #: Epoch. The channel can be closed sooner than this but cannot remain open
-    #: later than this time.
     cancel_after: Optional[int] = None
+    """
+    An immutable expiration time for the channel, in seconds since the Ripple
+    Epoch. The channel can be closed sooner than this but cannot remain open
+    later than this time.
+    """
 
-    #: An arbitrary `destination tag
-    #: <https://xrpl.org/source-and-destination-tags.html>`_ that
-    #: identifies the reason for the Payment Channel, or a hosted recipient to pay.
     destination_tag: Optional[int] = None
+    """
+    An arbitrary `destination tag
+    <https://xrpl.org/source-and-destination-tags.html>`_ that
+    identifies the reason for the Payment Channel, or a hosted recipient to pay.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.PAYMENT_CHANNEL_CREATE,
