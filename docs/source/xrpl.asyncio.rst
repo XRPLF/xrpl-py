@@ -1,4 +1,4 @@
-XRPL Async Features
+Async Support
 ===================
 
 The `xrpl-py` library supports `Python's asyncio implementation <https://docs.python.org/3/library/asyncio.html>`_. All of these methods are equivalent to the synchronous ones.

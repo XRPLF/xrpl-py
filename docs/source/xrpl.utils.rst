@@ -1,4 +1,4 @@
-XRPL Utilities
+Utilities
 ==============
 
 .. automodule:: xrpl.utils

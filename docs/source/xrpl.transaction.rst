@@ -1,4 +1,4 @@
-XRPL Transaction Methods
+Transaction Methods
 ========================
 
 .. automodule:: xrpl.transaction

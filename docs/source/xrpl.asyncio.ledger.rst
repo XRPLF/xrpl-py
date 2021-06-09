@@ -1,5 +1,5 @@
-XRPL Async Ledger Methods
-=========================
+Ledger Methods
+===================
 
 .. automodule:: xrpl.asyncio.ledger
    :members:

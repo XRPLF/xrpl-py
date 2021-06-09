@@ -35,11 +35,11 @@ If you run into any bugs or other problems with the library, please report them 
    source/xrpl.transaction
    source/xrpl.wallet
    source/xrpl.clients
-   source/xrpl.asyncio
    source/xrpl.models
-   source/xrpl.core
    source/xrpl.utils
    source/xrpl
+   source/xrpl.core
+   source/xrpl.asyncio
 
 
 Indices and tables

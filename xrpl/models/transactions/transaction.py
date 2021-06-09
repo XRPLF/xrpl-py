@@ -1,9 +1,9 @@
 """The base model for all transactions and their nested object types."""
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from hashlib import sha512
+from re import sub
 from typing import Any, Dict, List, Optional, Type, Union, cast
 
 from xrpl.core.binarycodec import encode
@@ -37,7 +37,7 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
 
 def _key_to_tx_json(key: str) -> str:
     snaked = "".join([word.capitalize() for word in key.split("_")])
-    return re.sub(r"Unl", r"UNL", re.sub(r"Id", r"ID", snaked))
+    return sub(r"Unl", r"UNL", sub(r"Id", r"ID", snaked))
 
 
 def _is_path(value: Any) -> bool:

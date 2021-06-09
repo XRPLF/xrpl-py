@@ -1,5 +1,5 @@
-XRPL Async Transaction Methods
-==============================
+Transaction Methods
+========================
 
 .. automodule:: xrpl.asyncio.transaction
    :members:
