@@ -89,12 +89,15 @@ def _choose_client_async(use_json_client: bool) -> Client:
         return ASYNC_WEBSOCKET_CLIENT
 
 
-def test_async_and_sync(original_globals, modules=None, dev=False):
+def test_async_and_sync(
+    original_globals, modules=None, dev=False, websockets_only=False
+):
     def decorator(test_function):
         lines = _get_non_decorator_code(test_function)
         sync_code = (
             "".join(lines)
             .replace("async def", "def")  # convert method from async to sync
+            .replace("async for", "for")  # convert for from async to sync
             .replace("await ", "")  # replace function calls
             .replace("_async(", "(")  # change methods
             .replace("\n    ", "\n")  # remove indenting (syntax error otherwise)
@@ -140,13 +143,16 @@ def test_async_and_sync(original_globals, modules=None, dev=False):
                 await client.close()
 
         def modified_test(self):
-            with self.subTest(version="sync", client="json"):
-                _run_sync_test(self, DEV_JSON_RPC_CLIENT if dev else JSON_RPC_CLIENT)
+            if not websockets_only:
+                with self.subTest(version="sync", client="json"):
+                    _run_sync_test(
+                        self, DEV_JSON_RPC_CLIENT if dev else JSON_RPC_CLIENT
+                    )
+                with self.subTest(version="async", client="json"):
+                    client = DEV_ASYNC_JSON_RPC_CLIENT if dev else ASYNC_JSON_RPC_CLIENT
+                    asyncio.run(_run_async_test(self, client))
             with self.subTest(version="sync", client="websocket"):
                 _run_sync_test(self, WEBSOCKET_CLIENT)
-            with self.subTest(version="async", client="json"):
-                client = DEV_ASYNC_JSON_RPC_CLIENT if dev else ASYNC_JSON_RPC_CLIENT
-                asyncio.run(_run_async_test(self, client))
             with self.subTest(version="async", client="websocket"):
                 asyncio.run(_run_async_test(self, ASYNC_WEBSOCKET_CLIENT))
 
