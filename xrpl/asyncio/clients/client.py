@@ -8,13 +8,13 @@ from xrpl.models.response import Response
 
 
 class Client(ABC):
-    """Interface for all network clients to follow."""
+    """
+    Interface for all network clients to follow.
+
+    :meta private:
+    """
 
     url: str
-
-    @abstractmethod
-    def __init__(self: Client) -> None:  # noqa: D107
-        raise NotImplementedError(f"{self.__class__.__name__} is abstract")
 
     @abstractmethod
     async def request_impl(self: Client, request: Request) -> Response:
@@ -29,4 +29,6 @@ class Client(ABC):
         Raises:
             NotImplementedError: always.
         """
-        raise NotImplementedError(f"{self.__class__.__name__}.request not implemented.")
+        raise NotImplementedError(
+            f"{self.__class__.__name__}.request_impl not implemented."
+        )

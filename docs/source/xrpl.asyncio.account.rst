@@ -1,5 +1,5 @@
-XRPL Async Account Methods
-==========================
+Account Methods
+====================
 
 .. automodule:: xrpl.asyncio.account
    :members:

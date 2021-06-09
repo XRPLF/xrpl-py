@@ -1,5 +1,5 @@
 """High-level transaction methods with XRPL transactions."""
-import math
+from math import ceil
 from typing import Any, Dict, Optional, cast
 
 from typing_extensions import Final
@@ -283,7 +283,7 @@ async def _calculate_fee_per_transaction_type(
         if escrow_finish.fulfillment is not None:
             fulfillment_bytes = escrow_finish.fulfillment.encode("ascii")
             # 10 drops × (33 + (Fulfillment size in bytes / 16))
-            base_fee = math.ceil(net_fee * (33 + (len(fulfillment_bytes) / 16)))
+            base_fee = ceil(net_fee * (33 + (len(fulfillment_bytes) / 16)))
 
     # AccountDelete Transaction
     if transaction.transaction_type == TransactionType.ACCOUNT_DELETE:
@@ -295,4 +295,4 @@ async def _calculate_fee_per_transaction_type(
         base_fee = net_fee * (1 + len(transaction.signers)) + base_fee
 
     # Round Up base_fee and return it as a String
-    return str(math.ceil(base_fee))
+    return str(ceil(base_fee))

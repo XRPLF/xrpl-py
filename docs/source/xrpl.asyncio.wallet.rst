@@ -1,5 +1,5 @@
-XRPL Async Wallet Methods
-=========================
+Wallet Methods
+===================
 
 .. automodule:: xrpl.asyncio.wallet
    :members:

@@ -14,13 +14,35 @@ from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
 
 
-def _thread_main(loop: AbstractEventLoop) -> None:
-    loop.run_forever()
-    loop.close()
-
-
 class WebsocketClient(SyncClient, WebsocketBase):
-    """A sync client for interacting with the rippled WebSocket API."""
+    """
+    A sync client for interacting with the rippled WebSocket API.
+
+    Instead of calling ``open`` and ``close`` yourself, you
+    can use a context like so::
+
+        with WebsocketClient(url) as client:
+            # do stuff with client
+
+    Doing this will open and close the client for you and is
+    preferred.
+
+    To read messages from the client, you can iterate over
+    the client like so::
+
+        with WebsockeetClient(url) as client:
+            for message in client:
+                # do something with a message
+
+    NOTE: doing the above will cause the client to listen for
+    messages indefinitely. For this reason, ``WebsocketClient``
+    takes an optional ``timeout`` parameter which will stop
+    iterating on messages if none are received in that timeframe.
+    Generally, if you have complex needs with python, xrpl, and
+    websockets, you should consider using the ``asyncio`` support
+    provided by this library and the ``xrpl.asyncio.clients.AsyncWebsocketClient``
+    instead.
+    """
 
     def __init__(
         self: WebsocketClient, url: str, timeout: Optional[Union[int, float]] = None
@@ -52,13 +74,19 @@ class WebsocketClient(SyncClient, WebsocketBase):
         """Connects the client to the Web Socket API at the given URL."""
         if self.is_open():
             return
+
+        # make a new asyncio event loop
         self._loop = new_event_loop()
+
+        # create and start a thread to run that event loop
         self._thread = Thread(
-            target=_thread_main,
-            args=(self._loop,),
+            target=self._loop.run_forever,
             daemon=True,
         )
         self._thread.start()
+
+        # run WebsocketBase._do_open on the event loop of the child thread and
+        # wait for it to finish
         run_coroutine_threadsafe(self._do_open(), self._loop).result()
 
     def close(self: WebsocketClient) -> None:
@@ -67,9 +95,20 @@ class WebsocketClient(SyncClient, WebsocketBase):
             return
         assert self._loop is not None  # mypy
         assert self._thread is not None  # mypy
+
+        # run WebsocketBase._do_close on the event loop of the child thread and
+        # wait for it to finish
         run_coroutine_threadsafe(self._do_close(), self._loop).result()
+
+        # request the child thread to stop the loop and wait for it to
+        # terminate
         self._loop.call_soon_threadsafe(self._loop.stop)
         self._thread.join()
+
+        # close the stopped loop
+        self._loop.close()
+
+        # clear state
         self._loop = None
         self._thread = None
 
@@ -106,9 +145,13 @@ class WebsocketClient(SyncClient, WebsocketBase):
             try:
                 yield future.result(self.timeout)
             except TimeoutError:
+                # in this case, the future reached its timeout. we can safely
+                # cancel and stop listening
                 future.cancel()
                 break
             except CancelledError:
+                # in this case, the future was cancelled by someone else. we
+                # stop listening but don't need to cancel it
                 break
 
     def send(self: WebsocketClient, request: Request) -> None:
@@ -156,6 +199,14 @@ class WebsocketClient(SyncClient, WebsocketBase):
             raise XRPLWebsocketException("Websocket is not open")
 
         assert self._loop is not None  # mypy
+
+        # it's unusual to write an async function that has no await, but in
+        # this case that's exactly what we want. the reason we need this is
+        # that the helper functions all expect async functions, but since this
+        # is a sync client we want to completely block until the request is
+        # complete. when this is run, the `asyncio.run` call will happen from
+        # the main thread, but the sync client needs to get the event loop
+        # running on the child thread to complete a task, syncronously.
         return run_coroutine_threadsafe(
             super().request_impl(request),
             self._loop,
