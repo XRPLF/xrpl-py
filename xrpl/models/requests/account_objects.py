@@ -40,8 +40,13 @@ class AccountObjects(Request):
     `See account_objects <https://xrpl.org/account_objects.html>`_
     """
 
-    #: This field is required.
     account: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_OBJECTS, init=False)

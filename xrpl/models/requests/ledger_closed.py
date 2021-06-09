@@ -22,7 +22,16 @@ class LedgerClosed(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.LEDGER_CLOSED, init=False)
-    #: This field is required.
     ledger_hash: str = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     ledger_index: int = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """

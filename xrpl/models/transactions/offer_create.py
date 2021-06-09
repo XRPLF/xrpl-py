@@ -53,12 +53,21 @@ class OfferCreate(Transaction):
     Offers can be partially fulfilled.
     """
 
-    #: The amount and type of currency being provided by the sender of this
-    #: transaction. This field is required.
     taker_gets: Amount = REQUIRED  # type: ignore
-    #: The amount and type of currency the sender of this transaction wants in
-    #: exchange for the full ``taker_gets`` amount. This field is required.
+    """
+    The amount and type of currency being provided by the sender of this
+    transaction. This field is required.
+
+    :meta hide-value:
+    """
+
     taker_pays: Amount = REQUIRED  # type: ignore
+    """
+    The amount and type of currency the sender of this transaction wants in
+    exchange for the full ``taker_gets`` amount. This field is required.
+
+    :meta hide-value:
+    """
 
     #: Time after which the offer is no longer active, in seconds since the
     #: Ripple Epoch.

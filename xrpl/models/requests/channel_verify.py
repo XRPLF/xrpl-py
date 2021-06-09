@@ -20,11 +20,30 @@ class ChannelVerify(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.CHANNEL_VERIFY, init=False)
-    #: This field is required.
     channel_id: str = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     amount: str = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     public_key: str = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     signature: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """

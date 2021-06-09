@@ -18,10 +18,14 @@ class CheckCancel(Transaction):
     Check has expired, any address can cancel it.
     """
 
-    #: The ID of the `Check ledger object
-    #: <https://xrpl.org/check.html>`_ to cancel, as a 64-character
-    #: hexadecimal string. This field is required.
     check_id: str = REQUIRED  # type: ignore
+    """
+    The ID of the `Check ledger object
+    <https://xrpl.org/check.html>`_ to cancel, as a 64-character
+    hexadecimal string. This field is required.
+
+    :meta hide-value:
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.CHECK_CANCEL,

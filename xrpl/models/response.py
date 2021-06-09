@@ -41,9 +41,19 @@ class Response(BaseModel):
     Represents fields common to all response types.
     """
 
-    #: This field is required.
     status: ResponseStatus = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
     result: Union[List[Any], Dict[Any]] = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     id: Optional[Union[int, str]] = None
     type: Optional[ResponseType] = None
 

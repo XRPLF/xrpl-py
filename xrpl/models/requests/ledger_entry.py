@@ -24,10 +24,19 @@ class DepositPreauth(BaseModel):
     object ID.
     """
 
-    #: This field is required.
     owner: str = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     authorized: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
 
 
 @require_kwargs_on_init
@@ -38,10 +47,19 @@ class Directory(BaseModel):
     object ID.
     """
 
-    #: This field is required.
     owner: str = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     dir_root: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
     sub_index: Optional[int] = None
 
 
@@ -53,10 +71,19 @@ class Escrow(BaseModel):
     object ID.
     """
 
-    #: This field is required.
     owner: str = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     seq: int = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
 
 
 @require_kwargs_on_init
@@ -67,10 +94,19 @@ class Offer(BaseModel):
     object ID.
     """
 
-    #: This field is required.
     account: str = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     seq: int = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
 
 
 @require_kwargs_on_init
@@ -79,8 +115,18 @@ class RippleState(BaseModel):
     """Required fields for requesting a RippleState."""
 
     accounts: List[str] = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     currency: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
 
 
 @require_kwargs_on_init
@@ -91,10 +137,19 @@ class Ticket(BaseModel):
     object ID.
     """
 
-    #: This field is required.
     owner: str = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     ticket_sequence: int = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
 
 
 @require_kwargs_on_init

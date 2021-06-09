@@ -29,8 +29,13 @@ class AccountChannels(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_CHANNELS, init=False)
-    #: This field is required.
     account: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     destination_account: Optional[str] = None
     limit: int = 200
     # marker data shape is actually undefined in the spec, up to the

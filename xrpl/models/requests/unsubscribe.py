@@ -22,10 +22,20 @@ from xrpl.models.utils import require_kwargs_on_init
 class UnsubscribeBook(BaseModel):
     """Format for elements in the ``books`` array for Unsubscribe only."""
 
-    #: This field is required.
     taker_gets: Currency = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     taker_pays: Currency = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     both: bool = False
 
 
