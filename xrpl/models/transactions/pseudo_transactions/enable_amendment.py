@@ -45,15 +45,23 @@ class EnableAmendment(PseudoTransaction):
     * A proposed amendment has been enabled.
     """
 
-    #: A unique identifier for the amendment. This is not intended to be a
-    #: human-readable name. See `Amendments <https://xrpl.org/amendments.html>`_ for a
-    #: list of known amendments.
     amendment: str = REQUIRED  # type: ignore
+    """
+    A unique identifier for the amendment. This is not intended to be a
+    human-readable name. See `Amendments <https://xrpl.org/amendments.html>`_ for a
+    list of known amendments. This field is required.
 
-    #: The ledger index where this pseudo-transaction appears. This distinguishes the
-    #: pseudo-transaction from other occurrences of the same change.
-    #: This field is required.
+    :meta hide-value:
+    """
+
     ledger_sequence: int = REQUIRED  # type: ignore
+    """
+    The ledger index where this pseudo-transaction appears. This distinguishes the
+    pseudo-transaction from other occurrences of the same change.
+    This field is required.
+
+    :meta hide-value:
+    """
 
     transaction_type: PseudoTransactionType = field(
         default=PseudoTransactionType.ENABLE_AMENDMENT,

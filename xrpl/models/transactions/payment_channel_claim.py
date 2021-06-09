@@ -47,9 +47,13 @@ class PaymentChannelClaim(Transaction):
     depending on the transaction sender's role in the specified channel.
     """
 
-    #: The unique ID of the payment channel, as a 64-character hexadecimal
-    #: string. This field is required.
     channel: str = REQUIRED  # type: ignore
+    """
+    The unique ID of the payment channel, as a 64-character hexadecimal
+    string. This field is required.
+
+    :meta hide-value:
+    """
 
     #: The cumulative amount of XRP to have delivered through this channel after
     #: processing this claim. Required unless closing the channel.

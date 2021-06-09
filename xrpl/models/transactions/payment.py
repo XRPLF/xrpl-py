@@ -39,12 +39,20 @@ class Payment(Transaction):
     <http://xrpl.local/payment.html#creating-accounts>`_.
     """
 
-    #: The amount of currency to deliver. If the Partial Payment flag is set,
-    #: deliver *up to* this amount instead. This field is required.
     amount: Amount = REQUIRED  # type: ignore
+    """
+    The amount of currency to deliver. If the Partial Payment flag is set,
+    deliver *up to* this amount instead. This field is required.
 
-    #: The address of the account receiving the payment. This field is required.
+    :meta hide-value:
+    """
+
     destination: str = REQUIRED  # type: ignore
+    """
+    The address of the account receiving the payment. This field is required.
+
+    :meta hide-value:
+    """
 
     #: An arbitrary `destination tag
     #: <https://xrpl.org/source-and-destination-tags.html>`_ that

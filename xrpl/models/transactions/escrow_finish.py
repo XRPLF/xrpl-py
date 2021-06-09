@@ -18,12 +18,20 @@ class EscrowFinish(Transaction):
     transaction, delivers XRP from a held payment to the recipient.
     """
 
-    #: The source account that funded the Escrow. This field is required.
     owner: str = REQUIRED  # type: ignore
+    """
+    The source account that funded the Escrow. This field is required.
 
-    #: Transaction sequence (or Ticket number) of the EscrowCreate transaction
-    #: that created the Escrow. This field is required.
+    :meta hide-value:
+    """
+
     offer_sequence: int = REQUIRED  # type: ignore
+    """
+    Transaction sequence (or Ticket number) of the EscrowCreate transaction
+    that created the Escrow. This field is required.
+
+    :meta hide-value:
+    """
 
     #: The previously-supplied `PREIMAGE-SHA-256 crypto-condition
     #: <https://tools.ietf.org/html/draft-thomas-crypto-conditions-04#section-8.1.>`_

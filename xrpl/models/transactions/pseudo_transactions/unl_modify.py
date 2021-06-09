@@ -22,18 +22,31 @@ class UNLModify(PseudoTransaction):
     gone offline or come back online.
     """
 
-    #: The ledger index where this pseudo-transaction appears. This distinguishes the
-    #: pseudo-transaction from other occurrences of the same change.
-    #: This field is required.
     ledger_sequence: int = REQUIRED  # type: ignore
+    """
+    The ledger index where this pseudo-transaction appears. This distinguishes the
+    pseudo-transaction from other occurrences of the same change.
+    This field is required.
 
-    #: If 1, this change represents adding a validator to the Negative UNL. If 0, this
-    #: change represents removing a validator from the Negative UNL. (No other values
-    #: are allowed.)
+    :meta hide-value:
+    """
+
     unl_modify_disabling: int = REQUIRED  # type: ignore
+    """
+    If 1, this change represents adding a validator to the Negative UNL. If 0, this
+    change represents removing a validator from the Negative UNL. (No other values
+    are allowed.) This field is required.
 
-    #: The validator to add or remove, as identified by its master public key.
+    :meta hide-value:
+    """
+
     unl_modify_validator: str = REQUIRED  # type: ignore
+    """
+    The validator to add or remove, as identified by its master public key.
+    This field is required.
+
+    :meta hide-value:
+    """
 
     transaction_type: PseudoTransactionType = field(
         default=PseudoTransactionType.UNL_MODIFY,

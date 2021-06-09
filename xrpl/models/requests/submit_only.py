@@ -53,6 +53,11 @@ class SubmitOnly(Submit):
     """
 
     # submit-only mode
-    #: This field is required.
     tx_blob: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     fail_hard: bool = False

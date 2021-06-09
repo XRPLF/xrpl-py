@@ -19,5 +19,9 @@ class IssuedCurrencyAmount(IssuedCurrency):
     See https://xrpl.org/currency-formats.html#issued-currency-amounts.
     """
 
-    #: This field is required.
     value: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """

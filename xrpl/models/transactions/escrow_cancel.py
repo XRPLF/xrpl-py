@@ -17,11 +17,20 @@ class EscrowCancel(Transaction):
     expired.
     """
 
-    #: The address of the account that funded the Escrow. This field is required.
     owner: str = REQUIRED  # type: ignore
-    #: Transaction sequence (or Ticket number) of the EscrowCreate transaction
-    #: that created the Escrow. This field is required.
+    """
+    The address of the account that funded the Escrow. This field is required.
+
+    :meta hide-value:
+    """
+
     offer_sequence: int = REQUIRED  # type: ignore
+    """
+    Transaction sequence (or Ticket number) of the EscrowCreate transaction
+    that created the Escrow. This field is required.
+
+    :meta hide-value:
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.ESCROW_CANCEL,

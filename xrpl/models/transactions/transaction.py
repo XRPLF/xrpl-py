@@ -128,18 +128,30 @@ class Signer(BaseModel):
     field.
     """
 
-    #: The address of the Signer. This can be a funded account in the XRP
-    #: Ledger or an unfunded address.
-    #: This field is required.
     account: str = REQUIRED  # type: ignore
+    """
+    The address of the Signer. This can be a funded account in the XRP
+    Ledger or an unfunded address.
+    This field is required.
 
-    #: The signature that this Signer provided for this transaction.
-    #: This field is required.
+    :meta hide-value:
+    """
+
     txn_signature: str = REQUIRED  # type: ignore
+    """
+    The signature that this Signer provided for this transaction.
+    This field is required.
 
-    #: The public key that should be used to verify this Signer's signature.
-    #: This field is required.
+    :meta hide-value:
+    """
+
     signing_pub_key: str = REQUIRED  # type: ignore
+    """
+    The public key that should be used to verify this Signer's signature.
+    This field is required.
+
+    :meta hide-value:
+    """
 
     @classmethod
     def is_dict_of_model(cls: Type[Signer], dictionary: Dict[str, Any]) -> bool:
@@ -202,17 +214,21 @@ class Transaction(BaseModel):
     transaction types <https://xrpl.org/transaction-common-fields.html>`_.
     """
 
-    # TODO: figure out how to get documentation to ignore the default value
-    # in theory this should be doable with `#: :meta hide-value:` but it's not quite
-    # working
-
-    #: The address of the sender of the transaction.
-    #: This field is required.
     account: str = REQUIRED  # type: ignore
+    """
+    The address of the sender of the transaction. Required.
+
+    :meta hide-value:
+    """
 
     transaction_type: Union[
         TransactionType, PseudoTransactionType
     ] = REQUIRED  # type: ignore
+    """
+    Transaction type. Populated by subclasses automatically. Required.
+
+    :meta hide-value:
+    """
 
     #: (Auto-fillable) The amount of XRP to destroy as a cost to send this
     #: transaction. See `Transaction Cost

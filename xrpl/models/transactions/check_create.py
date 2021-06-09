@@ -19,29 +19,43 @@ class CheckCreate(Transaction):
     transaction is the sender of the Check.
     """
 
-    #: The address of the `account
-    #: <https://xrpl.org/accounts.html>`_ that can cash the Check. This field is
-    #: required.
     destination: str = REQUIRED  # type: ignore
+    """
+    The address of the `account
+    <https://xrpl.org/accounts.html>`_ that can cash the Check. This field is
+    required.
 
-    #: Maximum amount of source token the Check is allowed to debit the
-    #: sender, including transfer fees on non-XRP tokens. The Check can only
-    #: credit the destination with the same token (from the same issuer, for
-    #: non-XRP tokens). This field is required.
+    :meta hide-value:
+    """
+
     send_max: Amount = REQUIRED  # type: ignore
+    """
+    Maximum amount of source token the Check is allowed to debit the
+    sender, including transfer fees on non-XRP tokens. The Check can only
+    credit the destination with the same token (from the same issuer, for
+    non-XRP tokens). This field is required.
 
-    #: An arbitrary `destination tag
-    #: <https://xrpl.org/source-and-destination-tags.html>`_ that
-    #: identifies the reason for the Check, or a hosted recipient to pay.
+    :meta hide-value:
+    """
+
     destination_tag: Optional[int] = None
+    """
+    An arbitrary `destination tag
+    <https://xrpl.org/source-and-destination-tags.html>`_ that
+    identifies the reason for the Check, or a hosted recipient to pay.
+    """
 
-    #: Time after which the Check is no longer valid, in seconds since the
-    #: Ripple Epoch.
     expiration: Optional[int] = None
+    """
+    Time after which the Check is no longer valid, in seconds since the
+    Ripple Epoch.
+    """
 
-    #: Arbitrary 256-bit hash representing a specific reason or identifier for
-    #: this Check.
     invoice_id: Optional[str] = None
+    """
+    Arbitrary 256-bit hash representing a specific reason or identifier for
+    this Check.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.CHECK_CREATE,

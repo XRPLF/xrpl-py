@@ -19,13 +19,21 @@ class EscrowCreate(Transaction):
     transaction, which locks up XRP until a specific time or condition is met.
     """
 
-    #: Amount of XRP, in drops, to deduct from the sender's balance and set
-    #: aside in escrow. This field is required.
     amount: Amount = REQUIRED  # type: ignore
+    """
+    Amount of XRP, in drops, to deduct from the sender's balance and set
+    aside in escrow. This field is required.
 
-    #: The address that should receive the escrowed XRP when the time or
-    #: condition is met. This field is required.
+    :meta hide-value:
+    """
+
     destination: str = REQUIRED  # type: ignore
+    """
+    The address that should receive the escrowed XRP when the time or
+    condition is met. This field is required.
+
+    :meta hide-value:
+    """
 
     #: An arbitrary `destination tag
     #: <https://xrpl.org/source-and-destination-tags.html>`_ that

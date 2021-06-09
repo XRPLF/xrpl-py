@@ -9,11 +9,15 @@ from xrpl.models.response import Response
 
 
 class SyncClient(Client):
-    """Interface for all sync network clients to follow."""
+    """
+    Interface for all sync network clients to follow.
+
+    :meta private:
+    """
 
     def request(self: SyncClient, request: Request) -> Response:
         """
-        Makes a request with a SyncClient.
+        Makes a request with this client.
 
         Arguments:
             request: The Request to send.
