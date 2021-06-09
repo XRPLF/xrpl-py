@@ -140,7 +140,7 @@ open _build/html/index.html
 
 ### Release
 
-1. Run integration tests on `master`, using [Github Actions](https://github.com/XRPLF/xrpl-py/actions/workflows/integration_test.yml), which runs them on all 3 versions of Python..
+1. Run integration tests on `master`, using [Github Actions](https://github.com/XRPLF/xrpl-py/actions/workflows/integration_test.yml), which runs them on all 3 versions of Python.
 2. Create a branch off master that properly increments the version in `pyproject.toml` and updates the `CHANGELOG` appropriately. We follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 3. Merge this branch into `master`.
 4. Run integration tests on `master` again just in case.
