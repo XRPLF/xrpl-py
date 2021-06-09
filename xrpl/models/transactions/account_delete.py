@@ -31,10 +31,12 @@ class AccountDelete(Transaction):
     :meta hide-value:
     """
 
-    #: The `destination tag
-    #: <https://xrpl.org/source-and-destination-tags.html>`_ at the
-    #: ``destination`` account where funds should be sent.
     destination_tag: Optional[int] = None
+    """
+    The `destination tag
+    <https://xrpl.org/source-and-destination-tags.html>`_ at the
+    ``destination`` account where funds should be sent.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.ACCOUNT_DELETE,

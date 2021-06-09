@@ -53,11 +53,13 @@ class UNLModify(PseudoTransaction):
         init=False,
     )
 
-    #: The Flags value of the EnableAmendment pseudo-transaction indicates the status
-    #: of the amendment at the time of the ledger including the pseudo-transaction.
-    #: A Flags value of 0 (no flags) or an omitted Flags field indicates that the
-    #: amendment has been enabled, and applies to all ledgers afterward.
     flags: int = 0
+    """
+    The Flags value of the EnableAmendment pseudo-transaction indicates the status
+    of the amendment at the time of the ledger including the pseudo-transaction.
+    A Flags value of 0 (no flags) or an omitted Flags field indicates that the
+    amendment has been enabled, and applies to all ledgers afterward.
+    """
 
     def _get_errors(self: UNLModify) -> Dict[str, str]:
         errors = super()._get_errors()

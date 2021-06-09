@@ -33,15 +33,19 @@ class EscrowFinish(Transaction):
     :meta hide-value:
     """
 
-    #: The previously-supplied `PREIMAGE-SHA-256 crypto-condition
-    #: <https://tools.ietf.org/html/draft-thomas-crypto-conditions-04#section-8.1.>`_
-    #: of the Escrow, if any, as hexadecimal.
     condition: Optional[str] = None
+    """
+    The previously-supplied `PREIMAGE-SHA-256 crypto-condition
+    <https://tools.ietf.org/html/draft-thomas-crypto-conditions-04#section-8.1.>`_
+    of the Escrow, if any, as hexadecimal.
+    """
 
-    #: The `PREIMAGE-SHA-256 crypto-condition fulfillment
-    #: <https://tools.ietf.org/html/draft-thomas-crypto-conditions-04#section-8.1.4.>`_
-    #: matching the Escrow's condition, if any, as hexadecimal.
     fulfillment: Optional[str] = None
+    """
+    The `PREIMAGE-SHA-256 crypto-condition fulfillment
+    <https://tools.ietf.org/html/draft-thomas-crypto-conditions-04#section-8.1.4.>`_
+    matching the Escrow's condition, if any, as hexadecimal.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.ESCROW_FINISH,

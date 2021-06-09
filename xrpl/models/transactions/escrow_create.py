@@ -35,26 +35,34 @@ class EscrowCreate(Transaction):
     :meta hide-value:
     """
 
-    #: An arbitrary `destination tag
-    #: <https://xrpl.org/source-and-destination-tags.html>`_ that
-    #: identifies the reason for the Escrow, or a hosted recipient to pay.
     destination_tag: Optional[int] = None
+    """
+    An arbitrary `destination tag
+    <https://xrpl.org/source-and-destination-tags.html>`_ that
+    identifies the reason for the Escrow, or a hosted recipient to pay.
+    """
 
-    #: The time, in seconds since the Ripple Epoch, when this escrow expires.
-    #: This value is immutable; the funds can only be returned the sender after
-    #: this time.
     cancel_after: Optional[int] = None
+    """
+    The time, in seconds since the Ripple Epoch, when this escrow expires.
+    This value is immutable; the funds can only be returned the sender after
+    this time.
+    """
 
-    #: The time, in seconds since the Ripple Epoch, when the escrowed XRP can
-    #: be released to the recipient. This value is immutable; the funds cannot
-    #: move until this time is reached.
     finish_after: Optional[int] = None
+    """
+    The time, in seconds since the Ripple Epoch, when the escrowed XRP can
+    be released to the recipient. This value is immutable; the funds cannot
+    move until this time is reached.
+    """
 
-    #: Hex value representing a `PREIMAGE-SHA-256 crypto-condition
-    #: <https://tools.ietf.org/html/draft-thomas-crypto-conditions-04#section-8.1.>`_
-    #: The funds can only be delivered to the recipient if this condition is
-    #: fulfilled.
     condition: Optional[str] = None
+    """
+    Hex value representing a `PREIMAGE-SHA-256 crypto-condition
+    <https://tools.ietf.org/html/draft-thomas-crypto-conditions-04#section-8.1.>`_
+    The funds can only be delivered to the recipient if this condition is
+    fulfilled.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.ESCROW_CREATE,

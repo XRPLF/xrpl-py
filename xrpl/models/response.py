@@ -47,6 +47,7 @@ class Response(BaseModel):
 
     :meta hide-value:
     """
+
     result: Union[List[Any], Dict[Any]] = REQUIRED  # type: ignore
     """
     This field is required.

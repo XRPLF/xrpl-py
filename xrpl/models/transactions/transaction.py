@@ -1,9 +1,9 @@
 """The base model for all transactions and their nested object types."""
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from hashlib import sha512
-from re import sub
 from typing import Any, Dict, List, Optional, Type, Union, cast
 
 from xrpl.core.binarycodec import encode
@@ -37,7 +37,7 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
 
 def _key_to_tx_json(key: str) -> str:
     snaked = "".join([word.capitalize() for word in key.split("_")])
-    return sub(r"Unl", r"UNL", sub(r"Id", r"ID", snaked))
+    return re.sub(r"Unl", r"UNL", re.sub(r"Id", r"ID", snaked))
 
 
 def _value_to_tx_json(value: Any) -> Any:
@@ -61,20 +61,24 @@ class Memo(BaseModel):
     ``memo_type``.
     """
 
-    #: The data of the memo, as a hexadecimal string.
     memo_data: Optional[str] = None
+    """The data of the memo, as a hexadecimal string."""
 
-    #: The format of the memo, as a hexadecimal string. Conventionally, this
-    #: should be the `MIME type
-    #: <http://www.iana.org/assignments/media-types/media-types.xhtml>`_
-    #: of the memo data.
     memo_format: Optional[str] = None
+    """
+    The format of the memo, as a hexadecimal string. Conventionally, this
+    should be the `MIME type
+    <http://www.iana.org/assignments/media-types/media-types.xhtml>`_
+    of the memo data.
+    """
 
-    #: The type of the memo, as a hexadecimal string. Conventionally, this
-    #: should be an `RFC 5988 relation
-    #: <http://tools.ietf.org/html/rfc5988#section-4>`_ defining the format of
-    #: the memo data.
     memo_type: Optional[str] = None
+    """
+    The type of the memo, as a hexadecimal string. Conventionally, this
+    should be an `RFC 5988 relation
+    <http://tools.ietf.org/html/rfc5988#section-4>`_ defining the format of
+    the memo data.
+    """
 
     def _get_errors(self: Memo) -> Dict[str, str]:
         errors = super()._get_errors()
@@ -224,61 +228,74 @@ class Transaction(BaseModel):
     transaction_type: Union[
         TransactionType, PseudoTransactionType
     ] = REQUIRED  # type: ignore
-    """
-    Transaction type. Populated by subclasses automatically. Required.
 
-    :meta hide-value:
-    """
-
-    #: (Auto-fillable) The amount of XRP to destroy as a cost to send this
-    #: transaction. See `Transaction Cost
-    #: <https://xrpl.org/transaction-cost.html>`_ for details.
     fee: Optional[str] = None  # auto-fillable
+    """
+    (Auto-fillable) The amount of XRP to destroy as a cost to send this
+    transaction. See `Transaction Cost
+    <https://xrpl.org/transaction-cost.html>`_ for details.
+    """
 
-    #: (Auto-fillable) The sequence number of the transaction. Must match the
-    #: sending account's next unused sequence number. See `Account Sequence
-    #: <https://xrpl.org/basic-data-types.html#account-sequence>`_ for details.
     sequence: Optional[int] = None  # auto-fillable
+    """
+    (Auto-fillable) The sequence number of the transaction. Must match the
+    sending account's next unused sequence number. See `Account Sequence
+    <https://xrpl.org/basic-data-types.html#account-sequence>`_ for details.
+    """
 
-    #: A hash value identifying a previous transaction from the same sender. If
-    #: provided, this transaction is only considered valid if the identified
-    #: transaction is the most recent transaction sent by this address. See
-    #: `AccountTxnID
-    #: <https://xrpl.org/transaction-common-fields.html#accounttxnid>`_ for
-    #: details.
     account_txn_id: Optional[str] = None
+    """
+    A hash value identifying a previous transaction from the same sender. If
+    provided, this transaction is only considered valid if the identified
+    transaction is the most recent transaction sent by this address. See
+    `AccountTxnID
+    <https://xrpl.org/transaction-common-fields.html#accounttxnid>`_ for
+    details.
+    """
 
-    #: A List of flags, or a bitwise map of flags, modifying this transaction's
-    #: behavior. See `Flags Field
-    #: <https://xrpl.org/transaction-common-fields.html#flags-field>`_ for more details.
     flags: Union[int, List[int]] = 0
+    """
+    A List of flags, or a bitwise map of flags, modifying this transaction's
+    behavior. See `Flags Field
+    <https://xrpl.org/transaction-common-fields.html#flags-field>`_ for more details.
+    """
 
-    #: The highest ledger index this transaction can appear in. Specifying this
-    #: field places a strict upper limit on how long the transaction can wait
-    #: to be validated or rejected. See `Reliable Transaction Submission
-    #: <https://xrpl.org/reliable-transaction-submission.html>`_ for details.
     last_ledger_sequence: Optional[int] = None
+    """
+    The highest ledger index this transaction can appear in. Specifying this
+    field places a strict upper limit on how long the transaction can wait
+    to be validated or rejected. See `Reliable Transaction Submission
+    <https://xrpl.org/reliable-transaction-submission.html>`_ for details.
+    """
 
-    #: Additional arbitrary information attached to this transaction.
     memos: Optional[List[Memo]] = None
+    """Additional arbitrary information attached to this transaction."""
 
-    #: Signing data authorizing a multi-signed transaction. Added during
-    #: multi-signing.
     signers: Optional[List[Signer]] = None
+    """
+    Signing data authorizing a multi-signed transaction. Added during
+    multi-signing.
+    """
 
-    #: An arbitrary `source tag
-    #: <https://xrpl.org/source-and-destination-tags.html>`_ representing a
-    #: hosted user or specific purpose at the sending account where this
-    #: transaction comes from.
     source_tag: Optional[int] = None
+    """
+    An arbitrary `source tag
+    <https://xrpl.org/source-and-destination-tags.html>`_ representing a
+    hosted user or specific purpose at the sending account where this
+    transaction comes from.
+    """
 
-    #: The public key authorizing a single-signed transaction. Automatically
-    #: added during signing.
     signing_pub_key: str = ""
+    """
+    The public key authorizing a single-signed transaction. Automatically
+    added during signing.
+    """
 
-    #: The cryptographic signature from the sender that authorizes this
-    #: transaction. Automatically added during signing.
     txn_signature: Optional[str] = None
+    """
+    The cryptographic signature from the sender that authorizes this
+    transaction. Automatically added during signing.
+    """
 
     def to_dict(self: Transaction) -> Dict[str, Any]:
         """
