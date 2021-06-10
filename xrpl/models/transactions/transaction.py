@@ -40,10 +40,23 @@ def _key_to_tx_json(key: str) -> str:
     return re.sub(r"Unl", r"UNL", re.sub(r"Id", r"ID", snaked))
 
 
+def _is_path(value: Any) -> bool:
+    if not isinstance(value, dict):
+        return False
+    return (
+        len(value) == 0
+        or "issuer" in value
+        or "account" in value
+        or "currency" in value
+    )
+
+
 def _value_to_tx_json(value: Any) -> Any:
     # IssuedCurrencyAmount is a special case and should not be snake cased
     if IssuedCurrencyAmount.is_dict_of_model(value):
         return {key: _value_to_tx_json(sub_value) for (key, sub_value) in value.items()}
+    if _is_path(value):
+        return value
     if isinstance(value, dict):
         return transaction_json_to_binary_codec_form(value)
     if isinstance(value, list):
