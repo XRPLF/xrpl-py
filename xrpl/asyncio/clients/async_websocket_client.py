@@ -12,7 +12,30 @@ from xrpl.models.requests.request import Request
 
 
 class AsyncWebsocketClient(AsyncClient, WebsocketBase):
-    """A client for interacting with the rippled WebSocket API."""
+    """
+    A client for interacting with the rippled WebSocket API.
+
+    Instead of calling ``open`` and ``close`` yourself, you
+    can use a context like so::
+
+        async with AsyncWebsocketClient(url) as client:
+            # do stuff with client
+
+    Doing this will open and close the client for you and is
+    preferred.
+
+    To read messages from the client, you can iterate over
+    the client like so::
+
+        async with AsyncWebsockeetClient(url) as client:
+            async for message in client:
+                # do something with a message
+
+    The recommended way to use this client is to set up a Task
+    using the ``asyncio`` library to listen to incoming
+    messages and do something with them, but the above will
+    work fine if you want to listen indefinitely.
+    """
 
     async def open(self: AsyncWebsocketClient) -> None:
         """Connects the client to the Web Socket API at the given URL."""

@@ -19,6 +19,11 @@ _REQ_ID_MAX: Final[int] = 1_000_000
 
 
 def _inject_request_id(request: Request) -> Request:
+    """
+    Given a Request with an ID, return the same Request.
+
+    Given a Request without an ID, make a copy with a randomly generated ID.
+    """
     if request.id is not None:
         return request
     request_dict = request.to_dict()
@@ -29,7 +34,11 @@ def _inject_request_id(request: Request) -> Request:
 
 
 class WebsocketBase(Client):
-    """A client for interacting with the rippled WebSocket API."""
+    """
+    A client for interacting with the rippled WebSocket API.
+
+    :meta private:
+    """
 
     def __init__(self: WebsocketBase, url: str) -> None:
         """
@@ -104,8 +113,7 @@ class WebsocketBase(Client):
         messages we check whether there is an outstanding future we need to resolve,
         and if so do so.
 
-        Then we store the already-parsed JSON in our own queue for generic iteration
-        and run any user-defined callbacks.
+        Then we store the already-parsed JSON in our own queue for generic iteration.
 
         As long as a given client remains open, this handler will be running as a Task.
         """
@@ -179,6 +187,8 @@ class WebsocketBase(Client):
         Raises:
             XRPLWebsocketException: If there is already an open request by the
                 request's ID, or if this WebsocketBase is not open.
+
+        :meta private:
         """
         if not self.is_open():
             raise XRPLWebsocketException("Websocket is not open")

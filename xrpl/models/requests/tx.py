@@ -22,8 +22,13 @@ class Tx(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.TX, init=False)
-    #: This field is required.
     transaction: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     binary: bool = False
     min_ledger: Optional[int] = None
     max_ledger: Optional[int] = None

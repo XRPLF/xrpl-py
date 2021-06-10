@@ -10,7 +10,11 @@ from xrpl.models.response import Response
 
 
 class JsonRpcBase(Client):
-    """A common interface for JsonRpc requests."""
+    """
+    A common interface for JsonRpc requests.
+
+    :meta private:
+    """
 
     def __init__(self: JsonRpcBase, url: str) -> None:
         """
@@ -31,6 +35,8 @@ class JsonRpcBase(Client):
 
         Returns:
             The response from the server, as a Response object.
+
+        :meta private:
         """
         async with AsyncClient() as http_client:
             response = await http_client.post(

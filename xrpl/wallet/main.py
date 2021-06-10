@@ -24,27 +24,36 @@ class Wallet:
             seed: The seed from which the public and private keys are derived.
             sequence: The next sequence number for the account.
         """
-        #: The core value that is used to derive all other information about
-        #: this wallet. MUST be kept secret!
         self.seed = seed
+        """
+        The core value that is used to derive all other information about
+        this wallet. MUST be kept secret!
+        """
 
         pk, sk = derive_keypair(self.seed)
-        #: The public key that is used to identify this wallet's signatures, as
-        #: a hexadecimal string.
         self.public_key = pk
-        #: The private key that is used to create signatures, as a hexadecimal
-        #: string. MUST be kept secret!
+        """
+        The public key that is used to identify this wallet's signatures, as
+        a hexadecimal string.
+        """
+
         self.private_key = sk
+        """
+        The private key that is used to create signatures, as a hexadecimal
+        string. MUST be kept secret!
+        """
 
-        #: The address that publicly identifies this wallet, as a base58 string.
         self.classic_address = derive_classic_address(self.public_key)
+        """The address that publicly identifies this wallet, as a base58 string."""
 
-        #: The next available sequence number to use for transactions from this
-        #: wallet.
-        #: Must be updated by the user. Increments on the ledger with every successful
-        #: transaction submission, and stays the same with every failed transaction
-        #: submission.
         self.sequence = sequence
+        """
+        The next available sequence number to use for transactions from this
+        wallet.
+        Must be updated by the user. Increments on the ledger with every successful
+        transaction submission, and stays the same with every failed transaction
+        submission.
+        """
 
     @classmethod
     def create(

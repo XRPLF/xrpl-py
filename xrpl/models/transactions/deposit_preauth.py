@@ -19,13 +19,17 @@ class DepositPreauth(Transaction):
     `Deposit Authorization <https://xrpl.org/depositauth.html>`_.
     """
 
-    #: Grant preauthorization to this address. You must provide this OR
-    #: ``unauthorize`` but not both.
     authorize: Optional[str] = None
+    """
+    Grant preauthorization to this address. You must provide this OR
+    ``unauthorize`` but not both.
+    """
 
-    #: Revoke preauthorization from this address. You must provide this OR
-    #: ``authorize`` but not both.
     unauthorize: Optional[str] = None
+    """
+    Revoke preauthorization from this address. You must provide this OR
+    ``authorize`` but not both.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.DEPOSIT_PREAUTH,

@@ -1,4 +1,4 @@
-XRPL Wallet Methods
+Wallet Methods
 ===================
 
 .. automodule:: xrpl.wallet

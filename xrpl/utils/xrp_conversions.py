@@ -8,9 +8,14 @@ from typing_extensions import Final
 
 from xrpl.constants import XRPLException
 
-ONE_DROP: Final[Decimal] = Decimal("0.000001")  #: Indivisible unit of XRP
-MAX_XRP: Final[Decimal] = Decimal(10 ** 11)  #: 100 billion decimal XRP
-MAX_DROPS: Final[Decimal] = Decimal(10 ** 17)  #: Maximum possible drops of XRP
+ONE_DROP: Final[Decimal] = Decimal("0.000001")
+"""Indivisible unit of XRP"""
+
+MAX_XRP: Final[Decimal] = Decimal(10 ** 11)
+"""100 billion decimal XRP"""
+
+MAX_DROPS: Final[Decimal] = Decimal(10 ** 17)
+"""Maximum possible drops of XRP"""
 
 # Drops should be an integer string. MAY have (positive) exponent.
 # See also: https://xrpl.org/currency-formats.html#string-numbers

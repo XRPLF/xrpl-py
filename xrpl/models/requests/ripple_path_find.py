@@ -38,12 +38,27 @@ class RipplePathFind(Request):
     the paths returned by this method are, in fact, the best paths.
     """
 
-    #: This field is required.
     source_account: str = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     destination_account: str = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     destination_amount: Amount = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     method: RequestMethod = field(default=RequestMethod.RIPPLE_PATH_FIND, init=False)
     send_max: Optional[Amount] = None
     source_currencies: Optional[List[Currency]] = None

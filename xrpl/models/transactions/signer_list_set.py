@@ -16,10 +16,19 @@ from xrpl.models.utils import require_kwargs_on_init
 class SignerEntry(BaseModel):
     """Represents one entry in a list of multi-signers authorized to an account."""
 
-    #: This field is required.
     account: str = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     signer_weight: int = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
 
     @classmethod
     def is_dict_of_model(cls: Type[SignerEntry], dictionary: Dict[str, Any]) -> bool:
@@ -82,8 +91,13 @@ class SignerListSet(Transaction):
     <https://xrpl.org/multi-signing.html>`_.
     """
 
-    #: This field is required.
     signer_quorum: int = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     signer_entries: Optional[List[SignerEntry]] = None
     transaction_type: TransactionType = field(
         default=TransactionType.SIGNER_LIST_SET,

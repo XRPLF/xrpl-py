@@ -36,10 +36,20 @@ class SignFor(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.SIGN_FOR, init=False)
-    #: This field is required.
     account: str = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     transaction: Transaction = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     secret: Optional[str] = None
     seed: Optional[str] = None
     seed_hex: Optional[str] = None
