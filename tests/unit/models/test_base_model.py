@@ -567,3 +567,33 @@ class TestFromDict(TestCase):
             },
         }
         self.assertEqual(tx_json, expected)
+
+    def test_to_xrpl_signer(self):
+        tx = SignerListSet(
+            account="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+            sequence=290,
+            signer_quorum=1,
+            signer_entries=[
+                SignerEntry(
+                    account="rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
+                    signer_weight=1,
+                ),
+            ],
+        )
+        expected = {
+            "Account": "rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+            "TransactionType": "SignerListSet",
+            "Sequence": 290,
+            "Flags": 0,
+            "SigningPubKey": "",
+            "SignerQuorum": 1,
+            "SignerEntries": [
+                {
+                    "SignerEntry": {
+                        "Account": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
+                        "SignerWeight": 1,
+                    }
+                }
+            ],
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
