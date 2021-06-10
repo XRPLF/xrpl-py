@@ -31,6 +31,8 @@ class JsonRpcBase(Client):
 
         Returns:
             The response from the server, as a Response object.
+
+        :meta private:
         """
         async with AsyncClient() as http_client:
             response = await http_client.post(
