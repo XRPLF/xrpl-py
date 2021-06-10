@@ -19,10 +19,20 @@ class BookOffers(Request):
     as the order book, between two currencies.
     """
 
-    #: This field is required.
     taker_gets: Currency = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     taker_pays: Currency = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     method: RequestMethod = field(default=RequestMethod.BOOK_OFFERS, init=False)
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None

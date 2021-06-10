@@ -32,8 +32,13 @@ class SubmitMultisigned(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.SUBMIT_MULTISIGNED, init=False)
-    #: This field is required.
     tx_json: Transaction = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     fail_hard: bool = False
 
     @classmethod

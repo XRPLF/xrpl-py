@@ -21,20 +21,28 @@ class CheckCash(Transaction):
     Check can cash it.
     """
 
-    #: The ID of the `Check ledger object
-    #: <https://xrpl.org/check.html>`_ to cash, as a 64-character
-    #: hexadecimal string. This field is required.
     check_id: str = REQUIRED  # type: ignore
+    """
+    The ID of the `Check ledger object
+    <https://xrpl.org/check.html>`_ to cash, as a 64-character
+    hexadecimal string. This field is required.
 
-    #: Redeem the Check for exactly this amount, if possible. The currency must
-    #: match that of the SendMax of the corresponding CheckCreate transaction.
-    #: You must provide either this field or ``DeliverMin``.
+    :meta hide-value:
+    """
+
     amount: Optional[Amount] = None
+    """
+    Redeem the Check for exactly this amount, if possible. The currency must
+    match that of the SendMax of the corresponding CheckCreate transaction.
+    You must provide either this field or ``DeliverMin``.
+    """
 
-    #: Redeem the Check for at least this amount and for as much as possible.
-    #: The currency must match that of the ``SendMax`` of the corresponding
-    #: CheckCreate transaction. You must provide either this field or ``Amount``.
     deliver_min: Optional[Amount] = None
+    """
+    Redeem the Check for at least this amount and for as much as possible.
+    The currency must match that of the ``SendMax`` of the corresponding
+    CheckCreate transaction. You must provide either this field or ``Amount``.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.CHECK_CASH,

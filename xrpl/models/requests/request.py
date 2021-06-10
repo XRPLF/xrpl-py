@@ -82,6 +82,12 @@ class Request(BaseModel):
     """
 
     method: RequestMethod = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     id: Optional[Union[str, int]] = None
 
     @classmethod

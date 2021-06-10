@@ -32,34 +32,56 @@ class AccountSetFlag(int, Enum):
     `See AccountSet Flags <https://xrpl.org/accountset.html#accountset-flags>`_
     """
 
-    #: Track the ID of this account's most recent transaction. Required for
-    #: `AccountTxnID <https://xrpl.org/transaction-common-fields.html#accounttxnid>`_
     ASF_ACCOUNT_TXN_ID = 5
-    #: Enable `rippling
-    #: <https://xrpl.org/rippling.html>`_ on this account's trust lines by default.
+    """
+    Track the ID of this account's most recent transaction. Required for
+    `AccountTxnID <https://xrpl.org/transaction-common-fields.html#accounttxnid>`_
+    """
+
     ASF_DEFAULT_RIPPLE = 8
-    #: Enable `Deposit Authorization
-    #: <https://xrpl.org/depositauth.html>`_ on this account.
+    """
+    Enable `rippling
+    <https://xrpl.org/rippling.html>`_ on this account's trust lines by default.
+    """
+
     ASF_DEPOSIT_AUTH = 9
-    #: Disallow use of the master key pair. Can only be enabled if the account has
-    #: configured another way to sign transactions, such as a `Regular Key
-    #: <https://xrpl.org/cryptographic-keys.html>`_ or a `Signer List
-    #: <https://xrpl.org/multi-signing.html>`_.
+    """
+    Enable `Deposit Authorization
+    <https://xrpl.org/depositauth.html>`_ on this account.
+    """
+
     ASF_DISABLE_MASTER = 4
-    #: XRP should not be sent to this account. (Enforced by client applications)
+    """
+    Disallow use of the master key pair. Can only be enabled if the account has
+    configured another way to sign transactions, such as a `Regular Key
+    <https://xrpl.org/cryptographic-keys.html>`_ or a `Signer List
+    <https://xrpl.org/multi-signing.html>`_.
+    """
+
     ASF_DISALLOW_XRP = 3
-    #: `Freeze
-    #: <https://xrpl.org/freezes.html>`_ all assets issued by this account.
+    """XRP should not be sent to this account. (Enforced by client applications)"""
+
     ASF_GLOBAL_FREEZE = 7
-    #: Permanently give up the ability to `freeze individual trust lines or disable
-    #: Global Freeze <https://xrpl.org/freezes.html>`_. This flag can never be disabled
-    #: after being enabled.
+    """
+    `Freeze
+    <https://xrpl.org/freezes.html>`_ all assets issued by this account.
+    """
+
     ASF_NO_FREEZE = 6
-    #: Require authorization for users to hold balances issued by this address. Can
-    #: only be enabled if the address has no trust lines connected to it.
+    """
+    Permanently give up the ability to `freeze individual trust lines or disable
+    Global Freeze <https://xrpl.org/freezes.html>`_. This flag can never be disabled
+    after being enabled.
+    """
+
     ASF_REQUIRE_AUTH = 2
-    #: Require a destination tag to send transactions to this account.
+    """
+    Require authorization for users to hold balances issued by this address. Can
+    only be enabled if the address has no trust lines connected to it.
+    """
+
     ASF_REQUIRE_DEST = 1
+    """Require a destination tag to send transactions to this account."""
 
 
 @require_kwargs_on_init
@@ -70,33 +92,43 @@ class AccountSet(Transaction):
     which modifies the properties of an account in the XRP Ledger.
     """
 
-    #: Disable a specific `AccountSet Flag
-    #: <https://xrpl.org/accountset.html#accountset-flags>`_
     clear_flag: Optional[int] = None
+    """
+    Disable a specific `AccountSet Flag
+    <https://xrpl.org/accountset.html#accountset-flags>`_
+    """
 
-    #: Set the DNS domain of the account owner.
     domain: Optional[str] = None
+    """Set the DNS domain of the account owner."""
 
-    #: Set the MD5 Hash to be used for generating an avatar image for this
-    #: account.
     email_hash: Optional[str] = None
+    """
+    Set the MD5 Hash to be used for generating an avatar image for this
+    account.
+    """
 
-    #: Set a public key for sending encrypted messages to this account.
     message_key: Optional[str] = None
+    """Set a public key for sending encrypted messages to this account."""
 
-    #: Enable a specific `AccountSet Flag
-    #: <https://xrpl.org/accountset.html#accountset-flags>`_
     set_flag: Optional[int] = None
+    """
+    Enable a specific `AccountSet Flag
+    <https://xrpl.org/accountset.html#accountset-flags>`_
+    """
 
-    #: Set the transfer fee to use for tokens issued by this account. See
-    #: `TransferRate <https://xrpl.org/accountset.html#transferrate>`_ for
-    #: details.
     transfer_rate: Optional[int] = None
+    """
+    Set the transfer fee to use for tokens issued by this account. See
+    `TransferRate <https://xrpl.org/accountset.html#transferrate>`_ for
+    details.
+    """
 
-    #: Set the tick size to use when trading tokens issued by this account in
-    #: the decentralized exchange. See `Tick Size
-    #: <https://xrpl.org/ticksize.html>`_ for details.
     tick_size: Optional[int] = None
+    """
+    Set the tick size to use when trading tokens issued by this account in
+    the decentralized exchange. See `Tick Size
+    <https://xrpl.org/ticksize.html>`_ for details.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.ACCOUNT_SET,

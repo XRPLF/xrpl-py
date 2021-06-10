@@ -22,23 +22,10 @@ class PseudoTransaction(Transaction):
     thereafter.
     """
 
-    #: All pseudo-transactions have an account value of the base58 encoding of the
-    #: value `0`.
     account: str = field(default=_ACCOUNT_ZERO, init=False)
-
-    #: All pseudo-transactions have a fee value of 0.
     fee: str = field(default="0", init=False)
-
-    #: All pseudo-transactions have a sequence value of 0.
     sequence: int = field(default=0, init=False)
-
-    #: All pseudo-transactions have an empty signing_pub_key.
     signing_pub_key: str = field(default="", init=False)
-
-    #: All pseudo-transactions have an empty txn_signature.
     txn_signature: str = field(default="", init=False)
-
-    #: All pseudo-transactions do not have an empty source_tag.
     source_tag: None = field(default=None, init=False)
-
     transaction_type: PseudoTransactionType = REQUIRED  # type: ignore

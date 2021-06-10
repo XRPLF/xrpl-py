@@ -1,7 +1,6 @@
-XRPL Async Network Clients
-==========================
+Async Network Clients
+=======================
 
 .. automodule:: xrpl.asyncio.clients
    :members:
-   :undoc-members:
-   :show-inheritance:
+   :inherited-members:

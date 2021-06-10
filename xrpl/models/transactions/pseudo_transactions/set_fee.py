@@ -21,23 +21,41 @@ class SetFee(PseudoTransaction):
     <https://xrpl.org/fee-voting.html>`_.
     """
 
-    #: The charge, in drops of XRP, for the reference transaction, as hex. (This is the
-    #: transaction cost before scaling for load.)
     base_fee: str = REQUIRED  # type: ignore
+    """
+    The charge, in drops of XRP, for the reference transaction, as hex. (This is the
+    transaction cost before scaling for load.) This field is required.
 
-    #: The cost, in fee units, of the reference transaction
+    :meta hide-value:
+    """
+
     reference_fee_units: int = REQUIRED  # type: ignore
+    """
+    The cost, in fee units, of the reference transaction. This field is required.
 
-    #: The base reserve, in drops
+    :meta hide-value:
+    """
+
     reserve_base: int = REQUIRED  # type: ignore
+    """
+    The base reserve, in drops. This field is required.
 
-    #: The incremental reserve, in drops
+    :meta hide-value:
+    """
+
     reserve_increment: int = REQUIRED  # type: ignore
+    """
+    The incremental reserve, in drops. This field is required.
 
-    #: The index of the ledger version where this pseudo-transaction appears. This
-    #: distinguishes the pseudo-transaction from other occurrences of the same change.
-    #: This field is omitted for some historical SetFee pseudo-transactions.
+    :meta hide-value:
+    """
+
     ledger_sequence: Optional[int] = None
+    """
+    The index of the ledger version where this pseudo-transaction appears. This
+    distinguishes the pseudo-transaction from other occurrences of the same change.
+    This field is omitted for some historical SetFee pseudo-transactions.
+    """
 
     transaction_type: PseudoTransactionType = field(
         default=PseudoTransactionType.SET_FEE,

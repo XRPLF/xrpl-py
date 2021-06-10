@@ -16,10 +16,12 @@ class SetRegularKey(Transaction):
     associated with an account.
     """
 
-    #: The classic address derived from the key pair to authorize for this
-    #: account. If omitted, removes any existing regular key pair from the
-    #: account. Must not match the account's master key pair.
     regular_key: Optional[str] = None
+    """
+    The classic address derived from the key pair to authorize for this
+    account. If omitted, removes any existing regular key pair from the
+    account. Must not match the account's master key pair.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.SET_REGULAR_KEY,

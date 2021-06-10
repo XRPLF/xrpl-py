@@ -22,10 +22,20 @@ class DepositAuthorized(Request):
     authorization to deliver money to your account.
     """
 
-    #: This field is required.
     source_account: str = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     destination_account: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     method: RequestMethod = field(default=RequestMethod.DEPOSIT_AUTHORIZED, init=False)
     ledger_hash: Optional[str] = None
     ledger_index: Optional[str] = None

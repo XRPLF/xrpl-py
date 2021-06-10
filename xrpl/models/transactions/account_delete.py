@@ -23,14 +23,20 @@ class AccountDelete(Transaction):
     delete an account.
     """
 
-    #: The address of the account to send any remaining XRP to.
-    #: This field is required.
     destination: str = REQUIRED  # type: ignore
+    """
+    The address of the account to which to send any remaining XRP.
+    This field is required.
 
-    #: The `destination tag
-    #: <https://xrpl.org/source-and-destination-tags.html>`_ at the
-    #: ``destination`` account where funds should be sent.
+    :meta hide-value:
+    """
+
     destination_tag: Optional[int] = None
+    """
+    The `destination tag
+    <https://xrpl.org/source-and-destination-tags.html>`_ at the
+    ``destination`` account where funds should be sent.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.ACCOUNT_DELETE,
