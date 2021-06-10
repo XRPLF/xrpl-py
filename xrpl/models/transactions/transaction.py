@@ -43,12 +43,11 @@ def _key_to_tx_json(key: str) -> str:
 def _is_path(value: Any) -> bool:
     if not isinstance(value, dict):
         return False
-    return (
-        len(value) == 0
-        or "issuer" in value
-        or "account" in value
-        or "currency" in value
-    )
+    if len(value) == 0:
+        return True
+    if "signer_weight" in value:
+        return False
+    return "issuer" in value or "account" in value or "currency" in value
 
 
 def _value_to_tx_json(value: Any) -> Any:
