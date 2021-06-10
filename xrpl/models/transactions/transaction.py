@@ -45,9 +45,9 @@ def _is_path(value: Any) -> bool:
         return False
     if len(value) == 0:
         return True
-    if "signer_weight" in value:
-        return False
-    return "issuer" in value or "account" in value or "currency" in value
+    return {"account", "currency", "issuer", "type", "type_hex"}.issuperset(
+        value.keys()
+    )
 
 
 def _value_to_tx_json(value: Any) -> Any:
