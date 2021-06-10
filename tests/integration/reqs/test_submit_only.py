@@ -8,7 +8,6 @@ from xrpl.core.binarycodec import encode
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import SubmitOnly
 from xrpl.models.transactions import OfferCreate
-from xrpl.transaction import transaction_json_to_binary_codec_form
 
 TX = OfferCreate(
     account=WALLET.classic_address,
@@ -27,7 +26,7 @@ class TestSubmitOnly(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
         transaction = await safe_sign_and_autofill_transaction_async(TX, WALLET, client)
-        tx_json = transaction_json_to_binary_codec_form(transaction.to_dict())
+        tx_json = transaction.to_xrpl()
         tx_blob = encode(tx_json)
         response = await client.request(
             SubmitOnly(
