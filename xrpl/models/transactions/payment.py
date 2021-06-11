@@ -3,9 +3,10 @@ from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from xrpl.models.amounts import Amount, is_xrp
+from xrpl.models.path import Path
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -67,7 +68,7 @@ class Payment(Transaction):
     this Check.
     """
 
-    paths: Optional[List[Any]] = None  # TODO: should be better typed
+    paths: Optional[List[Path]] = None
     """
     Array of payment paths to be used (for a cross-currency payment). Must be
     omitted for XRP-to-XRP transactions.

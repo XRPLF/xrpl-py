@@ -1,4 +1,5 @@
 """Request models."""
+from xrpl.models.path import PathStep
 from xrpl.models.requests.account_channels import AccountChannels
 from xrpl.models.requests.account_currencies import AccountCurrencies
 from xrpl.models.requests.account_info import AccountInfo
@@ -19,7 +20,7 @@ from xrpl.models.requests.ledger_data import LedgerData
 from xrpl.models.requests.ledger_entry import LedgerEntry
 from xrpl.models.requests.manifest import Manifest
 from xrpl.models.requests.no_ripple_check import NoRippleCheck, NoRippleCheckRole
-from xrpl.models.requests.path_find import PathFind, PathFindSubcommand, PathStep
+from xrpl.models.requests.path_find import PathFind, PathFindSubcommand
 from xrpl.models.requests.ping import Ping
 from xrpl.models.requests.random import Random
 from xrpl.models.requests.request import Request
