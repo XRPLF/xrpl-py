@@ -209,10 +209,47 @@ class TestMainSimple(TestCase):
             "Balance": "10000000000",
         }
 
+        lowerCaseIntBinary = (
+            "11007222001100002501EC24873700000000000000003800000000000000A35506"
+            "FC7DE374089D50F81AAE13E7BBF3D0E694769331E14F55351B38D0148018EA62D4"
+            "4BF89AC2A40B800000000000000000000000004A50590000000000000000000000"
+            "000000000000000000000000000166D6C38D7EA4C6800000000000000000000000"
+            "00004A5059000000000047C1258B4B79774B28176324068F759EDE226F68678000"
+            "0000000000000000000000000000000000004A505900000000005BBC0F22F61D92"
+            "24A110650CFE21CC0C4BE13098"
+        )
+
+        lowerCaseIntJson = {
+            "Balance": {
+                "currency": "JPY",
+                "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji",
+                "value": "0.3369568318",
+            },
+            "Flags": 1114112,
+            "HighLimit": {
+                "currency": "JPY",
+                "issuer": "r94s8px6kSw1uZ1MV98dhSRTvc6VMPoPcN",
+                "value": "0",
+            },
+            "HighNode": "a3",
+            "LedgerEntryType": "RippleState",
+            "LowLimit": {
+                "currency": "JPY",
+                "issuer": "rfYQMgj3g3Qp8VLoZNvvU35mEuuJC8nCmY",
+                "value": "1000000000",
+            },
+            "LowNode": "0",
+            "PreviousTxnID":
+                "06FC7DE374089D50F81AAE13E7BBF3D0E694769331E14F55351B38D0148018EA",
+            "PreviousTxnLgrSeq": 32253063,
+            "index": "000319BAE0A618A7D3BB492F17E98E5D92EA0C6458AFEBED44206B5B4798A840",
+        }
+
         self.assertEqual(decode(lower), decode(s))
         self.assertEqual(encode(decode(lower)), s)
         self.assertEqual(encode(json_dict), binary)
         self.assertEqual(decode(encode(json_dict)), json_upper)
+        self.assertEqual(encode(lowerCaseIntJson), lowerCaseIntBinary)
 
     def test_pseudo_transaction(self):
         json_dict = {
