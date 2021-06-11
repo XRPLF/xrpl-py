@@ -1,10 +1,11 @@
+print(help("modules"))  # noqa: E402
+print(help("modules unittest"))  # noqa: E402
 try:
     from unittest import IsolatedAsyncioTestCase
 except ImportError:
-    print(globals())
     from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
-from tests.integration.it_utils import WEBSOCKET_CLIENT
+from tests.integration.it_utils import WEBSOCKET_CLIENT  # noqa: E402
 
 
 class IntegrationTestCase(IsolatedAsyncioTestCase):
