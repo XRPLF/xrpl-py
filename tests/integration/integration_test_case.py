@@ -1,5 +1,3 @@
-print(help("modules"))  # noqa: E402
-print(help("modules unittest"))  # noqa: E402
 try:
     from unittest import IsolatedAsyncioTestCase
 except ImportError:
