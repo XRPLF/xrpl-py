@@ -1,6 +1,7 @@
 try:
     from unittest import IsolatedAsyncioTestCase
 except ImportError:
+    print(globals())
     from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase
 
 from tests.integration.it_utils import WEBSOCKET_CLIENT
