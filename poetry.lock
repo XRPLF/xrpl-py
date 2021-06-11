@@ -2,7 +2,7 @@
 name = "aiounittest"
 version = "1.4.0"
 description = "Test asyncio code more easily."
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 
@@ -787,7 +787,7 @@ python-versions = ">=3.6.1"
 name = "wrapt"
 version = "1.12.1"
 description = "Module for decorators, wrappers and monkey patching."
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 
@@ -806,7 +806,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "76684b4b7239e2dcb52c59031406d28530c86ab9a5b2d926d06d46cd833e0497"
+content-hash = "e3d906357db6d232fe6efe3bf95a1bbb35ea6b78e202407087c37395d979c3ee"
 
 [metadata.files]
 aiounittest = [
