@@ -239,8 +239,9 @@ class TestMainSimple(TestCase):
                 "value": "1000000000",
             },
             "LowNode": "0",
-            "PreviousTxnID":
+            "PreviousTxnID": (
                 "06FC7DE374089D50F81AAE13E7BBF3D0E694769331E14F55351B38D0148018EA",
+            ),
             "PreviousTxnLgrSeq": 32253063,
             "index": "000319BAE0A618A7D3BB492F17E98E5D92EA0C6458AFEBED44206B5B4798A840",
         }
