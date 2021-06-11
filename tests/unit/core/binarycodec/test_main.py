@@ -240,8 +240,8 @@ class TestMainSimple(TestCase):
             },
             "LowNode": "0",
             "PreviousTxnID": (
-                "06FC7DE374089D50F81AAE13E7BBF3D0E694769331E14F55351B38D0148018EA",
-            ),
+                "06FC7DE374089D50F81AAE13E7BBF3D0E694769331E14F55351B38D0148018EA"
+            ).lower(),
             "PreviousTxnLgrSeq": 32253063,
             "index": "000319BAE0A618A7D3BB492F17E98E5D92EA0C6458AFEBED44206B5B4798A840",
         }
