@@ -98,6 +98,7 @@ def test_async_and_sync(
             "".join(lines)
             .replace("async def", "def")  # convert method from async to sync
             .replace("async for", "for")  # convert for from async to sync
+            .replace("async with", "with")  # convert with from async to sync
             .replace("await ", "")  # replace function calls
             .replace("_async(", "(")  # change methods
             .replace("\n    ", "\n")  # remove indenting (syntax error otherwise)
