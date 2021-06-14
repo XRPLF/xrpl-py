@@ -1,9 +1,5 @@
 from tests.integration.integration_test_case import DevIntegrationTestCase
-from tests.integration.it_utils import (
-    retry,
-    submit_transaction_async,
-    test_async_and_sync,
-)
+from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.asyncio.wallet import generate_faucet_wallet
 from xrpl.core.addresscodec import classic_address_to_xaddress
@@ -12,8 +8,10 @@ from xrpl.models.transactions import AccountSet, Payment
 
 
 class TestWallet(DevIntegrationTestCase):
-    @retry
-    @test_async_and_sync(globals(), ["xrpl.wallet.generate_faucet_wallet"], True)
+    # @retry
+    @test_async_and_sync(
+        globals(), ["xrpl.wallet.generate_faucet_wallet"], True, num_retries=5
+    )
     async def test_generate_faucet_wallet_dev(self, client):
         wallet = await generate_faucet_wallet(client)
         account_set = AccountSet(
@@ -26,8 +24,10 @@ class TestWallet(DevIntegrationTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-    @retry
-    @test_async_and_sync(globals(), ["xrpl.wallet.generate_faucet_wallet"])
+    # @retry
+    @test_async_and_sync(
+        globals(), ["xrpl.wallet.generate_faucet_wallet"], num_retries=5
+    )
     async def test_generate_faucet_wallet_rel_sub(self, client):
         destination = await generate_faucet_wallet(client)
         wallet = await generate_faucet_wallet(client)

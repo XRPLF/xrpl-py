@@ -94,7 +94,7 @@ def _choose_client_async(use_json_client: bool) -> Client:
         return ASYNC_WEBSOCKET_CLIENT
 
 
-def test_async_and_sync(original_globals, modules=None, dev=False):
+def test_async_and_sync(original_globals, modules=None, dev=False, num_retries=1):
     def decorator(test_function):
         lines = _get_non_decorator_code(test_function)
         sync_code = (
@@ -122,15 +122,18 @@ def test_async_and_sync(original_globals, modules=None, dev=False):
         # all, but in this case it's fine because it's only running test code
 
         def _run_sync_test(self, client):
-            try:
-                exec(
-                    sync_code,
-                    all_modules,
-                    {"self": self, "client": client},
-                )
-            except Exception as e:
-                print(sync_code)  # for ease of debugging, since there's no codefile
-                raise e
+            for i in range(num_retries):
+                try:
+                    exec(
+                        sync_code,
+                        all_modules,
+                        {"self": self, "client": client},
+                    )
+                except Exception as e:
+                    if i == num_retries - 1:
+                        print(sync_code)  # for debugging, since there's no codefile
+                        raise e
+                    sleep(2)
 
         async def _run_async_test(self, client):
             if isinstance(client, AsyncWebsocketClient):
@@ -140,7 +143,14 @@ def test_async_and_sync(original_globals, modules=None, dev=False):
                 # this
                 # happening in `IntegrationTestCase` for the sync client for the sake
                 # of efficiency
-            await test_function(self, client)
+            for i in range(num_retries):
+                try:
+                    await test_function(self, client)
+                except Exception as e:
+                    if i == num_retries - 1:
+                        raise e
+                    await asyncio.sleep(2)
+
             if isinstance(client, AsyncWebsocketClient):
                 await client.close()
 
@@ -168,21 +178,3 @@ def _get_non_decorator_code(function):
         if "def " in code_lines[line]:
             return code_lines[line:]
         line += 1
-
-
-def retry(test_function):
-    NUM_RETRIES = 10
-
-    def modified_test(self):
-        for i in range(NUM_RETRIES):
-            try:
-                test_function(self)
-                break
-            except Exception:
-                if i == NUM_RETRIES - 1:
-                    raise
-                sleep(2)
-                # This can't be async because `test_function` will not work in an async
-                # function
-
-    return modified_test
