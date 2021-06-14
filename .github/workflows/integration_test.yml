@@ -38,4 +38,6 @@ jobs:
       - name: Integration test
         run: |
           poetry export --dev --without-hashes
-          poetry run nox -rs integration_tests-${{ matrix.nox-session || matrix.python-version }}
+          poetry run python --version
+          poetry run python -m unittest discover tests.integration
+        # poetry run nox -rs integration_tests-${{ matrix.nox-session || matrix.python-version }}
