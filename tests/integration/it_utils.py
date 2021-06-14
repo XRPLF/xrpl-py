@@ -122,9 +122,6 @@ def test_async_and_sync(original_globals, modules=None, dev=False):
         # all, but in this case it's fine because it's only running test code
 
         def _run_sync_test(self, client):
-            print(client, client.url)
-            if isinstance(client, WebsocketClient):
-                print(client.is_open())
             try:
                 exec(
                     sync_code,
@@ -133,7 +130,6 @@ def test_async_and_sync(original_globals, modules=None, dev=False):
                 )
             except Exception as e:
                 print(sync_code)  # for ease of debugging, since there's no codefile
-                print(e)
                 raise e
 
         async def _run_async_test(self, client):
@@ -183,7 +179,6 @@ def retry(test_function):
                 test_function(self)
                 break
             except Exception:
-                print("exception")
                 if i == NUM_RETRIES - 1:
                     raise
                 sleep(2)

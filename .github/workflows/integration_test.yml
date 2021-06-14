@@ -32,12 +32,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install poetry
           poetry install
-          poetry --version
-          poetry show
 
       - name: Integration test
         run: |
           poetry export --dev --without-hashes
           poetry run python --version
-          poetry run python -m unittest discover tests.integration
-        # poetry run nox -rs integration_tests-${{ matrix.nox-session || matrix.python-version }}
+          poetry run nox -rs integration_tests-${{ matrix.nox-session || matrix.python-version }}
+        # poetry run python -m unittest discover tests.integration
