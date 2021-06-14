@@ -15,7 +15,7 @@ from xrpl.core.binarycodec.types.uint import UInt
 
 _WIDTH: Final[int] = 8  # 64 / 8
 
-_HEX_REGEX: Final[re.Pattern[str]] = re.compile("^[A-F0-9]{16}$")
+_HEX_REGEX: Final[re.Pattern[str]] = re.compile("^[a-fA-F0-9]{1,16}$")
 
 
 class UInt64(UInt):
@@ -72,6 +72,7 @@ class UInt64(UInt):
         if isinstance(value, str):
             if not _HEX_REGEX.fullmatch(value):
                 raise XRPLBinaryCodecException("{value} is not a valid hex string")
+            value = value.rjust(16, "0")
             value_bytes = bytes.fromhex(value)
             return cls(value_bytes)
 
