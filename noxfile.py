@@ -1,10 +1,10 @@
 """The noxfile for xrpl-py."""
-import nox
+# import nox
 import nox_poetry.patch  # noqa: F401
 from nox.sessions import Session
 
 
-@nox.session(python=["3.9", "3.8", "3.7"])
+@nox_poetry.session(python=["3.9", "3.8", "3.7"])
 def unit_tests(session: Session) -> None:
     """
     Runs the unit test suite in xrpl-py.
@@ -17,7 +17,7 @@ def unit_tests(session: Session) -> None:
     session.run("python", "-m", "unittest", *args)
 
 
-@nox.session(python=["3.9", "3.8", "3.7"])
+@nox_poetry.session(python=["3.9", "3.8", "3.7"])
 def integration_tests(session: Session) -> None:
     """
     Runs the integration test suite in xrpl-py.
