@@ -275,7 +275,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "httpcore"
-version = "0.13.4"
+version = "0.13.5"
 description = "A minimal low-level HTTP client."
 category = "main"
 optional = false
@@ -426,14 +426,15 @@ tox_to_nox = ["jinja2", "tox"]
 
 [[package]]
 name = "nox-poetry"
-version = "0.7.1"
+version = "0.8.6"
 description = "nox-poetry"
 category = "dev"
 optional = false
 python-versions = ">=3.6.1,<4.0.0"
 
 [package.dependencies]
-nox = ">=2020.5.24,<2021.0.0"
+nox = ">=2020.8.22"
+packaging = ">=20.9"
 tomlkit = ">=0.7.0,<0.8.0"
 
 [[package]]
@@ -806,7 +807,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "e3d906357db6d232fe6efe3bf95a1bbb35ea6b78e202407087c37395d979c3ee"
+content-hash = "843cab03cc92c12179bf614a1c5a047ba2b357274932f4f58e04a86de5869a79"
 
 [metadata.files]
 aiounittest = [
@@ -908,8 +909,8 @@ h11 = [
     {file = "h11-0.12.0.tar.gz", hash = "sha256:47222cb6067e4a307d535814917cd98fd0a57b6788ce715755fa2b6c28b56042"},
 ]
 httpcore = [
-    {file = "httpcore-0.13.4-py3-none-any.whl", hash = "sha256:38e09649bb3906c913a2917c4eb3e3b3e11c83d4edebad8b53b7d757abc49267"},
-    {file = "httpcore-0.13.4.tar.gz", hash = "sha256:9fa4c623bb9d2280c009c34658cc6315e4fd425a395145645bee205d827263e4"},
+    {file = "httpcore-0.13.5-py3-none-any.whl", hash = "sha256:52c545bc3233cb5e3ceaee96bc3d1dcda50e0ebf04da99323f6544c174b0c5a5"},
+    {file = "httpcore-0.13.5.tar.gz", hash = "sha256:46d504c30bbd7fceee8d5a5f50d4bc64ed6574c28808f0ffc03b2e53fddaa192"},
 ]
 httpx = [
     {file = "httpx-0.18.1-py3-none-any.whl", hash = "sha256:ad2e3db847be736edc4b272c4d5788790a7e5789ef132fc6b5fef8aeb9e9f6e0"},
@@ -1000,8 +1001,8 @@ nox = [
     {file = "nox-2020.12.31.tar.gz", hash = "sha256:58a662070767ed4786beb46ce3a789fca6f1e689ed3ac15c73c4d0094e4f9dc4"},
 ]
 nox-poetry = [
-    {file = "nox-poetry-0.7.1.tar.gz", hash = "sha256:7b598ff54e20b4fc28ca2dab961363089d6ca085118a5218fc28680a1920b709"},
-    {file = "nox_poetry-0.7.1-py3-none-any.whl", hash = "sha256:73bb9b16c5ce93119409fa314f7a820c36895b8e762ff387601f6cc3d50dd698"},
+    {file = "nox-poetry-0.8.6.tar.gz", hash = "sha256:2cd8dd1f539a877d1fae78ffe47e3943644d6f2fc0a2833d805513d8ccb1c749"},
+    {file = "nox_poetry-0.8.6-py3-none-any.whl", hash = "sha256:22aadfbca68353616cf46061bbf0adcd410d22212df0fbffed5d5519d98ce3cf"},
 ]
 packaging = [
     {file = "packaging-20.9-py2.py3-none-any.whl", hash = "sha256:67714da7f7bc052e064859c05c595155bd1ee9f69f76557e21f051443c20947a"},

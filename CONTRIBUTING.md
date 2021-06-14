@@ -83,6 +83,7 @@ poetry run python3 -m unittest discover tests/integration
 To switch your python version before running tests:
 
 ```bash
+pyenv local 3.9
 poetry env use python3.9
 poetry install
 ```

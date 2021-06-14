@@ -28,14 +28,19 @@ from xrpl.wallet import Wallet
 JSON_RPC_URL = "https://s.altnet.rippletest.net:51234"
 DEV_JSON_RPC_URL = "https://s.devnet.rippletest.net:51234"
 WEBSOCKET_URL = "wss://s.altnet.rippletest.net/"
+DEV_WEBSOCKET_URL = "wss://s.devnet.rippletest.net/"
 
 JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
 ASYNC_JSON_RPC_CLIENT = AsyncJsonRpcClient(JSON_RPC_URL)
+
 WEBSOCKET_CLIENT = WebsocketClient(WEBSOCKET_URL)
 ASYNC_WEBSOCKET_CLIENT = AsyncWebsocketClient(WEBSOCKET_URL)
 
 DEV_JSON_RPC_CLIENT = JsonRpcClient(DEV_JSON_RPC_URL)
 DEV_ASYNC_JSON_RPC_CLIENT = AsyncJsonRpcClient(DEV_JSON_RPC_URL)
+
+DEV_WEBSOCKET_CLIENT = WebsocketClient(DEV_WEBSOCKET_URL)
+DEV_ASYNC_WEBSOCKET_CLIENT = AsyncWebsocketClient(DEV_WEBSOCKET_URL)
 
 
 def submit_transaction(
@@ -117,6 +122,9 @@ def test_async_and_sync(original_globals, modules=None, dev=False):
         # all, but in this case it's fine because it's only running test code
 
         def _run_sync_test(self, client):
+            print(client, client.url)
+            if isinstance(client, WebsocketClient):
+                print(client.is_open())
             try:
                 exec(
                     sync_code,
@@ -125,6 +133,7 @@ def test_async_and_sync(original_globals, modules=None, dev=False):
                 )
             except Exception as e:
                 print(sync_code)  # for ease of debugging, since there's no codefile
+                print(e)
                 raise e
 
         async def _run_async_test(self, client):
@@ -143,12 +152,13 @@ def test_async_and_sync(original_globals, modules=None, dev=False):
             with self.subTest(version="sync", client="json"):
                 _run_sync_test(self, DEV_JSON_RPC_CLIENT if dev else JSON_RPC_CLIENT)
             with self.subTest(version="sync", client="websocket"):
-                _run_sync_test(self, WEBSOCKET_CLIENT)
+                _run_sync_test(self, DEV_WEBSOCKET_CLIENT if dev else WEBSOCKET_CLIENT)
             with self.subTest(version="async", client="json"):
                 client = DEV_ASYNC_JSON_RPC_CLIENT if dev else ASYNC_JSON_RPC_CLIENT
                 asyncio.run(_run_async_test(self, client))
             with self.subTest(version="async", client="websocket"):
-                asyncio.run(_run_async_test(self, ASYNC_WEBSOCKET_CLIENT))
+                client = DEV_ASYNC_WEBSOCKET_CLIENT if dev else ASYNC_WEBSOCKET_CLIENT
+                asyncio.run(_run_async_test(self, client))
 
         return modified_test
 
@@ -171,7 +181,9 @@ def retry(test_function):
         for i in range(NUM_RETRIES):
             try:
                 test_function(self)
+                break
             except Exception:
+                print("exception")
                 if i == NUM_RETRIES - 1:
                     raise
                 sleep(2)
