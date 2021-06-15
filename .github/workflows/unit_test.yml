@@ -64,4 +64,4 @@ jobs:
 
       - name: Unit test
         run: |
-          poetry run python -m unittest discover tests.integration
+          poetry run python -m unittest discover tests.unit
