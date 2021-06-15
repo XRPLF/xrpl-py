@@ -8,7 +8,6 @@ from xrpl.models.transactions import AccountSet, Payment
 
 
 class TestWallet(DevIntegrationTestCase):
-    # @retry
     @test_async_and_sync(
         globals(), ["xrpl.wallet.generate_faucet_wallet"], True, num_retries=5
     )
@@ -24,7 +23,6 @@ class TestWallet(DevIntegrationTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-    # @retry
     @test_async_and_sync(
         globals(), ["xrpl.wallet.generate_faucet_wallet"], num_retries=5
     )

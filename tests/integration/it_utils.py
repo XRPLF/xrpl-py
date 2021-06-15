@@ -129,6 +129,7 @@ def test_async_and_sync(original_globals, modules=None, dev=False, num_retries=1
                         all_modules,
                         {"self": self, "client": client},
                     )
+                    break
                 except Exception as e:
                     if i == num_retries - 1:
                         print(sync_code)  # for debugging, since there's no codefile
@@ -146,6 +147,7 @@ def test_async_and_sync(original_globals, modules=None, dev=False, num_retries=1
             for i in range(num_retries):
                 try:
                     await test_function(self, client)
+                    break
                 except Exception as e:
                     if i == num_retries - 1:
                         raise e
