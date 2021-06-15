@@ -38,7 +38,7 @@ class JsonRpcBase(Client):
 
         :meta private:
         """
-        async with AsyncClient() as http_client:
+        async with AsyncClient(timeout=10.0) as http_client:
             response = await http_client.post(
                 self.url,
                 json=request_to_json_rpc(request),
