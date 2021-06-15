@@ -3,9 +3,10 @@ from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from xrpl.models.amounts import Amount, is_xrp
+from xrpl.models.path import Path
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -39,37 +40,55 @@ class Payment(Transaction):
     <http://xrpl.local/payment.html#creating-accounts>`_.
     """
 
-    #: The amount of currency to deliver. If the Partial Payment flag is set,
-    #: deliver *up to* this amount instead. This field is required.
     amount: Amount = REQUIRED  # type: ignore
+    """
+    The amount of currency to deliver. If the Partial Payment flag is set,
+    deliver *up to* this amount instead. This field is required.
 
-    #: The address of the account receiving the payment. This field is required.
+    :meta hide-value:
+    """
+
     destination: str = REQUIRED  # type: ignore
+    """
+    The address of the account receiving the payment. This field is required.
 
-    #: An arbitrary `destination tag
-    #: <https://xrpl.org/source-and-destination-tags.html>`_ that
-    #: identifies the reason for the Payment, or a hosted recipient to pay.
+    :meta hide-value:
+    """
+
     destination_tag: Optional[int] = None
+    """
+    An arbitrary `destination tag
+    <https://xrpl.org/source-and-destination-tags.html>`_ that
+    identifies the reason for the Payment, or a hosted recipient to pay.
+    """
 
-    #: Arbitrary 256-bit hash representing a specific reason or identifier for
-    #: this Check.
     invoice_id: Optional[str] = None  # TODO: should be a 256 bit hash
+    """
+    Arbitrary 256-bit hash representing a specific reason or identifier for
+    this Check.
+    """
 
-    #: Array of payment paths to be used (for a cross-currency payment). Must be
-    #: omitted for XRP-to-XRP transactions.
-    paths: Optional[List[Any]] = None  # TODO: should be better typed
+    paths: Optional[List[Path]] = None
+    """
+    Array of payment paths to be used (for a cross-currency payment). Must be
+    omitted for XRP-to-XRP transactions.
+    """
 
-    #: Maximum amount of source currency this transaction is allowed to cost,
-    #: including `transfer fees <http://xrpl.local/transfer-fees.html>`_,
-    #: exchange rates, and slippage. Does not include the XRP destroyed as a
-    #: cost for submitting the transaction. Must be supplied for cross-currency
-    #: or cross-issue payments. Must be omitted for XRP-to-XRP payments.
     send_max: Optional[Amount] = None
+    """
+    Maximum amount of source currency this transaction is allowed to cost,
+    including `transfer fees <http://xrpl.local/transfer-fees.html>`_,
+    exchange rates, and slippage. Does not include the XRP destroyed as a
+    cost for submitting the transaction. Must be supplied for cross-currency
+    or cross-issue payments. Must be omitted for XRP-to-XRP payments.
+    """
 
-    #: Minimum amount of destination currency this transaction should deliver.
-    #: Only valid if this is a partial payment. If omitted, any positive amount
-    #: is considered a success.
     deliver_min: Optional[Amount] = None
+    """
+    Minimum amount of destination currency this transaction should deliver.
+    Only valid if this is a partial payment. If omitted, any positive amount
+    is considered a success.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.PAYMENT,

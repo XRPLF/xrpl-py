@@ -22,8 +22,13 @@ class AccountTx(Request):
     `See account_tx <https://xrpl.org/account_tx.html>`_
     """
 
-    #: This field is required.
     account: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_TX, init=False)

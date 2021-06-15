@@ -18,6 +18,7 @@ from xrpl.models.requests import (
 from xrpl.models.transactions import (
     CheckCreate,
     Memo,
+    Payment,
     Signer,
     SignerEntry,
     SignerListSet,
@@ -25,7 +26,6 @@ from xrpl.models.transactions import (
     TrustSetFlag,
 )
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.transaction import transaction_json_to_binary_codec_form
 
 currency = "BTC"
 value = "100"
@@ -79,6 +79,8 @@ class TestBaseModel(TestCase):
 
 
 class TestFromDict(TestCase):
+    maxDiff = 2000
+
     def test_from_dict_basic(self):
         amount = IssuedCurrencyAmount.from_dict(amount_dict)
         self.assertEqual(amount, IssuedCurrencyAmount(**amount_dict))
@@ -392,11 +394,11 @@ class TestFromDict(TestCase):
                 r_json = test["rjson"]
                 with self.subTest(json=x_json):
                     tx = Transaction.from_xrpl(x_json)
-                    translated_tx = transaction_json_to_binary_codec_form(tx.to_dict())
+                    translated_tx = tx.to_xrpl()
                     self.assertEqual(x_json, translated_tx)
                 with self.subTest(json=r_json):
                     tx = Transaction.from_xrpl(r_json)
-                    translated_tx = transaction_json_to_binary_codec_form(tx.to_dict())
+                    translated_tx = tx.to_xrpl()
                     self.assertEqual(r_json, translated_tx)
 
     def test_from_xrpl_signers(self):
@@ -501,3 +503,97 @@ class TestFromDict(TestCase):
             ),
         )
         self.assertEqual(Transaction.from_xrpl(tx), expected)
+
+    def test_to_xrpl_paths(self):
+        paths_json = [
+            [
+                {"account": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B", "type": 1},
+                {
+                    "currency": "USD",
+                    "issuer": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
+                    "type": 48,
+                },
+                {"account": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q", "type": 1},
+                {"account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn", "type": 1},
+            ],
+        ]
+
+        p = Payment(
+            account="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+            amount=IssuedCurrencyAmount(
+                currency="USD",
+                issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                value="0.0001",
+            ),
+            destination="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+            send_max=IssuedCurrencyAmount(
+                currency="BTC",
+                issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                value="0.0000002831214446",
+            ),
+            paths=paths_json,
+            sequence=290,
+        )
+        tx_json = p.to_xrpl()
+
+        expected = {
+            "Account": "rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+            "TransactionType": "Payment",
+            "Sequence": 290,
+            "Flags": 0,
+            "SigningPubKey": "",
+            "Amount": {
+                "currency": "USD",
+                "issuer": "rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                "value": "0.0001",
+            },
+            "Destination": "rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+            "Paths": [
+                [
+                    {"account": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B", "type": 1},
+                    {
+                        "currency": "USD",
+                        "issuer": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
+                        "type": 48,
+                    },
+                    {"account": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q", "type": 1},
+                    {"account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn", "type": 1},
+                ]
+            ],
+            "SendMax": {
+                "currency": "BTC",
+                "issuer": "rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                "value": "0.0000002831214446",
+            },
+        }
+        self.assertEqual(tx_json, expected)
+
+    def test_to_xrpl_signer(self):
+        tx = SignerListSet(
+            account="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+            sequence=290,
+            signer_quorum=1,
+            signer_entries=[
+                SignerEntry(
+                    account="rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
+                    signer_weight=1,
+                ),
+            ],
+        )
+        expected = {
+            "Account": "rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+            "TransactionType": "SignerListSet",
+            "Sequence": 290,
+            "Flags": 0,
+            "SigningPubKey": "",
+            "SignerQuorum": 1,
+            "SignerEntries": [
+                {
+                    "SignerEntry": {
+                        "Account": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
+                        "SignerWeight": 1,
+                    }
+                }
+            ],
+        }
+        self.assertEqual(tx.to_xrpl(), expected)

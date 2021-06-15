@@ -34,10 +34,19 @@ class IssuedCurrency(BaseModel):
     See https://xrpl.org/currency-formats.html#specifying-currency-amounts
     """
 
-    #: This field is required.
     currency: str = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     issuer: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
 
     def _get_errors(self: IssuedCurrency) -> Dict[str, str]:
         errors = super()._get_errors()

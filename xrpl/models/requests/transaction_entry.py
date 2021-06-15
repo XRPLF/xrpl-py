@@ -30,5 +30,9 @@ class TransactionEntry(Request):
     method: RequestMethod = field(default=RequestMethod.TRANSACTION_ENTRY, init=False)
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
-    #: This field is required.
     tx_hash: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """

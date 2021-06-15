@@ -19,19 +19,29 @@ class PaymentChannelFund(Transaction):
     of the channel can use this transaction.
     """
 
-    #: The unique ID of the payment channel, as a 64-character hexadecimal
-    #: string. This field is required.
     channel: str = REQUIRED  # type: ignore
+    """
+    The unique ID of the payment channel, as a 64-character hexadecimal
+    string. This field is required.
 
-    #: The amount of XRP, in drops, to add to the channel. This field is
-    #: required.
+    :meta hide-value:
+    """
+
     amount: str = REQUIRED  # type: ignore
+    """
+    The amount of XRP, in drops, to add to the channel. This field is
+    required.
 
-    #: A new mutable expiration time to set for the channel, in seconds since the
-    #: Ripple Epoch. This must be later than the existing expiration time of the
-    #: channel or later than the current time plus the settle delay of the channel.
-    #: This is separate from the immutable ``cancel_after`` time.
+    :meta hide-value:
+    """
+
     expiration: Optional[int] = None
+    """
+    A new mutable expiration time to set for the channel, in seconds since the
+    Ripple Epoch. This must be later than the existing expiration time of the
+    channel or later than the current time plus the settle delay of the channel.
+    This is separate from the immutable ``cancel_after`` time.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.PAYMENT_CHANNEL_FUND,

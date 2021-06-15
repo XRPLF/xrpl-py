@@ -7,11 +7,15 @@ from xrpl.models.response import Response
 
 
 class AsyncClient(Client):
-    """Interface for all async network clients to follow."""
+    """
+    Interface for all async network clients to follow.
+
+    :meta private:
+    """
 
     async def request(self: AsyncClient, request: Request) -> Response:
         """
-        Makes a request with an AsyncClient.
+        Makes a request with this client.
 
         Arguments:
             request: The Request to send.

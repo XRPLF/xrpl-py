@@ -57,8 +57,16 @@ class BaseModel(ABC):
             True if dictionary is a ``dict`` representation of an instance of this
             class; False if not.
         """
-        return isinstance(dictionary, dict) and set(get_type_hints(cls).keys()) == set(
-            dictionary.keys()
+        return (
+            isinstance(dictionary, dict)
+            and set(get_type_hints(cls).keys()).issuperset(set(dictionary.keys()))
+            and all(
+                [
+                    attr in dictionary
+                    for attr, value in get_type_hints(cls).items()
+                    if value is REQUIRED
+                ]
+            )
         )
 
     @classmethod

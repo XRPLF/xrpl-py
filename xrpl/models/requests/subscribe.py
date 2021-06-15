@@ -35,12 +35,27 @@ class StreamParameter(str, Enum):
 class SubscribeBook(BaseModel):
     """Format for elements in the ``books`` array for Subscribe only."""
 
-    #: This field is required.
     taker_gets: Currency = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     taker_pays: Currency = REQUIRED  # type: ignore
-    #: This field is required.
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     taker: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
     snapshot: bool = False
     both: bool = False
 
