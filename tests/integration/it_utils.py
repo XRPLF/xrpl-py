@@ -171,9 +171,6 @@ def test_async_and_sync(
                     asyncio.run(_run_async_test(self, client))
             with self.subTest(version="sync", client="websocket"):
                 _run_sync_test(self, DEV_WEBSOCKET_CLIENT if dev else WEBSOCKET_CLIENT)
-            with self.subTest(version="async", client="json"):
-                client = DEV_ASYNC_JSON_RPC_CLIENT if dev else ASYNC_JSON_RPC_CLIENT
-                asyncio.run(_run_async_test(self, client))
             with self.subTest(version="async", client="websocket"):
                 client = DEV_ASYNC_WEBSOCKET_CLIENT if dev else ASYNC_WEBSOCKET_CLIENT
                 asyncio.run(_run_async_test(self, client))
