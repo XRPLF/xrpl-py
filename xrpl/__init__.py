@@ -6,6 +6,7 @@ __all__ = [
     "CryptoAlgorithm",
     "XRPLException",
     "account",
+    "asyncio",
     "clients",
     "core",
     "ledger",
