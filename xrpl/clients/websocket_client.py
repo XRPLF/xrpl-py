@@ -30,7 +30,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
     To read messages from the client, you can iterate over
     the client like so::
 
-        with WebsockeetClient(url) as client:
+        with WebsocketClient(url) as client:
             for message in client:
                 # do something with a message
 

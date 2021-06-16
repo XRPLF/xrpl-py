@@ -37,7 +37,7 @@ These steps assume that you're using a [Zsh](http://zsh.sourceforge.net/) shell.
 
         . ~/.zshrc
 
-### Manage dependencies and virutal environment
+### Manage dependencies and virtual environments
 
 To simplify managing library dependencies and the virtual environment, `xrpl-py` uses [`poetry`](https://python-poetry.org/docs).
 

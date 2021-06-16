@@ -27,7 +27,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
     To read messages from the client, you can iterate over
     the client like so::
 
-        async with AsyncWebsockeetClient(url) as client:
+        async with AsyncWebsocketClient(url) as client:
             async for message in client:
                 # do something with a message
 
