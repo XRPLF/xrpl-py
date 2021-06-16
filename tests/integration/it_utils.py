@@ -26,21 +26,13 @@ from xrpl.transaction import (
 from xrpl.wallet import Wallet
 
 JSON_RPC_URL = "https://s.altnet.rippletest.net:51234"
-DEV_JSON_RPC_URL = "https://s.devnet.rippletest.net:51234"
 WEBSOCKET_URL = "wss://s.altnet.rippletest.net/"
-DEV_WEBSOCKET_URL = "wss://s.devnet.rippletest.net/"
 
 JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
 ASYNC_JSON_RPC_CLIENT = AsyncJsonRpcClient(JSON_RPC_URL)
 
 WEBSOCKET_CLIENT = WebsocketClient(WEBSOCKET_URL)
 ASYNC_WEBSOCKET_CLIENT = AsyncWebsocketClient(WEBSOCKET_URL)
-
-DEV_JSON_RPC_CLIENT = JsonRpcClient(DEV_JSON_RPC_URL)
-DEV_ASYNC_JSON_RPC_CLIENT = AsyncJsonRpcClient(DEV_JSON_RPC_URL)
-
-DEV_WEBSOCKET_CLIENT = WebsocketClient(DEV_WEBSOCKET_URL)
-DEV_ASYNC_WEBSOCKET_CLIENT = AsyncWebsocketClient(DEV_WEBSOCKET_URL)
 
 
 def submit_transaction(
@@ -95,7 +87,7 @@ def _choose_client_async(use_json_client: bool) -> Client:
 
 
 def test_async_and_sync(
-    original_globals, modules=None, dev=False, websockets_only=False, num_retries=1
+    original_globals, modules=None, websockets_only=False, num_retries=1
 ):
     def decorator(test_function):
         lines = _get_non_decorator_code(test_function)
@@ -163,17 +155,13 @@ def test_async_and_sync(
         def modified_test(self):
             if not websockets_only:
                 with self.subTest(version="sync", client="json"):
-                    _run_sync_test(
-                        self, DEV_JSON_RPC_CLIENT if dev else JSON_RPC_CLIENT
-                    )
+                    _run_sync_test(self, JSON_RPC_CLIENT)
                 with self.subTest(version="async", client="json"):
-                    client = DEV_ASYNC_JSON_RPC_CLIENT if dev else ASYNC_JSON_RPC_CLIENT
-                    asyncio.run(_run_async_test(self, client))
+                    asyncio.run(_run_async_test(self, ASYNC_JSON_RPC_CLIENT))
             with self.subTest(version="sync", client="websocket"):
-                _run_sync_test(self, DEV_WEBSOCKET_CLIENT if dev else WEBSOCKET_CLIENT)
+                _run_sync_test(self, WEBSOCKET_CLIENT)
             with self.subTest(version="async", client="websocket"):
-                client = DEV_ASYNC_WEBSOCKET_CLIENT if dev else ASYNC_WEBSOCKET_CLIENT
-                asyncio.run(_run_async_test(self, client))
+                asyncio.run(_run_async_test(self, ASYNC_WEBSOCKET_CLIENT))
 
         return modified_test
 
