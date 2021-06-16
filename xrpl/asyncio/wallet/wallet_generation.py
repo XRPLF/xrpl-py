@@ -44,14 +44,7 @@ async def generate_faucet_wallet(
 
     .. # noqa: DAR402 exception raised in private method
     """
-    if "dev" in client.url:  # devnet
-        faucet_url = _DEV_FAUCET_URL
-    elif "altnet" in client.url or "test" in client.url:  # testnet
-        faucet_url = _TEST_FAUCET_URL
-    else:
-        raise XRPLFaucetException(
-            "Cannot fund an account with a client that is not on the testnet or devnet."
-        )
+    faucet_url = get_faucet_url(client.url)
     if wallet is None:
         wallet = Wallet.create()
 
@@ -88,6 +81,29 @@ async def generate_faucet_wallet(
         "Unable to fund address with faucet after waiting {} seconds".format(
             _TIMEOUT_SECONDS
         )
+    )
+
+
+def get_faucet_url(url: str) -> str:
+    """
+    Returns the URL of the faucet that should be used, based on whether the URL is from
+    a testnet or devnet client.
+
+    Args:
+        url: The URL that the client is using to access the ledger.
+
+    Returns:
+        The URL of the matching faucet.
+
+    Raises:
+        XRPLFaucetException: if the provided URL is not for the testnet or devnet.
+    """
+    if "dev" in url:  # devnet
+        return _DEV_FAUCET_URL
+    if "altnet" in url or "test" in url:  # testnet
+        return _TEST_FAUCET_URL
+    raise XRPLFaucetException(
+        "Cannot fund an account with a client that is not on the testnet or devnet."
     )
 
 

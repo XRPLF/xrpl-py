@@ -26,16 +26,13 @@ from xrpl.transaction import (
 from xrpl.wallet import Wallet
 
 JSON_RPC_URL = "https://s.altnet.rippletest.net:51234"
-DEV_JSON_RPC_URL = "https://s.devnet.rippletest.net:51234"
 WEBSOCKET_URL = "wss://s.altnet.rippletest.net/"
 
 JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
 ASYNC_JSON_RPC_CLIENT = AsyncJsonRpcClient(JSON_RPC_URL)
+
 WEBSOCKET_CLIENT = WebsocketClient(WEBSOCKET_URL)
 ASYNC_WEBSOCKET_CLIENT = AsyncWebsocketClient(WEBSOCKET_URL)
-
-DEV_JSON_RPC_CLIENT = JsonRpcClient(DEV_JSON_RPC_URL)
-DEV_ASYNC_JSON_RPC_CLIENT = AsyncJsonRpcClient(DEV_JSON_RPC_URL)
 
 
 def submit_transaction(
@@ -90,7 +87,7 @@ def _choose_client_async(use_json_client: bool) -> Client:
 
 
 def test_async_and_sync(
-    original_globals, modules=None, dev=False, websockets_only=False
+    original_globals, modules=None, websockets_only=False, num_retries=1
 ):
     def decorator(test_function):
         lines = _get_non_decorator_code(test_function)
@@ -121,15 +118,19 @@ def test_async_and_sync(
         # all, but in this case it's fine because it's only running test code
 
         def _run_sync_test(self, client):
-            try:
-                exec(
-                    sync_code,
-                    all_modules,
-                    {"self": self, "client": client},
-                )
-            except Exception as e:
-                print(sync_code)  # for ease of debugging, since there's no codefile
-                raise e
+            for i in range(num_retries):
+                try:
+                    exec(
+                        sync_code,
+                        all_modules,
+                        {"self": self, "client": client},
+                    )
+                    break
+                except Exception as e:
+                    if i == num_retries - 1:
+                        print(sync_code)  # for debugging, since there's no codefile
+                        raise e
+                    sleep(2)
 
         async def _run_async_test(self, client):
             if isinstance(client, AsyncWebsocketClient):
@@ -139,19 +140,24 @@ def test_async_and_sync(
                 # this
                 # happening in `IntegrationTestCase` for the sync client for the sake
                 # of efficiency
-            await test_function(self, client)
+            for i in range(num_retries):
+                try:
+                    await test_function(self, client)
+                    break
+                except Exception as e:
+                    if i == num_retries - 1:
+                        raise e
+                    await asyncio.sleep(2)
+
             if isinstance(client, AsyncWebsocketClient):
                 await client.close()
 
         def modified_test(self):
             if not websockets_only:
                 with self.subTest(version="sync", client="json"):
-                    _run_sync_test(
-                        self, DEV_JSON_RPC_CLIENT if dev else JSON_RPC_CLIENT
-                    )
+                    _run_sync_test(self, JSON_RPC_CLIENT)
                 with self.subTest(version="async", client="json"):
-                    client = DEV_ASYNC_JSON_RPC_CLIENT if dev else ASYNC_JSON_RPC_CLIENT
-                    asyncio.run(_run_async_test(self, client))
+                    asyncio.run(_run_async_test(self, ASYNC_JSON_RPC_CLIENT))
             with self.subTest(version="sync", client="websocket"):
                 _run_sync_test(self, WEBSOCKET_CLIENT)
             with self.subTest(version="async", client="websocket"):
@@ -169,20 +175,3 @@ def _get_non_decorator_code(function):
         if "def " in code_lines[line]:
             return code_lines[line:]
         line += 1
-
-
-def retry(test_function):
-    NUM_RETRIES = 10
-
-    def modified_test(self):
-        for i in range(NUM_RETRIES):
-            try:
-                test_function(self)
-            except Exception:
-                if i == NUM_RETRIES - 1:
-                    raise
-                sleep(2)
-                # This can't be async because `test_function` will not work in an async
-                # function
-
-    return modified_test
