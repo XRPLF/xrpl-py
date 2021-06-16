@@ -2,27 +2,12 @@ from tests.integration.integration_test_case import DevIntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.asyncio.wallet import generate_faucet_wallet
+from xrpl.asyncio.wallet.wallet_generation import _get_faucet_url
 from xrpl.core.addresscodec import classic_address_to_xaddress
-from xrpl.models.response import ResponseStatus
-from xrpl.models.transactions import AccountSet, Payment
+from xrpl.models.transactions import Payment
 
 
 class TestWallet(DevIntegrationTestCase):
-    @test_async_and_sync(
-        globals(), ["xrpl.wallet.generate_faucet_wallet"], True, num_retries=5
-    )
-    async def test_generate_faucet_wallet_dev(self, client):
-        wallet = await generate_faucet_wallet(client)
-        account_set = AccountSet(
-            account=wallet.classic_address,
-            fee="10",
-            sequence=wallet.sequence,
-            set_flag=3,
-        )
-        response = await submit_transaction_async(account_set, wallet, client=client)
-        self.assertEqual(response.status, ResponseStatus.SUCCESS)
-        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-
     @test_async_and_sync(
         globals(), ["xrpl.wallet.generate_faucet_wallet"], num_retries=5
     )
@@ -41,6 +26,14 @@ class TestWallet(DevIntegrationTestCase):
             client=client,
         )
         self.assertTrue(response.is_successful())
+
+    def test_get_faucet_wallet_dev(self):
+        json_client_url = "https://s.devnet.rippletest.net:51234"
+        ws_client_url = "wss://s.devnet.rippletest.net/"
+        expected_faucet = "https://faucet.devnet.rippletest.net/accounts"
+
+        self.assertEqual(_get_faucet_url(json_client_url), expected_faucet)
+        self.assertEqual(_get_faucet_url(ws_client_url), expected_faucet)
 
     def test_wallet_get_xaddress(self):
         expected = classic_address_to_xaddress(WALLET.classic_address, None, False)
