@@ -19,7 +19,7 @@ First, ensure that you have `Python 3.7 <https://www.python.org/downloads/>`_ or
 
 Then, download the package via ``pip``:
 
-``pip3 install xrpl``
+``pip3 install xrpl-py``
 
 Report Issues
 --------------
