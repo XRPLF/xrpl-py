@@ -19,6 +19,18 @@ def _is_iso_code(value: str) -> bool:
     return bool(_ISO_REGEX.fullmatch(value))
 
 
+def _iso_code_from_hex(value: bytes) -> Optional[str]:
+    candidate_iso = value.decode("ascii")
+    if candidate_iso == "XRP":
+        raise XRPLBinaryCodecException(
+            "Disallowed currency code: to indicate the currency "
+            "XRP you must use 20 bytes of 0s"
+        )
+    if _is_iso_code(candidate_iso):
+        return candidate_iso
+    return None
+
+
 def _is_hex(value: str) -> bool:
     """Tests if value is a valid 40-char hex string."""
     return bool(_HEX_REGEX.fullmatch(value))
@@ -58,7 +70,6 @@ class Currency(Hash160):
     Attributes:
         buffer: The byte encoding of this currency.
         _iso: The three-character ISO currency code if standard format, else None.
-        _is_native: True if the currency code is "XRP"
     """
 
     LENGTH: Final[int] = 20
@@ -71,26 +82,17 @@ class Currency(Hash160):
         else:
             super().__init__(bytes(self.LENGTH))
 
+        code_bytes = self.buffer[12:15]
         # Determine whether this currency code is in standard or nonstandard format:
         # https://xrpl.org/currency-formats.html#nonstandard-currency-codes
-        is_standard_code = True
-        first_12_bytes = self.buffer[:12]
-        code_bytes = self.buffer[12:15]
-        last_5_bytes = self.buffer[15:]
-        iso = code_bytes.decode("ascii")
-
-        if not (first_12_bytes == bytes(12)) or not (last_5_bytes == bytes(5)):
-            is_standard_code = False
-
-        lossless_iso = is_standard_code and iso != "XRP" and _is_iso_code(iso)
-        self._is_native = is_standard_code and code_bytes.hex() == "000000"
-        if self._is_native:
+        if self.buffer[:2] != bytes(2):
+            # non-standard currency
+            self._iso = None
+        elif code_bytes.hex() == "000000":
+            # the special case for literal XRP
             self._iso = "XRP"
         else:
-            if lossless_iso:
-                self._iso = iso
-            else:
-                self._iso = None
+            self._iso = _iso_code_from_hex(code_bytes)
 
     @classmethod
     def from_value(cls: Type[Currency], value: str) -> Currency:

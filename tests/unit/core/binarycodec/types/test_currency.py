@@ -4,8 +4,9 @@ import xrpl.core.binarycodec.types.currency as currency
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 
 XRP_HEX_CODE = "0000000000000000000000000000000000000000"
+ILLEGAL_XRP_HEX_CODE = "0000000000000000000000005852500000000000"
 USD_HEX_CODE = "0000000000000000000000005553440000000000"
-NONSTANDARD_HEX_CODE = "1" * 40
+NONSTANDARD_HEX_CODE = "015841551A748AD2C1F76FF6ECB0CCCD00000000"
 XRP_ISO = "XRP"
 USD_ISO = "USD"
 
@@ -73,4 +74,9 @@ class TestCurrency(TestCase):
         invalid_value = [1, 2, 3]
         self.assertRaises(
             XRPLBinaryCodecException, currency.Currency.from_value, invalid_value
+        )
+
+    def test_raises_invalid_xrp_encoding(self):
+        self.assertRaises(
+            XRPLBinaryCodecException, currency.Currency.from_value, ILLEGAL_XRP_HEX_CODE
         )
