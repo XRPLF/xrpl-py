@@ -1,6 +1,6 @@
 """Collection of public constants for XRPL."""
-import re
 from enum import Enum
+from re import Pattern, compile
 
 from typing_extensions import Final
 
@@ -18,5 +18,5 @@ class XRPLException(Exception):
     pass
 
 
-ISO_CURRENCY_REGEX: Final[re.Pattern[str]] = re.compile(f"^[A-Z0-9]{3}$")
-HEX_CURRENCY_REGEX: Final[re.Pattern[str]] = re.compile(f"^[A-F0-9]{40}$")
+ISO_CURRENCY_REGEX: Final[Pattern[str]] = compile(f"^[A-Z0-9]{3}$")
+HEX_CURRENCY_REGEX: Final[Pattern[str]] = compile(f"^[A-F0-9]{40}$")
