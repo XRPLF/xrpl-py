@@ -1,5 +1,8 @@
 """Collection of public constants for XRPL."""
+import re
 from enum import Enum
+
+from typing_extensions import Final
 
 
 class CryptoAlgorithm(str, Enum):
@@ -13,3 +16,7 @@ class XRPLException(Exception):
     """Base Exception for XRPL library."""
 
     pass
+
+
+ISO_CURRENCY_REGEX: Final[re.Pattern[str]] = re.compile("^[A-Z0-9]{3}$")
+HEX_CURRENCY_REGEX: Final[re.Pattern[str]] = re.compile("^[A-F0-9]{40}$")
