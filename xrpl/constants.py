@@ -1,6 +1,7 @@
 """Collection of public constants for XRPL."""
 from enum import Enum
-from re import Pattern, compile
+from re import compile
+from typing import Pattern
 
 from typing_extensions import Final
 
