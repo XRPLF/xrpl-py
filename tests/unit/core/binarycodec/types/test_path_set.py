@@ -92,6 +92,8 @@ expected_json = [
 
 
 class TestPathSet(TestCase):
+    maxDiff = 2500
+
     def test_from_value(self):
         pathset = PathSet.from_value(expected_json)
         self.assertEqual(buffer, str(pathset))
