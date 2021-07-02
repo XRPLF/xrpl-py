@@ -20,4 +20,11 @@ class XRPLException(Exception):
 
 
 ISO_CURRENCY_REGEX: Final[Pattern[str]] = compile("^[A-Z0-9]{3}$")
+"""
+:meta private:
+"""
+
 HEX_CURRENCY_REGEX: Final[Pattern[str]] = compile("^[A-F0-9]{40}$")
+"""
+:meta private:
+"""

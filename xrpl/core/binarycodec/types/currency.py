@@ -83,7 +83,7 @@ class Currency(Hash160):
         code_bytes = self.buffer[12:15]
         # Determine whether this currency code is in standard or nonstandard format:
         # https://xrpl.org/currency-formats.html#nonstandard-currency-codes
-        if self.buffer[:1] != bytes(1):
+        if self.buffer[0] != 0:
             # non-standard currency
             self._iso = None
         elif code_bytes.hex() == "000000":
