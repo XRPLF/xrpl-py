@@ -1,22 +1,20 @@
 """Codec for currency property inside an XRPL issued currency amount json."""
 from __future__ import annotations  # Requires Python 3.7+
 
-import re
 from typing import Optional, Type
 
 from typing_extensions import Final
 
+from xrpl.constants import HEX_CURRENCY_REGEX, ISO_CURRENCY_REGEX
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.hash160 import Hash160
 
-_ISO_REGEX: Final[re.Pattern[str]] = re.compile("^[A-Z0-9]{3}$")
-_HEX_REGEX: Final[re.Pattern[str]] = re.compile("^[A-F0-9]{40}$")
 _CURRENCY_CODE_LENGTH: Final[int] = 20  # bytes
 
 
 def _is_iso_code(value: str) -> bool:
     """Tests if value is a valid 3-char iso code."""
-    return bool(_ISO_REGEX.fullmatch(value))
+    return bool(ISO_CURRENCY_REGEX.fullmatch(value))
 
 
 def _iso_code_from_hex(value: bytes) -> Optional[str]:
@@ -33,7 +31,7 @@ def _iso_code_from_hex(value: bytes) -> Optional[str]:
 
 def _is_hex(value: str) -> bool:
     """Tests if value is a valid 40-char hex string."""
-    return bool(_HEX_REGEX.fullmatch(value))
+    return bool(HEX_CURRENCY_REGEX.fullmatch(value))
 
 
 def _iso_to_bytes(iso: str) -> bytes:
@@ -85,7 +83,7 @@ class Currency(Hash160):
         code_bytes = self.buffer[12:15]
         # Determine whether this currency code is in standard or nonstandard format:
         # https://xrpl.org/currency-formats.html#nonstandard-currency-codes
-        if self.buffer[:2] != bytes(2):
+        if self.buffer[0] != 0:
             # non-standard currency
             self._iso = None
         elif code_bytes.hex() == "000000":

@@ -15,12 +15,12 @@ class TestIssuedCurrency(TestCase):
         self.assertTrue(obj.is_valid())
 
     def test_correct_lower_currency_code_format(self):
-        # lower case is discouraged but allowed
-        obj = IssuedCurrency(
-            currency="usd",
-            issuer=_ACCOUNT,
-        )
-        self.assertTrue(obj.is_valid())
+        # lower case is not allowed
+        with self.assertRaises(XRPLModelException):
+            IssuedCurrency(
+                currency="usd",
+                issuer=_ACCOUNT,
+            )
 
     def test_incorrect_currency_code_format(self):
         # the "+" is not allowed in a currency format"

@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
-## [1.1.1] - 2021-06-29
+## [1.1.1] - 2021-07-02
 ### Fixed
 - Fixes an issue encoding some non-standard currency values
-- Corrects incorrect installation instructions in documentation
+- Corrects installation instructions in documentation
 
 ## [1.1.0] - 2021-06-16
 ### Added
