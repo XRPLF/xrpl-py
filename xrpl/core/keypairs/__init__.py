@@ -13,10 +13,11 @@ from xrpl.core.keypairs.main import (
     sign,
 )
 
-assert (
-    "ripemd160" in algorithms_available
-), """Your OpenSSL implementation does not include the RIPEMD160 algorithm,
-    which is required by XRPL"""
+if "ripemd160" not in algorithms_available:
+    raise ImportError(
+        "Your OpenSSL implementation does not include the RIPEMD160 algorithm,"
+        " which is required by XRPL."
+    )
 
 __all__ = [
     "derive_classic_address",
