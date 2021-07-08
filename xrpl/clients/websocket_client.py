@@ -222,13 +222,16 @@ class WebsocketClient(SyncClient, WebsocketBase):
 
         assert self._loop is not None  # mypy
 
-        # it's unusual to write an async function that has no await, but in
-        # this case that's exactly what we want. the reason we need this is
-        # that the helper functions all expect async functions, but since this
+        # it's unusual to write an async function that has no `await` and also
+        # has no `async with` or `async for` but in this case that's
+        # exactly what we want. the reason we need this is that the helper
+        # functions all expect async functions, but since this
         # is a sync client we want to completely block until the request is
-        # complete. when this is run, the `asyncio.run` call will happen from
-        # the main thread, but the sync client needs to get the event loop
-        # running on the child thread to complete a task, syncronously.
+        # complete.
+        #
+        # when this is run via `await client.request_impl`, it will
+        # completely block the main thread until completed,
+        # just as if it were not async.
         return run_coroutine_threadsafe(
             super().request_impl(request),
             self._loop,

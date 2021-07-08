@@ -23,9 +23,7 @@ class CryptoImplementation(ABC):
         decoded_seed: bytes,
         is_validator: bool,
     ) -> Tuple[str, str]:
-        raise NotImplementedError(
-            "CryptoImplementation.derive_keypair not implemented.",
-        )
+        pass
 
     @classmethod
     @abstractmethod
@@ -34,7 +32,7 @@ class CryptoImplementation(ABC):
         message: bytes,
         private_key: str,
     ) -> bytes:
-        raise NotImplementedError("CryptoImplementation.sign not implemented.")
+        pass
 
     @classmethod
     @abstractmethod
@@ -44,9 +42,7 @@ class CryptoImplementation(ABC):
         signature: bytes,
         public_key: str,
     ) -> bool:
-        raise NotImplementedError(
-            "CryptoImplementation.is_valid_message not implemented.",
-        )
+        pass
 
     @classmethod
     def _private_key_to_str(cls: Type[CryptoImplementation], key: ECPrivateKey) -> str:

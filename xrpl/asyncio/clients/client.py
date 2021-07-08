@@ -19,21 +19,13 @@ class Client(ABC):
         Initializes a client.
 
         Arguments:
-            url: The url to which this Client will connect
+            url: The url to which this client will connect
         """
         self.url = url
 
     @abstractmethod
-    async def request_impl(self: Client, request: Request) -> Response:
-        """
-        This is the actual driver for a given Client's request. It must be
-        async because all of the helper functions in this library are
-        async-first. Implement this in a given Client.
-
-        Arguments:
-            request: The Request to send.
-
-        Raises:
-            NotImplementedError: always.
-        """
-        raise NotImplementedError("Client.request_impl not implemented.")
+    async def request_impl(self: Client, request: Request) -> Response:  # noqa: D102
+        # This is the actual driver for a given Client's request. It must be
+        # async because all of the helper functions in this library are
+        # async-first. Implement this in a given Client.
+        pass
