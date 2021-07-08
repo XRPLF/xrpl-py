@@ -161,5 +161,4 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
         """
         if not self.is_open():
             raise XRPLWebsocketException("Websocket is not open")
-
         await self._do_send(request)

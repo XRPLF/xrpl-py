@@ -24,8 +24,18 @@ class Client(ABC):
         self.url = url
 
     @abstractmethod
-    async def request_impl(self: Client, request: Request) -> Response:  # noqa: D102
-        # This is the actual driver for a given Client's request. It must be
-        # async because all of the helper functions in this library are
-        # async-first. Implement this in a given Client.
+    async def request_impl(self: Client, request: Request) -> Response:
+        """
+        This is the actual driver for a given Client's request. It must be
+        async because all of the helper functions in this library are
+        async-first. Implement this in a given Client.
+
+        Arguments:
+            request: An object representing information about a rippled request.
+
+        Returns:
+            The response from the server, as a Response object.
+
+        :meta private:
+        """
         pass

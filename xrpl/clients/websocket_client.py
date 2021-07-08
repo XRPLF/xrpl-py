@@ -190,20 +190,13 @@ class WebsocketClient(SyncClient, WebsocketBase):
         """
         if not self.is_open():
             raise XRPLWebsocketException("Websocket is not open")
-
         assert self._loop is not None  # mypy
         run_coroutine_threadsafe(self._do_send(request), self._loop).result()
 
     async def request_impl(self: WebsocketClient, request: Request) -> Response:
         """
-        Asynchronously submits the request represented by the request to the
-        rippled node specified by this client's URL and waits for a response.
-
-        Note: if this is used for an API method that returns many responses, such as
-        `subscribe`, this method only returns the first response; all subsequent
-        responses will be available if you use the async iterator pattern on this
-        client, IE `async for message in client`. You can create an async task to
-        read messages from subscriptions.
+        ``request_impl`` implementation for sync websockets that ensures the
+        ``WebsocketBase.request_impl`` implementation is run on the other thread.
 
         Arguments:
             request: An object representing information about a rippled request.
@@ -219,7 +212,6 @@ class WebsocketClient(SyncClient, WebsocketBase):
         """
         if not self.is_open():
             raise XRPLWebsocketException("Websocket is not open")
-
         assert self._loop is not None  # mypy
 
         # it's unusual to write an async function that has no `await` and also
@@ -227,7 +219,8 @@ class WebsocketClient(SyncClient, WebsocketBase):
         # exactly what we want. the reason we need this is that the helper
         # functions all expect async functions, but since this
         # is a sync client we want to completely block until the request is
-        # complete.
+        # complete. also, `asyncio.run_coroutine_threadsafe` returns a
+        # concurrent.futures.Future which is not awaitable.
         #
         # when this is run via `await client.request_impl`, it will
         # completely block the main thread until completed,

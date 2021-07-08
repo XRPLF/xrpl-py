@@ -21,8 +21,7 @@ class JsonRpcBase(Client):
 
     async def request_impl(self: JsonRpcBase, request: Request) -> Response:
         """
-        Asynchronously submit the request represented by the request_object to the
-        rippled node specified by this client's URL.
+        Base ``request_impl`` implementation for JSON RPC.
 
         Arguments:
             request: An object representing information about a rippled request.

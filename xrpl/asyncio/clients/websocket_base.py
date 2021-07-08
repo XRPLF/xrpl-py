@@ -169,14 +169,7 @@ class WebsocketBase(Client):
 
     async def request_impl(self: WebsocketBase, request: Request) -> Response:
         """
-        Asynchronously submits the request represented by the request to the
-        rippled node specified by this client's URL and waits for a response.
-
-        Note: if this is used for an API method that returns many responses, such as
-        `subscribe`, this method only returns the first response; all subsequent
-        responses will be available if you use the async iterator pattern on this
-        client, IE `async for message in client`. You can create an async task to
-        read messages from subscriptions.
+        Base ``request_impl`` implementation for Websockets.
 
         Arguments:
             request: An object representing information about a rippled request.
