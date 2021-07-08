@@ -1,7 +1,6 @@
 """
-A path set is an array. Each member of the path set is another array that represents an
-individual path. Each member of a path is an object that specifies the step. A step has
-the following fields.
+A path is an ordered array. Each member of a path is an
+object that specifies the step.
 """
 
 from __future__ import annotations
@@ -16,10 +15,7 @@ from xrpl.models.utils import require_kwargs_on_init
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class PathStep(BaseModel):
-    """
-    A path is an array. Each member of a path is an object that specifies the step. A
-    step has the following fields.
-    """
+    """A PathStep represents an individual step along a Path."""
 
     account: Optional[str] = None
     currency: Optional[str] = None
@@ -67,6 +63,5 @@ class PathStep(BaseModel):
 
 Path = List[PathStep]
 """
-A path is an array. Each member of a path is an object that specifies a step on that
-path.
+A Path is an ordered array of PathSteps.
 """
