@@ -42,23 +42,23 @@ class WebsocketBase(Client):
 
     def __init__(self: WebsocketBase, url: str) -> None:
         """
-        Constructs a WebsocketBase.
+        Initializes a websocket client.
 
         Arguments:
             url: The URL of the rippled node to submit requests to.
         """
-        self.url = url
         self._open_requests: Dict[str, Future[Dict[str, Any]]] = {}
         self._websocket: Optional[WebSocketClientProtocol] = None
         self._handler_task: Optional[Task[None]] = None
         self._messages: Optional[Queue[Dict[str, Any]]] = None
+        super().__init__(url)
 
     def is_open(self: WebsocketBase) -> bool:
         """
         Returns whether the client is currently open.
 
         Returns:
-            Whether the client is currently open.
+            True if the client is currently open, False otherwise.
         """
         return (
             self._handler_task is not None
@@ -68,7 +68,7 @@ class WebsocketBase(Client):
         )
 
     async def _do_open(self: WebsocketBase) -> None:
-        """Connects the client to the Web Socket API at the given URL."""
+        """Connects the client to the Web Socket API at its URL."""
         if self.is_open():
             return
 

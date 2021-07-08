@@ -14,7 +14,14 @@ class Client(ABC):
     :meta private:
     """
 
-    url: str
+    def __init__(self: Client, url: str) -> None:
+        """
+        Initializes a client.
+
+        Arguments:
+            url: The url to which this Client will connect
+        """
+        self.url = url
 
     @abstractmethod
     async def request_impl(self: Client, request: Request) -> Response:
@@ -29,6 +36,4 @@ class Client(ABC):
         Raises:
             NotImplementedError: always.
         """
-        raise NotImplementedError(
-            f"{self.__class__.__name__}.request_impl not implemented."
-        )
+        raise NotImplementedError("Client.request_impl not implemented.")

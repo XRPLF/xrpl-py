@@ -22,17 +22,37 @@ class WebsocketClient(SyncClient, WebsocketBase):
     can use a context like so::
 
         with WebsocketClient(url) as client:
-            # do stuff with client
+            # inside the context the client is open
+        # after exiting the context, the client is closed
 
     Doing this will open and close the client for you and is
     preferred.
 
-    To read messages from the client, you can iterate over
-    the client like so::
+    NOTE: if you are not using subscriptions or other WebSocket-only
+    features of rippled, you may not need to do anything other than
+    open the client and make requests::
+
+        from xrpl.clients import WebsocketClient
+        from xrpl.ledger import get_fee
+        from xrpl.models import Fee
+
 
         with WebsocketClient(url) as client:
+            # using helper functions
+            print(get_fee(client))
+
+            # using raw requests yourself
+            print(client.request(Fee())
+
+    However, if you are using some functionality that makes use of
+    subscriptions or other "websocket-y" things, you can iterate over
+    the client like so to read incoming messages::
+
+        with WebsocketClient(url) as client:
+            # inside the context the client is open
             for message in client:
                 # do something with a message
+        # after exiting the context, the client is closed
 
     NOTE: doing the above will cause the client to listen for
     messages indefinitely. For this reason, ``WebsocketClient``
@@ -63,10 +83,10 @@ class WebsocketClient(SyncClient, WebsocketBase):
 
     def is_open(self: WebsocketClient) -> bool:
         """
-        Returns whether the WebsocketClient is currently open.
+        Returns whether the client is currently open.
 
         Returns:
-            Whether the WebsocketClient is currently open.
+            True if the client is currently open, False otherwise.
         """
         return self._loop is not None and self._thread is not None and super().is_open()
 
@@ -157,7 +177,9 @@ class WebsocketClient(SyncClient, WebsocketBase):
     def send(self: WebsocketClient, request: Request) -> None:
         """
         Submit the request represented by the request to the
-        rippled node specified by this client's URL.
+        rippled node specified by this client's URL. Unlike ``request``,
+        ``send`` does not wait for this request's response. In many cases
+        it may be more convenient to use ``request``.
 
         Arguments:
             request: A Request object representing information about a rippled request.
