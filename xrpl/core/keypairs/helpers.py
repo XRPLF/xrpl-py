@@ -6,11 +6,14 @@ if "ripemd160" in hashlib.algorithms_available:
 else:
     try:
         from Crypto.Hash import RIPEMD
+
         RIPEMD160_IN_HASHLIB = False
     except ImportError:
-        raise ImportError("""Your OpenSSL implementation does not include """
-                          """the RIPEMD160 algorithm, which is required """
-                          """by XRPL, or pycrypto needs installing""")
+        raise ImportError(
+            """Your OpenSSL implementation does not include """
+            """the RIPEMD160 algorithm, which is required """
+            """by XRPL, or pycrypto needs installing"""
+        )
 
 
 def sha512_first_half(message: bytes) -> bytes:
