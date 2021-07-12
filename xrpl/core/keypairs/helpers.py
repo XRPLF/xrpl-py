@@ -2,15 +2,11 @@
 import hashlib
 
 if "ripemd160" in hashlib.algorithms_available:
-    def ripemd160(message: bytes) -> bytes:
-        """Helper function to compute RIPEMD160 hash"""
-        return hashlib.new("ripemd160", message).digest()
+    RIPEMD160_IN_HASHLIB = True
 else:
     try:
         from Crypto.Hash import RIPEMD
-        def ripemd160(message: bytes) -> bytes:
-            """Helper function to compute RIPEMD160 hash"""
-            return RIPEMD.new(message).digest()
+        RIPEMD160_IN_HASHLIB = False
     except ImportError:
         raise ImportError("""Your OpenSSL implementation does not include """
                           """the RIPEMD160 algorithm, which is required """
@@ -43,4 +39,7 @@ def get_account_id(public_key: bytes) -> bytes:
         The account ID for the given public key.
     """
     sha_hash = hashlib.sha256(public_key).digest()
-    return ripemd160(sha_hash)
+    if RIPEMD160_IN_HASHLIB:
+        return RIPEMD.new(sha_hash).digest()
+    else:
+        return hashlib.new("ripemd160", sha_hash).digest()
