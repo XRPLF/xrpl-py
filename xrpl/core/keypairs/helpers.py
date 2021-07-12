@@ -1,13 +1,16 @@
 """Miscellaneous functions that are private to xrpl.core.keypairs."""
 import hashlib
 
-
 if "ripemd160" in hashlib.algorithms_available:
-    def ripemd160(x): return hashlib.new("ripemd160", x).digest()
+    def ripemd160(message: bytes) -> bytes:
+        """Helper function to compute RIPEMD160 hash"""
+        return hashlib.new("ripemd160", message).digest()
 else:
     try:
         from Crypto.Hash import RIPEMD
-        def ripemd160(x): return RIPEMD.new(x).digest()
+        def ripemd160(message: bytes) -> bytes:
+            """Helper function to compute RIPEMD160 hash"""
+            return RIPEMD.new(message).digest()
     except ImportError:
         raise ImportError("""Your OpenSSL implementation does not include """
                           """the RIPEMD160 algorithm, which is required """
