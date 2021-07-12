@@ -3,15 +3,15 @@ import hashlib
 
 
 if "ripemd160" in hashlib.algorithms_available:
-    ripemd160 = lambda x: hashlib.new("ripemd160", x).digest()
+    def ripemd160(x): return hashlib.new("ripemd160", x).digest()
 else:
     try:
         from Crypto.Hash import RIPEMD
-        ripemd160 = lambda x: RIPEMD.new(x).digest()
+        def ripemd160(x): return RIPEMD.new(x).digest()
     except ImportError:
-        raise ImportError("""Your OpenSSL implementation does not include the RIPEMD160 """
-                          """algorithm, which is required by XRPL, or pycrypto """
-                          """needs installing""")
+        raise ImportError("""Your OpenSSL implementation does not include """
+                          """the RIPEMD160 algorithm, which is required """
+                          """by XRPL, or pycrypto needs installing""")
 
 
 def sha512_first_half(message: bytes) -> bytes:
