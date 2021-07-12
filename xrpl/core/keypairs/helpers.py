@@ -43,6 +43,6 @@ def get_account_id(public_key: bytes) -> bytes:
     """
     sha_hash = hashlib.sha256(public_key).digest()
     if RIPEMD160_IN_HASHLIB:
-        return RIPEMD.new(sha_hash).digest()
+        return bytes(RIPEMD.new(sha_hash).digest())
     else:
         return hashlib.new("ripemd160", sha_hash).digest()
