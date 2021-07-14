@@ -77,4 +77,4 @@ class Hash(SerializedType, ABC):
     @classmethod
     @abstractmethod
     def _get_length(cls: Type[Hash]) -> int:
-        raise NotImplementedError("Hash._get_length not implemented")
+        pass

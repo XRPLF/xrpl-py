@@ -14,7 +14,14 @@ class Client(ABC):
     :meta private:
     """
 
-    url: str
+    def __init__(self: Client, url: str) -> None:
+        """
+        Initializes a client.
+
+        Arguments:
+            url: The url to which this client will connect
+        """
+        self.url = url
 
     @abstractmethod
     async def request_impl(self: Client, request: Request) -> Response:
@@ -24,11 +31,11 @@ class Client(ABC):
         async-first. Implement this in a given Client.
 
         Arguments:
-            request: The Request to send.
+            request: An object representing information about a rippled request.
 
-        Raises:
-            NotImplementedError: always.
+        Returns:
+            The response from the server, as a Response object.
+
+        :meta private:
         """
-        raise NotImplementedError(
-            f"{self.__class__.__name__}.request_impl not implemented."
-        )
+        pass

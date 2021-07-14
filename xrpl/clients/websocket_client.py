@@ -22,17 +22,37 @@ class WebsocketClient(SyncClient, WebsocketBase):
     can use a context like so::
 
         with WebsocketClient(url) as client:
-            # do stuff with client
+            # inside the context the client is open
+        # after exiting the context, the client is closed
 
     Doing this will open and close the client for you and is
     preferred.
 
-    To read messages from the client, you can iterate over
-    the client like so::
+    NOTE: if you are not using subscriptions or other WebSocket-only
+    features of rippled, you may not need to do anything other than
+    open the client and make requests::
+
+        from xrpl.clients import WebsocketClient
+        from xrpl.ledger import get_fee
+        from xrpl.models import Fee
+
 
         with WebsocketClient(url) as client:
+            # using helper functions
+            print(get_fee(client))
+
+            # using raw requests yourself
+            print(client.request(Fee())
+
+    However, if you are using some functionality that makes use of
+    subscriptions or other "websocket-y" things, you can iterate over
+    the client like so to read incoming messages::
+
+        with WebsocketClient(url) as client:
+            # inside the context the client is open
             for message in client:
                 # do something with a message
+        # after exiting the context, the client is closed
 
     NOTE: doing the above will cause the client to listen for
     messages indefinitely. For this reason, ``WebsocketClient``
@@ -63,10 +83,10 @@ class WebsocketClient(SyncClient, WebsocketBase):
 
     def is_open(self: WebsocketClient) -> bool:
         """
-        Returns whether the WebsocketClient is currently open.
+        Returns whether the client is currently open.
 
         Returns:
-            Whether the WebsocketClient is currently open.
+            True if the client is currently open, False otherwise.
         """
         return self._loop is not None and self._thread is not None and super().is_open()
 
@@ -157,7 +177,9 @@ class WebsocketClient(SyncClient, WebsocketBase):
     def send(self: WebsocketClient, request: Request) -> None:
         """
         Submit the request represented by the request to the
-        rippled node specified by this client's URL.
+        rippled node specified by this client's URL. Unlike ``request``,
+        ``send`` does not wait for this request's response. In many cases
+        it may be more convenient to use ``request``.
 
         Arguments:
             request: A Request object representing information about a rippled request.
@@ -168,20 +190,13 @@ class WebsocketClient(SyncClient, WebsocketBase):
         """
         if not self.is_open():
             raise XRPLWebsocketException("Websocket is not open")
-
         assert self._loop is not None  # mypy
         run_coroutine_threadsafe(self._do_send(request), self._loop).result()
 
     async def request_impl(self: WebsocketClient, request: Request) -> Response:
         """
-        Asynchronously submits the request represented by the request to the
-        rippled node specified by this client's URL and waits for a response.
-
-        Note: if this is used for an API method that returns many responses, such as
-        `subscribe`, this method only returns the first response; all subsequent
-        responses will be available if you use the async iterator pattern on this
-        client, IE `async for message in client`. You can create an async task to
-        read messages from subscriptions.
+        ``request_impl`` implementation for sync websockets that ensures the
+        ``WebsocketBase.request_impl`` implementation is run on the other thread.
 
         Arguments:
             request: An object representing information about a rippled request.
@@ -197,16 +212,19 @@ class WebsocketClient(SyncClient, WebsocketBase):
         """
         if not self.is_open():
             raise XRPLWebsocketException("Websocket is not open")
-
         assert self._loop is not None  # mypy
 
-        # it's unusual to write an async function that has no await, but in
-        # this case that's exactly what we want. the reason we need this is
-        # that the helper functions all expect async functions, but since this
+        # it's unusual to write an async function that has no `await` and also
+        # has no `async with` or `async for` but in this case that's
+        # exactly what we want. the reason we need this is that the helper
+        # functions all expect async functions, but since this
         # is a sync client we want to completely block until the request is
-        # complete. when this is run, the `asyncio.run` call will happen from
-        # the main thread, but the sync client needs to get the event loop
-        # running on the child thread to complete a task, syncronously.
+        # complete. also, `asyncio.run_coroutine_threadsafe` returns a
+        # concurrent.futures.Future which is not awaitable.
+        #
+        # when this is run via `await client.request_impl`, it will
+        # completely block the main thread until completed,
+        # just as if it were not async.
         return run_coroutine_threadsafe(
             super().request_impl(request),
             self._loop,

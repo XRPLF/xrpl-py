@@ -17,7 +17,7 @@ class SyncClient(Client):
 
     def request(self: SyncClient, request: Request) -> Response:
         """
-        Makes a request with this client.
+        Makes a request with this client and returns the response.
 
         Arguments:
             request: The Request to send.

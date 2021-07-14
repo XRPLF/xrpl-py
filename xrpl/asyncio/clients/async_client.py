@@ -15,7 +15,7 @@ class AsyncClient(Client):
 
     async def request(self: AsyncClient, request: Request) -> Response:
         """
-        Makes a request with this client.
+        Makes a request with this client and returns the response.
 
         Arguments:
             request: The Request to send.

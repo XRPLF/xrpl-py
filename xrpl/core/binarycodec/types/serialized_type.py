@@ -14,38 +14,21 @@ class SerializedType(ABC):
 
     @classmethod
     @abstractmethod
-    def from_parser(
+    def from_parser(  # noqa: D102
         cls: Type[SerializedType],
         # TODO: Resolve Any (can't be ``BinaryParser`` because of circular imports)
         parser: Any,
         # length_hint is Any so that subclasses can choose whether or not to require it.
         length_hint: Any,
     ) -> SerializedType:
-        """
-        Constructs a new SerializedType from a BinaryParser.
-
-        Args:
-            parser: The parser to construct a SerializedType from.
-            length_hint: The number of bytes to consume from the parser.
-
-        Raises:
-            NotImplementedError: Always.
-        """
-        raise NotImplementedError("SerializedType.from_parser not implemented.")
+        pass
 
     @classmethod
     @abstractmethod
-    def from_value(cls: Type[SerializedType], value: Any) -> SerializedType:
-        """
-        Construct a new SerializedType from a literal value.
-
-        Args:
-            value: The value to construct the SerializedType from.
-
-        Raises:
-            NotImplementedError: Always.
-        """
-        raise NotImplementedError("SerializedType.from_value not implemented.")
+    def from_value(  # noqa: D102
+        cls: Type[SerializedType], value: Any
+    ) -> SerializedType:
+        pass
 
     def to_byte_sink(self: SerializedType, bytesink: bytearray) -> None:
         """
