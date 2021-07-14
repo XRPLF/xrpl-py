@@ -15,8 +15,10 @@ from xrpl.models.utils import require_kwargs_on_init
 
 
 def _method_to_class_name(method: str) -> str:
-    snaked = "".join([word.capitalize() for word in method.split("_")])
-    return snaked
+    # special case for NoRippleCheck
+    if method == RequestMethod.NO_RIPPLE_CHECK:
+        return "NoRippleCheck"
+    return "".join([word.capitalize() for word in method.split("_")])
 
 
 class RequestMethod(str, Enum):
