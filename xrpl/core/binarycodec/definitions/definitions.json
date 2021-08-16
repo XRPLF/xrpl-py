@@ -1603,6 +1603,16 @@
         "isSigningField": true,
         "type": "UInt64"
       }
+    ],
+    [
+      "Cookie",
+      {
+        "nth": 10,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt64"
+      }
     ]
   ],
   "TRANSACTION_RESULTS": {
