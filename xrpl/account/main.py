@@ -82,3 +82,20 @@ def get_account_info(address: str, client: SyncClient) -> Response:
         XRPLRequestFailureException: if the rippled API call fails.
     """
     return asyncio.run(main.get_account_info(address, client))
+
+
+def get_account_lines(address: str, client: SyncClient) -> Response:
+    """
+    Query the ledger for account lines of given address.
+
+    Args:
+        address: the account to query.
+        client: the network client used to make network calls.
+
+    Returns:
+        The account lines for the address.
+
+    Raises:
+        XRPLRequestFailureException: if the rippled API call fails.
+    """
+    return asyncio.run(main.get_account_lines(address, client))

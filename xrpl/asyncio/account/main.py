@@ -4,7 +4,7 @@ from typing import Any, Dict, Union, cast
 
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
-from xrpl.models.requests import AccountInfo
+from xrpl.models.requests import AccountInfo, AccountLines
 from xrpl.models.response import Response
 
 
@@ -94,6 +94,35 @@ async def get_account_info(address: str, client: Client) -> Response:
         address, _, _ = xaddress_to_classic_address(address)
     response = await client.request_impl(
         AccountInfo(
+            account=address,
+            ledger_index="validated",
+        )
+    )
+    if response.is_successful():
+        return response
+
+    result = cast(Dict[str, Any], response.result)
+    raise XRPLRequestFailureException(result)
+
+
+async def get_account_lines(address: str, client: Client) -> Response:
+    """
+    Query the ledger for account lines of given address.
+
+    Args:
+        address: the account to query.
+        client: the network client used to make network calls.
+
+    Returns:
+        The account lines for the address.
+
+    Raises:
+        XRPLRequestFailureException: if the rippled API call fails.
+    """
+    if is_valid_xaddress(address):
+        address, _, _ = xaddress_to_classic_address(address)
+    response = await client.request_impl(
+        AccountLines(
             account=address,
             ledger_index="validated",
         )
