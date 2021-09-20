@@ -25,6 +25,7 @@ from xrpl.models.transactions.set_regular_key import SetRegularKey
 from xrpl.models.transactions.signer_list_set import SignerEntry, SignerListSet
 from xrpl.models.transactions.transaction import Memo, Signer
 from xrpl.models.transactions.trust_set import TrustSet, TrustSetFlag
+from xrpl.models.transactions.set_hook import SetHook
 
 __all__ = [
     "AccountDelete",
@@ -53,4 +54,5 @@ __all__ = [
     "SignerListSet",
     "TrustSet",
     "TrustSetFlag",
+    "SetHook",
 ]

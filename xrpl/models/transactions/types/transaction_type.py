@@ -24,3 +24,4 @@ class TransactionType(str, Enum):
     SET_REGULAR_KEY = "SetRegularKey"
     SIGNER_LIST_SET = "SignerListSet"
     TRUST_SET = "TrustSet"
+    SET_HOOK = "SetHook"

@@ -1603,6 +1603,16 @@
         "isSigningField": true,
         "type": "UInt64"
       }
+    ],
+    [
+      "HookOn",
+      {
+        "nth": 16,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt64"
+      }
     ]
   ],
   "TRANSACTION_RESULTS": {
@@ -1754,6 +1764,7 @@
     "DepositPreauth": 19,
     "TrustSet": 20,
     "AccountDelete": 21,
+    "SetHook": 22,
 
     "EnableAmendment": 100,
     "SetFee": 101,
