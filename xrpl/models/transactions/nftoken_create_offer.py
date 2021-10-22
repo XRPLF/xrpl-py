@@ -81,8 +81,6 @@ class NFTokenCreateOffer(Transaction):
     accounts to accept this offer MUST fail.
     """
 
-    flags: Optional[number] = None
-
     transaction_type: TransactionType = field(
         default=TransactionType.NFTOKEN_CREATE_OFFER,
         init=False,

@@ -87,8 +87,6 @@ class NFTokenMint(Transaction):
     opaque issuer-specific encoding. The URI is NOT checked for validity, but
     the field is limited to a maximum length of 256 bytes.
     """
-  
-    flags: Optional[int] = None
 
     transaction_type: TransactionType = field(
         default=TransactionType.NFTOKEN_MINT,
