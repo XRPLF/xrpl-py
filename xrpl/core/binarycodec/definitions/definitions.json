@@ -9,7 +9,7 @@
     "Hash256": 5,
     "UInt8": 16,
     "Vector256": 19,
-    "SerializedDict": 14,
+    "STObject": 14,
     "Unknown": -2,
     "Transaction": 10001,
     "Hash160": 17,
@@ -19,7 +19,7 @@
     "NotPresent": 0,
     "UInt64": 3,
     "UInt32": 2,
-    "SerializedList": 15
+    "STArray": 15
   },
   "LEDGER_ENTRY_TYPES": {
     "Any": -3,
@@ -40,7 +40,8 @@
     "Check": 67,
     "Nickname": 110,
     "Contract": 99,
-    "GeneratorMap": 103,
+    "NFTokenPage": 80,
+    "NFTokenOffer": 55,
     "NegativeUNL": 78
   },
   "FIELDS": [
@@ -88,6 +89,16 @@
       "SignerWeight",
       {
         "nth": 3,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt16"
+      }
+    ],
+    [
+      "TransferFee",
+      {
+        "nth": 4,
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
@@ -625,6 +636,16 @@
       }
     ],
     [
+      "TokenID",
+      {
+        "nth": 10,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Hash256"
+      }
+    ],
+    [
       "BookDirectory",
       {
         "nth": 16,
@@ -895,7 +916,7 @@
       }
     ],
     [
-      "Generator",
+      "URI",
       {
         "nth": 5,
         "isVLEncoded": true,
@@ -1047,7 +1068,7 @@
     [
       "ValidatorToReEnable",
       {
-        "nth": 20,
+        "nth": 21,
         "isVLEncoded": true,
         "isSerialized": true,
         "isSigningField": true,
@@ -1135,13 +1156,23 @@
       }
     ],
     [
+      "Minter",
+      {
+        "nth": 9,
+        "isVLEncoded": true,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "AccountID"
+      }
+    ],
+    [
       "ObjectEndMarker",
       {
         "nth": 1,
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedDict"
+        "type": "STObject"
       }
     ],
     [
@@ -1151,7 +1182,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedDict"
+        "type": "STObject"
       }
     ],
     [
@@ -1161,7 +1192,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedDict"
+        "type": "STObject"
       }
     ],
     [
@@ -1171,7 +1202,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedDict"
+        "type": "STObject"
       }
     ],
     [
@@ -1181,7 +1212,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedDict"
+        "type": "STObject"
       }
     ],
     [
@@ -1191,7 +1222,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedDict"
+        "type": "STObject"
       }
     ],
     [
@@ -1201,7 +1232,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedDict"
+        "type": "STObject"
       }
     ],
     [
@@ -1211,7 +1242,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedDict"
+        "type": "STObject"
       }
     ],
     [
@@ -1221,7 +1252,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedDict"
+        "type": "STObject"
       }
     ],
     [
@@ -1231,7 +1262,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedDict"
+        "type": "STObject"
       }
     ],
     [
@@ -1241,7 +1272,17 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedDict"
+        "type": "STObject"
+      }
+    ],
+    [
+      "NonFungibleToken",
+      {
+        "nth": 12,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "STObject"
       }
     ],
     [
@@ -1251,7 +1292,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedDict"
+        "type": "STObject"
       }
     ],
     [
@@ -1261,7 +1302,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedDict"
+        "type": "STObject"
       }
     ],
     [
@@ -1271,7 +1312,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedDict"
+        "type": "STObject"
       }
     ],
     [
@@ -1281,7 +1322,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedList"
+        "type": "STArray"
       }
     ],
     [
@@ -1291,7 +1332,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": false,
-        "type": "SerializedList"
+        "type": "STArray"
       }
     ],
     [
@@ -1301,7 +1342,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedList"
+        "type": "STArray"
       }
     ],
     [
@@ -1311,7 +1352,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedList"
+        "type": "STArray"
       }
     ],
     [
@@ -1321,7 +1362,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedList"
+        "type": "STArray"
       }
     ],
     [
@@ -1331,7 +1372,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedList"
+        "type": "STArray"
       }
     ],
     [
@@ -1341,7 +1382,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedList"
+        "type": "STArray"
       }
     ],
     [
@@ -1351,7 +1392,17 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedList"
+        "type": "STArray"
+      }
+    ],
+    [
+      "NonFungibleTokens",
+      {
+        "nth": 10,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "STArray"
       }
     ],
     [
@@ -1361,7 +1412,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedList"
+        "type": "STArray"
       }
     ],
     [
@@ -1371,7 +1422,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "SerializedList"
+        "type": "STArray"
       }
     ],
     [
@@ -1485,6 +1536,16 @@
       }
     ],
     [
+      "TokenIDs",
+      {
+        "nth": 4,
+        "isVLEncoded": true,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Vector256"
+      }
+    ],
+    [
       "Transaction",
       {
         "nth": 1,
@@ -1545,6 +1606,46 @@
       }
     ],
     [
+      "TicketSequence",
+      {
+        "nth": 41,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "TokenTaxon",
+      {
+        "nth": 42,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "MintedTokens",
+      {
+        "nth": 43,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "BurnedTokens",
+      {
+        "nth": 44,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt32"
+      }
+    ],
+    [
       "Channel",
       {
         "nth": 22,
@@ -1568,6 +1669,56 @@
       "CheckID",
       {
         "nth": 24,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Hash256"
+      }
+    ],
+    [
+      "ValidatedHash",
+      {
+        "nth": 25,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Hash256"
+      }
+    ],
+    [
+      "PreviousPageMin",
+      {
+        "nth": 26,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Hash256"
+      }
+    ],
+    [
+      "NextPageMin",
+      {
+        "nth": 27,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Hash256"
+      }
+    ],
+    [
+      "BuyOffer",
+      {
+        "nth": 28,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Hash256"
+      }
+    ],
+    [
+      "SellOffer",
+      {
+        "nth": 29,
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
@@ -1603,6 +1754,36 @@
         "isSigningField": true,
         "type": "UInt64"
       }
+    ],
+    [
+      "Cookie",
+      {
+        "nth": 10,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt64"
+      }
+    ],
+    [
+      "ServerVersion",
+      {
+        "nth": 11,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt64"
+      }
+    ],
+    [
+      "OfferNode",
+      {
+        "nth": 12,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt64"
+      }
     ]
   ],
   "TRANSACTION_RESULTS": {
@@ -1619,7 +1800,6 @@
     "telCAN_NOT_QUEUE_BLOCKED": -389,
     "telCAN_NOT_QUEUE_FEE": -388,
     "telCAN_NOT_QUEUE_FULL": -387,
-
     "temMALFORMED": -299,
     "temBAD_AMOUNT": -298,
     "temBAD_CURRENCY": -297,
@@ -1655,7 +1835,6 @@
     "temCANNOT_PREAUTH_SELF": -267,
     "temUNCERTAIN": -266,
     "temUNKNOWN": -265,
-
     "tefFAILURE": -199,
     "tefALREADY": -198,
     "tefBAD_ADD_AUTH": -197,
@@ -1675,7 +1854,6 @@
     "tefBAD_AUTH_MASTER": -183,
     "tefINVARIANT_FAILED": -182,
     "tefTOO_BIG": -181,
-
     "terRETRY": -99,
     "terFUNDS_SPENT": -98,
     "terINSUF_FEE_B": -97,
@@ -1687,9 +1865,7 @@
     "terLAST": -91,
     "terNO_RIPPLE": -90,
     "terQUEUED": -89,
-
     "tesSUCCESS": 0,
-
     "tecCLAIM": 100,
     "tecPATH_PARTIAL": 101,
     "tecUNFUNDED_ADD": 102,
@@ -1727,11 +1903,20 @@
     "tecDUPLICATE": 149,
     "tecKILLED": 150,
     "tecHAS_OBLIGATIONS": 151,
-    "tecTOO_SOON": 152
+    "tecTOO_SOON": 152,
+    "tecMAX_SEQUENCE_REACHED": 154,
+    "tecNO_SUITABLE_PAGE": 155,
+    "tecBUY_SELL_MISMATCH": 156,
+    "tecOFFER_TYPE_MISMATCH": 157,
+    "tecCANT_ACCEPT_OWN_OFFER": 158,
+    "tecINSUFFICIENT_FUNDS": 159,
+    "tecOBJECT_NOT_FOUND": 160,
+    "tecINSUFFICIENT_PAYMENT": 161,
+    "tecINCORRECT_ASSET": 162,
+    "tecTOO_MANY": 163
   },
   "TRANSACTION_TYPES": {
     "Invalid": -1,
-
     "Payment": 0,
     "EscrowCreate": 1,
     "EscrowFinish": 2,
@@ -1754,7 +1939,11 @@
     "DepositPreauth": 19,
     "TrustSet": 20,
     "AccountDelete": 21,
-
+    "NFTokenMint": 25,
+    "NFTokenBurn": 26,
+    "NFTokenCreateOffer": 27,
+    "NFTokenCancelOffer": 28,
+    "NFTokenAcceptOffer": 29,
     "EnableAmendment": 100,
     "SetFee": 101,
     "UNLModify": 102
