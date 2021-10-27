@@ -5,11 +5,10 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from tests.integration.reusable_values import DESTINATION, WALLET
-from xrpl.asyncio.account import (
+from xrpl.asyncio.account import (  # get_balance,
     does_account_exist,
     get_account_info,
     get_account_transactions,
-    get_balance,
     get_latest_transaction,
 )
 from xrpl.core.addresscodec import classic_address_to_xaddress
@@ -38,7 +37,7 @@ class TestAccount(IntegrationTestCase):
     @test_async_and_sync(globals(), ["xrpl.account.get_balance"])
     async def test_get_balance(self, client):
         self.assertEqual(
-            await get_balance(NEW_WALLET.classic_address, client),
+            await client.get_balance(NEW_WALLET.classic_address),
             1000000000,
         )
 
