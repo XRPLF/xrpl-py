@@ -11,7 +11,7 @@ from xrpl.models.utils import require_kwargs_on_init
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class NFTBuyOffers(Request):
+class NftBuyOffers(Request):
     """
     The `nft_buy_offers` method retrieves all of buy offers
     for the specified NFToken.

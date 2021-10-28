@@ -11,7 +11,7 @@ from xrpl.models.utils import require_kwargs_on_init
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class NFTSellOffers(Request):
+class NftSellOffers(Request):
     """
     The `nft_sell_offers` method retrieves all of sell offers
     for the specified NFToken.
