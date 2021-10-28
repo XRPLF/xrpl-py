@@ -1,22 +1,25 @@
 """Model for NFTokenCreateOffer transaction type and related flag."""
 
 from dataclasses import dataclass, field
+from enum import Enum
+from typing import Optional
 
+from xrpl.models.amounts import Amount
+from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 
 class NFTokenCreateOfferFlag(int, Enum):
-    """
-    Transaction Flags for an NFTokenCreateOffer Transaction.
-    """
+    """Transaction Flags for an NFTokenCreateOffer Transaction."""
 
     TF_SELL_TOKEN = 0x00000001
     """
     If set, indicates that the offer is a sell offer.
     Otherwise, it is a buy offer.
     """
+
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
@@ -28,19 +31,19 @@ class NFTokenCreateOffer(Transaction):
     specified by the transaction.
     """
 
-    account: str = REQUIRED
+    account: str = REQUIRED  # type: ignore
     """
     Indicates the AccountID of the account that initiated the
     transaction.
     """
 
-    token_id: str = REQUIRED
+    token_id: str = REQUIRED  # type: ignore
     """
     Identifies the TokenID of the NFToken object that the
     offer references.
     """
 
-    amount: Amount = REQUIRED
+    amount: Amount = REQUIRED  # type: ignore
     """
     Indicates the amount expected or offered for the Token.
 

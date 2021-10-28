@@ -1,16 +1,17 @@
 """Model for NFTokenMint transaction type and related flags."""
 
 from dataclasses import dataclass, field
+from enum import Enum
+from typing import Optional
 
+from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 
 class NFTokenMintFlag(int, Enum):
-    """
-    Transaction Flags for an NFTokenMint Transaction.
-    """
+    """Transaction Flags for an NFTokenMint Transaction."""
 
     TF_BURNABLE = 0x00000001
     """
@@ -18,25 +19,25 @@ class NFTokenMintFlag(int, Enum):
     if the issuer does not currently hold the token. The current holder of
     the token may always burn it.
     """
-  
+
     TF_ONLY_XRP = 0x00000002
     """
     If set, indicates that the token may only be offered or sold for XRP.
     """
-  
+
     TF_TRUSTLINE = 0x00000004
     """
     If set, indicates that the issuer wants a trustline to be automatically
     created.
     """
-  
+
     TF_TRANSFERABLE = 0x00000008
     """
     If set, indicates that this NFT can be transferred. This flag has no
     effect if the token is being transferred from the issuer or to the
     issuer.
     """
-  
+
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
@@ -48,19 +49,19 @@ class NFTokenMint(Transaction):
     specified by the transaction.
     """
 
-    account: str = REQUIRED
+    account: str = REQUIRED  # type: ignore
     """
     Indicates the account that is minting the token.
     """
 
-    token_taxon: int = REQUIRED
+    token_taxon: int = REQUIRED  # type: ignore
     """
     Indicates the taxon associated with this token. The taxon is generally a
     value chosen by the minter of the token and a given taxon may be used for
     multiple tokens. The implementation reserves taxon identifiers greater
     than or equal to 2147483648 (0x80000000).
     """
-  
+
     issuer: Optional[str] = None
     """
     Indicates the account that should be the issuer of this token. This value
@@ -78,7 +79,7 @@ class NFTokenMint(Transaction):
     increments of 0.001%. This field must NOT be present if the
     `tfTransferable` flag is not set.
     """
-  
+
     uri: Optional[str] = None
     """
     URI that points to the data and/or metadata associated with the NFT.

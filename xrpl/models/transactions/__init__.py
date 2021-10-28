@@ -16,13 +16,10 @@ from xrpl.models.transactions.nftoken_accept_offer import NFTokenAcceptOffer
 from xrpl.models.transactions.nftoken_burn import NFTokenBurn
 from xrpl.models.transactions.nftoken_cancel_offer import NFTokenCancelOffer
 from xrpl.models.transactions.nftoken_create_offer import (
-    NFTokenCreateOffer, 
+    NFTokenCreateOffer,
     NFTokenCreateOfferFlag,
 )
-from xrpl.models.transactions.nftoken_mint import (
-    NFTokenMint,
-    NFTokenMintFlag,
-)
+from xrpl.models.transactions.nftoken_mint import NFTokenMint, NFTokenMintFlag
 from xrpl.models.transactions.offer_cancel import OfferCancel
 from xrpl.models.transactions.offer_create import OfferCreate, OfferCreateFlag
 from xrpl.models.transactions.payment import Payment, PaymentFlag

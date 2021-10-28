@@ -1,7 +1,9 @@
 """Model for NFTokenAcceptOffer transaction type."""
 
 from dataclasses import dataclass, field
+from typing import Optional
 
+from xrpl.models.amounts import Amount
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init

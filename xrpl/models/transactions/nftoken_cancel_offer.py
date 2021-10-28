@@ -1,6 +1,7 @@
 """Model for NFTokenCancelOffer transaction type."""
 
 from dataclasses import dataclass, field
+from typing import List
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -18,7 +19,7 @@ class NFTokenCancelOffer(Transaction):
     specified by the transaction.
     """
 
-    token_ids: str[] = REQUIRED
+    token_ids: List[str] = REQUIRED  # type: ignore
     """
     An array of TokenID objects, each identifying an
     NFTokenOffer object, which should be cancelled by this
