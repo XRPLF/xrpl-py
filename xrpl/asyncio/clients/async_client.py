@@ -3,8 +3,9 @@ from __future__ import annotations
 
 from typing import Dict, Union
 
-from xrpl.asyncio.account import main
+from xrpl.asyncio.account import main as account_methods
 from xrpl.asyncio.clients.client import Client
+from xrpl.asyncio.ledger import main as ledger_methods
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
 
@@ -28,6 +29,10 @@ class AsyncClient(Client):
         """
         return await self.request_impl(request)
 
+    """
+    Account methods.
+    """
+
     async def does_account_exist(self: AsyncClient, address: str) -> bool:
         """
         Query the ledger for whether the account exists.
@@ -41,7 +46,7 @@ class AsyncClient(Client):
         Raises:
             XRPLRequestFailureException: if the transaction fails.
         """
-        return await main.does_account_exist(address, self)
+        return await account_methods.does_account_exist(address, self)
 
     async def get_next_valid_seq_number(self: AsyncClient, address: str) -> int:
         """
@@ -53,7 +58,7 @@ class AsyncClient(Client):
         Returns:
             The next valid sequence number for the address.
         """
-        return await main.get_next_valid_seq_number(address, self)
+        return await account_methods.get_next_valid_seq_number(address, self)
 
     async def get_balance(self: AsyncClient, address: str) -> int:
         """
@@ -65,7 +70,7 @@ class AsyncClient(Client):
         Returns:
             The balance of the address.
         """
-        return await main.get_balance(address, self)
+        return await account_methods.get_balance(address, self)
 
     async def get_account_root(
         self: AsyncClient, address: str
@@ -79,7 +84,7 @@ class AsyncClient(Client):
         Returns:
             The AccountRoot dictionary for the address.
         """
-        return await main.get_account_root(address, self)
+        return await account_methods.get_account_root(address, self)
 
     async def get_account_info(self: AsyncClient, address: str) -> Response:
         """
@@ -94,4 +99,44 @@ class AsyncClient(Client):
         Raises:
             XRPLRequestFailureException: if the rippled API call fails.
         """
-        return await main.get_account_info(address, self)
+        return await account_methods.get_account_info(address, self)
+
+    """
+    Ledger methods.
+    """
+
+    async def get_latest_validated_ledger_sequence(self: AsyncClient) -> int:
+        """
+        Returns the sequence number of the latest validated ledger.
+
+        Returns:
+            The sequence number of the latest validated ledger.
+
+        Raises:
+            XRPLRequestFailureException: if the rippled API call fails.
+        """
+        return await ledger_methods.get_latest_validated_ledger_sequence(self)
+
+    async def get_latest_open_ledger_sequence(self: AsyncClient) -> int:
+        """
+        Returns the sequence number of the latest open ledger.
+
+        Returns:
+            The sequence number of the latest open ledger.
+
+        Raises:
+            XRPLRequestFailureException: if the rippled API call fails.
+        """
+        return await ledger_methods.get_latest_open_ledger_sequence(self)
+
+    async def get_fee(self: AsyncClient) -> str:
+        """
+        Query the ledger for the current minimum transaction fee.
+
+        Returns:
+            The minimum fee for transactions.
+
+        Raises:
+            XRPLRequestFailureException: if the rippled API call fails.
+        """
+        return await ledger_methods.get_fee(self)

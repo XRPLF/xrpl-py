@@ -4,8 +4,9 @@ from __future__ import annotations
 import asyncio
 from typing import Dict, Union
 
-from xrpl.account import main
+from xrpl.account import main as account_methods
 from xrpl.asyncio.clients.client import Client
+from xrpl.ledger import main as ledger_methods
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
 
@@ -42,7 +43,7 @@ class SyncClient(Client):
         Raises:
             XRPLRequestFailureException: if the transaction fails.
         """
-        return main.does_account_exist(address, self)
+        return account_methods.does_account_exist(address, self)
 
     def get_next_valid_seq_number(self: SyncClient, address: str) -> int:
         """
@@ -54,7 +55,7 @@ class SyncClient(Client):
         Returns:
             The next valid sequence number for the address.
         """
-        return main.get_next_valid_seq_number(address, self)
+        return account_methods.get_next_valid_seq_number(address, self)
 
     def get_balance(self: SyncClient, address: str) -> int:
         """
@@ -66,7 +67,7 @@ class SyncClient(Client):
         Returns:
             The balance of the address.
         """
-        return main.get_balance(address, self)
+        return account_methods.get_balance(address, self)
 
     def get_account_root(self: SyncClient, address: str) -> Dict[str, Union[int, str]]:
         """
@@ -78,7 +79,7 @@ class SyncClient(Client):
         Returns:
             The AccountRoot dictionary for the address.
         """
-        return main.get_account_root(address, self)
+        return account_methods.get_account_root(address, self)
 
     def get_account_info(self: SyncClient, address: str) -> Response:
         """
@@ -93,4 +94,44 @@ class SyncClient(Client):
         Raises:
             XRPLRequestFailureException: if the rippled API call fails.
         """
-        return main.get_account_info(address, self)
+        return account_methods.get_account_info(address, self)
+
+    """
+    Ledger methods.
+    """
+
+    def get_latest_validated_ledger_sequence(self: SyncClient) -> int:
+        """
+        Returns the sequence number of the latest validated ledger.
+
+        Returns:
+            The sequence number of the latest validated ledger.
+
+        Raises:
+            XRPLRequestFailureException: if the rippled API call fails.
+        """
+        return ledger_methods.get_latest_validated_ledger_sequence(self)
+
+    def get_latest_open_ledger_sequence(self: SyncClient) -> int:
+        """
+        Returns the sequence number of the latest open ledger.
+
+        Returns:
+            The sequence number of the latest open ledger.
+
+        Raises:
+            XRPLRequestFailureException: if the rippled API call fails.
+        """
+        return ledger_methods.get_latest_open_ledger_sequence(self)
+
+    def get_fee(self: SyncClient) -> str:
+        """
+        Query the ledger for the current minimum transaction fee.
+
+        Returns:
+            The minimum fee for transactions.
+
+        Raises:
+            XRPLRequestFailureException: if the rippled API call fails.
+        """
+        return ledger_methods.get_fee(self)

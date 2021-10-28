@@ -303,7 +303,7 @@ class TestReliableSubmission(IntegrationTestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["Fee"], await get_fee(client))
+        self.assertEqual(response.result["Fee"], await client.get_fee())
         WALLET.sequence += 1
 
     @test_async_and_sync(
