@@ -5,12 +5,7 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from tests.integration.reusable_values import DESTINATION, WALLET
-from xrpl.asyncio.account import (  # get_balance,
-    does_account_exist,
-    get_account_info,
-    get_account_transactions,
-    get_latest_transaction,
-)
+from xrpl.asyncio.account import get_account_transactions, get_latest_transaction
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.transactions import Payment
 from xrpl.wallet import Wallet, generate_faucet_wallet
@@ -22,17 +17,17 @@ EMPTY_WALLET = Wallet.create()
 class TestAccount(IntegrationTestCase):
     @test_async_and_sync(globals(), ["xrpl.account.does_account_exist"])
     async def test_does_account_exist_true(self, client):
-        self.assertTrue(await does_account_exist(WALLET.classic_address, client))
+        self.assertTrue(await client.does_account_exist(WALLET.classic_address))
 
     @test_async_and_sync(globals(), ["xrpl.account.does_account_exist"])
     async def test_does_account_exist_false(self, client):
         address = "rG1QQv2nh2gr7RCZ1P8YYcBUcCCN633jCn"
-        self.assertFalse(await does_account_exist(address, client))
+        self.assertFalse(await client.does_account_exist(address))
 
     @test_async_and_sync(globals(), ["xrpl.account.does_account_exist"])
     async def test_does_account_exist_xaddress(self, client):
         xaddress = classic_address_to_xaddress(WALLET.classic_address, None, True)
-        self.assertTrue(await does_account_exist(xaddress, client))
+        self.assertTrue(await client.does_account_exist(xaddress))
 
     @test_async_and_sync(globals(), ["xrpl.account.get_balance"])
     async def test_get_balance(self, client):
@@ -95,7 +90,7 @@ class TestAccount(IntegrationTestCase):
 
     @test_async_and_sync(globals(), ["xrpl.account.get_account_info"])
     async def test_get_account_info(self, client):
-        response = await get_account_info(WALLET.classic_address, client)
+        response = await client.get_account_info(WALLET.classic_address)
         self.assertTrue(response.is_successful())
         self.assertEqual(
             response.result["account_data"]["Account"],
