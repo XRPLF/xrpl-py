@@ -130,6 +130,13 @@ class AccountSet(Transaction):
     <https://xrpl.org/ticksize.html>`_ for details.
     """
 
+    minter: Optional[str] = None
+    """
+    TODO check
+    Sets an alternate account that is allowed to mint NFTokens on this
+    account's behalf using NFTokenMint's `Issuer` field.
+    """
+
     transaction_type: TransactionType = field(
         default=TransactionType.ACCOUNT_SET,
         init=False,
