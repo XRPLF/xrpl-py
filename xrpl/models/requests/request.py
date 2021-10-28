@@ -29,6 +29,7 @@ class RequestMethod(str, Enum):
     ACCOUNT_CURRENCIES = "account_currencies"
     ACCOUNT_INFO = "account_info"
     ACCOUNT_LINES = "account_lines"
+    ACCOUNT_NFTS = "account_nfts"
     ACCOUNT_OBJECTS = "account_objects"
     ACCOUNT_OFFERS = "account_offers"
     ACCOUNT_TX = "account_tx"
@@ -59,6 +60,10 @@ class RequestMethod(str, Enum):
     LEDGER_CURRENT = "ledger_current"
     LEDGER_DATA = "ledger_data"
     LEDGER_ENTRY = "ledger_entry"
+
+    # NFT methods
+    NFT_BUY_OFFERS = "nft_buy_offers"
+    NFT_SELL_OFFERS = "nft_sell_offers"
 
     # subscription methods
     SUBSCRIBE = "subscribe"
