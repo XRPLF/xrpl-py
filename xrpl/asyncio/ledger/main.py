@@ -2,11 +2,14 @@
 
 from typing import Any, Dict, cast
 
-from xrpl.asyncio.clients import Client, XRPLRequestFailureException
+import xrpl.asyncio.clients.client as client
+import xrpl.asyncio.clients.exceptions as exception
+
+# from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.models.requests import Fee, Ledger
 
 
-async def get_latest_validated_ledger_sequence(client: Client) -> int:
+async def get_latest_validated_ledger_sequence(client: client.Client) -> int:
     """
     Returns the sequence number of the latest validated ledger.
 
@@ -24,10 +27,10 @@ async def get_latest_validated_ledger_sequence(client: Client) -> int:
     if response.is_successful():
         return cast(int, result["ledger_index"])
 
-    raise XRPLRequestFailureException(result)
+    raise exception.XRPLRequestFailureException(result)
 
 
-async def get_latest_open_ledger_sequence(client: Client) -> int:
+async def get_latest_open_ledger_sequence(client: client.Client) -> int:
     """
     Returns the sequence number of the latest open ledger.
 
@@ -45,10 +48,10 @@ async def get_latest_open_ledger_sequence(client: Client) -> int:
     if response.is_successful():
         return cast(int, result["ledger_index"])
 
-    raise XRPLRequestFailureException(result)
+    raise exception.XRPLRequestFailureException(result)
 
 
-async def get_fee(client: Client) -> str:
+async def get_fee(client: client.Client) -> str:
     """
     Query the ledger for the current minimum transaction fee.
 
@@ -66,4 +69,4 @@ async def get_fee(client: Client) -> str:
     if response.is_successful():
         return cast(str, result["drops"]["minimum_fee"])
 
-    raise XRPLRequestFailureException(result)
+    raise exception.XRPLRequestFailureException(result)

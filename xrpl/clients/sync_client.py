@@ -6,7 +6,7 @@ from typing import Dict, Union
 
 from xrpl.account import main as account_methods
 from xrpl.asyncio.clients.client import Client
-from xrpl.ledger import main as ledger_methods
+from xrpl.asyncio.ledger import main as ledger_methods
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
 
@@ -29,6 +29,10 @@ class SyncClient(Client):
             The Response for the given Request.
         """
         return asyncio.run(self.request_impl(request))
+
+    """
+    Account methods.
+    """
 
     def does_account_exist(self: SyncClient, address: str) -> bool:
         """
@@ -110,7 +114,7 @@ class SyncClient(Client):
         Raises:
             XRPLRequestFailureException: if the rippled API call fails.
         """
-        return ledger_methods.get_latest_validated_ledger_sequence(self)
+        return asyncio.run(ledger_methods.get_latest_validated_ledger_sequence(self))
 
     def get_latest_open_ledger_sequence(self: SyncClient) -> int:
         """
@@ -122,7 +126,7 @@ class SyncClient(Client):
         Raises:
             XRPLRequestFailureException: if the rippled API call fails.
         """
-        return ledger_methods.get_latest_open_ledger_sequence(self)
+        return asyncio.run(ledger_methods.get_latest_open_ledger_sequence(self))
 
     def get_fee(self: SyncClient) -> str:
         """
@@ -134,4 +138,4 @@ class SyncClient(Client):
         Raises:
             XRPLRequestFailureException: if the rippled API call fails.
         """
-        return ledger_methods.get_fee(self)
+        return asyncio.run(ledger_methods.get_fee(self))
