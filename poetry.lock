@@ -706,7 +706,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "0c1fc5b2fca889faac5230c04369376500e879de5d9f06948ff8242e1081f01a"
+content-hash = "6fe1f8688ea223eb87d434081123d0238fc03105bdc538b1a99610c3645e92b4"
 
 [metadata.files]
 aiounittest = [
