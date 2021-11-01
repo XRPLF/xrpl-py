@@ -5,8 +5,9 @@ from typing import Optional
 import httpx
 from typing_extensions import Final
 
-from xrpl.asyncio.account import get_balance, get_next_valid_seq_number
-from xrpl.asyncio.clients import Client, XRPLRequestFailureException
+import xrpl.asyncio.clients.client as client
+import xrpl.asyncio.clients.exceptions as exception
+from xrpl.asyncio.account import main
 from xrpl.constants import XRPLException
 from xrpl.wallet.main import Wallet
 
@@ -24,7 +25,7 @@ class XRPLFaucetException(XRPLException):
 
 
 async def generate_faucet_wallet(
-    client: Client, wallet: Optional[Wallet] = None, debug: bool = False
+    client: client.Client, wallet: Optional[Wallet] = None, debug: bool = False
 ) -> Wallet:
     """
     Generates a random wallet and funds it using the XRPL Testnet Faucet.
@@ -107,10 +108,10 @@ def get_faucet_url(url: str) -> str:
     )
 
 
-async def _check_wallet_balance(address: str, client: Client) -> int:
+async def _check_wallet_balance(address: str, client: client.Client) -> int:
     try:
-        return await get_balance(address, client)
-    except XRPLRequestFailureException as e:
+        return await main.get_balance(address, client)
+    except exception.XRPLRequestFailureException as e:
         if e.error == "actNotFound":  # transaction has not gone through
             return 0
         # some other error
@@ -124,10 +125,10 @@ async def _request_funding(url: str, address: str) -> None:
         response.raise_for_status()
 
 
-async def _try_to_get_next_seq(address: str, client: Client) -> Optional[int]:
+async def _try_to_get_next_seq(address: str, client: client.Client) -> Optional[int]:
     try:
-        return await get_next_valid_seq_number(address, client)
-    except XRPLRequestFailureException as e:
+        return await main.get_next_valid_seq_number(address, client)
+    except exception.XRPLRequestFailureException as e:
         if e.error == "actNotFound":
             # faucet gen has not fully gone through, try again
             return None

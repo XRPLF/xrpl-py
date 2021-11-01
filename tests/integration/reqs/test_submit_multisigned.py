@@ -7,6 +7,7 @@ from tests.integration.it_utils import (
 from tests.integration.reusable_values import WALLET
 from xrpl.core.binarycodec import encode_for_multisigning
 from xrpl.core.keypairs import sign
+from xrpl.ledger import get_fee
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import SubmitMultisigned
 from xrpl.models.transactions import (
@@ -18,7 +19,7 @@ from xrpl.models.transactions import (
 )
 from xrpl.wallet import Wallet
 
-FEE = JSON_RPC_CLIENT.get_fee()
+FEE = get_fee(JSON_RPC_CLIENT)
 
 #
 # Set up signer list

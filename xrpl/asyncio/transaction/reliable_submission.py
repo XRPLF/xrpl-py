@@ -5,10 +5,10 @@ from typing import Any, Dict, cast
 
 from typing_extensions import Final
 
-from xrpl.asyncio.clients import Client
-from xrpl.asyncio.ledger import get_latest_validated_ledger_sequence
-from xrpl.asyncio.transaction.ledger import get_transaction_from_hash
-from xrpl.asyncio.transaction.main import submit_transaction
+import xrpl.asyncio.clients.client as client
+from xrpl.asyncio.ledger import main as ledger_methods
+from xrpl.asyncio.transaction import ledger as tx_ledger_methods
+from xrpl.asyncio.transaction import main as tx_main_methods
 from xrpl.constants import XRPLException
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
@@ -23,7 +23,7 @@ class XRPLReliableSubmissionException(XRPLException):
 
 
 async def _wait_for_final_transaction_outcome(
-    transaction_hash: str, client: Client
+    transaction_hash: str, client: client.Client
 ) -> Response:
     """
     The core logic of reliable submission.  Polls the ledger until the result of the
@@ -35,7 +35,9 @@ async def _wait_for_final_transaction_outcome(
     # new persisted transaction
 
     # query transaction by hash
-    transaction_response = await get_transaction_from_hash(transaction_hash, client)
+    transaction_response = await tx_ledger_methods.get_transaction_from_hash(
+        transaction_hash, client
+    )
 
     result = cast(Dict[str, Any], transaction_response.result)
     if "validated" in result and result["validated"]:
@@ -43,7 +45,9 @@ async def _wait_for_final_transaction_outcome(
         return transaction_response
 
     last_ledger_sequence = result["LastLedgerSequence"]
-    latest_ledger_sequence = await get_latest_validated_ledger_sequence(client)
+    latest_ledger_sequence = await ledger_methods.get_latest_validated_ledger_sequence(
+        client
+    )
 
     if last_ledger_sequence > latest_ledger_sequence:
         # outcome is not yet final
@@ -56,7 +60,7 @@ async def _wait_for_final_transaction_outcome(
 
 
 async def send_reliable_submission(
-    transaction: Transaction, client: Client
+    transaction: Transaction, client: client.Client
 ) -> Response:
     """
     Asynchronously submits a transaction and verifies that it has been included in a
@@ -78,7 +82,7 @@ async def send_reliable_submission(
             `last_ledger_sequence` param.
     """
     transaction_hash = transaction.get_hash()
-    submit_response = await submit_transaction(transaction, client)
+    submit_response = await tx_main_methods.submit_transaction(transaction, client)
     result = cast(Dict[str, Any], submit_response.result)
     if result["engine_result"] != "tesSUCCESS":
         result_code = result["engine_result"]

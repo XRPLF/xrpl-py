@@ -14,6 +14,10 @@ max-line-length = 88
 per-file-ignores =
   # For tests, disable type annotation and docstring linting.
   tests/*: ANN D DAR
+  # D enables docstrings warnings from pydocstyle.
+  <!-- Docstrings are mentioned in the original source of the imported functions. -->
+  xrpl/asyncio/clients/async_client.py: D102
+  xrpl/clients/sync_client.py: D102
 
 # Select other tools to enable.
 
@@ -22,8 +26,6 @@ per-file-ignores =
 # ANN enables linting for type annotations.
 
 # BLK enables using black --check from within flake8.
-
-# D enables docstrings warnings from pydocstyle.
 
 # DAR enables docstring style linting via darglint.
 

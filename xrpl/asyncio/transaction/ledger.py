@@ -2,14 +2,15 @@
 
 from typing import Any, Dict, Optional, cast
 
-from xrpl.asyncio.clients import Client, XRPLRequestFailureException
+import xrpl.asyncio.clients.client as client
+import xrpl.asyncio.clients.exceptions as exception
 from xrpl.models.requests import Tx
 from xrpl.models.response import Response
 
 
 async def get_transaction_from_hash(
     tx_hash: str,
-    client: Client,
+    client: client.Client,
     binary: bool = False,
     min_ledger: Optional[int] = None,
     max_ledger: Optional[int] = None,
@@ -48,5 +49,5 @@ async def get_transaction_from_hash(
     )
     if not response.is_successful():
         result = cast(Dict[str, Any], response.result)
-        raise XRPLRequestFailureException(result)
+        raise exception.XRPLRequestFailureException(result)
     return response

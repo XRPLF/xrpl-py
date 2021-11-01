@@ -4,9 +4,10 @@ from typing import Any, Dict, Optional, cast
 
 from typing_extensions import Final
 
-from xrpl.asyncio.account import get_next_valid_seq_number
-from xrpl.asyncio.clients import Client, XRPLRequestFailureException
-from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
+import xrpl.asyncio.clients.client as client
+import xrpl.asyncio.clients.exceptions as exception
+from xrpl.asyncio.account import main as account_methods
+from xrpl.asyncio.ledger import main as ledger_methods
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec import encode, encode_for_signing
@@ -29,7 +30,7 @@ _ACCOUNT_DELETE_FEE: Final[int] = 5000000
 async def safe_sign_and_submit_transaction(
     transaction: Transaction,
     wallet: Wallet,
-    client: Client,
+    client: client.Client,
     autofill: bool = True,
     check_fee: bool = True,
 ) -> Response:
@@ -87,7 +88,7 @@ async def safe_sign_transaction(
 async def safe_sign_and_autofill_transaction(
     transaction: Transaction,
     wallet: Wallet,
-    client: Client,
+    client: client.Client,
     check_fee: bool = True,
 ) -> Transaction:
     """
@@ -117,7 +118,7 @@ async def safe_sign_and_autofill_transaction(
 
 async def submit_transaction(
     transaction: Transaction,
-    client: Client,
+    client: client.Client,
 ) -> Response:
     """
     Submits a transaction to the ledger.
@@ -138,7 +139,7 @@ async def submit_transaction(
         return response
 
     result = cast(Dict[str, Any], response.result)
-    raise XRPLRequestFailureException(result)
+    raise exception.XRPLRequestFailureException(result)
 
 
 def _prepare_transaction(
@@ -180,18 +181,22 @@ def _prepare_transaction(
 
 
 async def _autofill_transaction(
-    transaction: Transaction, client: Client
+    transaction: Transaction, client: client.Client
 ) -> Transaction:
     transaction_json = transaction.to_dict()
     if "sequence" not in transaction_json:
-        sequence = await get_next_valid_seq_number(transaction_json["account"], client)
+        sequence = await account_methods.get_next_valid_seq_number(
+            transaction_json["account"], client
+        )
         transaction_json["sequence"] = sequence
     if "fee" not in transaction_json:
         transaction_json["fee"] = await _calculate_fee_per_transaction_type(
             transaction, client
         )
     if "last_ledger_sequence" not in transaction_json:
-        ledger_sequence = await get_latest_validated_ledger_sequence(client)
+        ledger_sequence = await ledger_methods.get_latest_validated_ledger_sequence(
+            client
+        )
         transaction_json["last_ledger_sequence"] = ledger_sequence + _LEDGER_OFFSET
     return Transaction.from_dict(transaction_json)
 
@@ -234,7 +239,9 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
     return model_transaction_to_binary_codec(dictionary)
 
 
-async def _check_fee(transaction: Transaction, client: Optional[Client] = None) -> None:
+async def _check_fee(
+    transaction: Transaction, client: Optional[client.Client] = None
+) -> None:
     """Checks if the Transaction fee is lower than the expected Transaction type fee"""
     # Calculate the expected fee from the network load and transaction type
     expected_fee = await _calculate_fee_per_transaction_type(transaction, client)
@@ -252,7 +259,7 @@ async def _check_fee(transaction: Transaction, client: Optional[Client] = None) 
 
 
 async def _calculate_fee_per_transaction_type(
-    transaction: Transaction, client: Optional[Client] = None
+    transaction: Transaction, client: Optional[client.Client] = None
 ) -> str:
     """
     Calculate the total fee in drops for a transaction based on:
@@ -272,7 +279,9 @@ async def _calculate_fee_per_transaction_type(
     if client is None:
         net_fee = 10  # 10 drops
     else:
-        net_fee = int(await get_fee(client))  # Usually 0.00001 XRP (10 drops)
+        net_fee = int(
+            await ledger_methods.get_fee(client)
+        )  # Usually 0.00001 XRP (10 drops)
 
     base_fee = net_fee
 

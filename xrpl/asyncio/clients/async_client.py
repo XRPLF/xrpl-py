@@ -1,13 +1,18 @@
 """Interface for all async network clients to follow."""
 from __future__ import annotations
 
-from typing import Dict, Union
+from typing import Dict, Optional, Union
 
 from xrpl.asyncio.account import main as account_methods
 from xrpl.asyncio.clients.client import Client
 from xrpl.asyncio.ledger import main as ledger_methods
+from xrpl.asyncio.transaction import ledger as tx_ledger_methods
+from xrpl.asyncio.transaction import main as tx_main_methods
+from xrpl.asyncio.transaction.reliable_submission import send_reliable_submission
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
+from xrpl.models.transactions.transaction import Transaction
+from xrpl.wallet.main import Wallet
 
 
 class AsyncClient(Client):
@@ -34,71 +39,20 @@ class AsyncClient(Client):
     """
 
     async def does_account_exist(self: AsyncClient, address: str) -> bool:
-        """
-        Query the ledger for whether the account exists.
-
-        Args:
-            address: the account to query.
-
-        Returns:
-            Whether the account exists on the ledger.
-
-        Raises:
-            XRPLRequestFailureException: if the transaction fails.
-        """
         return await account_methods.does_account_exist(address, self)
 
     async def get_next_valid_seq_number(self: AsyncClient, address: str) -> int:
-        """
-        Query the ledger for the next available sequence number for an account.
-
-        Args:
-            address: the account to query.
-
-        Returns:
-            The next valid sequence number for the address.
-        """
         return await account_methods.get_next_valid_seq_number(address, self)
 
     async def get_balance(self: AsyncClient, address: str) -> int:
-        """
-        Query the ledger for the balance of the given account.
-
-        Args:
-            address: the account to query.
-
-        Returns:
-            The balance of the address.
-        """
         return await account_methods.get_balance(address, self)
 
     async def get_account_root(
         self: AsyncClient, address: str
     ) -> Dict[str, Union[int, str]]:
-        """
-        Query the ledger for the AccountRoot object associated with a given address.
-
-        Args:
-            address: the account to query.
-
-        Returns:
-            The AccountRoot dictionary for the address.
-        """
         return await account_methods.get_account_root(address, self)
 
     async def get_account_info(self: AsyncClient, address: str) -> Response:
-        """
-        Query the ledger for account info of given address.
-
-        Args:
-            address: the account to query.
-
-        Returns:
-            The account info for the address.
-
-        Raises:
-            XRPLRequestFailureException: if the rippled API call fails.
-        """
         return await account_methods.get_account_info(address, self)
 
     """
@@ -106,37 +60,57 @@ class AsyncClient(Client):
     """
 
     async def get_latest_validated_ledger_sequence(self: AsyncClient) -> int:
-        """
-        Returns the sequence number of the latest validated ledger.
-
-        Returns:
-            The sequence number of the latest validated ledger.
-
-        Raises:
-            XRPLRequestFailureException: if the rippled API call fails.
-        """
         return await ledger_methods.get_latest_validated_ledger_sequence(self)
 
     async def get_latest_open_ledger_sequence(self: AsyncClient) -> int:
-        """
-        Returns the sequence number of the latest open ledger.
-
-        Returns:
-            The sequence number of the latest open ledger.
-
-        Raises:
-            XRPLRequestFailureException: if the rippled API call fails.
-        """
         return await ledger_methods.get_latest_open_ledger_sequence(self)
 
     async def get_fee(self: AsyncClient) -> str:
-        """
-        Query the ledger for the current minimum transaction fee.
-
-        Returns:
-            The minimum fee for transactions.
-
-        Raises:
-            XRPLRequestFailureException: if the rippled API call fails.
-        """
         return await ledger_methods.get_fee(self)
+
+    """
+    Transaction methods.
+    """
+
+    async def get_transaction_from_hash(  # noqa: D102
+        self: AsyncClient,
+        tx_hash: str,
+        binary: bool = False,
+        min_ledger: Optional[int] = None,
+        max_ledger: Optional[int] = None,
+    ) -> Response:
+        return await tx_ledger_methods.get_transaction_from_hash(
+            tx_hash, self, binary, min_ledger, max_ledger
+        )
+
+    async def safe_sign_and_submit_transaction(  # noqa: D102
+        self: AsyncClient,
+        transaction: Transaction,
+        wallet: Wallet,
+        autofill: bool = True,
+        check_fee: bool = True,
+    ) -> Response:
+        return await tx_main_methods.safe_sign_and_submit_transaction(
+            transaction, wallet, self, autofill, check_fee
+        )
+
+    async def submit_transaction(  # noqa: D102
+        self: AsyncClient,
+        transaction: Transaction,
+    ) -> Response:
+        return await tx_main_methods.submit_transaction(transaction, self)
+
+    async def safe_sign_and_autofill_transaction(  # noqa: D102
+        self: AsyncClient,
+        transaction: Transaction,
+        wallet: Wallet,
+        check_fee: bool = True,
+    ) -> Transaction:
+        return await tx_main_methods.safe_sign_and_autofill_transaction(
+            transaction, wallet, self, check_fee
+        )
+
+    async def send_reliable_submission(  # noqa: D102
+        self: AsyncClient, transaction: Transaction
+    ) -> Response:
+        return await send_reliable_submission(transaction, self)

@@ -29,7 +29,7 @@ class TestAccount(IntegrationTestCase):
         xaddress = classic_address_to_xaddress(WALLET.classic_address, None, True)
         self.assertTrue(await client.does_account_exist(xaddress))
 
-    @test_async_and_sync(globals(), ["xrpl.account.get_balance"])
+    @test_async_and_sync(globals())
     async def test_get_balance(self, client):
         self.assertEqual(
             await client.get_balance(NEW_WALLET.classic_address),

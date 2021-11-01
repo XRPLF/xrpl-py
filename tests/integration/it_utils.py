@@ -6,23 +6,9 @@ from time import sleep
 
 import xrpl  # noqa: F401 - needed for sync tests
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
-from xrpl.asyncio.transaction import (
-    safe_sign_and_autofill_transaction as sign_and_autofill_async,
-)
-from xrpl.asyncio.transaction import (
-    safe_sign_and_submit_transaction as sign_and_submit_async,
-)
-from xrpl.asyncio.transaction import (
-    send_reliable_submission as send_reliable_submission_async,
-)
 from xrpl.clients import Client, JsonRpcClient, WebsocketClient
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.transaction import (
-    safe_sign_and_autofill_transaction,
-    safe_sign_and_submit_transaction,
-    send_reliable_submission,
-)
 from xrpl.wallet import Wallet
 
 JSON_RPC_URL = "https://s.altnet.rippletest.net:51234"
@@ -42,8 +28,8 @@ def submit_transaction(
     check_fee: bool = True,
 ) -> Response:
     """Signs and submits a transaction to the XRPL."""
-    return safe_sign_and_submit_transaction(
-        transaction, wallet, client, check_fee=check_fee
+    return client.safe_sign_and_submit_transaction(
+        transaction, wallet, check_fee=check_fee
     )
 
 
@@ -53,23 +39,25 @@ async def submit_transaction_async(
     client: Client = ASYNC_JSON_RPC_CLIENT,
     check_fee: bool = True,
 ) -> Response:
-    return await sign_and_submit_async(transaction, wallet, client, check_fee=check_fee)
+    return await client.safe_sign_and_submit_transaction(
+        transaction, wallet, check_fee=check_fee
+    )
 
 
 def sign_and_reliable_submission(
     transaction: Transaction, wallet: Wallet, use_json_client: bool = True
 ) -> Response:
     client = _choose_client(use_json_client)
-    signed_tx = safe_sign_and_autofill_transaction(transaction, wallet, client)
-    return send_reliable_submission(signed_tx, client)
+    signed_tx = client.safe_sign_and_autofill_transaction(transaction, wallet)
+    return client.send_reliable_submission(signed_tx)
 
 
 async def sign_and_reliable_submission_async(
     transaction: Transaction, wallet: Wallet, use_json_client: bool = True
 ) -> Response:
     client = _choose_client_async(use_json_client)
-    signed_tx = await sign_and_autofill_async(transaction, wallet, client)
-    return await send_reliable_submission_async(signed_tx, client)
+    signed_tx = await client.safe_sign_and_autofill_transaction(transaction, wallet)
+    return await client.send_reliable_submission(signed_tx)
 
 
 def _choose_client(use_json_client: bool) -> Client:
