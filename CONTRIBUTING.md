@@ -139,3 +139,13 @@ open _build/html/index.html
 7. Run `poetry publish --dry-run` and make sure everything looks good
 8. Publish the update by running `poetry publish`
     * This will require entering PyPI login info
+9. Send an email to [xrpl-announce](https://groups.google.com/g/xrpl-announce).
+
+## Mailing Lists
+We have a low-traffic mailing list for announcements of new `xrpl-py` releases. (About 1 email every couple of weeks)
+
++ [Subscribe to xrpl-announce](https://groups.google.com/g/xrpl-announce)
+
+If you're using the XRP Ledger in production, you should run a [rippled server](https://github.com/ripple/rippled) and subscribe to the ripple-server mailing list as well.
+
++ [Subscribe to ripple-server](https://groups.google.com/g/ripple-server)
