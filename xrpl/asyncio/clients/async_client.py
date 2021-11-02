@@ -1,9 +1,10 @@
 """Interface for all async network clients to follow."""
 from __future__ import annotations
 
-from typing import Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from xrpl.asyncio.account import main as account_methods
+from xrpl.asyncio.account import transaction_history as account_tx_methods
 from xrpl.asyncio.clients.client import Client
 from xrpl.asyncio.ledger import main as ledger_methods
 from xrpl.asyncio.transaction import ledger as tx_ledger_methods
@@ -54,6 +55,19 @@ class AsyncClient(Client):
 
     async def get_account_info(self: AsyncClient, address: str) -> Response:
         return await account_methods.get_account_info(address, self)
+
+    async def get_latest_transaction(self: AsyncClient, address: str) -> Response:
+        return await account_tx_methods.get_latest_transaction(address, self)
+
+    async def get_account_transactions(
+        self: AsyncClient, address: str
+    ) -> List[Dict[str, Any]]:
+        return await account_tx_methods.get_account_transactions(address, self)
+
+    async def get_account_payment_transactions(
+        self: AsyncClient, address: str
+    ) -> List[Dict[str, Any]]:
+        return await account_tx_methods.get_account_payment_transactions(address, self)
 
     """
     Ledger methods.

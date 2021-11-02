@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from xrpl.asyncio.account import main as account_methods
+from xrpl.asyncio.account import transaction_history as account_tx_methods
 from xrpl.asyncio.clients.client import Client
 from xrpl.asyncio.ledger import main as ledger_methods
 from xrpl.asyncio.transaction import ledger as tx_ledger_methods
@@ -53,6 +54,21 @@ class SyncClient(Client):
 
     def get_account_info(self: SyncClient, address: str) -> Response:
         return asyncio.run(account_methods.get_account_info(address, self))
+
+    def get_latest_transaction(self: SyncClient, address: str) -> Response:
+        return asyncio.run(account_tx_methods.get_latest_transaction(address, self))
+
+    def get_account_transactions(
+        self: SyncClient, address: str
+    ) -> List[Dict[str, Any]]:
+        return asyncio.run(account_tx_methods.get_account_transactions(address, self))
+
+    def get_account_payment_transactions(
+        self: SyncClient, address: str
+    ) -> List[Dict[str, Any]]:
+        return asyncio.run(
+            account_tx_methods.get_account_payment_transactions(address, self)
+        )
 
     """
     Ledger methods.

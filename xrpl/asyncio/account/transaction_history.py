@@ -1,13 +1,14 @@
 """High-level methods to obtain information about account transaction history."""
 from typing import Any, Dict, List, cast
 
-from xrpl.asyncio.clients import Client, XRPLRequestFailureException
+import xrpl.asyncio.clients.client as client
+import xrpl.asyncio.clients.exceptions as exception
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.models.requests import AccountTx
 from xrpl.models.response import Response
 
 
-async def get_latest_transaction(account: str, client: Client) -> Response:
+async def get_latest_transaction(account: str, client: client.Client) -> Response:
     """
     Fetches the most recent transaction on the ledger associated with an account.
 
@@ -29,12 +30,12 @@ async def get_latest_transaction(account: str, client: Client) -> Response:
     )
     if not response.is_successful():
         result = cast(Dict[str, Any], response.result)
-        raise XRPLRequestFailureException(result)
+        raise exception.XRPLRequestFailureException(result)
     return response
 
 
 async def get_account_transactions(
-    address: str, client: Client
+    address: str, client: client.Client
 ) -> List[Dict[str, Any]]:
     """
     Query the ledger for a list of transactions that involved a given account.
@@ -55,12 +56,12 @@ async def get_account_transactions(
     response = await client.request_impl(request)
     result = cast(Dict[str, Any], response.result)
     if not response.is_successful():
-        raise XRPLRequestFailureException(result)
+        raise exception.XRPLRequestFailureException(result)
     return cast(List[Dict[str, Any]], result["transactions"])
 
 
 async def get_account_payment_transactions(
-    address: str, client: Client
+    address: str, client: client.Client
 ) -> List[Dict[str, Any]]:
     """
     Query the ledger for a list of payment transactions that involved a given account.
