@@ -15,16 +15,16 @@ EMPTY_WALLET = Wallet.create()
 
 
 class TestAccount(IntegrationTestCase):
-    @test_async_and_sync(globals(), ["xrpl.account.does_account_exist"])
+    @test_async_and_sync(globals())
     async def test_does_account_exist_true(self, client):
         self.assertTrue(await client.does_account_exist(WALLET.classic_address))
 
-    @test_async_and_sync(globals(), ["xrpl.account.does_account_exist"])
+    @test_async_and_sync(globals())
     async def test_does_account_exist_false(self, client):
         address = "rG1QQv2nh2gr7RCZ1P8YYcBUcCCN633jCn"
         self.assertFalse(await client.does_account_exist(address))
 
-    @test_async_and_sync(globals(), ["xrpl.account.does_account_exist"])
+    @test_async_and_sync(globals())
     async def test_does_account_exist_xaddress(self, client):
         xaddress = classic_address_to_xaddress(WALLET.classic_address, None, True)
         self.assertTrue(await client.does_account_exist(xaddress))
@@ -88,7 +88,7 @@ class TestAccount(IntegrationTestCase):
         self.assertEqual(transaction["Amount"], amount)
         self.assertEqual(transaction["Account"], WALLET.classic_address)
 
-    @test_async_and_sync(globals(), ["xrpl.account.get_account_info"])
+    @test_async_and_sync(globals())
     async def test_get_account_info(self, client):
         response = await client.get_account_info(WALLET.classic_address)
         self.assertTrue(response.is_successful())

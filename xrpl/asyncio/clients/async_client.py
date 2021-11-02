@@ -72,7 +72,7 @@ class AsyncClient(Client):
     Transaction methods.
     """
 
-    async def get_transaction_from_hash(  # noqa: D102
+    async def get_transaction_from_hash(
         self: AsyncClient,
         tx_hash: str,
         binary: bool = False,
@@ -83,7 +83,7 @@ class AsyncClient(Client):
             tx_hash, self, binary, min_ledger, max_ledger
         )
 
-    async def safe_sign_and_submit_transaction(  # noqa: D102
+    async def safe_sign_and_submit_transaction(
         self: AsyncClient,
         transaction: Transaction,
         wallet: Wallet,
@@ -94,13 +94,13 @@ class AsyncClient(Client):
             transaction, wallet, self, autofill, check_fee
         )
 
-    async def submit_transaction(  # noqa: D102
+    async def submit_transaction(
         self: AsyncClient,
         transaction: Transaction,
     ) -> Response:
         return await tx_main_methods.submit_transaction(transaction, self)
 
-    async def safe_sign_and_autofill_transaction(  # noqa: D102
+    async def safe_sign_and_autofill_transaction(
         self: AsyncClient,
         transaction: Transaction,
         wallet: Wallet,
@@ -110,7 +110,7 @@ class AsyncClient(Client):
             transaction, wallet, self, check_fee
         )
 
-    async def send_reliable_submission(  # noqa: D102
+    async def send_reliable_submission(
         self: AsyncClient, transaction: Transaction
     ) -> Response:
         return await send_reliable_submission(transaction, self)
