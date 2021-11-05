@@ -2,12 +2,11 @@
 
 import asyncio
 
-# from xrpl.clients.sync_client import SyncClient
-import xrpl.clients.sync_client as sync_client_ref
 from xrpl.asyncio.ledger import main
+from xrpl.clients.sync_client import SyncClient
 
 
-def get_latest_validated_ledger_sequence(client: sync_client_ref.SyncClient) -> int:
+def get_latest_validated_ledger_sequence(client: SyncClient) -> int:
     """
     Returns the sequence number of the latest validated ledger.
 
@@ -23,7 +22,7 @@ def get_latest_validated_ledger_sequence(client: sync_client_ref.SyncClient) -> 
     return asyncio.run(main.get_latest_validated_ledger_sequence(client))
 
 
-def get_latest_open_ledger_sequence(client: sync_client_ref.SyncClient) -> int:
+def get_latest_open_ledger_sequence(client: SyncClient) -> int:
     """
     Returns the sequence number of the latest open ledger.
 
@@ -39,7 +38,7 @@ def get_latest_open_ledger_sequence(client: sync_client_ref.SyncClient) -> int:
     return asyncio.run(main.get_latest_open_ledger_sequence(client))
 
 
-def get_fee(client: sync_client_ref.SyncClient) -> str:
+def get_fee(client: SyncClient) -> str:
     """
     Query the ledger for the current minimum transaction fee.
 
