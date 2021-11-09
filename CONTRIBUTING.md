@@ -134,11 +134,12 @@ open _build/html/index.html
 5. Create a new Github release/tag off of this branch.
 6. Locally build and download the package.
     1. Pull master locally.
-    2. Locally download the package by running `pip install path/to/local/xrpl-py/dist/.whl`
-    3. Make sure that this local installation works as intended, and that changes are reflected properly
-7. Run `poetry publish --dry-run` and make sure everything looks good
-8. Publish the update by running `poetry publish`
-    * This will require entering PyPI login info
+    2. Run `poetry build` to build the package locally.
+    3. Locally download the package by running `pip install path/to/local/xrpl-py/dist/.whl`.
+    4. Make sure that this local installation works as intended, and that changes are reflected properly.
+7. Run `poetry publish --dry-run` and make sure everything looks good.
+8. Publish the update by running `poetry publish`.
+    * This will require entering PyPI login info.
 9. Send an email to [xrpl-announce](https://groups.google.com/g/xrpl-announce).
 
 ## Mailing Lists
