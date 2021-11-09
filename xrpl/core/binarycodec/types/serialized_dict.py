@@ -23,7 +23,7 @@ from xrpl.core.binarycodec.types.serialized_type import SerializedType
 
 _OBJECT_END_MARKER_BYTE: Final[bytes] = bytes([0xE1])
 _OBJECT_END_MARKER: Final[str] = "ObjectEndMarker"
-_SERIALIZED_DICT: Final[str] = "SerializedDict"
+_SERIALIZED_DICT: Final[str] = "STObject"
 _DESTINATION: Final[str] = "Destination"
 _ACCOUNT: Final[str] = "Account"
 _SOURCE_TAG: Final[str] = "SourceTag"
