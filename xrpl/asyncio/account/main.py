@@ -1,6 +1,6 @@
 """High-level methods to obtain information about accounts."""
 
-from typing import Any, Dict, Union, cast
+from typing import Dict, Union, cast
 
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
@@ -72,8 +72,7 @@ async def get_account_root(address: str, client: Client) -> Dict[str, Union[int,
         The AccountRoot dictionary for the address.
     """
     account_info = await get_account_info(address, client)
-    result = cast(Dict[str, Any], account_info.result)
-    return cast(Dict[str, Union[int, str]], result["account_data"])
+    return cast(Dict[str, Union[int, str]], account_info.result["account_data"])
 
 
 async def get_account_info(address: str, client: Client) -> Response:
@@ -101,5 +100,4 @@ async def get_account_info(address: str, client: Client) -> Response:
     if response.is_successful():
         return response
 
-    result = cast(Dict[str, Any], response.result)
-    raise XRPLRequestFailureException(result)
+    raise XRPLRequestFailureException(response.result)

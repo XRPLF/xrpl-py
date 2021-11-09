@@ -28,8 +28,7 @@ async def get_latest_transaction(account: str, client: Client) -> Response:
         AccountTx(account=account, ledger_index_max=-1, limit=1)
     )
     if not response.is_successful():
-        result = cast(Dict[str, Any], response.result)
-        raise XRPLRequestFailureException(result)
+        raise XRPLRequestFailureException(response.result)
     return response
 
 
@@ -53,10 +52,9 @@ async def get_account_transactions(
         address, _, _ = xaddress_to_classic_address(address)
     request = AccountTx(account=address)
     response = await client.request_impl(request)
-    result = cast(Dict[str, Any], response.result)
     if not response.is_successful():
-        raise XRPLRequestFailureException(result)
-    return cast(List[Dict[str, Any]], result["transactions"])
+        raise XRPLRequestFailureException(response.result)
+    return cast(List[Dict[str, Any]], response.result["transactions"])
 
 
 async def get_account_payment_transactions(

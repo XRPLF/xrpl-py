@@ -137,8 +137,7 @@ async def submit_transaction(
     if response.is_successful():
         return response
 
-    result = cast(Dict[str, Any], response.result)
-    raise XRPLRequestFailureException(result)
+    raise XRPLRequestFailureException(response.result)
 
 
 def _prepare_transaction(
