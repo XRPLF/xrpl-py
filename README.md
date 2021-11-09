@@ -330,6 +330,16 @@ print(testnet_xaddress)
 
 If you want to contribute to this project, see [CONTRIBUTING.md].
 
+### Mailing Lists
+
+We have a low-traffic mailing list for announcements of new `xrpl.js` releases. (About 1 email per week)
+
++ [Subscribe to xrpl-announce](https://groups.google.com/g/xrpl-announce)
+
+If you're using the XRP Ledger in production, you should run a [rippled server](https://github.com/ripple/rippled) and subscribe to the ripple-server mailing list as well.
+
++ [Subscribe to ripple-server](https://groups.google.com/g/ripple-server)
+
 
 ## License
 
