@@ -1,7 +1,6 @@
 """High-level reliable submission methods with XRPL transactions."""
 
 import asyncio
-from typing import Any, Dict, cast
 
 from typing_extensions import Final
 
@@ -37,7 +36,7 @@ async def _wait_for_final_transaction_outcome(
     # query transaction by hash
     transaction_response = await get_transaction_from_hash(transaction_hash, client)
 
-    result = cast(Dict[str, Any], transaction_response.result)
+    result = transaction_response.result
     if "validated" in result and result["validated"]:
         # result is in a validated ledger, outcome is final
         return transaction_response
@@ -79,7 +78,7 @@ async def send_reliable_submission(
     """
     transaction_hash = transaction.get_hash()
     submit_response = await submit_transaction(transaction, client)
-    result = cast(Dict[str, Any], submit_response.result)
+    result = submit_response.result
     if result["engine_result"] != "tesSUCCESS":
         result_code = result["engine_result"]
         result_message = result["engine_result_message"]
