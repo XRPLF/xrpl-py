@@ -8,13 +8,19 @@ from xrpl.models.requests import AccountInfo
 from xrpl.models.response import Response
 
 
-async def does_account_exist(address: str, client: Client) -> bool:
+async def does_account_exist(
+    address: str, client: Client, ledger_index: Union[str, int] = "validated"
+) -> bool:
     """
     Query the ledger for whether the account exists.
 
     Args:
         address: the account to query.
         client: the network client used to make network calls.
+        ledger_index: The ledger index to use for the request. Must be an integer
+            ledger value or "current" (the current working version), "closed" (for the
+            closed-and-proposed version), or "validated" (the most recent version
+            validated by consensus). Defaults to "validated".
 
     Returns:
         Whether the account exists on the ledger.
@@ -41,7 +47,10 @@ async def get_next_valid_seq_number(
     Args:
         address: the account to query.
         client: the network client used to make network calls.
-        ledger_index: the version of the ledger to query. Defaults to "current".
+        ledger_index: The ledger index to use for the request. Must be an integer
+            ledger value or "current" (the current working version), "closed" (for the
+            closed-and-proposed version), or "validated" (the most recent version
+            validated by consensus). Defaults to "current".
 
     Returns:
         The next valid sequence number for the address.
@@ -51,13 +60,19 @@ async def get_next_valid_seq_number(
     )
 
 
-async def get_balance(address: str, client: Client) -> int:
+async def get_balance(
+    address: str, client: Client, ledger_index: Union[str, int] = "validated"
+) -> int:
     """
     Query the ledger for the balance of the given account.
 
     Args:
         address: the account to query.
         client: the network client used to make network calls.
+        ledger_index: The ledger index to use for the request. Must be an integer
+            ledger value or "current" (the current working version), "closed" (for the
+            closed-and-proposed version), or "validated" (the most recent version
+            validated by consensus). Defaults to "validated".
 
     Returns:
         The balance of the address.
@@ -74,7 +89,10 @@ async def get_account_root(
     Args:
         address: the account to query.
         client: the network client used to make network calls.
-        ledger_index: the version of the ledger to query. Defaults to "validated".
+        ledger_index: The ledger index to use for the request. Must be an integer
+            ledger value or "current" (the current working version), "closed" (for the
+            closed-and-proposed version), or "validated" (the most recent version
+            validated by consensus). Defaults to "validated".
 
     Returns:
         The AccountRoot dictionary for the address.
@@ -92,7 +110,10 @@ async def get_account_info(
     Args:
         address: the account to query.
         client: the network client used to make network calls.
-        ledger_index: the version of the ledger to query. Defaults to "validated".
+        ledger_index: The ledger index to use for the request. Must be an integer
+            ledger value or "current" (the current working version), "closed" (for the
+            closed-and-proposed version), or "validated" (the most recent version
+            validated by consensus). Defaults to "validated".
 
     Returns:
         The account info for the address.
