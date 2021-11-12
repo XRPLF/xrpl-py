@@ -3,6 +3,7 @@
 from typing import Dict, Union, cast
 
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
+from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.models.requests import AccountInfo
 from xrpl.models.response import Response
@@ -119,10 +120,20 @@ async def get_account_info(
         The account info for the address.
 
     Raises:
+        XRPLException: If the ledger_index value is invalid.
         XRPLRequestFailureException: if the rippled API call fails.
     """
     if is_valid_xaddress(address):
         address, _, _ = xaddress_to_classic_address(address)
+    if isinstance(ledger_index, str) and ledger_index not in {
+        "validated",
+        "current",
+        "closed",
+    }:
+        raise XRPLException(
+            "`ledger_index` is not valid - must be an `int` or one of {'validated', "
+            "'current', 'closed'}."
+        )
     response = await client.request_impl(
         AccountInfo(
             account=address,
