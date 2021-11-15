@@ -76,6 +76,10 @@ async def send_reliable_submission(
         XRPLReliableSubmissionException: if the transaction fails or is missing a
             `last_ledger_sequence` param.
     """
+    if transaction.last_ledger_sequence is None:
+        raise XRPLReliableSubmissionException(
+            "Transaction must have a `last_ledger_sequence` param."
+        )
     transaction_hash = transaction.get_hash()
     await submit_transaction(transaction, client)
 
