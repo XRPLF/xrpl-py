@@ -20,7 +20,7 @@ def does_account_exist(
         ledger_index: The ledger index to use for the request. Must be an integer
             ledger value or "current" (the current working version), "closed" (for the
             closed-and-proposed version), or "validated" (the most recent version
-            validated by consensus). Defaults to "validated".
+            validated by consensus). The default is "validated".
 
     Returns:
         Whether the account exists on the ledger.
@@ -43,7 +43,7 @@ def get_next_valid_seq_number(
         ledger_index: The ledger index to use for the request. Must be an integer
             ledger value or "current" (the current working version), "closed" (for the
             closed-and-proposed version), or "validated" (the most recent version
-            validated by consensus). Defaults to "current".
+            validated by consensus). The default is "current".
 
     Returns:
         The next valid sequence number for the address.
@@ -63,7 +63,7 @@ def get_balance(
         ledger_index: The ledger index to use for the request. Must be an integer
             ledger value or "current" (the current working version), "closed" (for the
             closed-and-proposed version), or "validated" (the most recent version
-            validated by consensus). Defaults to "validated".
+            validated by consensus). The default is "validated".
 
     Returns:
         The balance of the address.
@@ -83,7 +83,7 @@ def get_account_root(
         ledger_index: The ledger index to use for the request. Must be an integer
             ledger value or "current" (the current working version), "closed" (for the
             closed-and-proposed version), or "validated" (the most recent version
-            validated by consensus). Defaults to "validated".
+            validated by consensus). The default is "validated".
 
     Returns:
         The AccountRoot dictionary for the address.
@@ -103,7 +103,7 @@ def get_account_info(
         ledger_index: The ledger index to use for the request. Must be an integer
             ledger value or "current" (the current working version), "closed" (for the
             closed-and-proposed version), or "validated" (the most recent version
-            validated by consensus). Defaults to "validated".
+            validated by consensus). The default is "validated".
 
     Returns:
         The account info for the address.
