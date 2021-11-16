@@ -93,13 +93,13 @@ def test_async_and_sync(
         lines = _get_non_decorator_code(test_function)
         sync_code = (
             "".join(lines)
+            .replace("    async def", "async def")  # remove initial indenting
             .replace("async def", "def")  # convert method from async to sync
             .replace("async for", "for")  # convert for from async to sync
             .replace("async with", "with")  # convert with from async to sync
             .replace("await ", "")  # replace function calls
             .replace("_async(", "(")  # change methods
             .replace("\n    ", "\n")  # remove indenting (syntax error otherwise)
-            .replace("    def", "def")  # remove more indenting
         )
         # add an actual call to the function
         first_line = lines[0]
@@ -154,14 +154,14 @@ def test_async_and_sync(
 
         def modified_test(self):
             if not websockets_only:
-                with self.subTest(version="sync", client="json"):
-                    _run_sync_test(self, JSON_RPC_CLIENT)
                 with self.subTest(version="async", client="json"):
                     asyncio.run(_run_async_test(self, ASYNC_JSON_RPC_CLIENT))
-            with self.subTest(version="sync", client="websocket"):
-                _run_sync_test(self, WEBSOCKET_CLIENT)
+                with self.subTest(version="sync", client="json"):
+                    _run_sync_test(self, JSON_RPC_CLIENT)
             with self.subTest(version="async", client="websocket"):
                 asyncio.run(_run_async_test(self, ASYNC_WEBSOCKET_CLIENT))
+            with self.subTest(version="sync", client="websocket"):
+                _run_sync_test(self, WEBSOCKET_CLIENT)
 
         return modified_test
 

@@ -1,3 +1,5 @@
+from asyncio import sleep
+
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import test_async_and_sync
 from xrpl.models.requests import StreamParameter, Subscribe
@@ -24,6 +26,22 @@ class TestSubscribe(IntegrationTestCase):
         async for message in client:
             self.assertEqual(message["status"], "success")
             break
+
+    @test_async_and_sync(globals(), websockets_only=True)
+    async def test_callback(self, client):
+        streams = []
+
+        def callback(stream) -> None:
+            self.assertIsInstance(stream["ledger_index"], int)
+            streams.append(stream)
+
+        client.on("ledgerClosed", callback)
+        await client.send(Subscribe(streams=[StreamParameter.LEDGER]))
+
+        while len(streams) < 1:
+            await sleep(1)
+
+        await client.send(Unsubscribe(streams=[StreamParameter.LEDGER]))
 
     @test_async_and_sync(globals(), websockets_only=True)
     async def test_validations_subscription(self, client):
