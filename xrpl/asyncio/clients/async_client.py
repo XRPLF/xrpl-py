@@ -31,7 +31,8 @@ class AsyncClient(Client):
         self: AsyncClient, request: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
-        Makes a request with this client and returns the response.
+        Makes a request with this client with a raw dictionary and returns the
+        dictionary response.
 
         Arguments:
             request: The request JSON to send.

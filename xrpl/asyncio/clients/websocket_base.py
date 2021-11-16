@@ -165,25 +165,6 @@ class WebsocketBase(Client):
         self._messages.task_done()
         return msg
 
-    async def request_impl(self: WebsocketBase, request: Request) -> Response:
-        """
-        Base ``request_impl`` implementation for Websockets.
-
-        Arguments:
-            request: An object representing information about a rippled request.
-
-        Returns:
-            The response from the server, as a Response object.
-
-        Raises:
-            XRPLWebsocketException: If there is already an open request by the
-                request's ID, or if this WebsocketBase is not open.
-
-        :meta private:
-        """
-        response_json = await self.request_json_impl(request_to_websocket(request))
-        return websocket_to_response(response_json)
-
     async def request_json_impl(
         self: WebsocketBase, request: Dict[str, Any]
     ) -> Dict[str, Any]:
@@ -191,10 +172,10 @@ class WebsocketBase(Client):
         Base ``request_json_impl`` implementation for Websockets.
 
         Arguments:
-            request: An object representing information about a rippled request.
+            request: A dictionary representing information about a rippled request.
 
         Returns:
-            The response from the server, as a Response object.
+            The response from the server, as a dictionary.
 
         Raises:
             XRPLWebsocketException: If there is already an open request by the
@@ -218,3 +199,22 @@ class WebsocketBase(Client):
         # remove the resolved Future, hopefully getting it garbage colleted
         del self._open_requests[request_str]
         return raw_response
+
+    async def request_impl(self: WebsocketBase, request: Request) -> Response:
+        """
+        Base ``request_impl`` implementation for Websockets.
+
+        Arguments:
+            request: A Request object representing information about a rippled request.
+
+        Returns:
+            The response from the server, as a Response object.
+
+        Raises:
+            XRPLWebsocketException: If there is already an open request by the
+                request's ID, or if this WebsocketBase is not open.
+
+        :meta private:
+        """
+        response_json = await self.request_json_impl(request_to_websocket(request))
+        return websocket_to_response(response_json)

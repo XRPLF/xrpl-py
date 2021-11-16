@@ -26,7 +26,7 @@ class JsonRpcBase(Client):
         Base ``request_impl`` implementation for JSON RPC.
 
         Arguments:
-            request: An object representing information about a rippled request.
+            request: A Request object representing information about a rippled request.
 
         Returns:
             The response from the server, as a Response object.
@@ -43,10 +43,10 @@ class JsonRpcBase(Client):
         Base ``request_json_impl`` implementation for JSON RPC.
 
         Arguments:
-            request: An object representing information about a rippled request.
+            request: A dictionary representing information about a rippled request.
 
         Returns:
-            The response from the server, as a Response object.
+            The response from the server, as a dictionary.
 
         :meta private:
         """

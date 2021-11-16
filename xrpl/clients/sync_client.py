@@ -33,9 +33,9 @@ class SyncClient(Client):
         Makes a request with this client and returns the response.
 
         Arguments:
-            request: The request JSON to send.
+            request: The request dictionary to send.
 
         Returns:
-            The response JSON for the given request.
+            The response dictionary for the given request.
         """
         return asyncio.run(self.request_json_impl(request))
