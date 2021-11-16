@@ -134,7 +134,7 @@ class WebsocketBase(Client):
         Given a request with an ID, ensure that that ID is backed by an open
         Future in self._open_requests.
         """
-        if request["id"] is None:
+        if "id" not in request or request["id"] is None:
             return
         request_str = str(request["id"])
         if (
