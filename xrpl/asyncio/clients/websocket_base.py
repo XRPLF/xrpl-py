@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from asyncio import Future, Queue, Task, create_task, get_running_loop
 from random import randrange
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 from typing_extensions import Final
 from websockets.legacy.client import WebSocketClientProtocol, connect
@@ -26,7 +26,7 @@ def _inject_request_id(request: Dict[str, Any]) -> Dict[str, Any]:
     """
     if "id" in request and request["id"] is not None:
         return request
-    request_dict = request.copy()  # TODO: make this a deepcopy
+    request_dict = cast(Dict[str, Any], json.loads(json.dumps(request)))  # deepcopy
     command = request["command"]
     request_dict["id"] = f"{command}_{randrange(_REQ_ID_MAX)}"
     return request_dict
