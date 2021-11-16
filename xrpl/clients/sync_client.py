@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+from typing import Any, Dict
 
 from xrpl.asyncio.clients.client import Client
 from xrpl.models.requests.request import Request
@@ -26,3 +27,15 @@ class SyncClient(Client):
             The Response for the given Request.
         """
         return asyncio.run(self.request_impl(request))
+
+    async def request_json(self: SyncClient, request: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Makes a request with this client and returns the response.
+
+        Arguments:
+            request: The request JSON to send.
+
+        Returns:
+            The response JSON for the given request.
+        """
+        return asyncio.run(self.request_json_impl(request))
