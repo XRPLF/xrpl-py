@@ -11,7 +11,6 @@ from xrpl.asyncio.clients.exceptions import XRPLWebsocketException
 from xrpl.asyncio.clients.websocket_base import WebsocketBase
 from xrpl.clients.sync_client import SyncClient
 from xrpl.models.requests.request import Request
-from xrpl.models.response import Response
 
 
 class WebsocketClient(SyncClient, WebsocketBase):
@@ -193,7 +192,9 @@ class WebsocketClient(SyncClient, WebsocketBase):
         assert self._loop is not None  # mypy
         run_coroutine_threadsafe(self._do_send(request), self._loop).result()
 
-    async def request_impl(self: WebsocketClient, request: Request) -> Response:
+    async def request_json_impl(
+        self: WebsocketClient, request: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         ``request_impl`` implementation for sync websockets that ensures the
         ``WebsocketBase.request_impl`` implementation is run on the other thread.
@@ -202,7 +203,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
             request: An object representing information about a rippled request.
 
         Returns:
-            The response from the server, as a Response object.
+            The response from the server.
 
         Raises:
             XRPLWebsocketException: If there is already an open request by the
@@ -222,10 +223,10 @@ class WebsocketClient(SyncClient, WebsocketBase):
         # complete. also, `asyncio.run_coroutine_threadsafe` returns a
         # concurrent.futures.Future which is not awaitable.
         #
-        # when this is run via `await client.request_impl`, it will
+        # when this is run via `await client.request_json_impl`, it will
         # completely block the main thread until completed,
         # just as if it were not async.
         return run_coroutine_threadsafe(
-            super().request_impl(request),
+            super().request_json_impl(request),
             self._loop,
         ).result()
