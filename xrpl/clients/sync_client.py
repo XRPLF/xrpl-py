@@ -28,7 +28,7 @@ class SyncClient(Client):
         """
         return asyncio.run(self.request_impl(request))
 
-    async def request_json(self: SyncClient, request: Dict[str, Any]) -> Dict[str, Any]:
+    def request_json(self: SyncClient, request: Dict[str, Any]) -> Dict[str, Any]:
         """
         Makes a request with this client and returns the response.
 

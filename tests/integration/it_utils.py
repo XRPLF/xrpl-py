@@ -106,6 +106,7 @@ def test_async_and_sync(
         sync_code += first_line.replace("    async def ", "").replace(":", "")
 
         sync_modules_to_import = {}
+        # replace all calls to async methods with sync methods
         if modules is not None:
             for module_str in modules:
                 function = module_str.split(".")[-1]
@@ -113,6 +114,7 @@ def test_async_and_sync(
                 module = getattr(importlib.import_module(location), function)
                 sync_modules_to_import[function] = module
 
+        # import stack
         all_modules = {**original_globals, **globals(), **sync_modules_to_import}
         # NOTE: passing `globals()` into `exec` is really bad practice and not safe at
         # all, but in this case it's fine because it's only running test code
