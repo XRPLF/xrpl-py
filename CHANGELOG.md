@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Makes the default ledger version for `get_next_valid_seq_number` `current` instead of `validated`
+- Stops erroring on non-`tesSUCCESS` responses in reliable transaction submission
 
 ## [1.2.0] - 2021-11-09
 ### Added

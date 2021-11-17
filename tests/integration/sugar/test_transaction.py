@@ -383,3 +383,28 @@ class TestReliableSubmission(IntegrationTestCase):
         )
         with self.assertRaises(XRPLRequestFailureException):
             await send_reliable_submission(signed_payment_transaction, client)
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.safe_sign_transaction",
+            "xrpl.transaction.send_reliable_submission",
+            "xrpl.account.get_next_valid_seq_number",
+            "xrpl.ledger.get_fee",
+        ],
+    )
+    async def test_reliable_submission_no_last_ledger_sequence(self, client):
+        WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
+        payment_dict = {
+            "account": ACCOUNT,
+            "sequence": WALLET.sequence,
+            "fee": "10",
+            "amount": "100",
+            "destination": DESTINATION,
+        }
+        payment_transaction = Payment.from_dict(payment_dict)
+        signed_payment_transaction = await safe_sign_transaction(
+            payment_transaction, WALLET
+        )
+        with self.assertRaises(XRPLReliableSubmissionException):
+            await send_reliable_submission(signed_payment_transaction, client)
