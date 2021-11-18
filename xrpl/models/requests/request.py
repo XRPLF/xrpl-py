@@ -74,6 +74,9 @@ class RequestMethod(str, Enum):
     PING = "ping"
     RANDOM = "random"
 
+    # generic unknown/unsupported request
+    UNKNOWN = "unknown"
+
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
@@ -114,8 +117,13 @@ class Request(BaseModel):
 
         if "method" in value:
             method = value["method"]
-            if _method_to_class_name(method) != cls.__name__ and not (
-                method == "submit" and cls.__name__ in ("SignAndSubmit", "SubmitOnly")
+            if (
+                _method_to_class_name(method) != cls.__name__
+                and not (
+                    method == "submit"
+                    and cls.__name__ in ("SignAndSubmit", "SubmitOnly")
+                )
+                and not cls.__name__ == "UnknownRequest"
             ):
                 raise XRPLModelException(
                     f"Using wrong constructor: using {cls.__name__} constructor "
@@ -150,7 +158,7 @@ class Request(BaseModel):
         if method in request_methods:
             return request_methods[method]
 
-        raise XRPLModelException(f"{method} is not a valid Request method")
+        return request_models.UnknownRequest
 
     def to_dict(self: Request) -> Dict[str, Any]:
         """
@@ -160,5 +168,5 @@ class Request(BaseModel):
             The dictionary representation of a Request.
         """
         # we need to override this because method is using ``field``
-        # which will not include the value in the objects __dict__
+        # which will not include the value in the object's __dict__
         return {**super().to_dict(), "method": self.method.value}

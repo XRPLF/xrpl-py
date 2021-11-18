@@ -36,6 +36,7 @@ from xrpl.models.requests.submit_only import SubmitOnly
 from xrpl.models.requests.subscribe import StreamParameter, Subscribe
 from xrpl.models.requests.transaction_entry import TransactionEntry
 from xrpl.models.requests.tx import Tx
+from xrpl.models.requests.unknown_request import UnknownRequest
 from xrpl.models.requests.unsubscribe import Unsubscribe
 
 __all__ = [
@@ -80,5 +81,6 @@ __all__ = [
     "Subscribe",
     "TransactionEntry",
     "Tx",
+    "UnknownRequest",
     "Unsubscribe",
 ]
