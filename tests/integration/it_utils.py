@@ -6,24 +6,20 @@ from time import sleep
 
 import xrpl  # noqa: F401 - needed for sync tests
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
+from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.asyncio.transaction import (
     safe_sign_and_autofill_transaction as sign_and_autofill_async,
 )
 from xrpl.asyncio.transaction import (
     safe_sign_and_submit_transaction as sign_and_submit_async,
 )
-from xrpl.asyncio.transaction import (
-    send_reliable_submission as send_reliable_submission_async,
-)
-from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.clients import Client, JsonRpcClient, WebsocketClient
-from xrpl.models import Payment, UnknownRequest
+from xrpl.models import Payment, Tx, UnknownRequest
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.transaction import (
     safe_sign_and_autofill_transaction,
     safe_sign_and_submit_transaction,
-    send_reliable_submission,
 )
 from xrpl.wallet import Wallet
 
@@ -39,16 +35,19 @@ ASYNC_WEBSOCKET_CLIENT = AsyncWebsocketClient(WEBSOCKET_URL)
 MASTER_ACCOUNT = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
 MASTER_SECRET = "snoPBrXtMeMyMHUVTgbuqAfg1SUTb"
 MASTER_WALLET = Wallet(MASTER_SECRET, 0)
-FUNDING_AMOUNT = '400000000'
+FUNDING_AMOUNT = "400000000"
+
+LEDGER_ACCEPT_REQUEST = UnknownRequest(method="ledger_accept")
 
 
 async def fund_wallet(client: AsyncClient, wallet: Wallet) -> None:
-    payment = Payment(account=MASTER_ACCOUNT, destination=wallet.classic_address, amount=FUNDING_AMOUNT)
-    await sign_and_submit_async(
-        payment, MASTER_WALLET, client, check_fee=True
+    payment = Payment(
+        account=MASTER_ACCOUNT,
+        destination=wallet.classic_address,
+        amount=FUNDING_AMOUNT,
     )
-    ledger_accept = UnknownRequest.from_dict({"command": "ledger_accept"})
-    await client.request(ledger_accept)
+    await sign_and_submit_async(payment, MASTER_WALLET, client, check_fee=True)
+    await client.request(LEDGER_ACCEPT_REQUEST)
 
 
 def submit_transaction(
@@ -77,7 +76,8 @@ def sign_and_reliable_submission(
 ) -> Response:
     client = _choose_client(use_json_client)
     signed_tx = safe_sign_and_autofill_transaction(transaction, wallet, client)
-    return send_reliable_submission(signed_tx, client)
+    client.request(LEDGER_ACCEPT_REQUEST)
+    return client.request(Tx(transaction=signed_tx.get_hash()))
 
 
 async def sign_and_reliable_submission_async(
@@ -85,7 +85,8 @@ async def sign_and_reliable_submission_async(
 ) -> Response:
     client = _choose_client_async(use_json_client)
     signed_tx = await sign_and_autofill_async(transaction, wallet, client)
-    return await send_reliable_submission_async(signed_tx, client)
+    await client.request(LEDGER_ACCEPT_REQUEST)
+    return await client.request(Tx(transaction=signed_tx.get_hash()))
 
 
 def _choose_client(use_json_client: bool) -> Client:
