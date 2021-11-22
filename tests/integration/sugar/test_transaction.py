@@ -10,7 +10,7 @@ from tests.integration.reusable_values import (
 )
 from tests.integration.reusable_values import TESTNET_WALLET, WALLET
 from xrpl.asyncio.account import get_next_valid_seq_number
-from xrpl.asyncio.ledger import get_fee
+from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.asyncio.transaction import (
     XRPLReliableSubmissionException,
     get_transaction_from_hash,
@@ -350,17 +350,20 @@ class TestReliableSubmission(IntegrationTestCase):
             "xrpl.transaction.safe_sign_and_autofill_transaction",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.account.get_next_valid_seq_number",
+            "xrpl.ledger.get_latest_validated_ledger_sequence",
         ],
         use_testnet=True,
     )
     async def test_reliable_submission_last_ledger_expiration(self, client):
+        print("LAST LEDGER EXP")
         TESTNET_WALLET.sequence = await get_next_valid_seq_number(
             TESTNET_ACCOUNT, client
         )
         payment_dict = {
             "account": TESTNET_ACCOUNT,
             "sequence": TESTNET_WALLET.sequence,
-            "last_ledger_sequence": TESTNET_WALLET.sequence + 1,
+            "last_ledger_sequence": await get_latest_validated_ledger_sequence(client)
+            + 1,
             "fee": "10",
             "amount": "100",
             "destination": TESTNET_DESTINATION,
