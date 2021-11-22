@@ -8,16 +8,13 @@ import xrpl  # noqa: F401 - needed for sync tests
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.asyncio.transaction import (
-    safe_sign_and_autofill_transaction as sign_and_autofill_async,
-)
-from xrpl.asyncio.transaction import (
     safe_sign_and_submit_transaction as sign_and_submit_async,
 )
 from xrpl.clients import Client, JsonRpcClient, WebsocketClient
-from xrpl.models import Payment, Tx, UnknownRequest
+from xrpl.models import Payment, UnknownRequest
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.transaction import (
+from xrpl.transaction import (  # noqa: F401 - needed for sync tests
     safe_sign_and_autofill_transaction,
     safe_sign_and_submit_transaction,
 )
@@ -75,18 +72,18 @@ def sign_and_reliable_submission(
     transaction: Transaction, wallet: Wallet, use_json_client: bool = True
 ) -> Response:
     client = _choose_client(use_json_client)
-    signed_tx = safe_sign_and_autofill_transaction(transaction, wallet, client)
+    response = submit_transaction(transaction, wallet, client)
     client.request(LEDGER_ACCEPT_REQUEST)
-    return client.request(Tx(transaction=signed_tx.get_hash()))
+    return response
 
 
 async def sign_and_reliable_submission_async(
     transaction: Transaction, wallet: Wallet, use_json_client: bool = True
 ) -> Response:
     client = _choose_client_async(use_json_client)
-    signed_tx = await sign_and_autofill_async(transaction, wallet, client)
+    response = await submit_transaction_async(transaction, wallet, client)
     await client.request(LEDGER_ACCEPT_REQUEST)
-    return await client.request(Tx(transaction=signed_tx.get_hash()))
+    return response
 
 
 def _choose_client(use_json_client: bool) -> Client:
