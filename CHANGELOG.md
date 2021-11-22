@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 ### Added
 - `ledger_index` optional param for all the main account methods
+- `TicketCreate` transaction model
 
 ### Fixed
 - Makes the default ledger version for `get_next_valid_seq_number` `current` instead of `validated`
