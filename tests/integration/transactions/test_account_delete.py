@@ -10,7 +10,7 @@ ACCOUNT = WALLET.classic_address
 
 # AccountDelete transactions have a special fee.
 # See https://xrpl.org/accountdelete.html#special-transaction-cost.
-FEE = "5000000"
+FEE = "50000000"
 DESTINATION_TAG = 3
 
 
@@ -19,7 +19,7 @@ class TestAccountDelete(IntegrationTestCase):
     async def test_all_fields(self, client):
         account_delete = AccountDelete(
             account=ACCOUNT,
-            fee=FEE,
+            # fee=FEE,
             sequence=WALLET.sequence,
             destination=DESTINATION.classic_address,
             destination_tag=DESTINATION_TAG,

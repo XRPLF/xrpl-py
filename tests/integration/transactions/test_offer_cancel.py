@@ -11,7 +11,7 @@ class TestOfferCancel(IntegrationTestCase):
             OfferCancel(
                 account=WALLET.classic_address,
                 sequence=WALLET.sequence,
-                offer_sequence=OFFER.result["Sequence"],
+                offer_sequence=OFFER.result["tx_json"]["Sequence"],
             ),
             WALLET,
         )

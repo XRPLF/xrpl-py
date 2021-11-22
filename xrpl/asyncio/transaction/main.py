@@ -23,7 +23,7 @@ from xrpl.utils import drops_to_xrp
 from xrpl.wallet.main import Wallet
 
 _LEDGER_OFFSET: Final[int] = 20
-_ACCOUNT_DELETE_FEE: Final[int] = 5000000
+_ACCOUNT_DELETE_FEE: Final[int] = 50000000
 
 
 async def safe_sign_and_submit_transaction(

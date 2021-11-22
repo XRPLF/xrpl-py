@@ -5,6 +5,7 @@ import inspect
 from time import sleep
 
 import xrpl  # noqa: F401 - needed for sync tests
+from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.asyncio.transaction import (
@@ -32,7 +33,7 @@ ASYNC_WEBSOCKET_CLIENT = AsyncWebsocketClient(WEBSOCKET_URL)
 MASTER_ACCOUNT = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
 MASTER_SECRET = "snoPBrXtMeMyMHUVTgbuqAfg1SUTb"
 MASTER_WALLET = Wallet(MASTER_SECRET, 0)
-FUNDING_AMOUNT = "400000000"
+FUNDING_AMOUNT = "1000000000"
 
 LEDGER_ACCEPT_REQUEST = UnknownRequest(method="ledger_accept")
 
@@ -45,6 +46,7 @@ async def fund_wallet(client: AsyncClient, wallet: Wallet) -> None:
     )
     await sign_and_submit_async(payment, MASTER_WALLET, client, check_fee=True)
     await client.request(LEDGER_ACCEPT_REQUEST)
+    wallet.sequence = await get_next_valid_seq_number(wallet.classic_address, client)
 
 
 def submit_transaction(
