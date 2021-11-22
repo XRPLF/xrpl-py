@@ -1,6 +1,11 @@
 import asyncio
 
-from tests.integration.it_utils import fund_wallet, sign_and_reliable_submission_async
+from tests.integration.it_utils import (
+    ASYNC_JSON_RPC_TESTNET_CLIENT,
+    fund_wallet,
+    sign_and_reliable_submission_async,
+)
+from xrpl.asyncio.wallet import generate_faucet_wallet
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.transactions import OfferCreate, PaymentChannelCreate
 from xrpl.wallet import Wallet
@@ -11,6 +16,9 @@ async def _set_up_reusable_values():
     await fund_wallet(WALLET)
     DESTINATION = Wallet.create()
     await fund_wallet(DESTINATION)
+
+    TESTNET_WALLET = await generate_faucet_wallet(ASYNC_JSON_RPC_TESTNET_CLIENT)
+    TESTNET_DESTINATION = await generate_faucet_wallet(ASYNC_JSON_RPC_TESTNET_CLIENT)
 
     OFFER = await sign_and_reliable_submission_async(
         OfferCreate(
@@ -40,12 +48,21 @@ async def _set_up_reusable_values():
     )
     WALLET.sequence += 1
 
-    return WALLET, DESTINATION, OFFER, PAYMENT_CHANNEL
+    return (
+        WALLET,
+        DESTINATION,
+        TESTNET_WALLET,
+        TESTNET_DESTINATION,
+        OFFER,
+        PAYMENT_CHANNEL,
+    )
 
 
 (
     WALLET,
     DESTINATION,
+    TESTNET_WALLET,
+    TESTNET_DESTINATION,
     OFFER,
     PAYMENT_CHANNEL,
 ) = asyncio.run(_set_up_reusable_values())
