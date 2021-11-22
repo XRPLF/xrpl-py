@@ -1,5 +1,9 @@
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
+from tests.integration.it_utils import (
+    sign_and_reliable_submission_async,
+    submit_transaction_async,
+    test_async_and_sync,
+)
 from tests.integration.reusable_values import DESTINATION as DESTINATION_WALLET
 from tests.integration.reusable_values import WALLET
 from xrpl.asyncio.account import get_next_valid_seq_number
@@ -25,7 +29,7 @@ MESSAGE_KEY = "03AB40A0490F9B7ED8DF29D246BF2D6269820A0EE7742ACDD457BEA7C7D0931ED
 SET_FLAG = 8
 TRANSFER_RATE = 0
 TICK_SIZE = 10
-FEE = "6000000"
+FEE = "60000000"
 DESTINATION_TAG = 3
 OFFER_SEQUENCE = 7
 CONDITION = (
@@ -53,16 +57,15 @@ class TestTransaction(IntegrationTestCase):
             sequence=WALLET.sequence,
         )
 
-        # WHEN we sign locally and autofill the transaction
-        signed_payment_transaction = await safe_sign_and_autofill_transaction(
+        # WHEN we sign locally, autofill, and submit the transaction
+        response = await sign_and_reliable_submission_async(
             payment_transaction, WALLET, client
         )
 
-        # AND submit the transaction
-        response = await send_reliable_submission(signed_payment_transaction, client)
-
         # THEN we expect to retrieve this transaction from its hash
-        payment = await get_transaction_from_hash(response.result["hash"], client)
+        payment = await get_transaction_from_hash(
+            response.result["tx_json"]["hash"], client
+        )
 
         # AND we expect the result Account to be the same as the original payment Acct
         self.assertEqual(payment.result["Account"], ACCOUNT)
@@ -88,14 +91,11 @@ class TestTransaction(IntegrationTestCase):
             sequence=WALLET.sequence,
         )
 
-        # WHEN we sign locally and autofill the transaction
-        signed_payment_transaction = await safe_sign_and_autofill_transaction(
+        # WHEN we sign locally, autofill, and submit the transaction
+        response = await sign_and_reliable_submission_async(
             payment_transaction, WALLET, client
         )
-
-        # AND submit the transaction
-        response = await send_reliable_submission(signed_payment_transaction, client)
-        payment_hash = response.result["hash"]
+        payment_hash = response.result["tx_json"]["hash"]
 
         # THEN we expect to retrieve this transaction from its hash with the
         # binary parameter set to true
@@ -125,15 +125,12 @@ class TestTransaction(IntegrationTestCase):
             sequence=WALLET.sequence,
         )
 
-        # WHEN we sign locally and autofill the transaction
-        signed_payment_transaction = await safe_sign_and_autofill_transaction(
+        # WHEN we sign locally, autofill, and submit the transaction
+        response = await sign_and_reliable_submission_async(
             payment_transaction, WALLET, client
         )
-
-        # AND submit the transaction
-        response = await send_reliable_submission(signed_payment_transaction, client)
-        payment_hash = response.result["hash"]
-        payment_ledger_index = response.result["ledger_index"]
+        payment_hash = response.result["tx_json"]["hash"]
+        payment_ledger_index = response.result["validated_ledger_index"]
 
         # THEN we expect to retrieve this transaction from its hash with
         # min_ledger and max_ledger parameters
@@ -141,8 +138,8 @@ class TestTransaction(IntegrationTestCase):
             payment_hash,
             client,
             False,
-            payment_ledger_index - 500,
-            payment_ledger_index + 500,
+            payment_ledger_index - 5,
+            payment_ledger_index + 5,
         )
 
         # AND we expect the result Account to be the same as the original payment Acct
@@ -154,18 +151,19 @@ class TestTransaction(IntegrationTestCase):
 
     @test_async_and_sync(globals())
     async def test_high_fee_account_delete_unauthorized(self, client):
+        # GIVEN a new AccountDelete transaction
+        account_delete = AccountDelete(
+            account=ACCOUNT,
+            # WITH fee higher than 5 XRP
+            fee=FEE,
+            sequence=WALLET.sequence,
+            destination=DESTINATION,
+            destination_tag=DESTINATION_TAG,
+        )
         # We expect an XRPLException to be raised
         with self.assertRaises(XRPLException):
-            # GIVEN a new AccountDelete transaction
-            account_delete = AccountDelete(
-                account=ACCOUNT,
-                # WITH fee higher than 5 XRP
-                fee=FEE,
-                sequence=WALLET.sequence,
-                destination=DESTINATION,
-                destination_tag=DESTINATION_TAG,
-            )
-            await submit_transaction_async(account_delete, WALLET)
+            response = await submit_transaction_async(account_delete, WALLET)
+            print(response)
 
     @test_async_and_sync(globals())
     async def test_high_fee_account_set_unauthorized(self, client):
@@ -224,7 +222,7 @@ class TestTransaction(IntegrationTestCase):
         )
 
         # THEN we expect the calculated fee to be 5000000 drops (5 XRP)
-        expected_fee = "5000000"
+        expected_fee = "50000000"
         self.assertEqual(account_delete_signed.fee, expected_fee)
 
     @test_async_and_sync(

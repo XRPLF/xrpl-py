@@ -5,7 +5,8 @@ import inspect
 from time import sleep
 
 import xrpl  # noqa: F401 - needed for sync tests
-from xrpl.asyncio.account import get_next_valid_seq_number
+from xrpl.account import get_next_valid_seq_number
+from xrpl.asyncio.account import get_next_valid_seq_number as get_seq_num_async
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.asyncio.transaction import (
@@ -24,11 +25,20 @@ from xrpl.wallet import Wallet
 JSON_RPC_URL = "http://127.0.0.1:5005"
 WEBSOCKET_URL = "ws://127.0.0.1:6006"
 
+JSON_TESTNET_URL = "https://s.altnet.rippletest.net:51234"
+WEBSOCKET_TESTNET_URL = "wss://s.altnet.rippletest.net"
+
 JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
 ASYNC_JSON_RPC_CLIENT = AsyncJsonRpcClient(JSON_RPC_URL)
 
 WEBSOCKET_CLIENT = WebsocketClient(WEBSOCKET_URL)
 ASYNC_WEBSOCKET_CLIENT = AsyncWebsocketClient(WEBSOCKET_URL)
+
+JSON_RPC_TESTNET_CLIENT = JsonRpcClient(JSON_TESTNET_URL)
+ASYNC_JSON_RPC_TESTNET_CLIENT = AsyncJsonRpcClient(JSON_TESTNET_URL)
+
+WEBSOCKET_TESTNET_CLIENT = WebsocketClient(WEBSOCKET_TESTNET_URL)
+ASYNC_WEBSOCKET_TESTNET_CLIENT = AsyncWebsocketClient(WEBSOCKET_TESTNET_URL)
 
 MASTER_ACCOUNT = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
 MASTER_SECRET = "snoPBrXtMeMyMHUVTgbuqAfg1SUTb"
@@ -38,7 +48,21 @@ FUNDING_AMOUNT = "1000000000"
 LEDGER_ACCEPT_REQUEST = UnknownRequest(method="ledger_accept")
 
 
-async def fund_wallet(client: AsyncClient, wallet: Wallet) -> None:
+def fund_wallet_sync(wallet: Wallet) -> None:
+    client = JSON_RPC_CLIENT
+    payment = Payment(
+        account=MASTER_ACCOUNT,
+        destination=wallet.classic_address,
+        amount=FUNDING_AMOUNT,
+    )
+    safe_sign_and_submit_transaction(payment, MASTER_WALLET, client, check_fee=True)
+    client.request(LEDGER_ACCEPT_REQUEST)
+    wallet.sequence = get_next_valid_seq_number(wallet.classic_address, client)
+
+
+async def fund_wallet(
+    wallet: Wallet, client: AsyncClient = ASYNC_JSON_RPC_CLIENT
+) -> None:
     payment = Payment(
         account=MASTER_ACCOUNT,
         destination=wallet.classic_address,
@@ -46,7 +70,7 @@ async def fund_wallet(client: AsyncClient, wallet: Wallet) -> None:
     )
     await sign_and_submit_async(payment, MASTER_WALLET, client, check_fee=True)
     await client.request(LEDGER_ACCEPT_REQUEST)
-    wallet.sequence = await get_next_valid_seq_number(wallet.classic_address, client)
+    wallet.sequence = await get_seq_num_async(wallet.classic_address, client)
 
 
 def submit_transaction(
@@ -102,8 +126,31 @@ def _choose_client_async(use_json_client: bool) -> Client:
         return ASYNC_WEBSOCKET_CLIENT
 
 
+def _get_client(is_async: bool, is_json: bool, is_testnet: bool) -> Client:
+    if is_testnet:
+        if is_async:
+            if is_json:
+                return ASYNC_JSON_RPC_TESTNET_CLIENT
+            else:
+                return ASYNC_WEBSOCKET_TESTNET_CLIENT
+        else:
+            if is_json:
+                return JSON_RPC_TESTNET_CLIENT
+            else:
+                return WEBSOCKET_TESTNET_CLIENT
+    else:
+        if is_async:
+            return _choose_client_async(is_json)
+        else:
+            return _choose_client(is_json)
+
+
 def test_async_and_sync(
-    original_globals, modules=None, websockets_only=False, num_retries=1
+    original_globals,
+    modules=None,
+    websockets_only=False,
+    num_retries=1,
+    use_testnet=False,
 ):
     def decorator(test_function):
         lines = _get_non_decorator_code(test_function)
@@ -171,13 +218,17 @@ def test_async_and_sync(
         def modified_test(self):
             if not websockets_only:
                 with self.subTest(version="async", client="json"):
-                    asyncio.run(_run_async_test(self, ASYNC_JSON_RPC_CLIENT))
+                    asyncio.run(
+                        _run_async_test(self, _get_client(True, True, use_testnet))
+                    )
                 with self.subTest(version="sync", client="json"):
-                    _run_sync_test(self, JSON_RPC_CLIENT)
+                    _run_sync_test(self, _get_client(False, True, use_testnet))
             with self.subTest(version="async", client="websocket"):
-                asyncio.run(_run_async_test(self, ASYNC_WEBSOCKET_CLIENT))
+                asyncio.run(
+                    _run_async_test(self, _get_client(True, False, use_testnet))
+                )
             with self.subTest(version="sync", client="websocket"):
-                _run_sync_test(self, WEBSOCKET_CLIENT)
+                _run_sync_test(self, _get_client(False, False, use_testnet))
 
         return modified_test
 

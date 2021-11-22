@@ -1,6 +1,6 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
-    JSON_RPC_CLIENT,
+    fund_wallet_sync,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
@@ -14,9 +14,10 @@ from xrpl.asyncio.account import (
 )
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.transactions import Payment
-from xrpl.wallet import Wallet, generate_faucet_wallet
+from xrpl.wallet import Wallet
 
-NEW_WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
+NEW_WALLET = Wallet.create()
+fund_wallet_sync(NEW_WALLET)
 EMPTY_WALLET = Wallet.create()
 
 
