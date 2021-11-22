@@ -15,7 +15,9 @@ from xrpl.asyncio.transaction import (
 from xrpl.asyncio.transaction import (
     send_reliable_submission as send_reliable_submission_async,
 )
+from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.clients import Client, JsonRpcClient, WebsocketClient
+from xrpl.models import Payment, UnknownRequest
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.transaction import (
@@ -25,14 +27,28 @@ from xrpl.transaction import (
 )
 from xrpl.wallet import Wallet
 
-JSON_RPC_URL = "https://s.altnet.rippletest.net:51234"
-WEBSOCKET_URL = "wss://s.altnet.rippletest.net/"
+JSON_RPC_URL = "http://127.0.0.1:5005"
+WEBSOCKET_URL = "ws://127.0.0.1:6006"
 
 JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
 ASYNC_JSON_RPC_CLIENT = AsyncJsonRpcClient(JSON_RPC_URL)
 
 WEBSOCKET_CLIENT = WebsocketClient(WEBSOCKET_URL)
 ASYNC_WEBSOCKET_CLIENT = AsyncWebsocketClient(WEBSOCKET_URL)
+
+MASTER_ACCOUNT = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+MASTER_SECRET = "snoPBrXtMeMyMHUVTgbuqAfg1SUTb"
+MASTER_WALLET = Wallet(MASTER_SECRET, 0)
+FUNDING_AMOUNT = '400000000'
+
+
+async def fund_wallet(client: AsyncClient, wallet: Wallet) -> None:
+    payment = Payment(account=MASTER_ACCOUNT, destination=wallet.classic_address, amount=FUNDING_AMOUNT)
+    await sign_and_submit_async(
+        payment, MASTER_WALLET, client, check_fee=True
+    )
+    ledger_accept = UnknownRequest.from_dict({"command": "ledger_accept"})
+    await client.request(ledger_accept)
 
 
 def submit_transaction(
