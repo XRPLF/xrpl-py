@@ -75,7 +75,7 @@ class RequestMethod(str, Enum):
     RANDOM = "random"
 
     # generic unknown/unsupported request
-    UNKNOWN = "unknown"
+    UNKNOWN_REQUEST = "unknown_request"
 
 
 @require_kwargs_on_init
