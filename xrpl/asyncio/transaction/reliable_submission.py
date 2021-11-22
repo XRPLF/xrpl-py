@@ -81,6 +81,7 @@ async def send_reliable_submission(
             "Transaction must have a `last_ledger_sequence` param."
         )
     transaction_hash = transaction.get_hash()
-    await submit_transaction(transaction, client)
+    response = await submit_transaction(transaction, client)
+    print(response)
 
     return await _wait_for_final_transaction_outcome(transaction_hash, client)

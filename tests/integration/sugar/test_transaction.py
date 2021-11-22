@@ -369,6 +369,7 @@ class TestReliableSubmission(IntegrationTestCase):
         signed_payment_transaction = await safe_sign_and_autofill_transaction(
             payment_transaction, TESTNET_WALLET, client
         )
+        print(signed_payment_transaction)
         with self.assertRaises(XRPLReliableSubmissionException):
             await send_reliable_submission(signed_payment_transaction, client)
 
