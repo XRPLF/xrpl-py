@@ -346,6 +346,7 @@ class TestReliableSubmission(IntegrationTestCase):
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_latest_validated_ledger_sequence",
         ],
+        use_testnet=True,
     )
     async def test_reliable_submission_last_ledger_expiration(self, client):
         WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
