@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stops erroring on non-`tesSUCCESS` responses in reliable transaction submission
 - Removes runtime asserts in websocket clients that were used for type checks
   only
+- Adds missing top-level `py.typed` file for exceptions and constants
 
 ## [1.2.0] - 2021-11-09
 ### Added
