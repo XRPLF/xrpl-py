@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Type
+from typing import Any, Dict, Type, Union, cast
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests.request import Request, RequestMethod
@@ -22,8 +22,14 @@ class UnknownRequest(Request):
     """
 
     def __init__(self: UnknownRequest, **kwargs: Dict[str, Any]) -> None:
+        """
+        Initializes an UnknownRequest.
+
+        Arguments:
+            kwargs: All the arguments for the request.
+        """
         super().__init__(
-            id=(kwargs["id"] if "id" in kwargs else None),
+            id=(cast(Union[str, int, None], kwargs["id"]) if "id" in kwargs else None),
             method=RequestMethod.UNKNOWN_REQUEST,
         )
         for key, value in kwargs.items():
@@ -31,10 +37,18 @@ class UnknownRequest(Request):
             object.__setattr__(self, key, value)
 
     @classmethod
-    def from_dict(cls: Type[UnknownRequest], value: Dict[str, Any]) -> None:
+    def from_dict(cls: Type[UnknownRequest], value: Dict[str, Any]) -> UnknownRequest:
         """
-        Called by dataclasses immediately after __init__. Reshapes the request from
-        JSON/WS formatting to the internal formatting used by requests.
+        Construct a new UnknownRequest from a dictionary of parameters.
+
+        Args:
+            value: The value to construct the UnknownRequest from.
+
+        Returns:
+            A new UnknownRequest object, constructed using the given parameters.
+
+        Raises:
+            XRPLModelException: If the dictionary provided is invalid.
         """
         if "command" in value:  # websocket formatting
             value["method"] = value["command"]
