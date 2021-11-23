@@ -227,7 +227,7 @@ class TestTransaction(IntegrationTestCase):
             account_delete, WALLET, client
         )
 
-        # THEN we expect the calculated fee to be 5000000 drops (5 XRP)
+        # THEN we expect the calculated fee to be 50000000 drops (5 XRP)
         expected_fee = "50000000"
         self.assertEqual(account_delete_signed.fee, expected_fee)
 
@@ -352,10 +352,8 @@ class TestReliableSubmission(IntegrationTestCase):
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_latest_validated_ledger_sequence",
         ],
-        # use_testnet=True,
     )
     async def test_reliable_submission_last_ledger_expiration(self, client):
-        print("LAST LEDGER EXP")
         WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
         payment_dict = {
             "account": ACCOUNT,
@@ -369,10 +367,8 @@ class TestReliableSubmission(IntegrationTestCase):
         signed_payment_transaction = await safe_sign_and_autofill_transaction(
             payment_transaction, WALLET, client
         )
-        print(signed_payment_transaction)
         with self.assertRaises(XRPLReliableSubmissionException):
-            result = await send_reliable_submission(signed_payment_transaction, client)
-            print(result)
+            await send_reliable_submission(signed_payment_transaction, client)
 
     @test_async_and_sync(
         globals(),
