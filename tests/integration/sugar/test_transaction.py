@@ -349,18 +349,20 @@ class TestReliableSubmission(IntegrationTestCase):
         use_testnet=True,
     )
     async def test_reliable_submission_last_ledger_expiration(self, client):
-        WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
+        TESTNET_WALLET.sequence = await get_next_valid_seq_number(
+            TESTNET_ACCOUNT, client
+        )
         payment_dict = {
-            "account": ACCOUNT,
-            "sequence": WALLET.sequence,
+            "account": TESTNET_ACCOUNT,
+            "sequence": TESTNET_WALLET.sequence,
             "last_ledger_sequence": await get_latest_validated_ledger_sequence(client),
             "fee": "10",
             "amount": "100",
-            "destination": DESTINATION,
+            "destination": TESTNET_DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
         signed_payment_transaction = await safe_sign_and_autofill_transaction(
-            payment_transaction, WALLET, client
+            payment_transaction, TESTNET_WALLET, client
         )
         with self.assertRaises(XRPLReliableSubmissionException):
             await send_reliable_submission(signed_payment_transaction, client)
