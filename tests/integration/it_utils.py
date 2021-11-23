@@ -131,18 +131,15 @@ def _get_client(is_async: bool, is_json: bool, is_testnet: bool) -> Client:
         if is_async:
             if is_json:
                 return ASYNC_JSON_RPC_TESTNET_CLIENT
-            else:
-                return ASYNC_WEBSOCKET_TESTNET_CLIENT
-        else:
-            if is_json:
-                return JSON_RPC_TESTNET_CLIENT
-            else:
-                return WEBSOCKET_TESTNET_CLIENT
-    else:
-        if is_async:
-            return _choose_client_async(is_json)
-        else:
-            return _choose_client(is_json)
+            return ASYNC_WEBSOCKET_TESTNET_CLIENT
+
+        if is_json:
+            return JSON_RPC_TESTNET_CLIENT
+        return WEBSOCKET_TESTNET_CLIENT
+
+    if is_async:
+        return _choose_client_async(is_json)
+    return _choose_client(is_json)
 
 
 # TODO: document how to write tests, for posterity
