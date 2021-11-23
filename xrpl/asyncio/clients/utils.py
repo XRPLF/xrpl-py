@@ -19,6 +19,7 @@ def request_to_json_rpc(request_object: Request) -> Dict[str, Any]:
         for submission to the rippled JSON RPC.
     """
     params = request_object.to_dict()
+    print(params)
     method = params["method"]
     del params["method"]
     return {"method": method, "params": [params]}

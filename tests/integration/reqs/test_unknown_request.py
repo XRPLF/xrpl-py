@@ -7,8 +7,8 @@ class TestUnknownRequest(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_json_formatting(self, client):
         response = await client.request(
-            UnknownRequest(
-                request={
+            UnknownRequest.from_dict(
+                {
                     "method": "tx_history",
                     "params": {
                         "start": 0,
@@ -21,8 +21,8 @@ class TestUnknownRequest(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_websocket_formatting(self, client):
         response = await client.request(
-            UnknownRequest(
-                request={
+            UnknownRequest.from_dict(
+                {
                     "command": "tx_history",
                     "start": 0,
                 }
