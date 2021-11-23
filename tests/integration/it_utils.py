@@ -109,7 +109,7 @@ async def submit_transaction_async(
 def sign_and_reliable_submission(
     transaction: Transaction, wallet: Wallet, use_json_client: bool = True
 ) -> Response:
-    client = _choose_client(bool(use_json_client))
+    client = _choose_client(use_json_client)
     response = submit_transaction(transaction, wallet, client)
     client.request(LEDGER_ACCEPT_REQUEST)
     return response
@@ -118,7 +118,7 @@ def sign_and_reliable_submission(
 async def sign_and_reliable_submission_async(
     transaction: Transaction, wallet: Wallet, use_json_client: bool = True
 ) -> Response:
-    client = _choose_client_async(bool(use_json_client))
+    client = _choose_client_async(use_json_client)
     response = await submit_transaction_async(transaction, wallet, client)
     await client.request(LEDGER_ACCEPT_REQUEST)
     return response
