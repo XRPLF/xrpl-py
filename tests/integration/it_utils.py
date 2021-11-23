@@ -40,6 +40,18 @@ ASYNC_JSON_RPC_TESTNET_CLIENT = AsyncJsonRpcClient(JSON_TESTNET_URL)
 WEBSOCKET_TESTNET_CLIENT = WebsocketClient(WEBSOCKET_TESTNET_URL)
 ASYNC_WEBSOCKET_TESTNET_CLIENT = AsyncWebsocketClient(WEBSOCKET_TESTNET_URL)
 
+# (is_async, is_json, is_testnet) -> client
+_CLIENTS = {
+    (True, True, True): ASYNC_JSON_RPC_TESTNET_CLIENT,
+    (True, True, False): ASYNC_JSON_RPC_CLIENT,
+    (True, False, True): ASYNC_WEBSOCKET_TESTNET_CLIENT,
+    (True, False, False): ASYNC_WEBSOCKET_CLIENT,
+    (False, True, True): JSON_RPC_TESTNET_CLIENT,
+    (False, True, False): JSON_RPC_CLIENT,
+    (False, False, True): WEBSOCKET_TESTNET_CLIENT,
+    (False, False, False): WEBSOCKET_CLIENT,
+}
+
 MASTER_ACCOUNT = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
 MASTER_SECRET = "snoPBrXtMeMyMHUVTgbuqAfg1SUTb"
 MASTER_WALLET = Wallet(MASTER_SECRET, 0)
@@ -113,33 +125,15 @@ async def sign_and_reliable_submission_async(
 
 
 def _choose_client(use_json_client: bool) -> Client:
-    if use_json_client:
-        return JSON_RPC_CLIENT
-    else:
-        return WEBSOCKET_CLIENT
+    return _CLIENTS[(False, use_json_client, False)]
 
 
 def _choose_client_async(use_json_client: bool) -> Client:
-    if use_json_client:
-        return ASYNC_JSON_RPC_CLIENT
-    else:
-        return ASYNC_WEBSOCKET_CLIENT
+    return _CLIENTS[(True, use_json_client, False)]
 
 
 def _get_client(is_async: bool, is_json: bool, is_testnet: bool) -> Client:
-    if is_testnet:
-        if is_async:
-            if is_json:
-                return ASYNC_JSON_RPC_TESTNET_CLIENT
-            return ASYNC_WEBSOCKET_TESTNET_CLIENT
-
-        if is_json:
-            return JSON_RPC_TESTNET_CLIENT
-        return WEBSOCKET_TESTNET_CLIENT
-
-    if is_async:
-        return _choose_client_async(is_json)
-    return _choose_client(is_json)
+    return _CLIENTS[(is_async, is_json, is_testnet)]
 
 
 # TODO: document how to write tests, for posterity
