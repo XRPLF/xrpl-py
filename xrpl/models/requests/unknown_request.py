@@ -28,10 +28,12 @@ class UnknownRequest(Request):
         Arguments:
             kwargs: All the arguments for the request.
         """
+        # initialize all the dataclass stuff
         super().__init__(
             id=(cast(Union[str, int, None], kwargs["id"]) if "id" in kwargs else None),
             method=RequestMethod.UNKNOWN_REQUEST,
         )
+        # pass in all the kwargs into the object (so self.key == value)
         for key, value in kwargs.items():
             object.__setattr__(self, key, value)
 
@@ -70,6 +72,8 @@ class UnknownRequest(Request):
         Returns:
             The dictionary representation of a Request.
         """
+        # uses self.__dict__ instead of self.__dataclass_fields__.keys(), which is what
+        # the other models do, because this model doesn't have any dataclass fields
         return {
             key: self._to_dict_elem(getattr(self, key))
             for key in self.__dict__
