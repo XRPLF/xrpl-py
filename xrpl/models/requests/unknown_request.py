@@ -40,7 +40,8 @@ class UnknownRequest(Request):
     @classmethod
     def from_dict(cls: Type[UnknownRequest], value: Dict[str, Any]) -> UnknownRequest:
         """
-        Construct a new UnknownRequest from a dictionary of parameters.
+        Construct a new UnknownRequest from a dictionary of parameters. Also converts
+        from JSON and WS formatting.
 
         Args:
             value: The value to construct the UnknownRequest from.
