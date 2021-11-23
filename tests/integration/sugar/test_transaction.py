@@ -21,6 +21,7 @@ from xrpl.asyncio.transaction import (
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.models.exceptions import XRPLException
 from xrpl.models.transactions import AccountDelete, AccountSet, EscrowFinish, Payment
+from xrpl.wallet import Wallet
 
 ACCOUNT = WALLET.classic_address
 DESTINATION = DESTINATION_WALLET.classic_address
@@ -362,11 +363,10 @@ class TestReliableSubmission(IntegrationTestCase):
         payment_dict = {
             "account": TESTNET_ACCOUNT,
             "sequence": TESTNET_WALLET.sequence,
-            "last_ledger_sequence": await get_latest_validated_ledger_sequence(client)
-            + 1,
+            "last_ledger_sequence": await get_latest_validated_ledger_sequence(client),
             "fee": "10",
             "amount": "100",
-            "destination": TESTNET_DESTINATION,
+            "destination": Wallet.create().classic_address,
         }
         payment_transaction = Payment.from_dict(payment_dict)
         signed_payment_transaction = await safe_sign_and_autofill_transaction(
@@ -374,7 +374,8 @@ class TestReliableSubmission(IntegrationTestCase):
         )
         print(signed_payment_transaction)
         with self.assertRaises(XRPLReliableSubmissionException):
-            await send_reliable_submission(signed_payment_transaction, client)
+            result = await send_reliable_submission(signed_payment_transaction, client)
+            print(result)
 
     @test_async_and_sync(
         globals(),
