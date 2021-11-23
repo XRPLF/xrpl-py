@@ -33,7 +33,6 @@ class UnknownRequest(Request):
             method=RequestMethod.UNKNOWN_REQUEST,
         )
         for key, value in kwargs.items():
-            print(key, value)
             object.__setattr__(self, key, value)
 
     @classmethod
