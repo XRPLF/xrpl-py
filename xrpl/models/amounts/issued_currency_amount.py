@@ -41,7 +41,7 @@ class IssuedCurrencyAmount(IssuedCurrency):
             value: The amount of issued currency.
 
         Returns:
-            An IssuedCurrencyAmount with the provided value in the provided issued
+            An Amount with the provided value in the provided issued
             currency.
         """
         if isinstance(issued_currency, XRP):
