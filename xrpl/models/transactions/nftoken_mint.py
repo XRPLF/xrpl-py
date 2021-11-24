@@ -1,13 +1,19 @@
 """Model for NFTokenMint transaction type and related flags."""
+from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
+from typing import Dict, Optional
+
+from typing_extensions import Final
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
+
+_MAX_URI_LENGTH: Final[int] = 512
+_MAX_TRANSFER_FEE: Final[int] = 50000
 
 
 class NFTokenMintFlag(int, Enum):
@@ -49,17 +55,15 @@ class NFTokenMint(Transaction):
     specified by the transaction.
     """
 
-    account: str = REQUIRED  # type: ignore
-    """
-    Indicates the account that is minting the token.
-    """
-
     token_taxon: int = REQUIRED  # type: ignore
     """
     Indicates the taxon associated with this token. The taxon is generally a
     value chosen by the minter of the token and a given taxon may be used for
     multiple tokens. The implementation reserves taxon identifiers greater
-    than or equal to 2147483648 (0x80000000).
+    than or equal to 2147483648 (0x80000000). If you have no use for this
+    field, set it to 0.
+
+    :meta hide-value:
     """
 
     issuer: Optional[str] = None
@@ -85,11 +89,40 @@ class NFTokenMint(Transaction):
     URI that points to the data and/or metadata associated with the NFT.
     This field need not be an HTTP or HTTPS URL; it could be an IPFS URI, a
     magnet link, immediate data encoded as an RFC2379 "data" URL, or even an
-    opaque issuer-specific encoding. The URI is NOT checked for validity, but
-    the field is limited to a maximum length of 256 bytes.
+    opaque issuer-specific encoding. The URI is not checked for validity.
+
+    This field must be hex-encoded. You can use `xrpl.utils.str_to_hex` to
+    convert a UTF-8 string to hex.
     """
 
     transaction_type: TransactionType = field(
         default=TransactionType.NFTOKEN_MINT,
         init=False,
     )
+
+    def _get_errors(self: NFTokenMint) -> Dict[str, str]:
+        return {
+            key: value
+            for key, value in {
+                **super()._get_errors(),
+                "issuer": self._get_issuer_error(),
+                "transfer_fee": self._get_transfer_fee_error(),
+                "uri": self._get_uri_error(),
+            }.items()
+            if value is not None
+        }
+
+    def _get_issuer_error(self: NFTokenMint) -> Optional[str]:
+        if self.issuer == self.account:
+            return "Must not be the same as the account"
+        return None
+
+    def _get_transfer_fee_error(self: NFTokenMint) -> Optional[str]:
+        if self.transfer_fee is not None and self.transfer_fee > _MAX_TRANSFER_FEE:
+            return f"Must not be greater than {_MAX_TRANSFER_FEE}"
+        return None
+
+    def _get_uri_error(self: NFTokenMint) -> Optional[str]:
+        if self.uri is not None and len(self.uri) > _MAX_URI_LENGTH:
+            return f"Must not be longer than {_MAX_URI_LENGTH} characters"
+        return None

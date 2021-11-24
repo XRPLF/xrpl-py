@@ -19,6 +19,8 @@ _MIN_TICK_SIZE: Final[int] = 3
 _MAX_TICK_SIZE: Final[int] = 15
 _DISABLE_TICK_SIZE: Final[int] = 0
 
+_MAX_DOMAIN_LENGTH: Final[int] = 256
+
 
 class AccountSetFlag(int, Enum):
     """
@@ -83,6 +85,9 @@ class AccountSetFlag(int, Enum):
     ASF_REQUIRE_DEST = 1
     """Require a destination tag to send transactions to this account."""
 
+    ASF_AUTHORIZED_MINTER = 10
+    """Allow another account to mint and burn tokens on behalf of this account."""
+
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
@@ -99,7 +104,10 @@ class AccountSet(Transaction):
     """
 
     domain: Optional[str] = None
-    """Set the DNS domain of the account owner."""
+    """
+    Set the DNS domain of the account owner. Must be hex-encoded. You can
+    use `xrpl.utils.str_to_hex` to convert a UTF-8 string to hex.
+    """
 
     email_hash: Optional[str] = None
     """
@@ -132,9 +140,9 @@ class AccountSet(Transaction):
 
     minter: Optional[str] = None
     """
-    TODO check
     Sets an alternate account that is allowed to mint NFTokens on this
-    account's behalf using NFTokenMint's `Issuer` field.
+    account's behalf using NFTokenMint's `Issuer` field. If set, you must
+    also set the AccountSetFlag.ASF_AUTHORIZED_MINTER flag.
     """
 
     transaction_type: TransactionType = field(
@@ -143,23 +151,20 @@ class AccountSet(Transaction):
     )
 
     def _get_errors(self: AccountSet) -> Dict[str, str]:
-        errors = super()._get_errors()
-        tick_size_error = self._tick_size_error()
-        transfer_rate_error = self._transfer_rate_error()
-        if tick_size_error is not None:
-            errors["tick_size"] = tick_size_error
-        if transfer_rate_error is not None:
-            errors["transfer_rate"] = transfer_rate_error
-        if self.domain is not None and self.domain.lower() != self.domain:
-            errors["domain"] = f"Domain {self.domain} is not lowercase"
-        if self.clear_flag is not None and self.clear_flag == self.set_flag:
-            errors[
-                "AccountSet"
-            ] = f"Clear flag {self.clear_flag} is equal to set flag {self.set_flag}"
+        return {
+            key: value
+            for key, value in {
+                **super()._get_errors(),
+                "tick_size": self._get_tick_size_error(),
+                "transfer_rate": self._get_transfer_rate_error(),
+                "domain": self._get_domain_error(),
+                "clear_flag": self._get_clear_flag_error(),
+                "minter": self._get_minter_error(),
+            }.items()
+            if value is not None
+        }
 
-        return errors
-
-    def _tick_size_error(self: AccountSet) -> Optional[str]:
+    def _get_tick_size_error(self: AccountSet) -> Optional[str]:
         if self.tick_size is None:
             return None
         if self.tick_size > _MAX_TICK_SIZE:
@@ -168,7 +173,7 @@ class AccountSet(Transaction):
             return f"`tick_size` is below {_MIN_TICK_SIZE}."
         return None
 
-    def _transfer_rate_error(self: AccountSet) -> Optional[str]:
+    def _get_transfer_rate_error(self: AccountSet) -> Optional[str]:
         if self.transfer_rate is None:
             return None
         if self.transfer_rate > _MAX_TRANSFER_RATE:
@@ -178,4 +183,38 @@ class AccountSet(Transaction):
             and self.transfer_rate != _SPECIAL_CASE_TRANFER_RATE
         ):
             return f"`transfer_rate` is below {_MIN_TRANSFER_RATE}."
+        return None
+
+    def _get_domain_error(self: AccountSet) -> Optional[str]:
+        if self.domain is not None and self.domain.lower() != self.domain:
+            return f"Domain {self.domain} is not lowercase"
+        if self.domain is not None and len(self.domain) > _MAX_DOMAIN_LENGTH:
+            return f"Must not be longer than {_MAX_DOMAIN_LENGTH} characters"
+        return None
+
+    def _get_clear_flag_error(self: AccountSet) -> Optional[str]:
+        if self.clear_flag is not None and self.clear_flag == self.set_flag:
+            return "Must not be equal to the set_flag"
+        return None
+
+    def _get_minter_error(self: AccountSet) -> Optional[str]:
+        if (
+            self.set_flag != AccountSetFlag.ASF_AUTHORIZED_MINTER
+            and self.minter is not None
+        ):
+            return """Will not set the minter unless \
+                AccountSetFlag.ASF_AUTHORIZED_MINTER is set\
+                """
+        if (
+            self.set_flag == AccountSetFlag.ASF_AUTHORIZED_MINTER
+            and self.minter is None
+        ):
+            return "Must be present if AccountSetFlag.ASF_AUTHORIZED_MINTER is set"
+        if (
+            self.clear_flag == AccountSetFlag.ASF_AUTHORIZED_MINTER
+            and self.minter is not None
+        ):
+            return """Must not be present if AccountSetFlag.ASF_AUTHORIZED_MINTER \
+                is unset using clear_flag\
+                """
         return None

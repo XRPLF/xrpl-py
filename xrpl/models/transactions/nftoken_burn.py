@@ -24,15 +24,19 @@ class NFTokenBurn(Transaction):
 
     account: str = REQUIRED  # type: ignore
     """
-    Indicates the AccountID that submitted this transaction. The account MUST
-    be either the present owner of the token or, if the lsfBurnable flag is set
-    in the NFToken, either the issuer account or an account authorized by the
-    issuer, i.e. MintAccount.
+    Identifies the AccountID that submitted this transaction. The account must
+    be the present owner of the token or, if the lsfBurnable flag is set
+    on the NFToken, either the issuer account or an account authorized by the
+    issuer (i.e. MintAccount). This field is required.
+
+    :meta hide-value:
     """
 
     token_id: str = REQUIRED  # type: ignore
     """
-    Identifies the NFToken object to be removed by the transaction.
+    Identifies the NFToken to be burned. This field is required.
+
+    :meta hide-value:
     """
 
     transaction_type: TransactionType = field(

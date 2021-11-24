@@ -3,7 +3,7 @@ An Amount is an object specifying a currency, a quantity of that currency, and t
 counterparty (issuer) on the trustline that holds the value. For XRP, there is no
 counterparty.
 """
-from typing import Union
+from typing import Union, cast
 
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 
@@ -34,3 +34,18 @@ def is_issued_currency(amount: Amount) -> bool:
         Whether the amount is an issued currency value.
     """
     return isinstance(amount, IssuedCurrencyAmount)
+
+
+def value(amount: Amount) -> float:
+    """
+    Returns the value of an amount irrespective of its currency.
+
+    Args:
+        amount: The Amount object whose value we want.
+
+    Returns:
+        The value of the amount irrespective of its currency.
+    """
+    if is_xrp(amount):
+        return float(cast(str, amount))
+    return float(cast(IssuedCurrencyAmount, amount).value)

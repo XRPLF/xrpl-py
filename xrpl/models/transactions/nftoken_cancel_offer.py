@@ -1,7 +1,8 @@
 """Model for NFTokenCancelOffer transaction type."""
+from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import Dict, List, Optional
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -13,14 +14,20 @@ from xrpl.models.utils import require_kwargs_on_init
 @dataclass(frozen=True)
 class NFTokenCancelOffer(Transaction):
     """
-    The NFTokenCancelOffer transaction creates an NFToken object and adds it to the
-    relevant NFTokenPage object of the minter. If the transaction is
-    successful, the newly minted token will be owned by the minter account
-    specified by the transaction.
+    The NFTokenCancelOffer transaction deletes existing NFTokenOffer objects.
+    It is useful if you want to free up space on your account to lower your
+    reserve requirement.
+
+    The transaction can be executed by the account that originally created
+    the NFTokenOffer, the account in the `Recipient` field of the NFTokenOffer
+    (if present), or any account if the NFTokenOffer has an `Expiration` and
+    the NFTokenOffer has already expired.
     """
 
     token_ids: List[str] = REQUIRED  # type: ignore
     """
+    TODO - unclear if this is token_ids or token_offers
+
     An array of TokenID objects, each identifying an
     NFTokenOffer object, which should be cancelled by this
     transaction.
@@ -28,10 +35,27 @@ class NFTokenCancelOffer(Transaction):
     It is an error if an entry in this list points to an
     object that is not an NFTokenOffer object. It is not an
     error if an entry in this list points to an object that
-    does not exist.
+    does not exist. This field is required.
+
+    :meta hide-value:
     """
 
     transaction_type: TransactionType = field(
         default=TransactionType.NFTOKEN_CANCEL_OFFER,
         init=False,
     )
+
+    def _get_errors(self: NFTokenCancelOffer) -> Dict[str, str]:
+        return {
+            key: value
+            for key, value in {
+                **super()._get_errors(),
+                "token_ids": self._get_token_ids_error(),
+            }.items()
+            if value is not None
+        }
+
+    def _get_token_ids_error(self: NFTokenCancelOffer) -> Optional[str]:
+        if len(self.token_ids) < 1:
+            return "Must specify at least one NFTokenOffer to cancel"
+        return None

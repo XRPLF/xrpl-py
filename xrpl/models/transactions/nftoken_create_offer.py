@@ -1,10 +1,11 @@
 """Model for NFTokenCreateOffer transaction type and related flag."""
+from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
+from typing import Dict, Optional
 
-from xrpl.models.amounts import Amount
+from xrpl.models.amounts import Amount, value
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -31,16 +32,12 @@ class NFTokenCreateOffer(Transaction):
     specified by the transaction.
     """
 
-    account: str = REQUIRED  # type: ignore
-    """
-    Indicates the AccountID of the account that initiated the
-    transaction.
-    """
-
     token_id: str = REQUIRED  # type: ignore
     """
     Identifies the TokenID of the NFToken object that the
-    offer references.
+    offer references. This field is required.
+
+    :meta hide-value:
     """
 
     amount: Amount = REQUIRED  # type: ignore
@@ -52,7 +49,9 @@ class NFTokenCreateOffer(Transaction):
     is legal to specify an amount of zero, which means that
     the current owner of the token is giving it away, gratis,
     either to anyone at all, or to the account identified by
-    the Destination field.
+    the Destination field. This field is required.
+
+    :meta hide-value:
     """
 
     owner: Optional[str] = None
@@ -88,3 +87,43 @@ class NFTokenCreateOffer(Transaction):
         default=TransactionType.NFTOKEN_CREATE_OFFER,
         init=False,
     )
+
+    def _get_errors(self: NFTokenCreateOffer) -> Dict[str, str]:
+        return {
+            key: value
+            for key, value in {
+                **super()._get_errors(),
+                "amount": self._get_amount_error(),
+                "destination": self._get_destination_error(),
+                "owner": self._get_owner_error(),
+            }.items()
+            if value is not None
+        }
+
+    def _get_amount_error(self: NFTokenCreateOffer) -> Optional[str]:
+        if (
+            not self.has_flag(NFTokenCreateOfferFlag.TF_SELL_TOKEN)
+            and value(self.amount) <= 0
+        ):
+            return "Must be greater than 0 for a buy offer"
+        return None
+
+    def _get_destination_error(self: NFTokenCreateOffer) -> Optional[str]:
+        if self.destination == self.account:
+            return "Must not be equal to the account"
+        return None
+
+    def _get_owner_error(self: NFTokenCreateOffer) -> Optional[str]:
+        if (
+            not self.has_flag(NFTokenCreateOfferFlag.TF_SELL_TOKEN)
+            and self.owner is None
+        ):
+            return "Must be present for buy offers"
+        if (
+            self.has_flag(NFTokenCreateOfferFlag.TF_SELL_TOKEN)
+            and self.owner is not None
+        ):
+            return "Must not be present for sell offers"
+        if self.owner == self.account:
+            return "Must not be equal to the account"
+        return None
