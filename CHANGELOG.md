@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 ### Added
+- Support for the [XLS-20 NFT proposal](https://github.com/XRPLF/XRPL-Standards/discussions/46)
 - `xrpl.utils.str_to_hex` and `xrpl.utils.hex_to_str` helpers
 - `ledger_index` optional param for all the main account methods
 - `TicketCreate` transaction model
@@ -27,7 +28,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.0] - 2021-11-09
 ### Added
-- Support for the [XLS-20 NFT proposal](https://github.com/XRPLF/XRPL-Standards/discussions/46)
 - Support for Python 3.10
 
 ### Fixed

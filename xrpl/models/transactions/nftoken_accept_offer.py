@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
-from xrpl.models.amounts import Amount, IssuedCurrencyAmount
+from xrpl.models.amounts import Amount, value
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
@@ -102,11 +102,6 @@ class NFTokenAcceptOffer(Transaction):
         return None
 
     def _get_broker_fee_error(self: NFTokenAcceptOffer) -> Optional[str]:
-        if isinstance(self.broker_fee, str) and int(self.broker_fee) <= 0:
-            return "Must be greater than 0; omit if there is no broker fee"
-        if (
-            isinstance(self.broker_fee, IssuedCurrencyAmount)
-            and int(self.broker_fee.value) <= 0
-        ):
+        if self.broker_fee is not None and value(self.broker_fee) <= 0:
             return "Must be greater than 0; omit if there is no broker fee"
         return None
