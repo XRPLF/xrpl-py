@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from asyncio import Future, Queue, Task, create_task, get_running_loop
 from random import randrange
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 from typing_extensions import Final
 from websockets.legacy.client import WebSocketClientProtocol, connect
@@ -29,7 +29,6 @@ def _inject_request_id(request: Request) -> Request:
     request_dict = request.to_dict()
     request_dict["id"] = f"{request.method}_{randrange(_REQ_ID_MAX)}"
     resp = Request.from_dict(request_dict)
-    assert resp.id is not None  # mypy
     return resp
 
 
@@ -85,12 +84,9 @@ class WebsocketBase(Client):
         """Closes the connection."""
         if not self.is_open():
             return
-        assert self._handler_task is not None  # mypy
-        assert self._websocket is not None  # mypy
-        assert self._messages is not None  # mypy
 
         # cancel the handler
-        self._handler_task.cancel()
+        cast(Task[None], self._handler_task).cancel()
         self._handler_task = None
 
         # cancel any pending request Futures
@@ -99,13 +95,13 @@ class WebsocketBase(Client):
         self._open_requests = {}
 
         # clear the message queue
-        for _ in range(self._messages.qsize()):
-            self._messages.get_nowait()
-            self._messages.task_done()
+        for _ in range(cast(Queue[Dict[str, Any]], self._messages).qsize()):
+            cast(Queue[Dict[str, Any]], self._messages).get_nowait()
+            cast(Queue[Dict[str, Any]], self._messages).task_done()
         self._messages = None
 
         # close the connection
-        await self._websocket.close()
+        await cast(WebSocketClientProtocol, self._websocket).close()
 
     async def _handler(self: WebsocketBase) -> None:
         """
@@ -117,9 +113,7 @@ class WebsocketBase(Client):
 
         As long as a given client remains open, this handler will be running as a Task.
         """
-        assert self._websocket is not None  # mypy
-        assert self._messages is not None  # mypy
-        async for response in self._websocket:
+        async for response in cast(WebSocketClientProtocol, self._websocket):
             response_dict = json.loads(response)
 
             # if this response corresponds to request, fulfill the Future
@@ -127,7 +121,7 @@ class WebsocketBase(Client):
                 self._open_requests[response_dict["id"]].set_result(response_dict)
 
             # enqueue the response for the message queue
-            self._messages.put_nowait(response_dict)
+            cast(Queue[Dict[str, Any]], self._messages).put_nowait(response_dict)
 
     def _set_up_future(self: WebsocketBase, request: Request) -> None:
         """
@@ -148,8 +142,7 @@ class WebsocketBase(Client):
         self._open_requests[request_str] = get_running_loop().create_future()
 
     async def _do_send_no_future(self: WebsocketBase, request: Request) -> None:
-        assert self._websocket is not None  # mypy
-        await self._websocket.send(
+        await cast(WebSocketClientProtocol, self._websocket).send(
             json.dumps(
                 request_to_websocket(request),
             ),
@@ -162,9 +155,8 @@ class WebsocketBase(Client):
         await self._do_send_no_future(request)
 
     async def _do_pop_message(self: WebsocketBase) -> Dict[str, Any]:
-        assert self._messages is not None  # mypy
-        msg = await self._messages.get()
-        self._messages.task_done()
+        msg = await cast(Queue[Dict[str, Any]], self._messages).get()
+        cast(Queue[Dict[str, Any]], self._messages).task_done()
         return msg
 
     async def request_impl(self: WebsocketBase, request: Request) -> Response:
