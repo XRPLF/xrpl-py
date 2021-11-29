@@ -35,6 +35,7 @@ class CustomRequest(Request):
         # initialize all the dataclass stuff
         super().__init__(
             id=(cast(Union[str, int, None], kwargs["id"]) if "id" in kwargs else None),
+            method=RequestMethod.CUSTOM_REQUEST,
         )
         # pass in all the kwargs into the object (so self.key == value)
         for key, value in kwargs.items():
