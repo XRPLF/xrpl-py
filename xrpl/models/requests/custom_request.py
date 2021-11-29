@@ -11,23 +11,23 @@ from xrpl.models.utils import require_kwargs_on_init
 
 @require_kwargs_on_init
 @dataclass(init=False, frozen=True)
-class UnknownRequest(Request):
+class CustomRequest(Request):
     """
     A request object representing all unsupported requests.
 
     There is no analog in rippled - this is an xrpl-py-specific model.
     """
 
-    method: RequestMethod = field(default=RequestMethod.UNKNOWN_REQUEST, init=False)
+    method: RequestMethod = field(default=RequestMethod.CUSTOM_REQUEST, init=False)
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    def __init__(self: UnknownRequest, **kwargs: Dict[str, Any]) -> None:
+    def __init__(self: CustomRequest, **kwargs: Dict[str, Any]) -> None:
         """
-        Initializes an UnknownRequest.
+        Initializes a CustomRequest.
 
         Arguments:
             kwargs: All the arguments for the request.
@@ -35,23 +35,22 @@ class UnknownRequest(Request):
         # initialize all the dataclass stuff
         super().__init__(
             id=(cast(Union[str, int, None], kwargs["id"]) if "id" in kwargs else None),
-            method=RequestMethod.UNKNOWN_REQUEST,
         )
         # pass in all the kwargs into the object (so self.key == value)
         for key, value in kwargs.items():
             object.__setattr__(self, key, value)
 
     @classmethod
-    def from_dict(cls: Type[UnknownRequest], value: Dict[str, Any]) -> UnknownRequest:
+    def from_dict(cls: Type[CustomRequest], value: Dict[str, Any]) -> CustomRequest:
         """
-        Construct a new UnknownRequest from a dictionary of parameters. Also converts
+        Construct a new CustomRequest from a dictionary of parameters. Also converts
         from JSON and WS formatting.
 
         Args:
-            value: The value to construct the UnknownRequest from.
+            value: The value to construct the CustomRequest from.
 
         Returns:
-            A new UnknownRequest object, constructed using the given parameters.
+            A new CustomRequest object, constructed using the given parameters.
 
         Raises:
             XRPLModelException: If the dictionary provided is invalid.
@@ -70,12 +69,12 @@ class UnknownRequest(Request):
 
         return cls(**value)
 
-    def to_dict(self: Request) -> Dict[str, Any]:
+    def to_dict(self: CustomRequest) -> Dict[str, Any]:
         """
-        Returns the dictionary representation of a Request.
+        Returns the dictionary representation of a CustomRequest.
 
         Returns:
-            The dictionary representation of a Request.
+            The dictionary representation of a CustomRequest.
         """
         # uses self.__dict__ instead of self.__dataclass_fields__.keys(), which is what
         # the other models do, because this model doesn't have any dataclass fields

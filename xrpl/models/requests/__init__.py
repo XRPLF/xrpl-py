@@ -10,6 +10,7 @@ from xrpl.models.requests.account_tx import AccountTx
 from xrpl.models.requests.book_offers import BookOffers
 from xrpl.models.requests.channel_authorize import ChannelAuthorize
 from xrpl.models.requests.channel_verify import ChannelVerify
+from xrpl.models.requests.custom_request import CustomRequest
 from xrpl.models.requests.deposit_authorized import DepositAuthorized
 from xrpl.models.requests.fee import Fee
 from xrpl.models.requests.gateway_balances import GatewayBalances
@@ -36,7 +37,6 @@ from xrpl.models.requests.submit_only import SubmitOnly
 from xrpl.models.requests.subscribe import StreamParameter, Subscribe
 from xrpl.models.requests.transaction_entry import TransactionEntry
 from xrpl.models.requests.tx import Tx
-from xrpl.models.requests.unknown_request import UnknownRequest
 from xrpl.models.requests.unsubscribe import Unsubscribe
 
 __all__ = [
@@ -51,6 +51,7 @@ __all__ = [
     "BookOffers",
     "ChannelAuthorize",
     "ChannelVerify",
+    "CustomRequest",
     "DepositAuthorized",
     "Fee",
     "GatewayBalances",
@@ -81,6 +82,5 @@ __all__ = [
     "Subscribe",
     "TransactionEntry",
     "Tx",
-    "UnknownRequest",
     "Unsubscribe",
 ]

@@ -76,7 +76,7 @@ class RequestMethod(str, Enum):
 
     # generic unknown/unsupported request
     # (there is no XRPL analog, this model is specific to xrpl-py)
-    UNKNOWN_REQUEST = "unknown_request"
+    CUSTOM_REQUEST = "custom_request"
 
 
 @require_kwargs_on_init
@@ -124,7 +124,7 @@ class Request(BaseModel):
                     method == "submit"
                     and cls.__name__ in ("SignAndSubmit", "SubmitOnly")
                 )
-                and not cls.__name__ == "UnknownRequest"
+                and not cls.__name__ == "CustomRequest"
             ):
                 raise XRPLModelException(
                     f"Using wrong constructor: using {cls.__name__} constructor "
@@ -159,7 +159,7 @@ class Request(BaseModel):
         if method in request_methods:
             return request_methods[method]
 
-        return request_models.UnknownRequest
+        return request_models.CustomRequest
 
     def to_dict(self: Request) -> Dict[str, Any]:
         """
