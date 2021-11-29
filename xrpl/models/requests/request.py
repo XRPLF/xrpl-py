@@ -75,6 +75,7 @@ class RequestMethod(str, Enum):
     RANDOM = "random"
 
     # generic unknown/unsupported request
+    # (there is no XRPL analog, this model is specific to xrpl-py)
     UNKNOWN_REQUEST = "unknown_request"
 
 

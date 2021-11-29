@@ -12,7 +12,11 @@ from xrpl.models.utils import require_kwargs_on_init
 @require_kwargs_on_init
 @dataclass(init=False, frozen=True)
 class UnknownRequest(Request):
-    """A request object representing all unsupported requests."""
+    """
+    A request object representing all unsupported requests.
+
+    There is no analog in rippled - this is an xrpl-py-specific model.
+    """
 
     method: RequestMethod = field(default=RequestMethod.UNKNOWN_REQUEST, init=False)
     """
