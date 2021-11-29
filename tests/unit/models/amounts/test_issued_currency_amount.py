@@ -27,7 +27,7 @@ class TestIssuedCurrencyAmount(TestCase):
 
         self.assertEqual(issued_currency_amount, amount)
 
-    def test_get_issued_currency(self):
+    def test_to_currency(self):
         currency = "USD"
         amount = "12"
         expected = IssuedCurrency(currency=currency, issuer=_ISSUER)
@@ -35,6 +35,6 @@ class TestIssuedCurrencyAmount(TestCase):
         issued_currency_amount = IssuedCurrencyAmount(
             currency=currency, issuer=_ISSUER, value=amount
         )
-        result = issued_currency_amount.get_issued_currency()
+        result = issued_currency_amount.to_currency()
 
         self.assertEqual(result, expected)

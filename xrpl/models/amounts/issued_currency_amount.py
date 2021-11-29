@@ -51,7 +51,7 @@ class IssuedCurrencyAmount(IssuedCurrency):
             cls.from_dict({**issued_currency.to_dict(), "value": value}),
         )
 
-    def get_issued_currency(self: IssuedCurrencyAmount) -> IssuedCurrency:
+    def to_currency(self: IssuedCurrencyAmount) -> IssuedCurrency:
         """
         Build an IssuedCurrency from this IssuedCurrencyAmount.
 
