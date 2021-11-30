@@ -47,9 +47,9 @@ class WebsocketBase(Client):
             url: The URL of the rippled node to submit requests to.
         """
         self._open_requests: Dict[str, Future[Dict[str, Any]]] = {}
+        self._messages: Queue[Dict[str, Any]] = Queue()
         self._websocket: Optional[WebSocketClientProtocol] = None
         self._handler_task: Optional[Task[None]] = None
-        self._messages: Optional[Queue[Dict[str, Any]]] = None
         super().__init__(url)
 
     def is_open(self: WebsocketBase) -> bool:
@@ -61,7 +61,6 @@ class WebsocketBase(Client):
         """
         return (
             self._handler_task is not None
-            and self._messages is not None
             and self._websocket is not None
             and self._websocket.open
         )
@@ -73,9 +72,6 @@ class WebsocketBase(Client):
 
         # open the connection
         self._websocket = await connect(self.url)
-
-        # make a message queue
-        self._messages = Queue()
 
         # start the handler
         self._handler_task = create_task(self._handler())
@@ -95,10 +91,9 @@ class WebsocketBase(Client):
         self._open_requests = {}
 
         # clear the message queue
-        for _ in range(cast(Queue[Dict[str, Any]], self._messages).qsize()):
-            cast(Queue[Dict[str, Any]], self._messages).get_nowait()
-            cast(Queue[Dict[str, Any]], self._messages).task_done()
-        self._messages = None
+        for _ in range(self._messages.qsize()):
+            self._messages.get_nowait()
+            self._messages.task_done()
 
         # close the connection
         await cast(WebSocketClientProtocol, self._websocket).close()
@@ -121,7 +116,7 @@ class WebsocketBase(Client):
                 self._open_requests[response_dict["id"]].set_result(response_dict)
 
             # enqueue the response for the message queue
-            cast(Queue[Dict[str, Any]], self._messages).put_nowait(response_dict)
+            self._messages.put_nowait(response_dict)
 
     def _set_up_future(self: WebsocketBase, request: Request) -> None:
         """
@@ -155,8 +150,8 @@ class WebsocketBase(Client):
         await self._do_send_no_future(request)
 
     async def _do_pop_message(self: WebsocketBase) -> Dict[str, Any]:
-        msg = await cast(Queue[Dict[str, Any]], self._messages).get()
-        cast(Queue[Dict[str, Any]], self._messages).task_done()
+        msg = await self._messages.get()
+        self._messages.task_done()
         return msg
 
     async def request_impl(self: WebsocketBase, request: Request) -> Response:
