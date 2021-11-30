@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from asyncio import Future, Queue, Task, create_task, get_running_loop
 from random import randrange
-from typing import Any, Dict, Optional, cast
+from typing import TYPE_CHECKING, Any, Dict, Optional, cast
 
 from typing_extensions import Final
 from websockets.legacy.client import WebSocketClientProtocol, connect
@@ -16,6 +16,16 @@ from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
 
 _REQ_ID_MAX: Final[int] = 1_000_000
+# the types from asyncio are not implemented as generics in python 3.8 and
+# lower, so we need to only subscript them when running typechecking.
+if TYPE_CHECKING:
+    _REQUESTS_TYPE = Dict[str, Future[Dict[str, Any]]]
+    _MESSAGES_TYPE = Queue[Dict[str, Any]]
+    _HANDLER_TYPE = Task[None]
+else:
+    _REQUESTS_TYPE = Dict[str, Future]
+    _MESSAGES_TYPE = Queue
+    _HANDLER_TYPE = Task
 
 
 def _inject_request_id(request: Request) -> Request:
@@ -46,10 +56,14 @@ class WebsocketBase(Client):
         Arguments:
             url: The URL of the rippled node to submit requests to.
         """
-        self._open_requests: Dict[str, Future[Dict[str, Any]]] = {}
-        self._messages: Queue[Dict[str, Any]] = Queue()
+        self._open_requests: _REQUESTS_TYPE = {}
         self._websocket: Optional[WebSocketClientProtocol] = None
-        self._handler_task: Optional[Task[None]] = None
+        self._handler_task: Optional[_HANDLER_TYPE] = None
+        # unfortunately, we cannot create the Queue here because it needs to be
+        # tied to a currently-running event loop. the sync websocket client
+        # will initialize a new event loop when it opens the connection, so for
+        # that client the initializer cannot create the queue
+        self._messages: Optional[_MESSAGES_TYPE] = None
         super().__init__(url)
 
     def is_open(self: WebsocketBase) -> bool:
@@ -61,6 +75,7 @@ class WebsocketBase(Client):
         """
         return (
             self._handler_task is not None
+            and self._messages is not None
             and self._websocket is not None
             and self._websocket.open
         )
@@ -73,6 +88,9 @@ class WebsocketBase(Client):
         # open the connection
         self._websocket = await connect(self.url)
 
+        # make a message queue
+        self._messages = Queue()
+
         # start the handler
         self._handler_task = create_task(self._handler())
 
@@ -82,7 +100,7 @@ class WebsocketBase(Client):
             return
 
         # cancel the handler
-        cast(Task[None], self._handler_task).cancel()
+        cast(_HANDLER_TYPE, self._handler_task).cancel()
         self._handler_task = None
 
         # cancel any pending request Futures
@@ -91,9 +109,10 @@ class WebsocketBase(Client):
         self._open_requests = {}
 
         # clear the message queue
-        for _ in range(self._messages.qsize()):
-            self._messages.get_nowait()
-            self._messages.task_done()
+        for _ in range(cast(_MESSAGES_TYPE, self._messages).qsize()):
+            cast(_MESSAGES_TYPE, self._messages).get_nowait()
+            cast(_MESSAGES_TYPE, self._messages).task_done()
+        self._messages = None
 
         # close the connection
         await cast(WebSocketClientProtocol, self._websocket).close()
@@ -116,7 +135,7 @@ class WebsocketBase(Client):
                 self._open_requests[response_dict["id"]].set_result(response_dict)
 
             # enqueue the response for the message queue
-            self._messages.put_nowait(response_dict)
+            cast(_MESSAGES_TYPE, self._messages).put_nowait(response_dict)
 
     def _set_up_future(self: WebsocketBase, request: Request) -> None:
         """
@@ -150,8 +169,8 @@ class WebsocketBase(Client):
         await self._do_send_no_future(request)
 
     async def _do_pop_message(self: WebsocketBase) -> Dict[str, Any]:
-        msg = await self._messages.get()
-        self._messages.task_done()
+        msg = await cast(_MESSAGES_TYPE, self._messages).get()
+        cast(_MESSAGES_TYPE, self._messages).task_done()
         return msg
 
     async def request_impl(self: WebsocketBase, request: Request) -> Response:
