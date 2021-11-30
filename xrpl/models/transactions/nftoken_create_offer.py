@@ -26,10 +26,9 @@ class NFTokenCreateOfferFlag(int, Enum):
 @dataclass(frozen=True)
 class NFTokenCreateOffer(Transaction):
     """
-    The NFTokenCreateOffer transaction creates an NFToken object and adds it to the
-    relevant NFTokenPage object of the minter. If the transaction is
-    successful, the newly minted token will be owned by the minter account
-    specified by the transaction.
+    The NFTokenCreateOffer transaction creates either an offer to buy an
+    NFT the submitting account does not own, or an offer to sell an NFT
+    the submitting account does own.
     """
 
     token_id: str = REQUIRED  # type: ignore

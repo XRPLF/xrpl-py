@@ -18,7 +18,9 @@ class AccountNfts(Request):
     account: str = REQUIRED  # type: ignore
     """
     The unique identifier of an account, typically the account's address. The
-    request returns NFTs owned by this account.
+    request returns NFTs owned by this account. This value is required.
+
+    :meta hide-value:
     """
 
     limit: Optional[int] = None

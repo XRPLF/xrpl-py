@@ -20,5 +20,7 @@ class NftSellOffers(Request):
     token_id: str = REQUIRED  # type: ignore
     """
     The unique identifier of an NFToken.
-    The request returns sell offers for this NFToken.
+    The request returns sell offers for this NFToken. This value is required.
+
+    :meta hide-value:
     """

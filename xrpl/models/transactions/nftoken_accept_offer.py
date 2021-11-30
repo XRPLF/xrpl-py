@@ -17,12 +17,12 @@ class NFTokenAcceptOffer(Transaction):
     The NFTokenOfferAccept transaction is used to accept offers
     to buy or sell an NFToken. It can either:
 
-        1. Allow one offer to be accepted. This is called direct
-        mode.
-        2. Allow two distinct offers, one offering to buy a
-        given NFToken and the other offering to sell the same
-        NFToken, to be accepted in an atomic fashion. This is
-        called brokered mode.
+    1. Allow one offer to be accepted. This is called direct
+       mode.
+    2. Allow two distinct offers, one offering to buy a
+       given NFToken and the other offering to sell the same
+       NFToken, to be accepted in an atomic fashion. This is
+       called brokered mode.
 
     To indicate direct mode, use either the `sell_offer` or
     `buy_offer` fields, but not both. To indicate brokered mode,
