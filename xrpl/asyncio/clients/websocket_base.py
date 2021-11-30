@@ -38,8 +38,7 @@ def _inject_request_id(request: Request) -> Request:
         return request
     request_dict = request.to_dict()
     request_dict["id"] = f"{request.method}_{randrange(_REQ_ID_MAX)}"
-    resp = Request.from_dict(request_dict)
-    return resp
+    return Request.from_dict(request_dict)
 
 
 class WebsocketBase(Client):
@@ -82,9 +81,6 @@ class WebsocketBase(Client):
 
     async def _do_open(self: WebsocketBase) -> None:
         """Connects the client to the Web Socket API at its URL."""
-        if self.is_open():
-            return
-
         # open the connection
         self._websocket = await connect(self.url)
 
@@ -96,9 +92,6 @@ class WebsocketBase(Client):
 
     async def _do_close(self: WebsocketBase) -> None:
         """Closes the connection."""
-        if not self.is_open():
-            return
-
         # cancel the handler
         cast(_HANDLER_TYPE, self._handler_task).cancel()
         self._handler_task = None
@@ -173,9 +166,9 @@ class WebsocketBase(Client):
         cast(_MESSAGES_TYPE, self._messages).task_done()
         return msg
 
-    async def request_impl(self: WebsocketBase, request: Request) -> Response:
+    async def _do_request_impl(self: WebsocketBase, request: Request) -> Response:
         """
-        Base ``request_impl`` implementation for Websockets.
+        Base ``request_impl`` implementation for websockets.
 
         Arguments:
             request: An object representing information about a rippled request.
@@ -186,12 +179,7 @@ class WebsocketBase(Client):
         Raises:
             XRPLWebsocketException: If there is already an open request by the
                 request's ID, or if this WebsocketBase is not open.
-
-        :meta private:
         """
-        if not self.is_open():
-            raise XRPLWebsocketException("Websocket is not open")
-
         # if no ID on this request, generate and inject one, and ensure it
         # is backed by a future
         request_with_id = _inject_request_id(request)

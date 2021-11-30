@@ -200,7 +200,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
     async def request_impl(self: WebsocketClient, request: Request) -> Response:
         """
         ``request_impl`` implementation for sync websockets that ensures the
-        ``WebsocketBase.request_impl`` implementation is run on the other thread.
+        ``WebsocketBase._do_request_impl`` implementation is run on the other thread.
 
         Arguments:
             request: An object representing information about a rippled request.
@@ -229,6 +229,6 @@ class WebsocketClient(SyncClient, WebsocketBase):
         # completely block the main thread until completed,
         # just as if it were not async.
         return run_coroutine_threadsafe(
-            super().request_impl(request),
+            self._do_request_impl(request),
             cast(AbstractEventLoop, self._loop),
         ).result()
