@@ -13,7 +13,7 @@ from xrpl.asyncio.transaction import (
     safe_sign_and_submit_transaction as sign_and_submit_async,
 )
 from xrpl.clients import Client, JsonRpcClient, WebsocketClient
-from xrpl.models import CustomRequest, Payment
+from xrpl.models import GenericRequest, Payment
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.transaction import (  # noqa: F401 - needed for sync tests
@@ -57,7 +57,7 @@ MASTER_SECRET = "snoPBrXtMeMyMHUVTgbuqAfg1SUTb"
 MASTER_WALLET = Wallet(MASTER_SECRET, 0)
 FUNDING_AMOUNT = "1200000000"
 
-LEDGER_ACCEPT_REQUEST = CustomRequest(method="ledger_accept")
+LEDGER_ACCEPT_REQUEST = GenericRequest(method="ledger_accept")
 
 
 def fund_wallet_sync(wallet: Wallet) -> None:
