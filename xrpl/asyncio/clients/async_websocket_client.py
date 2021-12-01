@@ -9,6 +9,7 @@ from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.asyncio.clients.exceptions import XRPLWebsocketException
 from xrpl.asyncio.clients.websocket_base import WebsocketBase
 from xrpl.models.requests.request import Request
+from xrpl.models.response import Response
 
 
 class AsyncWebsocketClient(AsyncClient, WebsocketBase):
@@ -115,10 +116,14 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
 
     async def open(self: AsyncWebsocketClient) -> None:
         """Connects the client to the Web Socket API at the given URL."""
+        if self.is_open():
+            return
         await self._do_open()
 
     async def close(self: AsyncWebsocketClient) -> None:
         """Closes the connection."""
+        if not self.is_open():
+            return
         await self._do_close()
 
     async def __aenter__(self: AsyncWebsocketClient) -> AsyncWebsocketClient:
@@ -162,3 +167,23 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
         if not self.is_open():
             raise XRPLWebsocketException("Websocket is not open")
         await self._do_send(request)
+
+    async def request_impl(self: WebsocketBase, request: Request) -> Response:
+        """
+        ``request_impl`` implementation for async websocket.
+
+        Arguments:
+            request: An object representing information about a rippled request.
+
+        Returns:
+            The response from the server, as a Response object.
+
+        Raises:
+            XRPLWebsocketException: If there is already an open request by the
+                request's ID, or if this WebsocketBase is not open.
+
+        :meta private:
+        """
+        if not self.is_open():
+            raise XRPLWebsocketException("Websocket is not open")
+        return await self._do_request_impl(request)
