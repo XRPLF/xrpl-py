@@ -76,7 +76,7 @@ class RequestMethod(str, Enum):
 
     # generic unknown/unsupported request
     # (there is no XRPL analog, this model is specific to xrpl-py)
-    CUSTOM_REQUEST = "zzcustom_request"
+    GENERIC_REQUEST = "zzgeneric_request"
 
 
 @require_kwargs_on_init

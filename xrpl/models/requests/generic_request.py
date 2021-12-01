@@ -18,7 +18,7 @@ class GenericRequest(Request):
     There is no analog in rippled - this is an xrpl-py-specific model.
     """
 
-    method: RequestMethod = field(default=RequestMethod.CUSTOM_REQUEST, init=False)
+    method: RequestMethod = field(default=RequestMethod.GENERIC_REQUEST, init=False)
     """
     This field is required.
 
@@ -35,7 +35,7 @@ class GenericRequest(Request):
         # initialize all the dataclass stuff
         super().__init__(
             id=(cast(Union[str, int, None], kwargs["id"]) if "id" in kwargs else None),
-            method=RequestMethod.CUSTOM_REQUEST,
+            method=RequestMethod.GENERIC_REQUEST,
         )
         # pass in all the kwargs into the object (so self.key == value)
         for key, value in kwargs.items():
