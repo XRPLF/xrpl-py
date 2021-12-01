@@ -10,6 +10,7 @@ jobs:
   integration-test:
     name: Integration test
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       matrix:
         # we have to use 3.7.1 to get around openssl issues
