@@ -21,6 +21,7 @@ from xrpl.asyncio.transaction import (
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.models.exceptions import XRPLException
 from xrpl.models.transactions import AccountDelete, AccountSet, EscrowFinish, Payment
+from xrpl.utils import xrp_to_drops
 
 ACCOUNT = WALLET.classic_address
 DESTINATION = DESTINATION_WALLET.classic_address
@@ -35,7 +36,7 @@ MESSAGE_KEY = "03AB40A0490F9B7ED8DF29D246BF2D6269820A0EE7742ACDD457BEA7C7D0931ED
 SET_FLAG = 8
 TRANSFER_RATE = 0
 TICK_SIZE = 10
-FEE = "60000000"
+FEE = xrp_to_drops(6)
 DESTINATION_TAG = 3
 OFFER_SEQUENCE = 7
 CONDITION = (
@@ -220,8 +221,8 @@ class TestTransaction(IntegrationTestCase):
             account_delete, WALLET, client
         )
 
-        # THEN we expect the calculated fee to be 50000000 drops (5 XRP)
-        expected_fee = "50000000"
+        # THEN we expect the calculated fee to be 5 XRP
+        expected_fee = xrp_to_drops(5)
         self.assertEqual(account_delete_signed.fee, expected_fee)
 
     @test_async_and_sync(
