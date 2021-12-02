@@ -19,8 +19,9 @@ def request_to_json_rpc(request_object: Request) -> Dict[str, Any]:
         for submission to the rippled JSON RPC.
     """
     params = request_object.to_dict()
+    method = params["method"]
     del params["method"]
-    return {"method": request_object.method.value, "params": [params]}
+    return {"method": method, "params": [params]}
 
 
 def json_to_response(json: Dict[str, Any]) -> Response:
@@ -60,8 +61,9 @@ def request_to_websocket(request_object: Request) -> Dict[str, Any]:
         for submission to the rippled WebSocket API.
     """
     dictionary = request_object.to_dict()
+    method = dictionary["method"]
     del dictionary["method"]
-    return {**dictionary, "command": request_object.method.value}
+    return {**dictionary, "command": method}
 
 
 def websocket_to_response(response_dict: Dict[str, Any]) -> Response:

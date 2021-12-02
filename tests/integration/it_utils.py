@@ -154,14 +154,14 @@ def test_async_and_sync(
 
         def modified_test(self):
             if not websockets_only:
-                with self.subTest(version="sync", client="json"):
-                    _run_sync_test(self, JSON_RPC_CLIENT)
                 with self.subTest(version="async", client="json"):
                     asyncio.run(_run_async_test(self, ASYNC_JSON_RPC_CLIENT))
-            with self.subTest(version="sync", client="websocket"):
-                _run_sync_test(self, WEBSOCKET_CLIENT)
+                with self.subTest(version="sync", client="json"):
+                    _run_sync_test(self, JSON_RPC_CLIENT)
             with self.subTest(version="async", client="websocket"):
                 asyncio.run(_run_async_test(self, ASYNC_WEBSOCKET_CLIENT))
+            with self.subTest(version="sync", client="websocket"):
+                _run_sync_test(self, WEBSOCKET_CLIENT)
 
         return modified_test
 
