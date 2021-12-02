@@ -1,9 +1,16 @@
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
+from tests.integration.it_utils import (
+    sign_and_reliable_submission_async,
+    submit_transaction_async,
+    test_async_and_sync,
+)
 from tests.integration.reusable_values import DESTINATION as DESTINATION_WALLET
-from tests.integration.reusable_values import WALLET
+from tests.integration.reusable_values import (
+    TESTNET_DESTINATION as TESTNET_DESTINATION_WALLET,
+)
+from tests.integration.reusable_values import TESTNET_WALLET, WALLET
 from xrpl.asyncio.account import get_next_valid_seq_number
-from xrpl.asyncio.ledger import get_fee
+from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.asyncio.transaction import (
     XRPLReliableSubmissionException,
     get_transaction_from_hash,
@@ -14,9 +21,13 @@ from xrpl.asyncio.transaction import (
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.models.exceptions import XRPLException
 from xrpl.models.transactions import AccountDelete, AccountSet, EscrowFinish, Payment
+from xrpl.utils import xrp_to_drops
 
 ACCOUNT = WALLET.classic_address
 DESTINATION = DESTINATION_WALLET.classic_address
+
+TESTNET_ACCOUNT = TESTNET_WALLET.classic_address
+TESTNET_DESTINATION = TESTNET_DESTINATION_WALLET.classic_address
 
 CLEAR_FLAG = 3
 DOMAIN = "6578616D706C652E636F6D".lower()
@@ -25,7 +36,7 @@ MESSAGE_KEY = "03AB40A0490F9B7ED8DF29D246BF2D6269820A0EE7742ACDD457BEA7C7D0931ED
 SET_FLAG = 8
 TRANSFER_RATE = 0
 TICK_SIZE = 10
-FEE = "6000000"
+FEE = xrp_to_drops(6)
 DESTINATION_TAG = 3
 OFFER_SEQUENCE = 7
 CONDITION = (
@@ -53,16 +64,13 @@ class TestTransaction(IntegrationTestCase):
             sequence=WALLET.sequence,
         )
 
-        # WHEN we sign locally and autofill the transaction
-        signed_payment_transaction = await safe_sign_and_autofill_transaction(
-            payment_transaction, WALLET, client
-        )
-
-        # AND submit the transaction
-        response = await send_reliable_submission(signed_payment_transaction, client)
+        # WHEN we sign locally, autofill, and submit the transaction
+        response = await sign_and_reliable_submission_async(payment_transaction, WALLET)
 
         # THEN we expect to retrieve this transaction from its hash
-        payment = await get_transaction_from_hash(response.result["hash"], client)
+        payment = await get_transaction_from_hash(
+            response.result["tx_json"]["hash"], client
+        )
 
         # AND we expect the result Account to be the same as the original payment Acct
         self.assertEqual(payment.result["Account"], ACCOUNT)
@@ -88,14 +96,9 @@ class TestTransaction(IntegrationTestCase):
             sequence=WALLET.sequence,
         )
 
-        # WHEN we sign locally and autofill the transaction
-        signed_payment_transaction = await safe_sign_and_autofill_transaction(
-            payment_transaction, WALLET, client
-        )
-
-        # AND submit the transaction
-        response = await send_reliable_submission(signed_payment_transaction, client)
-        payment_hash = response.result["hash"]
+        # WHEN we sign locally, autofill, and submit the transaction
+        response = await sign_and_reliable_submission_async(payment_transaction, WALLET)
+        payment_hash = response.result["tx_json"]["hash"]
 
         # THEN we expect to retrieve this transaction from its hash with the
         # binary parameter set to true
@@ -125,15 +128,10 @@ class TestTransaction(IntegrationTestCase):
             sequence=WALLET.sequence,
         )
 
-        # WHEN we sign locally and autofill the transaction
-        signed_payment_transaction = await safe_sign_and_autofill_transaction(
-            payment_transaction, WALLET, client
-        )
-
-        # AND submit the transaction
-        response = await send_reliable_submission(signed_payment_transaction, client)
-        payment_hash = response.result["hash"]
-        payment_ledger_index = response.result["ledger_index"]
+        # WHEN we sign locally, autofill, and submit the transaction
+        response = await sign_and_reliable_submission_async(payment_transaction, WALLET)
+        payment_hash = response.result["tx_json"]["hash"]
+        payment_ledger_index = response.result["validated_ledger_index"]
 
         # THEN we expect to retrieve this transaction from its hash with
         # min_ledger and max_ledger parameters
@@ -141,8 +139,8 @@ class TestTransaction(IntegrationTestCase):
             payment_hash,
             client,
             False,
-            payment_ledger_index - 500,
-            payment_ledger_index + 500,
+            payment_ledger_index - 5,
+            payment_ledger_index + 5,
         )
 
         # AND we expect the result Account to be the same as the original payment Acct
@@ -154,17 +152,17 @@ class TestTransaction(IntegrationTestCase):
 
     @test_async_and_sync(globals())
     async def test_high_fee_account_delete_unauthorized(self, client):
+        # GIVEN a new AccountDelete transaction
+        account_delete = AccountDelete(
+            account=ACCOUNT,
+            # WITH fee higher than 5 XRP
+            fee=FEE,
+            sequence=WALLET.sequence,
+            destination=DESTINATION,
+            destination_tag=DESTINATION_TAG,
+        )
         # We expect an XRPLException to be raised
         with self.assertRaises(XRPLException):
-            # GIVEN a new AccountDelete transaction
-            account_delete = AccountDelete(
-                account=ACCOUNT,
-                # WITH fee higher than 5 XRP
-                fee=FEE,
-                sequence=WALLET.sequence,
-                destination=DESTINATION,
-                destination_tag=DESTINATION_TAG,
-            )
             await submit_transaction_async(account_delete, WALLET)
 
     @test_async_and_sync(globals())
@@ -223,8 +221,8 @@ class TestTransaction(IntegrationTestCase):
             account_delete, WALLET, client
         )
 
-        # THEN we expect the calculated fee to be 5000000 drops (5 XRP)
-        expected_fee = "5000000"
+        # THEN we expect the calculated fee to be 5 XRP
+        expected_fee = xrp_to_drops(5)
         self.assertEqual(account_delete_signed.fee, expected_fee)
 
     @test_async_and_sync(
@@ -288,23 +286,26 @@ class TestReliableSubmission(IntegrationTestCase):
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
         ],
+        use_testnet=True,
     )
     async def test_reliable_submission_simple(self, client):
-        WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
+        TESTNET_WALLET.sequence = await get_next_valid_seq_number(
+            TESTNET_ACCOUNT, client
+        )
         account_set = AccountSet(
-            account=ACCOUNT,
-            sequence=WALLET.sequence,
+            account=TESTNET_ACCOUNT,
+            sequence=TESTNET_WALLET.sequence,
             set_flag=SET_FLAG,
         )
         signed_account_set = await safe_sign_and_autofill_transaction(
-            account_set, WALLET, client
+            account_set, TESTNET_WALLET, client
         )
         response = await send_reliable_submission(signed_account_set, client)
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["Fee"], await get_fee(client))
-        WALLET.sequence += 1
+        TESTNET_WALLET.sequence += 1
 
     @test_async_and_sync(
         globals(),
@@ -314,25 +315,28 @@ class TestReliableSubmission(IntegrationTestCase):
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
         ],
+        use_testnet=True,
     )
     async def test_reliable_submission_payment(self, client):
-        WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
+        TESTNET_WALLET.sequence = await get_next_valid_seq_number(
+            TESTNET_ACCOUNT, client
+        )
         payment_dict = {
-            "account": ACCOUNT,
-            "sequence": WALLET.sequence,
+            "account": TESTNET_ACCOUNT,
+            "sequence": TESTNET_WALLET.sequence,
             "amount": "10",
-            "destination": DESTINATION,
+            "destination": TESTNET_DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
         signed_payment_transaction = await safe_sign_and_autofill_transaction(
-            payment_transaction, WALLET, client
+            payment_transaction, TESTNET_WALLET, client
         )
         response = await send_reliable_submission(signed_payment_transaction, client)
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["Fee"], await get_fee(client))
-        WALLET.sequence += 1
+        TESTNET_WALLET.sequence += 1
 
     @test_async_and_sync(
         globals(),
@@ -340,6 +344,7 @@ class TestReliableSubmission(IntegrationTestCase):
             "xrpl.transaction.safe_sign_and_autofill_transaction",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.account.get_next_valid_seq_number",
+            "xrpl.ledger.get_latest_validated_ledger_sequence",
         ],
     )
     async def test_reliable_submission_last_ledger_expiration(self, client):
@@ -347,7 +352,7 @@ class TestReliableSubmission(IntegrationTestCase):
         payment_dict = {
             "account": ACCOUNT,
             "sequence": WALLET.sequence,
-            "last_ledger_sequence": WALLET.sequence + 1,
+            "last_ledger_sequence": await get_latest_validated_ledger_sequence(client),
             "fee": "10",
             "amount": "100",
             "destination": DESTINATION,
@@ -367,19 +372,22 @@ class TestReliableSubmission(IntegrationTestCase):
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
         ],
+        use_testnet=True,
     )
     async def test_reliable_submission_bad_transaction(self, client):
-        WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
+        TESTNET_WALLET.sequence = await get_next_valid_seq_number(
+            TESTNET_ACCOUNT, client
+        )
         payment_dict = {
-            "account": ACCOUNT,
-            "last_ledger_sequence": WALLET.sequence + 20,
+            "account": TESTNET_ACCOUNT,
+            "last_ledger_sequence": TESTNET_WALLET.sequence + 20,
             "fee": "10",
             "amount": "100",
-            "destination": DESTINATION,
+            "destination": TESTNET_DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
         signed_payment_transaction = await safe_sign_transaction(
-            payment_transaction, WALLET
+            payment_transaction, TESTNET_WALLET
         )
         with self.assertRaises(XRPLRequestFailureException):
             await send_reliable_submission(signed_payment_transaction, client)
@@ -392,19 +400,22 @@ class TestReliableSubmission(IntegrationTestCase):
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
         ],
+        use_testnet=True,
     )
     async def test_reliable_submission_no_last_ledger_sequence(self, client):
-        WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
+        TESTNET_WALLET.sequence = await get_next_valid_seq_number(
+            TESTNET_ACCOUNT, client
+        )
         payment_dict = {
-            "account": ACCOUNT,
-            "sequence": WALLET.sequence,
+            "account": TESTNET_ACCOUNT,
+            "sequence": TESTNET_WALLET.sequence,
             "fee": "10",
             "amount": "100",
-            "destination": DESTINATION,
+            "destination": TESTNET_DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
         signed_payment_transaction = await safe_sign_transaction(
-            payment_transaction, WALLET
+            payment_transaction, TESTNET_WALLET
         )
         with self.assertRaises(XRPLReliableSubmissionException):
             await send_reliable_submission(signed_payment_transaction, client)

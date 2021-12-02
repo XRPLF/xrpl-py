@@ -9,7 +9,7 @@ class TestTx(IntegrationTestCase):
     async def test_basic_functionality(self, client):
         response = await client.request(
             Tx(
-                transaction=OFFER.result["hash"],
+                transaction=OFFER.result["tx_json"]["hash"],
             ),
         )
         self.assertTrue(response.is_successful())

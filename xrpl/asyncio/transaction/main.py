@@ -19,11 +19,13 @@ from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )
 from xrpl.models.transactions.types.transaction_type import TransactionType
-from xrpl.utils import drops_to_xrp
+from xrpl.utils import drops_to_xrp, xrp_to_drops
 from xrpl.wallet.main import Wallet
 
 _LEDGER_OFFSET: Final[int] = 20
-_ACCOUNT_DELETE_FEE: Final[int] = 5000000
+
+# TODO: make this dynamic based on the current ledger fee
+_ACCOUNT_DELETE_FEE: Final[int] = int(xrp_to_drops(5))
 
 
 async def safe_sign_and_submit_transaction(

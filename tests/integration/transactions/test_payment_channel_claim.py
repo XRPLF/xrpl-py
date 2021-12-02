@@ -11,7 +11,7 @@ class TestPaymentChannelClaim(IntegrationTestCase):
             PaymentChannelClaim(
                 account=WALLET.classic_address,
                 sequence=WALLET.sequence,
-                channel=PAYMENT_CHANNEL.result["hash"],
+                channel=PAYMENT_CHANNEL.result["tx_json"]["hash"],
             ),
             WALLET,
         )

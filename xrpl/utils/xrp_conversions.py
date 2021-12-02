@@ -1,6 +1,6 @@
 """Conversions between XRP drops and native number types."""
 
-from decimal import Context, Decimal, InvalidOperation, setcontext
+from decimal import Context, Decimal, InvalidOperation, getcontext, setcontext
 from re import fullmatch
 from typing import Union
 
@@ -44,6 +44,7 @@ def xrp_to_drops(xrp: Union[int, float, Decimal]) -> str:
         raise TypeError(
             "XRP provided as a string. Use a number format" "like Decimal or int."
         )
+    old_context = getcontext()
     setcontext(_DROPS_CONTEXT)
     try:
         xrp_d = Decimal(xrp)
@@ -69,6 +70,7 @@ def xrp_to_drops(xrp: Union[int, float, Decimal]) -> str:
             f"'{drops_str}' does not match the drops regex"
         )
 
+    setcontext(old_context)
     return drops_str
 
 
@@ -89,6 +91,7 @@ def drops_to_xrp(drops: str) -> Decimal:
     if type(drops) != str:
         raise TypeError(f"Drops must be provided as string (got {type(drops)})")
     drops = drops.strip()
+    old_context = getcontext()
     setcontext(_DROPS_CONTEXT)
     if not fullmatch(_DROPS_REGEX, drops):
         raise XRPRangeException(f"Not a valid amount of drops: '{drops}'")
@@ -99,6 +102,7 @@ def drops_to_xrp(drops: str) -> Decimal:
     xrp_d = drops_d * ONE_DROP
     if xrp_d > MAX_XRP:
         raise XRPRangeException(f"Drops amount {drops} is too large.")
+    setcontext(old_context)
     return xrp_d
 
 

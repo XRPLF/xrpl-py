@@ -8,7 +8,10 @@ from xrpl.models.transactions import Payment
 
 class TestWallet(IntegrationTestCase):
     @test_async_and_sync(
-        globals(), ["xrpl.wallet.generate_faucet_wallet"], num_retries=5
+        globals(),
+        ["xrpl.wallet.generate_faucet_wallet"],
+        num_retries=5,
+        use_testnet=True,
     )
     async def test_generate_faucet_wallet_rel_sub(self, client):
         destination = await generate_faucet_wallet(client)
