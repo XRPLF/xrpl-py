@@ -7,6 +7,7 @@ XRP_HEX_CODE = "0000000000000000000000000000000000000000"
 ILLEGAL_XRP_HEX_CODE = "0000000000000000000000005852500000000000"
 USD_HEX_CODE = "0000000000000000000000005553440000000000"
 NONSTANDARD_HEX_CODE = "015841551A748AD2C1F76FF6ECB0CCCD00000000"
+NOT_RECOMMENDED_HEX_CODE = "0000000000414C6F676F30330000000000000000"
 XRP_ISO = "XRP"
 USD_ISO = "USD"
 
@@ -69,6 +70,10 @@ class TestCurrency(TestCase):
     def test_construction_from_hex_nonstandard(self):
         currency_object = currency.Currency.from_value(NONSTANDARD_HEX_CODE)
         self.assertEqual(currency_object.to_json(), NONSTANDARD_HEX_CODE)
+
+    def test_construction_from_hex_nonrecommended(self):
+        currency_object = currency.Currency.from_value(NOT_RECOMMENDED_HEX_CODE)
+        self.assertEqual(currency_object.to_json(), NOT_RECOMMENDED_HEX_CODE)
 
     def test_raises_invalid_value_type(self):
         invalid_value = [1, 2, 3]
