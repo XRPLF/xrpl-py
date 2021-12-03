@@ -199,6 +199,11 @@ class SerializedDict(SerializedType):
                 # triggered when the TransactionType field has a value of 'UNLModify'
                 is_unl_modify = True
             is_unl_modify_workaround = field.name == "Account" and is_unl_modify
+            # true when in the UNLModify pseudotransaction (after the transaction type
+            # has been processed) and working with the Account field
+            # The Account field must not be a part of the UNLModify pseudotransaction
+            # encoding, due to a bug in rippled
+
             serializer.write_field_and_value(
                 field, associated_value, is_unl_modify_workaround
             )
