@@ -86,7 +86,7 @@ class Currency(Hash160):
         if self.buffer[0] != 0:
             # non-standard currency
             self._iso = None
-        elif code_bytes.hex() == "000000":
+        elif self.buffer.hex() == "0" * 40:  # all 0s
             # the special case for literal XRP
             self._iso = "XRP"
         else:
