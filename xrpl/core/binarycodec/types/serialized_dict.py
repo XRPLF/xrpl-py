@@ -182,6 +182,8 @@ class SerializedDict(SerializedType):
         if only_signing:
             sorted_keys = list(filter(lambda x: x.is_signing, sorted_keys))
 
+        is_unl_modify = False
+
         for field in sorted_keys:
             try:
                 associated_value = field.associated_type.from_value(
@@ -193,7 +195,13 @@ class SerializedDict(SerializedType):
                 # keeps the original stack trace
                 e.args = (f"Error processing {field.name}: {e.args[0]}",) + e.args[1:]
                 raise
-            serializer.write_field_and_value(field, associated_value)
+            if field.name == "TransactionType" and str(associated_value) == "0066":
+                # triggered when the TransactionType field has a value of 'UNLModify'
+                is_unl_modify = True
+            is_unl_modify_workaround = field.name == "Account" and is_unl_modify
+            serializer.write_field_and_value(
+                field, associated_value, is_unl_modify_workaround
+            )
             if field.type == _SERIALIZED_DICT:
                 serializer.append(_OBJECT_END_MARKER_BYTE)
 
