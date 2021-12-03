@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removes runtime asserts in websocket clients that were used for type checks
   only
 - Adds missing top-level `py.typed` file for exceptions and constants
+- Fix issue where unsupported currency codes weren't being correctly processed in the binary codec
 
 ## [1.2.0] - 2021-11-09
 ### Added
