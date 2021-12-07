@@ -7,7 +7,7 @@ IssuedCurrencyAmount.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Optional
 
 from xrpl.constants import HEX_CURRENCY_REGEX, ISO_CURRENCY_REGEX
 from xrpl.models.base_model import BaseModel
@@ -47,9 +47,18 @@ class IssuedCurrencyBase(BaseModel):
     """
 
     def _get_errors(self: IssuedCurrencyBase) -> Dict[str, str]:
-        errors = super()._get_errors()
+        return {
+            key: value
+            for key, value in {
+                **super()._get_errors(),
+                "currency": self._get_currency_error(),
+            }.items()
+            if value is not None
+        }
+
+    def _get_currency_error(self: IssuedCurrencyBase) -> Optional[str]:
         if self.currency.upper() == "XRP":
-            errors["currency"] = "Currency must not be XRP for issued currency"
-        elif not _is_valid_currency(self.currency):
-            errors["currency"] = f"Invalid currency {self.currency}"
-        return errors
+            return "Currency must not be XRP for issued currency"
+        if not _is_valid_currency(self.currency):
+            return f"Invalid currency {self.currency}"
+        return None
