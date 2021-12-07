@@ -68,3 +68,13 @@ class TestIssuedCurrency(TestCase):
                 currency="xrp",
                 issuer=_ACCOUNT,
             )
+
+    def test_to_amount(self):
+        currency = "USD"
+        amount = "12"
+        issued_currency = IssuedCurrency(currency=currency, issuer=_ACCOUNT)
+        issued_currency_amount = issued_currency.to_amount(amount)
+
+        self.assertEqual(issued_currency_amount.currency, currency)
+        self.assertEqual(issued_currency_amount.issuer, _ACCOUNT)
+        self.assertEqual(issued_currency_amount.value, amount)
