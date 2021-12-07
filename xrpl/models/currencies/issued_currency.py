@@ -7,7 +7,7 @@ See https://xrpl.org/currency-formats.html#specifying-currency-amounts
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, cast
+from typing import Dict
 
 import xrpl.models.amounts  # not a direct import, to get around circular imports
 from xrpl.constants import HEX_CURRENCY_REGEX, ISO_CURRENCY_REGEX
@@ -68,9 +68,6 @@ class IssuedCurrency(BaseModel):
             An IssuedCurrencyAmount that represents the issued currency and the
                 provided value.
         """
-        return cast(
-            xrpl.models.amounts.IssuedCurrencyAmount,
-            xrpl.models.amounts.IssuedCurrencyAmount.from_dict(
-                {**self.to_dict(), "value": value}
-            ),
+        return xrpl.models.amounts.IssuedCurrencyAmount(
+            currency=self.currency, issuer=self.issuer, value=value
         )
