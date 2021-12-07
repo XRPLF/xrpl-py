@@ -29,6 +29,8 @@ _ACCOUNT: Final[str] = "Account"
 _SOURCE_TAG: Final[str] = "SourceTag"
 _DEST_TAG: Final[str] = "DestinationTag"
 
+_UNL_MODIFY_TX: Final[str] = "0066"
+
 
 def _handle_xaddress(field: str, xaddress: str) -> Dict[str, Union[str, int]]:
     """Break down an X-Address into a classic address and a tag.
@@ -195,7 +197,10 @@ class SerializedDict(SerializedType):
                 # keeps the original stack trace
                 e.args = (f"Error processing {field.name}: {e.args[0]}",) + e.args[1:]
                 raise
-            if field.name == "TransactionType" and str(associated_value) == "0066":
+            if (
+                field.name == "TransactionType"
+                and str(associated_value) == _UNL_MODIFY_TX
+            ):
                 # triggered when the TransactionType field has a value of 'UNLModify'
                 is_unl_modify = True
             is_unl_modify_workaround = field.name == "Account" and is_unl_modify
