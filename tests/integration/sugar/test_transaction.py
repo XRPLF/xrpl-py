@@ -155,7 +155,7 @@ class TestTransaction(IntegrationTestCase):
         # GIVEN a new AccountDelete transaction
         account_delete = AccountDelete(
             account=ACCOUNT,
-            # WITH fee higher than 5 XRP
+            # WITH fee higher than 2 XRP
             fee=FEE,
             sequence=WALLET.sequence,
             destination=DESTINATION,
@@ -221,8 +221,8 @@ class TestTransaction(IntegrationTestCase):
             account_delete, WALLET, client
         )
 
-        # THEN we expect the calculated fee to be 5 XRP
-        expected_fee = xrp_to_drops(5)
+        # THEN we expect the calculated fee to be 2 XRP
+        expected_fee = xrp_to_drops(2)
         self.assertEqual(account_delete_signed.fee, expected_fee)
 
     @test_async_and_sync(
