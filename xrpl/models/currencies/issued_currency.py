@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, cast
 
-import xrpl.models.amounts
+import xrpl.models.amounts  # not a direct import, to get around circular imports
 from xrpl.constants import HEX_CURRENCY_REGEX, ISO_CURRENCY_REGEX
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
