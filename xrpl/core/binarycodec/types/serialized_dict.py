@@ -29,6 +29,8 @@ _ACCOUNT: Final[str] = "Account"
 _SOURCE_TAG: Final[str] = "SourceTag"
 _DEST_TAG: Final[str] = "DestinationTag"
 
+_UNL_MODIFY_TX: Final[str] = "0066"
+
 
 def _handle_xaddress(field: str, xaddress: str) -> Dict[str, Union[str, int]]:
     """Break down an X-Address into a classic address and a tag.
@@ -182,6 +184,8 @@ class SerializedDict(SerializedType):
         if only_signing:
             sorted_keys = list(filter(lambda x: x.is_signing, sorted_keys))
 
+        is_unl_modify = False
+
         for field in sorted_keys:
             try:
                 associated_value = field.associated_type.from_value(
@@ -193,7 +197,21 @@ class SerializedDict(SerializedType):
                 # keeps the original stack trace
                 e.args = (f"Error processing {field.name}: {e.args[0]}",) + e.args[1:]
                 raise
-            serializer.write_field_and_value(field, associated_value)
+            if (
+                field.name == "TransactionType"
+                and str(associated_value) == _UNL_MODIFY_TX
+            ):
+                # triggered when the TransactionType field has a value of 'UNLModify'
+                is_unl_modify = True
+            is_unl_modify_workaround = field.name == "Account" and is_unl_modify
+            # true when in the UNLModify pseudotransaction (after the transaction type
+            # has been processed) and working with the Account field
+            # The Account field must not be a part of the UNLModify pseudotransaction
+            # encoding, due to a bug in rippled
+
+            serializer.write_field_and_value(
+                field, associated_value, is_unl_modify_workaround
+            )
             if field.type == _SERIALIZED_DICT:
                 serializer.append(_OBJECT_END_MARKER_BYTE)
 

@@ -28,7 +28,9 @@ class Hash(SerializedType, ABC):
         buffer = buffer if buffer is not None else bytes(self._get_length())
 
         if len(buffer) != self._get_length():
-            raise XRPLBinaryCodecException("Invalid hash length {len(buffer)}")
+            raise XRPLBinaryCodecException(
+                f"Invalid hash length {len(buffer)}. Expected {self._get_length()}"
+            )
         super().__init__(buffer)
 
     def __str__(self: Hash) -> str:

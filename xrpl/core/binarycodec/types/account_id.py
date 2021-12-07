@@ -33,7 +33,7 @@ class AccountID(Hash160):
         Construct an AccountID from given bytes.
         If buffer is not provided, default to 20 zero bytes.
         """
-        if buffer is not None:
+        if buffer is not None and len(buffer) > 0:
             super().__init__(buffer)
         else:
             super().__init__(bytes(self.LENGTH))
