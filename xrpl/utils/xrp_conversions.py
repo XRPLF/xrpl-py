@@ -1,6 +1,6 @@
 """Conversions between XRP drops and native number types."""
 
-from decimal import Context, Decimal, InvalidOperation, getcontext, setcontext
+from decimal import Context, Decimal, InvalidOperation, localcontext
 from re import fullmatch
 from typing import Union
 
@@ -44,33 +44,31 @@ def xrp_to_drops(xrp: Union[int, float, Decimal]) -> str:
         raise TypeError(
             "XRP provided as a string. Use a number format" "like Decimal or int."
         )
-    old_context = getcontext()
-    setcontext(_DROPS_CONTEXT)
-    try:
-        xrp_d = Decimal(xrp)
-    except InvalidOperation:
-        raise XRPRangeException(f"Not a valid amount of XRP: '{xrp}'")
+    with localcontext(_DROPS_CONTEXT):
+        try:
+            xrp_d = Decimal(xrp)
+        except InvalidOperation:
+            raise XRPRangeException(f"Not a valid amount of XRP: '{xrp}'")
 
-    if not xrp_d.is_finite():  # NaN or an Infinity
-        raise XRPRangeException(f"Not a valid amount of XRP: '{xrp}'")
+        if not xrp_d.is_finite():  # NaN or an Infinity
+            raise XRPRangeException(f"Not a valid amount of XRP: '{xrp}'")
 
-    if xrp_d < ONE_DROP and xrp_d != 0:
-        raise XRPRangeException(f"XRP amount {xrp} is too small.")
-    if xrp_d > MAX_XRP:
-        raise XRPRangeException(f"XRP amount {xrp} is too large.")
+        if xrp_d < ONE_DROP and xrp_d != 0:
+            raise XRPRangeException(f"XRP amount {xrp} is too small.")
+        if xrp_d > MAX_XRP:
+            raise XRPRangeException(f"XRP amount {xrp} is too large.")
 
-    drops_amount = (xrp_d / ONE_DROP).quantize(Decimal(1))
-    drops_str = str(drops_amount).strip()
+        drops_amount = (xrp_d / ONE_DROP).quantize(Decimal(1))
+        drops_str = str(drops_amount).strip()
 
-    # This should never happen, but is a precaution against Decimal doing
-    # something unexpected.
-    if not fullmatch(_DROPS_REGEX, drops_str):
-        raise XRPRangeException(
-            f"xrp_to_drops failed sanity check. Value "
-            f"'{drops_str}' does not match the drops regex"
-        )
+        # This should never happen, but is a precaution against Decimal doing
+        # something unexpected.
+        if not fullmatch(_DROPS_REGEX, drops_str):
+            raise XRPRangeException(
+                f"xrp_to_drops failed sanity check. Value "
+                f"'{drops_str}' does not match the drops regex"
+            )
 
-    setcontext(old_context)
     return drops_str
 
 
@@ -91,19 +89,17 @@ def drops_to_xrp(drops: str) -> Decimal:
     if type(drops) != str:
         raise TypeError(f"Drops must be provided as string (got {type(drops)})")
     drops = drops.strip()
-    old_context = getcontext()
-    setcontext(_DROPS_CONTEXT)
-    if not fullmatch(_DROPS_REGEX, drops):
-        raise XRPRangeException(f"Not a valid amount of drops: '{drops}'")
-    try:
-        drops_d = Decimal(drops)
-    except InvalidOperation:
-        raise XRPRangeException(f"Not a valid amount of drops: '{drops}'")
-    xrp_d = drops_d * ONE_DROP
-    if xrp_d > MAX_XRP:
-        raise XRPRangeException(f"Drops amount {drops} is too large.")
-    setcontext(old_context)
-    return xrp_d
+    with localcontext(_DROPS_CONTEXT):
+        if not fullmatch(_DROPS_REGEX, drops):
+            raise XRPRangeException(f"Not a valid amount of drops: '{drops}'")
+        try:
+            drops_d = Decimal(drops)
+        except InvalidOperation:
+            raise XRPRangeException(f"Not a valid amount of drops: '{drops}'")
+        xrp_d = drops_d * ONE_DROP
+        if xrp_d > MAX_XRP:
+            raise XRPRangeException(f"Drops amount {drops} is too large.")
+        return xrp_d
 
 
 class XRPRangeException(XRPLException):
