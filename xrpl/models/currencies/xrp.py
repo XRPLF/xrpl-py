@@ -62,4 +62,13 @@ class XRP(BaseModel):
         return {**super().to_dict(), "currency": "XRP"}
 
     def to_amount(self: XRP, value: str) -> str:
+        """
+        Converts value to XRP.
+
+        Args:
+            value: The amount of XRP.
+
+        Returns:
+            A string representation of XRP amount.
+        """
         return str(value)
