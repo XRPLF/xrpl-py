@@ -11,9 +11,9 @@ from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec import encode, encode_for_signing
 from xrpl.core.keypairs.main import sign
-from xrpl.models.requests import SubmitOnly
+from xrpl.models.requests import ServerState, SubmitOnly
 from xrpl.models.response import Response
-from xrpl.models.transactions.escrow_finish import EscrowFinish
+from xrpl.models.transactions import EscrowFinish
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
@@ -25,7 +25,7 @@ from xrpl.wallet.main import Wallet
 _LEDGER_OFFSET: Final[int] = 20
 
 # TODO: make this dynamic based on the current ledger fee
-_ACCOUNT_DELETE_FEE: Final[int] = int(xrp_to_drops(5))
+_ACCOUNT_DELETE_FEE: Final[int] = int(xrp_to_drops(2))
 
 
 async def safe_sign_and_submit_transaction(
@@ -288,7 +288,10 @@ async def _calculate_fee_per_transaction_type(
 
     # AccountDelete Transaction
     if transaction.transaction_type == TransactionType.ACCOUNT_DELETE:
-        base_fee = _ACCOUNT_DELETE_FEE
+        if client is None:
+            base_fee = _ACCOUNT_DELETE_FEE
+        else:
+            base_fee = await _fetch_account_delete_fee(client)
 
     # Multi-signed Transaction
     # 10 drops × (1 + Number of Signatures Provided)
@@ -297,3 +300,9 @@ async def _calculate_fee_per_transaction_type(
 
     # Round Up base_fee and return it as a String
     return str(math.ceil(base_fee))
+
+
+async def _fetch_account_delete_fee(client: Client) -> int:
+    server_state = await client.request_impl(ServerState())
+    fee = server_state.result["state"]["validated_ledger"]["reserve_inc"]
+    return int(fee)
