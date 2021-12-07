@@ -4,7 +4,7 @@ See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
 """
 from __future__ import annotations
 
-from decimal import MAX_PREC, Context, Decimal, setcontext
+from decimal import MAX_PREC, Context, Decimal, localcontext
 from typing import Any, Dict, Optional, Type, Union
 
 from typing_extensions import Final
@@ -24,8 +24,8 @@ _MIN_MANTISSA: Final[int] = 10 ** 15
 _MAX_MANTISSA: Final[int] = 10 ** 16 - 1
 
 # Configure Decimal
-setcontext(
-    Context(prec=_MAX_IOU_PRECISION, Emax=_MAX_IOU_EXPONENT, Emin=_MIN_IOU_EXPONENT)
+_AMOUNT_CONTEXT = Context(
+    prec=_MAX_IOU_PRECISION, Emax=_MAX_IOU_EXPONENT, Emin=_MIN_IOU_EXPONENT
 )
 
 _MAX_DROPS: Final[Decimal] = Decimal("1e17")
@@ -243,10 +243,11 @@ class Amount(SerializedType):
         Raises:
             XRPLBinaryCodecException: if an Amount cannot be constructed.
         """
-        if isinstance(value, str):
-            return cls(_serialize_xrp_amount(value))
-        if IssuedCurrencyAmount.is_dict_of_model(value):
-            return cls(_serialize_issued_currency_amount(value))
+        with localcontext(_AMOUNT_CONTEXT):
+            if isinstance(value, str):
+                return cls(_serialize_xrp_amount(value))
+            if IssuedCurrencyAmount.is_dict_of_model(value):
+                return cls(_serialize_issued_currency_amount(value))
 
         raise XRPLBinaryCodecException(
             "Invalid type to construct an Amount: expected str or dict,"
