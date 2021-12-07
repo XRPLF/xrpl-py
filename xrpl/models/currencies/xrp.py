@@ -60,3 +60,6 @@ class XRP(BaseModel):
             The dictionary representation of an XRP currency object.
         """
         return {**super().to_dict(), "currency": "XRP"}
+
+    def to_amount(self: XRP, value: str) -> str:
+        return str(value)

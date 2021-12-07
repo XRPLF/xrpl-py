@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict
 
+import xrpl.models.amounts
 from xrpl.constants import HEX_CURRENCY_REGEX, ISO_CURRENCY_REGEX
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
@@ -53,3 +54,10 @@ class IssuedCurrency(BaseModel):
         elif not _is_valid_currency(self.currency):
             errors["currency"] = f"Invalid currency {self.currency}"
         return errors
+
+    def to_amount(
+        self: IssuedCurrency, value: str
+    ) -> xrpl.models.amounts.IssuedCurrencyAmount:
+        return xrpl.models.amounts.IssuedCurrencyAmount.from_dict(
+            {**self.to_dict(), "value": value}
+        )
