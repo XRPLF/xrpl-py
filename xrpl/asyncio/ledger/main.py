@@ -4,6 +4,7 @@ from typing import cast
 
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.models.requests import Ledger, ServerInfo
+from xrpl.utils import xrp_to_drops
 
 
 async def get_latest_validated_ledger_sequence(client: Client) -> int:
@@ -54,7 +55,7 @@ async def get_fee(client: Client) -> str:
         client: the network client used to make network calls.
 
     Returns:
-        The minimum fee for transactions, in XRP.
+        The minimum fee for transactions, in drops.
 
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
@@ -67,7 +68,7 @@ async def get_fee(client: Client) -> str:
     if "validated_ledger" not in server_info:
         raise XRPLRequestFailureException(response.result)
 
-    base_fee = server_info["validated_ledger"]["base_fee_xrp"]
+    base_fee = int(xrp_to_drops(server_info["validated_ledger"]["base_fee_xrp"]))
 
     if "load_factor" not in server_info:
         load_factor = 1
@@ -76,4 +77,4 @@ async def get_fee(client: Client) -> str:
 
     fee = base_fee * load_factor
     # TODO: add cushion and max fee params to this method
-    return "%.6f" % fee
+    return str(int(fee))
