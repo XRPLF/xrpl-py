@@ -5,6 +5,7 @@ from xrpl.models.currencies import *  # noqa: F401, F403
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.path import Path, PathStep
 from xrpl.models.requests import *  # noqa: F401, F403
+from xrpl.models.response import Response
 from xrpl.models.transactions import *  # noqa: F401, F403
 
 __all__ = [
@@ -19,4 +20,5 @@ __all__ = [
     *transactions.__all__,
     "Path",
     "PathStep",
+    "Response",
 ]
