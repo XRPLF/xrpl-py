@@ -54,7 +54,7 @@ async def get_fee(client: Client) -> str:
         client: the network client used to make network calls.
 
     Returns:
-        The minimum fee for transactions.
+        The minimum fee for transactions, in XRP.
 
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
