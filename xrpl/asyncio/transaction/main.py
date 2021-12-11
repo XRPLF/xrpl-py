@@ -108,12 +108,12 @@ async def safe_sign_and_autofill_transaction(
     """
     # We do the transaction fee check here as we have the Client available.
     # The fee check will be done if transaction.fee exists. Otherwise the fee
-    # will be auto-filled in _autofill_transaction()
+    # will be auto-filled in autofill_transaction()
     if check_fee:
         await _check_fee(transaction, client)
 
     return await safe_sign_transaction(
-        await _autofill_transaction(transaction, client), wallet, False
+        await autofill_transaction(transaction, client), wallet, False
     )
 
 
@@ -180,9 +180,19 @@ def _prepare_transaction(
     return transaction_json
 
 
-async def _autofill_transaction(
-    transaction: Transaction, client: Client
-) -> Transaction:
+async def autofill_transaction(transaction: Transaction, client: Client) -> Transaction:
+    """
+    Autofills fields in a transaction. This will set `sequence`, `fee`, and
+    `last_ledger_sequence` according to the current state of the server this Client is
+    connected to. It also converts all X-Addresses to classic addresses.
+
+    Args:
+        transaction: the transaction to be signed.
+        client: a network client.
+
+    Returns:
+        The autofilled transaction.
+    """
     transaction_json = transaction.to_dict()
     if "sequence" not in transaction_json:
         sequence = await get_next_valid_seq_number(transaction_json["account"], client)
