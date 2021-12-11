@@ -216,9 +216,7 @@ class TestTransaction(IntegrationTestCase):
         )
 
         # AFTER autofilling the transaction fee
-        account_delete_signed = await autofill_transaction(
-            account_delete, WALLET, client
-        )
+        account_delete_signed = await autofill_transaction(account_delete, client)
 
         # THEN we expect the calculated fee to be 50 XRP (default in standalone)
         expected_fee = xrp_to_drops(50)
@@ -240,7 +238,7 @@ class TestTransaction(IntegrationTestCase):
         )
 
         # AFTER autofilling the transaction fee
-        escrow_finish_signed = await autofill_transaction(escrow_finish, WALLET, client)
+        escrow_finish_signed = await autofill_transaction(escrow_finish, client)
 
         # AND calculating the expected fee with the formula
         # 10 drops × (33 + (Fulfillment size in bytes ÷ 16))
@@ -265,7 +263,7 @@ class TestTransaction(IntegrationTestCase):
         )
 
         # AFTER autofilling the transaction fee
-        payment_signed = await autofill_transaction(payment, WALLET, client)
+        payment_signed = await autofill_transaction(payment, client)
 
         # THEN We expect the fee to be the default network fee (usually 10 drops)
         expected_fee = await get_fee(client)
