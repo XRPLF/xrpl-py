@@ -1,6 +1,7 @@
 """Async methods for working with transactions on the XRP Ledger."""
 from xrpl.asyncio.transaction.ledger import get_transaction_from_hash
 from xrpl.asyncio.transaction.main import (
+    autofill_transaction,
     safe_sign_and_autofill_transaction,
     safe_sign_and_submit_transaction,
     safe_sign_transaction,
@@ -13,6 +14,7 @@ from xrpl.asyncio.transaction.reliable_submission import (
 )
 
 __all__ = [
+    "autofill_transaction",
     "get_transaction_from_hash",
     "safe_sign_transaction",
     "safe_sign_and_autofill_transaction",
