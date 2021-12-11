@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Methods to convert between `IssuedCurrency` and `IssuedCurrencyAmount`
 - Support for ints and floats in the `IssuedCurrency` and `IssuedCurrencyAmount` models (and ints for `XRP`)
 - Fee scaling based on load on the ledger
+- `max_fee` optional param for `get_fee`
 
 ### Fixed
 - Makes the default ledger version for `get_next_valid_seq_number` `current` instead of `validated`
