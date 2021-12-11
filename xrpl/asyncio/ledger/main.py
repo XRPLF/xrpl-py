@@ -1,6 +1,6 @@
 """High-level ledger methods with the XRPL ledger."""
 
-from typing import cast
+from typing import Optional, cast
 
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.models.requests import Ledger, ServerInfo
@@ -47,15 +47,18 @@ async def get_latest_open_ledger_sequence(client: Client) -> int:
     raise XRPLRequestFailureException(response.result)
 
 
-async def get_fee(client: Client) -> str:
+async def get_fee(client: Client, max_fee: Optional[float] = 2) -> str:
     """
     Query the ledger for the current minimum transaction fee.
 
     Args:
         client: the network client used to make network calls.
+        max_fee: The maximum fee in XRP that the user wants to pay. If load gets too
+            high, then the fees will not scale past the maximum fee. If None, there is
+            no ceiling for the fee. The default is 2 XRP.
 
     Returns:
-        The minimum fee for transactions, in drops.
+        The load-scaled transaction cost, in drops.
 
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
@@ -76,5 +79,10 @@ async def get_fee(client: Client) -> str:
         load_factor = server_info["load_factor"]
 
     fee = base_fee * load_factor
-    # TODO: add cushion and max fee params to this method
+    if max_fee is not None:
+        max_fee_drops = int(xrp_to_drops(max_fee))
+        if max_fee_drops < fee:
+            fee = max_fee_drops
+    # TODO: add cushion param to this method
+    # rounds to the nearest integer, then converts to string
     return str(int(fee))
