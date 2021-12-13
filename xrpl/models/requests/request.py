@@ -8,17 +8,11 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, Optional, Type, Union, cast
 
+import xrpl.models.requests  # bare import to get around circular dependency
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
-
-
-def _method_to_class_name(method: str) -> str:
-    # special case for NoRippleCheck
-    if method == RequestMethod.NO_RIPPLE_CHECK:
-        return "NoRippleCheck"
-    return "".join([word.capitalize() for word in method.split("_")])
 
 
 class RequestMethod(str, Enum):
@@ -124,7 +118,7 @@ class Request(BaseModel):
         if "method" in value:
             method = value["method"]
             if (
-                _method_to_class_name(method) != cls.__name__
+                cls.get_method(method).__name__ != cls.__name__
                 and not (
                     method == "submit"
                     and cls.__name__ in ("SignAndSubmit", "SubmitOnly")
@@ -152,17 +146,20 @@ class Request(BaseModel):
             The request class with the given name. If the request doesn't exist, then
             it will return a `GenericRequest`.
         """
-        import xrpl.models.requests as request_models
+        # special case for NoRippleCheck and NFT methods
+        if method == RequestMethod.NO_RIPPLE_CHECK:
+            return xrpl.models.requests.NoRippleCheck
+        if method == RequestMethod.ACCOUNT_NFTS:
+            return xrpl.models.requests.AccountNFTs
+        if method == RequestMethod.NFT_BUY_OFFERS:
+            return xrpl.models.requests.NFTBuyOffers
+        if method == RequestMethod.NFT_SELL_OFFERS:
+            return xrpl.models.requests.NFTSellOffers
 
-        request_methods: Dict[str, Type[Request]] = {}
-        for r in RequestMethod:
-            method_name = _method_to_class_name(r.name)
-            request_methods[r.value] = getattr(request_models, method_name)
-
-        if method in request_methods:
-            return request_methods[method]
-
-        return request_models.GenericRequest
+        parsed_name = "".join([word.capitalize() for word in method.split("_")])
+        if parsed_name in xrpl.models.requests.__all__:
+            return cast(Type[Request], getattr(xrpl.models.requests, parsed_name))
+        return xrpl.models.requests.GenericRequest
 
     def to_dict(self: Request) -> Dict[str, Any]:
         """

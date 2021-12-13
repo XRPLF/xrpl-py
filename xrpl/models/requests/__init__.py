@@ -4,7 +4,7 @@ from xrpl.models.requests.account_channels import AccountChannels
 from xrpl.models.requests.account_currencies import AccountCurrencies
 from xrpl.models.requests.account_info import AccountInfo
 from xrpl.models.requests.account_lines import AccountLines
-from xrpl.models.requests.account_nfts import AccountNfts
+from xrpl.models.requests.account_nfts import AccountNFTs
 from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
 from xrpl.models.requests.account_offers import AccountOffers
 from xrpl.models.requests.account_tx import AccountTx
@@ -21,8 +21,8 @@ from xrpl.models.requests.ledger_current import LedgerCurrent
 from xrpl.models.requests.ledger_data import LedgerData
 from xrpl.models.requests.ledger_entry import LedgerEntry
 from xrpl.models.requests.manifest import Manifest
-from xrpl.models.requests.nft_buy_offers import NftBuyOffers
-from xrpl.models.requests.nft_sell_offers import NftSellOffers
+from xrpl.models.requests.nft_buy_offers import NFTBuyOffers
+from xrpl.models.requests.nft_sell_offers import NFTSellOffers
 from xrpl.models.requests.no_ripple_check import NoRippleCheck, NoRippleCheckRole
 from xrpl.models.requests.path_find import PathFind, PathFindSubcommand
 from xrpl.models.requests.ping import Ping
@@ -47,7 +47,7 @@ __all__ = [
     "AccountCurrencies",
     "AccountInfo",
     "AccountLines",
-    "AccountNfts",
+    "AccountNFTs",
     "AccountObjects",
     "AccountObjectType",
     "AccountOffers",
@@ -65,8 +65,8 @@ __all__ = [
     "LedgerData",
     "LedgerEntry",
     "Manifest",
-    "NftBuyOffers",
-    "NftSellOffers",
+    "NFTBuyOffers",
+    "NFTSellOffers",
     "NoRippleCheck",
     "NoRippleCheckRole",
     "PathFind",

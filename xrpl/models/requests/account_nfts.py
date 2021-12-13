@@ -1,20 +1,21 @@
 """This method retrieves all of the NFTs currently owned by the specified account."""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from xrpl.models.requests.request import Request
+from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class AccountNfts(Request):
+class AccountNFTs(Request):
     """
     This method retrieves all of the NFTs currently owned
     by the specified account.
     """
 
+    method: RequestMethod = field(default=RequestMethod.ACCOUNT_NFTS, init=False)
     account: str = REQUIRED  # type: ignore
     """
     The unique identifier of an account, typically the account's address. The
