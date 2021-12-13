@@ -1,8 +1,7 @@
 """Conversions between XRP drops and native number types."""
-
+import re
 from decimal import Decimal, InvalidOperation, localcontext
-from re import fullmatch
-from typing import Union
+from typing import Pattern, Union
 
 from typing_extensions import Final
 
@@ -19,7 +18,7 @@ MAX_DROPS: Final[Decimal] = Decimal(10 ** 17)
 
 # Drops should be an integer string. MAY have (positive) exponent.
 # See also: https://xrpl.org/currency-formats.html#string-numbers
-_DROPS_REGEX: Final[str] = r"[1-9][0-9Ee-]{0,17}|0"
+_DROPS_REGEX: Final[Pattern[str]] = re.compile("(?:[1-9][0-9Ee-]{0,17}|0)")
 
 
 def xrp_to_drops(xrp: Union[int, float, Decimal]) -> str:
@@ -61,7 +60,7 @@ def xrp_to_drops(xrp: Union[int, float, Decimal]) -> str:
 
         # This should never happen, but is a precaution against Decimal doing
         # something unexpected.
-        if not fullmatch(_DROPS_REGEX, drops_str):
+        if not _DROPS_REGEX.fullmatch(drops_str):
             raise XRPRangeException(
                 f"xrp_to_drops failed sanity check. Value "
                 f"'{drops_str}' does not match the drops regex"
@@ -88,7 +87,7 @@ def drops_to_xrp(drops: str) -> Decimal:
         raise TypeError(f"Drops must be provided as string (got {type(drops)})")
     drops = drops.strip()
     with localcontext(DROPS_DECIMAL_CONTEXT):
-        if not fullmatch(_DROPS_REGEX, drops):
+        if not _DROPS_REGEX.fullmatch(drops):
             raise XRPRangeException(f"Not a valid amount of drops: '{drops}'")
         try:
             drops_d = Decimal(drops)

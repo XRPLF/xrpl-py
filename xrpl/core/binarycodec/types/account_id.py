@@ -4,7 +4,7 @@ See `AccountID Fields <https://xrpl.org/serialization.html#accountid-fields>`_
 from __future__ import annotations  # Requires Python 3.7+
 
 import re
-from typing import Optional, Type
+from typing import Optional, Pattern, Type
 
 from typing_extensions import Final
 
@@ -18,7 +18,9 @@ from xrpl.core.addresscodec import (
 from xrpl.core.binarycodec import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.hash160 import Hash160
 
-_HEX_REGEX: Final[re.Pattern[str]] = re.compile("^[A-F0-9]{40}$")
+# matches hex-encoded accounts. this happens to be the same format as the
+# hex currency encoding, but that might change so we're redefining it here.
+_HEX_REGEX: Final[Pattern[str]] = re.compile("[A-F0-9]{40}")
 
 
 class AccountID(Hash160):
