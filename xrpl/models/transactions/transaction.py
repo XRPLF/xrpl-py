@@ -14,6 +14,7 @@ from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
+from xrpl.models.types import XRPL_VALUE_TYPE
 from xrpl.models.utils import require_kwargs_on_init
 
 _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
@@ -26,7 +27,9 @@ _ABBREVIATIONS: Final[List[str]] = [
 ]
 
 
-def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[str, Any]:
+def transaction_json_to_binary_codec_form(
+    dictionary: Dict[str, XRPL_VALUE_TYPE]
+) -> Dict[str, XRPL_VALUE_TYPE]:
     """
     Returns a new dictionary in which the keys have been formatted as CamelCase and
     standardized to be serialized by the binary codec.
@@ -60,7 +63,7 @@ def _key_to_tx_json(key: str) -> str:
     )
 
 
-def _value_to_tx_json(value: Any) -> Any:
+def _value_to_tx_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     # IssuedCurrencyAmount and PathStep are special cases and should not be snake cased
     # and only contain primitive members
     if IssuedCurrencyAmount.is_dict_of_model(value) or PathStep.is_dict_of_model(value):
@@ -179,7 +182,7 @@ class Signer(BaseModel):
     """
 
     @classmethod
-    def is_dict_of_model(cls: Type[Signer], dictionary: Dict[str, Any]) -> bool:
+    def is_dict_of_model(cls: Type[Signer], dictionary: Any) -> bool:
         """
         Returns True if the input dictionary was derived by the `to_dict`
         method of an instance of this class. In other words, True if this is

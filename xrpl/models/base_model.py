@@ -13,6 +13,7 @@ from typing_extensions import Final, get_args, get_origin
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
+from xrpl.models.types import XRPL_VALUE_TYPE
 
 # this regex splits words based on one of three cases:
 #
@@ -45,12 +46,9 @@ def _key_to_json(field: str) -> str:
     )
 
 
-def _value_to_json(value: str) -> str:
+def _value_to_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     if isinstance(value, dict):
-        return {
-            _key_to_json(k): _value_to_json(v)
-            for (k, v) in cast(Dict[str, Any], value).items()
-        }
+        return {_key_to_json(k): _value_to_json(v) for (k, v) in value.items()}
     if isinstance(value, list):
         return [_value_to_json(sub_value) for sub_value in value]
     return value
@@ -60,7 +58,7 @@ class BaseModel(ABC):
     """The base class for all model types."""
 
     @classmethod
-    def is_dict_of_model(cls: Type[BaseModel], dictionary: Dict[str, Any]) -> bool:
+    def is_dict_of_model(cls: Type[BaseModel], dictionary: Any) -> bool:
         """
         Checks whether the provided ``dictionary`` is a dictionary representation
         of this class.
@@ -89,7 +87,7 @@ class BaseModel(ABC):
         )
 
     @classmethod
-    def from_dict(cls: Type[BaseModel], value: Dict[str, Any]) -> BaseModel:
+    def from_dict(cls: Type[BaseModel], value: Dict[str, XRPL_VALUE_TYPE]) -> BaseModel:
         """
         Construct a new BaseModel from a dictionary of parameters.
 
@@ -215,7 +213,7 @@ class BaseModel(ABC):
 
         formatted_dict = {
             _key_to_json(k): _value_to_json(v)
-            for (k, v) in cast(Dict[str, Any], value).items()
+            for (k, v) in cast(Dict[str, XRPL_VALUE_TYPE], value).items()
         }
 
         return cls.from_dict(formatted_dict)
