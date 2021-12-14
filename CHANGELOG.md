@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 ### Added
+- `xrpl.utils.str_to_hex` and `xrpl.utils.hex_to_str` helpers
 - `ledger_index` optional param for all the main account methods
 - `TicketCreate` transaction model
 - `GenericRequest` model for unsupported request types
