@@ -7,7 +7,7 @@ See https://xrpl.org/currency-formats.html#specifying-currency-amounts
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Union
 
 import xrpl.models.amounts  # not a direct import, to get around circular imports
 from xrpl.constants import HEX_CURRENCY_REGEX, ISO_CURRENCY_REGEX
@@ -56,7 +56,7 @@ class IssuedCurrency(BaseModel):
         return errors
 
     def to_amount(
-        self: IssuedCurrency, value: str
+        self: IssuedCurrency, value: Union[str, int, float]
     ) -> xrpl.models.amounts.IssuedCurrencyAmount:
         """
         Converts an IssuedCurrency to an IssuedCurrencyAmount.
@@ -69,5 +69,5 @@ class IssuedCurrency(BaseModel):
                 provided value.
         """
         return xrpl.models.amounts.IssuedCurrencyAmount(
-            currency=self.currency, issuer=self.issuer, value=value
+            currency=self.currency, issuer=self.issuer, value=str(value)
         )
