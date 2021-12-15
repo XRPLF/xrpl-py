@@ -43,12 +43,11 @@ class NFTokenCreateOffer(Transaction):
     """
     Indicates the amount expected or offered for the Token.
 
-    The amount must be non-zero, except where this is an
-    offer is an offer to sell and the asset is XRP; then it
-    is legal to specify an amount of zero, which means that
-    the current owner of the token is giving it away, gratis,
-    either to anyone at all, or to the account identified by
-    the Destination field. This field is required.
+    The amount must be non-zero, except when this is a sell
+    offer and the asset is XRP. This would indicate that the current
+    owner of the token is giving it away free, either to anyone at all,
+    or to the account identified by the Destination field. This field
+    is required.
 
     :meta hide-value:
     """

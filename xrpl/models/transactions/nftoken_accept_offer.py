@@ -41,7 +41,7 @@ class NFTokenAcceptOffer(Transaction):
 
     buy_offer: Optional[str] = None
     """
-    Identifies the NFTokenOffer that offers to sell the NFToken.
+    Identifies the NFTokenOffer that offers to buy the NFToken.
 
     In direct mode this field is optional, but either SellOffer or
     BuyOffer must be specified. In brokered mode, both SellOffer
