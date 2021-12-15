@@ -5,6 +5,7 @@ from typing import Optional, cast
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.constants import XRPLException
 from xrpl.models.requests import Fee, Ledger
+from xrpl.utils import xrp_to_drops
 
 
 async def get_latest_validated_ledger_sequence(client: Client) -> int:
@@ -73,13 +74,18 @@ async def get_fee(
     if response.is_successful():
         result = response.result["drops"]
         if fee_type == "open":
-            return cast(str, result["open_ledger_fee"])
+            fee = cast(str, result["open_ledger_fee"])
         elif fee_type == "minimum":
-            return cast(str, result["minimum_fee"])
+            fee = cast(str, result["minimum_fee"])
         else:
             raise XRPLException(
                 f'`fee_type` param must be "open" or "minimum". {fee_type} is not a '
                 "valid option."
             )
+        if max_fee is not None:
+            max_fee_drops = int(xrp_to_drops(max_fee))
+            if max_fee_drops < int(fee):
+                fee = str(max_fee_drops)
+        return fee
 
     raise XRPLRequestFailureException(response.result)
