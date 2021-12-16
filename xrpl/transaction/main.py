@@ -122,7 +122,7 @@ def safe_sign_and_autofill_transaction(
     )
 
 
-def autofill_transaction(transaction: Transaction, client: SyncClient) -> Transaction:
+def autofill(transaction: Transaction, client: SyncClient) -> Transaction:
     """
     Autofills fields in a transaction. This will set `sequence`, `fee`, and
     `last_ledger_sequence` according to the current state of the server this Client is
@@ -136,7 +136,7 @@ def autofill_transaction(transaction: Transaction, client: SyncClient) -> Transa
         The autofilled transaction.
     """
     return asyncio.run(
-        main.autofill_transaction(
+        main.autofill(
             transaction,
             client,
         )

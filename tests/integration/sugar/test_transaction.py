@@ -13,7 +13,7 @@ from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.asyncio.transaction import (
     XRPLReliableSubmissionException,
-    autofill_transaction,
+    autofill,
     get_transaction_from_hash,
     safe_sign_and_autofill_transaction,
     safe_sign_transaction,
@@ -205,7 +205,7 @@ class TestTransaction(IntegrationTestCase):
         self.assertTrue(response.is_successful())
         WALLET.sequence += 1
 
-    @test_async_and_sync(globals(), ["xrpl.transaction.autofill_transaction"])
+    @test_async_and_sync(globals(), ["xrpl.transaction.autofill"])
     async def test_calculate_account_delete_fee(self, client):
         # GIVEN a new AccountDelete transaction
         account_delete = AccountDelete(
@@ -216,7 +216,7 @@ class TestTransaction(IntegrationTestCase):
         )
 
         # AFTER autofilling the transaction fee
-        account_delete_signed = await autofill_transaction(account_delete, client)
+        account_delete_signed = await autofill(account_delete, client)
 
         # THEN we expect the calculated fee to be 50 XRP (default in standalone)
         expected_fee = xrp_to_drops(50)
@@ -224,7 +224,7 @@ class TestTransaction(IntegrationTestCase):
 
     @test_async_and_sync(
         globals(),
-        ["xrpl.transaction.autofill_transaction", "xrpl.ledger.get_fee"],
+        ["xrpl.transaction.autofill", "xrpl.ledger.get_fee"],
     )
     async def test_calculate_escrow_finish_fee(self, client):
         # GIVEN a new EscrowFinish transaction
@@ -238,7 +238,7 @@ class TestTransaction(IntegrationTestCase):
         )
 
         # AFTER autofilling the transaction fee
-        escrow_finish_signed = await autofill_transaction(escrow_finish, client)
+        escrow_finish_signed = await autofill(escrow_finish, client)
 
         # AND calculating the expected fee with the formula
         # 10 drops × (33 + (Fulfillment size in bytes ÷ 16))
@@ -251,7 +251,7 @@ class TestTransaction(IntegrationTestCase):
 
     @test_async_and_sync(
         globals(),
-        ["xrpl.transaction.autofill_transaction", "xrpl.ledger.get_fee"],
+        ["xrpl.transaction.autofill", "xrpl.ledger.get_fee"],
     )
     async def test_calculate_payment_fee(self, client):
         # GIVEN a new Payment transaction
@@ -263,7 +263,7 @@ class TestTransaction(IntegrationTestCase):
         )
 
         # AFTER autofilling the transaction fee
-        payment_signed = await autofill_transaction(payment, client)
+        payment_signed = await autofill(payment, client)
 
         # THEN We expect the fee to be the default network fee (usually 10 drops)
         expected_fee = await get_fee(client)
