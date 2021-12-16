@@ -21,6 +21,7 @@ MAX_DROPS: Final[Decimal] = Decimal(10 ** 17)
 # See also: https://xrpl.org/currency-formats.html#string-numbers
 _DROPS_REGEX: Final[str] = r"[1-9][0-9Ee-]{0,17}|0"
 
+# TODO: export this context so others can use it
 _DROPS_CONTEXT: Final[Context] = Context(prec=18, Emin=0, Emax=18)
 
 

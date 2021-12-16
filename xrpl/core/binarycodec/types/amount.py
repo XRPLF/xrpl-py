@@ -24,6 +24,7 @@ _MIN_MANTISSA: Final[int] = 10 ** 15
 _MAX_MANTISSA: Final[int] = 10 ** 16 - 1
 
 # Configure Decimal
+# TODO: export this context so others can use it
 _AMOUNT_CONTEXT: Final[Context] = Context(
     prec=_MAX_IOU_PRECISION, Emax=_MAX_IOU_EXPONENT, Emin=_MIN_IOU_EXPONENT
 )
