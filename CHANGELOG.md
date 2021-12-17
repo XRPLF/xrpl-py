@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Exports `Transaction`, `Response`, pseudo-transactions at the `xrpl.models` level
 - Makes the account delete fee dynamic, based on the ledger's reserve, instead of hard-coded
 - Fee scaling based on load on the ledger
+- Fixes potential issue with conflicting Decimal contexts
 
 ## [1.2.0] - 2021-11-09
 ### Added
