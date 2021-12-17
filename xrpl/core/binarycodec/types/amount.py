@@ -10,12 +10,12 @@ from typing import Any, Dict, Optional, Type, Union
 from typing_extensions import Final
 
 from xrpl.constants import (
-    IOU_CONTEXT,
+    IOU_DECIMAL_CONTEXT,
     MAX_IOU_EXPONENT,
+    MAX_IOU_MANTISSA,
     MAX_IOU_PRECISION,
-    MAX_MANTISSA,
     MIN_IOU_EXPONENT,
-    MIN_MANTISSA,
+    MIN_IOU_MANTISSA,
 )
 from xrpl.core.binarycodec.binary_wrappers import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -151,11 +151,11 @@ def _serialize_issued_currency_value(value: str) -> bytes:
     mantissa = int("".join([str(d) for d in digits]))
 
     # Canonicalize to expected range ---------------------------------------
-    while mantissa < MIN_MANTISSA and exp > MIN_IOU_EXPONENT:
+    while mantissa < MIN_IOU_MANTISSA and exp > MIN_IOU_EXPONENT:
         mantissa *= 10
         exp -= 1
 
-    while mantissa > MAX_MANTISSA:
+    while mantissa > MAX_IOU_MANTISSA:
         if exp >= MAX_IOU_EXPONENT:
             raise XRPLBinaryCodecException(
                 f"Amount overflow in issued currency value {str(value)}"
@@ -163,11 +163,11 @@ def _serialize_issued_currency_value(value: str) -> bytes:
         mantissa //= 10
         exp += 1
 
-    if exp < MIN_IOU_EXPONENT or mantissa < MIN_MANTISSA:
+    if exp < MIN_IOU_EXPONENT or mantissa < MIN_IOU_MANTISSA:
         # Round to zero
         _ZERO_CURRENCY_AMOUNT_HEX.to_bytes(8, byteorder="big", signed=False)
 
-    if exp > MAX_IOU_EXPONENT or mantissa > MAX_MANTISSA:
+    if exp > MAX_IOU_EXPONENT or mantissa > MAX_IOU_MANTISSA:
         raise XRPLBinaryCodecException(
             f"Amount overflow in issued currency value {str(value)}"
         )
@@ -239,7 +239,7 @@ class Amount(SerializedType):
         Raises:
             XRPLBinaryCodecException: if an Amount cannot be constructed.
         """
-        with localcontext(IOU_CONTEXT):
+        with localcontext(IOU_DECIMAL_CONTEXT):
             if isinstance(value, str):
                 return cls(_serialize_xrp_amount(value))
             if IssuedCurrencyAmount.is_dict_of_model(value):

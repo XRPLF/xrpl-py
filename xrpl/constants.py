@@ -43,17 +43,17 @@ MAX_IOU_PRECISION: Final[int] = 16
 """
 :meta private:
 """
-MIN_MANTISSA: Final[int] = 10 ** 15
+MIN_IOU_MANTISSA: Final[int] = 10 ** 15
 """
 :meta private:
 """
-MAX_MANTISSA: Final[int] = 10 ** 16 - 1
+MAX_IOU_MANTISSA: Final[int] = 10 ** 16 - 1
 """
 :meta private:
 """
 
 # Configure Decimal
-IOU_CONTEXT: Final[Context] = Context(
+IOU_DECIMAL_CONTEXT: Final[Context] = Context(
     prec=MAX_IOU_PRECISION, Emax=MAX_IOU_EXPONENT, Emin=MIN_IOU_EXPONENT
 )
 """
@@ -62,7 +62,7 @@ Decimal context for working with IOUs.
 """
 
 
-DROPS_CONTEXT: Final[Context] = Context(prec=18, Emin=0, Emax=18)
+DROPS_DECIMAL_CONTEXT: Final[Context] = Context(prec=18, Emin=0, Emax=18)
 """
 Decimal context for working with drops.
 :meta private:

@@ -6,7 +6,7 @@ from typing import Union
 
 from typing_extensions import Final
 
-from xrpl.constants import DROPS_CONTEXT, XRPLException
+from xrpl.constants import DROPS_DECIMAL_CONTEXT, XRPLException
 
 ONE_DROP: Final[Decimal] = Decimal("0.000001")
 """Indivisible unit of XRP"""
@@ -42,7 +42,7 @@ def xrp_to_drops(xrp: Union[int, float, Decimal]) -> str:
         raise TypeError(
             "XRP provided as a string. Use a number format" "like Decimal or int."
         )
-    with localcontext(DROPS_CONTEXT):
+    with localcontext(DROPS_DECIMAL_CONTEXT):
         try:
             xrp_d = Decimal(xrp)
         except InvalidOperation:
@@ -87,7 +87,7 @@ def drops_to_xrp(drops: str) -> Decimal:
     if type(drops) != str:
         raise TypeError(f"Drops must be provided as string (got {type(drops)})")
     drops = drops.strip()
-    with localcontext(DROPS_CONTEXT):
+    with localcontext(DROPS_DECIMAL_CONTEXT):
         if not fullmatch(_DROPS_REGEX, drops):
             raise XRPRangeException(f"Not a valid amount of drops: '{drops}'")
         try:
