@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix issue where unsupported currency codes weren't being correctly processed in the binary codec
 - Fixes issue with UNLModify encoding (due to a bug in rippled)
 - Exports `Transaction`, `Response`, pseudo-transactions at the `xrpl.models` level
+- Makes the account delete fee dynamic, based on the ledger's reserve, instead of hard-coded
 
 ## [1.2.0] - 2021-11-09
 ### Added

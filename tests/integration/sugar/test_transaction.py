@@ -36,7 +36,7 @@ MESSAGE_KEY = "03AB40A0490F9B7ED8DF29D246BF2D6269820A0EE7742ACDD457BEA7C7D0931ED
 SET_FLAG = 8
 TRANSFER_RATE = 0
 TICK_SIZE = 10
-FEE = xrp_to_drops(6)
+FEE = xrp_to_drops(60)  # standalone has a delete fee of 50 XRP
 DESTINATION_TAG = 3
 OFFER_SEQUENCE = 7
 CONDITION = (
@@ -155,7 +155,7 @@ class TestTransaction(IntegrationTestCase):
         # GIVEN a new AccountDelete transaction
         account_delete = AccountDelete(
             account=ACCOUNT,
-            # WITH fee higher than 5 XRP
+            # WITH fee higher than 2 XRP
             fee=FEE,
             sequence=WALLET.sequence,
             destination=DESTINATION,
@@ -221,8 +221,8 @@ class TestTransaction(IntegrationTestCase):
             account_delete, WALLET, client
         )
 
-        # THEN we expect the calculated fee to be 5 XRP
-        expected_fee = xrp_to_drops(5)
+        # THEN we expect the calculated fee to be 50 XRP (default in standalone)
+        expected_fee = xrp_to_drops(50)
         self.assertEqual(account_delete_signed.fee, expected_fee)
 
     @test_async_and_sync(
