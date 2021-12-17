@@ -11,9 +11,9 @@ from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec import encode, encode_for_signing
 from xrpl.core.keypairs.main import sign
-from xrpl.models.requests import SubmitOnly
+from xrpl.models.requests import ServerState, SubmitOnly
 from xrpl.models.response import Response
-from xrpl.models.transactions.escrow_finish import EscrowFinish
+from xrpl.models.transactions import EscrowFinish
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
@@ -25,7 +25,7 @@ from xrpl.wallet.main import Wallet
 _LEDGER_OFFSET: Final[int] = 20
 
 # TODO: make this dynamic based on the current ledger fee
-_ACCOUNT_DELETE_FEE: Final[int] = int(xrp_to_drops(5))
+_ACCOUNT_DELETE_FEE: Final[int] = int(xrp_to_drops(2))
 
 
 async def safe_sign_and_submit_transaction(
@@ -108,12 +108,12 @@ async def safe_sign_and_autofill_transaction(
     """
     # We do the transaction fee check here as we have the Client available.
     # The fee check will be done if transaction.fee exists. Otherwise the fee
-    # will be auto-filled in _autofill_transaction()
+    # will be auto-filled in autofill()
     if check_fee:
         await _check_fee(transaction, client)
 
     return await safe_sign_transaction(
-        await _autofill_transaction(transaction, client), wallet, False
+        await autofill(transaction, client), wallet, False
     )
 
 
@@ -180,9 +180,19 @@ def _prepare_transaction(
     return transaction_json
 
 
-async def _autofill_transaction(
-    transaction: Transaction, client: Client
-) -> Transaction:
+async def autofill(transaction: Transaction, client: Client) -> Transaction:
+    """
+    Autofills fields in a transaction. This will set `sequence`, `fee`, and
+    `last_ledger_sequence` according to the current state of the server this Client is
+    connected to. It also converts all X-Addresses to classic addresses.
+
+    Args:
+        transaction: the transaction to be signed.
+        client: a network client.
+
+    Returns:
+        The autofilled transaction.
+    """
     transaction_json = transaction.to_dict()
     if "sequence" not in transaction_json:
         sequence = await get_next_valid_seq_number(transaction_json["account"], client)
@@ -310,7 +320,10 @@ async def _calculate_fee_per_transaction_type(
 
     # AccountDelete Transaction
     if transaction.transaction_type == TransactionType.ACCOUNT_DELETE:
-        base_fee = _ACCOUNT_DELETE_FEE
+        if client is None:
+            base_fee = _ACCOUNT_DELETE_FEE
+        else:
+            base_fee = await _fetch_account_delete_fee(client)
 
     # Multi-signed Transaction
     # 10 drops × (1 + Number of Signatures Provided)
@@ -319,3 +332,9 @@ async def _calculate_fee_per_transaction_type(
 
     # Round Up base_fee and return it as a String
     return str(math.ceil(base_fee))
+
+
+async def _fetch_account_delete_fee(client: Client) -> int:
+    server_state = await client.request_impl(ServerState())
+    fee = server_state.result["state"]["validated_ledger"]["reserve_inc"]
+    return int(fee)
