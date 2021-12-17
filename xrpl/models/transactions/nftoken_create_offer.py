@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Optional
 
-from xrpl.models.amounts import Amount, value
+from xrpl.models.amounts import Amount, get_amount_value
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -101,7 +101,7 @@ class NFTokenCreateOffer(Transaction):
     def _get_amount_error(self: NFTokenCreateOffer) -> Optional[str]:
         if (
             not self.has_flag(NFTokenCreateOfferFlag.TF_SELL_TOKEN)
-            and value(self.amount) <= 0
+            and get_amount_value(self.amount) <= 0
         ):
             return "Must be greater than 0 for a buy offer"
         return None

@@ -36,7 +36,7 @@ def is_issued_currency(amount: Amount) -> bool:
     return isinstance(amount, IssuedCurrencyAmount)
 
 
-def value(amount: Amount) -> float:
+def get_amount_value(amount: Amount) -> float:
     """
     Returns the value of an amount irrespective of its currency.
 

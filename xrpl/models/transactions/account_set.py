@@ -202,9 +202,10 @@ class AccountSet(Transaction):
             self.set_flag != AccountSetFlag.ASF_AUTHORIZED_MINTER
             and self.minter is not None
         ):
-            return """Will not set the minter unless \
-                AccountSetFlag.ASF_AUTHORIZED_MINTER is set\
-                """
+            return (
+                "Will not set the minter unless "
+                "AccountSetFlag.ASF_AUTHORIZED_MINTER is set"
+            )
         if (
             self.set_flag == AccountSetFlag.ASF_AUTHORIZED_MINTER
             and self.minter is None
@@ -214,7 +215,8 @@ class AccountSet(Transaction):
             self.clear_flag == AccountSetFlag.ASF_AUTHORIZED_MINTER
             and self.minter is not None
         ):
-            return """Must not be present if AccountSetFlag.ASF_AUTHORIZED_MINTER \
-                is unset using clear_flag\
-                """
+            return (
+                "Must not be present if AccountSetFlag.ASF_AUTHORIZED_MINTER "
+                "is unset using clear_flag"
+            )
         return None
