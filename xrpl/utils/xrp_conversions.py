@@ -1,12 +1,12 @@
 """Conversions between XRP drops and native number types."""
 
-from decimal import Context, Decimal, InvalidOperation, localcontext
+from decimal import Decimal, InvalidOperation, localcontext
 from re import fullmatch
 from typing import Union
 
 from typing_extensions import Final
 
-from xrpl.constants import XRPLException
+from xrpl.constants import DROPS_CONTEXT, XRPLException
 
 ONE_DROP: Final[Decimal] = Decimal("0.000001")
 """Indivisible unit of XRP"""
@@ -20,9 +20,6 @@ MAX_DROPS: Final[Decimal] = Decimal(10 ** 17)
 # Drops should be an integer string. MAY have (positive) exponent.
 # See also: https://xrpl.org/currency-formats.html#string-numbers
 _DROPS_REGEX: Final[str] = r"[1-9][0-9Ee-]{0,17}|0"
-
-# TODO: export this context so others can use it
-_DROPS_CONTEXT: Final[Context] = Context(prec=18, Emin=0, Emax=18)
 
 
 def xrp_to_drops(xrp: Union[int, float, Decimal]) -> str:
@@ -45,7 +42,7 @@ def xrp_to_drops(xrp: Union[int, float, Decimal]) -> str:
         raise TypeError(
             "XRP provided as a string. Use a number format" "like Decimal or int."
         )
-    with localcontext(_DROPS_CONTEXT):
+    with localcontext(DROPS_CONTEXT):
         try:
             xrp_d = Decimal(xrp)
         except InvalidOperation:
@@ -90,7 +87,7 @@ def drops_to_xrp(drops: str) -> Decimal:
     if type(drops) != str:
         raise TypeError(f"Drops must be provided as string (got {type(drops)})")
     drops = drops.strip()
-    with localcontext(_DROPS_CONTEXT):
+    with localcontext(DROPS_CONTEXT):
         if not fullmatch(_DROPS_REGEX, drops):
             raise XRPRangeException(f"Not a valid amount of drops: '{drops}'")
         try:

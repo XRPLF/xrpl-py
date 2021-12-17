@@ -9,25 +9,20 @@ from typing import Any, Dict, Optional, Type, Union
 
 from typing_extensions import Final
 
+from xrpl.constants import (
+    IOU_CONTEXT,
+    MAX_IOU_EXPONENT,
+    MAX_IOU_PRECISION,
+    MAX_MANTISSA,
+    MIN_IOU_EXPONENT,
+    MIN_MANTISSA,
+)
 from xrpl.core.binarycodec.binary_wrappers import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.account_id import AccountID
 from xrpl.core.binarycodec.types.currency import Currency
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
 from xrpl.models.amounts import IssuedCurrencyAmount
-
-# Constants for validating amounts.
-_MIN_IOU_EXPONENT: Final[int] = -96
-_MAX_IOU_EXPONENT: Final[int] = 80
-_MAX_IOU_PRECISION: Final[int] = 16
-_MIN_MANTISSA: Final[int] = 10 ** 15
-_MAX_MANTISSA: Final[int] = 10 ** 16 - 1
-
-# Configure Decimal
-# TODO: export this context so others can use it
-_AMOUNT_CONTEXT: Final[Context] = Context(
-    prec=_MAX_IOU_PRECISION, Emax=_MAX_IOU_EXPONENT, Emin=_MIN_IOU_EXPONENT
-)
 
 _MAX_DROPS: Final[Decimal] = Decimal("1e17")
 _MIN_XRP: Final[Decimal] = Decimal("1e-6")
@@ -99,9 +94,9 @@ def verify_iou_value(issued_currency_value: str) -> None:
         return
     exponent = decimal_value.as_tuple().exponent
     if (
-        (_calculate_precision(issued_currency_value) > _MAX_IOU_PRECISION)
-        or (exponent > _MAX_IOU_EXPONENT)
-        or (exponent < _MIN_IOU_EXPONENT)
+        (_calculate_precision(issued_currency_value) > MAX_IOU_PRECISION)
+        or (exponent > MAX_IOU_EXPONENT)
+        or (exponent < MIN_IOU_EXPONENT)
     ):
         raise XRPLBinaryCodecException(
             "Decimal precision out of range for issued currency value."
@@ -156,23 +151,23 @@ def _serialize_issued_currency_value(value: str) -> bytes:
     mantissa = int("".join([str(d) for d in digits]))
 
     # Canonicalize to expected range ---------------------------------------
-    while mantissa < _MIN_MANTISSA and exp > _MIN_IOU_EXPONENT:
+    while mantissa < MIN_MANTISSA and exp > MIN_IOU_EXPONENT:
         mantissa *= 10
         exp -= 1
 
-    while mantissa > _MAX_MANTISSA:
-        if exp >= _MAX_IOU_EXPONENT:
+    while mantissa > MAX_MANTISSA:
+        if exp >= MAX_IOU_EXPONENT:
             raise XRPLBinaryCodecException(
                 f"Amount overflow in issued currency value {str(value)}"
             )
         mantissa //= 10
         exp += 1
 
-    if exp < _MIN_IOU_EXPONENT or mantissa < _MIN_MANTISSA:
+    if exp < MIN_IOU_EXPONENT or mantissa < MIN_MANTISSA:
         # Round to zero
         _ZERO_CURRENCY_AMOUNT_HEX.to_bytes(8, byteorder="big", signed=False)
 
-    if exp > _MAX_IOU_EXPONENT or mantissa > _MAX_MANTISSA:
+    if exp > MAX_IOU_EXPONENT or mantissa > MAX_MANTISSA:
         raise XRPLBinaryCodecException(
             f"Amount overflow in issued currency value {str(value)}"
         )
@@ -244,7 +239,7 @@ class Amount(SerializedType):
         Raises:
             XRPLBinaryCodecException: if an Amount cannot be constructed.
         """
-        with localcontext(_AMOUNT_CONTEXT):
+        with localcontext(IOU_CONTEXT):
             if isinstance(value, str):
                 return cls(_serialize_xrp_amount(value))
             if IssuedCurrencyAmount.is_dict_of_model(value):
