@@ -213,19 +213,32 @@ def _validate_account_xaddress(
     """
     Mutates JSON-like dictionary so the X-Address in the account field is the classic
     address, and the tag is in the tag field.
+
+    Args:
+        json: JSON-like dictionary with transaction data or similar
+        account_field: the field of `json` that may contain an X-Address
+        tag_field: the field of `json` that may contain a source or destination tag
+
+    Raises:
+        XRPLException: if both an X-Address containing a tag and a tag field are
+            provided and they do not match.
     """
     if is_valid_xaddress(json[account_field]):
         account, tag, _ = xaddress_to_classic_address(json[account_field])
         json[account_field] = account
-        if json[tag_field] and json[tag_field] != tag:
+        if tag_field in json and json[tag_field] != tag:
             raise XRPLException(f"{tag_field} value does not match X-Address tag")
         json[tag_field] = tag
 
 
 def _convert_to_classic_address(json: Dict[str, Any], field: str) -> None:
     """
-    Mutates JSON-like dictionary to convert the given field from an X-address (if
+    Mutates JSON-like dictionary to convert the given field from an X-Address (if
     applicable) to a classic address.
+
+    Args:
+        json: JSON-like dictionary with transaction data or similar
+        field: the field in `json` that may contain an X-Address
     """
     if field in json and is_valid_xaddress(json[field]):
         json[field] = xaddress_to_classic_address(json[field])
@@ -246,7 +259,16 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
 
 
 async def _check_fee(transaction: Transaction, client: Optional[Client] = None) -> None:
-    """Checks if the Transaction fee is lower than the expected Transaction type fee"""
+    """
+    Checks if the Transaction fee is lower than the expected Transaction type fee.
+
+    Args:
+        transaction: The transaction to check.
+        client: Client instance to use to look up network load
+
+    Raises:
+        XRPLException: if the transaction fee is higher than the expected fee.
+    """
     # Calculate the expected fee from the network load and transaction type
     expected_fee = await _calculate_fee_per_transaction_type(transaction, client)
 

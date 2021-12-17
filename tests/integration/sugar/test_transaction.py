@@ -20,6 +20,7 @@ from xrpl.asyncio.transaction import (
     send_reliable_submission,
 )
 from xrpl.clients import XRPLRequestFailureException
+from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.exceptions import XRPLException
 from xrpl.models.transactions import AccountDelete, AccountSet, EscrowFinish, Payment
 from xrpl.utils import xrp_to_drops
@@ -126,6 +127,43 @@ class TestTransaction(IntegrationTestCase):
             account=WALLET.classic_address,
             amount="100",
             destination=DESTINATION,
+            sequence=WALLET.sequence,
+        )
+
+        # WHEN we sign locally, autofill, and submit the transaction
+        response = await sign_and_reliable_submission_async(payment_transaction, WALLET)
+        payment_hash = response.result["tx_json"]["hash"]
+        payment_ledger_index = response.result["validated_ledger_index"]
+
+        # THEN we expect to retrieve this transaction from its hash with
+        # min_ledger and max_ledger parameters
+        payment = await get_transaction_from_hash(
+            payment_hash,
+            client,
+            False,
+            payment_ledger_index - 5,
+            payment_ledger_index + 5,
+        )
+
+        # AND we expect the result Account to be the same as the original payment Acct
+        self.assertEqual(payment.result["Account"], ACCOUNT)
+        # AND we expect the response to be successful (200)
+        self.assertTrue(payment.is_successful())
+
+        WALLET.sequence += 1
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.get_transaction_from_hash",
+        ],
+    )
+    async def test_none_as_destination_tag(self, client):
+        # GIVEN a new transaction (payment)
+        payment_transaction = Payment(
+            account=WALLET.classic_address,
+            amount="100",
+            destination=classic_address_to_xaddress(DESTINATION, None, False),
             sequence=WALLET.sequence,
         )
 
