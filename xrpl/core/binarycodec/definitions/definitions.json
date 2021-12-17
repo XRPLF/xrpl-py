@@ -856,6 +856,16 @@
       }
     ],
     [
+      "BrokerFee",
+      {
+        "nth": 19,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Amount"
+      }
+    ],
+    [
       "taker_gets_funded",
       {
         "nth": 258,
@@ -1800,6 +1810,7 @@
     "telCAN_NOT_QUEUE_BLOCKED": -389,
     "telCAN_NOT_QUEUE_FEE": -388,
     "telCAN_NOT_QUEUE_FULL": -387,
+
     "temMALFORMED": -299,
     "temBAD_AMOUNT": -298,
     "temBAD_CURRENCY": -297,
@@ -1835,6 +1846,7 @@
     "temCANNOT_PREAUTH_SELF": -267,
     "temUNCERTAIN": -266,
     "temUNKNOWN": -265,
+
     "tefFAILURE": -199,
     "tefALREADY": -198,
     "tefBAD_ADD_AUTH": -197,
@@ -1854,6 +1866,9 @@
     "tefBAD_AUTH_MASTER": -183,
     "tefINVARIANT_FAILED": -182,
     "tefTOO_BIG": -181,
+    "tefNO_TICKET": -180,
+    "tefTOKEN_IS_NOT_TRANSFERABLE": -179,
+
     "terRETRY": -99,
     "terFUNDS_SPENT": -98,
     "terINSUF_FEE_B": -97,
@@ -1865,7 +1880,9 @@
     "terLAST": -91,
     "terNO_RIPPLE": -90,
     "terQUEUED": -89,
+
     "tesSUCCESS": 0,
+
     "tecCLAIM": 100,
     "tecPATH_PARTIAL": 101,
     "tecUNFUNDED_ADD": 102,
@@ -1904,6 +1921,7 @@
     "tecKILLED": 150,
     "tecHAS_OBLIGATIONS": 151,
     "tecTOO_SOON": 152,
+
     "tecMAX_SEQUENCE_REACHED": 154,
     "tecNO_SUITABLE_PAGE": 155,
     "tecBUY_SELL_MISMATCH": 156,
@@ -1917,6 +1935,7 @@
   },
   "TRANSACTION_TYPES": {
     "Invalid": -1,
+
     "Payment": 0,
     "EscrowCreate": 1,
     "EscrowFinish": 2,
