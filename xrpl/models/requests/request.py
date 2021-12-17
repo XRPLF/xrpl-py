@@ -74,6 +74,10 @@ class RequestMethod(str, Enum):
     PING = "ping"
     RANDOM = "random"
 
+    # generic unknown/unsupported request
+    # (there is no XRPL analog, this model is specific to xrpl-py)
+    GENERIC_REQUEST = "zzgeneric_request"
+
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
@@ -114,8 +118,13 @@ class Request(BaseModel):
 
         if "method" in value:
             method = value["method"]
-            if _method_to_class_name(method) != cls.__name__ and not (
-                method == "submit" and cls.__name__ in ("SignAndSubmit", "SubmitOnly")
+            if (
+                _method_to_class_name(method) != cls.__name__
+                and not (
+                    method == "submit"
+                    and cls.__name__ in ("SignAndSubmit", "SubmitOnly")
+                )
+                and not cls.__name__ == "GenericRequest"
             ):
                 raise XRPLModelException(
                     f"Using wrong constructor: using {cls.__name__} constructor "
@@ -135,10 +144,8 @@ class Request(BaseModel):
             method: The String name of the Request object.
 
         Returns:
-            The request class with the given name.
-
-        Raises:
-            XRPLModelException: If `method` is not a valid Request method.
+            The request class with the given name. If the request doesn't exist, then
+            it will return a `GenericRequest`.
         """
         import xrpl.models.requests as request_models
 
@@ -150,7 +157,7 @@ class Request(BaseModel):
         if method in request_methods:
             return request_methods[method]
 
-        raise XRPLModelException(f"{method} is not a valid Request method")
+        return request_models.GenericRequest
 
     def to_dict(self: Request) -> Dict[str, Any]:
         """
@@ -160,5 +167,5 @@ class Request(BaseModel):
             The dictionary representation of a Request.
         """
         # we need to override this because method is using ``field``
-        # which will not include the value in the objects __dict__
+        # which will not include the value in the object's __dict__
         return {**super().to_dict(), "method": self.method.value}

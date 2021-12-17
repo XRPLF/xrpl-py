@@ -3,6 +3,7 @@ from tests.integration.it_utils import submit_transaction_async, test_async_and_
 from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountDelete
+from xrpl.utils import xrp_to_drops
 
 # We can re-use the shared wallet bc this test should fail to actually delete
 # the associated account.
@@ -10,7 +11,7 @@ ACCOUNT = WALLET.classic_address
 
 # AccountDelete transactions have a special fee.
 # See https://xrpl.org/accountdelete.html#special-transaction-cost.
-FEE = "5000000"
+FEE = xrp_to_drops(5)
 DESTINATION_TAG = 3
 
 
@@ -28,7 +29,6 @@ class TestAccountDelete(IntegrationTestCase):
             account_delete, WALLET, check_fee=False
         )
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
-        WALLET.sequence += 1
 
         # Note, we can't test the `engine_result` without waiting a significant
         # amount of time because accounts can't be deleted until some number of

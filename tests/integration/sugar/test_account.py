@@ -1,6 +1,7 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
-    JSON_RPC_CLIENT,
+    FUNDING_AMOUNT,
+    fund_wallet_sync,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
@@ -14,9 +15,10 @@ from xrpl.asyncio.account import (
 )
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.transactions import Payment
-from xrpl.wallet import Wallet, generate_faucet_wallet
+from xrpl.wallet import Wallet
 
-NEW_WALLET = generate_faucet_wallet(JSON_RPC_CLIENT)
+NEW_WALLET = Wallet.create()
+fund_wallet_sync(NEW_WALLET)
 EMPTY_WALLET = Wallet.create()
 
 
@@ -39,7 +41,7 @@ class TestAccount(IntegrationTestCase):
     async def test_get_balance(self, client):
         self.assertEqual(
             await get_balance(NEW_WALLET.classic_address, client),
-            1000000000,
+            int(FUNDING_AMOUNT),
         )
 
     @test_async_and_sync(globals(), ["xrpl.account.get_account_transactions"])
@@ -49,7 +51,7 @@ class TestAccount(IntegrationTestCase):
         )
         self.assertEqual(len(transactions), 1)
         self.assertEqual(transactions[0]["tx"]["TransactionType"], "Payment")
-        self.assertEqual(transactions[0]["tx"]["Amount"], "1000000000")
+        self.assertEqual(transactions[0]["tx"]["Amount"], FUNDING_AMOUNT)
 
     @test_async_and_sync(globals(), ["xrpl.account.get_account_transactions"])
     async def test_get_account_transactions_empty(self, client):
@@ -65,7 +67,7 @@ class TestAccount(IntegrationTestCase):
         )
         self.assertEqual(len(transactions), 1)
         self.assertEqual(transactions[0]["tx"]["TransactionType"], "Payment")
-        self.assertEqual(transactions[0]["tx"]["Amount"], "1000000000")
+        self.assertEqual(transactions[0]["tx"]["Amount"], FUNDING_AMOUNT)
 
     @test_async_and_sync(globals(), ["xrpl.account.get_account_transactions"])
     async def test_payment_transactions_xaddress(self, client):
@@ -73,7 +75,7 @@ class TestAccount(IntegrationTestCase):
         transactions = await get_account_transactions(xaddress, client)
         self.assertEqual(len(transactions), 1)
         self.assertEqual(transactions[0]["tx"]["TransactionType"], "Payment")
-        self.assertEqual(transactions[0]["tx"]["Amount"], "1000000000")
+        self.assertEqual(transactions[0]["tx"]["Amount"], FUNDING_AMOUNT)
 
     @test_async_and_sync(globals(), ["xrpl.account.get_latest_transaction"])
     async def test_get_latest_transaction(self, client):

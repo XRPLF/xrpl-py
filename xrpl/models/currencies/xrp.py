@@ -11,7 +11,7 @@ See https://xrpl.org/currency-formats.html#specifying-currency-amounts
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Type
+from typing import Any, Dict, Type, Union
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
@@ -60,3 +60,15 @@ class XRP(BaseModel):
             The dictionary representation of an XRP currency object.
         """
         return {**super().to_dict(), "currency": "XRP"}
+
+    def to_amount(self: XRP, value: Union[str, int]) -> str:
+        """
+        Converts value to XRP.
+
+        Args:
+            value: The amount of XRP.
+
+        Returns:
+            A string representation of XRP amount.
+        """
+        return str(value)

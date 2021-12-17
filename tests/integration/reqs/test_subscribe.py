@@ -7,7 +7,7 @@ _MESSAGE_LIMIT = 3
 
 
 class TestSubscribe(IntegrationTestCase):
-    @test_async_and_sync(globals(), websockets_only=True)
+    @test_async_and_sync(globals(), websockets_only=True, use_testnet=True)
     async def test_ledger_subscription(self, client):
         await client.send(Subscribe(streams=[StreamParameter.LEDGER]))
         count = 0
@@ -25,7 +25,7 @@ class TestSubscribe(IntegrationTestCase):
             self.assertEqual(message["status"], "success")
             break
 
-    @test_async_and_sync(globals(), websockets_only=True)
+    @test_async_and_sync(globals(), websockets_only=True, use_testnet=True)
     async def test_validations_subscription(self, client):
         await client.send(Subscribe(streams=[StreamParameter.VALIDATIONS]))
         count = 0
@@ -42,7 +42,7 @@ class TestSubscribe(IntegrationTestCase):
                 self.assertEqual(message["status"], "success")
                 break
 
-    @test_async_and_sync(globals(), websockets_only=True)
+    @test_async_and_sync(globals(), websockets_only=True, use_testnet=True)
     async def test_consensus_subscription(self, client):
         await client.send(Subscribe(streams=[StreamParameter.CONSENSUS]))
         count = 0
@@ -59,7 +59,7 @@ class TestSubscribe(IntegrationTestCase):
                 self.assertEqual(message["status"], "success")
                 break
 
-    @test_async_and_sync(globals(), websockets_only=True)
+    @test_async_and_sync(globals(), websockets_only=True, use_testnet=True)
     async def test_transactions_subscription(self, client):
         await client.send(Subscribe(streams=[StreamParameter.TRANSACTIONS]))
         count = 0
@@ -76,7 +76,7 @@ class TestSubscribe(IntegrationTestCase):
                 self.assertEqual(message["result"], {})
                 break
 
-    @test_async_and_sync(globals(), websockets_only=True)
+    @test_async_and_sync(globals(), websockets_only=True, use_testnet=True)
     async def test_transactions_proposed_subscription(self, client):
         await client.send(Subscribe(streams=[StreamParameter.TRANSACTIONS_PROPOSED]))
         count = 0

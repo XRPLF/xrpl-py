@@ -98,9 +98,7 @@ class BaseModel(ABC):
             )
 
         init = cls._get_only_init_args(args)
-        # Ignore type-checking on this for now to simplify subclass constructors
-        # which might pass non kwargs.
-        return cls(**init)  # type: ignore
+        return cls(**init)
 
     @classmethod
     def _from_dict_single_param(

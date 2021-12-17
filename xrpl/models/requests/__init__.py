@@ -13,6 +13,7 @@ from xrpl.models.requests.channel_verify import ChannelVerify
 from xrpl.models.requests.deposit_authorized import DepositAuthorized
 from xrpl.models.requests.fee import Fee
 from xrpl.models.requests.gateway_balances import GatewayBalances
+from xrpl.models.requests.generic_request import GenericRequest
 from xrpl.models.requests.ledger import Ledger
 from xrpl.models.requests.ledger_closed import LedgerClosed
 from xrpl.models.requests.ledger_current import LedgerCurrent
@@ -53,6 +54,7 @@ __all__ = [
     "DepositAuthorized",
     "Fee",
     "GatewayBalances",
+    "GenericRequest",
     "Ledger",
     "LedgerClosed",
     "LedgerCurrent",

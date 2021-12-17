@@ -23,4 +23,5 @@ class TransactionType(str, Enum):
     PAYMENT_CHANNEL_FUND = "PaymentChannelFund"
     SET_REGULAR_KEY = "SetRegularKey"
     SIGNER_LIST_SET = "SignerListSet"
+    TICKET_CREATE = "TicketCreate"
     TRUST_SET = "TrustSet"

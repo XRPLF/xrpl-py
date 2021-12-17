@@ -18,6 +18,9 @@ def send_reliable_submission(transaction: Transaction, client: SyncClient) -> Re
     `See Reliable Transaction Submission
     <https://xrpl.org/reliable-transaction-submission.html>`_
 
+    Note: This cannot be used with a standalone rippled node, because ledgers do not
+    close automatically.
+
     Args:
         transaction: the signed transaction to submit to the ledger. Requires a
             `last_ledger_sequence` param.

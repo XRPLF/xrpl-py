@@ -7,8 +7,9 @@ See https://xrpl.org/currency-formats.html#specifying-currency-amounts
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Union
 
+import xrpl.models.amounts  # not a direct import, to get around circular imports
 from xrpl.constants import HEX_CURRENCY_REGEX, ISO_CURRENCY_REGEX
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
@@ -53,3 +54,20 @@ class IssuedCurrency(BaseModel):
         elif not _is_valid_currency(self.currency):
             errors["currency"] = f"Invalid currency {self.currency}"
         return errors
+
+    def to_amount(
+        self: IssuedCurrency, value: Union[str, int, float]
+    ) -> xrpl.models.amounts.IssuedCurrencyAmount:
+        """
+        Converts an IssuedCurrency to an IssuedCurrencyAmount.
+
+        Args:
+            value: The amount of issued currency in the IssuedCurrencyAmount.
+
+        Returns:
+            An IssuedCurrencyAmount that represents the issued currency and the
+                provided value.
+        """
+        return xrpl.models.amounts.IssuedCurrencyAmount(
+            currency=self.currency, issuer=self.issuer, value=str(value)
+        )

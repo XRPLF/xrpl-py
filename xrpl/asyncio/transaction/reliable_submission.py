@@ -1,7 +1,6 @@
 """High-level reliable submission methods with XRPL transactions."""
 
 import asyncio
-from typing import Any, Dict, cast
 
 from typing_extensions import Final
 
@@ -37,7 +36,7 @@ async def _wait_for_final_transaction_outcome(
     # query transaction by hash
     transaction_response = await get_transaction_from_hash(transaction_hash, client)
 
-    result = cast(Dict[str, Any], transaction_response.result)
+    result = transaction_response.result
     if "validated" in result and result["validated"]:
         # result is in a validated ledger, outcome is final
         return transaction_response
@@ -65,6 +64,9 @@ async def send_reliable_submission(
     `See Reliable Transaction Submission
     <https://xrpl.org/reliable-transaction-submission.html>`_
 
+    Note: This cannot be used with a standalone rippled node, because ledgers do not
+    close automatically.
+
     Args:
         transaction: the signed transaction to submit to the ledger. Requires a
             `last_ledger_sequence` param.
@@ -77,14 +79,11 @@ async def send_reliable_submission(
         XRPLReliableSubmissionException: if the transaction fails or is missing a
             `last_ledger_sequence` param.
     """
-    transaction_hash = transaction.get_hash()
-    submit_response = await submit_transaction(transaction, client)
-    result = cast(Dict[str, Any], submit_response.result)
-    if result["engine_result"] != "tesSUCCESS":
-        result_code = result["engine_result"]
-        result_message = result["engine_result_message"]
+    if transaction.last_ledger_sequence is None:
         raise XRPLReliableSubmissionException(
-            f"Transaction failed, {result_code}: {result_message}"
+            "Transaction must have a `last_ledger_sequence` param."
         )
+    transaction_hash = transaction.get_hash()
+    await submit_transaction(transaction, client)
 
     return await _wait_for_final_transaction_outcome(transaction_hash, client)

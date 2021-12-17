@@ -8,7 +8,7 @@ from __future__ import annotations
 import warnings
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
@@ -48,7 +48,7 @@ class Response(BaseModel):
     :meta hide-value:
     """
 
-    result: Union[List[Any], Dict[Any]] = REQUIRED  # type: ignore
+    result: Dict[str, Any] = REQUIRED  # type: ignore
     """
     This field is required.
 

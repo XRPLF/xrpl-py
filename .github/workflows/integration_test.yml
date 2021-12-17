@@ -1,15 +1,29 @@
 name: Integration test
 
-on: workflow_dispatch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   integration-test:
     name: Integration test
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       matrix:
         # we have to use 3.7.1 to get around openssl issues
         python-version: ['3.7.1', '3.8', '3.9', '3.10']
+
+    services:
+      rippled:
+        image: natenichols/rippled-standalone:latest
+        ports:
+        - 5005:5005
+        - 6006:6006
+        options:
+          --health-cmd="wget localhost:6006 || exit 1" --health-interval=5s --health-retries=10 --health-timeout=2s
 
     steps:
       - name: Checkout code

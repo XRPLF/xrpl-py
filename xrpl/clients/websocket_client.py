@@ -5,7 +5,7 @@ from asyncio import AbstractEventLoop, new_event_loop, run_coroutine_threadsafe
 from concurrent.futures import CancelledError, TimeoutError
 from threading import Thread
 from types import TracebackType
-from typing import Any, Dict, Iterator, Optional, Type, Union
+from typing import Any, Dict, Iterator, Optional, Type, Union, cast
 
 from xrpl.asyncio.clients.exceptions import XRPLWebsocketException
 from xrpl.asyncio.clients.websocket_base import WebsocketBase
@@ -113,20 +113,22 @@ class WebsocketClient(SyncClient, WebsocketBase):
         """Closes the connection."""
         if not self.is_open():
             return
-        assert self._loop is not None  # mypy
-        assert self._thread is not None  # mypy
 
         # run WebsocketBase._do_close on the event loop of the child thread and
         # wait for it to finish
-        run_coroutine_threadsafe(self._do_close(), self._loop).result()
+        run_coroutine_threadsafe(
+            self._do_close(), cast(AbstractEventLoop, self._loop)
+        ).result()
 
         # request the child thread to stop the loop and wait for it to
         # terminate
-        self._loop.call_soon_threadsafe(self._loop.stop)
-        self._thread.join()
+        cast(AbstractEventLoop, self._loop).call_soon_threadsafe(
+            cast(AbstractEventLoop, self._loop).stop
+        )
+        cast(Thread, self._thread).join()
 
         # close the stopped loop
-        self._loop.close()
+        cast(AbstractEventLoop, self._loop).close()
 
         # clear state
         self._loop = None
@@ -160,8 +162,9 @@ class WebsocketClient(SyncClient, WebsocketBase):
         indefinetly for the next messsage.
         """
         while self.is_open():
-            assert self._loop is not None  # mypy
-            future = run_coroutine_threadsafe(self._do_pop_message(), self._loop)
+            future = run_coroutine_threadsafe(
+                self._do_pop_message(), cast(AbstractEventLoop, self._loop)
+            )
             try:
                 yield future.result(self.timeout)
             except TimeoutError:
@@ -190,13 +193,14 @@ class WebsocketClient(SyncClient, WebsocketBase):
         """
         if not self.is_open():
             raise XRPLWebsocketException("Websocket is not open")
-        assert self._loop is not None  # mypy
-        run_coroutine_threadsafe(self._do_send(request), self._loop).result()
+        run_coroutine_threadsafe(
+            self._do_send(request), cast(AbstractEventLoop, self._loop)
+        ).result()
 
     async def request_impl(self: WebsocketClient, request: Request) -> Response:
         """
         ``request_impl`` implementation for sync websockets that ensures the
-        ``WebsocketBase.request_impl`` implementation is run on the other thread.
+        ``WebsocketBase._do_request_impl`` implementation is run on the other thread.
 
         Arguments:
             request: An object representing information about a rippled request.
@@ -212,7 +216,6 @@ class WebsocketClient(SyncClient, WebsocketBase):
         """
         if not self.is_open():
             raise XRPLWebsocketException("Websocket is not open")
-        assert self._loop is not None  # mypy
 
         # it's unusual to write an async function that has no `await` and also
         # has no `async with` or `async for` but in this case that's
@@ -226,6 +229,6 @@ class WebsocketClient(SyncClient, WebsocketBase):
         # completely block the main thread until completed,
         # just as if it were not async.
         return run_coroutine_threadsafe(
-            super().request_impl(request),
-            self._loop,
+            self._do_request_impl(request),
+            cast(AbstractEventLoop, self._loop),
         ).result()

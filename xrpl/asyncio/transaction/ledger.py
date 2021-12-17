@@ -1,6 +1,6 @@
 """High-level methods that fetch transaction information from the XRP Ledger."""
 
-from typing import Any, Dict, Optional, cast
+from typing import Optional
 
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.models.requests import Tx
@@ -47,6 +47,5 @@ async def get_transaction_from_hash(
         )
     )
     if not response.is_successful():
-        result = cast(Dict[str, Any], response.result)
-        raise XRPLRequestFailureException(result)
+        raise XRPLRequestFailureException(response.result)
     return response

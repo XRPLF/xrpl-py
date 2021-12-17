@@ -76,21 +76,31 @@ class BinarySerializer:
         """
         return self.bytesink
 
-    def write_length_encoded(self: BinarySerializer, value: SerializedType) -> None:
+    def write_length_encoded(
+        self: BinarySerializer,
+        value: SerializedType,
+        encode_value: bool = True,
+    ) -> None:
         """
         Write a variable length encoded value to the BinarySerializer.
 
         Args:
             value: The SerializedType object to write to bytesink.
+            encode_value: Does not encode the value; just encodes `00` in its place.
+                Used in the UNLModify encoding workaround. The default is True.
         """
         byte_object = bytearray()
-        value.to_byte_sink(byte_object)
-        length_prefix = _encode_variable_length_prefix(len(value))
+        if encode_value:
+            value.to_byte_sink(byte_object)
+        length_prefix = _encode_variable_length_prefix(len(byte_object))
         self.bytesink += length_prefix
         self.bytesink += byte_object
 
     def write_field_and_value(
-        self: BinarySerializer, field: FieldInstance, value: SerializedType
+        self: BinarySerializer,
+        field: FieldInstance,
+        value: SerializedType,
+        is_unl_modify_workaround: bool = False,
     ) -> None:
         """
         Write field and value to the buffer.
@@ -98,10 +108,13 @@ class BinarySerializer:
         Args:
             field: The field to write to the buffer.
             value: The value to write to the buffer.
+            is_unl_modify_workaround: Encode differently for UNLModify
+                pseudotransactions, due to a bug in rippled. Only True for the Account
+                field in UNLModify pseudotransactions. The default is False.
         """
         self.bytesink += bytes(field.header)
 
         if field.is_variable_length_encoded:
-            self.write_length_encoded(value)
+            self.write_length_encoded(value, not is_unl_modify_workaround)
         else:
             self.bytesink += bytes(value)

@@ -279,6 +279,26 @@ class TestMainSimple(TestCase):
         self.assertEqual(encode(json_blank_acct), binary)
         self.assertEqual(decode(encode(json_blank_acct)), json_dict)
 
+    def test_unl_modify(self):
+        v_hash = "EDB6FC8E803EE8EDC2793F1EC917B2EE41D35255618DEB91D3F9B1FC89B75D4539"
+        json_dict = {
+            "UNLModifyDisabling": 1,
+            "LedgerSequence": 67850752,
+            "UNLModifyValidator": v_hash,
+            "TransactionType": "UNLModify",
+            "Account": "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
+            "Sequence": 0,
+            "Fee": "0",
+            "SigningPubKey": "",
+        }
+        binary = (
+            "120066240000000026040B52006840000000000000007300701321EDB6FC8E803E"
+            "E8EDC2793F1EC917B2EE41D35255618DEB91D3F9B1FC89B75D4539810000101101"
+        )
+
+        self.assertEqual(encode(json_dict), binary)
+        self.assertEqual(decode(encode(json_dict)), json_dict)
+
 
 class TestXAddress(TestCase):
     def test_xaddress_encode(self):
