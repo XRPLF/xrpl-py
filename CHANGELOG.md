@@ -15,7 +15,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GenericRequest` model for unsupported request types
 - Methods to convert between `IssuedCurrency` and `IssuedCurrencyAmount`
 - Support for ints and floats in the `IssuedCurrency` and `IssuedCurrencyAmount` models (and ints for `XRP`)
-- Fee scaling based on load on the ledger
 - `max_fee` optional param for `get_fee`
 
 ### Fixed
@@ -28,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixes issue with UNLModify encoding (due to a bug in rippled)
 - Exports `Transaction`, `Response`, pseudo-transactions at the `xrpl.models` level
 - Makes the account delete fee dynamic, based on the ledger's reserve, instead of hard-coded
+- Fee scaling based on load on the ledger
 
 ## [1.2.0] - 2021-11-09
 ### Added

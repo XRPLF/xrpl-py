@@ -52,7 +52,7 @@ async def get_fee(
     client: Client, *, max_fee: Optional[float] = 2, fee_type: str = "open"
 ) -> str:
     """
-    Query the ledger for the current minimum transaction fee.
+    Query the ledger for the current transaction fee.
 
     Args:
         client: the network client used to make network calls.
@@ -61,31 +61,31 @@ async def get_fee(
             no ceiling for the fee. The default is 2 XRP.
         fee_type: The type of fee to return. The options are "open" (the load-scaled
             fee to get into the open ledger) or "minimum" (the minimum transaction
-            cost). The default is "open".
+            fee). The default is "open".
 
     Returns:
-        The transaction cost, in drops.
+        The transaction fee, in drops.
 
     Raises:
         XRPLException: if an incorrect option for `fee_type` is passed in.
         XRPLRequestFailureException: if the rippled API call fails.
     """
     response = await client.request_impl(Fee())
-    if response.is_successful():
-        result = response.result["drops"]
-        if fee_type == "open":
-            fee = cast(str, result["open_ledger_fee"])
-        elif fee_type == "minimum":
-            fee = cast(str, result["minimum_fee"])
-        else:
-            raise XRPLException(
-                f'`fee_type` param must be "open" or "minimum". {fee_type} is not a '
-                "valid option."
-            )
-        if max_fee is not None:
-            max_fee_drops = int(xrp_to_drops(max_fee))
-            if max_fee_drops < int(fee):
-                fee = str(max_fee_drops)
-        return fee
+    if not response.is_successful():
+        raise XRPLRequestFailureException(response.result)
 
-    raise XRPLRequestFailureException(response.result)
+    result = response.result["drops"]
+    if fee_type == "open":
+        fee = cast(str, result["open_ledger_fee"])
+    elif fee_type == "minimum":
+        fee = cast(str, result["minimum_fee"])
+    else:
+        raise XRPLException(
+            f'`fee_type` param must be "open" or "minimum". {fee_type} is not a '
+            "valid option."
+        )
+    if max_fee is not None:
+        max_fee_drops = int(xrp_to_drops(max_fee))
+        if max_fee_drops < int(fee):
+            fee = str(max_fee_drops)
+    return fee
