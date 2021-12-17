@@ -22,7 +22,7 @@ class XRPLReliableSubmissionException(XRPLException):
 
 
 async def _wait_for_final_transaction_outcome(
-    transaction_hash: str, client: Client
+    transaction_hash: str, client: Client, prelim_result: str
 ) -> Response:
     """
     The core logic of reliable submission.  Polls the ledger until the result of the
@@ -46,11 +46,14 @@ async def _wait_for_final_transaction_outcome(
 
     if last_ledger_sequence > latest_ledger_sequence:
         # outcome is not yet final
-        return await _wait_for_final_transaction_outcome(transaction_hash, client)
+        return await _wait_for_final_transaction_outcome(
+            transaction_hash, client, prelim_result
+        )
 
     raise XRPLReliableSubmissionException(
         f"The latest ledger sequence {latest_ledger_sequence} is greater than the "
-        f"last ledger sequence {last_ledger_sequence} in the transaction."
+        f"last ledger sequence {last_ledger_sequence} in the transaction. Prelim "
+        f"result: {prelim_result}"
     )
 
 
@@ -84,6 +87,9 @@ async def send_reliable_submission(
             "Transaction must have a `last_ledger_sequence` param."
         )
     transaction_hash = transaction.get_hash()
-    await submit_transaction(transaction, client)
+    submit_response = await submit_transaction(transaction, client)
+    prelim_result = submit_response.result["engine_result"]
 
-    return await _wait_for_final_transaction_outcome(transaction_hash, client)
+    return await _wait_for_final_transaction_outcome(
+        transaction_hash, client, prelim_result
+    )
