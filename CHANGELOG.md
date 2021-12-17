@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 ### Added
+- Support for the [XLS-20 NFT proposal](https://github.com/XRPLF/XRPL-Standards/discussions/46)
+- `xrpl.models.amounts.get_amount_value` helper function
 - `xrpl.utils.str_to_hex` and `xrpl.utils.hex_to_str` helpers
 - `ledger_index` optional param for all the main account methods
 - `TicketCreate` transaction model
@@ -14,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Methods to convert between `IssuedCurrency` and `IssuedCurrencyAmount`
 - Support for ints and floats in the `IssuedCurrency` and `IssuedCurrencyAmount` models (and ints for `XRP`)
 - Fixed bug where autofilling using an `xAddress` with `None` in the Destination Tag threw a KeyError
+- `max_fee` and `fee_type` optional params for `get_fee`
+- `autofill`, a new public method that populates the `fee`, `sequence`, and `last_ledger_sequence` fields of a transaction, based on the current state retrieved from the server the Client is connected to. It also converts all X-Addresses to classic addresses.
 
 ### Fixed
 - Makes the default ledger version for `get_next_valid_seq_number` `current` instead of `validated`
@@ -24,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix issue where unsupported currency codes weren't being correctly processed in the binary codec
 - Fixes issue with UNLModify encoding (due to a bug in rippled)
 - Exports `Transaction`, `Response`, pseudo-transactions at the `xrpl.models` level
+- Makes the account delete fee dynamic, based on the ledger's reserve, instead of hard-coded
+- Fee scaling based on load on the ledger
+- Fixes potential issue with conflicting Decimal contexts
 
 ## [1.2.0] - 2021-11-09
 ### Added
