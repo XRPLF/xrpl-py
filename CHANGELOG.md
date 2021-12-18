@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [[Unreleased]]
+
+## [1.3.0] - 2021-12-17
 ### Added
 - Support for the [XLS-20 NFT proposal](https://github.com/XRPLF/XRPL-Standards/discussions/46)
 - `xrpl.models.amounts.get_amount_value` helper function
@@ -18,16 +20,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed bug where autofilling using an `xAddress` with `None` in the Destination Tag threw a KeyError
 - `max_fee` and `fee_type` optional params for `get_fee`
 - `autofill`, a new public method that populates the `fee`, `sequence`, and `last_ledger_sequence` fields of a transaction, based on the current state retrieved from the server the Client is connected to. It also converts all X-Addresses to classic addresses.
+- Exports `Transaction`, `Response`, pseudo-transactions at the `xrpl.models` level
 
 ### Fixed
+- Improves typing of `Response.result`
 - Makes the default ledger version for `get_next_valid_seq_number` `current` instead of `validated`
 - Stops erroring on non-`tesSUCCESS` responses in reliable transaction submission
-- Removes runtime asserts in websocket clients that were used for type checks
-  only
+- Removes runtime asserts in websocket clients that were used for type checks only
 - Adds missing top-level `py.typed` file for exceptions and constants
 - Fix issue where unsupported currency codes weren't being correctly processed in the binary codec
 - Fixes issue with UNLModify encoding (due to a bug in rippled)
-- Exports `Transaction`, `Response`, pseudo-transactions at the `xrpl.models` level
 - Makes the account delete fee dynamic, based on the ledger's reserve, instead of hard-coded
 - Fee scaling based on load on the ledger
 - Fixes potential issue with conflicting Decimal contexts
