@@ -5,7 +5,7 @@ See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
 from __future__ import annotations
 
 import re
-from typing import Optional, Type, Union
+from typing import Optional, Pattern, Type, Union
 
 from typing_extensions import Final
 
@@ -15,7 +15,7 @@ from xrpl.core.binarycodec.types.uint import UInt
 
 _WIDTH: Final[int] = 8  # 64 / 8
 
-_HEX_REGEX: Final[re.Pattern[str]] = re.compile("^[a-fA-F0-9]{1,16}$")
+_HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]{1,16}")
 
 
 class UInt64(UInt):
