@@ -68,17 +68,26 @@ poetry run flake8 ./xrpl
 
 ### Running Tests
 
-To run unit tests:
+#### Unit Tests
 
 ```bash
 poetry run python3 -m unittest discover tests/unit
 ```
 
-To run integration tests:
+#### Integration Tests
+
+To run integration tests, you'll need a standalone rippled node running with WS port `6006` and JSON RPC port `5005`. You can run a docker container for this:
+```bash
+docker run -p 5005:5005 -p 6006:6006 -it natenichols/rippled-standalone:latest
+```
+
+To actually run the tests:
 
 ```bash
 poetry run python3 -m unittest discover tests/integration
 ```
+
+#### Running tests with different Python versions
 
 To switch your python version before running tests:
 
