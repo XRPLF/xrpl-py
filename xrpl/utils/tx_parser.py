@@ -1,55 +1,88 @@
-from xrpl.utils.xrp_conversions import drops_to_xrp
 import pydash
-
-"""
-This is a rewritten repository of https://github.com/ripple/ripple-lib-extensions/blob/master/transactionparser/src/balancechanges.js in python.
-"""
-
-### Utils ###
-class Normalized_Node():
-    def __init__(self, difftype: str, entryType: str, ledgerIndex: str, newFields: dict, finalFields: dict, previousFields: dict) -> None:
-        self.DiffType = difftype
-        self.EntryType = entryType
-        self.LedgerIndex = ledgerIndex
-        self.NewFields = newFields
-        self.FinalFields = finalFields
-        self.PreviousFields = previousFields
+from typing import Dict, List, Union
+from xrpl.constants import XRPLException
+from xrpl.utils.xrp_conversions import drops_to_xrp
 
 
-def __normalize_node(affectedNode):
-    diffType = list(affectedNode.keys())[0]
-    node = affectedNode[diffType]
-    n = Normalized_Node(
-        difftype=diffType,
+class XRPLMetadataExcetion(XRPLException):
+    """Exception for invalid transaction metadata."""
+
+    pass
+
+
+# Utils
+def _is_valid_metadata(metadata: dict):
+    if "Account" not in metadata:
+        raise XRPLMetadataExcetion(
+            "Metadata field 'Account' must be included."
+        )
+
+    if "meta" not in metadata:
+        raise XRPLMetadataExcetion(
+            "Metadata field 'meta' must be included."
+        )
+
+    if "AffectedNodes" not in metadata["meta"] or not metadata["meta"]["AffectedNodes"]:
+        raise XRPLMetadataExcetion(
+            "No nodes provided."
+        )
+
+    return True
+
+
+class NormalizedNode():
+    def __init__(
+        self,
+        diffType: str,
+        entryType: str,
+        ledgerIndex: str,
+        newFields: dict,
+        finalFields: dict,
+        previousFields: dict
+    ):
+        self.diff_type = diffType
+        self.entry_type = entryType
+        self.ledger_index = ledgerIndex
+        self.new_fields = newFields
+        self.final_fields = finalFields
+        self.previous_fields = previousFields
+
+
+def _normalize_node(affectedNode: dict) -> NormalizedNode:
+    diff_type = list(affectedNode)[0]
+    node = affectedNode[diff_type]
+
+    n = NormalizedNode(
+        diffType=diff_type,
         entryType=node["LedgerEntryType"],
         ledgerIndex=node["LedgerIndex"],
-        newFields=node["NewFields"] if "NewFields" in node.keys() else {},
-        finalFields=node["FinalFields"] if "FinalFields" in node.keys() else {},
-        previousFields=node["PreviousFields"] if "PreviousFields" in node.keys() else {}
+        newFields=node["NewFields"] if "NewFields" in node else {},
+        finalFields=node["FinalFields"] if "FinalFields" in node else {},
+        previousFields=node["PreviousFields"] if "PreviousFields" in node else {}
     )
-    
+
     return n
 
 
-def __normalize_nodes(metadata):
-    affectedNodes = metadata["meta"]["AffectedNodes"]
-    if not affectedNodes:
+def _normalize_nodes(metadata: dict):
+    affected_nodes = metadata["meta"]["AffectedNodes"]
+    if not affected_nodes:
         return []
 
-    return map(__normalize_node, affectedNodes)
+    return map(_normalize_node, affected_nodes)
 
 
 class Balance():
-    def __init__(self, counterparty, currency, value) -> None:
-        self.Counterparty = counterparty
-        self.Currency = currency
-        self.Value = str(value)
+    def __init__(self, counterparty: str, currency: str, value: str) -> None:
+        self.counterparty = counterparty
+        self.currency = currency
+        self.value = value
 
 
-class TrustLine_Quantity():
-    def __init__(self, address, balance) -> None:
-        self.Address = address,
-        self.Balance = Balance(
+class TrustLineQuantity():
+    def __init__(self, address: str, balance: dict) -> None:
+        self.address = address,
+        self.balance = Balance(
             counterparty=balance["counterparty"],
             currency=balance["currency"],
             value=balance["value"]
@@ -57,128 +90,173 @@ class TrustLine_Quantity():
 ###############
 
 
-def __group_by_address(balanceChanges):
-    grouped = pydash.group_by(balanceChanges, lambda node: node.Address)
-    
-    return pydash.map_values(grouped, lambda group: pydash.map_(group, lambda node: node.Balance))
+def _group_by_address(balanceChanges: list) -> Dict[str, Balance]:
+    grouped = pydash.group_by(balanceChanges, lambda node: node.address)
+
+    return pydash.map_values(
+        grouped,
+        lambda group: pydash.map_(group, lambda node: node.balance)
+    )
 
 
-def __parse_value(value):
+def _parse_value(value) -> float:
     if "value" in value:
         return float(value["value"])
     else:
         return float(value)
 
 
-def __compute_balance_changes(node):
+def _compute_balance_changes(node: NormalizedNode) -> float:
     value = None
-    if "Balance" in node.NewFields.keys():
-        value = __parse_value(node.NewFields["Balance"])
-    elif "Balance" in node.PreviousFields.keys() and "Balance" in node.FinalFields.keys():
-        value = __parse_value(node.FinalFields["Balance"]) - __parse_value(node.PreviousFields["Balance"])
+    if "Balance" in node.new_fields:
+        value = _parse_value(node.new_fields["Balance"])
+    elif "Balance" in node.previous_fields and "Balance" in node.final_fields:
+        value = _parse_value(
+            node.final_fields["Balance"]
+        ) - _parse_value(
+            node.previous_fields["Balance"]
+        )
 
-    return None if value == None else None if value == 0 else value
+    return None if value is None else None if value == 0 else value
 
 
-def __parse_final_balance(node):
-    if "Balance" in node.NewFields.keys():
-        return __parse_value(node.NewFields["Balance"])
-    elif "Balance" in node.FinalFields.keys():
-        return __parse_value(node.FinalFields["Balance"])
+def _parse_final_balance(node: NormalizedNode) -> float:
+    if "Balance" in node.new_fields:
+        return _parse_value(node.new_fields["Balance"])
+    elif "Balance" in node.final_fields:
+        return _parse_value(node.final_fields["Balance"])
 
     return None
 
 
-def __parse_XRP_quantity(node, valueParser):
+def _parse_xrp_quantity(
+    node: NormalizedNode,
+    valueParser: Union[_compute_balance_changes, _parse_final_balance]
+) -> Union[TrustLineQuantity, None]:
     value = valueParser(node)
-
-    if value == None:
+    if value is None:
         return None
-
-    isNegative = False
-
+    is_negative = False
     if str(value).startswith("-"):
-        isNegative = True
-    
-    result = TrustLine_Quantity(
-        address=node.FinalFields["Account"] if node.FinalFields else node.NewFields["Account"],
+        is_negative = True
+    result = TrustLineQuantity(
+        address=node.final_fields["Account"]
+        if node.final_fields
+        else node.new_fields["Account"],
         balance={
             "counterparty": "",
             "currency": "XRP",
-            "value": drops_to_xrp(str(abs(int(value)))) if not isNegative else "-{}".format(drops_to_xrp(str(abs(int(value))))) # 'drops_to_xrp' does not accept negtive numbers
+            "value": str(drops_to_xrp(
+                str(abs(int(value))))
+            ) if not is_negative else "-{}".format(
+                drops_to_xrp(str(abs(int(value))))
+            )
         }
     )
 
     return result
 
 
-def __flip_TrustLine_perspective(quantity):
-    negatedBalance = abs(float(quantity.Balance.Value))
-    result = TrustLine_Quantity(
-        address=quantity.Balance.Counterparty,
+def _flip_trustline_perspective(quantity: TrustLineQuantity) -> TrustLineQuantity:
+    negated_balance = abs(float(quantity.balance.value))
+    result = TrustLineQuantity(
+        address=quantity.balance.counterparty,
         balance={
-            "counterparty": quantity.Address,
-            "currency": quantity.Balance.Currency,
-            "value": negatedBalance
+            "counterparty": quantity.address,
+            "currency": quantity.balance.currency,
+            "value": negated_balance
         }
     )
 
     return result
 
 
-def __parse_TrustLine_quantity(node, valueParser):
+def _parse_trustline_quantity(
+    node: NormalizedNode,
+    valueParser: Union[_compute_balance_changes, _parse_final_balance]
+) -> List[TrustLineQuantity]:
     value = valueParser(node)
-
-    if value == None:
+    if value is None:
         return None
-
-    fields = node.FinalFields if pydash.is_empty(node.NewFields) else node.NewFields
-
-    # the balance is always from low node's perspective
-    result = TrustLine_Quantity(
+    fields = node.final_fields if pydash.is_empty(node.new_fields) else node.new_fields
+    result = TrustLineQuantity(
         address=fields["LowLimit"]["issuer"],
         balance={
             "counterparty": fields["HighLimit"]["issuer"],
             "currency": fields["Balance"]["currency"],
-            "value": value 
+            "value": str(value)
         }
     )
 
-    return [result, __flip_TrustLine_perspective(result)]
+    return [result, _flip_trustline_perspective(result)]
 
 
-def __parse_quantities(metadata, valueParser):
-    values = map(lambda node: __parse_XRP_quantity(node, valueParser) if node.EntryType == "AccountRoot" else __parse_TrustLine_quantity(node, valueParser) if node.EntryType == "RippleState" else [], __normalize_nodes(metadata=metadata))
+def _parse_quantities(
+    metadata: dict,
+    valueParser: Union[_compute_balance_changes, _parse_final_balance]
+) -> Dict[str, List[Balance]]:
+    values = []
+    for node in _normalize_nodes(metadata=metadata):
+        if node.entry_type == "AccountRoot":
+            values.append(_parse_xrp_quantity(node, valueParser))
+        elif node.entry_type == "RippleState":
+            values.append(_parse_trustline_quantity(node, valueParser))
+        else:
+            values.append([])
 
-    return __group_by_address(pydash.compact(pydash.flatten(values)))
+    return _group_by_address(pydash.compact(pydash.flatten(values)))
 
 
-def parse_balance_changes(metadata: dict) -> dict:
+def parse_balance_changes(metadata: dict) -> Dict[str, List[Dict[str, str]]]:
+    """Parse the balance changes of all accounts affected
+    by the transaction after it occurred.
+
+    Args:
+        metadata (dict): Transaction metadata.
+
+    Returns:
+        Dict[str, List[Dict[str, str]]]:
+        A dictionary of all accounts affected by the transaction and their list of
+        currencies that balances got changed by it.
     """
-    :param metadata: transaction metadata as dict
-    :returns: parsed balance changes
-    """
-    parsedQuantities = __parse_quantities(metadata=metadata, valueParser=__compute_balance_changes)
-
+    _is_valid_metadata(metadata=metadata)
+    parsedQuantities = _parse_quantities(
+        metadata=metadata,
+        valueParser=_compute_balance_changes
+    )
     result = {}
     for k, v in parsedQuantities.items():
         address = k[0]
         change = v
         result[address] = []
         for obj in change:
-            if type(obj.Counterparty) == tuple:
-                obj.Counterparty = obj.Counterparty[0]
-            result[address].append({
-                "Counterparty": obj.Counterparty,
-                "Currency": obj.Currency,
-                "Value": obj.Value
-            })
+            if isinstance(obj.counterparty, tuple):
+                obj.counterparty = obj.counterparty[0]
+            result[address].append(
+                {
+                    "Counterparty": obj.counterparty,
+                    "Currency": obj.currency,
+                    "Value": obj.value
+                }
+            )
 
     return result
 
 
-def parse_final_balances(metadata):
-    parsedQuantities = __parse_quantities(metadata, __parse_final_balance)
+def parse_final_balances(metadata: dict) -> Dict[str, List[Dict[str, str]]]:
+    """Parse the final balances of all accounts affected
+    by the transaction after it occurred.
+
+    Args:
+        metadata (dict): Transaction metadata.
+
+    Returns:
+        Dict[str, List[Dict[str, str]]]:
+        A dictionary of all accounts affected by the transaction and their list of
+        final currency amounts.
+    """
+    _is_valid_metadata(metadata=metadata)
+    parsedQuantities = _parse_quantities(metadata, _parse_final_balance)
 
     result = {}
     for k, v in parsedQuantities.items():
@@ -186,12 +264,14 @@ def parse_final_balances(metadata):
         change = v
         result[address] = []
         for obj in change:
-            if type(obj.Counterparty) == tuple:
-                obj.Counterparty = obj.Counterparty[0]
-            result[address].append({
-                "Counterparty": obj.Counterparty,
-                "Currency": obj.Currency,
-                "Value": obj.Value
-            })
+            if isinstance(obj.counterparty, tuple):
+                obj.counterparty = obj.counterparty[0]
+            result[address].append(
+                {
+                    "Counterparty": obj.counterparty,
+                    "Currency": obj.currency,
+                    "Value": obj.value
+                }
+            )
 
     return result
