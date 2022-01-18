@@ -8,7 +8,10 @@ from xrpl.wallet.main import Wallet
 
 
 def generate_faucet_wallet(
-    client: SyncClient, wallet: Optional[Wallet] = None, debug: bool = False
+    client: SyncClient,
+    wallet: Optional[Wallet] = None,
+    debug: bool = False,
+    faucet_host: Optional[str] = None,
 ) -> Wallet:
     """
     Generates a random wallet and funds it using the XRPL Testnet Faucet.
@@ -17,6 +20,8 @@ def generate_faucet_wallet(
         client: the network client used to make network calls.
         wallet: the wallet to fund. If omitted or `None`, a new wallet is created.
         debug: Whether to print debug information as it creates the wallet.
+        faucet_host: A custom host to use for funding a wallet. In environments other
+            than devnet and testnet, this parameter is required.
 
     Returns:
         A Wallet on the testnet that contains some amount of XRP.
@@ -28,4 +33,4 @@ def generate_faucet_wallet(
 
     .. # noqa: DAR402 exception raised in private method
     """
-    return asyncio.run(async_generate_faucet_wallet(client, wallet, debug))
+    return asyncio.run(async_generate_faucet_wallet(client, wallet, debug, faucet_host))
