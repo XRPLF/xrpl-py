@@ -24,7 +24,10 @@ class XRPLFaucetException(XRPLException):
 
 
 async def generate_faucet_wallet(
-    client: Client, wallet: Optional[Wallet] = None, debug: bool = False
+    client: Client,
+    wallet: Optional[Wallet] = None,
+    debug: bool = False,
+    faucet_host: Optional[str] = None,
 ) -> Wallet:
     """
     Generates a random wallet and funds it using the XRPL Testnet Faucet.
@@ -33,6 +36,8 @@ async def generate_faucet_wallet(
         client: the network client used to make network calls.
         wallet: the wallet to fund. If omitted or `None`, a new wallet is created.
         debug: Whether to print debug information as it creates the wallet.
+        faucet_host: A custom host to use for funding a wallet. In environments other
+            than devnet and testnet, this parameter is required.
 
     Returns:
         A Wallet on the testnet that contains some amount of XRP.
@@ -44,7 +49,7 @@ async def generate_faucet_wallet(
 
     .. # noqa: DAR402 exception raised in private method
     """
-    faucet_url = get_faucet_url(client.url)
+    faucet_url = get_faucet_url(client.url, faucet_host)
     if wallet is None:
         wallet = Wallet.create()
 
@@ -84,13 +89,14 @@ async def generate_faucet_wallet(
     )
 
 
-def get_faucet_url(url: str) -> str:
+def get_faucet_url(url: str, faucet_host: Optional[str] = None) -> str:
     """
     Returns the URL of the faucet that should be used, based on whether the URL is from
     a testnet or devnet client.
 
     Args:
         url: The URL that the client is using to access the ledger.
+        faucet_host: A custom host to use for funding a wallet.
 
     Returns:
         The URL of the matching faucet.
@@ -98,6 +104,8 @@ def get_faucet_url(url: str) -> str:
     Raises:
         XRPLFaucetException: if the provided URL is not for the testnet or devnet.
     """
+    if faucet_host is not None:
+        return f"https://{faucet_host}/accounts"
     if "dev" in url:  # devnet
         return _DEV_FAUCET_URL
     if "altnet" in url or "test" in url:  # testnet
