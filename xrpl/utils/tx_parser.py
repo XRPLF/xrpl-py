@@ -1,45 +1,60 @@
+"""
+Parse balance changes and final balances of every currency
+of every account involved in the given transaction.
+"""
+
+from typing import Dict, Iterable, List, Union
+
 import pydash
-from typing import Dict, List, Union
+from typing_extensions import Self
+
 from xrpl.constants import XRPLException
 from xrpl.utils.xrp_conversions import drops_to_xrp
 
 
-class XRPLMetadataExcetion(XRPLException):
+class XRPLMetadataException(XRPLException):
     """Exception for invalid transaction metadata."""
 
     pass
 
 
-# Utils
-def _is_valid_metadata(metadata: dict):
+def _is_valid_metadata(metadata: dict) -> Union[XRPLMetadataException, bool]:
     if "Account" not in metadata:
-        raise XRPLMetadataExcetion(
-            "Metadata field 'Account' must be included."
+        raise XRPLMetadataException(
+            "Metadata incomplete: Metadata field 'Account' must be included."
         )
 
     if "meta" not in metadata:
-        raise XRPLMetadataExcetion(
-            "Metadata field 'meta' must be included."
+        raise XRPLMetadataException(
+            "Metadata incomplete: Metadata field 'meta' must be included."
         )
 
     if "AffectedNodes" not in metadata["meta"] or not metadata["meta"]["AffectedNodes"]:
-        raise XRPLMetadataExcetion(
-            "No nodes provided."
-        )
+        raise XRPLMetadataException("Metadata incomplete: No nodes provided.")
 
     return True
 
 
 class NormalizedNode():
+    """Normalized Node"""
     def __init__(
-        self,
+        self: Self,
         diffType: str,
         entryType: str,
         ledgerIndex: str,
         newFields: dict,
         finalFields: dict,
         previousFields: dict
-    ):
+    ) -> None:
+        """
+        Args:
+            diffType (str): Node type (ModifiedNode, CreatedNode or DeletedNode).
+            entryType (str): Entry type (e.g. Offer, AccountRoot, …).
+            ledgerIndex (str): Ledger index.
+            newFields (dict): New fields.
+            finalFields (dict): Fields after the transaction occurred.
+            previousFields (dict): Fields before the transaction occurred.
+        """
         self.diff_type = diffType
         self.entry_type = entryType
         self.ledger_index = ledgerIndex
@@ -64,7 +79,7 @@ def _normalize_node(affectedNode: dict) -> NormalizedNode:
     return n
 
 
-def _normalize_nodes(metadata: dict):
+def _normalize_nodes(metadata: dict) -> Union[list, Iterable[NormalizedNode]]:
     affected_nodes = metadata["meta"]["AffectedNodes"]
     if not affected_nodes:
         return []
@@ -73,21 +88,33 @@ def _normalize_nodes(metadata: dict):
 
 
 class Balance():
-    def __init__(self, counterparty: str, currency: str, value: str) -> None:
+    """A accounts balance."""
+    def __init__(self: Self, counterparty: str, currency: str, value: str) -> None:
+        """
+        Args:
+            counterparty (str): Counterparty
+            currency (str): Currency
+            value (str): Value
+        """
         self.counterparty = counterparty
         self.currency = currency
         self.value = value
 
 
 class TrustLineQuantity():
-    def __init__(self, address: str, balance: dict) -> None:
+    """Trust line quantity."""
+    def __init__(self: Self, address: str, balance: dict) -> None:
+        """
+        Args:
+            address (str): Address
+            balance (dict): Balance
+        """
         self.address = address,
         self.balance = Balance(
             counterparty=balance["counterparty"],
             currency=balance["currency"],
             value=balance["value"]
         )
-###############
 
 
 def _group_by_address(balanceChanges: list) -> Dict[str, Balance]:
@@ -99,7 +126,7 @@ def _group_by_address(balanceChanges: list) -> Dict[str, Balance]:
     )
 
 
-def _parse_value(value) -> float:
+def _parse_value(value: Union[dict, str]) -> float:
     if "value" in value:
         return float(value["value"])
     else:
