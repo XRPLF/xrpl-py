@@ -3,158 +3,139 @@ from unittest import TestCase
 import xrpl.utils
 
 transaction = {
-    "Account": "rQ3fNyLjbvcDaPNS4EAJY8aT9zR3uGk17c",
-    "Fee": "15",
-    "Flags": 0,
-    "LastLedgerSequence": 68927248,
-    "OfferSequence": 95346038,
-    "Sequence": 95346042,
-    "SigningPubKey": """
-039451ECAC6D4EB75E3C926E7DC7BA7721719A1521502F99EC7EB2FE87CEE9E824
-    """,
-    "TakerGets": "19328616459",
-    "TakerPays": {
-        "currency": "CNY",
-        "issuer": "rJ1adrpGS3xsnQMb9Cw54tWJVFPuSdZHK",
-        "value": "97741.91414225848",
+    "Account": "rMXmHfF2yugfVtYPkc3gVqtyAqSq6HYmBp",
+    "Amount": {
+        "currency": "43656C65627269747950756E6B73000000000000",
+        "issuer": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
+        "value": "200",
     },
-    "TransactionType": "OfferCreate",
-    "TxnSignature": """
-3045022100C9A7FF07CD398340E18B1E755138A741C16B271BF333F33BA3F823185430A04C022048041A054D096464B99FAF4CB826842179C0E2A96063C2B89FC72B40B74F4FED
+    "Destination": "r396SL8QQR3hCt4vhEJL2dpWwVdE1ysh9y",
+    "Fee": "10",
+    "Flags": 2147483648,
+    "LastLedgerSequence": 69301905,
+    "Sequence": 69262332,
+    "SigningPubKey": """
+ED5375298D273C03DB38AF4BB77A883B44790A7209B129F3E52D16B9CD7ADF5ACF
     """,
-    "date": 695162882,
-    "hash": "DB06C0C758E7B88F2E6076A828CD2A14B5B3D26932FEC94309739070FEDF43EF",
-    "inLedger": 68927246,
-    "ledger_index": 68927246,
+    "TransactionType": "Payment",
+    "TxnSignature": """
+0B65FCB22323D3BF4532E046481A7F545FF49634AF5B6DD8A8CD3199A16297C5660C8A6B5E845E3F2EDA2E86A5D7BDD4301D7CF5C16CA55D13043F5D4DCCC30F
+    """,
+    "date": 696642440,
+    "hash": "38276A4E194FB8A7CAE0AE8A849048116F66366935B22785A33207EE08D80D78",
+    "inLedger": 69301903,
+    "ledger_index": 69301903,
     "meta": {
         "AffectedNodes": [
             {
                 "ModifiedNode": {
                     "FinalFields": {
-                        "Flags": 0,
-                        "IndexNext": "0",
-                        "IndexPrevious": "0",
-                        "Owner": "rQ3fNyLjbvcDaPNS4EAJY8aT9zR3uGk17c",
-                        "RootIndex": """
-07CE63F6E62E095CAF97BC77572A203D75ECB68219F97505AC5DF2DB061C9D96
-                        """,
+                        "Balance": {
+                            "currency": "43656C65627269747950756E6B73000000000000",
+                            "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji",
+                            "value": "-200",
+                        },
+                        "Flags": 2228224,
+                        "HighLimit": {
+                            "currency": "43656C65627269747950756E6B73000000000000",
+                            "issuer": "r396SL8QQR3hCt4vhEJL2dpWwVdE1ysh9y",
+                            "value": "10000000",
+                        },
+                        "HighNode": "0",
+                        "LowLimit": {
+                            "currency": "43656C65627269747950756E6B73000000000000",
+                            "issuer": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
+                            "value": "0",
+                        },
+                        "LowNode": "14e",
                     },
-                    "LedgerEntryType": "DirectoryNode",
+                    "LedgerEntryType": "RippleState",
                     "LedgerIndex": """
-07CE63F6E62E095CAF97BC77572A203D75ECB68219F97505AC5DF2DB061C9D96
+11D048146AA277225904FCF8FF5D62FAB6B17FD9082392688A5B5FB4934D7874
                     """,
-                }
-            },
-            {
-                "CreatedNode": {
-                    "LedgerEntryType": "Offer",
-                    "LedgerIndex": """
-3F3A8D3CCD47A75938228A58DE8B9DCC074163645C759E83403BCF0C61B9F381
-                    """,
-                    "NewFields": {
-                        "Account": "rQ3fNyLjbvcDaPNS4EAJY8aT9zR3uGk17c",
-                        "BookDirectory": """
-                        623C4C4AD65873DA787AC85A0A1385FE6233B6DE100799474F11F72DA3EFF025
-                        """,
-                        "Sequence": 95346042,
-                        "TakerGets": "19328616459",
-                        "TakerPays": {
-                            "currency": "CNY",
-                            "issuer": "rJ1adrpGS3xsnQMb9Cw54tWJVFPuSdZHK",
-                            "value": "97741.91414225848",
+                    "PreviousFields": {
+                        "Balance": {
+                            "currency": "43656C65627269747950756E6B73000000000000",
+                            "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji",
+                            "value": "0",
                         },
                     },
+                    "PreviousTxnID": """
+D03316D6DD24E755978D26459BF5523A050B33A8ACC44CC2EE816E97AD55EA91
+                    """,
+                    "PreviousTxnLgrSeq": 69227871,
                 },
             },
             {
                 "ModifiedNode": {
                     "FinalFields": {
-                        "Account": "rQ3fNyLjbvcDaPNS4EAJY8aT9zR3uGk17c",
-                        "Balance": "5006015759",
+                        "Balance": {
+                            "currency": "43656C65627269747950756E6B73000000000000",
+                            "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji",
+                            "value": "-2861150",
+                        },
+                        "Flags": 2228224,
+                        "HighLimit": {
+                            "currency": "43656C65627269747950756E6B73000000000000",
+                            "issuer": "rMXmHfF2yugfVtYPkc3gVqtyAqSq6HYmBp",
+                            "value": "10000000",
+                        },
+                        "HighNode": "0",
+                        "LowLimit": {
+                            "currency": "43656C65627269747950756E6B73000000000000",
+                            "issuer": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
+                            "value": "0",
+                        },
+                        "LowNode": "42a",
+                    },
+                    "LedgerEntryType": "RippleState",
+                    "LedgerIndex": """
+8ADF6DAAC69842BE2B2015764B25B7F33C091D6D2AF0006F8C686C81AFA082AE
+                    """,
+                    "PreviousFields": {
+                        "Balance": {
+                            "currency": "43656C65627269747950756E6B73000000000000",
+                            "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji",
+                            "value": "-2861350",
+                        },
+                    },
+                    "PreviousTxnID": """
+A1BC7C0D089E28F841F3414DB8D732EA41D4C88000370C466801DF4B75715B58
+                    """,
+                    "PreviousTxnLgrSeq": 69301903,
+                },
+            },
+            {
+                "ModifiedNode": {
+                    "FinalFields": {
+                        "Account": "rMXmHfF2yugfVtYPkc3gVqtyAqSq6HYmBp",
+                        "Balance": "35891433",
                         "Flags": 0,
-                        "OwnerCount": 5,
-                        "Sequence": 95346043,
+                        "OwnerCount": 2,
+                        "Sequence": 69262333,
                     },
                     "LedgerEntryType": "AccountRoot",
                     "LedgerIndex": """
-47FE64F9223D604034486F4DA7A175D5DA7F8A096952261CF8F3D77B74DC4AFA
+EB15B3164948318C04A2E92D465E9EBA0870F3D3ACA990C4CCF57D22F9CA30C9
                     """,
                     "PreviousFields": {
-                        "Balance": "5006015774",
-                        "Sequence": 95346042,
+                        "Balance": "35891443",
+                        "Sequence": 69262332,
                     },
                     "PreviousTxnID": """
-8DF74066B104F9D01BA2CE0B8F5B9746838746836A9240D349B336DB8EB7FB8C
+A1BC7C0D089E28F841F3414DB8D732EA41D4C88000370C466801DF4B75715B58
                     """,
-                    "PreviousTxnLgrSeq": 68927246,
-                }
-            },
-            {
-                "CreatedNode": {
-                    "LedgerEntryType": "DirectoryNode",
-                    "LedgerIndex": """
-623C4C4AD65873DA787AC85A0A1385FE6233B6DE100799474F11F72DA3EFF025
-                    """,
-                    "NewFields": {
-                        "ExchangeRate": "4f11f72da3eff025",
-                        "RootIndex": """
-623C4C4AD65873DA787AC85A0A1385FE6233B6DE100799474F11F72DA3EFF025
-                        """,
-                        "TakerPaysCurrency": "000000000000000000000000434E590000000000",
-                        "TakerPaysIssuer": "0360E3E0751BD9A566CD03FA6CAFC78118B82BA0",
-                    },
-                },
-            },
-            {
-                "DeletedNode": {
-                    "FinalFields": {
-                        "ExchangeRate": "4f11faf6376ace8b",
-                        "Flags": 0,
-                        "RootIndex": """
-623C4C4AD65873DA787AC85A0A1385FE6233B6DE100799474F11FAF6376ACE8B
-                        """,
-                        "TakerGetsCurrency": "0000000000000000000000000000000000000000",
-                        "TakerGetsIssuer": "0000000000000000000000000000000000000000",
-                        "TakerPaysCurrency": "000000000000000000000000434E590000000000",
-                        "TakerPaysIssuer": "0360E3E0751BD9A566CD03FA6CAFC78118B82BA0",
-                    },
-                    "LedgerEntryType": "DirectoryNode",
-                    "LedgerIndex": """
-623C4C4AD65873DA787AC85A0A1385FE6233B6DE100799474F11FAF6376ACE8B
-                    """,
-                },
-            },
-            {
-                "DeletedNode": {
-                    "FinalFields": {
-                        "Account": "rQ3fNyLjbvcDaPNS4EAJY8aT9zR3uGk17c",
-                        "BookDirectory": """
-623C4C4AD65873DA787AC85A0A1385FE6233B6DE100799474F11FAF6376ACE8B
-                        """,
-                        "BookNode": "0",
-                        "Flags": 0,
-                        "OwnerNode": "0",
-                        "PreviousTxnID": """
-14969DAE920168234566DCDCED5C6CE713E32E46C1C2105CEB27AFB0278D240E
-                        """,
-                        "PreviousTxnLgrSeq": 68927245,
-                        "Sequence": 95346038,
-                        "TakerGets": "593588370",
-                        "TakerPays": {
-                            "currency": "CNY",
-                            "issuer": "rJ1adrpGS3xsnQMb9Cw54tWJVFPuSdZHK",
-                            "value": "3004.156678072142",
-                        },
-                    },
-                    "LedgerEntryType": "Offer",
-                    "LedgerIndex": """
-752BF07F08EBF7144E9DCE58A7D9B42F5CE2C5EB20A0722C0CA37E61A8503873
-                    """,
+                    "PreviousTxnLgrSeq": 69301903,
                 },
             },
         ],
-        "TransactionIndex": 26,
+        "TransactionIndex": 3,
         "TransactionResult": "tesSUCCESS",
+        "delivered_amount": {
+            "currency": "43656C65627269747950756E6B73000000000000",
+            "issuer": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
+            "value": "200",
+        },
     },
     "validated": True,
 }
@@ -175,3 +156,77 @@ class TestTxParser(TestCase):
         meta = transaction.copy()["meta"].pop("AffectedNodes")
         with self.assertRaises(xrpl.utils.XRPLMetadataException):
             xrpl.utils.parse_balance_changes(metadata=meta)
+
+    def test_parse_balace_changes(self):
+        actual = xrpl.utils.parse_balance_changes(metadata=transaction)
+        expected = {
+            "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8": [
+                {
+                    "Counterparty": "r396SL8QQR3hCt4vhEJL2dpWwVdE1ysh9y",
+                    "Currency": "43656C65627269747950756E6B73000000000000",
+                    "Value": "-200.0",
+                },
+                {
+                    "Counterparty": "rMXmHfF2yugfVtYPkc3gVqtyAqSq6HYmBp",
+                    "Currency": "43656C65627269747950756E6B73000000000000",
+                    "Value": "200.0",
+                },
+            ],
+            "r396SL8QQR3hCt4vhEJL2dpWwVdE1ysh9y": [
+                {
+                    "Counterparty": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
+                    "Currency": "43656C65627269747950756E6B73000000000000",
+                    "Value": "200.0",
+                },
+            ],
+            "rMXmHfF2yugfVtYPkc3gVqtyAqSq6HYmBp": [
+                {
+                    "Counterparty": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
+                    "Currency": "43656C65627269747950756E6B73000000000000",
+                    "Value": "200.0",
+                },
+                {
+                    "Counterparty": "",
+                    "Currency": "XRP",
+                    "Value": "-0.000010",
+                },
+            ],
+        }
+        self.assertEqual(actual, expected)
+
+    def test_parse_final_balances(self):
+        actual = xrpl.utils.parse_final_balances(metadata=transaction)
+        expected = {
+            "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8": [
+                {
+                    "Counterparty": "r396SL8QQR3hCt4vhEJL2dpWwVdE1ysh9y",
+                    "Currency": "43656C65627269747950756E6B73000000000000",
+                    "Value": "-200.0",
+                },
+                {
+                    "Counterparty": "rMXmHfF2yugfVtYPkc3gVqtyAqSq6HYmBp",
+                    "Currency": "43656C65627269747950756E6B73000000000000",
+                    "Value": "-2861150.0",
+                },
+            ],
+            "r396SL8QQR3hCt4vhEJL2dpWwVdE1ysh9y": [
+                {
+                    "Counterparty": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
+                    "Currency": "43656C65627269747950756E6B73000000000000",
+                    "Value": "200.0",
+                },
+            ],
+            "rMXmHfF2yugfVtYPkc3gVqtyAqSq6HYmBp": [
+                {
+                    "Counterparty": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
+                    "Currency": "43656C65627269747950756E6B73000000000000",
+                    "Value": "2861150.0",
+                },
+                {
+                    "Counterparty": "",
+                    "Currency": "XRP",
+                    "Value": "35.891433",
+                },
+            ],
+        }
+        self.assertEqual(actual, expected)
