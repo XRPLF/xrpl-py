@@ -17,7 +17,7 @@ class XRPLMetadataException(XRPLException):
     pass
 
 
-def _is_valid_metadata(metadata: Dict[str, Any]) -> Union[XRPLMetadataException, bool]:
+def _is_valid_metadata(metadata: Dict[str, Any]) -> None:
     if "Account" not in metadata:
         raise XRPLMetadataException(
             "Metadata incomplete: Metadata field 'Account' must be included."
