@@ -148,18 +148,15 @@ class WebsocketBase(Client):
             )
         self._open_requests[request_str] = get_running_loop().create_future()
 
-    async def _do_send_no_future(self: WebsocketBase, request: Request) -> None:
+    async def _do_send(self: WebsocketBase, request: Request) -> None:
+        # we need to set up a future here, even if no one cares about it, so
+        # that if a user submits a few requests with the same ID they fail.
+        self._set_up_future(request)
         await cast(WebSocketClientProtocol, self._websocket).send(
             json.dumps(
                 request_to_websocket(request),
             ),
         )
-
-    async def _do_send(self: WebsocketBase, request: Request) -> None:
-        # we need to set up a future here, even if no one cares about it, so
-        # that if a user submits a few requests with the same ID they fail.
-        self._set_up_future(request)
-        await self._do_send_no_future(request)
 
     async def _do_pop_message(self: WebsocketBase) -> Dict[str, Any]:
         msg = await cast(_MESSAGES_TYPE, self._messages).get()
@@ -184,10 +181,9 @@ class WebsocketBase(Client):
         # is backed by a future
         request_with_id = _inject_request_id(request)
         request_str = str(request_with_id.id)
-        self._set_up_future(request_with_id)
 
         # fire-and-forget the send, and await the Future
-        create_task(self._do_send_no_future(request_with_id))
+        create_task(self._do_send(request_with_id))
         raw_response = await self._open_requests[request_str]
 
         # remove the resolved Future, hopefully getting it garbage colleted
