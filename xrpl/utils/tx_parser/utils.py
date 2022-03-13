@@ -297,7 +297,7 @@ def _parse_xrp_quantity(
 
 
 def _flip_trustline_perspective(quantity: TrustLineQuantity) -> TrustLineQuantity:
-    negated_balance = abs(float(quantity.balance.value))
+    negated_balance = 0 - float(quantity.balance.value)
     result = TrustLineQuantity(
         address=quantity.balance.counterparty,
         balance={
