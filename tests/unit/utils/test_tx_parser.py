@@ -185,7 +185,7 @@ class TestBalanceChanges(TestCase):
                 {
                     "Counterparty": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
                     "Currency": "43656C65627269747950756E6B73000000000000",
-                    "Value": "200.0",
+                    "Value": "-200.0",
                 },
                 {
                     "Counterparty": "",
@@ -255,13 +255,13 @@ class TestBalanceChanges(TestCase):
                     "Counterparty": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
                     "Currency": "43656C65627269747950756E6B73000000000000",
                     "Value": "0.0",
-                }
+                },
             ],
             "rMXmHfF2yugfVtYPkc3gVqtyAqSq6HYmBp": [
                 {
                     "Counterparty": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
                     "Currency": "43656C65627269747950756E6B73000000000000",
-                    "Value": "2860950.0",
+                    "Value": "2861350.0",
                 },
                 {
                     "Counterparty": "",
