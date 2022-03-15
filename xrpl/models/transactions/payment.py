@@ -90,6 +90,27 @@ class Payment(Transaction):
     is considered a success.
     """
 
+    tf_no_direct_ripple: Optional[bool] = None
+    """
+    Do not use the default path; only use paths included in the Paths field.
+    This is intended to force the transaction to take arbitrage opportunities.
+    Most clients do not need this.
+    """
+
+    tf_partial_payment: Optional[bool] = None
+    """
+    If the specified Amount cannot be sent without spending more than SendMax,
+    reduce the received amount instead of failing outright.
+    See `Partial Payments <https://xrpl.org/partial-payments.html>`_ for more details.
+    """
+
+    tf_limit_quality: Optional[bool] = None
+    """
+    Only take paths where all the conversions have an input:output ratio
+    that is equal or better than the ratio of Amount:SendMax.
+    See `Limit <https://xrpl.org/payment.html#limit-quality>`_ Quality for details.
+    """
+
     transaction_type: TransactionType = field(
         default=TransactionType.PAYMENT,
         init=False,

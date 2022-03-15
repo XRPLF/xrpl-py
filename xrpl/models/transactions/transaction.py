@@ -13,6 +13,7 @@ from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
+from xrpl.models.transactions.transaction_flags import TX_FLAG_PREFIXES, TX_FLAGS
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
 from xrpl.models.types import XRPL_VALUE_TYPE
 from xrpl.models.utils import require_kwargs_on_init
@@ -337,6 +338,23 @@ class Transaction(BaseModel):
         }
 
     def _flags_to_int(self: Transaction) -> int:
+        tx_flags: List[str] = [
+            attr
+            for attr, set_flag in vars(self).items()
+            if (attr.startswith(TX_FLAG_PREFIXES) and set_flag)
+        ]
+        if tx_flags and (
+            self.flags if isinstance(self.flags, list) else self.flags > 0
+        ):
+            raise XRPLModelException(
+                "Please define flags either by setting bools or by using `flags` attr."
+            )
+        accumulator = 0
+        for tx_flag in tx_flags:
+            if TX_FLAGS[self.transaction_type]:
+                accumulator |= TX_FLAGS[self.__class__.__name__][tx_flag]
+        if accumulator != 0:
+            return accumulator
         if isinstance(self.flags, int):
             return self.flags
         accumulator = 0

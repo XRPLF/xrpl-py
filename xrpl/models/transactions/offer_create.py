@@ -92,6 +92,40 @@ class OfferCreate(Transaction):
     when placing this Offer.
     """
 
+    tf_passive: Optional[bool] = None
+    """
+    If enabled, the offer does not consume offers that exactly match it, and instead
+    becomes an Offer object in the ledger. It still consumes offers that cross it.
+    """
+
+    tf_immediate_or_cancel: Optional[bool] = None
+    """
+    Treat the offer as an `Immediate or Cancel order
+    <https://en.wikipedia.org/wiki/Immediate_or_cancel>`_. If enabled, the offer
+    never becomes a ledger object: it only tries to match existing offers in the
+    ledger. If the offer cannot match any offers immediately, it executes
+    "successfully" without trading any currency. In this case, the transaction has
+    the result code `tesSUCCESS`, but creates no Offer objects in the ledger.
+    """
+
+    tf_fill_or_kill: Optional[bool] = None
+    """
+    Treat the offer as a `Fill or Kill order
+    <https://en.wikipedia.org/wiki/Fill_or_kill>`_. Only try to match existing
+    offers in the ledger, and only do so if the entire `TakerPays` quantity can be
+    obtained. If the `fix1578 amendment
+    <https://xrpl.org/known-amendments.html#fix1578>`_ is enabled and the offer
+    cannot be executed when placed, the transaction has the result code `tecKILLED`;
+    otherwise, the transaction uses the result code `tesSUCCESS` even when it was
+    killed without trading any currency.
+    """
+
+    tf_sell: Optional[bool] = None
+    """
+    Exchange the entire `TakerGets` amount, even if it means obtaining more than the
+    `TakerPays amount` in exchange.
+    """
+
     transaction_type: TransactionType = field(
         default=TransactionType.OFFER_CREATE,
         init=False,

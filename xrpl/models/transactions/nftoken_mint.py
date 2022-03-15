@@ -95,6 +95,31 @@ class NFTokenMint(Transaction):
     convert a UTF-8 string to hex.
     """
 
+    tf_burnable: Optional[bool] = None
+    """
+    If set, indicates that the minted token may be burned by the issuer even
+    if the issuer does not currently hold the token. The current holder of
+    the token may always burn it.
+    """
+
+    tf_only_xrp: Optional[bool] = None
+    """
+    If set, indicates that the token may only be offered or sold for XRP.
+    """
+
+    tf_trustline: Optional[bool] = None
+    """
+    If set, indicates that the issuer wants a trustline to be automatically
+    created.
+    """
+
+    tf_transferable: Optional[bool] = None
+    """
+    If set, indicates that this NFT can be transferred. This flag has no
+    effect if the token is being transferred from the issuer or to the
+    issuer.
+    """
+
     transaction_type: TransactionType = field(
         default=TransactionType.NFTOKEN_MINT,
         init=False,

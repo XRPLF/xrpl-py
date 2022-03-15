@@ -145,6 +145,60 @@ class AccountSet(Transaction):
     also set the AccountSetFlag.ASF_AUTHORIZED_MINTER flag.
     """
 
+    asf_account_tx_id: Optional[bool] = None
+    """
+    Track the ID of this account's most recent transaction. Required for
+    `AccountTxnID <https://xrpl.org/transaction-common-fields.html#accounttxnid>`_
+    """
+
+    asf_authorized_minter: Optional[bool] = None
+    """Allow another account to mint and burn tokens on behalf of this account."""
+
+    asf_default_ripple: Optional[bool] = None
+    """
+    Enable `rippling
+    <https://xrpl.org/rippling.html>`_ on this account's trust lines by default.
+    """
+
+    asf_deposit_auth: Optional[bool] = None
+    """
+    Enable `Deposit Authorization
+    <https://xrpl.org/depositauth.html>`_ on this account.
+    """
+
+    asf_disable_master: Optional[bool] = None
+    """
+    Disallow use of the master key pair. Can only be enabled if the account has
+    configured another way to sign transactions, such as a `Regular Key
+    <https://xrpl.org/cryptographic-keys.html>`_ or a `Signer List
+    <https://xrpl.org/multi-signing.html>`_.
+    """
+
+    asf_disallow_xrp: Optional[bool] = None
+    """XRP should not be sent to this account. (Enforced by client applications)"""
+
+    asf_global_freeze: Optional[bool] = None
+    """
+    `Freeze
+    <https://xrpl.org/freezes.html>`_ all assets issued by this account.
+    """
+
+    asf_no_freeze: Optional[bool] = None
+    """
+    Permanently give up the ability to `freeze individual trust lines or disable
+    Global Freeze <https://xrpl.org/freezes.html>`_. This flag can never be disabled
+    after being enabled.
+    """
+
+    asf_require_auth: Optional[bool] = None
+    """
+    Require authorization for users to hold balances issued by this address. Can
+    only be enabled if the address has no trust lines connected to it.
+    """
+
+    asf_require_dest: Optional[bool] = None
+    """Require a destination tag to send transactions to this account."""
+
     transaction_type: TransactionType = field(
         default=TransactionType.ACCOUNT_SET,
         init=False,

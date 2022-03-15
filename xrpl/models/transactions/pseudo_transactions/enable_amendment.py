@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Union
+from typing import List, Optional, Union
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.pseudo_transactions.pseudo_transaction import (
@@ -65,6 +65,18 @@ class EnableAmendment(PseudoTransaction):
     This field is required.
 
     :meta hide-value:
+    """
+
+    tf_got_majority: Optional[bool] = None
+    """
+    Support for this amendment increased to at least 80% of trusted validators
+    starting with this ledger version.
+    """
+
+    tf_lost_majority: Optional[bool] = None
+    """
+    Support for this amendment decreased to less than 80% of trusted validators
+    starting with this ledger version.
     """
 
     transaction_type: PseudoTransactionType = field(

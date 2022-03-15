@@ -46,7 +46,33 @@ class TrustSet(Transaction):
     """
 
     quality_in: Optional[int] = None
+
     quality_out: Optional[int] = None
+
+    tf_set_auth: Optional[bool] = None
+    """
+    Authorize the other party to hold
+    `currency issued by this account <https://xrpl.org/tokens.html>`_.
+    (No effect unless using the `asfRequireAuth AccountSet flag
+    <https://xrpl.org/accountset.html#accountset-flags>`_.) Cannot be unset.
+    """
+
+    tf_set_no_ripple: Optional[bool] = None
+    """
+    Enable the No Ripple flag, which blocks
+    `rippling <https://xrpl.org/rippling.html>`_ between two trust
+    lines of the same currency if this flag is enabled on both.
+    """
+
+    tf_clear_no_ripple: Optional[bool] = None
+    """Disable the No Ripple flag, allowing rippling on this trust line."""
+
+    tf_set_freeze: Optional[bool] = None
+    """Freeze the trust line."""
+
+    tf_clear_freeze: Optional[bool] = None
+    """Unfreeze the trust line."""
+
     transaction_type: TransactionType = field(
         default=TransactionType.TRUST_SET,
         init=False,
