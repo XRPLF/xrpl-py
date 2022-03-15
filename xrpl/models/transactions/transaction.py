@@ -337,7 +337,7 @@ class Transaction(BaseModel):
             "flags": self._flags_to_int(),
         }
 
-    def _tx_flag_to_list(self: Transaction) -> List[int]:
+    def _bool_flag_to_list(self: Transaction) -> List[int]:
         tx_flags: List[str] = [
             attr
             for attr, set_flag in vars(self).items()
@@ -348,7 +348,7 @@ class Transaction(BaseModel):
         return []
 
     def _flags_to_int(self: Transaction) -> int:
-        tx_flags: List[int] = self._tx_flag_to_list()
+        tx_flags: List[int] = self._bool_flag_to_list()
         if tx_flags and (
             self.flags if isinstance(self.flags, list) else self.flags > 0
         ):
@@ -422,7 +422,7 @@ class Transaction(BaseModel):
         Returns:
             Whether the transaction has the given flag value set.
         """
-        tx_flag_list = self._tx_flag_to_list()
+        tx_flag_list = self._bool_flag_to_list()
         if tx_flag_list:
             return flag in tx_flag_list
         if isinstance(self.flags, int):
