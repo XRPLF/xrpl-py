@@ -26,6 +26,7 @@ class TestBetterTransactionFlags(TestCase):
             asf_require_auth=True,
             asf_require_dest=True,
         )
+        self.assertTrue(actual.has_flag(flag=0x00000005))
         self.assertTrue(actual.is_valid())
         flags = models.AccountSetFlag
         expected = models.AccountSet(
@@ -52,6 +53,7 @@ class TestBetterTransactionFlags(TestCase):
             amount="1000000",
             tf_sell_token=True,
         )
+        self.assertTrue(actual.has_flag(flag=0x00000001))
         self.assertTrue(actual.is_valid())
         flags = models.NFTokenCreateOfferFlag
         expected = models.NFTokenCreateOffer(
@@ -82,6 +84,7 @@ class TestBetterTransactionFlags(TestCase):
             tf_transferable=True,
             tf_trustline=True,
         )
+        self.assertTrue(actual.has_flag(flag=0x00000001))
         self.assertTrue(actual.is_valid())
         flags = models.NFTokenMintFlag
         expected = models.NFTokenMint(
@@ -117,6 +120,7 @@ class TestBetterTransactionFlags(TestCase):
             tf_passive=True,
             tf_sell=True,
         )
+        self.assertTrue(actual.has_flag(flag=0x00010000))
         self.assertTrue(actual.is_valid())
         flags = models.OfferCreateFlag
         expected = models.OfferCreate(
@@ -157,6 +161,7 @@ class TestBetterTransactionFlags(TestCase):
             tf_passive=True,
             tf_sell=True,
         )
+        self.assertTrue(actual.has_flag(flag=0x00010000))
         self.assertTrue(actual.is_valid())
         flags = models.OfferCreateFlag
         expected = models.OfferCreate(
@@ -189,6 +194,7 @@ class TestBetterTransactionFlags(TestCase):
             tf_close=True,
             tf_renew=True,
         )
+        self.assertTrue(actual.has_flag(flag=0x00010000))
         self.assertTrue(actual.is_valid())
         flags = models.PaymentChannelClaimFlag
         expected = models.PaymentChannelClaim(
@@ -220,6 +226,7 @@ class TestBetterTransactionFlags(TestCase):
             tf_no_direct_ripple=True,
             tf_partial_payment=True,
         )
+        self.assertTrue(actual.has_flag(flag=0x00010000))
         self.assertTrue(actual.is_valid())
         flags = models.PaymentFlag
         expected = models.Payment(
@@ -256,6 +263,7 @@ class TestBetterTransactionFlags(TestCase):
             tf_set_freeze=True,
             tf_set_no_ripple=True,
         )
+        self.assertTrue(actual.has_flag(flag=0x00010000))
         self.assertTrue(actual.is_valid())
         flags = models.TrustSetFlag
         expected = models.TrustSet(
