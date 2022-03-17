@@ -11,9 +11,9 @@ from xrpl.core.binarycodec import encode
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
+from xrpl.models.flags import check_false_flag_definition, interface_to_flag_list
 from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction_flags import TX_FLAG_PREFIXES, TX_FLAGS
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
 from xrpl.models.types import XRPL_VALUE_TYPE
 from xrpl.models.utils import require_kwargs_on_init
@@ -278,7 +278,7 @@ class Transaction(BaseModel):
     details.
     """
 
-    flags: Union[int, List[int]] = 0
+    flags: Union[Dict[str, bool], int, List[int]] = 0
     """
     A List of flags, or a bitwise map of flags, modifying this transaction's
     behavior. See `Flags Field
@@ -337,35 +337,29 @@ class Transaction(BaseModel):
             "flags": self._flags_to_int(),
         }
 
-    def _bool_flag_to_list(self: Transaction) -> List[int]:
-        tx_flags: List[str] = [
-            attr
-            for attr, set_flag in vars(self).items()
-            if (attr.startswith(TX_FLAG_PREFIXES) and set_flag)
-        ]
-        if tx_flags:
-            return [TX_FLAGS[self.transaction_type][tx_flag] for tx_flag in tx_flags]
-        return []
-
-    def _flags_to_int(self: Transaction) -> int:
-        tx_flags: List[int] = self._bool_flag_to_list()
-        if tx_flags and (
-            self.flags if isinstance(self.flags, list) else self.flags > 0
-        ):
-            raise XRPLModelException(
-                "Please define flags either by setting bools or by using `flags` attr."
-            )
+    def _iter_to_int(
+        self: Transaction,
+        lst: List[int],
+    ) -> int:
+        """Calculate flag as int."""
         accumulator = 0
-        for tx_flag in tx_flags:
-            accumulator |= tx_flag
-        if accumulator != 0:
-            return accumulator
-        if isinstance(self.flags, int):
-            return self.flags
-        accumulator = 0
-        for flag in self.flags:
+        for flag in lst:
             accumulator |= flag
         return accumulator
+
+    def _flags_to_int(self: Transaction) -> int:
+        if isinstance(self.flags, int):
+            return self.flags
+        check_false_flag_definition(tx_type=self.transaction_type, tx_flags=self.flags)
+        if isinstance(self.flags, dict):
+            return self._iter_to_int(
+                lst=interface_to_flag_list(
+                    tx_type=self.transaction_type,
+                    tx_flags=self.flags,
+                )
+            )
+
+        return self._iter_to_int(lst=self.flags)
 
     def to_xrpl(self: Transaction) -> Dict[str, Any]:
         """
@@ -422,11 +416,13 @@ class Transaction(BaseModel):
         Returns:
             Whether the transaction has the given flag value set.
         """
-        tx_flag_list = self._bool_flag_to_list()
-        if tx_flag_list:
-            return flag in tx_flag_list
         if isinstance(self.flags, int):
             return self.flags & flag != 0
+        elif isinstance(self.flags, dict):
+            return flag in interface_to_flag_list(
+                tx_type=self.transaction_type,
+                tx_flags=self.flags,
+            )
         else:  # is List[int]
             return flag in self.flags
 

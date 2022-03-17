@@ -6,6 +6,7 @@ from enum import Enum
 from typing import Dict, List, Optional
 
 from xrpl.models.amounts import Amount, is_xrp
+from xrpl.models.flags import FlagInterface
 from xrpl.models.path import Path
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -22,8 +23,38 @@ class PaymentFlag(int, Enum):
     """
 
     TF_NO_DIRECT_RIPPLE = 0x00010000
+    """
+    Do not use the default path; only use paths included in the Paths field.
+    This is intended to force the transaction to take arbitrage opportunities.
+    Most clients do not need this.
+    """
+
     TF_PARTIAL_PAYMENT = 0x00020000
+    """
+    If the specified Amount cannot be sent without spending more than SendMax,
+    reduce the received amount instead of failing outright.
+    See `Partial Payments <https://xrpl.org/partial-payments.html>`_ for more details.
+    """
+
     TF_LIMIT_QUALITY = 0x00040000
+    """
+    Only take paths where all the conversions have an input:output ratio
+    that is equal or better than the ratio of Amount:SendMax.
+    See `Limit <https://xrpl.org/payment.html#limit-quality>`_ Quality for details.
+    """
+
+
+class PaymentFlagInterface(FlagInterface):
+    """
+    Transactions of the Payment type support additional values in the Flags field.
+    This TypedDict represents those options.
+
+    `See Payment Flags <https://xrpl.org/payment.html#payment-flags>`_
+    """
+
+    tf_no_direct_ripple: bool
+    tf_partial_payment: bool
+    tf_limit_quality: bool
 
 
 @require_kwargs_on_init
@@ -88,27 +119,6 @@ class Payment(Transaction):
     Minimum amount of destination currency this transaction should deliver.
     Only valid if this is a partial payment. If omitted, any positive amount
     is considered a success.
-    """
-
-    tf_no_direct_ripple: Optional[bool] = None
-    """
-    Do not use the default path; only use paths included in the Paths field.
-    This is intended to force the transaction to take arbitrage opportunities.
-    Most clients do not need this.
-    """
-
-    tf_partial_payment: Optional[bool] = None
-    """
-    If the specified Amount cannot be sent without spending more than SendMax,
-    reduce the received amount instead of failing outright.
-    See `Partial Payments <https://xrpl.org/partial-payments.html>`_ for more details.
-    """
-
-    tf_limit_quality: Optional[bool] = None
-    """
-    Only take paths where all the conversions have an input:output ratio
-    that is equal or better than the ratio of Amount:SendMax.
-    See `Limit <https://xrpl.org/payment.html#limit-quality>`_ Quality for details.
     """
 
     transaction_type: TransactionType = field(

@@ -7,6 +7,7 @@ from typing import Dict, Optional
 
 from typing_extensions import Final
 
+from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -43,6 +44,15 @@ class NFTokenMintFlag(int, Enum):
     effect if the token is being transferred from the issuer or to the
     issuer.
     """
+
+
+class NFTokenMintFlagInterface(FlagInterface):
+    """Transaction Flags for an NFTokenMint Transaction."""
+
+    tf_burnable: bool
+    tf_only_xrp: bool
+    tf_trustline: bool
+    tf_transferable: bool
 
 
 @require_kwargs_on_init
@@ -93,31 +103,6 @@ class NFTokenMint(Transaction):
 
     This field must be hex-encoded. You can use `xrpl.utils.str_to_hex` to
     convert a UTF-8 string to hex.
-    """
-
-    tf_burnable: Optional[bool] = None
-    """
-    If set, indicates that the minted token may be burned by the issuer even
-    if the issuer does not currently hold the token. The current holder of
-    the token may always burn it.
-    """
-
-    tf_only_xrp: Optional[bool] = None
-    """
-    If set, indicates that the token may only be offered or sold for XRP.
-    """
-
-    tf_trustline: Optional[bool] = None
-    """
-    If set, indicates that the issuer wants a trustline to be automatically
-    created.
-    """
-
-    tf_transferable: Optional[bool] = None
-    """
-    If set, indicates that this NFT can be transferred. This flag has no
-    effect if the token is being transferred from the issuer or to the
-    issuer.
     """
 
     transaction_type: TransactionType = field(

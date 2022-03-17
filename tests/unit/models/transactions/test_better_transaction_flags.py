@@ -5,6 +5,8 @@ from xrpl.models.exceptions import XRPLModelException
 from xrpl.transaction.main import safe_sign_transaction
 from xrpl.wallet.main import Wallet
 
+# from typing import Iterable
+
 ACCOUNT = "rQUUhraHao4wCqS4MJyzzQP79QE6T9FdeL"
 SEED = "snHG27JeogwML83AwTRyvTXxCWteF"
 
@@ -15,16 +17,18 @@ class TestBetterTransactionFlags(TestCase):
     def test_account_set_flags(self):
         actual = models.AccountSet(
             account=ACCOUNT,
-            asf_account_tx_id=True,
-            asf_authorized_minter=True,
-            asf_default_ripple=True,
-            asf_deposit_auth=True,
-            asf_disable_master=True,
-            asf_disallow_xrp=True,
-            asf_global_freeze=True,
-            asf_no_freeze=True,
-            asf_require_auth=True,
-            asf_require_dest=True,
+            flags=models.AccountSetFlagInterface(
+                asf_account_tx_id=True,
+                asf_authorized_minter=True,
+                asf_default_ripple=True,
+                asf_deposit_auth=True,
+                asf_disable_master=True,
+                asf_disallow_xrp=True,
+                asf_global_freeze=True,
+                asf_no_freeze=True,
+                asf_require_auth=True,
+                asf_require_dest=True,
+            ),
         )
         self.assertTrue(actual.has_flag(flag=0x00000005))
         self.assertTrue(actual.is_valid())
@@ -51,7 +55,9 @@ class TestBetterTransactionFlags(TestCase):
             account=ACCOUNT,
             token_id="000100001E962F495F07A990F4ED55ACCFEEF365DBAA76B6A048C0A200000007",
             amount="1000000",
-            tf_sell_token=True,
+            flags=models.NFTokenCreateOfferFlagInterface(
+                tf_sell_token=True,
+            ),
         )
         self.assertTrue(actual.has_flag(flag=0x00000001))
         self.assertTrue(actual.is_valid())
@@ -79,10 +85,12 @@ class TestBetterTransactionFlags(TestCase):
         actual = models.NFTokenMint(
             account=ACCOUNT,
             token_taxon=0,
-            tf_burnable=True,
-            tf_only_xrp=True,
-            tf_transferable=True,
-            tf_trustline=True,
+            flags=models.NFTokenMintFlagInterface(
+                tf_burnable=True,
+                tf_only_xrp=True,
+                tf_transferable=True,
+                tf_trustline=True,
+            ),
         )
         self.assertTrue(actual.has_flag(flag=0x00000001))
         self.assertTrue(actual.is_valid())
@@ -116,9 +124,11 @@ class TestBetterTransactionFlags(TestCase):
             account=ACCOUNT,
             taker_gets=taker_gets,
             taker_pays=taker_pays,
-            tf_fill_or_kill=True,
-            tf_passive=True,
-            tf_sell=True,
+            flags=models.OfferCreateFlagInterface(
+                tf_fill_or_kill=True,
+                tf_passive=True,
+                tf_sell=True,
+            ),
         )
         self.assertTrue(actual.has_flag(flag=0x00010000))
         self.assertTrue(actual.is_valid())
@@ -157,9 +167,11 @@ class TestBetterTransactionFlags(TestCase):
             account=ACCOUNT,
             taker_gets=taker_gets,
             taker_pays=taker_pays,
-            tf_immediate_or_cancel=True,
-            tf_passive=True,
-            tf_sell=True,
+            flags=models.OfferCreateFlagInterface(
+                tf_immediate_or_cancel=True,
+                tf_passive=True,
+                tf_sell=True,
+            ),
         )
         self.assertTrue(actual.has_flag(flag=0x00010000))
         self.assertTrue(actual.is_valid())
@@ -191,8 +203,10 @@ class TestBetterTransactionFlags(TestCase):
         actual = models.PaymentChannelClaim(
             account=ACCOUNT,
             channel="C1AE6DDDEEC05CF2978C0BAD6FE302948E9533691DC749DCDD3B9E5992CA6198",
-            tf_close=True,
-            tf_renew=True,
+            flags=models.PaymentChannelClaimFlagInterface(
+                tf_close=True,
+                tf_renew=True,
+            ),
         )
         self.assertTrue(actual.has_flag(flag=0x00010000))
         self.assertTrue(actual.is_valid())
@@ -222,9 +236,11 @@ class TestBetterTransactionFlags(TestCase):
             account=ACCOUNT,
             destination=dest,
             amount=amnt,
-            tf_limit_quality=True,
-            tf_no_direct_ripple=True,
-            tf_partial_payment=True,
+            flags=models.PaymentFlagInterface(
+                tf_limit_quality=True,
+                tf_no_direct_ripple=True,
+                tf_partial_payment=True,
+            ),
         )
         self.assertTrue(actual.has_flag(flag=0x00010000))
         self.assertTrue(actual.is_valid())
@@ -257,11 +273,13 @@ class TestBetterTransactionFlags(TestCase):
         actual = models.TrustSet(
             account=ACCOUNT,
             limit_amount=amnt,
-            tf_clear_freeze=True,
-            tf_clear_no_ripple=True,
-            tf_set_auth=True,
-            tf_set_freeze=True,
-            tf_set_no_ripple=True,
+            flags=models.TrustSetFlagInterface(
+                tf_clear_freeze=True,
+                tf_clear_no_ripple=True,
+                tf_set_auth=True,
+                tf_set_freeze=True,
+                tf_set_no_ripple=True,
+            ),
         )
         self.assertTrue(actual.has_flag(flag=0x00010000))
         self.assertTrue(actual.is_valid())
@@ -290,8 +308,10 @@ class TestBetterTransactionFlags(TestCase):
         actual = models.EnableAmendment(
             amendment=amdmt,
             ledger_sequence=seq,
-            tf_got_majority=True,
-            tf_lost_majority=True,
+            flags=models.EnableAmendmentFlagInterface(
+                tf_got_majority=True,
+                tf_lost_majority=True,
+            ),
         )
         flags = models.EnableAmendmentFlag
         expected = models.EnableAmendment(
@@ -312,7 +332,7 @@ class TestBetterTransactionFlags(TestCase):
             second=signed_expected,
         )
 
-    def test_no_flags(self):
+    def test_no_flags_defined(self):
         try:
             cancel_offer = models.OfferCancel(
                 account=ACCOUNT,
@@ -336,20 +356,58 @@ class TestBetterTransactionFlags(TestCase):
         except XRPLModelException:
             self.fail("Could not sign transaction without flags")
 
-    def test_defined_both_exception(self):
+    def test_false_flag_definition(self):
         dest = "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX"
         amnt = "10000000"
-        pymnt = models.Payment(
-            account=ACCOUNT,
-            destination=dest,
-            amount=amnt,
-            tf_limit_quality=True,
-            tf_no_direct_ripple=True,
-            tf_partial_payment=True,
-            flags=[*models.PaymentFlag],
-        )
         with self.assertRaises(XRPLModelException):
-            safe_sign_transaction(
-                transaction=pymnt,
-                wallet=WALLET,
+            tx = models.Payment(
+                account=ACCOUNT,
+                destination=dest,
+                amount=amnt,
+                flags=[
+                    models.PaymentFlagInterface(
+                        tf_limit_quality=True,
+                        tf_no_direct_ripple=True,
+                        tf_partial_payment=True,
+                    ),
+                ],
             )
+            safe_sign_transaction(transaction=tx, wallet=WALLET)
+        with self.assertRaises(XRPLModelException):
+            tx = models.Payment(
+                account=ACCOUNT,
+                destination=dest,
+                amount=amnt,
+                flags=["1"],
+            )
+            safe_sign_transaction(transaction=tx, wallet=WALLET)
+        with self.assertRaises(XRPLModelException):
+            tx = models.Payment(
+                account=ACCOUNT,
+                destination=dest,
+                amount=amnt,
+                flags=[65536, models.PaymentFlagInterface(tf_limit_quality=True)],
+            )
+            safe_sign_transaction(transaction=tx, wallet=WALLET)
+
+    def test_transaction_has_no_flags(self):
+        actual = models.OfferCancel(
+            account=ACCOUNT,
+            offer_sequence=6,
+            flags=models.PaymentChannelClaimFlagInterface(
+                tf_close=True,
+            ),
+        )
+        expected = models.OfferCancel(account=ACCOUNT, offer_sequence=6, flags=0)
+        signed_actual = safe_sign_transaction(
+            transaction=actual,
+            wallet=WALLET,
+        )
+        signed_expected = safe_sign_transaction(
+            transaction=expected,
+            wallet=WALLET,
+        )
+        self.assertEqual(
+            first=signed_actual,
+            second=signed_expected,
+        )

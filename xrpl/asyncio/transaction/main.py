@@ -18,7 +18,6 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )
-from xrpl.models.transactions.transaction_flags import TX_FLAG_PREFIXES
 from xrpl.models.transactions.types.transaction_type import TransactionType
 from xrpl.utils import drops_to_xrp, xrp_to_drops
 from xrpl.wallet.main import Wallet
@@ -80,11 +79,6 @@ async def safe_sign_transaction(
     if check_fee:
         await _check_fee(transaction)
     transaction_json = _prepare_transaction(transaction, wallet)
-    transaction_json = {
-        field: value
-        for field, value in transaction_json.items()
-        if not field.startswith(TX_FLAG_PREFIXES)
-    }
     serialized_for_signing = encode_for_signing(transaction_json)
     serialized_bytes = bytes.fromhex(serialized_for_signing)
     signature = sign(serialized_bytes, wallet.private_key)
