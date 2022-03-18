@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+## [1.5.0] - 2022-02-18
+### Added
+- Support setting flags with booleans. For each transaction type supporting flags there is a `FlagInterface` to set the flags with booleans.
+
 ## [1.4.0] - 2022-02-24
 ### Added
 - Sync and async `generate_faucet_wallet` functions now support a custom

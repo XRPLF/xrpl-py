@@ -1,6 +1,8 @@
 """All transacion flags and utils to build a list of ints from a FlagInterface"""
 
-from typing import Dict, List, TypedDict, Union
+from typing import Dict, List, Union
+
+from typing_extensions import TypedDict
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions.types.pseudo_transaction_type import PseudoTransactionType
