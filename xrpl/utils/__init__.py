@@ -14,7 +14,6 @@ from xrpl.utils.tx_parser import (
     ParseOrderBookChanges,
     ParsePreviousBalances,
     XRPLMetadataException,
-    XRPLNoOffersAffectedException,
 )
 from xrpl.utils.xrp_conversions import XRPRangeException, drops_to_xrp, xrp_to_drops
 
@@ -32,7 +31,6 @@ __all__ = [
     "ParsePreviousBalances",
     "ParseOrderBookChanges",
     "XRPLMetadataException",
-    "XRPLNoOffersAffectedException",
     "XRPRangeException",
     "XRPLTimeRangeException",
 ]
