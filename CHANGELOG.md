@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [[Unreleased]]
+### Added
+- Adds a transaction parser. Supporting to parse balance changes, final balances, previous balances and order book changes.
+
 ### Fixed
 - `xrpl.asyncio.clients` exports (now includes `request_to_websocket`, `websocket_to_response`)
 
