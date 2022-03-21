@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "xrpl-py"
-version = "1.5.0"
+version = "1.4.0"
 description = "A complete Python library for interacting with the XRP ledger"
 readme = "README.md"
 repository = "https://github.com/XRPLF/xrpl-py"

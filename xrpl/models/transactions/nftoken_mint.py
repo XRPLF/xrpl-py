@@ -49,10 +49,10 @@ class NFTokenMintFlag(int, Enum):
 class NFTokenMintFlagInterface(FlagInterface):
     """Transaction Flags for an NFTokenMint Transaction."""
 
-    tf_burnable: bool
-    tf_only_xrp: bool
-    tf_trustline: bool
-    tf_transferable: bool
+    TF_BURNABLE: bool
+    TF_ONLY_XRP: bool
+    TF_TRUSTLINE: bool
+    TF_TRANSFERABLE: bool
 
 
 @require_kwargs_on_init

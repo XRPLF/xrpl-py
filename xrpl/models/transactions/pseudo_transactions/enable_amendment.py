@@ -50,8 +50,8 @@ class EnableAmendmentFlagInterface(FlagInterface):
     <https://xrpl.org/enableamendment.html#enableamendment-flags>`_
     """
 
-    tf_got_majority: bool
-    tf_lost_majority: bool
+    TF_GOT_MAJORITY: bool
+    TF_LOST_MAJORITY: bool
 
 
 @require_kwargs_on_init

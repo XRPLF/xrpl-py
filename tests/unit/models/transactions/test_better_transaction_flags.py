@@ -354,7 +354,9 @@ class TestBetterTransactionFlags(TestCase):
                 wallet=WALLET,
             )
         except XRPLModelException:
-            self.fail("Could not sign transaction without flags")
+            self.fail(
+                "If no flags are defined 'flags' have to be 0. Txn could not be signed."
+            )
 
     def test_false_flag_definition(self):
         dest = "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX"

@@ -62,10 +62,10 @@ class OfferCreateFlagInterface(FlagInterface):
     `See OfferCreate Flags <https://xrpl.org/offercreate.html#offercreate-flags>`_
     """
 
-    tf_passive: bool
-    tf_immediate_or_cancel: bool
-    tf_fill_or_kill: bool
-    tf_sell: bool
+    TF_PASSIVE: bool
+    TF_IMMEDIATE_OR_CANCEL: bool
+    TF_FILL_OR_KILL: bool
+    TF_SELL: bool
 
 
 @require_kwargs_on_init

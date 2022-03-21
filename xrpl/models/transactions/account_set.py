@@ -102,16 +102,16 @@ class AccountSetFlagInterface(FlagInterface):
     `See AccountSet Flags <https://xrpl.org/accountset.html#accountset-flags>`_
     """
 
-    asf_account_tx_id: bool
-    asf_authorized_minter: bool
-    asf_default_ripple: bool
-    asf_deposit_auth: bool
-    asf_disable_master: bool
-    asf_disallow_xrp: bool
-    asf_global_freeze: bool
-    asf_no_freeze: bool
-    asf_require_auth: bool
-    asf_require_dest: bool
+    ASF_ACCOUNT_TXN_ID: bool
+    ASF_DEFAULT_RIPPLE: bool
+    ASF_DEPOSIT_AUTH: bool
+    ASF_DISABLE_MASTER: bool
+    ASF_DISALLOW_XRP: bool
+    ASF_GLOBAL_FREEZE: bool
+    ASF_NO_FREEZE: bool
+    ASF_REQUIRE_AUTH: bool
+    ASF_REQUIRE_DEST: bool
+    ASF_AUTHORIZED_MINTER: bool
 
 
 @require_kwargs_on_init

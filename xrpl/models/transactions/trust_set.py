@@ -53,11 +53,11 @@ class TrustSetFlagInterface(FlagInterface):
     This TypedDict represents those options.
     """
 
-    tf_set_auth: bool
-    tf_set_no_ripple: bool
-    tf_clear_no_ripple: bool
-    tf_set_freeze: bool
-    tf_clear_freeze: bool
+    TF_SET_AUTH: bool
+    TF_SET_NO_RIPPLE: bool
+    TF_CLEAR_NO_RIPPLE: bool
+    TF_SET_FREEZE: bool
+    TF_CLEAR_FREEZE: bool
 
 
 @require_kwargs_on_init

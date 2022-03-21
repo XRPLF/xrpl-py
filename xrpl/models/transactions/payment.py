@@ -52,9 +52,9 @@ class PaymentFlagInterface(FlagInterface):
     `See Payment Flags <https://xrpl.org/payment.html#payment-flags>`_
     """
 
-    tf_no_direct_ripple: bool
-    tf_partial_payment: bool
-    tf_limit_quality: bool
+    TF_NO_DIRECT_RIPPLE: bool
+    TF_PARTIAL_PAYMENT: bool
+    TF_LIMIT_QUALITY: bool
 
 
 @require_kwargs_on_init

@@ -50,8 +50,8 @@ class PaymentChannelClaimFlagInterface(FlagInterface):
     <https://xrpl.org/paymentchannelclaim.html#paymentchannelclaim-flags>`_
     """
 
-    tf_renew: bool
-    tf_close: bool
+    TF_RENEW: bool
+    TF_CLOSE: bool
 
 
 @require_kwargs_on_init

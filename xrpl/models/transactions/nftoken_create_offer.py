@@ -26,7 +26,7 @@ class NFTokenCreateOfferFlag(int, Enum):
 class NFTokenCreateOfferFlagInterface(FlagInterface):
     """Transaction Flags for an NFTokenCreateOffer Transaction."""
 
-    tf_sell_token: bool
+    TF_SELL_TOKEN: bool
 
 
 @require_kwargs_on_init
