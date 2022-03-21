@@ -3,11 +3,10 @@
 from typing import Any, Dict, List, Union
 
 from xrpl.utils.tx_parser.utils import (
-    XRPLNoOffersAffectedException,
-    filter_nodes,
-    group_by_address_order,
+    group_by_address_order_book,
     is_valid_metadata,
     normalize_nodes,
+    parse_order_book_changes,
 )
 
 
@@ -65,13 +64,11 @@ class ParseOrderBookChanges(OrderBookChanges):
         is_valid_metadata(metadata=self.metadata)
         nodes = normalize_nodes(metadata=self.metadata)
 
-        order_changes = filter_nodes(nodes=nodes)
+        order_changes = parse_order_book_changes(nodes=nodes)
 
-        if not order_changes:
-            raise XRPLNoOffersAffectedException(
-                "The transaction did not affected any offer."
-            )
-
-        result = group_by_address_order(order_changes)
+        if order_changes:
+            result = group_by_address_order_book(order_changes)
+        else:
+            result = {}
 
         self._define_results(result=result)
