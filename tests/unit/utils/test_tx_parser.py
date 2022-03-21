@@ -166,26 +166,26 @@ class TestBalanceChanges(TestCase):
                 {
                     "Counterparty": "r396SL8QQR3hCt4vhEJL2dpWwVdE1ysh9y",
                     "Currency": "43656C65627269747950756E6B73000000000000",
-                    "Value": "-200.0",
+                    "Value": "-200",
                 },
                 {
                     "Counterparty": "rMXmHfF2yugfVtYPkc3gVqtyAqSq6HYmBp",
                     "Currency": "43656C65627269747950756E6B73000000000000",
-                    "Value": "200.0",
+                    "Value": "200",
                 },
             ],
             "r396SL8QQR3hCt4vhEJL2dpWwVdE1ysh9y": [
                 {
                     "Counterparty": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
                     "Currency": "43656C65627269747950756E6B73000000000000",
-                    "Value": "200.0",
+                    "Value": "200",
                 },
             ],
             "rMXmHfF2yugfVtYPkc3gVqtyAqSq6HYmBp": [
                 {
                     "Counterparty": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
                     "Currency": "43656C65627269747950756E6B73000000000000",
-                    "Value": "-200.0",
+                    "Value": "-200",
                 },
                 {
                     "Counterparty": "",
@@ -203,26 +203,26 @@ class TestBalanceChanges(TestCase):
                 {
                     "Counterparty": "r396SL8QQR3hCt4vhEJL2dpWwVdE1ysh9y",
                     "Currency": "43656C65627269747950756E6B73000000000000",
-                    "Value": "-200.0",
+                    "Value": "-200",
                 },
                 {
                     "Counterparty": "rMXmHfF2yugfVtYPkc3gVqtyAqSq6HYmBp",
                     "Currency": "43656C65627269747950756E6B73000000000000",
-                    "Value": "-2861150.0",
+                    "Value": "-2861150",
                 },
             ],
             "r396SL8QQR3hCt4vhEJL2dpWwVdE1ysh9y": [
                 {
                     "Counterparty": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
                     "Currency": "43656C65627269747950756E6B73000000000000",
-                    "Value": "200.0",
+                    "Value": "200",
                 },
             ],
             "rMXmHfF2yugfVtYPkc3gVqtyAqSq6HYmBp": [
                 {
                     "Counterparty": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
                     "Currency": "43656C65627269747950756E6B73000000000000",
-                    "Value": "2861150.0",
+                    "Value": "2861150",
                 },
                 {
                     "Counterparty": "",
@@ -242,26 +242,26 @@ class TestBalanceChanges(TestCase):
                 {
                     "Counterparty": "r396SL8QQR3hCt4vhEJL2dpWwVdE1ysh9y",
                     "Currency": "43656C65627269747950756E6B73000000000000",
-                    "Value": "0.0",
+                    "Value": "0",
                 },
                 {
                     "Counterparty": "rMXmHfF2yugfVtYPkc3gVqtyAqSq6HYmBp",
                     "Currency": "43656C65627269747950756E6B73000000000000",
-                    "Value": "-2861350.0",
+                    "Value": "-2861350",
                 },
             ],
             "r396SL8QQR3hCt4vhEJL2dpWwVdE1ysh9y": [
                 {
                     "Counterparty": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
                     "Currency": "43656C65627269747950756E6B73000000000000",
-                    "Value": "0.0",
+                    "Value": "0",
                 },
             ],
             "rMXmHfF2yugfVtYPkc3gVqtyAqSq6HYmBp": [
                 {
                     "Counterparty": "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8",
                     "Currency": "43656C65627269747950756E6B73000000000000",
-                    "Value": "2861350.0",
+                    "Value": "2861350",
                 },
                 {
                     "Counterparty": "",
@@ -1198,8 +1198,12 @@ class TestOrderbookChanges(TestCase):
             xrpl.utils.ParseOrderBookChanges(metadata=meta)
 
     def test_no_offers_affected(self):
-        with self.assertRaises(xrpl.utils.XRPLNoOffersAffectedException):
-            xrpl.utils.ParseOrderBookChanges(metadata=orderbook_changes_tx_no_offers)
+        actual = xrpl.utils.ParseOrderBookChanges(
+            metadata=orderbook_changes_tx_no_offers
+        ).all_orderbook_changes
+        expected = {}
+
+        self.assertEqual(actual, expected)
 
     def test_parse_orderbook_changes(self):
         actual = xrpl.utils.ParseOrderBookChanges(
@@ -1210,127 +1214,127 @@ class TestOrderbookChanges(TestCase):
                 {
                     "taker_pays": {
                         "final_amount": {
-                            "currency": "USD",
                             "counterparty": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
-                            "value": "0",
+                            "currency": "USD",
+                            "value": "1018.612178545341"
                         },
-                        "previous_value": "1018.612178545341",
+                        "previous_value": "1018.612178545341"
                     },
                     "taker_gets": {
                         "final_amount": {
-                            "currency": "USD",
                             "counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
-                            "value": "0",
+                            "currency": "USD",
+                            "value": "1023.730832708886"
                         },
-                        "previous_value": "1023.730832708886",
+                        "previous_value": "1023.730832708886"
                     },
                     "sell": True,
                     "sequence": 5811,
                     "status": "filled",
-                    "quality": "942800745259008e-34",
+                    "quality": "0",
                     "direction": "sell",
                     "total_received": {
                         "final_amount": {
-                            "currency": "USD",
                             "counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
-                            "value": "0",
+                            "currency": "USD",
+                            "value": "1023.730832708886"
                         },
-                        "previous_value": "1023.730832708886",
+                        "previous_value": "1023.730832708886"
                     },
                     "total_paid": {
                         "final_amount": {
-                            "currency": "USD",
                             "counterparty": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
-                            "value": "0",
+                            "currency": "USD",
+                            "value": "1018.612178545341"
                         },
-                        "previous_value": "1018.612178545341",
+                        "previous_value": "1018.612178545341"
                     },
-                    "account": "rNzgS71DyJPMnWMA8aS7NqvXP7bNuwyaZo",
-                },
+                    "account": "rNzgS71DyJPMnWMA8aS7NqvXP7bNuwyaZo"
+                }
             ],
             "rPu2feBaViWGmWJhvaF5yLocTVD8FUxd2A": [
                 {
                     "taker_pays": {
                         "final_amount": {
-                            "currency": "USD",
                             "counterparty": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
-                            "value": "0",
+                            "currency": "USD",
+                            "value": "200"
                         },
-                        "previous_value": "200.0",
+                        "previous_value": "200"
                     },
                     "taker_gets": {
                         "final_amount": {
-                            "currency": "USD",
                             "counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
-                            "value": "0",
+                            "currency": "USD",
+                            "value": "201"
                         },
-                        "previous_value": "201.0",
+                        "previous_value": "201"
                     },
                     "sell": True,
                     "sequence": 67701665,
                     "status": "filled",
-                    "quality": "943049501477913e-34",
+                    "quality": "0",
                     "direction": "sell",
                     "total_received": {
                         "final_amount": {
-                            "currency": "USD",
                             "counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
-                            "value": "0",
+                            "currency": "USD",
+                            "value": "201"
                         },
-                        "previous_value": "201.0",
+                        "previous_value": "201"
                     },
                     "total_paid": {
                         "final_amount": {
-                            "currency": "USD",
                             "counterparty": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
-                            "value": "0",
+                            "currency": "USD",
+                            "value": "200"
                         },
-                        "previous_value": "200.0",
+                        "previous_value": "200"
                     },
-                    "account": "rPu2feBaViWGmWJhvaF5yLocTVD8FUxd2A",
+                    "account": "rPu2feBaViWGmWJhvaF5yLocTVD8FUxd2A"
                 }
             ],
             "rUqK2eC8TMdm64bJqXMsUcavEbVuWy5Myv": [
                 {
                     "taker_pays": {
                         "final_amount": {
-                            "currency": "USD",
                             "counterparty": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
-                            "value": "62.7598905077505",
+                            "currency": "USD",
+                            "value": "381.1004148956297"
                         },
-                        "previous_value": "381.1004148956297",
+                        "previous_value": "443.8603054033802"
                     },
                     "taker_gets": {
                         "final_amount": {
-                            "currency": "USD",
                             "counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
-                            "value": "62.8919636313763",
+                            "currency": "USD",
+                            "value": "381.9024099565385"
                         },
-                        "previous_value": "381.90240995653846",
+                        "previous_value": "444.7943735879148"
                     },
                     "sell": True,
                     "sequence": 69051546,
                     "status": "partially-filled",
-                    "quality": "971800745259008e-34",
+                    "quality": "0.9979000000000014346825061602",
                     "direction": "sell",
                     "total_received": {
                         "final_amount": {
-                            "currency": "USD",
                             "counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
-                            "value": "62.8919636313763",
+                            "currency": "USD",
+                            "value": "381.9024099565385"
                         },
-                        "previous_value": "381.90240995653846",
+                        "previous_value": "444.7943735879148"
                     },
                     "total_paid": {
                         "final_amount": {
-                            "currency": "USD",
                             "counterparty": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
-                            "value": "62.7598905077505",
+                            "currency": "USD",
+                            "value": "381.1004148956297"
                         },
-                        "previous_value": "381.1004148956297",
+                        "previous_value": "443.8603054033802"
                     },
-                    "account": "rUqK2eC8TMdm64bJqXMsUcavEbVuWy5Myv",
-                },
-            ],
+                    "account": "rUqK2eC8TMdm64bJqXMsUcavEbVuWy5Myv"
+                }
+            ]
         }
         self.assertEqual(actual, expected)
