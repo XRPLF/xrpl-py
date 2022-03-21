@@ -64,6 +64,7 @@ def is_valid_metadata(metadata: Dict[str, Any]) -> None:
 
 class NormalizedNode:
     """A standard format for nodes."""
+
     def __init__(
         self: Any,
         diffType: str,
@@ -114,7 +115,7 @@ def field_factory(
     field_state: Union[
         Literal["NewFields"], Literal["FinalFields"], Literal["PreviousFields"]
     ],
-    fields: Dict[str, Union[str, int, Dict[str, str]]],
+    fields: Any,
 ) -> Union[NewFields, FinalFields, PreviousFields]:
     """Set the attributes for 'NewFields', 'FinalFields' and 'ModifiedFields'.
 
@@ -128,6 +129,7 @@ def field_factory(
     Returns:
         The full field state with all its fields as objects.
     """
+
     def factory(name: str) -> Any:
         """Create a new class with variable name.
 
@@ -137,6 +139,7 @@ def field_factory(
         Returns:
             Any: A class with the name of a field. E.g. 'OwnerCount', 'Balance', ….
         """
+
         class NewClass:
             pass
 
@@ -230,6 +233,7 @@ Utils balance_changes
 
 class Balance:
     """A accounts balance."""
+
     def __init__(self: Any, counterparty: str, currency: str, value: str) -> None:
         """
         Args:
@@ -244,6 +248,7 @@ class Balance:
 
 class TrustLineQuantity(object):
     """Trust line quantity."""
+
     def __init__(self: object, address: str, balance: Dict[str, str]) -> None:
         """
         Args:
@@ -258,11 +263,11 @@ class TrustLineQuantity(object):
         )
 
 
-def _parse_value(value: Union[Balance, str]) -> Decimal:
+def _parse_value(value: Any) -> Decimal:
     """Formats a balances value into a Decimal.
 
     Args:
-        value (Union[Balance, str]):
+        value (Any):
             Balance.
 
     Returns:
@@ -320,13 +325,13 @@ def compute_balance_changes(node: NormalizedNode) -> Union[None, int, Decimal]:
 
 def _parse_xrp_quantity(
     node: NormalizedNode,
-    valueParser: Union[compute_balance_changes, parse_final_balance],
+    valueParser: Any,
 ) -> Union[TrustLineQuantity, None]:
     """Parse XRP quantity.
 
     Args:
         node (NormalizedNode): Normalized node.
-        valueParser (Union[compute_balance_changes, parse_final_balance]):
+        valueParser (Any):
             Parser to get values needed.
 
     Returns:
@@ -384,13 +389,13 @@ def _flip_trustline_perspective(quantity: TrustLineQuantity) -> TrustLineQuantit
 
 def _parse_trustline_quantity(
     node: NormalizedNode,
-    valueParser: Union[compute_balance_changes, parse_final_balance],
+    valueParser: Any,
 ) -> Union[None, List[TrustLineQuantity]]:
     """Parse trust line quantity.
 
     Args:
         node (NormalizedNode): Normalized node.
-        valueParser (Union[compute_balance_changes, parse_final_balance]):
+        valueParser (Any):
             Parser to get values needed.
 
     Returns:
@@ -414,8 +419,8 @@ def _parse_trustline_quantity(
 
 
 def _group_by_address(
-    balanceChanges: List[TrustLineQuantity]
-) -> Dict[str, List[Dict[str, str]]]:
+    balanceChanges: List[TrustLineQuantity],
+) -> Any:
     """Groups the balances changes by address.
 
     Args:
@@ -432,18 +437,18 @@ def _group_by_address(
 
 def parse_quantities(
     metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]],
-    valueParser: Union[compute_balance_changes, parse_final_balance],
-) -> Dict[str, List[Dict[str, str]]]:
+    valueParser: Any,
+) -> Any:
     """Parse final balance.
 
     Args:
         metadata (Dict[str, Union[str, int, bool, Dict[str, Any]]):
             The transactions metadata.
-        valueParser (Union[compute_balance_changes, parse_final_balance]):
+        valueParser (Any):
             Value parser.
 
     Returns:
-        Dict[str, List[Dict[str, str]]]: The grouped balance changes.
+        Any: The grouped balance changes.
     """
     values: List[Any] = []
     for node in normalize_nodes(metadata=metadata):
@@ -469,6 +474,7 @@ lfs_sell = 0x00020000
 
 class OrderChange:
     """Order change."""
+
     def __init__(
         self: Any,
         taker_pays: Union[Dict[str, str], str],
@@ -519,6 +525,7 @@ class OrderChange:
 
 class ChangeAmount:
     """Amount changed by transaction."""
+
     def __init__(self: Any, final_amount: Dict[str, str], previous_value: str) -> None:
         """
         Args:
@@ -570,14 +577,12 @@ def _parse_currency_amount(currency_amount: Union[str, Any]) -> Balance:
 def _calculate_delta(
     final_amount: Union[Balance, None],
     previous_amount: Union[Balance, None],
-) -> str:
-    if isinstance(final_amount, Balance) and isinstance(
-        previous_amount, Balance
-    ):
+) -> Union[Decimal, int]:
+    if isinstance(final_amount, Balance) and isinstance(previous_amount, Balance):
         previous_value = Decimal(previous_amount.value)
         return 0 - previous_value
 
-    return "0"
+    return 0
 
 
 def _parse_order_status(
@@ -612,7 +617,7 @@ def _parse_order_status(
 
 def _parse_change_amount(
     node: NormalizedNode, side: Literal["TakerPays", "TakerGets"]
-) -> Union[ChangeAmount, None]:
+) -> Any:
     """Parse the changed amount of an order.
 
     Args:
@@ -743,37 +748,23 @@ def _remove_undefined(order: OrderChange) -> OrderChange:
 
 
 def _calculate_received_and_paid_amount(
-    taker_gets: Dict[str, Union[Dict[str, str], str]],
-    taker_pays: Dict[str, Union[Dict[str, str], str]],
-    direction: Literal["buy", "sell"],
-) -> Dict[str, str]:
+    taker_gets: Any,
+    taker_pays: Any,
+    direction: str,
+) -> Any:
     """Calculate what the taker had to pay and what he received.
 
     Args:
-        taker_gets (Dict[str, Union[Dict[str, str], str]]): TakerGets amount.
-        taker_pays (Dict[str, Union[Dict[str, str], str]]): TakerPays amount.
-        direction (Literal["buy", "sell"]): 'buy' or 'sell' offer.
+        taker_gets (Any): TakerGets amount.
+        taker_pays (Any): TakerPays amount.
+        direction (Union[Literal['buy'], Literal['sell']]): 'buy' or 'sell' offer.
 
     Returns:
-        Dict[str, str]:
+        Any:
             Both paid and received amount.
     """
     quantity = taker_pays if direction == "buy" else taker_gets
     total_price = taker_gets if direction == "buy" else taker_pays
-    if "previous_value" in quantity:
-        quantity["final_amount"]["value"] = str(
-            (
-                Decimal(quantity["previous_value"])
-                - Decimal(quantity["final_amount"]["value"])
-            )
-        )
-    if "previous_value" in total_price:
-        total_price["final_amount"]["value"] = str(
-            (
-                Decimal(total_price["previous_value"])
-                - Decimal(total_price["final_amount"]["value"])
-            )
-        )
 
     return quantity, total_price
 
@@ -791,9 +782,7 @@ def _convert_order_change(order: OrderChange) -> OrderChange:
     taker_pays = order.taker_pays
     direction = "sell" if order.sell else "buy"
     quantity, total_price = _calculate_received_and_paid_amount(
-        taker_gets,
-        taker_pays,
-        direction
+        taker_gets, taker_pays, direction
     )
 
     order.direction = direction
