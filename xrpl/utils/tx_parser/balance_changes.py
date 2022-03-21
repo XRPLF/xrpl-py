@@ -3,6 +3,7 @@ Parse balance changes, final balances and previouse balances of every
 account involved in the given transaction.
 """
 
+from decimal import Decimal
 from typing import Any, Dict, List, Union
 
 from xrpl.utils.tx_parser.utils import (
@@ -71,11 +72,11 @@ class ParseBalanceChanges(BalanceChanges):
 
     Usage:
         Parse all balance changes:
-            ``ParseBalanceChanges(metadata=tx).all_balances``
+            `ParseBalanceChanges(metadata=tx).all_balances`
         Parse balance changes of the account that sent the transaction:
-            ``ParseBalanceChanges(metadata=tx).source_account_balances``
+            `ParseBalanceChanges(metadata=tx).source_account_balances`
         Parse balance changes of the account that received the transaction:
-            ``ParseBalanceChanges(metadata=tx).destination_account_balances``
+            `ParseBalanceChanges(metadata=tx).destination_account_balances`
                 If provided transaction has no field `Destination`:
                     'Transaction type: `{tx_type}` has no
                     field 'Destination' or is not included.'
@@ -224,7 +225,7 @@ class ParsePreviousBalances(BalanceChanges):
             for count, balance in enumerate(balances):
                 final_balances_value = final_balances[account][count]["Value"]
                 final_balances[account][count]["Value"] = str(
-                    float(final_balances_value) - float(balance["Value"])
+                    Decimal(final_balances_value) - Decimal(balance["Value"])
                 )
 
         self._define_results(result=final_balances)
