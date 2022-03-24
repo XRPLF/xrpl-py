@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, Dict, Iterable, List, Union
+from typing import Any, Dict, Iterable, List, Optional, Union
 
 from pydash import (  # type: ignore
     compact,
@@ -166,10 +166,10 @@ def field_factory(
                     value=field_value["value"],
                 )
             else:  # if 'field_value' type is dict but is no issued currency amount.
-                factured_field_name = factory(field_name)
+                field_name_object = factory(field_name)
                 for field_value_key, field_value_value in field_value.items():
-                    setattr(factured_field_name, field_value_key, field_value_value)
-                field_value = factured_field_name
+                    setattr(field_name_object, field_value_key, field_value_value)
+                field_value = field_name_object
         # set attributes to field state
         setattr(field, field_name, field_value)
 
@@ -319,10 +319,10 @@ def compute_balance_changes(node: NormalizedNode) -> Union[None, int, Decimal]:
             node.previous_fields.Balance
         )
 
-     if( value and value != 0):
-           return value
-     else:
-          return None
+    if value and value != 0:
+        return value
+    else:
+        return None
 
 
 def _parse_xrp_quantity(
@@ -483,15 +483,16 @@ class OrderChange:
         taker_gets: Union[Dict[str, str], str],
         sell: bool,
         sequence: int,
-        status: Union[
-            Literal["created"],
-            Literal["partially-filled"],
-            Literal["filled"],
-            Literal["cancelled"],
-            None,
+        status: Optional[
+            Union[
+                Literal["created"],
+                Literal["partially-filled"],
+                Literal["filled"],
+                Literal["cancelled"],
+            ]
         ],
         quality: str,
-        expiration: Union[Any, str, None],
+        expiration: Optional[Union[Any, str]],
         direction: str = "",
         total_received: Union[Dict[str, str], str] = {},
         total_paid: Union[Dict[str, str], str] = {},
@@ -628,7 +629,7 @@ def _parse_change_amount(
             Side of the order to parse.
 
     Returns:
-        Union[ChangeAmount, None]:
+        Any:
             The changed currency amount.
     """
     status = _parse_order_status(node)
@@ -703,14 +704,14 @@ def _ripple_to_unix_timestamp(rpepoch: int) -> int:
     return rpepoch + 0x386D4380
 
 
-def _get_expiration_time(node: NormalizedNode) -> Union[Any, str, None]:
+def _get_expiration_time(node: NormalizedNode) -> Union[Any, None]:
     """Formats the ripple timestamp to a easy to read format.
 
     Args:
         node (NormalizedNode): Normalized node.
 
     Returns:
-        Union[Any, str, None]:
+        Union[Any, None]:
             Expiration time in a easy to read format.
     """
     expiration_time = (
@@ -759,7 +760,7 @@ def _calculate_received_and_paid_amount(
     Args:
         taker_gets (Any): TakerGets amount.
         taker_pays (Any): TakerPays amount.
-        direction (Union[Literal['buy'], Literal['sell']]): 'buy' or 'sell' offer.
+        direction (str): 'buy' or 'sell' offer.
 
     Returns:
         Any:
@@ -838,7 +839,7 @@ def parse_order_book_changes(
         nodes (Iterable[NormalizedNode]): Affected nodes.
 
     Returns:
-        List[Dict[str, Union[Dict[str, str], bool, int, str]]]:
+        Any:
             A list of all nodes with 'EntryType': 'Offer'
     """
     filter_nodes = map_(
