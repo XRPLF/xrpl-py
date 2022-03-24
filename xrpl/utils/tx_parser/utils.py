@@ -319,8 +319,10 @@ def compute_balance_changes(node: NormalizedNode) -> Union[None, int, Decimal]:
             node.previous_fields.Balance
         )
 
-    # if value is not 'None' or '0' return 'value' else 'None'.
-    return None if value is None else None if value == 0 else value
+     if( value and value != 0):
+           return value
+     else:
+          return None
 
 
 def _parse_xrp_quantity(
