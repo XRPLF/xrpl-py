@@ -1,5 +1,5 @@
 """
-Parse balance changes, final balances and previouse balances of every
+Parse balance changes, final balances and previous balances of every
 account involved in the given transaction.
 """
 
