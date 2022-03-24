@@ -107,9 +107,7 @@ class ParseBalanceChanges(BalanceChanges):
         )
 
         result: Dict[str, List[Dict[str, str]]] = {}
-        for k, v in parsedQuantities.items():
-            address = k
-            change = v
+        for address, change in parsedQuantities.items():
             result[address] = []
             for obj in change:
                 if isinstance(obj.counterparty, tuple):
