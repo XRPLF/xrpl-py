@@ -1,4 +1,5 @@
 """Parse order book changes caused by a transaction."""
+from __future__ import annotations
 
 from typing import Any, Dict, List, Union
 
@@ -16,14 +17,16 @@ class OrderBookChanges:
 
     Args:
         metadata (`Dict[str, Union[str, int, bool, Dict[str, Any]]]`):
-            The transactions metadata.
+            The transactions metadata sorted by account addresses.
     """
 
+    # all_orderbook_changes = {'account': ['order book changes']}
     all_orderbook_changes: Dict[str, List[Dict[str, Any]]] = {}
     """All orderbook_changes"""
 
     def __init__(
-        self: Any, metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]]
+        self: OrderBookChanges,
+        metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]],
     ) -> None:
         """
         Args:
@@ -49,7 +52,8 @@ class ParseOrderBookChanges(OrderBookChanges):
     """
 
     def __init__(
-        self: Any, metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]]
+        self: ParseOrderBookChanges,
+        metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]],
     ) -> None:
         """
         Args:
@@ -60,7 +64,7 @@ class ParseOrderBookChanges(OrderBookChanges):
 
         self._parse()
 
-    def _parse(self: Any) -> None:
+    def _parse(self: ParseOrderBookChanges) -> None:
         is_valid_metadata(metadata=self.metadata)
         nodes = normalize_nodes(metadata=self.metadata)
 
