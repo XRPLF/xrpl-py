@@ -2,9 +2,10 @@
 Parse balance changes, final balances and previous balances of every
 account involved in the given transaction.
 """
+from __future__ import annotations
 
 from decimal import Decimal
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from xrpl.utils.tx_parser.utils import (
     compute_balance_changes,
@@ -32,13 +33,13 @@ class BalanceChanges:
     """All balance changes of the source account (Field: `Account`)
     which was affected by the transaction.
     """
-    destination_account_balances: Union[None, Dict[str, List[Dict[str, str]]]] = None
+    destination_account_balances: Optional[Dict[str, List[Dict[str, str]]]] = None
     """All balance changes of the destination account (Field: `Destination`)
     which was affected by the transaction if field is included in metadata.
     """
 
     def __init__(
-        self: Any, metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]]
+        self: BalanceChanges, metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]]
     ) -> None:
         """
         Attributes:
@@ -48,22 +49,22 @@ class BalanceChanges:
         """
         self.metadata = metadata
 
-    def _define_results(self: Any, result: Dict[str, List[Dict[str, str]]]) -> None:
+    def _define_results(
+        self: BalanceChanges,
+        result: Dict[str, List[Dict[str, str]]],
+    ) -> None:
         self.all_balances = result
+        source_account = str(self.metadata["Account"])
         self.source_account_balances = {
-            self.metadata["Account"]: self.all_balances[self.metadata["Account"]]
+            source_account: self.all_balances[source_account]
         }
         try:
+            destination_account = str(self.metadata["Destination"])
             self.destination_account_balances = {
-                self.metadata["Destination"]: self.all_balances[
-                    self.metadata["Destination"]
-                ]
+                destination_account: self.all_balances[destination_account]
             }
         except KeyError:
-            tx_type = self.metadata["TransactionType"]
-            self.destination_account_balances = f"""
-Transaction type: '{tx_type}' has no field 'Destination' or is not included.
-""".strip()
+            self.destination_account_balances = None
 
 
 class ParseBalanceChanges(BalanceChanges):
@@ -88,7 +89,8 @@ class ParseBalanceChanges(BalanceChanges):
     """
 
     def __init__(
-        self: Any, metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]]
+        self: ParseBalanceChanges,
+        metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]],
     ) -> None:
         """
         Args:
@@ -100,7 +102,7 @@ class ParseBalanceChanges(BalanceChanges):
 
         self._parse()
 
-    def _parse(self: Any) -> None:
+    def _parse(self: ParseBalanceChanges) -> None:
         is_valid_metadata(metadata=self.metadata)
         parsedQuantities = parse_quantities(
             metadata=self.metadata, valueParser=compute_balance_changes
@@ -145,7 +147,8 @@ class ParseFinalBalances(BalanceChanges):
     """
 
     def __init__(
-        self: Any, metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]]
+        self: ParseFinalBalances,
+        metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]],
     ) -> None:
         """
         Attributes:
@@ -157,7 +160,7 @@ class ParseFinalBalances(BalanceChanges):
 
         self._parse()
 
-    def _parse(self: Any) -> None:
+    def _parse(self: ParseFinalBalances) -> None:
         is_valid_metadata(metadata=self.metadata)
         parsedQuantities = parse_quantities(self.metadata, parse_final_balance)
 
@@ -202,7 +205,8 @@ class ParsePreviousBalances(BalanceChanges):
     """
 
     def __init__(
-        self: Any, metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]]
+        self: ParsePreviousBalances,
+        metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]],
     ) -> None:
         """
         Attributes:
@@ -214,7 +218,7 @@ class ParsePreviousBalances(BalanceChanges):
 
         self._parse()
 
-    def _parse(self: Any) -> None:
+    def _parse(self: ParsePreviousBalances) -> None:
         is_valid_metadata(metadata=self.metadata)
         balance_changes = ParseBalanceChanges(metadata=self.metadata).all_balances
         final_balances = ParseFinalBalances(metadata=self.metadata).all_balances
