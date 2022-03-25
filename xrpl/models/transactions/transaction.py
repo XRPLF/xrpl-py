@@ -11,6 +11,7 @@ from xrpl.core.binarycodec import encode
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
+from xrpl.models.flags import check_false_flag_definition, interface_to_flag_list
 from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
@@ -277,7 +278,7 @@ class Transaction(BaseModel):
     details.
     """
 
-    flags: Union[int, List[int]] = 0
+    flags: Union[Dict[str, bool], int, List[int]] = 0
     """
     A List of flags, or a bitwise map of flags, modifying this transaction's
     behavior. See `Flags Field
@@ -336,13 +337,29 @@ class Transaction(BaseModel):
             "flags": self._flags_to_int(),
         }
 
+    def _iter_to_int(
+        self: Transaction,
+        lst: List[int],
+    ) -> int:
+        """Calculate flag as int."""
+        accumulator = 0
+        for flag in lst:
+            accumulator |= flag
+        return accumulator
+
     def _flags_to_int(self: Transaction) -> int:
         if isinstance(self.flags, int):
             return self.flags
-        accumulator = 0
-        for flag in self.flags:
-            accumulator |= flag
-        return accumulator
+        check_false_flag_definition(tx_type=self.transaction_type, tx_flags=self.flags)
+        if isinstance(self.flags, dict):
+            return self._iter_to_int(
+                lst=interface_to_flag_list(
+                    tx_type=self.transaction_type,
+                    tx_flags=self.flags,
+                )
+            )
+
+        return self._iter_to_int(lst=self.flags)
 
     def to_xrpl(self: Transaction) -> Dict[str, Any]:
         """
@@ -401,6 +418,11 @@ class Transaction(BaseModel):
         """
         if isinstance(self.flags, int):
             return self.flags & flag != 0
+        elif isinstance(self.flags, dict):
+            return flag in interface_to_flag_list(
+                tx_type=self.transaction_type,
+                tx_flags=self.flags,
+            )
         else:  # is List[int]
             return flag in self.flags
 

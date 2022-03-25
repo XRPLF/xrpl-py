@@ -2,8 +2,9 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Union
+from typing import List, Optional, Union
 
+from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.pseudo_transactions.pseudo_transaction import (
     PseudoTransaction,
@@ -37,6 +38,22 @@ class EnableAmendmentFlag(int, Enum):
     """
 
 
+class EnableAmendmentFlagInterface(FlagInterface):
+    """
+    The Flags value of the EnableAmendment pseudo-transaction indicates the status of
+    the amendment at the time of the ledger including the pseudo-transaction.
+
+    A Flags value of 0 (no flags) or an omitted Flags field indicates that the
+    amendment has been enabled, and applies to all ledgers afterward.
+
+    `See EnableAmendment Flags
+    <https://xrpl.org/enableamendment.html#enableamendment-flags>`_
+    """
+
+    TF_GOT_MAJORITY: bool
+    TF_LOST_MAJORITY: bool
+
+
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class EnableAmendment(PseudoTransaction):
@@ -65,6 +82,18 @@ class EnableAmendment(PseudoTransaction):
     This field is required.
 
     :meta hide-value:
+    """
+
+    tf_got_majority: Optional[bool] = None
+    """
+    Support for this amendment increased to at least 80% of trusted validators
+    starting with this ledger version.
+    """
+
+    tf_lost_majority: Optional[bool] = None
+    """
+    Support for this amendment decreased to less than 80% of trusted validators
+    starting with this ledger version.
     """
 
     transaction_type: PseudoTransactionType = field(

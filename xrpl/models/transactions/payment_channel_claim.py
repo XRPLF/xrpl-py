@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 
+from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -38,6 +39,19 @@ class PaymentChannelClaimFlag(int, Enum):
     uses this flag when the channel still holds XRP, any XRP that remains after
     processing the claim is returned to the source address.
     """
+
+
+class PaymentChannelClaimFlagInterface(FlagInterface):
+    """
+    Transactions of the PaymentChannelClaim type support additional values in the Flags
+    field. This TypedDict represents those options.
+
+    `See PaymentChannelClaim Flags
+    <https://xrpl.org/paymentchannelclaim.html#paymentchannelclaim-flags>`_
+    """
+
+    TF_RENEW: bool
+    TF_CLOSE: bool
 
 
 @require_kwargs_on_init
