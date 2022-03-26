@@ -7,6 +7,7 @@ from typing import Dict, Optional
 
 from typing_extensions import Final
 
+from xrpl.models.flags import FlagInterface
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
@@ -87,6 +88,30 @@ class AccountSetFlag(int, Enum):
 
     ASF_AUTHORIZED_MINTER = 10
     """Allow another account to mint and burn tokens on behalf of this account."""
+
+
+class AccountSetFlagInterface(FlagInterface):
+    """
+    There are several options which can be either enabled or disabled for an account.
+    Account options are represented by different types of flags depending on the
+    situation. The AccountSet transaction type has several "AccountSet Flags" (prefixed
+    `asf`) that can enable an option when passed as the SetFlag parameter, or disable
+    an option when passed as the ClearFlag parameter. This TypedDict represents those
+    options.
+
+    `See AccountSet Flags <https://xrpl.org/accountset.html#accountset-flags>`_
+    """
+
+    ASF_ACCOUNT_TXN_ID: bool
+    ASF_DEFAULT_RIPPLE: bool
+    ASF_DEPOSIT_AUTH: bool
+    ASF_DISABLE_MASTER: bool
+    ASF_DISALLOW_XRP: bool
+    ASF_GLOBAL_FREEZE: bool
+    ASF_NO_FREEZE: bool
+    ASF_REQUIRE_AUTH: bool
+    ASF_REQUIRE_DEST: bool
+    ASF_AUTHORIZED_MINTER: bool
 
 
 @require_kwargs_on_init

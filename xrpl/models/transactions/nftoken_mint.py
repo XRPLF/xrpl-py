@@ -7,6 +7,7 @@ from typing import Dict, Optional
 
 from typing_extensions import Final
 
+from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -43,6 +44,15 @@ class NFTokenMintFlag(int, Enum):
     effect if the token is being transferred from the issuer or to the
     issuer.
     """
+
+
+class NFTokenMintFlagInterface(FlagInterface):
+    """Transaction Flags for an NFTokenMint Transaction."""
+
+    TF_BURNABLE: bool
+    TF_ONLY_XRP: bool
+    TF_TRUSTLINE: bool
+    TF_TRANSFERABLE: bool
 
 
 @require_kwargs_on_init

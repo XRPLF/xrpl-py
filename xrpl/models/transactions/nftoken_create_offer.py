@@ -6,6 +6,7 @@ from enum import Enum
 from typing import Dict, Optional
 
 from xrpl.models.amounts import Amount, get_amount_value
+from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -20,6 +21,12 @@ class NFTokenCreateOfferFlag(int, Enum):
     If set, indicates that the offer is a sell offer.
     Otherwise, it is a buy offer.
     """
+
+
+class NFTokenCreateOfferFlagInterface(FlagInterface):
+    """Transaction Flags for an NFTokenCreateOffer Transaction."""
+
+    TF_SELL_TOKEN: bool
 
 
 @require_kwargs_on_init

@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Optional
 
 from xrpl.models.amounts import Amount
+from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -51,6 +52,20 @@ class OfferCreateFlag(int, Enum):
     Exchange the entire `TakerGets` amount, even if it means obtaining more than the
     `TakerPays amount` in exchange.
     """
+
+
+class OfferCreateFlagInterface(FlagInterface):
+    """
+    Transactions of the OfferCreate type support additional values in the Flags field.
+    This TypedDict represents those options.
+
+    `See OfferCreate Flags <https://xrpl.org/offercreate.html#offercreate-flags>`_
+    """
+
+    TF_PASSIVE: bool
+    TF_IMMEDIATE_OR_CANCEL: bool
+    TF_FILL_OR_KILL: bool
+    TF_SELL: bool
 
 
 @require_kwargs_on_init
