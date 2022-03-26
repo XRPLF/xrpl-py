@@ -1,18 +1,11 @@
 """Utils for balance_changes and orderbook_changes."""
+from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, Dict, Iterable, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
-from pydash import (  # type: ignore
-    compact,
-    filter_,
-    flatten,
-    group_by,
-    is_empty,
-    map_,
-    map_values,
-)
+from pydash import compact, filter_, flatten, group_by, map_, map_values  # type: ignore
 from typing_extensions import Literal
 
 from xrpl.constants import XRPLException
@@ -35,10 +28,10 @@ def is_valid_metadata(metadata: Dict[str, Any]) -> None:
     """Check if the given metadata is valid.
 
     Args:
-        metadata (Dict[str, Any]): The transactions metadata
+        metadata (Dict[str, Any]):
+            The transactions metadata
 
     Raises:
-        XRPLMetadataException: If field Account is missing.
         XRPLMetadataException: If field Account is missing.
         XRPLMetadataException: If field meta is missing.
         XRPLMetadataException: If field AffectedNodes is missing or is empty.
@@ -62,166 +55,300 @@ def is_valid_metadata(metadata: Dict[str, Any]) -> None:
         raise XRPLMetadataException("Metadata incomplete: No nodes provided.")
 
 
+def normalize_metadata(
+    metadata: Dict[
+        str,
+        Union[
+            str,
+            int,
+            Dict[str, str],
+            List[List[Dict[str, Union[str, int]]]],
+            Dict[
+                str,
+                List[
+                    Dict[
+                        str,
+                        Dict[
+                            str,
+                            Union[str, int, Dict[str, Union[str, int, Dict[str, str]]]],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ],
+) -> Dict[  # metadata received from a tx method
+    str,
+    Union[
+        str,
+        int,
+        Dict[str, str],  # issued currency amount
+        List[List[Dict[str, Union[str, int]]]],  # Field: 'paths'
+        Dict[  # Field: 'meta'
+            str,  # Field: 'AffectedNodes'
+            List[
+                Dict[
+                    str,  # Node state
+                    Dict[
+                        str,
+                        Union[str, int, Dict[str, Union[str, int, Dict[str, str]]]],
+                    ],
+                ],
+            ],
+        ],
+    ],
+]:
+    """Formats the transaction metadata into one standard format.
+
+    Args:
+        metadata:
+            Transactions metadata.
+
+    Returns:
+        Metadata in standard format.
+    """
+    transaction = metadata["transaction"]
+    assert isinstance(transaction, dict)
+    normalized_metadata = {
+        tx_field_name: tx_field_value
+        for tx_field_name, tx_field_value in transaction.items()
+    }
+
+    meta = metadata["meta"]
+    assert isinstance(meta, dict)
+    normalized_metadata["meta"] = meta  # type: ignore
+    ledger_index = metadata["ledger_index"]
+    assert isinstance(ledger_index, int)
+    normalized_metadata["ledger_index"] = ledger_index  # type: ignore
+
+    return normalized_metadata  # type: ignore
+
+
+class FieldName:
+    """FieldName"""
+
+    currency: str
+    issuer: str
+    value: str
+
+
+class FieldState:
+    """FieldState"""
+
+    Balance: Union[AccountBalance, str]
+    LowLimit: Union[AccountBalance, str]
+    HighLimit: Union[AccountBalance, str]
+    Account: str
+    TakerGets: Union[FieldName, str]  # Type: 'NewClass'
+    TakerPays: Union[FieldName, str]  # Type: 'NewClass'
+    Sequence: int
+    Flags: int
+    Expiration: Optional[Union[int, str]] = None
+
+
+class NewFields(FieldState):
+    """NewFields"""
+
+    pass
+
+
+class FinalFields(FieldState):
+    """FinalFields"""
+
+    pass
+
+
+class PreviousFields(FieldState):
+    """PreviousFields"""
+
+    pass
+
+
 class NormalizedNode:
     """A standard format for nodes."""
 
     def __init__(
-        self: Any,
-        diffType: str,
-        entryType: str,
-        ledgerIndex: str,
-        newFields: Any,
-        finalFields: Any,
-        previousFields: Any,
+        self: NormalizedNode,
+        diff_type: str,
+        entry_type: str,
+        ledger_index: str,
+        new_fields: Optional[FieldState],
+        final_fields: Optional[FieldState],
+        previous_fields: Optional[FieldState],
     ) -> None:
         """
         Args:
             diffType (str): Node type (ModifiedNode, CreatedNode or DeletedNode).
             entryType (str): Entry type (e.g. Offer, AccountRoot, …).
             ledgerIndex (str): Ledger index.
-            newFields (Any): New fields.
-            finalFields (Any):
-            Fields after the transaction occurred.
-            previousFields (Any):
-            Fields before the transaction occurred.
+            newFields (Optional[FieldState]):
+                New fields.
+            finalFields (Optional[FieldState]):
+                Fields after the transaction occurred.
+            previousFields (Optional[FieldState]):
+                Fields before the transaction occurred.
         """
-        self.diff_type = diffType
-        self.entry_type = entryType
-        self.ledger_index = ledgerIndex
-        self.new_fields = newFields
-        self.final_fields = finalFields
-        self.previous_fields = previousFields
-
-
-class NewFields:
-    """NewFields"""
-
-    pass
-
-
-class FinalFields:
-    """FinalFields"""
-
-    pass
-
-
-class PreviousFields:
-    """PreviousFields"""
-
-    pass
+        self.diff_type = diff_type
+        self.entry_type = entry_type
+        self.ledger_index = ledger_index
+        self.new_fields = new_fields
+        self.final_fields = final_fields
+        self.previous_fields = previous_fields
 
 
 def field_factory(
-    field_state: Union[
-        Literal["NewFields"], Literal["FinalFields"], Literal["PreviousFields"]
-    ],
-    fields: Any,
-) -> Union[NewFields, FinalFields, PreviousFields]:
+    field_state: FieldState,
+    fields: Dict[str, Union[str, int, Dict[str, str]]],
+) -> FieldState:
     """Set the attributes for 'NewFields', 'FinalFields' and 'ModifiedFields'.
 
     Args:
-        field_state:
+        field_state (FieldState):
             State of the field.
-        fields:
+        fields (Dict[str, Union[str, int, Dict[str, str]]]):
             A dictionary of all fields that field state has.
             E.g.: {'Balance': '62537659', 'OwnerCount': 16, 'Sequence': 67702065}
 
     Returns:
-        The full field state with all its fields as objects.
+        FieldState:
+            The full field state with all its fields as objects.
     """
 
-    def factory(name: str) -> Any:
+    def factory(name: str) -> Type[FieldName]:
         """Create a new class with variable name.
 
         Args:
-            name (str): field name
+            name (str):
+                Field name.
 
         Returns:
-            Any: A class with the name of a field. E.g. 'OwnerCount', 'Balance', ….
+            Type[FieldName]:
+                A class with the name of a field. E.g. 'OwnerCount', 'Balance', ….
         """
 
-        class NewClass:
+        class NewClass(FieldName):
             pass
 
         NewClass.__name__ = name
 
         return NewClass
 
-    field_state_map: Dict[str, Union[NewFields, FinalFields, PreviousFields]] = {
-        "NewFields": NewFields(),
-        "FinalFields": FinalFields(),
-        "PreviousFields": PreviousFields(),
-    }
-
-    field = field_state_map[field_state]
-
     for field_name, field_value in fields.items():
         # if 'field_value' is a dictionary
         if isinstance(field_value, dict):
             # if 'field_value' is a issued currency amount
             if field_name in ["Balance", "LowLimit", "HighLimit"]:
-                field_value = Balance(
+                new_field_value = AccountBalance(
                     counterparty=field_value["issuer"],
                     currency=field_value["currency"],
                     value=field_value["value"],
                 )
+                setattr(field_state, field_name, new_field_value)
             else:  # if 'field_value' type is dict but is no issued currency amount.
                 field_name_object = factory(field_name)
                 for field_value_key, field_value_value in field_value.items():
                     setattr(field_name_object, field_value_key, field_value_value)
-                field_value = field_name_object
-        # set attributes to field state
-        setattr(field, field_name, field_value)
+                setattr(field_state, field_name, field_name_object)
+        else:
+            setattr(field_state, field_name, field_value)
 
-    return field
+    return field_state
 
 
-def normalize_node(affectedNode: Dict[str, Any]) -> NormalizedNode:
+def normalize_node(
+    affected_node: Dict[
+        str,  # Node state / diff_type
+        Dict[
+            str,
+            Union[str, int, Dict[str, Union[str, int, Dict[str, str]]]],
+        ],
+    ]
+) -> NormalizedNode:
     """Affected node to a standard format.
 
     Args:
-        affectedNode (Dict[str, Any]):
+        affected_node (Dict[str, Dict[str, Union[str, int,
+        Dict[str, Union[str, int, Dict[str, str]]]]]]):
             Affected node.
 
     Returns:
         NormalizedNode:
             NormalizedNode object.
     """
-    diff_type = list(affectedNode)[0]
-    node = affectedNode[diff_type]
+    diff_type: str = list(affected_node.keys())[0]
+    node_fields = list(affected_node.values())[0]
+
+    ledger_entry_type = str(node_fields["LedgerEntryType"])
+    ledger_index = str(node_fields["LedgerIndex"])
+
+    new_fields = None
+    if "NewFields" in node_fields:
+        assert isinstance(node_fields["NewFields"], dict)
+        new_fields = field_factory(NewFields(), node_fields["NewFields"])
+
+    final_fields = None
+    if "FinalFields" in node_fields:
+        assert isinstance(node_fields["FinalFields"], dict)
+        final_fields = field_factory(NewFields(), node_fields["FinalFields"])
+
+    previous_fields = None
+    if "PreviousFields" in node_fields:
+        assert isinstance(node_fields["PreviousFields"], dict)
+        previous_fields = field_factory(NewFields(), node_fields["PreviousFields"])
 
     normalized_node = NormalizedNode(
-        diffType=diff_type,
-        entryType=node["LedgerEntryType"],
-        ledgerIndex=node["LedgerIndex"],
-        newFields=field_factory("NewFields", node["NewFields"])
-        if ("NewFields" in node)
-        else None,
-        finalFields=field_factory("FinalFields", node["FinalFields"])
-        if ("FinalFields" in node)
-        else None,
-        previousFields=field_factory("PreviousFields", node["PreviousFields"])
-        if ("PreviousFields" in node)
-        else None,
+        diff_type=diff_type,
+        entry_type=ledger_entry_type,
+        ledger_index=ledger_index,
+        new_fields=new_fields,
+        final_fields=final_fields,
+        previous_fields=previous_fields,
     )
 
     return normalized_node
 
 
-def normalize_nodes(metadata: Dict[str, Any]) -> Iterable[NormalizedNode]:
+def normalize_nodes(
+    metadata: Dict[
+        str,
+        Union[
+            str,
+            int,
+            Dict[str, str],
+            List[List[Dict[str, Union[str, int]]]],
+            Dict[
+                str,
+                List[
+                    Dict[
+                        str,
+                        Dict[
+                            str,
+                            Union[str, int, Dict[str, Union[str, int, Dict[str, str]]]],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ],
+) -> List[NormalizedNode]:
     """Normalize nodes.
 
     Args:
-        metadata (Dict[str, Any]): Transctions metadata
+        metadata:
+            Transctions metadata
 
     Returns:
-        Iterable[NormalizedNode]: The normalized nodes
+        List[NormalizedNode]: The normalized nodes
     """
-    affected_nodes = metadata["meta"]["AffectedNodes"]
-    if not affected_nodes:
+    meta = metadata["meta"]
+    if isinstance(meta, dict):
+        affected_nodes = meta["AffectedNodes"]
+        if not affected_nodes:
+            return []
+        assert isinstance(affected_nodes, list)
+        return map_(affected_nodes, normalize_node)  # type: ignore
+    else:
         return []
-
-    return map(normalize_node, affected_nodes)
 
 
 """
@@ -231,49 +358,60 @@ Utils balance_changes
 """
 
 
-class Balance:
+class AccountBalance:
     """A accounts balance."""
 
-    def __init__(self: Any, counterparty: str, currency: str, value: str) -> None:
+    def __init__(
+        self: AccountBalance, counterparty: str, currency: str, value: str
+    ) -> None:
         """
         Args:
-            counterparty (str): Counterparty
-            currency (str): Currency
-            value (str): Value
+            counterparty (str):
+                Counterparty
+            currency (str):
+                Currency
+            value (str):
+                Value
         """
         self.counterparty = counterparty
         self.currency = currency
         self.value = value
 
 
-class TrustLineQuantity(object):
+class TrustLineQuantity:
     """Trust line quantity."""
 
-    def __init__(self: object, address: str, balance: Dict[str, str]) -> None:
+    def __init__(
+        self: TrustLineQuantity,
+        address: str,
+        balance: Dict[str, str],
+    ) -> None:
         """
         Args:
-            address (str): Accounts address.
-            balance (Dict[str, str]): Accounts balance.
+            address (str):
+                Accounts address.
+            balance (Dict[str, str]):
+                Accounts balance.
         """
         self.address = address
-        self.balance = Balance(
+        self.balance = AccountBalance(
             counterparty=balance["counterparty"],
             currency=balance["currency"],
             value=balance["value"],
         )
 
 
-def _parse_value(value: Any) -> Decimal:
+def _parse_value(value: Union[AccountBalance, str]) -> Decimal:
     """Formats a balances value into a Decimal.
 
     Args:
-        value (Any):
-            Balance.
+        value (Union[AccountBalance, str]):
+            Accounts balance.
 
     Returns:
-        Decimal: Balance as Decimal.
+        Decimal: Account balance value as Decimal.
     """
-    if hasattr(value, "value"):  # issued currency amount
+    if isinstance(value, AccountBalance):  # issued currency amount
         return Decimal(value.value)
     else:  # XRP amount
         return Decimal(value)
@@ -290,15 +428,15 @@ def parse_final_balance(node: NormalizedNode) -> Union[Decimal, None]:
         Union[Decimal, None]:
             The balance value as Decimal.
     """
-    if hasattr(node.new_fields, "Balance"):
-        return _parse_value(node.new_fields.Balance)
-    if hasattr(node.final_fields, "Balance"):
-        return _parse_value(node.final_fields.Balance)
+    if node.new_fields and hasattr(node.new_fields, "Balance"):
+        return _parse_value(value=node.new_fields.Balance)
+    if node.final_fields and hasattr(node.final_fields, "Balance"):
+        return _parse_value(value=node.final_fields.Balance)
 
     return None
 
 
-def compute_balance_changes(node: NormalizedNode) -> Union[None, int, Decimal]:
+def compute_balance_changes(node: NormalizedNode) -> Union[Decimal, None]:
     """Compute balance changes.
 
     Args:
@@ -306,17 +444,20 @@ def compute_balance_changes(node: NormalizedNode) -> Union[None, int, Decimal]:
             Normalized node.
 
     Returns:
-        Union[None, int, Decimal]:
+        Union[Decimal, None]:
             The parsed value.
     """
     value = None
-    if hasattr(node.new_fields, "Balance"):
-        value = _parse_value(node.new_fields.Balance)
-    if hasattr(node.previous_fields, "Balance") and hasattr(
-        node.final_fields, "Balance"
+    if isinstance(node.new_fields, NewFields) and hasattr(node.new_fields, "Balance"):
+        value = _parse_value(value=node.new_fields.Balance)
+    if (
+        node.previous_fields is not None
+        and hasattr(node.previous_fields, "Balance")
+        and node.final_fields is not None
+        and hasattr(node.final_fields, "Balance")
     ):
-        value = _parse_value(node.final_fields.Balance) - _parse_value(
-            node.previous_fields.Balance
+        value = _parse_value(value=node.final_fields.Balance) - _parse_value(
+            value=node.previous_fields.Balance
         )
 
     if value and value != 0:
@@ -327,20 +468,21 @@ def compute_balance_changes(node: NormalizedNode) -> Union[None, int, Decimal]:
 
 def _parse_xrp_quantity(
     node: NormalizedNode,
-    valueParser: Any,
+    value_parser: Callable[[NormalizedNode], Union[Decimal, None]],
 ) -> Union[TrustLineQuantity, None]:
     """Parse XRP quantity.
 
     Args:
-        node (NormalizedNode): Normalized node.
-        valueParser (Any):
+        node (NormalizedNode):
+            Normalized node.
+        value_parser (Callable[[NormalizedNode], Union[Decimal, None]]):
             Parser to get values needed.
 
     Returns:
         Union[TrustLineQuantity, None]:
             Trust line quantity.
     """
-    value = valueParser(node)
+    value = value_parser(node)
     if value is None:
         return None
 
@@ -349,10 +491,15 @@ def _parse_xrp_quantity(
     if str(value).startswith("-"):
         is_negative = True
 
+    if node.final_fields is not None:
+        address = node.final_fields.Account
+    elif node.new_fields is not None:
+        address = node.new_fields.Account
+    else:
+        address = ""
+
     result = TrustLineQuantity(
-        address=node.final_fields.Account
-        if node.final_fields
-        else node.new_fields.Account,
+        address=address,
         balance={
             "counterparty": "",
             "currency": "XRP",
@@ -391,23 +538,32 @@ def _flip_trustline_perspective(quantity: TrustLineQuantity) -> TrustLineQuantit
 
 def _parse_trustline_quantity(
     node: NormalizedNode,
-    valueParser: Any,
-) -> Union[None, List[TrustLineQuantity]]:
+    value_parser: Callable[[NormalizedNode], Union[Decimal, None]],
+) -> Union[List[TrustLineQuantity], None]:
     """Parse trust line quantity.
 
     Args:
-        node (NormalizedNode): Normalized node.
-        valueParser (Any):
+        node (NormalizedNode):
+            Normalized node.
+        value_parser (Callable[[NormalizedNode], Union[Decimal, None]]):
             Parser to get values needed.
 
     Returns:
-        Union[None, List[TrustLineQuantity]]:
+        Union[List[TrustLineQuantity], None]:
             Trust line quantity.
     """
-    value = valueParser(node)
+    value = value_parser(node)
     if value is None:
         return None
-    fields = node.final_fields if is_empty(node.new_fields) else node.new_fields
+    fields = node.final_fields if node.new_fields is None else node.new_fields
+
+    if fields is None:
+        return None
+
+    assert isinstance(fields.LowLimit, AccountBalance)
+    assert isinstance(fields.HighLimit, AccountBalance)
+    assert isinstance(fields.Balance, AccountBalance)
+
     result = TrustLineQuantity(
         address=fields.LowLimit.counterparty,
         balance={
@@ -417,47 +573,55 @@ def _parse_trustline_quantity(
         },
     )
 
-    return [result, _flip_trustline_perspective(result)]
+    return [result, _flip_trustline_perspective(quantity=result)]
 
 
 def _group_by_address(
-    balanceChanges: List[TrustLineQuantity],
-) -> Any:
+    balance_changes: List[TrustLineQuantity],
+) -> Dict[str, List[AccountBalance]]:
     """Groups the balances changes by address.
 
     Args:
-        balanceChanges (List[TrustLineQuantity]):
-            A list of trust line quantities.
+        balance_changes (List[TrustlineQuantity]):
+            A dictionary of accounts balances grouped by addresses.
 
     Returns:
-        Any: A dictionary with all balance changes grouped by addresses.
+        Dict[str, AccountBalance]:
+            A dictionary with all balance changes grouped by addresses.
     """
-    grouped = group_by(balanceChanges, lambda node: node.address)
+    grouped = group_by(balance_changes, lambda node: node.address)
+    mapped_group = map_values(
+        grouped, lambda group: map_(group, lambda node: node.balance)
+    )
 
-    return map_values(grouped, lambda group: map_(group, lambda node: node.balance))
+    return mapped_group  # type: ignore
 
 
 def parse_quantities(
-    metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]],
-    valueParser: Any,
-) -> Any:
+    nodes: List[NormalizedNode],
+    value_parser: Callable[[NormalizedNode], Union[Decimal, None]],
+) -> Dict[str, List[AccountBalance]]:
     """Parse final balance.
 
     Args:
-        metadata (Dict[str, Union[str, int, bool, Dict[str, Any]]):
-            The transactions metadata.
-        valueParser (Any):
+        nodes (List[NormalizedNode]):
+            Normalized nodes.
+        value_parser (Callable[[NormalizedNode], Union[Decimal, None]]):
             Value parser.
 
     Returns:
-        Any: The grouped balance changes.
+        Dict[str, AccountBalance]: The grouped account balance changes.
     """
     values: List[Any] = []
-    for node in normalize_nodes(metadata=metadata):
+    for node in nodes:
         if node.entry_type == "AccountRoot":
-            values.append(_parse_xrp_quantity(node, valueParser))
+            values.append(
+                _parse_xrp_quantity(node=node, value_parser=value_parser),
+            )
         elif node.entry_type == "RippleState":
-            values.append(_parse_trustline_quantity(node, valueParser))
+            values.append(
+                _parse_trustline_quantity(node=node, value_parser=value_parser),
+            )
         else:
             values.append([])
 
@@ -478,7 +642,7 @@ class OrderChange:
     """Order change."""
 
     def __init__(
-        self: Any,
+        self: OrderChange,
         taker_pays: Union[Dict[str, str], str],
         taker_gets: Union[Dict[str, str], str],
         sell: bool,
@@ -492,7 +656,7 @@ class OrderChange:
             ]
         ],
         quality: str,
-        expiration: Optional[Union[Any, str]],
+        expiration: Optional[Union[int, str]],
         direction: str = "",
         total_received: Union[Dict[str, str], str] = {},
         total_paid: Union[Dict[str, str], str] = {},
@@ -500,18 +664,29 @@ class OrderChange:
     ) -> None:
         """
         Args:
-            taker_pays (Union[Dict[str, str], str]): TakerPays
-            taker_gets (Union[Dict[str, str], str]): TakerGets
-            sell (bool): If flag 'sell' is set
-            sequence (int): Sequence
-            status (str): Status
-            quality (str): Quality
-            expiration (Union[Any, str, None]): Expiration
-            direction (str, optional): Buy or Sell. Defaults to None.
-            total_received (Union[Dict[str, str], str], optional):
-            Amount received. Defaults to None.
-            total_paid (Union[Dict[str, str], str], optional): Costs. Defaults to None.
-            account (str, optional): Account. Defaults to None.
+            taker_pays (Union[Dict[str, str], str]):
+                TakerPays
+            taker_gets (Union[Dict[str, str], str]):
+                TakerGets
+            sell (bool):
+                If flag 'sell' is set
+            sequence (int):
+                Sequence
+            status (Optional[Union[Literal["created"], Literal["partially-filled"],
+            Literal["filled"], Literal["cancelled"]]]):
+                Status
+            quality (str):
+                Quality
+            expiration (Optional[Union[int, str]]):
+                Expiration
+            direction (str):
+                Buy or Sell.
+            total_received (Union[Dict[str, str], str]):
+                Amount received. Defaults to None.
+            total_paid (Union[Dict[str, str], str]):
+                Costs account (str): Account.
+            account (str):
+                Accounts address.
         """
         self.taker_pays = taker_pays
         self.taker_gets = taker_gets
@@ -529,7 +704,11 @@ class OrderChange:
 class ChangeAmount:
     """Amount changed by transaction."""
 
-    def __init__(self: Any, final_amount: Dict[str, str], previous_value: str) -> None:
+    def __init__(
+        self: ChangeAmount,
+        final_amount: Dict[str, str],
+        previous_value: str,
+    ) -> None:
         """
         Args:
             final_amount (Dict[str, str]): Final amount
@@ -541,7 +720,10 @@ class ChangeAmount:
 
 def group_by_address_order_book(
     order_changes: List[Dict[str, Union[Dict[str, str], bool, int, str]]]
-) -> Any:
+) -> Dict[
+    str,
+    List[Dict[str, Union[Dict[str, Union[Dict[str, str], str]], str, int, bool]]],
+]:
     """Group order book changes by addresses.
 
     Args:
@@ -549,28 +731,28 @@ def group_by_address_order_book(
             Order book changes
 
     Returns:
-        Dict[str, List[Dict[str, Any]]]:
+        Dict[str, Union[Dict[str, Union[Dict[str, str], str]], str, int, bool]]:
             Order book changes grouped by addresses.
     """
-    return group_by(order_changes, lambda change: change["account"])
+    return group_by(order_changes, lambda change: change["account"])  # type: ignore
 
 
-def _parse_currency_amount(currency_amount: Union[str, Any]) -> Balance:
+def _parse_currency_amount(currency_amount: Union[str, FieldName]) -> AccountBalance:
     """Parses an accounts balance and formats it into a standard format.
 
     Args:
-        currency_amount (Union[str, Any]):
+        currency_amount (Union[str, FieldName]):
             Currency amount.
 
     Returns:
-        Balance: Currency balance.
+        AccountBalance: Account balance.
     """
     if isinstance(currency_amount, str):
-        return Balance(
+        return AccountBalance(
             currency="XRP", counterparty="", value=str(drops_to_xrp(currency_amount))
         )
 
-    return Balance(
+    return AccountBalance(
         currency=currency_amount.currency,
         counterparty=currency_amount.issuer,
         value=currency_amount.value,
@@ -578,10 +760,12 @@ def _parse_currency_amount(currency_amount: Union[str, Any]) -> Balance:
 
 
 def _calculate_delta(
-    final_amount: Union[Balance, None],
-    previous_amount: Union[Balance, None],
+    final_amount: Union[AccountBalance, None],
+    previous_amount: Union[AccountBalance, None],
 ) -> Union[Decimal, int]:
-    if isinstance(final_amount, Balance) and isinstance(previous_amount, Balance):
+    if isinstance(final_amount, AccountBalance) and isinstance(
+        previous_amount, AccountBalance
+    ):
         previous_value = Decimal(previous_amount.value)
         return 0 - previous_value
 
@@ -590,17 +774,12 @@ def _calculate_delta(
 
 def _parse_order_status(
     node: NormalizedNode,
-) -> Union[
-    Literal["created"],
-    Literal["partially-filled"],
-    Literal["filled"],
-    Literal["cancelled"],
-    None,
-]:
+) -> Union[Literal["created", "partially-filled", "filled", "cancelled"], None]:
     """Parses the status of an order.
 
     Returns:
-        The order status
+        Union[Literal['created', 'partially-filled', 'filled', 'cancelled'], None]:
+            The order status.
     """
     if node.diff_type == "CreatedNode":
         return "created"
@@ -620,29 +799,30 @@ def _parse_order_status(
 
 def _parse_change_amount(
     node: NormalizedNode, side: Literal["TakerPays", "TakerGets"]
-) -> Any:
+) -> Union[AccountBalance, ChangeAmount, None]:
     """Parse the changed amount of an order.
 
     Args:
-        node (NormalizedNode): Normalized node.
-        side (Literal[&quot;TakerPays&quot;, &quot;TakerGets&quot;]):
+        node (NormalizedNode):
+            Normalized node.
+        side (Literal['TakerPays', 'TakerGets']):
             Side of the order to parse.
 
     Returns:
-        Any:
+        Union[AccountBalance, ChangeAmount, None:
             The changed currency amount.
     """
-    status = _parse_order_status(node)
+    status = _parse_order_status(node=node)
 
     if status == "cancelled":
         return (
-            _parse_currency_amount(getattr(node.final_fields, side))
+            _parse_currency_amount(currency_amount=getattr(node.final_fields, side))
             if (hasattr(node.final_fields, side))
             else None
         )
     if status == "created":
         return (
-            _parse_currency_amount(getattr(node.new_fields, side))
+            _parse_currency_amount(currency_amount=getattr(node.new_fields, side))
             if (hasattr(node.new_fields, side))
             else None
         )
@@ -650,16 +830,19 @@ def _parse_change_amount(
     # Else it has modified an offer.
     # Status is 'partially-filled' or 'filled'.
     final_amount = (
-        _parse_currency_amount(getattr(node.final_fields, side))
+        _parse_currency_amount(currency_amount=getattr(node.final_fields, side))
         if (hasattr(node.final_fields, side))
         else None
     )
     previous_amount = (
-        _parse_currency_amount(getattr(node.previous_fields, side))
+        _parse_currency_amount(currency_amount=getattr(node.previous_fields, side))
         if (hasattr(node.previous_fields, side))
         else None
     )
-    value = _calculate_delta(final_amount, previous_amount)
+    value = _calculate_delta(
+        final_amount=final_amount,
+        previous_amount=previous_amount,
+    )
 
     change_amount = ChangeAmount(
         final_amount=final_amount.__dict__, previous_value=str(0 - value)
@@ -677,25 +860,29 @@ def _get_quality(node: NormalizedNode) -> str:
     Returns:
         str: The offers quality.
     """
-    taker_gets = (
-        node.final_fields.TakerGets
-        if (hasattr(node.final_fields, "TakerGets"))
-        else node.new_fields.TakerGets
-    )
-    taker_pays = (
-        node.final_fields.TakerPays
-        if (hasattr(node.final_fields, "TakerPays"))
-        else node.new_fields.TakerPays
-    )
+    if node.final_fields is not None:
+        taker_gets = node.final_fields.TakerGets
+        taker_pays = node.final_fields.TakerPays
+    elif node.new_fields is not None:
+        taker_gets = node.new_fields.TakerGets
+        taker_pays = node.new_fields.TakerPays
+    else:
+        taker_gets = "0"
+        taker_pays = "0"
+
     taker_gets_value = (
-        drops_to_xrp(taker_gets) if (isinstance(taker_gets, str)) else taker_gets.value
+        drops_to_xrp(taker_gets)
+        if (isinstance(taker_gets, str))
+        else Decimal(taker_gets.value)
     )
     taker_pays_value = (
-        drops_to_xrp(taker_pays) if (isinstance(taker_pays, str)) else taker_pays.value
+        drops_to_xrp(taker_pays)
+        if (isinstance(taker_pays, str))
+        else Decimal(taker_pays.value)
     )
 
-    if Decimal(taker_gets_value) > 0 and Decimal(taker_pays_value) > 0:
-        return str(Decimal(taker_pays_value) / Decimal(taker_gets_value))
+    if taker_gets_value > 0 and taker_pays_value > 0:
+        return str(taker_pays_value / taker_gets_value)
 
     return "0"
 
@@ -704,23 +891,23 @@ def _ripple_to_unix_timestamp(rpepoch: int) -> int:
     return rpepoch + 0x386D4380
 
 
-def _get_expiration_time(node: NormalizedNode) -> Union[Any, None]:
+def _get_expiration_time(node: NormalizedNode) -> Union[str, None]:
     """Formats the ripple timestamp to a easy to read format.
 
     Args:
         node (NormalizedNode): Normalized node.
 
     Returns:
-        Union[Any, None]:
+        Union[str, None]:
             Expiration time in a easy to read format.
     """
-    expiration_time = (
-        node.final_fields.Expiration
-        if (hasattr(node.final_fields, "Expiration"))
-        else node.new_fields.Expiration
-        if (hasattr(node.new_fields, "Expiration"))
-        else None
-    )
+    if node.final_fields is not None:
+        expiration_time = node.final_fields.Expiration
+    elif node.new_fields is not None:
+        expiration_time = node.new_fields.Expiration
+    else:
+        expiration_time = None
+
     if not isinstance(expiration_time, int):
         return expiration_time
 
@@ -735,7 +922,8 @@ def _remove_undefined(order: OrderChange) -> OrderChange:
     """Remove all attributes that are 'None'.
 
     Args:
-        order (OrderChange): Order change.
+        order (OrderChange):
+            Order change.
 
     Returns:
         OrderChange:
@@ -743,27 +931,30 @@ def _remove_undefined(order: OrderChange) -> OrderChange:
     """
     order_dict = order.__dict__.copy()
 
-    for k, v in order_dict.items():
-        if v is None:
-            delattr(order, k)
+    for attr, value in order_dict.items():
+        if value is None:
+            delattr(order, attr)
 
     return order
 
 
 def _calculate_received_and_paid_amount(
-    taker_gets: Any,
-    taker_pays: Any,
-    direction: str,
-) -> Any:
+    taker_gets: Union[Dict[str, str], str],
+    taker_pays: Union[Dict[str, str], str],
+    direction: Literal["sell", "buy"],
+) -> Tuple[Union[Dict[str, str], str], Union[Dict[str, str], str]]:
     """Calculate what the taker had to pay and what he received.
 
     Args:
-        taker_gets (Any): TakerGets amount.
-        taker_pays (Any): TakerPays amount.
-        direction (str): 'buy' or 'sell' offer.
+        taker_gets (Union[Dict[str, str], str]):
+            TakerGets amount.
+        taker_pays (Union[Dict[str, str], str]):
+            TakerPays amount.
+        direction (Literal["buy", "sell"]):
+            'buy' or 'sell' offer.
 
     Returns:
-        Any:
+        Tuple[Union[Dict[str, str], str], Union[Dict[str, str], str]]:
             Both paid and received amount.
     """
     quantity = taker_pays if direction == "buy" else taker_gets
@@ -776,16 +967,20 @@ def _convert_order_change(order: OrderChange) -> OrderChange:
     """Convert order change.
 
     Args:
-        order (OrderChange): Order change.
+        order (OrderChange):
+            Order change.
 
     Returns:
-        OrderChange: Converted order change.
+        OrderChange:
+            Converted order change.
     """
     taker_gets = order.taker_gets
     taker_pays = order.taker_pays
-    direction = "sell" if order.sell else "buy"
+    direction: Literal["sell", "buy"] = "sell" if order.sell else "buy"
     quantity, total_price = _calculate_received_and_paid_amount(
-        taker_gets, taker_pays, direction
+        taker_gets=taker_gets,
+        taker_pays=taker_pays,
+        direction=direction,
     )
 
     order.direction = direction
@@ -801,45 +996,54 @@ def _parse_order_change(
     """Parse a change in the order book.
 
     Args:
-        node (NormalizedNode): The affected node.
+        node (NormalizedNode):
+            The affected node.
 
     Returns:
-        Dict[str, Union[ Dict[str, str], bool, int, str ]]: A order book change.
+        Dict[str, Union[ Dict[str, str], bool, int, str ]]:
+            A order book change.
     """
+    if node.final_fields is not None:
+        seq = node.final_fields.Sequence
+    elif node.new_fields is not None:
+        seq = node.new_fields.Sequence
+
+    if node.final_fields is not None:
+        sell = node.final_fields.Flags & lfs_sell != 0
+    else:
+        sell = False
+
     order_change = OrderChange(
         taker_pays=_parse_change_amount(node, "TakerPays").__dict__,
         taker_gets=_parse_change_amount(node, "TakerGets").__dict__,
-        sell=node.final_fields.Flags & lfs_sell != 0
-        if (node.final_fields is not None)
-        else False,
-        sequence=node.final_fields.Sequence
-        if hasattr(node.final_fields, "Sequence")
-        else node.new_fields.Sequence,
+        sell=sell,
+        sequence=seq,
         status=_parse_order_status(node),
         quality=_get_quality(node),
         expiration=_get_expiration_time(node),
     )
     order_change = _convert_order_change(order_change)
 
-    order_change.account = (
-        node.final_fields.Account
-        if (hasattr(node.final_fields, "Account"))
-        else node.new_fields.Account
-    )
+    if node.final_fields is not None:
+        order_change.account = node.final_fields.Account
+    elif node.new_fields is not None:
+        order_change.account = node.new_fields.Account
+    else:
+        order_change.account = ""
 
     return order_change.__dict__
 
 
 def parse_order_book_changes(
-    nodes: Iterable[NormalizedNode],
-) -> Any:
+    nodes: List[NormalizedNode],
+) -> List[Dict[str, Union[Dict[str, str], bool, int, str]]]:
     """Filter nodes by 'EntryType': 'Offer'.
 
     Args:
-        nodes (Iterable[NormalizedNode]): Affected nodes.
+        nodes (List[NormalizedNode]): Affected nodes.
 
     Returns:
-        Any:
+        List[Dict[str, Union[Dict[str, str], bool, int, str]]]:
             A list of all nodes with 'EntryType': 'Offer'
     """
     filter_nodes = map_(
@@ -847,4 +1051,4 @@ def parse_order_book_changes(
         _parse_order_change,
     )
 
-    return filter_nodes
+    return filter_nodes  # type: ignore
