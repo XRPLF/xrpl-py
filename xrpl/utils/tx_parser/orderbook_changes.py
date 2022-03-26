@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Union
 from xrpl.utils.tx_parser.utils import (
     group_by_address_order_book,
     is_valid_metadata,
+    normalize_metadata,
     normalize_nodes,
     parse_order_book_changes,
 )
@@ -14,51 +15,83 @@ from xrpl.utils.tx_parser.utils import (
 class OrderBookChanges:
     """Parse order book changes from a transactions metadata
     in a easy-to-read format.
-
-    Args:
-        metadata (`Dict[str, Union[str, int, bool, Dict[str, Any]]]`):
-            The transactions metadata sorted by account addresses.
     """
 
     # all_orderbook_changes = {'account': ['order book changes']}
     all_orderbook_changes: Dict[str, List[Dict[str, Any]]] = {}
-    """All orderbook_changes"""
 
-    def __init__(
-        self: OrderBookChanges,
-        metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]],
-    ) -> None:
+    def __init__(self: OrderBookChanges, metadata: Any) -> None:
         """
         Args:
-            metadata (`Dict[str, Union[str, int, bool, Dict[str, Any]]]`):
+            metadata:
                 The transactions metadata.
         """
         self.metadata = metadata
 
-    def _define_results(self: Any, result: Dict[str, List[Dict[str, Any]]]) -> None:
+    def _define_results(
+        self: OrderBookChanges,
+        result: Dict[
+            str,
+            List[
+                Dict[str, Union[Dict[str, Union[Dict[str, str], str]], str, int, bool]],
+            ],
+        ],
+    ) -> None:
         self.all_orderbook_changes = result
 
 
 class ParseOrderBookChanges(OrderBookChanges):
-    """Parse order book changes.
-
-    Usage:
-        Parse all orderbook changes:
-            ``ParseOrderBookChanges(metadata=tx).all_orderbook_changes``
-
-    Args:
-        metadata (`Dict[str, Union[str, int, bool, Dict[str, Any]]]`):
-            The transactions metadata.
-    """
+    """Parse order book changes."""
 
     def __init__(
         self: ParseOrderBookChanges,
-        metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]],
+        metadata: Dict[  # metadata received from a tx method
+            str,
+            Union[
+                str,
+                int,
+                Dict[  # issued currency amount
+                    str,
+                    str,
+                ],
+                List[  # Field: 'paths'
+                    List[
+                        Dict[
+                            str,
+                            Union[
+                                str,
+                                int,
+                            ],
+                        ],
+                    ],
+                ],
+                Dict[  # Field: 'meta'
+                    str,  # 'AffectedNodes'
+                    List[
+                        Dict[
+                            str,  # Node state
+                            Dict[
+                                str,
+                                Union[
+                                    str,
+                                    int,
+                                    Dict[str, Union[str, int, Dict[str, str]]],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
     ) -> None:
         """
-        Args:
-            metadata (`Dict[str, Union[str, int, bool, Dict[str, Any]]]`):
+        Attributes:
+            metadata:
                 The transactions metadata.
+
+        Usage:
+            Parse all orderbook changes:
+                `ParseOrderBookChanges(metadata=tx).all_orderbook_changes`
         """
         super().__init__(metadata)
 
@@ -66,8 +99,10 @@ class ParseOrderBookChanges(OrderBookChanges):
 
     def _parse(self: ParseOrderBookChanges) -> None:
         is_valid_metadata(metadata=self.metadata)
-        nodes = normalize_nodes(metadata=self.metadata)
+        if "transaction" in self.metadata:
+            self.metadata = normalize_metadata(self.metadata)
 
+        nodes = normalize_nodes(metadata=self.metadata)
         order_changes = parse_order_book_changes(nodes=nodes)
 
         if order_changes:
