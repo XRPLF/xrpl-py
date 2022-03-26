@@ -10,6 +10,8 @@ from typing import Any, Dict, List, Optional, Union
 from xrpl.utils.tx_parser.utils import (
     compute_balance_changes,
     is_valid_metadata,
+    normalize_metadata,
+    normalize_nodes,
     parse_final_balance,
     parse_quantities,
 )
@@ -18,11 +20,6 @@ from xrpl.utils.tx_parser.utils import (
 class BalanceChanges:
     """Parse balance changes from a transactions metadata
     in a easy-to-read format.
-
-    Attributes:
-        metadata (`Dict[str, Union[str, int, bool, Dict[str, Any]]]`):
-            Transaction metadata including the account that
-            sent the transaction and the affected nodes.
     """
 
     all_balances: Dict[str, List[Dict[str, str]]] = {}
@@ -38,12 +35,10 @@ class BalanceChanges:
     which was affected by the transaction if field is included in metadata.
     """
 
-    def __init__(
-        self: BalanceChanges, metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]]
-    ) -> None:
+    def __init__(self: BalanceChanges, metadata: Any) -> None:
         """
         Attributes:
-            metadata (`Dict[str, Union[str, int, bool, Dict[str, Any]]]`):
+            metadata:
                 Transaction metadata including the account that
                 sent the transaction and the affected nodes.
         """
@@ -70,33 +65,64 @@ class BalanceChanges:
 class ParseBalanceChanges(BalanceChanges):
     """Parse the balance changes of all accounts affected
     by the transaction after it occurred.
-
-    Usage:
-        Parse all balance changes:
-            `ParseBalanceChanges(metadata=tx).all_balances`
-        Parse balance changes of the account that sent the transaction:
-            `ParseBalanceChanges(metadata=tx).source_account_balances`
-        Parse balance changes of the account that received the transaction:
-            `ParseBalanceChanges(metadata=tx).destination_account_balances`
-                If provided transaction has no field `Destination`:
-                    'Transaction type: `{tx_type}` has no
-                    field 'Destination' or is not included.'
-
-    Args:
-        metadata (`Dict[str, Union[str, int, bool, Dict[str, Any]]]`):
-            Transaction metadata including the account that
-            sent the transaction and the affected nodes.
     """
 
     def __init__(
         self: ParseBalanceChanges,
-        metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]],
+        metadata: Dict[  # metadata received from a tx method
+            str,
+            Union[
+                str,
+                int,
+                Dict[  # issued currency amount
+                    str,
+                    str,
+                ],
+                List[  # Field: 'paths'
+                    List[
+                        Dict[
+                            str,
+                            Union[
+                                str,
+                                int,
+                            ],
+                        ],
+                    ],
+                ],
+                Dict[  # Field: 'meta'
+                    str,  # 'AffectedNodes'
+                    List[
+                        Dict[
+                            str,  # Node state
+                            Dict[
+                                str,
+                                Union[
+                                    str,
+                                    int,
+                                    Dict[str, Union[str, int, Dict[str, str]]],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
     ) -> None:
         """
-        Args:
-            metadata (`Dict[str, Union[str, int, bool, Dict[str, Any]]]`):
+        Attributes:
+            metadata:
                 Transaction metadata including the account that
                 sent the transaction and the affected nodes.
+
+        Usage:
+            Parse all balance changes:
+                `ParseBalanceChanges(metadata=tx).all_balances`
+            Parse balance changes of the account that sent the transaction:
+                `ParseBalanceChanges(metadata=tx).source_account_balances`
+            Parse balance changes of the account that received the transaction:
+                `ParseBalanceChanges(metadata=tx).destination_account_balances`
+                    If provided transaction has no field `Destination`:
+                        `None`
         """
         super().__init__(metadata)
 
@@ -104,8 +130,12 @@ class ParseBalanceChanges(BalanceChanges):
 
     def _parse(self: ParseBalanceChanges) -> None:
         is_valid_metadata(metadata=self.metadata)
+        if "transaction" in self.metadata:
+            self.metadata = normalize_metadata(self.metadata)
+
+        nodes = normalize_nodes(metadata=self.metadata)
         parsedQuantities = parse_quantities(
-            metadata=self.metadata, valueParser=compute_balance_changes
+            nodes=nodes, value_parser=compute_balance_changes
         )
 
         result: Dict[str, List[Dict[str, str]]] = {}
@@ -128,33 +158,64 @@ class ParseBalanceChanges(BalanceChanges):
 class ParseFinalBalances(BalanceChanges):
     """Parse the final balances of all accounts affected
     by the transaction after it occurred.
-
-    Usage:
-        Parse all final balances:
-            ``ParseFinalBalances(metadata=tx).all_balances``
-        Parse final balances of the account that sent the transaction:
-            ``ParseFinalBalances(metadata=tx).source_account_balances``
-        Parse final balances of the account that received the transaction:
-            ``ParseFinalBalances(metadata=tx).destination_account_balances``
-                If provided transaction has no field `Destination`:
-                    'Transaction type: `{tx_type}` has no
-                    field 'Destination' or is not included.'
-
-    Attributes:
-        metadata (`Dict[str, Union[str, int, bool, Dict[str, Any]]]`):
-            Transaction metadata including the account that
-            sent the transaction and the affected nodes.
     """
 
     def __init__(
         self: ParseFinalBalances,
-        metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]],
+        metadata: Dict[  # metadata received from a tx method
+            str,
+            Union[
+                str,
+                int,
+                Dict[  # issued currency amount
+                    str,
+                    str,
+                ],
+                List[  # Field: 'paths'
+                    List[
+                        Dict[
+                            str,
+                            Union[
+                                str,
+                                int,
+                            ],
+                        ],
+                    ],
+                ],
+                Dict[  # Field: 'meta'
+                    str,  # 'AffectedNodes'
+                    List[
+                        Dict[
+                            str,  # Node state
+                            Dict[
+                                str,
+                                Union[
+                                    str,
+                                    int,
+                                    Dict[str, Union[str, int, Dict[str, str]]],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
     ) -> None:
         """
         Attributes:
-            metadata (`Dict[str, Union[str, int, bool, Dict[str, Any]]]`):
+            metadata:
                 Transaction metadata including the account that
                 sent the transaction and the affected nodes.
+
+        Usage:
+            Parse all final balances:
+                `ParseFinalBalances(metadata=tx).all_balances`
+            Parse final balances of the account that sent the transaction:
+                `ParseFinalBalances(metadata=tx).source_account_balances`
+            Parse final balances of the account that received the transaction
+                `ParseFinalBalances(metadata=tx).destination_account_balances``
+                    If provided transaction has no field `Destination`:
+                        `None`
         """
         super().__init__(metadata)
 
@@ -162,12 +223,17 @@ class ParseFinalBalances(BalanceChanges):
 
     def _parse(self: ParseFinalBalances) -> None:
         is_valid_metadata(metadata=self.metadata)
-        parsedQuantities = parse_quantities(self.metadata, parse_final_balance)
+        if "transaction" in self.metadata:
+            self.metadata = normalize_metadata(self.metadata)
+
+        nodes = normalize_nodes(metadata=self.metadata)
+        parsed_quantities = parse_quantities(
+            nodes=nodes,
+            value_parser=parse_final_balance,
+        )
 
         result: Dict[str, List[Dict[str, str]]] = {}
-        for k, v in parsedQuantities.items():
-            address = k
-            change = v
+        for address, change in parsed_quantities.items():
             result[address] = []
             for obj in change:
                 if isinstance(obj.counterparty, tuple):
@@ -186,33 +252,63 @@ class ParseFinalBalances(BalanceChanges):
 class ParsePreviousBalances(BalanceChanges):
     """Parse the previous balances of all accounts affected
     by the transaction before it occurred.
-
-    Usage:
-        Parse all previous balances:
-            ``ParsePreviousBalances(metadata=tx).all_balances``
-        Parse previous balances of the account that sent the transaction:
-            ``ParsePreviousBalances(metadata=tx).source_account_balances``
-        Parse previous balances of the account that received the transaction:
-            ``ParsePreviousBalances(metadata=tx).destination_account_balances``
-                If provided transaction has no field `Destination`:
-                    'Transaction type: `{tx_type}` has no
-                    field 'Destination' or is not included.'
-
-    Attributes:
-        metadata (`Dict[str, Union[str, int, bool, Dict[str, Any]]]`):
-            Transaction metadata including the account that
-            sent the transaction and the affected nodes.
     """
 
     def __init__(
         self: ParsePreviousBalances,
-        metadata: Dict[str, Union[str, int, bool, Dict[str, Any]]],
+        metadata: Dict[  # metadata received from a tx method
+            str,
+            Union[
+                str,
+                int,
+                Dict[  # issued currency amount
+                    str,
+                    str,
+                ],
+                List[  # Field: 'paths'
+                    List[
+                        Dict[
+                            str,
+                            Union[
+                                str,
+                                int,
+                            ],
+                        ],
+                    ],
+                ],
+                Dict[  # Field: 'meta'
+                    str,  # 'AffectedNodes'
+                    List[
+                        Dict[
+                            str,  # Node state
+                            Dict[
+                                str,
+                                Union[
+                                    str,
+                                    int,
+                                    Dict[str, Union[str, int, Dict[str, str]]],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
     ) -> None:
         """
         Attributes:
-            metadata (`Dict[str, Union[str, int, bool, Dict[str, Any]]]`):
+            metadata:
                 Transaction metadata including the account that
                 sent the transaction and the affected nodes.
+
+        Usage:
+            Parse all previous balances:
+                `ParsePreviousBalances(metadata=tx).all_balances`
+            Parse previous balances of the account that sent the transaction:
+                `ParsePreviousBalances(metadata=tx).source_account_balances`
+            Parse previous balances of the account that received the transaction:
+                `ParsePreviousBalances(metadata=tx).destination_account_balances`
+                    `None`
         """
         super().__init__(metadata)
 
@@ -220,6 +316,9 @@ class ParsePreviousBalances(BalanceChanges):
 
     def _parse(self: ParsePreviousBalances) -> None:
         is_valid_metadata(metadata=self.metadata)
+        if "transaction" in self.metadata:
+            self.metadata = normalize_metadata(self.metadata)
+
         balance_changes = ParseBalanceChanges(metadata=self.metadata).all_balances
         final_balances = ParseFinalBalances(metadata=self.metadata).all_balances
 
