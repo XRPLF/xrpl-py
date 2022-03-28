@@ -36,10 +36,10 @@ def create_cross_chain_payment(payment: Payment, dest_account: str) -> Payment:
         raise XRPLException(
             "Cannot have more than 2 memos in a cross-chain transaction."
         )
-    memos = [dest_account_memo] + memos
+    new_memos = [dest_account_memo] + memos
 
     payment_dict = payment.to_dict()
-    payment_dict["memos"] = memos
+    payment_dict["memos"] = new_memos
     if "txn_signature" in payment_dict:
         del payment_dict["txn_signature"]
     return cast(Payment, Payment.from_dict(payment_dict))

@@ -5,7 +5,7 @@ from unittest import TestCase
 import xrpl.utils
 
 
-class TestMain(TestCase):
+class TestTimeConversions(TestCase):
     def test_posix_round_trip(self):
         current_time = time.time()
         time_whole_seconds = int(current_time)
