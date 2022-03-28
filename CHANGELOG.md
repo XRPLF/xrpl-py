@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 ### Added
 - Support setting flags with booleans. For each transaction type supporting flags there is a `FlagInterface` to set the flags with booleans.
+- `federator_info` RPC support
+- Helper method for creating a cross-chain payment to/from a sidechain
 
 ### Fixed
 - `xrpl.asyncio.clients` exports (now includes `request_to_websocket`, `websocket_to_response`)
