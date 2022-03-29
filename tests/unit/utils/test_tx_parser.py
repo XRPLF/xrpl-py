@@ -145,22 +145,20 @@ class TestBalanceChanges(TestCase):
     def test_valid_metadata_missing_account(self):
         meta = balance_changes_tx.copy().pop("Account")
         with self.assertRaises(xrpl.utils.XRPLMetadataException):
-            xrpl.utils.ParseBalanceChanges(metadata=meta)
+            xrpl.utils.parse_balance_changes(metadata=meta)
 
     def test_valid_metadata_missing_meta(self):
         meta = balance_changes_tx.copy().pop("meta")
         with self.assertRaises(xrpl.utils.XRPLMetadataException):
-            xrpl.utils.ParseBalanceChanges(metadata=meta)
+            xrpl.utils.parse_balance_changes(metadata=meta)
 
     def test_valid_metadata_missing_nodes(self):
         meta = balance_changes_tx.copy()["meta"].pop("AffectedNodes")
         with self.assertRaises(xrpl.utils.XRPLMetadataException):
-            xrpl.utils.ParseBalanceChanges(metadata=meta)
+            xrpl.utils.parse_balance_changes(metadata=meta)
 
     def test_parse_balace_changes(self):
-        actual = xrpl.utils.ParseBalanceChanges(
-            metadata=balance_changes_tx
-        ).all_balances
+        actual = xrpl.utils.parse_balance_changes(metadata=balance_changes_tx)
         expected = {
             "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8": [
                 {
@@ -197,7 +195,7 @@ class TestBalanceChanges(TestCase):
         self.assertEqual(actual, expected)
 
     def test_parse_final_balances(self):
-        actual = xrpl.utils.ParseFinalBalances(metadata=balance_changes_tx).all_balances
+        actual = xrpl.utils.parse_final_balances(metadata=balance_changes_tx)
         expected = {
             "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8": [
                 {
@@ -234,9 +232,7 @@ class TestBalanceChanges(TestCase):
         self.assertEqual(actual, expected)
 
     def test_parse_previous_balances(self):
-        actual = xrpl.utils.ParsePreviousBalances(
-            metadata=balance_changes_tx
-        ).all_balances
+        actual = xrpl.utils.parse_previous_balances(metadata=balance_changes_tx)
         expected = {
             "rsfZH5bmvAUk334hKRJMzoFEVkeFvWCdC8": [
                 {
@@ -1180,35 +1176,33 @@ class TestOrderbookChanges(TestCase):
     def test_valid_metadata_missing_account_subscribtion(self):
         meta = orderbook_changes_tx_subscribtion.copy()["transaction"].pop("Account")
         with self.assertRaises(xrpl.utils.XRPLMetadataException):
-            xrpl.utils.ParseOrderBookChanges(metadata=meta)
+            xrpl.utils.parse_order_book_changes(metadata=meta)
 
     def test_valid_metadata_missing_account(self):
         meta = orderbook_changes_tx.copy().pop("Account")
         with self.assertRaises(xrpl.utils.XRPLMetadataException):
-            xrpl.utils.ParseOrderBookChanges(metadata=meta)
+            xrpl.utils.parse_order_book_changes(metadata=meta)
 
     def test_valid_metadata_missing_meta(self):
         meta = orderbook_changes_tx.copy().pop("meta")
         with self.assertRaises(xrpl.utils.XRPLMetadataException):
-            xrpl.utils.ParseOrderBookChanges(metadata=meta)
+            xrpl.utils.parse_order_book_changes(metadata=meta)
 
     def test_valid_metadata_missing_nodes(self):
         meta = orderbook_changes_tx.copy()["meta"].pop("AffectedNodes")
         with self.assertRaises(xrpl.utils.XRPLMetadataException):
-            xrpl.utils.ParseOrderBookChanges(metadata=meta)
+            xrpl.utils.parse_order_book_changes(metadata=meta)
 
     def test_no_offers_affected(self):
-        actual = xrpl.utils.ParseOrderBookChanges(
+        actual = xrpl.utils.parse_order_book_changes(
             metadata=orderbook_changes_tx_no_offers
-        ).all_orderbook_changes
+        )
         expected = {}
 
         self.assertEqual(actual, expected)
 
     def test_parse_orderbook_changes(self):
-        actual = xrpl.utils.ParseOrderBookChanges(
-            metadata=orderbook_changes_tx
-        ).all_orderbook_changes
+        actual = xrpl.utils.parse_order_book_changes(metadata=orderbook_changes_tx)
         expected = {
             "rNzgS71DyJPMnWMA8aS7NqvXP7bNuwyaZo": [
                 {
