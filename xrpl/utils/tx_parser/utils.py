@@ -18,17 +18,74 @@ Utils balance_parser and orderbook_parser
 """
 
 
+# metadata received from a tx method
+METADATA_TYPE = Dict[
+    str,
+    Union[
+        str,
+        int,
+        Dict[str, str],  # issued currency amount
+        List[List[Dict[str, Union[str, int]]]],  # Field: 'paths'
+        Dict[  # Field: 'meta'
+            str,  # 'AffectedNodes'
+            List[
+                Dict[
+                    str,  # Node state
+                    Dict[
+                        str,
+                        Union[str, int, Dict[str, Union[str, int, Dict[str, str]]]],
+                    ],
+                ],
+            ],
+        ],
+    ],
+]
+
+
+# metadata received from a subscribtion method
+SUBSCRIPTION_METADATA_TYPE = Dict[
+    str,
+    Union[
+        str,
+        int,
+        Dict[  # Field: 'transaction'
+            str,
+            Union[
+                str,
+                int,
+                Dict[str, str],  # issued currency amount
+                List[List[Dict[str, Union[str, int]]]],  # Field: 'paths'
+            ],
+        ],
+        Dict[  # Field: 'meta'
+            str,  # 'AffectedNodes'
+            List[
+                Dict[
+                    str,  # Node state
+                    Dict[
+                        str,
+                        Union[str, int, Dict[str, Union[str, int, Dict[str, str]]]],
+                    ],
+                ],
+            ],
+        ],
+    ],
+]
+
+
 class XRPLMetadataException(XRPLException):
     """Exception for invalid transaction metadata."""
 
     pass
 
 
-def is_valid_metadata(metadata: Dict[str, Any]) -> None:
+def is_valid_metadata(
+    metadata: Union[METADATA_TYPE, SUBSCRIPTION_METADATA_TYPE],
+) -> None:
     """Check if the given metadata is valid.
 
     Args:
-        metadata (Dict[str, Any]):
+        metadata (Union[METADATA_TYPE, SUBSCRIPTION_METADATA_TYPE]):
             The transactions metadata
 
     Raises:
@@ -37,7 +94,7 @@ def is_valid_metadata(metadata: Dict[str, Any]) -> None:
         XRPLMetadataException: If field AffectedNodes is missing or is empty.
     """
     if "transaction" in metadata:
-        if "Account" not in metadata["transaction"]:
+        if "Account" not in metadata["transaction"]:  # type: ignore
             raise XRPLMetadataException(
                 "Metadata incomplete: Metadata field 'Account' must be included."
             )
@@ -51,57 +108,18 @@ def is_valid_metadata(metadata: Dict[str, Any]) -> None:
             "Metadata incomplete: Metadata field 'meta' must be included."
         )
 
-    if "AffectedNodes" not in metadata["meta"] or not metadata["meta"]["AffectedNodes"]:
+    meta = metadata["meta"]
+    if "AffectedNodes" not in meta or not meta["AffectedNodes"]:  # type: ignore
         raise XRPLMetadataException("Metadata incomplete: No nodes provided.")
 
 
 def normalize_metadata(
-    metadata: Dict[
-        str,
-        Union[
-            str,
-            int,
-            Dict[str, str],
-            List[List[Dict[str, Union[str, int]]]],
-            Dict[
-                str,
-                List[
-                    Dict[
-                        str,
-                        Dict[
-                            str,
-                            Union[str, int, Dict[str, Union[str, int, Dict[str, str]]]],
-                        ],
-                    ],
-                ],
-            ],
-        ],
-    ],
-) -> Dict[  # metadata received from a tx method
-    str,
-    Union[
-        str,
-        int,
-        Dict[str, str],  # issued currency amount
-        List[List[Dict[str, Union[str, int]]]],  # Field: 'paths'
-        Dict[  # Field: 'meta'
-            str,  # Field: 'AffectedNodes'
-            List[
-                Dict[
-                    str,  # Node state
-                    Dict[
-                        str,
-                        Union[str, int, Dict[str, Union[str, int, Dict[str, str]]]],
-                    ],
-                ],
-            ],
-        ],
-    ],
-]:
+    metadata: Union[METADATA_TYPE, SUBSCRIPTION_METADATA_TYPE],
+) -> METADATA_TYPE:
     """Formats the transaction metadata into one standard format.
 
     Args:
-        metadata:
+        metadata (Union[METADATA_TYPE, SUBSCRIPTION_METADATA_TYPE]):
             Transactions metadata.
 
     Returns:
@@ -119,7 +137,7 @@ def normalize_metadata(
     normalized_metadata["meta"] = meta  # type: ignore
     ledger_index = metadata["ledger_index"]
     assert isinstance(ledger_index, int)
-    normalized_metadata["ledger_index"] = ledger_index  # type: ignore
+    normalized_metadata["ledger_index"] = ledger_index
 
     return normalized_metadata  # type: ignore
 
@@ -309,32 +327,12 @@ def normalize_node(
 
 
 def normalize_nodes(
-    metadata: Dict[
-        str,
-        Union[
-            str,
-            int,
-            Dict[str, str],
-            List[List[Dict[str, Union[str, int]]]],
-            Dict[
-                str,
-                List[
-                    Dict[
-                        str,
-                        Dict[
-                            str,
-                            Union[str, int, Dict[str, Union[str, int, Dict[str, str]]]],
-                        ],
-                    ],
-                ],
-            ],
-        ],
-    ],
+    metadata: Union[METADATA_TYPE, SUBSCRIPTION_METADATA_TYPE]
 ) -> List[NormalizedNode]:
     """Normalize nodes.
 
     Args:
-        metadata:
+        metadata (Union[METADATA_TYPE, SUBSCRIPTION_METADATA_TYPE]):
             Transctions metadata
 
     Returns:
@@ -1034,7 +1032,7 @@ def _parse_order_change(
     return order_change.__dict__
 
 
-def parse_order_book_changes(
+def compute_order_book_changes(
     nodes: List[NormalizedNode],
 ) -> List[Dict[str, Union[Dict[str, str], bool, int, str]]]:
     """Filter nodes by 'EntryType': 'Offer'.
