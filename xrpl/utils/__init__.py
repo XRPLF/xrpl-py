@@ -9,11 +9,11 @@ from xrpl.utils.time_conversions import (
     ripple_time_to_posix,
 )
 from xrpl.utils.tx_parser import (
-    ParseBalanceChanges,
-    ParseFinalBalances,
-    ParseOrderBookChanges,
-    ParsePreviousBalances,
     XRPLMetadataException,
+    parse_balance_changes,
+    parse_final_balances,
+    parse_order_book_changes,
+    parse_previous_balances,
 )
 from xrpl.utils.xrp_conversions import XRPRangeException, drops_to_xrp, xrp_to_drops
 
@@ -26,10 +26,10 @@ __all__ = [
     "datetime_to_ripple_time",
     "ripple_time_to_posix",
     "posix_to_ripple_time",
-    "ParseBalanceChanges",
-    "ParseFinalBalances",
-    "ParsePreviousBalances",
-    "ParseOrderBookChanges",
+    "parse_balance_changes",
+    "parse_final_balances",
+    "parse_order_book_changes",
+    "parse_previous_balances",
     "XRPLMetadataException",
     "XRPRangeException",
     "XRPLTimeRangeException",
