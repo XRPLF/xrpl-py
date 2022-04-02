@@ -415,7 +415,7 @@ def _parse_value(value: Union[AccountBalance, str]) -> Decimal:
         return Decimal(value)
 
 
-def parse_final_balance(node: NormalizedNode) -> Union[Decimal, None]:
+def parse_final_balance(node: NormalizedNode) -> Optional[Decimal]:
     """Parse final balance.
 
     Args:
@@ -423,7 +423,7 @@ def parse_final_balance(node: NormalizedNode) -> Union[Decimal, None]:
             Normalized node.
 
     Returns:
-        Union[Decimal, None]:
+        Optional[Decimal]:
             The balance value as Decimal.
     """
     if node.new_fields and hasattr(node.new_fields, "Balance"):
@@ -434,7 +434,7 @@ def parse_final_balance(node: NormalizedNode) -> Union[Decimal, None]:
     return None
 
 
-def compute_balance_changes(node: NormalizedNode) -> Union[Decimal, None]:
+def compute_balance_changes(node: NormalizedNode) -> Optional[Decimal]:
     """Compute balance changes.
 
     Args:
@@ -442,7 +442,7 @@ def compute_balance_changes(node: NormalizedNode) -> Union[Decimal, None]:
             Normalized node.
 
     Returns:
-        Union[Decimal, None]:
+        Optional[Decimal]:
             The parsed value.
     """
     value = None
@@ -466,18 +466,18 @@ def compute_balance_changes(node: NormalizedNode) -> Union[Decimal, None]:
 
 def _parse_xrp_quantity(
     node: NormalizedNode,
-    value_parser: Callable[[NormalizedNode], Union[Decimal, None]],
-) -> Union[TrustLineQuantity, None]:
+    value_parser: Callable[[NormalizedNode], Optional[Decimal]],
+) -> Optional[TrustLineQuantity]:
     """Parse XRP quantity.
 
     Args:
         node (NormalizedNode):
             Normalized node.
-        value_parser (Callable[[NormalizedNode], Union[Decimal, None]]):
+        value_parser (Callable[[NormalizedNode], Optional[Decimal]]):
             Parser to get values needed.
 
     Returns:
-        Union[TrustLineQuantity, None]:
+        Optional[TrustLineQuantity]:
             Trust line quantity.
     """
     value = value_parser(node)
@@ -536,18 +536,18 @@ def _flip_trustline_perspective(quantity: TrustLineQuantity) -> TrustLineQuantit
 
 def _parse_trustline_quantity(
     node: NormalizedNode,
-    value_parser: Callable[[NormalizedNode], Union[Decimal, None]],
-) -> Union[List[TrustLineQuantity], None]:
+    value_parser: Callable[[NormalizedNode], Optional[Decimal]],
+) -> Optional[List[TrustLineQuantity]]:
     """Parse trust line quantity.
 
     Args:
         node (NormalizedNode):
             Normalized node.
-        value_parser (Callable[[NormalizedNode], Union[Decimal, None]]):
+        value_parser (Callable[[NormalizedNode], Optional[Decimal]]):
             Parser to get values needed.
 
     Returns:
-        Union[List[TrustLineQuantity], None]:
+        Optional[List[TrustLineQuantity]]:
             Trust line quantity.
     """
     value = value_parser(node)
@@ -597,14 +597,14 @@ def _group_by_address(
 
 def parse_quantities(
     nodes: List[NormalizedNode],
-    value_parser: Callable[[NormalizedNode], Union[Decimal, None]],
+    value_parser: Callable[[NormalizedNode], Optional[Decimal]],
 ) -> Dict[str, List[AccountBalance]]:
     """Parse final balance.
 
     Args:
         nodes (List[NormalizedNode]):
             Normalized nodes.
-        value_parser (Callable[[NormalizedNode], Union[Decimal, None]]):
+        value_parser (Callable[[NormalizedNode], Optional[Decimal]]):
             Value parser.
 
     Returns:
@@ -758,8 +758,8 @@ def _parse_currency_amount(currency_amount: Union[str, FieldName]) -> AccountBal
 
 
 def _calculate_delta(
-    final_amount: Union[AccountBalance, None],
-    previous_amount: Union[AccountBalance, None],
+    final_amount: Optional[AccountBalance],
+    previous_amount: Optional[AccountBalance],
 ) -> Union[Decimal, int]:
     if isinstance(final_amount, AccountBalance) and isinstance(
         previous_amount, AccountBalance
@@ -772,11 +772,11 @@ def _calculate_delta(
 
 def _parse_order_status(
     node: NormalizedNode,
-) -> Union[Literal["created", "partially-filled", "filled", "cancelled"], None]:
+) -> Optional[Literal["created", "partially-filled", "filled", "cancelled"]]:
     """Parses the status of an order.
 
     Returns:
-        Union[Literal['created', 'partially-filled', 'filled', 'cancelled'], None]:
+        Optional[Literal['created', 'partially-filled', 'filled', 'cancelled']]:
             The order status.
     """
     if node.diff_type == "CreatedNode":
@@ -797,7 +797,7 @@ def _parse_order_status(
 
 def _parse_change_amount(
     node: NormalizedNode, side: Literal["TakerPays", "TakerGets"]
-) -> Union[AccountBalance, ChangeAmount, None]:
+) -> Optional[Union[AccountBalance, ChangeAmount]]:
     """Parse the changed amount of an order.
 
     Args:
@@ -807,7 +807,7 @@ def _parse_change_amount(
             Side of the order to parse.
 
     Returns:
-        Union[AccountBalance, ChangeAmount, None:
+        Optional[Union[AccountBalance, ChangeAmount]]:
             The changed currency amount.
     """
     status = _parse_order_status(node=node)
@@ -889,14 +889,14 @@ def _ripple_to_unix_timestamp(rpepoch: int) -> int:
     return rpepoch + 0x386D4380
 
 
-def _get_expiration_time(node: NormalizedNode) -> Union[str, None]:
+def _get_expiration_time(node: NormalizedNode) -> Optional[str]:
     """Formats the ripple timestamp to a easy to read format.
 
     Args:
         node (NormalizedNode): Normalized node.
 
     Returns:
-        Union[str, None]:
+        Optional[str]:
             Expiration time in a easy to read format.
     """
     if node.final_fields is not None:
@@ -1042,7 +1042,7 @@ def compute_order_book_changes(
 
     Returns:
         List[Dict[str, Union[Dict[str, str], bool, int, str]]]:
-            A list of all nodes with 'EntryType': 'Offer'
+            A unsorted list of all order book changes.
     """
     filter_nodes = map_(
         filter_(nodes, lambda node: True if node.entry_type == "Offer" else False),
