@@ -27,7 +27,7 @@ repos:
       - id: mypy
         name: mypy
         entry: poetry run mypy
-        args: ["--strict"]
+        args: ["--strict", "--implicit-reexport"]
         language: system
         files: xrpl/
         types: [python]

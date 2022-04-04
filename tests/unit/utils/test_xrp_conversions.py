@@ -4,7 +4,7 @@ from unittest import TestCase
 import xrpl.utils
 
 
-class TestMain(TestCase):
+class TestXRPConversions(TestCase):
     def test_1_xrp(self):
         self.assertEqual(xrpl.utils.xrp_to_drops(1), "1000000")
 
