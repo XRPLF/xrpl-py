@@ -1,5 +1,6 @@
 """Convenience utilities for the XRP Ledger"""
 
+from xrpl.utils.sidechain import create_cross_chain_payment
 from xrpl.utils.str_conversions import hex_to_str, str_to_hex
 from xrpl.utils.time_conversions import (
     XRPLTimeRangeException,
@@ -33,4 +34,5 @@ __all__ = [
     "XRPLMetadataException",
     "XRPRangeException",
     "XRPLTimeRangeException",
+    "create_cross_chain_payment",
 ]

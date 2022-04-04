@@ -73,6 +73,9 @@ class RequestMethod(str, Enum):
     PING = "ping"
     RANDOM = "random"
 
+    # sidechain methods
+    FEDERATOR_INFO = "federator_info"
+
     # generic unknown/unsupported request
     # (there is no XRPL analog, this model is specific to xrpl-py)
     GENERIC_REQUEST = "zzgeneric_request"
