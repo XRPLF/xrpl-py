@@ -13,9 +13,9 @@ def create_cross_chain_payment(payment: Payment, dest_account: str) -> Payment:
 
     Args:
         payment: The initial payment transaction. If the transaction is signed, then
-            it will need to be re-signed. There must be no more than 2 memos, since one
-            memo is used for the sidechain destination account. The destination must be
-            the sidechain's door account.
+            it will need to be re-signed. There must be no more than 2 memos, since the
+            first memo is used for the sidechain destination account. The destination
+            must be the sidechain's door account.
         dest_account: The destination account on the sidechain.
 
     Returns:
