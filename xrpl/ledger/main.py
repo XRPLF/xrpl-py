@@ -61,9 +61,9 @@ def get_fee(
             fee to get into the open ledger) or "minimum" (the minimum transaction
             fee). The default is `None`.
 
-            Recommended: Do not define any type of return (leave it at `None`) so the
-            fee is calculated much more dynamically based on the queue size of the
-            nodes. It increases the chances that the succeeds.
+            Recommended: Do not define any type of return so the
+            fee is calculated more dynamically based on the queue size of the
+            node. It increases the chances for the transaction to succeed.
 
     Returns:
         The transaction fee, in drops.
