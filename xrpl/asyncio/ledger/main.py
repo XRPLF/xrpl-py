@@ -57,20 +57,26 @@ async def get_fee(
     fee_type: Optional[Literal["open", "minimum"]] = None,
 ) -> str:
     """
-    Query the ledger for the current transaction fee.
+    Query the ledger for the current transaction fee and adjust the fee based on
+    the queue size.
 
     Args:
         client: the network client used to make network calls.
         max_fee: The maximum fee in XRP that the user wants to pay. If load gets too
             high, then the fees will not scale past the maximum fee. If None, there is
             no ceiling for the fee. The default is 2 XRP.
-        fee_type: The type of fee to return. The options are "open" (the load-scaled
+        fee_type: DEPRECATED.
+            The type of fee to return. The options are "open" (the load-scaled
             fee to get into the open ledger) or "minimum" (the minimum transaction
             fee). The default is `None`.
 
+            Recommended: Do not define any type of return (leave it at `None`) so the
+            fee is calculated much more dynamically based on the queue size of the
+            nodes. It increases the chances that the succeeds.
+
     Returns:
         The transaction fee, in drops.
-        Read more about drops: https://xrpl.org/currency-formats.html#xrp-amounts
+        `Read more about drops <https://xrpl.org/currency-formats.html#xrp-amounts>`_
 
     Raises:
         XRPLException: if an incorrect option for `fee_type` is passed in.
@@ -81,8 +87,8 @@ async def get_fee(
         raise XRPLRequestFailureException(response.result)
 
     result = response.result
+    drops = result["drops"]
     if fee_type:
-        drops = result["drops"]
         if fee_type == "open":
             fee = cast(str, drops["open_ledger_fee"])
         elif fee_type == "minimum":
@@ -92,15 +98,10 @@ async def get_fee(
                 f'`fee_type` param must be "open" or "minimum". {fee_type} is not a '
                 "valid option."
             )
-        if max_fee is not None:
-            max_fee_drops = int(xrp_to_drops(max_fee))
-            if max_fee_drops < int(fee):
-                fee = str(max_fee_drops)
     else:
         current_queue_size = int(result["current_queue_size"])
         max_queue_size = int(result["max_queue_size"])
         queue_pct = current_queue_size / max_queue_size
-        drops = result["drops"]
         minimum_fee = int(drops["minimum_fee"])
         median_fee = int(drops["median_fee"])
         open_ledger_fee = int(drops["open_ledger_fee"])
@@ -111,11 +112,11 @@ async def get_fee(
                 1000,
             ),
         )
-        if queue_pct > 0.1:
+        if queue_pct > 0.1:  # if 'current_queue_size' is >10 % of 'max_queue_size'
             possible_fee_medium = round(
                 (minimum_fee + median_fee + open_ledger_fee) / 3
             )
-        elif queue_pct == 0:
+        elif queue_pct == 0:  # if 'current_queue_size' is 0
             possible_fee_medium = max(
                 10 * minimum_fee, min(minimum_fee, open_ledger_fee)
             )
@@ -137,10 +138,14 @@ async def get_fee(
             ),
         )
 
-        if queue_pct == 1:
-            fee = str(fee_high)
-        elif queue_pct == 0:
+        if queue_pct == 0:  # if queue is empty
             fee = str(fee_low)
+        elif queue_pct == 1:  # if queue is full
+            fee = str(fee_high)
         else:
             fee = str(fee_medium)
+    if max_fee is not None:
+        max_fee_drops = int(xrp_to_drops(max_fee))
+        if max_fee_drops < int(fee):  # if 'fee' exceeds the 'max_fee' use 'max_fee'
+            fee = str(max_fee_drops)
     return fee

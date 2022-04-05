@@ -48,19 +48,26 @@ def get_fee(
     fee_type: Optional[Literal["open", "minimum"]] = None,
 ) -> str:
     """
-    Query the ledger for the current minimum transaction fee.
+    Query the ledger for the current transaction fee and adjust the fee based on
+    the queue size.
 
     Args:
         client: the network client used to make network calls.
         max_fee: The maximum fee in XRP that the user wants to pay. If load gets too
             high, then the fees will not scale past the maximum fee. If None, there is
             no ceiling for the fee. The default is 2 XRP.
-        fee_type: The type of fee to return. The options are "open" (the load-scaled
+        fee_type: DEPRECATED.
+            The type of fee to return. The options are "open" (the load-scaled
             fee to get into the open ledger) or "minimum" (the minimum transaction
-            cost). The default is "open".
+            fee). The default is `None`.
+
+            Recommended: Do not define any type of return (leave it at `None`) so the
+            fee is calculated much more dynamically based on the queue size of the
+            nodes. It increases the chances that the succeeds.
 
     Returns:
-        The minimum fee for transactions.
+        The transaction fee, in drops.
+        `Read more about drops <https://xrpl.org/currency-formats.html#xrp-amounts>`_
 
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
