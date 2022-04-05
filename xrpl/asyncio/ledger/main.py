@@ -98,7 +98,7 @@ async def get_fee(
                 f'`fee_type` param must be "open" or "minimum". {fee_type} is not a '
                 "valid option."
             )
-    else:
+    else:  # use https://gist.github.com/WietseWind/3e9f9339f37a5881978a9661f49b0e52
         current_queue_size = int(result["current_queue_size"])
         max_queue_size = int(result["max_queue_size"])
         queue_pct = current_queue_size / max_queue_size
