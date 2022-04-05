@@ -3,6 +3,8 @@
 import asyncio
 from typing import Optional
 
+from typing_extensions import Literal
+
 from xrpl.asyncio.ledger import main
 from xrpl.clients.sync_client import SyncClient
 
@@ -40,7 +42,10 @@ def get_latest_open_ledger_sequence(client: SyncClient) -> int:
 
 
 def get_fee(
-    client: SyncClient, *, max_fee: Optional[float] = 2, fee_type: str = "open"
+    client: SyncClient,
+    *,
+    max_fee: Optional[float] = 2,
+    fee_type: Optional[Literal["open", "minimum"]] = None,
 ) -> str:
     """
     Query the ledger for the current minimum transaction fee.
