@@ -2,8 +2,6 @@
 
 from typing import Optional, cast
 
-from typing_extensions import Literal
-
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.asyncio.ledger.utils import calculate_fee_dynamically
 from xrpl.constants import XRPLException
@@ -52,28 +50,20 @@ async def get_latest_open_ledger_sequence(client: Client) -> int:
 
 
 async def get_fee(
-    client: Client,
-    *,
-    max_fee: Optional[float] = 2,
-    fee_type: Optional[Literal["open", "minimum"]] = None,
+    client: Client, *, max_fee: Optional[float] = 2, fee_type: str = "open"
 ) -> str:
     """
-    Query the ledger for the current transaction fee and adjust the fee based on
-    the queue size.
+    Query the ledger for the current transaction fee.
 
     Args:
         client: the network client used to make network calls.
         max_fee: The maximum fee in XRP that the user wants to pay. If load gets too
             high, then the fees will not scale past the maximum fee. If None, there is
             no ceiling for the fee. The default is 2 XRP.
-        fee_type: DEPRECATED.
-            The type of fee to return. The options are "open" (the load-scaled
-            fee to get into the open ledger) or "minimum" (the minimum transaction
-            fee). The default is `None`.
-
-            Recommended: Do not define any type of return so the
-            fee is calculated more dynamically based on the queue size of the
-            node. It increases the chances for the transaction to succeed.
+        fee_type: The type of fee to return. The options are "open" (the load-scaled
+            fee to get into the open ledger), "minimum" (the minimum transaction
+            fee) or "dynamic" (dynamic fee-calculation based on the queue size
+            of the node). The default is "open".
 
     Returns:
         The transaction fee, in drops.
@@ -93,15 +83,15 @@ async def get_fee(
         fee = cast(str, drops["open_ledger_fee"])
     elif fee_type == "minimum":
         fee = cast(str, drops["minimum_fee"])
-    elif fee_type is not None:
+    elif fee_type == "dynamic":
+        fee = calculate_fee_dynamically(fee_data_set=result)
+    else:
         raise XRPLException(
             f'`fee_type` param must be "open" or "minimum". {fee_type} is not a '
             "valid option."
         )
-    else:
-        fee = calculate_fee_dynamically(fee_data_set=result)
     if max_fee is not None:
         max_fee_drops = int(xrp_to_drops(max_fee))
-        if max_fee_drops < int(fee):  # if 'fee' exceeds the 'max_fee' use 'max_fee'
+        if max_fee_drops < int(fee):
             fee = str(max_fee_drops)
     return fee
