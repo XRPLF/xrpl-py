@@ -1,6 +1,7 @@
 """Model for NFTokenBurn transaction type."""
 
 from dataclasses import dataclass, field
+from typing import Optional
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -37,6 +38,13 @@ class NFTokenBurn(Transaction):
     Identifies the NFToken to be burned. This field is required.
 
     :meta hide-value:
+    """
+
+    owner: Optional[str] = None
+    """
+    Indicates which account currently owns the token if it is different than
+    Account. Only used to burn tokens which have the lsfBurnable flag enabled
+    and are not owned by the signing account.
     """
 
     transaction_type: TransactionType = field(
