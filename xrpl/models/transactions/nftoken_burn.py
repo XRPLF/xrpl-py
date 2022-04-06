@@ -45,8 +45,6 @@ class NFTokenBurn(Transaction):
     Indicates which account currently owns the token if it is different than
     Account. Only used to burn tokens which have the lsfBurnable flag enabled
     and are not owned by the signing account.
-
-    :meta hide-value:
     """
 
     transaction_type: TransactionType = field(
