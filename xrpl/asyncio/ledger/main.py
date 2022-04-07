@@ -87,8 +87,8 @@ async def get_fee(
         fee = calculate_fee_dynamically(fee_data_set=result)
     else:
         raise XRPLException(
-            f'`fee_type` param must be "open" or "minimum". {fee_type} is not a '
-            "valid option."
+            '`fee_type` param must be "open", "minimum" or "dynamic".'
+            f" {fee_type} is not a valid option."
         )
     if max_fee is not None:
         max_fee_drops = int(xrp_to_drops(max_fee))
