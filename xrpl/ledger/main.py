@@ -56,7 +56,8 @@ def get_fee(
         fee_type: The type of fee to return. The options are "open" (the load-scaled
             fee to get into the open ledger), "minimum" (the minimum transaction
             fee) or "dynamic" (dynamic fee-calculation based on the queue size
-            of the node). The default is "open".
+            of the node). The default is "open". The recommended option is
+            "dynamic".
 
     Returns:
         The transaction fee, in drops.

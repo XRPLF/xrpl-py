@@ -1,6 +1,6 @@
 """Helper functions for the ledger module."""
 
-from typing import Any, Dict, cast
+from typing import Any, Dict
 
 
 def calculate_fee_dynamically(fee_data_set: Dict[str, Any]) -> str:
@@ -17,13 +17,13 @@ def calculate_fee_dynamically(fee_data_set: Dict[str, Any]) -> str:
     Based on fee-calculation code here:
     `<https://gist.github.com/WietseWind/3e9f9339f37a5881978a9661f49b0e52>`_
     """
-    current_queue_size = int(cast(str, fee_data_set["current_queue_size"]))
-    max_queue_size = int(cast(str, fee_data_set["max_queue_size"]))
+    current_queue_size = int(fee_data_set["current_queue_size"])
+    max_queue_size = int(fee_data_set["max_queue_size"])
     queue_pct = current_queue_size / max_queue_size
     drops = fee_data_set["drops"]
-    minimum_fee = int(cast(str, drops["minimum_fee"]))
-    median_fee = int(cast(str, drops["median_fee"]))
-    open_ledger_fee = int(cast(str, drops["open_ledger_fee"]))
+    minimum_fee = int(drops["minimum_fee"])
+    median_fee = int(drops["median_fee"])
+    open_ledger_fee = int(drops["open_ledger_fee"])
 
     fee_low = round(
         min(
