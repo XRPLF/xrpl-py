@@ -25,6 +25,7 @@ def calculate_fee_dynamically(fee_data_set: Dict[str, Any]) -> str:
     median_fee = int(drops["median_fee"])
     open_ledger_fee = int(drops["open_ledger_fee"])
 
+    # calculate the lowest fee the user is able to pay if the queue is empty
     fee_low = round(
         min(
             max(minimum_fee * 1.5, round(max(median_fee, open_ledger_fee) / 500)),
@@ -45,6 +46,7 @@ def calculate_fee_dynamically(fee_data_set: Dict[str, Any]) -> str:
             10 * minimum_fee,
             round((minimum_fee + median_fee) / 2),
         )
+    # calculate the lowest fee the user is able to pay if there are txns in the queue
     fee_medium = round(
         min(
             possible_fee_medium,
@@ -52,6 +54,7 @@ def calculate_fee_dynamically(fee_data_set: Dict[str, Any]) -> str:
             10000,
         ),
     )
+    # calculate the lowest fee the user is able to pay if the txn queue is full
     fee_high = round(
         min(
             max(10 * minimum_fee, round(max(median_fee, open_ledger_fee) * 1.1)),
