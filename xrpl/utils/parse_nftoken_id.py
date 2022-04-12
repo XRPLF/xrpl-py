@@ -1,5 +1,5 @@
 """Utils to parse NFTokenIDs."""
-from typing import TypedDict
+from typing_extensions import TypedDict
 
 from .str_conversions import hex_to_str  # noqa: ABS101
 
