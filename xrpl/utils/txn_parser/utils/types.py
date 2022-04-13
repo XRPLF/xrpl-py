@@ -72,44 +72,32 @@ class NormalizedFields:
 
 @dataclass
 class NormalizedNode:
-    """A standard format for nodes.
-
-    Args:
-        diffType (str): Node type (ModifiedNode, CreatedNode or DeletedNode).
-        entryType (str): Entry type (e.g. Offer, AccountRoot, …).
-        ledgerIndex (str): Ledger index.
-        newFields (Optional[NormalizedFields]):
-            New fields.
-        finalFields (Optional[NormalizedFields]):
-            Fields after the transaction occurred.
-        previousFields (Optional[NormalizedFields]):
-            Fields before the transaction occurred.
-    """
+    """A standard format for nodes."""
 
     diff_type: Literal["ModifiedNode", "CreatedNode", "DeletedNode"]
+    """Node type (ModifiedNode, CreatedNode or DeletedNode)"""
     entry_type: str
+    """Entry type (e.g. Offer, AccountRoot, …)."""
     ledger_index: str
+    """Ledger index."""
     new_fields: Optional[NormalizedFields] = None
+    """New fields created by the transcation."""
     final_fields: Optional[NormalizedFields] = None
+    """Fields after the transaction occurred."""
     previous_fields: Optional[NormalizedFields] = None
+    """Fields before the transaction occurred."""
 
 
 @dataclass
 class AccountBalance:
-    """A accounts balance.
-
-    Args:
-        counterparty (str):
-            Counterparty
-        currency (str):
-            Currency
-        value (str):
-            Value
-    """
+    """A accounts balance."""
 
     counterparty: str
+    """Counterparty"""
     currency: str
+    """Currency"""
     value: str
+    """Value"""
 
 
 class XRPLTxnFieldsException(XRPLException):
