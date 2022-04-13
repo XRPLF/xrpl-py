@@ -9,8 +9,8 @@ from xrpl.utils.time_conversions import (
     ripple_time_to_datetime,
     ripple_time_to_posix,
 )
-from xrpl.utils.tx_parser import (
-    XRPLMetadataException,
+from xrpl.utils.txn_parser import (
+    XRPLTxnFieldsException,
     parse_balance_changes,
     parse_final_balances,
     parse_order_book_changes,
@@ -31,7 +31,7 @@ __all__ = [
     "parse_final_balances",
     "parse_order_book_changes",
     "parse_previous_balances",
-    "XRPLMetadataException",
+    "XRPLTxnFieldsException",
     "XRPRangeException",
     "XRPLTimeRangeException",
     "create_cross_chain_payment",

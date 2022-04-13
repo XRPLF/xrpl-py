@@ -5,41 +5,41 @@ account involved in the given transaction.
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Union
 
-from xrpl.utils.tx_parser.utils import (
-    METADATA_TYPE,
-    SUBSCRIPTION_METADATA_TYPE,
+from xrpl.utils.txn_parser.utils import (
+    RawTxnType,
+    SubscriptionRawTxnType,
     compute_balance_changes,
-    is_valid_metadata,
-    normalize_metadata,
     normalize_nodes,
+    normalize_transaction,
     parse_final_balance,
     parse_quantities,
+    validate_transaction_fields,
 )
 
 
 def parse_previous_balances(
-    metadata: Union[METADATA_TYPE, SUBSCRIPTION_METADATA_TYPE],
-) -> Dict[str, List[Dict[str, str]]]:
+    transaction: Union[RawTxnType, SubscriptionRawTxnType],
+) -> Dict[str, Any]:
     """Parse the previous balances of all accounts affected
     by the transaction before it occurred.
 
     Args:
-        metadata (Union[METADATA_TYPE, SUBSCRIPTION_METADATA_TYPE]):
-            Transaction metadata including the account that
+        transaction (Union[RawTxnType, SubscriptionRawTxnType]):
+            Raw transaction data including the account that
             sent the transaction and the affected nodes.
 
     Returns:
-        Dict[str, List[Dict[str, str]]]:
+        Dict[str, Any]:
             All previous balances.
     """
-    is_valid_metadata(metadata=metadata)
-    if "transaction" in metadata:
-        metadata = normalize_metadata(metadata=metadata)
+    validate_transaction_fields(transaction_data=transaction)
+    if "transaction" in transaction:
+        transaction = normalize_transaction(transaction_data=transaction)
 
-    balance_changes = parse_balance_changes(metadata=metadata)
-    final_balances = parse_final_balances(metadata=metadata)
+    balance_changes = parse_balance_changes(transaction=transaction)
+    final_balances = parse_final_balances(transaction=transaction)
 
     for account, balances in balance_changes.items():
         for count, balance in enumerate(balances):
@@ -52,25 +52,25 @@ def parse_previous_balances(
 
 
 def parse_balance_changes(
-    metadata: Union[METADATA_TYPE, SUBSCRIPTION_METADATA_TYPE],
-) -> Dict[str, List[Dict[str, str]]]:
+    transaction: Union[RawTxnType, SubscriptionRawTxnType],
+) -> Dict[str, Any]:
     """Parse the balance changes of all accounts affected
     by the transaction after it occurred.
 
     Args:
-        metadata (Union[METADATA_TYPE, SUBSCRIPTION_METADATA_TYPE]):
-            Transaction metadata including the account that
+        transaction (Union[RawTxnType, SubscriptionRawTxnType]):
+            Raw transaction data including the account that
             sent the transaction and the affected nodes.
 
     Returns:
-        Dict[str, List[Dict[str, str]]]:
+        Dict[str, Any]:
             All balance changes.
     """
-    is_valid_metadata(metadata=metadata)
-    if "transaction" in metadata:
-        metadata = normalize_metadata(metadata=metadata)
+    validate_transaction_fields(transaction_data=transaction)
+    if "transaction" in transaction:
+        transaction = normalize_transaction(transaction_data=transaction)
 
-    nodes = normalize_nodes(metadata=metadata)
+    nodes = normalize_nodes(transaction_data=transaction)
     parsedQuantities = parse_quantities(
         nodes=nodes, value_parser=compute_balance_changes
     )
@@ -93,25 +93,25 @@ def parse_balance_changes(
 
 
 def parse_final_balances(
-    metadata: Union[METADATA_TYPE, SUBSCRIPTION_METADATA_TYPE],
-) -> Dict[str, List[Dict[str, str]]]:
+    transaction: Union[RawTxnType, SubscriptionRawTxnType],
+) -> Dict[str, Any]:
     """Parse the final balances of all accounts affected
     by the transaction after it occurred.
 
     Args:
-        metadata (Union[METADATA_TYPE, SUBSCRIPTION_METADATA_TYPE]):
-            Transaction metadata including the account that
+        transaction (Union[RawTxnType, SubscriptionRawTxnType]):
+            Raw transaction data including the account that
             sent the transaction and the affected nodes.
 
     Returns:
-        Dict[str, List[Dict[str, str]]]:
+        Dict[str, Any]:
             All final balances.
     """
-    is_valid_metadata(metadata=metadata)
-    if "transaction" in metadata:
-        metadata = normalize_metadata(metadata=metadata)
+    validate_transaction_fields(transaction_data=transaction)
+    if "transaction" in transaction:
+        transaction = normalize_transaction(transaction_data=transaction)
 
-    nodes = normalize_nodes(metadata=metadata)
+    nodes = normalize_nodes(transaction_data=transaction)
     parsed_quantities = parse_quantities(
         nodes=nodes,
         value_parser=parse_final_balance,
