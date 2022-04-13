@@ -5,7 +5,7 @@ account involved in the given transaction.
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, cast
 
 from xrpl.utils.txn_parser.utils import (
     RawTxnType,
@@ -36,6 +36,7 @@ def parse_previous_balances(
     """
     validate_transaction_fields(transaction_data=transaction)
     if "transaction" in transaction:
+        transaction = cast(SubscriptionRawTxnType, transaction)
         transaction = normalize_transaction(transaction_data=transaction)
 
     balance_changes = parse_balance_changes(transaction=transaction)
@@ -68,6 +69,7 @@ def parse_balance_changes(
     """
     validate_transaction_fields(transaction_data=transaction)
     if "transaction" in transaction:
+        transaction = cast(SubscriptionRawTxnType, transaction)
         transaction = normalize_transaction(transaction_data=transaction)
 
     nodes = normalize_nodes(transaction_data=transaction)
@@ -109,6 +111,7 @@ def parse_final_balances(
     """
     validate_transaction_fields(transaction_data=transaction)
     if "transaction" in transaction:
+        transaction = cast(SubscriptionRawTxnType, transaction)
         transaction = normalize_transaction(transaction_data=transaction)
 
     nodes = normalize_nodes(transaction_data=transaction)

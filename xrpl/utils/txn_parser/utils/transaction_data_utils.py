@@ -47,17 +47,17 @@ def validate_transaction_fields(
         )
 
     meta = transaction_data["meta"]
-    if "AffectedNodes" not in meta or not meta["AffectedNodes"]:  # type: ignore
+    if "AffectedNodes" not in meta or not meta["AffectedNodes"]:
         raise XRPLTxnFieldsException("Malformed transaction fields: No nodes provided.")
 
 
 def normalize_transaction(
-    transaction_data: Union[RawTxnType, SubscriptionRawTxnType],
+    transaction_data: SubscriptionRawTxnType,
 ) -> RawTxnType:
     """Formats the raw transaction data into one standard format.
 
     Args:
-        transaction_data (Union[RawTxnType, SubscriptionRawTxnType]):
+        transaction_data (SubscriptionRawTxnType):
             The raw transaction data.
 
     Returns:

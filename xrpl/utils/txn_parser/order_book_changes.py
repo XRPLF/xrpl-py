@@ -1,7 +1,7 @@
 """Parse order book changes caused by a transaction."""
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import Any, Dict, Union, cast
 
 from xrpl.utils.txn_parser.utils import (
     RawTxnType,
@@ -30,6 +30,7 @@ def parse_order_book_changes(
     """
     validate_transaction_fields(transaction_data=transaction)
     if "transaction" in transaction:
+        transaction = cast(SubscriptionRawTxnType, transaction)
         transaction = normalize_transaction(transaction_data=transaction)
 
     nodes = normalize_nodes(transaction_data=transaction)

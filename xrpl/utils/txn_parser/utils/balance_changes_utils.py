@@ -199,6 +199,11 @@ def _parse_trustline_quantity(
     if fields is None:
         return None
 
+    assert (
+        isinstance(fields.LowLimit, AccountBalance)
+        and isinstance(fields.HighLimit, AccountBalance)
+        and isinstance(fields.Balance, AccountBalance)
+    )
     result = TrustLineQuantity(
         address=fields.LowLimit.counterparty,
         balance=AccountBalance(
