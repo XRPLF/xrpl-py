@@ -1,7 +1,7 @@
 """Utils to parse NFTokenIDs."""
 from typing_extensions import TypedDict
 
-from .str_conversions import hex_to_str  # noqa: ABS101
+from xrpl.core.addresscodec.codec import encode_classic_address
 
 
 class NFTokenID(TypedDict):
@@ -77,20 +77,21 @@ def parse_nftoken_id(nft_id: str) -> NFTokenID:
     # noqa:E501
     """
     expected_length = 64
+    print(len(nft_id))
     if len(nft_id) != expected_length:
         raise RuntimeError(
             f"Attempting to parse a tokenID with length"
             f" {len(nft_id)}, but expected a length of {expected_length}`"
         )
 
-    scrambled_taxon = int(hex_to_str(nft_id[48:56]))
-    sequence = int(hex_to_str(nft_id[56:64]))
+    scrambled_taxon = int(nft_id[48:56], base=16)
+    sequence = int(nft_id[56:64], base=16)
 
     nftoken_data: NFTokenID = {
         "token_id": nft_id,
-        "flags": int(hex_to_str(nft_id[0:4])),
-        "transfer_fee": int(hex_to_str(nft_id[4:8])),
-        "issuer": hex_to_str(nft_id[8:48]),
+        "flags": int(nft_id[0:4], base=16),
+        "transfer_fee": int(nft_id[4:8], base=16),
+        "issuer": encode_classic_address(bytes.fromhex(nft_id[8:48])),
         "taxon": unscramble_taxon(scrambled_taxon, sequence),
         "sequence": sequence,
     }
