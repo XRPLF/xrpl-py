@@ -1,6 +1,7 @@
 """Utils to parse NFTokenIDs."""
 from typing_extensions import TypedDict
 
+from xrpl.constants import XRPLException
 from xrpl.core.addresscodec.codec import encode_classic_address
 
 
@@ -69,7 +70,7 @@ def parse_nftoken_id(nft_id: str) -> NFTokenID:
         nft_id: A hex string which identifies an NFToken on the ledger.
 
     Raises:
-        RuntimeError: when given an invalid Token ID as nft_id.
+        XRPLException: when given an invalid Token ID as nft_id.
 
     Returns:
         A decoded nft TokenID with all information encoded within
@@ -79,7 +80,7 @@ def parse_nftoken_id(nft_id: str) -> NFTokenID:
     expected_length = 64
     print(len(nft_id))
     if len(nft_id) != expected_length:
-        raise RuntimeError(
+        raise XRPLException(
             f"Attempting to parse a tokenID with length"
             f" {len(nft_id)}, but expected a length of {expected_length}`"
         )
