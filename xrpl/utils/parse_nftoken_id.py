@@ -78,7 +78,6 @@ def parse_nftoken_id(nft_id: str) -> NFTokenID:
     # noqa:E501
     """
     expected_length = 64
-    print(len(nft_id))
     if len(nft_id) != expected_length:
         raise XRPLException(
             f"Attempting to parse a tokenID with length"
