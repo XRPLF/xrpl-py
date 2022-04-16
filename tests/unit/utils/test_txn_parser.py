@@ -6,9 +6,8 @@ import xrpl.utils
 TEST_TXN = {
     "engine_result": "tesSUCCESS",
     "engine_result_code": 0,
-    "engine_result_message": """
-The transaction was applied. Only final in a validated ledger.
-""".strip(),
+    "engine_result_message": """The transaction was applied. Only final in a validated ledger.
+""",
     "ledger_hash": "D22FF847C0CD3B83BBAC08DA456207C1682E91B8E31C024F1341546F1727E96F",
     "ledger_index": 70948801,
     "meta": {
@@ -36,9 +35,8 @@ The transaction was applied. Only final in a validated ledger.
                         "LowNode": "0",
                     },
                     "LedgerEntryType": "RippleState",
-                    "LedgerIndex": """
-0B0388546E94E2B339A52C70CE9B7791FDF104F114C94CEACB2A9440819DD435
-""".strip(),
+                    "LedgerIndex": """0B0388546E94E2B339A52C70CE9B7791FDF104F114C94CEACB2A9440819DD435
+""",
                     "PreviousFields": {
                         "Balance": {
                             "currency": "USD",
@@ -46,9 +44,8 @@ The transaction was applied. Only final in a validated ledger.
                             "value": "610.800602986901",
                         },
                     },
-                    "PreviousTxnID": """
-87B4598500ABEA310502C714DDEA2A8DD7A2E0858D9C104F6AEFD99C8DB121C1
-""".strip(),
+                    "PreviousTxnID": """87B4598500ABEA310502C714DDEA2A8DD7A2E0858D9C104F6AEFD99C8DB121C1
+""",
                     "PreviousTxnLgrSeq": 70948688,
                 }
             },
@@ -75,9 +72,8 @@ The transaction was applied. Only final in a validated ledger.
                         "LowNode": "1fce",
                     },
                     "LedgerEntryType": "RippleState",
-                    "LedgerIndex": """
-14BE4365C33BE6BF6AF293C0CF48F8556037541C016DDF37A8AC71C028803206
-""".strip(),
+                    "LedgerIndex": """14BE4365C33BE6BF6AF293C0CF48F8556037541C016DDF37A8AC71C028803206
+""",
                     "PreviousFields": {
                         "Balance": {
                             "currency": "USD",
@@ -85,9 +81,8 @@ The transaction was applied. Only final in a validated ledger.
                             "value": "-0.0660807245441266",
                         },
                     },
-                    "PreviousTxnID": """
-2F5829A2F449EBEF449B86461EF3348C9A3050199FCB1DD04AE09744AB298276
-""".strip(),
+                    "PreviousTxnID": """2F5829A2F449EBEF449B86461EF3348C9A3050199FCB1DD04AE09744AB298276
+""",
                     "PreviousTxnLgrSeq": 70608646,
                 },
             },
@@ -101,16 +96,14 @@ The transaction was applied. Only final in a validated ledger.
                         "Sequence": 67702088,
                     },
                     "LedgerEntryType": "AccountRoot",
-                    "LedgerIndex": """
-3CCC83874FDC50BA6F111748515A3EECEEE13977F5AFBE72308C90D6129E8BD8
-""".strip(),
+                    "LedgerIndex": """3CCC83874FDC50BA6F111748515A3EECEEE13977F5AFBE72308C90D6129E8BD8
+""",
                     "PreviousFields": {
                         "Balance": "85341410",
                         "Sequence": 67702087,
                     },
-                    "PreviousTxnID": """
-2F5829A2F449EBEF449B86461EF3348C9A3050199FCB1DD04AE09744AB298276
-""".strip(),
+                    "PreviousTxnID": """2F5829A2F449EBEF449B86461EF3348C9A3050199FCB1DD04AE09744AB298276
+""",
                     "PreviousTxnLgrSeq": 70608646,
                 },
             },
@@ -120,20 +113,17 @@ The transaction was applied. Only final in a validated ledger.
                         "Account": "rpXhhWmCvDwkzNtRbm7mmD1vZqdfatQNEe",
                         "Balance": "230786754961",
                         "Flags": 0,
-                        "MessageKey": """
-02000000000000000000000000C40291E3D8888D158B3370626B71BDF2C883E942
-""".strip(),
+                        "MessageKey": """02000000000000000000000000C40291E3D8888D158B3370626B71BDF2C883E942
+""",
                         "OwnerCount": 9,
                         "Sequence": 59186941,
                     },
                     "LedgerEntryType": "AccountRoot",
-                    "LedgerIndex": """
-73F7B01109BB599FEDF75529CD8A6521890745E813DD45EC36A73828EDDD56BF
-""".strip(),
+                    "LedgerIndex": """73F7B01109BB599FEDF75529CD8A6521890745E813DD45EC36A73828EDDD56BF
+""",
                     "PreviousFields": {"Balance": "230785754961"},
-                    "PreviousTxnID": """
-5A554D3D6FCFFA92E35991937D6A3F3CC228FB84C4E464EBB6AF2816AEBD4409
-""".strip(),
+                    "PreviousTxnID": """5A554D3D6FCFFA92E35991937D6A3F3CC228FB84C4E464EBB6AF2816AEBD4409
+""",
                     "PreviousTxnLgrSeq": 70948695,
                 }
             },
@@ -141,9 +131,8 @@ The transaction was applied. Only final in a validated ledger.
                 "ModifiedNode": {
                     "FinalFields": {
                         "Account": "rpXhhWmCvDwkzNtRbm7mmD1vZqdfatQNEe",
-                        "BookDirectory": """
-F0B9A528CE25FE77C51C38040A7FEC016C2C841E74C1418D5B050E194D5C38E3
-""".strip(),
+                        "BookDirectory": """F0B9A528CE25FE77C51C38040A7FEC016C2C841E74C1418D5B050E194D5C38E3
+""",
                         "BookNode": "0",
                         "Flags": 0,
                         "OwnerNode": "0",
@@ -156,9 +145,8 @@ F0B9A528CE25FE77C51C38040A7FEC016C2C841E74C1418D5B050E194D5C38E3
                         "TakerPays": "129364093",
                     },
                     "LedgerEntryType": "Offer",
-                    "LedgerIndex": """
-7C36CEDFC5D76532990242382A94943F2B3A0C54C80A26239388ED2DC07E1CD1
-""".strip(),
+                    "LedgerIndex": """7C36CEDFC5D76532990242382A94943F2B3A0C54C80A26239388ED2DC07E1CD1
+""",
                     "PreviousFields": {
                         "TakerGets": {
                             "currency": "USD",
@@ -167,9 +155,8 @@ F0B9A528CE25FE77C51C38040A7FEC016C2C841E74C1418D5B050E194D5C38E3
                         },
                         "TakerPays": "130364093",
                     },
-                    "PreviousTxnID": """
-5A554D3D6FCFFA92E35991937D6A3F3CC228FB84C4E464EBB6AF2816AEBD4409
-""".strip(),
+                    "PreviousTxnID": """5A554D3D6FCFFA92E35991937D6A3F3CC228FB84C4E464EBB6AF2816AEBD4409
+""",
                     "PreviousTxnLgrSeq": 70948695,
                 }
             },
@@ -184,9 +171,8 @@ F0B9A528CE25FE77C51C38040A7FEC016C2C841E74C1418D5B050E194D5C38E3
         "Flags": 2148139008,
         "LastLedgerSequence": 70948809,
         "Sequence": 67702087,
-        "SigningPubKey": """
-EDD923A96C6FCFCC40E90F3C8838205C82FF0317FF2FF1196A4D196E6B960F5371
-""".strip(),
+        "SigningPubKey": """EDD923A96C6FCFCC40E90F3C8838205C82FF0317FF2FF1196A4D196E6B960F5371
+""",
         "TakerGets": "1000000",
         "TakerPays": {
             "currency": "USD",
@@ -194,9 +180,8 @@ EDD923A96C6FCFCC40E90F3C8838205C82FF0317FF2FF1196A4D196E6B960F5371
             "value": "0.68233163",
         },
         "TransactionType": "OfferCreate",
-        "TxnSignature": """
-92E5861C3DBD930343B1C5F99CF543B846E87AA08A9236D482E08F184B035BD2521C3C0B32A72B88B463329F809262C9FF3D4C2F2C5D00A2E6B4F8E56F4DE60E
-""".strip(),
+        "TxnSignature": """92E5861C3DBD930343B1C5F99CF543B846E87AA08A9236D482E08F184B035BD2521C3C0B32A72B88B463329F809262C9FF3D4C2F2C5D00A2E6B4F8E56F4DE60E
+""",
         "date": 703116450,
         "hash": "2EEC0D1D67C95FDF5B3ADFAAA45164C682A694D5BE4164DD182CB3A2D16E4E32",
         "owner_funds": "42341395",
@@ -215,13 +200,11 @@ NO_OFFERS_TXN = {
     "Flags": 2147483648,
     "LastLedgerSequence": 69458005,
     "Sequence": 80949,
-    "SigningPubKey": """
-02024F808D657322E73CEA9A0109CDBD9A3A56552CA87F847DD8558B47CD0F2E20
-""".strip(),
+    "SigningPubKey": """02024F808D657322E73CEA9A0109CDBD9A3A56552CA87F847DD8558B47CD0F2E20
+""",
     "TransactionType": "Payment",
-    "TxnSignature": """
-30440220324FF9E7E4A9D1DE162FBB3E8B57BF02C65BA9C0ED070F48B462C8665F3CD40402206AFEF4838FD3207F6FEF06ACF63A04C80E64598B0C5C51456D3DCFC458D0CA34
-""".strip(),
+    "TxnSignature": """30440220324FF9E7E4A9D1DE162FBB3E8B57BF02C65BA9C0ED070F48B462C8665F3CD40402206AFEF4838FD3207F6FEF06ACF63A04C80E64598B0C5C51456D3DCFC458D0CA34
+""",
     "date": 697255801,
     "hash": "AE24F3D18B0D2EA407E7F50926AAFB5DCE21B1AFC35D796B7FEFC4FA56D8E5E7",
     "inLedger": 69457007,
@@ -238,16 +221,14 @@ NO_OFFERS_TXN = {
                         "Sequence": 80950,
                     },
                     "LedgerEntryType": "AccountRoot",
-                    "LedgerIndex": """
-8719BD164C9F79A760E19FB64691885E63CC595032E559971F89C1E22EAEC220
-""".strip(),
+                    "LedgerIndex": """8719BD164C9F79A760E19FB64691885E63CC595032E559971F89C1E22EAEC220
+""",
                     "PreviousFields": {
                         "Balance": "2743653331433",
                         "Sequence": 80949,
                     },
-                    "PreviousTxnID": """
-8DD9649A8E789257A61CD7223A507602CED9F08BCF1FFC9F2E79C08DCC2863E8
-""".strip(),
+                    "PreviousTxnID": """8DD9649A8E789257A61CD7223A507602CED9F08BCF1FFC9F2E79C08DCC2863E8
+""",
                     "PreviousTxnLgrSeq": 69457007,
                 }
             },
@@ -261,13 +242,11 @@ NO_OFFERS_TXN = {
                         "Sequence": 14175,
                     },
                     "LedgerEntryType": "AccountRoot",
-                    "LedgerIndex": """
-969F1B7A63CC54C344B2990659AFD3F8BB541D03B574B48EED41A32DA51AA53A
-""".strip(),
+                    "LedgerIndex": """969F1B7A63CC54C344B2990659AFD3F8BB541D03B574B48EED41A32DA51AA53A
+""",
                     "PreviousFields": {"Balance": "815032870725"},
-                    "PreviousTxnID": """
-150DB308EEC5BBB4037E8953D3D5B42371D49033012D16DC1170036DD76D2AD2
-""".strip(),
+                    "PreviousTxnID": """150DB308EEC5BBB4037E8953D3D5B42371D49033012D16DC1170036DD76D2AD2
+""",
                     "PreviousTxnLgrSeq": 69456777,
                 },
             },
