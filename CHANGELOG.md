@@ -11,10 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support setting flags with booleans. For each transaction type supporting flags there is a `FlagInterface` to set the flags with booleans.
 - `federator_info` RPC support
 - Helper method for creating a cross-chain payment to/from a sidechain
+- Helper method for parsing an NFTokenID
 
 ### Fixed
 - `xrpl.asyncio.clients` exports (now includes `request_to_websocket`, `websocket_to_response`)
-- Added optional `owner` field to NFTokenBurn
+- Adds optional `owner` field to NFTokenBurn
+- Allows lower-case currency codes
 
 ## [1.4.0] - 2022-02-24
 ### Added
