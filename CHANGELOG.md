@@ -13,7 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for dynamic fee calculation
 - Helper method for parsing an NFTokenID
 
-
 ### Fixed
 - `xrpl.asyncio.clients` exports (now includes `request_to_websocket`, `websocket_to_response`)
 - Adds optional `owner` field to NFTokenBurn
