@@ -8,7 +8,7 @@ from xrpl.core.addresscodec.codec import encode_classic_address
 class NFTokenID(TypedDict):
     """A decoded representation of info from the NFTokenID."""
 
-    token_id: str
+    nf_token_id: str
     flags: int
     transfer_fee: int
     issuer: str
@@ -88,7 +88,7 @@ def parse_nftoken_id(nft_id: str) -> NFTokenID:
     sequence = int(nft_id[56:64], base=16)
 
     nftoken_data: NFTokenID = {
-        "token_id": nft_id,
+        "nf_token_id": nft_id,
         "flags": int(nft_id[0:4], base=16),
         "transfer_fee": int(nft_id[4:8], base=16),
         "issuer": encode_classic_address(bytes.fromhex(nft_id[8:48])),

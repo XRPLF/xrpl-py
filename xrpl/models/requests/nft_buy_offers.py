@@ -18,7 +18,7 @@ class NFTBuyOffers(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.NFT_BUY_OFFERS, init=False)
-    tokenid: str = REQUIRED  # type: ignore
+    nf_token_id: str = REQUIRED  # type: ignore
     """
     The unique identifier of an NFToken.
     The request returns buy offers for this NFToken. This value is required.

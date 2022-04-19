@@ -38,7 +38,7 @@ class NFTokenCreateOffer(Transaction):
     the submitting account does own.
     """
 
-    token_id: str = REQUIRED  # type: ignore
+    nf_token_id: str = REQUIRED  # type: ignore
     """
     Identifies the TokenID of the NFToken object that the
     offer references. This field is required.
