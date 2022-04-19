@@ -18,7 +18,7 @@ class NFTSellOffers(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.NFT_SELL_OFFERS, init=False)
-    nf_token_id: str = REQUIRED  # type: ignore
+    nft_id: str = REQUIRED  # type: ignore
     """
     The unique identifier of an NFToken.
     The request returns sell offers for this NFToken. This value is required.
