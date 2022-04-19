@@ -11,7 +11,7 @@ from xrpl.models.transactions.types.transaction_type import TransactionType
 TX_FLAGS: Dict[str, Dict[str, int]] = {
     "AccountSet": {
         "asf_account_tx_id": 0x00000005,
-        "asf_authorized_minter": 0x0000000A,
+        "asf_authorized_nf_token_minter": 0x0000000A,
         "asf_default_ripple": 0x00000008,
         "asf_deposit_auth": 0x00000009,
         "asf_disable_master": 0x00000004,

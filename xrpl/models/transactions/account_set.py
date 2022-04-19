@@ -86,7 +86,7 @@ class AccountSetFlag(int, Enum):
     ASF_REQUIRE_DEST = 1
     """Require a destination tag to send transactions to this account."""
 
-    ASF_AUTHORIZED_MINTER = 10
+    ASF_AUTHORIZED_NF_TOKEN_MINTER = 10
     """Allow another account to mint and burn tokens on behalf of this account."""
 
 
@@ -111,7 +111,7 @@ class AccountSetFlagInterface(FlagInterface):
     ASF_NO_FREEZE: bool
     ASF_REQUIRE_AUTH: bool
     ASF_REQUIRE_DEST: bool
-    ASF_AUTHORIZED_MINTER: bool
+    ASF_AUTHORIZED_NF_TOKEN_MINTER: bool
 
 
 @require_kwargs_on_init
@@ -167,7 +167,7 @@ class AccountSet(Transaction):
     """
     Sets an alternate account that is allowed to mint NFTokens on this
     account's behalf using NFTokenMint's `Issuer` field. If set, you must
-    also set the AccountSetFlag.ASF_AUTHORIZED_MINTER flag.
+    also set the AccountSetFlag.ASF_AUTHORIZED_NF_TOKEN_MINTER flag.
     """
 
     transaction_type: TransactionType = field(
@@ -224,24 +224,24 @@ class AccountSet(Transaction):
 
     def _get_nftoken_minter_error(self: AccountSet) -> Optional[str]:
         if (
-            self.set_flag != AccountSetFlag.ASF_AUTHORIZED_MINTER
+            self.set_flag != AccountSetFlag.ASF_AUTHORIZED_NF_TOKEN_MINTER
             and self.nf_token_minter is not None
         ):
             return (
                 "Will not set the minter unless "
-                "AccountSetFlag.ASF_AUTHORIZED_MINTER is set"
+                "AccountSetFlag.ASF_AUTHORIZED_NF_TOKEN_MINTER is set"
             )
         if (
-            self.set_flag == AccountSetFlag.ASF_AUTHORIZED_MINTER
+            self.set_flag == AccountSetFlag.ASF_AUTHORIZED_NF_TOKEN_MINTER
             and self.nf_token_minter is None
         ):
-            return "Must be present if AccountSetFlag.ASF_AUTHORIZED_MINTER is set"
+            return "Must be present if AccountSetFlag.ASF_AUTHORIZED_NF_TOKEN_MINTER is set"
         if (
-            self.clear_flag == AccountSetFlag.ASF_AUTHORIZED_MINTER
+            self.clear_flag == AccountSetFlag.ASF_AUTHORIZED_NF_TOKEN_MINTER
             and self.nf_token_minter is not None
         ):
             return (
-                "Must not be present if AccountSetFlag.ASF_AUTHORIZED_MINTER "
+                "Must not be present if AccountSetFlag.ASF_AUTHORIZED_NF_TOKEN_MINTER "
                 "is unset using clear_flag"
             )
         return None

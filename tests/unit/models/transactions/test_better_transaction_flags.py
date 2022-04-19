@@ -19,7 +19,7 @@ class TestBetterTransactionFlags(TestCase):
             account=ACCOUNT,
             flags=models.AccountSetFlagInterface(
                 asf_account_tx_id=True,
-                asf_authorized_minter=True,
+                asf_authorized_nf_token_minter=True,
                 asf_default_ripple=True,
                 asf_deposit_auth=True,
                 asf_disable_master=True,
