@@ -48,7 +48,7 @@ class NFTokenAcceptOffer(Transaction):
     and BuyOffer must be specified.
     """
 
-    broker_fee: Optional[Amount] = None
+    nf_token_broker_fee: Optional[Amount] = None
     """
     This field is only valid in brokered mode. It specifies the
     amount that the broker will keep as part of their fee for
@@ -82,26 +82,27 @@ class NFTokenAcceptOffer(Transaction):
                 **super()._get_errors(),
                 "sell_offer": self._get_sell_offer_error(),
                 "buy_offer": self._get_buy_offer_error(),
-                "broker_fee": self._get_broker_fee_error(),
+                "nf_token_broker_fee": self._get_nftoken_broker_fee_error(),
             }.items()
             if value is not None
         }
 
     def _get_sell_offer_error(self: NFTokenAcceptOffer) -> Optional[str]:
-        if self.broker_fee is not None and self.sell_offer is None:
+        if self.nf_token_broker_fee is not None and self.sell_offer is None:
             return "Must be set if using brokered mode"
         if self.sell_offer is None and self.buy_offer is None:
             return "Must set either buy_offer or sell_offer"
         return None
 
     def _get_buy_offer_error(self: NFTokenAcceptOffer) -> Optional[str]:
-        if self.broker_fee is not None and self.buy_offer is None:
+        if self.nf_token_broker_fee is not None and self.buy_offer is None:
             return "Must be set if using brokered mode"
         if self.sell_offer is None and self.buy_offer is None:
             return "Must set either buy_offer or sell_offer"
         return None
 
-    def _get_broker_fee_error(self: NFTokenAcceptOffer) -> Optional[str]:
-        if self.broker_fee is not None and get_amount_value(self.broker_fee) <= 0:
+    def _get_nftoken_broker_fee_error(self: NFTokenAcceptOffer) -> Optional[str]:
+        if (self.nf_token_broker_fee is not None
+                and get_amount_value(self.nf_token_broker_fee) <= 0):
             return "Must be greater than 0; omit if there is no broker fee"
         return None
