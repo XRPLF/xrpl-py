@@ -11,7 +11,7 @@ _NF_TOKEN_ID = "00090032B5F762798A53D543A014CAF8B297CFF8F2F937E844B17C9E00000003
 
 
 class TestNFTokenCreateOffer(TestCase):
-    def test_buy_offer_with_zero_amount(self):
+    def test_nftoken_buy_offer_with_zero_amount(self):
         with self.assertRaises(XRPLModelException):
             NFTokenCreateOffer(
                 account=_ACCOUNT,
@@ -22,7 +22,7 @@ class TestNFTokenCreateOffer(TestCase):
                 amount="0",
             )
 
-    def test_buy_offer_with_negative_amount(self):
+    def test_nftoken_buy_offer_with_negative_amount(self):
         with self.assertRaises(XRPLModelException):
             NFTokenCreateOffer(
                 account=_ACCOUNT,
@@ -33,7 +33,7 @@ class TestNFTokenCreateOffer(TestCase):
                 amount="-1",
             )
 
-    def test_buy_offer_with_positive_amount(self):
+    def test_nftoken_buy_offer_with_positive_amount(self):
         tx = NFTokenCreateOffer(
             account=_ACCOUNT,
             fee=_FEE,
@@ -44,7 +44,7 @@ class TestNFTokenCreateOffer(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-    def test_sell_offer_with_zero_amount(self):
+    def test_nftoken_sell_offer_with_zero_amount(self):
         tx = NFTokenCreateOffer(
             account=_ACCOUNT,
             fee=_FEE,
@@ -55,7 +55,7 @@ class TestNFTokenCreateOffer(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-    def test_sell_offer_with_positive_amount(self):
+    def test_nftoken_sell_offer_with_positive_amount(self):
         tx = NFTokenCreateOffer(
             account=_ACCOUNT,
             fee=_FEE,
@@ -78,7 +78,7 @@ class TestNFTokenCreateOffer(TestCase):
                 amount="1",
             )
 
-    def test_buy_offer_without_owner(self):
+    def test_nftoken_buy_offer_without_owner(self):
         with self.assertRaises(XRPLModelException):
             NFTokenCreateOffer(
                 account=_ACCOUNT,
@@ -88,7 +88,7 @@ class TestNFTokenCreateOffer(TestCase):
                 nf_token_id=_NF_TOKEN_ID,
             )
 
-    def test_buy_offer_with_owner_is_account(self):
+    def test_nftoken_buy_offer_with_owner_is_account(self):
         with self.assertRaises(XRPLModelException):
             NFTokenCreateOffer(
                 account=_ACCOUNT,
@@ -99,7 +99,7 @@ class TestNFTokenCreateOffer(TestCase):
                 nf_token_id=_NF_TOKEN_ID,
             )
 
-    def test_sell_offer_with_owner(self):
+    def test_nftoken_sell_offer_with_owner(self):
         with self.assertRaises(XRPLModelException):
             NFTokenCreateOffer(
                 account=_ACCOUNT,
