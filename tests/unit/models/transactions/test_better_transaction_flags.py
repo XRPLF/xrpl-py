@@ -84,7 +84,7 @@ class TestBetterTransactionFlags(TestCase):
     def test_nftoken_mint_flags(self):
         actual = models.NFTokenMint(
             account=ACCOUNT,
-            token_taxon=0,
+            nf_token_taxon=0,
             flags=models.NFTokenMintFlagInterface(
                 tf_burnable=True,
                 tf_only_xrp=True,
@@ -97,7 +97,7 @@ class TestBetterTransactionFlags(TestCase):
         flags = models.NFTokenMintFlag
         expected = models.NFTokenMint(
             account=ACCOUNT,
-            token_taxon=0,
+            nf_token_taxon=0,
             flags=[*flags],
         )
         signed_actual = safe_sign_transaction(

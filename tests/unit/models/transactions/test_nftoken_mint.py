@@ -16,7 +16,7 @@ class TestNFTokenMint(TestCase):
                 account=_ACCOUNT,
                 fee=_FEE,
                 sequence=_SEQUENCE,
-                token_taxon=0,
+                nf_token_taxon=0,
                 issuer=_ACCOUNT,
             )
 
@@ -26,7 +26,7 @@ class TestNFTokenMint(TestCase):
                 account=_ACCOUNT,
                 fee=_FEE,
                 sequence=_SEQUENCE,
-                token_taxon=0,
+                nf_token_taxon=0,
                 transfer_fee=maxsize,
             )
 
@@ -36,6 +36,6 @@ class TestNFTokenMint(TestCase):
                 account=_ACCOUNT,
                 fee=_FEE,
                 sequence=_SEQUENCE,
-                token_taxon=0,
+                nf_token_taxon=0,
                 uri=_ACCOUNT * 1000,
             )

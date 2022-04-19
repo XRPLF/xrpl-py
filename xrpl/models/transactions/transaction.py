@@ -25,6 +25,7 @@ _ABBREVIATIONS: Final[List[str]] = [
     "unl",
     "id",
     "uri",
+    "nf",
 ]
 
 
