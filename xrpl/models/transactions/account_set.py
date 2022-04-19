@@ -163,7 +163,7 @@ class AccountSet(Transaction):
     <https://xrpl.org/ticksize.html>`_ for details.
     """
 
-    minter: Optional[str] = None
+    nf_token_minter: Optional[str] = None
     """
     Sets an alternate account that is allowed to mint NFTokens on this
     account's behalf using NFTokenMint's `Issuer` field. If set, you must
@@ -184,7 +184,7 @@ class AccountSet(Transaction):
                 "transfer_rate": self._get_transfer_rate_error(),
                 "domain": self._get_domain_error(),
                 "clear_flag": self._get_clear_flag_error(),
-                "minter": self._get_minter_error(),
+                "nf_token_minter": self._get_nftoken_minter_error(),
             }.items()
             if value is not None
         }
@@ -222,10 +222,10 @@ class AccountSet(Transaction):
             return "Must not be equal to the set_flag"
         return None
 
-    def _get_minter_error(self: AccountSet) -> Optional[str]:
+    def _get_nftoken_minter_error(self: AccountSet) -> Optional[str]:
         if (
             self.set_flag != AccountSetFlag.ASF_AUTHORIZED_MINTER
-            and self.minter is not None
+            and self.nf_token_minter is not None
         ):
             return (
                 "Will not set the minter unless "
@@ -233,12 +233,12 @@ class AccountSet(Transaction):
             )
         if (
             self.set_flag == AccountSetFlag.ASF_AUTHORIZED_MINTER
-            and self.minter is None
+            and self.nf_token_minter is None
         ):
             return "Must be present if AccountSetFlag.ASF_AUTHORIZED_MINTER is set"
         if (
             self.clear_flag == AccountSetFlag.ASF_AUTHORIZED_MINTER
-            and self.minter is not None
+            and self.nf_token_minter is not None
         ):
             return (
                 "Must not be present if AccountSetFlag.ASF_AUTHORIZED_MINTER "

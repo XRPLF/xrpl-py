@@ -102,7 +102,9 @@ class NFTokenAcceptOffer(Transaction):
         return None
 
     def _get_nftoken_broker_fee_error(self: NFTokenAcceptOffer) -> Optional[str]:
-        if (self.nf_token_broker_fee is not None
-                and get_amount_value(self.nf_token_broker_fee) <= 0):
+        if (
+            self.nf_token_broker_fee is not None
+            and get_amount_value(self.nf_token_broker_fee) <= 0
+        ):
             return "Must be greater than 0; omit if there is no broker fee"
         return None
