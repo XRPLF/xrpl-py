@@ -235,7 +235,8 @@ class AccountSet(Transaction):
             self.set_flag == AccountSetFlag.ASF_AUTHORIZED_NF_TOKEN_MINTER
             and self.nf_token_minter is None
         ):
-            return "Must be present if AccountSetFlag.ASF_AUTHORIZED_NF_TOKEN_MINTER is set"
+            return "\
+                Must be present if AccountSetFlag.ASF_AUTHORIZED_NF_TOKEN_MINTER is set"
         if (
             self.clear_flag == AccountSetFlag.ASF_AUTHORIZED_NF_TOKEN_MINTER
             and self.nf_token_minter is not None
