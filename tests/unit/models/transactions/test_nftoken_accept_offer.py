@@ -6,8 +6,8 @@ from xrpl.models.transactions import NFTokenAcceptOffer
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _FEE = "0.00001"
 _SEQUENCE = 19048
-_NF_TOKEN_BUY_OFFER = "AED08CC1F50DD5F23A1948AF86153A3F3B7593E5EC77D65A02BB1B29E05AB6AF"
-_NF_TOKEN_SELL_OFFER = "\
+_NFTOKEN_BUY_OFFER = "AED08CC1F50DD5F23A1948AF86153A3F3B7593E5EC77D65A02BB1B29E05AB6AF"
+_NFTOKEN_SELL_OFFER = "\
     AED08CC1F50DD5F23A1948AF86153A3F3B7593E5EC77D65A02BB1B29E05AB6AE"
 
 
@@ -26,8 +26,8 @@ class TestNFTokenAcceptOffer(TestCase):
                 account=_ACCOUNT,
                 fee=_FEE,
                 sequence=_SEQUENCE,
-                nf_token_buy_offer=_NF_TOKEN_BUY_OFFER,
-                nf_token_broker_fee="10",
+                nftoken_buy_offer=_NFTOKEN_BUY_OFFER,
+                nftoken_broker_fee="10",
             )
 
     def test_nftoken_broker_fee_without_buy_offer(self):
@@ -36,8 +36,8 @@ class TestNFTokenAcceptOffer(TestCase):
                 account=_ACCOUNT,
                 fee=_FEE,
                 sequence=_SEQUENCE,
-                nf_token_sell_offer=_NF_TOKEN_SELL_OFFER,
-                nf_token_broker_fee="10",
+                nftoken_sell_offer=_NFTOKEN_SELL_OFFER,
+                nftoken_broker_fee="10",
             )
 
     def test_no_nftoken_broker_fee_with_both_offers(self):
@@ -45,8 +45,8 @@ class TestNFTokenAcceptOffer(TestCase):
             account=_ACCOUNT,
             fee=_FEE,
             sequence=_SEQUENCE,
-            nf_token_sell_offer=_NF_TOKEN_SELL_OFFER,
-            nf_token_buy_offer=_NF_TOKEN_BUY_OFFER,
+            nftoken_sell_offer=_NFTOKEN_SELL_OFFER,
+            nftoken_buy_offer=_NFTOKEN_BUY_OFFER,
         )
         self.assertTrue(tx.is_valid())
 
@@ -56,9 +56,9 @@ class TestNFTokenAcceptOffer(TestCase):
                 account=_ACCOUNT,
                 fee=_FEE,
                 sequence=_SEQUENCE,
-                nf_token_sell_offer=_NF_TOKEN_SELL_OFFER,
-                nf_token_buy_offer=_NF_TOKEN_BUY_OFFER,
-                nf_token_broker_fee="0",
+                nftoken_sell_offer=_NFTOKEN_SELL_OFFER,
+                nftoken_buy_offer=_NFTOKEN_BUY_OFFER,
+                nftoken_broker_fee="0",
             )
 
     def test_negative_nftoken_broker_fee_with_both_offers(self):
@@ -67,9 +67,9 @@ class TestNFTokenAcceptOffer(TestCase):
                 account=_ACCOUNT,
                 fee=_FEE,
                 sequence=_SEQUENCE,
-                nf_token_sell_offer=_NF_TOKEN_SELL_OFFER,
-                nf_token_buy_offer=_NF_TOKEN_BUY_OFFER,
-                nf_token_broker_fee="-10",
+                nftoken_sell_offer=_NFTOKEN_SELL_OFFER,
+                nftoken_buy_offer=_NFTOKEN_BUY_OFFER,
+                nftoken_broker_fee="-10",
             )
 
     def test_positive_nftoken_broker_fee_with_both_offers(self):
@@ -77,9 +77,9 @@ class TestNFTokenAcceptOffer(TestCase):
             account=_ACCOUNT,
             fee=_FEE,
             sequence=_SEQUENCE,
-            nf_token_sell_offer=_NF_TOKEN_SELL_OFFER,
-            nf_token_buy_offer=_NF_TOKEN_BUY_OFFER,
-            nf_token_broker_fee="10",
+            nftoken_sell_offer=_NFTOKEN_SELL_OFFER,
+            nftoken_buy_offer=_NFTOKEN_BUY_OFFER,
+            nftoken_broker_fee="10",
         )
         self.assertTrue(tx.is_valid())
 
@@ -88,7 +88,7 @@ class TestNFTokenAcceptOffer(TestCase):
             account=_ACCOUNT,
             fee=_FEE,
             sequence=_SEQUENCE,
-            nf_token_sell_offer=_NF_TOKEN_SELL_OFFER,
+            nftoken_sell_offer=_NFTOKEN_SELL_OFFER,
         )
         self.assertTrue(tx.is_valid())
 
@@ -97,6 +97,6 @@ class TestNFTokenAcceptOffer(TestCase):
             account=_ACCOUNT,
             fee=_FEE,
             sequence=_SEQUENCE,
-            nf_token_buy_offer=_NF_TOKEN_BUY_OFFER,
+            nftoken_buy_offer=_NFTOKEN_BUY_OFFER,
         )
         self.assertTrue(tx.is_valid())

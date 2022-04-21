@@ -26,7 +26,6 @@ _ABBREVIATIONS: Final[Dict[str, str]] = {
     "id": "ID",
     "uri": "URI",
     "nftoken": "NFToken",
-    "nf": "NF",  # delete afterwards
 }
 
 

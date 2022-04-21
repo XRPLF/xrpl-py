@@ -19,7 +19,7 @@ class TestBetterTransactionFlags(TestCase):
             account=ACCOUNT,
             flags=models.AccountSetFlagInterface(
                 asf_account_tx_id=True,
-                asf_authorized_nf_token_minter=True,
+                asf_authorized_nftoken_minter=True,
                 asf_default_ripple=True,
                 asf_deposit_auth=True,
                 asf_disable_master=True,
@@ -53,7 +53,7 @@ class TestBetterTransactionFlags(TestCase):
     def test_nftoken_create_offer_flags(self):
         actual = models.NFTokenCreateOffer(
             account=ACCOUNT,
-            nf_token_id="\
+            nftoken_id="\
                 000100001E962F495F07A990F4ED55ACCFEEF365DBAA76B6A048C0A200000007",
             amount="1000000",
             flags=models.NFTokenCreateOfferFlagInterface(
@@ -65,7 +65,7 @@ class TestBetterTransactionFlags(TestCase):
         flags = models.NFTokenCreateOfferFlag
         expected = models.NFTokenCreateOffer(
             account=ACCOUNT,
-            nf_token_id="\
+            nftoken_id="\
                 000100001E962F495F07A990F4ED55ACCFEEF365DBAA76B6A048C0A200000007",
             amount="1000000",
             flags=[*flags],

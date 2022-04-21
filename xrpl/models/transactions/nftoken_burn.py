@@ -33,7 +33,7 @@ class NFTokenBurn(Transaction):
     :meta hide-value:
     """
 
-    nf_token_id: str = REQUIRED  # type: ignore
+    nftoken_id: str = REQUIRED  # type: ignore
     """
     Identifies the NFToken to be burned. This field is required.
 

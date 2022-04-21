@@ -90,7 +90,7 @@ class TestAccountSet(TestCase):
             AccountSet(
                 account=_ACCOUNT,
                 fee=_FEE,
-                nf_token_minter=_ANOTHER_ACCOUNT,
+                nftoken_minter=_ANOTHER_ACCOUNT,
             )
 
     def test_nftoken_minter_not_set_with_minter_flag(self):
@@ -98,7 +98,7 @@ class TestAccountSet(TestCase):
             AccountSet(
                 account=_ACCOUNT,
                 fee=_FEE,
-                set_flag=AccountSetFlag.ASF_AUTHORIZED_NF_TOKEN_MINTER,
+                set_flag=AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
             )
 
     def test_nftoken_minter_set_with_clear_minter_flag(self):
@@ -106,16 +106,16 @@ class TestAccountSet(TestCase):
             AccountSet(
                 account=_ACCOUNT,
                 fee=_FEE,
-                clear_flag=AccountSetFlag.ASF_AUTHORIZED_NF_TOKEN_MINTER,
-                nf_token_minter=_ANOTHER_ACCOUNT,
+                clear_flag=AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
+                nftoken_minter=_ANOTHER_ACCOUNT,
             )
 
     def test_nftoken_minter_set_with_minter_flag(self):
         tx = AccountSet(
             account=_ACCOUNT,
             fee=_FEE,
-            set_flag=AccountSetFlag.ASF_AUTHORIZED_NF_TOKEN_MINTER,
-            nf_token_minter=_ANOTHER_ACCOUNT,
+            set_flag=AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
+            nftoken_minter=_ANOTHER_ACCOUNT,
         )
         self.assertTrue(tx.is_valid())
 
@@ -123,6 +123,6 @@ class TestAccountSet(TestCase):
         tx = AccountSet(
             account=_ACCOUNT,
             fee=_FEE,
-            clear_flag=AccountSetFlag.ASF_AUTHORIZED_NF_TOKEN_MINTER,
+            clear_flag=AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
         )
         self.assertTrue(tx.is_valid())

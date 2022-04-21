@@ -7,7 +7,7 @@ _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _ANOTHER_ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _FEE = "0.00001"
 _SEQUENCE = 19048
-_NF_TOKEN_ID = "00090032B5F762798A53D543A014CAF8B297CFF8F2F937E844B17C9E00000003"
+_NFTOKEN_ID = "00090032B5F762798A53D543A014CAF8B297CFF8F2F937E844B17C9E00000003"
 
 
 class TestNFTokenCreateOffer(TestCase):
@@ -18,7 +18,7 @@ class TestNFTokenCreateOffer(TestCase):
                 fee=_FEE,
                 sequence=_SEQUENCE,
                 owner=_ANOTHER_ACCOUNT,
-                nf_token_id=_NF_TOKEN_ID,
+                nftoken_id=_NFTOKEN_ID,
                 amount="0",
             )
 
@@ -29,7 +29,7 @@ class TestNFTokenCreateOffer(TestCase):
                 fee=_FEE,
                 sequence=_SEQUENCE,
                 owner=_ANOTHER_ACCOUNT,
-                nf_token_id=_NF_TOKEN_ID,
+                nftoken_id=_NFTOKEN_ID,
                 amount="-1",
             )
 
@@ -39,7 +39,7 @@ class TestNFTokenCreateOffer(TestCase):
             fee=_FEE,
             sequence=_SEQUENCE,
             owner=_ANOTHER_ACCOUNT,
-            nf_token_id=_NF_TOKEN_ID,
+            nftoken_id=_NFTOKEN_ID,
             amount="1",
         )
         self.assertTrue(tx.is_valid())
@@ -50,7 +50,7 @@ class TestNFTokenCreateOffer(TestCase):
             fee=_FEE,
             sequence=_SEQUENCE,
             amount="0",
-            nf_token_id=_NF_TOKEN_ID,
+            nftoken_id=_NFTOKEN_ID,
             flags=[NFTokenCreateOfferFlag.TF_SELL_TOKEN],
         )
         self.assertTrue(tx.is_valid())
@@ -61,7 +61,7 @@ class TestNFTokenCreateOffer(TestCase):
             fee=_FEE,
             sequence=_SEQUENCE,
             amount="1",
-            nf_token_id=_NF_TOKEN_ID,
+            nftoken_id=_NFTOKEN_ID,
             flags=[NFTokenCreateOfferFlag.TF_SELL_TOKEN],
         )
         self.assertTrue(tx.is_valid())
@@ -74,7 +74,7 @@ class TestNFTokenCreateOffer(TestCase):
                 fee=_FEE,
                 owner=_ANOTHER_ACCOUNT,
                 sequence=_SEQUENCE,
-                nf_token_id=_NF_TOKEN_ID,
+                nftoken_id=_NFTOKEN_ID,
                 amount="1",
             )
 
@@ -85,7 +85,7 @@ class TestNFTokenCreateOffer(TestCase):
                 fee=_FEE,
                 sequence=_SEQUENCE,
                 amount="1",
-                nf_token_id=_NF_TOKEN_ID,
+                nftoken_id=_NFTOKEN_ID,
             )
 
     def test_nftoken_buy_offer_with_owner_is_account(self):
@@ -96,7 +96,7 @@ class TestNFTokenCreateOffer(TestCase):
                 fee=_FEE,
                 sequence=_SEQUENCE,
                 amount="1",
-                nf_token_id=_NF_TOKEN_ID,
+                nftoken_id=_NFTOKEN_ID,
             )
 
     def test_nftoken_sell_offer_with_owner(self):
@@ -108,5 +108,5 @@ class TestNFTokenCreateOffer(TestCase):
                 sequence=_SEQUENCE,
                 amount="1",
                 flags=[NFTokenCreateOfferFlag.TF_SELL_TOKEN],
-                nf_token_id=_NF_TOKEN_ID,
+                nftoken_id=_NFTOKEN_ID,
             )
