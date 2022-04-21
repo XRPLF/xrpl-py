@@ -44,9 +44,9 @@ def _key_to_json(field: str) -> str:
         3. 'URI' becomes 'uri'
     """
     # convert all special CamelCase substrings to capitalized strings
-    for abbr in SPECIAL_CAMELCASE_STRINGS:
-        if abbr in field:
-            field = field.replace(abbr, abbr.capitalize())
+    for spec_str in SPECIAL_CAMELCASE_STRINGS:
+        if spec_str in field:
+            field = field.replace(spec_str, spec_str.capitalize())
 
     return "_".join(
         [word.lower() for word in _CAMEL_TO_SNAKE_CASE_REGEX.findall(field)]
