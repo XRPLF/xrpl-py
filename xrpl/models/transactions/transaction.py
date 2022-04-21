@@ -21,12 +21,13 @@ from xrpl.models.utils import require_kwargs_on_init
 _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
 # This is used to make exceptions when converting dictionary keys to xrpl JSON
 # keys. We snake case keys, but some keys are abbreviations.
-_ABBREVIATIONS: Final[List[str]] = [
-    "unl",
-    "id",
-    "uri",
-    "nf",
-]
+_ABBREVIATIONS: Final[Dict[str, str]] = {
+    "unl": "UNL",
+    "id": "ID",
+    "uri": "URI",
+    "nftoken": "NFToken",
+    "nf": "NF",  # delete afterwards
+}
 
 
 def transaction_json_to_binary_codec_form(
@@ -59,7 +60,7 @@ def _key_to_tx_json(key: str) -> str:
     """
     return "".join(
         [
-            word.upper() if word in _ABBREVIATIONS else word.capitalize()
+            _ABBREVIATIONS[word] if word in _ABBREVIATIONS else word.capitalize()
             for word in key.split("_")
         ]
     )
