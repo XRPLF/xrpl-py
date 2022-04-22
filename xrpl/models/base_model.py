@@ -32,6 +32,8 @@ _CAMEL_CASE_TYPICAL: Final[str] = "[A-Z][^A-Z]*"
 _CAMEL_TO_SNAKE_CASE_REGEX: Final[Pattern[str]] = re.compile(
     f"(?:{_CAMEL_CASE_LEADING_LOWER}|{_CAMEL_CASE_ABBREVIATION}|{_CAMEL_CASE_TYPICAL})"
 )
+# used for converting special substrings inside CamelCase fields
+SPECIAL_CAMELCASE_STRINGS = ["NFToken"]
 
 
 def _key_to_json(field: str) -> str:
@@ -41,6 +43,11 @@ def _key_to_json(field: str) -> str:
         2. 'value' remains 'value'
         3. 'URI' becomes 'uri'
     """
+    # convert all special CamelCase substrings to capitalized strings
+    for spec_str in SPECIAL_CAMELCASE_STRINGS:
+        if spec_str in field:
+            field = field.replace(spec_str, spec_str.capitalize())
+
     return "_".join(
         [word.lower() for word in _CAMEL_TO_SNAKE_CASE_REGEX.findall(field)]
     )

@@ -19,7 +19,7 @@ class TestBetterTransactionFlags(TestCase):
             account=ACCOUNT,
             flags=models.AccountSetFlagInterface(
                 asf_account_tx_id=True,
-                asf_authorized_minter=True,
+                asf_authorized_nftoken_minter=True,
                 asf_default_ripple=True,
                 asf_deposit_auth=True,
                 asf_disable_master=True,
@@ -53,7 +53,8 @@ class TestBetterTransactionFlags(TestCase):
     def test_nftoken_create_offer_flags(self):
         actual = models.NFTokenCreateOffer(
             account=ACCOUNT,
-            token_id="000100001E962F495F07A990F4ED55ACCFEEF365DBAA76B6A048C0A200000007",
+            nftoken_id="\
+                000100001E962F495F07A990F4ED55ACCFEEF365DBAA76B6A048C0A200000007",
             amount="1000000",
             flags=models.NFTokenCreateOfferFlagInterface(
                 tf_sell_token=True,
@@ -64,7 +65,8 @@ class TestBetterTransactionFlags(TestCase):
         flags = models.NFTokenCreateOfferFlag
         expected = models.NFTokenCreateOffer(
             account=ACCOUNT,
-            token_id="000100001E962F495F07A990F4ED55ACCFEEF365DBAA76B6A048C0A200000007",
+            nftoken_id="\
+                000100001E962F495F07A990F4ED55ACCFEEF365DBAA76B6A048C0A200000007",
             amount="1000000",
             flags=[*flags],
         )
@@ -84,7 +86,7 @@ class TestBetterTransactionFlags(TestCase):
     def test_nftoken_mint_flags(self):
         actual = models.NFTokenMint(
             account=ACCOUNT,
-            token_taxon=0,
+            nftoken_taxon=0,
             flags=models.NFTokenMintFlagInterface(
                 tf_burnable=True,
                 tf_only_xrp=True,
@@ -97,7 +99,7 @@ class TestBetterTransactionFlags(TestCase):
         flags = models.NFTokenMintFlag
         expected = models.NFTokenMint(
             account=ACCOUNT,
-            token_taxon=0,
+            nftoken_taxon=0,
             flags=[*flags],
         )
         signed_actual = safe_sign_transaction(
