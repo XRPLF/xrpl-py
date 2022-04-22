@@ -20,7 +20,7 @@ class XRPLException(Exception):
     pass
 
 
-ISO_CURRENCY_REGEX: Final[Pattern[str]] = re.compile("[A-Z0-9]{3}")
+ISO_CURRENCY_REGEX: Final[Pattern[str]] = re.compile("[A-Za-z0-9]{3}")
 """
 Matches ISO currencies like "USD" or "EUR" in the format allowed by XRPL.
 
