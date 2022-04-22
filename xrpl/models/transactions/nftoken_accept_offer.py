@@ -24,31 +24,31 @@ class NFTokenAcceptOffer(Transaction):
        NFToken, to be accepted in an atomic fashion. This is
        called brokered mode.
 
-    To indicate direct mode, use either the `sell_offer` or
-    `buy_offer` fields, but not both. To indicate brokered mode,
-    use both the `sell_offer` and `buy_offer` fields. If you use
-    neither `sell_offer` nor `buy_offer`, the transaction is invalid.
+    To indicate direct mode, use either the `nftoken_sell_offer` or
+    `nftoken_buy_offer` fields, but not both. To indicate brokered mode,
+    use both the `nftoken_sell_offer` and `nftoken_buy_offer` fields. If you use
+    neither `nftoken_sell_offer` nor `nftoken_buy_offer`, the transaction is invalid.
     """
 
-    sell_offer: Optional[str] = None
+    nftoken_sell_offer: Optional[str] = None
     """
     Identifies the NFTokenOffer that offers to sell the NFToken.
 
-    In direct mode this field is optional, but either SellOffer or
-    BuyOffer must be specified. In brokered mode, both SellOffer
-    and BuyOffer must be specified.
+    In direct mode this field is optional, but either NFTokenSellOffer or
+    NFTokenBuyOffer must be specified. In brokered mode, both NFTokenSellOffer
+    and NFTokenBuyOffer must be specified.
     """
 
-    buy_offer: Optional[str] = None
+    nftoken_buy_offer: Optional[str] = None
     """
     Identifies the NFTokenOffer that offers to buy the NFToken.
 
-    In direct mode this field is optional, but either SellOffer or
-    BuyOffer must be specified. In brokered mode, both SellOffer
-    and BuyOffer must be specified.
+    In direct mode this field is optional, but either NFTokenSellOffer or
+    NFTokenBuyOffer must be specified. In brokered mode, both NFTokenSellOffer
+    and NFTokenBuyOffer must be specified.
     """
 
-    broker_fee: Optional[Amount] = None
+    nftoken_broker_fee: Optional[Amount] = None
     """
     This field is only valid in brokered mode. It specifies the
     amount that the broker will keep as part of their fee for
@@ -65,8 +65,8 @@ class NFTokenAcceptOffer(Transaction):
     larger amount, without the broker having to own the NFToken
     or custody funds.
 
-    Note: in brokered mode, the offers referenced by BuyOffer
-    and SellOffer must both specify the same TokenID; that is,
+    Note: in brokered mode, the offers referenced by NFTokenBuyOffer
+    and NFTokenSellOffer must both specify the same TokenID; that is,
     both must be for the same NFToken.
     """
 
@@ -80,28 +80,31 @@ class NFTokenAcceptOffer(Transaction):
             key: value
             for key, value in {
                 **super()._get_errors(),
-                "sell_offer": self._get_sell_offer_error(),
-                "buy_offer": self._get_buy_offer_error(),
-                "broker_fee": self._get_broker_fee_error(),
+                "nftoken_sell_offer": self._get_nftoken_sell_offer_error(),
+                "nftoken_buy_offer": self._get_nftoken_buy_offer_error(),
+                "nftoken_broker_fee": self._get_nftoken_broker_fee_error(),
             }.items()
             if value is not None
         }
 
-    def _get_sell_offer_error(self: NFTokenAcceptOffer) -> Optional[str]:
-        if self.broker_fee is not None and self.sell_offer is None:
+    def _get_nftoken_sell_offer_error(self: NFTokenAcceptOffer) -> Optional[str]:
+        if self.nftoken_broker_fee is not None and self.nftoken_sell_offer is None:
             return "Must be set if using brokered mode"
-        if self.sell_offer is None and self.buy_offer is None:
-            return "Must set either buy_offer or sell_offer"
+        if self.nftoken_sell_offer is None and self.nftoken_buy_offer is None:
+            return "Must set either nftoken_buy_offer or nftoken_sell_offer"
         return None
 
-    def _get_buy_offer_error(self: NFTokenAcceptOffer) -> Optional[str]:
-        if self.broker_fee is not None and self.buy_offer is None:
+    def _get_nftoken_buy_offer_error(self: NFTokenAcceptOffer) -> Optional[str]:
+        if self.nftoken_broker_fee is not None and self.nftoken_buy_offer is None:
             return "Must be set if using brokered mode"
-        if self.sell_offer is None and self.buy_offer is None:
-            return "Must set either buy_offer or sell_offer"
+        if self.nftoken_sell_offer is None and self.nftoken_buy_offer is None:
+            return "Must set either nftoken_buy_offer or nftoken_sell_offer"
         return None
 
-    def _get_broker_fee_error(self: NFTokenAcceptOffer) -> Optional[str]:
-        if self.broker_fee is not None and get_amount_value(self.broker_fee) <= 0:
+    def _get_nftoken_broker_fee_error(self: NFTokenAcceptOffer) -> Optional[str]:
+        if (
+            self.nftoken_broker_fee is not None
+            and get_amount_value(self.nftoken_broker_fee) <= 0
+        ):
             return "Must be greater than 0; omit if there is no broker fee"
         return None
