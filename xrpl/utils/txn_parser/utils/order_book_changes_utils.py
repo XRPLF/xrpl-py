@@ -10,11 +10,11 @@ from typing import Dict, List, Optional, Tuple, Union, cast
 from pydash import filter_, group_by, map_  # type: ignore
 from typing_extensions import Literal
 
-from xrpl.utils.txn_parser.utils.transaction_data_utils import (
+from xrpl.utils.txn_parser.utils.types import (
+    CURRENCY_AMOUNT_TYPE,
     AccountBalance,
     NormalizedNode,
 )
-from xrpl.utils.txn_parser.utils.types import CURRENCY_AMOUNT_TYPE
 from xrpl.utils.xrp_conversions import drops_to_xrp
 
 LFS_SELL = 0x00020000

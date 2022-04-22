@@ -8,7 +8,7 @@ from typing import Any, Callable, Dict, List, Optional, Union, cast
 
 from pydash import compact, flatten, group_by, map_, map_values  # type: ignore
 
-from xrpl.utils.txn_parser.utils.transaction_data_utils import (
+from xrpl.utils.txn_parser.utils.types import (
     AccountBalance,
     NormalizedFields,
     NormalizedNode,
