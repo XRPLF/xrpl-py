@@ -85,44 +85,44 @@ class TestAccountSet(TestCase):
         with self.assertRaises(XRPLModelException):
             AccountSet(**transaction_dict)
 
-    def test_minter_set_without_minter_flag(self):
+    def test_nftoken_minter_set_without_minter_flag(self):
         with self.assertRaises(XRPLModelException):
             AccountSet(
                 account=_ACCOUNT,
                 fee=_FEE,
-                minter=_ANOTHER_ACCOUNT,
+                nftoken_minter=_ANOTHER_ACCOUNT,
             )
 
-    def test_minter_not_set_with_minter_flag(self):
+    def test_nftoken_minter_not_set_with_minter_flag(self):
         with self.assertRaises(XRPLModelException):
             AccountSet(
                 account=_ACCOUNT,
                 fee=_FEE,
-                set_flag=AccountSetFlag.ASF_AUTHORIZED_MINTER,
+                set_flag=AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
             )
 
-    def test_minter_set_with_clear_minter_flag(self):
+    def test_nftoken_minter_set_with_clear_minter_flag(self):
         with self.assertRaises(XRPLModelException):
             AccountSet(
                 account=_ACCOUNT,
                 fee=_FEE,
-                clear_flag=AccountSetFlag.ASF_AUTHORIZED_MINTER,
-                minter=_ANOTHER_ACCOUNT,
+                clear_flag=AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
+                nftoken_minter=_ANOTHER_ACCOUNT,
             )
 
-    def test_minter_set_with_minter_flag(self):
+    def test_nftoken_minter_set_with_minter_flag(self):
         tx = AccountSet(
             account=_ACCOUNT,
             fee=_FEE,
-            set_flag=AccountSetFlag.ASF_AUTHORIZED_MINTER,
-            minter=_ANOTHER_ACCOUNT,
+            set_flag=AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
+            nftoken_minter=_ANOTHER_ACCOUNT,
         )
         self.assertTrue(tx.is_valid())
 
-    def test_minter_not_set_with_clear_minter_flag(self):
+    def test_nftoken_minter_not_set_with_clear_minter_flag(self):
         tx = AccountSet(
             account=_ACCOUNT,
             fee=_FEE,
-            clear_flag=AccountSetFlag.ASF_AUTHORIZED_MINTER,
+            clear_flag=AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
         )
         self.assertTrue(tx.is_valid())
