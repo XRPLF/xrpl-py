@@ -16,7 +16,7 @@ from xrpl.models.utils import require_kwargs_on_init
 class NFTokenCreateOfferFlag(int, Enum):
     """Transaction Flags for an NFTokenCreateOffer Transaction."""
 
-    TF_SELL_TOKEN = 0x00000001
+    TF_SELL_NF_TOKEN = 0x00000001
     """
     If set, indicates that the offer is a sell offer.
     Otherwise, it is a buy offer.
@@ -26,7 +26,7 @@ class NFTokenCreateOfferFlag(int, Enum):
 class NFTokenCreateOfferFlagInterface(FlagInterface):
     """Transaction Flags for an NFTokenCreateOffer Transaction."""
 
-    TF_SELL_TOKEN: bool
+    TF_SELL_NF_TOKEN: bool
 
 
 @require_kwargs_on_init
@@ -107,7 +107,7 @@ class NFTokenCreateOffer(Transaction):
 
     def _get_amount_error(self: NFTokenCreateOffer) -> Optional[str]:
         if (
-            not self.has_flag(NFTokenCreateOfferFlag.TF_SELL_TOKEN)
+            not self.has_flag(NFTokenCreateOfferFlag.TF_SELL_NF_TOKEN)
             and get_amount_value(self.amount) <= 0
         ):
             return "Must be greater than 0 for a buy offer"
@@ -120,12 +120,12 @@ class NFTokenCreateOffer(Transaction):
 
     def _get_owner_error(self: NFTokenCreateOffer) -> Optional[str]:
         if (
-            not self.has_flag(NFTokenCreateOfferFlag.TF_SELL_TOKEN)
+            not self.has_flag(NFTokenCreateOfferFlag.TF_SELL_NF_TOKEN)
             and self.owner is None
         ):
             return "Must be present for buy offers"
         if (
-            self.has_flag(NFTokenCreateOfferFlag.TF_SELL_TOKEN)
+            self.has_flag(NFTokenCreateOfferFlag.TF_SELL_NF_TOKEN)
             and self.owner is not None
         ):
             return "Must not be present for sell offers"
