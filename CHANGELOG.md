@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [[Unreleased]]
+
+## [1.5.0] - 2022-04-25
 ### Added
 - Support setting flags with booleans. For each transaction type supporting flags there is a `FlagInterface` to set the flags with booleans.
 - `federator_info` RPC support
@@ -13,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Helper method for parsing an NFTokenID
 
 ### Fixed
+- Updated NFT names to match new 1.9.0 rippled names
 - `xrpl.asyncio.clients` exports (now includes `request_to_websocket`, `websocket_to_response`)
 - Adds optional `owner` field to NFTokenBurn
 - Allows lower-case currency codes
