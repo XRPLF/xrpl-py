@@ -89,6 +89,8 @@ async def send_reliable_submission(
     transaction_hash = transaction.get_hash()
     submit_response = await submit_transaction(transaction, client)
     prelim_result = submit_response.result["engine_result"]
+    if prelim_result != 'tesSUCCESS':
+        raise Exception(submit_response.result["engine_result_message"])
 
     return await _wait_for_final_transaction_outcome(
         transaction_hash, client, prelim_result
