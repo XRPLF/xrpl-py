@@ -51,7 +51,7 @@ class TestNFTokenCreateOffer(TestCase):
             sequence=_SEQUENCE,
             amount="0",
             nftoken_id=_NFTOKEN_ID,
-            flags=[NFTokenCreateOfferFlag.TF_SELL_TOKEN],
+            flags=[NFTokenCreateOfferFlag.TF_SELL_NFTOKEN],
         )
         self.assertTrue(tx.is_valid())
 
@@ -62,7 +62,7 @@ class TestNFTokenCreateOffer(TestCase):
             sequence=_SEQUENCE,
             amount="1",
             nftoken_id=_NFTOKEN_ID,
-            flags=[NFTokenCreateOfferFlag.TF_SELL_TOKEN],
+            flags=[NFTokenCreateOfferFlag.TF_SELL_NFTOKEN],
         )
         self.assertTrue(tx.is_valid())
 
@@ -107,6 +107,6 @@ class TestNFTokenCreateOffer(TestCase):
                 fee=_FEE,
                 sequence=_SEQUENCE,
                 amount="1",
-                flags=[NFTokenCreateOfferFlag.TF_SELL_TOKEN],
+                flags=[NFTokenCreateOfferFlag.TF_SELL_NFTOKEN],
                 nftoken_id=_NFTOKEN_ID,
             )
