@@ -22,17 +22,16 @@ from xrpl.utils.txn_parser.utils import (
 def parse_previous_balances(
     transaction: Union[RawTxnType, SubscriptionRawTxnType],
 ) -> Dict[str, Any]:
-    """Parse the previous balances of all accounts affected
+    """
+    Parse the previous balances of all accounts affected
     by the transaction before it occurred.
 
     Args:
-        transaction (Union[RawTxnType, SubscriptionRawTxnType]):
-            Raw transaction data including the account that
+        transaction: Raw transaction data including the account that
             sent the transaction and the affected nodes.
 
     Returns:
-        Dict[str, Any]:
-            All previous balances.
+        All previous balances.
     """
     validate_transaction_fields(transaction_data=transaction)
     if "transaction" in transaction:
@@ -44,9 +43,9 @@ def parse_previous_balances(
 
     for account, balances in balance_changes.items():
         for count, balance in enumerate(balances):
-            final_balances_value = final_balances[account][count]["Value"]
-            final_balances[account][count]["Value"] = str(
-                Decimal(final_balances_value) - Decimal(balance["Value"])
+            final_balances_value = final_balances[account][count]["value"]
+            final_balances[account][count]["value"] = str(
+                Decimal(final_balances_value) - Decimal(balance["value"])
             )
 
     return final_balances
@@ -55,17 +54,16 @@ def parse_previous_balances(
 def parse_balance_changes(
     transaction: Union[RawTxnType, SubscriptionRawTxnType],
 ) -> Dict[str, Any]:
-    """Parse the balance changes of all accounts affected
+    """
+    Parse the balance changes of all accounts affected
     by the transaction after it occurred.
 
     Args:
-        transaction (Union[RawTxnType, SubscriptionRawTxnType]):
-            Raw transaction data including the account that
+        transaction: Raw transaction data including the account that
             sent the transaction and the affected nodes.
 
     Returns:
-        Dict[str, Any]:
-            All balance changes.
+        All balance changes.
     """
     validate_transaction_fields(transaction_data=transaction)
     if "transaction" in transaction:
@@ -85,9 +83,9 @@ def parse_balance_changes(
                 obj.counterparty = obj.counterparty[0]
             result[address].append(
                 {
-                    "Counterparty": obj.counterparty,
-                    "Currency": obj.currency,
-                    "Value": obj.value,
+                    "counterparty": obj.counterparty,
+                    "currency": obj.currency,
+                    "value": obj.value,
                 }
             )
 
@@ -97,17 +95,16 @@ def parse_balance_changes(
 def parse_final_balances(
     transaction: Union[RawTxnType, SubscriptionRawTxnType],
 ) -> Dict[str, Any]:
-    """Parse the final balances of all accounts affected
+    """
+    Parse the final balances of all accounts affected
     by the transaction after it occurred.
 
     Args:
-        transaction (Union[RawTxnType, SubscriptionRawTxnType]):
-            Raw transaction data including the account that
+        transaction: Raw transaction data including the account that
             sent the transaction and the affected nodes.
 
     Returns:
-        Dict[str, Any]:
-            All final balances.
+        All final balances.
     """
     validate_transaction_fields(transaction_data=transaction)
     if "transaction" in transaction:
@@ -128,9 +125,9 @@ def parse_final_balances(
                 obj.counterparty = obj.counterparty[0]
             result[address].append(
                 {
-                    "Counterparty": obj.counterparty,
-                    "Currency": obj.currency,
-                    "Value": obj.value,
+                    "counterparty": obj.counterparty,
+                    "currency": obj.currency,
+                    "value": obj.value,
                 }
             )
 

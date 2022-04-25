@@ -20,11 +20,11 @@ from xrpl.utils.txn_parser.utils.types import (
 def validate_transaction_fields(
     transaction_data: Union[RawTxnType, SubscriptionRawTxnType],
 ) -> None:
-    """Check if the transaction fields are valid.
+    """
+    Check if the transaction fields are valid.
 
     Args:
-        transaction_data (Union[RawTxnType, SubscriptionRawTxnType]):
-            The raw transaction data.
+        transaction_data: The raw transaction data.
 
     Raises:
         XRPLTxnFieldsException: If the raw transaction data is malformed.
@@ -54,11 +54,11 @@ def validate_transaction_fields(
 def normalize_transaction(
     transaction_data: SubscriptionRawTxnType,
 ) -> RawTxnType:
-    """Formats the raw transaction data into one standard format.
+    """
+    Formats the raw transaction data into one standard format.
 
     Args:
-        transaction_data (SubscriptionRawTxnType):
-            The raw transaction data.
+        transaction_data: The raw transaction data.
 
     Returns:
         Transaction data in standard format.
@@ -80,16 +80,15 @@ def normalize_transaction(
 def normalize_fields(
     fields: Dict[str, Any],
 ) -> NormalizedFields:
-    """Normalize 'NewFields', 'FinalFields' and 'ModifiedFields'.
+    """
+    Normalize 'NewFields', 'FinalFields' and 'ModifiedFields'.
 
     Args:
-        fields (Dict[str, Any):
-            A dictionary of all fields that field state has.
+        fields: A dictionary of all fields that field state has.
             E.g.: {'Balance': '62537659', 'OwnerCount': 16, 'Sequence': 67702065}
 
     Returns:
-        NormalizedFields:
-            The full field state with all its fields as objects.
+        The full field state with all its fields as objects.
     """
     balance = fields["Balance"] if "Balance" in fields else None
     low_limit = fields["LowLimit"] if "LowLimit" in fields else None
@@ -147,16 +146,14 @@ def normalize_fields(
 
 
 def normalize_node(affected_node: Dict[str, Any]) -> NormalizedNode:
-    """Affected node to a standard format.
+    """
+    Affected node to a standard format.
 
     Args:
-        affected_node (Dict[str, Dict[str, Union[str, int,
-        Dict[str, Union[str, int, Dict[str, str]]]]]]):
-            Affected node.
+        affected_node: Affected node.
 
     Returns:
-        NormalizedNode:
-            NormalizedNode object.
+        NormalizedNode object.
     """
     diff_type = cast(
         Literal["ModifiedNode", "CreatedNode", "DeletedNode"],
@@ -194,14 +191,14 @@ def normalize_node(affected_node: Dict[str, Any]) -> NormalizedNode:
 def normalize_nodes(
     transaction_data: Union[RawTxnType, SubscriptionRawTxnType]
 ) -> List[NormalizedNode]:
-    """Normalize nodes.
+    """
+    Normalize nodes.
 
     Args:
-        transaction_data (Union[RawTxnType, SubscriptionRawTxnType]):
-            Transactions raw data.
+        transaction_data: Transactions raw data.
 
     Returns:
-        List[NormalizedNode]: The normalized nodes
+        The normalized nodes.
     """
     meta = transaction_data["meta"]
     if isinstance(meta, dict):

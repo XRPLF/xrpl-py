@@ -282,31 +282,31 @@ class TestBalanceChanges(TestCase):
         expected = {
             "rpXhhWmCvDwkzNtRbm7mmD1vZqdfatQNEe": [
                 {
-                    "Counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
-                    "Currency": "USD",
-                    "Value": "-0.7042071790427",
+                    "counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
+                    "currency": "USD",
+                    "value": "-0.7042071790427",
                 },
-                {"Counterparty": "", "Currency": "XRP", "Value": "1.000000"},
+                {"counterparty": "", "currency": "XRP", "value": "1.000000"},
             ],
             "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq": [
                 {
-                    "Counterparty": "rpXhhWmCvDwkzNtRbm7mmD1vZqdfatQNEe",
-                    "Currency": "USD",
-                    "Value": "0.7042071790427",
+                    "counterparty": "rpXhhWmCvDwkzNtRbm7mmD1vZqdfatQNEe",
+                    "currency": "USD",
+                    "value": "0.7042071790427",
                 },
                 {
-                    "Counterparty": "rPu2feBaViWGmWJhvaF5yLocTVD8FUxd2A",
-                    "Currency": "USD",
-                    "Value": "-0.7028015758909932",
+                    "counterparty": "rPu2feBaViWGmWJhvaF5yLocTVD8FUxd2A",
+                    "currency": "USD",
+                    "value": "-0.7028015758909932",
                 },
             ],
             "rPu2feBaViWGmWJhvaF5yLocTVD8FUxd2A": [
                 {
-                    "Counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
-                    "Currency": "USD",
-                    "Value": "0.7028015758909932",
+                    "counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
+                    "currency": "USD",
+                    "value": "0.7028015758909932",
                 },
-                {"Counterparty": "", "Currency": "XRP", "Value": "-1.000015"},
+                {"counterparty": "", "currency": "XRP", "value": "-1.000015"},
             ],
         }
         self.assertEqual(actual, expected)
@@ -316,31 +316,31 @@ class TestBalanceChanges(TestCase):
         expected = {
             "rpXhhWmCvDwkzNtRbm7mmD1vZqdfatQNEe": [
                 {
-                    "Counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
-                    "Currency": "USD",
-                    "Value": "610.0963958078583",
+                    "counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
+                    "currency": "USD",
+                    "value": "610.0963958078583",
                 },
-                {"Counterparty": "", "Currency": "XRP", "Value": "230786.754961"},
+                {"counterparty": "", "currency": "XRP", "value": "230786.754961"},
             ],
             "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq": [
                 {
-                    "Counterparty": "rpXhhWmCvDwkzNtRbm7mmD1vZqdfatQNEe",
-                    "Currency": "USD",
-                    "Value": "-610.0963958078583",
+                    "counterparty": "rpXhhWmCvDwkzNtRbm7mmD1vZqdfatQNEe",
+                    "currency": "USD",
+                    "value": "-610.0963958078583",
                 },
                 {
-                    "Counterparty": "rPu2feBaViWGmWJhvaF5yLocTVD8FUxd2A",
-                    "Currency": "USD",
-                    "Value": "-0.7688823004351198",
+                    "counterparty": "rPu2feBaViWGmWJhvaF5yLocTVD8FUxd2A",
+                    "currency": "USD",
+                    "value": "-0.7688823004351198",
                 },
             ],
             "rPu2feBaViWGmWJhvaF5yLocTVD8FUxd2A": [
                 {
-                    "Counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
-                    "Currency": "USD",
-                    "Value": "0.7688823004351198",
+                    "counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
+                    "currency": "USD",
+                    "value": "0.7688823004351198",
                 },
-                {"Counterparty": "", "Currency": "XRP", "Value": "84.341395"},
+                {"counterparty": "", "currency": "XRP", "value": "84.341395"},
             ],
         }
         self.assertEqual(actual, expected)
@@ -350,31 +350,31 @@ class TestBalanceChanges(TestCase):
         expected = {
             "rpXhhWmCvDwkzNtRbm7mmD1vZqdfatQNEe": [
                 {
-                    "Counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
-                    "Currency": "USD",
-                    "Value": "610.8006029869010",
+                    "counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
+                    "currency": "USD",
+                    "value": "610.8006029869010",
                 },
-                {"Counterparty": "", "Currency": "XRP", "Value": "230785.754961"},
+                {"counterparty": "", "currency": "XRP", "value": "230785.754961"},
             ],
             "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq": [
                 {
-                    "Counterparty": "rpXhhWmCvDwkzNtRbm7mmD1vZqdfatQNEe",
-                    "Currency": "USD",
-                    "Value": "-610.8006029869010",
+                    "counterparty": "rpXhhWmCvDwkzNtRbm7mmD1vZqdfatQNEe",
+                    "currency": "USD",
+                    "value": "-610.8006029869010",
                 },
                 {
-                    "Counterparty": "rPu2feBaViWGmWJhvaF5yLocTVD8FUxd2A",
-                    "Currency": "USD",
-                    "Value": "-0.0660807245441266",
+                    "counterparty": "rPu2feBaViWGmWJhvaF5yLocTVD8FUxd2A",
+                    "currency": "USD",
+                    "value": "-0.0660807245441266",
                 },
             ],
             "rPu2feBaViWGmWJhvaF5yLocTVD8FUxd2A": [
                 {
-                    "Counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
-                    "Currency": "USD",
-                    "Value": "0.0660807245441266",
+                    "counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
+                    "currency": "USD",
+                    "value": "0.0660807245441266",
                 },
-                {"Counterparty": "", "Currency": "XRP", "Value": "85.341410"},
+                {"counterparty": "", "currency": "XRP", "value": "85.341410"},
             ],
         }
         self.assertEqual(actual, expected)
@@ -412,7 +412,7 @@ class TestOrderbookChanges(TestCase):
                 {
                     "taker_pays": {
                         "final_amount": {
-                            "counterparty": "",
+                            "issuer": "",
                             "currency": "XRP",
                             "value": "129.364093",
                         },
@@ -420,7 +420,7 @@ class TestOrderbookChanges(TestCase):
                     },
                     "taker_gets": {
                         "final_amount": {
-                            "counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
+                            "issuer": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
                             "currency": "USD",
                             "value": "90.91728842410901",
                         },
@@ -433,7 +433,7 @@ class TestOrderbookChanges(TestCase):
                     "direction": "buy",
                     "total_received": {
                         "final_amount": {
-                            "counterparty": "",
+                            "issuer": "",
                             "currency": "XRP",
                             "value": "129.364093",
                         },
@@ -441,7 +441,7 @@ class TestOrderbookChanges(TestCase):
                     },
                     "total_paid": {
                         "final_amount": {
-                            "counterparty": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
+                            "issuer": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
                             "currency": "USD",
                             "value": "90.91728842410901",
                         },

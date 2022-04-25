@@ -17,16 +17,15 @@ from xrpl.utils.txn_parser.utils import (
 def parse_order_book_changes(
     transaction: Union[RawTxnType, SubscriptionRawTxnType],
 ) -> Dict[str, Any]:
-    """Parse all order book changes that were caused by a transaction.
+    """
+    Parse all order book changes that were caused by a transaction.
 
     Args:
-        transaction (Union[RawTxnType, SubscriptionRawTxnType]):
-            Raw transaction data including the account that
+        transaction: Raw transaction data including the account that
             sent the transaction and the affected nodes.
 
     Returns:
-        Dict[str, Any]:
-            Order book changes.
+        Order book changes.
     """
     validate_transaction_fields(transaction_data=transaction)
     if "transaction" in transaction:

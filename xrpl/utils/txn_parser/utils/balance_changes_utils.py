@@ -18,28 +18,23 @@ from xrpl.utils.xrp_conversions import drops_to_xrp
 
 @dataclass
 class TrustLineQuantity:
-    """Trust line quantity.
-
-    Args:
-        address (str):
-            Accounts address.
-        balance (AccountBalance):
-            Accounts balance.
-    """
+    """Trust line quantity."""
 
     address: str
+    """Accounts address."""
     balance: AccountBalance
+    """Accounts balance."""
 
 
 def _parse_value(value: Union[AccountBalance, str]) -> Decimal:
-    """Formats a balances value into a Decimal.
+    """
+    Formats a balances value into a Decimal.
 
     Args:
-        value (Union[AccountBalance, str]):
-            Accounts balance.
+        value: Accounts balance.
 
     Returns:
-        Decimal: Account balance value as Decimal.
+        Account balance value as Decimal.
     """
     if isinstance(value, AccountBalance):  # issued currency amount
         return Decimal(value.value)
@@ -48,20 +43,19 @@ def _parse_value(value: Union[AccountBalance, str]) -> Decimal:
 
 
 def parse_final_balance(node: NormalizedNode) -> Optional[Decimal]:
-    """Parse final balance.
+    """
+    Parse final balance.
 
     Args:
-        node (NormalizedNode):
-            Normalized node.
+        node: Normalized node.
 
     Returns:
-        Optional[Decimal]:
-            The balance value as Decimal.
+        The balance value as Decimal.
     """
-    if node.new_fields and hasattr(node.new_fields, "Balance"):
+    if node.new_fields is not None and hasattr(node.new_fields, "Balance"):
         new_balance = cast(Union[AccountBalance, str], node.new_fields.Balance)
         return _parse_value(value=new_balance)
-    if node.final_fields and hasattr(node.final_fields, "Balance"):
+    if node.final_fields is not None and hasattr(node.final_fields, "Balance"):
         final_balance = cast(Union[AccountBalance, str], node.final_fields.Balance)
         return _parse_value(value=final_balance)
 
@@ -69,15 +63,14 @@ def parse_final_balance(node: NormalizedNode) -> Optional[Decimal]:
 
 
 def compute_balance_changes(node: NormalizedNode) -> Optional[Decimal]:
-    """Compute balance changes.
+    """
+    Compute balance changes.
 
     Args:
-        node (NormalizedNode):
-            Normalized node.
+        node: Normalized node.
 
     Returns:
-        Optional[Decimal]:
-            The parsed value.
+        The parsed value.
     """
     value = None
     if isinstance(node.new_fields, NormalizedFields) and hasattr(
@@ -109,17 +102,15 @@ def _parse_xrp_quantity(
     node: NormalizedNode,
     value_parser: Callable[[NormalizedNode], Optional[Decimal]],
 ) -> Optional[TrustLineQuantity]:
-    """Parse XRP quantity.
+    """
+    Parse XRP quantity.
 
     Args:
-        node (NormalizedNode):
-            Normalized node.
-        value_parser (Callable[[NormalizedNode], Optional[Decimal]]):
-            Parser to get values needed.
+        node: Normalized node.
+        value_parser: Parser to get values needed.
 
     Returns:
-        Optional[TrustLineQuantity]:
-            Trust line quantity.
+        Trust line quantity.
     """
     value = value_parser(node)
     if value is None:
@@ -152,15 +143,14 @@ def _parse_xrp_quantity(
 
 
 def _flip_trustline_perspective(quantity: TrustLineQuantity) -> TrustLineQuantity:
-    """Flip the trust line perspective.
+    """
+    Flip the trust line perspective.
 
     Args:
-        quantity (TrustLineQuantity):
-            Trust line quantity.
+        quantity: Trust line quantity.
 
     Returns:
-        TrustLineQuantity:
-            Flipped trust line quantity.
+        Flipped trust line quantity.
     """
     negated_balance = 0 - Decimal(quantity.balance.value)
     result = TrustLineQuantity(
@@ -179,17 +169,15 @@ def _parse_trustline_quantity(
     node: NormalizedNode,
     value_parser: Callable[[NormalizedNode], Optional[Decimal]],
 ) -> Optional[List[TrustLineQuantity]]:
-    """Parse trust line quantity.
+    """
+    Parse trust line quantity.
 
     Args:
-        node (NormalizedNode):
-            Normalized node.
-        value_parser (Callable[[NormalizedNode], Optional[Decimal]]):
-            Parser to get values needed.
+        node: Normalized node.
+        value_parser: Parser to get values needed.
 
     Returns:
-        Optional[List[TrustLineQuantity]]:
-            Trust line quantity.
+        Trust line quantity.
     """
     value = value_parser(node)
     if value is None:
@@ -219,15 +207,14 @@ def _parse_trustline_quantity(
 def _group_by_address(
     balance_changes: List[TrustLineQuantity],
 ) -> Dict[str, List[AccountBalance]]:
-    """Groups the balances changes by address.
+    """
+    Groups the balances changes by address.
 
     Args:
-        balance_changes (List[TrustlineQuantity]):
-            A dictionary of accounts balances grouped by addresses.
+        balance_changes: A dictionary of accounts balances grouped by addresses.
 
     Returns:
-        Dict[str, AccountBalance]:
-            A dictionary with all balance changes grouped by addresses.
+        A dictionary with all balance changes grouped by addresses.
     """
     grouped = group_by(balance_changes, lambda node: node.address)
     mapped_group = map_values(
@@ -241,16 +228,15 @@ def parse_quantities(
     nodes: List[NormalizedNode],
     value_parser: Callable[[NormalizedNode], Optional[Decimal]],
 ) -> Dict[str, List[AccountBalance]]:
-    """Parse final balance.
+    """
+    Parse final balance.
 
     Args:
-        nodes (List[NormalizedNode]):
-            Normalized nodes.
-        value_parser (Callable[[NormalizedNode], Optional[Decimal]]):
-            Value parser.
+        nodes: Normalized nodes.
+        value_parser: Value parser.
 
     Returns:
-        Dict[str, AccountBalance]: The grouped account balance changes.
+        The grouped account balance changes.
     """
     values: List[Any] = []
     for node in nodes:

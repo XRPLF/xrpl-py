@@ -55,21 +55,14 @@ class OrderChange:
     """Accounts address"""
 
 
+@dataclass
 class ChangeAmount:
     """Amount changed by transaction."""
 
-    def __init__(
-        self: ChangeAmount,
-        final_amount: Dict[str, str],
-        previous_value: str,
-    ) -> None:
-        """
-        Args:
-            final_amount (Dict[str, str]): Final amount
-            previous_value (str): Difference to Previous amount
-        """
-        self.final_amount = final_amount
-        self.previous_value = previous_value
+    final_amount: Dict[str, str]
+    """Final amount"""
+    previous_value: str
+    """Difference to Previous amount"""
 
 
 def group_by_address_order_book(
@@ -78,40 +71,50 @@ def group_by_address_order_book(
     str,
     List[Dict[str, Union[Dict[str, Union[Dict[str, str], str]], str, int, bool]]],
 ]:
-    """Group order book changes by addresses.
+    """
+    Group order book changes by addresses.
 
     Args:
-        order_changes (List[Dict[str, Union[Dict[str, str], bool, int, str]]]):
-            Order book changes
+        order_changes: Order book changes
 
     Returns:
-        Dict[str, Union[Dict[str, Union[Dict[str, str], str]], str, int, bool]]:
-            Order book changes grouped by addresses.
+        Order book changes grouped by addresses.
     """
     return group_by(order_changes, lambda change: change["account"])  # type: ignore
+
+
+def _counterparty_to_issuer(obj: AccountBalance, counterparty: str) -> AccountBalance:
+    obj.__delattr__("counterparty")
+    obj.__setattr__("issuer", counterparty)
+    return obj
 
 
 def _parse_currency_amount(
     currency_amount: Union[str, AccountBalance]
 ) -> AccountBalance:
-    """Parses an accounts balance and formats it into a standard format.
+    """
+    Parses an accounts balance and formats it into a standard format.
 
     Args:
-        currency_amount (Union[str, AccountBalance]):
-            Currency amount.
+        currency_amount: Currency amount.
 
     Returns:
-        AccountBalance: Account balance.
+        Account balance.
     """
     if isinstance(currency_amount, str):
-        return AccountBalance(
+        balance = AccountBalance(
             currency="XRP", counterparty="", value=str(drops_to_xrp(currency_amount))
         )
+        return _counterparty_to_issuer(obj=balance, counterparty="")
 
-    return AccountBalance(
+    balance = AccountBalance(
         currency=currency_amount.currency,
         counterparty=currency_amount.counterparty,
         value=str(currency_amount.value),
+    )
+    return _counterparty_to_issuer(
+        obj=balance,
+        counterparty=currency_amount.counterparty,
     )
 
 
@@ -131,11 +134,14 @@ def _calculate_delta(
 def _parse_order_status(
     node: NormalizedNode,
 ) -> Optional[Literal["created", "partially-filled", "filled", "cancelled"]]:
-    """Parses the status of an order.
+    """
+    Parses the status of an order.
+
+    Args:
+        node: Normalized node.
 
     Returns:
-        Optional[Literal['created', 'partially-filled', 'filled', 'cancelled']]:
-            The order status.
+        The order status.
     """
     if node.diff_type == "CreatedNode":
         return "created"
@@ -156,17 +162,15 @@ def _parse_order_status(
 def _parse_change_amount(
     node: NormalizedNode, side: Literal["TakerPays", "TakerGets"]
 ) -> Optional[Union[AccountBalance, ChangeAmount]]:
-    """Parse the changed amount of an order.
+    """
+    Parse the changed amount of an order.
 
     Args:
-        node (NormalizedNode):
-            Normalized node.
-        side (Literal['TakerPays', 'TakerGets']):
-            Side of the order to parse.
+        node: Normalized node.
+        side: Side of the order to parse.
 
     Returns:
-        Optional[Union[AccountBalance, ChangeAmount]]:
-            The changed currency amount.
+        The changed currency amount.
     """
     status = _parse_order_status(node=node)
 
@@ -208,13 +212,14 @@ def _parse_change_amount(
 
 
 def _get_quality(node: NormalizedNode) -> str:
-    """Calculate the offers quality.
+    """
+    Calculate the offers quality.
 
     Args:
-        node (NormalizedNode): Normalized node.
+        node: Normalized node.
 
     Returns:
-        str: The offers quality.
+        The offers quality.
     """
     if node.final_fields is not None:
         taker_gets = cast(Union[AccountBalance, str], node.final_fields.TakerGets)
@@ -248,14 +253,14 @@ def _ripple_to_unix_timestamp(rpepoch: int) -> int:
 
 
 def _get_expiration_time(node: NormalizedNode) -> Optional[str]:
-    """Formats the ripple timestamp to a easy to read format.
+    """
+    Formats the ripple timestamp to a easy to read format.
 
     Args:
-        node (NormalizedNode): Normalized node.
+        node: Normalized node.
 
     Returns:
-        Optional[str]:
-            Expiration time in a easy to read format.
+        Expiration time in a easy to read format.
     """
     if node.final_fields is not None:
         expiration_time = node.final_fields.Expiration
@@ -275,15 +280,14 @@ def _get_expiration_time(node: NormalizedNode) -> Optional[str]:
 
 
 def _remove_undefined(order: OrderChange) -> OrderChange:
-    """Remove all attributes that are 'None'.
+    """
+    Remove all attributes that are 'None'.
 
     Args:
-        order (OrderChange):
-            Order change.
+        orde: Order change.
 
     Returns:
-        OrderChange:
-            Cleaned up OrderChange object.
+        Cleaned up OrderChange object.
     """
     order_dict = order.__dict__.copy()
 
@@ -299,19 +303,16 @@ def _calculate_received_and_paid_amount(
     taker_pays: CURRENCY_AMOUNT_TYPE,
     direction: Literal["sell", "buy"],
 ) -> Tuple[CURRENCY_AMOUNT_TYPE, CURRENCY_AMOUNT_TYPE]:
-    """Calculate what the taker had to pay and what he received.
+    """
+    Calculate what the taker had to pay and what he received.
 
     Args:
-        taker_gets (CURRENCY_AMOUNT_TYPE):
-            TakerGets amount.
-        taker_pays (CURRENCY_AMOUNT_TYPE):
-            TakerPays amount.
-        direction (Literal["buy", "sell"]):
-            'buy' or 'sell' offer.
+        taker_gets: TakerGets amount.
+        taker_pays: TakerPays amount.
+        direction: 'buy' or 'sell' offer.
 
     Returns:
-        Tuple[CURRENCY_AMOUNT_TYPE, CURRENCY_AMOUNT_TYPE]:
-            Both paid and received amount.
+        Both paid and received amount.
     """
     quantity = taker_pays if direction == "buy" else taker_gets
     total_price = taker_gets if direction == "buy" else taker_pays
@@ -320,15 +321,14 @@ def _calculate_received_and_paid_amount(
 
 
 def _convert_order_change(order: OrderChange) -> OrderChange:
-    """Convert order change.
+    """
+    Convert order change.
 
     Args:
-        order (OrderChange):
-            Order change.
+        order: Order change.
 
     Returns:
-        OrderChange:
-            Converted order change.
+        Converted order change.
     """
     taker_gets = order.taker_gets
     taker_pays = order.taker_pays
@@ -349,15 +349,14 @@ def _convert_order_change(order: OrderChange) -> OrderChange:
 def _parse_order_change(
     node: NormalizedNode,
 ) -> Dict[str, Union[Dict[str, str], bool, int, str]]:
-    """Parse a change in the order book.
+    """
+    Parse a change in the order book.
 
     Args:
-        node (NormalizedNode):
-            The affected node.
+        node: The affected node.
 
     Returns:
-        Dict[str, Union[Dict[str, str], bool, int, str ]]:
-            A order book change.
+        A order book change.
     """
     if node.final_fields is not None:
         seq = cast(int, node.final_fields.Sequence)
@@ -394,14 +393,14 @@ def _parse_order_change(
 def compute_order_book_changes(
     nodes: List[NormalizedNode],
 ) -> List[Dict[str, Union[Dict[str, str], bool, int, str]]]:
-    """Filter nodes by 'EntryType': 'Offer'.
+    """
+    Filter nodes by 'EntryType': 'Offer'.
 
     Args:
-        nodes (List[NormalizedNode]): Affected nodes.
+        nodes: Affected nodes.
 
     Returns:
-        List[Dict[str, Union[Dict[str, str], bool, int, str]]]:
-            A unsorted list of all order book changes.
+        A unsorted list of all order book changes.
     """
     filter_nodes = map_(
         filter_(nodes, lambda node: True if node.entry_type == "Offer" else False),
