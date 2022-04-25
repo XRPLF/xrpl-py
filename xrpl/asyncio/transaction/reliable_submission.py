@@ -81,6 +81,7 @@ async def send_reliable_submission(
     Raises:
         XRPLReliableSubmissionException: if the transaction fails or is missing a
             `last_ledger_sequence` param.
+        Exception: if the submitted transaction's `engine_result` is not `tesSUCCESS`
     """
     if transaction.last_ledger_sequence is None:
         raise XRPLReliableSubmissionException(
@@ -89,7 +90,7 @@ async def send_reliable_submission(
     transaction_hash = transaction.get_hash()
     submit_response = await submit_transaction(transaction, client)
     prelim_result = submit_response.result["engine_result"]
-    if prelim_result != 'tesSUCCESS':
+    if prelim_result != "tesSUCCESS":
         raise Exception(submit_response.result["engine_result_message"])
 
     return await _wait_for_final_transaction_outcome(
