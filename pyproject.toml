@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "xrpl-py"
-version = "1.4.0"
+version = "1.5.0"
 description = "A complete Python library for interacting with the XRP ledger"
 readme = "README.md"
 repository = "https://github.com/XRPLF/xrpl-py"
@@ -11,7 +11,9 @@ authors = [
   "Ted Kalaw <tkalaw@ripple.com>",
   "Florent Uzio <fuzio@ripple.com>",
   "Mayur Bhandary <mbhandary@ripple.com>",
-  "Nathan Nichols <nnichols@ripple.com>"
+  "Nathan Nichols <nnichols@ripple.com>",
+  "Caleb Kniffen <ckniffen@ripple.com>",
+  "Omar Khan <okhan@ripple.com>"
 ]
 keywords = [
   "xrp",
