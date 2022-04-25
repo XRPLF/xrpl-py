@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 
 ### Fixed
-- Resolve `txnNotFound` error with `send_reliable_submission` when submitting a malformed transaction
+- Resolve `txnNotFound` error with `send_reliable_submission` when waiting for a submitted malformed transaction
 
 ## [1.5.0] - 2022-04-25
 ### Added
