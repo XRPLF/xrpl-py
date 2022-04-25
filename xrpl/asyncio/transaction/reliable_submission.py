@@ -79,9 +79,8 @@ async def send_reliable_submission(
         The response from a validated ledger.
 
     Raises:
-        XRPLReliableSubmissionException: if the transaction fails or is missing a
-            `last_ledger_sequence` param.
-        Exception: if the submitted transaction's `engine_result` is not `tesSUCCESS`
+        XRPLReliableSubmissionException: if the transaction fails, is malformed, or is
+            missing a `last_ledger_sequence` param.
     """
     if transaction.last_ledger_sequence is None:
         raise XRPLReliableSubmissionException(
