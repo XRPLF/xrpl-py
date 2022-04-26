@@ -3,6 +3,7 @@
 from typing import Optional, cast
 
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
+from xrpl.asyncio.ledger.utils import calculate_fee_dynamically
 from xrpl.constants import XRPLException
 from xrpl.models.requests import Fee, Ledger
 from xrpl.utils import xrp_to_drops
@@ -60,11 +61,14 @@ async def get_fee(
             high, then the fees will not scale past the maximum fee. If None, there is
             no ceiling for the fee. The default is 2 XRP.
         fee_type: The type of fee to return. The options are "open" (the load-scaled
-            fee to get into the open ledger) or "minimum" (the minimum transaction
-            fee). The default is "open".
+            fee to get into the open ledger), "minimum" (the minimum transaction
+            fee) or "dynamic" (dynamic fee-calculation based on the queue size
+            of the node). The default is "open". The recommended option is
+            "dynamic".
 
     Returns:
         The transaction fee, in drops.
+        `Read more about drops <https://xrpl.org/currency-formats.html#xrp-amounts>`_
 
     Raises:
         XRPLException: if an incorrect option for `fee_type` is passed in.
@@ -74,15 +78,18 @@ async def get_fee(
     if not response.is_successful():
         raise XRPLRequestFailureException(response.result)
 
-    result = response.result["drops"]
+    result = response.result
+    drops = result["drops"]
     if fee_type == "open":
-        fee = cast(str, result["open_ledger_fee"])
+        fee = cast(str, drops["open_ledger_fee"])
     elif fee_type == "minimum":
-        fee = cast(str, result["minimum_fee"])
+        fee = cast(str, drops["minimum_fee"])
+    elif fee_type == "dynamic":
+        fee = calculate_fee_dynamically(fee_data_set=result)
     else:
         raise XRPLException(
-            f'`fee_type` param must be "open" or "minimum". {fee_type} is not a '
-            "valid option."
+            '`fee_type` param must be "open", "minimum" or "dynamic".'
+            f" {fee_type} is not a valid option."
         )
     if max_fee is not None:
         max_fee_drops = int(xrp_to_drops(max_fee))

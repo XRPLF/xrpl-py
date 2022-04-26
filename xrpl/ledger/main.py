@@ -40,10 +40,13 @@ def get_latest_open_ledger_sequence(client: SyncClient) -> int:
 
 
 def get_fee(
-    client: SyncClient, *, max_fee: Optional[float] = 2, fee_type: str = "open"
+    client: SyncClient,
+    *,
+    max_fee: Optional[float] = 2,
+    fee_type: str = "open",
 ) -> str:
     """
-    Query the ledger for the current minimum transaction fee.
+    Query the ledger for the current transaction fee.
 
     Args:
         client: the network client used to make network calls.
@@ -51,13 +54,17 @@ def get_fee(
             high, then the fees will not scale past the maximum fee. If None, there is
             no ceiling for the fee. The default is 2 XRP.
         fee_type: The type of fee to return. The options are "open" (the load-scaled
-            fee to get into the open ledger) or "minimum" (the minimum transaction
-            cost). The default is "open".
+            fee to get into the open ledger), "minimum" (the minimum transaction
+            fee) or "dynamic" (dynamic fee-calculation based on the queue size
+            of the node). The default is "open". The recommended option is
+            "dynamic".
 
     Returns:
-        The minimum fee for transactions.
+        The transaction fee, in drops.
+        `Read more about drops <https://xrpl.org/currency-formats.html#xrp-amounts>`_
 
     Raises:
+        XRPLException: if an incorrect option for `fee_type` is passed in.
         XRPLRequestFailureException: if the rippled API call fails.
     """
     return asyncio.run(main.get_fee(client, max_fee=max_fee, fee_type=fee_type))
