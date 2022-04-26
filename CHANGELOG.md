@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 ### Added
+- Support for dynamic fee calculation
 - Adds a transaction parser. Supporting to parse balance changes, final balances, previous balances and order book changes.
 
 ## [1.5.0] - 2022-04-25
