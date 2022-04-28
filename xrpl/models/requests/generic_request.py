@@ -25,7 +25,7 @@ class GenericRequest(Request):
     :meta hide-value:
     """
 
-    def __init__(self: GenericRequest, **kwargs: Dict[str, Any]) -> None:
+    def __init__(self: GenericRequest, **kwargs: Any) -> None:
         """
         Initializes a GenericRequest.
 
