@@ -167,12 +167,12 @@ TXN = {
             "id": 1004,
             "message": "This is a reporting server.  The default behavior of a "
             "reporting server is to only return validated data. If you are looking for"
-            " not yet validated data, include \"ledger_index : current\" in your"
+            ' not yet validated data, include "ledger_index : current" in your'
             " request, which will cause this server to forward the request to a p2p"
             " node. If the forward is successful the response will include"
-            " \"forwarded\" : \"true\"",
+            ' "forwarded" : "true"',
         }
-    ]
+    ],
 }
 
 
@@ -184,32 +184,28 @@ class TestParseBalanceChanges(TestCase):
                 {
                     "issuer": "rLBnhMjV6ifEHYeV4gaS6jPKerZhQddFxW",
                     "currency": "5452535259000000000000000000000000000000",
-                    "value": "10"
+                    "value": "10",
                 }
             ],
             "rLBnhMjV6ifEHYeV4gaS6jPKerZhQddFxW": [
                 {
                     "issuer": "rwwyrB83G6hS8vp4oLMqwRiMNLWToVCX6L",
                     "currency": "5452535259000000000000000000000000000000",
-                    "value": "-10"
+                    "value": "-10",
                 },
                 {
                     "issuer": "rME2LXH8Che2BZRbu5LCRKWju9U3ARaEPd",
                     "currency": "5452535259000000000000000000000000000000",
-                    "value": "10"
-                }
+                    "value": "10",
+                },
             ],
             "rME2LXH8Che2BZRbu5LCRKWju9U3ARaEPd": [
                 {
                     "issuer": "rLBnhMjV6ifEHYeV4gaS6jPKerZhQddFxW",
                     "currency": "5452535259000000000000000000000000000000",
-                    "value": "-10"
+                    "value": "-10",
                 },
-                {
-                    "issuer": "",
-                    "currency": "XRP",
-                    "value": "-0.000012"
-                }
-            ]
+                {"issuer": "", "currency": "XRP", "value": "-0.000012"},
+            ],
         }
         self.assertEqual(first=actual, second=excpected)
