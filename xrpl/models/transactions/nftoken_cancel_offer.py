@@ -24,7 +24,7 @@ class NFTokenCancelOffer(Transaction):
     the NFTokenOffer has already expired.
     """
 
-    token_offers: List[str] = REQUIRED  # type: ignore
+    nftoken_offers: List[str] = REQUIRED  # type: ignore
     """
     An array of identifiers of NFTokenOffer objects that should be cancelled
     by this transaction.
@@ -47,12 +47,12 @@ class NFTokenCancelOffer(Transaction):
             key: value
             for key, value in {
                 **super()._get_errors(),
-                "token_offers": self._get_token_offers_error(),
+                "nftoken_offers": self._get_nftoken_offers_error(),
             }.items()
             if value is not None
         }
 
-    def _get_token_offers_error(self: NFTokenCancelOffer) -> Optional[str]:
-        if len(self.token_offers) < 1:
+    def _get_nftoken_offers_error(self: NFTokenCancelOffer) -> Optional[str]:
+        if len(self.nftoken_offers) < 1:
             return "Must specify at least one NFTokenOffer to cancel"
         return None

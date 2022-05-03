@@ -65,7 +65,7 @@ class NFTokenMint(Transaction):
     specified by the transaction.
     """
 
-    token_taxon: int = REQUIRED  # type: ignore
+    nftoken_taxon: int = REQUIRED  # type: ignore
     """
     Indicates the taxon associated with this token. The taxon is generally a
     value chosen by the minter of the token and a given taxon may be used for

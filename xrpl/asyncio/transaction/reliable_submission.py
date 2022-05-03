@@ -79,8 +79,8 @@ async def send_reliable_submission(
         The response from a validated ledger.
 
     Raises:
-        XRPLReliableSubmissionException: if the transaction fails or is missing a
-            `last_ledger_sequence` param.
+        XRPLReliableSubmissionException: if the transaction fails, is malformed, or is
+            missing a `last_ledger_sequence` param.
     """
     if transaction.last_ledger_sequence is None:
         raise XRPLReliableSubmissionException(
@@ -89,6 +89,10 @@ async def send_reliable_submission(
     transaction_hash = transaction.get_hash()
     submit_response = await submit_transaction(transaction, client)
     prelim_result = submit_response.result["engine_result"]
+    if prelim_result[0:3] == "tem":
+        raise XRPLReliableSubmissionException(
+            submit_response.result["engine_result_message"]
+        )
 
     return await _wait_for_final_transaction_outcome(
         transaction_hash, client, prelim_result

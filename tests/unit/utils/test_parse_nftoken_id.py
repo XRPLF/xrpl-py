@@ -14,7 +14,7 @@ class TestParseNFTokenID(TestCase):
         nft_id = "000B0539C35B55AA096BA6D87A6E6C965A6534150DC56E5E12C5D09E0000000C"
         result = parse_nftoken_id(nft_id)
         expected = {
-            "token_id": nft_id,
+            "nftoken_id": nft_id,
             "flags": 11,
             "transfer_fee": 1337,
             "issuer": "rJoxBSzpXhPtAuqFmqxQtGKjA13jUJWthE",
