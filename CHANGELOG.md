@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 ### Added:
 - Support for dynamic fee calculation
+- Add function to parse account balances from a transaction's metadata
 
 ### Fixed
 - Resolve `txnNotFound` error with `send_reliable_submission` when waiting for a submitted malformed transaction
