@@ -27,17 +27,6 @@ def validate_transaction_fields(
     Raises:
         XRPLTxnFieldsException: If the raw transaction data is malformed.
     """
-    if "transaction" in transaction_data:
-        if "Account" not in transaction_data["transaction"]:  # type: ignore
-            raise XRPLTxnFieldsException(
-                "Malformed transaction fields: Transaction"
-                "field 'Account' must be included."
-            )
-    elif "Account" not in transaction_data:
-        raise XRPLTxnFieldsException(
-            "Malformed transaction fields: Transaction"
-            "field 'Account' must be included."
-        )
     if "meta" not in transaction_data:
         raise XRPLTxnFieldsException(
             "Malformed transaction fields: Transaction field 'meta' must be included."
@@ -64,10 +53,8 @@ def normalize_transaction(
         tx_field_name: tx_field_value
         for tx_field_name, tx_field_value in transaction.items()
     }
-    meta = transaction_data["meta"]
-    normalized_txn["meta"] = meta
-    ledger_index = transaction_data["ledger_index"]
-    normalized_txn["ledger_index"] = ledger_index
+    normalized_txn["meta"] = transaction_data["meta"]
+    normalized_txn["ledger_index"] = transaction_data["ledger_index"]
     return cast(RawTxnType, normalized_txn)
 
 

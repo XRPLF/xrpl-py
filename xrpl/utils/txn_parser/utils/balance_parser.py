@@ -16,7 +16,7 @@ from xrpl.utils.xrp_conversions import drops_to_xrp
 
 def parse_quantities(
     nodes: List[NormalizedNode],
-    value_parser: Callable[[NormalizedNode], Optional[Decimal]],
+    value_parser: Callable[[NormalizedNode], Decimal],
 ) -> Dict[str, List[AccountBalance]]:
     """
     Parse final balance.
@@ -43,7 +43,7 @@ def parse_quantities(
     return _group_by_address(compact(flatten(values)))
 
 
-def compute_balance_changes(node: NormalizedNode) -> Optional[Decimal]:
+def compute_balance_changes(node: NormalizedNode) -> Decimal:
     """
     Compute balance changes.
 
@@ -53,7 +53,7 @@ def compute_balance_changes(node: NormalizedNode) -> Optional[Decimal]:
     Returns:
         The parsed value.
     """
-    value = None
+    value = Decimal(0)
     if isinstance(node.new_fields, NormalizedFields) and hasattr(
         node.new_fields, "Balance"
     ):
@@ -72,10 +72,7 @@ def compute_balance_changes(node: NormalizedNode) -> Optional[Decimal]:
         value = _parse_value(value=final_balance) - _parse_value(
             value=previous_balance,
         )
-    if value and value != 0:
-        return value
-    else:
-        return None
+    return value
 
 
 def _parse_xrp_quantity(
