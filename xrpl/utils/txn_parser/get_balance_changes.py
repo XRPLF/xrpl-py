@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import List
 
-from pydash import flatten
+from pydash import flatten  # type: ignore
 
 from xrpl.models import TransactionMetadata
 from xrpl.utils.txn_parser.utils import (

@@ -1,12 +1,10 @@
 """Helper functions for `get_balance_changes`."""
 
 from decimal import Decimal
-from typing import List, Optional
+from typing import List, Optional, Union
 
-from pydash import group_by
+from pydash import group_by  # type: ignore
 
-from xrpl.models.amounts.amount import Amount
-from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.utils.txn_parser.utils.nodes import NormalizedNode
 from xrpl.utils.txn_parser.utils.types import (
     BalanceChangesType,
@@ -16,7 +14,7 @@ from xrpl.utils.txn_parser.utils.types import (
 from xrpl.utils.xrp_conversions import drops_to_xrp
 
 
-def _get_value(balance: Amount) -> Decimal:
+def _get_value(balance: Union[BalanceType, str]) -> Decimal:
     if isinstance(balance, str):
         return Decimal(balance)
     return Decimal(balance["value"])
@@ -52,7 +50,10 @@ def _get_xrp_quantity(node: NormalizedNode) -> Optional[BalanceChangeType]:
         account=node["FinalFields"]["Account"]
         if node.get("FinalFields") is not None
         else node["NewFields"]["Account"],
-        balance=BalanceType(currency="XRP", value=f"{value.normalize():f}"),
+        balance=BalanceType(
+            currency="XRP",
+            value=f"{value.normalize():f}",
+        ),  # type: ignore
     )
 
 
@@ -68,7 +69,7 @@ def _flip_trustline_perspective(balance_change: BalanceChangeType) -> BalanceCha
     )
 
 
-def _get_trustline_quantity(node: NormalizedNode) -> List[BalanceChangeType]:
+def _get_trustline_quantity(node: NormalizedNode) -> Optional[List[BalanceChangeType]]:
     """
     Computes the complete list of every balance that changed in the ledger
     as a result of the given transaction.
@@ -89,7 +90,7 @@ def _get_trustline_quantity(node: NormalizedNode) -> List[BalanceChangeType]:
     result = BalanceChangeType(
         account=fields["LowLimit"]["issuer"],
         balance=BalanceType(
-            currency=IssuedCurrencyAmount(**fields["Balance"]).currency,
+            currency=fields["Balance"]["currency"],  # type: ignore
             issuer=fields["HighLimit"]["issuer"],
             value=f"{value.normalize():f}",
         ),

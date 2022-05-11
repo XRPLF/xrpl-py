@@ -1,32 +1,26 @@
 """Helper functions to normalize an affected node."""
 
-from typing import List, Union
+from typing import List, Union, cast
 
-from typing_extensions import TypedDict
+from typing_extensions import Literal, TypedDict
 
-from xrpl.models import (
-    Amount,
-    CreatedNode,
-    DeletedNode,
-    IssuedCurrencyAmount,
-    ModifiedNode,
-    TransactionMetadata,
-)
+from xrpl.models import CreatedNode, DeletedNode, ModifiedNode, TransactionMetadata
+from xrpl.utils.txn_parser.utils.types import BalanceType
 
 
 class Fields(TypedDict):
     """Model for possible fields."""
 
     Account: str
-    Balance: Amount
-    LowLimit: IssuedCurrencyAmount
-    HighLimit: IssuedCurrencyAmount
+    Balance: Union[BalanceType, str]
+    LowLimit: BalanceType
+    HighLimit: BalanceType
 
 
 class NormalizedNode(TypedDict):
     """A model representing an affected node in a standard format."""
 
-    NodeType: str
+    NodeType: Literal["CreatedNode", "ModifiedNode", "DeletedNode"]
     LedgerEntryType: str
     LedgerIndex: str
     NewFields: Fields
@@ -39,9 +33,12 @@ class NormalizedNode(TypedDict):
 def _normalize_node(
     affected_node: Union[CreatedNode, ModifiedNode, DeletedNode]
 ) -> NormalizedNode:
-    diff_type = list(affected_node.keys())[0]
-    node = affected_node[diff_type]
-    return NormalizedNode(NodeType=diff_type, **node)
+    diff_type = cast(
+        Literal["CreatedNode", "ModifiedNode", "DeletedNode"],
+        list(affected_node.keys())[0],
+    )
+    node = affected_node[diff_type]  # type: ignore
+    return NormalizedNode(NodeType=diff_type, **node)  # type: ignore
 
 
 def normalize_nodes(metadata: TransactionMetadata) -> List[NormalizedNode]:
