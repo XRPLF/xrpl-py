@@ -6,16 +6,16 @@ from typing_extensions import Literal, TypedDict
 
 from xrpl.models import TransactionMetadata
 from xrpl.models.transactions.metadata import CreatedNode, DeletedNode, ModifiedNode
-from xrpl.utils.txn_parser.utils.types import BalanceType
+from xrpl.utils.txn_parser.utils.types import Balance
 
 
 class Fields(TypedDict):
     """Model for possible fields."""
 
     Account: Optional[str]
-    Balance: Optional[Union[BalanceType, str]]
-    LowLimit: Optional[BalanceType]
-    HighLimit: Optional[BalanceType]
+    LowLimit: Optional[Balance]
+    HighLimit: Optional[Balance]
+    Balance: Optional[Union[Balance, str]]
 
 
 class NormalizedNode(TypedDict):

@@ -6,18 +6,14 @@ from typing import Callable, List, Optional
 from pydash import group_by  # type: ignore
 
 from xrpl.utils.txn_parser.utils.nodes import NormalizedNode
-from xrpl.utils.txn_parser.utils.types import (
-    BalanceChangesType,
-    BalanceChangeType,
-    BalanceType,
-)
+from xrpl.utils.txn_parser.utils.types import Balance, BalanceChange, BalanceChanges
 from xrpl.utils.xrp_conversions import drops_to_xrp
 
 
 def _get_xrp_quantity(
     node: NormalizedNode,
     value_parser: Callable[[NormalizedNode], Optional[Decimal]],
-) -> Optional[BalanceChangeType]:
+) -> Optional[BalanceChange]:
     value = value_parser(node)
     if value is None:
         return None
@@ -25,22 +21,22 @@ def _get_xrp_quantity(
     value = drops_to_xrp(str(value.copy_abs()))
     if value_is_negative:
         value = Decimal(f"-{value}")
-    return BalanceChangeType(
-        account=node["FinalFields"]["Account"]
+    return BalanceChange(
+        account=node["FinalFields"]["Account"]  # type: ignore
         if node.get("FinalFields") is not None
-        else node["NewFields"]["Account"],
-        balance=BalanceType(
+        else node["NewFields"]["Account"],  # type: ignore
+        balance=Balance(  # type: ignore
             currency="XRP",
             value=f"{value.normalize():f}",
-        ),  # type: ignore
+        ),
     )
 
 
-def _flip_trustline_perspective(balance_change: BalanceChangeType) -> BalanceChangeType:
+def _flip_trustline_perspective(balance_change: BalanceChange) -> BalanceChange:
     negated_balance = Decimal(balance_change["balance"]["value"]).copy_negate()
-    return BalanceChangeType(
-        account=balance_change["balance"]["issuer"],
-        balance=BalanceType(
+    return BalanceChange(
+        account=balance_change["balance"]["issuer"],  # type: ignore
+        balance=Balance(
             currency=balance_change["balance"]["currency"],
             issuer=balance_change["account"],
             value=f"{negated_balance.normalize():f}",
@@ -51,7 +47,7 @@ def _flip_trustline_perspective(balance_change: BalanceChangeType) -> BalanceCha
 def _get_trustline_quantity(
     node: NormalizedNode,
     value_parser: Callable[[NormalizedNode], Optional[Decimal]],
-) -> Optional[List[BalanceChangeType]]:
+) -> Optional[List[BalanceChange]]:
     """
     Computes the complete list of every balance that changed in the ledger
     as a result of the given transaction.
@@ -69,11 +65,11 @@ def _get_trustline_quantity(
         node["NewFields"] if node.get("NewFields") is not None else node["FinalFields"]
     )
 
-    result = BalanceChangeType(
-        account=fields["LowLimit"]["issuer"],
-        balance=BalanceType(
+    result = BalanceChange(
+        account=fields["LowLimit"]["issuer"],  # type: ignore
+        balance=Balance(
             currency=fields["Balance"]["currency"],  # type: ignore
-            issuer=fields["HighLimit"]["issuer"],
+            issuer=fields["HighLimit"]["issuer"],  # type: ignore
             value=f"{value.normalize():f}",
         ),
     )
@@ -83,7 +79,7 @@ def _get_trustline_quantity(
 def get_quantities(
     node: NormalizedNode,
     value_parser: Callable[[NormalizedNode], Optional[Decimal]],
-) -> List[BalanceChangeType]:
+) -> List[BalanceChange]:
     """
     Retrieve the balance changes from a node.
 
@@ -108,8 +104,8 @@ def get_quantities(
 
 
 def group_by_account(
-    balance_changes: List[BalanceChangeType],
-) -> List[BalanceChangesType]:
+    balance_changes: List[BalanceChange],
+) -> List[BalanceChanges]:
     """
     Groups the balance changes in one list for each account.
 
@@ -122,7 +118,7 @@ def group_by_account(
     grouped = group_by(balance_changes, lambda change: change["account"])
     result = []
     for account, balances in grouped.items():
-        balance_changes_object = BalanceChangesType(
+        balance_changes_object = BalanceChanges(
             account=account,
             balances=[],
         )

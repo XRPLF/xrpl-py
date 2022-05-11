@@ -1,7 +1,5 @@
 """Parse balance changes of every account involved in the given transaction."""
 
-from __future__ import annotations
-
 from decimal import Decimal
 from typing import List, Optional, Union
 
@@ -9,16 +7,16 @@ from pydash import flatten  # type: ignore
 
 from xrpl.models import TransactionMetadata
 from xrpl.utils.txn_parser.utils import (
-    BalanceChangesType,
+    BalanceChanges,
     get_quantities,
     group_by_account,
     normalize_nodes,
 )
 from xrpl.utils.txn_parser.utils.nodes import NormalizedNode
-from xrpl.utils.txn_parser.utils.types import BalanceType
+from xrpl.utils.txn_parser.utils.types import Balance
 
 
-def _get_value(balance: Union[BalanceType, str]) -> Decimal:
+def _get_value(balance: Union[Balance, str]) -> Decimal:
     if isinstance(balance, str):
         return Decimal(balance)
     return Decimal(balance["value"])
@@ -58,7 +56,7 @@ def _compute_balance_change(node: NormalizedNode) -> Optional[Decimal]:
     return value
 
 
-def get_balance_changes(metadata: TransactionMetadata) -> List[BalanceChangesType]:
+def get_balance_changes(metadata: TransactionMetadata) -> List[BalanceChanges]:
     """
     Parse all balance changes from a transaction's metadata.
 

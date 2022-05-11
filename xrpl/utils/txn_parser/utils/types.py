@@ -5,7 +5,7 @@ from typing import List, Optional
 from typing_extensions import TypedDict
 
 
-class BalanceType(TypedDict):
+class Balance(TypedDict):
     """A account's balance model."""
 
     currency: str
@@ -13,17 +13,17 @@ class BalanceType(TypedDict):
     value: str
 
 
-class BalanceChangeType(TypedDict):
+class BalanceChange(TypedDict):
     """A single balance change."""
 
     account: str
     """The affected account."""
-    balance: BalanceType
+    balance: Balance
     """The balance change."""
 
 
-class BalanceChangesType(TypedDict):
+class BalanceChanges(TypedDict):
     """A model representing an account's balance changes."""
 
     account: str
-    balances: List[BalanceChangeType]
+    balances: List[BalanceChange]
