@@ -33,24 +33,22 @@ def _compute_balance_change(node: NormalizedNode) -> Optional[Decimal]:
         The balance change.
     """
     value: Optional[Decimal] = None
-    if node.get("NewFields") is not None:
-        assert node["NewFields"] is not None
-        if node["NewFields"].get("Balance"):
-            assert node["NewFields"]["Balance"] is not None
-            value = _get_value(node["NewFields"]["Balance"])
+    new_fields = node.get("NewFields")
+    if new_fields is not None:
+        balance = new_fields.get("Balance")
+        if balance is not None:
+            value = _get_value(balance)
     elif node.get("PreviousFields") is not None and node.get("FinalFields") is not None:
         assert node["PreviousFields"] is not None and node["FinalFields"] is not None
-        if (
-            node["PreviousFields"].get("Balance") is not None
-            and node["FinalFields"].get("Balance") is not None
-        ):
-            assert (
-                node["PreviousFields"]["Balance"] is not None
-                and node["FinalFields"]["Balance"] is not None
-            )
-            value = _get_value(node["FinalFields"]["Balance"]) - _get_value(
-                node["PreviousFields"]["Balance"]
-            )
+        previous_fields = node.get("PreviousFields")
+        final_fields = node.get("FinalFields")
+        if previous_fields is not None and final_fields is not None:
+            previous_fields_balance = previous_fields.get("Balance")
+            final_fields_balance = final_fields.get("Balance")
+            if previous_fields_balance is not None and final_fields_balance is not None:
+                value = _get_value(final_fields_balance) - _get_value(
+                    previous_fields_balance
+                )
     if value is None or value == Decimal(0):
         return None
     return value

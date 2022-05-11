@@ -21,21 +21,39 @@ def _get_xrp_quantity(
     value = drops_to_xrp(str(value.copy_abs()))
     if value_is_negative:
         value = Decimal(f"-{value}")
-    return BalanceChange(
-        account=node["FinalFields"]["Account"]  # type: ignore
-        if node.get("FinalFields") is not None
-        else node["NewFields"]["Account"],  # type: ignore
-        balance=Balance(  # type: ignore
-            currency="XRP",
-            value=f"{value.normalize():f}",
-        ),
-    )
+    final_fields = node.get("FinalFields")
+    new_fields = node.get("NewFields")
+    if final_fields is not None:
+        account = final_fields.get("Account")
+        if account is not None:
+            return BalanceChange(
+                account=account,
+                balance=Balance(  # type: ignore
+                    currency="XRP",
+                    value=f"{value.normalize():f}",
+                ),
+            )
+    if new_fields is not None:
+        account = new_fields.get("Account")
+        if account is not None:
+            return BalanceChange(
+                account=account,
+                balance=Balance(  # type: ignore
+                    currency="XRP",
+                    value=f"{value.normalize():f}",
+                ),
+            )
+    return None
 
 
 def _flip_trustline_perspective(balance_change: BalanceChange) -> BalanceChange:
     negated_balance = Decimal(balance_change["balance"]["value"]).copy_negate()
+    balance = balance_change.get("balance")
+    assert balance is not None
+    issuer = balance.get("issuer")
+    assert issuer is not None
     return BalanceChange(
-        account=balance_change["balance"]["issuer"],  # type: ignore
+        account=issuer,
         balance=Balance(
             currency=balance_change["balance"]["currency"],
             issuer=balance_change["account"],
@@ -64,16 +82,30 @@ def _get_trustline_quantity(
     fields = (
         node["NewFields"] if node.get("NewFields") is not None else node["FinalFields"]
     )
-
-    result = BalanceChange(
-        account=fields["LowLimit"]["issuer"],  # type: ignore
-        balance=Balance(
-            currency=fields["Balance"]["currency"],  # type: ignore
-            issuer=fields["HighLimit"]["issuer"],  # type: ignore
-            value=f"{value.normalize():f}",
-        ),
-    )
-    return [result, _flip_trustline_perspective(result)]
+    assert fields is not None
+    low_limit = fields.get("LowLimit")
+    balance = fields.get("Balance")
+    high_limit = fields.get("HighLimit")
+    if low_limit is not None and balance is not None and high_limit is not None:
+        low_limit_issuer = low_limit.get("issuer")
+        assert isinstance(balance, dict)
+        balance_currency = balance.get("currency")
+        high_limit_issuer = high_limit.get("issuer")
+        if (
+            low_limit_issuer is not None
+            and balance_currency is not None
+            and high_limit_issuer is not None
+        ):
+            result = BalanceChange(
+                account=low_limit_issuer,
+                balance=Balance(
+                    currency=balance_currency,
+                    issuer=high_limit_issuer,
+                    value=f"{value.normalize():f}",
+                ),
+            )
+            return [result, _flip_trustline_perspective(result)]
+    return None
 
 
 def get_quantities(
