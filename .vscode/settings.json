@@ -4,5 +4,14 @@
     "python.linting.flake8Enabled": true,
     "python.linting.enabled": true,
     "restructuredtext.confPath": "${workspaceFolder}/docs",
-    "esbonio.sphinx.confDir": "${workspaceFolder}/docs"
+    "esbonio.sphinx.confDir": "${workspaceFolder}/docs",
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./tests",
+        "-p",
+        "test_*.py"
+    ],
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": true
 }
