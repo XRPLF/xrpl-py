@@ -6,18 +6,18 @@ from unittest import TestCase
 from xrpl.utils import get_balance_changes
 
 path_to_json = "tests/unit/utils/txn_parser/transaction_jsons/"
-with open(path_to_json + "payment_token_destination_no_balance.json", "r") as infile:
-    payment_token_destination_no_balance = json.load(infile)
-with open(path_to_json + "payment_token_multipath.json", "r") as infile:
-    payment_token_multipath = json.load(infile)
-with open(path_to_json + "payment_token_redeem_then_issue.json", "r") as infile:
-    payment_token_redeem_then_issue = json.load(infile)
-with open(path_to_json + "payment_token_redeem.json", "r") as infile:
-    payment_token_redeem = json.load(infile)
-with open(path_to_json + "payment_token_spend_full_balance.json", "r") as infile:
-    payment_token_spend_full_balance = json.load(infile)
-with open(path_to_json + "payment_token.json", "r") as infile:
-    payment_token = json.load(infile)
+with open(path_to_json + "payment_iou_destination_no_balance.json", "r") as infile:
+    payment_iou_destination_no_balance = json.load(infile)
+with open(path_to_json + "payment_iou_multipath.json", "r") as infile:
+    payment_iou_multipath = json.load(infile)
+with open(path_to_json + "payment_iou_redeem_then_issue.json", "r") as infile:
+    payment_iou_redeem_then_issue = json.load(infile)
+with open(path_to_json + "payment_iou_redeem.json", "r") as infile:
+    payment_iou_redeem = json.load(infile)
+with open(path_to_json + "payment_iou_spend_full_balance.json", "r") as infile:
+    payment_iou_spend_full_balance = json.load(infile)
+with open(path_to_json + "payment_iou.json", "r") as infile:
+    payment_iou = json.load(infile)
 with open(path_to_json + "payment_xrp_create_account.json", "r") as infile:
     payment_xrp_create_account = json.load(infile)
 with open(path_to_json + "trustline_create.json", "r") as infile:
@@ -33,8 +33,8 @@ with open(path_to_json + "trustline_set_limit2.json", "r") as infile:
 
 
 class TestGetBalanceChanges(TestCase):
-    def test_payment_token_destination_no_balance(self: TestGetBalanceChanges):
-        actual = get_balance_changes(payment_token_destination_no_balance["meta"])
+    def test_payment_iou_destination_no_balance(self: TestGetBalanceChanges):
+        actual = get_balance_changes(payment_iou_destination_no_balance["meta"])
         expected = [
             {
                 "account": "rKmBGxocj9Abgy25J51Mk1iqFzW9aVF9Tc",
@@ -78,8 +78,8 @@ class TestGetBalanceChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_token_multipath(self: TestGetBalanceChanges):
-        actual = get_balance_changes(payment_token_multipath["meta"])
+    def test_payment_iou_multipath(self: TestGetBalanceChanges):
+        actual = get_balance_changes(payment_iou_multipath["meta"])
         expected = [
             {
                 "account": "rrnsYgWn13Z28GtRgznrSUsLfMkvsXCZSu",
@@ -173,8 +173,8 @@ class TestGetBalanceChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_token_redeem_then_issue(self: TestGetBalanceChanges):
-        actual = get_balance_changes(payment_token_redeem_then_issue["meta"])
+    def test_payment_iou_redeem_then_issue(self: TestGetBalanceChanges):
+        actual = get_balance_changes(payment_iou_redeem_then_issue["meta"])
         expected = [
             {
                 "account": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
@@ -200,8 +200,8 @@ class TestGetBalanceChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_token_redeem(self: TestGetBalanceChanges):
-        actual = get_balance_changes(payment_token_redeem["meta"])
+    def test_payment_iou_redeem(self: TestGetBalanceChanges):
+        actual = get_balance_changes(payment_iou_redeem["meta"])
         expected = [
             {
                 "account": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
@@ -230,8 +230,8 @@ class TestGetBalanceChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_token_spend_full_balance(self: TestGetBalanceChanges):
-        actual = get_balance_changes(payment_token_spend_full_balance["meta"])
+    def test_payment_iou_spend_full_balance(self: TestGetBalanceChanges):
+        actual = get_balance_changes(payment_iou_spend_full_balance["meta"])
         expected = [
             {
                 "account": "rKmBGxocj9Abgy25J51Mk1iqFzW9aVF9Tc",
@@ -275,8 +275,8 @@ class TestGetBalanceChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_token(self: TestGetBalanceChanges):
-        actual = get_balance_changes(payment_token["meta"])
+    def test_payment_iou(self: TestGetBalanceChanges):
+        actual = get_balance_changes(payment_iou["meta"])
         expected = [
             {
                 "account": "rKmBGxocj9Abgy25J51Mk1iqFzW9aVF9Tc",

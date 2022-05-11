@@ -1,7 +1,7 @@
-"""Helper functions for `get_balance_changes`."""
+"""Helper functions for balance parser."""
 
 from decimal import Decimal
-from typing import List, Optional, Union
+from typing import Callable, List, Optional
 
 from pydash import group_by  # type: ignore
 
@@ -14,32 +14,11 @@ from xrpl.utils.txn_parser.utils.types import (
 from xrpl.utils.xrp_conversions import drops_to_xrp
 
 
-def _get_value(balance: Union[BalanceType, str]) -> Decimal:
-    if isinstance(balance, str):
-        return Decimal(balance)
-    return Decimal(balance["value"])
-
-
-def _compute_balance_change(node: NormalizedNode) -> Optional[Decimal]:
-    value: Optional[Decimal] = None
-    if node.get("NewFields") is not None:
-        if node["NewFields"].get("Balance") is not None:
-            value = _get_value(node["NewFields"]["Balance"])
-    elif node.get("PreviousFields") is not None and node.get("FinalFields") is not None:
-        if (
-            node["PreviousFields"].get("Balance") is not None
-            and node["FinalFields"].get("Balance") is not None
-        ):
-            value = _get_value(node["FinalFields"]["Balance"]) - _get_value(
-                node["PreviousFields"]["Balance"]
-            )
-    if value is None or value == Decimal(0):
-        return None
-    return value
-
-
-def _get_xrp_quantity(node: NormalizedNode) -> Optional[BalanceChangeType]:
-    value = _compute_balance_change(node)
+def _get_xrp_quantity(
+    node: NormalizedNode,
+    value_parser: Callable[[NormalizedNode], Optional[Decimal]],
+) -> Optional[BalanceChangeType]:
+    value = value_parser(node)
     if value is None:
         return None
     value_is_negative = value < Decimal(0)
@@ -69,7 +48,10 @@ def _flip_trustline_perspective(balance_change: BalanceChangeType) -> BalanceCha
     )
 
 
-def _get_trustline_quantity(node: NormalizedNode) -> Optional[List[BalanceChangeType]]:
+def _get_trustline_quantity(
+    node: NormalizedNode,
+    value_parser: Callable[[NormalizedNode], Optional[Decimal]],
+) -> Optional[List[BalanceChangeType]]:
     """
     Computes the complete list of every balance that changed in the ledger
     as a result of the given transaction.
@@ -80,7 +62,7 @@ def _get_trustline_quantity(node: NormalizedNode) -> Optional[List[BalanceChange
     Returns:
         A list of balance changes.
     """
-    value = _compute_balance_change(node)
+    value = value_parser(node)
     if value is None:
         return None
     fields = (
@@ -98,23 +80,27 @@ def _get_trustline_quantity(node: NormalizedNode) -> Optional[List[BalanceChange
     return [result, _flip_trustline_perspective(result)]
 
 
-def get_quantites(node: NormalizedNode) -> List[BalanceChangeType]:
+def get_quantities(
+    node: NormalizedNode,
+    value_parser: Callable[[NormalizedNode], Optional[Decimal]],
+) -> List[BalanceChangeType]:
     """
-    Retreive the balance changes from a node.
+    Retrieve the balance changes from a node.
 
     Args:
         node: The affected node.
+        value_parser: The needed value parser.
 
     Returns:
         A list of balance changes.
     """
     if node["LedgerEntryType"] == "AccountRoot":
-        xrp_quantity = _get_xrp_quantity(node)
+        xrp_quantity = _get_xrp_quantity(node, value_parser)
         if xrp_quantity is None:
             return []
         return [xrp_quantity]
     if node["LedgerEntryType"] == "RippleState":
-        trustline_quantity = _get_trustline_quantity(node)
+        trustline_quantity = _get_trustline_quantity(node, value_parser)
         if trustline_quantity is None:
             return []
         return trustline_quantity

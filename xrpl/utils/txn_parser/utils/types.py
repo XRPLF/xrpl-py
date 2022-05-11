@@ -1,6 +1,6 @@
 """Types used by the parser."""
 
-from typing import List
+from typing import List, Optional
 
 from typing_extensions import TypedDict
 
@@ -9,7 +9,7 @@ class BalanceType(TypedDict):
     """A account's balance model."""
 
     currency: str
-    issuer: str
+    issuer: Optional[str]
     value: str
 
 

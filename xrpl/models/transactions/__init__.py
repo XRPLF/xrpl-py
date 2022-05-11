@@ -16,12 +16,7 @@ from xrpl.models.transactions.deposit_preauth import DepositPreauth
 from xrpl.models.transactions.escrow_cancel import EscrowCancel
 from xrpl.models.transactions.escrow_create import EscrowCreate
 from xrpl.models.transactions.escrow_finish import EscrowFinish
-from xrpl.models.transactions.metadata import (
-    CreatedNode,
-    DeletedNode,
-    ModifiedNode,
-    TransactionMetadata,
-)
+from xrpl.models.transactions.metadata import TransactionMetadata
 from xrpl.models.transactions.nftoken_accept_offer import NFTokenAcceptOffer
 from xrpl.models.transactions.nftoken_burn import NFTokenBurn
 from xrpl.models.transactions.nftoken_cancel_offer import NFTokenCancelOffer
@@ -67,14 +62,11 @@ __all__ = [
     "CheckCancel",
     "CheckCash",
     "CheckCreate",
-    "CreatedNode",
-    "DeletedNode",
     "DepositPreauth",
     "EscrowCancel",
     "EscrowCreate",
     "EscrowFinish",
     "Memo",
-    "ModifiedNode",
     "NFTokenAcceptOffer",
     "NFTokenBurn",
     "NFTokenCancelOffer",
