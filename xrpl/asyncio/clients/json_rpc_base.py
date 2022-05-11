@@ -5,6 +5,7 @@ from httpx import AsyncClient
 from typing_extensions import Final
 
 from xrpl.asyncio.clients.client import Client
+from xrpl.asyncio.clients.exceptions import XRPLRequestFailureException
 from xrpl.asyncio.clients.utils import json_to_response, request_to_json_rpc
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
@@ -36,4 +37,9 @@ class JsonRpcBase(Client):
                 self.url,
                 json=request_to_json_rpc(request),
             )
+            if response.status_code != 200:
+                raise XRPLRequestFailureException({
+                    'error': response.status_code,
+                    'error_message': response.text,
+                })
             return json_to_response(response.json())
