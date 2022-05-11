@@ -1,6 +1,6 @@
 from cryptoconditions import PreimageSha256
 
-def genCondition_Fulfillment(secret: bytes) -> dict:
+def generate_escrow_cryptoconditions(secret: bytes) -> dict:
     """Generate a condition and fulfillment for escrows"""
     fufill = PreimageSha256(preimage=secret)
     return {
