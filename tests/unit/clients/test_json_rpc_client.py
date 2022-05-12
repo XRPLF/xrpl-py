@@ -2,8 +2,8 @@
 from __future__ import annotations
 
 from unittest import TestCase
-from xrpl.asyncio.clients.exceptions import XRPLRequestFailureException
 
+from xrpl.asyncio.clients.exceptions import XRPLRequestFailureException
 from xrpl.clients import JsonRpcClient
 from xrpl.models.requests import ServerInfo
 
@@ -23,4 +23,3 @@ class TestJsonRpcClient(TestCase):
         with self.assertRaises(XRPLRequestFailureException):
             client = JsonRpcClient(JSON_RPC_URL)
             client.request(ServerInfo())
-        
