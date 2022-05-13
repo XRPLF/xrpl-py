@@ -16,6 +16,25 @@ from xrpl.utils.txn_parser.utils.nodes import NormalizedNode
 from xrpl.utils.txn_parser.utils.types import Balance
 
 
+def get_balance_changes(metadata: TransactionMetadata) -> List[BalanceChanges]:
+    """
+    Parse all balance changes from a transaction's metadata.
+
+    Args:
+        metadata: Transactions metadata.
+
+    Returns:
+        All balance changes caused by a transaction.
+        The balance changes are grouped by the affected account addresses.
+    """
+    quantities = [
+        get_quantities(node, _compute_balance_change)
+        for node in normalize_nodes(metadata)
+    ]
+    flattened_quantities = flatten(quantities)
+    return group_by_account(flattened_quantities)
+
+
 def _get_value(balance: Union[Balance, str]) -> Decimal:
     if isinstance(balance, str):
         return Decimal(balance)
@@ -52,22 +71,3 @@ def _compute_balance_change(node: NormalizedNode) -> Optional[Decimal]:
     if value is None or value == Decimal(0):
         return None
     return value
-
-
-def get_balance_changes(metadata: TransactionMetadata) -> List[BalanceChanges]:
-    """
-    Parse all balance changes from a transaction's metadata.
-
-    Args:
-        metadata: Transactions metadata.
-
-    Returns:
-        All balance changes caused by a transaction.
-        The balance changes are grouped by the affected account addresses.
-    """
-    quantities = [
-        get_quantities(node, _compute_balance_change)
-        for node in normalize_nodes(metadata)
-    ]
-    flattened_quantities = list(flatten(quantities))
-    return group_by_account(flattened_quantities)
