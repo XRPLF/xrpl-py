@@ -26,4 +26,4 @@ class BalanceChanges(TypedDict):
     """A model representing an account's balance changes."""
 
     account: str
-    balances: List[BalanceChange]
+    balances: List[Balance]

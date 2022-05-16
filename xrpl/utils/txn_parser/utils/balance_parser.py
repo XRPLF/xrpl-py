@@ -1,9 +1,8 @@
 """Helper functions for balance parser."""
 
 from decimal import Decimal
-from typing import Callable, List, Optional
-
-from pydash import group_by  # type: ignore
+from itertools import chain
+from typing import Callable, Dict, List, Optional, Union
 
 from xrpl.utils.txn_parser.utils.nodes import NormalizedNode
 from xrpl.utils.txn_parser.utils.types import Balance, BalanceChange, BalanceChanges
@@ -109,6 +108,33 @@ def _get_trustline_quantity(
     return []
 
 
+def _group_balance_changes(
+    balance_changes: List[BalanceChange],
+) -> Dict[str, List[BalanceChange]]:
+    grouped_balance_changes: Dict[str, List[BalanceChange]] = {}
+    for change in balance_changes:
+        account = change["account"]
+        if account not in grouped_balance_changes:
+            grouped_balance_changes[account] = []
+        grouped_balance_changes[account].append(change)
+    return grouped_balance_changes
+
+
+def get_value(balance: Union[Balance, str]) -> Decimal:
+    """
+    Get a currency amount's value.
+
+    Args:
+        balance: Account's balance.
+
+    Returns:
+        The currency amount's value.
+    """
+    if isinstance(balance, str):
+        return Decimal(balance)
+    return Decimal(balance["value"])
+
+
 def get_quantities(
     node: NormalizedNode,
     value_parser: Callable[[NormalizedNode], Optional[Decimal]],
@@ -135,7 +161,7 @@ def get_quantities(
 
 
 def group_by_account(
-    balance_changes: List[BalanceChange],
+    balance_changes: List[List[BalanceChange]],
 ) -> List[BalanceChanges]:
     """
     Groups the balance changes in one list for each account.
@@ -146,14 +172,16 @@ def group_by_account(
     Returns:
         The grouped balance changes.
     """
-    grouped = group_by(balance_changes, lambda change: change["account"])
+    flattened_changes = list(chain.from_iterable(balance_changes))
+    grouped = _group_balance_changes(flattened_changes)
     result = []
-    for account, balances in grouped.items():
+    for account, account_balances in grouped.items():
+        balances: List[Balance] = []
+        for balance in account_balances:
+            balances.append(balance["balance"])
         balance_changes_object = BalanceChanges(
             account=account,
-            balances=[],
+            balances=balances,
         )
-        for balance in balances:
-            balance_changes_object["balances"].append(balance["balance"])
         result.append(balance_changes_object)
     return result
