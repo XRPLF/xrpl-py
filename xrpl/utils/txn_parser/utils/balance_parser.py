@@ -2,7 +2,7 @@
 
 from decimal import Decimal
 from itertools import chain
-from typing import Callable, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from xrpl.utils.txn_parser.utils.nodes import NormalizedNode
 from xrpl.utils.txn_parser.utils.types import Balance, BalanceChange, BalanceChanges
@@ -11,9 +11,8 @@ from xrpl.utils.xrp_conversions import drops_to_xrp
 
 def _get_xrp_quantity(
     node: NormalizedNode,
-    value_parser: Callable[[NormalizedNode], Optional[Decimal]],
+    value: Optional[Decimal],
 ) -> Optional[BalanceChange]:
-    value = value_parser(node)
     if value is None:
         return None
     absolute_value = value.copy_abs()
@@ -48,22 +47,22 @@ def _get_xrp_quantity(
 
 
 def _flip_trustline_perspective(balance_change: BalanceChange) -> BalanceChange:
-    negated_balance = Decimal(balance_change["balance"]["value"]).copy_negate()
     balance = balance_change["balance"]
+    negated_value = Decimal(balance["value"]).copy_negate()
     issuer = balance["issuer"]
     return BalanceChange(
         account=issuer,  # type: ignore
         balance=Balance(
-            currency=balance_change["balance"]["currency"],
+            currency=balance["currency"],
             issuer=balance_change["account"],
-            value=f"{negated_balance.normalize():f}",
+            value=f"{negated_value.normalize():f}",
         ),
     )
 
 
 def _get_trustline_quantity(
     node: NormalizedNode,
-    value_parser: Callable[[NormalizedNode], Optional[Decimal]],
+    value: Optional[Decimal],
 ) -> List[BalanceChange]:
     """
     Computes the complete list of every balance that changed in the ledger
@@ -71,12 +70,11 @@ def _get_trustline_quantity(
 
     Args:
         node: The affected node.
-        value_parser: The needed value parser.
+        value: The currency amount value.
 
     Returns:
         A list of balance changes.
     """
-    value = value_parser(node)
     if value is None:
         return []
     fields = (
@@ -137,25 +135,25 @@ def get_value(balance: Union[Balance, str]) -> Decimal:
 
 def get_quantities(
     node: NormalizedNode,
-    value_parser: Callable[[NormalizedNode], Optional[Decimal]],
+    value: Optional[Decimal],
 ) -> List[BalanceChange]:
     """
     Retrieve the balance changes from a node.
 
     Args:
         node: The affected node.
-        value_parser: The needed value parser.
+        value: The currency amount's value
 
     Returns:
         A list of balance changes.
     """
     if node["LedgerEntryType"] == "AccountRoot":
-        xrp_quantity = _get_xrp_quantity(node, value_parser)
+        xrp_quantity = _get_xrp_quantity(node, value)
         if xrp_quantity is None:
             return []
         return [xrp_quantity]
     if node["LedgerEntryType"] == "RippleState":
-        trustline_quantity = _get_trustline_quantity(node, value_parser)
+        trustline_quantity = _get_trustline_quantity(node, value)
         return trustline_quantity
     return []
 
