@@ -27,7 +27,7 @@ def _get_xrp_quantity(
         if account is not None:
             return BalanceChange(
                 account=account,
-                balance=Balance(  # type: ignore
+                balance=Balance(
                     currency="XRP",
                     value=f"{xrp_value.normalize():f}",
                 ),
@@ -38,7 +38,7 @@ def _get_xrp_quantity(
         if account is not None:
             return BalanceChange(
                 account=account,
-                balance=Balance(  # type: ignore
+                balance=Balance(
                     currency="XRP",
                     value=f"{xrp_value.normalize():f}",
                 ),
@@ -51,7 +51,7 @@ def _flip_trustline_perspective(balance_change: BalanceChange) -> BalanceChange:
     negated_value = Decimal(balance["value"]).copy_negate()
     issuer = balance["issuer"]
     return BalanceChange(
-        account=issuer,  # type: ignore
+        account=issuer,
         balance=Balance(
             currency=balance["currency"],
             issuer=balance_change["account"],
@@ -177,9 +177,10 @@ def group_by_account(
         balances: List[Balance] = []
         for balance in account_balances:
             balances.append(balance["balance"])
-        balance_changes_object = BalanceChanges(
-            account=account,
-            balances=balances,
+        result.append(
+            BalanceChanges(
+                account=account,
+                balances=balances,
+            )
         )
-        result.append(balance_changes_object)
     return result
