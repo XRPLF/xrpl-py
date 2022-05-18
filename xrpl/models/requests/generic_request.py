@@ -33,9 +33,13 @@ class GenericRequest(Request):
             kwargs: All the arguments for the request.
         """
         # initialize all the dataclass stuff
+        method = RequestMethod.GENERIC_REQUEST
+        if "command" in kwargs:
+            method = kwargs["command"]
+            del kwargs["command"]
         super().__init__(
             id=(cast(Union[str, int, None], kwargs["id"]) if "id" in kwargs else None),
-            method=RequestMethod.GENERIC_REQUEST,
+            method=method,
         )
         # pass in all the kwargs into the object (so self.key == value)
         for key, value in kwargs.items():
