@@ -5,25 +5,22 @@ from typing import List, Optional, Union, cast
 from typing_extensions import Literal, TypedDict
 
 from xrpl.models import TransactionMetadata
-from xrpl.models.transactions.metadata import CreatedNode, DeletedNode, ModifiedNode
-from xrpl.utils.txn_parser.utils.types import Balance
+from xrpl.models.transactions.metadata import (
+    CreatedNode,
+    DeletedNode,
+    Fields,
+    ModifiedNode,
+)
 
 
-class Fields(TypedDict):
-    """Model for possible fields."""
+class OptionalFieldNames(TypedDict, total=False):
+    """The optional fields of `NormalizedNode`."""
 
-    Account: Optional[str]
-    LowLimit: Optional[Balance]
-    HighLimit: Optional[Balance]
-    Balance: Optional[Union[Balance, str]]
+    """
+    The fields are separated from `NormalizedNode` to make it optional,
+    while keeping `NodeType`, `LedgerEntryType` and `LedgerIndex` required.
+    """
 
-
-class NormalizedNode(TypedDict):
-    """A model representing an affected node in a standard format."""
-
-    NodeType: Literal["CreatedNode", "ModifiedNode", "DeletedNode"]
-    LedgerEntryType: str
-    LedgerIndex: str
     NewFields: Optional[Fields]
     FinalFields: Optional[Fields]
     PreviousFields: Optional[Fields]
@@ -31,24 +28,54 @@ class NormalizedNode(TypedDict):
     PreviousTxnLgrSeq: Optional[int]
 
 
+class NormalizedNode(OptionalFieldNames):
+    """A model representing an affected node in a standard format."""
+
+    NodeType: Literal["CreatedNode", "ModifiedNode", "DeletedNode"]
+    LedgerEntryType: str
+    LedgerIndex: str
+
+
 def _normalize_node(
     affected_node: Union[CreatedNode, ModifiedNode, DeletedNode]
 ) -> NormalizedNode:
-    assert len(affected_node.keys()) == 1
+    node_keys = affected_node.keys()
+    assert len(node_keys) == 1
     diff_type = cast(
         Literal["CreatedNode", "ModifiedNode", "DeletedNode"],
-        list(affected_node.keys())[0],
+        list(node_keys)[0],
     )
-    node = affected_node[diff_type]  # type: ignore
+    created_node = None
+    modified_node = None
+    if diff_type == "CreatedNode":
+        created_node = cast(CreatedNode, affected_node)["CreatedNode"]
+    elif diff_type == "ModifiedNode":
+        modified_node = cast(ModifiedNode, affected_node)["ModifiedNode"]
+    else:
+        deleted_node = cast(DeletedNode, affected_node)["DeletedNode"]
+    node = (
+        created_node
+        if created_node is not None
+        else modified_node
+        if modified_node is not None
+        else deleted_node
+    )
+    ledger_entry_type = node["LedgerEntryType"]
+    ledger_index = node["LedgerIndex"]
+    new_fields = cast(Optional[Fields], node.get("NewFields"))
+    previous_fields = cast(Optional[Fields], node.get("PreviousFields"))
+    final_fields = cast(Optional[Fields], node.get("FinalFields"))
+    previous_txn_id = cast(Optional[str], node.get("PreviousTxnID"))
+    previous_txn_lgr_seq = cast(Optional[int], node.get("PreviousTxnLgrSeq"))
     return NormalizedNode(
         NodeType=diff_type,
-        LedgerEntryType=node["LedgerEntryType"],
-        LedgerIndex=node["LedgerIndex"],
-        NewFields=node.get("NewFields"),
-        FinalFields=node.get("FinalFields"),
-        PreviousFields=node.get("PreviousFields"),
-        PreviousTxnID=node.get("PreviousTxnID"),
-        PreviousTxnLgrSeq=node.get("PreviousTxnLgrSeq"),
+        LedgerEntryType=ledger_entry_type,
+        LedgerIndex=ledger_index,
+        NewFields=new_fields,
+        PreviousFields=previous_fields,
+        FinalFields=final_fields,
+        PreviousTxnID=previous_txn_id,
+        PreviousTxnLgrSeq=previous_txn_lgr_seq,
     )
 
 

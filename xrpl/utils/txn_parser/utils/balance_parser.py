@@ -1,7 +1,6 @@
 """Helper functions for balance parser."""
 
 from decimal import Decimal
-from itertools import chain
 from typing import Dict, List, Optional, Union
 
 from xrpl.utils.txn_parser.utils.nodes import NormalizedNode
@@ -118,7 +117,7 @@ def _group_balance_changes(
     return grouped_balance_changes
 
 
-def get_value(balance: Union[Balance, str]) -> Decimal:
+def get_value(balance: Union[Dict[str, str], str]) -> Decimal:
     """
     Get a currency amount's value.
 
@@ -159,7 +158,7 @@ def get_quantities(
 
 
 def group_by_account(
-    balance_changes: List[List[BalanceChange]],
+    balance_changes: List[BalanceChange],
 ) -> List[BalanceChanges]:
     """
     Groups the balance changes in one list for each account.
@@ -170,8 +169,7 @@ def group_by_account(
     Returns:
         The grouped balance changes.
     """
-    flattened_changes = list(chain.from_iterable(balance_changes))
-    grouped = _group_balance_changes(flattened_changes)
+    grouped = _group_balance_changes(balance_changes)
     result = []
     for account, account_balances in grouped.items():
         balances: List[Balance] = []

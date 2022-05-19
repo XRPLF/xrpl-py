@@ -1,10 +1,19 @@
 """Models for a transaction's metadata."""
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from typing_extensions import Literal, TypedDict
 
 from xrpl.models.amounts.amount import Amount
+
+
+class Fields(TypedDict):
+    """Model for possible fields."""
+
+    Account: Optional[str]
+    LowLimit: Optional[Dict[str, str]]
+    HighLimit: Optional[Dict[str, str]]
+    Balance: Optional[Union[Dict[str, str], str]]
 
 
 class CreatedNodeFields(TypedDict):
@@ -12,7 +21,7 @@ class CreatedNodeFields(TypedDict):
 
     LedgerEntryType: str
     LedgerIndex: str
-    NewFields: Dict[str, Any]
+    NewFields: Fields
 
 
 class CreatedNode(TypedDict):
@@ -26,10 +35,10 @@ class ModifiedNodeFields(TypedDict):
 
     LedgerEntryType: str
     LedgerIndex: str
-    FinalFields: Optional[Dict[str, Any]]
-    PreviousFields: Optional[Dict[str, Any]]
+    FinalFields: Optional[Fields]
+    PreviousFields: Optional[Fields]
     PreviousTxnID: Optional[str]
-    PreviouTxnLgrSeq: Optional[int]
+    PreviousTxnLgrSeq: Optional[int]
 
 
 class ModifiedNode(TypedDict):
@@ -43,7 +52,8 @@ class DeletedNodeFields(TypedDict):
 
     LedgerEntryType: str
     LedgerIndex: str
-    FinalFields: Dict[str, Any]
+    FinalFields: Fields
+    PreviousFields: Optional[Fields]
 
 
 class DeletedNode(TypedDict):

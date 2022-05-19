@@ -26,8 +26,9 @@ def get_balance_changes(metadata: TransactionMetadata) -> List[BalanceChanges]:
         The balance changes are grouped by the affected account addresses.
     """
     quantities = [
-        get_quantities(node, _compute_balance_change(node))
+        quantity
         for node in normalize_nodes(metadata)
+        for quantity in get_quantities(node, _compute_balance_change(node))
     ]
     return group_by_account(quantities)
 
