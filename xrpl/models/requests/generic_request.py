@@ -33,13 +33,9 @@ class GenericRequest(Request):
             kwargs: All the arguments for the request.
         """
         # initialize all the dataclass stuff
-        method = RequestMethod.GENERIC_REQUEST
-        if "command" in kwargs:
-            method = kwargs["command"]
-            del kwargs["command"]
         super().__init__(
             id=(cast(Union[str, int, None], kwargs["id"]) if "id" in kwargs else None),
-            method=method,
+            method=RequestMethod.GENERIC_REQUEST,
         )
         # pass in all the kwargs into the object (so self.key == value)
         for key, value in kwargs.items():
@@ -83,8 +79,14 @@ class GenericRequest(Request):
         """
         # uses self.__dict__ instead of self.__dataclass_fields__.keys(), which is what
         # the other models do, because this model doesn't have any dataclass fields
-        return {
+        dict = {
             key: self._to_dict_elem(getattr(self, key))
             for key in self.__dict__
             if getattr(self, key) is not None
         }
+
+        if "command" in dict:
+            dict["method"] = dict["command"]
+            del dict["command"]
+
+        return dict
