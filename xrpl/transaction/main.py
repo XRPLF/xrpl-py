@@ -81,7 +81,7 @@ def safe_sign_transaction(
             type fee. Defaults to True.
 
     Returns:
-        The signed transaction blob.
+        The signed transaction.
     """
     return asyncio.run(
         main.safe_sign_transaction(
