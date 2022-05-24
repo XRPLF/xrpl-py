@@ -79,8 +79,14 @@ class GenericRequest(Request):
         """
         # uses self.__dict__ instead of self.__dataclass_fields__.keys(), which is what
         # the other models do, because this model doesn't have any dataclass fields
-        return {
+        dict = {
             key: self._to_dict_elem(getattr(self, key))
             for key in self.__dict__
             if getattr(self, key) is not None
         }
+
+        if "command" in dict:
+            dict["method"] = dict["command"]
+            del dict["command"]
+
+        return dict
