@@ -132,7 +132,7 @@ def get_value(balance: Union[Dict[str, str], str]) -> Decimal:
     return Decimal(balance["value"])
 
 
-def get_quantities(
+def get_node_balance_changes(
     node: NormalizedNode,
     value: Optional[Decimal],
 ) -> List[BalanceChange]:

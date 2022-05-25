@@ -7,9 +7,12 @@ from typing_extensions import Literal, TypedDict
 from xrpl.models import TransactionMetadata
 from xrpl.models.transactions.metadata import (
     CreatedNode,
+    CreatedNodeFields,
     DeletedNode,
+    DeletedNodeFields,
     Fields,
     ModifiedNode,
+    ModifiedNodeFields,
 )
 
 
@@ -17,7 +20,7 @@ class OptionalFieldNames(TypedDict, total=False):
     """The optional fields of `NormalizedNode`."""
 
     """
-    The fields are separated from `NormalizedNode` to make it optional,
+    The fields are separated from `NormalizedNode` to make them optional,
     while keeping `NodeType`, `LedgerEntryType` and `LedgerIndex` required.
     """
 
@@ -45,21 +48,14 @@ def _normalize_node(
         Literal["CreatedNode", "ModifiedNode", "DeletedNode"],
         list(node_keys)[0],
     )
-    created_node = None
-    modified_node = None
     if diff_type == "CreatedNode":
-        created_node = cast(CreatedNode, affected_node)["CreatedNode"]
+        node: Union[CreatedNodeFields, ModifiedNodeFields, DeletedNodeFields] = cast(
+            CreatedNode, affected_node
+        )["CreatedNode"]
     elif diff_type == "ModifiedNode":
-        modified_node = cast(ModifiedNode, affected_node)["ModifiedNode"]
+        node = cast(ModifiedNode, affected_node)["ModifiedNode"]
     else:
-        deleted_node = cast(DeletedNode, affected_node)["DeletedNode"]
-    node = (
-        created_node
-        if created_node is not None
-        else modified_node
-        if modified_node is not None
-        else deleted_node
-    )
+        node = cast(DeletedNode, affected_node)["DeletedNode"]
     ledger_entry_type = node["LedgerEntryType"]
     ledger_index = node["LedgerIndex"]
     new_fields = cast(Optional[Fields], node.get("NewFields"))
