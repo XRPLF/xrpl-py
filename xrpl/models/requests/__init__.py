@@ -37,7 +37,7 @@ from xrpl.models.requests.sign_for import SignFor
 from xrpl.models.requests.submit import Submit
 from xrpl.models.requests.submit_multisigned import SubmitMultisigned
 from xrpl.models.requests.submit_only import SubmitOnly
-from xrpl.models.requests.subscribe import StreamParameter, Subscribe
+from xrpl.models.requests.subscribe import StreamParameter, Subscribe, SubscribeBook
 from xrpl.models.requests.transaction_entry import TransactionEntry
 from xrpl.models.requests.tx import Tx
 from xrpl.models.requests.unsubscribe import Unsubscribe
@@ -86,6 +86,7 @@ __all__ = [
     "SubmitOnly",
     "StreamParameter",
     "Subscribe",
+    "SubscribeBook",
     "TransactionEntry",
     "Tx",
     "Unsubscribe",
