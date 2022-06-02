@@ -4,14 +4,14 @@ from decimal import Decimal
 from typing import Dict, List, Optional, Union
 
 from xrpl.utils.txn_parser.utils.nodes import NormalizedNode
-from xrpl.utils.txn_parser.utils.types import Balance, BalanceChange, BalanceChanges
+from xrpl.utils.txn_parser.utils.types import Balance, ComputedBalance, ComputedBalances
 from xrpl.utils.xrp_conversions import drops_to_xrp
 
 
 def _get_xrp_quantity(
     node: NormalizedNode,
     value: Optional[Decimal],
-) -> Optional[BalanceChange]:
+) -> Optional[ComputedBalance]:
     if value is None:
         return None
     absolute_value = value.copy_abs()
@@ -24,7 +24,7 @@ def _get_xrp_quantity(
     if final_fields is not None:
         account = final_fields.get("Account")
         if account is not None:
-            return BalanceChange(
+            return ComputedBalance(
                 account=account,
                 balance=Balance(
                     currency="XRP",
@@ -35,7 +35,7 @@ def _get_xrp_quantity(
     if new_fields is not None:
         account = new_fields.get("Account")
         if account is not None:
-            return BalanceChange(
+            return ComputedBalance(
                 account=account,
                 balance=Balance(
                     currency="XRP",
@@ -45,11 +45,11 @@ def _get_xrp_quantity(
     return None
 
 
-def _flip_trustline_perspective(balance_change: BalanceChange) -> BalanceChange:
+def _flip_trustline_perspective(balance_change: ComputedBalance) -> ComputedBalance:
     balance = balance_change["balance"]
     negated_value = Decimal(balance["value"]).copy_negate()
     issuer = balance["issuer"]
-    return BalanceChange(
+    return ComputedBalance(
         account=issuer,
         balance=Balance(
             currency=balance["currency"],
@@ -62,7 +62,7 @@ def _flip_trustline_perspective(balance_change: BalanceChange) -> BalanceChange:
 def _get_trustline_quantity(
     node: NormalizedNode,
     value: Optional[Decimal],
-) -> List[BalanceChange]:
+) -> List[ComputedBalance]:
     """
     Computes the complete list of every balance that changed in the ledger
     as a result of the given transaction.
@@ -93,7 +93,7 @@ def _get_trustline_quantity(
             and balance_currency is not None
             and high_limit_issuer is not None
         ):
-            result = BalanceChange(
+            result = ComputedBalance(
                 account=low_limit_issuer,
                 balance=Balance(
                     currency=balance_currency,
@@ -106,9 +106,9 @@ def _get_trustline_quantity(
 
 
 def _group_balance_changes(
-    balance_changes: List[BalanceChange],
-) -> Dict[str, List[BalanceChange]]:
-    grouped_balance_changes: Dict[str, List[BalanceChange]] = {}
+    balance_changes: List[ComputedBalance],
+) -> Dict[str, List[ComputedBalance]]:
+    grouped_balance_changes: Dict[str, List[ComputedBalance]] = {}
     for change in balance_changes:
         account = change["account"]
         if account not in grouped_balance_changes:
@@ -132,19 +132,19 @@ def get_value(balance: Union[Dict[str, str], str]) -> Decimal:
     return Decimal(balance["value"])
 
 
-def get_node_balance_changes(
+def get_node_balance(
     node: NormalizedNode,
     value: Optional[Decimal],
-) -> List[BalanceChange]:
+) -> List[ComputedBalance]:
     """
-    Retrieve the balance changes from a node.
+    Retrieve the balance from a node.
 
     Args:
         node: The affected node.
         value: The currency amount's value
 
     Returns:
-        A list of balance changes.
+        A list of balances.
     """
     if node["LedgerEntryType"] == "AccountRoot":
         xrp_quantity = _get_xrp_quantity(node, value)
@@ -158,8 +158,8 @@ def get_node_balance_changes(
 
 
 def group_by_account(
-    balance_changes: List[BalanceChange],
-) -> List[BalanceChanges]:
+    balance_changes: List[ComputedBalance],
+) -> List[ComputedBalances]:
     """
     Groups the balance changes in one list for each account.
 
@@ -176,7 +176,7 @@ def group_by_account(
         for balance in account_balances:
             balances.append(balance["balance"])
         result.append(
-            BalanceChanges(
+            ComputedBalances(
                 account=account,
                 balances=balances,
             )

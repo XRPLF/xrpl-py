@@ -25,17 +25,17 @@ class Balance(OptionalIssuer):
     """The amount of the currency."""
 
 
-class BalanceChange(TypedDict):
-    """A single balance change."""
+class ComputedBalance(TypedDict):
+    """A single computed balance."""
 
     account: str
     """The affected account."""
     balance: Balance
-    """The balance change."""
+    """The balance."""
 
 
-class BalanceChanges(TypedDict):
-    """A model representing an account's balance changes."""
+class ComputedBalances(TypedDict):
+    """A model representing an account's computed balances."""
 
     account: str
     balances: List[Balance]
