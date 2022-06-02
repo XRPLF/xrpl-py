@@ -53,6 +53,10 @@ from xrpl.models.transactions.trust_set import (
     TrustSetFlag,
     TrustSetFlagInterface,
 )
+from xrpl.models.transactions.xchain_claim import XChainClaim
+from xrpl.models.transactions.xchain_door_create import XChainDoorCreate
+from xrpl.models.transactions.xchain_seq_num_create import XChainSeqNumCreate
+from xrpl.models.transactions.xchain_transfer import XChainTransfer
 
 __all__ = [
     "AccountDelete",
@@ -98,4 +102,8 @@ __all__ = [
     "TrustSet",
     "TrustSetFlag",
     "TrustSetFlagInterface",
+    "XChainClaim",
+    "XChainDoorCreate",
+    "XChainSeqNumCreate",
+    "XChainTransfer",
 ]

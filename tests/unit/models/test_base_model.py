@@ -15,6 +15,7 @@ from xrpl.models.requests import (
     SubmitMultisigned,
     SubmitOnly,
 )
+from xrpl.models.sidechain import Sidechain
 from xrpl.models.transactions import (
     CheckCreate,
     Memo,
@@ -24,8 +25,10 @@ from xrpl.models.transactions import (
     SignerListSet,
     TrustSet,
     TrustSetFlag,
+    XChainClaim,
 )
 from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.xchain_claim_proof import XChainClaimProof, XChainProofSig
 
 currency = "BTC"
 value = "100"
@@ -46,6 +49,12 @@ check_create_dict = {
 }
 
 secret = "topsecretpassword"
+
+signature = (
+    "30450221008CC9842A6855A37131FE7FB978675DCF329AC5CD7C881FAF6D13CDC23363059F02203A1"
+    "0475640C2C09541A55098109BB3326D3F49E2304710736A4E3C2773539B01"
+)
+public_key = "03ADB44CA8E56F78A0096825E5667C450ABD5C24C34E027BC1AAF7E5BD114CB5B5"
 
 
 class TestBaseModel(TestCase):
@@ -500,6 +509,68 @@ class TestFromDict(TestCase):
             ],
             limit_amount=IssuedCurrencyAmount(
                 currency="USD", issuer="rBPvTKisx7UCGLDtiUZ6mDssXNREuVuL8Y", value="10"
+            ),
+        )
+        self.assertEqual(Transaction.from_xrpl(tx), expected)
+
+    def test_from_xrpl_xchain_door_create(self):
+        tx = {
+            "Account": "r9A8UyNpW3X46FUc6P7JZqgn6WgAPjBwPg",
+            "Destination": "rKT9gDkaedAosiHyHZTjyZs2HvXpzuiGmC",
+            "Flags": 2147483648,
+            "TransactionType": "XChainClaim",
+            "XChainClaimProof": {
+                "amount": "1000000000",
+                "sidechain": {
+                    "dst_chain_door": "rKeSSvHvaMZJp9ykaxutVwkhZgWuWMLnQt",
+                    "dst_chain_issue": "XRP",
+                    "src_chain_door": "rJvExveLEL4jNDEeLKCVdxaSCN9cEBnEQC",
+                    "src_chain_issue": "XRP",
+                },
+                "signatures": [
+                    {
+                        "XChainProofSig": {
+                            "Signature": signature,
+                            "PublicKey": public_key,
+                        }
+                    },
+                    {
+                        "XChainProofSig": {
+                            "Signature": signature,
+                            "PublicKey": public_key,
+                        }
+                    },
+                    {
+                        "XChainProofSig": {
+                            "Signature": signature,
+                            "PublicKey": public_key,
+                        }
+                    },
+                ],
+                "was_src_chain_send": True,
+                "xchain_seq": 1,
+            },
+        }
+
+        expected = XChainClaim(
+            account="r9A8UyNpW3X46FUc6P7JZqgn6WgAPjBwPg",
+            destination="rKT9gDkaedAosiHyHZTjyZs2HvXpzuiGmC",
+            flags=2147483648,
+            xchain_claim_proof=XChainClaimProof(
+                amount="1000000000",
+                sidechain=Sidechain(
+                    dst_chain_door="rKeSSvHvaMZJp9ykaxutVwkhZgWuWMLnQt",
+                    dst_chain_issue="XRP",
+                    src_chain_door="rJvExveLEL4jNDEeLKCVdxaSCN9cEBnEQC",
+                    src_chain_issue="XRP",
+                ),
+                signatures=[
+                    XChainProofSig(signature=signature, public_key=public_key),
+                    XChainProofSig(signature=signature, public_key=public_key),
+                    XChainProofSig(signature=signature, public_key=public_key),
+                ],
+                was_src_chain_send=True,
+                xchain_seq=1,
             ),
         )
         self.assertEqual(Transaction.from_xrpl(tx), expected)
