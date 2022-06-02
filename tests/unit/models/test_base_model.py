@@ -513,7 +513,7 @@ class TestFromDict(TestCase):
         )
         self.assertEqual(Transaction.from_xrpl(tx), expected)
 
-    def test_from_xrpl_xchain_door_create(self):
+    def test_from_xrpl_xchain_claim(self):
         tx = {
             "Account": "r9A8UyNpW3X46FUc6P7JZqgn6WgAPjBwPg",
             "Destination": "rKT9gDkaedAosiHyHZTjyZs2HvXpzuiGmC",
