@@ -42,13 +42,10 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
-                        "value": "1.535330905250352"
+                        "value": "1.535330905250352",
                     },
-                    {
-                        "currency": "XRP",
-                        "value": "239.807992"
-                    }
-                ]
+                    {"currency": "XRP", "value": "239.807992"},
+                ],
             },
             {
                 "account": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
@@ -56,14 +53,14 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rKmBGxocj9Abgy25J51Mk1iqFzW9aVF9Tc",
-                        "value": "-1.535330905250352"
+                        "value": "-1.535330905250352",
                     },
                     {
                         "currency": "USD",
                         "issuer": "rLDYrujdKUfVx28T9vRDAbyJ7G2WVXKo4K",
-                        "value": "-0.01"
-                    }
-                ]
+                        "value": "-0.01",
+                    },
+                ],
             },
             {
                 "account": "rLDYrujdKUfVx28T9vRDAbyJ7G2WVXKo4K",
@@ -71,10 +68,10 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
-                        "value": "0.01"
+                        "value": "0.01",
                     }
-                ]
-            }
+                ],
+            },
         ]
         self.assertEqual(actual, expected)
 
@@ -83,12 +80,7 @@ class TestGetBalanceChanges(TestCase):
         expected = [
             {
                 "account": "r4nmQNH4Fhjfh6cHDbvVSsBv7KySbj4cBf",
-                "balances": [
-                    {
-                        "currency": "XRP",
-                        "value": "999.99999"
-                    }
-                ]
+                "balances": [{"currency": "XRP", "value": "999.99999"}],
             },
             {
                 "account": "rnYDWQaRdMb5neCGgvFfhw3MBoxmv5LtfH",
@@ -96,19 +88,19 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rJsaPnGdeo7BhMnHjuc3n44Mf7Ra1qkSVJ",
-                        "value": "100"
+                        "value": "100",
                     },
                     {
                         "currency": "USD",
                         "issuer": "rrnsYgWn13Z28GtRgznrSUsLfMkvsXCZSu",
-                        "value": "100"
+                        "value": "100",
                     },
                     {
                         "currency": "USD",
                         "issuer": "rGpeQzUWFu4fMhJHZ1Via5aqFC3A5twZUD",
-                        "value": "100"
-                    }
-                ]
+                        "value": "100",
+                    },
+                ],
             },
             {
                 "account": "rJsaPnGdeo7BhMnHjuc3n44Mf7Ra1qkSVJ",
@@ -116,9 +108,9 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rnYDWQaRdMb5neCGgvFfhw3MBoxmv5LtfH",
-                        "value": "-100"
+                        "value": "-100",
                     }
-                ]
+                ],
             },
             {
                 "account": "rrnsYgWn13Z28GtRgznrSUsLfMkvsXCZSu",
@@ -126,9 +118,9 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rnYDWQaRdMb5neCGgvFfhw3MBoxmv5LtfH",
-                        "value": "-100"
+                        "value": "-100",
                     }
-                ]
+                ],
             },
             {
                 "account": "rGpeQzUWFu4fMhJHZ1Via5aqFC3A5twZUD",
@@ -136,10 +128,10 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rnYDWQaRdMb5neCGgvFfhw3MBoxmv5LtfH",
-                        "value": "-100"
+                        "value": "-100",
                     }
-                ]
-            }
+                ],
+            },
         ]
         self.assertEqual(actual, expected)
 
@@ -152,9 +144,9 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rPMh7Pi9ct699iZUTWaytJUoHcJ7cgyziK",
-                        "value": "100"
+                        "value": "100",
                     }
-                ]
+                ],
             },
             {
                 "account": "rPMh7Pi9ct699iZUTWaytJUoHcJ7cgyziK",
@@ -162,14 +154,11 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
-                        "value": "-100"
+                        "value": "-100",
                     },
-                    {
-                        "currency": "XRP",
-                        "value": "999.99997"
-                    }
-                ]
-            }
+                    {"currency": "XRP", "value": "999.99997"},
+                ],
+            },
         ]
         self.assertEqual(actual, expected)
 
@@ -182,9 +171,9 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rPMh7Pi9ct699iZUTWaytJUoHcJ7cgyziK",
-                        "value": "-100"
+                        "value": "-100",
                     }
-                ]
+                ],
             },
             {
                 "account": "rPMh7Pi9ct699iZUTWaytJUoHcJ7cgyziK",
@@ -192,14 +181,11 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
-                        "value": "100"
+                        "value": "100",
                     },
-                    {
-                        "currency": "XRP",
-                        "value": "999.99998"
-                    }
-                ]
-            }
+                    {"currency": "XRP", "value": "999.99998"},
+                ],
+            },
         ]
         self.assertEqual(actual, expected)
 
@@ -212,9 +198,9 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
-                        "value": "1.545330905250352"
+                        "value": "1.545330905250352",
                     }
-                ]
+                ],
             },
             {
                 "account": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
@@ -222,19 +208,14 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rKmBGxocj9Abgy25J51Mk1iqFzW9aVF9Tc",
-                        "value": "-1.545330905250352"
+                        "value": "-1.545330905250352",
                     }
-                ]
+                ],
             },
             {
                 "account": "rLDYrujdKUfVx28T9vRDAbyJ7G2WVXKo4K",
-                "balances": [
-                    {
-                        "currency": "XRP",
-                        "value": "99.976002"
-                    }
-                ]
-            }
+                "balances": [{"currency": "XRP", "value": "99.976002"}],
+            },
         ]
         self.assertEqual(actual, expected)
 
@@ -247,13 +228,10 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
-                        "value": "1.525330905250352"
+                        "value": "1.525330905250352",
                     },
-                    {
-                        "currency": "XRP",
-                        "value": "239.555992"
-                    }
-                ]
+                    {"currency": "XRP", "value": "239.555992"},
+                ],
             },
             {
                 "account": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
@@ -261,14 +239,14 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rKmBGxocj9Abgy25J51Mk1iqFzW9aVF9Tc",
-                        "value": "-1.525330905250352"
+                        "value": "-1.525330905250352",
                     },
                     {
                         "currency": "USD",
                         "issuer": "rLDYrujdKUfVx28T9vRDAbyJ7G2WVXKo4K",
-                        "value": "-0.02"
-                    }
-                ]
+                        "value": "-0.02",
+                    },
+                ],
             },
             {
                 "account": "rLDYrujdKUfVx28T9vRDAbyJ7G2WVXKo4K",
@@ -276,10 +254,10 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
-                        "value": "0.02"
+                        "value": "0.02",
                     }
-                ]
-            }
+                ],
+            },
         ]
         self.assertEqual(actual, expected)
 
@@ -288,22 +266,12 @@ class TestGetBalanceChanges(TestCase):
         expected = [
             {
                 "account": "rLDYrujdKUfVx28T9vRDAbyJ7G2WVXKo4K",
-                "balances": [
-                    {
-                        "currency": "XRP",
-                        "value": "100"
-                    }
-                ]
+                "balances": [{"currency": "XRP", "value": "100"}],
             },
             {
                 "account": "rKmBGxocj9Abgy25J51Mk1iqFzW9aVF9Tc",
-                "balances": [
-                    {
-                        "currency": "XRP",
-                        "value": "339.903994"
-                    }
-                ]
-            }
+                "balances": [{"currency": "XRP", "value": "339.903994"}],
+            },
         ]
         self.assertEqual(actual, expected)
 
@@ -316,13 +284,10 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
-                        "value": "10"
+                        "value": "10",
                     },
-                    {
-                        "currency": "XRP",
-                        "value": "99.740302"
-                    }
-                ]
+                    {"currency": "XRP", "value": "99.740302"},
+                ],
             },
             {
                 "account": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
@@ -330,10 +295,10 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rLDYrujdKUfVx28T9vRDAbyJ7G2WVXKo4K",
-                        "value": "-10"
+                        "value": "-10",
                     }
-                ]
-            }
+                ],
+            },
         ]
         self.assertEqual(actual, expected)
 
@@ -346,9 +311,9 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
-                        "value": "1.545330905250352"
+                        "value": "1.545330905250352",
                     }
-                ]
+                ],
             },
             {
                 "account": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
@@ -356,19 +321,14 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rKmBGxocj9Abgy25J51Mk1iqFzW9aVF9Tc",
-                        "value": "-1.545330905250352"
+                        "value": "-1.545330905250352",
                     }
-                ]
+                ],
             },
             {
                 "account": "rLDYrujdKUfVx28T9vRDAbyJ7G2WVXKo4K",
-                "balances": [
-                    {
-                        "currency": "XRP",
-                        "value": "99.752302"
-                    }
-                ]
-            }
+                "balances": [{"currency": "XRP", "value": "99.752302"}],
+            },
         ]
         self.assertEqual(actual, expected)
 
@@ -381,13 +341,10 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
-                        "value": "0.02"
+                        "value": "0.02",
                     },
-                    {
-                        "currency": "XRP",
-                        "value": "99.940002"
-                    }
-                ]
+                    {"currency": "XRP", "value": "99.940002"},
+                ],
             },
             {
                 "account": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
@@ -395,10 +352,10 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rLDYrujdKUfVx28T9vRDAbyJ7G2WVXKo4K",
-                        "value": "-0.02"
+                        "value": "-0.02",
                     }
-                ]
-            }
+                ],
+            },
         ]
         self.assertEqual(actual, expected)
 
@@ -411,13 +368,10 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
-                        "value": "0.02"
+                        "value": "0.02",
                     },
-                    {
-                        "currency": "XRP",
-                        "value": "99.884302"
-                    }
-                ]
+                    {"currency": "XRP", "value": "99.884302"},
+                ],
             },
             {
                 "account": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
@@ -425,10 +379,10 @@ class TestGetBalanceChanges(TestCase):
                     {
                         "currency": "USD",
                         "issuer": "rLDYrujdKUfVx28T9vRDAbyJ7G2WVXKo4K",
-                        "value": "-0.02"
+                        "value": "-0.02",
                     }
-                ]
-            }
+                ],
+            },
         ]
         self.assertEqual(actual, expected)
 
@@ -437,21 +391,11 @@ class TestGetBalanceChanges(TestCase):
         expected = [
             {
                 "account": "rsApBGKJmMfExxZBrGnzxEXyq7TMhMRg4e",
-                "balances": [
-                    {
-                        "currency": "XRP",
-                        "value": "9248.902096"
-                    }
-                ]
+                "balances": [{"currency": "XRP", "value": "9248.902096"}],
             },
             {
                 "account": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
-                "balances": [
-                    {
-                        "currency": "XRP",
-                        "value": "149.99998"
-                    }
-                ]
-            }
+                "balances": [{"currency": "XRP", "value": "149.99998"}],
+            },
         ]
         self.assertEqual(actual, expected)
