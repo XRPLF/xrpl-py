@@ -1,7 +1,7 @@
 """Codec for serializing and deserializing cross-chain claim proof fields."""
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -47,6 +47,7 @@ class XChainClaimProof(SerializedType):
             XRPLBinaryCodecException: If the XChainClaimProof representation is invalid.
         """
         if XChainClaimProofModel.is_dict_of_model(value):
+            value = cast(Dict[str, Any], value)
             buffer = b""
             for (name, object_type) in _TYPE_ORDER:
                 obj = object_type.from_value(value[name])
@@ -77,7 +78,7 @@ class XChainClaimProof(SerializedType):
         buffer = b""
 
         for (_, object_type) in _TYPE_ORDER:
-            obj = object_type.from_parser(parser)
+            obj = object_type.from_parser(parser, length_hint)
             buffer += bytes(obj)
 
         return cls(buffer)
@@ -92,7 +93,7 @@ class XChainClaimProof(SerializedType):
         parser = BinaryParser(str(self))
         return_json = {}
         for (name, object_type) in _TYPE_ORDER:
-            obj = object_type.from_parser(parser)
+            obj = object_type.from_parser(parser, None)
             return_json[name] = obj.to_json()
 
         return return_json

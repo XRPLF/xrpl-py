@@ -1,7 +1,7 @@
 """Codec for serializing and deserializing sidechain fields."""
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -42,6 +42,7 @@ class Sidechain(SerializedType):
             XRPLBinaryCodecException: If the Sidechain representation is invalid.
         """
         if SidechainModel.is_dict_of_model(value):
+            value = cast(Dict[str, Any], value)
             buffer = b""
             for (name, object_type) in _TYPE_ORDER:
                 obj = object_type.from_value(value[name])
@@ -70,7 +71,7 @@ class Sidechain(SerializedType):
         buffer = b""
 
         for (_, object_type) in _TYPE_ORDER:
-            obj = object_type.from_parser(parser)
+            obj = object_type.from_parser(parser, length_hint)
             buffer += bytes(obj)
 
         return cls(buffer)
@@ -85,7 +86,7 @@ class Sidechain(SerializedType):
         parser = BinaryParser(str(self))
         return_json = {}
         for (name, object_type) in _TYPE_ORDER:
-            obj = object_type.from_parser(parser)
+            obj = object_type.from_parser(parser, None)
             return_json[name] = obj.to_json()
 
         return return_json
