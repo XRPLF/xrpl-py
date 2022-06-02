@@ -45,15 +45,15 @@ def _get_xrp_quantity(
     return None
 
 
-def _flip_trustline_perspective(balance_change: ComputedBalance) -> ComputedBalance:
-    balance = balance_change["balance"]
+def _flip_trustline_perspective(computed_balance: ComputedBalance) -> ComputedBalance:
+    balance = computed_balance["balance"]
     negated_value = Decimal(balance["value"]).copy_negate()
     issuer = balance["issuer"]
     return ComputedBalance(
         account=issuer,
         balance=Balance(
             currency=balance["currency"],
-            issuer=balance_change["account"],
+            issuer=computed_balance["account"],
             value=f"{negated_value.normalize():f}",
         ),
     )
@@ -64,15 +64,14 @@ def _get_trustline_quantity(
     value: Optional[Decimal],
 ) -> List[ComputedBalance]:
     """
-    Computes the complete list of every balance that changed in the ledger
-    as a result of the given transaction.
+    Computes the complete list of every balance affected by the transaction.
 
     Args:
         node: The affected node.
         value: The currency amount value.
 
     Returns:
-        A list of balance changes.
+        A list of computed balances.
     """
     if value is None:
         return []
@@ -105,16 +104,16 @@ def _get_trustline_quantity(
     return []
 
 
-def _group_balance_changes(
-    balance_changes: List[ComputedBalance],
+def _group_balance(
+    computed_balances: List[ComputedBalance],
 ) -> Dict[str, List[ComputedBalance]]:
-    grouped_balance_changes: Dict[str, List[ComputedBalance]] = {}
-    for change in balance_changes:
-        account = change["account"]
-        if account not in grouped_balance_changes:
-            grouped_balance_changes[account] = []
-        grouped_balance_changes[account].append(change)
-    return grouped_balance_changes
+    grouped_balances: Dict[str, List[ComputedBalance]] = {}
+    for balance in computed_balances:
+        account = balance["account"]
+        if account not in grouped_balances:
+            grouped_balances[account] = []
+        grouped_balances[account].append(balance)
+    return grouped_balances
 
 
 def get_value(balance: Union[Dict[str, str], str]) -> Decimal:
@@ -158,18 +157,18 @@ def get_node_balance(
 
 
 def group_by_account(
-    balance_changes: List[ComputedBalance],
+    computed_balance: List[ComputedBalance],
 ) -> List[ComputedBalances]:
     """
-    Groups the balance changes in one list for each account.
+    Groups the computed balances in one list for each account.
 
     Args:
-        balance_changes: All balance changes cause by a transaction.
+        computed_balance: All computed balances cause by a transaction.
 
     Returns:
-        The grouped balance changes.
+        The grouped computed balances.
     """
-    grouped = _group_balance_changes(balance_changes)
+    grouped = _group_balance(computed_balance)
     result = []
     for account, account_balances in grouped.items():
         balances: List[Balance] = []
