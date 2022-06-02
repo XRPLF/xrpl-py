@@ -28,7 +28,6 @@ def _get_type_by_name(name: str) -> Type[SerializedType]:
         for (name, object_type) in types.__dict__.items()
         if name in types.__all__
     }
-    type_map["STArray"] = types.SerializedList
 
     return type_map[name]
 

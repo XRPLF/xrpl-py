@@ -8,7 +8,7 @@ from xrpl.core.binarycodec.types.hash128 import Hash128
 from xrpl.core.binarycodec.types.hash160 import Hash160
 from xrpl.core.binarycodec.types.hash256 import Hash256
 from xrpl.core.binarycodec.types.path_set import PathSet
-from xrpl.core.binarycodec.types.serialized_list import SerializedList
+from xrpl.core.binarycodec.types.st_array import STArray
 from xrpl.core.binarycodec.types.st_object import STObject
 from xrpl.core.binarycodec.types.uint import UInt
 from xrpl.core.binarycodec.types.uint8 import UInt8
@@ -28,7 +28,7 @@ __all__ = [
     "Hash256",
     "PathSet",
     "STObject",
-    "SerializedList",
+    "STArray",
     "UInt",
     "UInt8",
     "UInt16",
