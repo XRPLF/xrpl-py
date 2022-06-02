@@ -24,7 +24,8 @@ _HEX_REGEX: Final[Pattern[str]] = re.compile("[A-F0-9]{40}")
 
 
 class AccountID(Hash160):
-    """Codec for serializing and deserializing AccountID fields.
+    """
+    Codec for serializing and deserializing AccountID fields.
     See `AccountID Fields <https://xrpl.org/serialization.html#accountid-fields>`_
     """
 

@@ -1,3 +1,4 @@
+"""Codec for serializing and deserializing cross-chain claim proof fields."""
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -22,6 +23,8 @@ _TYPE_ORDER: List[Tuple[str, Type[SerializedType]]] = [
 
 
 class XChainClaimProof(SerializedType):
+    """Codec for serializing and deserializing cross-chain claim proof fields."""
+
     def __init__(self: XChainClaimProof, buffer: bytes) -> None:
         """Construct an XChainClaimProof from given bytes."""
         super().__init__(buffer)
@@ -30,6 +33,19 @@ class XChainClaimProof(SerializedType):
     def from_value(
         cls: Type[XChainClaimProof], value: Union[str, Dict[str, str]]
     ) -> XChainClaimProof:
+        """
+        Construct a XChainClaimProof object from a dictionary representation of a
+        cross-chain claim proof.
+
+        Args:
+            value: The dictionary to construct a XChainClaimProof object from.
+
+        Returns:
+            A XChainClaimProof object constructed from value.
+
+        Raises:
+            XRPLBinaryCodecException: If the XChainClaimProof representation is invalid.
+        """
         if XChainClaimProofModel.is_dict_of_model(value):
             buffer = b""
             for (name, object_type) in _TYPE_ORDER:
@@ -48,6 +64,16 @@ class XChainClaimProof(SerializedType):
         parser: BinaryParser,
         length_hint: Optional[int] = None,
     ) -> XChainClaimProof:
+        """
+        Construct a XChainClaimProof object from an existing BinaryParser.
+
+        Args:
+            parser: The parser to construct the XChainClaimProof object from.
+            length_hint: The number of bytes to consume from the parser.
+
+        Returns:
+            The XChainClaimProof object constructed from a parser.
+        """
         buffer = b""
 
         for (_, object_type) in _TYPE_ORDER:
@@ -57,6 +83,12 @@ class XChainClaimProof(SerializedType):
         return cls(buffer)
 
     def to_json(self: XChainClaimProof) -> Union[str, Dict[Any, Any]]:
+        """
+        Returns the JSON representation of a cross-chain claim proof.
+
+        Returns:
+            The JSON representation of a XChainClaimProof.
+        """
         parser = BinaryParser(str(self))
         return_json = {}
         for (name, object_type) in _TYPE_ORDER:

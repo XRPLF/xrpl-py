@@ -1,3 +1,5 @@
+"""Codec for serializing and deserializing issued currency fields."""
+
 from __future__ import annotations
 
 from typing import Any, Dict, Optional, Type, Union
@@ -11,6 +13,8 @@ from xrpl.models.currencies import IssuedCurrency as IssuedCurrencyModel
 
 
 class IssuedCurrency(SerializedType):
+    """Codec for serializing and deserializing issued currency fields."""
+
     def __init__(self: IssuedCurrency, buffer: bytes) -> None:
         """Construct an IssuedCurrency from given bytes."""
         super().__init__(buffer)
@@ -19,6 +23,19 @@ class IssuedCurrency(SerializedType):
     def from_value(
         cls: Type[IssuedCurrency], value: Union[str, Dict[str, str]]
     ) -> IssuedCurrency:
+        """
+        Construct an IssuedCurrency object from a string or dictionary representation
+        of an issued currency.
+
+        Args:
+            value: The dictionary to construct an IssuedCurrency object from.
+
+        Returns:
+            An IssuedCurrency object constructed from value.
+
+        Raises:
+            XRPLBinaryCodecException: If the IssuedCurrency representation is invalid.
+        """
         if isinstance(value, str):
             if value != "XRP":
                 raise XRPLBinaryCodecException(f"{value} is an illegal currency")
@@ -40,6 +57,16 @@ class IssuedCurrency(SerializedType):
         parser: BinaryParser,
         length_hint: Optional[int] = None,
     ) -> IssuedCurrency:
+        """
+        Construct an IssuedCurrency object from an existing BinaryParser.
+
+        Args:
+            parser: The parser to construct the IssuedCurrency object from.
+            length_hint: The number of bytes to consume from the parser.
+
+        Returns:
+            The IssuedCurrency object constructed from a parser.
+        """
         currency = Currency.from_parser(parser)
         if currency.to_json() == "XRP":
             return cls(bytes(currency))
@@ -48,10 +75,16 @@ class IssuedCurrency(SerializedType):
         return cls(bytes(currency) + issuer)
 
     def to_json(self: IssuedCurrency) -> Union[str, Dict[Any, Any]]:
+        """
+        Returns the JSON representation of an issued currency.
+
+        Returns:
+            The JSON representation of an IssuedCurrency.
+        """
         parser = BinaryParser(str(self))
-        currency = Currency.from_parser(parser)
-        if currency.to_json() == "XRP":
-            return currency.to_json()
+        currency: Union[str, Dict[Any, Any]] = Currency.from_parser(parser).to_json()
+        if currency == "XRP":
+            return currency
 
         issuer = AccountID.from_parser(parser)
-        return {"currency": currency.to_json(), "issuer": issuer.to_json()}
+        return {"currency": currency, "issuer": issuer.to_json()}
