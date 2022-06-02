@@ -18,6 +18,7 @@ from xrpl.core.binarycodec.types.uint16 import UInt16
 from xrpl.core.binarycodec.types.uint32 import UInt32
 from xrpl.core.binarycodec.types.uint64 import UInt64
 from xrpl.core.binarycodec.types.vector256 import Vector256
+from xrpl.core.binarycodec.types.xchain_claim_proof import XChainClaimProof
 
 __all__ = [
     "AccountID",
@@ -39,4 +40,5 @@ __all__ = [
     "UInt32",
     "UInt64",
     "Vector256",
+    "XChainClaimProof",
 ]
