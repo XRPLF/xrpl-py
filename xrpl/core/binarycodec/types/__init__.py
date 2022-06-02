@@ -7,7 +7,9 @@ from xrpl.core.binarycodec.types.hash import Hash
 from xrpl.core.binarycodec.types.hash128 import Hash128
 from xrpl.core.binarycodec.types.hash160 import Hash160
 from xrpl.core.binarycodec.types.hash256 import Hash256
+from xrpl.core.binarycodec.types.issued_currency import IssuedCurrency
 from xrpl.core.binarycodec.types.path_set import PathSet
+from xrpl.core.binarycodec.types.sidechain import Sidechain
 from xrpl.core.binarycodec.types.st_array import STArray
 from xrpl.core.binarycodec.types.st_object import STObject
 from xrpl.core.binarycodec.types.uint import UInt
@@ -26,7 +28,9 @@ __all__ = [
     "Hash128",
     "Hash160",
     "Hash256",
+    "IssuedCurrency",
     "PathSet",
+    "Sidechain",
     "STObject",
     "STArray",
     "UInt",
