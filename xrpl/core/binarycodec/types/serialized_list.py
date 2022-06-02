@@ -10,8 +10,8 @@ from typing_extensions import Final
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
-from xrpl.core.binarycodec.types.serialized_dict import SerializedDict
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
+from xrpl.core.binarycodec.types.st_object import STObject
 
 _ARRAY_END_MARKER: Final[bytes] = bytes([0xF1])
 _ARRAY_END_MARKER_NAME: Final[str] = "ArrayEndMarker"
@@ -80,7 +80,7 @@ class SerializedList(SerializedType):
 
         bytestring = b""
         for obj in value:
-            transaction = SerializedDict.from_value(obj)
+            transaction = STObject.from_value(obj)
             bytestring += bytes(transaction)
         bytestring += _ARRAY_END_MARKER
         return SerializedList(bytestring)
@@ -101,6 +101,6 @@ class SerializedList(SerializedType):
                 break
 
             outer = {}
-            outer[field.name] = SerializedDict.from_parser(parser).to_json()
+            outer[field.name] = STObject.from_parser(parser).to_json()
             result.append(outer)
         return result
