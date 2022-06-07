@@ -68,4 +68,4 @@ jobs:
       - name: Unit test
         run: |
           poetry run coverage run --branch --include="xrpl/*" -m unittest discover tests.unit
-          poetry run coverage report -m
+          poetry run coverage report -m --fail-under=85

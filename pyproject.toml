@@ -67,6 +67,3 @@ build-backend = "poetry.core.masonry.api"
 [tool.coverage.run]
 branch = true
 source = ["xrpl"]
-
-[tool.coverage.report]
-fail_under = 85
