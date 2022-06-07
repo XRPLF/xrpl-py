@@ -46,4 +46,5 @@ jobs:
 
       - name: Integration test
         run: |
-          poetry run python -m unittest discover tests.integration
+          poetry run coverage run --branch --include="xrpl/*" -m unittest discover tests.integration
+          poetry run coverage report -m

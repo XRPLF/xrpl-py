@@ -67,4 +67,5 @@ jobs:
 
       - name: Unit test
         run: |
-          poetry run python -m unittest discover tests.unit
+          poetry run coverage run --branch --include="xrpl/*" -m unittest discover tests.unit
+          poetry run coverage report -m
