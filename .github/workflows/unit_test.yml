@@ -67,4 +67,5 @@ jobs:
 
       - name: Unit test
         run: |
-          poetry run python -m unittest discover tests.unit
+          poetry run coverage run -m unittest discover tests.unit
+          poetry run coverage report -m --fail-under=85
