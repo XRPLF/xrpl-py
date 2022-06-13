@@ -25,7 +25,7 @@ class Balance(OptionalIssuer):
     """The amount of the currency."""
 
 
-class ComputedBalance(TypedDict):
+class AccountBalance(TypedDict):
     """A single computed balance."""
 
     account: str

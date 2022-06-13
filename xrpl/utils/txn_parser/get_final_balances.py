@@ -7,10 +7,8 @@ from xrpl.models import TransactionMetadata
 from xrpl.utils.txn_parser.utils import (
     ComputedBalances,
     NormalizedNode,
-    get_node_balance,
+    derive_account_balances,
     get_value,
-    group_by_account,
-    normalize_nodes,
 )
 
 
@@ -25,12 +23,7 @@ def get_final_balances(metadata: TransactionMetadata) -> List[ComputedBalances]:
         All final balances caused by a transaction.
         The final balances are grouped by the affected account addresses.
     """
-    quantities = [
-        quantity
-        for node in normalize_nodes(metadata)
-        for quantity in get_node_balance(node, _compute_final_balance(node))
-    ]
-    return group_by_account(quantities)
+    return derive_account_balances(metadata, _compute_final_balance)
 
 
 def _compute_final_balance(node: NormalizedNode) -> Optional[Decimal]:

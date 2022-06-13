@@ -1,17 +1,18 @@
 """Helper functions for balance parser."""
 
 from decimal import Decimal
-from typing import Dict, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Union
 
-from xrpl.utils.txn_parser.utils.nodes import NormalizedNode
-from xrpl.utils.txn_parser.utils.types import Balance, ComputedBalance, ComputedBalances
+from xrpl.models.transactions.metadata import TransactionMetadata
+from xrpl.utils.txn_parser.utils.nodes import NormalizedNode, normalize_nodes
+from xrpl.utils.txn_parser.utils.types import AccountBalance, Balance, ComputedBalances
 from xrpl.utils.xrp_conversions import drops_to_xrp
 
 
 def _get_xrp_quantity(
     node: NormalizedNode,
     value: Optional[Decimal],
-) -> Optional[ComputedBalance]:
+) -> Optional[AccountBalance]:
     if value is None:
         return None
     absolute_value = value.copy_abs()
@@ -24,7 +25,7 @@ def _get_xrp_quantity(
     if final_fields is not None:
         account = final_fields.get("Account")
         if account is not None:
-            return ComputedBalance(
+            return AccountBalance(
                 account=account,
                 balance=Balance(
                     currency="XRP",
@@ -35,7 +36,7 @@ def _get_xrp_quantity(
     if new_fields is not None:
         account = new_fields.get("Account")
         if account is not None:
-            return ComputedBalance(
+            return AccountBalance(
                 account=account,
                 balance=Balance(
                     currency="XRP",
@@ -45,11 +46,11 @@ def _get_xrp_quantity(
     return None
 
 
-def _flip_trustline_perspective(computed_balance: ComputedBalance) -> ComputedBalance:
+def _flip_trustline_perspective(computed_balance: AccountBalance) -> AccountBalance:
     balance = computed_balance["balance"]
     negated_value = Decimal(balance["value"]).copy_negate()
     issuer = balance["issuer"]
-    return ComputedBalance(
+    return AccountBalance(
         account=issuer,
         balance=Balance(
             currency=balance["currency"],
@@ -62,7 +63,7 @@ def _flip_trustline_perspective(computed_balance: ComputedBalance) -> ComputedBa
 def _get_trustline_quantity(
     node: NormalizedNode,
     value: Optional[Decimal],
-) -> List[ComputedBalance]:
+) -> List[AccountBalance]:
     """
     Computes the complete list of every balance affected by the transaction.
 
@@ -92,7 +93,7 @@ def _get_trustline_quantity(
             and balance_currency is not None
             and high_limit_issuer is not None
         ):
-            result = ComputedBalance(
+            result = AccountBalance(
                 account=low_limit_issuer,
                 balance=Balance(
                     currency=balance_currency,
@@ -104,10 +105,10 @@ def _get_trustline_quantity(
     return []
 
 
-def _group_balance(
-    computed_balances: List[ComputedBalance],
-) -> Dict[str, List[ComputedBalance]]:
-    grouped_balances: Dict[str, List[ComputedBalance]] = {}
+def _group_balances(
+    computed_balances: List[AccountBalance],
+) -> Dict[str, List[AccountBalance]]:
+    grouped_balances: Dict[str, List[AccountBalance]] = {}
     for balance in computed_balances:
         account = balance["account"]
         if account not in grouped_balances:
@@ -131,10 +132,10 @@ def get_value(balance: Union[Dict[str, str], str]) -> Decimal:
     return Decimal(balance["value"])
 
 
-def get_node_balance(
+def _get_node_balances(
     node: NormalizedNode,
     value: Optional[Decimal],
-) -> List[ComputedBalance]:
+) -> List[AccountBalance]:
     """
     Retrieve the balance from a node.
 
@@ -156,11 +157,11 @@ def get_node_balance(
     return []
 
 
-def group_by_account(
-    computed_balance: List[ComputedBalance],
+def _group_by_account(
+    computed_balances: List[AccountBalance],
 ) -> List[ComputedBalances]:
     """
-    Groups the computed balances in one list for each account.
+    Groups the account balances in one list for each account.
 
     Args:
         computed_balance: All computed balances cause by a transaction.
@@ -168,7 +169,7 @@ def group_by_account(
     Returns:
         The grouped computed balances.
     """
-    grouped = _group_balance(computed_balance)
+    grouped = _group_balances(computed_balances)
     result = []
     for account, account_balances in grouped.items():
         balances: List[Balance] = []
@@ -181,3 +182,26 @@ def group_by_account(
             )
         )
     return result
+
+
+def derive_account_balances(
+    metadata: TransactionMetadata,
+    parser: Callable[[NormalizedNode], Optional[Decimal]],
+) -> List[ComputedBalances]:
+    """
+    Derives the account balances from a node.
+
+    Args:
+        metadata: Transactions metadata.
+        parser: The balance parser.
+
+    Returns:
+        All balances affected by the transaction.
+        The balances are grouped by their accounts.
+    """
+    quantities = [
+        quantity
+        for node in normalize_nodes(metadata)
+        for quantity in _get_node_balances(node, parser(node))
+    ]
+    return _group_by_account(quantities)
