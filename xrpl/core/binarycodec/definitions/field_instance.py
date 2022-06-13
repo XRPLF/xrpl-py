@@ -21,38 +21,12 @@ def _get_type_by_name(name: str) -> Type[SerializedType]:
     Returns:
         The corresponding class object.
     """
-    from xrpl.core.binarycodec.types.account_id import AccountID
-    from xrpl.core.binarycodec.types.amount import Amount
-    from xrpl.core.binarycodec.types.blob import Blob
-    from xrpl.core.binarycodec.types.currency import Currency
-    from xrpl.core.binarycodec.types.hash128 import Hash128
-    from xrpl.core.binarycodec.types.hash160 import Hash160
-    from xrpl.core.binarycodec.types.hash256 import Hash256
-    from xrpl.core.binarycodec.types.path_set import PathSet
-    from xrpl.core.binarycodec.types.serialized_dict import SerializedDict
-    from xrpl.core.binarycodec.types.serialized_list import SerializedList
-    from xrpl.core.binarycodec.types.uint8 import UInt8
-    from xrpl.core.binarycodec.types.uint16 import UInt16
-    from xrpl.core.binarycodec.types.uint32 import UInt32
-    from xrpl.core.binarycodec.types.uint64 import UInt64
-    from xrpl.core.binarycodec.types.vector256 import Vector256
+    import xrpl.core.binarycodec.types as types
 
     type_map: Dict[str, Type[SerializedType]] = {
-        "AccountID": AccountID,
-        "Amount": Amount,
-        "Blob": Blob,
-        "Currency": Currency,
-        "Hash128": Hash128,
-        "Hash160": Hash160,
-        "Hash256": Hash256,
-        "PathSet": PathSet,
-        "STArray": SerializedList,
-        "STObject": SerializedDict,
-        "UInt8": UInt8,
-        "UInt16": UInt16,
-        "UInt32": UInt32,
-        "UInt64": UInt64,
-        "Vector256": Vector256,
+        name: object_type
+        for (name, object_type) in types.__dict__.items()
+        if name in types.__all__
     }
 
     return type_map[name]

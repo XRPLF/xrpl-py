@@ -10,8 +10,8 @@ from typing_extensions import Final
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
-from xrpl.core.binarycodec.types.serialized_dict import SerializedDict
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
+from xrpl.core.binarycodec.types.st_object import STObject
 
 _ARRAY_END_MARKER: Final[bytes] = bytes([0xF1])
 _ARRAY_END_MARKER_NAME: Final[str] = "ArrayEndMarker"
@@ -19,25 +19,25 @@ _ARRAY_END_MARKER_NAME: Final[str] = "ArrayEndMarker"
 _OBJECT_END_MARKER: Final[bytes] = bytes([0xE1])
 
 
-class SerializedList(SerializedType):
+class STArray(SerializedType):
     """Class for serializing and deserializing Lists of objects.
     See `Array Fields <https://xrpl.org/serialization.html#array-fields>`_
     """
 
     @classmethod
     def from_parser(
-        cls: Type[SerializedList],
+        cls: Type[STArray],
         parser: BinaryParser,
         _length_hint: Optional[None] = None,
-    ) -> SerializedList:
+    ) -> STArray:
         """
-        Construct a SerializedList from a BinaryParser.
+        Construct a STArray from a BinaryParser.
 
         Args:
-            parser: The parser to construct a SerializedList from.
+            parser: The parser to construct a STArray from.
 
         Returns:
-            The SerializedList constructed from parser.
+            The STArray constructed from parser.
         """
         bytestring = b""
 
@@ -50,18 +50,18 @@ class SerializedList(SerializedType):
             bytestring += _OBJECT_END_MARKER
 
         bytestring += _ARRAY_END_MARKER
-        return SerializedList(bytestring)
+        return STArray(bytestring)
 
     @classmethod
-    def from_value(cls: Type[SerializedList], value: List[Any]) -> SerializedList:
+    def from_value(cls: Type[STArray], value: List[Any]) -> STArray:
         """
-        Create a SerializedList object from a dictionary.
+        Create a STArray object from a dictionary.
 
         Args:
-            value: The dictionary to construct a SerializedList from.
+            value: The dictionary to construct a STArray from.
 
         Returns:
-            The SerializedList object constructed from value.
+            The STArray object constructed from value.
 
         Raises:
             XRPLBinaryCodecException: If the provided value isn't a list or contains
@@ -69,28 +69,28 @@ class SerializedList(SerializedType):
         """
         if not isinstance(value, list):
             raise XRPLBinaryCodecException(
-                "Invalid type to construct a SerializedList:"
+                "Invalid type to construct a STArray:"
                 " expected list, received {value.__class__.__name__}."
             )
 
         if len(value) > 0 and not isinstance(value[0], dict):
             raise XRPLBinaryCodecException(
-                ("Cannot construct SerializedList from a list of non-dict" " objects")
+                ("Cannot construct STArray from a list of non-dict" " objects")
             )
 
         bytestring = b""
         for obj in value:
-            transaction = SerializedDict.from_value(obj)
+            transaction = STObject.from_value(obj)
             bytestring += bytes(transaction)
         bytestring += _ARRAY_END_MARKER
-        return SerializedList(bytestring)
+        return STArray(bytestring)
 
-    def to_json(self: SerializedList) -> List[Any]:
+    def to_json(self: STArray) -> List[Any]:
         """
-        Returns the JSON representation of a SerializedList.
+        Returns the JSON representation of a STArray.
 
         Returns:
-            The JSON representation of a SerializedList.
+            The JSON representation of a STArray.
         """
         result = []
         parser = BinaryParser(str(self))
@@ -101,6 +101,6 @@ class SerializedList(SerializedType):
                 break
 
             outer = {}
-            outer[field.name] = SerializedDict.from_parser(parser).to_json()
+            outer[field.name] = STObject.from_parser(parser).to_json()
             result.append(outer)
         return result
