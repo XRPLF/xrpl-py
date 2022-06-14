@@ -32,7 +32,7 @@ jobs:
 
       - name: Lint
         run: |
-          poetry run flake8 xrpl tests
+          poetry run flake8 xrpl tests --darglint-ignore-regex="^_(.*)"
 
       - name: Type-check
         run: |
