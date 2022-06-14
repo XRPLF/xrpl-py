@@ -5,14 +5,14 @@ from typing import List, Optional
 
 from xrpl.models import TransactionMetadata
 from xrpl.utils.txn_parser.utils import (
-    ComputedBalances,
+    AccountBalances,
     NormalizedNode,
     derive_account_balances,
     get_value,
 )
 
 
-def get_final_balances(metadata: TransactionMetadata) -> List[ComputedBalances]:
+def get_final_balances(metadata: TransactionMetadata) -> List[AccountBalances]:
     """
     Parse all final balances from a transaction's metadata.
 

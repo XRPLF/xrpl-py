@@ -5,12 +5,12 @@ from xrpl.utils.txn_parser.utils.balance_parser import (
     get_value,
 )
 from xrpl.utils.txn_parser.utils.nodes import NormalizedNode, normalize_nodes
-from xrpl.utils.txn_parser.utils.types import ComputedBalances
+from xrpl.utils.txn_parser.utils.types import AccountBalances
 
 __all__ = [
     "get_value",
     "derive_account_balances",
     "NormalizedNode",
     "normalize_nodes",
-    "ComputedBalances",
+    "AccountBalances",
 ]

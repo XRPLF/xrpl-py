@@ -26,7 +26,7 @@ class Balance(OptionalIssuer):
 
 
 class AccountBalance(TypedDict):
-    """A single computed balance."""
+    """A single account balance."""
 
     account: str
     """The affected account."""
@@ -34,8 +34,8 @@ class AccountBalance(TypedDict):
     """The balance."""
 
 
-class ComputedBalances(TypedDict):
-    """A model representing an account's computed balances."""
+class AccountBalances(TypedDict):
+    """A model representing an account's balances."""
 
     account: str
     balances: List[Balance]
