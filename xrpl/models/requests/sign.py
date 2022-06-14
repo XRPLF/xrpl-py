@@ -92,7 +92,7 @@ class Sign(Request):
         """
         return_dict = super().to_dict()
         del return_dict["transaction"]
-        return_dict["tx_json"] = self.transaction.to_dict()
+        return_dict["tx_json"] = self.transaction.to_xrpl()
         return return_dict
 
     def _get_errors(self: Sign) -> Dict[str, str]:

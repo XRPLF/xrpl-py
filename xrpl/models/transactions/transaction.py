@@ -14,6 +14,7 @@ from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.flags import check_false_flag_definition, interface_to_flag_list
 from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
+from xrpl.models.sidechain import Sidechain
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
 from xrpl.models.types import XRPL_VALUE_TYPE
 from xrpl.models.utils import require_kwargs_on_init
@@ -27,6 +28,8 @@ _ABBREVIATIONS: Final[Dict[str, str]] = {
     "uri": "URI",
     "nftoken": "NFToken",
 }
+
+_LOWER_CASE_MODELS: List[Type[BaseModel]] = [IssuedCurrencyAmount, PathStep, Sidechain]
 
 
 def transaction_json_to_binary_codec_form(
@@ -68,8 +71,9 @@ def _key_to_tx_json(key: str) -> str:
 def _value_to_tx_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     # IssuedCurrencyAmount and PathStep are special cases and should not be snake cased
     # and only contain primitive members
-    if IssuedCurrencyAmount.is_dict_of_model(value) or PathStep.is_dict_of_model(value):
-        return value
+    if any([model.is_dict_of_model(value) for model in _LOWER_CASE_MODELS]):
+        assert isinstance(value, dict)
+        return {key: _value_to_tx_json(key_value) for key, key_value in value.items()}
     if isinstance(value, dict):
         return transaction_json_to_binary_codec_form(value)
     if isinstance(value, list):
