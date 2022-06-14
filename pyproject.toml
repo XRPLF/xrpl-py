@@ -33,7 +33,7 @@ packages = [
 python = "^3.7"
 base58 = "^2.1.0"
 ECPy = "^1.2.5"
-typing-extensions = "^3.7.4"
+typing-extensions = "^4.2.0"
 httpx = "^0.18.1"
 websockets = [
     {version = ">=9.0.1 <11.0", python = ">= 3.7, < 3.10"},
