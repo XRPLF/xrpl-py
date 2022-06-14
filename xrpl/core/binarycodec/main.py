@@ -10,7 +10,7 @@ from typing_extensions import Final
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.types.account_id import AccountID
 from xrpl.core.binarycodec.types.hash256 import Hash256
-from xrpl.core.binarycodec.types.serialized_dict import SerializedDict
+from xrpl.core.binarycodec.types.st_object import STObject
 from xrpl.core.binarycodec.types.uint64 import UInt64
 
 
@@ -108,7 +108,7 @@ def decode(buffer: str) -> Dict[str, Any]:
         A JSON-like dictionary representation of the transaction.
     """
     parser = BinaryParser(buffer)
-    parsed_type = cast(SerializedDict, parser.read_type(SerializedDict))
+    parsed_type = cast(STObject, parser.read_type(STObject))
     return parsed_type.to_json()
 
 
@@ -122,7 +122,7 @@ def _serialize_json(
     if prefix is not None:
         buffer += prefix
 
-    buffer += bytes(SerializedDict.from_value(json, signing_only))
+    buffer += bytes(STObject.from_value(json, signing_only))
 
     if suffix is not None:
         buffer += suffix

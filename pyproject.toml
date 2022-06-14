@@ -54,6 +54,7 @@ darglint = "^1.5.8"
 Sphinx = "^3.5.1"
 sphinx-rtd-theme = "^0.5.1"
 aiounittest = "^1.4.0"
+coverage = "^6.4.1"
 
 [tool.isort]
 # Make sure that isort's settings line up with black
@@ -62,3 +63,7 @@ profile = "black"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.coverage.run]
+branch = true
+source = ["xrpl"]
