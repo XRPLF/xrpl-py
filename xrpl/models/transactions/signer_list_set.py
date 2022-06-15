@@ -173,10 +173,10 @@ class SignerListSet(Transaction):
             if signer_entry.wallet_locator is not None and not bool(
                 HEX_WALLET_LOCATOR_REGEX.fullmatch(signer_entry.wallet_locator)
             ):
-                errors[
-                    "signer_entries"
-                ] = "A SignerEntry's wallet_locator must be a 256-bit (32-byte)\
-                    hexadecimal value"
+                errors["signer_entries"] = (
+                    "A SignerEntry's wallet_locator must be a 256-bit (32-byte)"
+                    "hexadecimal value"
+                )
             account_set.add(signer_entry.account)
             signer_weight_sum += signer_entry.signer_weight
 
