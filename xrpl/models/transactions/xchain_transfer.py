@@ -14,6 +14,8 @@ from xrpl.models.utils import require_kwargs_on_init
 class XChainTransfer(Transaction):
     """Represents a XChainTransfer transaction."""
 
+    amount: str = REQUIRED  # type: ignore
+
     sidechain: Sidechain = REQUIRED  # type: ignore
 
     xchain_sequence: int = REQUIRED  # type: ignore
