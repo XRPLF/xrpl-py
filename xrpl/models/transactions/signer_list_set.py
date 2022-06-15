@@ -10,6 +10,8 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
+MAX_SIGNER_ENTRIES = 32
+
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
@@ -128,11 +130,14 @@ class SignerListSet(Transaction):
                 "signer_quorum"
             ] = "`signer_quorum` must be greater than or equal to 0."
 
-        if len(self.signer_entries) < 1 or len(self.signer_entries) > 8:
+        if (
+            len(self.signer_entries) < 1
+            or len(self.signer_entries) > MAX_SIGNER_ENTRIES
+        ):
             errors["signer_entries"] = (
-                "`signer_entries` must have at least 1 member and no more than 8 "
+                "`signer_entries` must have at least 1 member and no more than {} "
                 "members. If this transaction is deleting the SignerList, then "
-                "this parameter must be omitted."
+                "this parameter must be omitted.".format(MAX_SIGNER_ENTRIES)
             )
             return errors
 
