@@ -19,6 +19,6 @@ class XChainTransfer(Transaction):
     xchain_sequence: int = REQUIRED  # type: ignore
 
     transaction_type: TransactionType = field(
-        default=TransactionType.XCHAIN_DOOR_CREATE,
+        default=TransactionType.XCHAIN_TRANSFER,
         init=False,
     )
