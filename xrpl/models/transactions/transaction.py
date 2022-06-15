@@ -18,6 +18,7 @@ from xrpl.models.sidechain import Sidechain
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
 from xrpl.models.types import XRPL_VALUE_TYPE
 from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.xchain_claim_proof import XChainClaimProof
 
 _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
 # This is used to make exceptions when converting dictionary keys to xrpl JSON
@@ -30,7 +31,12 @@ _ABBREVIATIONS: Final[Dict[str, str]] = {
     "xchain": "XChain",
 }
 
-_LOWER_CASE_MODELS: List[Type[BaseModel]] = [IssuedCurrencyAmount, PathStep, Sidechain]
+_LOWER_CASE_MODELS: List[Type[BaseModel]] = [
+    IssuedCurrencyAmount,
+    PathStep,
+    Sidechain,
+    XChainClaimProof,
+]
 
 
 def transaction_json_to_binary_codec_form(
