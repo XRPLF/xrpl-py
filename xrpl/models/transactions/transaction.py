@@ -27,6 +27,7 @@ _ABBREVIATIONS: Final[Dict[str, str]] = {
     "id": "ID",
     "uri": "URI",
     "nftoken": "NFToken",
+    "xchain": "XChain",
 }
 
 _LOWER_CASE_MODELS: List[Type[BaseModel]] = [IssuedCurrencyAmount, PathStep, Sidechain]
