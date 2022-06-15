@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 ### Added:
+- Add ExpandedSignerList amendment support
 - Add function to parse the final account balances from a transaction's metadata
 
 ## [1.6.0] - 2022-06-02
