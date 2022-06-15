@@ -79,9 +79,6 @@ def _key_to_tx_json(key: str) -> str:
 def _value_to_tx_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     # IssuedCurrencyAmount and PathStep are special cases and should not be snake cased
     # and only contain primitive members
-    if XChainProofSig.is_dict_of_model(value):
-        assert isinstance(value, dict)
-        return {key: key_value for key, key_value in value.items()}
     if any([model.is_dict_of_model(value) for model in _LOWER_CASE_MODELS]):
         assert isinstance(value, dict)
         return {key: _value_to_tx_json(key_value) for key, key_value in value.items()}
