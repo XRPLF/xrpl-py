@@ -219,7 +219,7 @@ class TestSignerListSet(TestCase):
             signer_entries.append(
                 SignerEntry(
                     account=acc,
-                    signer_weight=2,
+                    signer_weight=1,
                 )
             )
 
@@ -229,5 +229,54 @@ class TestSignerListSet(TestCase):
                 fee=_FEE,
                 sequence=_SEQUENCE,
                 signer_quorum=33,
+                signer_entries=signer_entries,
+            )
+
+    def test_signer_entries_with_wallet_locator(self):
+        signer_entries = [
+            SignerEntry(
+                account="rBFBipte4nAQCTsRxd2czwvSurhCpAf4X6",
+                signer_weight=1,
+                wallet_locator="CAFECAFECAFECAFECAFECAFECAFECAFECAFECAFECAFECAFECAFECAF"
+                "ECAFECAFE",
+            ),
+            SignerEntry(
+                account="r3ijUH32iiy9tYNj3rD7hKWYjy1BFUxngm",
+                signer_weight=1,
+            ),
+            SignerEntry(
+                account="rpwq8vi4Mn3L5kDJmb8Mg59CanPFPzMCnj",
+                signer_weight=1,
+                wallet_locator="0000000000000000000000000000000000000000000000000000000"
+                "0DEADBEEF",
+            ),
+        ]
+        tx = SignerListSet(
+            account=_ACCOUNT,
+            fee=_FEE,
+            sequence=_SEQUENCE,
+            signer_quorum=3,
+            signer_entries=signer_entries,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_signer_entries_with_invalid_wallet_locator(self):
+        signer_entries = [
+            SignerEntry(
+                account="rBFBipte4nAQCTsRxd2czwvSurhCpAf4X6",
+                signer_weight=1,
+                wallet_locator="not_valid",
+            ),
+            SignerEntry(
+                account="r3ijUH32iiy9tYNj3rD7hKWYjy1BFUxngm",
+                signer_weight=1,
+            ),
+        ]
+        with self.assertRaises(XRPLModelException):
+            SignerListSet(
+                account=_ACCOUNT,
+                fee=_FEE,
+                sequence=_SEQUENCE,
+                signer_quorum=2,
                 signer_entries=signer_entries,
             )
