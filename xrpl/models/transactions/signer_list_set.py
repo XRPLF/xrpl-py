@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, Final, List, Optional, Pattern, Type, cast
+from typing import Any, Dict, List, Optional, Pattern, Type, cast
+
+from typing_extensions import Final
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
@@ -11,7 +13,7 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
-MAX_SIGNER_ENTRIES = 32
+MAX_SIGNER_ENTRIES: Final[int] = 32
 """
 Maximum number of signer entries allowed.
 
