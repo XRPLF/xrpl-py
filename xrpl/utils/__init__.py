@@ -9,7 +9,7 @@ from xrpl.utils.time_conversions import (
     ripple_time_to_datetime,
     ripple_time_to_posix,
 )
-from xrpl.utils.txn_parser import get_balance_changes
+from xrpl.utils.txn_parser import get_balance_changes, get_final_balances
 from xrpl.utils.xrp_conversions import XRPRangeException, drops_to_xrp, xrp_to_drops
 
 __all__ = [
@@ -25,4 +25,5 @@ __all__ = [
     "XRPLTimeRangeException",
     "create_cross_chain_payment",
     "get_balance_changes",
+    "get_final_balances",
 ]

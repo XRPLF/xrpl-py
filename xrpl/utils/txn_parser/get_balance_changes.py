@@ -5,16 +5,14 @@ from typing import List, Optional
 
 from xrpl.models import TransactionMetadata
 from xrpl.utils.txn_parser.utils import (
-    BalanceChanges,
-    get_node_balance_changes,
+    AccountBalances,
+    NormalizedNode,
+    derive_account_balances,
     get_value,
-    group_by_account,
-    normalize_nodes,
 )
-from xrpl.utils.txn_parser.utils.nodes import NormalizedNode
 
 
-def get_balance_changes(metadata: TransactionMetadata) -> List[BalanceChanges]:
+def get_balance_changes(metadata: TransactionMetadata) -> List[AccountBalances]:
     """
     Parse all balance changes from a transaction's metadata.
 
@@ -25,12 +23,7 @@ def get_balance_changes(metadata: TransactionMetadata) -> List[BalanceChanges]:
         All balance changes caused by a transaction.
         The balance changes are grouped by the affected account addresses.
     """
-    quantities = [
-        quantity
-        for node in normalize_nodes(metadata)
-        for quantity in get_node_balance_changes(node, _compute_balance_change(node))
-    ]
-    return group_by_account(quantities)
+    return derive_account_balances(metadata, _compute_balance_change)
 
 
 def _compute_balance_change(node: NormalizedNode) -> Optional[Decimal]:
