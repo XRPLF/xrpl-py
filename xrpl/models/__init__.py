@@ -9,6 +9,7 @@ from xrpl.models.response import Response
 from xrpl.models.sidechain import Sidechain
 from xrpl.models.transactions import *  # noqa: F401, F403
 from xrpl.models.transactions.pseudo_transactions import *  # noqa: F401, F403
+from xrpl.models.xchain_claim_proof import XChainClaimProof
 
 __all__ = [
     "XRPLModelException",
@@ -25,4 +26,5 @@ __all__ = [
     "PathStep",
     "Response",
     "Sidechain",
+    "XChainClaimProof",
 ]

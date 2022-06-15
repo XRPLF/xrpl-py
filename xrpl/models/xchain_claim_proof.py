@@ -24,7 +24,7 @@ class XChainProofSig(BaseModel):
 
     signature: str = REQUIRED  # type: ignore
 
-    public_key: str = REQUIRED  # type: ignore
+    signing_key: str = REQUIRED  # type: ignore
 
     @classmethod
     def is_dict_of_model(cls: Type[XChainProofSig], dictionary: Any) -> bool:
