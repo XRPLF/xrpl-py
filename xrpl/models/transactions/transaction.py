@@ -235,7 +235,7 @@ class Signer(BaseModel):
         return {"signer": super().to_dict()}
 
 
-T = TypeVar("T", bound="Transaction")
+T = TypeVar("T", bound="Transaction")  # any type inherited from Transaction
 
 
 @require_kwargs_on_init
