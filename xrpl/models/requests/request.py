@@ -119,7 +119,7 @@ class Request(BaseModel):
             if "method" not in value:
                 raise XRPLModelException("Request does not include method.")
             correct_type = cls.get_method(value["method"])
-            return correct_type.from_dict(value)
+            return correct_type.from_dict(value)  # mypy: ignore - mypy bug
 
         if "method" in value:
             method = value["method"]

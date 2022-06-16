@@ -396,7 +396,7 @@ class Transaction(BaseModel):
                     "Transaction does not include transaction_type."
                 )
             correct_type = cls.get_transaction_type(value["transaction_type"])
-            return correct_type.from_dict(value)
+            return correct_type.from_dict(value)  # mypy: ignore - mypy bug
         else:
             if "transaction_type" in value:
                 if value["transaction_type"] != cls.__name__:
