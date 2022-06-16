@@ -1,8 +1,8 @@
 """Types used by the parser."""
 
-from typing import List, Literal
+from typing import List
 
-from typing_extensions import TypedDict
+from typing_extensions import Literal, TypedDict
 
 
 class OptionalIssuer(TypedDict, total=False):
