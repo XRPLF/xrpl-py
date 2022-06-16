@@ -10,7 +10,7 @@ This command requires the MultiSign amendment to be enabled.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Type, cast
+from typing import Any, Dict, Type
 
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
@@ -57,9 +57,7 @@ class SubmitMultisigned(Request):
         fixed_value = {**value}
         if "TransactionType" in fixed_value["tx_json"]:  # xrpl format
             fixed_value["tx_json"] = Transaction.from_xrpl(fixed_value["tx_json"])
-        return cast(
-            SubmitMultisigned, super(SubmitMultisigned, cls).from_dict(fixed_value)
-        )
+        return super(SubmitMultisigned, cls).from_dict(fixed_value)
 
     def to_dict(self: SubmitMultisigned) -> Dict[str, Any]:
         """

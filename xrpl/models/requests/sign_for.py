@@ -12,7 +12,7 @@ This command requires the MultiSign amendment to be enabled.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional, Type, cast
+from typing import Any, Dict, Optional, Type
 
 from xrpl.constants import CryptoAlgorithm
 from xrpl.models.requests.request import Request, RequestMethod
@@ -72,7 +72,7 @@ class SignFor(Request):
             del fixed_value["tx_json"]
         else:
             fixed_value = value
-        return cast(SignFor, super(SignFor, cls).from_dict(fixed_value))
+        return super(SignFor, cls).from_dict(fixed_value)
 
     def to_dict(self: SignFor) -> Dict[str, Any]:
         """
