@@ -18,7 +18,7 @@ if they came from you.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional, Type, cast
+from typing import Any, Dict, Optional, Type
 
 from xrpl.constants import CryptoAlgorithm
 from xrpl.models.requests.request import Request, RequestMethod
@@ -81,7 +81,7 @@ class Sign(Request):
             del fixed_value["tx_json"]
         else:
             fixed_value = value
-        return cast(Sign, super(Sign, cls).from_dict(fixed_value))
+        return super(Sign, cls).from_dict(fixed_value)
 
     def to_dict(self: Sign) -> Dict[str, Any]:
         """

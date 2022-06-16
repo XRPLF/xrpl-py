@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, Optional, Type, Union, cast
+from typing import Any, Dict, Optional, Type, TypeVar, Union, cast
 
 import xrpl.models.requests  # bare import to get around circular dependency
 from xrpl.models.base_model import BaseModel
@@ -81,6 +81,9 @@ class RequestMethod(str, Enum):
     GENERIC_REQUEST = "zzgeneric_request"
 
 
+R = TypeVar("R", bound="Request")
+
+
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class Request(BaseModel):
@@ -99,7 +102,7 @@ class Request(BaseModel):
     id: Optional[Union[str, int]] = None
 
     @classmethod
-    def from_dict(cls: Type[Request], value: Dict[str, Any]) -> Request:
+    def from_dict(cls: Type[R], value: Dict[str, Any]) -> R:
         """
         Construct a new Request from a dictionary of parameters.
 
@@ -135,7 +138,7 @@ class Request(BaseModel):
             value = {**value}
             del value["method"]
 
-        return cast(Request, super(Request, cls).from_dict(value))
+        return super(Request, cls).from_dict(value)
 
     @classmethod
     def get_method(cls: Type[Request], method: str) -> Type[Request]:
