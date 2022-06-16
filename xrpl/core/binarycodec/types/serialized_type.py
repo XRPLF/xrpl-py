@@ -2,7 +2,11 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Type
+from typing import TYPE_CHECKING, Any, Type
+
+if TYPE_CHECKING:
+    # To prevent a circular dependency.
+    from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 
 
 class SerializedType(ABC):
@@ -16,8 +20,7 @@ class SerializedType(ABC):
     @abstractmethod
     def from_parser(  # noqa: D102
         cls: Type[SerializedType],
-        # TODO: Resolve Any (can't be ``BinaryParser`` because of circular imports)
-        parser: Any,
+        parser: BinaryParser,
         # length_hint is Any so that subclasses can choose whether or not to require it.
         length_hint: Any,
     ) -> SerializedType:
