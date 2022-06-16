@@ -1,0 +1,90 @@
+{
+    "Account": "rEUt5Wy44vDKBDaGkUWG6oSTvxmqgnKWCg",
+    "Fee": "15",
+    "Flags": 2147483648,
+    "LastLedgerSequence": 72374248,
+    "OfferSequence": 70922543,
+    "Sequence": 70922544,
+    "SigningPubKey": "ED024DA5B0A65470D8582D43BDD54D2BD861C9485CFB13EFA2928650CE6686A86D",
+    "TransactionType": "OfferCancel",
+    "TxnSignature": "37EB64C659AE77A70FB93A2DFA0AE5282E3B6C0C8E89A3FE08E004D216CB5C8C62219761E3764AFCBA82692DF6204516FD63C0265CC894B360EA06F18401E90E",
+    "date": 708682141,
+    "hash": "40FDBE9F71213696FE67CC80B2847E7DA1D3E03A4446D34DCC7DE347137FF436",
+    "inLedger": 72374247,
+    "ledger_index": 72374247,
+    "meta": {
+        "AffectedNodes": [
+            {
+                "DeletedNode": {
+                    "FinalFields": {
+                        "ExchangeRate": "57147f7b444d5b06",
+                        "Flags": 0,
+                        "RootIndex": "2004607367326F467796C4080157BE0997B306F1CA6AE0C657147F7B444D5B06",
+                        "TakerGetsCurrency": "0000000000000000000000005844580000000000",
+                        "TakerGetsIssuer": "DEC71A7A7168ED930218B15994FD007CE80A4913",
+                        "TakerPaysCurrency": "0000000000000000000000000000000000000000",
+                        "TakerPaysIssuer": "0000000000000000000000000000000000000000"
+                    },
+                    "LedgerEntryType": "DirectoryNode",
+                    "LedgerIndex": "2004607367326F467796C4080157BE0997B306F1CA6AE0C657147F7B444D5B06"
+                }
+            },
+            {
+                "ModifiedNode": {
+                    "FinalFields": {
+                        "Account": "rEUt5Wy44vDKBDaGkUWG6oSTvxmqgnKWCg",
+                        "Balance": "1283353963",
+                        "Flags": 0,
+                        "OwnerCount": 2,
+                        "Sequence": 70922545
+                    },
+                    "LedgerEntryType": "AccountRoot",
+                    "LedgerIndex": "2CAC78E1EEC7340A666AED1DE99DB8B6C8235CB6675903CAB26EA5C62D4F0BB4",
+                    "PreviousFields": {
+                        "Balance": "1283353978",
+                        "OwnerCount": 3,
+                        "Sequence": 70922544
+                    },
+                    "PreviousTxnID": "3C6A9B3C72B79DB877AC205ADC1700281C20D08CCD30A6779C3E1B550B558B95",
+                    "PreviousTxnLgrSeq": 72373937
+                }
+            },
+            {
+                "DeletedNode": {
+                    "FinalFields": {
+                        "Account": "rEUt5Wy44vDKBDaGkUWG6oSTvxmqgnKWCg",
+                        "BookDirectory": "2004607367326F467796C4080157BE0997B306F1CA6AE0C657147F7B444D5B06",
+                        "BookNode": "0",
+                        "Flags": 0,
+                        "OwnerNode": "0",
+                        "PreviousTxnID": "3C6A9B3C72B79DB877AC205ADC1700281C20D08CCD30A6779C3E1B550B558B95",
+                        "PreviousTxnLgrSeq": 72373937,
+                        "Sequence": 70922543,
+                        "TakerGets": {
+                            "currency": "XDX",
+                            "issuer": "rMJAXYsbNzhwp7FfYnAsYP5ty3R9XnurPo",
+                            "value": "82335.52909"
+                        },
+                        "TakerPays": "47504858"
+                    },
+                    "LedgerEntryType": "Offer",
+                    "LedgerIndex": "A867E960F0D9F88D7BE2885AA3E69C5F2C7F76499D6CC483E353D6616EEBD352"
+                }
+            },
+            {
+                "ModifiedNode": {
+                    "FinalFields": {
+                        "Flags": 0,
+                        "Owner": "rEUt5Wy44vDKBDaGkUWG6oSTvxmqgnKWCg",
+                        "RootIndex": "FEB025593E20EE2B66382D9F9079719A40AD0DE257CBBD6421092037E39C9A53"
+                    },
+                    "LedgerEntryType": "DirectoryNode",
+                    "LedgerIndex": "FEB025593E20EE2B66382D9F9079719A40AD0DE257CBBD6421092037E39C9A53"
+                }
+            }
+        ],
+        "TransactionIndex": 16,
+        "TransactionResult": "tesSUCCESS"
+    },
+    "validated": true
+}

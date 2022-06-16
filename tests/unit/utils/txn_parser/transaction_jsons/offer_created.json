@@ -1,0 +1,93 @@
+{
+    "Account": "rJHbqhp9Sea4f43RoUanrDE1gW9MymTLp9",
+    "Expiration": 740218424,
+    "Fee": "25",
+    "Flags": 2148007936,
+    "LastLedgerSequence": 72374322,
+    "Sequence": 71307620,
+    "SigningPubKey": "020AF1B1419DB3C80FBB3B2621315F78F03806118094140B6FE535ED809561AC23",
+    "TakerGets": "44930000",
+    "TakerPays": {
+        "currency": "USD",
+        "issuer": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
+        "value": "14.524821"
+    },
+    "TransactionType": "OfferCreate",
+    "TxnSignature": "3045022100C1CA7C960C1BD0B2EA9ACCA13BB429C1C5B558AB2B8AFE9FE3815DB075E07806022030152DC46694A3BF8BA1509944F9388723CB30C678E659613D4B3BF8166CCCA5",
+    "date": 708682430,
+    "hash": "463E28521ACA7FB5F4081E7E368FA5AEB76FB641FCB3C92CA9E8971A990CE84A",
+    "inLedger": 72374321,
+    "ledger_index": 72374321,
+    "meta": {
+        "AffectedNodes": [
+            {
+                "ModifiedNode": {
+                    "FinalFields": {
+                        "Flags": 0,
+                        "Owner": "rJHbqhp9Sea4f43RoUanrDE1gW9MymTLp9",
+                        "RootIndex": "3418F55643869450792F7047DC92DD661D38E68AC827C378D7C12FE8E017DD2B"
+                    },
+                    "LedgerEntryType": "DirectoryNode",
+                    "LedgerIndex": "3418F55643869450792F7047DC92DD661D38E68AC827C378D7C12FE8E017DD2B"
+                }
+            },
+            {
+                "ModifiedNode": {
+                    "FinalFields": {
+                        "Account": "rJHbqhp9Sea4f43RoUanrDE1gW9MymTLp9",
+                        "Balance": "69932774",
+                        "Flags": 0,
+                        "OwnerCount": 3,
+                        "Sequence": 71307621
+                    },
+                    "LedgerEntryType": "AccountRoot",
+                    "LedgerIndex": "72D49D4E2ECA5153A90413AA4BCEFBFBE748A2B66A96F5E5611089C095BD666D",
+                    "PreviousFields": {
+                        "Balance": "69932799",
+                        "OwnerCount": 2,
+                        "Sequence": 71307620
+                    },
+                    "PreviousTxnID": "70C2D1F863FBF18CA7E9B17D7B35A19BD5ED22C8B703D447A21C746E1F66F311",
+                    "PreviousTxnLgrSeq": 72374313
+                }
+            },
+            {
+                "ModifiedNode": {
+                    "FinalFields": {
+                        "ExchangeRate": "4e0b7c2f29ac3197",
+                        "Flags": 0,
+                        "RootIndex": "DFA3B6DDAB58C7E8E5D944E736DA4B7046C30E4F460FD9DE4E0B7C2F29AC3197",
+                        "TakerGetsCurrency": "0000000000000000000000000000000000000000",
+                        "TakerGetsIssuer": "0000000000000000000000000000000000000000",
+                        "TakerPaysCurrency": "0000000000000000000000005553440000000000",
+                        "TakerPaysIssuer": "0A20B3C85F482532A9578DBB3950B85CA06594D1"
+                    },
+                    "LedgerEntryType": "DirectoryNode",
+                    "LedgerIndex": "DFA3B6DDAB58C7E8E5D944E736DA4B7046C30E4F460FD9DE4E0B7C2F29AC3197"
+                }
+            },
+            {
+                "CreatedNode": {
+                    "LedgerEntryType": "Offer",
+                    "LedgerIndex": "DFA50F8A0710C8483D5DEF31E87BFA5DBC617F16045EC187EB21A07B7A2B23DA",
+                    "NewFields": {
+                        "Account": "rJHbqhp9Sea4f43RoUanrDE1gW9MymTLp9",
+                        "BookDirectory": "DFA3B6DDAB58C7E8E5D944E736DA4B7046C30E4F460FD9DE4E0B7C2F29AC3197",
+                        "Expiration": 740218424,
+                        "Flags": 131072,
+                        "Sequence": 71307620,
+                        "TakerGets": "44930000",
+                        "TakerPays": {
+                            "currency": "USD",
+                            "issuer": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
+                            "value": "14.524821"
+                        }
+                    }
+                }
+            }
+        ],
+        "TransactionIndex": 37,
+        "TransactionResult": "tesSUCCESS"
+    },
+    "validated": true
+}

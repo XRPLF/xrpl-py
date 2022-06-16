@@ -1,6 +1,6 @@
 """Types used by the parser."""
 
-from typing import List
+from typing import List, Literal
 
 from typing_extensions import TypedDict
 
@@ -39,3 +39,35 @@ class AccountBalances(TypedDict):
 
     account: str
     balances: List[Balance]
+
+
+class CurrencyAmount(Balance):
+    """A currency amunt model. Has the same fields as `Balance`"""
+
+    pass
+
+
+class OfferChange(TypedDict):
+    """A single offer change."""
+
+    direction: Literal["buy", "sell"]
+    quantity: CurrencyAmount
+    total_price: CurrencyAmount
+    sequence: int
+    status: Literal["created", "partially-filled", "filled", "cancelled"]
+    maker_exchange_rate: str
+    expiration_time: int
+
+
+class AccountOfferChange(TypedDict):
+    """A model representing an account's offer change."""
+
+    account: str
+    offer_change: OfferChange
+
+
+class AccountOfferChanges(TypedDict):
+    """A model representing an account's offer changes."""
+
+    account: str
+    offer_changes: List[OfferChange]
