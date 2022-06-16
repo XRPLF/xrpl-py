@@ -27,13 +27,14 @@ jobs:
       - name: Install poetry
         run: pipx install poetry
 
-      - name: Install poetry dependencies
+      - name: Retrieve poetry dependencies from cache
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
           cache: 'poetry'
 
-      - run: poetry install
+      - name: Install poetry dependencies
+        run: poetry install
 
       - name: Lint
         run: |
@@ -53,7 +54,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -64,11 +65,17 @@ jobs:
         run: |
           python -c "import sys; print(sys.version)"
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry install
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Retrieve poetry dependencies from cache
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'poetry'
+
+      - name: Install poetry dependencies
+        run: poetry install
 
       - name: Unit test
         run: |
