@@ -32,8 +32,7 @@ jobs:
         with:
           python-version: '3.9'
           cache: 'poetry'
-
-      - run: poetry install
+        run: poetry install
 
       - name: Lint
         run: |
