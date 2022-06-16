@@ -79,6 +79,6 @@ class Submit(Request):
 
         if cls.__name__ == "Submit":
             if "tx_blob" in value:
-                return SubmitOnly.from_dict(value)  # mypy: ignore - mypy bug
-            return SignAndSubmit.from_dict(value)  # mypy: ignore - mypy bug
+                return SubmitOnly.from_dict(value)  # type: ignore
+            return SignAndSubmit.from_dict(value)  # type: ignore
         return super(Submit, cls).from_dict(value)
