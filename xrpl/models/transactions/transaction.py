@@ -411,7 +411,11 @@ class Transaction(BaseModel):
             return correct_type.from_dict(value)  # type: ignore
         else:
             if "transaction_type" in value:
-                if value["transaction_type"] != cls.__name__:
+                # TODO: remove sidechain caveat once renames happen
+                if (
+                    value["transaction_type"] != cls.__name__
+                    and "Sidechain" not in value["transaction_type"]
+                ):
                     transaction_type = value["transaction_type"]
                     raise XRPLModelException(
                         f"Using wrong constructor: using {cls.__name__} constructor "
@@ -480,8 +484,20 @@ class Transaction(BaseModel):
         import xrpl.models.transactions as transaction_models
         import xrpl.models.transactions.pseudo_transactions as pseudo_transaction_models
 
+        # TODO: remove once renames happen
+        exceptions = {
+            "SidechainXChainClaim": "XChainClaim",
+            "SidechainCreate": "XChainDoorCreate",
+            "SidechainXChainSeqNumCreate": "XChainSeqNumCreate",
+            "SidechainXChainTransfer": "XChainTransfer",
+        }
+
         transaction_types: Dict[str, Type[Transaction]] = {
-            t.value: getattr(transaction_models, t)
+            t.value: (
+                getattr(transaction_models, t)
+                if t.value not in exceptions
+                else getattr(transaction_models, exceptions[t])
+            )
             for t in transaction_models.types.TransactionType
         }
         if transaction_type in transaction_types:

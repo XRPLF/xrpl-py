@@ -54,7 +54,7 @@ signature = (
     "30450221008CC9842A6855A37131FE7FB978675DCF329AC5CD7C881FAF6D13CDC23363059F02203A1"
     "0475640C2C09541A55098109BB3326D3F49E2304710736A4E3C2773539B01"
 )
-public_key = "03ADB44CA8E56F78A0096825E5667C450ABD5C24C34E027BC1AAF7E5BD114CB5B5"
+signing_key = "03ADB44CA8E56F78A0096825E5667C450ABD5C24C34E027BC1AAF7E5BD114CB5B5"
 
 
 class TestBaseModel(TestCase):
@@ -131,7 +131,7 @@ class TestFromDict(TestCase):
 
         expected_dict = {
             **sign_dict,
-            "tx_json": transaction.to_dict(),
+            "tx_json": transaction.to_xrpl(),
             "method": "sign",
             "fee_mult_max": 10,
             "fee_div_max": 1,
@@ -147,7 +147,7 @@ class TestFromDict(TestCase):
 
         expected_dict = {
             **sign_dict,
-            "tx_json": transaction.to_dict(),
+            "tx_json": transaction.to_xrpl(),
             "method": "sign",
             "fee_mult_max": 10,
             "fee_div_max": 1,
@@ -518,7 +518,7 @@ class TestFromDict(TestCase):
             "Account": "r9A8UyNpW3X46FUc6P7JZqgn6WgAPjBwPg",
             "Destination": "rKT9gDkaedAosiHyHZTjyZs2HvXpzuiGmC",
             "Flags": 2147483648,
-            "TransactionType": "XChainClaim",
+            "TransactionType": "SidechainXChainClaim",
             "XChainClaimProof": {
                 "amount": "1000000000",
                 "sidechain": {
@@ -529,22 +529,16 @@ class TestFromDict(TestCase):
                 },
                 "signatures": [
                     {
-                        "XChainProofSig": {
-                            "Signature": signature,
-                            "PublicKey": public_key,
-                        }
+                        "signature": signature,
+                        "signing_key": signing_key,
                     },
                     {
-                        "XChainProofSig": {
-                            "Signature": signature,
-                            "PublicKey": public_key,
-                        }
+                        "signature": signature,
+                        "signing_key": signing_key,
                     },
                     {
-                        "XChainProofSig": {
-                            "Signature": signature,
-                            "PublicKey": public_key,
-                        }
+                        "signature": signature,
+                        "signing_key": signing_key,
                     },
                 ],
                 "was_src_chain_send": True,
@@ -565,9 +559,9 @@ class TestFromDict(TestCase):
                     src_chain_issue="XRP",
                 ),
                 signatures=[
-                    XChainProofSig(signature=signature, public_key=public_key),
-                    XChainProofSig(signature=signature, public_key=public_key),
-                    XChainProofSig(signature=signature, public_key=public_key),
+                    XChainProofSig(signature=signature, signing_key=signing_key),
+                    XChainProofSig(signature=signature, signing_key=signing_key),
+                    XChainProofSig(signature=signature, signing_key=signing_key),
                 ],
                 was_src_chain_send=True,
                 xchain_seq=1,
