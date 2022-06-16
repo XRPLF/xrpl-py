@@ -1,6 +1,5 @@
 """Convenience utilities for the XRP Ledger"""
 
-from xrpl.utils.sidechain import create_cross_chain_payment
 from xrpl.utils.str_conversions import hex_to_str, str_to_hex
 from xrpl.utils.time_conversions import (
     XRPLTimeRangeException,
@@ -23,7 +22,6 @@ __all__ = [
     "posix_to_ripple_time",
     "XRPRangeException",
     "XRPLTimeRangeException",
-    "create_cross_chain_payment",
     "get_balance_changes",
     "get_final_balances",
 ]
