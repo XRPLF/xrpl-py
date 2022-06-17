@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed:
 - Typing for factory classmethods on models
 
+### Fixed:
+- Use properly encoded transactions in `Sign`, `SignFor`, and `SignAndSubmit`
+
 ## [1.6.0] - 2022-06-02
 ### Added:
 - Support for dynamic fee calculation
