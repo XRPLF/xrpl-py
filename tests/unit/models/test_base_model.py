@@ -122,7 +122,7 @@ class TestFromDict(TestCase):
 
         expected_dict = {
             **sign_dict,
-            "tx_json": transaction.to_dict(),
+            "tx_json": transaction.to_xrpl(),
             "method": "sign",
             "fee_mult_max": 10,
             "fee_div_max": 1,
@@ -138,7 +138,7 @@ class TestFromDict(TestCase):
 
         expected_dict = {
             **sign_dict,
-            "tx_json": transaction.to_dict(),
+            "tx_json": transaction.to_xrpl(),
             "method": "sign",
             "fee_mult_max": 10,
             "fee_div_max": 1,

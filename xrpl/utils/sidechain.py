@@ -1,7 +1,5 @@
 """Sidechain-related helper util functions."""
 
-from typing import cast
-
 from xrpl.constants import XRPLException
 from xrpl.models import Memo, Payment
 from xrpl.utils.str_conversions import str_to_hex
@@ -42,4 +40,4 @@ def create_cross_chain_payment(payment: Payment, dest_account: str) -> Payment:
     payment_dict["memos"] = new_memos
     if "txn_signature" in payment_dict:
         del payment_dict["txn_signature"]
-    return cast(Payment, Payment.from_dict(payment_dict))
+    return Payment.from_dict(payment_dict)

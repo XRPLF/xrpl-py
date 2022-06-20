@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from hashlib import sha512
-from typing import Any, Dict, List, Optional, Type, Union, cast
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
 from typing_extensions import Final
 
@@ -136,8 +136,8 @@ class Memo(BaseModel):
             XRPLModelException: If the dictionary provided is invalid.
         """
         if "memo" not in value:
-            return cast(Memo, super(Memo, cls).from_dict(value))
-        return cast(Memo, super(Memo, cls).from_dict(value["memo"]))
+            return super(Memo, cls).from_dict(value)
+        return super(Memo, cls).from_dict(value["memo"])
 
     def to_dict(self: Memo) -> Dict[str, Any]:
         """
@@ -222,8 +222,8 @@ class Signer(BaseModel):
             XRPLModelException: If the dictionary provided is invalid.
         """
         if "signer" not in value:
-            return cast(Signer, super(Signer, cls).from_dict(value))
-        return cast(Signer, super(Signer, cls).from_dict(value["signer"]))
+            return super(Signer, cls).from_dict(value)
+        return super(Signer, cls).from_dict(value["signer"])
 
     def to_dict(self: Signer) -> Dict[str, Any]:
         """
@@ -233,6 +233,9 @@ class Signer(BaseModel):
             The dictionary representation of a Signer.
         """
         return {"signer": super().to_dict()}
+
+
+T = TypeVar("T", bound="Transaction")  # any type inherited from Transaction
 
 
 @require_kwargs_on_init
@@ -373,7 +376,7 @@ class Transaction(BaseModel):
         return transaction_json_to_binary_codec_form(self.to_dict())
 
     @classmethod
-    def from_dict(cls: Type[Transaction], value: Dict[str, Any]) -> Transaction:
+    def from_dict(cls: Type[T], value: Dict[str, Any]) -> T:
         """
         Construct a new Transaction from a dictionary of parameters.
 
@@ -393,7 +396,7 @@ class Transaction(BaseModel):
                     "Transaction does not include transaction_type."
                 )
             correct_type = cls.get_transaction_type(value["transaction_type"])
-            return correct_type.from_dict(value)
+            return correct_type.from_dict(value)  # type: ignore
         else:
             if "transaction_type" in value:
                 if value["transaction_type"] != cls.__name__:
@@ -404,7 +407,7 @@ class Transaction(BaseModel):
                     )
                 value = {**value}
                 del value["transaction_type"]
-            return cast(Transaction, super(Transaction, cls).from_dict(value))
+            return super(Transaction, cls).from_dict(value)
 
     def has_flag(self: Transaction, flag: int) -> bool:
         """
