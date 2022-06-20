@@ -1,7 +1,7 @@
 """Helper functions for order book parser."""
 
 from decimal import Decimal
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from typing_extensions import Literal
 
@@ -64,19 +64,34 @@ def _get_change_amount(
     node: NormalizedNode,
     status: Literal["created", "partially-filled", "filled", "cancelled"],
     side: Literal["TakerGets", "TakerPays"],
-) -> CurrencyAmount:
+) -> Optional[CurrencyAmount]:
     if status == "cancelled":
-        return _derive_currency_amount(node["FinalFields"][side])
+        final_fields = node.get("FinalFields")
+        if final_fields is not None:
+            final_fields_amount = final_fields.get(side)
+            if final_fields_amount is not None:
+                return _derive_currency_amount(final_fields_amount)
     if status == "created":
-        return _derive_currency_amount(node["NewFields"][side])
-    final_amount = _derive_currency_amount(node["FinalFields"][side])
-    previous_amount = _derive_currency_amount(node["PreviousFields"][side])
-    value = _calculate_delta(final_amount, previous_amount)
-    # final_amount is being reused because it makes it easier to return the changed
-    # amount.
-    final_amount["value"] = value
-    # From now on you could consider final_amount as changed_amount.
-    return final_amount
+        new_fields = node.get("NewFields")
+        if new_fields is not None:
+            new_fields_amount = new_fields.get(side)
+            if new_fields_amount is not None:
+                return _derive_currency_amount(new_fields_amount)
+    final_fields = node.get("FinalFields")
+    previous_fields = node.get("PreviousFields")
+    if final_fields is not None and previous_fields is not None:
+        final_fields_amount = final_fields.get(side)
+        previous_fields_amount = previous_fields.get(side)
+        if final_fields_amount is not None and previous_fields_amount is not None:
+            final_amount = _derive_currency_amount(final_fields_amount)
+            previous_amount = _derive_currency_amount(previous_fields_amount)
+            value = _calculate_delta(final_amount, previous_amount)
+            # final_amount is being reused because it makes
+            # it easier to return the changed amount.
+            final_amount["value"] = value
+            # From now on you could consider final_amount as changed_amount.
+            return final_amount
+    return None
 
 
 def _get_quality(
@@ -99,32 +114,50 @@ def _get_quality(
 def _get_optional_fields(
     node: NormalizedNode,
     field_name: str,
-) -> Union[Optional[int], Optional[str]]:
+) -> Optional[Any]:
     new_fields = node.get("NewFields")
     final_fields = node.get("FinalFields")
     if new_fields is not None:
         return new_fields.get(field_name)
-    return final_fields.get(field_name)
+    if final_fields is not None:
+        return final_fields.get(field_name)
+    return None
 
 
-def _get_fields(node: NormalizedNode, field_name: str) -> Union[int, str]:
+def _get_fields(
+    node: NormalizedNode,
+    field_name: str,
+) -> Optional[Any]:
     new_fields = node.get("NewFields")
     final_fields = node.get("FinalFields")
     if new_fields is not None:
-        return new_fields[field_name]
-    return final_fields[field_name]
+        return new_fields.get(field_name)
+    if final_fields is not None:
+        return final_fields.get(field_name)
+    return None
 
 
-def _get_offer_change(node: NormalizedNode) -> AccountOfferChange:
+def _get_offer_change(node: NormalizedNode) -> Optional[AccountOfferChange]:
     status = _get_offer_status(node)
     taker_gets = _get_change_amount(node, status, "TakerGets")
     taker_pays = _get_change_amount(node, status, "TakerPays")
     account = _get_fields(node, "Account")
     sequence = _get_fields(node, "Sequence")
     book_directory = _get_fields(node, "BookDirectory")
-    expiration_time = _get_optional_fields(node, "Expiration")
-    flags = _get_optional_fields(node, "Flags")
-    direction = "sell" if flags is not None and flags & LSF_SELL != 0 else "buy"
+    # if required fields are None return None
+    if (
+        taker_gets is None
+        or taker_pays is None
+        or account is None
+        or sequence is None
+        or book_directory is None
+    ):
+        return None
+    expiration_time = _get_fields(node, "Expiration")
+    flags = _get_fields(node, "Flags")
+    direction: Literal["buy", "sell"] = (
+        "sell" if (flags is not None and flags & LSF_SELL != 0) else "buy"
+    )
     quality = _get_quality(taker_gets, taker_pays, book_directory)
     quantity = taker_pays if direction == "buy" else taker_gets
     total_price = taker_gets if direction == "buy" else taker_pays
@@ -176,5 +209,9 @@ def compute_order_book_changes(
     offer_nodes = [
         node for node in normalized_nodes if node["LedgerEntryType"] == "Offer"
     ]
-    offer_changes = [_get_offer_change(node) for node in offer_nodes]
+    offer_changes = []
+    for node in offer_nodes:
+        change = _get_offer_change(node)
+        if change is not None:
+            offer_changes.append(change)
     return _group_offer_changes_by_account(offer_changes)

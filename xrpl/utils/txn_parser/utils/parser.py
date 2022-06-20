@@ -3,10 +3,14 @@
 from decimal import Decimal
 from typing import Any, Dict, List, Union
 
-from xrpl.utils.txn_parser.utils.types import AccountBalance, AccountOfferChange
+from xrpl.utils.txn_parser.utils.types import (
+    AccountBalance,
+    AccountOfferChange,
+    CurrencyAmount,
+)
 
 
-def get_value(balance: Union[Dict[str, str], str]) -> Decimal:
+def get_value(balance: Union[CurrencyAmount, Dict[str, str], str]) -> Decimal:
     """
     Get a currency amount's value.
 
@@ -23,7 +27,7 @@ def get_value(balance: Union[Dict[str, str], str]) -> Decimal:
 
 def group_by_account(
     account_objects: Union[List[AccountBalance], List[AccountOfferChange]],
-) -> Dict[str, List[Dict[str, Any]]]:
+) -> Dict[str, Any]:
     """
     Groups the account objects in one list for each account.
 
@@ -33,7 +37,7 @@ def group_by_account(
     Returns:
         The grouped computed objects.
     """
-    grouped_objects = {}
+    grouped_objects: Dict[str, Any] = {}
     for object in account_objects:
         account = object["account"]
         if account not in grouped_objects:

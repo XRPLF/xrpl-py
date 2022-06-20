@@ -160,6 +160,3 @@ class TestGetOrderBookChanges(TestCase):
             },
         ]
         self.assertEqual(actual, expected)
-
-
-# get_order_book_changes(offer_created["meta"])

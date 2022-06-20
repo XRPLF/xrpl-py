@@ -47,7 +47,18 @@ class CurrencyAmount(Balance):
     pass
 
 
-class OfferChange(TypedDict):
+class OptionalExpiration(TypedDict, total=False):
+    """The optional expiration field for an offer."""
+
+    """
+    The `Expiration` field is separated from `OfferChange` to make it
+    optional, while keeping all other fields required.
+    """
+
+    expiration_time: int
+
+
+class OfferChange(OptionalExpiration):
     """A single offer change."""
 
     direction: Literal["buy", "sell"]
@@ -56,7 +67,6 @@ class OfferChange(TypedDict):
     sequence: int
     status: Literal["created", "partially-filled", "filled", "cancelled"]
     maker_exchange_rate: str
-    expiration_time: int
 
 
 class AccountOfferChange(TypedDict):
