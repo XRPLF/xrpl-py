@@ -55,12 +55,12 @@ class TestGetOrderBookChanges(TestCase):
                         "quantity": {
                             "currency": "USD",
                             "issuer": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
-                            "value": "63.7479881398749",
+                            "value": "-63.7479881398749",
                         },
                         "total_price": {
                             "currency": "USD",
                             "issuer": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
-                            "value": "62.4730283770749",
+                            "value": "-62.4730283770749",
                         },
                         "sequence": 5931,
                         "status": "filled",
@@ -76,12 +76,12 @@ class TestGetOrderBookChanges(TestCase):
                         "quantity": {
                             "currency": "USD",
                             "issuer": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
-                            "value": "117.3895136925395",
+                            "value": "-117.3895136925395",
                         },
                         "total_price": {
                             "currency": "USD",
                             "issuer": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
-                            "value": "115.0877585220975",
+                            "value": "-115.0877585220975",
                         },
                         "sequence": 67701941,
                         "status": "partially-filled",

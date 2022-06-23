@@ -57,7 +57,7 @@ def _calculate_delta(
     final_value = get_value(final_amount)
     previous_value = get_value(previous_amount)
     delta = final_value - previous_value
-    return str(delta.copy_abs())
+    return str(delta)
 
 
 def _get_change_amount(

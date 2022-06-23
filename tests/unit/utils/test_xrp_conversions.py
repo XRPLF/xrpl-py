@@ -15,7 +15,7 @@ class TestXRPConversions(TestCase):
         self.assertEqual(xrpl.utils.xrp_to_drops(Decimal("0.000001")), "1")
 
     def test_max_xrp(self):
-        self.assertEqual(xrpl.utils.xrp_to_drops(10**11), "100000000000000000")
+        self.assertEqual(xrpl.utils.xrp_to_drops(10 ** 11), "100000000000000000")
 
     def test_too_small_xrp(self):
         with self.assertRaises(xrpl.utils.XRPRangeException):
@@ -23,7 +23,7 @@ class TestXRPConversions(TestCase):
 
     def test_too_big_xrp(self):
         with self.assertRaises(xrpl.utils.XRPRangeException):
-            xrpl.utils.xrp_to_drops(10**11 + 1)
+            xrpl.utils.xrp_to_drops(10 ** 11 + 1)
 
     def test_nan_xrp(self):
         with self.assertRaises(xrpl.utils.XRPRangeException):
@@ -46,7 +46,7 @@ class TestXRPConversions(TestCase):
         self.assertEqual(xrpl.utils.drops_to_xrp("1e6"), Decimal(1))
 
     def test_max_drops(self):
-        self.assertEqual(xrpl.utils.drops_to_xrp(str(10**17)), Decimal(10**11))
+        self.assertEqual(xrpl.utils.drops_to_xrp(str(10 ** 17)), Decimal(10 ** 11))
 
     def test_float_drops(self):
         with self.assertRaises(TypeError):
@@ -62,7 +62,7 @@ class TestXRPConversions(TestCase):
 
     def test_too_many_drops(self):
         with self.assertRaises(xrpl.utils.XRPRangeException):
-            xrpl.utils.drops_to_xrp(str(10**17 + 1))
+            xrpl.utils.drops_to_xrp(str(10 ** 17 + 1))
 
     def test_negative_drops(self):
         with self.assertRaises(xrpl.utils.XRPRangeException):

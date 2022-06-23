@@ -28,7 +28,7 @@ _PADDING_PREFIX: Final[str] = "0"
 
 # Generated sequence values are _SEQUENCE_SIZE bytes unsigned big-endian
 _SEQUENCE_SIZE: Final[int] = 4
-_SEQUENCE_MAX: Final[int] = 256**_SEQUENCE_SIZE
+_SEQUENCE_MAX: Final[int] = 256 ** _SEQUENCE_SIZE
 
 # Intermediate private keys are always padded with 4 bytes of zeros
 _INTERMEDIATE_KEYPAIR_PADDING: Final[bytes] = (0).to_bytes(

@@ -10,10 +10,10 @@ from xrpl.constants import DROPS_DECIMAL_CONTEXT, XRPLException
 ONE_DROP: Final[Decimal] = Decimal("0.000001")
 """Indivisible unit of XRP"""
 
-MAX_XRP: Final[Decimal] = Decimal(10**11)
+MAX_XRP: Final[Decimal] = Decimal(10 ** 11)
 """100 billion decimal XRP"""
 
-MAX_DROPS: Final[Decimal] = Decimal(10**17)
+MAX_DROPS: Final[Decimal] = Decimal(10 ** 17)
 """Maximum possible drops of XRP"""
 
 # Drops should be an integer string. MAY have (positive) exponent.

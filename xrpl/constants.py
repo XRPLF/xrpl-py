@@ -47,11 +47,11 @@ MAX_IOU_PRECISION: Final[int] = 16
 """
 :meta private:
 """
-MIN_IOU_MANTISSA: Final[int] = 10**15
+MIN_IOU_MANTISSA: Final[int] = 10 ** 15
 """
 :meta private:
 """
-MAX_IOU_MANTISSA: Final[int] = 10**16 - 1
+MAX_IOU_MANTISSA: Final[int] = 10 ** 16 - 1
 """
 :meta private:
 """
