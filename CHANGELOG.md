@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 ### Added:
 - Function to parse the final account balances from a transaction's metadata
+- Support for ED25519 seeds that don't use the `sEd` prefix
 
 ### Fixed:
 - Typing for factory classmethods on models

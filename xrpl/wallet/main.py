@@ -29,6 +29,8 @@ class Wallet:
         Args:
             seed: The seed from which the public and private keys are derived.
             sequence: The next sequence number for the account.
+            algorithm: The algorithm used to encode the keys. Inferred from the seed if
+                not included.
         """
         self.seed = seed
         """

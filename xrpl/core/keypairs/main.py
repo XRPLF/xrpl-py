@@ -56,6 +56,8 @@ def derive_keypair(
             :func:`generate_seed() <xrpl.core.keypairs.generate_seed>` to generate an
             appropriate value.
         validator: Whether the keypair is a validator keypair.
+        algorithm: The algorithm used to encode the keys. Inferred from the seed if not
+            included.
 
     Returns:
         A (public key, private key) pair derived from the given seed.

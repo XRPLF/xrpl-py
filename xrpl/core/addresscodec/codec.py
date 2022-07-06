@@ -50,10 +50,12 @@ def _encode(bytestring: bytes, prefix: List[int], expected_length: int) -> str:
 
 def _decode(b58_string: str, prefix: bytes) -> bytes:
     """
-    b58_string: A base58 value
-    prefix: The prefix prepended to the bytestring
+    Args:
+        b58_string: A base58 value.
+        prefix: The prefix prepended to the bytestring.
 
-    Returns the byte decoding of the base58-encoded string.
+    Returns:
+        The byte decoding of the base58-encoded string.
     """
     prefix_length = len(prefix)
     decoded = base58.b58decode_check(b58_string, alphabet=XRPL_ALPHABET)
@@ -95,7 +97,8 @@ def decode_seed(
     Returns (decoded seed, its algorithm).
 
     Args:
-        seed: b58 encoding of a seed.
+        seed: The b58 encoding of a seed.
+        algorithm: The encoding algorithm. Inferred from the seed if not included.
 
     Returns:
         (decoded seed, its algorithm).
