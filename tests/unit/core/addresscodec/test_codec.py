@@ -91,6 +91,17 @@ class TestCodec(TestCase):
         self.assertEqual(decode_result, hex_string_bytes)
         self.assertEqual(encoding_type, CryptoAlgorithm.ED25519)
 
+    def test_seed_decode_ed25519_different_prefix(self):
+        hex_string = "2275BCC966EF1FED4AD08B11189A4157"
+        encoded_string = "ssB9S5Mca2hGZ73xNs4gruS1GY7fB"
+        hex_string_bytes = bytes.fromhex(hex_string)
+
+        decode_result, encoding_type = addresscodec.decode_seed(
+            encoded_string, CryptoAlgorithm.ED25519
+        )
+        self.assertEqual(decode_result, hex_string_bytes)
+        self.assertEqual(encoding_type, CryptoAlgorithm.ED25519)
+
     def test_seed_encode_decode_too_small(self):
         hex_string = "CF2DE378FBDD7E2EE87D486DFB5A7B"
         hex_string_bytes = bytes.fromhex(hex_string)
