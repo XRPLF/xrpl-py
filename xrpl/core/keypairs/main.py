@@ -45,7 +45,9 @@ def generate_seed(
     return addresscodec.encode_seed(parsed_entropy, algorithm)
 
 
-def derive_keypair(seed: str, validator: bool = False) -> Tuple[str, str]:
+def derive_keypair(
+    seed: str, validator: bool = False, algorithm: Optional[CryptoAlgorithm] = None
+) -> Tuple[str, str]:
     """
     Derive the public and private keys from a given seed value.
 
@@ -62,7 +64,7 @@ def derive_keypair(seed: str, validator: bool = False) -> Tuple[str, str]:
         XRPLKeypairsException: If the derived keypair did not generate a
             verifiable signature.
     """
-    decoded_seed, algorithm = addresscodec.decode_seed(seed)
+    decoded_seed, algorithm = addresscodec.decode_seed(seed, algorithm)
     module = _ALGORITHM_TO_MODULE_MAP[algorithm]
     public_key, private_key = module.derive_keypair(decoded_seed, validator)
     signature = module.sign(_VERIFICATION_MESSAGE, private_key)

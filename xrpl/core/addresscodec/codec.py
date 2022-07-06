@@ -1,6 +1,6 @@
 """This module encodes and decodes various types of base58 encodings."""
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import base58
 from typing_extensions import Final
@@ -27,9 +27,9 @@ _CLASSIC_ADDRESS_LENGTH: Final[int] = 20
 _NODE_PUBLIC_KEY_LENGTH: Final[int] = 33
 _ACCOUNT_PUBLIC_KEY_LENGTH: Final[int] = 33
 
-_ALGORITHM_TO_PREFIX_MAP: Final[Dict[CryptoAlgorithm, List[int]]] = {
-    CryptoAlgorithm.ED25519: _ED25519_SEED_PREFIX,
-    CryptoAlgorithm.SECP256K1: _FAMILY_SEED_PREFIX,
+_ALGORITHM_TO_PREFIX_MAP: Final[Dict[CryptoAlgorithm, List[List[int]]]] = {
+    CryptoAlgorithm.ED25519: [_ED25519_SEED_PREFIX, _FAMILY_SEED_PREFIX],
+    CryptoAlgorithm.SECP256K1: [_FAMILY_SEED_PREFIX],
 }
 
 
@@ -84,11 +84,13 @@ def encode_seed(entropy: bytes, encoding_type: CryptoAlgorithm) -> str:
             f"Encoding type must be one of {CryptoAlgorithm}"
         )
 
-    prefix = _ALGORITHM_TO_PREFIX_MAP[encoding_type]
+    prefix = _ALGORITHM_TO_PREFIX_MAP[encoding_type][0]
     return _encode(entropy, prefix, SEED_LENGTH)
 
 
-def decode_seed(seed: str) -> Tuple[bytes, CryptoAlgorithm]:
+def decode_seed(
+    seed: str, algorithm: Optional[CryptoAlgorithm] = None
+) -> Tuple[bytes, CryptoAlgorithm]:
     """
     Returns (decoded seed, its algorithm).
 
@@ -101,8 +103,17 @@ def decode_seed(seed: str) -> Tuple[bytes, CryptoAlgorithm]:
     Raises:
         XRPLAddressCodecException: If the seed is invalid.
     """
+    if algorithm is not None:
+        for prefix in _ALGORITHM_TO_PREFIX_MAP[algorithm]:
+            try:
+                decoded_result = _decode(seed, bytes(prefix))
+                return decoded_result, algorithm
+            except XRPLAddressCodecException:
+                # prefix is incorrect, wrong prefix
+                continue
+        raise XRPLAddressCodecException("Wrong algorithm for the seed type.")
     for algorithm in CryptoAlgorithm:
-        prefix = _ALGORITHM_TO_PREFIX_MAP[algorithm]
+        prefix = _ALGORITHM_TO_PREFIX_MAP[algorithm][0]
         try:
             decoded_result = _decode(seed, bytes(prefix))
             return decoded_result, algorithm
