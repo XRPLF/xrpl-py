@@ -331,7 +331,7 @@ class TestXAddress(TestCase):
 
 
 class TestMainFixtures(TestCase):
-    maxDiff = 1000
+    maxDiff = None
 
     def _check_binary_and_json(self, test):
         test_binary = test["binary"]
