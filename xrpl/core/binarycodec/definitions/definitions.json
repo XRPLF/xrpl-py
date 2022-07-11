@@ -41,7 +41,7 @@
     "Bridge": 105,
     "LedgerHashes": 104,
     "Amendments": 102,
-    "XChainClaimId": 113,
+    "XChainClaimID": 113,
     "FeeSettings": 115,
     "Escrow": 117,
     "PayChannel": 120,
