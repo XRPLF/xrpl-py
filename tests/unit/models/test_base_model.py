@@ -4,6 +4,7 @@ from unittest import TestCase
 
 from xrpl.models import XRPLModelException
 from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.models.bridge import Bridge
 from xrpl.models.requests import (
     AccountChannels,
     BookOffers,
@@ -24,6 +25,7 @@ from xrpl.models.transactions import (
     SignerListSet,
     TrustSet,
     TrustSetFlag,
+    XChainClaim,
 )
 from xrpl.models.transactions.transaction import Transaction
 
@@ -597,3 +599,34 @@ class TestFromDict(TestCase):
             ],
         }
         self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_from_xrpl_xchain(self):
+        tx_json = {
+            "Account": account,
+            "Amount": value,
+            "Bridge": {
+                "src_chain_door": "rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
+                "src_chain_issue": "XRP",
+                "dst_chain_door": "r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
+                "dst_chain_issue": "XRP",
+            },
+            "Destination": destination,
+            "TransactionType": "XChainClaim",
+            "Flags": 0,
+            "SigningPubKey": "",
+            "XChainClaimID": "0000000000000001",
+        }
+        tx_obj = XChainClaim(
+            account=account,
+            amount=value,
+            bridge=Bridge(
+                src_chain_door="rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
+                src_chain_issue="XRP",
+                dst_chain_door="r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
+                dst_chain_issue="XRP",
+            ),
+            destination=destination,
+            xchain_claim_id="0000000000000001",
+        )
+        self.assertEqual(tx_obj.to_xrpl(), tx_json)
+        self.assertEqual(Transaction.from_xrpl(tx_json), tx_obj)
