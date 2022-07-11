@@ -2,11 +2,13 @@
 from xrpl.core.binarycodec.types.account_id import AccountID
 from xrpl.core.binarycodec.types.amount import Amount
 from xrpl.core.binarycodec.types.blob import Blob
+from xrpl.core.binarycodec.types.bridge import Bridge
 from xrpl.core.binarycodec.types.currency import Currency
 from xrpl.core.binarycodec.types.hash import Hash
 from xrpl.core.binarycodec.types.hash128 import Hash128
 from xrpl.core.binarycodec.types.hash160 import Hash160
 from xrpl.core.binarycodec.types.hash256 import Hash256
+from xrpl.core.binarycodec.types.issued_currency import IssuedCurrency
 from xrpl.core.binarycodec.types.path_set import PathSet
 from xrpl.core.binarycodec.types.st_array import STArray
 from xrpl.core.binarycodec.types.st_object import STObject
@@ -21,11 +23,13 @@ __all__ = [
     "AccountID",
     "Amount",
     "Blob",
+    "Bridge",
     "Currency",
     "Hash",
     "Hash128",
     "Hash160",
     "Hash256",
+    "IssuedCurrency",
     "PathSet",
     "STObject",
     "STArray",
