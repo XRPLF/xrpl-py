@@ -1,6 +1,7 @@
 """Top-level exports for the models package."""
 from xrpl.models import amounts, currencies, requests, transactions
 from xrpl.models.amounts import *  # noqa: F401, F403
+from xrpl.models.bridge import Bridge
 from xrpl.models.currencies import *  # noqa: F401, F403
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.path import Path, PathStep
@@ -20,6 +21,7 @@ __all__ = [
     "transactions",
     *transactions.__all__,
     *transactions.pseudo_transactions.__all__,
+    "Bridge",
     "Path",
     "PathStep",
     "Response",
