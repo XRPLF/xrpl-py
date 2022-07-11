@@ -10,6 +10,7 @@ from typing_extensions import Final
 from xrpl.core.binarycodec import encode
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.base_model import BaseModel
+from xrpl.models.bridge import Bridge
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.flags import check_false_flag_definition, interface_to_flag_list
 from xrpl.models.nested_model import NestedModel
@@ -27,7 +28,14 @@ _ABBREVIATIONS: Final[Dict[str, str]] = {
     "id": "ID",
     "uri": "URI",
     "nftoken": "NFToken",
+    "xchain": "XChain",
 }
+
+_LOWER_CASE_MODELS: List[Type[BaseModel]] = [
+    IssuedCurrencyAmount,
+    PathStep,
+    Bridge,
+]
 
 
 def transaction_json_to_binary_codec_form(
@@ -69,7 +77,7 @@ def _key_to_tx_json(key: str) -> str:
 def _value_to_tx_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     # IssuedCurrencyAmount and PathStep are special cases and should not be snake cased
     # and only contain primitive members
-    if IssuedCurrencyAmount.is_dict_of_model(value) or PathStep.is_dict_of_model(value):
+    if any([model.is_dict_of_model(value) for model in _LOWER_CASE_MODELS]):
         return value
     if isinstance(value, dict):
         return transaction_json_to_binary_codec_form(value)
