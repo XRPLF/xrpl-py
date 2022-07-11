@@ -23,6 +23,6 @@ class XChainCommit(Transaction):
     amount: Amount = REQUIRED  # type: ignore
 
     transaction_type: TransactionType = field(
-        default=TransactionType.XCHAIN_CREATE_CLAIM_ID,
+        default=TransactionType.XCHAIN_COMMIT,
         init=False,
     )
