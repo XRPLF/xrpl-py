@@ -129,7 +129,7 @@ open _build/html/index.html
 
 * Your changes should have unit and/or integration tests.
 * Your changes should pass the linter.
-* Your code should pass all the unit and integration tests on Github (which check all 4 versions of Python).
+* Your code should pass all the unit and integration tests on Github (which check all versions of Python).
 * Open a PR against `master` and ensure that all CI passes.
 * Get a full code review from one of the maintainers.
 * Merge your changes.
