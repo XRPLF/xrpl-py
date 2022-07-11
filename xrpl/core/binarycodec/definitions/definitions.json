@@ -2502,7 +2502,7 @@
     "NFTokenCancelOffer": 28,
     "NFTokenAcceptOffer": 29,
     "XChainCreateBridge": 30,
-    "XChainCreateClaimId": 31,
+    "XChainCreateClaimID": 31,
     "XChainCommit": 32,
     "XChainClaim": 33,
     "SidechainXChainAccountCreate": 34,
