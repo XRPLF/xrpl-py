@@ -23,7 +23,7 @@ from xrpl.core.binarycodec.types.serialized_type import SerializedType
 
 _OBJECT_END_MARKER_BYTE: Final[bytes] = bytes([0xE1])
 _OBJECT_END_MARKER: Final[str] = "ObjectEndMarker"
-_SERIALIZED_DICT: Final[str] = "STObject"
+_ST_OBJECT: Final[str] = "STObject"
 _DESTINATION: Final[str] = "Destination"
 _ACCOUNT: Final[str] = "Account"
 _SOURCE_TAG: Final[str] = "SourceTag"
@@ -81,23 +81,23 @@ def _enum_to_str(field: str, value: Any) -> Any:
     return value
 
 
-class SerializedDict(SerializedType):
+class STObject(SerializedType):
     """Class for serializing/deserializing Dicts of objects."""
 
     @classmethod
     def from_parser(
-        cls: Type[SerializedDict],
+        cls: Type[STObject],
         parser: BinaryParser,
         _length_hint: Optional[None] = None,
-    ) -> SerializedDict:
+    ) -> STObject:
         """
-        Construct a SerializedDict from a BinaryParser.
+        Construct a STObject from a BinaryParser.
 
         Args:
-            parser: The parser to construct a SerializedDict from.
+            parser: The parser to construct a STObject from.
 
         Returns:
-            The SerializedDict constructed from parser.
+            The STObject constructed from parser.
         """
         from xrpl.core.binarycodec.binary_wrappers.binary_serializer import (
             BinarySerializer,
@@ -112,27 +112,27 @@ class SerializedDict(SerializedType):
 
             associated_value = parser.read_field_value(field)
             serializer.write_field_and_value(field, associated_value)
-            if field.type == _SERIALIZED_DICT:
+            if field.type == _ST_OBJECT:
                 serializer.append(_OBJECT_END_MARKER_BYTE)
 
-        return SerializedDict(bytes(serializer))
+        return STObject(bytes(serializer))
 
     @classmethod
     def from_value(
-        cls: Type[SerializedDict], value: Dict[str, Any], only_signing: bool = False
-    ) -> SerializedDict:
+        cls: Type[STObject], value: Dict[str, Any], only_signing: bool = False
+    ) -> STObject:
         """
-        Create a SerializedDict object from a dictionary.
+        Create a STObject object from a dictionary.
 
         Args:
-            value: The dictionary to construct a SerializedDict from.
+            value: The dictionary to construct a STObject from.
             only_signing: whether only the signing fields should be included.
 
         Returns:
-            The SerializedDict object constructed from value.
+            The STObject object constructed from value.
 
         Raises:
-            XRPLBinaryCodecException: If the SerializedDict can't be constructed
+            XRPLBinaryCodecException: If the STObject can't be constructed
                 from value.
         """
         from xrpl.core.binarycodec.binary_wrappers.binary_serializer import (
@@ -212,17 +212,17 @@ class SerializedDict(SerializedType):
             serializer.write_field_and_value(
                 field, associated_value, is_unl_modify_workaround
             )
-            if field.type == _SERIALIZED_DICT:
+            if field.type == _ST_OBJECT:
                 serializer.append(_OBJECT_END_MARKER_BYTE)
 
-        return SerializedDict(bytes(serializer))
+        return STObject(bytes(serializer))
 
-    def to_json(self: SerializedDict) -> Dict[str, Any]:
+    def to_json(self: STObject) -> Dict[str, Any]:
         """
-        Returns the JSON representation of a SerializedDict.
+        Returns the JSON representation of a STObject.
 
         Returns:
-            The JSON representation of a SerializedDict.
+            The JSON representation of a STObject.
         """
         parser = BinaryParser(str(self))
         accumulator = {}

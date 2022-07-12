@@ -83,7 +83,7 @@ async def safe_sign_transaction(
     serialized_bytes = bytes.fromhex(serialized_for_signing)
     signature = sign(serialized_bytes, wallet.private_key)
     transaction_json["TxnSignature"] = signature
-    return cast(Transaction, Transaction.from_xrpl(transaction_json))
+    return Transaction.from_xrpl(transaction_json)
 
 
 async def safe_sign_and_autofill_transaction(

@@ -23,7 +23,7 @@ twice since it has the same sequence number as the old transaction.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Type, cast
+from typing import Any, Dict, Optional, Type
 
 from xrpl.constants import CryptoAlgorithm
 from xrpl.models.requests.submit import Submit
@@ -90,7 +90,7 @@ class SignAndSubmit(Submit):
             del fixed_value["tx_json"]
         else:
             fixed_value = value
-        return cast(SignAndSubmit, super(SignAndSubmit, cls).from_dict(fixed_value))
+        return super(SignAndSubmit, cls).from_dict(fixed_value)
 
     def to_dict(self: SignAndSubmit) -> Dict[str, Any]:
         """
@@ -101,7 +101,7 @@ class SignAndSubmit(Submit):
         """
         return_dict = super().to_dict()
         del return_dict["transaction"]
-        return_dict["tx_json"] = self.transaction.to_dict()
+        return_dict["tx_json"] = self.transaction.to_xrpl()
         return return_dict
 
     def _get_errors(self: SignAndSubmit) -> Dict[str, str]:
