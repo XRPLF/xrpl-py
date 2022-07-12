@@ -30,7 +30,7 @@ _ACCOUNT_PUBLIC_KEY_LENGTH: Final[int] = 33
 _ALGORITHM_TO_PREFIX_MAP: Final[Dict[CryptoAlgorithm, List[List[int]]]] = {
     CryptoAlgorithm.ED25519: [_ED25519_SEED_PREFIX, _FAMILY_SEED_PREFIX],
     CryptoAlgorithm.SECP256K1: [_FAMILY_SEED_PREFIX],
-}
+}  # first is default, rest are other options
 
 
 def _encode(bytestring: bytes, prefix: List[int], expected_length: int) -> str:
@@ -107,6 +107,7 @@ def decode_seed(
         XRPLAddressCodecException: If the seed is invalid.
     """
     if algorithm is not None:
+        # check all algorithm prefixes
         for prefix in _ALGORITHM_TO_PREFIX_MAP[algorithm]:
             try:
                 decoded_result = _decode(seed, bytes(prefix))
@@ -115,7 +116,8 @@ def decode_seed(
                 # prefix is incorrect, wrong prefix
                 continue
         raise XRPLAddressCodecException("Wrong algorithm for the seed type.")
-    for algorithm in CryptoAlgorithm:
+
+    for algorithm in CryptoAlgorithm:  # use default prefix
         prefix = _ALGORITHM_TO_PREFIX_MAP[algorithm][0]
         try:
             decoded_result = _decode(seed, bytes(prefix))
