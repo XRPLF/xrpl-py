@@ -18,8 +18,8 @@ class Fields(TypedDict, total=False):
     TakerPays: Optional[Union[Dict[str, str], str]]
     Flags: int
     Sequence: int
-    BookDirectory: str
-    Expiration: int
+    BookDirectory: Optional[str]
+    Expiration: Optional[int]
 
 
 class CreatedNodeFields(TypedDict):

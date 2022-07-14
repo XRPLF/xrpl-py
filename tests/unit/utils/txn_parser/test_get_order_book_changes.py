@@ -24,23 +24,20 @@ class TestGetOrderBookChanges(TestCase):
                 "account": "rJHbqhp9Sea4f43RoUanrDE1gW9MymTLp9",
                 "offer_changes": [
                     {
-                        "direction": "sell",
-                        "quantity": {
-                            "currency": "XRP",
-                            "value": "44.930000",
-                        },
-                        "total_price": {
+                        "flags": 131072,
+                        "taker_gets": {"currency": "XRP", "value": "44.930000"},
+                        "taker_pays": {
                             "currency": "USD",
                             "issuer": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
                             "value": "14.524821",
                         },
                         "sequence": 71307620,
                         "status": "created",
-                        "maker_exchange_rate": "0.3232766748275095",
-                        "expiration_time": 1686903224,
+                        "maker_exchange_rate": "0.323276674827509",
+                        "expiration_time": 740218424,
                     }
                 ],
-            },
+            }
         ]
         self.assertEqual(actual, expected)
 
@@ -51,20 +48,20 @@ class TestGetOrderBookChanges(TestCase):
                 "account": "rNzgS71DyJPMnWMA8aS7NqvXP7bNuwyaZo",
                 "offer_changes": [
                     {
-                        "direction": "sell",
-                        "quantity": {
+                        "flags": 131072,
+                        "taker_gets": {
                             "currency": "USD",
                             "issuer": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
                             "value": "-63.7479881398749",
                         },
-                        "total_price": {
+                        "taker_pays": {
                             "currency": "USD",
                             "issuer": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
                             "value": "-62.4730283770749",
                         },
                         "sequence": 5931,
                         "status": "filled",
-                        "maker_exchange_rate": "0.98",
+                        "maker_exchange_rate": "0.979999999999960",
                     }
                 ],
             },
@@ -72,20 +69,20 @@ class TestGetOrderBookChanges(TestCase):
                 "account": "rPu2feBaViWGmWJhvaF5yLocTVD8FUxd2A",
                 "offer_changes": [
                     {
-                        "direction": "sell",
-                        "quantity": {
+                        "flags": 131072,
+                        "taker_gets": {
                             "currency": "USD",
                             "issuer": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
                             "value": "-117.3895136925395",
                         },
-                        "total_price": {
+                        "taker_pays": {
                             "currency": "USD",
                             "issuer": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
                             "value": "-115.0877585220975",
                         },
                         "sequence": 67701941,
                         "status": "partially-filled",
-                        "maker_exchange_rate": "0.9803921568627452",
+                        "maker_exchange_rate": "0.980392156862744",
                     }
                 ],
             },
@@ -99,22 +96,19 @@ class TestGetOrderBookChanges(TestCase):
                 "account": "rEUt5Wy44vDKBDaGkUWG6oSTvxmqgnKWCg",
                 "offer_changes": [
                     {
-                        "direction": "buy",
-                        "quantity": {
-                            "currency": "XRP",
-                            "value": "47.504858",
-                        },
-                        "total_price": {
+                        "flags": 0,
+                        "taker_gets": {
                             "currency": "XDX",
                             "issuer": "rMJAXYsbNzhwp7FfYnAsYP5ty3R9XnurPo",
-                            "value": "82335.52909",
+                            "value": "-82335.52909",
                         },
+                        "taker_pays": {"currency": "XRP", "value": "-47.504858"},
                         "sequence": 70922543,
                         "status": "cancelled",
-                        "maker_exchange_rate": "576966693.7838342",
+                        "maker_exchange_rate": "0.000576966693783",
                     }
                 ],
-            },
+            }
         ]
         self.assertEqual(actual, expected)
 
@@ -125,38 +119,19 @@ class TestGetOrderBookChanges(TestCase):
                 "account": "rJHHRtt6qmiz71tyGFMZUoxMGakdgqEou5",
                 "offer_changes": [
                     {
-                        "direction": "buy",
-                        "quantity": {
+                        "flags": 0,
+                        "taker_gets": {"currency": "XRP", "value": "-50.000000"},
+                        "taker_pays": {
                             "currency": "457175696C69627269756D000000000000000000",
                             "issuer": "rpakCr61Q92abPXJnVboKENmpKssWyHpwu",
-                            "value": "230.7776699646076",
-                        },
-                        "total_price": {
-                            "currency": "XRP",
-                            "value": "50.000000",
-                        },
-                        "sequence": 67782878,
-                        "status": "created",
-                        "maker_exchange_rate": "4.615553399292152",
-                        "expiration_time": 1655366861,
-                    },
-                    {
-                        "direction": "buy",
-                        "quantity": {
-                            "currency": "457175696C69627269756D000000000000000000",
-                            "issuer": "rpakCr61Q92abPXJnVboKENmpKssWyHpwu",
-                            "value": "230.8404670389911",
-                        },
-                        "total_price": {
-                            "currency": "XRP",
-                            "value": "50.000000",
+                            "value": "-230.8404670389911",
                         },
                         "sequence": 67782876,
                         "status": "cancelled",
                         "maker_exchange_rate": "4.616809340779822",
-                        "expiration_time": 1655366831,
-                    },
+                        "expiration_time": 708682031,
+                    }
                 ],
-            },
+            }
         ]
         self.assertEqual(actual, expected)

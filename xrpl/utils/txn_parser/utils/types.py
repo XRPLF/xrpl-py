@@ -42,7 +42,7 @@ class AccountBalances(TypedDict):
 
 
 class CurrencyAmount(Balance):
-    """A currency amunt model. Has the same fields as `Balance`"""
+    """A currency amount model. Has the same fields as `Balance`"""
 
     pass
 
@@ -61,9 +61,9 @@ class OptionalExpiration(TypedDict, total=False):
 class OfferChange(OptionalExpiration):
     """A single offer change."""
 
-    direction: Literal["buy", "sell"]
-    quantity: CurrencyAmount
-    total_price: CurrencyAmount
+    flags: int
+    taker_gets: CurrencyAmount
+    taker_pays: CurrencyAmount
     sequence: int
     status: Literal["created", "partially-filled", "filled", "cancelled"]
     maker_exchange_rate: str

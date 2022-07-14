@@ -39,8 +39,5 @@ def group_by_account(
     """
     grouped_objects: Dict[str, Any] = {}
     for object in account_objects:
-        account = object["account"]
-        if account not in grouped_objects:
-            grouped_objects[account] = []
-        grouped_objects[account].append(object)
+        grouped_objects.setdefault(object["account"], []).append(object)
     return grouped_objects

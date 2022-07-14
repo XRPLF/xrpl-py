@@ -6,7 +6,6 @@ from typing import Any, Dict, List, Optional, Union
 from typing_extensions import Literal
 
 from xrpl.models import TransactionMetadata
-from xrpl.utils.time_conversions import ripple_time_to_posix
 from xrpl.utils.txn_parser.utils import NormalizedNode, normalize_nodes
 from xrpl.utils.txn_parser.utils.parser import get_value, group_by_account
 from xrpl.utils.txn_parser.utils.types import (
@@ -62,66 +61,46 @@ def _calculate_delta(
 
 def _get_change_amount(
     node: NormalizedNode,
-    status: Literal["created", "partially-filled", "filled", "cancelled"],
     side: Literal["TakerGets", "TakerPays"],
 ) -> Optional[CurrencyAmount]:
-    if status == "cancelled":
-        final_fields = node.get("FinalFields")
-        if final_fields is not None:
-            final_fields_amount = final_fields.get(side)
-            if final_fields_amount is not None:
-                return _derive_currency_amount(final_fields_amount)
-    if status == "created":
-        new_fields = node.get("NewFields")
-        if new_fields is not None:
-            new_fields_amount = new_fields.get(side)
-            if new_fields_amount is not None:
-                return _derive_currency_amount(new_fields_amount)
+    new_fields = node.get("NewFields")
+    if new_fields is not None:
+        new_fields_amount = new_fields.get(side)
+        if new_fields_amount is not None:
+            return _derive_currency_amount(new_fields_amount)
     final_fields = node.get("FinalFields")
     previous_fields = node.get("PreviousFields")
-    if final_fields is not None and previous_fields is not None:
+    if final_fields is not None:
         final_fields_amount = final_fields.get(side)
-        previous_fields_amount = previous_fields.get(side)
-        if final_fields_amount is not None and previous_fields_amount is not None:
+        if final_fields_amount is not None:
             final_amount = _derive_currency_amount(final_fields_amount)
-            previous_amount = _derive_currency_amount(previous_fields_amount)
-            value = _calculate_delta(final_amount, previous_amount)
-            # final_amount is being reused because it makes
-            # it easier to return the changed amount.
-            final_amount["value"] = value
-            # From now on you could consider final_amount as changed_amount.
-            return final_amount
+            if previous_fields is not None:
+                previous_fields_amount = previous_fields.get(side)
+                if previous_fields_amount is not None:
+                    previous_amount = _derive_currency_amount(previous_fields_amount)
+                    value = _calculate_delta(final_amount, previous_amount)
+                    change_amount = final_amount
+                    change_amount["value"] = value
+                    return change_amount
+                return None
+            change_amount = final_amount
+            change_amount["value"] = str(0 - Decimal(change_amount["value"]))
+            return change_amount
     return None
 
 
 def _get_quality(
     taker_gets: CurrencyAmount,
     taker_pays: CurrencyAmount,
-    book_directory: str,
 ) -> str:
-    quality_hex = book_directory[-16:]  # last 16 characters of the BookDirectory
-    taker_gets_currency = taker_gets["currency"]
-    taker_pays_currency = taker_pays["currency"]
-    mantissa = float.fromhex(quality_hex[2:])
-    offset = int(quality_hex[:2], 16) - 100
-    scientific_quality = "{:.16f}e{}".format(mantissa, offset)
-    quality = Decimal(scientific_quality)
-    if taker_gets_currency == "XRP" or taker_pays_currency == "XRP":
-        quality = quality * 1000000
-    return str(quality.normalize())
-
-
-def _get_optional_fields(
-    node: NormalizedNode,
-    field_name: str,
-) -> Optional[Any]:
-    new_fields = node.get("NewFields")
-    final_fields = node.get("FinalFields")
-    if new_fields is not None:
-        return new_fields.get(field_name)
-    if final_fields is not None:
-        return final_fields.get(field_name)
-    return None
+    taker_gets_value = Decimal(taker_gets["value"])
+    taker_pays_value = Decimal(taker_pays["value"])
+    quality = taker_pays_value / taker_gets_value
+    normalized_quality = str(quality.normalize())
+    integer_digit, decimal_places = normalized_quality.split(".")
+    if len(decimal_places) > 15:
+        decimal_places = decimal_places[:15]
+    return f"{integer_digit}.{decimal_places}"
 
 
 def _get_fields(
@@ -139,38 +118,33 @@ def _get_fields(
 
 def _get_offer_change(node: NormalizedNode) -> Optional[AccountOfferChange]:
     status = _get_offer_status(node)
-    taker_gets = _get_change_amount(node, status, "TakerGets")
-    taker_pays = _get_change_amount(node, status, "TakerPays")
+    taker_gets = _get_change_amount(node, "TakerGets")
+    taker_pays = _get_change_amount(node, "TakerPays")
     account = _get_fields(node, "Account")
     sequence = _get_fields(node, "Sequence")
-    book_directory = _get_fields(node, "BookDirectory")
-    # if required fields are None return None
+    flags = _get_fields(node, "Flags")
+    # if required fields are None: return None
     if (
         taker_gets is None
         or taker_pays is None
         or account is None
         or sequence is None
-        or book_directory is None
+        or flags is None
     ):
         return None
+
     expiration_time = _get_fields(node, "Expiration")
-    flags = _get_fields(node, "Flags")
-    direction: Literal["buy", "sell"] = (
-        "sell" if (flags is not None and flags & LSF_SELL != 0) else "buy"
-    )
-    quality = _get_quality(taker_gets, taker_pays, book_directory)
-    quantity = taker_pays if direction == "buy" else taker_gets
-    total_price = taker_gets if direction == "buy" else taker_pays
+    quality = _get_quality(taker_gets, taker_pays)
     offer_change = OfferChange(
-        direction=direction,
-        quantity=quantity,
-        total_price=total_price,
+        flags=flags,
+        taker_gets=taker_gets,
+        taker_pays=taker_pays,
         sequence=sequence,
         status=status,
         maker_exchange_rate=quality,
     )
     if expiration_time is not None:
-        offer_change["expiration_time"] = ripple_time_to_posix(expiration_time)
+        offer_change["expiration_time"] = expiration_time
     return AccountOfferChange(account=account, offer_change=offer_change)
 
 
