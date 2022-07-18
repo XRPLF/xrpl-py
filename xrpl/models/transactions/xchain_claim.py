@@ -4,11 +4,11 @@ from dataclasses import dataclass, field
 from typing import Union
 
 from xrpl.models.amounts import Amount
-from xrpl.models.bridge import Bridge
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.xchain_bridge import XChainBridge
 
 
 @require_kwargs_on_init
@@ -16,7 +16,7 @@ from xrpl.models.utils import require_kwargs_on_init
 class XChainClaim(Transaction):
     """Represents a XChainClaim transaction."""
 
-    bridge: Bridge = REQUIRED  # type: ignore
+    xchain_bridge: XChainBridge = REQUIRED  # type: ignore
 
     xchain_claim_id: Union[int, str] = REQUIRED  # type: ignore
 
