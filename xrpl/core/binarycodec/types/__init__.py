@@ -2,7 +2,6 @@
 from xrpl.core.binarycodec.types.account_id import AccountID
 from xrpl.core.binarycodec.types.amount import Amount
 from xrpl.core.binarycodec.types.blob import Blob
-from xrpl.core.binarycodec.types.bridge import Bridge
 from xrpl.core.binarycodec.types.currency import Currency
 from xrpl.core.binarycodec.types.hash import Hash
 from xrpl.core.binarycodec.types.hash128 import Hash128
@@ -18,12 +17,15 @@ from xrpl.core.binarycodec.types.uint16 import UInt16
 from xrpl.core.binarycodec.types.uint32 import UInt32
 from xrpl.core.binarycodec.types.uint64 import UInt64
 from xrpl.core.binarycodec.types.vector256 import Vector256
+from xrpl.core.binarycodec.types.xchain_bridge import XChainBridge
+from xrpl.core.binarycodec.types.xchain_claim_attestation_batch import (
+    XChainAttestationBatch,
+)
 
 __all__ = [
     "AccountID",
     "Amount",
     "Blob",
-    "Bridge",
     "Currency",
     "Hash",
     "Hash128",
@@ -39,4 +41,6 @@ __all__ = [
     "UInt32",
     "UInt64",
     "Vector256",
+    "XChainBridge",
+    "XChainAttestationBatch",
 ]
