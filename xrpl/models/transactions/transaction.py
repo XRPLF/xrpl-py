@@ -10,7 +10,6 @@ from typing_extensions import Final
 from xrpl.core.binarycodec import encode
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.base_model import BaseModel
-from xrpl.models.bridge import Bridge
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.flags import check_false_flag_definition, interface_to_flag_list
 from xrpl.models.nested_model import NestedModel
@@ -34,7 +33,6 @@ _ABBREVIATIONS: Final[Dict[str, str]] = {
 _LOWER_CASE_MODELS: List[Type[BaseModel]] = [
     IssuedCurrencyAmount,
     PathStep,
-    Bridge,
 ]
 
 
