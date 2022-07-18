@@ -1,46 +1,48 @@
 """Codec for serializing and deserializing bridge fields."""
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.account_id import AccountID
 from xrpl.core.binarycodec.types.issued_currency import IssuedCurrency
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
-from xrpl.models.bridge import Bridge as BridgeModel
 
 _TYPE_ORDER: List[Tuple[str, Type[SerializedType]]] = [
-    ("src_chain_door", AccountID),
-    ("src_chain_issue", IssuedCurrency),
-    ("dst_chain_door", AccountID),
-    ("dst_chain_issue", IssuedCurrency),
+    ("LockingChainDoor", AccountID),
+    ("LockingChainIssue", IssuedCurrency),
+    ("IssuingChainDoor", AccountID),
+    ("IssuingChainIssue", IssuedCurrency),
 ]
 
+_TYPE_KEYS = {type[0] for type in _TYPE_ORDER}
 
-class Bridge(SerializedType):
+
+class XChainBridge(SerializedType):
     """Codec for serializing and deserializing bridge fields."""
 
-    def __init__(self: Bridge, buffer: bytes) -> None:
-        """Construct a Bridge from given bytes."""
+    def __init__(self: XChainBridge, buffer: bytes) -> None:
+        """Construct a XChainBridge from given bytes."""
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls: Type[Bridge], value: Union[str, Dict[str, str]]) -> Bridge:
+    def from_value(
+        cls: Type[XChainBridge], value: Union[str, Dict[str, str]]
+    ) -> XChainBridge:
         """
-        Construct a Bridge object from a dictionary representation of a bridge.
+        Construct a XChainBridge object from a dictionary representation of a bridge.
 
         Args:
-            value: The dictionary to construct a Bridge object from.
+            value: The dictionary to construct a XChainBridge object from.
 
         Returns:
-            A Bridge object constructed from value.
+            A XChainBridge object constructed from value.
 
         Raises:
-            XRPLBinaryCodecException: If the Bridge representation is invalid.
+            XRPLBinaryCodecException: If the XChainBridge representation is invalid.
         """
-        if BridgeModel.is_dict_of_model(value):
-            value = cast(Dict[str, Any], value)
+        if isinstance(value, dict) and set(value.keys()) == _TYPE_KEYS:
             buffer = b""
             for (name, object_type) in _TYPE_ORDER:
                 obj = object_type.from_value(value[name])
@@ -48,23 +50,23 @@ class Bridge(SerializedType):
             return cls(buffer)
 
         raise XRPLBinaryCodecException(
-            "Invalid type to construct a Bridge: expected dict,"
+            "Invalid type to construct a XChainBridge: expected dict,"
             f" received {value.__class__.__name__}."
         )
 
     @classmethod
     def from_parser(
-        cls: Type[Bridge], parser: BinaryParser, length_hint: Optional[int] = None
-    ) -> Bridge:
+        cls: Type[XChainBridge], parser: BinaryParser, length_hint: Optional[int] = None
+    ) -> XChainBridge:
         """
-        Construct a Bridge object from an existing BinaryParser.
+        Construct a XChainBridge object from an existing BinaryParser.
 
         Args:
-            parser: The parser to construct the Bridge object from.
+            parser: The parser to construct the XChainBridge object from.
             length_hint: The number of bytes to consume from the parser.
 
         Returns:
-            The Bridge object constructed from a parser.
+            The XChainBridge object constructed from a parser.
         """
         buffer = b""
 
@@ -74,12 +76,12 @@ class Bridge(SerializedType):
 
         return cls(buffer)
 
-    def to_json(self: Bridge) -> Union[str, Dict[Any, Any]]:
+    def to_json(self: XChainBridge) -> Union[str, Dict[Any, Any]]:
         """
         Returns the JSON representation of a bridge.
 
         Returns:
-            The JSON representation of a Bridge.
+            The JSON representation of a XChainBridge.
         """
         parser = BinaryParser(str(self))
         return_json = {}
