@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Literal, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
+
+from typing_extensions import Literal
 
 from xrpl.models.amounts import Amount
 from xrpl.models.base_model import BaseModel
