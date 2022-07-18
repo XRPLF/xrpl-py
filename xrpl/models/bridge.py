@@ -17,7 +17,7 @@ from xrpl.models.utils import require_kwargs_on_init
 class Bridge(BaseModel):
     """A Bridge represents a cross-chain bridge."""
 
-    src_chain_door: str
-    src_chain_issue: Union[Literal["XRP"], IssuedCurrency]
-    dst_chain_door: str
-    dst_chain_issue: Union[Literal["XRP"], IssuedCurrency]
+    locking_chain_door: str
+    locking_chain_issue: Union[Literal["XRP"], IssuedCurrency]
+    issuing_chain_door: str
+    issuing_chain_issue: Union[Literal["XRP"], IssuedCurrency]
