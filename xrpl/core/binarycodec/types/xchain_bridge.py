@@ -46,6 +46,8 @@ class XChainBridge(SerializedType):
             buffer = b""
             for (name, object_type) in _TYPE_ORDER:
                 obj = object_type.from_value(value[name])
+                if object_type == AccountID:
+                    buffer += bytes.fromhex("14")
                 buffer += bytes(obj)
             return cls(buffer)
 
@@ -70,7 +72,10 @@ class XChainBridge(SerializedType):
         """
         buffer = b""
 
-        for (_, object_type) in _TYPE_ORDER:
+        for (name, object_type) in _TYPE_ORDER:
+            if object_type == AccountID:
+                parser.skip(1)
+                buffer += bytes.fromhex("14")
             obj = object_type.from_parser(parser, length_hint)
             buffer += bytes(obj)
 
@@ -86,7 +91,8 @@ class XChainBridge(SerializedType):
         parser = BinaryParser(str(self))
         return_json = {}
         for (name, object_type) in _TYPE_ORDER:
+            if object_type == AccountID:
+                parser.skip(1)
             obj = object_type.from_parser(parser, None)
             return_json[name] = obj.to_json()
-
         return return_json
