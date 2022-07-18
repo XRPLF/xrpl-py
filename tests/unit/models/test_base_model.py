@@ -4,7 +4,6 @@ from unittest import TestCase
 
 from xrpl.models import XRPLModelException
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.bridge import Bridge
 from xrpl.models.requests import (
     AccountChannels,
     BookOffers,
@@ -28,6 +27,7 @@ from xrpl.models.transactions import (
     XChainClaim,
 )
 from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.xchain_bridge import XChainBridge
 
 currency = "BTC"
 value = "100"
@@ -604,7 +604,7 @@ class TestFromDict(TestCase):
         tx_json = {
             "Account": account,
             "Amount": value,
-            "Bridge": {
+            "XChainBridge": {
                 "LockingChainDoor": "rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
                 "LockingChainIssue": "XRP",
                 "IssuingChainDoor": "r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
@@ -619,7 +619,7 @@ class TestFromDict(TestCase):
         tx_obj = XChainClaim(
             account=account,
             amount=value,
-            bridge=Bridge(
+            xchain_bridge=XChainBridge(
                 locking_chain_door="rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
                 locking_chain_issue="XRP",
                 issuing_chain_door="r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
