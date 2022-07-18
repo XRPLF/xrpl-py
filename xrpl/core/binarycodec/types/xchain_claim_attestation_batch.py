@@ -73,7 +73,7 @@ class XChainAttestationBatch(SerializedType):
         """
         buffer = b""
 
-        for (name, object_type) in _TYPE_ORDER:
+        for (_, object_type) in _TYPE_ORDER:
             obj = object_type.from_parser(parser, length_hint)
             buffer += bytes(obj)
 
