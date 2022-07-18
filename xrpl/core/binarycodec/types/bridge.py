@@ -48,7 +48,7 @@ class Bridge(SerializedType):
             return cls(buffer)
 
         raise XRPLBinaryCodecException(
-            "Invalid type to construct an Bridge: expected dict,"
+            "Invalid type to construct a Bridge: expected dict,"
             f" received {value.__class__.__name__}."
         )
 
