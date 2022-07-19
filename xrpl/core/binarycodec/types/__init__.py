@@ -17,10 +17,8 @@ from xrpl.core.binarycodec.types.uint16 import UInt16
 from xrpl.core.binarycodec.types.uint32 import UInt32
 from xrpl.core.binarycodec.types.uint64 import UInt64
 from xrpl.core.binarycodec.types.vector256 import Vector256
+from xrpl.core.binarycodec.types.xchain_attestation_batch import XChainAttestationBatch
 from xrpl.core.binarycodec.types.xchain_bridge import XChainBridge
-from xrpl.core.binarycodec.types.xchain_claim_attestation_batch import (
-    XChainAttestationBatch,
-)
 
 __all__ = [
     "AccountID",
