@@ -97,10 +97,7 @@ def _get_quality(
     taker_pays_value = Decimal(taker_pays["value"])
     quality = taker_pays_value / taker_gets_value
     normalized_quality = str(quality.normalize())
-    integer_digit, decimal_places = normalized_quality.split(".")
-    if len(decimal_places) > 15:
-        decimal_places = decimal_places[:15]
-    return f"{integer_digit}.{decimal_places}"
+    return normalized_quality
 
 
 def _get_fields(
@@ -145,7 +142,7 @@ def _get_offer_change(node: NormalizedNode) -> Optional[AccountOfferChange]:
     )
     if expiration_time is not None:
         offer_change["expiration_time"] = expiration_time
-    return AccountOfferChange(account=account, offer_change=offer_change)
+    return AccountOfferChange(maker_account=account, offer_change=offer_change)
 
 
 def _group_offer_changes_by_account(
@@ -159,7 +156,7 @@ def _group_offer_changes_by_account(
         ]
         result.append(
             AccountOfferChanges(
-                account=account,
+                maker_account=account,
                 offer_changes=offer_changes,
             )
         )

@@ -21,7 +21,7 @@ class TestGetOrderBookChanges(TestCase):
         actual = get_order_book_changes(offer_created["meta"])
         expected = [
             {
-                "account": "rJHbqhp9Sea4f43RoUanrDE1gW9MymTLp9",
+                "maker_account": "rJHbqhp9Sea4f43RoUanrDE1gW9MymTLp9",
                 "offer_changes": [
                     {
                         "flags": 131072,
@@ -33,7 +33,7 @@ class TestGetOrderBookChanges(TestCase):
                         },
                         "sequence": 71307620,
                         "status": "created",
-                        "maker_exchange_rate": "0.323276674827509",
+                        "maker_exchange_rate": "0.3232766748275094591586912976",
                         "expiration_time": 740218424,
                     }
                 ],
@@ -45,7 +45,7 @@ class TestGetOrderBookChanges(TestCase):
         actual = get_order_book_changes(offer_partially_filled_and_filled["meta"])
         expected = [
             {
-                "account": "rNzgS71DyJPMnWMA8aS7NqvXP7bNuwyaZo",
+                "maker_account": "rNzgS71DyJPMnWMA8aS7NqvXP7bNuwyaZo",
                 "offer_changes": [
                     {
                         "flags": 131072,
@@ -61,12 +61,12 @@ class TestGetOrderBookChanges(TestCase):
                         },
                         "sequence": 5931,
                         "status": "filled",
-                        "maker_exchange_rate": "0.979999999999960",
+                        "maker_exchange_rate": "0.9799999999999607517025555356",
                     }
                 ],
             },
             {
-                "account": "rPu2feBaViWGmWJhvaF5yLocTVD8FUxd2A",
+                "maker_account": "rPu2feBaViWGmWJhvaF5yLocTVD8FUxd2A",
                 "offer_changes": [
                     {
                         "flags": 131072,
@@ -82,7 +82,7 @@ class TestGetOrderBookChanges(TestCase):
                         },
                         "sequence": 67701941,
                         "status": "partially-filled",
-                        "maker_exchange_rate": "0.980392156862744",
+                        "maker_exchange_rate": "0.980392156862744680458408839",
                     }
                 ],
             },
@@ -93,7 +93,7 @@ class TestGetOrderBookChanges(TestCase):
         actual = get_order_book_changes(offer_cancelled["meta"])
         expected = [
             {
-                "account": "rEUt5Wy44vDKBDaGkUWG6oSTvxmqgnKWCg",
+                "maker_account": "rEUt5Wy44vDKBDaGkUWG6oSTvxmqgnKWCg",
                 "offer_changes": [
                     {
                         "flags": 0,
@@ -105,7 +105,7 @@ class TestGetOrderBookChanges(TestCase):
                         "taker_pays": {"currency": "XRP", "value": "-47.504858"},
                         "sequence": 70922543,
                         "status": "cancelled",
-                        "maker_exchange_rate": "0.000576966693783",
+                        "maker_exchange_rate": "0.0005769666937838341642215588998",
                     }
                 ],
             }
@@ -116,7 +116,7 @@ class TestGetOrderBookChanges(TestCase):
         actual = get_order_book_changes(offer_with_expiration["meta"])
         expected = [
             {
-                "account": "rJHHRtt6qmiz71tyGFMZUoxMGakdgqEou5",
+                "maker_account": "rJHHRtt6qmiz71tyGFMZUoxMGakdgqEou5",
                 "offer_changes": [
                     {
                         "flags": 0,

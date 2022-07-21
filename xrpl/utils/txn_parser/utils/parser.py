@@ -39,5 +39,9 @@ def group_by_account(
     """
     grouped_objects: Dict[str, Any] = {}
     for object in account_objects:
-        grouped_objects.setdefault(object["account"], []).append(object)
+        if object.get("account") is not None:
+            account = str(object.get("account"))
+        else:
+            account = str(object.get("maker_account"))
+        grouped_objects.setdefault(account, []).append(object)
     return grouped_objects

@@ -72,12 +72,12 @@ class OfferChange(OptionalExpiration):
 class AccountOfferChange(TypedDict):
     """A model representing an account's offer change."""
 
-    account: str
+    maker_account: str
     offer_change: OfferChange
 
 
 class AccountOfferChanges(TypedDict):
     """A model representing an account's offer changes."""
 
-    account: str
+    maker_account: str
     offer_changes: List[OfferChange]
