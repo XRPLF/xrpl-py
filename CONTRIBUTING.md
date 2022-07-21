@@ -99,7 +99,7 @@ poetry install
 Replace `python3.9` with whatever version of Python you want to use (you must have it installed with `pyenv` for it to work).
 
 
-### Generate reference docs
+## Generate reference docs
 
 You can see the complete reference documentation at [`xrpl-py` docs](https://xrpl-py.readthedocs.io/en/latest/index.html). You can also generate them locally using `poetry` and `sphinx`:
 
@@ -121,6 +121,9 @@ cd docs/_build/html/
 # Open the index file to view it in a browser:
 open _build/html/index.html
 ```
+
+## Update `definitions.json`
+Use [this repo](https://github.com/RichardAH/xrpl-codec-gen) to generate a new `definitions.json` file from the rippled source code. Instructions are available in that README.
 
 
 ## Release process
