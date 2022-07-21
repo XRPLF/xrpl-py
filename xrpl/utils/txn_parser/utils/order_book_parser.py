@@ -79,13 +79,13 @@ def _get_change_amount(
                 if previous_fields_amount is not None:
                     previous_amount = _derive_currency_amount(previous_fields_amount)
                     value = _calculate_delta(final_amount, previous_amount)
-                    change_amount = final_amount
-                    change_amount["value"] = value
-                    return change_amount
+                    changed_amount = final_amount
+                    changed_amount["value"] = value
+                    return changed_amount
                 return None
-            change_amount = final_amount
-            change_amount["value"] = str(0 - Decimal(change_amount["value"]))
-            return change_amount
+            changed_amount = final_amount
+            changed_amount["value"] = str(0 - Decimal(changed_amount["value"]))
+            return changed_amount
     return None
 
 
