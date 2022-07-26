@@ -8,7 +8,7 @@ from xrpl.utils import get_order_book_changes
 path_to_json = "tests/unit/utils/txn_parser/transaction_jsons/"
 with open(path_to_json + "offer_created.json", "r") as infile:
     offer_created = json.load(infile)
-with open(path_to_json + "offer_partially-filled_and_filled.json", "r") as infile:
+with open(path_to_json + "offer_partially_filled_and_filled.json", "r") as infile:
     offer_partially_filled_and_filled = json.load(infile)
 with open(path_to_json + "offer_cancelled.json", "r") as infile:
     offer_cancelled = json.load(infile)
