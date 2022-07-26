@@ -1,6 +1,6 @@
 """This module encodes and decodes various types of base58 encodings."""
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import base58
 from typing_extensions import Final
@@ -27,10 +27,10 @@ _CLASSIC_ADDRESS_LENGTH: Final[int] = 20
 _NODE_PUBLIC_KEY_LENGTH: Final[int] = 33
 _ACCOUNT_PUBLIC_KEY_LENGTH: Final[int] = 33
 
-_ALGORITHM_TO_PREFIX_MAP: Final[Dict[CryptoAlgorithm, List[int]]] = {
-    CryptoAlgorithm.ED25519: _ED25519_SEED_PREFIX,
-    CryptoAlgorithm.SECP256K1: _FAMILY_SEED_PREFIX,
-}
+_ALGORITHM_TO_PREFIX_MAP: Final[Dict[CryptoAlgorithm, List[List[int]]]] = {
+    CryptoAlgorithm.ED25519: [_ED25519_SEED_PREFIX, _FAMILY_SEED_PREFIX],
+    CryptoAlgorithm.SECP256K1: [_FAMILY_SEED_PREFIX],
+}  # first is default, rest are other options
 
 
 def _encode(bytestring: bytes, prefix: List[int], expected_length: int) -> str:
@@ -50,10 +50,12 @@ def _encode(bytestring: bytes, prefix: List[int], expected_length: int) -> str:
 
 def _decode(b58_string: str, prefix: bytes) -> bytes:
     """
-    b58_string: A base58 value
-    prefix: The prefix prepended to the bytestring
+    Args:
+        b58_string: A base58 value.
+        prefix: The prefix prepended to the bytestring.
 
-    Returns the byte decoding of the base58-encoded string.
+    Returns:
+        The byte decoding of the base58-encoded string.
     """
     prefix_length = len(prefix)
     decoded = base58.b58decode_check(b58_string, alphabet=XRPL_ALPHABET)
@@ -84,16 +86,19 @@ def encode_seed(entropy: bytes, encoding_type: CryptoAlgorithm) -> str:
             f"Encoding type must be one of {CryptoAlgorithm}"
         )
 
-    prefix = _ALGORITHM_TO_PREFIX_MAP[encoding_type]
+    prefix = _ALGORITHM_TO_PREFIX_MAP[encoding_type][0]
     return _encode(entropy, prefix, SEED_LENGTH)
 
 
-def decode_seed(seed: str) -> Tuple[bytes, CryptoAlgorithm]:
+def decode_seed(
+    seed: str, algorithm: Optional[CryptoAlgorithm] = None
+) -> Tuple[bytes, CryptoAlgorithm]:
     """
     Returns (decoded seed, its algorithm).
 
     Args:
-        seed: b58 encoding of a seed.
+        seed: The b58 encoding of a seed.
+        algorithm: The encoding algorithm. Inferred from the seed if not included.
 
     Returns:
         (decoded seed, its algorithm).
@@ -101,8 +106,19 @@ def decode_seed(seed: str) -> Tuple[bytes, CryptoAlgorithm]:
     Raises:
         XRPLAddressCodecException: If the seed is invalid.
     """
-    for algorithm in CryptoAlgorithm:
-        prefix = _ALGORITHM_TO_PREFIX_MAP[algorithm]
+    if algorithm is not None:
+        # check all algorithm prefixes
+        for prefix in _ALGORITHM_TO_PREFIX_MAP[algorithm]:
+            try:
+                decoded_result = _decode(seed, bytes(prefix))
+                return decoded_result, algorithm
+            except XRPLAddressCodecException:
+                # prefix is incorrect, wrong prefix
+                continue
+        raise XRPLAddressCodecException("Wrong algorithm for the seed type.")
+
+    for algorithm in CryptoAlgorithm:  # use default prefix
+        prefix = _ALGORITHM_TO_PREFIX_MAP[algorithm][0]
         try:
             decoded_result = _decode(seed, bytes(prefix))
             return decoded_result, algorithm

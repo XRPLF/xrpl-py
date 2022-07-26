@@ -16,13 +16,21 @@ class Wallet:
     details.
     """
 
-    def __init__(self: Wallet, seed: str, sequence: int) -> None:
+    def __init__(
+        self: Wallet,
+        seed: str,
+        sequence: int,
+        *,
+        algorithm: Optional[CryptoAlgorithm] = None,
+    ) -> None:
         """
         Generate a new Wallet.
 
         Args:
             seed: The seed from which the public and private keys are derived.
             sequence: The next sequence number for the account.
+            algorithm: The algorithm used to encode the keys. Inferred from the seed if
+                not included.
         """
         self.seed = seed
         """
@@ -30,7 +38,7 @@ class Wallet:
         this wallet. MUST be kept secret!
         """
 
-        pk, sk = derive_keypair(self.seed)
+        pk, sk = derive_keypair(self.seed, algorithm=algorithm)
         self.public_key = pk
         """
         The public key that is used to identify this wallet's signatures, as
@@ -70,7 +78,7 @@ class Wallet:
             The wallet that is generated from the given seed.
         """
         seed = generate_seed(algorithm=crypto_algorithm)
-        return cls(seed, sequence=0)
+        return cls(seed, sequence=0, algorithm=crypto_algorithm)
 
     def get_xaddress(
         self: Wallet, *, tag: Optional[int] = None, is_test: bool = False
