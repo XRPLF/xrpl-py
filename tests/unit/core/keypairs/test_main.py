@@ -49,6 +49,19 @@ class TestMain(TestCase):
         with self.assertRaises(XRPLKeypairsException):
             keypairs.derive_keypair("sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r", validator=True)
 
+    def test_derive_keypair_ed25519_different_prefix(self):
+        public, private = keypairs.derive_keypair(
+            "ssB9S5Mca2hGZ73xNs4gruS1GY7fB", algorithm=CryptoAlgorithm.ED25519
+        )
+        self.assertEqual(
+            public,
+            "ED6BBFC23A490D021B87D25563C15DA953A7F0F1A493DAA3767FB27F82E2F80C3D",
+        )
+        self.assertEqual(
+            private,
+            "ED644E705250E4D736875E85DD3E5FBABA4E12E004549202010228E17D3D574576",
+        )
+
     def test_derive_keypair_secp256k1(self):
         public, private = keypairs.derive_keypair("sp5fghtJtpUorTwvof1NpDXAzNwf5")
         self.assertEqual(
