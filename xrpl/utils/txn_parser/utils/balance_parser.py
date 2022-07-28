@@ -1,10 +1,11 @@
 """Helper functions for balance parser."""
 
 from decimal import Decimal
-from typing import Callable, Dict, List, Optional, Union
+from typing import Callable, List, Optional
 
 from xrpl.models.transactions.metadata import TransactionMetadata
 from xrpl.utils.txn_parser.utils.nodes import NormalizedNode, normalize_nodes
+from xrpl.utils.txn_parser.utils.parser import group_by_account
 from xrpl.utils.txn_parser.utils.types import AccountBalance, AccountBalances, Balance
 from xrpl.utils.xrp_conversions import drops_to_xrp
 
@@ -105,33 +106,6 @@ def _get_trustline_quantity(
     return []
 
 
-def _group_balances(
-    account_balances: List[AccountBalance],
-) -> Dict[str, List[AccountBalance]]:
-    grouped_balances: Dict[str, List[AccountBalance]] = {}
-    for balance in account_balances:
-        account = balance["account"]
-        if account not in grouped_balances:
-            grouped_balances[account] = []
-        grouped_balances[account].append(balance)
-    return grouped_balances
-
-
-def get_value(balance: Union[Dict[str, str], str]) -> Decimal:
-    """
-    Get a currency amount's value.
-
-    Args:
-        balance: Account's balance.
-
-    Returns:
-        The currency amount's value.
-    """
-    if isinstance(balance, str):
-        return Decimal(balance)
-    return Decimal(balance["value"])
-
-
 def _get_node_balances(
     node: NormalizedNode,
     value: Optional[Decimal],
@@ -157,24 +131,13 @@ def _get_node_balances(
     return []
 
 
-def _group_by_account(
+def _group_balances_by_account(
     account_balances: List[AccountBalance],
 ) -> List[AccountBalances]:
-    """
-    Groups the account balances in one list for each account.
-
-    Args:
-        account_balance: All computed balances cause by a transaction.
-
-    Returns:
-        The grouped computed balances.
-    """
-    grouped = _group_balances(account_balances)
+    grouped_balances = group_by_account(account_balances)
     result = []
-    for account, account_balances in grouped.items():
-        balances: List[Balance] = []
-        for balance in account_balances:
-            balances.append(balance["balance"])
+    for account, account_obj in grouped_balances.items():
+        balances: List[Balance] = [balance["balance"] for balance in account_obj]
         result.append(
             AccountBalances(
                 account=account,
@@ -204,4 +167,4 @@ def derive_account_balances(
         for node in normalize_nodes(metadata)
         for quantity in _get_node_balances(node, parser(node))
     ]
-    return _group_by_account(quantities)
+    return _group_balances_by_account(quantities)
