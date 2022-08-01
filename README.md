@@ -340,6 +340,9 @@ If you're using the XRP Ledger in production, you should run a [rippled server](
 
 + [Subscribe to ripple-server](https://groups.google.com/g/ripple-server)
 
+### Report an issue
+
+Experienced an issue? Report it [here](https://github.com/XRPLF/xrpl.js/issues/new).
 
 ## License
 
