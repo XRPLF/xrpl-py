@@ -127,12 +127,14 @@ class Memo(NestedModel):
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class Signer(BaseModel):
+class Signer(NestedModel):
     """
     One Signer in a multi-signature. A multi-signed transaction can have an
     array of up to 8 Signers, each contributing a signature, in the Signers
     field.
     """
+
+    nested_name: ClassVar[str] = "signer"
 
     account: str = REQUIRED  # type: ignore
     """
@@ -158,57 +160,6 @@ class Signer(BaseModel):
 
     :meta hide-value:
     """
-
-    @classmethod
-    def is_dict_of_model(cls: Type[Signer], dictionary: Any) -> bool:
-        """
-        Returns True if the input dictionary was derived by the `to_dict`
-        method of an instance of this class. In other words, True if this is
-        a dictionary representation of an instance of this class.
-
-        NOTE: does not account for model inheritance, IE will only return True
-        if dictionary represents an instance of this class, but not if
-        dictionary represents an instance of a subclass of this class.
-
-        Args:
-            dictionary: The dictionary to check.
-
-        Returns:
-            True if dictionary is a dict representation of an instance of this
-            class.
-        """
-        return (
-            isinstance(dictionary, dict)
-            and "signer" in dictionary
-            and super().is_dict_of_model(dictionary["signer"])
-        )
-
-    @classmethod
-    def from_dict(cls: Type[Signer], value: Dict[str, Any]) -> Signer:
-        """
-        Construct a new Signer from a dictionary of parameters.
-
-        Args:
-            value: The value to construct the Signer from.
-
-        Returns:
-            A new Signer object, constructed using the given parameters.
-
-        Raises:
-            XRPLModelException: If the dictionary provided is invalid.
-        """
-        if "signer" not in value:
-            return super(Signer, cls).from_dict(value)
-        return super(Signer, cls).from_dict(value["signer"])
-
-    def to_dict(self: Signer) -> Dict[str, Any]:
-        """
-        Returns the dictionary representation of a Signer.
-
-        Returns:
-            The dictionary representation of a Signer.
-        """
-        return {"signer": super().to_dict()}
 
 
 T = TypeVar("T", bound="Transaction")  # any type inherited from Transaction

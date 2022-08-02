@@ -13,6 +13,30 @@ class NestedModel(BaseModel):
     nested_name: ClassVar[str]
 
     @classmethod
+    def is_dict_of_model(cls: Type[NestedModel], dictionary: Any) -> bool:
+        """
+        Returns True if the input dictionary was derived by the `to_dict`
+        method of an instance of this class. In other words, True if this is
+        a dictionary representation of an instance of this class.
+
+        NOTE: does not account for model inheritance, IE will only return True
+        if dictionary represents an instance of this class, but not if
+        dictionary represents an instance of a subclass of this class.
+
+        Args:
+            dictionary: The dictionary to check.
+
+        Returns:
+            True if dictionary is a dict representation of an instance of this
+            class.
+        """
+        return (
+            isinstance(dictionary, dict)
+            and cls.nested_name in dictionary
+            and super().is_dict_of_model(dictionary[cls.nested_name])
+        )
+
+    @classmethod
     def from_dict(cls: Type[NestedModel], value: Dict[str, Any]) -> NestedModel:
         """
         Construct a new NestedModel from a dictionary of parameters.
