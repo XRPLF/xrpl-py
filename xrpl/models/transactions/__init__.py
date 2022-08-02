@@ -61,6 +61,7 @@ from xrpl.models.transactions.xchain_claim import XChainClaim
 from xrpl.models.transactions.xchain_commit import XChainCommit
 from xrpl.models.transactions.xchain_create_bridge import XChainCreateBridge
 from xrpl.models.transactions.xchain_create_claim_id import XChainCreateClaimID
+from xrpl.models.transactions.xchain_modify_bridge import XChainModifyBridge
 
 __all__ = [
     "AccountDelete",
@@ -111,5 +112,6 @@ __all__ = [
     "XChainCommit",
     "XChainCreateBridge",
     "XChainCreateClaimID",
+    "XChainModifyBridge",
     "SidechainXChainAccountCreate",
 ]
