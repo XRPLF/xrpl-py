@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Type, Union
 
 from typing_extensions import Literal
 
@@ -204,11 +204,7 @@ class XChainAttestationBatch(BaseModel):
 class XChainAddAttestation(Transaction):
     """Represents a XChainAddAttestation transaction."""
 
-    xchain_bridge: XChainBridge = REQUIRED  # type: ignore
-
-    signature_reward: Amount = REQUIRED  # type: ignore
-
-    min_account_create_amount: Optional[Amount] = None
+    xchain_attestation_batch: XChainAttestationBatch = REQUIRED  # type: ignore
 
     transaction_type: TransactionType = field(
         default=TransactionType.XCHAIN_ADD_ATTESTATION,
