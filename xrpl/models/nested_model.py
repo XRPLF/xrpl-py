@@ -61,4 +61,6 @@ class NestedModel(BaseModel):
         Returns:
             The dictionary representation of a NestedModel.
         """
-        return {self.nested_name: super().to_dict()}
+        super_dict = super().to_dict()
+        del super_dict["nested_name"]
+        return {self.nested_name: super_dict}
