@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from hashlib import sha512
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union
+from typing import Any, ClassVar, Dict, List, Optional, Type, TypeVar, Union
 
 from typing_extensions import Final
 
@@ -12,6 +12,7 @@ from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.flags import check_false_flag_definition, interface_to_flag_list
+from xrpl.models.nested_model import NestedModel
 from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
@@ -79,13 +80,15 @@ def _value_to_tx_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class Memo(BaseModel):
+class Memo(NestedModel):
     """
     An arbitrary piece of data attached to a transaction. A transaction can
     have multiple Memo objects as an array in the Memos field.
     Must contain one or more of ``memo_data``, ``memo_format``, and
     ``memo_type``.
     """
+
+    nested_name: ClassVar[str] = "memo"
 
     memo_data: Optional[str] = None
     """The data of the memo, as a hexadecimal string."""
@@ -120,33 +123,6 @@ class Memo(BaseModel):
         if len(present_memo_fields) < 1:
             errors["Memo"] = "Memo must contain at least one field"
         return errors
-
-    @classmethod
-    def from_dict(cls: Type[Memo], value: Dict[str, Any]) -> Memo:
-        """
-        Construct a new Memo from a dictionary of parameters.
-
-        Args:
-            value: The value to construct the Memo from.
-
-        Returns:
-            A new Memo object, constructed using the given parameters.
-
-        Raises:
-            XRPLModelException: If the dictionary provided is invalid.
-        """
-        if "memo" not in value:
-            return super(Memo, cls).from_dict(value)
-        return super(Memo, cls).from_dict(value["memo"])
-
-    def to_dict(self: Memo) -> Dict[str, Any]:
-        """
-        Returns the dictionary representation of a Memo.
-
-        Returns:
-            The dictionary representation of a Memo.
-        """
-        return {"memo": super().to_dict()}
 
 
 @require_kwargs_on_init
