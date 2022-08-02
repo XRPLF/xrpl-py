@@ -1,7 +1,7 @@
 """Model for a XChainCommit transaction type."""
 
 from dataclasses import dataclass, field
-from typing import Union
+from typing import Optional, Union
 
 from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
@@ -21,6 +21,8 @@ class XChainCommit(Transaction):
     xchain_claim_id: Union[int, str] = REQUIRED  # type: ignore
 
     amount: Amount = REQUIRED  # type: ignore
+
+    other_chain_destination: Optional[str] = None
 
     transaction_type: TransactionType = field(
         default=TransactionType.XCHAIN_COMMIT,
