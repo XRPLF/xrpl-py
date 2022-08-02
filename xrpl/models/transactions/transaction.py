@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from hashlib import sha512
-from typing import Any, ClassVar, Dict, List, Optional, Type, TypeVar, Union
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
 from typing_extensions import Final
 
@@ -88,8 +88,6 @@ class Memo(NestedModel):
     ``memo_type``.
     """
 
-    nested_name: ClassVar[str] = "memo"
-
     memo_data: Optional[str] = None
     """The data of the memo, as a hexadecimal string."""
 
@@ -133,8 +131,6 @@ class Signer(NestedModel):
     array of up to 8 Signers, each contributing a signature, in the Signers
     field.
     """
-
-    nested_name: ClassVar[str] = "signer"
 
     account: str = REQUIRED  # type: ignore
     """

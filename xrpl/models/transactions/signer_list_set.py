@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import ClassVar, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
@@ -15,8 +15,6 @@ from xrpl.models.utils import require_kwargs_on_init
 @dataclass(frozen=True)
 class SignerEntry(NestedModel):
     """Represents one entry in a list of multi-signers authorized to an account."""
-
-    nested_name: ClassVar[str] = "signer_entry"
 
     account: str = REQUIRED  # type: ignore
     """

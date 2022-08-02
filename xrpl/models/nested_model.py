@@ -2,15 +2,21 @@
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, Dict, Type
+from typing import Any, Dict, Type, Union
 
-from xrpl.models.base_model import BaseModel
+from xrpl.models.base_model import BaseModel, _key_to_json
+
+
+def _get_nested_name(cls: Union[NestedModel, Type[NestedModel]]) -> str:
+    if isinstance(cls, NestedModel):
+        name = cls.__class__.__name__
+    else:
+        name = cls.__name__
+    return _key_to_json(name)
 
 
 class NestedModel(BaseModel):
     """The base class for models that involve a nested dictionary e.g. memos."""
-
-    nested_name: ClassVar[str]
 
     @classmethod
     def is_dict_of_model(cls: Type[NestedModel], dictionary: Any) -> bool:
@@ -32,8 +38,8 @@ class NestedModel(BaseModel):
         """
         return (
             isinstance(dictionary, dict)
-            and cls.nested_name in dictionary
-            and super().is_dict_of_model(dictionary[cls.nested_name])
+            and _get_nested_name(cls) in dictionary
+            and super().is_dict_of_model(dictionary[_get_nested_name(cls)])
         )
 
     @classmethod
@@ -50,9 +56,9 @@ class NestedModel(BaseModel):
         Raises:
             XRPLModelException: If the dictionary provided is invalid.
         """
-        if cls.nested_name not in value:
+        if _get_nested_name(cls) not in value:
             return super(NestedModel, cls).from_dict(value)
-        return super(NestedModel, cls).from_dict(value[cls.nested_name])
+        return super(NestedModel, cls).from_dict(value[_get_nested_name(cls)])
 
     def to_dict(self: NestedModel) -> Dict[str, Any]:
         """
@@ -61,6 +67,4 @@ class NestedModel(BaseModel):
         Returns:
             The dictionary representation of a NestedModel.
         """
-        super_dict = super().to_dict()
-        del super_dict["nested_name"]
-        return {self.nested_name: super_dict}
+        return {_get_nested_name(self): super().to_dict()}
