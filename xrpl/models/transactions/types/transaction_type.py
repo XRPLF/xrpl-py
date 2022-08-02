@@ -36,4 +36,4 @@ class TransactionType(str, Enum):
     SIDECHAIN_XCHAIN_ACCOUNT_CREATE = "SidechainXChainAccountCreate"
     XCHAIN_CREATE_BRIDGE = "XChainCreateBridge"
     XCHAIN_CREATE_CLAIM_ID = "XChainCreateClaimID"
-    # XCHAIN_MODIFY_BRIDGE = "XChainModifyBridge"
+    XCHAIN_MODIFY_BRIDGE = "XChainModifyBridge"
