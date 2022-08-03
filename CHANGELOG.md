@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Created function alias to `safe_sign_and_autofill_transaction` called `autofill_and_sign` to reflect order of operations
 - Created function alias to `submit_transaction` called `submit`
 - Created function alias to `safe_sign_and_submit_transaction` called `sign_and_submit`
+- Support for cross-chain bridge proposal
 
 ### Changed:
 - `check_fee` now has a higher limit that is less likely to be hit
