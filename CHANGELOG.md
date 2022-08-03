@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for Ed25519 seeds that don't use the `sEd` prefix
 - Add docs to`get_account_transactions` explaining how to allow pagination through all transaction history [#462]
 - Common field `ticket_sequence` to Transaction class
+- Support for cross-chain bridge proposal
 
 ### Fixed:
 - Typing for factory classmethods on models
