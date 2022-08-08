@@ -9,6 +9,7 @@ from xrpl.models.transactions.account_set import (
     AccountSetFlag,
     AccountSetFlagInterface,
 )
+from xrpl.models.transactions.amm_instance_create import AMMInstanceCreate
 from xrpl.models.transactions.check_cancel import CheckCancel
 from xrpl.models.transactions.check_cash import CheckCash
 from xrpl.models.transactions.check_create import CheckCreate
@@ -59,6 +60,7 @@ __all__ = [
     "AccountSet",
     "AccountSetFlag",
     "AccountSetFlagInterface",
+    "AMMInstanceCreate",
     "CheckCancel",
     "CheckCash",
     "CheckCreate",

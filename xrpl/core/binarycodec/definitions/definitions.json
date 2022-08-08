@@ -2160,6 +2160,46 @@
         "isSigningField": true,
         "type": "STArray"
       }
+    ],
+    [
+      "AMMAccount",
+      {
+        "nth": 1,
+        "isVLEncoded": true,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "AccountID"
+      }
+    ],
+    [
+      "Asset1",
+      {
+        "nth": 2,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Amount"
+      }
+    ],
+    [
+      "Asset2",
+      {
+        "nth": 3,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Amount"
+      }
+    ],
+    [
+      "TradingFee",
+      {
+        "nth": 4,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt32"
+      }
     ]
   ],
   "TRANSACTION_RESULTS": {
@@ -2332,6 +2372,7 @@
     "NFTokenAcceptOffer": 29,
     "EnableAmendment": 100,
     "SetFee": 101,
-    "UNLModify": 102
+    "UNLModify": 102,
+    "AMMInstanceCreate": 103
   }
 }
