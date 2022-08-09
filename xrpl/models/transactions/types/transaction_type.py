@@ -8,7 +8,7 @@ class TransactionType(str, Enum):
 
     ACCOUNT_DELETE = "AccountDelete"
     ACCOUNT_SET = "AccountSet"
-    AMM_INSTANCE_CREATE = "AmmCreate"
+    AMM_INSTANCE_CREATE = "AMMInstanceCreate"
     CHECK_CANCEL = "CheckCancel"
     CHECK_CASH = "CheckCash"
     CHECK_CREATE = "CheckCreate"
