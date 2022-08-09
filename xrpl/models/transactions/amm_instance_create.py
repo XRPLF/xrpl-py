@@ -1,4 +1,4 @@
-"""Model for AMMInstanceCreate transaction type."""
+"""Model for AmmCreate transaction type."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -17,9 +17,9 @@ _MAX_TRADING_FEE: Final[int] = 65000
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class AMMInstanceCreate(Transaction):
+class AmmCreate(Transaction):
     """
-    AMMInstanceCreate is used to create AccountRoot and the corresponding AMM ledger entries.
+    AmmCreate is used to create AccountRoot and the corresponding AMM ledger entries.
     This allows for the creation of only one AMM instance per unique asset pair.
     """
 
@@ -51,7 +51,7 @@ class AMMInstanceCreate(Transaction):
         init=False,
     )
 
-    def _get_errors(self: AMMInstanceCreate) -> Dict[str, str]:
+    def _get_errors(self: AmmCreate) -> Dict[str, str]:
         return {
             key: value
             for key, value in {
@@ -61,8 +61,7 @@ class AMMInstanceCreate(Transaction):
             if value is not None
         }
 
-    def _get_trading_fee_error(self: AMMInstanceCreate) -> Optional[str]:
+    def _get_trading_fee_error(self: AmmCreate) -> Optional[str]:
         if self.trading_fee > _MAX_TRADING_FEE:
             return f"Must not be greater than {_MAX_TRADING_FEE}"
         return None
-
