@@ -18,26 +18,22 @@ class TestAMMInstanceCreate(TestCase):
                 account=_ACCOUNT,
                 amm_account=_AMM_ACCOUNT,
                 fee=_FEE,
-                asset1='1000',
+                asset1="1000",
                 asset2=IssuedCurrencyAmount(
-                    currency="USD",
-                    issuer=_IOU_ISSUER,
-                    value="1000"
+                    currency="USD", issuer=_IOU_ISSUER, value="1000"
                 ),
                 trading_fee=maxsize,
             )
-    
+
     def test_to_xrpl(self):
         tx = AmmCreate(
             account=_ACCOUNT,
             amm_account=_AMM_ACCOUNT,
             sequence=1337,
             fee=_FEE,
-            asset1='1000',
+            asset1="1000",
             asset2=IssuedCurrencyAmount(
-                currency="USD",
-                issuer=_IOU_ISSUER,
-                value="1000"
+                currency="USD", issuer=_IOU_ISSUER, value="1000"
             ),
             trading_fee=12,
         )
@@ -58,4 +54,3 @@ class TestAMMInstanceCreate(TestCase):
             "Flags": 0,
         }
         self.assertEqual(tx.to_xrpl(), expected)
-
