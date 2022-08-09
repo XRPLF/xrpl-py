@@ -23,27 +23,29 @@ class AmmCreate(Transaction):
     This allows for the creation of only one AMM instance per unique asset pair.
     """
 
-    amm_account: str = REQUIRED
+    amm_account: str = REQUIRED  # type: ignore
     """
     TODO: Remove when Greg T updates his PR.
     """
 
-    asset1: Amount = REQUIRED
+    asset1: Amount = REQUIRED  # type: ignore
     """
     Asset1 specifies one of the pool assets (XRP or token) of the AMM instance.
     """
 
-    asset2: Amount = REQUIRED
+    asset2: Amount = REQUIRED  # type: ignore
     """
     Asset2 specifies the other pool asset of the AMM instance.
     """
 
-    trading_fee: int = REQUIRED
+    trading_fee: int = REQUIRED  # type: ignore
     """
-    TradingFee specifies the fee, in basis point, to be charged to the traders for the trades executed against the AMM instance.
+    TradingFee specifies the fee, in basis point, to be charged
+    to the traders for the trades executed against the AMM instance.
     Trading fee is a percentage of the trading volume.
     Valid values for this field are between 0 and 65000 inclusive.
-    A value of 1 is equivalent to 1/10 bps or 0.001%, allowing trading fee between 0% and 65%.
+    A value of 1 is equivalent to 1/10 bps or 0.001%, allowing trading fee
+    between 0% and 65%.
     """
 
     transaction_type: TransactionType = field(
