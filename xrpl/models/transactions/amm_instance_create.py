@@ -19,7 +19,8 @@ _MAX_TRADING_FEE: Final[int] = 65000
 @dataclass(frozen=True)
 class AMMInstanceCreate(Transaction):
     """
-    AMMInstanceCreate is used to create AccountRoot and the corresponding AMM ledger entries.
+    AMMInstanceCreate is used to create AccountRoot and the corresponding AMM
+    ledger entries.
     This allows for the creation of only one AMM instance per unique asset pair.
     """
 
