@@ -12,7 +12,11 @@ from xrpl.models.utils import require_kwargs_on_init
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class AMMInfo(Request):
-    """This request retrieves information about an AMM instance."""
+    """
+    This request retrieves information about an AMM instance.
+
+    Must provide either AMMHash or both Asset1 and Asset2 params.
+    """
 
     method: RequestMethod = field(default=RequestMethod.AMM_INFO, init=False)
     AMMHash: Optional[str] = None
