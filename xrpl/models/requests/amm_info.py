@@ -18,10 +18,22 @@ class AMMInfo(Request):
     Must provide either AMMHash or both Asset1 and Asset2 params.
     """
 
-    method: RequestMethod = field(default=RequestMethod.AMM_INFO, init=False)
     AMMHash: Optional[str] = None
+    """
+    AMMHash is a hash that uniquely identifies the AMM instance.
+    """
+
     Asset1: Optional[Amount] = None
+    """
+    Asset1 specifies one of the pool assets (XRP or token) of the AMM instance.
+    """
+
     Asset2: Optional[Amount] = None
+    """
+    Asset2 specifies the other pool asset of the AMM instance.
+    """
+
+    method: RequestMethod = field(default=RequestMethod.AMM_INFO, init=False)
 
     def _get_errors(self: AMMInfo) -> Dict[str, str]:
         errors = super()._get_errors()
