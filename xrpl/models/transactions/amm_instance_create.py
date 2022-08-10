@@ -24,11 +24,6 @@ class AMMInstanceCreate(Transaction):
     This allows for the creation of only one AMM instance per unique asset pair.
     """
 
-    amm_account: str = REQUIRED  # type: ignore
-    """
-    TODO: Remove when Greg T updates his PR.
-    """
-
     asset1: Amount = REQUIRED  # type: ignore
     """
     Asset1 specifies one of the pool assets (XRP or token) of the AMM instance.
