@@ -24,7 +24,7 @@ class TestAMMDeposit(TestCase):
             ),
         )
         expected = {
-            "AMMHash": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "AMMHash": _AMM_HASH,
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "LPTokens": {
                 "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
@@ -46,7 +46,7 @@ class TestAMMDeposit(TestCase):
             asset1_in=_AMOUNT,
         )
         expected = {
-            "AMMHash": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "AMMHash": _AMM_HASH,
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Asset1In": "1000",
             "TransactionType": "AMMDeposit",
@@ -56,7 +56,7 @@ class TestAMMDeposit(TestCase):
         }
         self.assertEqual(tx.to_xrpl(), expected)
 
-    def test_to_xrpl_asset1in_asset2_in(self):
+    def test_to_xrpl_asset1in_asset2in(self):
         tx = AMMDeposit(
             account=_ACCOUNT,
             sequence=1337,
@@ -65,7 +65,7 @@ class TestAMMDeposit(TestCase):
             asset2_in="500",
         )
         expected = {
-            "AMMHash": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "AMMHash": _AMM_HASH,
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Asset1In": "1000",
             "Asset2In": "500",
@@ -89,7 +89,7 @@ class TestAMMDeposit(TestCase):
             ),
         )
         expected = {
-            "AMMHash": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "AMMHash": _AMM_HASH,
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Asset1In": "1000",
             "LPTokens": {
@@ -113,7 +113,7 @@ class TestAMMDeposit(TestCase):
             e_price="25",
         )
         expected = {
-            "AMMHash": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "AMMHash": _AMM_HASH,
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Asset1In": "1000",
             "EPrice": "25",
