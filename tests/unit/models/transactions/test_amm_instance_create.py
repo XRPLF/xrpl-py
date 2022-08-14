@@ -7,7 +7,6 @@ from xrpl.models.transactions import AMMInstanceCreate
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _IOU_ISSUER = "rPyfep3gcLzkosKC9XiE77Y8DZWG6iWDT9"
-_FEE = "0.00001"
 
 
 class TestAMMInstanceCreate(TestCase):
@@ -15,7 +14,6 @@ class TestAMMInstanceCreate(TestCase):
         with self.assertRaises(XRPLModelException):
             AMMInstanceCreate(
                 account=_ACCOUNT,
-                fee=_FEE,
                 asset1="1000",
                 asset2=IssuedCurrencyAmount(
                     currency="USD", issuer=_IOU_ISSUER, value="1000"
@@ -26,8 +24,6 @@ class TestAMMInstanceCreate(TestCase):
     def test_to_xrpl(self):
         tx = AMMInstanceCreate(
             account=_ACCOUNT,
-            sequence=1337,
-            fee=_FEE,
             asset1="1000",
             asset2=IssuedCurrencyAmount(
                 currency="USD", issuer=_IOU_ISSUER, value="1000"
@@ -42,9 +38,7 @@ class TestAMMInstanceCreate(TestCase):
                 "issuer": "rPyfep3gcLzkosKC9XiE77Y8DZWG6iWDT9",
                 "value": "1000",
             },
-            "Fee": "0.00001",
             "TransactionType": "AMMInstanceCreate",
-            "Sequence": 1337,
             "SigningPubKey": "",
             "TradingFee": 12,
             "Flags": 0,
