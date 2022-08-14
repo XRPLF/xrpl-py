@@ -45,7 +45,7 @@ class AMMDeposit(Transaction):
 
     asset2_in: Optional[Amount] = None
     """
-    Asset2 specifies the other pool asset of the AMM instance to deposit more of its
+    Asset2In specifies the other pool asset of the AMM instance to deposit more of its
     value.
     """
 
