@@ -23,10 +23,11 @@ _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
 # keys. We snake case keys, but some keys are abbreviations.
 _ABBREVIATIONS: Final[Dict[str, str]] = {
     "amm": "AMM",
-    "unl": "UNL",
     "id": "ID",
-    "uri": "URI",
+    "lptokens": "LPTokens",
     "nftoken": "NFToken",
+    "unl": "UNL",
+    "uri": "URI",
 }
 
 

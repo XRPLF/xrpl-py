@@ -33,7 +33,7 @@ _CAMEL_TO_SNAKE_CASE_REGEX: Final[Pattern[str]] = re.compile(
     f"(?:{_CAMEL_CASE_LEADING_LOWER}|{_CAMEL_CASE_ABBREVIATION}|{_CAMEL_CASE_TYPICAL})"
 )
 # used for converting special substrings inside CamelCase fields
-SPECIAL_CAMELCASE_STRINGS = ["NFToken"]
+SPECIAL_CAMELCASE_STRINGS = ["LPTokens", "NFToken"]
 
 BM = TypeVar("BM", bound="BaseModel")  # any type inherited from BaseModel
 
