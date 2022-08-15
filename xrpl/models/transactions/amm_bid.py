@@ -35,7 +35,7 @@ class AMMBid(Transaction):
     """
     MinSlotPrice represents the minimum price that the bidder wants to pay for the slot.
     It is specified in units of LPTokens. If specified let MinSlotPrice be X and let
-    the slot-price computed by price scheduling slgorithm be Y, then bidder always pays
+    the slot-price computed by price scheduling algorithm be Y, then bidder always pays
     the max(X, Y).
     """
 
