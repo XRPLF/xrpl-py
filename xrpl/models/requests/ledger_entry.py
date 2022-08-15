@@ -8,12 +8,14 @@ different types of objects you can retrieve.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Literal, Optional, Union
 
 from xrpl.models.base_model import BaseModel
+from xrpl.models.currencies import IssuedCurrency
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.xchain_bridge import XChainBridge
 
 
 @require_kwargs_on_init
@@ -112,7 +114,7 @@ class Offer(BaseModel):
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class RippleState(BaseModel):
-    """Required fields for requesting a RippleState."""
+    """Required fields for requesting a RippleState if not querying by object ID."""
 
     accounts: List[str] = REQUIRED  # type: ignore
     """
@@ -132,10 +134,7 @@ class RippleState(BaseModel):
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class Ticket(BaseModel):
-    """
-    Required fields for requesting a Ticket, if not querying by
-    object ID.
-    """
+    """Required fields for requesting a Ticket if not querying by object ID."""
 
     owner: str = REQUIRED  # type: ignore
     """
@@ -150,6 +149,33 @@ class Ticket(BaseModel):
 
     :meta hide-value:
     """
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True)
+class XChainClaimID(BaseModel):
+    """Required fields for requesting an XChainClaimID if not querying by object ID."""
+
+    locking_chain_door: str
+    locking_chain_issue: Union[Literal["XRP"], IssuedCurrency]
+    issuing_chain_door: str
+    issuing_chain_issue: Union[Literal["XRP"], IssuedCurrency]
+    xchain_claim_id: Union[int, str]
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True)
+class XChainCreateAccountClaimID(BaseModel):
+    """
+    Required fields for requesting an XChainCreateAccountClaimID if not querying by
+    object ID.
+    """
+
+    locking_chain_door: str
+    locking_chain_issue: Union[Literal["XRP"], IssuedCurrency]
+    issuing_chain_door: str
+    issuing_chain_issue: Union[Literal["XRP"], IssuedCurrency]
+    xchain_create_account_claim_id: Union[int, str]
 
 
 @require_kwargs_on_init
@@ -174,6 +200,12 @@ class LedgerEntry(Request):
     payment_channel: Optional[str] = None
     ripple_state: Optional[RippleState] = None
     ticket: Optional[Union[str, Ticket]] = None
+    xchain_bridge: Optional[Union[str, XChainBridge]] = None
+    xchain_claim_id: Optional[Union[str, XChainClaimID]] = None
+    xchain_create_account_claim_id: Optional[
+        Union[str, XChainCreateAccountClaimID]
+    ] = None
+
     binary: bool = False
     ledger_hash: Optional[str] = None
     ledger_index: Optional[Union[str, int]] = None
