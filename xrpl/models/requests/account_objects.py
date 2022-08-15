@@ -26,6 +26,7 @@ class AccountObjectType(str, Enum):
     SIGNER_LIST = "signer_list"
     STATE = "state"
     TICKET = "ticket"
+    XCHAIN_SEQ = "xchain_seq"
 
 
 @require_kwargs_on_init
