@@ -39,6 +39,12 @@ class AMMBid(Transaction):
     the max(X, Y).
     """
 
+    max_slot_price: Optional[Amount] = None
+    """
+    MaxSlotPrice represents the maximum price that the bidder wants to pay for the slot.
+    It is specified in units of LPTokens.
+    """
+
     auth_accounts: Optional[List[str]] = None
     """
     AuthAccounts represents an array of XRPL account IDs that are authorized to trade

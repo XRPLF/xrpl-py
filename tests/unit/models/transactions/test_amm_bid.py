@@ -34,6 +34,11 @@ class TestAMMBid(TestCase):
                 issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
                 value="25",
             ),
+            max_slot_price=IssuedCurrencyAmount(
+                currency="5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
+                issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                value="35",
+            ),
             auth_accounts=_AUTH_ACCOUNTS,
         )
         expected = {
@@ -43,6 +48,11 @@ class TestAMMBid(TestCase):
                 "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
                 "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
                 "value": "25",
+            },
+            "MaxSlotPrice": {
+                "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
+                "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                "value": "35",
             },
             "AuthAccounts": _AUTH_ACCOUNTS,
             "TransactionType": "AMMBid",
