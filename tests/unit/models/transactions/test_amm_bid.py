@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMBid
 
@@ -28,13 +29,21 @@ class TestAMMBid(TestCase):
         tx = AMMBid(
             account=_ACCOUNT,
             amm_hash=_AMM_HASH,
-            min_slot_price="25",
+            min_slot_price=IssuedCurrencyAmount(
+                currency="5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
+                issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                value="25",
+            ),
             auth_accounts=_AUTH_ACCOUNTS,
         )
         expected = {
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "AMMHash": _AMM_HASH,
-            "MinSlotPrice": "25",
+            "MinSlotPrice": {
+                "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
+                "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                "value": "25",
+            },
             "AuthAccounts": _AUTH_ACCOUNTS,
             "TransactionType": "AMMBid",
             "SigningPubKey": "",
