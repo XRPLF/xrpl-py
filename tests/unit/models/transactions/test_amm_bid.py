@@ -12,6 +12,8 @@ _AUTH_ACCOUNTS = [
     "rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb",
     "rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4",
 ]
+_LPTOKENS_CURRENCY = "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A"
+_LPTOKENS_ISSUER = "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw"
 
 
 class TestAMMBid(TestCase):
@@ -30,13 +32,13 @@ class TestAMMBid(TestCase):
             account=_ACCOUNT,
             amm_hash=_AMM_HASH,
             min_slot_price=IssuedCurrencyAmount(
-                currency="5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
-                issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                currency=_LPTOKENS_CURRENCY,
+                issuer=_LPTOKENS_ISSUER,
                 value="25",
             ),
             max_slot_price=IssuedCurrencyAmount(
-                currency="5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
-                issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                currency=_LPTOKENS_CURRENCY,
+                issuer=_LPTOKENS_ISSUER,
                 value="35",
             ),
             auth_accounts=_AUTH_ACCOUNTS,
