@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
-from xrpl.models.amounts import Amount
+from xrpl.models.amounts import Amount, IssuedCurrencyAmount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -32,7 +32,7 @@ class AMMWithdraw(Transaction):
     AMMID is a hash that uniquely identifies the AMM instance.
     """
 
-    lptokens: Optional[Amount] = None
+    lptokens: Optional[IssuedCurrencyAmount] = None
     """
     LPTokens specifies the amount of shares of the AMM instance pools that the trader
     wants to redeem or trade in.
