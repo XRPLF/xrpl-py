@@ -5,7 +5,7 @@ from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMBid
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
-_AMM_HASH = "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883"
+_AMM_ID = "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883"
 _AUTH_ACCOUNTS = [
     "rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh",
     "rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH",
@@ -23,14 +23,14 @@ class TestAMMBid(TestCase):
         with self.assertRaises(XRPLModelException):
             AMMBid(
                 account=_ACCOUNT,
-                amm_hash=_AMM_HASH,
+                amm_id=_AMM_ID,
                 auth_accounts=auth_accounts,
             )
 
     def test_to_xrpl(self):
         tx = AMMBid(
             account=_ACCOUNT,
-            amm_hash=_AMM_HASH,
+            amm_id=_AMM_ID,
             min_slot_price=IssuedCurrencyAmount(
                 currency=_LPTOKENS_CURRENCY,
                 issuer=_LPTOKENS_ISSUER,
@@ -45,7 +45,7 @@ class TestAMMBid(TestCase):
         )
         expected = {
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "AMMHash": _AMM_HASH,
+            "AMMID": _AMM_ID,
             "MinSlotPrice": {
                 "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
                 "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",

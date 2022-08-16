@@ -4,7 +4,7 @@ from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests import AMMInfo
 
-_AMM_HASH = "5DB01B7FFED6B67E6B0414DED11E051D2EE2B7619CE0EAA6286D67A3A4D5BDB3"
+_AMM_ID = "5DB01B7FFED6B67E6B0414DED11E051D2EE2B7619CE0EAA6286D67A3A4D5BDB3"
 _ASSET_1 = "1000"
 _ASSET_2 = IssuedCurrencyAmount(
     currency="USD", issuer="rN6zcSynkRnf8zcgTVrRL8K7r4ovE7J4Zj", value="100"
@@ -12,9 +12,9 @@ _ASSET_2 = IssuedCurrencyAmount(
 
 
 class TestAMMInfo(TestCase):
-    def test_amm_hash(self):
+    def test_amm_id(self):
         request = AMMInfo(
-            AMMHash=_AMM_HASH,
+            AMMID=_AMM_ID,
         )
         self.assertTrue(request.is_valid())
 

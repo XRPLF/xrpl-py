@@ -15,12 +15,12 @@ class AMMInfo(Request):
     """
     This request retrieves information about an AMM instance.
 
-    Must provide either AMMHash or both Asset1 and Asset2 params.
+    Must provide either AMMID or both Asset1 and Asset2 params.
     """
 
-    AMMHash: Optional[str] = None
+    AMMID: Optional[str] = None
     """
-    AMMHash is a hash that uniquely identifies the AMM instance.
+    AMMID is a hash that uniquely identifies the AMM instance.
     """
 
     Asset1: Optional[Amount] = None
@@ -37,11 +37,11 @@ class AMMInfo(Request):
 
     def _get_errors(self: AMMInfo) -> Dict[str, str]:
         errors = super()._get_errors()
-        if self.AMMHash is None:
+        if self.AMMID is None:
             if self.Asset1 is None and self.Asset2 is None:
                 errors[
                     "AMMInfo"
-                ] = "Must set either `AMMHash` or both `Asset1` and `Asset2`"
+                ] = "Must set either `AMMID` or both `Asset1` and `Asset2`"
             elif self.Asset1 is None and self.Asset2 is not None:
                 errors[
                     "AMMInfo"

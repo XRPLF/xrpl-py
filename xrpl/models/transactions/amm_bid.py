@@ -26,9 +26,9 @@ class AMMBid(Transaction):
     discounted TradingFee for a 24 hour slot.
     """
 
-    amm_hash: str = REQUIRED  # type: ignore
+    amm_id: str = REQUIRED  # type: ignore
     """
-    AMMHash is a hash that uniquely identifies the AMM instance.
+    AMMID is a hash that uniquely identifies the AMM instance.
     """
 
     min_slot_price: Optional[Amount] = None

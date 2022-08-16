@@ -27,9 +27,9 @@ class AMMWithdraw(Transaction):
     - Asset1Out and EPrice
     """
 
-    amm_hash: str = REQUIRED  # type: ignore
+    amm_id: str = REQUIRED  # type: ignore
     """
-    AMMHash is a hash that uniquely identifies the AMM instance.
+    AMMID is a hash that uniquely identifies the AMM instance.
     """
 
     lptokens: Optional[Amount] = None

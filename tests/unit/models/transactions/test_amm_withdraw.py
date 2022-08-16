@@ -5,7 +5,7 @@ from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMWithdraw
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
-_AMM_HASH = "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883"
+_AMM_ID = "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883"
 _AMOUNT = "1000"
 _LPTOKEN_CURRENCY = "B3813FCAB4EE68B3D0D735D6849465A9113EE048"
 _LPTOKEN_ISSUER = "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg"
@@ -16,7 +16,7 @@ class TestAMMWithdraw(TestCase):
         tx = AMMWithdraw(
             account=_ACCOUNT,
             sequence=1337,
-            amm_hash=_AMM_HASH,
+            amm_id=_AMM_ID,
             lptokens=IssuedCurrencyAmount(
                 currency=_LPTOKEN_CURRENCY,
                 issuer=_LPTOKEN_ISSUER,
@@ -24,7 +24,7 @@ class TestAMMWithdraw(TestCase):
             ),
         )
         expected = {
-            "AMMHash": _AMM_HASH,
+            "AMMID": _AMM_ID,
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "LPTokens": {
                 "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
@@ -42,11 +42,11 @@ class TestAMMWithdraw(TestCase):
         tx = AMMWithdraw(
             account=_ACCOUNT,
             sequence=1337,
-            amm_hash=_AMM_HASH,
+            amm_id=_AMM_ID,
             asset1_out=_AMOUNT,
         )
         expected = {
-            "AMMHash": _AMM_HASH,
+            "AMMID": _AMM_ID,
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Asset1Out": "1000",
             "TransactionType": "AMMWithdraw",
@@ -60,12 +60,12 @@ class TestAMMWithdraw(TestCase):
         tx = AMMWithdraw(
             account=_ACCOUNT,
             sequence=1337,
-            amm_hash=_AMM_HASH,
+            amm_id=_AMM_ID,
             asset1_out=_AMOUNT,
             asset2_out="500",
         )
         expected = {
-            "AMMHash": _AMM_HASH,
+            "AMMID": _AMM_ID,
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Asset1Out": "1000",
             "Asset2Out": "500",
@@ -80,7 +80,7 @@ class TestAMMWithdraw(TestCase):
         tx = AMMWithdraw(
             account=_ACCOUNT,
             sequence=1337,
-            amm_hash=_AMM_HASH,
+            amm_id=_AMM_ID,
             asset1_out=_AMOUNT,
             lptokens=IssuedCurrencyAmount(
                 currency=_LPTOKEN_CURRENCY,
@@ -89,7 +89,7 @@ class TestAMMWithdraw(TestCase):
             ),
         )
         expected = {
-            "AMMHash": _AMM_HASH,
+            "AMMID": _AMM_ID,
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Asset1Out": "1000",
             "LPTokens": {
@@ -108,12 +108,12 @@ class TestAMMWithdraw(TestCase):
         tx = AMMWithdraw(
             account=_ACCOUNT,
             sequence=1337,
-            amm_hash=_AMM_HASH,
+            amm_id=_AMM_ID,
             asset1_out=_AMOUNT,
             e_price="25",
         )
         expected = {
-            "AMMHash": _AMM_HASH,
+            "AMMID": _AMM_ID,
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Asset1Out": "1000",
             "EPrice": "25",
@@ -129,7 +129,7 @@ class TestAMMWithdraw(TestCase):
             AMMWithdraw(
                 account=_ACCOUNT,
                 sequence=1337,
-                amm_hash=_AMM_HASH,
+                amm_id=_AMM_ID,
             )
 
     def test_undefined_asset1out_defined_asset2out_invalid_combo(self):
@@ -137,7 +137,7 @@ class TestAMMWithdraw(TestCase):
             AMMWithdraw(
                 account=_ACCOUNT,
                 sequence=1337,
-                amm_hash=_AMM_HASH,
+                amm_id=_AMM_ID,
                 asset2_out="500",
             )
 
@@ -146,6 +146,6 @@ class TestAMMWithdraw(TestCase):
             AMMWithdraw(
                 account=_ACCOUNT,
                 sequence=1337,
-                amm_hash=_AMM_HASH,
+                amm_id=_AMM_ID,
                 e_price="25",
             )

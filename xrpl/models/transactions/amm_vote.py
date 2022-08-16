@@ -24,9 +24,9 @@ class AMMVote(Transaction):
     transaction to vote for the trading fee for that instance.
     """
 
-    amm_hash: str = REQUIRED  # type: ignore
+    amm_id: str = REQUIRED  # type: ignore
     """
-    AMMHash is a hash that uniquely identifies the AMM instance.
+    AMMID is a hash that uniquely identifies the AMM instance.
     """
 
     fee_val: int = REQUIRED  # type: ignore
