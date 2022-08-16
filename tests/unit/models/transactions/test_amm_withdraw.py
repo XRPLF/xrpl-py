@@ -125,27 +125,39 @@ class TestAMMWithdraw(TestCase):
         self.assertEqual(tx.to_xrpl(), expected)
 
     def test_undefined_asset1out_undefined_lptokens_invalid_combo(self):
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as error:
             AMMWithdraw(
                 account=_ACCOUNT,
                 sequence=1337,
                 amm_id=_AMM_ID,
             )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'AMMWithdraw': 'Must set either or both `lptokens` and `asset1_out`'}",
+        )
 
     def test_undefined_asset1out_defined_asset2out_invalid_combo(self):
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as error:
             AMMWithdraw(
                 account=_ACCOUNT,
                 sequence=1337,
                 amm_id=_AMM_ID,
                 asset2_out="500",
             )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'AMMWithdraw': 'Must set `asset1_out` with `asset2_out`'}",
+        )
 
     def test_undefined_asset1out_defined_eprice_invalid_combo(self):
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as error:
             AMMWithdraw(
                 account=_ACCOUNT,
                 sequence=1337,
                 amm_id=_AMM_ID,
                 e_price="25",
             )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'AMMWithdraw': 'Must set `asset1_out` with `e_price`'}",
+        )

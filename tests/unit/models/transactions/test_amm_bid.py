@@ -20,12 +20,16 @@ class TestAMMBid(TestCase):
     def test_auth_accounts_length_error(self):
         auth_accounts = _AUTH_ACCOUNTS.copy()
         auth_accounts.append("r3X6noRsvaLapAKCG78zAtWcbhB3sggS1s")
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as error:
             AMMBid(
                 account=_ACCOUNT,
                 amm_id=_AMM_ID,
                 auth_accounts=auth_accounts,
             )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'auth_accounts': 'Must not be greater than 4'}",
+        )
 
     def test_to_xrpl(self):
         tx = AMMBid(

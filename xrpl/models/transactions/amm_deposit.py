@@ -61,10 +61,10 @@ class AMMDeposit(Transaction):
 
     def _get_errors(self: AMMDeposit) -> Dict[str, str]:
         errors = super()._get_errors()
-        if self.lptokens is None and self.asset1_in is None:
-            errors["AMMDeposit"] = "Must set either or both `lptokens` and `asset1_in`"
-        elif self.asset2_in is not None and self.asset1_in is None:
+        if self.asset2_in is not None and self.asset1_in is None:
             errors["AMMDeposit"] = "Must set `asset1_in` with `asset2_in`"
         elif self.e_price is not None and self.asset1_in is None:
             errors["AMMDeposit"] = "Must set `asset1_in` with `e_price`"
+        elif self.lptokens is None and self.asset1_in is None:
+            errors["AMMDeposit"] = "Must set either or both `lptokens` and `asset1_in`"
         return errors

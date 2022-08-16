@@ -63,13 +63,12 @@ class AMMWithdraw(Transaction):
 
     def _get_errors(self: AMMWithdraw) -> Dict[str, str]:
         errors = super()._get_errors()
-        if self.lptokens is None and self.asset1_out is None:
-            errors[
-                "AMMWithdraw"
-            ] = "Must set either or both `lptokens` and \
-                `asset1_out`"
-        elif self.asset2_out is not None and self.asset1_out is None:
+        if self.asset2_out is not None and self.asset1_out is None:
             errors["AMMWithdraw"] = "Must set `asset1_out` with `asset2_out`"
         elif self.e_price is not None and self.asset1_out is None:
             errors["AMMWithdraw"] = "Must set `asset1_out` with `e_price`"
+        elif self.lptokens is None and self.asset1_out is None:
+            errors[
+                "AMMWithdraw"
+            ] = "Must set either or both `lptokens` and `asset1_out`"
         return errors

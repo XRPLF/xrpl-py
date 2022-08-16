@@ -11,12 +11,16 @@ _FEE_VAL = 1234
 
 class TestAMMVote(TestCase):
     def test_trading_fee_too_high(self):
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as error:
             AMMVote(
                 account=_ACCOUNT,
                 amm_id=_AMM_ID,
                 fee_val=maxsize,
             )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'fee_val': 'Must not be greater than 65000'}",
+        )
 
     def test_to_xrpl(self):
         tx = AMMVote(

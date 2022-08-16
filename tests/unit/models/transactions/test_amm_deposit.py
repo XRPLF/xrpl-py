@@ -125,27 +125,39 @@ class TestAMMDeposit(TestCase):
         self.assertEqual(tx.to_xrpl(), expected)
 
     def test_undefined_asset1in_undefined_lptokens_invalid_combo(self):
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as error:
             AMMDeposit(
                 account=_ACCOUNT,
                 sequence=1337,
                 amm_id=_AMM_ID,
             )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'AMMDeposit': 'Must set either or both `lptokens` and `asset1_in`'}",
+        )
 
     def test_undefined_asset1in_defined_asset2in_invalid_combo(self):
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as error:
             AMMDeposit(
                 account=_ACCOUNT,
                 sequence=1337,
                 amm_id=_AMM_ID,
                 asset2_in="500",
             )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'AMMDeposit': 'Must set `asset1_in` with `asset2_in`'}",
+        )
 
     def test_undefined_asset1in_defined_eprice_invalid_combo(self):
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as error:
             AMMDeposit(
                 account=_ACCOUNT,
                 sequence=1337,
                 amm_id=_AMM_ID,
                 e_price="25",
             )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'AMMDeposit': 'Must set `asset1_in` with `e_price`'}",
+        )
