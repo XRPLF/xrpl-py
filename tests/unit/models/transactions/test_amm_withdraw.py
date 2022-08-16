@@ -12,7 +12,7 @@ _LPTOKEN_ISSUER = "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg"
 
 
 class TestAMMWithdraw(TestCase):
-    def test_to_xrpl_lptokens(self):
+    def test_tx_valid_lptokens(self):
         tx = AMMWithdraw(
             account=_ACCOUNT,
             sequence=1337,
@@ -23,40 +23,18 @@ class TestAMMWithdraw(TestCase):
                 value=_AMOUNT,
             ),
         )
-        expected = {
-            "AMMID": _AMM_ID,
-            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "LPTokens": {
-                "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
-                "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
-                "value": "1000",
-            },
-            "TransactionType": "AMMWithdraw",
-            "Sequence": 1337,
-            "SigningPubKey": "",
-            "Flags": 0,
-        }
-        self.assertEqual(tx.to_xrpl(), expected)
+        self.assertTrue(tx.is_valid())
 
-    def test_to_xrpl_asset1out(self):
+    def test_tx_valid_asset1out(self):
         tx = AMMWithdraw(
             account=_ACCOUNT,
             sequence=1337,
             amm_id=_AMM_ID,
             asset1_out=_AMOUNT,
         )
-        expected = {
-            "AMMID": _AMM_ID,
-            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "Asset1Out": "1000",
-            "TransactionType": "AMMWithdraw",
-            "Sequence": 1337,
-            "SigningPubKey": "",
-            "Flags": 0,
-        }
-        self.assertEqual(tx.to_xrpl(), expected)
+        self.assertTrue(tx.is_valid())
 
-    def test_to_xrpl_asset1out_asset2out(self):
+    def test_tx_valid_asset1out_asset2out(self):
         tx = AMMWithdraw(
             account=_ACCOUNT,
             sequence=1337,
@@ -64,19 +42,9 @@ class TestAMMWithdraw(TestCase):
             asset1_out=_AMOUNT,
             asset2_out="500",
         )
-        expected = {
-            "AMMID": _AMM_ID,
-            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "Asset1Out": "1000",
-            "Asset2Out": "500",
-            "TransactionType": "AMMWithdraw",
-            "Sequence": 1337,
-            "SigningPubKey": "",
-            "Flags": 0,
-        }
-        self.assertEqual(tx.to_xrpl(), expected)
+        self.assertTrue(tx.is_valid())
 
-    def test_to_xrpl_asset1out_lptokens(self):
+    def test_tx_valid_asset1out_lptokens(self):
         tx = AMMWithdraw(
             account=_ACCOUNT,
             sequence=1337,
@@ -88,23 +56,9 @@ class TestAMMWithdraw(TestCase):
                 value="500",
             ),
         )
-        expected = {
-            "AMMID": _AMM_ID,
-            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "Asset1Out": "1000",
-            "LPTokens": {
-                "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
-                "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
-                "value": "500",
-            },
-            "TransactionType": "AMMWithdraw",
-            "Sequence": 1337,
-            "SigningPubKey": "",
-            "Flags": 0,
-        }
-        self.assertEqual(tx.to_xrpl(), expected)
+        self.assertTrue(tx.is_valid())
 
-    def test_to_xrpl_asset1out_eprice(self):
+    def test_tx_valid_asset1out_eprice(self):
         tx = AMMWithdraw(
             account=_ACCOUNT,
             sequence=1337,
@@ -112,17 +66,7 @@ class TestAMMWithdraw(TestCase):
             asset1_out=_AMOUNT,
             e_price="25",
         )
-        expected = {
-            "AMMID": _AMM_ID,
-            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "Asset1Out": "1000",
-            "EPrice": "25",
-            "TransactionType": "AMMWithdraw",
-            "Sequence": 1337,
-            "SigningPubKey": "",
-            "Flags": 0,
-        }
-        self.assertEqual(tx.to_xrpl(), expected)
+        self.assertTrue(tx.is_valid())
 
     def test_undefined_asset1out_undefined_lptokens_invalid_combo(self):
         with self.assertRaises(XRPLModelException) as error:

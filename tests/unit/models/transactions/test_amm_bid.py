@@ -17,21 +17,7 @@ _LPTOKENS_ISSUER = "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw"
 
 
 class TestAMMBid(TestCase):
-    def test_auth_accounts_length_error(self):
-        auth_accounts = _AUTH_ACCOUNTS.copy()
-        auth_accounts.append("r3X6noRsvaLapAKCG78zAtWcbhB3sggS1s")
-        with self.assertRaises(XRPLModelException) as error:
-            AMMBid(
-                account=_ACCOUNT,
-                amm_id=_AMM_ID,
-                auth_accounts=auth_accounts,
-            )
-        self.assertEqual(
-            error.exception.args[0],
-            "{'auth_accounts': 'Must not be greater than 4'}",
-        )
-
-    def test_to_xrpl(self):
+    def test_tx_valid(self):
         tx = AMMBid(
             account=_ACCOUNT,
             amm_id=_AMM_ID,
@@ -47,22 +33,18 @@ class TestAMMBid(TestCase):
             ),
             auth_accounts=_AUTH_ACCOUNTS,
         )
-        expected = {
-            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "AMMID": _AMM_ID,
-            "MinSlotPrice": {
-                "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
-                "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
-                "value": "25",
-            },
-            "MaxSlotPrice": {
-                "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
-                "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
-                "value": "35",
-            },
-            "AuthAccounts": _AUTH_ACCOUNTS,
-            "TransactionType": "AMMBid",
-            "SigningPubKey": "",
-            "Flags": 0,
-        }
-        self.assertEqual(tx.to_xrpl(), expected)
+        self.assertTrue(tx.is_valid())
+
+    def test_auth_accounts_length_error(self):
+        auth_accounts = _AUTH_ACCOUNTS.copy()
+        auth_accounts.append("r3X6noRsvaLapAKCG78zAtWcbhB3sggS1s")
+        with self.assertRaises(XRPLModelException) as error:
+            AMMBid(
+                account=_ACCOUNT,
+                amm_id=_AMM_ID,
+                auth_accounts=auth_accounts,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'auth_accounts': 'Must not be greater than 4'}",
+        )

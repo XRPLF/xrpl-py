@@ -16,6 +16,11 @@ from xrpl.models.requests import (
     SubmitOnly,
 )
 from xrpl.models.transactions import (
+    AMMBid,
+    AMMDeposit,
+    AMMInstanceCreate,
+    AMMVote,
+    AMMWithdraw,
     CheckCreate,
     Memo,
     Payment,
@@ -595,5 +600,317 @@ class TestFromDict(TestCase):
                     }
                 }
             ],
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_instance_create(self):
+        tx = AMMInstanceCreate(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            asset1="1000",
+            asset2=IssuedCurrencyAmount(
+                currency="USD",
+                issuer="rPyfep3gcLzkosKC9XiE77Y8DZWG6iWDT9",
+                value="1000",
+            ),
+            trading_fee=12,
+        )
+        expected = {
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Asset1": "1000",
+            "Asset2": {
+                "currency": "USD",
+                "issuer": "rPyfep3gcLzkosKC9XiE77Y8DZWG6iWDT9",
+                "value": "1000",
+            },
+            "TransactionType": "AMMInstanceCreate",
+            "SigningPubKey": "",
+            "TradingFee": 12,
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_deposit_lptokens(self):
+        tx = AMMDeposit(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            lptokens=IssuedCurrencyAmount(
+                currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
+                issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
+                value="1000",
+            ),
+        )
+        expected = {
+            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "LPTokens": {
+                "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
+                "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
+                "value": "1000",
+            },
+            "TransactionType": "AMMDeposit",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_deposit_asset1in(self):
+        tx = AMMDeposit(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset1_in="1000",
+        )
+        expected = {
+            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Asset1In": "1000",
+            "TransactionType": "AMMDeposit",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_deposit_asset1in_asset2in(self):
+        tx = AMMDeposit(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset1_in="1000",
+            asset2_in="500",
+        )
+        expected = {
+            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Asset1In": "1000",
+            "Asset2In": "500",
+            "TransactionType": "AMMDeposit",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_deposit_asset1in_lptokens(self):
+        tx = AMMDeposit(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset1_in="1000",
+            lptokens=IssuedCurrencyAmount(
+                currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
+                issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
+                value="500",
+            ),
+        )
+        expected = {
+            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Asset1In": "1000",
+            "LPTokens": {
+                "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
+                "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
+                "value": "500",
+            },
+            "TransactionType": "AMMDeposit",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_deposit_asset1in_eprice(self):
+        tx = AMMDeposit(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset1_in="1000",
+            e_price="25",
+        )
+        expected = {
+            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Asset1In": "1000",
+            "EPrice": "25",
+            "TransactionType": "AMMDeposit",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_withdraw_lptokens(self):
+        tx = AMMWithdraw(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            lptokens=IssuedCurrencyAmount(
+                currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
+                issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
+                value="1000",
+            ),
+        )
+        expected = {
+            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "LPTokens": {
+                "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
+                "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
+                "value": "1000",
+            },
+            "TransactionType": "AMMWithdraw",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_withdraw_asset1out(self):
+        tx = AMMWithdraw(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset1_out="1000",
+        )
+        expected = {
+            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Asset1Out": "1000",
+            "TransactionType": "AMMWithdraw",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_withdraw_asset1out_asset2out(self):
+        tx = AMMWithdraw(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset1_out="1000",
+            asset2_out="500",
+        )
+        expected = {
+            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Asset1Out": "1000",
+            "Asset2Out": "500",
+            "TransactionType": "AMMWithdraw",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_withdraw_asset1out_lptokens(self):
+        tx = AMMWithdraw(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset1_out="1000",
+            lptokens=IssuedCurrencyAmount(
+                currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
+                issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
+                value="500",
+            ),
+        )
+        expected = {
+            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Asset1Out": "1000",
+            "LPTokens": {
+                "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
+                "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
+                "value": "500",
+            },
+            "TransactionType": "AMMWithdraw",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_withdraw_asset1out_eprice(self):
+        tx = AMMWithdraw(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset1_out="1000",
+            e_price="25",
+        )
+        expected = {
+            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Asset1Out": "1000",
+            "EPrice": "25",
+            "TransactionType": "AMMWithdraw",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_vote(self):
+        tx = AMMVote(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            fee_val=1234,
+        )
+        expected = {
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "FeeVal": 1234,
+            "TransactionType": "AMMVote",
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_bid(self):
+        tx = AMMBid(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            min_slot_price=IssuedCurrencyAmount(
+                currency="5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
+                issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                value="25",
+            ),
+            max_slot_price=IssuedCurrencyAmount(
+                currency="5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
+                issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                value="35",
+            ),
+            auth_accounts=[
+                "rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh",
+                "rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH",
+                "rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb",
+                "rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4",
+            ],
+        )
+        expected = {
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "MinSlotPrice": {
+                "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
+                "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                "value": "25",
+            },
+            "MaxSlotPrice": {
+                "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
+                "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                "value": "35",
+            },
+            "AuthAccounts": [
+                "rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh",
+                "rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH",
+                "rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb",
+                "rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4",
+            ],
+            "TransactionType": "AMMBid",
+            "SigningPubKey": "",
+            "Flags": 0,
         }
         self.assertEqual(tx.to_xrpl(), expected)
