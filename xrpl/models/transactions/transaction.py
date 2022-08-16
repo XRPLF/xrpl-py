@@ -24,7 +24,7 @@ _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
 _ABBREVIATIONS: Final[Dict[str, str]] = {
     "amm": "AMM",
     "id": "ID",
-    "lptokens": "LPTokens",
+    "lp": "LP",
     "nftoken": "NFToken",
     "unl": "UNL",
     "uri": "URI",

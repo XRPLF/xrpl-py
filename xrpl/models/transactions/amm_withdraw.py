@@ -32,7 +32,7 @@ class AMMWithdraw(Transaction):
     AMMID is a hash that uniquely identifies the AMM instance.
     """
 
-    lptokens: Optional[IssuedCurrencyAmount] = None
+    lp_tokens: Optional[IssuedCurrencyAmount] = None
     """
     LPTokens specifies the amount of shares of the AMM instance pools that the trader
     wants to redeem or trade in.
@@ -67,8 +67,8 @@ class AMMWithdraw(Transaction):
             errors["AMMWithdraw"] = "Must set `asset1_out` with `asset2_out`"
         elif self.e_price is not None and self.asset1_out is None:
             errors["AMMWithdraw"] = "Must set `asset1_out` with `e_price`"
-        elif self.lptokens is None and self.asset1_out is None:
+        elif self.lp_tokens is None and self.asset1_out is None:
             errors[
                 "AMMWithdraw"
-            ] = "Must set either or both `lptokens` and `asset1_out`"
+            ] = "Must set either or both `lp_tokens` and `asset1_out`"
         return errors

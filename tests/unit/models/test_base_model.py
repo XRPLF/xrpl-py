@@ -634,7 +634,7 @@ class TestFromDict(TestCase):
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            lptokens=IssuedCurrencyAmount(
+            lp_tokens=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 value="1000",
@@ -699,7 +699,7 @@ class TestFromDict(TestCase):
             sequence=1337,
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
             asset1_in="1000",
-            lptokens=IssuedCurrencyAmount(
+            lp_tokens=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 value="500",
@@ -746,7 +746,7 @@ class TestFromDict(TestCase):
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            lptokens=IssuedCurrencyAmount(
+            lp_tokens=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 value="1000",
@@ -811,7 +811,7 @@ class TestFromDict(TestCase):
             sequence=1337,
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
             asset1_out="1000",
-            lptokens=IssuedCurrencyAmount(
+            lp_tokens=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 value="500",

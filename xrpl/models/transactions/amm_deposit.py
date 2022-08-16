@@ -31,7 +31,7 @@ class AMMDeposit(Transaction):
     AMMID is a hash that uniquely identifies the AMM instance.
     """
 
-    lptokens: Optional[IssuedCurrencyAmount] = None
+    lp_tokens: Optional[IssuedCurrencyAmount] = None
     """
     LPTokens specifies the amount of shares of the AMM instance pools that the trader
     wants to redeem or trade in.
@@ -65,6 +65,6 @@ class AMMDeposit(Transaction):
             errors["AMMDeposit"] = "Must set `asset1_in` with `asset2_in`"
         elif self.e_price is not None and self.asset1_in is None:
             errors["AMMDeposit"] = "Must set `asset1_in` with `e_price`"
-        elif self.lptokens is None and self.asset1_in is None:
-            errors["AMMDeposit"] = "Must set either or both `lptokens` and `asset1_in`"
+        elif self.lp_tokens is None and self.asset1_in is None:
+            errors["AMMDeposit"] = "Must set either or both `lp_tokens` and `asset1_in`"
         return errors
