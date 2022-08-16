@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 from typing_extensions import Literal
 
@@ -27,7 +27,7 @@ class XChainClaimAttestationBatchElement(BaseModel):
 
     attestation_reward_account: str = REQUIRED  # type: ignore
 
-    destination: str = REQUIRED  # type: ignore
+    destination: Optional[str] = None
 
     public_key: str = REQUIRED  # type: ignore
 
