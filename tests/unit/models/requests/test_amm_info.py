@@ -26,17 +26,29 @@ class TestAMMInfo(TestCase):
         self.assertTrue(request.is_valid())
 
     def test_no_params_is_invalid(self):
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as error:
             AMMInfo()
+        self.assertEqual(
+            error.exception.args[0],
+            "{'AMMInfo': 'Must set either `AMMID` or both `Asset1` and `Asset2`'}",
+        )
 
     def test_missing_asset1_is_invalid(self):
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as error:
             AMMInfo(
                 Asset2=_ASSET_2,
             )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'AMMInfo': 'Missing `Asset1`. Must set both `Asset1` and `Asset2`'}",
+        )
 
     def test_missing_asset2_is_invalid(self):
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as error:
             AMMInfo(
                 Asset1=_ASSET_1,
             )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'AMMInfo': 'Missing `Asset2`. Must set both `Asset1` and `Asset2`'}",
+        )

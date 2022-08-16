@@ -11,7 +11,7 @@ _IOU_ISSUER = "rPyfep3gcLzkosKC9XiE77Y8DZWG6iWDT9"
 
 class TestAMMInstanceCreate(TestCase):
     def test_trading_fee_too_high(self):
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as error:
             AMMInstanceCreate(
                 account=_ACCOUNT,
                 asset1="1000",
@@ -20,6 +20,10 @@ class TestAMMInstanceCreate(TestCase):
                 ),
                 trading_fee=maxsize,
             )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'trading_fee': 'Must not be greater than 65000'}",
+        )
 
     def test_to_xrpl(self):
         tx = AMMInstanceCreate(
