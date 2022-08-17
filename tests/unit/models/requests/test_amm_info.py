@@ -14,14 +14,14 @@ _ASSET_2 = IssuedCurrencyAmount(
 class TestAMMInfo(TestCase):
     def test_amm_id(self):
         request = AMMInfo(
-            AMMID=_AMM_ID,
+            amm_id=_AMM_ID,
         )
         self.assertTrue(request.is_valid())
 
     def test_asset1_asset2(self):
         request = AMMInfo(
-            Asset1=_ASSET_1,
-            Asset2=_ASSET_2,
+            asset1=_ASSET_1,
+            asset2=_ASSET_2,
         )
         self.assertTrue(request.is_valid())
 
@@ -30,25 +30,25 @@ class TestAMMInfo(TestCase):
             AMMInfo()
         self.assertEqual(
             error.exception.args[0],
-            "{'AMMInfo': 'Must set either `AMMID` or both `Asset1` and `Asset2`'}",
+            "{'AMMInfo': 'Must set either `amm_id` or both `asset1` and `asset2`'}",
         )
 
     def test_missing_asset1_is_invalid(self):
         with self.assertRaises(XRPLModelException) as error:
             AMMInfo(
-                Asset2=_ASSET_2,
+                asset2=_ASSET_2,
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'AMMInfo': 'Missing `Asset1`. Must set both `Asset1` and `Asset2`'}",
+            "{'AMMInfo': 'Missing `asset1`. Must set both `asset1` and `asset2`'}",
         )
 
     def test_missing_asset2_is_invalid(self):
         with self.assertRaises(XRPLModelException) as error:
             AMMInfo(
-                Asset1=_ASSET_1,
+                asset1=_ASSET_1,
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'AMMInfo': 'Missing `Asset2`. Must set both `Asset1` and `Asset2`'}",
+            "{'AMMInfo': 'Missing `asset2`. Must set both `asset1` and `asset2`'}",
         )
