@@ -9,7 +9,7 @@ from typing_extensions import Final
 
 from xrpl.core.binarycodec import encode
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.base_model import BaseModel
+from xrpl.models.base_model import ABBREVIATIONS, BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.flags import check_false_flag_definition, interface_to_flag_list
 from xrpl.models.requests import PathStep
@@ -19,16 +19,6 @@ from xrpl.models.types import XRPL_VALUE_TYPE
 from xrpl.models.utils import require_kwargs_on_init
 
 _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
-# This is used to make exceptions when converting dictionary keys to xrpl JSON
-# keys. We snake case keys, but some keys are abbreviations.
-_ABBREVIATIONS: Final[Dict[str, str]] = {
-    "amm": "AMM",
-    "id": "ID",
-    "lp": "LP",
-    "nftoken": "NFToken",
-    "unl": "UNL",
-    "uri": "URI",
-}
 
 
 def transaction_json_to_binary_codec_form(
@@ -57,11 +47,11 @@ def _key_to_tx_json(key: str) -> str:
         1. 'transaction_type' becomes 'TransactionType'
         2. 'URI' becomes 'uri'
 
-    Known abbreviations (example 2 above) need to be enumerated in _ABBREVIATIONS.
+    Known abbreviations (example 2 above) need to be enumerated in ABBREVIATIONS.
     """
     return "".join(
         [
-            _ABBREVIATIONS[word] if word in _ABBREVIATIONS else word.capitalize()
+            ABBREVIATIONS[word] if word in ABBREVIATIONS else word.capitalize()
             for word in key.split("_")
         ]
     )
