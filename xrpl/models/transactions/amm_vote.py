@@ -26,15 +26,15 @@ class AMMVote(Transaction):
 
     amm_id: str = REQUIRED  # type: ignore
     """
-    AMMID is a hash that uniquely identifies the AMM instance.
+    A hash that uniquely identifies the AMM instance. This field is required.
     """
 
     fee_val: int = REQUIRED  # type: ignore
     """
-    FeeVal specifies the fee, in basis point.
+    Specifies the fee, in basis point.
     Valid values for this field are between 0 and 65000 inclusive.
     A value of 1 is equivalent to 1/10 bps or 0.001%, allowing trading fee
-    between 0% and 65%.
+    between 0% and 65%. This field is required.
     """
 
     transaction_type: TransactionType = field(

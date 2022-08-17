@@ -28,30 +28,30 @@ class AMMDeposit(Transaction):
 
     amm_id: str = REQUIRED  # type: ignore
     """
-    AMMID is a hash that uniquely identifies the AMM instance.
+    A hash that uniquely identifies the AMM instance. This field is required.
     """
 
     lp_tokens: Optional[IssuedCurrencyAmount] = None
     """
-    LPTokens specifies the amount of shares of the AMM instance pools that the trader
+    Specifies the amount of shares of the AMM instance pools that the trader
     wants to redeem or trade in.
     """
 
     asset1_in: Optional[Amount] = None
     """
-    Asset1In specifies one of the pool assets (XRP or token) of the AMM instance to
+    Specifies one of the pool assets (XRP or token) of the AMM instance to
     deposit more of its value.
     """
 
     asset2_in: Optional[Amount] = None
     """
-    Asset2In specifies the other pool asset of the AMM instance to deposit more of its
+    Specifies the other pool asset of the AMM instance to deposit more of its
     value.
     """
 
     e_price: Optional[Amount] = None
     """
-    EPrice specifies the maximum effective-price that LPTokens can be traded out.
+    Specifies the maximum effective-price that LPTokens can be traded out.
     """
 
     transaction_type: TransactionType = field(

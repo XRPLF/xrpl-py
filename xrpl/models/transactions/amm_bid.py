@@ -28,12 +28,12 @@ class AMMBid(Transaction):
 
     amm_id: str = REQUIRED  # type: ignore
     """
-    AMMID is a hash that uniquely identifies the AMM instance.
+    A hash that uniquely identifies the AMM instance. This field is required.
     """
 
     min_slot_price: Optional[Amount] = None
     """
-    MinSlotPrice represents the minimum price that the bidder wants to pay for the slot.
+    This field represents the minimum price that the bidder wants to pay for the slot.
     It is specified in units of LPTokens. If specified let MinSlotPrice be X and let
     the slot-price computed by price scheduling algorithm be Y, then bidder always pays
     the max(X, Y).
@@ -41,13 +41,13 @@ class AMMBid(Transaction):
 
     max_slot_price: Optional[Amount] = None
     """
-    MaxSlotPrice represents the maximum price that the bidder wants to pay for the slot.
+    This field represents the maximum price that the bidder wants to pay for the slot.
     It is specified in units of LPTokens.
     """
 
     auth_accounts: Optional[List[str]] = None
     """
-    AuthAccounts represents an array of XRPL account IDs that are authorized to trade
+    This field represents an array of XRPL account IDs that are authorized to trade
     at the discounted fee against the AMM instance.
     A maximum of four accounts can be provided.
     """

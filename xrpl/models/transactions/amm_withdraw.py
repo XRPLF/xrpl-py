@@ -29,30 +29,30 @@ class AMMWithdraw(Transaction):
 
     amm_id: str = REQUIRED  # type: ignore
     """
-    AMMID is a hash that uniquely identifies the AMM instance.
+    A hash that uniquely identifies the AMM instance. This field is required.
     """
 
     lp_tokens: Optional[IssuedCurrencyAmount] = None
     """
-    LPTokens specifies the amount of shares of the AMM instance pools that the trader
+    Specifies the amount of shares of the AMM instance pools that the trader
     wants to redeem or trade in.
     """
 
     asset1_out: Optional[Amount] = None
     """
-    Asset1Out specifies one of the pools assets that the trader wants to remove.
+    Specifies one of the pools assets that the trader wants to remove.
     If the asset is XRP, then the Asset1Out is a string specifying the number of drops.
     Otherwise it is an IssuedCurrencyAmount object.
     """
 
     asset2_out: Optional[Amount] = None
     """
-    Asset2Out specifies the other pool asset that the trader wants to remove.
+    Specifies the other pool asset that the trader wants to remove.
     """
 
     e_price: Optional[Amount] = None
     """
-    EPrice specifies the effective-price of the token out after successful execution of
+    Specifies the effective-price of the token out after successful execution of
     the transaction.
     """
 

@@ -20,17 +20,17 @@ class AMMInfo(Request):
 
     amm_id: Optional[str] = None
     """
-    AMMID is a hash that uniquely identifies the AMM instance.
+    A hash that uniquely identifies the AMM instance.
     """
 
     asset1: Optional[Amount] = None
     """
-    Asset1 specifies one of the pool assets (XRP or token) of the AMM instance.
+    Specifies one of the pool assets (XRP or token) of the AMM instance.
     """
 
     asset2: Optional[Amount] = None
     """
-    Asset2 specifies the other pool asset of the AMM instance.
+    Specifies the other pool asset of the AMM instance.
     """
 
     method: RequestMethod = field(default=RequestMethod.AMM_INFO, init=False)
