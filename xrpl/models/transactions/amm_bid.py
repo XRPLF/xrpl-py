@@ -34,7 +34,7 @@ class AMMBid(Transaction):
     min_slot_price: Optional[Amount] = None
     """
     This field represents the minimum price that the bidder wants to pay for the slot.
-    It is specified in units of LPTokens. If specified let MinSlotPrice be X and let
+    It is specified in units of LPToken. If specified let MinSlotPrice be X and let
     the slot-price computed by price scheduling algorithm be Y, then bidder always pays
     the max(X, Y).
     """
@@ -42,7 +42,7 @@ class AMMBid(Transaction):
     max_slot_price: Optional[Amount] = None
     """
     This field represents the maximum price that the bidder wants to pay for the slot.
-    It is specified in units of LPTokens.
+    It is specified in units of LPToken.
     """
 
     auth_accounts: Optional[List[str]] = None

@@ -629,12 +629,12 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(tx.to_xrpl(), expected)
 
-    def test_to_xrpl_amm_deposit_lptokens(self):
+    def test_to_xrpl_amm_deposit_lptoken(self):
         tx = AMMDeposit(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            lp_tokens=IssuedCurrencyAmount(
+            lp_token=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 value="1000",
@@ -643,7 +643,7 @@ class TestFromDict(TestCase):
         expected = {
             "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "LPTokens": {
+            "LPToken": {
                 "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 "value": "1000",
@@ -693,13 +693,13 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(tx.to_xrpl(), expected)
 
-    def test_to_xrpl_amm_deposit_asset1in_lptokens(self):
+    def test_to_xrpl_amm_deposit_asset1in_lptoken(self):
         tx = AMMDeposit(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
             asset1_in="1000",
-            lp_tokens=IssuedCurrencyAmount(
+            lp_token=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 value="500",
@@ -709,7 +709,7 @@ class TestFromDict(TestCase):
             "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Asset1In": "1000",
-            "LPTokens": {
+            "LPToken": {
                 "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 "value": "500",
@@ -741,12 +741,12 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(tx.to_xrpl(), expected)
 
-    def test_to_xrpl_amm_withdraw_lptokens(self):
+    def test_to_xrpl_amm_withdraw_lptoken(self):
         tx = AMMWithdraw(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            lp_tokens=IssuedCurrencyAmount(
+            lp_token=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 value="1000",
@@ -755,7 +755,7 @@ class TestFromDict(TestCase):
         expected = {
             "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "LPTokens": {
+            "LPToken": {
                 "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 "value": "1000",
@@ -805,13 +805,13 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(tx.to_xrpl(), expected)
 
-    def test_to_xrpl_amm_withdraw_asset1out_lptokens(self):
+    def test_to_xrpl_amm_withdraw_asset1out_lptoken(self):
         tx = AMMWithdraw(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
             asset1_out="1000",
-            lp_tokens=IssuedCurrencyAmount(
+            lp_token=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 value="500",
@@ -821,7 +821,7 @@ class TestFromDict(TestCase):
             "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Asset1Out": "1000",
-            "LPTokens": {
+            "LPToken": {
                 "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 "value": "500",

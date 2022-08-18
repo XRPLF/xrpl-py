@@ -16,13 +16,13 @@ from xrpl.models.utils import require_kwargs_on_init
 class AMMDeposit(Transaction):
     """
     AMDeposit is the deposit transaction used to add liquidity to the AMM instance pool,
-    thus obtaining some share of the instance's pools in the form of LPTokens.
+    thus obtaining some share of the instance's pools in the form of LPToken.
 
     The following are the recommended valid combinations:
-    - LPTokens
+    - LPToken
     - Asset1In
     - Asset1In and Asset2In
-    - Asset1In and LPTokens
+    - Asset1In and LPToken
     - Asset1In and EPrice
     """
 
@@ -31,7 +31,7 @@ class AMMDeposit(Transaction):
     A hash that uniquely identifies the AMM instance. This field is required.
     """
 
-    lp_tokens: Optional[IssuedCurrencyAmount] = None
+    lp_token: Optional[IssuedCurrencyAmount] = None
     """
     Specifies the amount of shares of the AMM instance pools that the trader
     wants to redeem or trade in.
@@ -51,7 +51,7 @@ class AMMDeposit(Transaction):
 
     e_price: Optional[Amount] = None
     """
-    Specifies the maximum effective-price that LPTokens can be traded out.
+    Specifies the maximum effective-price that LPToken can be traded out.
     """
 
     transaction_type: TransactionType = field(
@@ -65,6 +65,6 @@ class AMMDeposit(Transaction):
             errors["AMMDeposit"] = "Must set `asset1_in` with `asset2_in`"
         elif self.e_price is not None and self.asset1_in is None:
             errors["AMMDeposit"] = "Must set `asset1_in` with `e_price`"
-        elif self.lp_tokens is None and self.asset1_in is None:
-            errors["AMMDeposit"] = "Must set either or both `lp_tokens` and `asset1_in`"
+        elif self.lp_token is None and self.asset1_in is None:
+            errors["AMMDeposit"] = "Must set either or both `lp_token` and `asset1_in`"
         return errors

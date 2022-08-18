@@ -17,13 +17,13 @@ class AMMWithdraw(Transaction):
     """
     AMMWithdraw is the withdraw transaction used to remove liquidity from the AMM
     instance pool, thus redeeming some share of the pools that one owns in the form
-    of LPTokens.
+    of LPToken.
 
     The following are the recommended valid combinations:
-    - LPTokens
+    - LPToken
     - Asset1Out
     - Asset1Out and Asset2Out
-    - Asset1Out and LPTokens
+    - Asset1Out and LPToken
     - Asset1Out and EPrice
     """
 
@@ -32,7 +32,7 @@ class AMMWithdraw(Transaction):
     A hash that uniquely identifies the AMM instance. This field is required.
     """
 
-    lp_tokens: Optional[IssuedCurrencyAmount] = None
+    lp_token: Optional[IssuedCurrencyAmount] = None
     """
     Specifies the amount of shares of the AMM instance pools that the trader
     wants to redeem or trade in.
@@ -67,8 +67,8 @@ class AMMWithdraw(Transaction):
             errors["AMMWithdraw"] = "Must set `asset1_out` with `asset2_out`"
         elif self.e_price is not None and self.asset1_out is None:
             errors["AMMWithdraw"] = "Must set `asset1_out` with `e_price`"
-        elif self.lp_tokens is None and self.asset1_out is None:
+        elif self.lp_token is None and self.asset1_out is None:
             errors[
                 "AMMWithdraw"
-            ] = "Must set either or both `lp_tokens` and `asset1_out`"
+            ] = "Must set either or both `lp_token` and `asset1_out`"
         return errors

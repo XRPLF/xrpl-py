@@ -20,7 +20,7 @@ class AMMVote(Transaction):
     """
     AMMVote is used for submitting a vote for the trading fee of an AMM Instance.
 
-    Any XRPL account that holds LPTokens for an AMM instance may submit this
+    Any XRPL account that holds LPToken for an AMM instance may submit this
     transaction to vote for the trading fee for that instance.
     """
 

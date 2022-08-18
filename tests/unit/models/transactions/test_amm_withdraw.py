@@ -12,12 +12,12 @@ _LPTOKEN_ISSUER = "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg"
 
 
 class TestAMMWithdraw(TestCase):
-    def test_tx_valid_lptokens(self):
+    def test_tx_valid_lptoken(self):
         tx = AMMWithdraw(
             account=_ACCOUNT,
             sequence=1337,
             amm_id=_AMM_ID,
-            lp_tokens=IssuedCurrencyAmount(
+            lp_token=IssuedCurrencyAmount(
                 currency=_LPTOKEN_CURRENCY,
                 issuer=_LPTOKEN_ISSUER,
                 value=_AMOUNT,
@@ -44,13 +44,13 @@ class TestAMMWithdraw(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-    def test_tx_valid_asset1out_lptokens(self):
+    def test_tx_valid_asset1out_lptoken(self):
         tx = AMMWithdraw(
             account=_ACCOUNT,
             sequence=1337,
             amm_id=_AMM_ID,
             asset1_out=_AMOUNT,
-            lp_tokens=IssuedCurrencyAmount(
+            lp_token=IssuedCurrencyAmount(
                 currency=_LPTOKEN_CURRENCY,
                 issuer=_LPTOKEN_ISSUER,
                 value="500",
@@ -68,7 +68,7 @@ class TestAMMWithdraw(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-    def test_undefined_asset1out_undefined_lptokens_invalid_combo(self):
+    def test_undefined_asset1out_undefined_lptoken_invalid_combo(self):
         with self.assertRaises(XRPLModelException) as error:
             AMMWithdraw(
                 account=_ACCOUNT,
@@ -77,7 +77,7 @@ class TestAMMWithdraw(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'AMMWithdraw': 'Must set either or both `lp_tokens` and `asset1_out`'}",
+            "{'AMMWithdraw': 'Must set either or both `lp_token` and `asset1_out`'}",
         )
 
     def test_undefined_asset1out_defined_asset2out_invalid_combo(self):
