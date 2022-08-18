@@ -18,7 +18,7 @@ class XChainModifyBridge(Transaction):
 
     xchain_bridge: XChainBridge = REQUIRED  # type: ignore
 
-    signature_reward: Amount = REQUIRED  # type: ignore
+    signature_reward: Optional[Amount] = None
 
     min_account_create_amount: Optional[Amount] = None
 
