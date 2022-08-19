@@ -15,7 +15,7 @@ from xrpl.models.utils import require_kwargs_on_init
 @dataclass(frozen=True)
 class AMMDeposit(Transaction):
     """
-    AMDeposit is the deposit transaction used to add liquidity to the AMM instance pool,
+    AMMDeposit is the deposit transaction used to add liquidity to the AMM instance pool,
     thus obtaining some share of the instance's pools in the form of LPToken.
 
     The following are the recommended valid combinations:
