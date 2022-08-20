@@ -72,5 +72,5 @@ class AMMBid(Transaction):
             self.auth_accounts is not None
             and len(self.auth_accounts) > _MAX_AUTH_ACCOUNTS
         ):
-            return f"Must not be greater than {_MAX_AUTH_ACCOUNTS}"
+            return f"Length must not be greater than {_MAX_AUTH_ACCOUNTS}"
         return None
