@@ -3,14 +3,23 @@ from unittest import TestCase
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMBid
+from xrpl.models.transactions.amm_bid import AuthAccount
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _AMM_ID = "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883"
 _AUTH_ACCOUNTS = [
-    "rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh",
-    "rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH",
-    "rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb",
-    "rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4",
+    AuthAccount(
+        Account="rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh",
+    ),
+    AuthAccount(
+        Account="rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH",
+    ),
+    AuthAccount(
+        Account="rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb",
+    ),
+    AuthAccount(
+        Account="rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4",
+    ),
 ]
 _LPTOKEN_CURRENCY = "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A"
 _LPTOKEN_ISSUER = "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw"
@@ -37,7 +46,11 @@ class TestAMMBid(TestCase):
 
     def test_auth_accounts_length_error(self):
         auth_accounts = _AUTH_ACCOUNTS.copy()
-        auth_accounts.append("r3X6noRsvaLapAKCG78zAtWcbhB3sggS1s")
+        auth_accounts.append(
+            AuthAccount(
+                Account="r3X6noRsvaLapAKCG78zAtWcbhB3sggS1s",
+            ),
+        )
         with self.assertRaises(XRPLModelException) as error:
             AMMBid(
                 account=_ACCOUNT,

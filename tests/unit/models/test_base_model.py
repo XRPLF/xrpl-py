@@ -30,6 +30,7 @@ from xrpl.models.transactions import (
     TrustSet,
     TrustSetFlag,
 )
+from xrpl.models.transactions.amm_bid import AuthAccount
 from xrpl.models.transactions.transaction import Transaction
 
 currency = "BTC"
@@ -884,10 +885,10 @@ class TestFromDict(TestCase):
                 value="35",
             ),
             auth_accounts=[
-                "rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh",
-                "rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH",
-                "rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb",
-                "rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4",
+                AuthAccount(Account="rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh"),
+                AuthAccount(Account="rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH"),
+                AuthAccount(Account="rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb"),
+                AuthAccount(Account="rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4"),
             ],
         )
         expected = {
@@ -904,10 +905,26 @@ class TestFromDict(TestCase):
                 "value": "35",
             },
             "AuthAccounts": [
-                "rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh",
-                "rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH",
-                "rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb",
-                "rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4",
+                {
+                    "AuthAccount": {
+                        "Account": "rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh",
+                    }
+                },
+                {
+                    "AuthAccount": {
+                        "Account": "rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH",
+                    }
+                },
+                {
+                    "AuthAccount": {
+                        "Account": "rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb",
+                    }
+                },
+                {
+                    "AuthAccount": {
+                        "Account": "rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4",
+                    }
+                },
             ],
             "TransactionType": "AMMBid",
             "SigningPubKey": "",
