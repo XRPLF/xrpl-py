@@ -4,14 +4,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
-from typing_extensions import Final
-
 from xrpl.models.required import REQUIRED
+from xrpl.models.transactions.amm_instance_create import AMM_MAX_TRADING_FEE
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
-
-_MAX_TRADING_FEE: Final[int] = 65000
 
 
 @require_kwargs_on_init
@@ -53,6 +50,6 @@ class AMMVote(Transaction):
         }
 
     def _get_fee_val_error(self: AMMVote) -> Optional[str]:
-        if self.fee_val > _MAX_TRADING_FEE:
-            return f"Must not be greater than {_MAX_TRADING_FEE}"
+        if self.fee_val > AMM_MAX_TRADING_FEE:
+            return f"Must not be greater than {AMM_MAX_TRADING_FEE}"
         return None

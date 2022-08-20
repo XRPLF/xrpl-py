@@ -12,7 +12,7 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
-_MAX_TRADING_FEE: Final[int] = 65000
+AMM_MAX_TRADING_FEE: Final[int] = 65000
 
 
 @require_kwargs_on_init
@@ -61,6 +61,6 @@ class AMMInstanceCreate(Transaction):
         }
 
     def _get_trading_fee_error(self: AMMInstanceCreate) -> Optional[str]:
-        if self.trading_fee > _MAX_TRADING_FEE:
-            return f"Must not be greater than {_MAX_TRADING_FEE}"
+        if self.trading_fee > AMM_MAX_TRADING_FEE:
+            return f"Must not be greater than {AMM_MAX_TRADING_FEE}"
         return None
