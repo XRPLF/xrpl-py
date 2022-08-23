@@ -25,7 +25,7 @@ def get_latest_transaction(account: str, client: SyncClient) -> Response:
 
 
 def get_account_transactions(
-    address: str, client: SyncClient, marker: Optional[Any]
+    address: str, client: SyncClient, marker: Optional[Any] = None
 ) -> List[Dict[str, Any]]:
     """
     Query the ledger for a list of transactions that involved a given account.
@@ -49,7 +49,7 @@ def get_account_transactions(
 
 
 def get_account_payment_transactions(
-    address: str, client: SyncClient, marker: Optional[Any]
+    address: str, client: SyncClient, marker: Optional[Any] = None
 ) -> List[Dict[str, Any]]:
     """
     Query the ledger for a list of payment transactions that involved a given account.
