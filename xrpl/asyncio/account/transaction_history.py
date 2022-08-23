@@ -1,5 +1,5 @@
 """High-level methods to obtain information about account transaction history."""
-from typing import Any, Dict, List, cast
+from typing import Any, Dict, List, Optional, cast
 
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
@@ -33,7 +33,7 @@ async def get_latest_transaction(account: str, client: Client) -> Response:
 
 
 async def get_account_transactions(
-    address: str, client: Client
+    address: str, client: Client, marker: Optional[Any]
 ) -> List[Dict[str, Any]]:
     """
     Query the ledger for a list of transactions that involved a given account.
@@ -41,6 +41,9 @@ async def get_account_transactions(
     Args:
         address: the account to query.
         client: the network client used to make network calls.
+        marker: fetches the next set of data from the server. The type of
+            marker is intentionally undefined in the spec and is chosen
+            by each server.
 
     Returns:
         The transaction history for the address.
@@ -50,7 +53,7 @@ async def get_account_transactions(
     """
     if is_valid_xaddress(address):
         address, _, _ = xaddress_to_classic_address(address)
-    request = AccountTx(account=address)
+    request = AccountTx(account=address, marker=marker)
     response = await client.request_impl(request)
     if not response.is_successful():
         raise XRPLRequestFailureException(response.result)
@@ -58,7 +61,7 @@ async def get_account_transactions(
 
 
 async def get_account_payment_transactions(
-    address: str, client: Client
+    address: str, client: Client, marker: Optional[Any]
 ) -> List[Dict[str, Any]]:
     """
     Query the ledger for a list of payment transactions that involved a given account.
@@ -66,9 +69,12 @@ async def get_account_payment_transactions(
     Args:
         address: the account to query.
         client: the network client used to make network calls.
+        marker: fetches the next set of data from the server. The type of
+            marker is intentionally undefined in the spec and is chosen
+            by each server.
 
     Returns:
         The payment transaction history for the address.
     """
-    all_transactions = await get_account_transactions(address, client)
+    all_transactions = await get_account_transactions(address, client, marker)
     return [tx for tx in all_transactions if tx["tx"]["TransactionType"] == "Payment"]

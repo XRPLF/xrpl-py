@@ -1,6 +1,6 @@
 """High-level methods to obtain information about account transaction history."""
 import asyncio
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from xrpl.asyncio.account import transaction_history
 from xrpl.clients.sync_client import SyncClient
@@ -24,13 +24,18 @@ def get_latest_transaction(account: str, client: SyncClient) -> Response:
     return asyncio.run(transaction_history.get_latest_transaction(account, client))
 
 
-def get_account_transactions(address: str, client: SyncClient) -> List[Dict[str, Any]]:
+def get_account_transactions(
+    address: str, client: SyncClient, marker: Optional[Any]
+) -> List[Dict[str, Any]]:
     """
     Query the ledger for a list of transactions that involved a given account.
 
     Args:
         address: the account to query.
         client: the network client used to make network calls.
+        marker: fetches the next set of data from the server. The type of
+            marker is intentionally undefined in the spec and is chosen
+            by each server.
 
     Returns:
         The transaction history for the address.
@@ -38,11 +43,13 @@ def get_account_transactions(address: str, client: SyncClient) -> List[Dict[str,
     Raises:
         XRPLRequestFailureException: if the transaction fails.
     """
-    return asyncio.run(transaction_history.get_account_transactions(address, client))
+    return asyncio.run(
+        transaction_history.get_account_transactions(address, client, marker)
+    )
 
 
 def get_account_payment_transactions(
-    address: str, client: SyncClient
+    address: str, client: SyncClient, marker: Optional[Any]
 ) -> List[Dict[str, Any]]:
     """
     Query the ledger for a list of payment transactions that involved a given account.
@@ -50,10 +57,13 @@ def get_account_payment_transactions(
     Args:
         address: the account to query.
         client: the network client used to make network calls.
+        marker: fetches the next set of data from the server. The type of
+            marker is intentionally undefined in the spec and is chosen
+            by each server.
 
     Returns:
         The payment transaction history for the address.
     """
     return asyncio.run(
-        transaction_history.get_account_payment_transactions(address, client)
+        transaction_history.get_account_payment_transactions(address, client, marker)
     )
