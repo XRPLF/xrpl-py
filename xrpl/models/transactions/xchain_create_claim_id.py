@@ -19,7 +19,7 @@ class XChainCreateClaimID(Transaction):
 
     signature_reward: Amount = REQUIRED  # type: ignore
 
-    other_chain_account: str = REQUIRED  # type: ignore
+    other_chain_source: str = REQUIRED  # type: ignore
 
     transaction_type: TransactionType = field(
         default=TransactionType.XCHAIN_CREATE_CLAIM_ID,
