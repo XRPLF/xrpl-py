@@ -22,7 +22,7 @@ class XChainCommit(Transaction):
 
     amount: Amount = REQUIRED  # type: ignore
 
-    other_chain_account: Optional[str] = None
+    other_chain_destination: Optional[str] = None
 
     transaction_type: TransactionType = field(
         default=TransactionType.XCHAIN_COMMIT,
