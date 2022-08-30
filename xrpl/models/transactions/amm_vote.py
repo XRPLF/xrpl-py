@@ -50,6 +50,6 @@ class AMMVote(Transaction):
         }
 
     def _get_fee_val_error(self: AMMVote) -> Optional[str]:
-        if self.fee_val > AMM_MAX_TRADING_FEE:
-            return f"Must not be greater than {AMM_MAX_TRADING_FEE}"
+        if self.fee_val < 0 or self.fee_val > AMM_MAX_TRADING_FEE:
+            return f"Must be between 0 and {AMM_MAX_TRADING_FEE}"
         return None

@@ -27,5 +27,17 @@ class TestAMMVote(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'fee_val': 'Must not be greater than 65000'}",
+            "{'fee_val': 'Must be between 0 and 65000'}",
+        )
+
+    def test_trading_fee_negative_number(self):
+        with self.assertRaises(XRPLModelException) as error:
+            AMMVote(
+                account=_ACCOUNT,
+                amm_id=_AMM_ID,
+                fee_val=-1,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'fee_val': 'Must be between 0 and 65000'}",
         )
