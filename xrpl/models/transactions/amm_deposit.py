@@ -66,5 +66,5 @@ class AMMDeposit(Transaction):
         elif self.e_price is not None and self.asset1_in is None:
             errors["AMMDeposit"] = "Must set `asset1_in` with `e_price`"
         elif self.lp_token is None and self.asset1_in is None:
-            errors["AMMDeposit"] = "Must set either or both `lp_token` and `asset1_in`"
+            errors["AMMDeposit"] = "Must set at least `lp_token` or `asset1_in`"
         return errors

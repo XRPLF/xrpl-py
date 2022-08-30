@@ -77,7 +77,7 @@ class TestAMMWithdraw(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'AMMWithdraw': 'Must set either or both `lp_token` and `asset1_out`'}",
+            "{'AMMWithdraw': 'Must set at least `lp_token` or `asset1_out`'}",
         )
 
     def test_undefined_asset1out_defined_asset2out_invalid_combo(self):

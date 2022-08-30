@@ -70,5 +70,5 @@ class AMMWithdraw(Transaction):
         elif self.lp_token is None and self.asset1_out is None:
             errors[
                 "AMMWithdraw"
-            ] = "Must set either or both `lp_token` and `asset1_out`"
+            ] = "Must set at least `lp_token` or `asset1_out`"
         return errors

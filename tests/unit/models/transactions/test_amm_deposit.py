@@ -77,7 +77,7 @@ class TestAMMDeposit(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'AMMDeposit': 'Must set either or both `lp_token` and `asset1_in`'}",
+            "{'AMMDeposit': 'Must set at least `lp_token` or `asset1_in`'}",
         )
 
     def test_undefined_asset1in_defined_asset2in_invalid_combo(self):
