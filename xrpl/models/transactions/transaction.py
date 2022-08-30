@@ -243,6 +243,12 @@ class Transaction(BaseModel):
     added during signing.
     """
 
+    ticket_sequence: Optional[int] = None
+    """
+    The sequence number of the ticket to use in place of a Sequence number. If
+    this is provided, Sequence must be 0. Cannot be used with account_txn_id.
+    """
+
     txn_signature: Optional[str] = None
     """
     The cryptographic signature from the sender that authorizes this
