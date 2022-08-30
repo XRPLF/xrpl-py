@@ -33,5 +33,20 @@ class TestAMMInstanceCreate(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'trading_fee': 'Must not be greater than 65000'}",
+            "{'trading_fee': 'Must be between 0 and 65000'}",
+        )
+
+    def test_trading_fee_negative_number(self):
+        with self.assertRaises(XRPLModelException) as error:
+            AMMInstanceCreate(
+                account=_ACCOUNT,
+                asset1="1000",
+                asset2=IssuedCurrencyAmount(
+                    currency="USD", issuer=_IOU_ISSUER, value="1000"
+                ),
+                trading_fee=-1,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'trading_fee': 'Must be between 0 and 65000'}",
         )

@@ -61,6 +61,6 @@ class AMMInstanceCreate(Transaction):
         }
 
     def _get_trading_fee_error(self: AMMInstanceCreate) -> Optional[str]:
-        if self.trading_fee > AMM_MAX_TRADING_FEE:
-            return f"Must not be greater than {AMM_MAX_TRADING_FEE}"
+        if self.trading_fee < 0 or self.trading_fee > AMM_MAX_TRADING_FEE:
+            return f"Must be between 0 and {AMM_MAX_TRADING_FEE}"
         return None
