@@ -79,3 +79,13 @@ class TestTransaction(TestCase):
         expected_flags = 0b111
         value = tx.to_dict()["flags"]
         self.assertEqual(value, expected_flags)
+
+    def test_to_dict_ticket_sequence(self):
+        tx = Transaction(
+            account=_ACCOUNT,
+            fee=_FEE,
+            ticket_sequence=_SEQUENCE,
+            transaction_type=TransactionType.ACCOUNT_DELETE,
+        )
+        value = tx.to_dict()["ticket_sequence"]
+        self.assertEqual(value, _SEQUENCE)
