@@ -1,4 +1,4 @@
-"""Model for a SidechainXChainAccountCreate transaction type."""
+"""Model for a XChainAccountCreateCommit transaction type."""
 
 from dataclasses import dataclass, field
 
@@ -12,8 +12,8 @@ from xrpl.models.xchain_bridge import XChainBridge
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class SidechainXChainAccountCreate(Transaction):
-    """Represents a SidechainXChainAccountCreate transaction."""
+class XChainAccountCreateCommit(Transaction):
+    """Represents a XChainAccountCreateCommit transaction."""
 
     xchain_bridge: XChainBridge = REQUIRED  # type: ignore
 
@@ -24,6 +24,6 @@ class SidechainXChainAccountCreate(Transaction):
     amount: Amount = REQUIRED  # type: ignore
 
     transaction_type: TransactionType = field(
-        default=TransactionType.SIDECHAIN_XCHAIN_ACCOUNT_CREATE,
+        default=TransactionType.XCHAIN_ACCOUNT_CREATE_COMMIT,
         init=False,
     )
