@@ -45,9 +45,6 @@ from xrpl.models.transactions.payment_channel_claim import (
 from xrpl.models.transactions.payment_channel_create import PaymentChannelCreate
 from xrpl.models.transactions.payment_channel_fund import PaymentChannelFund
 from xrpl.models.transactions.set_regular_key import SetRegularKey
-from xrpl.models.transactions.sidechain_xchain_account_create import (
-    SidechainXChainAccountCreate,
-)
 from xrpl.models.transactions.signer_list_set import SignerEntry, SignerListSet
 from xrpl.models.transactions.ticket_create import TicketCreate
 from xrpl.models.transactions.transaction import Memo, Signer, Transaction
@@ -55,6 +52,9 @@ from xrpl.models.transactions.trust_set import (
     TrustSet,
     TrustSetFlag,
     TrustSetFlagInterface,
+)
+from xrpl.models.transactions.xchain_account_create_commit import (
+    XChainAccountCreateCommit,
 )
 from xrpl.models.transactions.xchain_add_attestation import XChainAddAttestation
 from xrpl.models.transactions.xchain_claim import XChainClaim
@@ -113,5 +113,5 @@ __all__ = [
     "XChainCreateBridge",
     "XChainCreateClaimID",
     "XChainModifyBridge",
-    "SidechainXChainAccountCreate",
+    "XChainAccountCreateCommit",
 ]
