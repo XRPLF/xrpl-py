@@ -102,7 +102,7 @@ class TestTransaction(TestCase):
         value = tx.to_dict()["ticket_sequence"]
         self.assertEqual(value, _TICKET_SEQUENCE)
 
-    def test_to_dict_ticket_sequence_with_sequence_nonzero(self):
+    def test_ticket_sequence_with_sequence_nonzero(self):
         with self.assertRaises(XRPLModelException):
             Transaction(
                 account=_ACCOUNT,
@@ -112,7 +112,7 @@ class TestTransaction(TestCase):
                 transaction_type=TransactionType.ACCOUNT_DELETE,
             )
 
-    def test_to_dict_ticket_sequence_with_account_txn_id(self):
+    def test_ticket_sequence_with_account_txn_id(self):
         with self.assertRaises(XRPLModelException):
             Transaction(
                 account=_ACCOUNT,
