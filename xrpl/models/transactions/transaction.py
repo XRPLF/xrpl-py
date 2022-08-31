@@ -263,7 +263,8 @@ class Transaction(BaseModel):
         ):
             errors[
                 "Transaction"
-            ] = "If ticket_sequence is provided, account_txn_id must be None and sequence must be None or 0"
+            ] = """If ticket_sequence is provided, 
+            account_txn_id must be None and sequence must be None or 0"""
         return errors
 
     def to_dict(self: Transaction) -> Dict[str, Any]:
