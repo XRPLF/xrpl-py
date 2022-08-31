@@ -8,7 +8,8 @@ from xrpl.models.transactions.types.transaction_type import TransactionType
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _FEE = "0.00001"
 _SEQUENCE = 19048
-
+_TICKET_SEQUENCE = 20510
+_ACCOUNT_TXN_ID = "66F3D6158CAB6E53405F8C264DB39F07D8D0454433A63DDFB98218ED1BC99B60"
 
 class TestTransaction(TestCase):
     def test_missing_required_field(self):
@@ -84,8 +85,39 @@ class TestTransaction(TestCase):
         tx = Transaction(
             account=_ACCOUNT,
             fee=_FEE,
-            ticket_sequence=_SEQUENCE,
+            ticket_sequence=_TICKET_SEQUENCE,
             transaction_type=TransactionType.ACCOUNT_DELETE,
         )
         value = tx.to_dict()["ticket_sequence"]
-        self.assertEqual(value, _SEQUENCE)
+        self.assertEqual(value, _TICKET_SEQUENCE)
+
+    def test_to_dict_ticket_sequence_with_sequence_zero(self):
+        tx = Transaction(
+            account=_ACCOUNT,
+            fee=_FEE,
+            sequence=0,
+            ticket_sequence=_TICKET_SEQUENCE,
+            transaction_type=TransactionType.ACCOUNT_DELETE,
+        )
+        value = tx.to_dict()["ticket_sequence"]
+        self.assertEqual(value, _TICKET_SEQUENCE)
+
+    def test_to_dict_ticket_sequence_with_sequence_nonzero(self):
+        with self.assertRaises(XRPLModelException):
+            Transaction(
+                account=_ACCOUNT,
+                fee=_FEE,
+                sequence=_SEQUENCE,
+                ticket_sequence=_TICKET_SEQUENCE,
+                transaction_type=TransactionType.ACCOUNT_DELETE,
+            )
+
+    def test_to_dict_ticket_sequence_with_account_txn_id(self):
+        with self.assertRaises(XRPLModelException):
+            Transaction(
+                account=_ACCOUNT,
+                fee=_FEE,
+                account_txn_id=_ACCOUNT_TXN_ID,
+                ticket_sequence=_TICKET_SEQUENCE,
+                transaction_type=TransactionType.ACCOUNT_DELETE,
+            )
