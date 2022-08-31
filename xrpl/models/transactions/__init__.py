@@ -9,6 +9,11 @@ from xrpl.models.transactions.account_set import (
     AccountSetFlag,
     AccountSetFlagInterface,
 )
+from xrpl.models.transactions.amm_bid import AMMBid
+from xrpl.models.transactions.amm_deposit import AMMDeposit
+from xrpl.models.transactions.amm_instance_create import AMMInstanceCreate
+from xrpl.models.transactions.amm_vote import AMMVote
+from xrpl.models.transactions.amm_withdraw import AMMWithdraw
 from xrpl.models.transactions.check_cancel import CheckCancel
 from xrpl.models.transactions.check_cash import CheckCash
 from xrpl.models.transactions.check_create import CheckCreate
@@ -68,6 +73,11 @@ __all__ = [
     "AccountSet",
     "AccountSetFlag",
     "AccountSetFlagInterface",
+    "AMMBid",
+    "AMMDeposit",
+    "AMMInstanceCreate",
+    "AMMVote",
+    "AMMWithdraw",
     "CheckCancel",
     "CheckCash",
     "CheckCreate",

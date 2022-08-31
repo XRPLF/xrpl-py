@@ -8,6 +8,7 @@ from xrpl.models.requests.account_nfts import AccountNFTs
 from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
 from xrpl.models.requests.account_offers import AccountOffers
 from xrpl.models.requests.account_tx import AccountTx
+from xrpl.models.requests.amm_info import AMMInfo
 from xrpl.models.requests.book_offers import BookOffers
 from xrpl.models.requests.channel_authorize import ChannelAuthorize
 from xrpl.models.requests.channel_verify import ChannelVerify
@@ -52,6 +53,7 @@ __all__ = [
     "AccountObjectType",
     "AccountOffers",
     "AccountTx",
+    "AMMInfo",
     "BookOffers",
     "ChannelAuthorize",
     "ChannelVerify",
