@@ -263,7 +263,7 @@ class Transaction(BaseModel):
         ):
             errors[
                 "Transaction"
-            ] = """If ticket_sequence is provided, 
+            ] = """If ticket_sequence is provided,
             account_txn_id must be None and sequence must be None or 0"""
         return errors
 
