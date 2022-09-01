@@ -36,7 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Helper method for parsing an NFTokenID
 
 ### Fixed
-
 - Updated NFT names to match new 1.9.0 rippled names
 - `xrpl.asyncio.clients` exports (now includes `request_to_websocket`, `websocket_to_response`)
 - Adds optional `owner` field to NFTokenBurn
@@ -76,7 +75,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.0] - 2021-11-09
 ### Added
-
 - Support for Python 3.10
 
 ### Fixed
@@ -86,7 +84,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.1] - 2021-07-02
 ### Fixed
-
 - Fixes an issue encoding some non-standard currency values
 - Corrects installation instructions in documentation
 
