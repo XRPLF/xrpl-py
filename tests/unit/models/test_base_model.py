@@ -21,6 +21,7 @@ from xrpl.models.transactions import (
     AMMInstanceCreate,
     AMMVote,
     AMMWithdraw,
+    AuthAccount,
     CheckCreate,
     Memo,
     Payment,
@@ -30,7 +31,6 @@ from xrpl.models.transactions import (
     TrustSet,
     TrustSetFlag,
 )
-from xrpl.models.transactions.amm_bid import AuthAccount
 from xrpl.models.transactions.transaction import Transaction
 
 currency = "BTC"
