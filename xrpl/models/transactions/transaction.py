@@ -243,11 +243,29 @@ class Transaction(BaseModel):
     added during signing.
     """
 
+    ticket_sequence: Optional[int] = None
+    """
+    The sequence number of the ticket to use in place of a Sequence number. If
+    this is provided, sequence must be 0. Cannot be used with account_txn_id.
+    """
+
     txn_signature: Optional[str] = None
     """
     The cryptographic signature from the sender that authorizes this
     transaction. Automatically added during signing.
     """
+
+    def _get_errors(self: Transaction) -> Dict[str, str]:
+        errors = super()._get_errors()
+        if self.ticket_sequence is not None and (
+            (self.sequence is not None and self.sequence != 0)
+            or self.account_txn_id is not None
+        ):
+            errors[
+                "Transaction"
+            ] = """If ticket_sequence is provided,
+            account_txn_id must be None and sequence must be None or 0"""
+        return errors
 
     def to_dict(self: Transaction) -> Dict[str, Any]:
         """
