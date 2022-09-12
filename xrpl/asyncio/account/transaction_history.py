@@ -33,7 +33,8 @@ async def get_latest_transaction(account: str, client: Client) -> Response:
 
 
 async def get_account_transactions(
-    address: str, client: Client,
+    address: str,
+    client: Client,
 ) -> List[Dict[str, Any]]:
     """
     Query the ledger for a list of transactions that involved a given account.
@@ -61,7 +62,8 @@ async def get_account_transactions(
 
 
 async def get_account_payment_transactions(
-    address: str, client: Client,
+    address: str,
+    client: Client,
 ) -> List[Dict[str, Any]]:
     """
     Query the ledger for a list of payment transactions that involved a given account.
@@ -71,15 +73,10 @@ async def get_account_payment_transactions(
     Args:
         address: the account to query.
         client: the network client used to make network calls.
-        marker: fetches the next set of data from the server. The type of
-            marker is intentionally undefined in the spec and is chosen
-            by each server.
 
     Returns:
-        The most page of payment transaction history for the address. For the full history,
-        page through the :class:`AccountTx` request directly.
+        The most page of payment transaction history for the address. For the full
+        history, page through the :class:`AccountTx` request directly.
     """
-    all_transactions = await get_account_transactions(
-        address, client
-    )
+    all_transactions = await get_account_transactions(address, client)
     return [tx for tx in all_transactions if tx["tx"]["TransactionType"] == "Payment"]

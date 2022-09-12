@@ -24,9 +24,7 @@ def get_latest_transaction(account: str, client: SyncClient) -> Response:
     return asyncio.run(transaction_history.get_latest_transaction(account, client))
 
 
-def get_account_transactions(
-    address: str, client: SyncClient
-) -> List[Dict[str, Any]]:
+def get_account_transactions(address: str, client: SyncClient) -> List[Dict[str, Any]]:
     """
     Query the ledger for a list of transactions that involved a given account.
     To access more than just the first page of results, use the :class:`AccountTx`
@@ -43,9 +41,7 @@ def get_account_transactions(
     Raises:
         XRPLRequestFailureException: if the transaction fails.
     """
-    return asyncio.run(
-        transaction_history.get_account_transactions(address, client)
-    )
+    return asyncio.run(transaction_history.get_account_transactions(address, client))
 
 
 def get_account_payment_transactions(
@@ -61,8 +57,8 @@ def get_account_payment_transactions(
         client: the network client used to make network calls.
 
     Returns:
-        The most recent payment transaction history for the address. For the full history,
-        page through the :class:`AccountTx` request directly.
+        The most recent payment transaction history for the address. For the full
+        history, page through the :class:`AccountTx` request directly.
     """
     return asyncio.run(
         transaction_history.get_account_payment_transactions(address, client)
