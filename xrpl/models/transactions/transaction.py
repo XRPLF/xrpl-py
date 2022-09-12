@@ -12,6 +12,7 @@ from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.flags import check_false_flag_definition, interface_to_flag_list
+from xrpl.models.nested_model import NestedModel
 from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
@@ -79,7 +80,7 @@ def _value_to_tx_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class Memo(BaseModel):
+class Memo(NestedModel):
     """
     An arbitrary piece of data attached to a transaction. A transaction can
     have multiple Memo objects as an array in the Memos field.
@@ -121,37 +122,10 @@ class Memo(BaseModel):
             errors["Memo"] = "Memo must contain at least one field"
         return errors
 
-    @classmethod
-    def from_dict(cls: Type[Memo], value: Dict[str, Any]) -> Memo:
-        """
-        Construct a new Memo from a dictionary of parameters.
-
-        Args:
-            value: The value to construct the Memo from.
-
-        Returns:
-            A new Memo object, constructed using the given parameters.
-
-        Raises:
-            XRPLModelException: If the dictionary provided is invalid.
-        """
-        if "memo" not in value:
-            return super(Memo, cls).from_dict(value)
-        return super(Memo, cls).from_dict(value["memo"])
-
-    def to_dict(self: Memo) -> Dict[str, Any]:
-        """
-        Returns the dictionary representation of a Memo.
-
-        Returns:
-            The dictionary representation of a Memo.
-        """
-        return {"memo": super().to_dict()}
-
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class Signer(BaseModel):
+class Signer(NestedModel):
     """
     One Signer in a multi-signature. A multi-signed transaction can have an
     array of up to 8 Signers, each contributing a signature, in the Signers
@@ -182,57 +156,6 @@ class Signer(BaseModel):
 
     :meta hide-value:
     """
-
-    @classmethod
-    def is_dict_of_model(cls: Type[Signer], dictionary: Any) -> bool:
-        """
-        Returns True if the input dictionary was derived by the `to_dict`
-        method of an instance of this class. In other words, True if this is
-        a dictionary representation of an instance of this class.
-
-        NOTE: does not account for model inheritance, IE will only return True
-        if dictionary represents an instance of this class, but not if
-        dictionary represents an instance of a subclass of this class.
-
-        Args:
-            dictionary: The dictionary to check.
-
-        Returns:
-            True if dictionary is a dict representation of an instance of this
-            class.
-        """
-        return (
-            isinstance(dictionary, dict)
-            and "signer" in dictionary
-            and super().is_dict_of_model(dictionary["signer"])
-        )
-
-    @classmethod
-    def from_dict(cls: Type[Signer], value: Dict[str, Any]) -> Signer:
-        """
-        Construct a new Signer from a dictionary of parameters.
-
-        Args:
-            value: The value to construct the Signer from.
-
-        Returns:
-            A new Signer object, constructed using the given parameters.
-
-        Raises:
-            XRPLModelException: If the dictionary provided is invalid.
-        """
-        if "signer" not in value:
-            return super(Signer, cls).from_dict(value)
-        return super(Signer, cls).from_dict(value["signer"])
-
-    def to_dict(self: Signer) -> Dict[str, Any]:
-        """
-        Returns the dictionary representation of a Signer.
-
-        Returns:
-            The dictionary representation of a Signer.
-        """
-        return {"signer": super().to_dict()}
 
 
 T = TypeVar("T", bound="Transaction")  # any type inherited from Transaction
@@ -320,11 +243,29 @@ class Transaction(BaseModel):
     added during signing.
     """
 
+    ticket_sequence: Optional[int] = None
+    """
+    The sequence number of the ticket to use in place of a Sequence number. If
+    this is provided, sequence must be 0. Cannot be used with account_txn_id.
+    """
+
     txn_signature: Optional[str] = None
     """
     The cryptographic signature from the sender that authorizes this
     transaction. Automatically added during signing.
     """
+
+    def _get_errors(self: Transaction) -> Dict[str, str]:
+        errors = super()._get_errors()
+        if self.ticket_sequence is not None and (
+            (self.sequence is not None and self.sequence != 0)
+            or self.account_txn_id is not None
+        ):
+            errors[
+                "Transaction"
+            ] = """If ticket_sequence is provided,
+            account_txn_id must be None and sequence must be None or 0"""
+        return errors
 
     def to_dict(self: Transaction) -> Dict[str, Any]:
         """
