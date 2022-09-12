@@ -10,11 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Function to parse the final account balances from a transaction's metadata
 - Function to parse order book changes from a transaction's metadata
 - Support for Ed25519 seeds that don't use the `sEd` prefix
-- Add `get_account_transactions_with_marker` to allow pagination through all transaction history [#462]
+- Add docs to`get_account_transactions` explaining how to allow pagination through all transaction history [#462]
 
 ### Fixed:
 - Typing for factory classmethods on models
 - Use properly encoded transactions in `Sign`, `SignFor`, and `SignAndSubmit`
+- Fix Sphinx build errors due to incompatible version bumps
 
 ## [1.6.0] - 2022-06-02
 ### Added:
