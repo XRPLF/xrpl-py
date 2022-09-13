@@ -2,6 +2,8 @@
 import asyncio
 from typing import Any, Dict, List
 
+from deprecated.sphinx import deprecated
+
 from xrpl.asyncio.account import transaction_history
 from xrpl.clients.sync_client import SyncClient
 from xrpl.models.response import Response
@@ -24,6 +26,11 @@ def get_latest_transaction(account: str, client: SyncClient) -> Response:
     return asyncio.run(transaction_history.get_latest_transaction(account, client))
 
 
+@deprecated(
+    reason="Sending an AccountTx request directly allows you to page through all"
+    "results and is just as easy to use.",
+    version="1.6.0",
+)
 def get_account_transactions(address: str, client: SyncClient) -> List[Dict[str, Any]]:
     """
     Query the ledger for a list of transactions that involved a given account.

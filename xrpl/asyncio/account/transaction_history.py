@@ -1,6 +1,8 @@
 """High-level methods to obtain information about account transaction history."""
 from typing import Any, Dict, List, cast
 
+from deprecated.sphinx import deprecated
+
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.models.requests import AccountTx
@@ -32,6 +34,11 @@ async def get_latest_transaction(account: str, client: Client) -> Response:
     return response
 
 
+@deprecated(
+    reason="Sending an AccountTx request directly allows you to page through all"
+    "results and is just as easy to use.",
+    version="1.6.0",
+)
 async def get_account_transactions(
     address: str,
     client: Client,
