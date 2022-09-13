@@ -2,7 +2,7 @@
 
 from typing import List
 
-from typing_extensions import TypedDict
+from typing_extensions import Literal, TypedDict
 
 
 class OptionalIssuer(TypedDict, total=False):
@@ -39,3 +39,45 @@ class AccountBalances(TypedDict):
 
     account: str
     balances: List[Balance]
+
+
+class CurrencyAmount(Balance):
+    """A currency amount model. Has the same fields as `Balance`"""
+
+    pass
+
+
+class OptionalExpiration(TypedDict, total=False):
+    """The optional expiration field for an offer."""
+
+    """
+    The `Expiration` field is separated from `OfferChange` to make it
+    optional, while keeping all other fields required.
+    """
+
+    expiration_time: int
+
+
+class OfferChange(OptionalExpiration):
+    """A single offer change."""
+
+    flags: int
+    taker_gets: CurrencyAmount
+    taker_pays: CurrencyAmount
+    sequence: int
+    status: Literal["created", "partially-filled", "filled", "cancelled"]
+    maker_exchange_rate: str
+
+
+class AccountOfferChange(TypedDict):
+    """A model representing an account's offer change."""
+
+    maker_account: str
+    offer_change: OfferChange
+
+
+class AccountOfferChanges(TypedDict):
+    """A model representing an account's offer changes."""
+
+    maker_account: str
+    offer_changes: List[OfferChange]

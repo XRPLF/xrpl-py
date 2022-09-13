@@ -99,7 +99,7 @@ poetry install
 Replace `python3.9` with whatever version of Python you want to use (you must have it installed with `pyenv` for it to work).
 
 
-### Generate reference docs
+## Generate reference docs
 
 You can see the complete reference documentation at [`xrpl-py` docs](https://xrpl-py.readthedocs.io/en/latest/index.html). You can also generate them locally using `poetry` and `sphinx`:
 
@@ -122,6 +122,9 @@ cd docs/_build/html/
 open _build/html/index.html
 ```
 
+## Update `definitions.json`
+Use [this repo](https://github.com/RichardAH/xrpl-codec-gen) to generate a new `definitions.json` file from the rippled source code. Instructions are available in that README.
+
 
 ## Release process
 
@@ -129,27 +132,25 @@ open _build/html/index.html
 
 * Your changes should have unit and/or integration tests.
 * Your changes should pass the linter.
-* Your code should pass all the unit tests on Github (which check all 3 versions of Python).
+* Your code should pass all the unit and integration tests on Github (which check all versions of Python).
 * Open a PR against `master` and ensure that all CI passes.
 * Get a full code review from one of the maintainers.
 * Merge your changes.
 
 ### Release
 
-1. Run integration tests on `master`, using [Github Actions](https://github.com/XRPLF/xrpl-py/actions/workflows/integration_test.yml), which runs them on all 3 versions of Python.
-2. Create a branch off master that properly increments the version in `pyproject.toml` and updates the `CHANGELOG` appropriately. We follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-3. Merge this branch into `master`.
-4. Run integration tests on `master` again just in case.
-5. Create a new Github release/tag off of this branch.
-6. Locally build and download the package.
+1. Create a branch off master that properly increments the version in `pyproject.toml` and updates the `CHANGELOG` appropriately. We follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+2. Merge this branch into `master`.
+3. Locally build and download the package.
     1. Pull master locally.
     2. Run `poetry build` to build the package locally.
     3. Locally download the package by running `pip install path/to/local/xrpl-py/dist/.whl`.
-    4. Make sure that this local installation works as intended, and that changes are reflected properly.
-7. Run `poetry publish --dry-run` and make sure everything looks good.
-8. Publish the update by running `poetry publish`.
+    4. Make sure that this local installation works as intended, and that the changes are reflected properly.
+4. Run `poetry publish --dry-run` and make sure everything looks good.
+5. Publish the update by running `poetry publish`.
     * This will require entering PyPI login info.
-9. Send an email to [xrpl-announce](https://groups.google.com/g/xrpl-announce).
+6. Create a new Github release/tag off of this branch.
+7. Send an email to [xrpl-announce](https://groups.google.com/g/xrpl-announce).
 
 ## Mailing Lists
 We have a low-traffic mailing list for announcements of new `xrpl-py` releases. (About 1 email every couple of weeks)

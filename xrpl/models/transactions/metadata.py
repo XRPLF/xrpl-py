@@ -14,6 +14,12 @@ class Fields(TypedDict, total=False):
     LowLimit: Optional[Dict[str, str]]
     HighLimit: Optional[Dict[str, str]]
     Balance: Optional[Union[Dict[str, str], str]]
+    TakerGets: Optional[Union[Dict[str, str], str]]
+    TakerPays: Optional[Union[Dict[str, str], str]]
+    Flags: int
+    Sequence: int
+    BookDirectory: Optional[str]
+    Expiration: Optional[int]
 
 
 class CreatedNodeFields(TypedDict):

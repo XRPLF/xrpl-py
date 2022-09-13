@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Pattern, Type, cast
 
 from typing_extensions import Final
 
-from xrpl.models.base_model import BaseModel
+from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -30,7 +30,7 @@ Matches hex-encoded WalletLocator in the format allowed by XRPL.
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class SignerEntry(BaseModel):
+class SignerEntry(NestedModel):
     """Represents one entry in a list of multi-signers authorized to an account."""
 
     account: str = REQUIRED  # type: ignore

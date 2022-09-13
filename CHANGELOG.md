@@ -8,12 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 ### Added:
 - Add ExpandedSignerList amendment support
-- Add function to parse the final account balances from a transaction's metadata
+- Function to parse the final account balances from a transaction's metadata
+- Function to parse order book changes from a transaction's metadata
+- Support for Ed25519 seeds that don't use the `sEd` prefix
+- Common field `ticket_sequence` to Transaction class
+
+### Fixed:
+- Typing for factory classmethods on models
+- Use properly encoded transactions in `Sign`, `SignFor`, and `SignAndSubmit`
 
 ## [1.6.0] - 2022-06-02
 ### Added:
 - Support for dynamic fee calculation
-- Add function to parse account balances from a transaction's metadata
+- Function to parse account balances from a transaction's metadata
 - Better error handling for invalid client URL
 - Exported SubscribeBook
 
@@ -50,7 +57,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GenericRequest` model for unsupported request types
 - Methods to convert between `IssuedCurrency` and `IssuedCurrencyAmount`
 - Support for ints and floats in the `IssuedCurrency` and `IssuedCurrencyAmount` models (and ints for `XRP`)
-- Fixed bug where autofilling using an `xAddress` with `None` in the Destination Tag threw a KeyError
 - `max_fee` and `fee_type` optional params for `get_fee`
 - `autofill`, a new public method that populates the `fee`, `sequence`, and `last_ledger_sequence` fields of a transaction, based on the current state retrieved from the server the Client is connected to. It also converts all X-Addresses to classic addresses.
 - Exports `Transaction`, `Response`, pseudo-transactions at the `xrpl.models` level
@@ -66,6 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Makes the account delete fee dynamic, based on the ledger's reserve, instead of hard-coded
 - Fee scaling based on load on the ledger
 - Fixes potential issue with conflicting Decimal contexts
+- Fixes bug where autofilling using an `xAddress` with `None` in the Destination Tag threw a KeyError
 
 ## [1.2.0] - 2021-11-09
 ### Added

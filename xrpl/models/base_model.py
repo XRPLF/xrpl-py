@@ -7,7 +7,7 @@ import re
 from abc import ABC
 from dataclasses import fields
 from enum import Enum
-from typing import Any, Dict, List, Pattern, Type, Union, cast, get_type_hints
+from typing import Any, Dict, List, Pattern, Type, TypeVar, Union, cast, get_type_hints
 
 from typing_extensions import Final, get_args, get_origin
 
@@ -34,6 +34,8 @@ _CAMEL_TO_SNAKE_CASE_REGEX: Final[Pattern[str]] = re.compile(
 )
 # used for converting special substrings inside CamelCase fields
 SPECIAL_CAMELCASE_STRINGS = ["NFToken"]
+
+BM = TypeVar("BM", bound="BaseModel")  # any type inherited from BaseModel
 
 
 def _key_to_json(field: str) -> str:
@@ -65,7 +67,7 @@ class BaseModel(ABC):
     """The base class for all model types."""
 
     @classmethod
-    def is_dict_of_model(cls: Type[BaseModel], dictionary: Any) -> bool:
+    def is_dict_of_model(cls: Type[BM], dictionary: Any) -> bool:
         """
         Checks whether the provided ``dictionary`` is a dictionary representation
         of this class.
@@ -94,7 +96,7 @@ class BaseModel(ABC):
         )
 
     @classmethod
-    def from_dict(cls: Type[BaseModel], value: Dict[str, XRPL_VALUE_TYPE]) -> BaseModel:
+    def from_dict(cls: Type[BM], value: Dict[str, XRPL_VALUE_TYPE]) -> BM:
         """
         Construct a new BaseModel from a dictionary of parameters.
 
@@ -126,7 +128,7 @@ class BaseModel(ABC):
 
     @classmethod
     def _from_dict_single_param(
-        cls: Type[BaseModel],
+        cls: Type[BM],
         param: str,
         param_type: Type[Any],
         param_value: Union[int, str, bool, BaseModel, Enum, List[Any], Dict[str, Any]],
@@ -195,15 +197,13 @@ class BaseModel(ABC):
         raise XRPLModelException(error_message)
 
     @classmethod
-    def _get_only_init_args(
-        cls: Type[BaseModel], args: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _get_only_init_args(cls: Type[BM], args: Dict[str, Any]) -> Dict[str, Any]:
         init_keys = {field.name for field in fields(cls) if field.init is True}
         valid_args = {key: value for key, value in args.items() if key in init_keys}
         return valid_args
 
     @classmethod
-    def from_xrpl(cls: Type[BaseModel], value: Union[str, Dict[str, Any]]) -> BaseModel:
+    def from_xrpl(cls: Type[BM], value: Union[str, Dict[str, Any]]) -> BM:
         """
         Creates a BaseModel object based on a JSON-like dictionary of keys in the JSON
         format used by the binary codec, or an actual JSON string representing the same
