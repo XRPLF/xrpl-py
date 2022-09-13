@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 ### Added:
+- Support for ExpandedSignerList amendment that expands the maximum signer list to 32 entries
 - Function to parse the final account balances from a transaction's metadata
 - Function to parse order book changes from a transaction's metadata
 - Support for Ed25519 seeds that don't use the `sEd` prefix
