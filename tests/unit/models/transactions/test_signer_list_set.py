@@ -178,7 +178,7 @@ class TestSignerListSet(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-    def test_max_signer_entries_above_9_below_32(self):
+    def test_max_signer_entries_above_8_below_32(self):
         signers = [
             "rBFBipte4nAQCTsRxd2czwvSurhCpAf4X6",
             "r3ijUH32iiy9tYNj3rD7hKWYjy1BFUxngm",
