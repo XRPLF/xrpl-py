@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Pattern, Type, cast
+from typing import Dict, List, Optional, Pattern
 
 from typing_extensions import Final
 
@@ -53,56 +53,6 @@ class SignerEntry(NestedModel):
     may be useful for smart contracts, or for identifying who controls a key in a large
     organization.
     """
-
-    @classmethod
-    def is_dict_of_model(cls: Type[SignerEntry], dictionary: Dict[str, Any]) -> bool:
-        """
-        Returns True if the input dictionary was derived by the `to_dict`
-        method of an instance of this class. In other words, True if this is
-        a dictionary representation of an instance of this class.
-
-        NOTE: does not account for model inheritance, IE will only return True
-        if dictionary represents an instance of this class, but not if
-        dictionary represents an instance of a subclass of this class.
-
-        Args:
-            dictionary: The dictionary to check.
-
-        Returns:
-            True if dictionary is a dict representation of an instance of this
-            class.
-        """
-        return (
-            isinstance(dictionary, dict)
-            and "signer_entry" in dictionary
-            and super().is_dict_of_model(dictionary["signer_entry"])
-        )
-
-    @classmethod
-    def from_dict(cls: Type[SignerEntry], value: Dict[str, Any]) -> SignerEntry:
-        """
-        Construct a new SignerEntry from a dictionary of parameters.
-
-        Args:
-            value: The value to construct the SignerEntry from.
-
-        Returns:
-            A new SignerEntry object, constructed using the given parameters.
-        """
-        if len(value) == 1 and "signer_entry" in value:
-            return cast(
-                SignerEntry, super(SignerEntry, cls).from_dict(value["signer_entry"])
-            )
-        return cast(SignerEntry, super(SignerEntry, cls).from_dict(value))
-
-    def to_dict(self: SignerEntry) -> Dict[str, Any]:
-        """
-        Returns the dictionary representation of a SignerEntry.
-
-        Returns:
-            The dictionary representation of a SignerEntry.
-        """
-        return {"signer_entry": super().to_dict()}
 
 
 @require_kwargs_on_init
