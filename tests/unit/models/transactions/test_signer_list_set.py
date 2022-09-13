@@ -178,6 +178,44 @@ class TestSignerListSet(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
+    def test_max_signer_entries_above_16_below_32(self):
+        signers = [
+            "rBFBipte4nAQCTsRxd2czwvSurhCpAf4X6",
+            "r3ijUH32iiy9tYNj3rD7hKWYjy1BFUxngm",
+            "rpwq8vi4Mn3L5kDJmb8Mg59CanPFPzMCnj",
+            "rB72Gzqfejai46nkA4HaKYBHwAnn2yUoT4",
+            "rGqsJSAW71pCfUwDD5m52bLw69RzFg6kMW",
+            "rs8smPRA31Ym4mGxb1wzgwxtU5eVK82Gyk",
+            "rLrugpGxzezUQLDh7Jv1tZpouuV4MQLbU9",
+            "rUQ6zLXQdh1jJLGwMXp9P8rgi42kwuafzs",
+            "rMjY8sPdfxsyRrnVKQcutxr4mTHNXy9dEF",
+            "rUaxYLeFGm6SmMoa2WCqLKSyHwJyvaQmeG",
+            "r9wUfeVtqMfqrcDTfCpNYbNZvs5q9M9Rpo",
+            "rQncVNak5kvJGPUFa6fuKH7t8Usjs7Np1c",
+            "rnwbSSnPbVbUzuBa4etkeYrfy5v7SyhtPu",
+            "rDXh5D3t48MdBJyXByXq47k5P8Kuf1758B",
+            "rh1D4jd2mAiqUPHfAZ2cY9Nbfa3kAkaQXP",
+            "r9T129tXgtnyfGoLeS35c2HctaZAZSQoCH",
+            "rUd2uKsyCWfJP7Ve36mKoJbNCA7RYThnYk",
+        ]
+        signer_entries = []
+        for acc in signers:
+            signer_entries.append(
+                SignerEntry(
+                    account=acc,
+                    signer_weight=1,
+                )
+            )
+
+        tx = SignerListSet(
+            account=_ACCOUNT,
+            fee=_FEE,
+            sequence=_SEQUENCE,
+            signer_quorum=17,
+            signer_entries=signer_entries,
+        )
+        self.assertTrue(tx.is_valid())
+
     def test_max_signer_entries_exceeded(self):
         signers = [
             "rBFBipte4nAQCTsRxd2czwvSurhCpAf4X6",
