@@ -178,7 +178,7 @@ class TestSignerListSet(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-    def test_max_signer_entries_above_16_below_32(self):
+    def test_max_signer_entries_above_9_below_32(self):
         signers = [
             "rBFBipte4nAQCTsRxd2czwvSurhCpAf4X6",
             "r3ijUH32iiy9tYNj3rD7hKWYjy1BFUxngm",
@@ -189,14 +189,6 @@ class TestSignerListSet(TestCase):
             "rLrugpGxzezUQLDh7Jv1tZpouuV4MQLbU9",
             "rUQ6zLXQdh1jJLGwMXp9P8rgi42kwuafzs",
             "rMjY8sPdfxsyRrnVKQcutxr4mTHNXy9dEF",
-            "rUaxYLeFGm6SmMoa2WCqLKSyHwJyvaQmeG",
-            "r9wUfeVtqMfqrcDTfCpNYbNZvs5q9M9Rpo",
-            "rQncVNak5kvJGPUFa6fuKH7t8Usjs7Np1c",
-            "rnwbSSnPbVbUzuBa4etkeYrfy5v7SyhtPu",
-            "rDXh5D3t48MdBJyXByXq47k5P8Kuf1758B",
-            "rh1D4jd2mAiqUPHfAZ2cY9Nbfa3kAkaQXP",
-            "r9T129tXgtnyfGoLeS35c2HctaZAZSQoCH",
-            "rUd2uKsyCWfJP7Ve36mKoJbNCA7RYThnYk",
         ]
         signer_entries = []
         for acc in signers:
@@ -211,7 +203,7 @@ class TestSignerListSet(TestCase):
             account=_ACCOUNT,
             fee=_FEE,
             sequence=_SEQUENCE,
-            signer_quorum=17,
+            signer_quorum=9,
             signer_entries=signer_entries,
         )
         self.assertTrue(tx.is_valid())
