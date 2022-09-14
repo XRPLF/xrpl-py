@@ -21,7 +21,7 @@ _MAX_AUTH_ACCOUNTS: Final[int] = 4
 class AuthAccount(BaseModel):
     """Represents one entry in a list of AuthAccounts used in AMMBid transaction."""
 
-    Account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED  # type: ignore
     """
     This field is required.
 

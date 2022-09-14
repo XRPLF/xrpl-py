@@ -885,10 +885,10 @@ class TestFromDict(TestCase):
                 value="35",
             ),
             auth_accounts=[
-                AuthAccount(Account="rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh"),
-                AuthAccount(Account="rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH"),
-                AuthAccount(Account="rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb"),
-                AuthAccount(Account="rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4"),
+                AuthAccount(account="rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh"),
+                AuthAccount(account="rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH"),
+                AuthAccount(account="rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb"),
+                AuthAccount(account="rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4"),
             ],
         )
         expected = {
