@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Function to parse the final account balances from a transaction's metadata
 - Function to parse order book changes from a transaction's metadata
 - Support for Ed25519 seeds that don't use the `sEd` prefix
+- Support for cross-chain bridge proposal
 - Support for Automated Market Maker (AMM) transactions and requests as defined in XLS-30.
 
 ### Fixed:

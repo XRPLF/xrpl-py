@@ -7,6 +7,7 @@ from xrpl.core.binarycodec.types.hash import Hash
 from xrpl.core.binarycodec.types.hash128 import Hash128
 from xrpl.core.binarycodec.types.hash160 import Hash160
 from xrpl.core.binarycodec.types.hash256 import Hash256
+from xrpl.core.binarycodec.types.issued_currency import IssuedCurrency
 from xrpl.core.binarycodec.types.path_set import PathSet
 from xrpl.core.binarycodec.types.st_array import STArray
 from xrpl.core.binarycodec.types.st_object import STObject
@@ -16,6 +17,8 @@ from xrpl.core.binarycodec.types.uint16 import UInt16
 from xrpl.core.binarycodec.types.uint32 import UInt32
 from xrpl.core.binarycodec.types.uint64 import UInt64
 from xrpl.core.binarycodec.types.vector256 import Vector256
+from xrpl.core.binarycodec.types.xchain_attestation_batch import XChainAttestationBatch
+from xrpl.core.binarycodec.types.xchain_bridge import XChainBridge
 
 __all__ = [
     "AccountID",
@@ -26,6 +29,7 @@ __all__ = [
     "Hash128",
     "Hash160",
     "Hash256",
+    "IssuedCurrency",
     "PathSet",
     "STObject",
     "STArray",
@@ -35,4 +39,6 @@ __all__ = [
     "UInt32",
     "UInt64",
     "Vector256",
+    "XChainBridge",
+    "XChainAttestationBatch",
 ]

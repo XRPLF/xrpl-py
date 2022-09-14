@@ -20,6 +20,11 @@ from xrpl.models.utils import require_kwargs_on_init
 
 _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
 
+_LOWER_CASE_MODELS: List[Type[BaseModel]] = [
+    IssuedCurrencyAmount,
+    PathStep,
+]
+
 
 def transaction_json_to_binary_codec_form(
     dictionary: Dict[str, XRPL_VALUE_TYPE]

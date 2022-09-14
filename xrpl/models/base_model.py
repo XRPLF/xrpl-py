@@ -9,7 +9,7 @@ from dataclasses import fields
 from enum import Enum
 from typing import Any, Dict, List, Pattern, Type, TypeVar, Union, cast, get_type_hints
 
-from typing_extensions import Final, get_args, get_origin
+from typing_extensions import Final, Literal, get_args, get_origin
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
@@ -41,6 +41,7 @@ ABBREVIATIONS: Final[Dict[str, str]] = {
     "nftoken": "NFToken",
     "unl": "UNL",
     "uri": "URI",
+    "xchain": "XChain",
 }
 
 BM = TypeVar("BM", bound="BaseModel")  # any type inherited from BaseModel
@@ -174,6 +175,10 @@ class BaseModel(ABC):
         if isinstance(param_type, type) and isinstance(param_value, param_type):
             # expected an object, received the correct object
             return param_value
+
+        if get_origin(param_type) == Literal:
+            if param_value in get_args(param_type):
+                return param_value
 
         if (
             isinstance(param_type, type)
