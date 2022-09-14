@@ -5,61 +5,9 @@ object that specifies the step.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import List
 
-from xrpl.models.base_model import BaseModel
-from xrpl.models.utils import require_kwargs_on_init
-
-
-@require_kwargs_on_init
-@dataclass(frozen=True)
-class PathStep(BaseModel):
-    """A PathStep represents an individual step along a Path."""
-
-    account: Optional[str] = None
-    currency: Optional[str] = None
-    issuer: Optional[str] = None
-    type: Optional[int] = None
-    type_hex: Optional[str] = None
-
-    def _get_errors(self: PathStep) -> Dict[str, str]:
-        return {
-            key: value
-            for key, value in {
-                **super()._get_errors(),
-                "account": self._get_account_error(),
-                "currency": self._get_currency_error(),
-                "issuer": self._get_issuer_error(),
-            }.items()
-            if value is not None
-        }
-
-    def _get_account_error(self: PathStep) -> Optional[str]:
-        if self.account is None:
-            return None
-        if self.currency is not None or self.issuer is not None:
-            return "Cannot set account if currency or issuer are set"
-        return None
-
-    def _get_currency_error(self: PathStep) -> Optional[str]:
-        if self.currency is None:
-            return None
-        if self.account is not None:
-            return "Cannot set currency if account is set"
-        if self.issuer is not None and self.currency.upper() == "XRP":
-            return "Cannot set issuer if currency is XRP"
-        return None
-
-    def _get_issuer_error(self: PathStep) -> Optional[str]:
-        if self.issuer is None:
-            return None
-        if self.account is not None:
-            return "Cannot set issuer if account is set"
-        if self.currency is not None and self.currency.upper() == "XRP":
-            return "Cannot set issuer if currency is XRP"
-        return None
-
+from xrpl.models.path_step import PathStep
 
 Path = List[PathStep]
 """

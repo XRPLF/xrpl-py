@@ -60,7 +60,14 @@ def _key_to_tx_json(key: str) -> str:
 def _value_to_tx_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     # IssuedCurrencyAmount and PathStep are special cases and should not be snake cased
     # and only contain primitive members
-    if IssuedCurrencyAmount.is_dict_of_model(value) or PathStep.is_dict_of_model(value):
+    _special_model = None
+    if isinstance(value, dict) and "_special_model" in value:
+        _special_model = value.pop("_special_model")
+
+    if (
+        _special_model == PathStep._special_model
+        or IssuedCurrencyAmount.is_dict_of_model(value)
+    ):
         return value
     if isinstance(value, dict):
         return transaction_json_to_binary_codec_form(value)

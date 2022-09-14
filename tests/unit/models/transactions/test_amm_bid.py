@@ -8,16 +8,16 @@ _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _AMM_ID = "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883"
 _AUTH_ACCOUNTS = [
     AuthAccount(
-        Account="rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh",
+        account="rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh",
     ),
     AuthAccount(
-        Account="rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH",
+        account="rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH",
     ),
     AuthAccount(
-        Account="rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb",
+        account="rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb",
     ),
     AuthAccount(
-        Account="rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4",
+        account="rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4",
     ),
 ]
 _LPTOKEN_CURRENCY = "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A"
@@ -47,7 +47,7 @@ class TestAMMBid(TestCase):
         auth_accounts = _AUTH_ACCOUNTS.copy()
         auth_accounts.append(
             AuthAccount(
-                Account="r3X6noRsvaLapAKCG78zAtWcbhB3sggS1s",
+                account="r3X6noRsvaLapAKCG78zAtWcbhB3sggS1s",
             ),
         )
         with self.assertRaises(XRPLModelException) as error:

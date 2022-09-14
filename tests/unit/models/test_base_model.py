@@ -511,16 +511,16 @@ class TestFromDict(TestCase):
         self.assertEqual(Transaction.from_xrpl(tx), expected)
 
     def test_to_xrpl_paths(self):
-        paths_json = [
+        path_steps = [
             [
-                {"account": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B", "type": 1},
-                {
-                    "currency": "USD",
-                    "issuer": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
-                    "type": 48,
-                },
-                {"account": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q", "type": 1},
-                {"account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn", "type": 1},
+                PathStep(account="rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B", type=1),
+                PathStep(
+                    currency="USD",
+                    issuer="rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
+                    type=48,
+                ),
+                PathStep(account="rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q", type=1),
+                PathStep(account="rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn", type=1),
             ],
         ]
 
@@ -537,7 +537,7 @@ class TestFromDict(TestCase):
                 issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
                 value="0.0000002831214446",
             ),
-            paths=paths_json,
+            paths=path_steps,
             sequence=290,
         )
         tx_json = p.to_xrpl()
@@ -885,10 +885,10 @@ class TestFromDict(TestCase):
                 value="35",
             ),
             auth_accounts=[
-                AuthAccount(Account="rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh"),
-                AuthAccount(Account="rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH"),
-                AuthAccount(Account="rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb"),
-                AuthAccount(Account="rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4"),
+                AuthAccount(account="rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh"),
+                AuthAccount(account="rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH"),
+                AuthAccount(account="rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb"),
+                AuthAccount(account="rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4"),
             ],
         )
         expected = {
