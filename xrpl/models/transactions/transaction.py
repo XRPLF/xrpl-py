@@ -65,20 +65,22 @@ def _key_to_tx_json(key: str) -> str:
 def _value_to_tx_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     # IssuedCurrencyAmount and PathStep are special cases and should not be snake cased
     # and only contain primitive members
-    _special_model = None
-    if isinstance(value, dict) and "_special_model" in value:
-        _special_model = value.pop("_special_model")
-
-    if (
-        _special_model == PathStep._special_model
-        or IssuedCurrencyAmount.is_dict_of_model(value)
-    ):
+    if isinstance(value, dict) and "auth_account" in value:
+        return _auth_account_value_to_tx_json(value)
+    if IssuedCurrencyAmount.is_dict_of_model(value) or PathStep.is_dict_of_model(value):
         return value
     if isinstance(value, dict):
         return transaction_json_to_binary_codec_form(value)
     if isinstance(value, list):
         return [_value_to_tx_json(sub_value) for sub_value in value]
     return value
+
+
+def _auth_account_value_to_tx_json(value: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        _key_to_tx_json(key): transaction_json_to_binary_codec_form(val)
+        for (key, val) in value.items()
+    }
 
 
 @require_kwargs_on_init
