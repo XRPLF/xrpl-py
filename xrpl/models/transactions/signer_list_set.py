@@ -1,19 +1,36 @@
 """Model for SignerListSet transaction type."""
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Type
+from typing import Dict, List, Optional, Pattern
 
-from xrpl.models.base_model import BaseModel
+from typing_extensions import Final
+
+from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
+MAX_SIGNER_ENTRIES: Final[int] = 32
+"""
+Maximum number of signer entries allowed.
+
+:meta private:
+"""
+
+HEX_WALLET_LOCATOR_REGEX: Final[Pattern[str]] = re.compile("[A-Fa-f0-9]{64}")
+"""
+Matches hex-encoded WalletLocator in the format allowed by XRPL.
+
+:meta private:
+"""
+
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class SignerEntry(BaseModel):
+class SignerEntry(NestedModel):
     """Represents one entry in a list of multi-signers authorized to an account."""
 
     account: str = REQUIRED  # type: ignore
@@ -30,53 +47,12 @@ class SignerEntry(BaseModel):
     :meta hide-value:
     """
 
-    @classmethod
-    def is_dict_of_model(cls: Type[SignerEntry], dictionary: Dict[str, Any]) -> bool:
-        """
-        Returns True if the input dictionary was derived by the `to_dict`
-        method of an instance of this class. In other words, True if this is
-        a dictionary representation of an instance of this class.
-
-        NOTE: does not account for model inheritance, IE will only return True
-        if dictionary represents an instance of this class, but not if
-        dictionary represents an instance of a subclass of this class.
-
-        Args:
-            dictionary: The dictionary to check.
-
-        Returns:
-            True if dictionary is a dict representation of an instance of this
-            class.
-        """
-        return (
-            isinstance(dictionary, dict)
-            and "signer_entry" in dictionary
-            and super().is_dict_of_model(dictionary["signer_entry"])
-        )
-
-    @classmethod
-    def from_dict(cls: Type[SignerEntry], value: Dict[str, Any]) -> SignerEntry:
-        """
-        Construct a new SignerEntry from a dictionary of parameters.
-
-        Args:
-            value: The value to construct the SignerEntry from.
-
-        Returns:
-            A new SignerEntry object, constructed using the given parameters.
-        """
-        if len(value) == 1 and "signer_entry" in value:
-            return super(SignerEntry, cls).from_dict(value["signer_entry"])
-        return super(SignerEntry, cls).from_dict(value)
-
-    def to_dict(self: SignerEntry) -> Dict[str, Any]:
-        """
-        Returns the dictionary representation of a SignerEntry.
-
-        Returns:
-            The dictionary representation of a SignerEntry.
-        """
-        return {"signer_entry": super().to_dict()}
+    wallet_locator: Optional[str] = None
+    """
+    An arbitrary 256-bit (32-byte) field that can be used to identify the signer, which
+    may be useful for smart contracts, or for identifying who controls a key in a large
+    organization.
+    """
 
 
 @require_kwargs_on_init
@@ -126,11 +102,14 @@ class SignerListSet(Transaction):
                 "signer_quorum"
             ] = "`signer_quorum` must be greater than or equal to 0."
 
-        if len(self.signer_entries) < 1 or len(self.signer_entries) > 8:
+        if (
+            len(self.signer_entries) < 1
+            or len(self.signer_entries) > MAX_SIGNER_ENTRIES
+        ):
             errors["signer_entries"] = (
-                "`signer_entries` must have at least 1 member and no more than 8 "
+                "`signer_entries` must have at least 1 member and no more than {} "
                 "members. If this transaction is deleting the SignerList, then "
-                "this parameter must be omitted."
+                "this parameter must be omitted.".format(MAX_SIGNER_ENTRIES)
             )
             return errors
 
@@ -142,6 +121,13 @@ class SignerListSet(Transaction):
                 errors["signer_entries"] = (
                     "The account submitting the transaction cannot appear in a "
                     "signer entry."
+                )
+            if signer_entry.wallet_locator is not None and not bool(
+                HEX_WALLET_LOCATOR_REGEX.fullmatch(signer_entry.wallet_locator)
+            ):
+                errors["signer_entries"] = (
+                    "A SignerEntry's wallet_locator must be a 256-bit (32-byte)"
+                    "hexadecimal value."
                 )
             account_set.add(signer_entry.account)
             signer_weight_sum += signer_entry.signer_weight
