@@ -7,15 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 ### Added:
+- Support for ExpandedSignerList amendment that expands the maximum signer list to 32 entries
 - Function to parse the final account balances from a transaction's metadata
 - Function to parse order book changes from a transaction's metadata
 - Support for Ed25519 seeds that don't use the `sEd` prefix
 - Support for cross-chain bridge proposal
 - Support for Automated Market Maker (AMM) transactions and requests as defined in XLS-30.
+- Add docs to`get_account_transactions` explaining how to allow pagination through all transaction history [#462]
+- Common field `ticket_sequence` to Transaction class
 
 ### Fixed:
 - Typing for factory classmethods on models
 - Use properly encoded transactions in `Sign`, `SignFor`, and `SignAndSubmit`
+- Fix Sphinx build errors due to incompatible version bumps
 
 ## [1.6.0] - 2022-06-02
 ### Added:

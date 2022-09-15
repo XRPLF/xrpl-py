@@ -177,3 +177,136 @@ class TestSignerListSet(TestCase):
             signer_entries=_SIGNER_ENTRIES_VALID,
         )
         self.assertTrue(tx.is_valid())
+
+    def test_max_signer_entries_above_8_below_32(self):
+        signers = [
+            "rBFBipte4nAQCTsRxd2czwvSurhCpAf4X6",
+            "r3ijUH32iiy9tYNj3rD7hKWYjy1BFUxngm",
+            "rpwq8vi4Mn3L5kDJmb8Mg59CanPFPzMCnj",
+            "rB72Gzqfejai46nkA4HaKYBHwAnn2yUoT4",
+            "rGqsJSAW71pCfUwDD5m52bLw69RzFg6kMW",
+            "rs8smPRA31Ym4mGxb1wzgwxtU5eVK82Gyk",
+            "rLrugpGxzezUQLDh7Jv1tZpouuV4MQLbU9",
+            "rUQ6zLXQdh1jJLGwMXp9P8rgi42kwuafzs",
+            "rMjY8sPdfxsyRrnVKQcutxr4mTHNXy9dEF",
+        ]
+        signer_entries = []
+        for acc in signers:
+            signer_entries.append(
+                SignerEntry(
+                    account=acc,
+                    signer_weight=1,
+                )
+            )
+
+        tx = SignerListSet(
+            account=_ACCOUNT,
+            fee=_FEE,
+            sequence=_SEQUENCE,
+            signer_quorum=9,
+            signer_entries=signer_entries,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_max_signer_entries_exceeded(self):
+        signers = [
+            "rBFBipte4nAQCTsRxd2czwvSurhCpAf4X6",
+            "r3ijUH32iiy9tYNj3rD7hKWYjy1BFUxngm",
+            "rpwq8vi4Mn3L5kDJmb8Mg59CanPFPzMCnj",
+            "rB72Gzqfejai46nkA4HaKYBHwAnn2yUoT4",
+            "rGqsJSAW71pCfUwDD5m52bLw69RzFg6kMW",
+            "rs8smPRA31Ym4mGxb1wzgwxtU5eVK82Gyk",
+            "rLrugpGxzezUQLDh7Jv1tZpouuV4MQLbU9",
+            "rUQ6zLXQdh1jJLGwMXp9P8rgi42kwuafzs",
+            "rMjY8sPdfxsyRrnVKQcutxr4mTHNXy9dEF",
+            "rUaxYLeFGm6SmMoa2WCqLKSyHwJyvaQmeG",
+            "r9wUfeVtqMfqrcDTfCpNYbNZvs5q9M9Rpo",
+            "rQncVNak5kvJGPUFa6fuKH7t8Usjs7Np1c",
+            "rnwbSSnPbVbUzuBa4etkeYrfy5v7SyhtPu",
+            "rDXh5D3t48MdBJyXByXq47k5P8Kuf1758B",
+            "rh1D4jd2mAiqUPHfAZ2cY9Nbfa3kAkaQXP",
+            "r9T129tXgtnyfGoLeS35c2HctaZAZSQoCH",
+            "rUd2uKsyCWfJP7Ve36mKoJbNCA7RYThnYk",
+            "r326x8PaAFtnaH7uoxaKrcDWuwpeHn4wDa",
+            "rpN3mkXkYhfNadcXPrY4LniM1KpM3egyQM",
+            "rsPKbR155hz1zrA4pSJp5Y2fxasZAatcHb",
+            "rsyWFLaEKTpaoSJusjpcDvGexuHCwMnqss",
+            "rUbc5RXfyF81oLDMgd3d7jpY9YMNMZG4XN",
+            "rGpYHM88BZe1iVKFHm5xiWYYxR74oxJEXf",
+            "rPsetWAtR1KxDtxzgHjRMD7Rc87rvXk5nD",
+            "rwSeNhL6Hi34igr12mCr61jY42psfTkWTq",
+            "r46Mygy98qjkDhVB6qs4sBnqaf7FPiA2vU",
+            "r4s8GmeYN4CiwVate1nMUvwMQbundqf5cW",
+            "rKAr4dQWDYG8cG2hSwJUVp4ry4WNaWiNgp",
+            "rPWXRLp1vqeUHEH3WiSKuyo9GM9XhaENQU",
+            "rPgmdBdRKGmndxNEYxUrrsYCZaS6go9RvW",
+            "rPDJZ9irzgwKRKScfEmuJMvUgrqZAJNCbL",
+            "rDuU2uSXMfEaoxN1qW8sj7aUNFLGEn3Hr2",
+            "rsbjSjA4TCB9gtm7x7SrWbZHB6g4tt9CGU",
+        ]
+        signer_entries = []
+        for acc in signers:
+            signer_entries.append(
+                SignerEntry(
+                    account=acc,
+                    signer_weight=1,
+                )
+            )
+
+        with self.assertRaises(XRPLModelException):
+            SignerListSet(
+                account=_ACCOUNT,
+                fee=_FEE,
+                sequence=_SEQUENCE,
+                signer_quorum=33,
+                signer_entries=signer_entries,
+            )
+
+    def test_signer_entries_with_wallet_locator(self):
+        signer_entries = [
+            SignerEntry(
+                account="rBFBipte4nAQCTsRxd2czwvSurhCpAf4X6",
+                signer_weight=1,
+                wallet_locator="CAFECAFECAFECAFECAFECAFECAFECAFECAFECAFECAFECAFECAFECAF"
+                "ECAFECAFE",
+            ),
+            SignerEntry(
+                account="r3ijUH32iiy9tYNj3rD7hKWYjy1BFUxngm",
+                signer_weight=1,
+            ),
+            SignerEntry(
+                account="rpwq8vi4Mn3L5kDJmb8Mg59CanPFPzMCnj",
+                signer_weight=1,
+                wallet_locator="0000000000000000000000000000000000000000000000000000000"
+                "0DEADBEEF",
+            ),
+        ]
+        tx = SignerListSet(
+            account=_ACCOUNT,
+            fee=_FEE,
+            sequence=_SEQUENCE,
+            signer_quorum=3,
+            signer_entries=signer_entries,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_signer_entries_with_invalid_wallet_locator(self):
+        signer_entries = [
+            SignerEntry(
+                account="rBFBipte4nAQCTsRxd2czwvSurhCpAf4X6",
+                signer_weight=1,
+                wallet_locator="not_valid",
+            ),
+            SignerEntry(
+                account="r3ijUH32iiy9tYNj3rD7hKWYjy1BFUxngm",
+                signer_weight=1,
+            ),
+        ]
+        with self.assertRaises(XRPLModelException):
+            SignerListSet(
+                account=_ACCOUNT,
+                fee=_FEE,
+                sequence=_SEQUENCE,
+                signer_quorum=2,
+                signer_entries=signer_entries,
+            )

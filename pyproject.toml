@@ -39,6 +39,8 @@ websockets = [
     {version = ">=9.0.1 <11.0", python = ">= 3.7, < 3.10"},
     {version = "^10.0", python = "^3.10"}
 ]
+Deprecated = "^1.2.13"
+types-Deprecated = "^1.2.9"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
@@ -51,10 +53,12 @@ flake8-isort = "^4.0.0"
 flake8-annotations = "2.7.0"
 flake8-absolute-import = "^1.0"
 darglint = "^1.5.8"
-Sphinx = "^3.5.1"
 sphinx-rtd-theme = "^0.5.1"
 aiounittest = "^1.4.0"
 coverage = "^6.4.1"
+Jinja2 = "^2.11.3"
+MarkupSafe = "2.0.1"
+Sphinx = "^5.1.1"
 
 [tool.isort]
 # Make sure that isort's settings line up with black
