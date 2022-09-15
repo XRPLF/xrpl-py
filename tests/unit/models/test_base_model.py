@@ -511,16 +511,16 @@ class TestFromDict(TestCase):
         self.assertEqual(Transaction.from_xrpl(tx), expected)
 
     def test_to_xrpl_paths(self):
-        path_steps = [
+        paths_json = [
             [
-                PathStep(account="rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B", type=1),
-                PathStep(
-                    currency="USD",
-                    issuer="rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
-                    type=48,
-                ),
-                PathStep(account="rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q", type=1),
-                PathStep(account="rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn", type=1),
+                {"account": "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B", "type": 1},
+                {
+                    "currency": "USD",
+                    "issuer": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
+                    "type": 48,
+                },
+                {"account": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q", "type": 1},
+                {"account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn", "type": 1},
             ],
         ]
 
@@ -537,7 +537,7 @@ class TestFromDict(TestCase):
                 issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
                 value="0.0000002831214446",
             ),
-            paths=path_steps,
+            paths=paths_json,
             sequence=290,
         )
         tx_json = p.to_xrpl()
