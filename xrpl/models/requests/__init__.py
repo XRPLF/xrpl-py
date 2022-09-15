@@ -1,4 +1,5 @@
 """Request models."""
+from xrpl.models.auth_account import AuthAccount
 from xrpl.models.path import PathStep
 from xrpl.models.requests.account_channels import AccountChannels
 from xrpl.models.requests.account_currencies import AccountCurrencies
@@ -54,6 +55,7 @@ __all__ = [
     "AccountOffers",
     "AccountTx",
     "AMMInfo",
+    "AuthAccount",
     "BookOffers",
     "ChannelAuthorize",
     "ChannelVerify",
