@@ -58,5 +58,5 @@ def set_regular_key(client: JsonRpcClient) -> None:
 
 
 # uncomment the lines below to run the snippet
-client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
-set_regular_key(client)
+# client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+# set_regular_key(client)

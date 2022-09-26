@@ -1,5 +1,5 @@
 XRPL Code Snippets
-================
+===================
 
 Code snippets to demonstrate basic usage of the xrpl-py library.
 

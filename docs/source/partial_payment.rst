@@ -1,5 +1,5 @@
 Partial Payment
 ==========================
 
-.. autofunction:: snippets.partial_payment.async_partial_payment
+.. autofunction:: snippets.partial_payment.partial_payment
 .. literalinclude:: ../../snippets/partial_payment.py
