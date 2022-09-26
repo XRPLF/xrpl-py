@@ -1,13 +1,13 @@
 """A snippet that walks us through sending a transaction reliably."""
-from xrpl.asyncio.account import get_balance
-from xrpl.asyncio.clients import AsyncWebsocketClient
-from xrpl.asyncio.transaction import (
+from xrpl.account import get_balance
+from xrpl.clients import JsonRpcClient
+from xrpl.models.requests import Tx
+from xrpl.models.transactions import Payment
+from xrpl.transaction import (
     safe_sign_and_autofill_transaction,
     send_reliable_submission,
 )
-from xrpl.asyncio.wallet import generate_faucet_wallet
-from xrpl.models.requests import Tx
-from xrpl.models.transactions import Payment
+from xrpl.wallet import generate_faucet_wallet
 
 #  When implementing Reliable Transaction Submission, there are many potential
 #  solutions, each with different trade-offs.
@@ -54,47 +54,40 @@ from xrpl.models.transactions import Payment
 #     XRP-to-XRP payments and cannot "succeed" in an unexpected way.
 
 
-async def async_send_reliable_tx() -> None:
+def send_reliable_tx(client: JsonRpcClient) -> None:
     """
-    Async snippet that walks us through sending a transaction reliably.
+    Sync snippet that walks us through sending a transaction reliably.
 
     Args:
-        client: The async network client to use to send the request.
+        client: The network client to use to send the request.
     """
-    async with AsyncWebsocketClient("wss://s.altnet.rippletest.net:51233") as client:
-        await client.open()
+    # creating wallets as prerequisite
+    wallet1 = generate_faucet_wallet(client, debug=True)
+    wallet2 = generate_faucet_wallet(client, debug=True)
 
-        # creating wallets as prerequisite
-        wallet1 = await generate_faucet_wallet(client, debug=True)
-        wallet2 = await generate_faucet_wallet(client, debug=True)
+    print("Balances of wallets before Payment tx")
+    print(get_balance(wallet1.classic_address, client))
+    print(get_balance(wallet2.classic_address, client))
 
-        print("Balances of wallets before Payment tx")
-        print(await get_balance(wallet1.classic_address, client))
-        print(await get_balance(wallet2.classic_address, client))
+    # create a Payment tx and submit and wait for tx to be validated
+    payment_tx = Payment(
+        account=wallet1.classic_address,
+        amount="1000",
+        destination=wallet2.classic_address,
+    )
 
-        # create a Payment tx and submit and wait for tx to be validated
-        payment_tx = Payment(
-            account=wallet1.classic_address,
-            amount="1000",
-            destination=wallet2.classic_address,
-        )
+    signed_payment_tx = safe_sign_and_autofill_transaction(payment_tx, wallet1, client)
+    payment_response = send_reliable_submission(signed_payment_tx, client)
+    print("\nTransaction was submitted.\n")
+    tx_response = client.request(Tx(transaction=payment_response.result["hash"]))
+    # with the following reponse we are able to see that the tx was indeed validated
+    print("Validated:", tx_response.result["validated"])
 
-        signed_payment_tx = await safe_sign_and_autofill_transaction(
-            payment_tx, wallet1, client
-        )
-        payment_response = await send_reliable_submission(signed_payment_tx, client)
-        print("\nTransaction was submitted.\n")
-        tx_response = await client.request(Tx(transaction=payment_response.result["hash"]))
-        # with the following reponse we are able to see that the tx was indeed validated
-        print("Validated:", tx_response.result["validated"])
-
-        print("Balances of wallets after Payment tx:")
-        print(await get_balance(wallet1.classic_address, client))
-        print(await get_balance(wallet2.classic_address, client))
-
-        await client.close()
+    print("Balances of wallets after Payment tx:")
+    print(get_balance(wallet1.classic_address, client))
+    print(get_balance(wallet2.classic_address, client))
 
 
 # uncomment the lines below to run the snippet
-# import asyncio
-# asyncio.run(async_send_reliable_tx())
+# client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+# send_reliable_tx(client)
