@@ -9,13 +9,12 @@ from xrpl.transaction import (
 from xrpl.wallet import generate_faucet_wallet
 
 
-def set_regular_key(client: JsonRpcClient) -> None:
+def set_regular_key() -> None:
     """
     Sync snippet that walks us through an example usage of RegularKey.
-
-    Args:
-        client: The network client to use to send the request.
     """
+    client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+
     # creating wallets as prerequisite
     wallet1 = generate_faucet_wallet(client, debug=True)
     wallet2 = generate_faucet_wallet(client, debug=True)
@@ -57,6 +56,5 @@ def set_regular_key(client: JsonRpcClient) -> None:
     print(get_balance(wallet2.classic_address, client))
 
 
-# uncomment the lines below to run the snippet
-# client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
-# set_regular_key(client)
+# uncomment the line below to run the snippet
+# set_regular_key()

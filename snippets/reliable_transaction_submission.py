@@ -54,13 +54,12 @@ from xrpl.wallet import generate_faucet_wallet
 #     XRP-to-XRP payments and cannot "succeed" in an unexpected way.
 
 
-def send_reliable_tx(client: JsonRpcClient) -> None:
+def send_reliable_tx() -> None:
     """
     Sync snippet that walks us through sending a transaction reliably.
-
-    Args:
-        client: The network client to use to send the request.
     """
+    client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+
     # creating wallets as prerequisite
     wallet1 = generate_faucet_wallet(client, debug=True)
     wallet2 = generate_faucet_wallet(client, debug=True)
@@ -88,6 +87,5 @@ def send_reliable_tx(client: JsonRpcClient) -> None:
     print(get_balance(wallet2.classic_address, client))
 
 
-# uncomment the lines below to run the snippet
-# client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
-# send_reliable_tx(client)
+# uncomment the line below to run the snippet
+# send_reliable_tx()

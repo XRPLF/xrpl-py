@@ -8,13 +8,12 @@ from xrpl.transaction import safe_sign_and_autofill_transaction
 from xrpl.wallet import generate_faucet_wallet
 
 
-def create_tx_with_paths(client: JsonRpcClient) -> None:
+def create_tx_with_paths() -> None:
     """
     Sync snippet that walks us through creating a transaction with a path.
-
-    Args:
-        client: The network client to use to send the request.
     """
+    client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+
     wallet = generate_faucet_wallet(client, debug=True)
     destination_account = "rKT4JX4cCof6LcDYRz8o3rGRu7qxzZ2Zwj"
     destination_amount = IssuedCurrencyAmount(
@@ -46,6 +45,5 @@ def create_tx_with_paths(client: JsonRpcClient) -> None:
     print("signed: ", safe_sign_and_autofill_transaction(payment_tx, wallet, client))
 
 
-# uncomment the lines below to run the snippet
-# client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
-# create_tx_with_paths(client)
+# uncomment the line below to run the snippet
+# create_tx_with_paths()

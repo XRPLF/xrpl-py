@@ -3,16 +3,15 @@ from xrpl.clients import JsonRpcClient
 from xrpl.models.requests import Ledger, Tx
 
 
-def get_transaction(client: JsonRpcClient) -> None:
+def get_transaction() -> None:
     """
     Sync snippet that walks us through getting a transaction.
-
-    Args:
-        client: The network client to use to send the request.
 
     Raises:
         Exception: if meta not included in the transaction response.
     """
+    client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+
     ledger_request = Ledger(transactions=True, ledger_index="validated")
     ledger_response = client.request(ledger_request)
     print(ledger_response)
@@ -42,6 +41,5 @@ def get_transaction(client: JsonRpcClient) -> None:
                 print("delivered_amount: undefined")
 
 
-# uncomment the lines below to run the snippet
-# client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
-# get_transaction(client)
+# uncomment the line below to run the snippet
+# get_transaction()

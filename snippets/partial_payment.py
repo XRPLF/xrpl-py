@@ -10,13 +10,11 @@ from xrpl.transaction import (
 from xrpl.wallet import generate_faucet_wallet
 
 
-def partial_payment(client: JsonRpcClient) -> None:
+def partial_payment() -> None:
     """
     Sync snippet that walks us through using a partial payment.
-
-    Args:
-        client: The network client to use to send the request.
     """
+    client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
 
     # creating wallets as prerequisite
     wallet1 = generate_faucet_wallet(client, debug=True)
@@ -111,6 +109,5 @@ def partial_payment(client: JsonRpcClient) -> None:
     )
 
 
-# uncomment the lines below to run the snippet
-# client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
-# partial_payment(client)
+# uncomment the line below to run the snippet
+# partial_payment()
