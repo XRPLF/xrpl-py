@@ -7,43 +7,34 @@ from xrpl.models.transactions import Payment
 from xrpl.transaction import safe_sign_and_autofill_transaction
 from xrpl.wallet import generate_faucet_wallet
 
+client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
 
-def create_tx_with_paths() -> None:
-    """
-    Sync snippet that walks us through creating a transaction with a path.
-    """
-    client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+wallet = generate_faucet_wallet(client, debug=True)
+destination_account = "rKT4JX4cCof6LcDYRz8o3rGRu7qxzZ2Zwj"
+destination_amount = IssuedCurrencyAmount(
+    value="0.001",
+    currency="USD",
+    issuer="rVnYNK9yuxBz4uP8zC8LEFokM2nqH3poc",
+)
 
-    wallet = generate_faucet_wallet(client, debug=True)
-    destination_account = "rKT4JX4cCof6LcDYRz8o3rGRu7qxzZ2Zwj"
-    destination_amount = IssuedCurrencyAmount(
-        value="0.001",
-        currency="USD",
-        issuer="rVnYNK9yuxBz4uP8zC8LEFokM2nqH3poc",
-    )
+path_request = RipplePathFind(
+    source_account=wallet.classic_address,
+    source_currencies=[XRP()],
+    destination_account=destination_account,
+    destination_amount=destination_amount,
+)
 
-    path_request = RipplePathFind(
-        source_account=wallet.classic_address,
-        source_currencies=[XRP()],
-        destination_account=destination_account,
-        destination_amount=destination_amount,
-    )
+path_response = client.request(path_request)
+print(path_response)
 
-    path_response = client.request(path_request)
-    print(path_response)
+paths = path_response.result["alternatives"][0]["paths_computed"]
+print(paths)
 
-    paths = path_response.result["alternatives"][0]["paths_computed"]
-    print(paths)
+payment_tx = Payment(
+    account=wallet.classic_address,
+    amount=destination_amount,
+    destination=destination_account,
+    paths=paths,
+)
 
-    payment_tx = Payment(
-        account=wallet.classic_address,
-        amount=destination_amount,
-        destination=destination_account,
-        paths=paths,
-    )
-
-    print("signed: ", safe_sign_and_autofill_transaction(payment_tx, wallet, client))
-
-
-# uncomment the line below to run the snippet
-# create_tx_with_paths()
+print("signed: ", safe_sign_and_autofill_transaction(payment_tx, wallet, client))

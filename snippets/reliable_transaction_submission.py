@@ -53,39 +53,30 @@ from xrpl.wallet import generate_faucet_wallet
 #  3) Transactions will not be automatically retried. Transactions are limited to
 #     XRP-to-XRP payments and cannot "succeed" in an unexpected way.
 
+client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
 
-def send_reliable_tx() -> None:
-    """
-    Sync snippet that walks us through sending a transaction reliably.
-    """
-    client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+# creating wallets as prerequisite
+wallet1 = generate_faucet_wallet(client, debug=True)
+wallet2 = generate_faucet_wallet(client, debug=True)
 
-    # creating wallets as prerequisite
-    wallet1 = generate_faucet_wallet(client, debug=True)
-    wallet2 = generate_faucet_wallet(client, debug=True)
+print("Balances of wallets before Payment tx")
+print(get_balance(wallet1.classic_address, client))
+print(get_balance(wallet2.classic_address, client))
 
-    print("Balances of wallets before Payment tx")
-    print(get_balance(wallet1.classic_address, client))
-    print(get_balance(wallet2.classic_address, client))
+# create a Payment tx and submit and wait for tx to be validated
+payment_tx = Payment(
+    account=wallet1.classic_address,
+    amount="1000",
+    destination=wallet2.classic_address,
+)
 
-    # create a Payment tx and submit and wait for tx to be validated
-    payment_tx = Payment(
-        account=wallet1.classic_address,
-        amount="1000",
-        destination=wallet2.classic_address,
-    )
+signed_payment_tx = safe_sign_and_autofill_transaction(payment_tx, wallet1, client)
+payment_response = send_reliable_submission(signed_payment_tx, client)
+print("\nTransaction was submitted.\n")
+tx_response = client.request(Tx(transaction=payment_response.result["hash"]))
+# with the following reponse we are able to see that the tx was indeed validated
+print("Validated:", tx_response.result["validated"])
 
-    signed_payment_tx = safe_sign_and_autofill_transaction(payment_tx, wallet1, client)
-    payment_response = send_reliable_submission(signed_payment_tx, client)
-    print("\nTransaction was submitted.\n")
-    tx_response = client.request(Tx(transaction=payment_response.result["hash"]))
-    # with the following reponse we are able to see that the tx was indeed validated
-    print("Validated:", tx_response.result["validated"])
-
-    print("Balances of wallets after Payment tx:")
-    print(get_balance(wallet1.classic_address, client))
-    print(get_balance(wallet2.classic_address, client))
-
-
-# uncomment the line below to run the snippet
-# send_reliable_tx()
+print("Balances of wallets after Payment tx:")
+print(get_balance(wallet1.classic_address, client))
+print(get_balance(wallet2.classic_address, client))
