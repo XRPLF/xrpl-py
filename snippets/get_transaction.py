@@ -11,7 +11,7 @@ from xrpl.models.requests import Ledger, Tx
 client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
 
 # Create a Ledger request and have the client call it
-ledger_request = Ledger(transactions=True, ledger_index="validated")
+ledger_request = Ledger(ledger_index="validated", transactions=True)
 ledger_response = client.request(ledger_request)
 print(ledger_response)
 
