@@ -7,8 +7,8 @@ from xrpl.models.requests import Ledger, Tx
 # - https://xrpl.org/parallel-networks.html#parallel-networks
 # - https://xrpl.org/tx.html
 
-# Create a client to connect to the test network
-client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+# Create a client to connect to the main network
+client = JsonRpcClient("https://xrplcluster.com/")
 
 # Create a Ledger request and have the client call it
 ledger_request = Ledger(ledger_index="validated", transactions=True)
