@@ -71,3 +71,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.coverage.run]
 branch = true
 source = ["xrpl"]
+
+[tool.poetry.scripts]
+test = "tests.poetry_scripts:run_unit_tests"
+test_integration = "tests.poetry_scripts:run_integration_tests"

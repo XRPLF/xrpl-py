@@ -71,7 +71,7 @@ poetry run flake8 ./xrpl
 #### Unit Tests
 
 ```bash
-poetry run python3 -m unittest discover tests/unit
+poetry run test
 ```
 
 #### Integration Tests
@@ -84,7 +84,7 @@ docker run -p 5005:5005 -p 6006:6006 -it natenichols/rippled-standalone:latest
 To actually run the tests:
 
 ```bash
-poetry run python3 -m unittest discover tests/integration
+poetry run test_integration
 ```
 
 #### Running tests with different Python versions
