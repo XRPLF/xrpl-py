@@ -1,31 +1,29 @@
-"""A snippet that walks us through getting a transaction."""
+"""Example of how we can see a transaction that was validated on the ledger"""
 from xrpl.clients import JsonRpcClient
 from xrpl.models.requests import Ledger, Tx
 
+# References
+# - https://xrpl.org/look-up-transaction-results.html
+# - https://xrpl.org/parallel-networks.html#parallel-networks
+# - https://xrpl.org/tx.html
+
+# Create a client to connect to the test network
 client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
 
+# Create a Ledger request and have the client call it
 ledger_request = Ledger(transactions=True, ledger_index="validated")
 ledger_response = client.request(ledger_request)
 print(ledger_response)
 
+# Extract out transactions from the ledger response
 transactions = ledger_response.result["ledger"]["transactions"]
 
+# If there are transactions, we can display the first one
+# If there are none (visualized at https://testnet.xrpl.org/), try re running the script
 if transactions:
+    # Create a Transaction request and have the client call it
     tx_request = Tx(transaction=transactions[0])
     tx_response = client.request(tx_request)
     print(tx_response)
-
-    # the meta field would be a string(hex)
-    # when the `binary` parameter is `true` for the `tx` request.
-    if tx_response.result["meta"] is None:
-        raise Exception("meta not included in the response")
-
-    # delivered_amount is the amount actually received by the destination account.
-    # Use this field to determine how much was delivered,
-    # regardless of whether the transaction is a partial payment.
-    # https://xrpl.org/transaction-metadata.html#delivered_amount
-    if type(tx_response.result["meta"] != "string"):
-        if "delivered_amount" in tx_response.result["meta"]:
-            print("delivered_amount:", tx_response.result["meta"]["delivered_amount"])
-        else:
-            print("delivered_amount: undefined")
+else:
+    print("No transactions were found on the ledger!")

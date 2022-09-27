@@ -1,4 +1,4 @@
-"""A snippet that walks us through using a partial payment."""
+"""Example of how to handle partial payments"""
 from xrpl.clients import JsonRpcClient
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import AccountLines
@@ -9,13 +9,20 @@ from xrpl.transaction import (
 )
 from xrpl.wallet import generate_faucet_wallet
 
+# References
+# - https://xrpl.org/partial-payments.html#partial-payments
+# - https://xrpl.org/payment.html#payment-flags
+# - https://xrpl.org/trustset.html#trustset
+# - https://xrpl.org/account_lines.html#account_lines
+
+# Create a client to connect to the test network
 client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
 
-# creating wallets as prerequisite
+# Creating two wallets to send money between
 wallet1 = generate_faucet_wallet(client, debug=True)
 wallet2 = generate_faucet_wallet(client, debug=True)
 
-# create a trustline to issue an IOU `FOO` and set limit on it
+# Create a TrustSet to issue an IOU `FOO` and set limit on it
 trust_set_tx = TrustSet(
     account=wallet2.classic_address,
     limit_amount=IssuedCurrencyAmount(
@@ -25,14 +32,16 @@ trust_set_tx = TrustSet(
     ),
 )
 
+# Sign and autofill, then send transaction to the ledger
 signed_trust_set_tx = safe_sign_and_autofill_transaction(trust_set_tx, wallet2, client)
 send_reliable_submission(signed_trust_set_tx, client)
 
+# Both balances should be zero since nothing has been sent yet
 print("Balances after trustline is claimed:")
 print((client.request(AccountLines(account=wallet1.classic_address))).result["lines"])
 print((client.request(AccountLines(account=wallet2.classic_address))).result["lines"])
 
-# initially, the issuer(wallet1) sends an amount to the other account(wallet2)
+# Create a Payment to send 3840 FOO from wallet1 (issuer) to destination (wallet2)
 issue_quantity = "3840"
 payment_tx = Payment(
     account=wallet1.classic_address,
@@ -44,22 +53,25 @@ payment_tx = Payment(
     destination=wallet2.classic_address,
 )
 
-# submit payment
+# Sign and autofill, then send transaction to the ledger
 signed_payment_tx = safe_sign_and_autofill_transaction(payment_tx, wallet1, client)
 payment_response = send_reliable_submission(signed_payment_tx, client)
 print(payment_response)
 
+# Issuer (wallet1) should have -3840 FOO and destination (wallet2) should have 3840 FOO
 print("Balances after wallet1 sends 3840 FOO to wallet2:")
 print((client.request(AccountLines(account=wallet1.classic_address))).result["lines"])
 print((client.request(AccountLines(account=wallet2.classic_address))).result["lines"])
 
 # Send money less than the amount specified on 2 conditions:
-# 1. Sender has less money than the aamount specified in the payment Tx.
+# 1. Sender has less money than the amount specified in the payment Tx.
 # 2. Sender has the tfPartialPayment flag activated.
 
 # Other ways to specify flags are by using Hex code and decimal code.
 # eg. For partial payment(tfPartialPayment)
 # decimal ->131072, hex -> 0x00020000
+
+# Create Payment to send 4000 (of 3840) FOO from wallet2 (issuer) to destination (wallet1)
 partial_payment_tx = Payment(
     account=wallet2.classic_address,
     amount=IssuedCurrencyAmount(
@@ -76,13 +88,14 @@ partial_payment_tx = Payment(
     ),
 )
 
-# submit payment
+# Sign and autofill, then send transaction to the ledger
 signed_partial_payment_tx = safe_sign_and_autofill_transaction(
     partial_payment_tx, wallet2, client
 )
 partial_payment_response = send_reliable_submission(signed_partial_payment_tx, client)
 print(partial_payment_response)
 
+# Tried sending 4000 of 3840 FOO -> wallet1 should have 0 FOO and wallet2 should have 0 FOO
 print("Balances after Partial Payment, when wallet2 tried to send 4000 FOOs")
 print((client.request(AccountLines(account=wallet1.classic_address))).result["lines"])
 print((client.request(AccountLines(account=wallet2.classic_address))).result["lines"])

@@ -1,4 +1,4 @@
-"""A snippet that walks us through an example usage of RegularKey."""
+"""Example of how we can change your password by setting a regular key"""
 from xrpl.account import get_balance
 from xrpl.clients import JsonRpcClient
 from xrpl.models.transactions import Payment, SetRegularKey
@@ -8,18 +8,25 @@ from xrpl.transaction import (
 )
 from xrpl.wallet import generate_faucet_wallet
 
+# References
+# - https://xrpl.org/assign-a-regular-key-pair.html#assign-a-regular-key-pair
+# - https://xrpl.org/setregularkey.html#setregularkey
+# - https://xrpl.org/change-or-remove-a-regular-key-pair.html#change-or-remove-a-regular-key-pair
+
+# Create a client to connect to the test network
 client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
 
-# creating wallets as prerequisite
+# Creating two wallets to send money between
 wallet1 = generate_faucet_wallet(client, debug=True)
 wallet2 = generate_faucet_wallet(client, debug=True)
 regular_key_wallet = generate_faucet_wallet(client, debug=True)
 
+# Both balances should be zero since nothing has been sent yet
 print("Balances before payment:")
 print(get_balance(wallet1.classic_address, client))
 print(get_balance(wallet2.classic_address, client))
 
-# assigns key-pair(regularKeyWallet) to wallet1 using `SetRegularKey`
+# Assign key pair (regular_key_wallet) to wallet1 using SetRegularKey transaction
 tx = SetRegularKey(
     account=wallet1.classic_address, regular_key=regular_key_wallet.classic_address
 )
@@ -27,15 +34,15 @@ tx = SetRegularKey(
 signed_tx = safe_sign_and_autofill_transaction(tx, wallet1, client)
 set_regular_key_response = send_reliable_submission(signed_tx, client)
 
-print("Response for successful SetRegularKey tx")
+print("Response for successful SetRegularKey tx:")
 print(set_regular_key_response)
 
-# when wallet1 sends payment to wallet2 andd
-# signs using the regular key wallet, the transaction goes through.
+# Since regular_key_wallet is linked to wallet1,
+# walet1 can send payment to wallet2 and have regular_key_wallet sign it
 payment = Payment(
     account=wallet1.classic_address,
     destination=wallet2.classic_address,
-    amount="5551000",
+    amount="1000",
 )
 
 signed_payment = safe_sign_and_autofill_transaction(payment, regular_key_wallet, client)
@@ -44,6 +51,7 @@ payment_response = send_reliable_submission(signed_payment, client)
 print("Response for tx signed using Regular Key:")
 print(payment_response)
 
+# Balance after sending 1000 from wallet1 to wallet2
 print("Balances after payment:")
 print(get_balance(wallet1.classic_address, client))
 print(get_balance(wallet2.classic_address, client))
