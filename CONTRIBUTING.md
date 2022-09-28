@@ -71,7 +71,7 @@ poetry run flake8 ./xrpl
 #### Unit Tests
 
 ```bash
-poetry run test
+poe test
 ```
 
 #### Integration Tests
@@ -84,7 +84,7 @@ docker run -p 5005:5005 -p 6006:6006 -it natenichols/rippled-standalone:latest
 To actually run the tests:
 
 ```bash
-poetry run test_integration
+poe test_integration
 ```
 
 #### Running tests with different Python versions

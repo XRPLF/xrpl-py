@@ -59,6 +59,7 @@ coverage = "^6.4.1"
 Jinja2 = "^2.11.3"
 MarkupSafe = "2.0.1"
 Sphinx = "^5.1.1"
+poethepoet = "^0.16.2"
 
 [tool.isort]
 # Make sure that isort's settings line up with black
@@ -72,6 +73,6 @@ build-backend = "poetry.core.masonry.api"
 branch = true
 source = ["xrpl"]
 
-[tool.poetry.scripts]
-test = "tests.poetry_scripts:run_unit_tests"
-test_integration = "tests.poetry_scripts:run_integration_tests"
+[tool.poe.tasks]
+test = "python3 -m unittest discover tests/unit"
+test_integration = "python3 -m unittest discover tests/integration"
