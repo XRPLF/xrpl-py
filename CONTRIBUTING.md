@@ -68,10 +68,18 @@ poetry run flake8 ./xrpl
 
 ### Running Tests
 
+#### Individual Tests
+
+```bash
+# Works for single or multiple unit/integration tests
+# Ex: poe test tests/unit/clients/test_json_rpc_client.py tests/integration/transactions/test_account_delete.py
+poe test FILE_PATHS
+```
+
 #### Unit Tests
 
 ```bash
-poe test
+poe test_unit
 ```
 
 #### Integration Tests

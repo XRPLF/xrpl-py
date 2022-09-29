@@ -74,5 +74,9 @@ branch = true
 source = ["xrpl"]
 
 [tool.poe.tasks]
-test = "python3 -m unittest discover tests/unit"
+test_unit = "python3 -m unittest discover tests/unit"
 test_integration = "python3 -m unittest discover tests/integration"
+
+[tool.poe.tasks.test]
+cmd  = "python3 -m unittest ${FILE_PATHS}"
+args = [{ name = "FILE_PATHS", positional = true, multiple = true}]
