@@ -73,10 +73,18 @@ build-backend = "poetry.core.masonry.api"
 branch = true
 source = ["xrpl"]
 
+[tool.coverage.report]
+show_missing = true
+fail_under = 85
+precision = 2
+
 [tool.poe.tasks]
-test_unit = "python3 -m unittest discover tests/unit"
-test_integration = "python3 -m unittest discover tests/integration"
+test_unit = "coverage run -m unittest discover tests/unit"
+test_integration = "coverage run -m unittest discover tests/integration"
 
 [tool.poe.tasks.test]
 cmd  = "python3 -m unittest ${FILE_PATHS}"
 args = [{ name = "FILE_PATHS", positional = true, multiple = true}]
+
+[tool.poe.tasks.test_coverage]
+sequence  = [{ cmd = "coverage run -m unittest discover" }, { cmd = "coverage report -m --fail-under=90" }]

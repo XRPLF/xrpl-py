@@ -95,6 +95,18 @@ To actually run the tests:
 poe test_integration
 ```
 
+#### Code Coverage
+
+To see manually code coverage after running unit tests or integration tests:
+```bash
+coverage report -m
+```
+
+To run both unit and integration tests and see code coverage:
+```bash
+poe test_coverage
+```
+
 #### Running tests with different Python versions
 
 To switch your python version before running tests:
