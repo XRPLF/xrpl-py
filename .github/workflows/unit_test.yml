@@ -77,7 +77,10 @@ jobs:
       - name: Install poetry dependencies
         run: poetry install
 
+      - name: Install poethepoet
+        run: poetry add --dev poethepoet
+
       - name: Unit test
         run: |
-          poetry run coverage run -m unittest discover tests.unit
+          poe test_unit
           poetry run coverage report -m --fail-under=85
