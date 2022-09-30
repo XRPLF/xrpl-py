@@ -99,7 +99,7 @@ poetry run poe test_integration
 
 To see manually code coverage after running unit tests or integration tests:
 ```bash
-coverage report -m
+poetry run coverage report
 ```
 
 To run both unit and integration tests and see code coverage:
