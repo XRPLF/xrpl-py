@@ -30,6 +30,8 @@ _ABBREVIATIONS: Final[Dict[str, str]] = {
     "xchain": "XChain",
 }
 
+
+# special cases that should not be snake cased and only contain primitive members
 _LOWER_CASE_MODELS: List[Type[BaseModel]] = [
     IssuedCurrencyAmount,
     PathStep,
@@ -73,8 +75,6 @@ def _key_to_tx_json(key: str) -> str:
 
 
 def _value_to_tx_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
-    # IssuedCurrencyAmount and PathStep are special cases and should not be snake cased
-    # and only contain primitive members
     if any([model.is_dict_of_model(value) for model in _LOWER_CASE_MODELS]):
         return value
     if isinstance(value, dict):
