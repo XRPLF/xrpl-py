@@ -15,6 +15,7 @@
         "nftoken",
         "rippletest",
         "ripplex",
-        "xaddress"
+        "xaddress",
+        "xchain"
     ],
 }
