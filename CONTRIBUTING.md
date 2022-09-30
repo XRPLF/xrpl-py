@@ -72,14 +72,14 @@ poetry run flake8 ./xrpl
 
 ```bash
 # Works for single or multiple unit/integration tests
-# Ex: poe test tests/unit/clients/test_json_rpc_client.py tests/integration/transactions/test_account_delete.py
-poe test FILE_PATHS
+# Ex: poetry run poe test tests/unit/clients/test_json_rpc_client.py tests/integration/transactions/test_account_delete.py
+poetry run poe test FILE_PATHS
 ```
 
 #### Unit Tests
 
 ```bash
-poe test_unit
+poetry run poe test_unit
 ```
 
 #### Integration Tests
@@ -92,7 +92,7 @@ docker run -p 5005:5005 -p 6006:6006 -it natenichols/rippled-standalone:latest
 To actually run the tests:
 
 ```bash
-poe test_integration
+poetry run poe test_integration
 ```
 
 #### Code Coverage
@@ -104,7 +104,7 @@ coverage report -m
 
 To run both unit and integration tests and see code coverage:
 ```bash
-poe test_coverage
+poetry run poe test_coverage
 ```
 
 #### Running tests with different Python versions
