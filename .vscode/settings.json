@@ -6,4 +6,7 @@
     "esbonio.sphinx.confDir": "${workspaceFolder}/docs",
     "python.linting.mypyEnabled": true,
     "mypy.runUsingActiveInterpreter": true,
+    "cSpell.words": [
+        "xchain"
+    ],
 }
