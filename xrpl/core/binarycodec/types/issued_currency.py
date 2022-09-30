@@ -71,7 +71,7 @@ class IssuedCurrency(SerializedType):
         if currency.to_json() == "XRP":
             return cls(bytes(currency))
 
-        issuer = parser.read(20)
+        issuer = parser.read(20)  # the length in bytes of an account ID
         return cls(bytes(currency) + issuer)
 
     def to_json(self: IssuedCurrency) -> Union[str, Dict[Any, Any]]:

@@ -47,7 +47,7 @@ class XChainBridge(SerializedType):
             for (name, object_type) in _TYPE_ORDER:
                 obj = object_type.from_value(value[name])
                 if object_type == AccountID:
-                    buffer += bytes.fromhex("14")
+                    buffer += bytes.fromhex("14")  # AccountID length (I think)
                 buffer += bytes(obj)
             return cls(buffer)
 
