@@ -72,7 +72,7 @@ poetry run flake8 ./xrpl
 
 ```bash
 # Works for single or multiple unit/integration tests
-# Ex: poetry run poe test tests/unit/clients/test_json_rpc_client.py tests/integration/transactions/test_account_delete.py
+# Ex: poetry run poe test tests/unit/models/test_response.py tests/integration/transactions/test_account_delete.py
 poetry run poe test FILE_PATHS
 ```
 
@@ -97,14 +97,14 @@ poetry run poe test_integration
 
 #### Code Coverage
 
-To see manually code coverage after running unit tests or integration tests:
-```bash
-poetry run coverage report
-```
-
 To run both unit and integration tests and see code coverage:
 ```bash
 poetry run poe test_coverage
+```
+
+To see manually code coverage after running unit tests or integration tests:
+```bash
+poetry run coverage report
 ```
 
 #### Running tests with different Python versions
