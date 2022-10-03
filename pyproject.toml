@@ -59,6 +59,7 @@ coverage = "^6.4.1"
 Jinja2 = "^2.11.3"
 MarkupSafe = "2.0.1"
 Sphinx = "^5.1.1"
+poethepoet = "^0.16.2"
 
 [tool.isort]
 # Make sure that isort's settings line up with black
@@ -71,3 +72,20 @@ build-backend = "poetry.core.masonry.api"
 [tool.coverage.run]
 branch = true
 source = ["xrpl"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+skip_empty = true
+precision = 2
+
+[tool.poe.tasks]
+test_unit = "coverage run -m unittest discover tests/unit"
+test_integration = "coverage run -m unittest discover tests/integration"
+
+[tool.poe.tasks.test]
+cmd  = "python3 -m unittest ${FILE_PATHS}"
+args = [{ name = "FILE_PATHS", positional = true, multiple = true}]
+
+[tool.poe.tasks.test_coverage]
+sequence  = [{ cmd = "coverage run -m unittest discover" }, { cmd = "coverage report --fail-under=90" }]

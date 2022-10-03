@@ -79,5 +79,5 @@ jobs:
 
       - name: Unit test
         run: |
-          poetry run coverage run -m unittest discover tests.unit
-          poetry run coverage report -m --fail-under=85
+          poetry run poe test_unit
+          poetry run coverage report --fail-under=85
