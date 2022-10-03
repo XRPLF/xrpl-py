@@ -1,4 +1,4 @@
-"""Example of how we can change your password by setting a regular key"""
+"""Example of how we can setting a regular key"""
 from xrpl.account import get_balance
 from xrpl.clients import JsonRpcClient
 from xrpl.models.transactions import Payment, SetRegularKey
@@ -11,10 +11,10 @@ from xrpl.wallet import generate_faucet_wallet
 # References
 # - https://xrpl.org/assign-a-regular-key-pair.html#assign-a-regular-key-pair
 # - https://xrpl.org/setregularkey.html#setregularkey
-# - https://xrpl.org/change-or-remove-a-regular-key-pair.html#change-or-remove-a-regular-key-pair
+# - https://xrpl.org/change-or-remove-a-regular-key-pair.html
 
 # Create a client to connect to the test network
-client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+client = JsonRpcClient("https://s.altnet.rippletest.net:51234")
 
 # Creating two wallets to send money between
 wallet1 = generate_faucet_wallet(client, debug=True)

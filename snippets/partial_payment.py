@@ -16,7 +16,7 @@ from xrpl.wallet import generate_faucet_wallet
 # - https://xrpl.org/account_lines.html#account_lines
 
 # Create a client to connect to the test network
-client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+client = JsonRpcClient("https://s.altnet.rippletest.net:51234")
 
 # Creating two wallets to send money between
 wallet1 = generate_faucet_wallet(client, debug=True)
@@ -71,7 +71,7 @@ print((client.request(AccountLines(account=wallet2.classic_address))).result["li
 # eg. For partial payment(tfPartialPayment)
 # decimal ->131072, hex -> 0x00020000
 
-# Create Payment to send 4000 (of 3840) FOO from wallet2 (issuer) to destination (wallet1)
+# Create Payment to send 4000 (of 3840) FOO from wallet2 to wallet1
 partial_payment_tx = Payment(
     account=wallet2.classic_address,
     amount=IssuedCurrencyAmount(
@@ -95,7 +95,7 @@ signed_partial_payment_tx = safe_sign_and_autofill_transaction(
 partial_payment_response = send_reliable_submission(signed_partial_payment_tx, client)
 print(partial_payment_response)
 
-# Tried sending 4000 of 3840 FOO -> wallet1 should have 0 FOO and wallet2 should have 0 FOO
+# Tried sending 4000 of 3840 FOO -> wallet1 and wallet2 should have 0 FOO
 print("Balances after Partial Payment, when wallet2 tried to send 4000 FOOs")
 print((client.request(AccountLines(account=wallet1.classic_address))).result["lines"])
 print((client.request(AccountLines(account=wallet2.classic_address))).result["lines"])

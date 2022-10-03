@@ -16,7 +16,7 @@ Send a Transaction and See if It Gets Validated
 
 .. literalinclude:: ../../snippets/reliable_transaction_submission.py
 
-Change Your Password by Setting a Regular Key
+Set a Regular Key
 -----------------------------------------------
 
 .. literalinclude:: ../../snippets/set_regular_key.py

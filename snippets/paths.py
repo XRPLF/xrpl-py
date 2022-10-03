@@ -12,7 +12,7 @@ from xrpl.wallet import generate_faucet_wallet
 # - https://xrpl.org/ripple_path_find.html#ripple_path_find
 
 # Create a client to connect to the test network
-client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+client = JsonRpcClient("https://s.altnet.rippletest.net:51234")
 
 # Creating wallet to send money from
 wallet = generate_faucet_wallet(client, debug=True)
@@ -25,7 +25,7 @@ destination_amount = IssuedCurrencyAmount(
     issuer="rVnYNK9yuxBz4uP8zC8LEFokM2nqH3poc",
 )
 
-## Create a RipplePathFind request and have the client call it
+# Create a RipplePathFind request and have the client call it
 path_request = RipplePathFind(
     source_account=wallet.classic_address,
     source_currencies=[XRP()],

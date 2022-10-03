@@ -15,7 +15,7 @@ from xrpl.wallet import generate_faucet_wallet
 # - https://xrpl.org/look-up-transaction-results.html
 
 # Create a client to connect to the test network
-client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+client = JsonRpcClient("https://s.altnet.rippletest.net:51234")
 
 # Creating two wallets to send money between
 wallet1 = generate_faucet_wallet(client, debug=True)
