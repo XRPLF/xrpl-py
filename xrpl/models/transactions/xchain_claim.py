@@ -1,7 +1,7 @@
 """Model for a XChainClaim transaction type."""
 
 from dataclasses import dataclass, field
-from typing import Union
+from typing import Optional, Union
 
 from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
@@ -21,6 +21,8 @@ class XChainClaim(Transaction):
     xchain_claim_id: Union[int, str] = REQUIRED  # type: ignore
 
     destination: str = REQUIRED  # type: ignore
+
+    destination_tag: Optional[int] = None
 
     amount: Amount = REQUIRED  # type: ignore
 
