@@ -60,6 +60,13 @@ FUNDING_AMOUNT = "1200000000"
 LEDGER_ACCEPT_REQUEST = GenericRequest(method="ledger_accept")
 
 
+def accept_ledger(client):
+    if isinstance(client, AsyncClient):
+        asyncio.run(client.request(LEDGER_ACCEPT_REQUEST))
+    else:
+        client.request(LEDGER_ACCEPT_REQUEST)
+
+
 def fund_wallet_sync(wallet: Wallet) -> None:
     client = JSON_RPC_CLIENT
     payment = Payment(

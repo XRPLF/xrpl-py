@@ -1,9 +1,8 @@
-import asyncio
 from threading import Timer
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
-    LEDGER_ACCEPT_REQUEST,
+    accept_ledger,
     sign_and_reliable_submission_async,
     submit_transaction_async,
     test_async_and_sync,
@@ -14,7 +13,6 @@ from tests.integration.reusable_values import (
 )
 from tests.integration.reusable_values import TESTNET_WALLET, WALLET
 from xrpl.asyncio.account import get_next_valid_seq_number
-from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.asyncio.transaction import (
     XRPLReliableSubmissionException,
@@ -51,13 +49,6 @@ CONDITION = (
 )
 FULFILLMENT = "A0028000"
 OWNER = "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
-
-
-def accept_ledger(client):
-    if isinstance(client, AsyncClient):
-        asyncio.run(client.request(LEDGER_ACCEPT_REQUEST))
-    else:
-        client.request(LEDGER_ACCEPT_REQUEST)
 
 
 class TestTransaction(IntegrationTestCase):
@@ -269,7 +260,7 @@ class TestTransaction(IntegrationTestCase):
         account_delete_autofilled = await autofill(account_delete, client)
 
         # THEN we expect the calculated fee to be 50 XRP (default in standalone)
-        expected_fee = xrp_to_drops(5)
+        expected_fee = xrp_to_drops(50)
         self.assertEqual(account_delete_autofilled.fee, expected_fee)
 
     @test_async_and_sync(
