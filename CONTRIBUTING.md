@@ -142,6 +142,9 @@ cd docs/_build/html/
 open _build/html/index.html
 ```
 
+## Write integration tests
+Like this
+
 ## Update `definitions.json`
 Use [this repo](https://github.com/RichardAH/xrpl-codec-gen) to generate a new `definitions.json` file from the rippled source code. Instructions are available in that README.
 
