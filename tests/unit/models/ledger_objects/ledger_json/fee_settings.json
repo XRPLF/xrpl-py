@@ -1,0 +1,9 @@
+{
+    "base_fee": "000000000000000A",
+    "flags": 0,
+    "ledger_entry_type": "FeeSettings",
+    "reference_fee_units": 10,
+    "reserve_base": 20000000,
+    "reserve_increment": 5000000,
+    "index": "4BC50C9B0D8515D3EAAE1E74B29A95804346C491EE1A95BF25E4AAB854A6A651"
+}

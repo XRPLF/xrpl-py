@@ -1,0 +1,19 @@
+{
+    "account": "rBqb89MRQJnMPq8wTwEbtz4kvxrEDfcYvt",
+    "destination": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "amount": "4325800",
+    "balance": "2323423",
+    "public_key": "32D2471DB72B27E3310F355BB33E339BF26F8392D5A93D3BC0FC3B566612DA0F0A",
+    "settle_delay": 3600,
+    "expiration": 536027313,
+    "cancel_after": 536891313,
+    "source_tag": 0,
+    "destination_tag": 1002341,
+    "destination_node": "0000000000000000",
+    "flags": 0,
+    "ledger_entry_type": "PayChannel",
+    "owner_node": "0000000000000000",
+    "previous_txn_id": "F0AB71E777B2DA54B86231E19B82554EF1F8211F92ECA473121C655BFC5329BF",
+    "previous_txn_lgr_seq": 14524914,
+    "index": "96F76F27D8A327FC48753167EC04A46AA0E382E6F57F32FD12274144D00F1797"
+}

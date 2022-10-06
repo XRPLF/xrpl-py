@@ -145,6 +145,10 @@ class BaseModel(ABC):
                 for item in param_value
             ]
 
+        if param_type_origin is dict and isinstance(param_value, dict):
+            # expected a Dict, received a Dict
+            return param_value
+
         if param_type_origin is Union:
             for param_type_option in get_args(param_type):
                 # iterate through the types Union-ed together

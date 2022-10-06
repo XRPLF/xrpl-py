@@ -1,0 +1,30 @@
+{
+    "flags": 0,
+    "ledger_entry_type": "SignerList",
+    "owner_node": "0000000000000000",
+    "previous_txn_id": "5904C0DC72C58A83AEFED2FFC5386356AA83FCA6A88C89D00646E51E687CDBE4",
+    "previous_txn_lgr_seq": 16061435,
+    "signer_entries": [
+        {
+            "signer_entry": {
+                "account": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+                "signer_weight": 2
+            }
+        },
+        {
+            "signer_entry": {
+                "account": "raKEEVSGnKSD9Zyvxu4z6Pqpm4ABH8FS6n",
+                "signer_weight": 1
+            }
+        },
+        {
+            "signer_entry": {
+                "account": "rUpy3eEg8rqjqfUoLeBnZkscbKbFsKXC3v",
+                "signer_weight": 1
+            }
+        }
+    ],
+    "signer_list_id": 0,
+    "signer_quorum": 3,
+    "index": "A9C28A28B85CD533217F5C0A0C7767666B093FA58A0F2D80026FCC4CD932DDC7"
+}

@@ -7,8 +7,8 @@ from enum import Enum
 from typing import Optional, Union
 
 from xrpl.models.base_model import BaseModel
-from xrpl.models.ledger_objects.ledger_entry_type import LedgerEntryType
-from xrpl.models.ledger_objects.ledger_object import LedgerObject
+from xrpl.models.ledger.ledger_entry_type import LedgerEntryType
+from xrpl.models.ledger.ledger_object import LedgerObject
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
@@ -32,26 +32,6 @@ class NFTokenOffer(LedgerObject):
         default=LedgerEntryType.NFTOKEN_OFFER,
         init=False,
     )
-
-
-@require_kwargs_on_init
-@dataclass(frozen=True)
-class MDNFTokenOfferFields(LedgerObject):
-    """
-    The model for the `NFTokenOffer` Ledger Object when
-    represented in a transaction's metadata.
-    """
-
-    amount: Optional[Union[str, NFToken]] = None
-    flags: Optional[int] = None
-    nftoken_id: Optional[str] = None
-    owner: Optional[str] = None
-    previous_txn_id: Optional[str] = None
-    previous_txn_lgr_seq: Optional[int] = None
-    destination: Optional[str] = None
-    expiration: Optional[int] = None
-    owner_node: Optional[str] = None
-    nftoken_offer_node: Optional[str] = None
 
 
 @require_kwargs_on_init

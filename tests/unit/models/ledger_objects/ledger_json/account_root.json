@@ -1,0 +1,17 @@
+{
+    "account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "account_txn_id": "0D5FB50FA65C9FE1538FD7E398FFFE9D1908DFA4576D8D7A020040686F93C77D",
+    "balance": "148446663",
+    "domain": "6D64756F31332E636F6D",
+    "email_hash": "98B4375E1D753E5B91627516F6D70977",
+    "flags": 8388608,
+    "ledger_entry_type": "AccountRoot",
+    "message_key": "0000000000000000000000070000000300",
+    "owner_count": 3,
+    "nftoken_minter": "rHello",
+    "previous_txn_id": "0D5FB50FA65C9FE1538FD7E398FFFE9D1908DFA4576D8D7A020040686F93C77D",
+    "previous_txn_lgr_seq": 14091160,
+    "sequence": 336,
+    "transfer_rate": 1004999999,
+    "index": "13F1A95D7AAB7108D5CE7EEAF504B2894B8C674E6D68499076441C4837282BF8"
+}

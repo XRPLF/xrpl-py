@@ -6,8 +6,8 @@ from dataclasses import dataclass, field
 from typing import Optional, Union
 
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
-from xrpl.models.ledger_objects.ledger_entry_type import LedgerEntryType
-from xrpl.models.ledger_objects.ledger_object import LedgerObject
+from xrpl.models.ledger.ledger_entry_type import LedgerEntryType
+from xrpl.models.ledger.ledger_object import LedgerObject
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
@@ -35,27 +35,3 @@ class Check(LedgerObject):
         default=LedgerEntryType.CHECK,
         init=False,
     )
-
-
-@require_kwargs_on_init
-@dataclass(frozen=True)
-class MDCheckFields(LedgerObject):
-    """
-    The model for the `Check` Ledger Object when
-    represented in a transaction's metadata.
-    """
-
-    account: Optional[str] = None
-    destination: Optional[str] = None
-    # always 0
-    flags: Optional[int] = None
-    owner_node: Optional[str] = None
-    previous_txn_id: Optional[str] = None
-    previous_txn_lgr_seq: Optional[int] = None
-    send_max: Optional[Union[str, IssuedCurrencyAmount]] = None
-    sequence: Optional[int] = None
-    destination_node: Optional[str] = None
-    destination_tag: Optional[int] = None
-    expiration: Optional[int] = None
-    invoice_id: Optional[str] = None
-    source_tag: Optional[int] = None

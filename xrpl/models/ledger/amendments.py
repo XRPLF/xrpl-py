@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from xrpl.models.ledger_objects.ledger_entry_type import LedgerEntryType
-from xrpl.models.ledger_objects.ledger_object import LedgerObject
+from xrpl.models.ledger.ledger_entry_type import LedgerEntryType
+from xrpl.models.ledger.ledger_object import LedgerObject
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
@@ -25,20 +25,6 @@ class Amendments(LedgerObject):
         default=LedgerEntryType.AMENDMENTS,
         init=False,
     )
-
-
-@require_kwargs_on_init
-@dataclass(frozen=True)
-class MDAmendmentsFields(LedgerObject):
-    """
-    The model for the `Amendments` Ledger Object when
-    represented in a transaction's metadata.
-    """
-
-    # always 0
-    flags: Optional[int] = None
-    amendments: Optional[List[str]] = None
-    majorities: Optional[List[Majority]] = None
 
 
 @require_kwargs_on_init

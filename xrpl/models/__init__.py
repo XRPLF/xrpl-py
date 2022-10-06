@@ -3,6 +3,7 @@ from xrpl.models import amounts, currencies, requests, transactions
 from xrpl.models.amounts import *  # noqa: F401, F403
 from xrpl.models.currencies import *  # noqa: F401, F403
 from xrpl.models.exceptions import XRPLModelException
+from xrpl.models.ledger import LedgerEntryType
 from xrpl.models.path import Path, PathStep
 from xrpl.models.requests import *  # noqa: F401, F403
 from xrpl.models.response import Response
@@ -15,6 +16,7 @@ __all__ = [
     *amounts.__all__,
     "currencies",
     *currencies.__all__,
+    "LedgerEntryType",
     "requests",
     *requests.__all__,
     "transactions",

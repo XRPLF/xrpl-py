@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Literal, Optional, Type, TypeVar, Union
 from xrpl.models.amounts import Amount
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.ledger_objects.ledger_object import LedgerEntryType, LedgerObject
+from xrpl.models.ledger.ledger_entry_type import LedgerEntryType
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
@@ -18,32 +18,8 @@ N = TypeVar("N", bound="AffectedNode")
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class NewFields(LedgerObject):
-    """A model for a node's `NewFields`"""
-
-    pass
-
-
-@require_kwargs_on_init
-@dataclass(frozen=True)
-class PreviousFields(LedgerObject):
-    """A model for a node's `PreviousFields`"""
-
-    pass
-
-
-@require_kwargs_on_init
-@dataclass(frozen=True)
-class FinalFields(LedgerObject):
-    """A model for a node's `FinalFields`"""
-
-    pass
-
-
-@require_kwargs_on_init
-@dataclass(frozen=True)
 class AffectedNode(NestedModel):
-    """A model a transaction's metadata's node."""
+    """A model a transaction's metadata node."""
 
     ledger_entry_type: LedgerEntryType = REQUIRED  # type: ignore
     ledger_index: str = REQUIRED  # type: ignore
@@ -72,28 +48,10 @@ class AffectedNode(NestedModel):
             correct_type = cls.get_node_type(affected_node_type)
             return correct_type.from_dict(value)  # type: ignore
         else:
-            # TODO: Check for error
-            affected_node = value[affected_node_type]
-            ledger_entry_type = affected_node["ledger_entry_type"]
-
-            new_fields = affected_node.get("new_fields")
-            if new_fields is not None:
-                value[affected_node_type]["new_fields"][
-                    "ledger_entry_type"
-                ] = ledger_entry_type
-
-            previous_fields = affected_node.get("previous_fields")
-            if previous_fields is not None:
-                value[affected_node_type]["previous_fields"][
-                    "ledger_entry_type"
-                ] = ledger_entry_type
-
-            final_fields = affected_node.get("final_fields")
-            if final_fields is not None:
-                value[affected_node_type]["final_fields"][
-                    "ledger_entry_type"
-                ] = ledger_entry_type
-
+            ledger_entry_type = value[affected_node_type]["ledger_entry_type"]
+            value[affected_node_type]["ledger_entry_type"] = LedgerEntryType(
+                ledger_entry_type
+            )
             return super(AffectedNode, cls).from_dict(value)  # type: ignore
 
     @classmethod
@@ -139,7 +97,7 @@ class AffectedNode(NestedModel):
 class CreatedNode(AffectedNode):
     """A model for when a new node got created on the XRPL"""
 
-    new_fields: NewFields = REQUIRED  # type: ignore
+    new_fields: Dict[str, Any] = REQUIRED  # type: ignore
 
 
 @require_kwargs_on_init
@@ -147,8 +105,8 @@ class CreatedNode(AffectedNode):
 class ModifiedNode(AffectedNode):
     """A model for when a node got modified in the XRPL"""
 
-    final_fields: FinalFields = REQUIRED  # type: ignore
-    previous_fields: Optional[PreviousFields] = None
+    final_fields: Optional[Dict[str, Any]] = None
+    previous_fields: Optional[Dict[str, Any]] = None
     previous_txn_id: Optional[str] = None
     previous_txn_lgr_seq: Optional[int] = None
 
@@ -158,7 +116,7 @@ class ModifiedNode(AffectedNode):
 class DeletedNode(AffectedNode):
     """A model for when a node got deleted from the XRPL"""
 
-    final_fields: FinalFields = REQUIRED  # type: ignore
+    final_fields: Dict[str, Any] = REQUIRED  # type: ignore
 
 
 @require_kwargs_on_init

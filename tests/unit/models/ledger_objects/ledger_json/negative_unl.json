@@ -1,0 +1,13 @@
+{
+    "disabled_validators": [
+        {
+            "disabled_validator": {
+                "first_ledger_sequence": 1609728,
+                "public_key": "ED6629D456285AE3613B285F65BBFF168D695BA3921F309949AFCD2CA7AFEC16FE"
+            }
+        }
+    ],
+    "flags": 0,
+    "ledger_entry_type": "NegativeUNL",
+    "index": "2E8A59AA9D3B5B186B0B9E0F62E6C02587CA74A4D778938E957B6357D364B244"
+}
