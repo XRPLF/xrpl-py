@@ -147,33 +147,10 @@ open _build/html/index.html
 2. Create a class that inherits `IntegrationTestCase` to store all individual tests under (ex: `class TestWallet(IntegrationTestCase)`)
 3. Create a function (can be sync or async) that contains logic for the test
 4. For customizability, include the `@test_async_and_sync` decorator on individual functions to test it on sync/async JsonRpc/Websocket clients, manage import modules, specify only websockets, allow a set number of retries, or use the testnet (vs standlone rippled node)
-5. Be sure to use pre-made values from `tests/integrations/reusable_values.py` and functions from `tests/integrations/it_utils.py` to simplify your tests
+5. Be sure to reuse pre-made values, like `WALLET` or `TESTNET WALLET`, from `tests/integrations/reusable_values.py`
+6. Be sure to use condensed functions, like `submit_transaction` and `fund_wallet`, from `tests/integrations/it_utils.py`
 
-Example from `tests/integrations/sugar/test_wallet.py`:
-```
-class TestWallet(IntegrationTestCase):
-    @test_async_and_sync(
-        globals(),
-        ["xrpl.wallet.generate_faucet_wallet"],
-        num_retries=5,
-        use_testnet=True,
-    )
-    async def test_generate_faucet_wallet_rel_sub(self, client):
-        destination = await generate_faucet_wallet(client)
-        wallet = await generate_faucet_wallet(client)
-        response = await submit_transaction_async(
-            Payment(
-                account=wallet.classic_address,
-                sequence=wallet.sequence,
-                fee="10",
-                amount="1",
-                destination=destination.classic_address,
-            ),
-            wallet,
-            client=client,
-        )
-        self.assertTrue(response.is_successful())
-```
+Examples can be found in subfolders of [tests/integrations](https://github.com/XRPLF/xrpl-py/tree/master/tests/integration)
 
 ## Update `definitions.json`
 Use [this repo](https://github.com/RichardAH/xrpl-codec-gen) to generate a new `definitions.json` file from the rippled source code. Instructions are available in that README.
