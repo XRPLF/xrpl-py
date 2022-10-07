@@ -334,7 +334,7 @@ class TestReliableSubmission(IntegrationTestCase):
         timer = Timer(1.0, accept_ledger, (client,))
         timer.start()
         response = await send_reliable_submission(signed_account_set, client)
-        del timer
+        timer = None
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
@@ -365,7 +365,7 @@ class TestReliableSubmission(IntegrationTestCase):
         timer = Timer(1.0, accept_ledger, (client,))
         timer.start()
         response = await send_reliable_submission(signed_payment_transaction, client)
-        del timer
+        timer = None
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
