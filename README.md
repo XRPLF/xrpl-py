@@ -9,7 +9,7 @@ A pure Python implementation for interacting with the XRP Ledger, the `xrpl-py` 
 ```py
 # create a network client
 from xrpl.clients import JsonRpcClient
-client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+client = JsonRpcClient("https://s.altnet.rippletest.net:51234")
 
 # create a wallet on the testnet
 from xrpl.wallet import generate_faucet_wallet
@@ -90,7 +90,7 @@ Use the `xrpl.clients` library to create a network client for connecting to the 
 
 ```py
 from xrpl.clients import JsonRpcClient
-JSON_RPC_URL = "https://s.altnet.rippletest.net:51234/"
+JSON_RPC_URL = "https://s.altnet.rippletest.net:51234"
 client = JsonRpcClient(JSON_RPC_URL)
 ```
 
