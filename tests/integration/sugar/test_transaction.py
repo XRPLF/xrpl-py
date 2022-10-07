@@ -331,10 +331,10 @@ class TestReliableSubmission(IntegrationTestCase):
         signed_account_set = await safe_sign_and_autofill_transaction(
             account_set, WALLET, client
         )
-        t = Timer(1.0, accept_ledger, (client,))
-        t.start()
+        timer = Timer(1.0, accept_ledger, (client,))
+        timer.start()
         response = await send_reliable_submission(signed_account_set, client)
-        t.cancel()
+        del timer
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
@@ -362,10 +362,10 @@ class TestReliableSubmission(IntegrationTestCase):
         signed_payment_transaction = await safe_sign_and_autofill_transaction(
             payment_transaction, WALLET, client
         )
-        t = Timer(1.0, accept_ledger, (client,))
-        t.start()
+        timer = Timer(1.0, accept_ledger, (client,))
+        timer.start()
         response = await send_reliable_submission(signed_payment_transaction, client)
-        t.cancel()
+        del timer
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
