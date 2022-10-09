@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to xrpl-py's documentation!
+Welcome to xrpl-py's Documentation!
 ===================================
 
 A pure Python implementation for interacting with the XRP Ledger, the ``xrpl-py`` library simplifies the hardest parts of XRP Ledger interaction, like serialization and transaction signing, by providing native Python methods and models for `XRP Ledger transactions <https://xrpl.org/transaction-formats.html>`_ and core server `API <https://xrpl.org/api-conventions.html>`_ (`rippled <https://github.com/ripple/rippled>`_) objects.
@@ -30,6 +30,7 @@ If you run into any bugs or other problems with the library, please report them 
    :maxdepth: 1
    :caption: Table of Contents
 
+   source/snippets
    source/xrpl.account
    source/xrpl.ledger
    source/xrpl.transaction
@@ -42,7 +43,7 @@ If you run into any bugs or other problems with the library, please report them 
    source/xrpl.asyncio
 
 
-Indices and tables
+Indices and Tables
 ==================
 
 * :ref:`genindex`
