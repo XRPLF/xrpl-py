@@ -143,12 +143,11 @@ open _build/html/index.html
 ```
 
 ## Write integration tests
-1. Create a .py file in correct subfolder of `tests/integrations` (ex: `test_wallet.py` in `tests/integrations/sugar`)
-2. Create a class that inherits `IntegrationTestCase` to store all individual tests under (ex: `class TestWallet(IntegrationTestCase)`)
-3. Create a function (can be sync or async) that contains logic for the test
-4. For customizability, include the `@test_async_and_sync` decorator on individual functions to test it on sync/async JsonRpc/Websocket clients, manage import modules, specify only websockets, allow a set number of retries, or use the testnet (vs standlone rippled node)
-5. Be sure to reuse pre-made values, like `WALLET` or `TESTNET WALLET`, from `tests/integrations/reusable_values.py`
-6. Be sure to use condensed functions, like `submit_transaction` and `fund_wallet`, from `tests/integrations/it_utils.py`
+1. Create a class that inherits `IntegrationTestCase` to store all individual tests under (ex: `class TestWallet(IntegrationTestCase)`)
+2. Create an async (likely) or sync (if specifically using an individual sync client) function that contains logic for the test
+3. For customizability (on async functions only), include the `@test_async_and_sync` decorator to test it on sync/async JsonRpc/Websocket clients, manage import modules, specify only websockets, allow a set number of retries, or use the testnet (vs standalone rippled node). This decorator is used on a large majority of tests to ensure correctness on multiple clients (default is set to 4: AsyncWebsocket, Websocket, AsyncJsonRpc, JsonRpc). The few tests that do not utilize this decorator are usually specifically targeting coverage on an individual client. 
+4. Be sure to reuse pre-made values, `WALLET`, `DESTINATION`, `TESTNET_WALLET`, `TESTNET_DESTINATION`, `OFFER`, and `PAYMENT_CHANNEL`, from `tests/integrations/reusable_values.py`
+5. Be sure to use condensed functions, like `submit_transaction` and `fund_wallet`, from `tests/integrations/it_utils.py`
 
 Examples can be found in subfolders of [tests/integrations](https://github.com/XRPLF/xrpl-py/tree/master/tests/integration)
 
