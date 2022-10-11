@@ -13,13 +13,16 @@ from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.asyncio.transaction import (
     safe_sign_and_submit_transaction as sign_and_submit_async,
 )
+from xrpl.asyncio.transaction.reliable_submission import (
+    send_reliable_submission as send_reliable_submission_async,
+)
 from xrpl.clients import Client, JsonRpcClient, WebsocketClient
 from xrpl.models import GenericRequest, Payment
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
+from xrpl.transaction import safe_sign_and_submit_transaction
 from xrpl.transaction import (  # noqa: F401 - needed for sync tests
-    safe_sign_and_autofill_transaction,
-    safe_sign_and_submit_transaction,
+    send_reliable_submission as send_reliable_submission_sync,
 )
 from xrpl.wallet import Wallet
 
@@ -73,13 +76,6 @@ class AsyncTestTimer:
 
     def cancel(self):
         self._task.cancel()
-
-
-def accept_ledger(client):
-    if isinstance(client, AsyncClient):
-        AsyncTestTimer(1, client)
-    else:
-        SyncTestTimer(1, client.request, (LEDGER_ACCEPT_REQUEST,)).start()
 
 
 def fund_wallet_sync(wallet: Wallet) -> None:
@@ -144,6 +140,22 @@ async def sign_and_reliable_submission_async(
     response = await submit_transaction_async(transaction, wallet, client)
     await client.request(LEDGER_ACCEPT_REQUEST)
     return response
+
+
+def send_timed_reliable_submission(
+    transaction: Transaction, use_json_client: bool = True
+) -> Response:
+    client = _choose_client(use_json_client)
+    SyncTestTimer(1, client.request, (LEDGER_ACCEPT_REQUEST,)).start()
+    return send_reliable_submission_sync(transaction, client)
+
+
+async def send_timed_reliable_submission_async(
+    transaction: Transaction, use_json_client: bool = True
+) -> Response:
+    client = _choose_client_async(use_json_client)
+    AsyncTestTimer(1, client)
+    return await send_reliable_submission_async(transaction, client)
 
 
 def _choose_client(use_json_client: bool) -> Client:
