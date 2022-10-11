@@ -20,10 +20,11 @@ from xrpl.clients import Client, JsonRpcClient, WebsocketClient
 from xrpl.models import GenericRequest, Payment
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.transaction import safe_sign_and_submit_transaction
 from xrpl.transaction import (  # noqa: F401 - needed for sync tests
-    send_reliable_submission as send_reliable_submission_sync,
+    safe_sign_and_autofill_transaction,
+    safe_sign_and_submit_transaction,
 )
+from xrpl.transaction import send_reliable_submission as send_reliable_submission_sync
 from xrpl.wallet import Wallet
 
 JSON_RPC_URL = "http://127.0.0.1:5005"
