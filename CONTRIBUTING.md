@@ -143,9 +143,9 @@ open _build/html/index.html
 ```
 
 ## Write integration tests
-1. Create a class that inherits `IntegrationTestCase` to store all individual tests under (ex: `class TestWallet(IntegrationTestCase)`)
+1. Create a class that inherits `IntegrationTestCase` from `tests.integration.integration_test_case` to store all individual tests under (ex: `class TestWallet(IntegrationTestCase)`)
 2. Create an async (likely) or sync (if specifically using an individual sync client) function that contains logic for the test
-3. For customizability (on async functions only), include the `@test_async_and_sync` decorator to test it on sync/async JsonRpc/Websocket clients, manage import modules, specify only websockets, allow a set number of retries, or use the testnet (vs standalone rippled node). This decorator is used on a large majority of tests to ensure correctness on multiple clients (default is set to 4: AsyncWebsocket, Websocket, AsyncJsonRpc, JsonRpc). The few tests that do not utilize this decorator are usually specifically targeting coverage on an individual client. 
+3. For customizability (on async functions only), include the `@test_async_and_sync` decorator to test it on sync/async JsonRpc/Websocket clients, manage import modules, specify only websockets, allow a set number of retries, or use the testnet (vs standalone rippled node). This decorator is used on a large majority of tests to ensure correctness on multiple clients (default is set to 4: AsyncWebsocket, Websocket, AsyncJsonRpc, JsonRpc). The few tests that do not utilize this decorator are usually specifically targeting coverage on an individual client.
 4. Be sure to reuse pre-made values, `WALLET`, `DESTINATION`, `TESTNET_WALLET`, `TESTNET_DESTINATION`, `OFFER`, and `PAYMENT_CHANNEL`, from `tests/integrations/reusable_values.py`
 5. Be sure to use condensed functions, like `submit_transaction` and `fund_wallet`, from `tests/integrations/it_utils.py`
 
