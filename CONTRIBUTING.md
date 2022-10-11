@@ -139,7 +139,7 @@ To see the output:
 cd docs/_build/html/
 
 # Open the index file to view it in a browser:
-open _build/html/index.html
+open index.html
 ```
 
 ## Write integration tests
