@@ -2,6 +2,7 @@
 import asyncio
 import importlib
 import inspect
+from threading import Timer as SyncTestTimer
 from time import sleep
 
 import xrpl  # noqa: F401 - needed for sync tests
@@ -60,11 +61,25 @@ FUNDING_AMOUNT = "1200000000"
 LEDGER_ACCEPT_REQUEST = GenericRequest(method="ledger_accept")
 
 
+class AsyncTestTimer:
+    def __init__(self, timeout, client):
+        self._timeout = timeout
+        self._client = client
+        self._task = asyncio.ensure_future(self._job())
+
+    async def _job(self):
+        await asyncio.sleep(self._timeout)
+        await self._client.request(LEDGER_ACCEPT_REQUEST)
+
+    def cancel(self):
+        self._task.cancel()
+
+
 def accept_ledger(client):
     if isinstance(client, AsyncClient):
-        asyncio.run(client.request(LEDGER_ACCEPT_REQUEST))
+        AsyncTestTimer(1, client)
     else:
-        client.request(LEDGER_ACCEPT_REQUEST)
+        SyncTestTimer(1, client.request, (LEDGER_ACCEPT_REQUEST,)).start()
 
 
 def fund_wallet_sync(wallet: Wallet) -> None:

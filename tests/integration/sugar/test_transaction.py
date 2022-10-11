@@ -1,5 +1,3 @@
-from threading import Timer
-
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     accept_ledger,
@@ -331,10 +329,8 @@ class TestReliableSubmission(IntegrationTestCase):
         signed_account_set = await safe_sign_and_autofill_transaction(
             account_set, WALLET, client
         )
-        timer = Timer(1.0, accept_ledger, (client,))
-        timer.start()
+        accept_ledger(client)
         response = await send_reliable_submission(signed_account_set, client)
-        timer = None
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
@@ -362,10 +358,8 @@ class TestReliableSubmission(IntegrationTestCase):
         signed_payment_transaction = await safe_sign_and_autofill_transaction(
             payment_transaction, WALLET, client
         )
-        timer = Timer(1.0, accept_ledger, (client,))
-        timer.start()
+        accept_ledger(client)
         response = await send_reliable_submission(signed_payment_transaction, client)
-        timer = None
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
