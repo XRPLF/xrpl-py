@@ -66,14 +66,15 @@ LEDGER_ACCEPT_REQUEST = GenericRequest(method="ledger_accept")
 
 
 class AsyncTestTimer:
-    def __init__(self, timeout, client):
+    def __init__(self, timeout, client, request):
         self._timeout = timeout
         self._client = client
+        self._request = request
         self._task = asyncio.ensure_future(self._job())
 
     async def _job(self):
         await asyncio.sleep(self._timeout)
-        await self._client.request(LEDGER_ACCEPT_REQUEST)
+        await self._client.request(self._request)
 
     def cancel(self):
         self._task.cancel()
@@ -183,7 +184,7 @@ async def send_timed_reliable_submission_async(
         The response from the server, as a Response object.
     """
     client = _choose_client_async(use_json_client)
-    AsyncTestTimer(1, client)
+    AsyncTestTimer(1, client, LEDGER_ACCEPT_REQUEST)
     return await send_reliable_submission_async(transaction, client)
 
 

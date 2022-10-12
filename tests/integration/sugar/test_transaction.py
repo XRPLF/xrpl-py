@@ -6,10 +6,7 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from tests.integration.reusable_values import DESTINATION as DESTINATION_WALLET
-from tests.integration.reusable_values import (
-    TESTNET_DESTINATION as TESTNET_DESTINATION_WALLET,
-)
-from tests.integration.reusable_values import TESTNET_WALLET, WALLET
+from tests.integration.reusable_values import WALLET
 from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.asyncio.transaction import (
@@ -28,9 +25,6 @@ from xrpl.utils import xrp_to_drops
 
 ACCOUNT = WALLET.classic_address
 DESTINATION = DESTINATION_WALLET.classic_address
-
-TESTNET_ACCOUNT = TESTNET_WALLET.classic_address
-TESTNET_DESTINATION = TESTNET_DESTINATION_WALLET.classic_address
 
 CLEAR_FLAG = 3
 DOMAIN = "6578616D706C652E636F6D".lower()
