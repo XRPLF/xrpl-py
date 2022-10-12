@@ -15,13 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for Ed25519 seeds that don't use the `sEd` prefix
 - Add docs to`get_account_transactions` explaining how to allow pagination through all transaction history [#462]
 - Common field `ticket_sequence` to Transaction class
-- Tests can now be run with an easier to remember command - `poetry run poe test_unit`
 
 ### Fixed:
 - Typing for factory classmethods on models
 - Use properly encoded transactions in `Sign`, `SignFor`, and `SignAndSubmit`
 - Fix Sphinx build errors due to incompatible version bumps
-- AuthAccount models no longer need their `account` parameter to be capitalized (it was mismatched with rippled)
 
 ## [1.6.0] - 2022-06-02
 ### Added:
