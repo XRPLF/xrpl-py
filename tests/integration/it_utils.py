@@ -146,6 +146,20 @@ async def sign_and_reliable_submission_async(
 def send_timed_reliable_submission(
     transaction: Transaction, use_json_client: bool = True
 ) -> Response:
+    """
+    Allows integration tests for sync clients to utilize reliable submission on
+    standalone rippled node. A one second timer to close ledger is initialized before
+    running `send_reliable_submission_sync` to ensure the ledger closes and the
+    submission process finishes.
+
+    Arguments:
+        transaction: the signed transaction to submit to the ledger. Requires a
+            `last_ledger_sequence` param.
+        client: the network client used to submit the transaction to a rippled node.
+
+    Returns:
+        The response from the server, as a Response object.
+    """
     client = _choose_client(use_json_client)
     SyncTestTimer(1, client.request, (LEDGER_ACCEPT_REQUEST,)).start()
     return send_reliable_submission_sync(transaction, client)
@@ -154,6 +168,20 @@ def send_timed_reliable_submission(
 async def send_timed_reliable_submission_async(
     transaction: Transaction, use_json_client: bool = True
 ) -> Response:
+    """
+    Allows integration tests for async clients to utilize reliable submission on
+    standalone rippled node. A one second timer to close ledger is initialized before
+    running `send_reliable_submission_async` to ensure the ledger closes and the
+    submission process finishes.
+
+    Arguments:
+        transaction: the signed transaction to submit to the ledger. Requires a
+            `last_ledger_sequence` param.
+        client: the network client used to submit the transaction to a rippled node.
+
+    Returns:
+        The response from the server, as a Response object.
+    """
     client = _choose_client_async(use_json_client)
     AsyncTestTimer(1, client)
     return await send_reliable_submission_async(transaction, client)
