@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Typing for factory classmethods on models
 - Use properly encoded transactions in `Sign`, `SignFor`, and `SignAndSubmit`
 - Fix Sphinx build errors due to incompatible version bumps
-- AuthAccount models no longer need their `account` paramter to be capitalized (it was mismatched with rippled)
+- AuthAccount models no longer need their `account` parameter to be capitalized (it was mismatched with rippled)
 
 ## [1.6.0] - 2022-06-02
 ### Added:
