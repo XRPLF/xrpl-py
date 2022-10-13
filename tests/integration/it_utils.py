@@ -63,7 +63,7 @@ MASTER_WALLET = Wallet(MASTER_SECRET, 0)
 FUNDING_AMOUNT = "1200000000"
 
 LEDGER_ACCEPT_REQUEST = GenericRequest(method="ledger_accept")
-LEDGER_ACCEPT_TIME = 1
+LEDGER_ACCEPT_TIME = 0.1
 
 
 class AsyncTestTimer:
