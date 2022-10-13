@@ -21,6 +21,7 @@ from xrpl.models.utils import require_kwargs_on_init
 
 _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
 
+# special cases that should not be snake cased and only contain primitive members
 _LOWER_CASE_MODELS: List[Type[BaseModel]] = [
     IssuedCurrencyAmount,
     PathStep,
@@ -64,11 +65,9 @@ def _key_to_tx_json(key: str) -> str:
 
 
 def _value_to_tx_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
-    # IssuedCurrencyAmount and PathStep are special cases and should not be snake cased
-    # and only contain primitive members
     if isinstance(value, dict) and "auth_account" in value:
         return _auth_account_value_to_tx_json(value)
-    if IssuedCurrencyAmount.is_dict_of_model(value) or PathStep.is_dict_of_model(value):
+    if any([model.is_dict_of_model(value) for model in _LOWER_CASE_MODELS]):
         return value
     if isinstance(value, dict):
         return transaction_json_to_binary_codec_form(value)

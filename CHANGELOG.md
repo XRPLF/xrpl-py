@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [[Unreleased]]
+
+## [1.7.0] - 2022-10-12
 ### Added:
 - Support for ExpandedSignerList amendment that expands the maximum signer list to 32 entries
 - Function to parse the final account balances from a transaction's metadata
@@ -15,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for Automated Market Maker (AMM) transactions and requests as defined in XLS-30.
 - Add docs to`get_account_transactions` explaining how to allow pagination through all transaction history [#462]
 - Common field `ticket_sequence` to Transaction class
+- Support for cross-chain bridge proposal
 
 ### Fixed:
 - Typing for factory classmethods on models

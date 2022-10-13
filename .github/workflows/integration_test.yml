@@ -52,5 +52,5 @@ jobs:
 
       - name: Integration test
         run: |
-          poetry run coverage run -m unittest discover tests.integration
-          poetry run coverage report -m --fail-under=70
+          poetry run poe test_integration
+          poetry run coverage report --fail-under=70

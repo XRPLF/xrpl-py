@@ -620,7 +620,7 @@ class TestFromDict(TestCase):
             "TransactionType": "XChainClaim",
             "Flags": 0,
             "SigningPubKey": "",
-            "XChainClaimID": "0000000000000001",
+            "XChainClaimID": 1,
         }
         tx_obj = XChainClaim(
             account=account,
@@ -632,7 +632,7 @@ class TestFromDict(TestCase):
                 issuing_chain_issue="XRP",
             ),
             destination=destination,
-            xchain_claim_id="0000000000000001",
+            xchain_claim_id=1,
         )
         self.assertEqual(tx_obj.to_xrpl(), tx_json)
         self.assertEqual(Transaction.from_xrpl(tx_json), tx_obj)
