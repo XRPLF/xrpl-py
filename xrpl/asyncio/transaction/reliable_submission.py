@@ -12,7 +12,7 @@ from xrpl.constants import XRPLException
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 
-_LEDGER_CLOSE_TIME: Final[int] = 4
+_LEDGER_CLOSE_TIME: Final[int] = 1
 
 
 class XRPLReliableSubmissionException(XRPLException):
