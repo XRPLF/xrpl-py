@@ -149,7 +149,7 @@ open index.html
     * Limit tests to sync/async only 
     * Limit the number of retries
     * Use Testnet instead of a standalone network
-    * Manage import modules for sync equivalents of any async functions used 
+    * Import modules for sync equivalents of any async functions used 
 4. Be sure to reuse pre-made values, `WALLET`, `DESTINATION`, `TESTNET_WALLET`, `TESTNET_DESTINATION`, `OFFER`, and `PAYMENT_CHANNEL`, from `tests/integrations/reusable_values.py`
 5. Be sure to use condensed functions, like `submit_transaction_async` and `sign_and_reliable_submission_async`, from `tests/integrations/it_utils.py`
 
