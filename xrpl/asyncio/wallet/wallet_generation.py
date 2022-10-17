@@ -12,9 +12,13 @@ from xrpl.wallet.main import Wallet
 
 _TEST_FAUCET_URL: Final[str] = "https://faucet.altnet.rippletest.net/accounts"
 _DEV_FAUCET_URL: Final[str] = "https://faucet.devnet.rippletest.net/accounts"
+_AMM_DEV_FAUCET_URL: Final[str] = "https://ammfaucet.devnet.rippletest.net/accounts"
+_NFT_DEV_FAUCET_URL: Final[str] = "https://faucet-nft.ripple.com/accounts"
+_HOOKS_V2_TEST_FAUCET_URL: Final[
+    str
+] = "https://hooks-testnet-v2.xrpl-labs.com/accounts"
 
 _TIMEOUT_SECONDS: Final[int] = 40
-_LEDGER_CLOSE_TIME: Final[int] = 4
 
 
 class XRPLFaucetException(XRPLException):
@@ -50,6 +54,14 @@ async def generate_faucet_wallet(
     .. # noqa: DAR402 exception raised in private method
     """
     faucet_url = get_faucet_url(client.url, faucet_host)
+
+    if faucet_url == _HOOKS_V2_TEST_FAUCET_URL and wallet is not None:
+        raise XRPLFaucetException(
+            """Currently the Hooks Testnet v2 faucet has no way of funding a given wallet.
+            If you need to do that, you can create a new funded account and have it send
+            a payment transaction to the existing account."""
+        )
+
     if wallet is None:
         wallet = Wallet.create()
 
@@ -106,10 +118,16 @@ def get_faucet_url(url: str, faucet_host: Optional[str] = None) -> str:
     """
     if faucet_host is not None:
         return f"https://{faucet_host}/accounts"
-    if "dev" in url:  # devnet
-        return _DEV_FAUCET_URL
-    if "altnet" in url or "test" in url:  # testnet
+    if "hooks-testnet-v2" in url:  # hooks v2 testnet
+        return _HOOKS_V2_TEST_FAUCET_URL
+    if "altnet" in url or "testnet" in url:  # testnet
         return _TEST_FAUCET_URL
+    if "amm" in url:  # amm devnet
+        return _AMM_DEV_FAUCET_URL
+    if "devnet" in url:  # devnet
+        return _DEV_FAUCET_URL
+    if "xls20-sandbox" in url:  # nft devnet
+        return _NFT_DEV_FAUCET_URL
     raise XRPLFaucetException(
         "Cannot fund an account with a client that is not on the testnet or devnet."
     )
