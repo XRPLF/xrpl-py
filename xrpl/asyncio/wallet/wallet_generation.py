@@ -1,5 +1,6 @@
 """Handles wallet generation from a faucet."""
 import asyncio
+import json
 from typing import Optional
 
 import httpx
@@ -74,7 +75,11 @@ async def generate_faucet_wallet(
     starting_balance = await _check_wallet_balance(address, client)
 
     # Ask the faucet to send funds to the given address
-    await _request_funding(faucet_url, address)
+    response = await _request_funding(faucet_url, address)
+    if faucet_url == _HOOKS_V2_TEST_FAUCET_URL:
+        faucet_wallet = json.loads(response._content.decode("utf-8"))["account"]
+        seq = await get_next_valid_seq_number(faucet_wallet["address"], client)
+        wallet = Wallet(faucet_wallet["secret"], seq)
     # Wait for the faucet to fund our account or until timeout
     # Waits one second checks if balance has changed
     # If balance doesn't change it will attempt again until _TIMEOUT_SECONDS
@@ -143,11 +148,12 @@ async def _check_wallet_balance(address: str, client: Client) -> int:
         raise
 
 
-async def _request_funding(url: str, address: str) -> None:
+async def _request_funding(url: str, address: str) -> httpx.Response:
     async with httpx.AsyncClient() as http_client:
         response = await http_client.post(url=url, json={"destination": address})
     if not response.status_code == httpx.codes.OK:
         response.raise_for_status()
+    return response
 
 
 async def _try_to_get_next_seq(address: str, client: Client) -> Optional[int]:

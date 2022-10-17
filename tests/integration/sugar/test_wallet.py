@@ -3,6 +3,7 @@ from tests.integration.it_utils import submit_transaction_async, test_async_and_
 from tests.integration.reusable_values import WALLET
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.wallet import generate_faucet_wallet
+from xrpl.asyncio.wallet.wallet_generation import XRPLFaucetException
 from xrpl.clients import JsonRpcClient, WebsocketClient
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.requests import AccountInfo
@@ -82,6 +83,110 @@ class TestWallet(IntegrationTestCase):
             ),
         )
         self.assertTrue(int(result.result["account_data"]["Balance"]) > 0)
+
+    async def test_generate_faucet_wallet_testnet_async_websockets(self):
+        async with AsyncWebsocketClient(
+            "wss://s.altnet.rippletest.net:51233"
+        ) as client:
+            wallet = await generate_faucet_wallet(client)
+            result = await client.request(
+                AccountInfo(
+                    account=wallet.classic_address,
+                ),
+            )
+            balance = int(result.result["account_data"]["Balance"])
+            self.assertTrue(balance > 0)
+
+            new_wallet = await generate_faucet_wallet(client, wallet)
+            new_result = await client.request(
+                AccountInfo(
+                    account=new_wallet.classic_address,
+                ),
+            )
+            new_balance = int(new_result.result["account_data"]["Balance"])
+            self.assertTrue(new_balance > balance)
+
+    async def test_generate_faucet_wallet_devnet_async_websockets(self):
+        async with AsyncWebsocketClient(
+            "wss://s.devnet.rippletest.net:51233"
+        ) as client:
+            wallet = await generate_faucet_wallet(client)
+            result = await client.request(
+                AccountInfo(
+                    account=wallet.classic_address,
+                ),
+            )
+            balance = int(result.result["account_data"]["Balance"])
+            self.assertTrue(balance > 0)
+
+            new_wallet = await generate_faucet_wallet(client, wallet)
+            new_result = await client.request(
+                AccountInfo(
+                    account=new_wallet.classic_address,
+                ),
+            )
+            new_balance = int(new_result.result["account_data"]["Balance"])
+            self.assertTrue(new_balance > balance)
+
+    async def test_generate_faucet_wallet_nft_devnet_async_websockets(self):
+        async with AsyncWebsocketClient(
+            "ws://xls20-sandbox.rippletest.net:51233"
+        ) as client:
+            wallet = await generate_faucet_wallet(client)
+            result = await client.request(
+                AccountInfo(
+                    account=wallet.classic_address,
+                ),
+            )
+            balance = int(result.result["account_data"]["Balance"])
+            self.assertTrue(balance > 0)
+
+            new_wallet = await generate_faucet_wallet(client, wallet)
+            new_result = await client.request(
+                AccountInfo(
+                    account=new_wallet.classic_address,
+                ),
+            )
+            new_balance = int(new_result.result["account_data"]["Balance"])
+            self.assertTrue(new_balance > balance)
+
+    async def test_generate_faucet_wallet_amm_devnet_async_websockets(self):
+        async with AsyncWebsocketClient(
+            "wss://amm.devnet.rippletest.net:51233"
+        ) as client:
+            wallet = await generate_faucet_wallet(client)
+            result = await client.request(
+                AccountInfo(
+                    account=wallet.classic_address,
+                ),
+            )
+            balance = int(result.result["account_data"]["Balance"])
+            self.assertTrue(balance > 0)
+
+            new_wallet = await generate_faucet_wallet(client, wallet)
+            new_result = await client.request(
+                AccountInfo(
+                    account=new_wallet.classic_address,
+                ),
+            )
+            new_balance = int(new_result.result["account_data"]["Balance"])
+            self.assertTrue(new_balance > balance)
+
+    async def test_generate_faucet_wallet_hooks_v2_testnet_async_websockets(self):
+        async with AsyncWebsocketClient(
+            "wss://hooks-testnet-v2.xrpl-labs.com"
+        ) as client:
+            wallet = await generate_faucet_wallet(client)
+            result = await client.request(
+                AccountInfo(
+                    account=wallet.classic_address,
+                ),
+            )
+            balance = int(result.result["account_data"]["Balance"])
+            self.assertTrue(balance > 0)
+
+            with self.assertRaises(XRPLFaucetException):
+                await generate_faucet_wallet(client, wallet)
 
     def test_wallet_get_xaddress(self):
         expected = classic_address_to_xaddress(WALLET.classic_address, None, False)
