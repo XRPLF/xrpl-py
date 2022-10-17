@@ -64,7 +64,7 @@ LEDGER_ACCEPT_TIME = 0.1
 class AsyncTestTimer:
     def __init__(
         self,
-        client: SyncClient,
+        client: AsyncClient,
         timeout: float = LEDGER_ACCEPT_TIME,
         request: Request = LEDGER_ACCEPT_REQUEST,
     ):
