@@ -77,9 +77,9 @@ async def generate_faucet_wallet(
     # Ask the faucet to send funds to the given address
     response = await _request_funding(faucet_url, address)
     if faucet_url == _HOOKS_V2_TEST_FAUCET_URL:
-        faucet_wallet = json.loads(response._content.decode("utf-8"))["account"]
-        seq = await get_next_valid_seq_number(faucet_wallet["address"], client)
-        wallet = Wallet(faucet_wallet["secret"], seq)
+        faucetWallet = json.loads(response._content.decode("utf-8"))["account"]
+        seq = await get_next_valid_seq_number(faucetWallet["address"], client)
+        wallet = Wallet(faucetWallet["secret"], seq)
     # Wait for the faucet to fund our account or until timeout
     # Waits one second checks if balance has changed
     # If balance doesn't change it will attempt again until _TIMEOUT_SECONDS
