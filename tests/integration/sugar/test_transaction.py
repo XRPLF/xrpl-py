@@ -1,6 +1,7 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
-    send_timed_reliable_submission_async,
+    accept_ledger_async,
+    send_reliable_submission_async,
     sign_and_reliable_submission_async,
     submit_transaction_async,
     test_async_and_sync,
@@ -323,7 +324,8 @@ class TestReliableSubmission(IntegrationTestCase):
         signed_account_set = await safe_sign_and_autofill_transaction(
             account_set, WALLET, client
         )
-        response = await send_timed_reliable_submission_async(signed_account_set)
+        await accept_ledger_async()
+        response = await send_reliable_submission_async(signed_account_set, client)
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
@@ -351,8 +353,9 @@ class TestReliableSubmission(IntegrationTestCase):
         signed_payment_transaction = await safe_sign_and_autofill_transaction(
             payment_transaction, WALLET, client
         )
-        response = await send_timed_reliable_submission_async(
-            signed_payment_transaction
+        await accept_ledger_async()
+        response = await send_reliable_submission_async(
+            signed_payment_transaction, client
         )
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")

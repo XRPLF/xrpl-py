@@ -2,7 +2,7 @@
 import asyncio
 import importlib
 import inspect
-from threading import Timer as SyncTestTimer
+from threading import Timer as ThreadingTimer
 from time import sleep
 
 import xrpl  # noqa: F401 - needed for sync tests
@@ -13,18 +13,13 @@ from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.asyncio.transaction import (
     safe_sign_and_submit_transaction as sign_and_submit_async,
 )
-from xrpl.asyncio.transaction.reliable_submission import (
-    send_reliable_submission as send_reliable_submission_async,
-)
 from xrpl.clients import Client, JsonRpcClient, WebsocketClient
-from xrpl.models import GenericRequest, Payment
-from xrpl.models.response import Response
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.clients.sync_client import SyncClient
+from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
 from xrpl.transaction import (  # noqa: F401 - needed for sync tests
     safe_sign_and_autofill_transaction,
     safe_sign_and_submit_transaction,
 )
-from xrpl.transaction import send_reliable_submission as send_reliable_submission_sync
 from xrpl.wallet import Wallet
 
 JSON_RPC_URL = "http://127.0.0.1:5005"
@@ -67,9 +62,14 @@ LEDGER_ACCEPT_TIME = 0.1
 
 
 class AsyncTestTimer:
-    def __init__(self, timeout, client, request):
-        self._timeout = timeout
+    def __init__(
+        self,
+        client: SyncClient,
+        timeout: float = LEDGER_ACCEPT_TIME,
+        request: Request = LEDGER_ACCEPT_REQUEST,
+    ):
         self._client = client
+        self._timeout = timeout
         self._request = request
         self._task = asyncio.ensure_future(self._job())
 
@@ -79,6 +79,19 @@ class AsyncTestTimer:
 
     def cancel(self):
         self._task.cancel()
+
+
+class SyncTestTimer:
+    def __init__(
+        self,
+        client: SyncClient,
+        timeout: float = LEDGER_ACCEPT_TIME,
+        request: Request = LEDGER_ACCEPT_REQUEST,
+    ):
+        self._timer = ThreadingTimer(timeout, client.request, (request,)).start()
+
+    def cancel(self):
+        self._timer.cancel()
 
 
 def fund_wallet_sync(wallet: Wallet) -> None:
@@ -145,72 +158,34 @@ async def sign_and_reliable_submission_async(
     return response
 
 
-def send_timed_reliable_submission(
-    transaction: Transaction, use_json_client: bool = True
-) -> Response:
-    """
-    Allows integration tests for sync clients to utilize reliable submission on
-    standalone rippled node. A timer to close ledger is initialized before
-    running `send_reliable_submission_sync` to ensure the ledger closes and the
-    submission process finishes.
-
-    Arguments:
-        transaction: the signed transaction to submit to the ledger. Requires a
-            `last_ledger_sequence` param.
-        use_json_client: boolean for choosing json or websocket client.
-
-    Returns:
-        The response from the server, as a Response object.
-    """
-    client = _choose_client(use_json_client)
-    SyncTestTimer(LEDGER_ACCEPT_TIME, client.request, (LEDGER_ACCEPT_REQUEST,)).start()
-    return send_reliable_submission_sync(transaction, client)
-
-
-async def send_timed_reliable_submission_async(
-    transaction: Transaction, use_json_client: bool = True
-) -> Response:
-    """
-    Allows integration tests for async clients to utilize reliable submission on
-    standalone rippled node. A timer to close ledger is initialized before
-    running `send_reliable_submission_async` to ensure the ledger closes and the
-    submission process finishes.
-
-    Arguments:
-        transaction: the signed transaction to submit to the ledger. Requires a
-            `last_ledger_sequence` param.
-        use_json_client: boolean for choosing json or websocket client.
-
-    Returns:
-        The response from the server, as a Response object.
-    """
-    client = _choose_client_async(use_json_client)
-    AsyncTestTimer(LEDGER_ACCEPT_TIME, client, LEDGER_ACCEPT_REQUEST)
-    return await send_reliable_submission_async(transaction, client)
-
-
-def accept_ledger(use_json_client: bool = True) -> None:
+def accept_ledger(
+    use_json_client: bool = True, timeout: float = LEDGER_ACCEPT_TIME
+) -> None:
     """
     Allows integration tests for sync clients to send a `ledger_accept` request
     after a set period of time.
 
     Arguments:
         use_json_client: boolean for choosing json or websocket client.
+        timeout: float for how long to wait before accepting ledger.
     """
     client = _choose_client(use_json_client)
-    SyncTestTimer(LEDGER_ACCEPT_TIME, client.request, (LEDGER_ACCEPT_REQUEST,)).start()
+    SyncTestTimer(client, timeout)
 
 
-async def accept_ledger_async(use_json_client: bool = True) -> None:
+async def accept_ledger_async(
+    use_json_client: bool = True, timeout: float = LEDGER_ACCEPT_TIME
+) -> None:
     """
     Allows integration tests for async clients to send a `ledger_accept` request
     after a set period of time.
 
     Arguments:
         use_json_client: boolean for choosing json or websocket client.
+        timeout: float for how long to wait before accepting ledger.
     """
     client = _choose_client_async(use_json_client)
-    AsyncTestTimer(LEDGER_ACCEPT_TIME, client, LEDGER_ACCEPT_REQUEST)
+    AsyncTestTimer(client, timeout)
 
 
 def _choose_client(use_json_client: bool) -> Client:
