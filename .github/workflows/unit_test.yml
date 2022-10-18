@@ -11,14 +11,17 @@ jobs:
     name: Lint and type-check
     runs-on: ubuntu-latest
 
+    env:
+      PYTHON_VERSION: 3.10
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.x
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Display Python version
         run: |
@@ -28,7 +31,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /home/runner/.local
-          key: dotlocal-${{ hashFiles('.github/workflows') }}
+          key: dotlocal-${{ env.PYTHON_VERSION }}-${{ hashFiles('.github/workflows') }}
 
       - name: Install poetry
         run: |
