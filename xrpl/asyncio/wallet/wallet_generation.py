@@ -58,9 +58,9 @@ async def generate_faucet_wallet(
 
     if faucet_url == _HOOKS_V2_TEST_FAUCET_URL and wallet is not None:
         raise XRPLFaucetException(
-            "Currently the Hooks Testnet v2 faucet has no way of funding a given wallet. "
-            "If you need to do that, you can create a new funded account and have it send "
-            "a payment transaction to the existing account."
+            "Currently the Hooks Testnet v2 faucet has no way of funding a given "
+            " wallet. If you need to do that, you can create a new funded account "
+            "and have it send a payment transaction to the existing account."
         )
 
     if wallet is None:
