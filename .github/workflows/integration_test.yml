@@ -29,10 +29,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      - name: Retrieve poetry dependencies from cache
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
 
       - name: Display Python version
         run: |
@@ -48,12 +49,6 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org/ | python -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Retrieve poetry dependencies from cache
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-          cache: 'poetry'
 
       - name: Install poetry dependencies
         run: poetry install
