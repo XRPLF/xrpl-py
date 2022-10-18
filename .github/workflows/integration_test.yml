@@ -42,7 +42,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /home/runner/.local
-          key: dotlocal-${{ matrix.python-version }}-${{ hashFiles('.github/workflows/integration_test.yml') }}
+          key: dotlocal-${{ matrix.python-version }}-${{ hashFiles('.github/workflows') }}
 
       - name: Install poetry
         run: |
