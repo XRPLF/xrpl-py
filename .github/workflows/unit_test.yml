@@ -28,7 +28,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /home/runner/.local
-          key: dotlocal-${{ hashFiles('.github/workflows/lint_type_check.yml') }}
+          key: dotlocal-${{ hashFiles('.github/workflows/unit_test.yml') }}
 
       - name: Install poetry
         run: |
@@ -73,8 +73,16 @@ jobs:
         run: |
           python -c "import sys; print(sys.version)"
 
+      - name: Load cached .local
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/.local
+          key: dotlocal-${{ matrix.python-version }}-${{ hashFiles('.github/workflows/unit_test.yml') }}
+
       - name: Install poetry
-        run: pipx install poetry
+        run: |
+          curl -sSL https://install.python-poetry.org/ | python -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Retrieve poetry dependencies from cache
         uses: actions/setup-python@v4
