@@ -29,7 +29,7 @@ jobs:
           curl -sSL https://install.python-poetry.org/ | python -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Retrieve poetry dependencies from cache
+      - name: Install Python + Retrieve Poetry dependencies from cache
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
@@ -73,7 +73,7 @@ jobs:
           curl -sSL https://install.python-poetry.org/ | python -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Retrieve poetry dependencies from cache
+      - name: Install Python + Retrieve Poetry dependencies from cache
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
