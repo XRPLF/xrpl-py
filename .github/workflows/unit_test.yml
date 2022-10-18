@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      PYTHON_VERSION: 3.10
+      PYTHON_VERSION: "3.10"
 
     steps:
       - name: Checkout code
