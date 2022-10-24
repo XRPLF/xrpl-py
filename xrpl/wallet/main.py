@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Optional, Type
+from typing import Optional, Type, Union
 
 from xrpl.constants import CryptoAlgorithm
 from xrpl.core.addresscodec import classic_address_to_xaddress
+from xrpl.core.binarycodec.types.uint8 import UInt8
 from xrpl.core.keypairs import derive_classic_address, derive_keypair, generate_seed
 
 
@@ -79,6 +80,75 @@ class Wallet:
         """
         seed = generate_seed(algorithm=crypto_algorithm)
         return cls(seed, sequence=0, algorithm=crypto_algorithm)
+
+    @classmethod
+    def from_public_private_keys(
+        cls: Type[Wallet],
+        public_key: str,
+        private_key: str,
+        master_address: Optional[str],
+        crypto_algorithm: Optional[CryptoAlgorithm],
+    ) -> Wallet:
+        """
+        Generates a new Wallet from public and private keys.
+
+        Args:
+            public_key: The public key for the account.
+            private_key: The private key used for signing transactions for the account.
+            master_address: Include if a Wallet uses a Regular Key Pair. It must be
+                the master address of the account.
+            crypto_algorithm: The key-generation algorithm to use when generating the
+                seed. The default is Ed25519.
+
+        Returns:
+            The wallet that is generated from the given keys.
+        """
+        return Wallet.create()
+
+    @classmethod
+    def from_secret(
+        cls: Type[Wallet],
+        secret: str,
+        master_address: Optional[str],
+        crypto_algorithm: Optional[CryptoAlgorithm],
+    ) -> Wallet:
+        """
+        Generates a new Wallet from secret.
+
+        Args:
+            secret: The secret (seed) used to derive the account keys.
+            master_address: Include if a Wallet uses a Regular Key Pair. It must be
+                the master address of the account.
+            crypto_algorithm: The key-generation algorithm to use when generating the
+                seed. The default is Ed25519.
+
+        Returns:
+            The wallet that is generated from the given secret.
+        """
+        return Wallet.create()
+
+    @classmethod
+    def from_entropy(
+        cls: Type[Wallet],
+        entropy: Union[list[UInt8], list[int]],
+        master_address: Optional[str],
+        crypto_algorithm: Optional[CryptoAlgorithm],
+    ) -> Wallet:
+        """
+        Generates a new Wallet from entropy (array of random numbers).
+
+        Args:
+            entropy: An array of random numbers to generate a seed used to derive
+                a wallet.
+            master_address: Include if a Wallet uses a Regular Key Pair. It must be
+                the master address of the account.
+            crypto_algorithm: The key-generation algorithm to use when generating the
+                seed. The default is Ed25519.
+
+        Returns:
+            The wallet that is generated from the given entropy.
+        """
+        return Wallet.create()
 
     def get_xaddress(
         self: Wallet, *, tag: Optional[int] = None, is_test: bool = False
