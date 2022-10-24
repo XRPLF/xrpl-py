@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Type, Union
+from typing import List, Optional, Type, Union
 
 from xrpl.constants import CryptoAlgorithm
 from xrpl.core.addresscodec import classic_address_to_xaddress
@@ -130,7 +130,7 @@ class Wallet:
     @classmethod
     def from_entropy(
         cls: Type[Wallet],
-        entropy: Union[list[UInt8], list[int]],
+        entropy: Union[List[UInt8], List[int]],
         master_address: Optional[str],
         crypto_algorithm: Optional[CryptoAlgorithm],
     ) -> Wallet:
