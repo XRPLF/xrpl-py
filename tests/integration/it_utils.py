@@ -65,16 +65,16 @@ class AsyncTestTimer:
     def __init__(
         self,
         client: AsyncClient,
-        timeout: float = LEDGER_ACCEPT_TIME,
+        delay: float = LEDGER_ACCEPT_TIME,
         request: Request = LEDGER_ACCEPT_REQUEST,
     ):
         self._client = client
-        self._timeout = timeout
+        self._delay = delay
         self._request = request
         self._task = asyncio.ensure_future(self._job())
 
     async def _job(self):
-        await asyncio.sleep(self._timeout)
+        await asyncio.sleep(self._delay)
         await self._client.request(self._request)
 
     def cancel(self):
@@ -85,10 +85,10 @@ class SyncTestTimer:
     def __init__(
         self,
         client: SyncClient,
-        timeout: float = LEDGER_ACCEPT_TIME,
+        delay: float = LEDGER_ACCEPT_TIME,
         request: Request = LEDGER_ACCEPT_REQUEST,
     ):
-        self._timer = ThreadingTimer(timeout, client.request, (request,)).start()
+        self._timer = ThreadingTimer(delay, client.request, (request,)).start()
 
     def cancel(self):
         self._timer.cancel()
@@ -159,7 +159,7 @@ async def sign_and_reliable_submission_async(
 
 
 def accept_ledger(
-    use_json_client: bool = True, timeout: float = LEDGER_ACCEPT_TIME
+    use_json_client: bool = True, delay: float = LEDGER_ACCEPT_TIME
 ) -> None:
     """
     Allows integration tests for sync clients to send a `ledger_accept` request
@@ -167,14 +167,14 @@ def accept_ledger(
 
     Arguments:
         use_json_client: boolean for choosing json or websocket client.
-        timeout: float for how long to wait before accepting ledger.
+        delay: float for how many seconds to wait before accepting ledger.
     """
     client = _choose_client(use_json_client)
-    SyncTestTimer(client, timeout)
+    SyncTestTimer(client, delay)
 
 
 async def accept_ledger_async(
-    use_json_client: bool = True, timeout: float = LEDGER_ACCEPT_TIME
+    use_json_client: bool = True, delay: float = LEDGER_ACCEPT_TIME
 ) -> None:
     """
     Allows integration tests for async clients to send a `ledger_accept` request
@@ -182,10 +182,10 @@ async def accept_ledger_async(
 
     Arguments:
         use_json_client: boolean for choosing json or websocket client.
-        timeout: float for how long to wait before accepting ledger.
+        delay: float for how many seconds to wait before accepting ledger.
     """
     client = _choose_client_async(use_json_client)
-    AsyncTestTimer(client, timeout)
+    AsyncTestTimer(client, delay)
 
 
 def _choose_client(use_json_client: bool) -> Client:

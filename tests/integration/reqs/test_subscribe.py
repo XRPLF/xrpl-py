@@ -12,6 +12,11 @@ from xrpl.models.transactions.payment import Payment
 _MESSAGE_LIMIT = 3
 
 
+# For tests that don't rely on the testnet, we use a local rippled server
+# where we can force accept ledger. This is a lot faster than waiting for
+# the testnet to accept a ledger. In these, an initial message is
+# always sent to the client when they subscribe, so we do not need to
+# send a ledger accept call before the async for loop.
 class TestSubscribe(IntegrationTestCase):
     @test_async_and_sync(globals(), websockets_only=True)
     async def test_ledger_subscription(self, client):
@@ -54,7 +59,6 @@ class TestSubscribe(IntegrationTestCase):
         await client.send(Subscribe(streams=[StreamParameter.CONSENSUS]))
         count = 0
         async for message in client:
-
             if count != 0:
                 self.assertEqual(message["type"], "consensusPhase")
             if count == _MESSAGE_LIMIT:
