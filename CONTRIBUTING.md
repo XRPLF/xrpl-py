@@ -142,6 +142,19 @@ cd docs/_build/html/
 open index.html
 ```
 
+## Write integration tests
+1. If adding functionality to a new part of the library, create new file with a class that inherits `IntegrationTestCase` from `tests.integration.integration_test_case` to store all individual tests under (ex: `class TestWallet(IntegrationTestCase)`). Otherwise, add to an existing file.
+2. Create an async function for each test case (unless the test is only being used for the sync client)
+3. Include the `@test_async_and_sync` decorator to test against all client types, unless you specifically only want to test with one client. You can also use the decorator to:
+    * Limit tests to sync/async only 
+    * Limit the number of retries
+    * Use Testnet instead of a standalone network
+    * Import modules for sync equivalents of any async functions used 
+4. Be sure to reuse pre-made values, `WALLET`, `DESTINATION`, `TESTNET_WALLET`, `TESTNET_DESTINATION`, `OFFER`, and `PAYMENT_CHANNEL`, from `tests/integrations/reusable_values.py`
+5. Be sure to use condensed functions, like `submit_transaction_async` and `sign_and_reliable_submission_async`, from `tests/integrations/it_utils.py`
+
+Examples can be found in subfolders of [tests/integrations](https://github.com/XRPLF/xrpl-py/tree/master/tests/integration)
+
 ## Update `definitions.json`
 Use [this repo](https://github.com/RichardAH/xrpl-codec-gen) to generate a new `definitions.json` file from the rippled source code. Instructions are available in that README.
 
