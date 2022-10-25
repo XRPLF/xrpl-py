@@ -191,3 +191,25 @@ class TestWallet(IntegrationTestCase):
     def test_wallet_get_xaddress(self):
         expected = classic_address_to_xaddress(WALLET.classic_address, None, False)
         self.assertEqual(WALLET.get_xaddress(), expected)
+
+
+# call this function in many async websockets. In json websockets,
+# maybe incorporate to be more in depth.
+async def test_faucet_wallet_funding(self, wallet, client):
+    wallet = await generate_faucet_wallet(client)
+    result = await client.request(
+        AccountInfo(
+            account=wallet.classic_address,
+        ),
+    )
+    balance = int(result.result["account_data"]["Balance"])
+    self.assertTrue(balance > 0)
+
+    new_wallet = await generate_faucet_wallet(client, wallet)
+    new_result = await client.request(
+        AccountInfo(
+            account=new_wallet.classic_address,
+        ),
+    )
+    new_balance = int(new_result.result["account_data"]["Balance"])
+    self.assertTrue(new_balance > balance)
