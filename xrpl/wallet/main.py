@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Type, Union
+from typing import Optional, Type
 
 from xrpl.constants import CryptoAlgorithm
 from xrpl.core.addresscodec import classic_address_to_xaddress
-from xrpl.core.binarycodec.types.uint8 import UInt8
 from xrpl.core.keypairs import derive_classic_address, derive_keypair, generate_seed
+from xrpl.utils.ensure_classic_address import ensure_classic_address
 
 
 class Wallet:
@@ -19,21 +19,31 @@ class Wallet:
 
     def __init__(
         self: Wallet,
-        seed: str,
-        sequence: int,
+        seed: Optional[str] = None,
+        sequence: Optional[int] = 0,
         *,
         algorithm: Optional[CryptoAlgorithm] = None,
+        master_address: Optional[str] = None,
     ) -> None:
         """
         Generate a new Wallet.
 
         Args:
             seed: The seed from which the public and private keys are derived.
-            sequence: The next sequence number for the account.
+                Generates a new seed if not included.
+            sequence: The next sequence number for the account. Defaulted to 0 if not
+                included.
             algorithm: The algorithm used to encode the keys. Inferred from the seed if
                 not included.
+            master_address: Include if a Wallet uses a Regular Key Pair. It must be
+                the master address of the account. The default is `None`.
         """
-        self.seed = seed
+        if seed is None:
+            if algorithm is None:
+                seed = generate_seed()
+            else:
+                seed = generate_seed(algorithm)
+        self.seed: Optional[str] = seed
         """
         The core value that is used to derive all other information about
         this wallet. MUST be kept secret!
@@ -52,7 +62,11 @@ class Wallet:
         string. MUST be kept secret!
         """
 
-        self.classic_address = derive_classic_address(self.public_key)
+        self.classic_address = (
+            ensure_classic_address(master_address)
+            if master_address is not None
+            else derive_classic_address(self.public_key)
+        )
         """The address that publicly identifies this wallet, as a base58 string."""
 
         self.sequence = sequence
@@ -79,15 +93,15 @@ class Wallet:
             The wallet that is generated from the given seed.
         """
         seed = generate_seed(algorithm=crypto_algorithm)
-        return cls(seed, sequence=0, algorithm=crypto_algorithm)
+        return cls(seed, 0, algorithm=crypto_algorithm)
 
     @classmethod
     def from_public_private_keys(
         cls: Type[Wallet],
         public_key: str,
         private_key: str,
-        master_address: Optional[str],
-        crypto_algorithm: Optional[CryptoAlgorithm],
+        master_address: Optional[str] = None,
+        crypto_algorithm: Optional[CryptoAlgorithm] = CryptoAlgorithm.ED25519,
     ) -> Wallet:
         """
         Generates a new Wallet from public and private keys.
@@ -96,21 +110,30 @@ class Wallet:
             public_key: The public key for the account.
             private_key: The private key used for signing transactions for the account.
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
-                the master address of the account.
+                the master address of the account. The default is `None`.
             crypto_algorithm: The key-generation algorithm to use when generating the
                 seed. The default is Ed25519.
 
         Returns:
             The wallet that is generated from the given keys.
         """
-        return Wallet.create()
+        wallet = cls(master_address=master_address, algorithm=crypto_algorithm)
+        wallet.seed = None
+        wallet.public_key = public_key
+        wallet.private_key = private_key
+        wallet.classic_address = (
+            ensure_classic_address(master_address)
+            if master_address is not None
+            else derive_classic_address(public_key)
+        )
+        return wallet
 
     @classmethod
     def from_secret(
         cls: Type[Wallet],
         secret: str,
-        master_address: Optional[str],
-        crypto_algorithm: Optional[CryptoAlgorithm],
+        master_address: Optional[str] = None,
+        crypto_algorithm: Optional[CryptoAlgorithm] = CryptoAlgorithm.ED25519,
     ) -> Wallet:
         """
         Generates a new Wallet from secret.
@@ -118,37 +141,43 @@ class Wallet:
         Args:
             secret: The secret (seed) used to derive the account keys.
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
-                the master address of the account.
+                the master address of the account. The default is `None`.
             crypto_algorithm: The key-generation algorithm to use when generating the
                 seed. The default is Ed25519.
 
         Returns:
             The wallet that is generated from the given secret.
         """
-        return Wallet.create()
+        return cls(secret, master_address=master_address, algorithm=crypto_algorithm)
+
+    from_seed = from_secret
 
     @classmethod
     def from_entropy(
         cls: Type[Wallet],
-        entropy: Union[List[UInt8], List[int]],
-        master_address: Optional[str],
-        crypto_algorithm: Optional[CryptoAlgorithm],
+        entropy: str,
+        master_address: Optional[str] = None,
+        crypto_algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
     ) -> Wallet:
         """
         Generates a new Wallet from entropy (array of random numbers).
 
         Args:
-            entropy: An array of random numbers to generate a seed used to derive
+            entropy: A string of random numbers to generate a seed used to derive
                 a wallet.
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
-                the master address of the account.
+                the master address of the account. The default is `None`.
             crypto_algorithm: The key-generation algorithm to use when generating the
                 seed. The default is Ed25519.
 
         Returns:
             The wallet that is generated from the given entropy.
         """
-        return Wallet.create()
+        return cls(
+            generate_seed(entropy=entropy, algorithm=crypto_algorithm),
+            algorithm=crypto_algorithm,
+            master_address=master_address,
+        )
 
     def get_xaddress(
         self: Wallet, *, tag: Optional[int] = None, is_test: bool = False
