@@ -8,7 +8,9 @@ different types of objects you can retrieve.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Literal, Optional, Union
+from typing import Dict, List, Optional, Union
+
+from typing_extensions import Literal
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.currencies import IssuedCurrency
