@@ -139,31 +139,33 @@ class Payment(Transaction):
                     "destination."
                 )
 
+        # NOTE: Disable partial payment errors. These are relevant for writing txs using
+        # the xrpl-py library, but these are not invariants for tx data obtained from the API.
         # partial payment errors
-        elif self.has_flag(PaymentFlag.TF_PARTIAL_PAYMENT) and self.send_max is None:
-            errors["send_max"] = "A partial payment must have a `send_max` value."
-        elif self.deliver_min is not None and not self.has_flag(
-            PaymentFlag.TF_PARTIAL_PAYMENT
-        ):
-            errors[
-                "deliver_min"
-            ] = "A non-partial payment cannot have a `deliver_min` field."
+        # elif self.has_flag(PaymentFlag.TF_PARTIAL_PAYMENT) and self.send_max is None:
+        #     # errors["send_max"] = "A partial payment must have a `send_max` value."
+        # elif self.deliver_min is not None and not self.has_flag(
+        #     PaymentFlag.TF_PARTIAL_PAYMENT
+        # ):
+        #     errors[
+        #         "deliver_min"
+        #     ] = "A non-partial payment cannot have a `deliver_min` field."
 
-        elif (
-            is_xrp(self.amount)
-            and (self.send_max and is_xrp(self.send_max))
-            and not self.has_flag(PaymentFlag.TF_PARTIAL_PAYMENT)
-        ):
-            errors["send_max"] = (
-                "A non-partial payment cannot have both ``amount`` and `send_max` be "
-                "XRP."
-            )
+        # elif (
+        #     is_xrp(self.amount)
+        #     and (self.send_max and is_xrp(self.send_max))
+        #     and not self.has_flag(PaymentFlag.TF_PARTIAL_PAYMENT)
+        # ):
+        #     errors["send_max"] = (
+        #         "A non-partial payment cannot have both ``amount`` and `send_max` be "
+        #         "XRP."
+        #     )
 
-        # currency conversion errors
-        elif self.account == self.destination:
-            if self.send_max is None:
-                errors[
-                    "send_max"
-                ] = "A currency conversion requires a `send_max` value."
+        # # currency conversion errors
+        # elif self.account == self.destination:
+        #     if self.send_max is None:
+        #         errors[
+        #             "send_max"
+        #         ] = "A currency conversion requires a `send_max` value."
 
         return errors
