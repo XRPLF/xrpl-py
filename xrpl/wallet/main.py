@@ -129,7 +129,7 @@ class Wallet:
         return wallet
 
     @classmethod
-    def from_secret(
+    def from_seed(
         cls: Type[Wallet],
         secret: str,
         master_address: Optional[str] = None,
@@ -150,7 +150,7 @@ class Wallet:
         """
         return cls(secret, master_address=master_address, algorithm=crypto_algorithm)
 
-    from_seed = from_secret
+    from_secret = from_seed
 
     @classmethod
     def from_entropy(
