@@ -1,6 +1,5 @@
 """Handles wallet generation from a faucet."""
 import asyncio
-import json
 from typing import Optional
 
 import httpx
@@ -56,13 +55,6 @@ async def generate_faucet_wallet(
     """
     faucet_url = get_faucet_url(client.url, faucet_host)
 
-    if faucet_url == _HOOKS_V2_TEST_FAUCET_URL and wallet is not None:
-        raise XRPLFaucetException(
-            "Currently the Hooks Testnet v2 faucet has no way of funding a given "
-            " wallet. If you need to do that, you can create a new funded account "
-            "and have it send a payment transaction to the existing account."
-        )
-
     if wallet is None:
         wallet = Wallet.create()
 
@@ -75,12 +67,7 @@ async def generate_faucet_wallet(
     starting_balance = await _check_wallet_balance(address, client)
 
     # Ask the faucet to send funds to the given address
-    response = await _request_funding(faucet_url, address)
-    if faucet_url == _HOOKS_V2_TEST_FAUCET_URL:  # hooksv2testnet creates new wallet
-        faucetWallet = json.loads(response._content.decode("utf-8"))["account"]
-        address = faucetWallet["address"]  # override original address
-        seq = await get_next_valid_seq_number(address, client)
-        wallet = Wallet(faucetWallet["secret"], seq)  # override original address
+    await _request_funding(faucet_url, address)
     # Wait for the faucet to fund our account or until timeout
     # Waits one second checks if balance has changed
     # If balance doesn't change it will attempt again until _TIMEOUT_SECONDS
@@ -149,12 +136,11 @@ async def _check_wallet_balance(address: str, client: Client) -> int:
         raise
 
 
-async def _request_funding(url: str, address: str) -> httpx.Response:
+async def _request_funding(url: str, address: str) -> None:
     async with httpx.AsyncClient() as http_client:
         response = await http_client.post(url=url, json={"destination": address})
     if not response.status_code == httpx.codes.OK:
         response.raise_for_status()
-    return response
 
 
 async def _try_to_get_next_seq(address: str, client: Client) -> Optional[int]:

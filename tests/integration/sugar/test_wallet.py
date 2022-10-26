@@ -1,9 +1,10 @@
+import time
+
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.wallet import generate_faucet_wallet
-from xrpl.asyncio.wallet.wallet_generation import XRPLFaucetException
 from xrpl.clients import JsonRpcClient, WebsocketClient
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.requests import AccountInfo
@@ -185,8 +186,16 @@ class TestWallet(IntegrationTestCase):
             balance = int(result.result["account_data"]["Balance"])
             self.assertTrue(balance > 0)
 
-            with self.assertRaises(XRPLFaucetException):
-                await generate_faucet_wallet(client, wallet)
+            time.sleep(10)  # hooks v2 faucet forces 10sec between calls
+
+            new_wallet = await generate_faucet_wallet(client, wallet)
+            new_result = await client.request(
+                AccountInfo(
+                    account=new_wallet.classic_address,
+                ),
+            )
+            new_balance = int(new_result.result["account_data"]["Balance"])
+            self.assertTrue(new_balance > balance)
 
     def test_wallet_get_xaddress(self):
         expected = classic_address_to_xaddress(WALLET.classic_address, None, False)
