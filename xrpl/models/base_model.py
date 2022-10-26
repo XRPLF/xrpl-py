@@ -153,7 +153,12 @@ class BaseModel(ABC):
                     return cls._from_dict_single_param(
                         param, param_type_option, param_value
                     )
-                except XRPLModelException:
+                except XRPLModelException as e:
+                    # Uncomment this if you are getting parsing errors with a Union or other collection type
+                    # and want to uncover the parsing errors with each param type option
+                    # if isinstance(param_type_option, type) and issubclass(param_type_option, BaseModel):
+                    #     print(f"{param_type_option} failed to parse: {e}")
+
                     # this Union-ed type did not work, move onto the next one
                     pass
 
