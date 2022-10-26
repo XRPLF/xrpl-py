@@ -39,173 +39,90 @@ class TestWallet(IntegrationTestCase):
         async with AsyncWebsocketClient(
             "wss://xls20-sandbox.rippletest.net:51233"
         ) as client:
-            wallet = await generate_faucet_wallet(
-                client, faucet_host="faucet-nft.ripple.com"
+            await generate_faucet_wallet_and_fund_again(
+                self, client, "faucet-nft.ripple.com"
             )
-            result = await client.request(
-                AccountInfo(
-                    account=wallet.classic_address,
-                ),
-            )
-            self.assertTrue(int(result.result["account_data"]["Balance"]) > 0)
 
     async def test_generate_faucet_wallet_custom_host_async_json_rpc(self):
         client = AsyncJsonRpcClient("http://xls20-sandbox.rippletest.net:51234")
-        wallet = await generate_faucet_wallet(
-            client, faucet_host="faucet-nft.ripple.com"
+        await generate_faucet_wallet_and_fund_again(
+            self, client, "faucet-nft.ripple.com"
         )
-        result = await client.request(
-            AccountInfo(
-                account=wallet.classic_address,
-            ),
-        )
-        self.assertTrue(int(result.result["account_data"]["Balance"]) > 0)
 
     def test_generate_faucet_wallet_custom_host_sync_websockets(self):
         with WebsocketClient("wss://xls20-sandbox.rippletest.net:51233") as client:
-            wallet = sync_generate_faucet_wallet(
-                client, faucet_host="faucet-nft.ripple.com"
+            sync_generate_faucet_wallet_and_fund_again(
+                self, client, "faucet-nft.ripple.com"
             )
-            result = client.request(
-                AccountInfo(
-                    account=wallet.classic_address,
-                ),
-            )
-            self.assertTrue(int(result.result["account_data"]["Balance"]) > 0)
 
     def test_generate_faucet_wallet_custom_host_sync_json_rpc(self):
         client = JsonRpcClient("http://xls20-sandbox.rippletest.net:51234")
-        wallet = sync_generate_faucet_wallet(
-            client, faucet_host="faucet-nft.ripple.com"
+        sync_generate_faucet_wallet_and_fund_again(
+            self, client, "faucet-nft.ripple.com"
         )
-        result = client.request(
-            AccountInfo(
-                account=wallet.classic_address,
-            ),
-        )
-        self.assertTrue(int(result.result["account_data"]["Balance"]) > 0)
 
     async def test_generate_faucet_wallet_testnet_async_websockets(self):
         async with AsyncWebsocketClient(
             "wss://s.altnet.rippletest.net:51233"
         ) as client:
-            wallet = await generate_faucet_wallet(client)
-            result = await client.request(
-                AccountInfo(
-                    account=wallet.classic_address,
-                ),
-            )
-            balance = int(result.result["account_data"]["Balance"])
-            self.assertTrue(balance > 0)
-
-            new_wallet = await generate_faucet_wallet(client, wallet)
-            new_result = await client.request(
-                AccountInfo(
-                    account=new_wallet.classic_address,
-                ),
-            )
-            new_balance = int(new_result.result["account_data"]["Balance"])
-            self.assertTrue(new_balance > balance)
+            await generate_faucet_wallet_and_fund_again(self, client)
 
     async def test_generate_faucet_wallet_devnet_async_websockets(self):
         async with AsyncWebsocketClient(
             "wss://s.devnet.rippletest.net:51233"
         ) as client:
-            wallet = await generate_faucet_wallet(client)
-            result = await client.request(
-                AccountInfo(
-                    account=wallet.classic_address,
-                ),
-            )
-            balance = int(result.result["account_data"]["Balance"])
-            self.assertTrue(balance > 0)
-
-            new_wallet = await generate_faucet_wallet(client, wallet)
-            new_result = await client.request(
-                AccountInfo(
-                    account=new_wallet.classic_address,
-                ),
-            )
-            new_balance = int(new_result.result["account_data"]["Balance"])
-            self.assertTrue(new_balance > balance)
+            await generate_faucet_wallet_and_fund_again(self, client)
 
     async def test_generate_faucet_wallet_nft_devnet_async_websockets(self):
         async with AsyncWebsocketClient(
             "ws://xls20-sandbox.rippletest.net:51233"
         ) as client:
-            wallet = await generate_faucet_wallet(client)
-            result = await client.request(
-                AccountInfo(
-                    account=wallet.classic_address,
-                ),
-            )
-            balance = int(result.result["account_data"]["Balance"])
-            self.assertTrue(balance > 0)
-
-            new_wallet = await generate_faucet_wallet(client, wallet)
-            new_result = await client.request(
-                AccountInfo(
-                    account=new_wallet.classic_address,
-                ),
-            )
-            new_balance = int(new_result.result["account_data"]["Balance"])
-            self.assertTrue(new_balance > balance)
+            await generate_faucet_wallet_and_fund_again(self, client)
 
     async def test_generate_faucet_wallet_amm_devnet_async_websockets(self):
         async with AsyncWebsocketClient(
             "wss://amm.devnet.rippletest.net:51233"
         ) as client:
-            wallet = await generate_faucet_wallet(client)
-            result = await client.request(
-                AccountInfo(
-                    account=wallet.classic_address,
-                ),
-            )
-            balance = int(result.result["account_data"]["Balance"])
-            self.assertTrue(balance > 0)
-
-            new_wallet = await generate_faucet_wallet(client, wallet)
-            new_result = await client.request(
-                AccountInfo(
-                    account=new_wallet.classic_address,
-                ),
-            )
-            new_balance = int(new_result.result["account_data"]["Balance"])
-            self.assertTrue(new_balance > balance)
+            await generate_faucet_wallet_and_fund_again(self, client)
 
     async def test_generate_faucet_wallet_hooks_v2_testnet_async_websockets(self):
         async with AsyncWebsocketClient(
             "wss://hooks-testnet-v2.xrpl-labs.com"
         ) as client:
-            wallet = await generate_faucet_wallet(client)
-            result = await client.request(
-                AccountInfo(
-                    account=wallet.classic_address,
-                ),
-            )
-            balance = int(result.result["account_data"]["Balance"])
-            self.assertTrue(balance > 0)
-
-            time.sleep(10)  # hooks v2 faucet forces 10sec between calls
-
-            new_wallet = await generate_faucet_wallet(client, wallet)
-            new_result = await client.request(
-                AccountInfo(
-                    account=new_wallet.classic_address,
-                ),
-            )
-            new_balance = int(new_result.result["account_data"]["Balance"])
-            self.assertTrue(new_balance > balance)
+            await generate_faucet_wallet_and_fund_again(self, client, 10)
 
     def test_wallet_get_xaddress(self):
         expected = classic_address_to_xaddress(WALLET.classic_address, None, False)
         self.assertEqual(WALLET.get_xaddress(), expected)
 
 
-# call this function in many async websockets. In json websockets,
-# maybe incorporate to be more in depth.
-async def test_faucet_wallet_funding(self, wallet, client):
-    wallet = await generate_faucet_wallet(client)
+def sync_generate_faucet_wallet_and_fund_again(self, client, faucet_host=None, delay=0):
+    wallet = sync_generate_faucet_wallet(client, faucet_host=faucet_host)
+    result = client.request(
+        AccountInfo(
+            account=wallet.classic_address,
+        ),
+    )
+    balance = int(result.result["account_data"]["Balance"])
+    self.assertTrue(balance > 0)
+
+    if delay > 0:
+        time.sleep(delay)
+
+    new_wallet = sync_generate_faucet_wallet(client, wallet, faucet_host=faucet_host)
+    new_result = client.request(
+        AccountInfo(
+            account=new_wallet.classic_address,
+        ),
+    )
+    new_balance = int(new_result.result["account_data"]["Balance"])
+    self.assertTrue(new_balance > balance)
+
+
+async def generate_faucet_wallet_and_fund_again(
+    self, client, faucet_host=None, delay=0
+):
+    wallet = await generate_faucet_wallet(client, faucet_host=faucet_host)
     result = await client.request(
         AccountInfo(
             account=wallet.classic_address,
@@ -214,7 +131,10 @@ async def test_faucet_wallet_funding(self, wallet, client):
     balance = int(result.result["account_data"]["Balance"])
     self.assertTrue(balance > 0)
 
-    new_wallet = await generate_faucet_wallet(client, wallet)
+    if delay > 0:
+        time.sleep(delay)
+
+    new_wallet = await generate_faucet_wallet(client, wallet, faucet_host=faucet_host)
     new_result = await client.request(
         AccountInfo(
             account=new_wallet.classic_address,
