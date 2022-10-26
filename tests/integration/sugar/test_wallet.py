@@ -89,7 +89,7 @@ class TestWallet(IntegrationTestCase):
         async with AsyncWebsocketClient(
             "wss://hooks-testnet-v2.xrpl-labs.com"
         ) as client:
-            await generate_faucet_wallet_and_fund_again(self, client, 10)
+            await generate_faucet_wallet_and_fund_again(self, client, delay=10)
 
     def test_wallet_get_xaddress(self):
         expected = classic_address_to_xaddress(WALLET.classic_address, None, False)
