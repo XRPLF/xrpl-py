@@ -1,4 +1,3 @@
-import asyncio
 import time
 
 from tests.integration.integration_test_case import IntegrationTestCase
@@ -10,6 +9,7 @@ from xrpl.clients import JsonRpcClient, WebsocketClient
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.requests import AccountInfo
 from xrpl.models.transactions import Payment
+from xrpl.wallet import generate_faucet_wallet as sync_generate_faucet_wallet
 
 
 class TestWallet(IntegrationTestCase):
@@ -97,7 +97,26 @@ class TestWallet(IntegrationTestCase):
 
 
 def sync_generate_faucet_wallet_and_fund_again(self, client, faucet_host=None, delay=0):
-    asyncio.run(generate_faucet_wallet_and_fund_again(self, client, faucet_host, delay))
+    wallet = sync_generate_faucet_wallet(client, faucet_host=faucet_host)
+    result = client.request(
+        AccountInfo(
+            account=wallet.classic_address,
+        ),
+    )
+    balance = int(result.result["account_data"]["Balance"])
+    self.assertTrue(balance > 0)
+
+    if delay > 0:
+        time.sleep(delay)
+
+    new_wallet = generate_faucet_wallet(client, wallet, faucet_host=faucet_host)
+    new_result = client.request(
+        AccountInfo(
+            account=new_wallet.classic_address,
+        ),
+    )
+    new_balance = int(new_result.result["account_data"]["Balance"])
+    self.assertTrue(new_balance > balance)
 
 
 async def generate_faucet_wallet_and_fund_again(
