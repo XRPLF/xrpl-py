@@ -109,7 +109,7 @@ def sync_generate_faucet_wallet_and_fund_again(self, client, faucet_host=None, d
     if delay > 0:
         time.sleep(delay)
 
-    new_wallet = generate_faucet_wallet(client, wallet, faucet_host=faucet_host)
+    new_wallet = sync_generate_faucet_wallet(client, wallet, faucet_host=faucet_host)
     new_result = client.request(
         AccountInfo(
             account=new_wallet.classic_address,
