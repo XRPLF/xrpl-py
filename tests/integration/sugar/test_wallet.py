@@ -1,5 +1,3 @@
-import time
-
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
@@ -10,6 +8,7 @@ from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.requests import AccountInfo
 from xrpl.models.transactions import Payment
 from xrpl.wallet import generate_faucet_wallet as sync_generate_faucet_wallet
+from xrpl.wallet.main import Wallet
 
 
 class TestWallet(IntegrationTestCase):
@@ -89,14 +88,45 @@ class TestWallet(IntegrationTestCase):
         async with AsyncWebsocketClient(
             "wss://hooks-testnet-v2.xrpl-labs.com"
         ) as client:
-            await generate_faucet_wallet_and_fund_again(self, client, delay=10)
+            wallet = await generate_faucet_wallet(client)
+            result = await client.request(
+                AccountInfo(
+                    account=wallet.classic_address,
+                ),
+            )
+            balance = int(result.result["account_data"]["Balance"])
+            self.assertTrue(balance > 0)
+
+    # Named different from test_generate_faucet_wallet_hooks_v2_testnet_async_websockets
+    # so the test runs far from each other since hooks v2 testnet faucet
+    # requires 10 seconds between calls
+    async def test_fund_given_wallet_hooks_v2_testnet_async_websockets(self):
+        async with AsyncWebsocketClient(
+            "wss://hooks-testnet-v2.xrpl-labs.com"
+        ) as client:
+            wallet = Wallet("sEdSigMti9uJFCnrkwsB3LJRGkVZHVA", 0)
+            result = await client.request(
+                AccountInfo(
+                    account=wallet.classic_address,
+                ),
+            )
+            balance = int(result.result["account_data"]["Balance"])
+
+            new_wallet = await generate_faucet_wallet(client, wallet)
+            new_result = await client.request(
+                AccountInfo(
+                    account=new_wallet.classic_address,
+                ),
+            )
+            new_balance = int(new_result.result["account_data"]["Balance"])
+            self.assertTrue(new_balance > balance)
 
     def test_wallet_get_xaddress(self):
         expected = classic_address_to_xaddress(WALLET.classic_address, None, False)
         self.assertEqual(WALLET.get_xaddress(), expected)
 
 
-def sync_generate_faucet_wallet_and_fund_again(self, client, faucet_host=None, delay=0):
+def sync_generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
     wallet = sync_generate_faucet_wallet(client, faucet_host=faucet_host)
     result = client.request(
         AccountInfo(
@@ -105,9 +135,6 @@ def sync_generate_faucet_wallet_and_fund_again(self, client, faucet_host=None, d
     )
     balance = int(result.result["account_data"]["Balance"])
     self.assertTrue(balance > 0)
-
-    if delay > 0:
-        time.sleep(delay)
 
     new_wallet = sync_generate_faucet_wallet(client, wallet, faucet_host=faucet_host)
     new_result = client.request(
@@ -119,9 +146,7 @@ def sync_generate_faucet_wallet_and_fund_again(self, client, faucet_host=None, d
     self.assertTrue(new_balance > balance)
 
 
-async def generate_faucet_wallet_and_fund_again(
-    self, client, faucet_host=None, delay=0
-):
+async def generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
     wallet = await generate_faucet_wallet(client, faucet_host=faucet_host)
     result = await client.request(
         AccountInfo(
@@ -130,9 +155,6 @@ async def generate_faucet_wallet_and_fund_again(
     )
     balance = int(result.result["account_data"]["Balance"])
     self.assertTrue(balance > 0)
-
-    if delay > 0:
-        time.sleep(delay)
 
     new_wallet = await generate_faucet_wallet(client, wallet, faucet_host=faucet_host)
     new_result = await client.request(
