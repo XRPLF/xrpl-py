@@ -33,7 +33,7 @@ async def safe_sign_and_submit_transaction(
     wallet: Wallet,
     client: Client,
     autofill: bool = True,
-    check_fee: bool = True,
+    check_fee: bool = False,
 ) -> Response:
     """
     Signs a transaction (locally, without trusting external rippled nodes) and submits
@@ -62,7 +62,7 @@ async def safe_sign_and_submit_transaction(
 async def safe_sign_transaction(
     transaction: Transaction,
     wallet: Wallet,
-    check_fee: bool = True,
+    check_fee: bool = False,
 ) -> Transaction:
     """
     Signs a transaction locally, without trusting external rippled nodes.
@@ -90,7 +90,7 @@ async def safe_sign_and_autofill_transaction(
     transaction: Transaction,
     wallet: Wallet,
     client: Client,
-    check_fee: bool = True,
+    check_fee: bool = False,
 ) -> Transaction:
     """
     Signs a transaction locally, without trusting external rippled nodes. Autofills

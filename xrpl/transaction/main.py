@@ -13,7 +13,7 @@ def safe_sign_and_submit_transaction(
     wallet: Wallet,
     client: SyncClient,
     autofill: bool = True,
-    check_fee: bool = True,
+    check_fee: bool = False,
 ) -> Response:
     """
     Signs a transaction (locally, without trusting external rippled nodes) and submits
@@ -69,7 +69,7 @@ def submit_transaction(
 def safe_sign_transaction(
     transaction: Transaction,
     wallet: Wallet,
-    check_fee: bool = True,
+    check_fee: bool = False,
 ) -> Transaction:
     """
     Signs a transaction locally, without trusting external rippled nodes.
@@ -96,7 +96,7 @@ def safe_sign_and_autofill_transaction(
     transaction: Transaction,
     wallet: Wallet,
     client: SyncClient,
-    check_fee: bool = True,
+    check_fee: bool = False,
 ) -> Transaction:
     """
     Signs a transaction locally, without trusting external rippled nodes. Autofills
