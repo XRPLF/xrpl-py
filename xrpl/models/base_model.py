@@ -297,6 +297,36 @@ class BaseModel(ABC):
             ]
         return elem
 
+    # NOTE: The upstream library exports nested models like so:
+    # {"nested_model_name": { "key": "value", ... }}
+    # This is so that when a nested model is encountered at parse time, it is possible
+    # to identify what model to use to parse the dict data. For our uses however, the
+    # schema is well-defined and this technique actively interferes with our ability
+    # to load JSON data into BigQuery. Therefore, we provide a backdoor to export
+    # without the nested model behavior by preventing the original method from being
+    # overriden.
+    def to_dict_no_nesting(self: BaseModel) -> Dict[str, Any]:
+        # mypy doesn't realize that BaseModel has a field called __dataclass_fields__
+        dataclass_fields = self.__dataclass_fields__.keys()  # type: ignore
+        return {
+            key: self._to_dict_elem_no_nesting(getattr(self, key))
+            for key in dataclass_fields
+            if getattr(self, key) is not None
+        }
+
+    def _to_dict_elem_no_nesting(self: BaseModel, elem: Any) -> Any:
+        if isinstance(elem, BaseModel):
+            return elem.to_dict_no_nesting()
+        if isinstance(elem, Enum):
+            return elem.value
+        if isinstance(elem, list):
+            return [
+                self._to_dict_elem_no_nesting(sub_elem)
+                for sub_elem in elem
+                if sub_elem is not None
+            ]
+        return elem
+
     def __eq__(self: BaseModel, other: object) -> bool:
         """Compares a BaseModel to another object to determine if they are equal."""
         return isinstance(other, BaseModel) and self.to_dict() == other.to_dict()
