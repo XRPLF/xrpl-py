@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 ### Changed:
-
+* `check_fee` now has a higher limit that is less likely to be hit
 
 ## [1.7.0] - 2022-10-12
 ### Added:
