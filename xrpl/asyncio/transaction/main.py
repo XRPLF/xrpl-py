@@ -269,7 +269,10 @@ async def _check_fee(transaction: Transaction, client: Optional[Client] = None) 
     Raises:
         XRPLException: if the transaction fee is higher than the expected fee.
     """
-    expected_fee = xrp_to_drops(0.1)  # a fee that is obviously too high
+    expected_fee = max(
+        xrp_to_drops(0.1),  # a fee that is obviously too high
+        await _calculate_fee_per_transaction_type(transaction, client),
+    )
 
     if transaction.fee and int(transaction.fee) > int(expected_fee):
         raise XRPLException(
