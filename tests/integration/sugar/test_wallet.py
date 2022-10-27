@@ -1,3 +1,5 @@
+import time
+
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
@@ -9,6 +11,8 @@ from xrpl.models.requests import AccountInfo
 from xrpl.models.transactions import Payment
 from xrpl.wallet import generate_faucet_wallet as sync_generate_faucet_wallet
 from xrpl.wallet.main import Wallet
+
+time_of_last_hooks_faucet_call = 0
 
 
 class TestWallet(IntegrationTestCase):
@@ -88,6 +92,12 @@ class TestWallet(IntegrationTestCase):
         async with AsyncWebsocketClient(
             "wss://hooks-testnet-v2.xrpl-labs.com"
         ) as client:
+            global time_of_last_hooks_faucet_call
+            # Wait at least 10 seconds since last call to hooks v2 testnet faucet
+            time_since_last_hooks_call = time.time() - time_of_last_hooks_faucet_call
+            if time_since_last_hooks_call < 10:
+                time.sleep(11 - time_since_last_hooks_call)
+
             wallet = await generate_faucet_wallet(client)
             result = await client.request(
                 AccountInfo(
@@ -96,6 +106,7 @@ class TestWallet(IntegrationTestCase):
             )
             balance = int(result.result["account_data"]["Balance"])
             self.assertTrue(balance > 0)
+            time_of_last_hooks_faucet_call = time.time()
 
     # Named different from test_generate_faucet_wallet_hooks_v2_testnet_async_websockets
     # so the test runs far from each other since hooks v2 testnet faucet
@@ -104,6 +115,7 @@ class TestWallet(IntegrationTestCase):
         async with AsyncWebsocketClient(
             "wss://hooks-testnet-v2.xrpl-labs.com"
         ) as client:
+            global time_of_last_hooks_faucet_call
             wallet = Wallet("sEdSigMti9uJFCnrkwsB3LJRGkVZHVA", 0)
             result = await client.request(
                 AccountInfo(
@@ -111,6 +123,11 @@ class TestWallet(IntegrationTestCase):
                 ),
             )
             balance = int(result.result["account_data"]["Balance"])
+
+            # Wait at least 10 seconds since last call to hooks v2 testnet faucet
+            time_since_last_hooks_call = time.time() - time_of_last_hooks_faucet_call
+            if time_since_last_hooks_call < 10:
+                time.sleep(11 - time_since_last_hooks_call)
 
             new_wallet = await generate_faucet_wallet(client, wallet)
             new_result = await client.request(
@@ -120,6 +137,7 @@ class TestWallet(IntegrationTestCase):
             )
             new_balance = int(new_result.result["account_data"]["Balance"])
             self.assertTrue(new_balance > balance)
+            time_of_last_hooks_faucet_call = time.time()
 
     def test_wallet_get_xaddress(self):
         expected = classic_address_to_xaddress(WALLET.classic_address, None, False)
