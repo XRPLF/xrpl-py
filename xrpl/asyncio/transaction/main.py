@@ -303,7 +303,7 @@ async def _calculate_fee_per_transaction_type(
     """
     # Reference Transaction (Most transactions)
     if client is None:
-        net_fee = 10  # 10 drops
+        net_fee = int(xrp_to_drops(1))
     else:
         net_fee = int(await get_fee(client))  # Usually 0.00001 XRP (10 drops)
 
