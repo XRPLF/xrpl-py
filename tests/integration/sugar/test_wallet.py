@@ -99,6 +99,8 @@ class TestWallet(IntegrationTestCase):
                 time.sleep(11 - time_since_last_hooks_call)
 
             wallet = await generate_faucet_wallet(client)
+            time_of_last_hooks_faucet_call = time.time()
+
             result = await client.request(
                 AccountInfo(
                     account=wallet.classic_address,
@@ -106,7 +108,6 @@ class TestWallet(IntegrationTestCase):
             )
             balance = int(result.result["account_data"]["Balance"])
             self.assertTrue(balance > 0)
-            time_of_last_hooks_faucet_call = time.time()
 
     # Named different from test_generate_faucet_wallet_hooks_v2_testnet_async_websockets
     # so the test runs far from each other since hooks v2 testnet faucet
@@ -128,6 +129,7 @@ class TestWallet(IntegrationTestCase):
             time_since_last_hooks_call = time.time() - time_of_last_hooks_faucet_call
             if time_since_last_hooks_call < 10:
                 time.sleep(11 - time_since_last_hooks_call)
+            time_of_last_hooks_faucet_call = time.time()
 
             new_wallet = await generate_faucet_wallet(client, wallet)
             new_result = await client.request(
@@ -137,7 +139,6 @@ class TestWallet(IntegrationTestCase):
             )
             new_balance = int(new_result.result["account_data"]["Balance"])
             self.assertTrue(new_balance > balance)
-            time_of_last_hooks_faucet_call = time.time()
 
     def test_wallet_get_xaddress(self):
         expected = classic_address_to_xaddress(WALLET.classic_address, None, False)
