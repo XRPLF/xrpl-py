@@ -33,7 +33,7 @@ async def safe_sign_and_submit_transaction(
     wallet: Wallet,
     client: Client,
     autofill: bool = True,
-    check_fee: bool = False,
+    check_fee: bool = True,
 ) -> Response:
     """
     Signs a transaction (locally, without trusting external rippled nodes) and submits
@@ -62,7 +62,7 @@ async def safe_sign_and_submit_transaction(
 async def safe_sign_transaction(
     transaction: Transaction,
     wallet: Wallet,
-    check_fee: bool = False,
+    check_fee: bool = True,
 ) -> Transaction:
     """
     Signs a transaction locally, without trusting external rippled nodes.
@@ -90,7 +90,7 @@ async def safe_sign_and_autofill_transaction(
     transaction: Transaction,
     wallet: Wallet,
     client: Client,
-    check_fee: bool = False,
+    check_fee: bool = True,
 ) -> Transaction:
     """
     Signs a transaction locally, without trusting external rippled nodes. Autofills
@@ -269,18 +269,13 @@ async def _check_fee(transaction: Transaction, client: Optional[Client] = None) 
     Raises:
         XRPLException: if the transaction fee is higher than the expected fee.
     """
-    # Calculate the expected fee from the network load and transaction type
-    expected_fee = await _calculate_fee_per_transaction_type(transaction, client)
+    expected_fee = xrp_to_drops(0.1)  # a fee that is obviously too high
 
     if transaction.fee and int(transaction.fee) > int(expected_fee):
         raise XRPLException(
-            "Fee value: "
-            + str(drops_to_xrp(transaction.fee))
-            + " XRP exceeds the "
-            + str(drops_to_xrp(expected_fee))
-            + " maximum XRP fee limit for "
-            + transaction.transaction_type
-            + " transaction"
+            f"Fee value: {str(drops_to_xrp(transaction.fee))} XRP is likely entered "
+            "incorrectly, since it is much larger than the "
+            f"{str(drops_to_xrp(expected_fee))} maximum XRP fee limit."
         )
 
 
@@ -303,7 +298,7 @@ async def _calculate_fee_per_transaction_type(
     """
     # Reference Transaction (Most transactions)
     if client is None:
-        net_fee = int(xrp_to_drops(1))
+        net_fee = 10  # 10 drops
     else:
         net_fee = int(await get_fee(client))  # Usually 0.00001 XRP (10 drops)
 
