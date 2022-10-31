@@ -82,12 +82,6 @@ class TestWallet(IntegrationTestCase):
         ) as client:
             await generate_faucet_wallet_and_fund_again(self, client)
 
-    async def test_generate_faucet_wallet_amm_devnet_async_websockets(self):
-        async with AsyncWebsocketClient(
-            "wss://amm.devnet.rippletest.net:51233"
-        ) as client:
-            await generate_faucet_wallet_and_fund_again(self, client)
-
     async def test_generate_faucet_wallet_hooks_v2_testnet_async_websockets(self):
         async with AsyncWebsocketClient(
             "wss://hooks-testnet-v2.xrpl-labs.com"
