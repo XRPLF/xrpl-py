@@ -156,8 +156,7 @@ class BaseModel(ABC):
                 except XRPLModelException as e:
                     # Uncomment this if you are getting parsing errors with a Union or other collection type
                     # and want to uncover the parsing errors with each param type option
-                    # if isinstance(param_type_option, type) and issubclass(param_type_option, BaseModel):
-                    #     print(f"{param_type_option} failed to parse: {e}")
+                    # print(f"{param_type_option} failed to parse: {e}")
 
                     # this Union-ed type did not work, move onto the next one
                     pass
@@ -232,7 +231,11 @@ class BaseModel(ABC):
 
     def __post_init__(self: BaseModel) -> None:
         """Called by dataclasses immediately after __init__."""
-        self.validate()
+        # NOTE: The model validation in this library is intended for writing txs. These
+        # are not invariants for data obtained from the blockchain, so we disable
+        # validation by default and require calling validate() directly if it is
+        # desired.
+        # self.validate()
 
     def validate(self: BaseModel) -> None:
         """
