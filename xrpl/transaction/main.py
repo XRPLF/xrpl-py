@@ -1,5 +1,6 @@
 """High-level transaction methods with XRPL transactions."""
 import asyncio
+from typing import Optional
 
 from xrpl.asyncio.transaction import main
 from xrpl.clients.sync_client import SyncClient
@@ -122,7 +123,9 @@ def safe_sign_and_autofill_transaction(
     )
 
 
-def autofill(transaction: Transaction, client: SyncClient) -> Transaction:
+def autofill(
+    transaction: Transaction, client: SyncClient, signers_count: Optional[int] = None
+) -> Transaction:
     """
     Autofills fields in a transaction. This will set `sequence`, `fee`, and
     `last_ledger_sequence` according to the current state of the server this Client is
@@ -131,6 +134,8 @@ def autofill(transaction: Transaction, client: SyncClient) -> Transaction:
     Args:
         transaction: the transaction to be signed.
         client: a network client.
+        signers_count: the expected number of signers for this transaction.
+            Only used for multisigned transactions.
 
     Returns:
         The autofilled transaction.
@@ -139,5 +144,6 @@ def autofill(transaction: Transaction, client: SyncClient) -> Transaction:
         main.autofill(
             transaction,
             client,
+            signers_count,
         )
     )

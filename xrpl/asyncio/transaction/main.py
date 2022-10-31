@@ -180,7 +180,9 @@ def _prepare_transaction(
     return transaction_json
 
 
-async def autofill(transaction: Transaction, client: Client) -> Transaction:
+async def autofill(
+    transaction: Transaction, client: Client, signers_count: Optional[int] = None
+) -> Transaction:
     """
     Autofills fields in a transaction. This will set `sequence`, `fee`, and
     `last_ledger_sequence` according to the current state of the server this Client is
@@ -189,6 +191,8 @@ async def autofill(transaction: Transaction, client: Client) -> Transaction:
     Args:
         transaction: the transaction to be signed.
         client: a network client.
+        signers_count: the expected number of signers for this transaction.
+            Only used for multisigned transactions.
 
     Returns:
         The autofilled transaction.
@@ -199,7 +203,7 @@ async def autofill(transaction: Transaction, client: Client) -> Transaction:
         transaction_json["sequence"] = sequence
     if "fee" not in transaction_json:
         transaction_json["fee"] = await _calculate_fee_per_transaction_type(
-            transaction, client
+            transaction, client, signers_count
         )
     if "last_ledger_sequence" not in transaction_json:
         ledger_sequence = await get_latest_validated_ledger_sequence(client)
@@ -285,7 +289,9 @@ async def _check_fee(transaction: Transaction, client: Optional[Client] = None) 
 
 
 async def _calculate_fee_per_transaction_type(
-    transaction: Transaction, client: Optional[Client] = None
+    transaction: Transaction,
+    client: Optional[Client] = None,
+    signers_count: Optional[int] = None,
 ) -> str:
     """
     Calculate the total fee in drops for a transaction based on:
@@ -297,6 +303,8 @@ async def _calculate_fee_per_transaction_type(
     Args:
         transaction: the Transaction to be submitted.
         client: the network client with which to submit the transaction.
+        signers_count: the expected number of signers for this transaction.
+            Only used for multisigned transactions.
 
     Returns:
         The expected Transaction fee in drops
@@ -327,9 +335,8 @@ async def _calculate_fee_per_transaction_type(
 
     # Multi-signed Transaction
     # 10 drops × (1 + Number of Signatures Provided)
-    if transaction.signers and len(transaction.signers) > 0:
-        base_fee = net_fee * (1 + len(transaction.signers)) + base_fee
-
+    if signers_count is not None and signers_count > 0:
+        base_fee += net_fee * (1 + signers_count)
     # Round Up base_fee and return it as a String
     return str(math.ceil(base_fee))
 
