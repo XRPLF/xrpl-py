@@ -96,7 +96,7 @@ if multisigned_tx_response.result["engine_result"] == "tesSUCCESS":
     print(multisigned_tx_response)
     if multisigned_tx_response.result["tx_json"]["Signers"]:
         print(
-            "The transaction had"
+            "The transaction had "
             f"{len(multisigned_tx_response.result['tx_json']['Signers'])} signatures"
         )
 else:
