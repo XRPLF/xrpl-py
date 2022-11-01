@@ -17,6 +17,26 @@ class Wallet:
     details.
     """
 
+    @property
+    def address(self: Wallet) -> str:
+        """
+        Alias for wallet.classic_address.
+
+        Returns:
+            The address that publicly identifies this wallet, as a base58 string.
+        """
+        return self.classic_address
+
+    @address.setter
+    def address(self: Wallet, value: str) -> None:
+        """
+        Setter for address that reflects in classic_address.
+
+        Args:
+            value: New value for address/classic_address.
+        """
+        self.classic_address = value
+
     def __init__(
         self: Wallet,
         seed: Optional[str] = None,
