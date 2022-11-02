@@ -70,6 +70,25 @@ class TestProcess(Thread):
 
 
 class TestWallet(IntegrationTestCase):
+    async def test_run_faucet_tests(self):
+        def run_test(test_name):
+            with self.subTest(method=test_name):
+                method = getattr(TestWallet, test_name)
+                if asyncio.iscoroutinefunction(method):
+                    asyncio.run(method(self))
+                else:
+                    method(self)
+
+        test_methods = [method for method in dir(self) if method.startswith("_test_")]
+
+        processes = []
+        for method in test_methods:
+            process = Thread(target=run_test, args=(method,))
+            process.start()
+            processes.append(process)
+        for process in processes:
+            process.join()
+
     async def _test_generate_faucet_wallet_rel_sub(self):
         async with AsyncWebsocketClient(
             "wss://s.altnet.rippletest.net:51233"
@@ -89,25 +108,6 @@ class TestWallet(IntegrationTestCase):
                 client=client,
             )
             self.assertTrue(response.is_successful())
-
-    async def _test_run_faucet_tests(self):
-        def run_test(test_name):
-            with self.subTest(method=test_name):
-                method = getattr(TestWallet, test_name)
-                if asyncio.iscoroutinefunction(method):
-                    asyncio.run(method(self))
-                else:
-                    method(self)
-
-        test_methods = [method for method in dir(self) if method.startswith("_test_")]
-
-        processes = []
-        for method in test_methods:
-            process = Thread(target=run_test, args=(method,))
-            process.start()
-            processes.append(process)
-        for process in processes:
-            process.join()
 
     async def _test_generate_faucet_wallet_custom_host_async_websockets(self):
         async with AsyncWebsocketClient(
