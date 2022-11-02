@@ -4,11 +4,9 @@ from threading import Thread
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async
-from tests.integration.reusable_values import WALLET
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.wallet import generate_faucet_wallet
 from xrpl.clients import JsonRpcClient, WebsocketClient
-from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.requests import AccountInfo
 from xrpl.models.transactions import Payment
 from xrpl.wallet import generate_faucet_wallet as sync_generate_faucet_wallet
@@ -73,11 +71,11 @@ class TestWallet(IntegrationTestCase):
     async def test_run_faucet_tests(self):
         def run_test(test_name):
             with self.subTest(method=test_name):
-                method = getattr(TestWallet, test_name)
+                method = getattr(self, test_name)
                 if asyncio.iscoroutinefunction(method):
-                    asyncio.run(method(self))
+                    asyncio.run(method())
                 else:
-                    method(self)
+                    method()
 
         test_methods = [method for method in dir(self) if method.startswith("_test_")]
 
@@ -204,7 +202,3 @@ class TestWallet(IntegrationTestCase):
             )
             new_balance = int(new_result.result["account_data"]["Balance"])
             self.assertTrue(new_balance > balance)
-
-    def _test_wallet_get_xaddress(self):
-        expected = classic_address_to_xaddress(WALLET.classic_address, None, False)
-        self.assertEqual(WALLET.get_xaddress(), expected)

@@ -7,9 +7,16 @@ from xrpl.asyncio.wallet.wallet_generation import (
     _TEST_FAUCET_URL,
     get_faucet_url,
 )
+from xrpl.core.addresscodec import classic_address_to_xaddress
+from xrpl.wallet import Wallet
 
 
 class TestWallet(TestCase):
+    def test_wallet_get_xaddress(self):
+        wallet = Wallet.create()
+        expected = classic_address_to_xaddress(wallet.classic_address, None, False)
+        self.assertEqual(wallet.get_xaddress(), expected)
+
     def test_get_faucet_wallet_dev(self):
         json_client_url = "https://s.devnet.rippletest.net:51234"
         ws_client_url = "wss://s.devnet.rippletest.net/"
