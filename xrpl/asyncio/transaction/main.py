@@ -277,8 +277,8 @@ async def _check_fee(transaction: Transaction, client: Optional[Client] = None) 
     if transaction.fee and int(transaction.fee) > int(expected_fee):
         raise XRPLException(
             f"Fee value: {str(drops_to_xrp(transaction.fee))} XRP is likely entered "
-            "incorrectly, since it is much larger than the "
-            f"{str(drops_to_xrp(expected_fee))} maximum XRP fee limit."
+            "incorrectly, since it is much larger than the typical XRP transaction "
+            "cost. If this is intentional, use `check_fee=False`."
         )
 
 
