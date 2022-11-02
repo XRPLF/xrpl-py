@@ -3,7 +3,7 @@ import asyncio
 from threading import Thread
 
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
+from tests.integration.it_utils import submit_transaction_async
 from tests.integration.reusable_values import WALLET
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.wallet import generate_faucet_wallet
@@ -70,27 +70,25 @@ class TestProcess(Thread):
 
 
 class TestWallet(IntegrationTestCase):
-    @test_async_and_sync(
-        globals(),
-        ["xrpl.wallet.generate_faucet_wallet"],
-        num_retries=5,
-        use_testnet=True,
-    )
-    async def _test_generate_faucet_wallet_rel_sub(self, client):
-        destination = await generate_faucet_wallet(client)
-        wallet = await generate_faucet_wallet(client)
-        response = await submit_transaction_async(
-            Payment(
-                account=wallet.classic_address,
-                sequence=wallet.sequence,
-                fee="10",
-                amount="1",
-                destination=destination.classic_address,
-            ),
-            wallet,
-            client=client,
-        )
-        self.assertTrue(response.is_successful())
+    async def _test_generate_faucet_wallet_rel_sub(self):
+        async with AsyncWebsocketClient(
+            "wss://s.altnet.rippletest.net:51233"
+        ) as client:
+            destination, wallet = await asyncio.gather(
+                generate_faucet_wallet(client), generate_faucet_wallet(client)
+            )
+            response = await submit_transaction_async(
+                Payment(
+                    account=wallet.classic_address,
+                    sequence=wallet.sequence,
+                    fee="10",
+                    amount="1",
+                    destination=destination.classic_address,
+                ),
+                wallet,
+                client=client,
+            )
+            self.assertTrue(response.is_successful())
 
     async def _test_run_faucet_tests(self):
         def run_test(test_name):
