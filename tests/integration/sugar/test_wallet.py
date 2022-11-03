@@ -1,5 +1,5 @@
-import time
 import asyncio
+import time
 from threading import Thread
 
 from tests.integration.integration_test_case import IntegrationTestCase
