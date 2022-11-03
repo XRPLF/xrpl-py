@@ -42,7 +42,7 @@ class Wallet:
         seed: Optional[str] = None,
         sequence: Optional[int] = 0,
         *,
-        algorithm: Optional[CryptoAlgorithm] = None,
+        algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
         master_address: Optional[str] = None,
     ) -> None:
         """
@@ -54,15 +54,12 @@ class Wallet:
             sequence: The next sequence number for the account. Defaulted to 0 if not
                 included.
             algorithm: The algorithm used to encode the keys. Inferred from the seed if
-                not included.
+                not included. The default is Ed25519.
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
                 the master address of the account. The default is `None`.
         """
         if seed is None:
-            if algorithm is None:
-                seed = generate_seed()
-            else:
-                seed = generate_seed(algorithm=algorithm)
+            seed = generate_seed(algorithm=algorithm)
         self.seed: Optional[str] = seed
         """
         The core value that is used to derive all other information about
