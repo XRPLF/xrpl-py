@@ -42,7 +42,7 @@ class Wallet:
         seed: Optional[str] = None,
         sequence: Optional[int] = 0,
         *,
-        algorithm: Optional[CryptoAlgorithm] = CryptoAlgorithm.ED25519,
+        algorithm: Optional[CryptoAlgorithm] = None,
         master_address: Optional[str] = None,
     ) -> None:
         """
@@ -54,7 +54,7 @@ class Wallet:
             sequence: The next sequence number for the account. Defaulted to 0 if not
                 included.
             algorithm: The algorithm used to encode the keys. Inferred from the seed if
-                not included. The default is Ed25519.
+                not included. The default is None.
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
                 the master address of the account. The default is `None`.
         """
