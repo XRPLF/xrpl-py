@@ -1,13 +1,19 @@
 from unittest import TestCase
 
-from xrpl.asyncio.wallet.wallet_generation import get_faucet_url
+from xrpl.asyncio.wallet.wallet_generation import (
+    _DEV_FAUCET_URL,
+    _HOOKS_V2_TEST_FAUCET_URL,
+    _NFT_DEV_FAUCET_URL,
+    _TEST_FAUCET_URL,
+    get_faucet_url,
+)
 
 
 class TestWallet(TestCase):
     def test_get_faucet_wallet_dev(self):
         json_client_url = "https://s.devnet.rippletest.net:51234"
         ws_client_url = "wss://s.devnet.rippletest.net/"
-        expected_faucet = "https://faucet.devnet.rippletest.net/accounts"
+        expected_faucet = _DEV_FAUCET_URL
 
         self.assertEqual(get_faucet_url(json_client_url), expected_faucet)
         self.assertEqual(get_faucet_url(ws_client_url), expected_faucet)
@@ -20,3 +26,27 @@ class TestWallet(TestCase):
 
         self.assertEqual(get_faucet_url(json_client_url, custom_host), expected_faucet)
         self.assertEqual(get_faucet_url(ws_client_url, custom_host), expected_faucet)
+
+    def test_get_faucet_wallet_test(self):
+        json_client_url = "https://testnet.xrpl-labs.com"
+        ws_client_url = "wss://testnet.xrpl-labs.com"
+        expected_faucet = _TEST_FAUCET_URL
+
+        self.assertEqual(get_faucet_url(json_client_url), expected_faucet)
+        self.assertEqual(get_faucet_url(ws_client_url), expected_faucet)
+
+    def test_get_faucet_wallet_nft_dev(self):
+        json_client_url = "https://xls20-sandbox.rippletest.net:51234"
+        ws_client_url = "ws://xls20-sandbox.rippletest.net:51233"
+        expected_faucet = _NFT_DEV_FAUCET_URL
+
+        self.assertEqual(get_faucet_url(json_client_url), expected_faucet)
+        self.assertEqual(get_faucet_url(ws_client_url), expected_faucet)
+
+    def test_get_faucet_wallet_hooks_v2_test(self):
+        json_client_url = "https://hooks-testnet-v2.xrpl-labs.com"
+        ws_client_url = "wss://hooks-testnet-v2.xrpl-labs.com"
+        expected_faucet = _HOOKS_V2_TEST_FAUCET_URL
+
+        self.assertEqual(get_faucet_url(json_client_url), expected_faucet)
+        self.assertEqual(get_faucet_url(ws_client_url), expected_faucet)

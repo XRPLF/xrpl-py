@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed:
 * `check_fee` now has a higher limit that is less likely to be hit
 
+### Changed
+- When connected to nft devnet or hooks v2 testnet generate_faucet_wallet now defaults to using the faucet instead of requiring specification
+
 ## [1.7.0] - 2022-10-12
 ### Added:
 - Support for ExpandedSignerList amendment that expands the maximum signer list to 32 entries
