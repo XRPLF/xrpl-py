@@ -42,7 +42,7 @@ class Wallet:
         seed: Optional[str] = None,
         sequence: Optional[int] = 0,
         *,
-        algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
+        algorithm: Optional[CryptoAlgorithm] = CryptoAlgorithm.ED25519,
         master_address: Optional[str] = None,
     ) -> None:
         """
@@ -59,7 +59,10 @@ class Wallet:
                 the master address of the account. The default is `None`.
         """
         if seed is None:
-            seed = generate_seed(algorithm=algorithm)
+            if algorithm is None:
+                seed = generate_seed()
+            else:
+                seed = generate_seed(algorithm=algorithm)
         self.seed: Optional[str] = seed
         """
         The core value that is used to derive all other information about

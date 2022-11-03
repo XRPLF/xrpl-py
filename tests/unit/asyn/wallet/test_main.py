@@ -185,7 +185,7 @@ class TestWalletMain(TestCase):
             wallet.classic_address, regular_key_pair_constants["master_address"]
         )
 
-    def test_from_seed_using_regular_key_pair_using_algorithm_secp256k1(self):
+    def test_from_seed_using_regular_key_pair_using_algorithm_edcsa_secp256k1(self):
         wallet = Wallet.from_seed(
             regular_key_pair_constants["seed"],
             regular_key_pair_constants["master_address"],
@@ -266,7 +266,7 @@ class TestWalletMain(TestCase):
             wallet.classic_address, regular_key_pair_constants["master_address"]
         )
 
-    def test_from_secret_using_regular_key_pair_using_algorithm_secp256k1(self):
+    def test_from_secret_using_regular_key_pair_using_algorithm_ecdsa_secp256k1(self):
         wallet = Wallet.from_secret(
             regular_key_pair_constants["seed"],
             regular_key_pair_constants["master_address"],
@@ -338,7 +338,7 @@ class TestWalletMain(TestCase):
             wallet.classic_address, regular_key_pair_constants["master_address"]
         )
 
-    def test_from_entropy_using_regular_key_pair_using_algorithm_secp256k1(self):
+    def test_from_entropy_using_regular_key_pair_using_algorithm_ecdsa_secp256k1(self):
         wallet = Wallet.from_entropy(
             entropy_constants["entropy"],
             regular_key_pair_constants["master_address"],
