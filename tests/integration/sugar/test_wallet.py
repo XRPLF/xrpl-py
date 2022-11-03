@@ -15,6 +15,46 @@ from xrpl.wallet.main import Wallet
 time_of_last_hooks_faucet_call = 0
 
 
+def sync_generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
+    wallet = sync_generate_faucet_wallet(client, faucet_host=faucet_host)
+    result = client.request(
+        AccountInfo(
+            account=wallet.classic_address,
+        ),
+    )
+    balance = int(result.result["account_data"]["Balance"])
+    self.assertTrue(balance > 0)
+
+    new_wallet = sync_generate_faucet_wallet(client, wallet, faucet_host=faucet_host)
+    new_result = client.request(
+        AccountInfo(
+            account=new_wallet.classic_address,
+        ),
+    )
+    new_balance = int(new_result.result["account_data"]["Balance"])
+    self.assertTrue(new_balance > balance)
+
+
+async def generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
+    wallet = await generate_faucet_wallet(client, faucet_host=faucet_host)
+    result = await client.request(
+        AccountInfo(
+            account=wallet.classic_address,
+        ),
+    )
+    balance = int(result.result["account_data"]["Balance"])
+    self.assertTrue(balance > 0)
+
+    new_wallet = await generate_faucet_wallet(client, wallet, faucet_host=faucet_host)
+    new_result = await client.request(
+        AccountInfo(
+            account=new_wallet.classic_address,
+        ),
+    )
+    new_balance = int(new_result.result["account_data"]["Balance"])
+    self.assertTrue(new_balance > balance)
+
+
 class TestWallet(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
@@ -137,43 +177,3 @@ class TestWallet(IntegrationTestCase):
     def test_wallet_get_xaddress(self):
         expected = classic_address_to_xaddress(WALLET.classic_address, None, False)
         self.assertEqual(WALLET.get_xaddress(), expected)
-
-
-def sync_generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
-    wallet = sync_generate_faucet_wallet(client, faucet_host=faucet_host)
-    result = client.request(
-        AccountInfo(
-            account=wallet.classic_address,
-        ),
-    )
-    balance = int(result.result["account_data"]["Balance"])
-    self.assertTrue(balance > 0)
-
-    new_wallet = sync_generate_faucet_wallet(client, wallet, faucet_host=faucet_host)
-    new_result = client.request(
-        AccountInfo(
-            account=new_wallet.classic_address,
-        ),
-    )
-    new_balance = int(new_result.result["account_data"]["Balance"])
-    self.assertTrue(new_balance > balance)
-
-
-async def generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
-    wallet = await generate_faucet_wallet(client, faucet_host=faucet_host)
-    result = await client.request(
-        AccountInfo(
-            account=wallet.classic_address,
-        ),
-    )
-    balance = int(result.result["account_data"]["Balance"])
-    self.assertTrue(balance > 0)
-
-    new_wallet = await generate_faucet_wallet(client, wallet, faucet_host=faucet_host)
-    new_result = await client.request(
-        AccountInfo(
-            account=new_wallet.classic_address,
-        ),
-    )
-    new_balance = int(new_result.result["account_data"]["Balance"])
-    self.assertTrue(new_balance > balance)
