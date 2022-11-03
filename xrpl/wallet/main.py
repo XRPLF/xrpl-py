@@ -62,7 +62,7 @@ class Wallet:
             if algorithm is None:
                 seed = generate_seed()
             else:
-                seed = generate_seed(algorithm)
+                seed = generate_seed(algorithm=algorithm)
         self.seed: Optional[str] = seed
         """
         The core value that is used to derive all other information about
@@ -112,8 +112,7 @@ class Wallet:
         Returns:
             The wallet that is generated from the given seed.
         """
-        seed = generate_seed(algorithm=crypto_algorithm)
-        return cls(seed, 0, algorithm=crypto_algorithm)
+        return cls(algorithm=crypto_algorithm)
 
     @classmethod
     def from_public_private_keys(
@@ -121,7 +120,6 @@ class Wallet:
         public_key: str,
         private_key: str,
         master_address: Optional[str] = None,
-        crypto_algorithm: Optional[CryptoAlgorithm] = CryptoAlgorithm.ED25519,
     ) -> Wallet:
         """
         Generates a new Wallet from public and private keys.
@@ -131,13 +129,11 @@ class Wallet:
             private_key: The private key used for signing transactions for the account.
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
                 the master address of the account. The default is `None`.
-            crypto_algorithm: The key-generation algorithm to use when generating the
-                seed. The default is Ed25519.
 
         Returns:
             The wallet that is generated from the given keys.
         """
-        wallet = cls(master_address=master_address, algorithm=crypto_algorithm)
+        wallet = cls()
         wallet.seed = None
         wallet.public_key = public_key
         wallet.private_key = private_key
@@ -151,15 +147,15 @@ class Wallet:
     @classmethod
     def from_seed(
         cls: Type[Wallet],
-        secret: str,
+        seed: str,
         master_address: Optional[str] = None,
-        crypto_algorithm: Optional[CryptoAlgorithm] = CryptoAlgorithm.ED25519,
+        crypto_algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
     ) -> Wallet:
         """
-        Generates a new Wallet from secret.
+        Generates a new Wallet from seed.
 
         Args:
-            secret: The secret (seed) used to derive the account keys.
+            seed: The seed (secret) used to derive the account keys.
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
                 the master address of the account. The default is `None`.
             crypto_algorithm: The key-generation algorithm to use when generating the
@@ -168,7 +164,7 @@ class Wallet:
         Returns:
             The wallet that is generated from the given secret.
         """
-        return cls(secret, master_address=master_address, algorithm=crypto_algorithm)
+        return cls(seed, master_address=master_address, algorithm=crypto_algorithm)
 
     from_secret = from_seed
 
