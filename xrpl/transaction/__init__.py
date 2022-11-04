@@ -6,6 +6,7 @@ from xrpl.asyncio.transaction import (
 from xrpl.transaction.ledger import get_transaction_from_hash
 from xrpl.transaction.main import (
     autofill,
+    multisign,
     safe_sign_and_autofill_transaction,
     safe_sign_and_submit_transaction,
     safe_sign_transaction,
@@ -22,5 +23,6 @@ __all__ = [
     "submit_transaction",
     "transaction_json_to_binary_codec_form",
     "send_reliable_submission",
+    "multisign",
     "XRPLReliableSubmissionException",
 ]

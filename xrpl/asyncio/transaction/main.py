@@ -1,6 +1,6 @@
 """High-level transaction methods with XRPL transactions."""
 import math
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, List, Optional, cast
 
 from typing_extensions import Final
 
@@ -10,11 +10,13 @@ from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec import encode, encode_for_signing
+from xrpl.core.binarycodec.main import encode_for_multisigning
 from xrpl.core.keypairs.main import sign
 from xrpl.models.requests import ServerState, SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions import EscrowFinish
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.account_set import AccountSet
+from xrpl.models.transactions.transaction import Signer, Transaction
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )
@@ -140,6 +142,51 @@ async def submit_transaction(
         return response
 
     raise XRPLRequestFailureException(response.result)
+
+
+async def multisign(transaction: Transaction, signers: List[Wallet]) -> Transaction:
+    """
+    Multisigns a transaction.
+
+    Args:
+        transaction: the transaction to be signed.
+        signers: the wallets with which to sign the transaction.
+
+    Returns:
+        The multisigned transaction.
+    """
+    tx_json = transaction.to_xrpl()
+    # A blob is a binary string representation of the transaction that is
+    # in hex format. We need to encode it into a blob to make it smaller
+    # for rippled to process.
+    tx_blobs = [
+        sign(
+            bytes.fromhex(
+                encode_for_multisigning(
+                    tx_json,
+                    signer.classic_address,
+                )
+            ),
+            signer.private_key,
+        )
+        for signer in signers
+    ]
+
+    # Individually signing the transaction with each signer.
+    # This would normally be handled by reaching out to the signing
+    # account owners in your application since you would not normally
+    # be in control of all the keys.
+    tx_dict = transaction.to_dict()
+    tx_dict["signers"] = [
+        Signer(
+            account=signers[idx].classic_address,
+            txn_signature=tx_blobs[idx],
+            signing_pub_key=signers[idx].public_key,
+        )
+        for idx in range(len(signers))
+    ]
+
+    return AccountSet.from_dict(tx_dict)
 
 
 def _prepare_transaction(
