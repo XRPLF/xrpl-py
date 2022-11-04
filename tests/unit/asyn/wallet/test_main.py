@@ -61,12 +61,14 @@ class TestWalletMain(TestCase):
         self.assertTrue(wallet.classic_address.startswith(classic_address_prefix))
 
     def test_constructor_using_seed(self):
+        # from_seed automatically decodes algorithm based on seed
+        # this seed specifically decodes to secp256k1
         wallet = Wallet(seed_constants["seed"])
 
-        self.assertEqual(wallet.public_key, seed_constants["ed25519_public_key"])
-        self.assertEqual(wallet.private_key, seed_constants["ed25519_private_key"])
+        self.assertEqual(wallet.public_key, seed_constants["secp256k1_public_key"])
+        self.assertEqual(wallet.private_key, seed_constants["secp256k1_private_key"])
         self.assertEqual(
-            wallet.classic_address, seed_constants["ed25519_classic_address"]
+            wallet.classic_address, seed_constants["secp256k1_classic_address"]
         )
 
     def test_create_using_default_algorithm(self):
@@ -121,13 +123,15 @@ class TestWalletMain(TestCase):
             wallet.classic_address, regular_key_pair_constants["master_address"]
         )
 
-    def test_from_seed_using_default_algorithm(self):
+    def test_from_seed_using_no_algorithm(self):
+        # from_seed automatically decodes algorithm based on seed
+        # this seed specifically decodes to secp256k1
         wallet = Wallet.from_seed(seed_constants["seed"])
 
-        self.assertEqual(wallet.public_key, seed_constants["ed25519_public_key"])
-        self.assertEqual(wallet.private_key, seed_constants["ed25519_private_key"])
+        self.assertEqual(wallet.public_key, seed_constants["secp256k1_public_key"])
+        self.assertEqual(wallet.private_key, seed_constants["secp256k1_private_key"])
         self.assertEqual(
-            wallet.classic_address, seed_constants["ed25519_classic_address"]
+            wallet.classic_address, seed_constants["secp256k1_classic_address"]
         )
 
     def test_from_seed_using_algorithm_ecdsa_secp256k1(self):
@@ -152,17 +156,19 @@ class TestWalletMain(TestCase):
             wallet.classic_address, seed_constants["ed25519_classic_address"]
         )
 
-    def test_from_seed_using_regular_key_pair_using_default_algorithm(self):
+    def test_from_seed_using_regular_key_pair_using_no_algorithm(self):
+        # from_seed automatically decodes algorithm based on seed
+        # this seed specifically decodes to secp256k1
         wallet = Wallet.from_seed(
             regular_key_pair_constants["seed"],
             regular_key_pair_constants["master_address"],
         )
 
         self.assertEqual(
-            wallet.public_key, regular_key_pair_constants["ed25519_public_key"]
+            wallet.public_key, regular_key_pair_constants["secp256k1_public_key"]
         )
         self.assertEqual(
-            wallet.private_key, regular_key_pair_constants["ed25519_private_key"]
+            wallet.private_key, regular_key_pair_constants["secp256k1_private_key"]
         )
         self.assertEqual(
             wallet.classic_address, regular_key_pair_constants["master_address"]
@@ -202,13 +208,15 @@ class TestWalletMain(TestCase):
             wallet.classic_address, regular_key_pair_constants["master_address"]
         )
 
-    def test_from_secret_using_default_algorithm(self):
+    def test_from_secret_using_no_algorithm(self):
+        # from_secret automatically decodes algorithm based on secret
+        # this secret specifically decodes to secp256k1
         wallet = Wallet.from_secret(seed_constants["seed"])
 
-        self.assertEqual(wallet.public_key, seed_constants["ed25519_public_key"])
-        self.assertEqual(wallet.private_key, seed_constants["ed25519_private_key"])
+        self.assertEqual(wallet.public_key, seed_constants["secp256k1_public_key"])
+        self.assertEqual(wallet.private_key, seed_constants["secp256k1_private_key"])
         self.assertEqual(
-            wallet.classic_address, seed_constants["ed25519_classic_address"]
+            wallet.classic_address, seed_constants["secp256k1_classic_address"]
         )
 
     def test_from_secret_using_algorithm_ecdsa_secp256k1(self):
@@ -233,17 +241,19 @@ class TestWalletMain(TestCase):
             wallet.classic_address, seed_constants["ed25519_classic_address"]
         )
 
-    def test_from_secret_using_regular_key_pair_using_default_algorithm(self):
+    def test_from_secret_using_regular_key_pair_using_no_algorithm(self):
+        # from_secret automatically decodes algorithm based on secret
+        # this secret specifically decodes to secp256k1
         wallet = Wallet.from_secret(
             regular_key_pair_constants["seed"],
             regular_key_pair_constants["master_address"],
         )
 
         self.assertEqual(
-            wallet.public_key, regular_key_pair_constants["ed25519_public_key"]
+            wallet.public_key, regular_key_pair_constants["secp256k1_public_key"]
         )
         self.assertEqual(
-            wallet.private_key, regular_key_pair_constants["ed25519_private_key"]
+            wallet.private_key, regular_key_pair_constants["secp256k1_private_key"]
         )
         self.assertEqual(
             wallet.classic_address, regular_key_pair_constants["master_address"]

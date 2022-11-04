@@ -149,7 +149,7 @@ class Wallet:
         cls: Type[Wallet],
         seed: str,
         master_address: Optional[str] = None,
-        crypto_algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
+        crypto_algorithm: Optional[CryptoAlgorithm] = None,
     ) -> Wallet:
         """
         Generates a new Wallet from seed.
@@ -159,7 +159,7 @@ class Wallet:
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
                 the master address of the account. The default is `None`.
             crypto_algorithm: The key-generation algorithm to use when generating the
-                seed. The default is Ed25519.
+                seed. The default is None.
 
         Returns:
             The wallet that is generated from the given secret.
