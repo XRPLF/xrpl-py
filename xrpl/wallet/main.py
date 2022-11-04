@@ -99,12 +99,12 @@ class Wallet:
         submission.
         """
 
+    @classmethod
     @deprecated(
         reason="Wallet constructor now allows for optional seed"
         "and will generate one if not provided.",
         version="1.8.0",
     )
-    @classmethod
     def create(
         cls: Type[Wallet], crypto_algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519
     ) -> Wallet:
