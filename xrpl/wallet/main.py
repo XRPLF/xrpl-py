@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Optional, Type
 
+from deprecated.sphinx import deprecated
+
 from xrpl.constants import CryptoAlgorithm
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.core.keypairs import derive_classic_address, derive_keypair, generate_seed
@@ -40,7 +42,7 @@ class Wallet:
     def __init__(
         self: Wallet,
         seed: Optional[str] = None,
-        sequence: Optional[int] = 0,
+        sequence: int = 0,
         *,
         algorithm: Optional[CryptoAlgorithm] = None,
         master_address: Optional[str] = None,
@@ -54,16 +56,15 @@ class Wallet:
             sequence: The next sequence number for the account. Defaulted to 0 if not
                 included.
             algorithm: The algorithm used to encode the keys. Inferred from the seed if
-                not included. The default is None.
+                not included. The default is `None`.
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
                 the master address of the account. The default is `None`.
         """
-        if seed is None:
-            if algorithm is None:
-                seed = generate_seed()
-            else:
-                seed = generate_seed(algorithm=algorithm)
-        self.seed: Optional[str] = seed
+        self.seed: Optional[str] = (
+            seed
+            if seed is not None
+            else generate_seed(algorithm=(algorithm or CryptoAlgorithm.ED25519))
+        )
         """
         The core value that is used to derive all other information about
         this wallet. MUST be kept secret!
@@ -98,6 +99,11 @@ class Wallet:
         submission.
         """
 
+    @deprecated(
+        reason="Wallet constructor now allows for optional seed"
+        "and will generate one if not provided.",
+        version="1.8.0",
+    )
     @classmethod
     def create(
         cls: Type[Wallet], crypto_algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519
@@ -159,7 +165,7 @@ class Wallet:
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
                 the master address of the account. The default is `None`.
             crypto_algorithm: The key-generation algorithm to use when generating the
-                seed. The default is None.
+                seed. The default is `None`.
 
         Returns:
             The wallet that is generated from the given secret.
