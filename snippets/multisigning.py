@@ -1,11 +1,10 @@
 """Example of how we can multisign a transaction"""
 from xrpl.clients import JsonRpcClient
-from xrpl.core.binarycodec import encode_for_multisigning
-from xrpl.core.keypairs import sign
 from xrpl.models.requests import SubmitMultisigned
-from xrpl.models.transactions import AccountSet, Signer, SignerEntry, SignerListSet
+from xrpl.models.transactions import AccountSet, SignerEntry, SignerListSet
 from xrpl.transaction import (
     autofill,
+    multisign,
     safe_sign_and_autofill_transaction,
     send_reliable_submission,
 )
@@ -45,47 +44,10 @@ autofilled_account_set_tx = autofill(account_set_tx, client, len(signer_entries)
 print("AccountSet transaction is ready to be multisigned")
 print(autofilled_account_set_tx)
 
-autofilled_account_set_tx_json = autofilled_account_set_tx.to_xrpl()
-# A blob is a binary string representation of the transaction that is
-# in hex format. We need to encode it into a blob to make it smaller
-# for rippled to process.
-tx_blob1 = sign(
-    bytes.fromhex(
-        encode_for_multisigning(
-            autofilled_account_set_tx_json,
-            signer_wallet_1.classic_address,
-        )
-    ),
-    signer_wallet_1.private_key,
-)
-tx_blob2 = sign(
-    bytes.fromhex(
-        encode_for_multisigning(
-            autofilled_account_set_tx_json,
-            signer_wallet_2.classic_address,
-        )
-    ),
-    signer_wallet_2.private_key,
-)
 
-# Individually signing the transaction with each signer.
-# This would normally be handled by reaching out to the signing
-# account owners in your application since you would not normally
-# be in control of all the keys.
-autofilled_account_set_tx_dict = autofilled_account_set_tx.to_dict()
-autofilled_account_set_tx_dict["signers"] = [
-    Signer(
-        account=signer_wallet_1.classic_address,
-        txn_signature=tx_blob1,
-        signing_pub_key=signer_wallet_1.public_key,
-    ),
-    Signer(
-        account=signer_wallet_2.classic_address,
-        txn_signature=tx_blob2,
-        signing_pub_key=signer_wallet_2.public_key,
-    ),
-]
-multisigned_tx = AccountSet.from_dict(autofilled_account_set_tx_dict)
+multisigned_tx = multisign(
+    autofilled_account_set_tx, [signer_wallet_1, signer_wallet_2]
+)
 print("Successfully multisigned the transaction")
 print(multisigned_tx)
 

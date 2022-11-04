@@ -1,6 +1,6 @@
 """High-level transaction methods with XRPL transactions."""
 import asyncio
-from typing import Optional
+from typing import List, Optional
 
 from xrpl.asyncio.transaction import main
 from xrpl.clients.sync_client import SyncClient
@@ -145,5 +145,24 @@ def autofill(
             transaction,
             client,
             signers_count,
+        )
+    )
+
+
+def multisign(transaction: Transaction, signers: List[Wallet]) -> Transaction:
+    """
+    Multisigns a transaction.
+
+    Args:
+        transaction: the transaction to be signed.
+        signers: the wallets with which to sign the transaction.
+
+    Returns:
+        The multisigned transaction.
+    """
+    return asyncio.run(
+        main.multisign(
+            transaction,
+            signers,
         )
     )
