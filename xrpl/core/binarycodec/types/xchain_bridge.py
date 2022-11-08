@@ -6,14 +6,14 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.account_id import AccountID
-from xrpl.core.binarycodec.types.issued_currency import IssuedCurrency
+from xrpl.core.binarycodec.types.issue import Issue
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
 
 _TYPE_ORDER: List[Tuple[str, Type[SerializedType]]] = [
     ("LockingChainDoor", AccountID),
-    ("LockingChainIssue", IssuedCurrency),
+    ("LockingChainIssue", Issue),
     ("IssuingChainDoor", AccountID),
-    ("IssuingChainIssue", IssuedCurrency),
+    ("IssuingChainIssue", Issue),
 ]
 
 _TYPE_KEYS = {type[0] for type in _TYPE_ORDER}
