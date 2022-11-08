@@ -149,13 +149,14 @@ def autofill(
     )
 
 
-def multisign(transaction: Transaction, signers: List[Wallet]) -> Transaction:
+def multisign(transaction: Transaction, tx_blobs: List[str]) -> Transaction:
     """
     Multisigns a transaction.
 
     Args:
         transaction: the transaction to be signed.
-        signers: the wallets with which to sign the transaction.
+        tx_blobs: a list of signed transactions (in blob form) to combine into
+            a single signed transaction.
 
     Returns:
         The multisigned transaction.
@@ -163,6 +164,6 @@ def multisign(transaction: Transaction, signers: List[Wallet]) -> Transaction:
     return asyncio.run(
         main.multisign(
             transaction,
-            signers,
+            tx_blobs,
         )
     )

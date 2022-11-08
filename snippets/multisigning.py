@@ -1,5 +1,7 @@
 """Example of how we can multisign a transaction"""
 from xrpl.clients import JsonRpcClient
+from xrpl.core.binarycodec.main import encode_for_multisigning
+from xrpl.core.keypairs.main import sign
 from xrpl.models.requests import SubmitMultisigned
 from xrpl.models.transactions import AccountSet, SignerEntry, SignerListSet
 from xrpl.transaction import (
@@ -29,10 +31,11 @@ signer_list_set_tx = SignerListSet(
 signed_signer_list_set_tx = safe_sign_and_autofill_transaction(
     signer_list_set_tx, master_wallet, client
 )
+print("Constructed SignerListSet and submitting it to the ledger...")
 signed_list_set_tx_response = send_reliable_submission(
     signed_signer_list_set_tx, client
 )
-print("SignerListSet constructed and submitted, here's the response:")
+print("SignerListSet submitted, here's the response:")
 print(signed_list_set_tx_response)
 
 # Now that we've set up multisigning, let's try using it to submit an AccountSet
@@ -44,10 +47,24 @@ autofilled_account_set_tx = autofill(account_set_tx, client, len(signer_entries)
 print("AccountSet transaction is ready to be multisigned")
 print(autofilled_account_set_tx)
 
+tx_json = autofilled_account_set_tx.to_xrpl()
+# A blob is a binary string representation of the transaction that is
+# in hex format. We need to encode it into a blob to make it smaller
+# for rippled to process.
+tx_blobs = [
+    sign(
+        bytes.fromhex(
+            encode_for_multisigning(
+                tx_json,
+                signer.classic_address,
+            )
+        ),
+        signer.private_key,
+    )
+    for signer in [signer_wallet_1, signer_wallet_2]
+]
 
-multisigned_tx = multisign(
-    autofilled_account_set_tx, [signer_wallet_1, signer_wallet_2]
-)
+multisigned_tx = multisign(autofilled_account_set_tx, tx_blobs)
 print("Successfully multisigned the transaction")
 print(multisigned_tx)
 
