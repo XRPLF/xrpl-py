@@ -12,29 +12,27 @@ from xrpl.core.binarycodec.types.serialized_type import SerializedType
 from xrpl.models.currencies import IssuedCurrency as IssuedCurrencyModel
 
 
-class IssuedCurrency(SerializedType):
+class Issue(SerializedType):
     """Codec for serializing and deserializing issued currency fields."""
 
-    def __init__(self: IssuedCurrency, buffer: bytes) -> None:
-        """Construct an IssuedCurrency from given bytes."""
+    def __init__(self: Issue, buffer: bytes) -> None:
+        """Construct an Issue from given bytes."""
         super().__init__(buffer)
 
     @classmethod
-    def from_value(
-        cls: Type[IssuedCurrency], value: Union[str, Dict[str, str]]
-    ) -> IssuedCurrency:
+    def from_value(cls: Type[Issue], value: Union[str, Dict[str, str]]) -> Issue:
         """
-        Construct an IssuedCurrency object from a string or dictionary representation
+        Construct an Issue object from a string or dictionary representation
         of an issued currency.
 
         Args:
-            value: The dictionary to construct an IssuedCurrency object from.
+            value: The dictionary to construct an Issue object from.
 
         Returns:
-            An IssuedCurrency object constructed from value.
+            An Issue object constructed from value.
 
         Raises:
-            XRPLBinaryCodecException: If the IssuedCurrency representation is invalid.
+            XRPLBinaryCodecException: If the Issue representation is invalid.
         """
         if isinstance(value, str):
             if value != "XRP":
@@ -47,25 +45,25 @@ class IssuedCurrency(SerializedType):
             return cls(currency_bytes + issuer_bytes)
 
         raise XRPLBinaryCodecException(
-            "Invalid type to construct an IssuedCurrency: expected str or dict,"
+            "Invalid type to construct an Issue: expected str or dict,"
             f" received {value.__class__.__name__}."
         )
 
     @classmethod
     def from_parser(
-        cls: Type[IssuedCurrency],
+        cls: Type[Issue],
         parser: BinaryParser,
         length_hint: Optional[int] = None,
-    ) -> IssuedCurrency:
+    ) -> Issue:
         """
-        Construct an IssuedCurrency object from an existing BinaryParser.
+        Construct an Issue object from an existing BinaryParser.
 
         Args:
-            parser: The parser to construct the IssuedCurrency object from.
+            parser: The parser to construct the Issue object from.
             length_hint: The number of bytes to consume from the parser.
 
         Returns:
-            The IssuedCurrency object constructed from a parser.
+            The Issue object constructed from a parser.
         """
         currency = Currency.from_parser(parser)
         if currency.to_json() == "XRP":
@@ -74,12 +72,12 @@ class IssuedCurrency(SerializedType):
         issuer = parser.read(20)  # the length in bytes of an account ID
         return cls(bytes(currency) + issuer)
 
-    def to_json(self: IssuedCurrency) -> Union[str, Dict[Any, Any]]:
+    def to_json(self: Issue) -> Union[str, Dict[Any, Any]]:
         """
         Returns the JSON representation of an issued currency.
 
         Returns:
-            The JSON representation of an IssuedCurrency.
+            The JSON representation of an Issue.
         """
         parser = BinaryParser(str(self))
         currency: Union[str, Dict[Any, Any]] = Currency.from_parser(parser).to_json()
