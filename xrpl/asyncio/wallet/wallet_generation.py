@@ -12,6 +12,7 @@ from xrpl.wallet.main import Wallet
 
 _TEST_FAUCET_URL: Final[str] = "https://faucet.altnet.rippletest.net/accounts"
 _DEV_FAUCET_URL: Final[str] = "https://faucet.devnet.rippletest.net/accounts"
+_AMM_DEV_FAUCET_URL: Final[str] = "https://ammfaucet.devnet.rippletest.net/accounts"
 _NFT_DEV_FAUCET_URL: Final[str] = "https://faucet-nft.ripple.com/accounts"
 _HOOKS_V2_TEST_FAUCET_URL: Final[
     str
@@ -114,6 +115,8 @@ def get_faucet_url(url: str, faucet_host: Optional[str] = None) -> str:
         return _HOOKS_V2_TEST_FAUCET_URL
     if "altnet" in url or "testnet" in url:  # testnet
         return _TEST_FAUCET_URL
+    if "amm" in url:  # amm devnet
+        return _AMM_DEV_FAUCET_URL
     if "devnet" in url:  # devnet
         return _DEV_FAUCET_URL
     if "xls20-sandbox" in url:  # nft devnet

@@ -6,14 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [[Unreleased]]
+
 ### Changed:
-* `check_fee` now has a higher limit that is less likely to be hit
+
+- `check_fee` now has a higher limit that is less likely to be hit
 
 ### Changed
-- When connected to nft devnet or hooks v2 testnet generate_faucet_wallet now defaults to using the faucet instead of requiring specification
+
+- When connected to nft devnet,hooks v2 testnet, or amm devnet generate_faucet_wallet now defaults to using the faucet instead of requiring specification
 
 ## [1.7.0] - 2022-10-12
+
 ### Added:
+
 - Support for ExpandedSignerList amendment that expands the maximum signer list to 32 entries
 - Function to parse the final account balances from a transaction's metadata
 - Function to parse order book changes from a transaction's metadata
@@ -22,42 +27,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Common field `ticket_sequence` to Transaction class
 
 ### Fixed:
+
 - Typing for factory classmethods on models
 - Use properly encoded transactions in `Sign`, `SignFor`, and `SignAndSubmit`
 - Fix Sphinx build errors due to incompatible version bumps
 
 ## [1.6.0] - 2022-06-02
+
 ### Added:
+
 - Support for dynamic fee calculation
 - Function to parse account balances from a transaction's metadata
 - Better error handling for invalid client URL
 - Exported SubscribeBook
 
 ### Fixed
+
 - Resolve `txnNotFound` error with `send_reliable_submission` when waiting for a submitted malformed transaction
 - Small typing mistake in GenericRequest
 - Fix bug in GenericRequest.to_dict()
 
 ## [1.5.0] - 2022-04-25
+
 ### Added
+
 - Support setting flags with booleans. For each transaction type supporting flags there is a `FlagInterface` to set the flags with booleans.
 - `federator_info` RPC support
 - Helper method for creating a cross-chain payment to/from a sidechain
 - Helper method for parsing an NFTokenID
 
 ### Fixed
+
 - Updated NFT names to match new 1.9.0 rippled names
 - `xrpl.asyncio.clients` exports (now includes `request_to_websocket`, `websocket_to_response`)
 - Adds optional `owner` field to NFTokenBurn
 - Allows lower-case currency codes
 
 ## [1.4.0] - 2022-02-24
+
 ### Added
+
 - Sync and async `generate_faucet_wallet` functions now support a custom
   faucet host
 
 ## [1.3.0] - 2021-12-17
+
 ### Added
+
 - Support for the [XLS-20 NFT proposal](https://github.com/XRPLF/XRPL-Standards/discussions/46)
 - `xrpl.models.amounts.get_amount_value` helper function
 - `xrpl.utils.str_to_hex` and `xrpl.utils.hex_to_str` helpers
@@ -71,6 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Exports `Transaction`, `Response`, pseudo-transactions at the `xrpl.models` level
 
 ### Fixed
+
 - Improves typing of `Response.result`
 - Makes the default ledger version for `get_next_valid_seq_number` `current` instead of `validated`
 - Stops erroring on non-`tesSUCCESS` responses in reliable transaction submission
@@ -84,21 +101,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixes bug where autofilling using an `xAddress` with `None` in the Destination Tag threw a KeyError
 
 ## [1.2.0] - 2021-11-09
+
 ### Added
+
 - Support for Python 3.10
 
 ### Fixed
+
 - Improves documentation on using websocket clients.
 - Fixes an issue sending NoRippleCheck requests
 - Allows projects that use xrpl-py as a dependency to use typing
 
 ## [1.1.1] - 2021-07-02
+
 ### Fixed
+
 - Fixes an issue encoding some non-standard currency values
 - Corrects installation instructions in documentation
 
 ## [1.1.0] - 2021-06-16
+
 ### Added
+
 - Option for `Transaction.flags` to be a `List` of `int`s instead of just an `int`
 - Instance method in `Transaction` objects to calculate their hashes locally
 - Additional reliability to `send_reliable_submission` by getting the hash before submitting
@@ -114,6 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A general `from_dict` method for `Request` models, analogous to `Transaction.from_dict`
 
 ### Fixed
+
 - Typos in docs/tests
 - Improved readability of the README/documentation
 - Expose `xrpl.utils` at the top level
@@ -124,6 +149,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Better error message reporting
 
 ## [1.0.0] - 2021-03-31
+
 ### Added
+
 - Initial release! Please open up an issue in our repo if you have any
   feedback or issues to report.
