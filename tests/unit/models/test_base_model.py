@@ -858,12 +858,12 @@ class TestFromDict(TestCase):
         tx = AMMVote(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            fee_val=1234,
+            trading_fee=234,
         )
         expected = {
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            "FeeVal": 1234,
+            "TradingFee": 234,
             "TransactionType": "AMMVote",
             "SigningPubKey": "",
             "Flags": 0,

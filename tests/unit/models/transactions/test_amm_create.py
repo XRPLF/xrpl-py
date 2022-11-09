@@ -33,7 +33,7 @@ class TestAMMCreate(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'trading_fee': 'Must be between 0 and 65000'}",
+            "{'trading_fee': 'Must be between 0 and 1000'}",
         )
 
     def test_trading_fee_negative_number(self):
@@ -48,5 +48,5 @@ class TestAMMCreate(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'trading_fee': 'Must be between 0 and 65000'}",
+            "{'trading_fee': 'Must be between 0 and 1000'}",
         )

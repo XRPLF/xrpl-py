@@ -12,7 +12,7 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
-AMM_MAX_TRADING_FEE: Final[int] = 65000
+AMM_MAX_TRADING_FEE: Final[int] = 1000
 
 
 @require_kwargs_on_init
@@ -40,9 +40,9 @@ class AMMCreate(Transaction):
     Specifies the fee, in basis point, to be charged
     to the traders for the trades executed against the AMM instance.
     Trading fee is a percentage of the trading volume.
-    Valid values for this field are between 0 and 65000 inclusive.
+    Valid values for this field are between 0 and 1000 inclusive.
     A value of 1 is equivalent to 1/10 bps or 0.001%, allowing trading fee
-    between 0% and 65%. This field is required.
+    between 0% and 1%. This field is required.
     """
 
     transaction_type: TransactionType = field(
