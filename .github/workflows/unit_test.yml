@@ -11,27 +11,33 @@ jobs:
     name: Lint and type-check
     runs-on: ubuntu-latest
 
+    env:
+      PYTHON_VERSION: "3.10"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.x
-        uses: actions/setup-python@v2
+      - name: Load cached .local
+        uses: actions/cache@v3
         with:
-          python-version: '3.x'
-
-      - name: Display Python version
-        run: |
-          python -c "import sys; print(sys.version)"
+          path: /home/runner/.local
+          key: dotlocal-${{ env.PYTHON_VERSION }}-${{ hashFiles('.github/workflows') }}
 
       - name: Install poetry
-        run: pipx install poetry
+        run: |
+          curl -sSL https://install.python-poetry.org/ | python -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Retrieve poetry dependencies from cache
+      - name: Install Python + Retrieve Poetry dependencies from cache
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
           cache: 'poetry'
+
+      - name: Display Python version
+        run: |
+          python -c "import sys; print(sys.version)"
 
       - name: Install poetry dependencies
         run: poetry install
@@ -56,28 +62,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      - name: Load cached .local
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/.local
+          key: dotlocal-${{ matrix.python-version }}-${{ hashFiles('.github/workflows') }}
+
+      - name: Install poetry
+        run: |
+          curl -sSL https://install.python-poetry.org/ | python -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install Python + Retrieve Poetry dependencies from cache
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
 
       - name: Display Python version
         run: |
           python -c "import sys; print(sys.version)"
-
-      - name: Install poetry
-        run: pipx install poetry
-
-      - name: Retrieve poetry dependencies from cache
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-          cache: 'poetry'
 
       - name: Install poetry dependencies
         run: poetry install
 
       - name: Unit test
         run: |
-          poetry run coverage run -m unittest discover tests.unit
-          poetry run coverage report -m --fail-under=85
+          poetry run poe test_unit
+          poetry run coverage report --fail-under=85

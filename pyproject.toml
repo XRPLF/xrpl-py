@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "xrpl-py"
-version = "1.6.0"
+version = "1.7.0"
 description = "A complete Python library for interacting with the XRP ledger"
 readme = "README.md"
 repository = "https://github.com/XRPLF/xrpl-py"
@@ -34,7 +34,7 @@ python = "^3.7"
 base58 = "^2.1.0"
 ECPy = "^1.2.5"
 typing-extensions = "^4.2.0"
-httpx = "^0.18.1"
+httpx = ">=0.18.1,<0.24.0"
 websockets = [
     {version = ">=9.0.1 <11.0", python = ">= 3.7, < 3.10"},
     {version = "^10.0", python = "^3.10"}
@@ -44,21 +44,22 @@ types-Deprecated = "^1.2.9"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
-black = "22.3.0"
-flake8-black = "^0.2.1"
+black = "22.10.0"
+flake8-black = "^0.3.3"
 flake8-docstrings = "^1.5.0"
 mypy = "^0"
 isort = "^5.7.0"
-flake8-isort = "^4.0.0"
+flake8-isort = "^5.0.0"
 flake8-annotations = "2.7.0"
 flake8-absolute-import = "^1.0"
 darglint = "^1.5.8"
 sphinx-rtd-theme = "^0.5.1"
 aiounittest = "^1.4.0"
-coverage = "^6.4.1"
-Jinja2 = "^2.11.3"
-MarkupSafe = "2.0.1"
+coverage = "^6.5.0"
+Jinja2 = "^3.1.2"
+MarkupSafe = "2.1.1"
 Sphinx = "^5.1.1"
+poethepoet = "^0.16.2"
 
 [tool.isort]
 # Make sure that isort's settings line up with black
@@ -71,3 +72,20 @@ build-backend = "poetry.core.masonry.api"
 [tool.coverage.run]
 branch = true
 source = ["xrpl"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+skip_empty = true
+precision = 2
+
+[tool.poe.tasks]
+test_unit = "coverage run -m unittest discover tests/unit"
+test_integration = "coverage run -m unittest discover tests/integration"
+
+[tool.poe.tasks.test]
+cmd  = "python3 -m unittest ${FILE_PATHS}"
+args = [{ name = "FILE_PATHS", positional = true, multiple = true}]
+
+[tool.poe.tasks.test_coverage]
+sequence  = [{ cmd = "coverage run -m unittest discover" }, { cmd = "coverage report --fail-under=90" }]
