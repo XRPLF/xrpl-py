@@ -874,12 +874,12 @@ class TestFromDict(TestCase):
         tx = AMMBid(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            min_bid_price=IssuedCurrencyAmount(
+            bid_min=IssuedCurrencyAmount(
                 currency="5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
                 issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
                 value="25",
             ),
-            max_bid_price=IssuedCurrencyAmount(
+            bid_max=IssuedCurrencyAmount(
                 currency="5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
                 issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
                 value="35",
@@ -894,12 +894,12 @@ class TestFromDict(TestCase):
         expected = {
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            "MinBidPrice": {
+            "BidMin": {
                 "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
                 "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
                 "value": "25",
             },
-            "MaxBidPrice": {
+            "BidMax": {
                 "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
                 "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
                 "value": "35",

@@ -29,12 +29,12 @@ class TestAMMBid(TestCase):
         tx = AMMBid(
             account=_ACCOUNT,
             amm_id=_AMM_ID,
-            min_bid_price=IssuedCurrencyAmount(
+            bid_min=IssuedCurrencyAmount(
                 currency=_LPTOKEN_CURRENCY,
                 issuer=_LPTOKEN_ISSUER,
                 value="25",
             ),
-            max_bid_price=IssuedCurrencyAmount(
+            bid_max=IssuedCurrencyAmount(
                 currency=_LPTOKEN_CURRENCY,
                 issuer=_LPTOKEN_ISSUER,
                 value="35",
