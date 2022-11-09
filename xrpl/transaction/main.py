@@ -149,9 +149,32 @@ def autofill(
     )
 
 
+def safe_sign_transaction_with_multisign(
+    transaction: Transaction,
+    wallet: Wallet,
+) -> str:
+    """
+    Signs a transaction with multisign locally, without trusting external rippled nodes.
+
+    Args:
+        transaction: the transaction to be signed.
+        wallet: the wallet with which to sign the transaction.
+
+    Returns:
+        The signed transaction blob.
+    """
+    return asyncio.run(
+        main.safe_sign_transaction_with_multisign(
+            transaction,
+            wallet,
+        )
+    )
+
+
 def multisign(transaction: Transaction, tx_blobs: List[str]) -> Transaction:
     """
-    Multisigns a transaction.
+    Takes several transactions with Signer fields (blob form) and creates a
+    single transaction with all Signers that then gets signed and returned.
 
     Args:
         transaction: the transaction to be signed.
