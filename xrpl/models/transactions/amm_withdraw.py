@@ -21,10 +21,10 @@ class AMMWithdraw(Transaction):
 
     The following are the recommended valid combinations:
     - LPToken
-    - Asset1Out
-    - Asset1Out and Asset2Out
-    - Asset1Out and LPToken
-    - Asset1Out and EPrice
+    - Amount
+    - Amount and Amount2
+    - Amount and LPToken
+    - Amount and EPrice
     """
 
     amm_id: str = REQUIRED  # type: ignore
@@ -38,14 +38,14 @@ class AMMWithdraw(Transaction):
     wants to redeem or trade in.
     """
 
-    asset1_out: Optional[Amount] = None
+    amount: Optional[Amount] = None
     """
     Specifies one of the pools assets that the trader wants to remove.
-    If the asset is XRP, then the Asset1Out is a string specifying the number of drops.
+    If the asset is XRP, then the Amount is a string specifying the number of drops.
     Otherwise it is an IssuedCurrencyAmount object.
     """
 
-    asset2_out: Optional[Amount] = None
+    amount2: Optional[Amount] = None
     """
     Specifies the other pool asset that the trader wants to remove.
     """
@@ -63,10 +63,10 @@ class AMMWithdraw(Transaction):
 
     def _get_errors(self: AMMWithdraw) -> Dict[str, str]:
         errors = super()._get_errors()
-        if self.asset2_out is not None and self.asset1_out is None:
-            errors["AMMWithdraw"] = "Must set `asset1_out` with `asset2_out`"
-        elif self.e_price is not None and self.asset1_out is None:
-            errors["AMMWithdraw"] = "Must set `asset1_out` with `e_price`"
-        elif self.lp_token is None and self.asset1_out is None:
-            errors["AMMWithdraw"] = "Must set at least `lp_token` or `asset1_out`"
+        if self.amount2 is not None and self.amount is None:
+            errors["AMMWithdraw"] = "Must set `amount` with `amount2`"
+        elif self.e_price is not None and self.amount is None:
+            errors["AMMWithdraw"] = "Must set `amount` with `e_price`"
+        elif self.lp_token is None and self.amount is None:
+            errors["AMMWithdraw"] = "Must set at least `lp_token` or `amount`"
         return errors

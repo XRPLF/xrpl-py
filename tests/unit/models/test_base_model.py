@@ -17,8 +17,8 @@ from xrpl.models.requests import (
 )
 from xrpl.models.transactions import (
     AMMBid,
+    AMMCreate,
     AMMDeposit,
-    AMMInstanceCreate,
     AMMVote,
     AMMWithdraw,
     AuthAccount,
@@ -604,11 +604,11 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(tx.to_xrpl(), expected)
 
-    def test_to_xrpl_amm_instance_create(self):
-        tx = AMMInstanceCreate(
+    def test_to_xrpl_amm_create(self):
+        tx = AMMCreate(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            asset1="1000",
-            asset2=IssuedCurrencyAmount(
+            amount="1000",
+            amount2=IssuedCurrencyAmount(
                 currency="USD",
                 issuer="rPyfep3gcLzkosKC9XiE77Y8DZWG6iWDT9",
                 value="1000",
@@ -617,13 +617,13 @@ class TestFromDict(TestCase):
         )
         expected = {
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "Asset1": "1000",
-            "Asset2": {
+            "Amount": "1000",
+            "Amount2": {
                 "currency": "USD",
                 "issuer": "rPyfep3gcLzkosKC9XiE77Y8DZWG6iWDT9",
                 "value": "1000",
             },
-            "TransactionType": "AMMInstanceCreate",
+            "TransactionType": "AMMCreate",
             "SigningPubKey": "",
             "TradingFee": 12,
             "Flags": 0,
@@ -656,17 +656,17 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(tx.to_xrpl(), expected)
 
-    def test_to_xrpl_amm_deposit_asset1in(self):
+    def test_to_xrpl_amm_deposit_amount(self):
         tx = AMMDeposit(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            asset1_in="1000",
+            amount="1000",
         )
         expected = {
             "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "Asset1In": "1000",
+            "Amount": "1000",
             "TransactionType": "AMMDeposit",
             "Sequence": 1337,
             "SigningPubKey": "",
@@ -674,19 +674,19 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(tx.to_xrpl(), expected)
 
-    def test_to_xrpl_amm_deposit_asset1in_asset2in(self):
+    def test_to_xrpl_amm_deposit_amount_amount2(self):
         tx = AMMDeposit(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            asset1_in="1000",
-            asset2_in="500",
+            amount="1000",
+            amount2="500",
         )
         expected = {
             "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "Asset1In": "1000",
-            "Asset2In": "500",
+            "Amount": "1000",
+            "Amount2": "500",
             "TransactionType": "AMMDeposit",
             "Sequence": 1337,
             "SigningPubKey": "",
@@ -694,12 +694,12 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(tx.to_xrpl(), expected)
 
-    def test_to_xrpl_amm_deposit_asset1in_lptoken(self):
+    def test_to_xrpl_amm_deposit_amount_lptoken(self):
         tx = AMMDeposit(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            asset1_in="1000",
+            amount="1000",
             lp_token=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
@@ -709,7 +709,7 @@ class TestFromDict(TestCase):
         expected = {
             "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "Asset1In": "1000",
+            "Amount": "1000",
             "LPToken": {
                 "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
@@ -722,18 +722,18 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(tx.to_xrpl(), expected)
 
-    def test_to_xrpl_amm_deposit_asset1in_eprice(self):
+    def test_to_xrpl_amm_deposit_amount_eprice(self):
         tx = AMMDeposit(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            asset1_in="1000",
+            amount="1000",
             e_price="25",
         )
         expected = {
             "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "Asset1In": "1000",
+            "Amount": "1000",
             "EPrice": "25",
             "TransactionType": "AMMDeposit",
             "Sequence": 1337,
@@ -768,17 +768,17 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(tx.to_xrpl(), expected)
 
-    def test_to_xrpl_amm_withdraw_asset1out(self):
+    def test_to_xrpl_amm_withdraw_amount(self):
         tx = AMMWithdraw(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            asset1_out="1000",
+            amount="1000",
         )
         expected = {
             "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "Asset1Out": "1000",
+            "Amount": "1000",
             "TransactionType": "AMMWithdraw",
             "Sequence": 1337,
             "SigningPubKey": "",
@@ -786,19 +786,19 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(tx.to_xrpl(), expected)
 
-    def test_to_xrpl_amm_withdraw_asset1out_asset2out(self):
+    def test_to_xrpl_amm_withdraw_amount_amount2(self):
         tx = AMMWithdraw(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            asset1_out="1000",
-            asset2_out="500",
+            amount="1000",
+            amount2="500",
         )
         expected = {
             "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "Asset1Out": "1000",
-            "Asset2Out": "500",
+            "Amount": "1000",
+            "Amount2": "500",
             "TransactionType": "AMMWithdraw",
             "Sequence": 1337,
             "SigningPubKey": "",
@@ -806,12 +806,12 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(tx.to_xrpl(), expected)
 
-    def test_to_xrpl_amm_withdraw_asset1out_lptoken(self):
+    def test_to_xrpl_amm_withdraw_amount_lptoken(self):
         tx = AMMWithdraw(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            asset1_out="1000",
+            amount="1000",
             lp_token=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
@@ -821,7 +821,7 @@ class TestFromDict(TestCase):
         expected = {
             "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "Asset1Out": "1000",
+            "Amount": "1000",
             "LPToken": {
                 "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
@@ -834,18 +834,18 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(tx.to_xrpl(), expected)
 
-    def test_to_xrpl_amm_withdraw_asset1out_eprice(self):
+    def test_to_xrpl_amm_withdraw_amount_eprice(self):
         tx = AMMWithdraw(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            asset1_out="1000",
+            amount="1000",
             e_price="25",
         )
         expected = {
             "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "Asset1Out": "1000",
+            "Amount": "1000",
             "EPrice": "25",
             "TransactionType": "AMMWithdraw",
             "Sequence": 1337,
@@ -874,12 +874,12 @@ class TestFromDict(TestCase):
         tx = AMMBid(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            min_slot_price=IssuedCurrencyAmount(
+            min_bid_price=IssuedCurrencyAmount(
                 currency="5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
                 issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
                 value="25",
             ),
-            max_slot_price=IssuedCurrencyAmount(
+            max_bid_price=IssuedCurrencyAmount(
                 currency="5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
                 issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
                 value="35",
@@ -894,12 +894,12 @@ class TestFromDict(TestCase):
         expected = {
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
-            "MinSlotPrice": {
+            "MinBidPrice": {
                 "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
                 "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
                 "value": "25",
             },
-            "MaxSlotPrice": {
+            "MaxBidPrice": {
                 "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
                 "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
                 "value": "35",

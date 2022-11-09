@@ -20,10 +20,10 @@ class AMMDeposit(Transaction):
 
     The following are the recommended valid combinations:
     - LPToken
-    - Asset1In
-    - Asset1In and Asset2In
-    - Asset1In and LPToken
-    - Asset1In and EPrice
+    - Amount
+    - Amount and Amount2
+    - Amount and LPToken
+    - Amount and EPrice
     """
 
     amm_id: str = REQUIRED  # type: ignore
@@ -37,13 +37,13 @@ class AMMDeposit(Transaction):
     wants to redeem or trade in.
     """
 
-    asset1_in: Optional[Amount] = None
+    amount: Optional[Amount] = None
     """
     Specifies one of the pool assets (XRP or token) of the AMM instance to
     deposit more of its value.
     """
 
-    asset2_in: Optional[Amount] = None
+    amount2: Optional[Amount] = None
     """
     Specifies the other pool asset of the AMM instance to deposit more of its
     value.
@@ -61,10 +61,10 @@ class AMMDeposit(Transaction):
 
     def _get_errors(self: AMMDeposit) -> Dict[str, str]:
         errors = super()._get_errors()
-        if self.asset2_in is not None and self.asset1_in is None:
-            errors["AMMDeposit"] = "Must set `asset1_in` with `asset2_in`"
-        elif self.e_price is not None and self.asset1_in is None:
-            errors["AMMDeposit"] = "Must set `asset1_in` with `e_price`"
-        elif self.lp_token is None and self.asset1_in is None:
-            errors["AMMDeposit"] = "Must set at least `lp_token` or `asset1_in`"
+        if self.amount2 is not None and self.amount is None:
+            errors["AMMDeposit"] = "Must set `amount` with `amount2`"
+        elif self.e_price is not None and self.amount is None:
+            errors["AMMDeposit"] = "Must set `amount` with `e_price`"
+        elif self.lp_token is None and self.amount is None:
+            errors["AMMDeposit"] = "Must set at least `lp_token` or `amount`"
         return errors

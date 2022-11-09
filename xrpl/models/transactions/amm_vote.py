@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from typing import Dict, Optional
 
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.amm_instance_create import AMM_MAX_TRADING_FEE
+from xrpl.models.transactions.amm_create import AMM_MAX_TRADING_FEE
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init

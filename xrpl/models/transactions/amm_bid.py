@@ -32,7 +32,7 @@ class AMMBid(Transaction):
     A hash that uniquely identifies the AMM instance. This field is required.
     """
 
-    min_slot_price: Optional[Amount] = None
+    min_bid_price: Optional[Amount] = None
     """
     This field represents the minimum price that the bidder wants to pay for the slot.
     It is specified in units of LPToken. If specified let MinSlotPrice be X and let
@@ -40,7 +40,7 @@ class AMMBid(Transaction):
     the max(X, Y).
     """
 
-    max_slot_price: Optional[Amount] = None
+    max_bid_price: Optional[Amount] = None
     """
     This field represents the maximum price that the bidder wants to pay for the slot.
     It is specified in units of LPToken.
