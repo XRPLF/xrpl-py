@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
+from xrpl.models.currencies.currency import Currency
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.amm_create import AMM_MAX_TRADING_FEE
 from xrpl.models.transactions.transaction import Transaction
@@ -21,9 +22,14 @@ class AMMVote(Transaction):
     transaction to vote for the trading fee for that instance.
     """
 
-    amm_id: str = REQUIRED  # type: ignore
+    asset: Currency = REQUIRED  # type: ignore
     """
-    A hash that uniquely identifies the AMM instance. This field is required.
+    Specifies one of the pool assets (XRP or token) of the AMM instance.
+    """
+
+    asset2: Currency = REQUIRED  # type: ignore
+    """
+    Specifies the other pool asset of the AMM instance.
     """
 
     trading_fee: int = REQUIRED  # type: ignore

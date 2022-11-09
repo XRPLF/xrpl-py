@@ -634,7 +634,8 @@ class TestFromDict(TestCase):
         tx = AMMDeposit(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset={"currency": "XRP"},
+            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
             lp_token=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
@@ -642,7 +643,13 @@ class TestFromDict(TestCase):
             ),
         )
         expected = {
-            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Asset": {
+                "currency": "XRP"
+            },
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+            },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "LPToken": {
                 "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
@@ -660,11 +667,18 @@ class TestFromDict(TestCase):
         tx = AMMDeposit(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset={"currency": "XRP"},
+            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
             amount="1000",
         )
         expected = {
-            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Asset": {
+                "currency": "XRP"
+            },
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+            },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
             "TransactionType": "AMMDeposit",
@@ -678,12 +692,19 @@ class TestFromDict(TestCase):
         tx = AMMDeposit(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset={"currency": "XRP"},
+            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
             amount="1000",
             amount2="500",
         )
         expected = {
-            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Asset": {
+                "currency": "XRP"
+            },
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+            },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
             "Amount2": "500",
@@ -698,7 +719,8 @@ class TestFromDict(TestCase):
         tx = AMMDeposit(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset={"currency": "XRP"},
+            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
             amount="1000",
             lp_token=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
@@ -707,7 +729,13 @@ class TestFromDict(TestCase):
             ),
         )
         expected = {
-            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Asset": {
+                "currency": "XRP"
+            },
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+            },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
             "LPToken": {
@@ -726,12 +754,19 @@ class TestFromDict(TestCase):
         tx = AMMDeposit(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset={"currency": "XRP"},
+            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
             amount="1000",
             e_price="25",
         )
         expected = {
-            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Asset": {
+                "currency": "XRP"
+            },
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+            },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
             "EPrice": "25",
@@ -746,7 +781,8 @@ class TestFromDict(TestCase):
         tx = AMMWithdraw(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset={"currency": "XRP"},
+            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
             lp_token=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
@@ -754,7 +790,13 @@ class TestFromDict(TestCase):
             ),
         )
         expected = {
-            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Asset": {
+                "currency": "XRP"
+            },
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+            },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "LPToken": {
                 "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
@@ -772,11 +814,18 @@ class TestFromDict(TestCase):
         tx = AMMWithdraw(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset={"currency": "XRP"},
+            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
             amount="1000",
         )
         expected = {
-            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Asset": {
+                "currency": "XRP"
+            },
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+            },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
             "TransactionType": "AMMWithdraw",
@@ -790,12 +839,19 @@ class TestFromDict(TestCase):
         tx = AMMWithdraw(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset={"currency": "XRP"},
+            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
             amount="1000",
             amount2="500",
         )
         expected = {
-            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Asset": {
+                "currency": "XRP"
+            },
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+            },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
             "Amount2": "500",
@@ -810,7 +866,8 @@ class TestFromDict(TestCase):
         tx = AMMWithdraw(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset={"currency": "XRP"},
+            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
             amount="1000",
             lp_token=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
@@ -819,7 +876,13 @@ class TestFromDict(TestCase):
             ),
         )
         expected = {
-            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Asset": {
+                "currency": "XRP"
+            },
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+            },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
             "LPToken": {
@@ -838,12 +901,19 @@ class TestFromDict(TestCase):
         tx = AMMWithdraw(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset={"currency": "XRP"},
+            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
             amount="1000",
             e_price="25",
         )
         expected = {
-            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Asset": {
+                "currency": "XRP"
+            },
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+            },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
             "EPrice": "25",
@@ -857,12 +927,19 @@ class TestFromDict(TestCase):
     def test_to_xrpl_amm_vote(self):
         tx = AMMVote(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset={"currency": "XRP"},
+            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
             trading_fee=234,
         )
         expected = {
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Asset": {
+                "currency": "XRP"
+            },
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+            },
             "TradingFee": 234,
             "TransactionType": "AMMVote",
             "SigningPubKey": "",
@@ -873,7 +950,8 @@ class TestFromDict(TestCase):
     def test_to_xrpl_amm_bid(self):
         tx = AMMBid(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            amm_id="24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            asset={"currency": "XRP"},
+            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
             bid_min=IssuedCurrencyAmount(
                 currency="5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
                 issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
@@ -893,7 +971,13 @@ class TestFromDict(TestCase):
         )
         expected = {
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "AMMID": "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883",
+            "Asset": {
+                "currency": "XRP"
+            },
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+            },
             "BidMin": {
                 "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
                 "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",

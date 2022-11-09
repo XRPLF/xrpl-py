@@ -7,6 +7,7 @@ from typing import Dict, List, Optional
 from typing_extensions import Final
 
 from xrpl.models.amounts import Amount
+from xrpl.models.currencies.currency import Currency
 from xrpl.models.auth_account import AuthAccount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -27,9 +28,14 @@ class AMMBid(Transaction):
     discounted TradingFee for a 24 hour slot.
     """
 
-    amm_id: str = REQUIRED  # type: ignore
+    asset: Currency = REQUIRED  # type: ignore
     """
-    A hash that uniquely identifies the AMM instance. This field is required.
+    Specifies one of the pool assets (XRP or token) of the AMM instance.
+    """
+
+    asset2: Currency = REQUIRED  # type: ignore
+    """
+    Specifies the other pool asset of the AMM instance.
     """
 
     bid_min: Optional[Amount] = None

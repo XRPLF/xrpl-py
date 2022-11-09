@@ -5,7 +5,8 @@ from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMDeposit
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
-_AMM_ID = "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883"
+_ASSET = {"currency": "XRP"}
+_ASSET2 = {"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"}
 _AMOUNT = "1000"
 _LPTOKEN_CURRENCY = "B3813FCAB4EE68B3D0D735D6849465A9113EE048"
 _LPTOKEN_ISSUER = "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg"
@@ -16,7 +17,8 @@ class TestAMMDeposit(TestCase):
         tx = AMMDeposit(
             account=_ACCOUNT,
             sequence=1337,
-            amm_id=_AMM_ID,
+            asset=_ASSET,
+            asset2=_ASSET2,
             lp_token=IssuedCurrencyAmount(
                 currency=_LPTOKEN_CURRENCY,
                 issuer=_LPTOKEN_ISSUER,
@@ -29,7 +31,8 @@ class TestAMMDeposit(TestCase):
         tx = AMMDeposit(
             account=_ACCOUNT,
             sequence=1337,
-            amm_id=_AMM_ID,
+            asset=_ASSET,
+            asset2=_ASSET2,
             amount=_AMOUNT,
         )
         self.assertTrue(tx.is_valid())
@@ -38,7 +41,8 @@ class TestAMMDeposit(TestCase):
         tx = AMMDeposit(
             account=_ACCOUNT,
             sequence=1337,
-            amm_id=_AMM_ID,
+            asset=_ASSET,
+            asset2=_ASSET2,
             amount=_AMOUNT,
             amount2="500",
         )
@@ -48,7 +52,8 @@ class TestAMMDeposit(TestCase):
         tx = AMMDeposit(
             account=_ACCOUNT,
             sequence=1337,
-            amm_id=_AMM_ID,
+            asset=_ASSET,
+            asset2=_ASSET2,
             amount=_AMOUNT,
             lp_token=IssuedCurrencyAmount(
                 currency=_LPTOKEN_CURRENCY,
@@ -62,7 +67,8 @@ class TestAMMDeposit(TestCase):
         tx = AMMDeposit(
             account=_ACCOUNT,
             sequence=1337,
-            amm_id=_AMM_ID,
+            asset=_ASSET,
+            asset2=_ASSET2,
             amount=_AMOUNT,
             e_price="25",
         )
@@ -73,7 +79,8 @@ class TestAMMDeposit(TestCase):
             AMMDeposit(
                 account=_ACCOUNT,
                 sequence=1337,
-                amm_id=_AMM_ID,
+                asset=_ASSET,
+                asset2=_ASSET2,
             )
         self.assertEqual(
             error.exception.args[0],
@@ -85,7 +92,8 @@ class TestAMMDeposit(TestCase):
             AMMDeposit(
                 account=_ACCOUNT,
                 sequence=1337,
-                amm_id=_AMM_ID,
+                asset=_ASSET,
+                asset2=_ASSET2,
                 amount2="500",
             )
         self.assertEqual(
@@ -98,7 +106,8 @@ class TestAMMDeposit(TestCase):
             AMMDeposit(
                 account=_ACCOUNT,
                 sequence=1337,
-                amm_id=_AMM_ID,
+                asset=_ASSET,
+                asset2=_ASSET2,
                 e_price="25",
             )
         self.assertEqual(

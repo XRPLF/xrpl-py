@@ -5,7 +5,8 @@ from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMBid, AuthAccount
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
-_AMM_ID = "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883"
+_ASSET = {"currency": "XRP"}
+_ASSET2 = {"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"}
 _AUTH_ACCOUNTS = [
     AuthAccount(
         account="rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh",
@@ -28,7 +29,8 @@ class TestAMMBid(TestCase):
     def test_tx_valid(self):
         tx = AMMBid(
             account=_ACCOUNT,
-            amm_id=_AMM_ID,
+            asset=_ASSET,
+            asset2=_ASSET2,
             bid_min=IssuedCurrencyAmount(
                 currency=_LPTOKEN_CURRENCY,
                 issuer=_LPTOKEN_ISSUER,
@@ -53,7 +55,8 @@ class TestAMMBid(TestCase):
         with self.assertRaises(XRPLModelException) as error:
             AMMBid(
                 account=_ACCOUNT,
-                amm_id=_AMM_ID,
+                asset=_ASSET,
+                asset2=_ASSET2,
                 auth_accounts=auth_accounts,
             )
         self.assertEqual(
