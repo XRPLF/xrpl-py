@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
-from xrpl.models.amounts import Amount
+from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.utils import require_kwargs_on_init
 
@@ -23,12 +23,12 @@ class AMMInfo(Request):
     A hash that uniquely identifies the AMM instance.
     """
 
-    asset1: Optional[Amount] = None
+    asset1: Optional[Currency] = None
     """
     Specifies one of the pool assets (XRP or token) of the AMM instance.
     """
 
-    asset2: Optional[Amount] = None
+    asset2: Optional[Currency] = None
     """
     Specifies the other pool asset of the AMM instance.
     """
