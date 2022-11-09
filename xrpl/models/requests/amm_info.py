@@ -15,7 +15,7 @@ class AMMInfo(Request):
     """
     This request retrieves information about an AMM instance.
 
-    Must provide either AMMID or both Asset1 and Asset2 params.
+    Must provide either AMMID or both Asset and Asset2 params.
     """
 
     amm_id: Optional[str] = None
@@ -23,7 +23,7 @@ class AMMInfo(Request):
     A hash that uniquely identifies the AMM instance.
     """
 
-    asset1: Optional[Currency] = None
+    asset: Optional[Currency] = None
     """
     Specifies one of the pool assets (XRP or token) of the AMM instance.
     """
@@ -38,16 +38,16 @@ class AMMInfo(Request):
     def _get_errors(self: AMMInfo) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.amm_id is None:
-            if self.asset1 is None and self.asset2 is None:
+            if self.asset is None and self.asset2 is None:
                 errors[
                     "AMMInfo"
-                ] = "Must set either `amm_id` or both `asset1` and `asset2`"
-            elif self.asset1 is None and self.asset2 is not None:
+                ] = "Must set either `amm_id` or both `asset` and `asset2`"
+            elif self.asset is None and self.asset2 is not None:
                 errors[
                     "AMMInfo"
-                ] = "Missing `asset1`. Must set both `asset1` and `asset2`"
-            elif self.asset1 is not None and self.asset2 is None:
+                ] = "Missing `asset`. Must set both `asset` and `asset2`"
+            elif self.asset is not None and self.asset2 is None:
                 errors[
                     "AMMInfo"
-                ] = "Missing `asset2`. Must set both `asset1` and `asset2`"
+                ] = "Missing `asset2`. Must set both `asset` and `asset2`"
         return errors
