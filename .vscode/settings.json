@@ -7,6 +7,9 @@
     "python.linting.mypyEnabled": true,
     "mypy.runUsingActiveInterpreter": true,
     "cSpell.words": [
+        "addresscodec",
+        "asyncio",
+        "binarycodec",
         "xaddress",
         "xchain"
     ],
