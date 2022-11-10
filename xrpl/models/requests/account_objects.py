@@ -26,6 +26,7 @@ class AccountObjectType(str, Enum):
     SIGNER_LIST = "signer_list"
     STATE = "state"
     TICKET = "ticket"
+    XCHAIN_BRIDGE = "xchain_bridge"
     XCHAIN_CLAIM_ID = "xchain_claim_id"
 
 
