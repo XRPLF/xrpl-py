@@ -154,7 +154,7 @@ def safe_sign_transaction_with_multisign(
     wallet: Wallet,
 ) -> str:
     """
-    Signs a transaction with multisign locally, without trusting external rippled nodes.
+    Signs a transaction with to be used for multisigning.
 
     Args:
         transaction: the transaction to be signed.

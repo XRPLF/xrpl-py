@@ -152,7 +152,7 @@ async def safe_sign_transaction_with_multisign(
     wallet: Wallet,
 ) -> str:
     """
-    Signs a transaction with multisign locally, without trusting external rippled nodes.
+    Signs a transaction with to be used for multisigning.
 
     Args:
         transaction: the transaction to be signed.
@@ -196,10 +196,6 @@ async def multisign(transaction: Transaction, tx_blobs: List[str]) -> Transactio
     Returns:
         The multisigned transaction.
     """
-    # Individually signing the transaction with each signer.
-    # This would normally be handled by reaching out to the signing
-    # account owners in your application since you would not normally
-    # be in control of all the keys.
     decoded_tx_blobs_signers = [
         decode(tx_blob)["Signers"][0]["Signer"] for tx_blob in tx_blobs
     ]
