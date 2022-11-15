@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 ### Added:
-- Created function alias to `safe_sign_transaction` called `sign`
+- Created function alias to `safe_sign_and_autofill_transaction` called `sign_and_autofill`
 
 ### Changed:
 - `check_fee` now has a higher limit that is less likely to be hit
