@@ -86,7 +86,7 @@ async def safe_sign_transaction(
     return Transaction.from_xrpl(transaction_json)
 
 
-async def safe_sign_and_autofill_transaction(
+async def sign_and_autofill(
     transaction: Transaction,
     wallet: Wallet,
     client: Client,
@@ -115,6 +115,9 @@ async def safe_sign_and_autofill_transaction(
     return await safe_sign_transaction(
         await autofill(transaction, client), wallet, False
     )
+
+
+safe_sign_and_autofill_transaction = sign_and_autofill
 
 
 async def submit_transaction(
