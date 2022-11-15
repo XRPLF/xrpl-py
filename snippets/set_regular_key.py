@@ -2,10 +2,7 @@
 from xrpl.account import get_balance
 from xrpl.clients import JsonRpcClient
 from xrpl.models.transactions import Payment, SetRegularKey
-from xrpl.transaction import (
-    safe_sign_and_autofill_transaction,
-    send_reliable_submission,
-)
+from xrpl.transaction import send_reliable_submission, sign_and_autofill
 from xrpl.wallet import generate_faucet_wallet
 
 # References
@@ -31,7 +28,7 @@ tx = SetRegularKey(
     account=wallet1.classic_address, regular_key=regular_key_wallet.classic_address
 )
 
-signed_tx = safe_sign_and_autofill_transaction(tx, wallet1, client)
+signed_tx = sign_and_autofill(tx, wallet1, client)
 set_regular_key_response = send_reliable_submission(signed_tx, client)
 
 print("Response for successful SetRegularKey tx:")
@@ -45,7 +42,7 @@ payment = Payment(
     amount="1000",
 )
 
-signed_payment = safe_sign_and_autofill_transaction(payment, regular_key_wallet, client)
+signed_payment = sign_and_autofill(payment, regular_key_wallet, client)
 payment_response = send_reliable_submission(signed_payment, client)
 
 print("Response for tx signed using Regular Key:")

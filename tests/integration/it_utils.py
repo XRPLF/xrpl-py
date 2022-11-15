@@ -17,8 +17,8 @@ from xrpl.clients import Client, JsonRpcClient, WebsocketClient
 from xrpl.clients.sync_client import SyncClient
 from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
 from xrpl.transaction import (  # noqa: F401 - needed for sync tests
-    safe_sign_and_autofill_transaction,
     safe_sign_and_submit_transaction,
+    sign_and_autofill,
 )
 from xrpl.wallet import Wallet
 

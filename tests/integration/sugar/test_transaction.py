@@ -13,9 +13,9 @@ from xrpl.asyncio.transaction import (
     XRPLReliableSubmissionException,
     autofill,
     get_transaction_from_hash,
-    safe_sign_and_autofill_transaction,
     safe_sign_transaction,
     send_reliable_submission,
+    sign_and_autofill,
 )
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
@@ -47,7 +47,7 @@ class TestTransaction(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_and_autofill_transaction",
+            "xrpl.transaction.sign_and_autofill",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.transaction.get_transaction_from_hash",
         ],
@@ -79,7 +79,7 @@ class TestTransaction(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_and_autofill_transaction",
+            "xrpl.transaction.sign_and_autofill",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.transaction.get_transaction_from_hash",
         ],
@@ -111,7 +111,7 @@ class TestTransaction(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_and_autofill_transaction",
+            "xrpl.transaction.sign_and_autofill",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.transaction.get_transaction_from_hash",
         ],
@@ -307,7 +307,7 @@ class TestReliableSubmission(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_and_autofill_transaction",
+            "xrpl.transaction.sign_and_autofill",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
@@ -320,9 +320,7 @@ class TestReliableSubmission(IntegrationTestCase):
             sequence=WALLET.sequence,
             set_flag=SET_FLAG,
         )
-        signed_account_set = await safe_sign_and_autofill_transaction(
-            account_set, WALLET, client
-        )
+        signed_account_set = await sign_and_autofill(account_set, WALLET, client)
         await accept_ledger_async()
         response = await send_reliable_submission(signed_account_set, client)
         self.assertTrue(response.result["validated"])
@@ -334,7 +332,7 @@ class TestReliableSubmission(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_and_autofill_transaction",
+            "xrpl.transaction.sign_and_autofill",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
@@ -349,7 +347,7 @@ class TestReliableSubmission(IntegrationTestCase):
             "destination": DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
-        signed_payment_transaction = await safe_sign_and_autofill_transaction(
+        signed_payment_transaction = await sign_and_autofill(
             payment_transaction, WALLET, client
         )
         await accept_ledger_async()
@@ -363,7 +361,7 @@ class TestReliableSubmission(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_and_autofill_transaction",
+            "xrpl.transaction.sign_and_autofill",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_latest_validated_ledger_sequence",
@@ -380,7 +378,7 @@ class TestReliableSubmission(IntegrationTestCase):
             "destination": DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
-        signed_payment_transaction = await safe_sign_and_autofill_transaction(
+        signed_payment_transaction = await sign_and_autofill(
             payment_transaction, WALLET, client
         )
         with self.assertRaises(XRPLReliableSubmissionException):
