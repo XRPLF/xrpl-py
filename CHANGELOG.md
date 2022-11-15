@@ -7,9 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 ### Changed:
-* `check_fee` now has a higher limit that is less likely to be hit
-
-### Changed
+- `check_fee` now has a higher limit that is less likely to be hit
 - When connected to nft devnet or hooks v2 testnet generate_faucet_wallet now defaults to using the faucet instead of requiring specification
 
 ## [1.7.0] - 2022-10-12
