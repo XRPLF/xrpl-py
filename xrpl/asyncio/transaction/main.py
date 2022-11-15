@@ -28,7 +28,7 @@ _LEDGER_OFFSET: Final[int] = 20
 _ACCOUNT_DELETE_FEE: Final[int] = int(xrp_to_drops(2))
 
 
-async def safe_sign_and_submit_transaction(
+async def sign_and_submit(
     transaction: Transaction,
     wallet: Wallet,
     client: Client,
@@ -57,6 +57,9 @@ async def safe_sign_and_submit_transaction(
     else:
         transaction = await safe_sign_transaction(transaction, wallet, check_fee)
     return await submit_transaction(transaction, client)
+
+
+safe_sign_and_submit_transaction = sign_and_submit
 
 
 async def safe_sign_transaction(
