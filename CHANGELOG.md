@@ -6,10 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [[Unreleased]]
+### Added:
+- Created function alias to `submit_transaction` called `submit`
+
 ### Changed:
 - `check_fee` now has a higher limit that is less likely to be hit
 - When connected to nft devnet or hooks v2 testnet generate_faucet_wallet now defaults to using the faucet instead of requiring specification
-- Created function alias to `submit_transaction` called `submit`
 
 ## [1.7.0] - 2022-10-12
 ### Added:
