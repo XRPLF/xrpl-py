@@ -2,6 +2,7 @@
 import math
 from typing import Any, Dict, Optional, cast
 
+from deprecated.sphinx import deprecated
 from typing_extensions import Final
 
 from xrpl.asyncio.account import get_next_valid_seq_number
@@ -56,7 +57,7 @@ async def safe_sign_and_submit_transaction(
         )
     else:
         transaction = await safe_sign_transaction(transaction, wallet, check_fee)
-    return await submit_transaction(transaction, client)
+    return await submit(transaction, client)
 
 
 async def safe_sign_transaction(
@@ -117,7 +118,7 @@ async def safe_sign_and_autofill_transaction(
     )
 
 
-async def submit_transaction(
+async def submit(
     transaction: Transaction,
     client: Client,
 ) -> Response:
@@ -140,6 +141,30 @@ async def submit_transaction(
         return response
 
     raise XRPLRequestFailureException(response.result)
+
+
+@deprecated(
+    reason="Use `submit` instead - it is a more concise, descriptive name.",
+    version="1.8.0",
+)
+async def submit_transaction(
+    transaction: Transaction,
+    client: Client,
+) -> Response:
+    """
+    Submits a transaction to the ledger.
+
+    Args:
+        transaction: the Transaction to be submitted.
+        client: the network client with which to submit the transaction.
+
+    Returns:
+        The response from the ledger.
+
+    Raises:
+        XRPLRequestFailureException: if the rippled API call fails.
+    """
+    return await submit(transaction, client)
 
 
 def _prepare_transaction(

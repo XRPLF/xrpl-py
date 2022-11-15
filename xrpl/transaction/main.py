@@ -1,6 +1,8 @@
 """High-level transaction methods with XRPL transactions."""
 import asyncio
 
+from deprecated.sphinx import deprecated
+
 from xrpl.asyncio.transaction import main
 from xrpl.clients.sync_client import SyncClient
 from xrpl.models.response import Response
@@ -41,7 +43,7 @@ def safe_sign_and_submit_transaction(
     )
 
 
-def submit_transaction(
+def submit(
     transaction: Transaction,
     client: SyncClient,
 ) -> Response:
@@ -59,11 +61,35 @@ def submit_transaction(
         XRPLRequestFailureException: if the rippled API call fails.
     """
     return asyncio.run(
-        main.submit_transaction(
+        main.submit(
             transaction,
             client,
         )
     )
+
+
+@deprecated(
+    reason="Use `submit` instead - it is a more concise, descriptive name.",
+    version="1.8.0",
+)
+def submit_transaction(
+    transaction: Transaction,
+    client: SyncClient,
+) -> Response:
+    """
+    Submits a transaction to the ledger.
+
+    Args:
+        transaction: the Transaction to be submitted.
+        client: the network client with which to submit the transaction.
+
+    Returns:
+        The response from the ledger.
+
+    Raises:
+        XRPLRequestFailureException: if the rippled API call fails.
+    """
+    return submit(transaction, client)
 
 
 def safe_sign_transaction(
