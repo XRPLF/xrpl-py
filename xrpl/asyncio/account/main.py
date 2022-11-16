@@ -2,6 +2,8 @@
 
 from typing import Dict, Union, cast
 
+from deprecated.sphinx import deprecated
+
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
@@ -102,6 +104,10 @@ async def get_account_root(
     return cast(Dict[str, Union[int, str]], account_info.result["account_data"])
 
 
+@deprecated(
+    reason="Sending an AccountInfo request directly is just as easy to use.",
+    version="1.8.0",
+)
 async def get_account_info(
     address: str, client: Client, ledger_index: Union[str, int] = "validated"
 ) -> Response:

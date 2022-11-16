@@ -68,6 +68,11 @@ async def get_account_transactions(
     return cast(List[Dict[str, Any]], response.result["transactions"])
 
 
+@deprecated(
+    reason="Sending an AccountTx request directly and filtering for payments allows "
+    "you to page through all results and is just as easy to use.",
+    version="1.8.0",
+)
 async def get_account_payment_transactions(
     address: str,
     client: Client,

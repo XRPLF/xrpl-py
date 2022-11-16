@@ -2,11 +2,17 @@
 
 from typing import Optional
 
+from deprecated.sphinx import deprecated
+
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.models.requests import Tx
 from xrpl.models.response import Response
 
 
+@deprecated(
+    reason="Sending a Tx request directly is just as easy to use.",
+    version="1.8.0",
+)
 async def get_transaction_from_hash(
     tx_hash: str,
     client: Client,

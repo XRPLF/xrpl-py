@@ -51,6 +51,11 @@ def get_account_transactions(address: str, client: SyncClient) -> List[Dict[str,
     return asyncio.run(transaction_history.get_account_transactions(address, client))
 
 
+@deprecated(
+    reason="Sending an AccountTx request directly and filtering for payments allows "
+    "you to page through all results and is just as easy to use.",
+    version="1.8.0",
+)
 def get_account_payment_transactions(
     address: str, client: SyncClient
 ) -> List[Dict[str, Any]]:
