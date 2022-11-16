@@ -82,7 +82,7 @@ async def get_account_payment_transactions(
         client: the network client used to make network calls.
 
     Returns:
-        The most page of payment transaction history for the address. For the full
+        The first page of payment transaction history for the address. For the full
         history, page through the :class:`AccountTx` request directly.
     """
     all_transactions = await get_account_transactions(address, client)
