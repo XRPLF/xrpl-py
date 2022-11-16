@@ -35,7 +35,7 @@ async def get_latest_transaction(account: str, client: Client) -> Response:
 
 
 @deprecated(
-    reason="Sending an AccountTx request directly allows you to page through all"
+    reason="Sending an AccountTx request directly allows you to page through all "
     "results and is just as easy to use.",
     version="1.6.0",
 )
