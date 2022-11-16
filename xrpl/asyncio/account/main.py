@@ -99,15 +99,23 @@ async def get_account_root(
 
     Returns:
         The AccountRoot dictionary for the address.
+
+    Raises:
+        XRPLRequestFailureException: if the rippled API call fails.
     """
     if is_valid_xaddress(address):
         address, _, _ = xaddress_to_classic_address(address)
+
     account_info = await client.request_impl(
         AccountInfo(
             account=address,
             ledger_index=ledger_index,
         )
     )
+
+    if not account_info.is_successful():
+        raise XRPLRequestFailureException(account_info.result)
+
     return cast(Dict[str, Union[int, str]], account_info.result["account_data"])
 
 
