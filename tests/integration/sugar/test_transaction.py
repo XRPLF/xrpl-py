@@ -240,9 +240,7 @@ class TestTransaction(IntegrationTestCase):
         WALLET.sequence += 1
 
     @test_async_and_sync(globals())
-    async def test_payment_high_fee_authorized_with_submit_transaction_alias(
-        self, client
-    ):
+    async def test_payment_high_fee_authorized_submit_xalias(self, client):
         # GIVEN a new Payment transaction
         response = await submit_transaction_with_alias_async(
             Payment(
