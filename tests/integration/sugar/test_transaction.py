@@ -3,6 +3,7 @@ from tests.integration.it_utils import (
     accept_ledger_async,
     sign_and_reliable_submission_async,
     submit_transaction_async,
+    submit_transaction_with_alias_async,
     test_async_and_sync,
 )
 from tests.integration.reusable_values import DESTINATION as DESTINATION_WALLET
@@ -222,6 +223,28 @@ class TestTransaction(IntegrationTestCase):
     async def test_payment_high_fee_authorized(self, client):
         # GIVEN a new Payment transaction
         response = await submit_transaction_async(
+            Payment(
+                account=WALLET.classic_address,
+                sequence=WALLET.sequence,
+                amount="1",
+                # WITH the fee higher than 2 XRP
+                fee=FEE,
+                destination=DESTINATION,
+            ),
+            WALLET,
+            # WITHOUT checking the fee value
+            check_fee=False,
+        )
+        # THEN we expect the transaction to be successful
+        self.assertTrue(response.is_successful())
+        WALLET.sequence += 1
+
+    @test_async_and_sync(globals())
+    async def test_payment_high_fee_authorized_with_submit_transaction_alias(
+        self, client
+    ):
+        # GIVEN a new Payment transaction
+        response = await submit_transaction_with_alias_async(
             Payment(
                 account=WALLET.classic_address,
                 sequence=WALLET.sequence,

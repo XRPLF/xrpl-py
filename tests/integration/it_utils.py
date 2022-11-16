@@ -11,14 +11,27 @@ from xrpl.asyncio.account import get_next_valid_seq_number as get_seq_num_async
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.asyncio.transaction import (
+    safe_sign_and_autofill_transaction as safe_sign_and_autofill_transaction_async,
+)
+from xrpl.asyncio.transaction import (
     safe_sign_and_submit_transaction as sign_and_submit_async,
+)
+from xrpl.asyncio.transaction import (
+    safe_sign_transaction as safe_sign_transaction_async,
+)
+from xrpl.asyncio.transaction import (
+    submit_transaction as submit_transaction_alias_async,
 )
 from xrpl.clients import Client, JsonRpcClient, WebsocketClient
 from xrpl.clients.sync_client import SyncClient
 from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
-from xrpl.transaction import (  # noqa: F401 - needed for sync tests
+from xrpl.transaction import (
     safe_sign_and_autofill_transaction,
     safe_sign_and_submit_transaction,
+    safe_sign_transaction,
+)
+from xrpl.transaction import (  # noqa: F401 - needed for sync tests
+    submit_transaction as submit_transaction_alias,
 )
 from xrpl.wallet import Wallet
 
@@ -140,6 +153,28 @@ async def submit_transaction_async(
     return await sign_and_submit_async(transaction, wallet, client, check_fee=check_fee)
 
 
+def submit_transaction_with_alias(
+    transaction: Transaction,
+    wallet: Wallet,
+    client: Client = JSON_RPC_CLIENT,
+    check_fee: bool = True,
+) -> Response:
+    return _safe_sign_and_submit_transaction_with_alias(
+        transaction, wallet, client, check_fee=check_fee
+    )
+
+
+async def submit_transaction_with_alias_async(
+    transaction: Transaction,
+    wallet: Wallet,
+    client: Client = ASYNC_JSON_RPC_CLIENT,
+    check_fee: bool = True,
+) -> Response:
+    return await _safe_sign_and_submit_transaction_with_alias_async(
+        transaction, wallet, client, check_fee=check_fee
+    )
+
+
 def sign_and_reliable_submission(
     transaction: Transaction, wallet: Wallet, use_json_client: bool = True
 ) -> Response:
@@ -198,6 +233,38 @@ def _choose_client_async(use_json_client: bool) -> Client:
 
 def _get_client(is_async: bool, is_json: bool, is_testnet: bool) -> Client:
     return _CLIENTS[(is_async, is_json, is_testnet)]
+
+
+def _safe_sign_and_submit_transaction_with_alias(
+    transaction: Transaction,
+    wallet: Wallet,
+    client: Client,
+    autofill: bool = True,
+    check_fee: bool = True,
+) -> Response:
+    if autofill:
+        transaction = safe_sign_and_autofill_transaction(
+            transaction, wallet, client, check_fee
+        )
+    else:
+        transaction = safe_sign_transaction(transaction, wallet, check_fee)
+    return submit_transaction_alias(transaction, client)
+
+
+async def _safe_sign_and_submit_transaction_with_alias_async(
+    transaction: Transaction,
+    wallet: Wallet,
+    client: Client,
+    autofill: bool = True,
+    check_fee: bool = True,
+) -> Response:
+    if autofill:
+        transaction = await safe_sign_and_autofill_transaction_async(
+            transaction, wallet, client, check_fee
+        )
+    else:
+        transaction = await safe_sign_transaction_async(transaction, wallet, check_fee)
+    return await submit_transaction_alias_async(transaction, client)
 
 
 # TODO: document how to write tests, for posterity
