@@ -100,7 +100,12 @@ async def get_account_root(
     Returns:
         The AccountRoot dictionary for the address.
     """
-    account_info = await get_account_info(address, client, ledger_index)
+    account_info = await client.request_impl(
+        AccountInfo(
+            account=address,
+            ledger_index=ledger_index,
+        )
+    )
     return cast(Dict[str, Union[int, str]], account_info.result["account_data"])
 
 
