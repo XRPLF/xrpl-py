@@ -100,6 +100,8 @@ async def get_account_root(
     Returns:
         The AccountRoot dictionary for the address.
     """
+    if is_valid_xaddress(address):
+        address, _, _ = xaddress_to_classic_address(address)
     account_info = await client.request_impl(
         AccountInfo(
             account=address,
