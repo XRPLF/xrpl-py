@@ -4,6 +4,7 @@ from unittest import TestCase
 
 from xrpl.models import XRPLModelException
 from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.models.currencies import XRP
 from xrpl.models.requests import (
     AccountChannels,
     BookOffers,
@@ -612,9 +613,9 @@ class TestFromDict(TestCase):
             "Amount": value,
             "XChainBridge": {
                 "LockingChainDoor": "rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
-                "LockingChainIssue": "XRP",
+                "LockingChainIssue": {"currency": "XRP"},
                 "IssuingChainDoor": "r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
-                "IssuingChainIssue": "XRP",
+                "IssuingChainIssue": {"currency": "XRP"},
             },
             "Destination": destination,
             "TransactionType": "XChainClaim",
@@ -627,9 +628,9 @@ class TestFromDict(TestCase):
             amount=value,
             xchain_bridge=XChainBridge(
                 locking_chain_door="rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
-                locking_chain_issue="XRP",
+                locking_chain_issue=XRP(),
                 issuing_chain_door="r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
-                issuing_chain_issue="XRP",
+                issuing_chain_issue=XRP(),
             ),
             destination=destination,
             xchain_claim_id=1,

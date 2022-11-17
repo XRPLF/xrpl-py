@@ -9,6 +9,7 @@ from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.account_id import AccountID
 from xrpl.core.binarycodec.types.currency import Currency
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
+from xrpl.models.currencies import XRP as XRPModel
 from xrpl.models.currencies import IssuedCurrency as IssuedCurrencyModel
 
 
@@ -20,7 +21,7 @@ class Issue(SerializedType):
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls: Type[Issue], value: Union[str, Dict[str, str]]) -> Issue:
+    def from_value(cls: Type[Issue], value: Dict[str, str]) -> Issue:
         """
         Construct an Issue object from a string or dictionary representation
         of an issued currency.
@@ -34,10 +35,9 @@ class Issue(SerializedType):
         Raises:
             XRPLBinaryCodecException: If the Issue representation is invalid.
         """
-        if isinstance(value, str):
-            if value != "XRP":
-                raise XRPLBinaryCodecException(f"{value} is an illegal currency")
-            return cls(bytes(Currency.from_value(value)))
+        if XRPModel.is_dict_of_model(value):
+            currency_bytes = bytes(Currency.from_value(value["currency"]))
+            return cls(currency_bytes)
 
         if IssuedCurrencyModel.is_dict_of_model(value):
             currency_bytes = bytes(Currency.from_value(value["currency"]))
@@ -82,7 +82,7 @@ class Issue(SerializedType):
         parser = BinaryParser(str(self))
         currency: Union[str, Dict[Any, Any]] = Currency.from_parser(parser).to_json()
         if currency == "XRP":
-            return currency
+            return {"currency": currency}
 
         issuer = AccountID.from_parser(parser)
         return {"currency": currency, "issuer": issuer.to_json()}
