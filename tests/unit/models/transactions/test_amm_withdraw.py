@@ -15,7 +15,7 @@ _LPTOKEN_ISSUER = "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg"
 
 
 class TestAMMWithdraw(TestCase):
-    def test_tx_valid_lptoken(self):
+    def test_tx_valid_lptokenin(self):
         tx = AMMWithdraw(
             account=_ACCOUNT,
             sequence=1337,
@@ -48,12 +48,14 @@ class TestAMMWithdraw(TestCase):
             asset=_ASSET,
             asset2=_ASSET2,
             amount=_AMOUNT,
-            amount2="500",
+            amount2=IssuedCurrencyAmount(
+                currency=_ASSET2.currency, issuer=_ASSET2.issuer, value="500"
+            ),
             flags=AMMWithdrawFlag.TF_TWO_ASSET,
         )
         self.assertTrue(tx.is_valid())
 
-    def test_tx_valid_amount_lptoken(self):
+    def test_tx_valid_amount_lptokenin(self):
         tx = AMMWithdraw(
             account=_ACCOUNT,
             sequence=1337,
@@ -81,7 +83,7 @@ class TestAMMWithdraw(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-    def test_undefined_amount_undefined_lptoken_invalid_combo(self):
+    def test_undefined_amount_undefined_lptokenin_invalid_combo(self):
         with self.assertRaises(XRPLModelException) as error:
             AMMWithdraw(
                 account=_ACCOUNT,
@@ -101,7 +103,9 @@ class TestAMMWithdraw(TestCase):
                 sequence=1337,
                 asset=_ASSET,
                 asset2=_ASSET2,
-                amount2="500",
+                amount2=IssuedCurrencyAmount(
+                    currency=_ASSET2.currency, issuer=_ASSET2.issuer, value="500"
+                ),
             )
         self.assertEqual(
             error.exception.args[0],
