@@ -83,18 +83,26 @@ class TestAMMWithdraw(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-    def test_undefined_amount_undefined_lptokenin_invalid_combo(self):
-        with self.assertRaises(XRPLModelException) as error:
-            AMMWithdraw(
-                account=_ACCOUNT,
-                sequence=1337,
-                asset=_ASSET,
-                asset2=_ASSET2,
-            )
-        self.assertEqual(
-            error.exception.args[0],
-            "{'AMMWithdraw': 'Must set at least `lp_token_in` or `amount`'}",
+    def test_tx_valid_one_asset_withdraw_all(self):
+        tx = AMMWithdraw(
+            account=_ACCOUNT,
+            sequence=1337,
+            asset=_ASSET,
+            asset2=_ASSET2,
+            amount=_AMOUNT,
+            flags=AMMWithdrawFlag.TF_ONE_ASSET_WITHDRAW_ALL,
         )
+        self.assertTrue(tx.is_valid())
+
+    def test_tx_valid_withdraw_all(self):
+        tx = AMMWithdraw(
+            account=_ACCOUNT,
+            sequence=1337,
+            asset=_ASSET,
+            asset2=_ASSET2,
+            flags=AMMWithdrawFlag.TF_WITHDRAW_ALL,
+        )
+        self.assertTrue(tx.is_valid())
 
     def test_undefined_amount_defined_amount2_invalid_combo(self):
         with self.assertRaises(XRPLModelException) as error:
