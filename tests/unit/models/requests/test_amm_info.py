@@ -1,7 +1,6 @@
 from unittest import TestCase
 
 from xrpl.models.currencies.issue import Issue
-from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests import AMMInfo
 
 _ASSET = Issue(currency="XRP")
