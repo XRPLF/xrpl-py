@@ -1,12 +1,13 @@
 from unittest import TestCase
 
 from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.models.currencies.issue import Issue
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMBid, AuthAccount
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
-_ASSET = {"currency": "XRP"}
-_ASSET2 = {"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"}
+_ASSET = Issue(currency="XRP")
+_ASSET2 = Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW")
 _AUTH_ACCOUNTS = [
     AuthAccount(
         account="rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh",

@@ -1,12 +1,13 @@
 from sys import maxsize
 from unittest import TestCase
+from xrpl.models.currencies.issue import Issue
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMVote
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
-_ASSET = {"currency": "XRP"}
-_ASSET2 = {"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"}
+_ASSET = Issue(currency="XRP")
+_ASSET2 = Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW")
 _TRADING_FEE = 234
 
 

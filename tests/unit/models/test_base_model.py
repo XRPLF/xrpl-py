@@ -4,6 +4,7 @@ from unittest import TestCase
 
 from xrpl.models import XRPLModelException
 from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.models.currencies.issue import Issue
 from xrpl.models.requests import (
     AccountChannels,
     BookOffers,
@@ -634,8 +635,8 @@ class TestFromDict(TestCase):
         tx = AMMDeposit(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            asset={"currency": "XRP"},
-            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
             lp_token=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
@@ -667,8 +668,8 @@ class TestFromDict(TestCase):
         tx = AMMDeposit(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            asset={"currency": "XRP"},
-            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
             amount="1000",
         )
         expected = {
@@ -692,8 +693,8 @@ class TestFromDict(TestCase):
         tx = AMMDeposit(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            asset={"currency": "XRP"},
-            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
             amount="1000",
             amount2="500",
         )
@@ -719,8 +720,8 @@ class TestFromDict(TestCase):
         tx = AMMDeposit(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            asset={"currency": "XRP"},
-            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
             amount="1000",
             lp_token=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
@@ -754,8 +755,8 @@ class TestFromDict(TestCase):
         tx = AMMDeposit(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            asset={"currency": "XRP"},
-            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
             amount="1000",
             e_price="25",
         )
@@ -781,8 +782,8 @@ class TestFromDict(TestCase):
         tx = AMMWithdraw(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            asset={"currency": "XRP"},
-            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
             lp_token=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
@@ -814,8 +815,8 @@ class TestFromDict(TestCase):
         tx = AMMWithdraw(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            asset={"currency": "XRP"},
-            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
             amount="1000",
         )
         expected = {
@@ -839,8 +840,8 @@ class TestFromDict(TestCase):
         tx = AMMWithdraw(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            asset={"currency": "XRP"},
-            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
             amount="1000",
             amount2="500",
         )
@@ -866,8 +867,8 @@ class TestFromDict(TestCase):
         tx = AMMWithdraw(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            asset={"currency": "XRP"},
-            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
             amount="1000",
             lp_token=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
@@ -901,8 +902,8 @@ class TestFromDict(TestCase):
         tx = AMMWithdraw(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             sequence=1337,
-            asset={"currency": "XRP"},
-            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
             amount="1000",
             e_price="25",
         )
@@ -927,8 +928,8 @@ class TestFromDict(TestCase):
     def test_to_xrpl_amm_vote(self):
         tx = AMMVote(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            asset={"currency": "XRP"},
-            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
             trading_fee=234,
         )
         expected = {
@@ -950,8 +951,8 @@ class TestFromDict(TestCase):
     def test_to_xrpl_amm_bid(self):
         tx = AMMBid(
             account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            asset={"currency": "XRP"},
-            asset2={"currency": "ETH", "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"},
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
             bid_min=IssuedCurrencyAmount(
                 currency="5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
                 issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
