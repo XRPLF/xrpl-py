@@ -105,6 +105,4 @@ class AMMWithdraw(Transaction):
             errors["AMMWithdraw"] = "Must set `amount` with `amount2`"
         elif self.e_price is not None and self.amount is None:
             errors["AMMWithdraw"] = "Must set `amount` with `e_price`"
-        elif self.lp_token_in is None and self.amount is None:
-            errors["AMMWithdraw"] = "Must set at least `lp_token_in` or `amount`"
         return errors
