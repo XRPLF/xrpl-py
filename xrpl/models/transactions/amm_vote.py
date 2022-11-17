@@ -4,8 +4,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
+from xrpl.models.currencies.issue import Issue
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.amm_instance_create import AMM_MAX_TRADING_FEE
+from xrpl.models.transactions.amm_create import AMM_MAX_TRADING_FEE
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
@@ -21,17 +22,22 @@ class AMMVote(Transaction):
     transaction to vote for the trading fee for that instance.
     """
 
-    amm_id: str = REQUIRED  # type: ignore
+    asset: Issue = REQUIRED  # type: ignore
     """
-    A hash that uniquely identifies the AMM instance. This field is required.
+    Specifies one of the pool assets (XRP or token) of the AMM instance.
     """
 
-    fee_val: int = REQUIRED  # type: ignore
+    asset2: Issue = REQUIRED  # type: ignore
+    """
+    Specifies the other pool asset of the AMM instance.
+    """
+
+    trading_fee: int = REQUIRED  # type: ignore
     """
     Specifies the fee, in basis point.
-    Valid values for this field are between 0 and 65000 inclusive.
+    Valid values for this field are between 0 and 1000 inclusive.
     A value of 1 is equivalent to 1/10 bps or 0.001%, allowing trading fee
-    between 0% and 65%. This field is required.
+    between 0% and 1%. This field is required.
     """
 
     transaction_type: TransactionType = field(
@@ -44,12 +50,12 @@ class AMMVote(Transaction):
             key: value
             for key, value in {
                 **super()._get_errors(),
-                "fee_val": self._get_fee_val_error(),
+                "trading_fee": self._get_trading_fee_error(),
             }.items()
             if value is not None
         }
 
-    def _get_fee_val_error(self: AMMVote) -> Optional[str]:
-        if self.fee_val < 0 or self.fee_val > AMM_MAX_TRADING_FEE:
+    def _get_trading_fee_error(self: AMMVote) -> Optional[str]:
+        if self.trading_fee < 0 or self.trading_fee > AMM_MAX_TRADING_FEE:
             return f"Must be between 0 and {AMM_MAX_TRADING_FEE}"
         return None

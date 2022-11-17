@@ -8,6 +8,7 @@ from typing_extensions import Final
 
 from xrpl.models.amounts import Amount
 from xrpl.models.auth_account import AuthAccount
+from xrpl.models.currencies.issue import Issue
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -27,12 +28,17 @@ class AMMBid(Transaction):
     discounted TradingFee for a 24 hour slot.
     """
 
-    amm_id: str = REQUIRED  # type: ignore
+    asset: Issue = REQUIRED  # type: ignore
     """
-    A hash that uniquely identifies the AMM instance. This field is required.
+    Specifies one of the pool assets (XRP or token) of the AMM instance.
     """
 
-    min_slot_price: Optional[Amount] = None
+    asset2: Issue = REQUIRED  # type: ignore
+    """
+    Specifies the other pool asset of the AMM instance.
+    """
+
+    bid_min: Optional[Amount] = None
     """
     This field represents the minimum price that the bidder wants to pay for the slot.
     It is specified in units of LPToken. If specified let MinSlotPrice be X and let
@@ -40,7 +46,7 @@ class AMMBid(Transaction):
     the max(X, Y).
     """
 
-    max_slot_price: Optional[Amount] = None
+    bid_max: Optional[Amount] = None
     """
     This field represents the maximum price that the bidder wants to pay for the slot.
     It is specified in units of LPToken.

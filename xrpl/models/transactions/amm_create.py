@@ -1,4 +1,4 @@
-"""Model for AMMInstanceCreate transaction type."""
+"""Model for AMMCreate transaction type."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -12,25 +12,25 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
-AMM_MAX_TRADING_FEE: Final[int] = 65000
+AMM_MAX_TRADING_FEE: Final[int] = 1000
 
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class AMMInstanceCreate(Transaction):
+class AMMCreate(Transaction):
     """
-    AMMInstanceCreate is used to create AccountRoot and the corresponding AMM
+    AMMCreate is used to create AccountRoot and the corresponding AMM
     ledger entries.
     This allows for the creation of only one AMM instance per unique asset pair.
     """
 
-    asset1: Amount = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED  # type: ignore
     """
     Specifies one of the pool assets (XRP or token) of the AMM instance.
     This field is required.
     """
 
-    asset2: Amount = REQUIRED  # type: ignore
+    amount2: Amount = REQUIRED  # type: ignore
     """
     Specifies the other pool asset of the AMM instance. This field is required.
     """
@@ -40,17 +40,17 @@ class AMMInstanceCreate(Transaction):
     Specifies the fee, in basis point, to be charged
     to the traders for the trades executed against the AMM instance.
     Trading fee is a percentage of the trading volume.
-    Valid values for this field are between 0 and 65000 inclusive.
+    Valid values for this field are between 0 and 1000 inclusive.
     A value of 1 is equivalent to 1/10 bps or 0.001%, allowing trading fee
-    between 0% and 65%. This field is required.
+    between 0% and 1%. This field is required.
     """
 
     transaction_type: TransactionType = field(
-        default=TransactionType.AMM_INSTANCE_CREATE,
+        default=TransactionType.AMM_CREATE,
         init=False,
     )
 
-    def _get_errors(self: AMMInstanceCreate) -> Dict[str, str]:
+    def _get_errors(self: AMMCreate) -> Dict[str, str]:
         return {
             key: value
             for key, value in {
@@ -60,7 +60,7 @@ class AMMInstanceCreate(Transaction):
             if value is not None
         }
 
-    def _get_trading_fee_error(self: AMMInstanceCreate) -> Optional[str]:
+    def _get_trading_fee_error(self: AMMCreate) -> Optional[str]:
         if self.trading_fee < 0 or self.trading_fee > AMM_MAX_TRADING_FEE:
             return f"Must be between 0 and {AMM_MAX_TRADING_FEE}"
         return None

@@ -1,20 +1,23 @@
 from sys import maxsize
 from unittest import TestCase
 
+from xrpl.models.currencies.issue import Issue
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMVote
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
-_AMM_ID = "24BA86F99302CF124AB27311C831F5BFAA72C4625DDA65B7EDF346A60CC19883"
-_FEE_VAL = 1234
+_ASSET = Issue(currency="XRP")
+_ASSET2 = Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW")
+_TRADING_FEE = 234
 
 
 class TestAMMVote(TestCase):
     def test_tx_valid(self):
         tx = AMMVote(
             account=_ACCOUNT,
-            amm_id=_AMM_ID,
-            fee_val=_FEE_VAL,
+            asset=_ASSET,
+            asset2=_ASSET2,
+            trading_fee=_TRADING_FEE,
         )
         self.assertTrue(tx.is_valid())
 
@@ -22,22 +25,24 @@ class TestAMMVote(TestCase):
         with self.assertRaises(XRPLModelException) as error:
             AMMVote(
                 account=_ACCOUNT,
-                amm_id=_AMM_ID,
-                fee_val=maxsize,
+                asset=_ASSET,
+                asset2=_ASSET2,
+                trading_fee=maxsize,
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'fee_val': 'Must be between 0 and 65000'}",
+            "{'trading_fee': 'Must be between 0 and 1000'}",
         )
 
     def test_trading_fee_negative_number(self):
         with self.assertRaises(XRPLModelException) as error:
             AMMVote(
                 account=_ACCOUNT,
-                amm_id=_AMM_ID,
-                fee_val=-1,
+                asset=_ASSET,
+                asset2=_ASSET2,
+                trading_fee=-1,
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'fee_val': 'Must be between 0 and 65000'}",
+            "{'trading_fee': 'Must be between 0 and 1000'}",
         )

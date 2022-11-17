@@ -17,7 +17,13 @@ class Issue(SerializedType):
     """Codec for serializing and deserializing issued currency fields."""
 
     def __init__(self: Issue, buffer: bytes) -> None:
-        """Construct an Issue from given bytes."""
+        """
+        Construct an Issue from given bytes.
+
+        Args:
+            buffer: The byte buffer that will be used to store the serialized
+                encoding of this field.
+        """
         super().__init__(buffer)
 
     @classmethod
