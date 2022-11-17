@@ -51,7 +51,7 @@ class AMMDeposit(Transaction):
     - LPTokenOut
     - Amount
     - Amount and Amount2
-    - Amount and LPToken
+    - Amount and LPTokenOut
     - Amount and EPrice
     """
 

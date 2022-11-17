@@ -56,7 +56,7 @@ class AMMWithdraw(Transaction):
     - LPTokenIn
     - Amount
     - Amount and Amount2
-    - Amount and LPToken
+    - Amount and LPTokenIn
     - Amount and EPrice
     """
 
