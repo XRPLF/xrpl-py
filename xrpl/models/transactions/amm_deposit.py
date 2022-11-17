@@ -48,7 +48,7 @@ class AMMDeposit(Transaction):
     pool, thus obtaining some share of the instance's pools in the form of LPToken.
 
     The following are the recommended valid combinations:
-    - LPToken
+    - LPTokenOut
     - Amount
     - Amount and Amount2
     - Amount and LPToken
@@ -65,7 +65,7 @@ class AMMDeposit(Transaction):
     Specifies the other pool asset of the AMM instance.
     """
 
-    lp_token: Optional[IssuedCurrencyAmount] = None
+    lp_token_out: Optional[IssuedCurrencyAmount] = None
     """
     Specifies the amount of shares of the AMM instance pools that the trader
     wants to redeem or trade in.
@@ -99,6 +99,6 @@ class AMMDeposit(Transaction):
             errors["AMMDeposit"] = "Must set `amount` with `amount2`"
         elif self.e_price is not None and self.amount is None:
             errors["AMMDeposit"] = "Must set `amount` with `e_price`"
-        elif self.lp_token is None and self.amount is None:
-            errors["AMMDeposit"] = "Must set at least `lp_token` or `amount`"
+        elif self.lp_token_out is None and self.amount is None:
+            errors["AMMDeposit"] = "Must set at least `lp_token_out` or `amount`"
         return errors

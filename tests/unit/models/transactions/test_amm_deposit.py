@@ -21,7 +21,7 @@ class TestAMMDeposit(TestCase):
             sequence=1337,
             asset=_ASSET,
             asset2=_ASSET2,
-            lp_token=IssuedCurrencyAmount(
+            lp_token_out=IssuedCurrencyAmount(
                 currency=_LPTOKEN_CURRENCY,
                 issuer=_LPTOKEN_ISSUER,
                 value=_AMOUNT,
@@ -60,7 +60,7 @@ class TestAMMDeposit(TestCase):
             asset=_ASSET,
             asset2=_ASSET2,
             amount=_AMOUNT,
-            lp_token=IssuedCurrencyAmount(
+            lp_token_out=IssuedCurrencyAmount(
                 currency=_LPTOKEN_CURRENCY,
                 issuer=_LPTOKEN_ISSUER,
                 value="500",
@@ -91,7 +91,7 @@ class TestAMMDeposit(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'AMMDeposit': 'Must set at least `lp_token` or `amount`'}",
+            "{'AMMDeposit': 'Must set at least `lp_token_out` or `amount`'}",
         )
 
     def test_undefined_amount_defined_amount2_invalid_combo(self):

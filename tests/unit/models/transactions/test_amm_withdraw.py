@@ -21,7 +21,7 @@ class TestAMMWithdraw(TestCase):
             sequence=1337,
             asset=_ASSET,
             asset2=_ASSET2,
-            lp_token=IssuedCurrencyAmount(
+            lp_token_in=IssuedCurrencyAmount(
                 currency=_LPTOKEN_CURRENCY,
                 issuer=_LPTOKEN_ISSUER,
                 value=_AMOUNT,
@@ -60,7 +60,7 @@ class TestAMMWithdraw(TestCase):
             asset=_ASSET,
             asset2=_ASSET2,
             amount=_AMOUNT,
-            lp_token=IssuedCurrencyAmount(
+            lp_token_in=IssuedCurrencyAmount(
                 currency=_LPTOKEN_CURRENCY,
                 issuer=_LPTOKEN_ISSUER,
                 value="500",
@@ -91,7 +91,7 @@ class TestAMMWithdraw(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'AMMWithdraw': 'Must set at least `lp_token` or `amount`'}",
+            "{'AMMWithdraw': 'Must set at least `lp_token_in` or `amount`'}",
         )
 
     def test_undefined_amount_defined_amount2_invalid_combo(self):

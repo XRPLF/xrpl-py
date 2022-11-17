@@ -53,7 +53,7 @@ class AMMWithdraw(Transaction):
     of LPToken.
 
     The following are the recommended valid combinations:
-    - LPToken
+    - LPTokenIn
     - Amount
     - Amount and Amount2
     - Amount and LPToken
@@ -70,7 +70,7 @@ class AMMWithdraw(Transaction):
     Specifies the other pool asset of the AMM instance.
     """
 
-    lp_token: Optional[IssuedCurrencyAmount] = None
+    lp_token_in: Optional[IssuedCurrencyAmount] = None
     """
     Specifies the amount of shares of the AMM instance pools that the trader
     wants to redeem or trade in.
@@ -105,6 +105,6 @@ class AMMWithdraw(Transaction):
             errors["AMMWithdraw"] = "Must set `amount` with `amount2`"
         elif self.e_price is not None and self.amount is None:
             errors["AMMWithdraw"] = "Must set `amount` with `e_price`"
-        elif self.lp_token is None and self.amount is None:
-            errors["AMMWithdraw"] = "Must set at least `lp_token` or `amount`"
+        elif self.lp_token_in is None and self.amount is None:
+            errors["AMMWithdraw"] = "Must set at least `lp_token_in` or `amount`"
         return errors

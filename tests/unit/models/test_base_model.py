@@ -637,7 +637,7 @@ class TestFromDict(TestCase):
             sequence=1337,
             asset=Issue(currency="XRP"),
             asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
-            lp_token=IssuedCurrencyAmount(
+            lp_token_out=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 value="1000",
@@ -650,7 +650,7 @@ class TestFromDict(TestCase):
                 "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
             },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "LPToken": {
+            "LPTokenOut": {
                 "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 "value": "1000",
@@ -717,7 +717,7 @@ class TestFromDict(TestCase):
             asset=Issue(currency="XRP"),
             asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
             amount="1000",
-            lp_token=IssuedCurrencyAmount(
+            lp_token_out=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 value="500",
@@ -731,7 +731,7 @@ class TestFromDict(TestCase):
             },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
-            "LPToken": {
+            "LPTokenOut": {
                 "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 "value": "500",
@@ -774,7 +774,7 @@ class TestFromDict(TestCase):
             sequence=1337,
             asset=Issue(currency="XRP"),
             asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
-            lp_token=IssuedCurrencyAmount(
+            lp_token_in=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 value="1000",
@@ -787,7 +787,7 @@ class TestFromDict(TestCase):
                 "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
             },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "LPToken": {
+            "LPTokenIn": {
                 "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 "value": "1000",
@@ -854,7 +854,7 @@ class TestFromDict(TestCase):
             asset=Issue(currency="XRP"),
             asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
             amount="1000",
-            lp_token=IssuedCurrencyAmount(
+            lp_token_in=IssuedCurrencyAmount(
                 currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 value="500",
@@ -868,7 +868,7 @@ class TestFromDict(TestCase):
             },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
-            "LPToken": {
+            "LPTokenIn": {
                 "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
                 "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
                 "value": "500",
