@@ -2,15 +2,41 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Dict, Optional
 
 from xrpl.models.amounts import Amount, IssuedCurrencyAmount
 from xrpl.models.currencies.currency import Currency
+from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
+
+class AMMWithdrawFlag(int, Enum):
+    TF_LP_TOKEN = 0x00010000
+    TF_WITHDRAW_ALL = 0x00020000
+    TF_ONE_ASSET_WITHDRAW_ALL = 0x00040000
+    TF_SINGLE_ASSET = 0x00080000
+    TF_TWO_ASSET = 0x00100000
+    TF_ONE_ASSET_LP_TOKEN = 0x00200000
+    TF_LIMIT_LP_TOKEN = 0x00400000
+
+
+class AMMWithdrawFlagInterface(FlagInterface):
+    """
+    Transactions of the AMMWithdraw type support additional values in the Flags field.
+    This TypedDict represents those options.
+    """
+
+    TF_LP_TOKEN: bool
+    TF_WITHDRAW_ALL: bool
+    TF_ONE_ASSET_WITHDRAW_ALL: bool
+    TF_SINGLE_ASSET: bool
+    TF_TWO_ASSET: bool
+    TF_ONE_ASSET_LP_TOKEN: bool
+    TF_LIMIT_LP_TOKEN: bool
 
 @require_kwargs_on_init
 @dataclass(frozen=True)

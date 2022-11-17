@@ -3,6 +3,7 @@ from unittest import TestCase
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMWithdraw
+from xrpl.models.transactions.amm_withdraw import AMMWithdrawFlag
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _ASSET = {"currency": "XRP"}
@@ -24,6 +25,7 @@ class TestAMMWithdraw(TestCase):
                 issuer=_LPTOKEN_ISSUER,
                 value=_AMOUNT,
             ),
+            flags=AMMWithdrawFlag.TF_LP_TOKEN,
         )
         self.assertTrue(tx.is_valid())
 
@@ -34,6 +36,7 @@ class TestAMMWithdraw(TestCase):
             asset=_ASSET,
             asset2=_ASSET2,
             amount=_AMOUNT,
+            flags=AMMWithdrawFlag.TF_SINGLE_ASSET,
         )
         self.assertTrue(tx.is_valid())
 
@@ -45,6 +48,7 @@ class TestAMMWithdraw(TestCase):
             asset2=_ASSET2,
             amount=_AMOUNT,
             amount2="500",
+            flags=AMMWithdrawFlag.TF_TWO_ASSET,
         )
         self.assertTrue(tx.is_valid())
 
@@ -60,6 +64,7 @@ class TestAMMWithdraw(TestCase):
                 issuer=_LPTOKEN_ISSUER,
                 value="500",
             ),
+            flags=AMMWithdrawFlag.TF_ONE_ASSET_LP_TOKEN,
         )
         self.assertTrue(tx.is_valid())
 
@@ -71,6 +76,7 @@ class TestAMMWithdraw(TestCase):
             asset2=_ASSET2,
             amount=_AMOUNT,
             e_price="25",
+            flags=AMMWithdrawFlag.TF_LIMIT_LP_TOKEN,
         )
         self.assertTrue(tx.is_valid())
 
@@ -80,7 +86,7 @@ class TestAMMWithdraw(TestCase):
                 account=_ACCOUNT,
                 sequence=1337,
                 asset=_ASSET,
-            asset2=_ASSET2,
+                asset2=_ASSET2,
             )
         self.assertEqual(
             error.exception.args[0],
@@ -93,7 +99,7 @@ class TestAMMWithdraw(TestCase):
                 account=_ACCOUNT,
                 sequence=1337,
                 asset=_ASSET,
-            asset2=_ASSET2,
+                asset2=_ASSET2,
                 amount2="500",
             )
         self.assertEqual(
@@ -107,7 +113,7 @@ class TestAMMWithdraw(TestCase):
                 account=_ACCOUNT,
                 sequence=1337,
                 asset=_ASSET,
-            asset2=_ASSET2,
+                asset2=_ASSET2,
                 e_price="25",
             )
         self.assertEqual(

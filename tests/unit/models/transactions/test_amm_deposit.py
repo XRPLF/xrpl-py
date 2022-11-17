@@ -3,6 +3,7 @@ from unittest import TestCase
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMDeposit
+from xrpl.models.transactions.amm_deposit import AMMDepositFlag
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _ASSET = {"currency": "XRP"}
@@ -24,6 +25,7 @@ class TestAMMDeposit(TestCase):
                 issuer=_LPTOKEN_ISSUER,
                 value=_AMOUNT,
             ),
+            flags=AMMDepositFlag.TF_LP_TOKEN,
         )
         self.assertTrue(tx.is_valid())
 
@@ -34,6 +36,7 @@ class TestAMMDeposit(TestCase):
             asset=_ASSET,
             asset2=_ASSET2,
             amount=_AMOUNT,
+            flags=AMMDepositFlag.TF_SINGLE_ASSET,
         )
         self.assertTrue(tx.is_valid())
 
@@ -45,6 +48,7 @@ class TestAMMDeposit(TestCase):
             asset2=_ASSET2,
             amount=_AMOUNT,
             amount2="500",
+            flags=AMMDepositFlag.TF_TWO_ASSET,
         )
         self.assertTrue(tx.is_valid())
 
@@ -60,6 +64,7 @@ class TestAMMDeposit(TestCase):
                 issuer=_LPTOKEN_ISSUER,
                 value="500",
             ),
+            flags=AMMDepositFlag.TF_ONE_ASSET_LP_TOKEN,
         )
         self.assertTrue(tx.is_valid())
 
@@ -71,6 +76,7 @@ class TestAMMDeposit(TestCase):
             asset2=_ASSET2,
             amount=_AMOUNT,
             e_price="25",
+            flags=AMMDepositFlag.TF_LIMIT_LP_TOKEN,
         )
         self.assertTrue(tx.is_valid())
 
