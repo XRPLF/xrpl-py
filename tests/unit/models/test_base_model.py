@@ -644,12 +644,10 @@ class TestFromDict(TestCase):
             ),
         )
         expected = {
-            "Asset": {
-                "currency": "XRP"
-            },
+            "Asset": {"currency": "XRP"},
             "Asset2": {
                 "currency": "ETH",
-                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
             },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "LPToken": {
@@ -673,12 +671,10 @@ class TestFromDict(TestCase):
             amount="1000",
         )
         expected = {
-            "Asset": {
-                "currency": "XRP"
-            },
+            "Asset": {"currency": "XRP"},
             "Asset2": {
                 "currency": "ETH",
-                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
             },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
@@ -699,12 +695,10 @@ class TestFromDict(TestCase):
             amount2="500",
         )
         expected = {
-            "Asset": {
-                "currency": "XRP"
-            },
+            "Asset": {"currency": "XRP"},
             "Asset2": {
                 "currency": "ETH",
-                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
             },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
@@ -730,12 +724,10 @@ class TestFromDict(TestCase):
             ),
         )
         expected = {
-            "Asset": {
-                "currency": "XRP"
-            },
+            "Asset": {"currency": "XRP"},
             "Asset2": {
                 "currency": "ETH",
-                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
             },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
@@ -761,12 +753,10 @@ class TestFromDict(TestCase):
             e_price="25",
         )
         expected = {
-            "Asset": {
-                "currency": "XRP"
-            },
+            "Asset": {"currency": "XRP"},
             "Asset2": {
                 "currency": "ETH",
-                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
             },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
@@ -791,12 +781,10 @@ class TestFromDict(TestCase):
             ),
         )
         expected = {
-            "Asset": {
-                "currency": "XRP"
-            },
+            "Asset": {"currency": "XRP"},
             "Asset2": {
                 "currency": "ETH",
-                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
             },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "LPToken": {
@@ -820,12 +808,10 @@ class TestFromDict(TestCase):
             amount="1000",
         )
         expected = {
-            "Asset": {
-                "currency": "XRP"
-            },
+            "Asset": {"currency": "XRP"},
             "Asset2": {
                 "currency": "ETH",
-                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
             },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
@@ -846,12 +832,10 @@ class TestFromDict(TestCase):
             amount2="500",
         )
         expected = {
-            "Asset": {
-                "currency": "XRP"
-            },
+            "Asset": {"currency": "XRP"},
             "Asset2": {
                 "currency": "ETH",
-                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
             },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
@@ -877,12 +861,10 @@ class TestFromDict(TestCase):
             ),
         )
         expected = {
-            "Asset": {
-                "currency": "XRP"
-            },
+            "Asset": {"currency": "XRP"},
             "Asset2": {
                 "currency": "ETH",
-                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
             },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
@@ -908,12 +890,10 @@ class TestFromDict(TestCase):
             e_price="25",
         )
         expected = {
-            "Asset": {
-                "currency": "XRP"
-            },
+            "Asset": {"currency": "XRP"},
             "Asset2": {
                 "currency": "ETH",
-                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
             },
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
             "Amount": "1000",
@@ -934,12 +914,10 @@ class TestFromDict(TestCase):
         )
         expected = {
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "Asset": {
-                "currency": "XRP"
-            },
+            "Asset": {"currency": "XRP"},
             "Asset2": {
                 "currency": "ETH",
-                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
             },
             "TradingFee": 234,
             "TransactionType": "AMMVote",
@@ -972,12 +950,10 @@ class TestFromDict(TestCase):
         )
         expected = {
             "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
-            "Asset": {
-                "currency": "XRP"
-            },
+            "Asset": {"currency": "XRP"},
             "Asset2": {
                 "currency": "ETH",
-                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
             },
             "BidMin": {
                 "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",

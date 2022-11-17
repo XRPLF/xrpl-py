@@ -1,7 +1,7 @@
 from sys import maxsize
 from unittest import TestCase
-from xrpl.models.currencies.issue import Issue
 
+from xrpl.models.currencies.issue import Issue
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMVote
 

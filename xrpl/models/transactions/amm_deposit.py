@@ -6,7 +6,7 @@ from enum import Enum
 from typing import Dict, Optional
 
 from xrpl.models.amounts import Amount, IssuedCurrencyAmount
-from xrpl.models.currencies.currency import Currency
+from xrpl.models.currencies.issue import Issue
 from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -15,6 +15,11 @@ from xrpl.models.utils import require_kwargs_on_init
 
 
 class AMMDepositFlag(int, Enum):
+    """
+    Transactions of the AMMDeposit type support additional values in the Flags field.
+    This enum represents those options.
+    """
+
     TF_LP_TOKEN = 0x00010000
     TF_SINGLE_ASSET = 0x00080000
     TF_TWO_ASSET = 0x00100000
@@ -50,12 +55,12 @@ class AMMDeposit(Transaction):
     - Amount and EPrice
     """
 
-    asset: Currency = REQUIRED  # type: ignore
+    asset: Issue = REQUIRED  # type: ignore
     """
     Specifies one of the pool assets (XRP or token) of the AMM instance.
     """
 
-    asset2: Currency = REQUIRED  # type: ignore
+    asset2: Issue = REQUIRED  # type: ignore
     """
     Specifies the other pool asset of the AMM instance.
     """
