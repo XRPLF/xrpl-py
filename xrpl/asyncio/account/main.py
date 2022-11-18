@@ -144,8 +144,11 @@ async def get_account_info(
         XRPLException: If the ledger_index value is invalid.
         XRPLRequestFailureException: if the rippled API call fails.
     """
+    classic_address = address
+
     if is_valid_xaddress(address):
-        address, _, _ = xaddress_to_classic_address(address)
+        classic_address, _, _ = xaddress_to_classic_address(address)
+
     if isinstance(ledger_index, str) and ledger_index not in {
         "validated",
         "current",
@@ -157,7 +160,7 @@ async def get_account_info(
         )
     response = await client.request_impl(
         AccountInfo(
-            account=address,
+            account=classic_address,
             ledger_index=ledger_index,
         )
     )
