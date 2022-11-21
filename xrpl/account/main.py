@@ -3,6 +3,8 @@
 import asyncio
 from typing import Dict, Union
 
+from deprecated.sphinx import deprecated
+
 from xrpl.asyncio.account import main
 from xrpl.clients.sync_client import SyncClient
 from xrpl.models.response import Response
@@ -91,6 +93,10 @@ def get_account_root(
     return asyncio.run(main.get_account_root(address, client, ledger_index))
 
 
+@deprecated(
+    reason="Sending an AccountInfo request directly is just as easy to use.",
+    version="1.8.0",
+)
 def get_account_info(
     address: str, client: SyncClient, ledger_index: Union[str, int] = "validated"
 ) -> Response:
