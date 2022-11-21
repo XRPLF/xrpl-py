@@ -1,8 +1,8 @@
 """Models for a transaction's metadata."""
 
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Union
 
-from typing_extensions import Literal, TypedDict
+from typing_extensions import Literal, NotRequired, TypedDict
 
 from xrpl.models.amounts.amount import Amount
 
@@ -10,16 +10,16 @@ from xrpl.models.amounts.amount import Amount
 class Fields(TypedDict, total=False):
     """Model for possible fields."""
 
-    Account: Optional[str]
-    LowLimit: Optional[Dict[str, str]]
-    HighLimit: Optional[Dict[str, str]]
-    Balance: Optional[Union[Dict[str, str], str]]
-    TakerGets: Optional[Union[Dict[str, str], str]]
-    TakerPays: Optional[Union[Dict[str, str], str]]
+    Account: NotRequired[str]
+    LowLimit: NotRequired[Dict[str, str]]
+    HighLimit: NotRequired[Dict[str, str]]
+    Balance: NotRequired[Union[Dict[str, str], str]]
+    TakerGets: NotRequired[Union[Dict[str, str], str]]
+    TakerPays: NotRequired[Union[Dict[str, str], str]]
     Flags: int
     Sequence: int
-    BookDirectory: Optional[str]
-    Expiration: Optional[int]
+    BookDirectory: NotRequired[str]
+    Expiration: NotRequired[int]
 
 
 class CreatedNodeFields(TypedDict):
@@ -36,25 +36,15 @@ class CreatedNode(TypedDict):
     CreatedNode: CreatedNodeFields
 
 
-class OptionalModifiedNodeFields(TypedDict, total=False):
-    """The optional fields of `ModifiedNodeFields`."""
-
-    """
-    The fields are separated from `ModifiedNodeFields` to make them optional,
-    while keeping `LedgerEntryType` and `LedgerIndex` required.
-    """
-
-    FinalFields: Optional[Fields]
-    PreviousFields: Optional[Fields]
-    PreviousTxnID: Optional[str]
-    PreviousTxnLgrSeq: Optional[int]
-
-
-class ModifiedNodeFields(OptionalModifiedNodeFields):
+class ModifiedNodeFields(TypedDict):
     """Fields of a ModifiedNode."""
 
     LedgerEntryType: str
     LedgerIndex: str
+    FinalFields: NotRequired[Fields]
+    PreviousFields: NotRequired[Fields]
+    PreviousTxnID: NotRequired[str]
+    PreviousTxnLgrSeq: NotRequired[int]
 
 
 class ModifiedNode(TypedDict):
@@ -63,23 +53,13 @@ class ModifiedNode(TypedDict):
     ModifiedNode: ModifiedNodeFields
 
 
-class OptionalDeletedNodeFields(TypedDict, total=False):
-    """The optional fields of `DeletedNodeFields`."""
-
-    """
-    The fields are separated from `DeletedNodeFields` to make them optional,
-    while keeping `LedgerEntryType`, `LedgerIndex` and `FinalFields` required.
-    """
-
-    PreviousFields: Optional[Fields]
-
-
-class DeletedNodeFields(OptionalDeletedNodeFields):
+class DeletedNodeFields(TypedDict):
     """Fields of a DeletedNode."""
 
     LedgerEntryType: str
     LedgerIndex: str
     FinalFields: Fields
+    PreviousFields: NotRequired[Fields]
 
 
 class DeletedNode(TypedDict):
@@ -88,22 +68,12 @@ class DeletedNode(TypedDict):
     DeletedNode: DeletedNodeFields
 
 
-class OptionalTransactionMetadataFields(TypedDict, total=False):
-    """The optional fields of `TransactionMetadata`."""
-
-    """
-    The fields are separated from `TransactionMetadata` to make them optional,
-    while keeping `AffectedNodes`, `TransactionIndex` and `TransactionResult` required.
-    """
-
-    DeliveredAmount: Optional[Amount]
-    # "unavailable" possible for transactions before 2014-01-20
-    delivered_amount: Optional[Union[Amount, Literal["unavailable"]]]
-
-
-class TransactionMetadata(OptionalTransactionMetadataFields):
+class TransactionMetadata(TypedDict):
     """A model for a transaction's metadata."""
 
     AffectedNodes: List[Union[CreatedNode, ModifiedNode, DeletedNode]]
     TransactionIndex: int
     TransactionResult: str
+    DeliveredAmount: NotRequired[Amount]
+    # "unavailable" possible for transactions before 2014-01-20
+    delivered_amount: NotRequired[Union[Amount, Literal["unavailable"]]]
