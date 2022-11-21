@@ -7,17 +7,17 @@ from typing_extensions import Literal, NotRequired, TypedDict
 from xrpl.models.amounts.amount import Amount
 
 
-class Fields(TypedDict, total=False):
+class Fields(TypedDict):
     """Model for possible fields."""
 
+    Flags: int
+    Sequence: int
     Account: NotRequired[str]
     LowLimit: NotRequired[Dict[str, str]]
     HighLimit: NotRequired[Dict[str, str]]
     Balance: NotRequired[Union[Dict[str, str], str]]
     TakerGets: NotRequired[Union[Dict[str, str], str]]
     TakerPays: NotRequired[Union[Dict[str, str], str]]
-    Flags: int
-    Sequence: int
     BookDirectory: NotRequired[str]
     Expiration: NotRequired[int]
 
