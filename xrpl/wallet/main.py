@@ -20,12 +20,23 @@ class Wallet:
     @property
     def address(self: Wallet) -> str:
         """
-        Alias for wallet.classic_address.
+        Alias for wallet.classic_address. Getter for classic_address.
+        Ensures cannot set classic_address directly.
 
         Returns:
             The address that publicly identifies this wallet, as a base58 string.
         """
-        return self.classic_address
+        return self._classic_address
+
+    @property
+    def classic_address(self: Wallet) -> str:
+        """
+        Getter for classic_address. Ensures cannot set classic_address directly.
+
+        Returns:
+            The address that publicly identifies this wallet, as a base58 string.
+        """
+        return self._classic_address
 
     def __init__(
         self: Wallet,
@@ -57,7 +68,7 @@ class Wallet:
         string. MUST be kept secret!
         """
 
-        self.classic_address = (
+        self._classic_address = (
             ensure_classic_address(master_address)
             if master_address is not None
             else derive_classic_address(self.public_key)
