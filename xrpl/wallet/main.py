@@ -18,25 +18,17 @@ class Wallet:
     """
 
     @property
-    def address(self: Wallet) -> str:
-        """
-        Alias for wallet.classic_address. Getter for classic_address.
-        Ensures cannot set classic_address directly.
-
-        Returns:
-            The address that publicly identifies this wallet, as a base58 string.
-        """
-        return self._classic_address
-
-    @property
     def classic_address(self: Wallet) -> str:
         """
-        Getter for classic_address. Ensures cannot set classic_address directly.
-
-        Returns:
-            The address that publicly identifies this wallet, as a base58 string.
-        """
+        The address that publicly identifies this wallet,
+        as a base58 string.
+        """  # noqa: DAR201
         return self._classic_address
+
+    address = classic_address
+    """
+    The address that publicly identifies this wallet, as a base58 string.
+    """
 
     def __init__(
         self: Wallet,
@@ -73,7 +65,7 @@ class Wallet:
             if master_address is not None
             else derive_classic_address(self.public_key)
         )
-        """The address that publicly identifies this wallet, as a base58 string."""
+        """Internal variable for classic_address. Use classic_address instead."""
 
         self.seed = seed
         """
