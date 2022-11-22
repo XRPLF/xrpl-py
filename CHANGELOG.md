@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0]
+### Added:
+- Wallet support for regular key compatibility
+
+### Changed:
+- Updated params for Wallet class constructor and added new ways of wallet generation: from_seed, from_secret, from_entropy
+- Added address alias to Wallet.classic_address (both now also readonly)
+- Removed Sequence from Wallet class
+
 ## [[Unreleased]]
 ### Changed:
 - `check_fee` now has a higher limit that is less likely to be hit
