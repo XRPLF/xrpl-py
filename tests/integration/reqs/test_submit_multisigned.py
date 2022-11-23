@@ -5,7 +5,8 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from tests.integration.reusable_values import WALLET
-from xrpl.account import get_next_valid_seq_number
+from xrpl.account import get_next_valid_seq_number as get_next_valid_seq_number_sync
+from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.core.binarycodec import encode_for_multisigning
 from xrpl.core.keypairs import sign
 from xrpl.ledger import get_fee
@@ -21,7 +22,7 @@ from xrpl.models.transactions import (
 from xrpl.wallet import Wallet
 
 FEE = get_fee(JSON_RPC_CLIENT)
-SEQ = get_next_valid_seq_number(WALLET.classic_address, JSON_RPC_CLIENT)
+SEQ = get_next_valid_seq_number_sync(WALLET.classic_address, JSON_RPC_CLIENT)
 
 # Set up signer list
 FIRST_SIGNER = Wallet.generate()
