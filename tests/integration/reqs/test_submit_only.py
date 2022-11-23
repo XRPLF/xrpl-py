@@ -1,6 +1,7 @@
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import test_async_and_sync
+from tests.integration.it_utils import JSON_RPC_CLIENT, test_async_and_sync
 from tests.integration.reusable_values import WALLET
+from xrpl.account import get_next_valid_seq_number
 from xrpl.asyncio.transaction import (
     safe_sign_and_autofill_transaction as safe_sign_and_autofill_transaction_async,
 )
@@ -9,10 +10,12 @@ from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import SubmitOnly
 from xrpl.models.transactions import OfferCreate
 
+SEQ = get_next_valid_seq_number(WALLET.classic_address, JSON_RPC_CLIENT)
+
 TX = OfferCreate(
     account=WALLET.classic_address,
-    sequence=WALLET.sequence,
-    last_ledger_sequence=WALLET.sequence + 10,
+    sequence=SEQ,
+    last_ledger_sequence=SEQ + 10,
     taker_gets="13100000",
     taker_pays=IssuedCurrencyAmount(
         currency="USD",

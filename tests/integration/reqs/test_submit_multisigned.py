@@ -5,6 +5,7 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from tests.integration.reusable_values import WALLET
+from xrpl.account import get_next_valid_seq_number
 from xrpl.core.binarycodec import encode_for_multisigning
 from xrpl.core.keypairs import sign
 from xrpl.ledger import get_fee
@@ -20,16 +21,16 @@ from xrpl.models.transactions import (
 from xrpl.wallet import Wallet
 
 FEE = get_fee(JSON_RPC_CLIENT)
+SEQ = get_next_valid_seq_number(WALLET.classic_address, JSON_RPC_CLIENT)
 
-#
 # Set up signer list
-FIRST_SIGNER = Wallet.create()
-SECOND_SIGNER = Wallet.create()
+FIRST_SIGNER = Wallet.generate()
+SECOND_SIGNER = Wallet.generate()
 LIST_SET_TX = sign_and_reliable_submission(
     SignerListSet(
         account=WALLET.classic_address,
-        sequence=WALLET.sequence,
-        last_ledger_sequence=WALLET.sequence + 10,
+        sequence=SEQ,
+        last_ledger_sequence=SEQ + 10,
         fee=FEE,
         signer_quorum=2,
         signer_entries=[
@@ -48,7 +49,7 @@ LIST_SET_TX = sign_and_reliable_submission(
 
 
 class TestSubmitMultisigned(IntegrationTestCase):
-    @test_async_and_sync(globals())
+    @test_async_and_sync(globals(), ["xrpl.account.get_next_valid_seq_number"])
     async def test_basic_functionality(self, client):
         #
         # Perform multisign
@@ -56,10 +57,10 @@ class TestSubmitMultisigned(IntegrationTestCase):
         # NOTE: If you need to use xrpl-py for multisigning, please create an issue on
         # the repo. We'd like to gauge interest in higher level multisigning
         # functionality.
-        issuer = Wallet.create()
+        issuer = Wallet.generate()
         tx = TrustSet(
             account=WALLET.classic_address,
-            sequence=WALLET.sequence,
+            sequence=await get_next_valid_seq_number(WALLET.classic_address, client),
             fee=FEE,
             flags=TrustSetFlag.TF_SET_NO_RIPPLE,
             limit_amount=IssuedCurrencyAmount(
@@ -89,7 +90,7 @@ class TestSubmitMultisigned(IntegrationTestCase):
         )
         multisigned_tx = TrustSet(
             account=WALLET.classic_address,
-            sequence=WALLET.sequence,
+            sequence=await get_next_valid_seq_number(WALLET.classic_address, client),
             fee=FEE,
             flags=TrustSetFlag.TF_SET_NO_RIPPLE,
             limit_amount=IssuedCurrencyAmount(

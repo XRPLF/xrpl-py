@@ -10,7 +10,7 @@ from xrpl.wallet.main import Wallet
 ACCOUNT = "rQUUhraHao4wCqS4MJyzzQP79QE6T9FdeL"
 SEED = "snHG27JeogwML83AwTRyvTXxCWteF"
 
-WALLET = Wallet(seed=SEED, sequence=0)
+WALLET = Wallet.from_seed(SEED)
 
 
 class TestBetterTransactionFlags(TestCase):

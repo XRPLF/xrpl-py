@@ -17,9 +17,9 @@ from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.transactions import Payment
 from xrpl.wallet import Wallet
 
-NEW_WALLET = Wallet.create()
+NEW_WALLET = Wallet.generate()
 fund_wallet_sync(NEW_WALLET)
-EMPTY_WALLET = Wallet.create()
+EMPTY_WALLET = Wallet.generate()
 
 
 class TestAccount(IntegrationTestCase):
@@ -87,7 +87,6 @@ class TestAccount(IntegrationTestCase):
             amount=amount,
         )
         await sign_and_reliable_submission_async(payment, WALLET)
-        WALLET.sequence += 1
 
         response = await get_latest_transaction(WALLET.classic_address, client)
         self.assertEqual(len(response.result["transactions"]), 1)

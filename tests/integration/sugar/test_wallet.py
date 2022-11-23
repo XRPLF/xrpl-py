@@ -3,6 +3,7 @@ import time
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
+from xrpl.account import get_next_valid_seq_number
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.wallet import generate_faucet_wallet
 from xrpl.clients import JsonRpcClient, WebsocketClient
@@ -58,7 +59,10 @@ async def generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
 class TestWallet(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
-        ["xrpl.wallet.generate_faucet_wallet"],
+        [
+            "xrpl.wallet.generate_faucet_wallet",
+            "xrpl.account.get_next_valid_seq_number",
+        ],
         num_retries=5,
         use_testnet=True,
     )
@@ -68,7 +72,9 @@ class TestWallet(IntegrationTestCase):
         response = await submit_transaction_async(
             Payment(
                 account=wallet.classic_address,
-                sequence=wallet.sequence,
+                sequence=await get_next_valid_seq_number(
+                    wallet.classic_address, client
+                ),
                 fee="10",
                 amount="1",
                 destination=destination.classic_address,
@@ -157,7 +163,7 @@ class TestWallet(IntegrationTestCase):
             "wss://hooks-testnet-v2.xrpl-labs.com"
         ) as client:
             global time_of_last_hooks_faucet_call
-            wallet = Wallet("sEdSigMti9uJFCnrkwsB3LJRGkVZHVA", 0)
+            wallet = Wallet.from_seed("sEdSigMti9uJFCnrkwsB3LJRGkVZHVA")
             result = await client.request(
                 AccountInfo(
                     account=wallet.classic_address,

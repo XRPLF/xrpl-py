@@ -56,7 +56,7 @@ async def generate_faucet_wallet(
     faucet_url = get_faucet_url(client.url, faucet_host)
 
     if wallet is None:
-        wallet = Wallet.create()
+        wallet = Wallet.generate()
 
     address = wallet.classic_address
     # The faucet *can* be flakey... by printing info about this it's easier to
@@ -84,7 +84,6 @@ async def generate_faucet_wallet(
         else:  # wallet has been funded, now the ledger needs to know the account exists
             next_seq_num = await _try_to_get_next_seq(address, client)
             if next_seq_num is not None:
-                wallet.sequence = next_seq_num
                 return wallet
 
     raise XRPLFaucetException(

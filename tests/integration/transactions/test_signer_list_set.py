@@ -1,19 +1,22 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
+from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.models.transactions import SignerEntry, SignerListSet
 from xrpl.wallet import Wallet
 
 
 class TestSignerListSet(IntegrationTestCase):
-    @test_async_and_sync(globals())
+    @test_async_and_sync(globals(), ["xrpl.account.get_next_valid_seq_number"])
     async def test_add_signer(self, client):
         # sets up another signer for this account
-        other_signer = Wallet.create()
+        other_signer = Wallet.generate()
         response = await submit_transaction_async(
             SignerListSet(
                 account=WALLET.classic_address,
-                sequence=WALLET.sequence,
+                sequence=await get_next_valid_seq_number(
+                    WALLET.classic_address, client
+                ),
                 signer_quorum=1,
                 signer_entries=[
                     SignerEntry(
@@ -25,4 +28,3 @@ class TestSignerListSet(IntegrationTestCase):
             WALLET,
         )
         self.assertTrue(response.is_successful())
-        WALLET.sequence += 1
