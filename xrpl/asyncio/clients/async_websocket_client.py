@@ -168,9 +168,9 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
             raise XRPLWebsocketException("Websocket is not open")
         await self._do_send(request)
 
-    async def request_impl(self: WebsocketBase, request: Request) -> Response:
+    async def _request_impl(self: WebsocketBase, request: Request) -> Response:
         """
-        ``request_impl`` implementation for async websocket.
+        ``_request_impl`` implementation for async websocket.
 
         Arguments:
             request: An object representing information about a rippled request.
