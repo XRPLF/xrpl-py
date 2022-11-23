@@ -169,18 +169,14 @@ class Wallet:
             secret_numbers.split()
             if isinstance(secret_numbers, str)
             else secret_numbers
-        )  # implement parseSecretString?
+        )
 
-        def secret_to_entropy(secret: List[str]) -> str:
+        entropy = ""
+        for r in numbersArray:
+            no = int(r[:5])
+            hexed = hex(no)[2:].zfill(4)
+            entropy += hexed
 
-            s = ""
-            for r in secret:
-                no = int(r[:5])
-                hexed = hex(no)[2:].zfill(4)
-                s += hexed
-            return s
-
-        entropy = secret_to_entropy(numbersArray)
         return Wallet.from_entropy(
             entropy, master_address=master_address, algorithm=algorithm
         )
