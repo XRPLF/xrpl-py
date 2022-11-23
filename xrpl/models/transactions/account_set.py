@@ -170,6 +170,17 @@ class AccountSet(Transaction):
     also set the AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER flag.
     """
 
+    wallet_locator: Optional[str] = None
+    """
+    An arbitrary 256-bit value. If specified, the value is stored as part of
+    the account but has no inherent meaning or requirements.
+    """
+
+    wallet_size: Optional[int] = None
+    """
+    Not used. This field is valid in AccountSet transactions but does nothing.
+    """
+
     transaction_type: TransactionType = field(
         default=TransactionType.ACCOUNT_SET,
         init=False,
