@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Type
+from typing import List, Optional, Type
 
 from xrpl.constants import CryptoAlgorithm
 from xrpl.core.addresscodec import classic_address_to_xaddress
@@ -141,6 +141,48 @@ class Wallet:
         seed = generate_seed(entropy, algorithm)
         return Wallet.from_seed(
             seed, master_address=master_address, algorithm=algorithm
+        )
+
+    @classmethod
+    def from_secret_numbers(
+        self: Type[Wallet],
+        secret_numbers: List[str] | str,
+        *,
+        master_address: Optional[str] = None,
+        algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
+    ) -> Wallet:
+        """
+        Generates a new Wallet from secret numbers.
+
+        Args:
+            secret_numbers: A string (whitespace delimited) or string array consisting
+                of 8 times 6 numbers used to derive a wallet.
+            master_address: Include if a Wallet uses a Regular Key Pair. It must be
+                the master address of the account. The default is `None`.
+            algorithm: The digital signature algorithm to generate an address for.
+                The default is ED25519.
+
+        Returns:
+            The wallet that is generated from the given secret numbers.
+        """
+        numbersArray = (
+            secret_numbers.split()
+            if isinstance(secret_numbers, str)
+            else secret_numbers
+        )  # implement parseSecretString?
+
+        def secret_to_entropy(secret: List[str]) -> str:
+
+            s = ""
+            for r in secret:
+                no = int(r[:5])
+                hexed = hex(no)[2:].zfill(4)
+                s += hexed
+            return s
+
+        entropy = secret_to_entropy(numbersArray)
+        return Wallet.from_entropy(
+            entropy, master_address=master_address, algorithm=algorithm
         )
 
     def get_xaddress(
