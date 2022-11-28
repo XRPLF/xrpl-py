@@ -20,6 +20,7 @@ from xrpl.asyncio.transaction import (
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.exceptions import XRPLException
+from xrpl.models.requests import Tx
 from xrpl.models.transactions import AccountDelete, AccountSet, EscrowFinish, Payment
 from xrpl.utils import xrp_to_drops
 
@@ -149,9 +150,6 @@ class TestTransaction(IntegrationTestCase):
 
     @test_async_and_sync(
         globals(),
-        [
-            "xrpl.transaction.get_transaction_from_hash",
-        ],
     )
     async def test_none_as_destination_tag(self, client):
         # GIVEN a new transaction (payment)
@@ -169,12 +167,12 @@ class TestTransaction(IntegrationTestCase):
 
         # THEN we expect to retrieve this transaction from its hash with
         # min_ledger and max_ledger parameters
-        payment = await get_transaction_from_hash(
-            payment_hash,
-            client,
-            False,
-            payment_ledger_index - 5,
-            payment_ledger_index + 5,
+        payment = await client.request(
+            Tx(
+                transaction=payment_hash,
+                min_ledger=payment_ledger_index - 5,
+                max_ledger=payment_ledger_index + 5,
+            )
         )
 
         # AND we expect the result Account to be the same as the original payment Acct
