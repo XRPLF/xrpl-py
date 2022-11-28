@@ -3,11 +3,17 @@
 import asyncio
 from typing import Optional
 
+from deprecated.sphinx import deprecated
+
 from xrpl.asyncio.transaction import ledger
 from xrpl.clients.sync_client import SyncClient
 from xrpl.models.response import Response
 
 
+@deprecated(
+    reason="Sending a Tx request directly is just as easy to use.",
+    version="1.8.0",
+)
 def get_transaction_from_hash(
     tx_hash: str,
     client: SyncClient,
