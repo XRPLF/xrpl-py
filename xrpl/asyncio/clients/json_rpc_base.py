@@ -22,9 +22,9 @@ class JsonRpcBase(Client):
     :meta private:
     """
 
-    async def request_impl(self: JsonRpcBase, request: Request) -> Response:
+    async def _request_impl(self: JsonRpcBase, request: Request) -> Response:
         """
-        Base ``request_impl`` implementation for JSON RPC.
+        Base ``_request_impl`` implementation for JSON RPC.
 
         Arguments:
             request: An object representing information about a rippled request.
