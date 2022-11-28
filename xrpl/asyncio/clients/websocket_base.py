@@ -132,7 +132,7 @@ class WebsocketBase(Client):
 
     def _set_up_future(self: WebsocketBase, request: Request) -> None:
         """
-        Only to be called from the public send and request_impl functions.
+        Only to be called from the public send and _request_impl functions.
         Given a request with an ID, ensure that that ID is backed by an open
         Future in self._open_requests.
         """
@@ -168,7 +168,7 @@ class WebsocketBase(Client):
 
     async def _do_request_impl(self: WebsocketBase, request: Request) -> Response:
         """
-        Base ``request_impl`` implementation for websockets.
+        Base ``_request_impl`` implementation for websockets.
 
         Arguments:
             request: An object representing information about a rippled request.

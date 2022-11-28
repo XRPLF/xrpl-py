@@ -26,7 +26,7 @@ async def get_latest_transaction(account: str, client: Client) -> Response:
     # max == -1 means that it's the most recent validated ledger version
     if is_valid_xaddress(account):
         account, _, _ = xaddress_to_classic_address(account)
-    response = await client.request_impl(
+    response = await client._request_impl(
         AccountTx(account=account, ledger_index_max=-1, limit=1)
     )
     if not response.is_successful():
@@ -62,7 +62,7 @@ async def get_account_transactions(
     if is_valid_xaddress(address):
         address, _, _ = xaddress_to_classic_address(address)
     request = AccountTx(account=address)
-    response = await client.request_impl(request)
+    response = await client._request_impl(request)
     if not response.is_successful():
         raise XRPLRequestFailureException(response.result)
     return cast(List[Dict[str, Any]], response.result["transactions"])
