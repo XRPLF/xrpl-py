@@ -6,9 +6,9 @@ from typing_extensions import Final
 
 from xrpl.asyncio.clients import Client
 from xrpl.asyncio.ledger import get_latest_validated_ledger_sequence
-from xrpl.asyncio.transaction.ledger import get_transaction_from_hash
 from xrpl.asyncio.transaction.main import submit
 from xrpl.constants import XRPLException
+from xrpl.models.requests import Tx
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 
@@ -34,7 +34,7 @@ async def _wait_for_final_transaction_outcome(
     # new persisted transaction
 
     # query transaction by hash
-    transaction_response = await get_transaction_from_hash(transaction_hash, client)
+    transaction_response = await client.request_impl(Tx(transaction=transaction_hash))
 
     result = transaction_response.result
     if "validated" in result and result["validated"]:
