@@ -42,6 +42,12 @@ def generate_seed(
         parsed_entropy = token_bytes(addresscodec.SEED_LENGTH)
     else:
         parsed_entropy = bytes(entropy, "UTF-8")[: addresscodec.SEED_LENGTH]
+    print(
+        entropy,
+        parsed_entropy,
+        algorithm,
+        addresscodec.encode_seed(parsed_entropy, algorithm),
+    )
     return addresscodec.encode_seed(parsed_entropy, algorithm)
 
 

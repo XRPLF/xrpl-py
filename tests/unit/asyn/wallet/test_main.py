@@ -8,21 +8,23 @@ ed25519_key_prefix = "ED"
 secp256k1_private_key_prefix = "00"
 
 secret_numbers_constants = {
-    "secret_numbers_string": "399150 474506 009147 088773 432160 282843 253738 605430",
+    "secret_numbers_string": "472803 225943 119355 108287 071060 128916 307236 344393",
     "secret_numbers_array": [
-        "399150",
-        "474506",
-        "009147",
-        "088773",
-        "432160",
-        "282843",
-        "253738",
-        "605430",
+        "472803",
+        "225943",
+        "119355",
+        "108287",
+        "071060",
+        "128916",
+        "307236",
+        "344393",
     ],
-    "ed25519_public_key": "ED8079E575450E256C496578480020A33E19B579D58A2DB8FF13FC6B05B9229DE3",  # noqa:E501
-    "ed25519_private_key": "EDD2AF6288A903DED9860FC62E778600A985BDF804E40BD8266505553E3222C3DA",  # noqa:E501
-    "secp256k1_public_key": "03BFC2F7AE242C3493187FA0B72BE97B2DF71194FB772E507FF9DEA0AD13CA1625",  # noqa:E501
-    "secp256k1_private_key": "00B6FE8507D977E46E988A8A94DB3B8B35E404B60F8B11AC5213FA8B5ABC8A8D19",  # noqa:E501
+    "ed25519_public_key": "",  # noqa:E501
+    "ed25519_private_key": "",  # noqa:E501
+    "ed25519_classic_address": "",  # noqa:E501
+    "secp256k1_public_key": "",  # noqa:E501
+    "secp256k1_private_key": "",  # noqa:E501
+    "secp256k1_classic_address": "rHz6rggqrtSEut3sgFm6VmX5K4vRLwSngX",  # noqa:E501
 }
 
 regular_key_pair_constants = {
@@ -370,6 +372,9 @@ class TestWalletMain(TestCase):
         )
 
         self.assertEqual(
+            wallet.classic_address, secret_numbers_constants["ed25519_classic_address"]
+        )
+        self.assertEqual(
             wallet.public_key, secret_numbers_constants["ed25519_public_key"]
         )
         self.assertEqual(
@@ -381,6 +386,9 @@ class TestWalletMain(TestCase):
             secret_numbers_constants["secret_numbers_array"]
         )
 
+        self.assertEqual(
+            wallet.classic_address, secret_numbers_constants["ed25519_classic_address"]
+        )
         self.assertEqual(
             wallet.public_key, secret_numbers_constants["ed25519_public_key"]
         )
@@ -395,6 +403,10 @@ class TestWalletMain(TestCase):
         )
 
         self.assertEqual(
+            wallet.classic_address,
+            secret_numbers_constants["secp256k1_classic_address"],
+        )
+        self.assertEqual(
             wallet.public_key, secret_numbers_constants["secp256k1_public_key"]
         )
         self.assertEqual(
@@ -407,6 +419,10 @@ class TestWalletMain(TestCase):
             algorithm=CryptoAlgorithm.SECP256K1,
         )
 
+        self.assertEqual(
+            wallet.classic_address,
+            secret_numbers_constants["secp256k1_classic_address"],
+        )
         self.assertEqual(
             wallet.public_key, secret_numbers_constants["secp256k1_public_key"]
         )
@@ -421,6 +437,9 @@ class TestWalletMain(TestCase):
         )
 
         self.assertEqual(
+            wallet.classic_address, secret_numbers_constants["ed25519_classic_address"]
+        )
+        self.assertEqual(
             wallet.public_key, secret_numbers_constants["ed25519_public_key"]
         )
         self.assertEqual(
@@ -433,6 +452,9 @@ class TestWalletMain(TestCase):
             algorithm=CryptoAlgorithm.ED25519,
         )
 
+        self.assertEqual(
+            wallet.classic_address, secret_numbers_constants["ed25519_classic_address"]
+        )
         self.assertEqual(
             wallet.public_key, secret_numbers_constants["ed25519_public_key"]
         )

@@ -125,7 +125,7 @@ class Wallet:
         algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
     ) -> Wallet:
         """
-        Generates a new Wallet from entropy (array of random numbers).
+        Generates a new Wallet from entropy (string of random numbers).
 
         Args:
             entropy: A string of random numbers to generate a seed used to derive
