@@ -1,6 +1,6 @@
 """High-level transaction methods with XRPL transactions."""
 import asyncio
-from typing import List, Optional
+from typing import Optional
 
 from xrpl.asyncio.transaction import main
 from xrpl.clients.sync_client import SyncClient
@@ -145,48 +145,5 @@ def autofill(
             transaction,
             client,
             signers_count,
-        )
-    )
-
-
-def safe_sign_transaction_with_multisign(
-    transaction: Transaction,
-    wallet: Wallet,
-) -> str:
-    """
-    Signs a transaction with to be used for multisigning.
-
-    Args:
-        transaction: the transaction to be signed.
-        wallet: the wallet with which to sign the transaction.
-
-    Returns:
-        The signed transaction blob.
-    """
-    return asyncio.run(
-        main.safe_sign_transaction_with_multisign(
-            transaction,
-            wallet,
-        )
-    )
-
-
-def multisign(transaction: Transaction, tx_blobs: List[str]) -> Transaction:
-    """
-    Takes several transactions with Signer fields (blob form) and creates a
-    single transaction with all Signers that then gets signed and returned.
-
-    Args:
-        transaction: the transaction to be signed.
-        tx_blobs: a list of signed transactions (in blob form) to combine into
-            a single signed transaction.
-
-    Returns:
-        The multisigned transaction.
-    """
-    return asyncio.run(
-        main.multisign(
-            transaction,
-            tx_blobs,
         )
     )

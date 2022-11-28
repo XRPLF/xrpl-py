@@ -1,6 +1,6 @@
 """High-level transaction methods with XRPL transactions."""
 import math
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, Optional, cast
 
 from typing_extensions import Final
 
@@ -9,17 +9,12 @@ from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
-from xrpl.core.binarycodec import (
-    decode,
-    encode,
-    encode_for_multisigning,
-    encode_for_signing,
-)
+from xrpl.core.binarycodec import encode, encode_for_signing
 from xrpl.core.keypairs.main import sign
 from xrpl.models.requests import ServerState, SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions import EscrowFinish
-from xrpl.models.transactions.transaction import Signer, Transaction
+from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )
@@ -145,72 +140,6 @@ async def submit_transaction(
         return response
 
     raise XRPLRequestFailureException(response.result)
-
-
-async def safe_sign_transaction_with_multisign(
-    transaction: Transaction,
-    wallet: Wallet,
-) -> str:
-    """
-    Signs a transaction with to be used for multisigning.
-
-    Args:
-        transaction: the transaction to be signed.
-        wallet: the wallet with which to sign the transaction.
-
-    Returns:
-        The signed transaction blob.
-    """
-    signature = sign(
-        bytes.fromhex(
-            encode_for_multisigning(
-                transaction.to_xrpl(),
-                wallet.classic_address,
-            )
-        ),
-        wallet.private_key,
-    )
-
-    tx_dict = transaction.to_dict()
-    tx_dict["signers"] = [
-        Signer(
-            account=wallet.classic_address,
-            txn_signature=signature,
-            signing_pub_key=wallet.public_key,
-        )
-    ]
-
-    return encode(Transaction.from_dict(tx_dict).to_xrpl())
-
-
-async def multisign(transaction: Transaction, tx_blobs: List[str]) -> Transaction:
-    """
-    Takes several transactions with Signer fields (blob form) and creates a
-    single transaction with all Signers that then gets signed and returned.
-
-    Args:
-        transaction: the transaction to be multisigned.
-        tx_blobs: a list of signed transactions (in blob form) to combine into
-            a single signed transaction.
-
-    Returns:
-        The multisigned transaction.
-    """
-    decoded_tx_blobs_signers = [
-        decode(tx_blob)["Signers"][0]["Signer"] for tx_blob in tx_blobs
-    ]
-
-    tx_dict = transaction.to_dict()
-    tx_dict["signers"] = [
-        Signer(
-            account=decoded_tx_blobs_signer["Account"],
-            txn_signature=decoded_tx_blobs_signer["TxnSignature"],
-            signing_pub_key=decoded_tx_blobs_signer["SigningPubKey"],
-        )
-        for decoded_tx_blobs_signer in decoded_tx_blobs_signers
-    ]
-
-    return Transaction.from_dict(tx_dict)
 
 
 def _prepare_transaction(
