@@ -35,7 +35,7 @@ async def get_latest_transaction(account: str, client: Client) -> Response:
 
 
 @deprecated(
-    reason="Sending an AccountTx request directly allows you to page through all"
+    reason="Sending an AccountTx request directly allows you to page through all "
     "results and is just as easy to use.",
     version="1.6.0",
 )
@@ -68,6 +68,11 @@ async def get_account_transactions(
     return cast(List[Dict[str, Any]], response.result["transactions"])
 
 
+@deprecated(
+    reason="Sending an AccountTx request directly and filtering for payments allows "
+    "you to page through all results and is just as easy to use.",
+    version="1.8.0",
+)
 async def get_account_payment_transactions(
     address: str,
     client: Client,
@@ -82,7 +87,7 @@ async def get_account_payment_transactions(
         client: the network client used to make network calls.
 
     Returns:
-        The most page of payment transaction history for the address. For the full
+        The first page of payment transaction history for the address. For the full
         history, page through the :class:`AccountTx` request directly.
     """
     all_transactions = await get_account_transactions(address, client)
