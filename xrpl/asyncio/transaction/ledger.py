@@ -44,7 +44,7 @@ async def get_transaction_from_hash(
     Raises:
         XRPLRequestFailureException: if the transaction fails.
     """
-    response = await client.request_impl(
+    response = await client._request_impl(
         Tx(
             transaction=tx_hash,
             binary=binary,

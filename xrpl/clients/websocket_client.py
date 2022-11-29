@@ -197,9 +197,9 @@ class WebsocketClient(SyncClient, WebsocketBase):
             self._do_send(request), cast(AbstractEventLoop, self._loop)
         ).result()
 
-    async def request_impl(self: WebsocketClient, request: Request) -> Response:
+    async def _request_impl(self: WebsocketClient, request: Request) -> Response:
         """
-        ``request_impl`` implementation for sync websockets that ensures the
+        ``_request_impl`` implementation for sync websockets that ensures the
         ``WebsocketBase._do_request_impl`` implementation is run on the other thread.
 
         Arguments:
@@ -225,7 +225,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
         # complete. also, `asyncio.run_coroutine_threadsafe` returns a
         # concurrent.futures.Future which is not awaitable.
         #
-        # when this is run via `await client.request_impl`, it will
+        # when this is run via `await client._request_impl`, it will
         # completely block the main thread until completed,
         # just as if it were not async.
         return run_coroutine_threadsafe(
