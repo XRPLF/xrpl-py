@@ -69,7 +69,7 @@ def submit(
 submit_transaction = submit
 
 
-def safe_sign_transaction(
+def sign(
     transaction: Transaction,
     wallet: Wallet,
     check_fee: bool = True,
@@ -87,12 +87,15 @@ def safe_sign_transaction(
         The signed transaction.
     """
     return asyncio.run(
-        main.safe_sign_transaction(
+        main.sign(
             transaction,
             wallet,
             check_fee,
         )
     )
+
+
+safe_sign_transaction = sign
 
 
 def safe_sign_and_autofill_transaction(
