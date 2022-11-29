@@ -22,7 +22,7 @@ async def get_latest_validated_ledger_sequence(client: Client) -> int:
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
     """
-    response = await client.request_impl(Ledger(ledger_index="validated"))
+    response = await client._request_impl(Ledger(ledger_index="validated"))
     if response.is_successful():
         return cast(int, response.result["ledger_index"])
 
@@ -42,7 +42,7 @@ async def get_latest_open_ledger_sequence(client: Client) -> int:
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
     """
-    response = await client.request_impl(Ledger(ledger_index="open"))
+    response = await client._request_impl(Ledger(ledger_index="open"))
     if response.is_successful():
         return cast(int, response.result["ledger_index"])
 
@@ -74,7 +74,7 @@ async def get_fee(
         XRPLException: if an incorrect option for `fee_type` is passed in.
         XRPLRequestFailureException: if the rippled API call fails.
     """
-    response = await client.request_impl(Fee())
+    response = await client._request_impl(Fee())
     if not response.is_successful():
         raise XRPLRequestFailureException(response.result)
 

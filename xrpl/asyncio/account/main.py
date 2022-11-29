@@ -108,7 +108,7 @@ async def get_account_root(
     if is_valid_xaddress(address):
         classic_address, _, _ = xaddress_to_classic_address(address)
 
-    account_info = await client.request_impl(
+    account_info = await client._request_impl(
         AccountInfo(
             account=classic_address,
             ledger_index=ledger_index,
@@ -158,7 +158,7 @@ async def get_account_info(
             "`ledger_index` is not valid - must be an `int` or one of {'validated', "
             "'current', 'closed'}."
         )
-    response = await client.request_impl(
+    response = await client._request_impl(
         AccountInfo(
             account=address,
             ledger_index=ledger_index,

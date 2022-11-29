@@ -34,7 +34,7 @@ async def _wait_for_final_transaction_outcome(
     # new persisted transaction
 
     # query transaction by hash
-    transaction_response = await client.request_impl(Tx(transaction=transaction_hash))
+    transaction_response = await client._request_impl(Tx(transaction=transaction_hash))
 
     result = transaction_response.result
     if "validated" in result and result["validated"]:
