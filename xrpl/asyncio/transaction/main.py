@@ -135,7 +135,7 @@ async def submit_transaction(
         XRPLRequestFailureException: if the rippled API call fails.
     """
     transaction_blob = encode(transaction.to_xrpl())
-    response = await client.request_impl(SubmitOnly(tx_blob=transaction_blob))
+    response = await client._request_impl(SubmitOnly(tx_blob=transaction_blob))
     if response.is_successful():
         return response
 
@@ -340,6 +340,6 @@ async def _calculate_fee_per_transaction_type(
 
 
 async def _fetch_account_delete_fee(client: Client) -> int:
-    server_state = await client.request_impl(ServerState())
+    server_state = await client._request_impl(ServerState())
     fee = server_state.result["state"]["validated_ledger"]["reserve_inc"]
     return int(fee)

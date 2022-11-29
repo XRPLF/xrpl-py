@@ -24,7 +24,7 @@ class Client(ABC):
         self.url = url
 
     @abstractmethod
-    async def request_impl(self: Client, request: Request) -> Response:
+    async def _request_impl(self: Client, request: Request) -> Response:
         """
         This is the actual driver for a given Client's request. It must be
         async because all of the helper functions in this library are
