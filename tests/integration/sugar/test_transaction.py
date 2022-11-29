@@ -14,8 +14,8 @@ from xrpl.asyncio.transaction import (
     autofill,
     get_transaction_from_hash,
     safe_sign_and_autofill_transaction,
-    safe_sign_transaction,
     send_reliable_submission,
+    sign,
 )
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
@@ -387,7 +387,7 @@ class TestReliableSubmission(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_transaction",
+            "xrpl.transaction.sign",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
@@ -403,16 +403,14 @@ class TestReliableSubmission(IntegrationTestCase):
             "destination": DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
-        signed_payment_transaction = await safe_sign_transaction(
-            payment_transaction, WALLET
-        )
+        signed_payment_transaction = await sign(payment_transaction, WALLET)
         with self.assertRaises(XRPLRequestFailureException):
             await send_reliable_submission(signed_payment_transaction, client)
 
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_transaction",
+            "xrpl.transaction.sign",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
@@ -428,8 +426,6 @@ class TestReliableSubmission(IntegrationTestCase):
             "destination": DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
-        signed_payment_transaction = await safe_sign_transaction(
-            payment_transaction, WALLET
-        )
+        signed_payment_transaction = await sign(payment_transaction, WALLET)
         with self.assertRaises(XRPLReliableSubmissionException):
             await send_reliable_submission(signed_payment_transaction, client)

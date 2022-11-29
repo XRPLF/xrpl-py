@@ -10,7 +10,7 @@ from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec import encode, encode_for_signing
-from xrpl.core.keypairs.main import sign
+from xrpl.core.keypairs.main import sign as keypairs_sign
 from xrpl.models.requests import ServerState, SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions import EscrowFinish
@@ -55,14 +55,14 @@ async def sign_and_submit(
             transaction, wallet, client, check_fee
         )
     else:
-        transaction = await safe_sign_transaction(transaction, wallet, check_fee)
+        transaction = await sign(transaction, wallet, check_fee)
     return await submit_transaction(transaction, client)
 
 
 safe_sign_and_submit_transaction = sign_and_submit
 
 
-async def safe_sign_transaction(
+async def sign(
     transaction: Transaction,
     wallet: Wallet,
     check_fee: bool = True,
@@ -84,9 +84,12 @@ async def safe_sign_transaction(
     transaction_json = _prepare_transaction(transaction, wallet)
     serialized_for_signing = encode_for_signing(transaction_json)
     serialized_bytes = bytes.fromhex(serialized_for_signing)
-    signature = sign(serialized_bytes, wallet.private_key)
+    signature = keypairs_sign(serialized_bytes, wallet.private_key)
     transaction_json["TxnSignature"] = signature
     return Transaction.from_xrpl(transaction_json)
+
+
+safe_sign_transaction = sign
 
 
 async def safe_sign_and_autofill_transaction(
@@ -115,9 +118,7 @@ async def safe_sign_and_autofill_transaction(
     if check_fee:
         await _check_fee(transaction, client)
 
-    return await safe_sign_transaction(
-        await autofill(transaction, client), wallet, False
-    )
+    return await sign(await autofill(transaction, client), wallet, False)
 
 
 async def submit_transaction(
