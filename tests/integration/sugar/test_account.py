@@ -17,9 +17,9 @@ from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.transactions import Payment
 from xrpl.wallet import Wallet
 
-NEW_WALLET = Wallet.generate()
+NEW_WALLET = Wallet.create()
 fund_wallet_sync(NEW_WALLET)
-EMPTY_WALLET = Wallet.generate()
+EMPTY_WALLET = Wallet.create()
 
 
 class TestAccount(IntegrationTestCase):

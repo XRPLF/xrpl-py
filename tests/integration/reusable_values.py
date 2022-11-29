@@ -15,9 +15,9 @@ from xrpl.wallet import Wallet
 # TODO: set up wallet for each test instead of using one for all tests (now that it's
 # faster)
 async def _set_up_reusable_values():
-    WALLET = Wallet.generate()
+    WALLET = Wallet.create()
     await fund_wallet(WALLET)
-    DESTINATION = Wallet.generate()
+    DESTINATION = Wallet.create()
     await fund_wallet(DESTINATION)
 
     OFFER = await sign_and_reliable_submission_async(

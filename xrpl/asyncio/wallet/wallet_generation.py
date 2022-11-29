@@ -56,7 +56,7 @@ async def generate_faucet_wallet(
     faucet_url = get_faucet_url(client.url, faucet_host)
 
     if wallet is None:
-        wallet = Wallet.generate()
+        wallet = Wallet.create()
 
     address = wallet.classic_address
     # The faucet *can* be flakey... by printing info about this it's easier to

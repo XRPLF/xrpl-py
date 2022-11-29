@@ -10,7 +10,7 @@ from xrpl.wallet import Wallet
 class TestTrustSet(IntegrationTestCase):
     @test_async_and_sync(globals(), ["xrpl.account.get_next_valid_seq_number"])
     async def test_basic_functionality(self, client):
-        issuer_wallet = Wallet.generate()
+        issuer_wallet = Wallet.create()
         response = await submit_transaction_async(
             TrustSet(
                 account=WALLET.classic_address,

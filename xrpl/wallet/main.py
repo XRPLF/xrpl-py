@@ -44,8 +44,8 @@ class Wallet:
         Args:
             public_key: The public key for the account.
             private_key: The private key used for signing transactions for the account.
-            master_address: Include if a Wallet uses a Regular Key Pair. It must be
-                the master address of the account. The default is `None`.
+            master_address: Include if a Wallet uses a Regular Key Pair. This sets the
+                address that this wallet corresponds to. The default is `None`.
             seed: The seed used to derive the account keys. The default is `None`.
         """
         self.public_key = public_key
@@ -74,15 +74,15 @@ class Wallet:
         """
 
     @classmethod
-    def generate(
+    def create(
         cls: Type[Wallet], algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519
     ) -> Wallet:
         """
         Generates a new seed and Wallet.
 
         Args:
-            algorithm: The digital signature algorithm to generate an address for.
-                The default is Ed25519.
+            algorithm: The key-generation algorithm to use when generating the seed.
+                The default is `ED25519`.
 
         Returns:
             The wallet that is generated from the given seed.
@@ -103,10 +103,10 @@ class Wallet:
 
         Args:
             seed: The seed (secret) used to derive the account keys.
-            master_address: Include if a Wallet uses a Regular Key Pair. It must be
-                the master address of the account. The default is `None`.
-            algorithm: The digital signature algorithm to generate an address for.
-                The default is ED25519.
+            master_address: Include if a Wallet uses a Regular Key Pair. This sets the
+                address that this wallet corresponds to. The default is `None`.
+            algorithm: The key-generation algorithm to use when generating the seed.
+                The default is `ED25519`.
 
         Returns:
             The wallet that is generated from the given secret.
@@ -130,10 +130,10 @@ class Wallet:
         Args:
             entropy: A string of random numbers to generate a seed used to derive
                 a wallet.
-            master_address: Include if a Wallet uses a Regular Key Pair. It must be
-                the master address of the account. The default is `None`.
-            algorithm: The digital signature algorithm to generate an address for.
-                The default is ED25519.
+            master_address: Include if a Wallet uses a Regular Key Pair. This sets the
+                address that this wallet corresponds to. The default is `None`.
+            algorithm: The key-generation algorithm to use when generating the seed.
+                The default is `ED25519`.
 
         Returns:
             The wallet that is generated from the given entropy.

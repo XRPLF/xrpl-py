@@ -81,7 +81,7 @@ class TestWalletMain(TestCase):
         self.assertEqual(wallet.seed, regular_key_pair_constants["seed"])
 
     def test_generate_using_default_algorithm(self):
-        wallet = Wallet.generate()
+        wallet = Wallet.create()
 
         self.assertIsInstance(wallet.public_key, str)
         self.assertIsInstance(wallet.private_key, str)
@@ -93,7 +93,7 @@ class TestWalletMain(TestCase):
         self.assertTrue(wallet.classic_address.startswith(classic_address_prefix))
 
     def test_generate_using_algorithm_ed25519(self):
-        wallet = Wallet.generate()
+        wallet = Wallet.create()
 
         self.assertIsInstance(wallet.public_key, str)
         self.assertIsInstance(wallet.private_key, str)
@@ -105,7 +105,7 @@ class TestWalletMain(TestCase):
         self.assertTrue(wallet.classic_address.startswith(classic_address_prefix))
 
     def test_generate_using_algorithm_ecdsa_secp256k1(self):
-        wallet = Wallet.generate(CryptoAlgorithm.SECP256K1)
+        wallet = Wallet.create(CryptoAlgorithm.SECP256K1)
 
         self.assertIsInstance(wallet.public_key, str)
         self.assertIsInstance(wallet.private_key, str)
@@ -365,11 +365,11 @@ class TestWalletMain(TestCase):
         )
 
     def test_address_alias(self):
-        wallet = Wallet.generate()
+        wallet = Wallet.create()
         self.assertEqual(wallet.address, wallet.classic_address)
 
     def test_get_only_address(self):
-        wallet = Wallet.generate()
+        wallet = Wallet.create()
 
         with self.assertRaises(AttributeError):
             wallet.address = "rhvh5SrgBL5V8oeV9EpDuVszeJSSCEkbPc"
