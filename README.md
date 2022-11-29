@@ -155,14 +155,14 @@ Use the [`xrpl.transaction`](https://xrpl-py.readthedocs.io/en/stable/source/xrp
 
 * [`safe_sign_and_submit_transaction`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.transaction.html#xrpl.transaction.safe_sign_and_submit_transaction) — Signs a transaction locally, then submits it to the XRP Ledger. This method does not implement [reliable transaction submission](https://xrpl.org/reliable-transaction-submission.html#reliable-transaction-submission) best practices, so only use it for development or testing purposes.
 
-* [`safe_sign_transaction`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.transaction.html#xrpl.transaction.safe_sign_transaction) — Signs a transaction locally. This method **does  not** submit the transaction to the XRP Ledger.
+* [`sign`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.transaction.html#xrpl.transaction.sign) — Signs a transaction locally. This method **does  not** submit the transaction to the XRP Ledger.
 
 * [`send_reliable_submission`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.transaction.html#xrpl.transaction.send_reliable_submission) — An implementation of the [reliable transaction submission guidelines](https://xrpl.org/reliable-transaction-submission.html#reliable-transaction-submission), this method submits a signed transaction to the XRP Ledger and then verifies that it has been included in a validated ledger (or has failed to do so). Use this method to submit transactions for production purposes.
 
 
 ```py
 from xrpl.models.transactions import Payment
-from xrpl.transaction import safe_sign_transaction, send_reliable_submission
+from xrpl.transaction import sign, send_reliable_submission
 from xrpl.ledger import get_latest_validated_ledger_sequence
 from xrpl.account import get_next_valid_seq_number
 
@@ -181,7 +181,7 @@ my_tx_payment = Payment(
     fee="10",
 )
 # sign the transaction
-my_tx_payment_signed = safe_sign_transaction(my_tx_payment,test_wallet)
+my_tx_payment_signed = sign(my_tx_payment,test_wallet)
 
 # submit the transaction
 tx_response = send_reliable_submission(my_tx_payment_signed, client)
@@ -276,7 +276,7 @@ This sample code is the asynchronous equivalent of the above section on submitti
 ```py
 import asyncio
 from xrpl.models.transactions import Payment
-from xrpl.asyncio.transaction import safe_sign_transaction, send_reliable_submission
+from xrpl.asyncio.transaction import sign, send_reliable_submission
 from xrpl.asyncio.ledger import get_latest_validated_ledger_sequence
 from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.asyncio.clients import AsyncJsonRpcClient
@@ -299,7 +299,7 @@ async def submit_sample_transaction():
         fee="10",
     )
     # sign the transaction
-    my_tx_payment_signed = await safe_sign_transaction(my_tx_payment,test_wallet)
+    my_tx_payment_signed = await sign(my_tx_payment,test_wallet)
 
     # submit the transaction
     tx_response = await send_reliable_submission(my_tx_payment_signed, async_client)
