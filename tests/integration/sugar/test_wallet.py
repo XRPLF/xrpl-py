@@ -60,7 +60,7 @@ class TestWallet(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.Wallet.create_faucet_wallet",
+            "xrpl.wallet.generate_faucet_wallet",
             "xrpl.account.get_next_valid_seq_number",
         ],
         num_retries=5,
