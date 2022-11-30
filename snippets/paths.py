@@ -4,7 +4,7 @@ from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.currencies.xrp import XRP
 from xrpl.models.requests import RipplePathFind
 from xrpl.models.transactions import Payment
-from xrpl.transaction import sign_and_autofill
+from xrpl.transaction import autofill_and_sign
 from xrpl.wallet import generate_faucet_wallet
 
 # References
@@ -47,4 +47,4 @@ payment_tx = Payment(
     paths=paths,
 )
 
-print("signed: ", sign_and_autofill(payment_tx, wallet, client))
+print("signed: ", autofill_and_sign(payment_tx, wallet, client))

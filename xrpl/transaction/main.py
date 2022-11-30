@@ -95,7 +95,7 @@ def sign(
 safe_sign_transaction = sign
 
 
-def sign_and_autofill(
+def autofill_and_sign(
     transaction: Transaction,
     wallet: Wallet,
     client: SyncClient,
@@ -116,7 +116,7 @@ def sign_and_autofill(
         The signed transaction.
     """
     return asyncio.run(
-        main.sign_and_autofill(
+        main.autofill_and_sign(
             transaction,
             wallet,
             client,
@@ -125,7 +125,7 @@ def sign_and_autofill(
     )
 
 
-safe_sign_and_autofill_transaction = sign_and_autofill
+safe_sign_and_autofill_transaction = autofill_and_sign
 
 
 def autofill(transaction: Transaction, client: SyncClient) -> Transaction:
