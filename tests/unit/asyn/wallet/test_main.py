@@ -27,13 +27,11 @@ seed_constants = {
 }
 
 entropy_constants = {
-    "entropy": "0000000000000000",
-    "ed25519_public_key": "ED4AF1C789A6F18C2C79779EC569C9FE7980390EF8257DCE5290744B929ABF3FFB",  # noqa:E501
-    "ed25519_private_key": "ED56D01C4D1A698E26AC99EEFDD77B9E98F1B909B407282830E8DFFC18FB99F215",  # noqa:E501
-    "ed25519_classic_address": "r4qwiunCmy3LLVGQGNQmmEbHVaCiuoo5sk",
-    "secp256k1_public_key": "032632F887B83B32EE74A137C870C62DA776195ED2B106622B1DE5F3EAAF932CBB",  # noqa:E501
-    "secp256k1_private_key": "00ED3FED5C377CF7014467AECA2DE76E42044C231AF4E5E3C00A5F8704F49F5B2D",  # noqa:E501
-    "secp256k1_classic_address": "rDYKpeyzBvdut96cC9SU7wQUdMtJqEdrgn",
+    "entropy": b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+    "ed25519_public_key": "ED1A7C082846CFF58FF9A892BA4BA2593151CCF1DBA59F37714CC9ED39824AF85F",  # noqa:E501
+    "ed25519_private_key": "EDB6CBAC838DFE7F47EA1BD0DF00EC282FDF45510C92161072CCFB84035390C4D",  # noqa:E501
+    "secp256k1_public_key": "0390A196799EE412284A5D80BF78C3E84CBB80E1437A0AECD9ADF94D7FEAAFA284",  # noqa:E501
+    "secp256k1_private_key": "002512BBDFDBB77510883B7DCCBEF270B86DEAC8B64AC762873D75A1BEE6298665",  # noqa:E501
 }
 
 xaddress_constants = {
@@ -282,9 +280,6 @@ class TestWalletMain(TestCase):
 
         self.assertEqual(wallet.public_key, entropy_constants["ed25519_public_key"])
         self.assertEqual(wallet.private_key, entropy_constants["ed25519_private_key"])
-        self.assertEqual(
-            wallet.classic_address, entropy_constants["ed25519_classic_address"]
-        )
 
     def test_from_entropy_using_algorithm_ecdsa_secp256k1(self):
         wallet = Wallet.from_entropy(
@@ -293,9 +288,6 @@ class TestWalletMain(TestCase):
 
         self.assertEqual(wallet.public_key, entropy_constants["secp256k1_public_key"])
         self.assertEqual(wallet.private_key, entropy_constants["secp256k1_private_key"])
-        self.assertEqual(
-            wallet.classic_address, entropy_constants["secp256k1_classic_address"]
-        )
 
     def test_from_entropy_using_algorithm_ed25519(self):
         wallet = Wallet.from_entropy(
@@ -304,9 +296,6 @@ class TestWalletMain(TestCase):
 
         self.assertEqual(wallet.public_key, entropy_constants["ed25519_public_key"])
         self.assertEqual(wallet.private_key, entropy_constants["ed25519_private_key"])
-        self.assertEqual(
-            wallet.classic_address, entropy_constants["ed25519_classic_address"]
-        )
 
     def test_from_entropy_using_regular_key_pair_using_default_algorithm(self):
         wallet = Wallet.from_entropy(
@@ -316,9 +305,6 @@ class TestWalletMain(TestCase):
 
         self.assertEqual(wallet.public_key, entropy_constants["ed25519_public_key"])
         self.assertEqual(wallet.private_key, entropy_constants["ed25519_private_key"])
-        self.assertEqual(
-            wallet.classic_address, regular_key_pair_constants["master_address"]
-        )
 
     def test_from_entropy_using_regular_key_pai_using_algorithm_ed25519(self):
         wallet = Wallet.from_entropy(
@@ -329,9 +315,6 @@ class TestWalletMain(TestCase):
 
         self.assertEqual(wallet.public_key, entropy_constants["ed25519_public_key"])
         self.assertEqual(wallet.private_key, entropy_constants["ed25519_private_key"])
-        self.assertEqual(
-            wallet.classic_address, regular_key_pair_constants["master_address"]
-        )
 
     def test_from_entropy_using_regular_key_pair_using_algorithm_ecdsa_secp256k1(self):
         wallet = Wallet.from_entropy(
@@ -342,9 +325,6 @@ class TestWalletMain(TestCase):
 
         self.assertEqual(wallet.public_key, entropy_constants["secp256k1_public_key"])
         self.assertEqual(wallet.private_key, entropy_constants["secp256k1_private_key"])
-        self.assertEqual(
-            wallet.classic_address, regular_key_pair_constants["master_address"]
-        )
 
     def test_get_xaddress_when_test_is_true(self):
         self.assertEqual(

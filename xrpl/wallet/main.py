@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Optional, Type
 
-from xrpl.constants import CryptoAlgorithm
+from xrpl.constants import CryptoAlgorithm, XRPLException
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.core.keypairs import derive_classic_address, derive_keypair, generate_seed
 from xrpl.utils.ensure_classic_address import ensure_classic_address
@@ -137,8 +137,19 @@ class Wallet:
 
         Returns:
             The wallet that is generated from the given entropy.
+
+        Raises:
+            XRPLException: If passed in entropy is not a bytestring.
         """
-        seed = generate_seed(entropy, algorithm)
+        parsed_entropy = entropy
+
+        if entropy is not None:
+            if not isinstance(entropy, bytes):
+                raise XRPLException("Entropy must be a byte string")
+            else:
+                parsed_entropy = entropy.decode("utf-8")
+
+        seed = generate_seed(parsed_entropy, algorithm)
         return Wallet.from_seed(
             seed, master_address=master_address, algorithm=algorithm
         )
