@@ -22,16 +22,20 @@ from xrpl.models.transactions import (
 from xrpl.wallet import Wallet
 
 FEE = get_fee(JSON_RPC_CLIENT)
-SEQ = get_next_valid_seq_number_sync(WALLET.classic_address, JSON_RPC_CLIENT)
 
 # Set up signer list
-FIRST_SIGNER = Wallet.generate()
-SECOND_SIGNER = Wallet.generate()
+FIRST_SIGNER = Wallet.create()
+SECOND_SIGNER = Wallet.create()
 LIST_SET_TX = sign_and_reliable_submission(
     SignerListSet(
         account=WALLET.classic_address,
-        sequence=SEQ,
-        last_ledger_sequence=SEQ + 10,
+        sequence=get_next_valid_seq_number_sync(
+            WALLET.classic_address, JSON_RPC_CLIENT
+        ),
+        last_ledger_sequence=get_next_valid_seq_number_sync(
+            WALLET.classic_address, JSON_RPC_CLIENT
+        )
+        + 10,
         fee=FEE,
         signer_quorum=2,
         signer_entries=[
@@ -58,7 +62,7 @@ class TestSubmitMultisigned(IntegrationTestCase):
         # NOTE: If you need to use xrpl-py for multisigning, please create an issue on
         # the repo. We'd like to gauge interest in higher level multisigning
         # functionality.
-        issuer = Wallet.generate()
+        issuer = Wallet.create()
         tx = TrustSet(
             account=WALLET.classic_address,
             sequence=await get_next_valid_seq_number(WALLET.classic_address, client),

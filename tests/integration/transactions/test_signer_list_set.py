@@ -10,7 +10,7 @@ class TestSignerListSet(IntegrationTestCase):
     @test_async_and_sync(globals(), ["xrpl.account.get_next_valid_seq_number"])
     async def test_add_signer(self, client):
         # sets up another signer for this account
-        other_signer = Wallet.generate()
+        other_signer = Wallet.create()
         response = await submit_transaction_async(
             SignerListSet(
                 account=WALLET.classic_address,

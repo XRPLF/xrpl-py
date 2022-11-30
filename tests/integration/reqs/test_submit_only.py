@@ -10,12 +10,13 @@ from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import SubmitOnly
 from xrpl.models.transactions import OfferCreate
 
-SEQ = get_next_valid_seq_number(WALLET.classic_address, JSON_RPC_CLIENT)
-
 TX = OfferCreate(
     account=WALLET.classic_address,
-    sequence=SEQ,
-    last_ledger_sequence=SEQ + 10,
+    sequence=get_next_valid_seq_number(WALLET.classic_address, JSON_RPC_CLIENT),
+    last_ledger_sequence=get_next_valid_seq_number(
+        WALLET.classic_address, JSON_RPC_CLIENT
+    )
+    + 10,
     taker_gets="13100000",
     taker_pays=IssuedCurrencyAmount(
         currency="USD",

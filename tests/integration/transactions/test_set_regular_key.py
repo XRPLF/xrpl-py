@@ -9,7 +9,7 @@ from xrpl.wallet import Wallet
 class TestSetRegularKey(IntegrationTestCase):
     @test_async_and_sync(globals(), ["xrpl.account.get_next_valid_seq_number"])
     async def test_all_fields(self, client):
-        regular_key = Wallet.generate().classic_address
+        regular_key = Wallet.create().classic_address
         response = await submit_transaction_async(
             SetRegularKey(
                 account=WALLET.classic_address,
