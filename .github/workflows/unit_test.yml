@@ -9,7 +9,7 @@ on:
 jobs:
   lint-and-type-check:
     name: Lint and type-check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     env:
       PYTHON_VERSION: "3.10"
@@ -52,7 +52,7 @@ jobs:
 
   unit-test:
     name: Unit test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         # we have to use 3.7.1 to get around openssl issues
