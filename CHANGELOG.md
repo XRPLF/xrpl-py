@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `getNFTokenID` to get the NFTokenID after minting a token.
 - Added `LedgerEntryType` enum and added `type` field to `Ledger` and `LedgerData` requests
 - Added the algorithm used to encode a wallet's seed to the wallet.
+- Created function alias to `safe_sign_transaction` called `sign` - safe originally used to indicate local offline signing (keys aren't exposed)
 
 ### Changed:
 - `check_fee` now has a higher limit that is less likely to be hit

@@ -64,9 +64,6 @@ async def sign_and_submit(
     return await submit(transaction, client)
 
 
-safe_sign_and_submit_transaction = sign_and_submit
-
-
 async def sign(
     transaction: Transaction,
     wallet: Wallet,

@@ -4,7 +4,6 @@ from xrpl.asyncio.transaction.main import (
     autofill,
     autofill_and_sign,
     safe_sign_and_autofill_transaction,
-    safe_sign_and_submit_transaction,
     safe_sign_transaction,
     sign,
     sign_and_submit,

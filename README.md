@@ -161,7 +161,7 @@ Use the [`xrpl.transaction`](https://xrpl-py.readthedocs.io/en/stable/source/xrp
 
 
 ```py
-from xrpl.models import Payment
+from xrpl.models.transactions import Payment
 from xrpl.transaction import sign, send_reliable_submission
 from xrpl.ledger import get_latest_validated_ledger_sequence
 from xrpl.account import get_next_valid_seq_number
@@ -275,7 +275,7 @@ This sample code is the asynchronous equivalent of the above section on submitti
 
 ```py
 import asyncio
-from xrpl.models import Payment
+from xrpl.models.transactions import Payment
 from xrpl.asyncio.transaction import sign, send_reliable_submission
 from xrpl.asyncio.ledger import get_latest_validated_ledger_sequence
 from xrpl.asyncio.account import get_next_valid_seq_number
