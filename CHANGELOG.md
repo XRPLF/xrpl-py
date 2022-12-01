@@ -6,10 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [[Unreleased]]
+### Added:
+- Created function alias to `safe_sign_transaction` called `sign` - safe originally used to indicate local offline signing (keys aren't exposed)
+
 ### Changed:
 - `check_fee` now has a higher limit that is less likely to be hit
 - When connected to nft devnet or hooks v2 testnet generate_faucet_wallet now defaults to using the faucet instead of requiring specification
 - Deprecated `get_account_info`, `get_transaction_from_hash`, `get_account_payment_transactions` for direct requests
+- Private function `request_impl` has been renamed to `_request_impl`. Users should always use `request` over `request_impl`.
 
 ### Fixed:
 - Properly type the instance functions of NestedModel

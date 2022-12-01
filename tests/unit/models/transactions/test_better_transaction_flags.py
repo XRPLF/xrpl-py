@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from xrpl import models
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.transaction.main import safe_sign_transaction
+from xrpl.transaction.main import sign
 from xrpl.wallet.main import Wallet
 
 # from typing import Iterable
@@ -37,11 +37,11 @@ class TestBetterTransactionFlags(TestCase):
             account=ACCOUNT,
             flags=[*flags],
         )
-        signed_actual = safe_sign_transaction(
+        signed_actual = sign(
             transaction=actual,
             wallet=WALLET,
         )
-        signed_expected = safe_sign_transaction(
+        signed_expected = sign(
             transaction=expected,
             wallet=WALLET,
         )
@@ -70,11 +70,11 @@ class TestBetterTransactionFlags(TestCase):
             amount="1000000",
             flags=[*flags],
         )
-        signed_actual = safe_sign_transaction(
+        signed_actual = sign(
             transaction=actual,
             wallet=WALLET,
         )
-        signed_expected = safe_sign_transaction(
+        signed_expected = sign(
             transaction=expected,
             wallet=WALLET,
         )
@@ -102,11 +102,11 @@ class TestBetterTransactionFlags(TestCase):
             nftoken_taxon=0,
             flags=[*flags],
         )
-        signed_actual = safe_sign_transaction(
+        signed_actual = sign(
             transaction=actual,
             wallet=WALLET,
         )
-        signed_expected = safe_sign_transaction(
+        signed_expected = sign(
             transaction=expected,
             wallet=WALLET,
         )
@@ -145,11 +145,11 @@ class TestBetterTransactionFlags(TestCase):
                 flags.TF_SELL,
             ],
         )
-        signed_actual = safe_sign_transaction(
+        signed_actual = sign(
             transaction=actual,
             wallet=WALLET,
         )
-        signed_expected = safe_sign_transaction(
+        signed_expected = sign(
             transaction=expected,
             wallet=WALLET,
         )
@@ -188,11 +188,11 @@ class TestBetterTransactionFlags(TestCase):
                 flags.TF_SELL,
             ],
         )
-        signed_actual = safe_sign_transaction(
+        signed_actual = sign(
             transaction=actual,
             wallet=WALLET,
         )
-        signed_expected = safe_sign_transaction(
+        signed_expected = sign(
             transaction=expected,
             wallet=WALLET,
         )
@@ -218,11 +218,11 @@ class TestBetterTransactionFlags(TestCase):
             channel="C1AE6DDDEEC05CF2978C0BAD6FE302948E9533691DC749DCDD3B9E5992CA6198",
             flags=[*flags],
         )
-        signed_actual = safe_sign_transaction(
+        signed_actual = sign(
             transaction=actual,
             wallet=WALLET,
         )
-        signed_expected = safe_sign_transaction(
+        signed_expected = sign(
             transaction=expected,
             wallet=WALLET,
         )
@@ -253,11 +253,11 @@ class TestBetterTransactionFlags(TestCase):
             amount=amnt,
             flags=[*flags],
         )
-        signed_actual = safe_sign_transaction(
+        signed_actual = sign(
             transaction=actual,
             wallet=WALLET,
         )
-        signed_expected = safe_sign_transaction(
+        signed_expected = sign(
             transaction=expected,
             wallet=WALLET,
         )
@@ -291,11 +291,11 @@ class TestBetterTransactionFlags(TestCase):
             limit_amount=amnt,
             flags=[*flags],
         )
-        signed_actual = safe_sign_transaction(
+        signed_actual = sign(
             transaction=actual,
             wallet=WALLET,
         )
-        signed_expected = safe_sign_transaction(
+        signed_expected = sign(
             transaction=expected,
             wallet=WALLET,
         )
@@ -321,11 +321,11 @@ class TestBetterTransactionFlags(TestCase):
             ledger_sequence=seq,
             flags=[*flags],
         )
-        signed_actual = safe_sign_transaction(
+        signed_actual = sign(
             transaction=actual,
             wallet=WALLET,
         )
-        signed_expected = safe_sign_transaction(
+        signed_expected = sign(
             transaction=expected,
             wallet=WALLET,
         )
@@ -340,7 +340,7 @@ class TestBetterTransactionFlags(TestCase):
                 account=ACCOUNT,
                 offer_sequence=6,
             )
-            safe_sign_transaction(
+            sign(
                 transaction=cancel_offer,
                 wallet=WALLET,
             )
@@ -351,7 +351,7 @@ class TestBetterTransactionFlags(TestCase):
                 destination=dest,
                 amount=amnt,
             )
-            safe_sign_transaction(
+            sign(
                 transaction=pymnt,
                 wallet=WALLET,
             )
@@ -376,7 +376,7 @@ class TestBetterTransactionFlags(TestCase):
                     ),
                 ],
             )
-            safe_sign_transaction(transaction=tx, wallet=WALLET)
+            sign(transaction=tx, wallet=WALLET)
         with self.assertRaises(XRPLModelException):
             tx = models.Payment(
                 account=ACCOUNT,
@@ -384,7 +384,7 @@ class TestBetterTransactionFlags(TestCase):
                 amount=amnt,
                 flags=["1"],
             )
-            safe_sign_transaction(transaction=tx, wallet=WALLET)
+            sign(transaction=tx, wallet=WALLET)
         with self.assertRaises(XRPLModelException):
             tx = models.Payment(
                 account=ACCOUNT,
@@ -392,7 +392,7 @@ class TestBetterTransactionFlags(TestCase):
                 amount=amnt,
                 flags=[65536, models.PaymentFlagInterface(tf_limit_quality=True)],
             )
-            safe_sign_transaction(transaction=tx, wallet=WALLET)
+            sign(transaction=tx, wallet=WALLET)
 
     def test_transaction_has_no_flags(self):
         actual = models.OfferCancel(
@@ -403,11 +403,11 @@ class TestBetterTransactionFlags(TestCase):
             ),
         )
         expected = models.OfferCancel(account=ACCOUNT, offer_sequence=6, flags=0)
-        signed_actual = safe_sign_transaction(
+        signed_actual = sign(
             transaction=actual,
             wallet=WALLET,
         )
-        signed_expected = safe_sign_transaction(
+        signed_expected = sign(
             transaction=expected,
             wallet=WALLET,
         )
