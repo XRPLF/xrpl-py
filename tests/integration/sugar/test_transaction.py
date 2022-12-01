@@ -3,7 +3,6 @@ from tests.integration.it_utils import (
     accept_ledger_async,
     sign_and_reliable_submission_async,
     submit_transaction_async,
-    submit_transaction_with_alias_async,
     test_async_and_sync,
 )
 from tests.integration.reusable_values import DESTINATION as DESTINATION_WALLET
@@ -17,6 +16,9 @@ from xrpl.asyncio.transaction import (
     safe_sign_and_autofill_transaction,
     send_reliable_submission,
     sign,
+)
+from xrpl.asyncio.transaction import (
+    submit_transaction as submit_transaction_alias_async,
 )
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
@@ -237,10 +239,15 @@ class TestTransaction(IntegrationTestCase):
         self.assertTrue(response.is_successful())
         WALLET.sequence += 1
 
-    @test_async_and_sync(globals())
-    async def test_payment_high_fee_authorized_submit_xalias(self, client):
-        # GIVEN a new Payment transaction
-        response = await submit_transaction_with_alias_async(
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.safe_sign_and_autofill_transaction",
+            "xrpl.transaction.submit_transaction",
+        ],
+    )
+    async def test_payment_high_fee_authorized_with_submit_alias(self, client):
+        signed_and_autofilled = await safe_sign_and_autofill_transaction(
             Payment(
                 account=WALLET.classic_address,
                 sequence=WALLET.sequence,
@@ -250,9 +257,13 @@ class TestTransaction(IntegrationTestCase):
                 destination=DESTINATION,
             ),
             WALLET,
+            client,
             # WITHOUT checking the fee value
             check_fee=False,
         )
+
+        # GIVEN a new Payment transaction
+        response = await submit_transaction_alias_async(signed_and_autofilled, client)
         # THEN we expect the transaction to be successful
         self.assertTrue(response.is_successful())
         WALLET.sequence += 1
