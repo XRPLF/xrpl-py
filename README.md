@@ -4,6 +4,8 @@
 
 A pure Python implementation for interacting with the XRP Ledger, the `xrpl-py` library simplifies the hardest parts of XRP Ledger interaction, like serialization and transaction signing, by providing native Python methods and models for [XRP Ledger transactions](https://xrpl.org/transaction-formats.html) and core server [API](https://xrpl.org/api-conventions.html) ([`rippled`](https://github.com/ripple/rippled)) objects.
 
+
+
 ```py
 # create a network client
 from xrpl.clients import JsonRpcClient
@@ -49,6 +51,7 @@ print(json.dumps(result["account_data"], indent=4, sort_keys=True))
 
 The `xrpl-py` library is available on [PyPI](https://pypi.org/). Install with `pip`:
 
+
 ```
 pip3 install xrpl-py
 ```
@@ -57,23 +60,25 @@ The library supports [Python 3.7](https://www.python.org/downloads/) and later.
 
 [![Supported Versions](https://img.shields.io/pypi/pyversions/xrpl-py.svg)](https://pypi.org/project/xrpl-py)
 
+
 ## Features
 
 Use `xrpl-py` to build Python applications that leverage the [XRP Ledger](https://xrpl.org/). The library helps with all aspects of interacting with the XRP Ledger, including:
 
-- Key and wallet management
-- Serialization
-- Transaction Signing
+* Key and wallet management
+* Serialization
+* Transaction Signing
 
 `xrpl-py` also provides:
 
-- A network client — See [`xrpl.clients`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.clients.html) for more information.
-- Methods for inspecting accounts — See [XRPL Account Methods](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.account.html) for more information.
-- Codecs for encoding and decoding addresses and other objects — See [Core Codecs](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.core.html) for more information.
+* A network client — See [`xrpl.clients`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.clients.html) for more information.
+* Methods for inspecting accounts — See [XRPL Account Methods](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.account.html) for more information.
+* Codecs for encoding and decoding addresses and other objects — See [Core Codecs](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.core.html) for more information.
 
 ## [➡️ Reference Documentation](https://xrpl-py.readthedocs.io/en/stable/)
 
 See the complete [`xrpl-py` reference documentation on Read the Docs](https://xrpl-py.readthedocs.io/en/stable/index.html).
+
 
 ## Usage
 
@@ -120,6 +125,7 @@ Use the [`xrpl.core.keypairs`](https://xrpl-py.readthedocs.io/en/stable/source/x
 
 Here's an example of how to generate a `seed` value and derive an [XRP Ledger "classic" address](https://xrpl.org/cryptographic-keys.html#account-id-and-address) from that seed.
 
+
 ```py
 from xrpl.core import keypairs
 seed = keypairs.generate_seed()
@@ -139,17 +145,20 @@ print("Store this in a secure place!")
 
 **Note:** You can use `xrpl.core.keypairs.sign` to sign transactions but `xrpl-py` also provides explicit methods for safely signing and submitting transactions. See [Transaction Signing](#transaction-signing) and [XRPL Transaction Methods](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.transaction.html#module-xrpl.transaction) for more information.
 
+
 ### Serialize and sign transactions
 
 To securely submit transactions to the XRP Ledger, you need to first serialize data from JSON and other formats into the [XRP Ledger's canonical format](https://xrpl.org/serialization.html), then to [authorize the transaction](https://xrpl.org/transaction-basics.html#authorizing-transactions) by digitally [signing it](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.core.keypairs.html?highlight=sign#xrpl.core.keypairs.sign) with the account's private key. The `xrpl-py` library provides several methods to simplify this process.
 
+
 Use the [`xrpl.transaction`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.transaction.html) module to sign and submit transactions. The module offers three ways to do this:
 
-- [`sign_and_submit`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.transaction.html#xrpl.transaction.sign_and_submit) — Signs a transaction locally, then submits it to the XRP Ledger. This method does not implement [reliable transaction submission](https://xrpl.org/reliable-transaction-submission.html#reliable-transaction-submission) best practices, so only use it for development or testing purposes.
+* [`sign_and_submit`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.transaction.html#xrpl.transaction.sign_and_submit) — Signs a transaction locally, then submits it to the XRP Ledger. This method does not implement [reliable transaction submission](https://xrpl.org/reliable-transaction-submission.html#reliable-transaction-submission) best practices, so only use it for development or testing purposes.
 
-- [`sign`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.transaction.html#xrpl.transaction.sign) — Signs a transaction locally. This method **does not** submit the transaction to the XRP Ledger.
+* [`sign`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.transaction.html#xrpl.transaction.sign) — Signs a transaction locally. This method **does  not** submit the transaction to the XRP Ledger.
 
-- [`send_reliable_submission`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.transaction.html#xrpl.transaction.send_reliable_submission) — An implementation of the [reliable transaction submission guidelines](https://xrpl.org/reliable-transaction-submission.html#reliable-transaction-submission), this method submits a signed transaction to the XRP Ledger and then verifies that it has been included in a validated ledger (or has failed to do so). Use this method to submit transactions for production purposes.
+* [`send_reliable_submission`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.transaction.html#xrpl.transaction.send_reliable_submission) — An implementation of the [reliable transaction submission guidelines](https://xrpl.org/reliable-transaction-submission.html#reliable-transaction-submission), this method submits a signed transaction to the XRP Ledger and then verifies that it has been included in a validated ledger (or has failed to do so). Use this method to submit transactions for production purposes.
+
 
 ```py
 from xrpl.models.transactions import Payment
@@ -179,6 +188,7 @@ tx_response = send_reliable_submission(my_tx_payment_signed, client)
 ```
 
 #### Get fee from the XRP Ledger
+
 
 In most cases, you can specify the minimum [transaction cost](https://xrpl.org/transaction-cost.html#current-transaction-cost) of `"10"` for the `fee` field unless you have a strong reason not to. But if you want to get the [current load-balanced transaction cost](https://xrpl.org/transaction-cost.html#current-transaction-cost) from the network, you can use the `get_fee` function:
 
@@ -235,6 +245,7 @@ print(my_tx_payment_signed)
 tx_response = send_reliable_submission(my_tx_payment_signed, client)
 ```
 
+
 ### Subscribe to ledger updates
 
 You can send `subscribe` and `unsubscribe` requests only using the WebSocket network client. These request methods allow you to be alerted of certain situations as they occur, such as when a new ledger is declared.
@@ -254,6 +265,7 @@ with WebsocketClient(url) as client:
 # {'fee_base': 10, 'fee_ref': 10, 'ledger_hash': 'D8227DAF8F745AE3F907B251D40B4081E019D013ABC23B68C0B1431DBADA1A46', 'ledger_index': 18183506, 'ledger_time': 676412971, 'reserve_base': 20000000, 'reserve_inc': 5000000, 'txn_count': 0, 'type': 'ledgerClosed', 'validated_ledgers': '17469391-18183506'}
 # {'fee_base': 10, 'fee_ref': 10, 'ledger_hash': 'CFC412B6DDB9A402662832A781C23F0F2E842EAE6CFC539FEEB287318092C0DE', 'ledger_index': 18183507, 'ledger_time': 676412972, 'reserve_base': 20000000, 'reserve_inc': 5000000, 'txn_count': 0, 'type': 'ledgerClosed', 'validated_ledgers': '17469391-18183507'}
 ```
+
 
 ### Asynchronous Code
 
@@ -313,6 +325,7 @@ print(testnet_xaddress)
 # T7QDemmxnuN7a52A62nx2fxGPWcRahLCf3qaswfrsNW9Lps
 ```
 
+
 ## Contributing
 
 If you want to contribute to this project, see [CONTRIBUTING.md].
@@ -321,11 +334,11 @@ If you want to contribute to this project, see [CONTRIBUTING.md].
 
 We have a low-traffic mailing list for announcements of new `xrpl.js` releases. (About 1 email per week)
 
-- [Subscribe to xrpl-announce](https://groups.google.com/g/xrpl-announce)
++ [Subscribe to xrpl-announce](https://groups.google.com/g/xrpl-announce)
 
 If you're using the XRP Ledger in production, you should run a [rippled server](https://github.com/ripple/rippled) and subscribe to the ripple-server mailing list as well.
 
-- [Subscribe to ripple-server](https://groups.google.com/g/ripple-server)
++ [Subscribe to ripple-server](https://groups.google.com/g/ripple-server)
 
 ### Report an issue
 
@@ -335,5 +348,7 @@ Experienced an issue? Report it [here](https://github.com/XRPLF/xrpl-py/issues/n
 
 The `xrpl-py` library is licensed under the ISC License. See [LICENSE] for more information.
 
-[contributing.md]: CONTRIBUTING.md
-[license]: LICENSE
+
+
+[CONTRIBUTING.md]: CONTRIBUTING.md
+[LICENSE]: LICENSE
