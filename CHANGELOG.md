@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 ### Added:
 - Created function alias to `safe_sign_transaction` called `sign` - safe originally used to indicate local offline signing (keys aren't exposed)
+- Created function alias to `safe_sign_and_submit_transaction` called `sign_and_submit`
 
 ### Changed:
 - `check_fee` now has a higher limit that is less likely to be hit
