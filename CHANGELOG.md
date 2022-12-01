@@ -133,4 +133,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2021-03-31
 ### Added
-- Initial release! Please open up an issue in our repo if you have any feedback or issues to report.
+- Initial release! Please open up an issue in our repo if you have any
+  feedback or issues to report.
