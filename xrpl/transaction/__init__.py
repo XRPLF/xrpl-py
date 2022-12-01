@@ -9,6 +9,7 @@ from xrpl.transaction.main import (
     safe_sign_and_autofill_transaction,
     safe_sign_and_submit_transaction,
     safe_sign_transaction,
+    sign,
     submit_transaction,
 )
 from xrpl.transaction.multisign import multisign, sign_for_multisign
@@ -21,6 +22,7 @@ __all__ = [
     "safe_sign_transaction",
     "safe_sign_and_autofill_transaction",
     "safe_sign_and_submit_transaction",
+    "sign",
     "submit_transaction",
     "transaction_json_to_binary_codec_form",
     "send_reliable_submission",
