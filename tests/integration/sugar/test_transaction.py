@@ -242,12 +242,12 @@ class TestTransaction(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_and_autofill_transaction",
+            "xrpl.transaction.autofill_and_sign",
             "xrpl.transaction.submit_transaction",
         ],
     )
     async def test_payment_high_fee_authorized_with_submit_alias(self, client):
-        signed_and_autofilled = await safe_sign_and_autofill_transaction(
+        signed_and_autofilled = await autofill_and_sign(
             Payment(
                 account=WALLET.classic_address,
                 sequence=WALLET.sequence,
