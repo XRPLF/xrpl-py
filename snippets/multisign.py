@@ -14,6 +14,8 @@ from xrpl.wallet import generate_faucet_wallet
 
 client = JsonRpcClient("https://s.altnet.rippletest.net:51234")
 
+# Create a wallets to use for multisigning
+# Prints debug info as it creates the wallet
 master_wallet = generate_faucet_wallet(client, debug=True)
 signer_wallet_1 = generate_faucet_wallet(client, debug=True)
 signer_wallet_2 = generate_faucet_wallet(client, debug=True)
