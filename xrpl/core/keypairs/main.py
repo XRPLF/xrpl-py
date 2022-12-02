@@ -29,8 +29,8 @@ def generate_seed(
     Generate a seed value that cryptographic keys can be derived from.
 
     Args:
-        entropy: Must be at least addresscodec.SEED_LENGTH bytes long and
-            will be truncated to that length
+        entropy: Hexadecimal string that must be at least
+            addresscodec.SEED_LENGTH bytes long and will be truncated to that length
         algorithm: CryptoAlgorithm to use for seed generation. The  default is
             :data:`CryptoAlgorithm.ED25519 <xrpl.CryptoAlgorithm.ED25519>`.
 

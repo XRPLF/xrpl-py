@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated params for Wallet class constructor
 - `Wallet.address` and `Wallet.classic_address` are now readonly
 - Removed Sequence from Wallet class
+- Core keypairs generate seed must take in hexstring instead of bytestring
 
 ## [[Unreleased]]
 ### Added:
