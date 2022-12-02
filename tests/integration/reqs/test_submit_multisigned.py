@@ -1,11 +1,11 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import sign_and_reliable_submission, test_async_and_sync
 from tests.integration.reusable_values import WALLET
-from xrpl.asyncio.transaction.main import autofill
-from xrpl.asyncio.transaction.multisign import multisign, sign_for_multisign
+from xrpl.asyncio.transaction.main import autofill, sign
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import SubmitMultisigned
 from xrpl.models.transactions import SignerEntry, SignerListSet, TrustSet, TrustSetFlag
+from xrpl.transaction.multisign import multisign
 from xrpl.wallet import Wallet
 
 # Set up signer list
@@ -35,9 +35,8 @@ class TestSubmitMultisigned(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.main.autofill",
-            "xrpl.transaction.multisign.multisign",
-            "xrpl.transaction.multisign.sign_for_multisign",
+            "xrpl.transaction.sign",
+            "xrpl.transaction.autofill",
         ],
     )
     async def test_basic_functionality(self, client):
@@ -52,9 +51,9 @@ class TestSubmitMultisigned(IntegrationTestCase):
             ),
         )
         autofilled_tx = await autofill(tx, client, len(SIGNER_ENTRIES))
-        tx_blob_1 = await sign_for_multisign(autofilled_tx, FIRST_SIGNER)
-        tx_blob_2 = await sign_for_multisign(autofilled_tx, SECOND_SIGNER)
-        multisigned_tx = await multisign(autofilled_tx, [tx_blob_1, tx_blob_2])
+        tx_1 = await sign(autofilled_tx, FIRST_SIGNER, multisign=True)
+        tx_2 = await sign(autofilled_tx, SECOND_SIGNER, multisign=True)
+        multisigned_tx = multisign(autofilled_tx, [tx_1, tx_2])
 
         # submit tx
         response = await client.request(

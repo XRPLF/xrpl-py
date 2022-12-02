@@ -9,12 +9,12 @@ from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
-from xrpl.core.binarycodec import encode, encode_for_signing
+from xrpl.core.binarycodec import encode, encode_for_multisigning, encode_for_signing
 from xrpl.core.keypairs.main import sign as keypairs_sign
 from xrpl.models.requests import ServerState, SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions import EscrowFinish
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import Signer, Transaction
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )
@@ -66,6 +66,7 @@ async def sign(
     transaction: Transaction,
     wallet: Wallet,
     check_fee: bool = True,
+    multisign: bool = False,
 ) -> Transaction:
     """
     Signs a transaction locally, without trusting external rippled nodes.
@@ -75,18 +76,39 @@ async def sign(
         wallet: the wallet with which to sign the transaction.
         check_fee: whether to check if the fee is higher than the expected transaction
             type fee. Defaults to True.
+        multisign: whether to sign the transaction for a multisignature transaction.
 
     Returns:
         The signed transaction blob.
     """
-    if check_fee:
-        await _check_fee(transaction)
-    transaction_json = _prepare_transaction(transaction, wallet)
-    serialized_for_signing = encode_for_signing(transaction_json)
-    serialized_bytes = bytes.fromhex(serialized_for_signing)
-    signature = keypairs_sign(serialized_bytes, wallet.private_key)
-    transaction_json["TxnSignature"] = signature
-    return Transaction.from_xrpl(transaction_json)
+    if not multisign:
+        if check_fee:
+            await _check_fee(transaction)
+        transaction_json = _prepare_transaction(transaction, wallet)
+        serialized_for_signing = encode_for_signing(transaction_json)
+        serialized_bytes = bytes.fromhex(serialized_for_signing)
+        signature = keypairs_sign(serialized_bytes, wallet.private_key)
+        transaction_json["TxnSignature"] = signature
+        return Transaction.from_xrpl(transaction_json)
+    else:
+        signature = keypairs_sign(
+            bytes.fromhex(
+                encode_for_multisigning(
+                    transaction.to_xrpl(),
+                    wallet.classic_address,
+                )
+            ),
+            wallet.private_key,
+        )
+        tx_dict = transaction.to_dict()
+        tx_dict["signers"] = [
+            Signer(
+                account=wallet.classic_address,
+                txn_signature=signature,
+                signing_pub_key=wallet.public_key,
+            )
+        ]
+        return Transaction.from_dict(tx_dict)
 
 
 safe_sign_transaction = sign

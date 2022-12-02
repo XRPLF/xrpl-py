@@ -1,51 +1,34 @@
 """Multisign transaction methods with XRPL transactions."""
-import asyncio
 from typing import List
 
-from xrpl.asyncio.transaction import multisign as multisign_async
-from xrpl.asyncio.transaction import sign_for_multisign as sign_for_multisign_async
-from xrpl.models.transactions.transaction import Transaction
-from xrpl.wallet.main import Wallet
+from xrpl.models.transactions.transaction import Signer, Transaction
 
 
-def sign_for_multisign(
-    transaction: Transaction,
-    wallet: Wallet,
-) -> str:
+def multisign(transaction: Transaction, tx_list: List[Transaction]) -> Transaction:
     """
-    Signs a transaction to be used for multisigning.
-
-    Args:
-        transaction: the transaction to be signed.
-        wallet: the wallet with which to sign the transaction.
-
-    Returns:
-        The signed transaction blob.
-    """
-    return asyncio.run(
-        sign_for_multisign_async(
-            transaction,
-            wallet,
-        )
-    )
-
-
-def multisign(transaction: Transaction, tx_blobs: List[str]) -> Transaction:
-    """
-    Takes several transactions with Signer fields (blob form) and creates a
+    Takes several transactions with Signer fields and creates a
     single transaction with all Signers that then gets signed and returned.
 
     Args:
-        transaction: the transaction to be signed.
-        tx_blobs: a list of signed transactions (in blob form) to combine into
-            a single signed transaction.
+        transaction: the transaction to be multisigned.
+        tx_list: a list of signed transactions to combine into a single multisigned
+            transaction.
 
     Returns:
         The multisigned transaction.
     """
-    return asyncio.run(
-        multisign_async(
-            transaction,
-            tx_blobs,
+    tx_xrpl_list = [tx.to_xrpl() for tx in tx_list]
+
+    decoded_tx_signers = [tx_xrpl["Signers"][0]["Signer"] for tx_xrpl in tx_xrpl_list]
+
+    tx_dict = transaction.to_dict()
+    tx_dict["signers"] = [
+        Signer(
+            account=decoded_tx_signer["Account"],
+            txn_signature=decoded_tx_signer["TxnSignature"],
+            signing_pub_key=decoded_tx_signer["SigningPubKey"],
         )
-    )
+        for decoded_tx_signer in decoded_tx_signers
+    ]
+
+    return Transaction.from_dict(tx_dict)

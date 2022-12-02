@@ -7,7 +7,7 @@ from xrpl.transaction import (
     multisign,
     safe_sign_and_autofill_transaction,
     send_reliable_submission,
-    sign_for_multisign,
+    sign,
 )
 from xrpl.utils import str_to_hex
 from xrpl.wallet import generate_faucet_wallet
@@ -48,13 +48,10 @@ autofilled_account_set_tx = autofill(account_set_tx, client, len(signer_entries)
 print("AccountSet transaction is ready to be multisigned")
 print(autofilled_account_set_tx)
 
-# A blob is a binary string representation of the transaction that is
-# in hex format. We need to encode it into a blob to make it smaller
-# for rippled to process.
-tx_blob_1 = sign_for_multisign(autofilled_account_set_tx, signer_wallet_1)
-tx_blob_2 = sign_for_multisign(autofilled_account_set_tx, signer_wallet_2)
+tx_1 = sign(autofilled_account_set_tx, signer_wallet_1, multisign=True)
+tx_2 = sign(autofilled_account_set_tx, signer_wallet_2, multisign=True)
 
-multisigned_tx = multisign(autofilled_account_set_tx, [tx_blob_1, tx_blob_2])
+multisigned_tx = multisign(autofilled_account_set_tx, [tx_1, tx_2])
 
 print("Successfully multisigned the transaction")
 print(multisigned_tx)

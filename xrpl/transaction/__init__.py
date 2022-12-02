@@ -14,13 +14,12 @@ from xrpl.transaction.main import (
     submit,
     submit_transaction,
 )
-from xrpl.transaction.multisign import multisign, sign_for_multisign
+from xrpl.transaction.multisign import multisign
 from xrpl.transaction.reliable_submission import send_reliable_submission
 
 __all__ = [
     "autofill",
     "get_transaction_from_hash",
-    "sign_for_multisign",
     "safe_sign_transaction",
     "safe_sign_and_autofill_transaction",
     "safe_sign_and_submit_transaction",
