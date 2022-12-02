@@ -252,19 +252,15 @@ class TestTransaction(IntegrationTestCase):
                 account=WALLET.classic_address,
                 sequence=WALLET.sequence,
                 amount="1",
-                # WITH the fee higher than 2 XRP
                 fee=FEE,
                 destination=DESTINATION,
             ),
             WALLET,
             client,
-            # WITHOUT checking the fee value
             check_fee=False,
         )
 
-        # GIVEN a new Payment transaction
         response = await submit_transaction_alias_async(signed_and_autofilled, client)
-        # THEN we expect the transaction to be successful
         self.assertTrue(response.is_successful())
         WALLET.sequence += 1
 
