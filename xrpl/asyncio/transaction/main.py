@@ -56,7 +56,7 @@ async def sign_and_submit(
         )
     else:
         transaction = await sign(transaction, wallet, check_fee)
-    return await submit_transaction(transaction, client)
+    return await submit(transaction, client)
 
 
 safe_sign_and_submit_transaction = sign_and_submit
@@ -121,7 +121,7 @@ async def safe_sign_and_autofill_transaction(
     return await sign(await autofill(transaction, client), wallet, False)
 
 
-async def submit_transaction(
+async def submit(
     transaction: Transaction,
     client: Client,
 ) -> Response:
@@ -144,6 +144,9 @@ async def submit_transaction(
         return response
 
     raise XRPLRequestFailureException(response.result)
+
+
+submit_transaction = submit
 
 
 def _prepare_transaction(
