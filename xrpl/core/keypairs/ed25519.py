@@ -96,4 +96,6 @@ class ED25519(CryptoImplementation):
 
     @classmethod
     def _format_key(cls: Type[ED25519], keystr: str) -> str:
+        if len(keystr) < 64:
+            keystr = keystr.zfill(64)
         return (PREFIX + keystr).upper()

@@ -125,11 +125,11 @@ class Wallet:
         algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
     ) -> Wallet:
         """
-        Generates a new Wallet from entropy (string of random numbers).
+        Generates a new Wallet from entropy (hexadecimal string of random numbers).
 
         Args:
-            entropy: A string of random numbers to generate a seed used to derive
-                a wallet.
+            entropy: A hexadecimal string of random numbers to generate a seed used
+                to derive a wallet.
             master_address: Include if a Wallet uses a Regular Key Pair. This sets the
                 address that this wallet corresponds to. The default is `None`.
             algorithm: The key-generation algorithm to use when generating the seed.
@@ -143,11 +143,10 @@ class Wallet:
         """
         parsed_entropy = entropy
 
-        if entropy is not None:
-            if not isinstance(entropy, bytes):
-                raise XRPLException("Entropy must be a byte string")
-            else:
-                parsed_entropy = entropy.decode("utf-8")
+        if entropy is not None and len(entropy) != 32:
+            raise XRPLException(
+                "Entropy must be a 16-byte hexadecimal string of random numbers."
+            )
 
         seed = generate_seed(parsed_entropy, algorithm)
         return Wallet.from_seed(
