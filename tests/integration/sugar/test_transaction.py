@@ -17,6 +17,9 @@ from xrpl.asyncio.transaction import (
     send_reliable_submission,
     sign,
 )
+from xrpl.asyncio.transaction import (
+    submit_transaction as submit_transaction_alias_async,
+)
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.exceptions import XRPLException
@@ -233,6 +236,31 @@ class TestTransaction(IntegrationTestCase):
             check_fee=False,
         )
         # THEN we expect the transaction to be successful
+        self.assertTrue(response.is_successful())
+        WALLET.sequence += 1
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.safe_sign_and_autofill_transaction",
+            "xrpl.transaction.submit_transaction",
+        ],
+    )
+    async def test_payment_high_fee_authorized_with_submit_alias(self, client):
+        signed_and_autofilled = await safe_sign_and_autofill_transaction(
+            Payment(
+                account=WALLET.classic_address,
+                sequence=WALLET.sequence,
+                amount="1",
+                fee=FEE,
+                destination=DESTINATION,
+            ),
+            WALLET,
+            client,
+            check_fee=False,
+        )
+
+        response = await submit_transaction_alias_async(signed_and_autofilled, client)
         self.assertTrue(response.is_successful())
         WALLET.sequence += 1
 

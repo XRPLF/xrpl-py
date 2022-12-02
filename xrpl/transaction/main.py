@@ -44,7 +44,7 @@ def sign_and_submit(
 safe_sign_and_submit_transaction = sign_and_submit
 
 
-def submit_transaction(
+def submit(
     transaction: Transaction,
     client: SyncClient,
 ) -> Response:
@@ -62,11 +62,14 @@ def submit_transaction(
         XRPLRequestFailureException: if the rippled API call fails.
     """
     return asyncio.run(
-        main.submit_transaction(
+        main.submit(
             transaction,
             client,
         )
     )
+
+
+submit_transaction = submit
 
 
 def sign(

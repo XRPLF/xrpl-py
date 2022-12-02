@@ -6,7 +6,7 @@ from typing_extensions import Final
 
 from xrpl.asyncio.clients import Client
 from xrpl.asyncio.ledger import get_latest_validated_ledger_sequence
-from xrpl.asyncio.transaction.main import submit_transaction
+from xrpl.asyncio.transaction.main import submit
 from xrpl.constants import XRPLException
 from xrpl.models.requests import Tx
 from xrpl.models.response import Response
@@ -87,7 +87,7 @@ async def send_reliable_submission(
             "Transaction must have a `last_ledger_sequence` param."
         )
     transaction_hash = transaction.get_hash()
-    submit_response = await submit_transaction(transaction, client)
+    submit_response = await submit(transaction, client)
     prelim_result = submit_response.result["engine_result"]
     if prelim_result[0:3] == "tem":
         raise XRPLReliableSubmissionException(
