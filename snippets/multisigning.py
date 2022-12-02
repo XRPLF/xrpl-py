@@ -12,7 +12,7 @@ from xrpl.transaction import (
 from xrpl.utils import str_to_hex
 from xrpl.wallet import generate_faucet_wallet
 
-client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+client = JsonRpcClient("https://s.altnet.rippletest.net:51234")
 
 master_wallet = generate_faucet_wallet(client, debug=True)
 signer_wallet_1 = generate_faucet_wallet(client, debug=True)
