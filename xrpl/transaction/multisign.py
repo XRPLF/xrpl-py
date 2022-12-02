@@ -17,9 +17,7 @@ def multisign(transaction: Transaction, tx_list: List[Transaction]) -> Transacti
     Returns:
         The multisigned transaction.
     """
-    tx_xrpl_list = [tx.to_xrpl() for tx in tx_list]
-
-    decoded_tx_signers = [tx_xrpl["Signers"][0]["Signer"] for tx_xrpl in tx_xrpl_list]
+    decoded_tx_signers = [tx.to_xrpl()["Signers"][0]["Signer"] for tx in tx_list]
 
     tx_dict = transaction.to_dict()
     tx_dict["signers"] = [
