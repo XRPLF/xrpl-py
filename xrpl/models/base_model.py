@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from abc import ABC
 from dataclasses import fields
@@ -115,9 +116,11 @@ class BaseModel(ABC):
         args = {}
         for param in value:
             if param not in class_types:
-                raise XRPLModelException(
+                # Do not fail parsing if we encounter an unknown arg
+                logging.warn(
                     f"{param} not a valid parameter for {cls.__name__}"
                 )
+                continue
 
             args[param] = cls._from_dict_single_param(
                 param, class_types[param], value[param]
