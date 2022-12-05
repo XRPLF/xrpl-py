@@ -241,6 +241,7 @@ class TestTransaction(IntegrationTestCase):
         [
             "xrpl.transaction.safe_sign_and_autofill_transaction",
             "xrpl.transaction.submit_transaction",
+            "xrpl.account.get_next_valid_seq_number",
         ],
     )
     async def test_payment_high_fee_authorized_with_submit_alias(self, client):
@@ -262,7 +263,10 @@ class TestTransaction(IntegrationTestCase):
         response = await submit_transaction_alias_async(signed_and_autofilled, client)
         self.assertTrue(response.is_successful())
 
-    @test_async_and_sync(globals(), ["xrpl.transaction.autofill"])
+    @test_async_and_sync(
+        globals(),
+        ["xrpl.transaction.autofill", "xrpl.account.get_next_valid_seq_number"],
+    )
     async def test_calculate_account_delete_fee(self, client):
         # GIVEN a new AccountDelete transaction
         account_delete = AccountDelete(
