@@ -6,6 +6,8 @@ from xrpl.asyncio.transaction.main import (
     safe_sign_and_submit_transaction,
     safe_sign_transaction,
     sign,
+    sign_and_submit,
+    submit,
     submit_transaction,
     transaction_json_to_binary_codec_form,
 )
@@ -21,6 +23,8 @@ __all__ = [
     "safe_sign_and_autofill_transaction",
     "safe_sign_and_submit_transaction",
     "sign",
+    "sign_and_submit",
+    "submit",
     "submit_transaction",
     "transaction_json_to_binary_codec_form",
     "send_reliable_submission",
