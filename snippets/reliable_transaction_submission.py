@@ -3,10 +3,7 @@ from xrpl.account import get_balance
 from xrpl.clients import JsonRpcClient
 from xrpl.models.requests import Tx
 from xrpl.models.transactions import Payment
-from xrpl.transaction import (
-    safe_sign_and_autofill_transaction,
-    send_reliable_submission,
-)
+from xrpl.transaction import autofill_and_sign, send_reliable_submission
 from xrpl.wallet import generate_faucet_wallet
 
 # References:
@@ -34,7 +31,7 @@ payment_tx = Payment(
 )
 
 # Sign and autofill the transaction (prepares it to be ready to submit)
-signed_payment_tx = safe_sign_and_autofill_transaction(payment_tx, wallet1, client)
+signed_payment_tx = autofill_and_sign(payment_tx, wallet1, client)
 
 # Submits transaction and waits for response (validated or rejected)
 payment_response = send_reliable_submission(signed_payment_tx, client)

@@ -1,9 +1,7 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import test_async_and_sync
 from tests.integration.reusable_values import WALLET
-from xrpl.asyncio.transaction import (
-    safe_sign_and_autofill_transaction as safe_sign_and_autofill_transaction_async,
-)
+from xrpl.asyncio.transaction import autofill_and_sign
 from xrpl.core.binarycodec import encode
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import SubmitOnly
@@ -23,9 +21,9 @@ TX = OfferCreate(
 
 
 class TestSubmitOnly(IntegrationTestCase):
-    @test_async_and_sync(globals())
+    @test_async_and_sync(globals(), ["xrpl.transaction.autofill_and_sign"])
     async def test_basic_functionality(self, client):
-        transaction = await safe_sign_and_autofill_transaction_async(TX, WALLET, client)
+        transaction = await autofill_and_sign(TX, WALLET, client)
         tx_json = transaction.to_xrpl()
         tx_blob = encode(tx_json)
         response = await client.request(
