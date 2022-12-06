@@ -4,8 +4,8 @@ from xrpl.models.requests import SubmitMultisigned
 from xrpl.models.transactions import AccountSet, SignerEntry, SignerListSet
 from xrpl.transaction import (
     autofill,
+    autofill_and_sign,
     multisign,
-    safe_sign_and_autofill_transaction,
     send_reliable_submission,
     sign,
 )
@@ -29,9 +29,7 @@ signer_list_set_tx = SignerListSet(
     signer_quorum=2,
     signer_entries=signer_entries,
 )
-signed_signer_list_set_tx = safe_sign_and_autofill_transaction(
-    signer_list_set_tx, master_wallet, client
-)
+signed_signer_list_set_tx = autofill_and_sign(signer_list_set_tx, master_wallet, client)
 print("Constructed SignerListSet and submitting it to the ledger...")
 signed_list_set_tx_response = send_reliable_submission(
     signed_signer_list_set_tx, client
