@@ -3,10 +3,7 @@ from xrpl.clients import JsonRpcClient
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import AccountLines
 from xrpl.models.transactions import Payment, PaymentFlag, TrustSet
-from xrpl.transaction import (
-    safe_sign_and_autofill_transaction,
-    send_reliable_submission,
-)
+from xrpl.transaction import autofill_and_sign, send_reliable_submission
 from xrpl.wallet import generate_faucet_wallet
 
 # References
@@ -33,7 +30,7 @@ trust_set_tx = TrustSet(
 )
 
 # Sign and autofill, then send transaction to the ledger
-signed_trust_set_tx = safe_sign_and_autofill_transaction(trust_set_tx, wallet2, client)
+signed_trust_set_tx = autofill_and_sign(trust_set_tx, wallet2, client)
 send_reliable_submission(signed_trust_set_tx, client)
 
 # Both balances should be zero since nothing has been sent yet
@@ -54,7 +51,7 @@ payment_tx = Payment(
 )
 
 # Sign and autofill, then send transaction to the ledger
-signed_payment_tx = safe_sign_and_autofill_transaction(payment_tx, wallet1, client)
+signed_payment_tx = autofill_and_sign(payment_tx, wallet1, client)
 payment_response = send_reliable_submission(signed_payment_tx, client)
 print(payment_response)
 
@@ -89,9 +86,7 @@ partial_payment_tx = Payment(
 )
 
 # Sign and autofill, then send transaction to the ledger
-signed_partial_payment_tx = safe_sign_and_autofill_transaction(
-    partial_payment_tx, wallet2, client
-)
+signed_partial_payment_tx = autofill_and_sign(partial_payment_tx, wallet2, client)
 partial_payment_response = send_reliable_submission(signed_partial_payment_tx, client)
 print(partial_payment_response)
 

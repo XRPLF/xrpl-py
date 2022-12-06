@@ -205,7 +205,7 @@ The `xrpl-py` library automatically populates the `fee`, `sequence` and `last_le
 
 ```py
 from xrpl.models.transactions import Payment
-from xrpl.transaction import send_reliable_submission, safe_sign_and_autofill_transaction
+from xrpl.transaction import send_reliable_submission, autofill_and_sign
 # prepare the transaction
 # the amount is expressed in drops, not XRP
 # see https://xrpl.org/basic-data-types.html#specifying-currency-amounts
@@ -217,7 +217,7 @@ my_tx_payment = Payment(
 
 # sign the transaction with the autofill method
 # (this will auto-populate the fee, sequence, and last_ledger_sequence)
-my_tx_payment_signed = safe_sign_and_autofill_transaction(my_tx_payment, test_wallet, client)
+my_tx_payment_signed = autofill_and_sign(my_tx_payment, test_wallet, client)
 print(my_tx_payment_signed)
 # Payment(
 #     account='rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz',
