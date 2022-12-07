@@ -4,6 +4,7 @@ from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import sign_and_reliable_submission, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.asyncio.transaction.main import autofill, sign
+from xrpl.core.binarycodec.main import decode
 from xrpl.models.requests import SubmitMultisigned
 from xrpl.models.transactions import AccountSet, SignerEntry, SignerListSet
 from xrpl.transaction.multisign import multisign
@@ -116,6 +117,10 @@ class TestSubmitMultisigned(IntegrationTestCase):
         }
         if response.id is not None:
             expected_response["id"] = response.id
+        print(decode(response.result["tx_blob"]))
+        print("-----------------")
+        print(multisigned_tx.to_xrpl())
+        print("-----------------")
 
         self.assertEqual(
             DeepDiff(
