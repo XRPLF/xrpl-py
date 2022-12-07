@@ -4,7 +4,7 @@ from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import sign_and_reliable_submission, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.asyncio.transaction.main import autofill, sign
-from xrpl.core.binarycodec.main import decode
+from xrpl.core.binarycodec.main import encode
 from xrpl.models.requests import SubmitMultisigned
 from xrpl.models.transactions import AccountSet, SignerEntry, SignerListSet
 from xrpl.transaction.multisign import multisign
@@ -12,8 +12,10 @@ from xrpl.utils.str_conversions import str_to_hex
 from xrpl.wallet import Wallet
 
 # Set up signer list
-FIRST_SIGNER = Wallet("sEd7DXaHkGQD8mz8xcRLDxfMLqCurif", 0)
-SECOND_SIGNER = Wallet("sEdTLQkHAWpdS7FDk7EvuS7Mz8aSMRh", 0)
+# Warning: Order of these seeds matter
+# Since SignerList will be sorted by codec
+FIRST_SIGNER = Wallet("sEdTLQkHAWpdS7FDk7EvuS7Mz8aSMRh", 0)
+SECOND_SIGNER = Wallet("sEd7DXaHkGQD8mz8xcRLDxfMLqCurif", 0)
 SIGNER_ENTRIES = [
     SignerEntry(
         account=FIRST_SIGNER.classic_address,
@@ -97,7 +99,6 @@ class TestSubmitMultisigned(IntegrationTestCase):
         )
         self.assertTrue(response.is_successful())
 
-        # encoding to blob and hashing weirdly because of order?
         expected_response = {
             "status": "success",
             "type": "response",
@@ -106,21 +107,17 @@ class TestSubmitMultisigned(IntegrationTestCase):
                 "engine_result_code": 0,
                 "engine_result_message": "The transaction was applied. "
                 "Only final in a validated ledger.",
-                # "tx_blob": encode(multisigned_tx.to_xrpl()),
-                "tx_blob": response.result["tx_blob"],
+                "tx_blob": encode(multisigned_tx.to_xrpl()),
                 "tx_json": {
                     **multisigned_tx.to_xrpl(),
-                    # "hash": multisigned_tx.get_hash(),
-                    "hash": response.result["tx_json"]["hash"],
+                    "hash": multisigned_tx.get_hash(),
                 },
             },
         }
         if response.id is not None:
             expected_response["id"] = response.id
-        print(decode(response.result["tx_blob"]))
-        print("-----------------")
-        print(multisigned_tx.to_xrpl())
-        print("-----------------")
+
+        print(multisigned_tx.get_hash() == response.result["tx_json"]["hash"])
 
         self.assertEqual(
             DeepDiff(
