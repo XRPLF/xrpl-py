@@ -30,6 +30,7 @@ signer_list_set_tx = SignerListSet(
     signer_entries=signer_entries,
 )
 signed_signer_list_set_tx = autofill_and_sign(signer_list_set_tx, master_wallet, client)
+
 print("Constructed SignerListSet and submitting it to the ledger...")
 signed_list_set_tx_response = send_reliable_submission(
     signed_signer_list_set_tx, client
@@ -46,6 +47,8 @@ autofilled_account_set_tx = autofill(account_set_tx, client, len(signer_entries)
 print("AccountSet transaction is ready to be multisigned")
 print(autofilled_account_set_tx)
 
+# Since we created both signer keys, we can sign locally, but if you are building an app
+# That allows multisigning, you would need to request signatures from the key holders.
 tx_1 = sign(autofilled_account_set_tx, signer_wallet_1, multisign=True)
 tx_2 = sign(autofilled_account_set_tx, signer_wallet_2, multisign=True)
 

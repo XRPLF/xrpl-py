@@ -1,16 +1,20 @@
+from deepdiff import DeepDiff
+
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import sign_and_reliable_submission, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.asyncio.transaction.main import autofill, sign
-from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.core.binarycodec import encode
 from xrpl.models.requests import SubmitMultisigned
-from xrpl.models.transactions import SignerEntry, SignerListSet, TrustSet, TrustSetFlag
+from xrpl.models.transactions import AccountSet, SignerEntry, SignerListSet
 from xrpl.transaction.multisign import multisign
+from xrpl.utils.str_conversions import str_to_hex
 from xrpl.wallet import Wallet
 
 # Set up signer list
-FIRST_SIGNER = Wallet.create()
-SECOND_SIGNER = Wallet.create()
+MASTER_WALLET = Wallet("sEdVU6DV281PCJZtxSurH3SCk1tJ8mp", 0)
+FIRST_SIGNER = Wallet("sEd7DXaHkGQD8mz8xcRLDxfMLqCurif", 0)
+SECOND_SIGNER = Wallet("sEdTLQkHAWpdS7FDk7EvuS7Mz8aSMRh", 0)
 SIGNER_ENTRIES = [
     SignerEntry(
         account=FIRST_SIGNER.classic_address,
@@ -40,15 +44,8 @@ class TestSubmitMultisigned(IntegrationTestCase):
         ],
     )
     async def test_basic_functionality(self, client):
-        issuer = Wallet.create()
-        tx = TrustSet(
-            account=WALLET.classic_address,
-            flags=TrustSetFlag.TF_SET_NO_RIPPLE,
-            limit_amount=IssuedCurrencyAmount(
-                issuer=issuer.classic_address,
-                currency="USD",
-                value="10",
-            ),
+        tx = AccountSet(
+            account=WALLET.classic_address, domain=str_to_hex("example.com")
         )
         autofilled_tx = await autofill(tx, client, len(SIGNER_ENTRIES))
         tx_1 = await sign(autofilled_tx, FIRST_SIGNER, multisign=True)
@@ -62,3 +59,30 @@ class TestSubmitMultisigned(IntegrationTestCase):
             )
         )
         self.assertTrue(response.is_successful())
+
+        expected_response = {
+            "status": "success",
+            "type": "response",
+            "result": {
+                "engine_result": "tesSUCCESS",
+                "engine_result_code": 0,
+                "engine_result_message": "The transaction was applied."
+                "Only final in a validated ledger.",
+                "tx_blob": encode(multisigned_tx.to_xrpl()),
+                "tx_json": {
+                    **multisigned_tx.to_xrpl(),
+                    "hash": multisigned_tx.get_hash(),
+                },
+            },
+        }
+        if response.id is not None:
+            expected_response["id"] = response.id
+        self.assertEqual(
+            DeepDiff(
+                response.to_dict(),
+                expected_response,
+                ignore_order=True,
+                ignore_string_case=True,
+            ),
+            {},
+        )
