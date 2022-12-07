@@ -45,6 +45,7 @@ class TestSubmitMultisigned(IntegrationTestCase):
         tx = AccountSet(
             account=WALLET.classic_address, domain=str_to_hex("example.com")
         )
+
         autofilled_tx = await autofill(tx, client, len(SIGNER_ENTRIES))
         expected_autofilled_tx = {
             "Account": WALLET.classic_address,
@@ -106,11 +107,11 @@ class TestSubmitMultisigned(IntegrationTestCase):
                 "Only final in a validated ledger.",
                 # "tx_blob": encode(multisigned_tx.to_xrpl()),
                 "tx_blob": response.result["tx_blob"],
-                # "tx_json": {
-                #     **multisigned_tx.to_xrpl(),
-                #     "hash": multisigned_tx.get_hash(),
-                # },
-                "tx_json": response.result["tx_json"],
+                "tx_json": {
+                    **multisigned_tx.to_xrpl(),
+                    # "hash": multisigned_tx.get_hash(),
+                    "hash": response.result["tx_json"]["hash"],
+                },
             },
         }
         if response.id is not None:
