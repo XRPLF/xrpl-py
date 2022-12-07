@@ -117,8 +117,6 @@ class TestSubmitMultisigned(IntegrationTestCase):
         if response.id is not None:
             expected_response["id"] = response.id
 
-        print(multisigned_tx.get_hash() == response.result["tx_json"]["hash"])
-
         self.assertEqual(
             DeepDiff(
                 response.to_dict(),
