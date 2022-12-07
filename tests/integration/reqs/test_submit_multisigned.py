@@ -96,7 +96,7 @@ class TestSubmitMultisigned(IntegrationTestCase):
         )
         self.assertTrue(response.is_successful())
 
-        # encoding to blob and hashing weirdly because of order
+        # encoding to blob and hashing weirdly because of order?
         expected_response = {
             "status": "success",
             "type": "response",
@@ -116,6 +116,7 @@ class TestSubmitMultisigned(IntegrationTestCase):
         }
         if response.id is not None:
             expected_response["id"] = response.id
+
         self.assertEqual(
             DeepDiff(
                 response.to_dict(),
