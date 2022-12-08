@@ -92,15 +92,15 @@ async def sign(
 safe_sign_transaction = sign
 
 
-async def safe_sign_and_autofill_transaction(
+async def autofill_and_sign(
     transaction: Transaction,
     wallet: Wallet,
     client: Client,
     check_fee: bool = True,
 ) -> Transaction:
     """
-    Signs a transaction locally, without trusting external rippled nodes. Autofills
-    relevant fields.
+    Autofills relevant fields. Then, signs a transaction locally, without trusting
+    external rippled nodes.
 
     Args:
         transaction: the transaction to be signed.
@@ -119,6 +119,9 @@ async def safe_sign_and_autofill_transaction(
         await _check_fee(transaction, client)
 
     return await sign(await autofill(transaction, client), wallet, False)
+
+
+safe_sign_and_autofill_transaction = autofill_and_sign
 
 
 async def submit(

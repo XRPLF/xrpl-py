@@ -2,6 +2,7 @@
 from xrpl.asyncio.transaction.ledger import get_transaction_from_hash
 from xrpl.asyncio.transaction.main import (
     autofill,
+    autofill_and_sign,
     safe_sign_and_autofill_transaction,
     safe_sign_and_submit_transaction,
     safe_sign_transaction,
@@ -18,6 +19,7 @@ from xrpl.asyncio.transaction.reliable_submission import (
 
 __all__ = [
     "autofill",
+    "autofill_and_sign",
     "get_transaction_from_hash",
     "safe_sign_transaction",
     "safe_sign_and_autofill_transaction",
