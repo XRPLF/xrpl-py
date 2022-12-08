@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Wallet.address` and `Wallet.classic_address` are now readonly
 - Removed Sequence from Wallet class
 - Core keypairs generate seed must take in hexstring instead of bytestring
-- Core keypairs formatting is now padded with zeros if length less than 64
+- Core keypairs formatting for ED25519 is now padded with zeros if length of keystring is less than 64
 
 ## [[Unreleased]]
 ### Added:
