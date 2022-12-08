@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 ### Added:
 - Created function alias to `safe_sign_transaction` called `sign` - safe originally used to indicate local offline signing (keys aren't exposed)
+- Created function alias to `safe_sign_and_autofill_transaction` called `autofill_and_sign` to reflect order of operations
 - Created function alias to `submit_transaction` called `submit`
 - Created function alias to `safe_sign_and_submit_transaction` called `sign_and_submit`
 
