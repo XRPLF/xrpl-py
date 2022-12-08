@@ -1,5 +1,3 @@
-from deepdiff import DeepDiff
-
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import sign_and_reliable_submission, test_async_and_sync
 from tests.integration.reusable_values import WALLET
@@ -114,15 +112,16 @@ class TestSubmitMultisigned(IntegrationTestCase):
                 },
             },
         }
+        # WebSocket clients give response id, JSONRPC clients do not
         if response.id is not None:
             expected_response["id"] = response.id
+        # Response domain is uppercased, expected_domain is not
+        if expected_response["result"]["tx_json"]["Domain"] is not None:
+            expected_response["result"]["tx_json"]["Domain"] = expected_response[
+                "result"
+            ]["tx_json"]["Domain"].upper()
 
         self.assertEqual(
-            DeepDiff(
-                response.to_dict(),
-                expected_response,
-                ignore_order=True,
-                ignore_string_case=True,
-            ),
-            {},
+            response.to_dict(),
+            expected_response,
         )
