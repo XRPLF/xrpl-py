@@ -29,19 +29,22 @@ def generate_seed(
     Generate a seed value that cryptographic keys can be derived from.
 
     Args:
-        entropy: Hexadecimal string that must be at least
-            addresscodec.SEED_LENGTH bytes long and will be truncated to that length
-        algorithm: CryptoAlgorithm to use for seed generation. The  default is
+        entropy: Hexadecimal string that is addresscodec.SEED_LENGTH bytes long
+        algorithm: CryptoAlgorithm to use for seed generation. The default is
             :data:`CryptoAlgorithm.ED25519 <xrpl.CryptoAlgorithm.ED25519>`.
 
     Returns:
         A seed value that can be used to derive a key pair with the given
             cryptographic algorithm.
+
+    Raises:
+        XRPLAddressCodecException: If entropy is not of length addresscodec.SEED_LENGTH,
+            this exception will be thrown in addresscodec.encode_seed.
     """
     if entropy is None:
         parsed_entropy = token_bytes(addresscodec.SEED_LENGTH)
     else:
-        parsed_entropy = bytes.fromhex(entropy)[: addresscodec.SEED_LENGTH]
+        parsed_entropy = bytes.fromhex(entropy)
     return addresscodec.encode_seed(parsed_entropy, algorithm)
 
 
