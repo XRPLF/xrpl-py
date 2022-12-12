@@ -35,7 +35,7 @@ def generate_seed(
 
     Returns:
         A seed value that can be used to derive a key pair with the given
-            cryptographic algorithm.
+        cryptographic algorithm.
 
     Raises:
         XRPLAddressCodecException: If entropy is not of length addresscodec.SEED_LENGTH,
