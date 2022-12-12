@@ -9,9 +9,11 @@
     "cSpell.words": [
         "addresscodec",
         "aiounittest",
+        "altnet",
         "asyncio",
         "binarycodec",
         "nftoken",
+        "rippletest",
         "ripplex",
         "xaddress"
     ],
