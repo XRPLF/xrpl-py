@@ -114,7 +114,7 @@ class TestXChainCreateBridge(TestCase):
                 signature_reward="200",
             )
 
-    def test_successful_iou_iou_min_account_create_amount(self):
+    def test_iou_iou_min_account_create_amount(self):
         bridge = XChainBridge(
             locking_chain_door=_ACCOUNT,
             locking_chain_issue=IssuedCurrency(currency="USD", issuer=_ISSUER),
@@ -129,4 +129,38 @@ class TestXChainCreateBridge(TestCase):
                 xchain_bridge=bridge,
                 signature_reward="200",
                 min_account_create_amount="1000000",
+            )
+
+    def test_invalid_signature_reward(self):
+        bridge = XChainBridge(
+            locking_chain_door=_ACCOUNT,
+            locking_chain_issue=XRP(),
+            issuing_chain_door=_GENESIS,
+            issuing_chain_issue=XRP(),
+        )
+        with self.assertRaises(XRPLModelException):
+            XChainCreateBridge(
+                account=_ACCOUNT,
+                fee=_FEE,
+                sequence=_SEQUENCE,
+                xchain_bridge=bridge,
+                signature_reward="hello",
+                min_account_create_amount="1000000",
+            )
+
+    def test_invalid_min_account_create_amount(self):
+        bridge = XChainBridge(
+            locking_chain_door=_ACCOUNT,
+            locking_chain_issue=XRP(),
+            issuing_chain_door=_GENESIS,
+            issuing_chain_issue=XRP(),
+        )
+        with self.assertRaises(XRPLModelException):
+            XChainCreateBridge(
+                account=_ACCOUNT,
+                fee=_FEE,
+                sequence=_SEQUENCE,
+                xchain_bridge=bridge,
+                signature_reward="-200",
+                min_account_create_amount="hello",
             )

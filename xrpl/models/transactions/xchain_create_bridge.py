@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
-from xrpl.models.amounts import Amount
 from xrpl.models.currencies import XRP
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -21,9 +20,9 @@ class XChainCreateBridge(Transaction):
 
     xchain_bridge: XChainBridge = REQUIRED  # type: ignore
 
-    signature_reward: Amount = REQUIRED  # type: ignore
+    signature_reward: str = REQUIRED  # type: ignore
 
-    min_account_create_amount: Optional[Amount] = None
+    min_account_create_amount: Optional[str] = None
 
     transaction_type: TransactionType = field(
         default=TransactionType.XCHAIN_CREATE_BRIDGE,
@@ -57,5 +56,16 @@ class XChainCreateBridge(Transaction):
             errors[
                 "min_account_create_amount"
             ] = "Cannot have MinAccountCreateAmount if bridge is IOU-IOU."
+
+        if self.signature_reward is not None and not self.signature_reward.isnumeric():
+            errors["signature_reward"] = "signature_reward must be numeric."
+
+        if (
+            self.min_account_create_amount is not None
+            and not self.min_account_create_amount.isnumeric()
+        ):
+            errors[
+                "min_account_create_amount_value"
+            ] = "min_account_create_amount must be numeric."
 
         return errors
