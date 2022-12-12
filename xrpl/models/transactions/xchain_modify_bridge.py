@@ -55,4 +55,12 @@ class XChainModifyBridge(Transaction):
                 "min_account_create_amount"
             ] = "Cannot have MinAccountCreateAmount if bridge is IOU-IOU."
 
+        if (
+            self.min_account_create_amount is not None
+            and not self.min_account_create_amount.isnumeric()
+        ):
+            errors[
+                "min_account_create_amount_value"
+            ] = "min_account_create_amount must be numeric."
+
         return errors

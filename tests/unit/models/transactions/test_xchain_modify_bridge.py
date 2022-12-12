@@ -73,7 +73,7 @@ class TestXChainModifyBridge(TestCase):
     def test_account_not_in_bridge(self):
         with self.assertRaises(XRPLModelException):
             XChainModifyBridge(
-                account=_GENESIS,
+                account=_ACCOUNT2,
                 fee=_FEE,
                 sequence=_SEQUENCE,
                 xchain_bridge=_XRP_BRIDGE,
