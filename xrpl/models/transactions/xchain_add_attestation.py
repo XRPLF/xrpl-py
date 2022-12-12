@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from typing_extensions import Literal
 
@@ -90,3 +90,15 @@ class XChainAddAttestation(Transaction):
         default=TransactionType.XCHAIN_ADD_ATTESTATION,
         init=False,
     )
+
+    def _get_errors(self: XChainAddAttestation) -> Dict[str, str]:
+        errors = super()._get_errors()
+
+        batch = self.xchain_attestation_batch
+        claim_batch = batch.xchain_claim_attestation_batch
+        account_create_batch = batch.xchain_create_account_attestation_batch
+
+        if len(claim_batch) + len(account_create_batch) > 8:
+            errors["num_attestations"] = "Cannot have more than 8 attestations."
+
+        return errors
