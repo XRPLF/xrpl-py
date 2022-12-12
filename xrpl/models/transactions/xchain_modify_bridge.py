@@ -45,7 +45,7 @@ class XChainModifyBridge(Transaction):
             ] = "Account must be either locking chain door or issuing chain door."
 
         if self.signature_reward is not None and not self.signature_reward.isnumeric():
-            errors["signature_reward"] = "signature_reward must be numeric."
+            errors["signature_reward"] = "`signature_reward` must be numeric."
 
         if (
             self.min_account_create_amount is not None
@@ -61,6 +61,6 @@ class XChainModifyBridge(Transaction):
         ):
             errors[
                 "min_account_create_amount_value"
-            ] = "min_account_create_amount must be numeric."
+            ] = "`min_account_create_amount` must be numeric."
 
         return errors
