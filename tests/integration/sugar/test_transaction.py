@@ -403,7 +403,8 @@ class TestReliableSubmission(IntegrationTestCase):
         payment_dict = {
             "account": ACCOUNT,
             "fee": "10",
-            "last_ledger_sequence": await get_latest_validated_ledger_sequence(client),
+            "last_ledger_sequence": await get_latest_validated_ledger_sequence(client)
+            + 20,
             "amount": "100",
             "destination": DESTINATION,
         }
