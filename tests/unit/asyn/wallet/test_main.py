@@ -352,13 +352,14 @@ class TestWalletMain(TestCase):
         )
 
         self.assertEqual(
-            wallet.classic_address, secret_numbers_constants["ed25519_classic_address"]
+            wallet.classic_address,
+            secret_numbers_constants["secp256k1_classic_address"],
         )
         self.assertEqual(
-            wallet.public_key, secret_numbers_constants["ed25519_public_key"]
+            wallet.public_key, secret_numbers_constants["secp256k1_public_key"]
         )
         self.assertEqual(
-            wallet.private_key, secret_numbers_constants["ed25519_private_key"]
+            wallet.private_key, secret_numbers_constants["secp256k1_private_key"]
         )
 
     def test_from_secret_numbers_array_using_default_algorithm(self):
@@ -367,13 +368,14 @@ class TestWalletMain(TestCase):
         )
 
         self.assertEqual(
-            wallet.classic_address, secret_numbers_constants["ed25519_classic_address"]
+            wallet.classic_address,
+            secret_numbers_constants["secp256k1_classic_address"],
         )
         self.assertEqual(
-            wallet.public_key, secret_numbers_constants["ed25519_public_key"]
+            wallet.public_key, secret_numbers_constants["secp256k1_public_key"]
         )
         self.assertEqual(
-            wallet.private_key, secret_numbers_constants["ed25519_private_key"]
+            wallet.private_key, secret_numbers_constants["secp256k1_private_key"]
         )
 
     def test_from_secret_numbers_string_using_algorithm_ecdsa_secp256k1(self):

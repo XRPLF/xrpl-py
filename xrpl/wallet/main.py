@@ -159,7 +159,7 @@ class Wallet:
         secret_numbers: List[str] | str,
         *,
         master_address: Optional[str] = None,
-        algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
+        algorithm: CryptoAlgorithm = CryptoAlgorithm.SECP256K1,
     ) -> Wallet:
         """
         Generates a new Wallet from secret numbers.
@@ -170,7 +170,7 @@ class Wallet:
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
                 the master address of the account. The default is `None`.
             algorithm: The digital signature algorithm to generate an address for.
-                The default is ED25519.
+                The default is SECP256K1 (XUMM standard as of December 2022).
 
         Returns:
             The wallet that is generated from the given secret numbers.
