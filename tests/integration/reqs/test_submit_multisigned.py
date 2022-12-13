@@ -5,7 +5,6 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from tests.integration.reusable_values import WALLET
-from xrpl.account import get_next_valid_seq_number as get_next_valid_seq_number_sync
 from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.core.binarycodec import encode_for_multisigning
 from xrpl.core.keypairs import sign
@@ -29,13 +28,6 @@ SECOND_SIGNER = Wallet.create()
 LIST_SET_TX = sign_and_reliable_submission(
     SignerListSet(
         account=WALLET.classic_address,
-        sequence=get_next_valid_seq_number_sync(
-            WALLET.classic_address, JSON_RPC_CLIENT
-        ),
-        last_ledger_sequence=get_next_valid_seq_number_sync(
-            WALLET.classic_address, JSON_RPC_CLIENT
-        )
-        + 10,
         fee=FEE,
         signer_quorum=2,
         signer_entries=[

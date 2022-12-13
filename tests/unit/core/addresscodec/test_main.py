@@ -91,6 +91,42 @@ class TestMain(TestCase):
             False,
         )
 
+    def test_ensure_classic_address(self):
+        for test_case in test_cases:
+            (
+                expected_classic_address,
+                tag,
+                main_xaddress,
+                test_xaddress,
+            ) = test_case
+
+            # classic address
+            classic_address = addresscodec.ensure_classic_address(
+                expected_classic_address
+            )
+            self.assertEqual(classic_address, expected_classic_address)
+
+            # tagged xaddress
+            if tag is not None:
+                self.assertRaises(
+                    addresscodec.XRPLAddressCodecException,
+                    addresscodec.ensure_classic_address,
+                    main_xaddress,
+                )
+                self.assertRaises(
+                    addresscodec.XRPLAddressCodecException,
+                    addresscodec.ensure_classic_address,
+                    test_xaddress,
+                )
+            else:
+                # main xaddress
+                classic_address = addresscodec.ensure_classic_address(main_xaddress)
+                self.assertEqual(classic_address, expected_classic_address)
+
+                # test xaddress
+                classic_address = addresscodec.ensure_classic_address(test_xaddress)
+                self.assertEqual(classic_address, expected_classic_address)
+
     def test_is_valid_classic_address_secp256k1(self):
         classic_address = "rU6K7V3Po4snVhBBaU29sesqs2qTQJWDw1"
 

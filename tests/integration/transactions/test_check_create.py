@@ -1,9 +1,17 @@
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
-from tests.integration.reusable_values import DESTINATION, WALLET
-from xrpl.asyncio.account import get_next_valid_seq_number
+from tests.integration.it_utils import (
+    fund_wallet_sync,
+    submit_transaction_async,
+    test_async_and_sync,
+)
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import CheckCreate
+from xrpl.wallet import Wallet
+
+WALLET = Wallet.create()
+fund_wallet_sync(WALLET)
+DESTINATION = Wallet.create()
+fund_wallet_sync(DESTINATION)
 
 ACCOUNT = WALLET.classic_address
 DESTINATION_TAG = 1
@@ -13,11 +21,10 @@ INVOICE_ID = "6F1DFD1D0FE8A32E40E1F2C05CF1C15545BAB56B617F9C6C2D63A6B704BEF59B"
 
 
 class TestCheckCreate(IntegrationTestCase):
-    @test_async_and_sync(globals(), ["xrpl.account.get_next_valid_seq_number"])
+    @test_async_and_sync(globals())
     async def test_all_fields(self, client):
         check_create = CheckCreate(
             account=ACCOUNT,
-            sequence=await get_next_valid_seq_number(WALLET.classic_address, client),
             destination=DESTINATION.classic_address,
             destination_tag=DESTINATION_TAG,
             send_max=SENDMAX,

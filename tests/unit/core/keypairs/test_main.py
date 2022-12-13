@@ -3,9 +3,12 @@ from unittest.mock import patch
 
 from xrpl.constants import CryptoAlgorithm
 from xrpl.core import keypairs
+from xrpl.core.addresscodec.exceptions import XRPLAddressCodecException
 from xrpl.core.keypairs.exceptions import XRPLKeypairsException
 
 _DUMMY_HEX = "0102030405060708090a0b0c0d0e0f10"
+_DUMMY_HEX_TOO_SHORT = "0102030405060708090a0b0c0d0e"
+_DUMMY_HEX_TOO_LONG = "0102030405060708090a0b0c0d0e0f101112"
 
 
 class TestMain(TestCase):
@@ -31,6 +34,14 @@ class TestMain(TestCase):
     def test_generate_seed_secp256k1(self):
         output = keypairs.generate_seed(_DUMMY_HEX, CryptoAlgorithm.SECP256K1)
         self.assertEqual(output, "sp5fghtJtpUorTwvof1NpDXAzNwf5")
+
+    def test_generate_seed_entropy_provided_too_short(self):
+        with self.assertRaises(XRPLAddressCodecException):
+            keypairs.generate_seed(_DUMMY_HEX_TOO_SHORT)
+
+    def test_generate_seed_entropy_provided_too_long(self):
+        with self.assertRaises(XRPLAddressCodecException):
+            keypairs.generate_seed(_DUMMY_HEX_TOO_LONG)
 
     def test_derive_keypair_ed25519(self):
         public, private = keypairs.derive_keypair("sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r")

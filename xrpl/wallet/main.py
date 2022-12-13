@@ -5,9 +5,8 @@ from __future__ import annotations
 from typing import List, Optional, Type
 
 from xrpl.constants import CryptoAlgorithm, XRPLException
-from xrpl.core.addresscodec import classic_address_to_xaddress
+from xrpl.core.addresscodec import classic_address_to_xaddress, ensure_classic_address
 from xrpl.core.keypairs import derive_classic_address, derive_keypair, generate_seed
-from xrpl.utils.ensure_classic_address import ensure_classic_address
 
 
 class Wallet:

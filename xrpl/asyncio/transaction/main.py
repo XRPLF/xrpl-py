@@ -28,7 +28,7 @@ _LEDGER_OFFSET: Final[int] = 20
 _ACCOUNT_DELETE_FEE: Final[int] = int(xrp_to_drops(2))
 
 
-async def safe_sign_and_submit_transaction(
+async def sign_and_submit(
     transaction: Transaction,
     wallet: Wallet,
     client: Client,
@@ -56,7 +56,10 @@ async def safe_sign_and_submit_transaction(
         )
     else:
         transaction = await sign(transaction, wallet, check_fee)
-    return await submit_transaction(transaction, client)
+    return await submit(transaction, client)
+
+
+safe_sign_and_submit_transaction = sign_and_submit
 
 
 async def sign(
@@ -89,15 +92,15 @@ async def sign(
 safe_sign_transaction = sign
 
 
-async def safe_sign_and_autofill_transaction(
+async def autofill_and_sign(
     transaction: Transaction,
     wallet: Wallet,
     client: Client,
     check_fee: bool = True,
 ) -> Transaction:
     """
-    Signs a transaction locally, without trusting external rippled nodes. Autofills
-    relevant fields.
+    Autofills relevant fields. Then, signs a transaction locally, without trusting
+    external rippled nodes.
 
     Args:
         transaction: the transaction to be signed.
@@ -118,7 +121,10 @@ async def safe_sign_and_autofill_transaction(
     return await sign(await autofill(transaction, client), wallet, False)
 
 
-async def submit_transaction(
+safe_sign_and_autofill_transaction = autofill_and_sign
+
+
+async def submit(
     transaction: Transaction,
     client: Client,
 ) -> Response:
@@ -141,6 +147,9 @@ async def submit_transaction(
         return response
 
     raise XRPLRequestFailureException(response.result)
+
+
+submit_transaction = submit
 
 
 def _prepare_transaction(

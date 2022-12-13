@@ -16,8 +16,11 @@ from xrpl.clients.sync_client import SyncClient
 from xrpl.constants import CryptoAlgorithm
 from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
 from xrpl.transaction import (  # noqa: F401 - needed for sync tests
-    safe_sign_and_autofill_transaction,
+    autofill_and_sign,
     safe_sign_and_submit_transaction,
+)
+from xrpl.transaction import (  # noqa: F401 - needed for sync tests
+    submit_transaction as submit_transaction_alias,
 )
 from xrpl.wallet import Wallet
 
@@ -197,7 +200,6 @@ def _get_client(is_async: bool, is_json: bool, is_testnet: bool) -> Client:
     return _CLIENTS[(is_async, is_json, is_testnet)]
 
 
-# TODO: document how to write tests, for posterity
 def test_async_and_sync(
     original_globals,
     modules=None,

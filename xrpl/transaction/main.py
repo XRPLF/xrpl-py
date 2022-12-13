@@ -8,7 +8,7 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.wallet.main import Wallet
 
 
-def safe_sign_and_submit_transaction(
+def sign_and_submit(
     transaction: Transaction,
     wallet: Wallet,
     client: SyncClient,
@@ -31,7 +31,7 @@ def safe_sign_and_submit_transaction(
         The response from the ledger.
     """
     return asyncio.run(
-        main.safe_sign_and_submit_transaction(
+        main.sign_and_submit(
             transaction,
             wallet,
             client,
@@ -41,7 +41,10 @@ def safe_sign_and_submit_transaction(
     )
 
 
-def submit_transaction(
+safe_sign_and_submit_transaction = sign_and_submit
+
+
+def submit(
     transaction: Transaction,
     client: SyncClient,
 ) -> Response:
@@ -59,11 +62,14 @@ def submit_transaction(
         XRPLRequestFailureException: if the rippled API call fails.
     """
     return asyncio.run(
-        main.submit_transaction(
+        main.submit(
             transaction,
             client,
         )
     )
+
+
+submit_transaction = submit
 
 
 def sign(
@@ -95,7 +101,7 @@ def sign(
 safe_sign_transaction = sign
 
 
-def safe_sign_and_autofill_transaction(
+def autofill_and_sign(
     transaction: Transaction,
     wallet: Wallet,
     client: SyncClient,
@@ -116,13 +122,16 @@ def safe_sign_and_autofill_transaction(
         The signed transaction.
     """
     return asyncio.run(
-        main.safe_sign_and_autofill_transaction(
+        main.autofill_and_sign(
             transaction,
             wallet,
             client,
             check_fee,
         )
     )
+
+
+safe_sign_and_autofill_transaction = autofill_and_sign
 
 
 def autofill(transaction: Transaction, client: SyncClient) -> Transaction:

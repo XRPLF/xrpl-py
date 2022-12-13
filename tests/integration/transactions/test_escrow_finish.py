@@ -1,7 +1,6 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
-from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import EscrowFinish
 
@@ -19,11 +18,10 @@ FULFILLMENT = "A0028000"
 
 
 class TestEscrowFinish(IntegrationTestCase):
-    @test_async_and_sync(globals(), ["xrpl.account.get_next_valid_seq_number"])
+    @test_async_and_sync(globals())
     async def test_all_fields(self, client):
         escrow_finish = EscrowFinish(
             account=ACCOUNT,
-            sequence=await get_next_valid_seq_number(WALLET.classic_address, client),
             owner=OWNER,
             offer_sequence=OFFER_SEQUENCE,
             condition=CONDITION,
