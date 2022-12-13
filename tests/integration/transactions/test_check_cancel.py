@@ -1,7 +1,6 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
-from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import CheckCancel
 
@@ -11,11 +10,10 @@ CHECK_ID = "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
 
 
 class TestCheckCancel(IntegrationTestCase):
-    @test_async_and_sync(globals(), ["xrpl.account.get_next_valid_seq_number"])
+    @test_async_and_sync(globals())
     async def test_all_fields(self, client):
         check_cancel = CheckCancel(
             account=ACCOUNT,
-            sequence=await get_next_valid_seq_number(WALLET.classic_address, client),
             check_id=CHECK_ID,
         )
         response = await submit_transaction_async(check_cancel, WALLET)

@@ -1,7 +1,6 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
-from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import CheckCash
 
@@ -12,11 +11,10 @@ DELIVER_MIN = "100000000"
 
 
 class TestCheckCreate(IntegrationTestCase):
-    @test_async_and_sync(globals(), ["xrpl.account.get_next_valid_seq_number"])
+    @test_async_and_sync(globals())
     async def test_required_fields_with_amount(self, client):
         check_cash = CheckCash(
             account=ACCOUNT,
-            sequence=await get_next_valid_seq_number(WALLET.classic_address, client),
             check_id=CHECK_ID,
             amount=AMOUNT,
         )
@@ -25,11 +23,10 @@ class TestCheckCreate(IntegrationTestCase):
         # Getting `tecNO_ENTRY` codes because using a non-existent check ID
         self.assertEqual(response.result["engine_result"], "tecNO_ENTRY")
 
-    @test_async_and_sync(globals(), ["xrpl.account.get_next_valid_seq_number"])
+    @test_async_and_sync(globals())
     async def test_required_fields_with_deliver_min(self, client):
         check_cash = CheckCash(
             account=ACCOUNT,
-            sequence=await get_next_valid_seq_number(WALLET.classic_address, client),
             check_id=CHECK_ID,
             deliver_min=DELIVER_MIN,
         )

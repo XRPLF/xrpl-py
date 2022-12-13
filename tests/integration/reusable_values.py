@@ -1,11 +1,6 @@
 import asyncio
 
-from tests.integration.it_utils import (
-    ASYNC_JSON_RPC_CLIENT,
-    fund_wallet,
-    sign_and_reliable_submission_async,
-)
-from xrpl.asyncio.account import get_next_valid_seq_number
+from tests.integration.it_utils import fund_wallet, sign_and_reliable_submission_async
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.transactions import OfferCreate, PaymentChannelCreate
 from xrpl.wallet import Wallet
@@ -23,9 +18,6 @@ async def _set_up_reusable_values():
     OFFER = await sign_and_reliable_submission_async(
         OfferCreate(
             account=WALLET.classic_address,
-            sequence=await get_next_valid_seq_number(
-                WALLET.classic_address, ASYNC_JSON_RPC_CLIENT
-            ),
             taker_gets="13100000",
             taker_pays=IssuedCurrencyAmount(
                 currency="USD",
@@ -39,9 +31,6 @@ async def _set_up_reusable_values():
     PAYMENT_CHANNEL = await sign_and_reliable_submission_async(
         PaymentChannelCreate(
             account=WALLET.classic_address,
-            sequence=await get_next_valid_seq_number(
-                WALLET.classic_address, ASYNC_JSON_RPC_CLIENT
-            ),
             amount="1",
             destination=DESTINATION.classic_address,
             settle_delay=86400,

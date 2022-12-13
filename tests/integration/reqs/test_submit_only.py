@@ -1,7 +1,6 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import test_async_and_sync
 from tests.integration.reusable_values import WALLET
-from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.asyncio.transaction import autofill_and_sign
 from xrpl.core.binarycodec import encode
 from xrpl.models.amounts import IssuedCurrencyAmount
@@ -13,18 +12,12 @@ class TestSubmitOnly(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.account.get_next_valid_seq_number",
             "xrpl.transaction.autofill_and_sign",
         ],
     )
     async def test_basic_functionality(self, client):
         TX = OfferCreate(
             account=WALLET.classic_address,
-            sequence=await get_next_valid_seq_number(WALLET.classic_address, client),
-            last_ledger_sequence=await get_next_valid_seq_number(
-                WALLET.classic_address, client
-            )
-            + 10,
             taker_gets="13100000",
             taker_pays=IssuedCurrencyAmount(
                 currency="USD",

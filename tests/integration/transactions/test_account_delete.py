@@ -1,7 +1,6 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import DESTINATION, WALLET
-from xrpl.asyncio.account.main import get_next_valid_seq_number
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountDelete
 from xrpl.utils import xrp_to_drops
@@ -17,12 +16,11 @@ DESTINATION_TAG = 3
 
 
 class TestAccountDelete(IntegrationTestCase):
-    @test_async_and_sync(globals(), ["xrpl.account.get_next_valid_seq_number"])
+    @test_async_and_sync(globals())
     async def test_all_fields(self, client):
         account_delete = AccountDelete(
             account=ACCOUNT,
             fee=FEE,
-            sequence=await get_next_valid_seq_number(WALLET.classic_address, client),
             destination=DESTINATION.classic_address,
             destination_tag=DESTINATION_TAG,
         )

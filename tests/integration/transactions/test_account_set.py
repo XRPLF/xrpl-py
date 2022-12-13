@@ -1,7 +1,6 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
-from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountSet
 
@@ -17,22 +16,20 @@ TICK_SIZE = 10
 
 
 class TestAccountSet(IntegrationTestCase):
-    @test_async_and_sync(globals(), ["xrpl.account.get_next_valid_seq_number"])
+    @test_async_and_sync(globals())
     async def test_required_fields_and_set_flag(self, client):
         account_set = AccountSet(
             account=ACCOUNT,
-            sequence=await get_next_valid_seq_number(WALLET.classic_address, client),
             set_flag=SET_FLAG,
         )
         response = await submit_transaction_async(account_set, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-    @test_async_and_sync(globals(), ["xrpl.account.get_next_valid_seq_number"])
+    @test_async_and_sync(globals())
     async def test_all_fields_minus_set_flag(self, client):
         account_set = AccountSet(
             account=ACCOUNT,
-            sequence=await get_next_valid_seq_number(WALLET.classic_address, client),
             clear_flag=CLEAR_FLAG,
             domain=DOMAIN,
             email_hash=EMAIL_HASH,
