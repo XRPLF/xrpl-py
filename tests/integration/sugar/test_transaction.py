@@ -142,9 +142,7 @@ class TestTransaction(IntegrationTestCase):
         # AND we expect the response to be successful (200)
         self.assertTrue(payment.is_successful())
 
-    @test_async_and_sync(
-        globals(),
-    )
+    @test_async_and_sync(globals())
     async def test_none_as_destination_tag(self, client):
         # GIVEN a new transaction (payment)
         payment_transaction = Payment(
@@ -173,9 +171,7 @@ class TestTransaction(IntegrationTestCase):
         # AND we expect the response to be successful (200)
         self.assertTrue(payment.is_successful())
 
-    @test_async_and_sync(
-        globals(),
-    )
+    @test_async_and_sync(globals())
     async def test_high_fee_account_delete_unauthorized(self, client):
         # GIVEN a new AccountDelete transaction
         account_delete = AccountDelete(
@@ -207,9 +203,7 @@ class TestTransaction(IntegrationTestCase):
         with self.assertRaises(XRPLException):
             await submit_transaction_async(account_set, WALLET)
 
-    @test_async_and_sync(
-        globals(),
-    )
+    @test_async_and_sync(globals())
     async def test_payment_high_fee_authorized(self, client):
         # GIVEN a new Payment transaction
         response = await submit_transaction_async(

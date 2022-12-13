@@ -58,9 +58,7 @@ async def generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
 class TestWallet(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
-        [
-            "xrpl.wallet.generate_faucet_wallet",
-        ],
+        ["xrpl.wallet.generate_faucet_wallet"],
         num_retries=5,
         use_testnet=True,
     )
