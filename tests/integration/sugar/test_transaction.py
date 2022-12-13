@@ -244,10 +244,7 @@ class TestTransaction(IntegrationTestCase):
         response = await submit_transaction_alias_async(signed_and_autofilled, client)
         self.assertTrue(response.is_successful())
 
-    @test_async_and_sync(
-        globals(),
-        ["xrpl.transaction.autofill"],
-    )
+    @test_async_and_sync(globals(), ["xrpl.transaction.autofill"])
     async def test_calculate_account_delete_fee(self, client):
         # GIVEN a new AccountDelete transaction
         account_delete = AccountDelete(
@@ -265,10 +262,7 @@ class TestTransaction(IntegrationTestCase):
 
     @test_async_and_sync(
         globals(),
-        [
-            "xrpl.transaction.autofill",
-            "xrpl.ledger.get_fee",
-        ],
+        ["xrpl.transaction.autofill", "xrpl.ledger.get_fee"],
     )
     async def test_calculate_escrow_finish_fee(self, client):
         # GIVEN a new EscrowFinish transaction
@@ -294,10 +288,7 @@ class TestTransaction(IntegrationTestCase):
 
     @test_async_and_sync(
         globals(),
-        [
-            "xrpl.transaction.autofill",
-            "xrpl.ledger.get_fee",
-        ],
+        ["xrpl.transaction.autofill", "xrpl.ledger.get_fee"],
     )
     async def test_calculate_payment_fee(self, client):
         # GIVEN a new Payment transaction

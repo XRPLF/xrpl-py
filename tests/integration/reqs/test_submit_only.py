@@ -9,12 +9,7 @@ from xrpl.models.transactions import OfferCreate
 
 
 class TestSubmitOnly(IntegrationTestCase):
-    @test_async_and_sync(
-        globals(),
-        [
-            "xrpl.transaction.autofill_and_sign",
-        ],
-    )
+    @test_async_and_sync(globals(), ["xrpl.transaction.autofill_and_sign"])
     async def test_basic_functionality(self, client):
         TX = OfferCreate(
             account=WALLET.classic_address,
