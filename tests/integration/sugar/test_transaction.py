@@ -6,6 +6,7 @@ from tests.integration.it_utils import (
 )
 from tests.integration.reusable_values import DESTINATION as DESTINATION_WALLET
 from tests.integration.reusable_values import WALLET
+from xrpl.asyncio.account.main import get_next_valid_seq_number
 from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.asyncio.transaction import (
     XRPLReliableSubmissionException,
@@ -18,6 +19,7 @@ from xrpl.asyncio.transaction import (
 from xrpl.asyncio.transaction import (
     submit_transaction as submit_transaction_alias_async,
 )
+from xrpl.asyncio.transaction.ledger import get_transaction_from_hash
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.core.binarycodec.main import encode
@@ -49,7 +51,99 @@ OWNER = "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
 class TestTransaction(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
+        [
+            "xrpl.transaction.autofill_and_sign",
+            "xrpl.transaction.send_reliable_submission",
+            "xrpl.transaction.get_transaction_from_hash",
+        ],
     )
+    async def test_get_transaction_from_hash(self, client):
+        # GIVEN a new transaction (payment)
+        payment_transaction = Payment(
+            account=WALLET.classic_address,
+            amount="100",
+            destination=DESTINATION,
+        )
+
+        # WHEN we sign locally, autofill, and submit the transaction
+        response = await sign_and_reliable_submission_async(payment_transaction, WALLET)
+
+        # THEN we expect to retrieve this transaction from its hash
+        payment = await get_transaction_from_hash(
+            response.result["tx_json"]["hash"], client
+        )
+
+        # AND we expect the result Account to be the same as the original payment Acct
+        self.assertEqual(payment.result["Account"], ACCOUNT)
+        # AND we expect the response to be successful (200)
+        self.assertTrue(payment.is_successful())
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.autofill_and_sign",
+            "xrpl.transaction.send_reliable_submission",
+            "xrpl.transaction.get_transaction_from_hash",
+        ],
+    )
+    async def test_get_transaction_from_hash_with_binary(self, client):
+        # GIVEN a new transaction (payment)
+        payment_transaction = Payment(
+            account=WALLET.classic_address,
+            amount="100",
+            destination=DESTINATION,
+        )
+
+        # WHEN we sign locally, autofill, and submit the transaction
+        response = await sign_and_reliable_submission_async(payment_transaction, WALLET)
+        payment_hash = response.result["tx_json"]["hash"]
+
+        # THEN we expect to retrieve this transaction from its hash with the
+        # binary parameter set to true
+        payment = await get_transaction_from_hash(payment_hash, client, True)
+
+        # AND we expect the result hash to be the same as the original payment hash
+        self.assertEqual(payment.result["hash"], payment_hash)
+        # AND we expect the response to be successful (200)
+        self.assertTrue(payment.is_successful())
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.autofill_and_sign",
+            "xrpl.transaction.send_reliable_submission",
+            "xrpl.transaction.get_transaction_from_hash",
+        ],
+    )
+    async def test_get_transaction_from_hash_with_min_max_ledgers(self, client):
+        # GIVEN a new transaction (payment)
+        payment_transaction = Payment(
+            account=WALLET.classic_address,
+            amount="100",
+            destination=DESTINATION,
+        )
+
+        # WHEN we sign locally, autofill, and submit the transaction
+        response = await sign_and_reliable_submission_async(payment_transaction, WALLET)
+        payment_hash = response.result["tx_json"]["hash"]
+        payment_ledger_index = response.result["validated_ledger_index"]
+
+        # THEN we expect to retrieve this transaction from its hash with
+        # min_ledger and max_ledger parameters
+        payment = await get_transaction_from_hash(
+            payment_hash,
+            client,
+            False,
+            payment_ledger_index - 5,
+            payment_ledger_index + 5,
+        )
+
+        # AND we expect the result Account to be the same as the original payment Acct
+        self.assertEqual(payment.result["Account"], ACCOUNT)
+        # AND we expect the response to be successful (200)
+        self.assertTrue(payment.is_successful())
+
+    @test_async_and_sync(globals())
     async def test_none_as_destination_tag(self, client):
         # GIVEN a new transaction (payment)
         payment_transaction = Payment(
@@ -225,7 +319,6 @@ class TestReliableSubmission(IntegrationTestCase):
         [
             "xrpl.transaction.autofill_and_sign",
             "xrpl.transaction.send_reliable_submission",
-            "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
         ],
     )
@@ -247,7 +340,6 @@ class TestReliableSubmission(IntegrationTestCase):
         [
             "xrpl.transaction.autofill_and_sign",
             "xrpl.transaction.send_reliable_submission",
-            "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
         ],
     )
@@ -273,7 +365,6 @@ class TestReliableSubmission(IntegrationTestCase):
         [
             "xrpl.transaction.autofill_and_sign",
             "xrpl.transaction.send_reliable_submission",
-            "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_latest_validated_ledger_sequence",
         ],
     )
@@ -308,9 +399,9 @@ class TestReliableSubmission(IntegrationTestCase):
     async def test_reliable_submission_bad_transaction(self, client):
         payment_dict = {
             "account": ACCOUNT,
+            "fee": "10",
             "last_ledger_sequence": await get_latest_validated_ledger_sequence(client)
             + 20,
-            "fee": "10",
             "amount": "100",
             "destination": DESTINATION,
         }
@@ -325,13 +416,13 @@ class TestReliableSubmission(IntegrationTestCase):
             "xrpl.transaction.sign",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.account.get_next_valid_seq_number",
-            "xrpl.ledger.get_fee",
         ],
     )
     async def test_reliable_submission_no_last_ledger_sequence(self, client):
         payment_dict = {
             "account": ACCOUNT,
             "fee": "10",
+            "sequence": await get_next_valid_seq_number(ACCOUNT, client),
             "amount": "100",
             "destination": DESTINATION,
         }

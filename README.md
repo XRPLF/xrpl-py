@@ -167,7 +167,6 @@ from xrpl.ledger import get_latest_validated_ledger_sequence
 from xrpl.account import get_next_valid_seq_number
 
 current_validated_ledger = get_latest_validated_ledger_sequence(client)
-wallet_sequence = get_next_valid_seq_number(test_wallet.classic_address, client)
 
 # prepare the transaction
 # the amount is expressed in drops, not XRP
@@ -177,7 +176,7 @@ my_tx_payment = Payment(
     amount="2200000",
     destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
     last_ledger_sequence=current_validated_ledger + 20,
-    sequence=wallet_sequence,
+    sequence=get_next_valid_seq_number(test_wallet.classic_address, client),
     fee="10",
 )
 # sign the transaction
@@ -285,7 +284,6 @@ async_client = AsyncJsonRpcClient(JSON_RPC_URL)
 
 async def submit_sample_transaction():
     current_validated_ledger = await get_latest_validated_ledger_sequence(async_client)
-    wallet_sequence = await get_next_valid_seq_number(test_wallet.classic_address, async_client)
 
     # prepare the transaction
     # the amount is expressed in drops, not XRP
@@ -295,7 +293,7 @@ async def submit_sample_transaction():
         amount="2200000",
         destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
         last_ledger_sequence=current_validated_ledger + 20,
-        sequence=wallet_sequence,
+        sequence=await get_next_valid_seq_number(test_wallet.classic_address, async_client),
         fee="10",
     )
     # sign the transaction
