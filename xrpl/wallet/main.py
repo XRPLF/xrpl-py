@@ -140,6 +140,9 @@ class Wallet:
         Raises:
             XRPLException: If passed in entropy is not a bytestring.
         """
+        # Logic copied from xrpl-secret-numbers secretToEntropy function
+        # https://github.com/WietseWind/xrpl-secret-numbers/blob/master/src/utils/index.ts
+
         parsed_entropy = entropy
 
         if entropy is not None and len(entropy) != 32:
