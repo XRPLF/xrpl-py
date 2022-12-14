@@ -7,24 +7,20 @@ from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import SubmitOnly
 from xrpl.models.transactions import OfferCreate
 
+TX = OfferCreate(
+    account=WALLET.classic_address,
+    taker_gets="13100000",
+    taker_pays=IssuedCurrencyAmount(
+        currency="USD",
+        issuer=WALLET.classic_address,
+        value="10",
+    ),
+)
+
 
 class TestSubmitOnly(IntegrationTestCase):
-    @test_async_and_sync(
-        globals(),
-        [
-            "xrpl.transaction.autofill_and_sign",
-        ],
-    )
+    @test_async_and_sync(globals(), ["xrpl.transaction.autofill_and_sign"])
     async def test_basic_functionality(self, client):
-        TX = OfferCreate(
-            account=WALLET.classic_address,
-            taker_gets="13100000",
-            taker_pays=IssuedCurrencyAmount(
-                currency="USD",
-                issuer=WALLET.classic_address,
-                value="10",
-            ),
-        )
         transaction = await autofill_and_sign(TX, WALLET, client)
 
         tx_json = transaction.to_xrpl()
