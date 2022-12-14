@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from xrpl.constants import CryptoAlgorithm
+from xrpl.constants import CryptoAlgorithm, XRPLException
 from xrpl.wallet.main import Wallet
 
 constants = {
@@ -348,6 +348,26 @@ class TestWalletMain(TestCase):
         )
 
         _test_wallet_fields(self, wallet, "secret_numbers", "ed25519")
+
+    def test_from_secret_numbers_failure_nine_numbers(self):
+        invalid_array = constants["secret_numbers"]["array"].copy()
+        invalid_array.append("605430")
+
+        with self.assertRaises(XRPLException):
+            Wallet.from_secret_numbers(
+                invalid_array,
+                algorithm=CryptoAlgorithm.ED25519,
+            )
+
+    def test_from_secret_numbers_failure_seven_digit_number(self):
+        invalid_array = constants["secret_numbers"]["array"].copy()
+        invalid_array[0] += "1"
+
+        with self.assertRaises(XRPLException):
+            Wallet.from_secret_numbers(
+                invalid_array,
+                algorithm=CryptoAlgorithm.ED25519,
+            )
 
     def test_get_xaddress_when_test_is_true(self):
         self.assertEqual(

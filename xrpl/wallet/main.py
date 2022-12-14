@@ -175,16 +175,31 @@ class Wallet:
 
         Returns:
             The wallet that is generated from the given secret numbers.
+
+        Raises:
+            XRPLException: If the number of secret numbers is not 8. If the length of
+                any secret number is not 6. If the checksum of any secret number is
+                invalid.
         """
-        numbersArray = (
+        parsed_secret_numbers = (
             secret_numbers.split()
             if isinstance(secret_numbers, str)
             else secret_numbers
         )
 
+        if len(parsed_secret_numbers) != 8:
+            raise XRPLException("There must be 8 secret numbers.")
+
         entropy = ""
-        for r in numbersArray:
-            no = int(r[:5])
+        for i, secret_number in enumerate(parsed_secret_numbers):
+            no = int(secret_number[:5])
+            checksum = int(secret_number[5:])
+
+            if len(secret_number) != 6:
+                raise XRPLException("Each secret number must be 6 digits long.")
+            if no * (i * 2 + 1) % 9 != checksum:
+                raise XRPLException(f"Checksum of secret number {i} is invalid.")
+
             hexed = hex(no)[2:].zfill(4)
             entropy += hexed
 
