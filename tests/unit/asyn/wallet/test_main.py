@@ -86,7 +86,7 @@ constants = {
 }
 
 
-def _test_wallet_fields(
+def _test_wallet_values(
     self, wallet, method, algorithm, *, is_entropy_with_regular_key_pair=False
 ):
     method_constants = constants[method]
@@ -139,7 +139,7 @@ class TestWalletMain(TestCase):
             seed=constants["seed"]["seed"],
         )
 
-        _test_wallet_fields(self, wallet, "seed", "secp256k1")
+        _test_wallet_values(self, wallet, "seed", "secp256k1")
 
     def test_constructor_using_regular_key_pair(self):
         wallet = Wallet(
@@ -149,7 +149,7 @@ class TestWalletMain(TestCase):
             seed=constants["regular_key_pair"]["seed"],
         )
 
-        _test_wallet_fields(self, wallet, "regular_key_pair", "secp256k1")
+        _test_wallet_values(self, wallet, "regular_key_pair", "secp256k1")
 
     def test_create_using_default_algorithm(self):
         wallet = Wallet.create()
@@ -169,21 +169,21 @@ class TestWalletMain(TestCase):
     def test_from_seed_using_default_algorithm(self):
         wallet = Wallet.from_seed(constants["seed"]["seed"])
 
-        _test_wallet_fields(self, wallet, "seed", "ed25519")
+        _test_wallet_values(self, wallet, "seed", "ed25519")
 
     def test_from_seed_using_algorithm_ecdsa_secp256k1(self):
         wallet = Wallet.from_seed(
             constants["seed"]["seed"], algorithm=CryptoAlgorithm.SECP256K1
         )
 
-        _test_wallet_fields(self, wallet, "seed", "secp256k1")
+        _test_wallet_values(self, wallet, "seed", "secp256k1")
 
     def test_from_seed_using_algorithm_ed25519(self):
         wallet = Wallet.from_seed(
             constants["seed"]["seed"], algorithm=CryptoAlgorithm.ED25519
         )
 
-        _test_wallet_fields(self, wallet, "seed", "ed25519")
+        _test_wallet_values(self, wallet, "seed", "ed25519")
 
     def test_from_seed_using_regular_key_pair_using_default_algorithm(self):
         wallet = Wallet.from_seed(
@@ -191,7 +191,7 @@ class TestWalletMain(TestCase):
             master_address=constants["regular_key_pair"]["master_address"],
         )
 
-        _test_wallet_fields(self, wallet, "regular_key_pair", "ed25519")
+        _test_wallet_values(self, wallet, "regular_key_pair", "ed25519")
 
     def test_from_seed_using_regular_key_pair_using_algorithm_ed25519(self):
         wallet = Wallet.from_seed(
@@ -200,7 +200,7 @@ class TestWalletMain(TestCase):
             algorithm=CryptoAlgorithm.ED25519,
         )
 
-        _test_wallet_fields(self, wallet, "regular_key_pair", "ed25519")
+        _test_wallet_values(self, wallet, "regular_key_pair", "ed25519")
 
     def test_from_seed_using_regular_key_pair_using_algorithm_edcsa_secp256k1(self):
         wallet = Wallet.from_seed(
@@ -209,26 +209,26 @@ class TestWalletMain(TestCase):
             algorithm=CryptoAlgorithm.SECP256K1,
         )
 
-        _test_wallet_fields(self, wallet, "regular_key_pair", "secp256k1")
+        _test_wallet_values(self, wallet, "regular_key_pair", "secp256k1")
 
     def test_from_secret_using_default_algorithm(self):
         wallet = Wallet.from_secret(constants["seed"]["seed"])
 
-        _test_wallet_fields(self, wallet, "seed", "ed25519")
+        _test_wallet_values(self, wallet, "seed", "ed25519")
 
     def test_from_secret_using_algorithm_ecdsa_secp256k1(self):
         wallet = Wallet.from_secret(
             constants["seed"]["seed"], algorithm=CryptoAlgorithm.SECP256K1
         )
 
-        _test_wallet_fields(self, wallet, "seed", "secp256k1")
+        _test_wallet_values(self, wallet, "seed", "secp256k1")
 
     def test_from_secret_using_algorithm_ed25519(self):
         wallet = Wallet.from_secret(
             constants["seed"]["seed"], algorithm=CryptoAlgorithm.ED25519
         )
 
-        _test_wallet_fields(self, wallet, "seed", "ed25519")
+        _test_wallet_values(self, wallet, "seed", "ed25519")
 
     def test_from_secret_using_regular_key_pair_using_default_algorithm(self):
         wallet = Wallet.from_secret(
@@ -236,7 +236,7 @@ class TestWalletMain(TestCase):
             master_address=constants["regular_key_pair"]["master_address"],
         )
 
-        _test_wallet_fields(self, wallet, "regular_key_pair", "ed25519")
+        _test_wallet_values(self, wallet, "regular_key_pair", "ed25519")
 
     def test_from_secret_using_regular_key_pair_using_algorithm_ed25519(self):
         wallet = Wallet.from_secret(
@@ -245,7 +245,7 @@ class TestWalletMain(TestCase):
             algorithm=CryptoAlgorithm.ED25519,
         )
 
-        _test_wallet_fields(self, wallet, "regular_key_pair", "ed25519")
+        _test_wallet_values(self, wallet, "regular_key_pair", "ed25519")
 
     def test_from_secret_using_regular_key_pair_using_algorithm_edcsa_secp256k1(self):
         wallet = Wallet.from_secret(
@@ -254,26 +254,26 @@ class TestWalletMain(TestCase):
             algorithm=CryptoAlgorithm.SECP256K1,
         )
 
-        _test_wallet_fields(self, wallet, "regular_key_pair", "secp256k1")
+        _test_wallet_values(self, wallet, "regular_key_pair", "secp256k1")
 
     def test_from_entropy_using_default_algorithm(self):
         wallet = Wallet.from_entropy(constants["entropy"]["entropy"])
 
-        _test_wallet_fields(self, wallet, "entropy", "ed25519")
+        _test_wallet_values(self, wallet, "entropy", "ed25519")
 
     def test_from_entropy_using_algorithm_ecdsa_secp256k1(self):
         wallet = Wallet.from_entropy(
             constants["entropy"]["entropy"], algorithm=CryptoAlgorithm.SECP256K1
         )
 
-        _test_wallet_fields(self, wallet, "entropy", "secp256k1")
+        _test_wallet_values(self, wallet, "entropy", "secp256k1")
 
     def test_from_entropy_using_algorithm_ed25519(self):
         wallet = Wallet.from_entropy(
             constants["entropy"]["entropy"], algorithm=CryptoAlgorithm.ED25519
         )
 
-        _test_wallet_fields(self, wallet, "entropy", "ed25519")
+        _test_wallet_values(self, wallet, "entropy", "ed25519")
 
     def test_from_entropy_using_regular_key_pair_using_default_algorithm(self):
         wallet = Wallet.from_entropy(
@@ -281,7 +281,7 @@ class TestWalletMain(TestCase):
             master_address=constants["regular_key_pair"]["master_address"],
         )
 
-        _test_wallet_fields(
+        _test_wallet_values(
             self, wallet, "entropy", "ed25519", is_entropy_with_regular_key_pair=True
         )
 
@@ -292,7 +292,7 @@ class TestWalletMain(TestCase):
             algorithm=CryptoAlgorithm.SECP256K1,
         )
 
-        _test_wallet_fields(
+        _test_wallet_values(
             self, wallet, "entropy", "secp256k1", is_entropy_with_regular_key_pair=True
         )
 
@@ -303,19 +303,19 @@ class TestWalletMain(TestCase):
             algorithm=CryptoAlgorithm.ED25519,
         )
 
-        _test_wallet_fields(
+        _test_wallet_values(
             self, wallet, "entropy", "ed25519", is_entropy_with_regular_key_pair=True
         )
 
     def test_from_secret_numbers_string_using_default_algorithm(self):
         wallet = Wallet.from_secret_numbers(constants["secret_numbers"]["string"])
 
-        _test_wallet_fields(self, wallet, "secret_numbers", "secp256k1")
+        _test_wallet_values(self, wallet, "secret_numbers", "secp256k1")
 
     def test_from_secret_numbers_array_using_default_algorithm(self):
         wallet = Wallet.from_secret_numbers(constants["secret_numbers"]["array"])
 
-        _test_wallet_fields(self, wallet, "secret_numbers", "secp256k1")
+        _test_wallet_values(self, wallet, "secret_numbers", "secp256k1")
 
     def test_from_secret_numbers_string_using_algorithm_ecdsa_secp256k1(self):
         wallet = Wallet.from_secret_numbers(
@@ -323,7 +323,7 @@ class TestWalletMain(TestCase):
             algorithm=CryptoAlgorithm.SECP256K1,
         )
 
-        _test_wallet_fields(self, wallet, "secret_numbers", "secp256k1")
+        _test_wallet_values(self, wallet, "secret_numbers", "secp256k1")
 
     def test_from_secret_numbers_array_using_algorithm_ecdsa_secp256k1(self):
         wallet = Wallet.from_secret_numbers(
@@ -331,7 +331,7 @@ class TestWalletMain(TestCase):
             algorithm=CryptoAlgorithm.SECP256K1,
         )
 
-        _test_wallet_fields(self, wallet, "secret_numbers", "secp256k1")
+        _test_wallet_values(self, wallet, "secret_numbers", "secp256k1")
 
     def test_from_secret_numbers_string_using_algorithm_ed25519(self):
         wallet = Wallet.from_secret_numbers(
@@ -339,7 +339,7 @@ class TestWalletMain(TestCase):
             algorithm=CryptoAlgorithm.ED25519,
         )
 
-        _test_wallet_fields(self, wallet, "secret_numbers", "ed25519")
+        _test_wallet_values(self, wallet, "secret_numbers", "ed25519")
 
     def test_from_secret_numbers_array_using_algorithm_ed25519(self):
         wallet = Wallet.from_secret_numbers(
@@ -347,7 +347,7 @@ class TestWalletMain(TestCase):
             algorithm=CryptoAlgorithm.ED25519,
         )
 
-        _test_wallet_fields(self, wallet, "secret_numbers", "ed25519")
+        _test_wallet_values(self, wallet, "secret_numbers", "ed25519")
 
     def test_from_secret_numbers_failure_nine_numbers(self):
         invalid_array = constants["secret_numbers"]["array"].copy()
