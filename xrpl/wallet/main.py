@@ -142,7 +142,7 @@ class Wallet:
         """
         # Logic copied from xrpl-secret-numbers secretToEntropy function
         # https://github.com/WietseWind/xrpl-secret-numbers/blob/master/src/utils/index.ts
-        
+
         if entropy is not None and len(entropy) != 32:
             raise XRPLException(
                 "Entropy must be a 16-byte hexadecimal string of random numbers."
