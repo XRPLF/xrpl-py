@@ -98,15 +98,15 @@ async def sign(
             )
         ]
         return Transaction.from_dict(tx_dict)
-    else:
-        if check_fee:
-            await _check_fee(transaction)
-        transaction_json = _prepare_transaction(transaction, wallet)
-        serialized_for_signing = encode_for_signing(transaction_json)
-        serialized_bytes = bytes.fromhex(serialized_for_signing)
-        signature = keypairs_sign(serialized_bytes, wallet.private_key)
-        transaction_json["TxnSignature"] = signature
-        return Transaction.from_xrpl(transaction_json)
+
+    if check_fee:
+        await _check_fee(transaction)
+    transaction_json = _prepare_transaction(transaction, wallet)
+    serialized_for_signing = encode_for_signing(transaction_json)
+    serialized_bytes = bytes.fromhex(serialized_for_signing)
+    signature = keypairs_sign(serialized_bytes, wallet.private_key)
+    transaction_json["TxnSignature"] = signature
+    return Transaction.from_xrpl(transaction_json)
 
 
 safe_sign_transaction = sign
