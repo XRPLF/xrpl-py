@@ -51,9 +51,7 @@ async def sign_and_submit(
         The response from the ledger.
     """
     if autofill:
-        transaction = await safe_sign_and_autofill_transaction(
-            transaction, wallet, client, check_fee
-        )
+        transaction = await autofill_and_sign(transaction, wallet, client, check_fee)
     else:
         transaction = await sign(transaction, wallet, check_fee)
     return await submit(transaction, client)
@@ -81,16 +79,7 @@ async def sign(
     Returns:
         The signed transaction blob.
     """
-    if not multisign:
-        if check_fee:
-            await _check_fee(transaction)
-        transaction_json = _prepare_transaction(transaction, wallet)
-        serialized_for_signing = encode_for_signing(transaction_json)
-        serialized_bytes = bytes.fromhex(serialized_for_signing)
-        signature = keypairs_sign(serialized_bytes, wallet.private_key)
-        transaction_json["TxnSignature"] = signature
-        return Transaction.from_xrpl(transaction_json)
-    else:
+    if multisign:
         signature = keypairs_sign(
             bytes.fromhex(
                 encode_for_multisigning(
@@ -109,6 +98,15 @@ async def sign(
             )
         ]
         return Transaction.from_dict(tx_dict)
+    else:
+        if check_fee:
+            await _check_fee(transaction)
+        transaction_json = _prepare_transaction(transaction, wallet)
+        serialized_for_signing = encode_for_signing(transaction_json)
+        serialized_bytes = bytes.fromhex(serialized_for_signing)
+        signature = keypairs_sign(serialized_bytes, wallet.private_key)
+        transaction_json["TxnSignature"] = signature
+        return Transaction.from_xrpl(transaction_json)
 
 
 safe_sign_transaction = sign
