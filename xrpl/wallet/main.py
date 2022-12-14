@@ -179,7 +179,7 @@ class Wallet:
                 any secret number is not 6. If the checksum of any secret number is
                 invalid.
         """
-        # Logic taken from xrpl-secret-numbers secretToEntropy function
+        # Logic adapted from xrpl-secret-numbers secretToEntropy function
         # https://github.com/WietseWind/xrpl-secret-numbers/blob/master/src/utils/index.ts
 
         parsed_secret_numbers = (
