@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0]
+### Added:
+- Wallet support for regular key compatibility
+- Added new ways of wallet generation: `from_seed`, `from_secret`, `from_entropy`
+- Added address alias to `Wallet.classic_address `
+
+### Changed:
+- Updated params for Wallet class constructor
+- `Wallet.address` and `Wallet.classic_address` are now readonly
+- Removed Sequence from Wallet class
+- Core keypairs generate seed must take in hexstring instead of bytestring
+- Core keypairs formatting for ED25519 is now padded with zeros if length of keystring is less than 64
+
 ## [[Unreleased]]
 ### Fixed:
 - Added a sort of the account IDs in `multisign`, so that the `multisign` always works.
