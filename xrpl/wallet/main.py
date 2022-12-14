@@ -140,9 +140,6 @@ class Wallet:
         Raises:
             XRPLException: If passed in entropy is not a bytestring.
         """
-        # Logic copied from xrpl-secret-numbers secretToEntropy function
-        # https://github.com/WietseWind/xrpl-secret-numbers/blob/master/src/utils/index.ts
-
         if entropy is not None and len(entropy) != 32:
             raise XRPLException(
                 "Entropy must be a 16-byte hexadecimal string of random numbers."
@@ -182,6 +179,9 @@ class Wallet:
                 any secret number is not 6. If the checksum of any secret number is
                 invalid.
         """
+        # Logic taken from xrpl-secret-numbers secretToEntropy function
+        # https://github.com/WietseWind/xrpl-secret-numbers/blob/master/src/utils/index.ts
+
         parsed_secret_numbers = (
             secret_numbers.split()
             if isinstance(secret_numbers, str)
