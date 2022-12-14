@@ -5,9 +5,7 @@ from xrpl.models.transactions import PaymentChannelFund
 
 
 class TestPaymentChannelFund(IntegrationTestCase):
-    @test_async_and_sync(
-        globals(),
-    )
+    @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
         response = await submit_transaction_async(
             PaymentChannelFund(

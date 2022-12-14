@@ -142,15 +142,13 @@ class Wallet:
         """
         # Logic copied from xrpl-secret-numbers secretToEntropy function
         # https://github.com/WietseWind/xrpl-secret-numbers/blob/master/src/utils/index.ts
-
-        parsed_entropy = entropy
-
+        
         if entropy is not None and len(entropy) != 32:
             raise XRPLException(
                 "Entropy must be a 16-byte hexadecimal string of random numbers."
             )
 
-        seed = generate_seed(parsed_entropy, algorithm)
+        seed = generate_seed(entropy, algorithm)
         return Wallet.from_seed(
             seed, master_address=master_address, algorithm=algorithm
         )
