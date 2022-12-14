@@ -14,6 +14,7 @@ from xrpl.asyncio.transaction import (
 )
 from xrpl.clients import Client, JsonRpcClient, WebsocketClient
 from xrpl.clients.sync_client import SyncClient
+from xrpl.constants import CryptoAlgorithm
 from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
 from xrpl.transaction import (  # noqa: F401 - needed for sync tests
     safe_sign_and_submit_transaction,
@@ -55,7 +56,7 @@ _CLIENTS = {
 
 MASTER_ACCOUNT = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
 MASTER_SECRET = "snoPBrXtMeMyMHUVTgbuqAfg1SUTb"
-MASTER_WALLET = Wallet(MASTER_SECRET, 0)
+MASTER_WALLET = Wallet.from_seed(MASTER_SECRET, algorithm=CryptoAlgorithm.SECP256K1)
 FUNDING_AMOUNT = "2000000000"
 
 LEDGER_ACCEPT_REQUEST = GenericRequest(method="ledger_accept")

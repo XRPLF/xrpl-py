@@ -8,15 +8,15 @@ from xrpl.transaction.multisign import multisign
 from xrpl.utils.str_conversions import str_to_hex
 from xrpl.wallet import Wallet
 
-FIRST_SIGNER = Wallet("sEdTLQkHAWpdS7FDk7EvuS7Mz8aSMRh", 0)
-SECOND_SIGNER = Wallet("sEd7DXaHkGQD8mz8xcRLDxfMLqCurif", 0)
+FIRST_SIGNER = Wallet.from_seed("sEdTLQkHAWpdS7FDk7EvuS7Mz8aSMRh")
+SECOND_SIGNER = Wallet.from_seed("sEd7DXaHkGQD8mz8xcRLDxfMLqCurif")
 SIGNER_ENTRIES = [
     SignerEntry(
-        account=FIRST_SIGNER.classic_address,
+        account=FIRST_SIGNER.address,
         signer_weight=1,
     ),
     SignerEntry(
-        account=SECOND_SIGNER.classic_address,
+        account=SECOND_SIGNER.address,
         signer_weight=1,
     ),
 ]

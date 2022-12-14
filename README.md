@@ -103,7 +103,7 @@ Use the [`xrpl.wallet`](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.wal
 To create a wallet from a seed (in this case, the value generated using [`xrpl.keypairs`](#xrpl-keypairs)):
 
 ```py
-wallet_from_seed = xrpl.wallet.Wallet(seed, 0)
+wallet_from_seed = xrpl.wallet.Wallet.from_seed(seed)
 print(wallet_from_seed)
 # pub_key: ED46949E414A3D6D758D347BAEC9340DC78F7397FEE893132AAF5D56E4D7DE77B0
 # priv_key: -HIDDEN-
@@ -167,7 +167,6 @@ from xrpl.ledger import get_latest_validated_ledger_sequence
 from xrpl.account import get_next_valid_seq_number
 
 current_validated_ledger = get_latest_validated_ledger_sequence(client)
-wallet_sequence = get_next_valid_seq_number(test_wallet.classic_address, client)
 
 # prepare the transaction
 # the amount is expressed in drops, not XRP
@@ -177,7 +176,7 @@ my_tx_payment = Payment(
     amount="2200000",
     destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
     last_ledger_sequence=current_validated_ledger + 20,
-    sequence=wallet_sequence,
+    sequence=get_next_valid_seq_number(test_wallet.classic_address, client),
     fee="10",
 )
 # sign the transaction
@@ -285,7 +284,6 @@ async_client = AsyncJsonRpcClient(JSON_RPC_URL)
 
 async def submit_sample_transaction():
     current_validated_ledger = await get_latest_validated_ledger_sequence(async_client)
-    wallet_sequence = await get_next_valid_seq_number(test_wallet.classic_address, async_client)
 
     # prepare the transaction
     # the amount is expressed in drops, not XRP
@@ -295,7 +293,7 @@ async def submit_sample_transaction():
         amount="2200000",
         destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
         last_ledger_sequence=current_validated_ledger + 20,
-        sequence=wallet_sequence,
+        sequence=await get_next_valid_seq_number(test_wallet.classic_address, async_client),
         fee="10",
     )
     # sign the transaction
