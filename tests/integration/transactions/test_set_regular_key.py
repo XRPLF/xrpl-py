@@ -12,10 +12,8 @@ class TestSetRegularKey(IntegrationTestCase):
         response = await submit_transaction_async(
             SetRegularKey(
                 account=WALLET.classic_address,
-                sequence=WALLET.sequence,
                 regular_key=regular_key,
             ),
             WALLET,
         )
         self.assertTrue(response.is_successful())
-        WALLET.sequence += 1

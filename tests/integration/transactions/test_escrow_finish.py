@@ -22,7 +22,6 @@ class TestEscrowFinish(IntegrationTestCase):
     async def test_all_fields(self, client):
         escrow_finish = EscrowFinish(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             owner=OWNER,
             offer_sequence=OFFER_SEQUENCE,
             condition=CONDITION,

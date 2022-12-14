@@ -6,8 +6,6 @@ from threading import Timer as ThreadingTimer
 from time import sleep
 
 import xrpl  # noqa: F401 - needed for sync tests
-from xrpl.account import get_next_valid_seq_number
-from xrpl.asyncio.account import get_next_valid_seq_number as get_seq_num_async
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.asyncio.transaction import (
@@ -15,6 +13,7 @@ from xrpl.asyncio.transaction import (
 )
 from xrpl.clients import Client, JsonRpcClient, WebsocketClient
 from xrpl.clients.sync_client import SyncClient
+from xrpl.constants import CryptoAlgorithm
 from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
 from xrpl.transaction import (  # noqa: F401 - needed for sync tests
     autofill_and_sign,
@@ -56,8 +55,8 @@ _CLIENTS = {
 }
 
 MASTER_ACCOUNT = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
-MASTER_SECRET = "snoPBrXtMeMyMHUVTgbuqAfg1SUTb"
-MASTER_WALLET = Wallet(MASTER_SECRET, 0)
+MASTER_SEED = "snoPBrXtMeMyMHUVTgbuqAfg1SUTb"
+MASTER_WALLET = Wallet.from_seed(MASTER_SEED, algorithm=CryptoAlgorithm.SECP256K1)
 FUNDING_AMOUNT = "1200000000"
 
 LEDGER_ACCEPT_REQUEST = GenericRequest(method="ledger_accept")
@@ -106,7 +105,6 @@ def fund_wallet_sync(wallet: Wallet) -> None:
     )
     safe_sign_and_submit_transaction(payment, MASTER_WALLET, client, check_fee=True)
     client.request(LEDGER_ACCEPT_REQUEST)
-    wallet.sequence = get_next_valid_seq_number(wallet.classic_address, client)
 
 
 async def fund_wallet(
@@ -119,7 +117,6 @@ async def fund_wallet(
     )
     await sign_and_submit_async(payment, MASTER_WALLET, client, check_fee=True)
     await client.request(LEDGER_ACCEPT_REQUEST)
-    wallet.sequence = await get_seq_num_async(wallet.classic_address, client)
 
 
 def submit_transaction(

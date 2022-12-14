@@ -21,7 +21,6 @@ class TestAccountDelete(IntegrationTestCase):
         account_delete = AccountDelete(
             account=ACCOUNT,
             fee=FEE,
-            sequence=WALLET.sequence,
             destination=DESTINATION.classic_address,
             destination_tag=DESTINATION_TAG,
         )

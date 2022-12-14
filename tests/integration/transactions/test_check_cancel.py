@@ -14,7 +14,6 @@ class TestCheckCancel(IntegrationTestCase):
     async def test_all_fields(self, client):
         check_cancel = CheckCancel(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             check_id=CHECK_ID,
         )
         response = await submit_transaction_async(check_cancel, WALLET)
@@ -27,4 +26,3 @@ class TestCheckCancel(IntegrationTestCase):
         # transaction or the transaction may have an incorrect value in an
         # ID field such as CheckID, Channel, Unauthorize."
         self.assertEqual(response.result["engine_result"], "tecNO_ENTRY")
-        WALLET.sequence += 1

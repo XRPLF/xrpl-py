@@ -14,6 +14,7 @@ from xrpl.core.addresscodec.codec import (
 from xrpl.core.addresscodec.exceptions import XRPLAddressCodecException
 from xrpl.core.addresscodec.main import (
     classic_address_to_xaddress,
+    ensure_classic_address,
     is_valid_xaddress,
     xaddress_to_classic_address,
 )
@@ -29,6 +30,7 @@ __all__ = [
     "encode_account_public_key",
     "encode_classic_address",
     "encode_node_public_key",
+    "ensure_classic_address",
     "is_valid_classic_address",
     "is_valid_xaddress",
     "SEED_LENGTH",

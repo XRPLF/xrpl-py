@@ -87,7 +87,6 @@ class TestAccount(IntegrationTestCase):
             amount=amount,
         )
         await sign_and_reliable_submission_async(payment, WALLET)
-        WALLET.sequence += 1
 
         response = await get_latest_transaction(WALLET.classic_address, client)
         self.assertEqual(len(response.result["transactions"]), 1)

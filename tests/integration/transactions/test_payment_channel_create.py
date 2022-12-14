@@ -10,7 +10,6 @@ class TestPaymentChannelCreate(IntegrationTestCase):
         payment_channel = await submit_transaction_async(
             PaymentChannelCreate(
                 account=WALLET.classic_address,
-                sequence=WALLET.sequence,
                 amount="1",
                 destination=DESTINATION.classic_address,
                 settle_delay=86400,
@@ -19,4 +18,3 @@ class TestPaymentChannelCreate(IntegrationTestCase):
             WALLET,
         )
         self.assertTrue(payment_channel.is_successful())
-        WALLET.sequence += 1

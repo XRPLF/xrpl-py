@@ -1,8 +1,17 @@
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
-from tests.integration.reusable_values import DESTINATION, WALLET
+from tests.integration.it_utils import (
+    fund_wallet_sync,
+    submit_transaction_async,
+    test_async_and_sync,
+)
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import CheckCreate
+from xrpl.wallet import Wallet
+
+WALLET = Wallet.create()
+fund_wallet_sync(WALLET)
+DESTINATION = Wallet.create()
+fund_wallet_sync(DESTINATION)
 
 ACCOUNT = WALLET.classic_address
 DESTINATION_TAG = 1
@@ -16,7 +25,6 @@ class TestCheckCreate(IntegrationTestCase):
     async def test_all_fields(self, client):
         check_create = CheckCreate(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             destination=DESTINATION.classic_address,
             destination_tag=DESTINATION_TAG,
             send_max=SENDMAX,
@@ -26,4 +34,3 @@ class TestCheckCreate(IntegrationTestCase):
         response = await submit_transaction_async(check_create, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-        WALLET.sequence += 1

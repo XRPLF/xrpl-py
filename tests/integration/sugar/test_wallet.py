@@ -68,7 +68,6 @@ class TestWallet(IntegrationTestCase):
         response = await submit_transaction_async(
             Payment(
                 account=wallet.classic_address,
-                sequence=wallet.sequence,
                 fee="10",
                 amount="1",
                 destination=destination.classic_address,
@@ -157,7 +156,7 @@ class TestWallet(IntegrationTestCase):
             "wss://hooks-testnet-v2.xrpl-labs.com"
         ) as client:
             global time_of_last_hooks_faucet_call
-            wallet = Wallet("sEdSigMti9uJFCnrkwsB3LJRGkVZHVA", 0)
+            wallet = Wallet.from_seed("sEdSigMti9uJFCnrkwsB3LJRGkVZHVA")
             result = await client.request(
                 AccountInfo(
                     account=wallet.classic_address,
