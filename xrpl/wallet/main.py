@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Type
+from typing import List, Optional, Type
 
 from xrpl.constants import CryptoAlgorithm, XRPLException
 from xrpl.core.addresscodec import classic_address_to_xaddress, ensure_classic_address
@@ -148,6 +148,64 @@ class Wallet:
         seed = generate_seed(entropy, algorithm)
         return Wallet.from_seed(
             seed, master_address=master_address, algorithm=algorithm
+        )
+
+    @classmethod
+    def from_secret_numbers(
+        self: Type[Wallet],
+        secret_numbers: List[str] | str,
+        *,
+        master_address: Optional[str] = None,
+        algorithm: CryptoAlgorithm = CryptoAlgorithm.SECP256K1,
+    ) -> Wallet:
+        """
+        Generates a new Wallet from secret numbers.
+
+        Args:
+            secret_numbers: A string (whitespace delimited) or string array consisting
+                of 8 times 6 numbers used to derive a wallet.
+            master_address: Include if a Wallet uses a Regular Key Pair. It must be
+                the master address of the account. The default is `None`.
+            algorithm: The digital signature algorithm to generate an address for.
+                The default is `SECP256K1
+                <https://xrpl.org/cryptographic-keys.html#secp256k1-key-derivation>`_
+                (XUMM standard as of December 2022).
+
+        Returns:
+            The wallet that is generated from the given secret numbers.
+
+        Raises:
+            XRPLException: If the number of secret numbers is not 8. If the length of
+                any secret number is not 6. If the checksum of any secret number is
+                invalid.
+        """
+        # Logic adapted from xrpl-secret-numbers secretToEntropy function
+        # https://github.com/WietseWind/xrpl-secret-numbers/blob/master/src/utils/index.ts
+
+        parsed_secret_numbers = (
+            secret_numbers.split()
+            if isinstance(secret_numbers, str)
+            else secret_numbers
+        )
+
+        if len(parsed_secret_numbers) != 8:
+            raise XRPLException("There must be 8 secret numbers.")
+
+        entropy = ""
+        for i, secret_number in enumerate(parsed_secret_numbers):
+            no = int(secret_number[:5])
+            checksum = int(secret_number[5:])
+
+            if len(secret_number) != 6:
+                raise XRPLException("Each secret number must be 6 digits long.")
+            if no * (i * 2 + 1) % 9 != checksum:
+                raise XRPLException(f"Checksum of secret number {i} is invalid.")
+
+            hexed = hex(no)[2:].zfill(4)
+            entropy += hexed
+
+        return Wallet.from_entropy(
+            entropy, master_address=master_address, algorithm=algorithm
         )
 
     def get_xaddress(
