@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0]
 ### Added:
 - Wallet support for regular key compatibility
-- Added new ways of wallet generation: `from_seed`, `from_secret`, `from_entropy`
+- Added new ways of wallet generation: `from_seed`, `from_secret`, `from_entropy`, `from_secret_numbers`
 - Added address alias to `Wallet.classic_address `
 
 ### Changed:

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from xrpl.constants import CryptoAlgorithm
+from xrpl.constants import CryptoAlgorithm, XRPLException
 from xrpl.wallet.main import Wallet
 
 constants = {
@@ -44,6 +44,31 @@ constants = {
             "classic_address": "rGCkuB7PBr5tNy68tPEABEtcdno4hE6Y7f",
         },
     },
+    "secret_numbers": {
+        "string": "399150 474506 009147 088773 432160 282843 253738 605430",
+        "array": [
+            "399150",
+            "474506",
+            "009147",
+            "088773",
+            "432160",
+            "282843",
+            "253738",
+            "605430",
+        ],
+        "ed25519": {
+            "seed": "sEd77GiNwRkBYwqzZiTrmh21oovzSAC",
+            "public_key": "ED8079E575450E256C496578480020A33E19B579D58A2DB8FF13FC6B05B9229DE3",  # noqa:E501
+            "private_key": "EDD2AF6288A903DED9860FC62E778600A985BDF804E40BD8266505553E3222C3DA",  # noqa:E501
+            "classic_address": "rHnnXF4oYodLonx7P7MV4WaqPUvBWzskEw",
+        },
+        "secp256k1": {
+            "seed": "sh1HiK7SwjS1VxFdXi7qeMHRedrYX",
+            "public_key": "03BFC2F7AE242C3493187FA0B72BE97B2DF71194FB772E507FF9DEA0AD13CA1625",  # noqa:E501
+            "private_key": "00B6FE8507D977E46E988A8A94DB3B8B35E404B60F8B11AC5213FA8B5ABC8A8D19",  # noqa:E501
+            "classic_address": "rQKQsPeE3iTRyfUypLhuq74gZdcRdwWqDp",
+        },
+    },
     "prefix": {
         "classic_address": "r",
         "ed25519_key": "ED",
@@ -70,7 +95,7 @@ def _test_wallet_values(
     self.assertEqual(wallet.public_key, algorithm_constants["public_key"])
     self.assertEqual(wallet.private_key, algorithm_constants["private_key"])
 
-    if method == "entropy":
+    if method == "entropy" or method == "secret_numbers":
         self.assertEqual(wallet.seed, algorithm_constants["seed"])
     else:
         self.assertEqual(wallet.seed, method_constants["seed"])
@@ -281,6 +306,68 @@ class TestWalletMain(TestCase):
         _test_wallet_values(
             self, wallet, "entropy", "ed25519", is_entropy_with_regular_key_pair=True
         )
+
+    def test_from_secret_numbers_string_using_default_algorithm(self):
+        wallet = Wallet.from_secret_numbers(constants["secret_numbers"]["string"])
+
+        _test_wallet_values(self, wallet, "secret_numbers", "secp256k1")
+
+    def test_from_secret_numbers_array_using_default_algorithm(self):
+        wallet = Wallet.from_secret_numbers(constants["secret_numbers"]["array"])
+
+        _test_wallet_values(self, wallet, "secret_numbers", "secp256k1")
+
+    def test_from_secret_numbers_string_using_algorithm_ecdsa_secp256k1(self):
+        wallet = Wallet.from_secret_numbers(
+            constants["secret_numbers"]["string"],
+            algorithm=CryptoAlgorithm.SECP256K1,
+        )
+
+        _test_wallet_values(self, wallet, "secret_numbers", "secp256k1")
+
+    def test_from_secret_numbers_array_using_algorithm_ecdsa_secp256k1(self):
+        wallet = Wallet.from_secret_numbers(
+            constants["secret_numbers"]["array"],
+            algorithm=CryptoAlgorithm.SECP256K1,
+        )
+
+        _test_wallet_values(self, wallet, "secret_numbers", "secp256k1")
+
+    def test_from_secret_numbers_string_using_algorithm_ed25519(self):
+        wallet = Wallet.from_secret_numbers(
+            constants["secret_numbers"]["string"],
+            algorithm=CryptoAlgorithm.ED25519,
+        )
+
+        _test_wallet_values(self, wallet, "secret_numbers", "ed25519")
+
+    def test_from_secret_numbers_array_using_algorithm_ed25519(self):
+        wallet = Wallet.from_secret_numbers(
+            constants["secret_numbers"]["array"],
+            algorithm=CryptoAlgorithm.ED25519,
+        )
+
+        _test_wallet_values(self, wallet, "secret_numbers", "ed25519")
+
+    def test_from_secret_numbers_failure_nine_numbers(self):
+        invalid_array = constants["secret_numbers"]["array"].copy()
+        invalid_array.append("605430")
+
+        with self.assertRaises(XRPLException):
+            Wallet.from_secret_numbers(
+                invalid_array,
+                algorithm=CryptoAlgorithm.ED25519,
+            )
+
+    def test_from_secret_numbers_failure_seven_digit_number(self):
+        invalid_array = constants["secret_numbers"]["array"].copy()
+        invalid_array[0] += "1"
+
+        with self.assertRaises(XRPLException):
+            Wallet.from_secret_numbers(
+                invalid_array,
+                algorithm=CryptoAlgorithm.ED25519,
+            )
 
     def test_get_xaddress_when_test_is_true(self):
         self.assertEqual(
