@@ -28,6 +28,8 @@ LIST_SET_TX = sign_and_reliable_submission(
     ),
     WALLET,
 )
+EXAMPLE_DOMAIN = str_to_hex("example.com")
+EXPECTED_DOMAIN = "6578616D706C652E636F6D"
 
 
 class TestSubmitMultisigned(IntegrationTestCase):
@@ -39,9 +41,7 @@ class TestSubmitMultisigned(IntegrationTestCase):
         ],
     )
     async def test_basic_functionality(self, client):
-        tx = AccountSet(
-            account=WALLET.classic_address, domain=str_to_hex("example.com")
-        )
+        tx = AccountSet(account=WALLET.classic_address, domain=EXAMPLE_DOMAIN)
 
         autofilled_tx = await autofill(tx, client, len(SIGNER_ENTRIES))
 
@@ -57,4 +57,4 @@ class TestSubmitMultisigned(IntegrationTestCase):
             )
         )
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["tx_json"]["Domain"], "6578616D706C652E636F6D")
+        self.assertEqual(response.result["tx_json"]["Domain"], EXPECTED_DOMAIN)
