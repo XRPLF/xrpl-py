@@ -7,6 +7,7 @@ from typing_extensions import Final
 from xrpl.asyncio.clients import Client
 from xrpl.asyncio.ledger import get_latest_validated_ledger_sequence
 from xrpl.asyncio.transaction.main import submit
+from xrpl.clients import XRPLRequestFailureException
 from xrpl.constants import XRPLException
 from xrpl.models.requests import Tx
 from xrpl.models.response import Response
@@ -34,8 +35,18 @@ async def _wait_for_final_transaction_outcome(
     # new persisted transaction
 
     # query transaction by hash
-    transaction_response = await client._request_impl(Tx(transaction=transaction_hash))
-
+    try:
+        transaction_response = await client._request_impl(
+            Tx(transaction=transaction_hash)
+        )
+    except XRPLRequestFailureException as e:
+        if e.error == "txnNotFound":
+            # err code for if the txn is not found on the ledger due to racing condition
+            return await _wait_for_final_transaction_outcome(
+                transaction_hash, client, prelim_result
+            )
+        else:
+            raise e
     result = transaction_response.result
     if "validated" in result and result["validated"]:
         # result is in a validated ledger, outcome is final
