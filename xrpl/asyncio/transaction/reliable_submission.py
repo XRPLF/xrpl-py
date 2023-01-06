@@ -41,7 +41,7 @@ async def _wait_for_final_transaction_outcome(
         )
     except XRPLRequestFailureException as e:
         if e.error == "txnNotFound":
-            # err code for if the txn is not found on the ledger due to racing condition
+            # err code for if the txn is not found on the ledger due to race condition
             return await _wait_for_final_transaction_outcome(
                 transaction_hash, client, prelim_result
             )
