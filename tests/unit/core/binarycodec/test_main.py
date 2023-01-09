@@ -390,14 +390,32 @@ class TestMainSigning(TestCase):
         )
         self.assertEqual(encode_for_signing(signing_json), expected)
 
-    def test_claim(self):
+    def test_native_claim(self):
         channel = "43904CBFCDCEC530B4037871F86EE90BF799DF8D2E0EA564BC8A3F332E4F5FB1"
         amount = "1000"
         json = {"amount": amount, "channel": channel}
 
         expected = (
-            "434C4D0043904CBFCDCEC530B4037871F86EE90BF799DF8D2E0EA564BC8A3F332E"
-            "4F5FB100000000000003E8"
+            "434C4D00"
+            "43904CBFCDCEC530B4037871F86EE90BF799DF8D2E0EA564BC8A3F332E4F5FB1"
+            "00000000000003E8"
+        )
+        self.assertEqual(encode_for_signing_claim(json), expected)
+
+    def test_ic_claim(self):
+        channel = "43904CBFCDCEC530B4037871F86EE90BF799DF8D2E0EA564BC8A3F332E4F5FB1"
+        amount = {
+            "issuer": "rJZdUusLDtY9NEsGea7ijqhVrXv98rYBYN",
+            "currency": "USD",
+            "value": "10",
+        }
+        json = {"amount": amount, "channel": channel}
+
+        expected = (
+            "434C4D00"
+            "43904CBFCDCEC530B4037871F86EE90BF799DF8D2E0EA564BC8A3F332E4F5FB1"
+            "D4C38D7EA4C680000000000000000000000000005553440000000000C0A5ABEF"
+            "242802EFED4B041E8F2D4A8CC86AE3D1"
         )
         self.assertEqual(encode_for_signing_claim(json), expected)
 

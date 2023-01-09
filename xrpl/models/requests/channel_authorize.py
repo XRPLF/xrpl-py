@@ -18,6 +18,7 @@ from dataclasses import dataclass, field
 from typing import Dict, Optional
 
 from xrpl.constants import CryptoAlgorithm
+from xrpl.models.amounts import Amount
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
@@ -50,7 +51,7 @@ class ChannelAuthorize(Request):
     :meta hide-value:
     """
 
-    amount: str = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED  # type: ignore
     """
     This field is required.
 
