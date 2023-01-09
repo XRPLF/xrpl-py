@@ -122,6 +122,14 @@ class TestWallet(IntegrationTestCase):
         ) as client:
             await generate_faucet_wallet_and_fund_again(self, client)
 
+    async def test_generate_faucet_wallet_icv2_async_websockets(self):
+        async with AsyncWebsocketClient(
+            "wss://icv2.ws.transia.co"
+        ) as client:
+            await generate_faucet_wallet_and_fund_again(
+                self, client, "icv2.faucet.transia.co"
+            )
+
     async def test_generate_faucet_wallet_hooks_v2_testnet_async_websockets(self):
         async with AsyncWebsocketClient(
             "wss://hooks-testnet-v2.xrpl-labs.com"
