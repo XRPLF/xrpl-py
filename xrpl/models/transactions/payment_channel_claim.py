@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Optional
 
 from xrpl.models.flags import FlagInterface
+from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -73,13 +74,13 @@ class PaymentChannelClaim(Transaction):
     :meta hide-value:
     """
 
-    balance: Optional[str] = None
+    balance: Optional[Amount] = None
     """
     The cumulative amount of XRP to have delivered through this channel after
     processing this claim. Required unless closing the channel.
     """
 
-    amount: Optional[str] = None
+    amount: Optional[Amount] = None
     """
     The cumulative amount of XRP that has been authorized to deliver by the
     attached claim signature. Required unless closing the channel.

@@ -2,6 +2,7 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
+from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -27,7 +28,7 @@ class PaymentChannelFund(Transaction):
     :meta hide-value:
     """
 
-    amount: str = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED  # type: ignore
     """
     The amount of XRP, in drops, to add to the channel. This field is
     required.
