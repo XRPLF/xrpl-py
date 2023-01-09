@@ -383,7 +383,7 @@ class Transaction(BaseModel):
         Raises:
             XRPLModelException: if the Transaction is unsigned.
         """
-        if self.txn_signature is None:
+        if self.txn_signature is None and self.signers is None:
             raise XRPLModelException(
                 "Cannot get the hash from an unsigned Transaction."
             )

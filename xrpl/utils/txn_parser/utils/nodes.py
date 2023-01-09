@@ -16,27 +16,17 @@ from xrpl.models.transactions.metadata import (
 )
 
 
-class OptionalFieldNames(TypedDict, total=False):
-    """The optional fields of `NormalizedNode`."""
-
-    """
-    The fields are separated from `NormalizedNode` to make them optional,
-    while keeping `NodeType`, `LedgerEntryType` and `LedgerIndex` required.
-    """
-
-    NewFields: Optional[Fields]
-    FinalFields: Optional[Fields]
-    PreviousFields: Optional[Fields]
-    PreviousTxnID: Optional[str]
-    PreviousTxnLgrSeq: Optional[int]
-
-
-class NormalizedNode(OptionalFieldNames):
+class NormalizedNode(TypedDict):
     """A model representing an affected node in a standard format."""
 
     NodeType: Literal["CreatedNode", "ModifiedNode", "DeletedNode"]
     LedgerEntryType: str
     LedgerIndex: str
+    NewFields: Optional[Fields]
+    FinalFields: Optional[Fields]
+    PreviousFields: Optional[Fields]
+    PreviousTxnID: Optional[str]
+    PreviousTxnLgrSeq: Optional[int]
 
 
 def _normalize_node(
