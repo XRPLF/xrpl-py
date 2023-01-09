@@ -4,8 +4,7 @@ from unittest import TestCase
 
 from xrpl.models import XRPLModelException
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.currencies import XRP
-from xrpl.models.currencies.issue import Issue
+from xrpl.models.currencies import XRP, Issue
 from xrpl.models.requests import (
     AccountChannels,
     BookOffers,

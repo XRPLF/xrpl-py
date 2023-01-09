@@ -8,8 +8,14 @@
     "mypy.runUsingActiveInterpreter": true,
     "cSpell.words": [
         "addresscodec",
+        "aiounittest",
+        "altnet",
         "asyncio",
         "binarycodec",
+        "isnumeric",
+        "nftoken",
+        "rippletest",
+        "ripplex",
         "xaddress",
         "xchain"
     ],

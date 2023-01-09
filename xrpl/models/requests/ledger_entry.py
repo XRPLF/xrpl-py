@@ -10,10 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Union
 
-from typing_extensions import Literal
-
 from xrpl.models.base_model import BaseModel
-from xrpl.models.currencies import IssuedCurrency
+from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
@@ -159,9 +157,9 @@ class XChainClaimID(BaseModel):
     """Required fields for requesting an XChainClaimID if not querying by object ID."""
 
     locking_chain_door: str
-    locking_chain_issue: Union[Literal["XRP"], IssuedCurrency]
+    locking_chain_issue: Currency
     issuing_chain_door: str
-    issuing_chain_issue: Union[Literal["XRP"], IssuedCurrency]
+    issuing_chain_issue: Currency
     xchain_claim_id: Union[int, str]
 
 
@@ -174,9 +172,9 @@ class XChainCreateAccountClaimID(BaseModel):
     """
 
     locking_chain_door: str
-    locking_chain_issue: Union[Literal["XRP"], IssuedCurrency]
+    locking_chain_issue: Currency
     issuing_chain_door: str
-    issuing_chain_issue: Union[Literal["XRP"], IssuedCurrency]
+    issuing_chain_issue: Currency
     xchain_create_account_claim_id: Union[int, str]
 
 

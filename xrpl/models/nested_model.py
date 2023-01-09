@@ -6,7 +6,7 @@ from typing import Any, Dict, Type, TypeVar, Union
 
 from xrpl.models.base_model import BaseModel, _key_to_json
 
-NM = TypeVar("NM", bound="NestedModel")  # any type inherited from BaseModel
+NM = TypeVar("NM", bound="NestedModel")  # any type inherited from NestedModel
 
 
 def _get_nested_name(cls: Union[NestedModel, Type[NestedModel]]) -> str:

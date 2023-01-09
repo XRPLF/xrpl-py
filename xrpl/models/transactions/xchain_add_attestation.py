@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from typing_extensions import Literal
 
@@ -15,6 +15,10 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 from xrpl.models.xchain_bridge import XChainBridge
+
+
+def _get_new_list() -> List[Any]:
+    return []
 
 
 @require_kwargs_on_init
@@ -72,11 +76,11 @@ class XChainAttestationBatch(BaseModel):
 
     xchain_claim_attestation_batch: List[
         XChainClaimAttestationBatchElement
-    ] = REQUIRED  # type: ignore
+    ] = _get_new_list()
 
     xchain_create_account_attestation_batch: List[
         XChainCreateAccountAttestationBatchElement
-    ] = REQUIRED  # type: ignore
+    ] = _get_new_list()
 
 
 @require_kwargs_on_init
@@ -90,3 +94,15 @@ class XChainAddAttestation(Transaction):
         default=TransactionType.XCHAIN_ADD_ATTESTATION,
         init=False,
     )
+
+    def _get_errors(self: XChainAddAttestation) -> Dict[str, str]:
+        errors = super()._get_errors()
+
+        batch = self.xchain_attestation_batch
+        claim_batch = batch.xchain_claim_attestation_batch
+        account_create_batch = batch.xchain_create_account_attestation_batch
+
+        if len(claim_batch) + len(account_create_batch) > 8:
+            errors["num_attestations"] = "Cannot have more than 8 attestations."
+
+        return errors
