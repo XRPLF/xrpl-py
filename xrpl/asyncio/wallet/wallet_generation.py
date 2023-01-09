@@ -14,6 +14,7 @@ _TEST_FAUCET_URL: Final[str] = "https://faucet.altnet.rippletest.net/accounts"
 _DEV_FAUCET_URL: Final[str] = "https://faucet.devnet.rippletest.net/accounts"
 _AMM_DEV_FAUCET_URL: Final[str] = "https://ammfaucet.devnet.rippletest.net/accounts"
 _NFT_DEV_FAUCET_URL: Final[str] = "https://faucet-nft.ripple.com/accounts"
+_ICV2_FAUCET_URL: Final[str] = "https://icv2.faucet.transia.co/accounts"
 _HOOKS_V2_TEST_FAUCET_URL: Final[
     str
 ] = "https://hooks-testnet-v2.xrpl-labs.com/accounts"
@@ -121,6 +122,8 @@ def get_faucet_url(url: str, faucet_host: Optional[str] = None) -> str:
         return _DEV_FAUCET_URL
     if "xls20-sandbox" in url:  # nft devnet
         return _NFT_DEV_FAUCET_URL
+    if "icv2" in url:  # icv2
+        return _ICV2_FAUCET_URL
     raise XRPLFaucetException(
         "Cannot fund an account with a client that is not on the testnet or devnet."
     )
