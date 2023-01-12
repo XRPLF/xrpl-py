@@ -23,7 +23,7 @@ class XRPLReliableSubmissionException(XRPLException):
 
 
 async def _wait_for_final_transaction_outcome(
-    transaction_hash: str, client: Client, prelim_result: str
+    transaction_hash: str, client: Client, prelim_result: str, attempts: int
 ) -> Response:
     """
     The core logic of reliable submission.  Polls the ledger until the result of the
@@ -40,10 +40,10 @@ async def _wait_for_final_transaction_outcome(
             Tx(transaction=transaction_hash)
         )
     except XRPLRequestFailureException as e:
-        if e.error == "txnNotFound":
+        if e.error == "txnNotFound" and attempts < 4:
             # err code for if the txn is not found on the ledger due to race condition
             return await _wait_for_final_transaction_outcome(
-                transaction_hash, client, prelim_result
+                transaction_hash, client, prelim_result, attempts + 1
             )
         else:
             raise e
@@ -58,7 +58,7 @@ async def _wait_for_final_transaction_outcome(
     if last_ledger_sequence > latest_ledger_sequence:
         # outcome is not yet final
         return await _wait_for_final_transaction_outcome(
-            transaction_hash, client, prelim_result
+            transaction_hash, client, prelim_result, 0
         )
 
     raise XRPLReliableSubmissionException(
@@ -106,5 +106,5 @@ async def send_reliable_submission(
         )
 
     return await _wait_for_final_transaction_outcome(
-        transaction_hash, client, prelim_result
+        transaction_hash, client, prelim_result, 0
     )
