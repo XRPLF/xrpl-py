@@ -23,7 +23,7 @@ class XRPLReliableSubmissionException(XRPLException):
 
 
 async def _wait_for_final_transaction_outcome(
-    transaction_hash: str, client: Client, prelim_result: str, attempts: int
+    transaction_hash: str, client: Client, prelim_result: str, attempts: int = 0
 ) -> Response:
     """
     The core logic of reliable submission.  Polls the ledger until the result of the
@@ -41,7 +41,11 @@ async def _wait_for_final_transaction_outcome(
         )
     except XRPLRequestFailureException as e:
         if e.error == "txnNotFound" and attempts < 4:
-            # err code for if the txn is not found on the ledger due to race condition
+
+            """err code for if the txn is not found on the ledger due to
+            when the transaction is still in queue and tx command is not
+            able to find it reason being it is not processed and hence
+            doesn't reflect on rippled databases."""
             return await _wait_for_final_transaction_outcome(
                 transaction_hash, client, prelim_result, attempts + 1
             )
