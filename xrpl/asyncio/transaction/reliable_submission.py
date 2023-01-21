@@ -42,10 +42,10 @@ async def _wait_for_final_transaction_outcome(
     except XRPLRequestFailureException as e:
         if e.error == "txnNotFound" and attempts < 4:
 
-            """err code for if the txn is not found on the ledger due to
-            when the transaction is still in queue and tx command is not
-            able to find it reason being it is not processed and hence
-            doesn't reflect on rippled databases."""
+            """
+            For the case if a submitted transaction is still in queue and not processed on the ledger yet.
+            Retry 4 times before raising an exception.
+            """
             return await _wait_for_final_transaction_outcome(
                 transaction_hash, client, prelim_result, attempts + 1
             )
