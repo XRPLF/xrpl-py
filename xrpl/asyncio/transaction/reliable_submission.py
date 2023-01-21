@@ -43,7 +43,8 @@ async def _wait_for_final_transaction_outcome(
         if e.error == "txnNotFound" and attempts < 4:
 
             """
-            For the case if a submitted transaction is still in queue and not processed on the ledger yet.
+            For the case if a submitted transaction is still
+            in queue and not processed on the ledger yet.
             Retry 4 times before raising an exception.
             """
             return await _wait_for_final_transaction_outcome(
