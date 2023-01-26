@@ -28,6 +28,7 @@ class AccountObjectType(str, Enum):
     TICKET = "ticket"
     NFT_OFFER = "nft_offer"
 
+
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class AccountObjects(Request):
