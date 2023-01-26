@@ -89,25 +89,25 @@ class TestWallet(IntegrationTestCase):
             "wss://s.devnet.rippletest.net:51233/"
         ) as client:
             await generate_faucet_wallet_and_fund_again(
-                self, client, "https://faucet.devnet.rippletest.net/accounts"
+                self, client, "faucet.devnet.rippletest.net"
             )
 
     async def test_generate_faucet_wallet_custom_host_async_json_rpc(self):
         client = AsyncJsonRpcClient("https://s.devnet.rippletest.net:51234/")
         await generate_faucet_wallet_and_fund_again(
-            self, client, "https://faucet.devnet.rippletest.net/accounts"
+            self, client, "faucet.devnet.rippletest.net"
         )
 
     def test_generate_faucet_wallet_custom_host_sync_websockets(self):
         with WebsocketClient("wss://s.devnet.rippletest.net:51233/") as client:
             sync_generate_faucet_wallet_and_fund_again(
-                self, client, "https://faucet.devnet.rippletest.net/accounts"
+                self, client, "faucet.devnet.rippletest.net"
             )
 
     def test_generate_faucet_wallet_custom_host_sync_json_rpc(self):
         client = JsonRpcClient("https://s.devnet.rippletest.net:51234/")
         sync_generate_faucet_wallet_and_fund_again(
-            self, client, "https://faucet.devnet.rippletest.net/accounts"
+            self, client, "faucet.devnet.rippletest.net"
         )
 
     async def test_generate_faucet_wallet_devnet_async_websockets(self):
