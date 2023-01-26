@@ -3,8 +3,9 @@ import time
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
-from xrpl.asyncio.clients import AsyncWebsocketClient
+from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.wallet import generate_faucet_wallet
+from xrpl.clients import JsonRpcClient, WebsocketClient
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.requests import AccountInfo
 from xrpl.models.transactions import Payment
@@ -82,6 +83,32 @@ class TestWallet(IntegrationTestCase):
             "wss://s.altnet.rippletest.net:51233"
         ) as client:
             await generate_faucet_wallet_and_fund_again(self, client)
+
+    async def test_generate_faucet_wallet_custom_host_async_websockets(self):
+        async with AsyncWebsocketClient(
+            "wss://s.devnet.rippletest.net:51233/"
+        ) as client:
+            await generate_faucet_wallet_and_fund_again(
+                self, client, "https://faucet.devnet.rippletest.net/accounts"
+            )
+
+    async def test_generate_faucet_wallet_custom_host_async_json_rpc(self):
+        client = AsyncJsonRpcClient("https://s.devnet.rippletest.net:51234/")
+        await generate_faucet_wallet_and_fund_again(
+            self, client, "https://faucet.devnet.rippletest.net/accounts"
+        )
+
+    def test_generate_faucet_wallet_custom_host_sync_websockets(self):
+        with WebsocketClient("wss://s.devnet.rippletest.net:51233/") as client:
+            sync_generate_faucet_wallet_and_fund_again(
+                self, client, "https://faucet.devnet.rippletest.net/accounts"
+            )
+
+    def test_generate_faucet_wallet_custom_host_sync_json_rpc(self):
+        client = JsonRpcClient("https://s.devnet.rippletest.net:51234/")
+        sync_generate_faucet_wallet_and_fund_again(
+            self, client, "https://faucet.devnet.rippletest.net/accounts"
+        )
 
     async def test_generate_faucet_wallet_devnet_async_websockets(self):
         async with AsyncWebsocketClient(
