@@ -332,13 +332,17 @@ If you want to contribute to this project, see [CONTRIBUTING.md].
 
 ### Mailing Lists
 
-We have a low-traffic mailing list for announcements of new `xrpl.js` releases. (About 1 email per week)
+We have a low-traffic mailing list for announcements of new `xrpl-py` releases. (About 1 email per week)
 
 + [Subscribe to xrpl-announce](https://groups.google.com/g/xrpl-announce)
 
 If you're using the XRP Ledger in production, you should run a [rippled server](https://github.com/ripple/rippled) and subscribe to the ripple-server mailing list as well.
 
 + [Subscribe to ripple-server](https://groups.google.com/g/ripple-server)
+
+### Code Samples
+- For samples of common use cases, see the [XRPL.org Code Samples](https://xrpl.org/code-samples.html) page.
+- You can also browse those samples [directly on GitHub](https://github.com/XRPLF/xrpl-dev-portal/tree/master/content/_code-samples).
 
 ### Report an issue
 
