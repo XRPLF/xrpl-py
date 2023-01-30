@@ -20,7 +20,7 @@ class Hash128(Hash):
 
     def __init__(self: Hash128, buffer: Optional[bytes]) -> None:
         """
-        Construct a Hash.
+        Construct a Hash128.
 
         Args:
             buffer: The byte buffer that will be used to store the serialized
@@ -38,7 +38,7 @@ class Hash128(Hash):
             )
         super().__init__(buffer)
 
-    def __str__(self: Hash) -> str:
+    def __str__(self: Hash128) -> str:
         """Returns a hex-encoded string representation of the bytes buffer."""
         hex = self.to_hex()
         if hex == "0" * len(hex):
