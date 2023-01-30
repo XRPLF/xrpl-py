@@ -1,4 +1,4 @@
-"""Model for a XChainAddAttestation transaction type."""
+"""Model for a XChainAddAttestationBatch transaction type."""
 
 from __future__ import annotations
 
@@ -81,17 +81,17 @@ class XChainAttestationBatch(BaseModel):
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class XChainAddAttestation(Transaction):
-    """Represents a XChainAddAttestation transaction."""
+class XChainAddAttestationBatch(Transaction):
+    """Represents a XChainAddAttestationBatch transaction."""
 
     xchain_attestation_batch: XChainAttestationBatch = REQUIRED  # type: ignore
 
     transaction_type: TransactionType = field(
-        default=TransactionType.XCHAIN_ADD_ATTESTATION,
+        default=TransactionType.XCHAIN_ADD_ATTESTATION_BATCH,
         init=False,
     )
 
-    def _get_errors(self: XChainAddAttestation) -> Dict[str, str]:
+    def _get_errors(self: XChainAddAttestationBatch) -> Dict[str, str]:
         errors = super()._get_errors()
 
         batch = self.xchain_attestation_batch

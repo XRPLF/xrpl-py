@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from xrpl.models import XRP, XChainAddAttestation, XChainBridge, XRPLModelException
-from xrpl.models.transactions.xchain_add_attestation import (
+from xrpl.models import XRP, XChainAddAttestationBatch, XChainBridge, XRPLModelException
+from xrpl.models.transactions.xchain_add_attestation_batch import (
     XChainAttestationBatch,
     XChainClaimAttestationBatchElement,
     XChainCreateAccountAttestationBatchElement,
@@ -45,9 +45,9 @@ _ACCOUNT_CREATE_ATTESTATION = XChainCreateAccountAttestationBatchElement(
 )
 
 
-class TestXChainAddAttestation(TestCase):
+class TestXChainAddAttestationBatch(TestCase):
     def test_successful(self):
-        XChainAddAttestation(
+        XChainAddAttestationBatch(
             account=_ACCOUNT,
             xchain_attestation_batch=XChainAttestationBatch(
                 xchain_bridge=_XRP_BRIDGE,
@@ -58,7 +58,7 @@ class TestXChainAddAttestation(TestCase):
 
     def test_too_many_attestations(self):
         with self.assertRaises(XRPLModelException):
-            XChainAddAttestation(
+            XChainAddAttestationBatch(
                 account=_ACCOUNT,
                 xchain_attestation_batch=XChainAttestationBatch(
                     xchain_bridge=_XRP_BRIDGE,

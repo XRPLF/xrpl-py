@@ -30,7 +30,7 @@ class TransactionType(str, Enum):
     SIGNER_LIST_SET = "SignerListSet"
     TICKET_CREATE = "TicketCreate"
     TRUST_SET = "TrustSet"
-    XCHAIN_ADD_ATTESTATION = "XChainAddAttestation"
+    XCHAIN_ADD_ATTESTATION_BATCH = "XChainAddAttestationBatch"
     XCHAIN_CLAIM = "XChainClaim"
     XCHAIN_COMMIT = "XChainCommit"
     XCHAIN_ACCOUNT_CREATE_COMMIT = "XChainAccountCreateCommit"
