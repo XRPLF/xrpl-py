@@ -56,8 +56,14 @@ from xrpl.models.transactions.trust_set import (
 from xrpl.models.transactions.xchain_account_create_commit import (
     XChainAccountCreateCommit,
 )
+from xrpl.models.transactions.xchain_add_account_create_attestation import (
+    XChainAddAccountCreateAttestation,
+)
 from xrpl.models.transactions.xchain_add_attestation_batch import (
     XChainAddAttestationBatch,
+)
+from xrpl.models.transactions.xchain_add_claim_attestation import (
+    XChainAddClaimAttestation,
 )
 from xrpl.models.transactions.xchain_claim import XChainClaim
 from xrpl.models.transactions.xchain_commit import XChainCommit
@@ -109,11 +115,13 @@ __all__ = [
     "TrustSet",
     "TrustSetFlag",
     "TrustSetFlagInterface",
+    "XChainAccountCreateCommit",
+    "XChainAddAccountCreateAttestation",
     "XChainAddAttestationBatch",
+    "XChainAddClaimAttestation",
     "XChainClaim",
     "XChainCommit",
     "XChainCreateBridge",
     "XChainCreateClaimID",
     "XChainModifyBridge",
-    "XChainAccountCreateCommit",
 ]
