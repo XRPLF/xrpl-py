@@ -31,6 +31,7 @@ class TransactionType(str, Enum):
     TICKET_CREATE = "TicketCreate"
     TRUST_SET = "TrustSet"
     XCHAIN_ADD_ATTESTATION_BATCH = "XChainAddAttestationBatch"
+    XCHAIN_ADD_CLAIM_ATTESTATION_BATCH = "XChainAddClaimAttestation"
     XCHAIN_CLAIM = "XChainClaim"
     XCHAIN_COMMIT = "XChainCommit"
     XCHAIN_ACCOUNT_CREATE_COMMIT = "XChainAccountCreateCommit"
