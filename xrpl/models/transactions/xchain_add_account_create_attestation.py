@@ -1,9 +1,9 @@
-"""Model for a XChainAddClaimAttestation transaction type."""
+"""Model for a XChainAddAccountCreateAttestation transaction type."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional, Union
+from typing import Union
 
 from typing_extensions import Literal
 
@@ -17,8 +17,8 @@ from xrpl.models.xchain_bridge import XChainBridge
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class XChainAddClaimAttestation(Transaction):
-    """Represents a XChainAddAttestationBatch transaction."""
+class XChainAddAccountCreateAttestation(Transaction):
+    """Represents a XChainAddAccountCreateAttestation transaction."""
 
     xchain_bridge: XChainBridge = REQUIRED  # type: ignore
 
@@ -34,11 +34,13 @@ class XChainAddClaimAttestation(Transaction):
 
     was_locking_chain_send: Union[Literal[0, 1]] = REQUIRED  # type: ignore
 
-    xchain_claim_id: str = REQUIRED  # type: ignore
+    xchain_account_create_count: str = REQUIRED  # type: ignore
 
-    destination: Optional[str] = None
+    destination: str = REQUIRED  # type: ignore
+
+    signature_reward: Amount = REQUIRED  # type: ignore
 
     transaction_type: TransactionType = field(
-        default=TransactionType.XCHAIN_ADD_CLAIM_ATTESTATION,
+        default=TransactionType.XCHAIN_ADD_ACCOUNT_CREATE_ATTESTATION,
         init=False,
     )
