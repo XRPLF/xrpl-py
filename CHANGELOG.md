@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed:
 - Properly type the instance functions of NestedModel
 - Added additional check to `txnNotFound` error from `reliable_submission` due to race condition
+- Added `nft_offer` type in `AccountObjects`
 
 ## [1.7.0] - 2022-10-12
 ### Added:
