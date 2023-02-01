@@ -26,6 +26,7 @@ class AccountObjectType(str, Enum):
     SIGNER_LIST = "signer_list"
     STATE = "state"
     TICKET = "ticket"
+    NFT_OFFER = "nft_offer"
 
 
 @require_kwargs_on_init
