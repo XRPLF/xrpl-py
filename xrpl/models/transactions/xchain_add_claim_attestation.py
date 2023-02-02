@@ -32,7 +32,7 @@ class XChainAddClaimAttestation(Transaction):
 
     attestation_reward_account: str = REQUIRED  # type: ignore
 
-    was_locking_chain_send: Union[Literal[0, 1]] = REQUIRED  # type: ignore
+    was_locking_chain_send: Union[Literal[0], Literal[1]] = REQUIRED  # type: ignore
 
     xchain_claim_id: str = REQUIRED  # type: ignore
 

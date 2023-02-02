@@ -34,7 +34,7 @@ class XChainClaimAttestationBatchElement(NestedModel):
 
     signature: str = REQUIRED  # type: ignore
 
-    was_locking_chain_send: Union[Literal[0, 1]] = REQUIRED  # type: ignore
+    was_locking_chain_send: Union[Literal[0], Literal[1]] = REQUIRED  # type: ignore
 
     xchain_claim_id: str = REQUIRED  # type: ignore
 
@@ -58,7 +58,7 @@ class XChainCreateAccountAttestationBatchElement(NestedModel):
 
     signature_reward: Amount = REQUIRED  # type: ignore
 
-    was_locking_chain_send: Union[Literal[0, 1]] = REQUIRED  # type: ignore
+    was_locking_chain_send: Union[Literal[0], Literal[1]] = REQUIRED  # type: ignore
 
     xchain_account_create_count: str = REQUIRED  # type: ignore
 
