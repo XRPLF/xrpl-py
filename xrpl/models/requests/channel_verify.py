@@ -5,6 +5,7 @@ XRP from a payment channel.
 """
 from dataclasses import dataclass, field
 
+from xrpl.models.amounts import Amount
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
@@ -27,7 +28,7 @@ class ChannelVerify(Request):
     :meta hide-value:
     """
 
-    amount: str = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED  # type: ignore
     """
     This field is required.
 
