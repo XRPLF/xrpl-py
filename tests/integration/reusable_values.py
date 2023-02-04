@@ -95,6 +95,19 @@ async def _set_up_reusable_values():
     )
     WALLET.sequence += 1
 
+    PAYMENT_CHANNEL = await sign_and_reliable_submission_async(
+        PaymentChannelCreate(
+            account=WALLET.classic_address,
+            sequence=WALLET.sequence,
+            amount="1",
+            destination=DESTINATION.classic_address,
+            settle_delay=86400,
+            public_key=WALLET.public_key,
+        ),
+        WALLET,
+    )
+    WALLET.sequence += 1
+
     return (
         WALLET,
         DESTINATION,
@@ -104,6 +117,7 @@ async def _set_up_reusable_values():
         WALLET_PAYMENT,
         DESTINATION_WALLET,
         OFFER,
+        PAYMENT_CHANNEL,
     )
 
 
@@ -116,4 +130,5 @@ async def _set_up_reusable_values():
     WALLET_PAYMENT,
     DESTINATION_WALLET,
     OFFER,
+    PAYMENT_CHANNEL,
 ) = asyncio.run(_set_up_reusable_values())
