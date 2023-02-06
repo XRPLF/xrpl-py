@@ -2,12 +2,7 @@ import asyncio
 
 from tests.integration.it_utils import fund_wallet, sign_and_reliable_submission_async
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.transactions import (
-    OfferCreate,
-    Payment,
-    PaymentChannelCreate,
-    TrustSet
-)
+from xrpl.models.transactions import OfferCreate, PaymentChannelCreate
 from xrpl.wallet import Wallet
 
 
@@ -19,66 +14,6 @@ async def _set_up_reusable_values():
     await fund_wallet(WALLET)
     DESTINATION = Wallet.create()
     await fund_wallet(DESTINATION)
-    GATEWAY = Wallet.create()
-    await fund_wallet(GATEWAY)
-
-    await sign_and_reliable_submission_async(
-        TrustSet(
-            account=WALLET.classic_address,
-            sequence=WALLET.sequence,
-            limit_amount=IssuedCurrencyAmount(
-                currency="USD",
-                issuer=GATEWAY.classic_address,
-                value="10000",
-            ),
-        ),
-        WALLET,
-    )
-    WALLET.sequence += 1
-
-    await sign_and_reliable_submission_async(
-        TrustSet(
-            account=DESTINATION.classic_address,
-            sequence=DESTINATION.sequence,
-            limit_amount=IssuedCurrencyAmount(
-                currency="USD",
-                issuer=GATEWAY.classic_address,
-                value="10000",
-            ),
-        ),
-        DESTINATION,
-    )
-    DESTINATION.sequence += 1
-
-    await sign_and_reliable_submission_async(
-        Payment(
-            account=GATEWAY.classic_address,
-            sequence=GATEWAY.sequence,
-            destination=WALLET.classic_address,
-            amount=IssuedCurrencyAmount(
-                currency="USD",
-                issuer=GATEWAY.classic_address,
-                value="10000",
-            ),
-        ),
-        GATEWAY,
-    )
-    GATEWAY.sequence += 1
-
-    await sign_and_reliable_submission_async(
-        Payment(
-            account=GATEWAY.classic_address,
-            sequence=GATEWAY.sequence,
-            destination=DESTINATION.classic_address,
-            amount=IssuedCurrencyAmount(
-                currency="USD",
-                issuer=GATEWAY.classic_address,
-                value="10000",
-            ),
-        ),
-        GATEWAY,
-    )
-    GATEWAY.sequence += 1
 
     OFFER = await sign_and_reliable_submission_async(
         OfferCreate(
@@ -111,7 +46,6 @@ async def _set_up_reusable_values():
     return (
         WALLET,
         DESTINATION,
-        GATEWAY,
         OFFER,
         PAYMENT_CHANNEL,
     )
@@ -120,7 +54,6 @@ async def _set_up_reusable_values():
 (
     WALLET,
     DESTINATION,
-    GATEWAY,
     OFFER,
     PAYMENT_CHANNEL,
 ) = asyncio.run(_set_up_reusable_values())
