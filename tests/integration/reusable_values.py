@@ -22,7 +22,7 @@ async def _set_up_reusable_values():
     GATEWAY = Wallet.create()
     await fund_wallet(GATEWAY)
 
-    WALLET_TL = await sign_and_reliable_submission_async(
+    await sign_and_reliable_submission_async(
         TrustSet(
             account=WALLET.classic_address,
             sequence=WALLET.sequence,
@@ -36,21 +36,21 @@ async def _set_up_reusable_values():
     )
     WALLET.sequence += 1
 
-    DESTINATION_TL = await sign_and_reliable_submission_async(
+    await sign_and_reliable_submission_async(
         TrustSet(
-            account=WALLET.classic_address,
-            sequence=WALLET.sequence,
+            account=DESTINATION.classic_address,
+            sequence=DESTINATION.sequence,
             limit_amount=IssuedCurrencyAmount(
                 currency="USD",
                 issuer=GATEWAY.classic_address,
                 value="10000",
             ),
         ),
-        WALLET,
+        DESTINATION,
     )
-    WALLET.sequence += 1
+    DESTINATION.sequence += 1
 
-    WALLET_PAYMENT = await sign_and_reliable_submission_async(
+    await sign_and_reliable_submission_async(
         Payment(
             account=GATEWAY.classic_address,
             sequence=GATEWAY.sequence,
@@ -65,7 +65,7 @@ async def _set_up_reusable_values():
     )
     GATEWAY.sequence += 1
 
-    DESTINATION_WALLET = await sign_and_reliable_submission_async(
+    await sign_and_reliable_submission_async(
         Payment(
             account=GATEWAY.classic_address,
             sequence=GATEWAY.sequence,
@@ -112,10 +112,6 @@ async def _set_up_reusable_values():
         WALLET,
         DESTINATION,
         GATEWAY,
-        WALLET_TL,
-        DESTINATION_TL,
-        WALLET_PAYMENT,
-        DESTINATION_WALLET,
         OFFER,
         PAYMENT_CHANNEL,
     )
@@ -125,10 +121,6 @@ async def _set_up_reusable_values():
     WALLET,
     DESTINATION,
     GATEWAY,
-    WALLET_TL,
-    DESTINATION_TL,
-    WALLET_PAYMENT,
-    DESTINATION_WALLET,
     OFFER,
     PAYMENT_CHANNEL,
 ) = asyncio.run(_set_up_reusable_values())
