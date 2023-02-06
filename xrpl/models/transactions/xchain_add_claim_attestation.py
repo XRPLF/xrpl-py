@@ -18,7 +18,7 @@ from xrpl.models.xchain_bridge import XChainBridge
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class XChainAddClaimAttestation(Transaction):
-    """Represents a XChainAddAttestationBatch transaction."""
+    """Represents a XChainAddClaimAttestation transaction."""
 
     xchain_bridge: XChainBridge = REQUIRED  # type: ignore
 
