@@ -21,8 +21,9 @@ class EscrowCreate(Transaction):
 
     amount: Amount = REQUIRED  # type: ignore
     """
-    Amount of XRP, in drops, to deduct from the sender's balance and set
-    aside in escrow. This field is required.
+    Amount to deduct from the sender's balance and escrow. Once escrowed, the
+    amount can either go to the Destination address (after the FinishAfter time)
+    or returned to the sender (after the CancelAfter time). This field is required.
 
     :meta hide-value:
     """

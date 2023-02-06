@@ -30,8 +30,7 @@ class PaymentChannelFund(Transaction):
 
     amount: Amount = REQUIRED  # type: ignore
     """
-    The amount of XRP, in drops, to add to the channel. This field is
-    required.
+    Amount to add to the channel. Must be a positive amount. This field is required.
 
     :meta hide-value:
     """

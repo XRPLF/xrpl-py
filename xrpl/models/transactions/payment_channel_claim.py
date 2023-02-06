@@ -76,14 +76,17 @@ class PaymentChannelClaim(Transaction):
 
     balance: Optional[Amount] = None
     """
-    The cumulative amount of XRP to have delivered through this channel after
-    processing this claim. Required unless closing the channel.
+    Total amount delivered by this channel after processing this claim. Required
+    to deliver amount. Must be more than the total amount delivered by the channel
+    so far, but not greater than the Amount of the signed claim. Must be provided
+    except when closing the channel.
     """
 
     amount: Optional[Amount] = None
     """
-    The cumulative amount of XRP that has been authorized to deliver by the
-    attached claim signature. Required unless closing the channel.
+    The amount authorized by the Signature. This must match the amount in the signed 
+    message. This is the cumulative amount that can be dispensed by the channel, 
+    including amounts previously redeemed.
     """
 
     signature: Optional[str] = None

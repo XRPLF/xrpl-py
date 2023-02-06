@@ -22,8 +22,10 @@ class PaymentChannelCreate(Transaction):
 
     amount: Amount = REQUIRED  # type: ignore
     """
-    The amount of XRP, in drops, to set aside in this channel. This field is
-    required.
+    Amount to deduct from the sender's balance and set aside in this channel.
+    While the channel is open, the amount can only go to the Destination address.
+    When the channel closes, any unclaimed amount is returned to the source
+    address's balance. This field is required.
 
     :meta hide-value:
     """
