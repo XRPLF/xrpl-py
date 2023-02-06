@@ -3,8 +3,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 
-from xrpl.models.flags import FlagInterface
 from xrpl.models.amounts import Amount
+from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -84,8 +84,8 @@ class PaymentChannelClaim(Transaction):
 
     amount: Optional[Amount] = None
     """
-    The amount authorized by the Signature. This must match the amount in the signed 
-    message. This is the cumulative amount that can be dispensed by the channel, 
+    The amount authorized by the Signature. This must match the amount in the signed
+    message. This is the cumulative amount that can be dispensed by the channel,
     including amounts previously redeemed.
     """
 
