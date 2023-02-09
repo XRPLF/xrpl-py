@@ -69,13 +69,13 @@ def encode_for_signing_claim(json: Dict[str, Any]) -> str:
     prefix = _PAYMENT_CHANNEL_CLAIM_PREFIX
     channel = Hash256.from_value(json["channel"])
 
+    amount: Any = None
     if isinstance(json["amount"], dict):
-        ic = Amount.from_value(json["amount"])
-        buffer = prefix + bytes(channel) + bytes(ic)
-        return buffer.hex().upper()
+        amount = Amount.from_value(json["amount"])
+    else:
+        amount = UInt64.from_value(int(json["amount"]))
 
-    native = UInt64.from_value(int(json["amount"]))
-    buffer = prefix + bytes(channel) + bytes(native)
+    buffer = prefix + bytes(channel) + bytes(amount)
     return buffer.hex().upper()
 
 
