@@ -15,7 +15,6 @@ from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
-from xrpl.models.xchain_bridge import XChainBridge
 
 
 @require_kwargs_on_init
@@ -200,7 +199,7 @@ class LedgerEntry(Request):
     payment_channel: Optional[str] = None
     ripple_state: Optional[RippleState] = None
     ticket: Optional[Union[str, Ticket]] = None
-    xchain_bridge: Optional[Union[str, XChainBridge]] = None
+    bridge_account: Optional[str] = None
     xchain_claim_id: Optional[Union[str, XChainClaimID]] = None
     xchain_create_account_claim_id: Optional[
         Union[str, XChainCreateAccountClaimID]

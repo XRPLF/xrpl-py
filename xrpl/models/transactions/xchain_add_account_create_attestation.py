@@ -32,6 +32,8 @@ class XChainAddAccountCreateAttestation(Transaction):
 
     attestation_reward_account: str = REQUIRED  # type: ignore
 
+    attestation_signer_account: str = REQUIRED  # type: ignore
+
     was_locking_chain_send: Union[Literal[0], Literal[1]] = REQUIRED  # type: ignore
 
     xchain_account_create_count: str = REQUIRED  # type: ignore
