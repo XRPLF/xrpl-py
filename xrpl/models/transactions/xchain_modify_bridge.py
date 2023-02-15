@@ -3,14 +3,34 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Dict, Optional
 
 from xrpl.models.currencies import XRP
+from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 from xrpl.models.xchain_bridge import XChainBridge
+
+
+class XChainModifyBridgeFlag(int, Enum):
+    """
+    Transactions of the XChainModifyBridge type support additional values in the Flags
+    field. This enum represents those options.
+    """
+
+    TF_CLEAR_ACCOUNT_CREATE_AMOUNT = 0x00010000
+
+
+class XChainModifyBridgeFlagInterface(FlagInterface):
+    """
+    Transactions of the XChainModifyBridge type support additional values in the Flags
+    field. This TypedDict represents those options.
+    """
+
+    TF_CLEAR_ACCOUNT_CREATE_AMOUNT: bool
 
 
 @require_kwargs_on_init

@@ -69,12 +69,21 @@ from xrpl.models.transactions.trust_set import (
 from xrpl.models.transactions.xchain_account_create_commit import (
     XChainAccountCreateCommit,
 )
-from xrpl.models.transactions.xchain_add_attestation import XChainAddAttestation
+from xrpl.models.transactions.xchain_add_account_create_attestation import (
+    XChainAddAccountCreateAttestation,
+)
+from xrpl.models.transactions.xchain_add_claim_attestation import (
+    XChainAddClaimAttestation,
+)
 from xrpl.models.transactions.xchain_claim import XChainClaim
 from xrpl.models.transactions.xchain_commit import XChainCommit
 from xrpl.models.transactions.xchain_create_bridge import XChainCreateBridge
 from xrpl.models.transactions.xchain_create_claim_id import XChainCreateClaimID
-from xrpl.models.transactions.xchain_modify_bridge import XChainModifyBridge
+from xrpl.models.transactions.xchain_modify_bridge import (
+    XChainModifyBridge,
+    XChainModifyBridgeFlag,
+    XChainModifyBridgeFlagInterface,
+)
 
 __all__ = [
     "AccountDelete",
@@ -130,11 +139,14 @@ __all__ = [
     "TrustSet",
     "TrustSetFlag",
     "TrustSetFlagInterface",
-    "XChainAddAttestation",
+    "XChainAccountCreateCommit",
+    "XChainAddAccountCreateAttestation",
+    "XChainAddClaimAttestation",
     "XChainClaim",
     "XChainCommit",
     "XChainCreateBridge",
     "XChainCreateClaimID",
     "XChainModifyBridge",
-    "XChainAccountCreateCommit",
+    "XChainModifyBridgeFlag",
+    "XChainModifyBridgeFlagInterface",
 ]

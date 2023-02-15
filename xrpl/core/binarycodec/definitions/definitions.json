@@ -23,7 +23,6 @@
     "UInt512": 23,
     "Issue": 24,
     "XChainBridge": 25,
-    "XChainAttestationBatch": 26,
     "Transaction": 10001,
     "LedgerEntry": 10002,
     "Validation": 10003,
@@ -1969,16 +1968,6 @@
       }
     ],
     [
-      "ThisChainAccount",
-      {
-        "nth": 17,
-        "isVLEncoded": true,
-        "isSerialized": true,
-        "isSigningField": true,
-        "type": "AccountID"
-      }
-    ],
-    [
       "OtherChainSource",
       {
         "nth": 18,
@@ -2136,16 +2125,6 @@
         "isSerialized": true,
         "isSigningField": true,
         "type": "XChainBridge"
-      }
-    ],
-    [
-      "XChainAttestationBatch",
-      {
-        "nth": 1,
-        "isVLEncoded": false,
-        "isSerialized": true,
-        "isSigningField": true,
-        "type": "XChainAttestationBatch"
       }
     ],
     [
@@ -2439,7 +2418,7 @@
       }
     ],
     [
-      "XChainAttestationBatchElement",
+      "XChainClaimAttestationBatchElement",
       {
         "nth": 34,
         "isVLEncoded": false,
@@ -2449,29 +2428,9 @@
       }
     ],
     [
-      "XChainClaimAttestationBatchElement",
-      {
-        "nth": 35,
-        "isVLEncoded": false,
-        "isSerialized": true,
-        "isSigningField": true,
-        "type": "STObject"
-      }
-    ],
-    [
       "XChainCreateAccountAttestationBatchElement",
       {
-        "nth": 36,
-        "isVLEncoded": false,
-        "isSerialized": true,
-        "isSigningField": true,
-        "type": "STObject"
-      }
-    ],
-    [
-      "XChainAttestationBatchInner",
-      {
-        "nth": 37,
+        "nth": 35,
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
@@ -2629,7 +2588,7 @@
       }
     ],
     [
-      "XChainProofSigs",
+      "XChainClaimAttestationBatch",
       {
         "nth": 21,
         "isVLEncoded": false,
@@ -2639,7 +2598,7 @@
       }
     ],
     [
-      "XChainClaimAttestationBatch",
+      "XChainCreateAccountAttestationBatch",
       {
         "nth": 22,
         "isVLEncoded": false,
@@ -2649,7 +2608,7 @@
       }
     ],
     [
-      "XChainCreateAccountAttestationBatch",
+      "XChainClaimAttestations",
       {
         "nth": 23,
         "isVLEncoded": false,
@@ -2659,19 +2618,9 @@
       }
     ],
     [
-      "XChainClaimAttestations",
-      {
-        "nth": 24,
-        "isVLEncoded": false,
-        "isSerialized": true,
-        "isSigningField": true,
-        "type": "STArray"
-      }
-    ],
-    [
       "XChainCreateAccountAttestations",
       {
-        "nth": 25,
+        "nth": 24,
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
@@ -2848,16 +2797,16 @@
     "tecXCHAIN_CLAIM_NO_QUORUM": 174,
     "tecXCHAIN_PROOF_UNKNOWN_KEY": 175,
     "tecXCHAIN_CREATE_ACCOUNT_NONXRP_ISSUE": 176,
-    "tecXCHAIN_CLAIM_ACCOUNT_DST_EXISTS": 177,
-    "tecXCHAIN_WRONG_CHAIN": 178,
-    "tecXCHAIN_REWARD_MISMATCH": 179,
-    "tecXCHAIN_NO_SIGNERS_LIST": 180,
-    "tecXCHAIN_SENDING_ACCOUNT_MISMATCH": 181,
-    "tecXCHAIN_INSUFF_CREATE_AMOUNT": 182,
-    "tecXCHAIN_ACCOUNT_CREATE_PAST": 183,
-    "tecXCHAIN_ACCOUNT_CREATE_TOO_MANY": 184,
-    "tecXCHAIN_PAYMENT_FAILED": 185,
-    "tecXCHAIN_SELF_COMMIT": 186
+    "tecXCHAIN_WRONG_CHAIN": 177,
+    "tecXCHAIN_REWARD_MISMATCH": 178,
+    "tecXCHAIN_NO_SIGNERS_LIST": 179,
+    "tecXCHAIN_SENDING_ACCOUNT_MISMATCH": 180,
+    "tecXCHAIN_INSUFF_CREATE_AMOUNT": 181,
+    "tecXCHAIN_ACCOUNT_CREATE_PAST": 182,
+    "tecXCHAIN_ACCOUNT_CREATE_TOO_MANY": 183,
+    "tecXCHAIN_PAYMENT_FAILED": 184,
+    "tecXCHAIN_SELF_COMMIT": 185,
+    "tecXCHAIN_BAD_PUBLIC_KEY_ACCOUNT_PAIR": 186
   },
   "TRANSACTION_TYPES": {
     "Invalid": -1,
@@ -2899,8 +2848,9 @@
     "XChainCommit": 42,
     "XChainClaim": 43,
     "XChainAccountCreateCommit": 44,
-    "XChainAddAttestation": 45,
-    "XChainModifyBridge": 46,
+    "XChainAddClaimAttestation": 45,
+    "XChainAddAccountCreateAttestation": 46,
+    "XChainModifyBridge": 47,
     "EnableAmendment": 100,
     "SetFee": 101,
     "UNLModify": 102
