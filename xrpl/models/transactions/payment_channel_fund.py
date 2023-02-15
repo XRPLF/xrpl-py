@@ -14,7 +14,7 @@ from xrpl.models.utils import require_kwargs_on_init
 class PaymentChannelFund(Transaction):
     """
     Represents a `PaymentChannelFund <https://xrpl.org/paymentchannelfund.html>`_
-    transaction, adds additional XRP to an open `payment channel
+    transaction, adds additional amount to an open `payment channel
     <https://xrpl.org/payment-channels.html>`_, and optionally updates the
     expiration time of the channel. Only the source address
     of the channel can use this transaction.

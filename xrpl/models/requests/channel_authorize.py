@@ -1,6 +1,6 @@
 """
 The channel_authorize method creates a signature that can
-be used to redeem a specific amount of XRP from a payment channel.
+be used to redeem a specific amount from a payment channel.
 
 Warning: Do not send secret keys to untrusted servers or through unsecured network
 connections. (This includes the secret, seed, seed_hex, or passphrase fields of this
@@ -29,7 +29,7 @@ from xrpl.models.utils import require_kwargs_on_init
 class ChannelAuthorize(Request):
     """
     The channel_authorize method creates a signature that can
-    be used to redeem a specific amount of XRP from a payment channel.
+    be used to redeem a specific amount from a payment channel.
 
     Warning: Do not send secret keys to untrusted servers or through unsecured network
     connections. (This includes the secret, seed, seed_hex, or passphrase fields of

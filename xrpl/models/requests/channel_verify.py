@@ -1,7 +1,7 @@
 """
 The channel_verify method checks the validity of a
-signature that can be used to redeem a specific amount of
-XRP from a payment channel.
+signature that can be used to redeem a specific amount
+from a payment channel.
 """
 from dataclasses import dataclass, field
 
@@ -16,8 +16,8 @@ from xrpl.models.utils import require_kwargs_on_init
 class ChannelVerify(Request):
     """
     The channel_verify method checks the validity of a
-    signature that can be used to redeem a specific amount of
-    XRP from a payment channel.
+    signature that can be used to redeem a specific amount
+    from a payment channel.
     """
 
     method: RequestMethod = field(default=RequestMethod.CHANNEL_VERIFY, init=False)

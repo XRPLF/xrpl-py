@@ -16,7 +16,7 @@ class PaymentChannelCreate(Transaction):
     Represents a `PaymentChannelCreate
     <https://xrpl.org/paymentchannelcreate.html>`_ transaction, which creates a
     `payment channel <https://xrpl.org/payment-channels.html>`_ and funds it with
-    XRP. The sender of this transaction is the "source address" of the payment
+    an amount. The sender of this transaction is the "source address" of the payment
     channel.
     """
 
@@ -32,7 +32,7 @@ class PaymentChannelCreate(Transaction):
 
     destination: str = REQUIRED  # type: ignore
     """
-    The account that can receive XRP from this channel, also known as the
+    The account that can receive amounts from this channel, also known as the
     "destination address" of the channel. Cannot be the same as the sender.
     This field is required.
 
