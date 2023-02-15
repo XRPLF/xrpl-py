@@ -39,6 +39,7 @@ class Wallet:
         """
 
         pk, sk = derive_keypair(self.seed, algorithm=algorithm)
+        self.algorithm = algorithm
         self.public_key = pk
         """
         The public key that is used to identify this wallet's signatures, as

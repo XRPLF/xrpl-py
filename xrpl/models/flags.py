@@ -21,6 +21,22 @@ TX_FLAGS: Dict[str, Dict[str, int]] = {
         "asf_require_auth": 0x00000002,
         "asf_require_dest": 0x00000001,
     },
+    "AMMDeposit": {
+        "tf_lp_token": 0x00010000,
+        "tf_single_asset": 0x00080000,
+        "tf_two_asset": 0x00100000,
+        "tf_one_asset_lp_token": 0x00200000,
+        "tf_limit_lp_token": 0x00400000,
+    },
+    "AMMWithdraw": {
+        "tf_lp_token": 0x00010000,
+        "tf_withdraw_all": 0x00020000,
+        "tf_one_asset_withdraw_all": 0x00040000,
+        "tf_single_asset": 0x00080000,
+        "tf_two_asset": 0x00100000,
+        "tf_one_asset_lp_token": 0x00200000,
+        "tf_limit_lp_token": 0x00400000,
+    },
     "NFTokenCreateOffer": {
         "tf_sell_token": 0x00000001,
     },

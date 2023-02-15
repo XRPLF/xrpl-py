@@ -48,3 +48,7 @@ class FieldHeader:
             header += [0, self.type_code, self.field_code]
 
         return bytes(header)
+
+    def __repr__(self: FieldHeader) -> str:
+        """Print a string representation of a FieldHeader (for debugging)."""
+        return f"FieldHeader({self.type_code}, {self.field_code})"
