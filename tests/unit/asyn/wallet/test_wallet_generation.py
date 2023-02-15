@@ -5,7 +5,6 @@ from xrpl.asyncio.wallet.wallet_generation import (
     _DEV_FAUCET_URL,
     _HOOKS_V2_TEST_FAUCET_URL,
     _TEST_FAUCET_URL,
-    _VALA_FAUCET_URL,
     get_faucet_url,
 )
 
@@ -48,14 +47,6 @@ class TestWallet(TestCase):
         json_client_url = "https://hooks-testnet-v2.xrpl-labs.com"
         ws_client_url = "wss://hooks-testnet-v2.xrpl-labs.com"
         expected_faucet = _HOOKS_V2_TEST_FAUCET_URL
-
-        self.assertEqual(get_faucet_url(json_client_url), expected_faucet)
-        self.assertEqual(get_faucet_url(ws_client_url), expected_faucet)
-
-    def test_get_faucet_wallet_vala_test(self):
-        json_client_url = "https://vala.faucet.transia.co"
-        ws_client_url = "wss://vala.ws.transia.co"
-        expected_faucet = _VALA_FAUCET_URL
 
         self.assertEqual(get_faucet_url(json_client_url), expected_faucet)
         self.assertEqual(get_faucet_url(ws_client_url), expected_faucet)
