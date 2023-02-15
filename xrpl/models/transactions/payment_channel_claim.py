@@ -86,7 +86,7 @@ class PaymentChannelClaim(Transaction):
     """
     The amount authorized by the Signature. This must match the amount in the signed
     message. This is the cumulative amount that can be dispensed by the channel,
-    including amounts previously redeemed.
+    including amounts previously redeemed. Required unless closing the channel.
     """
 
     signature: Optional[str] = None
