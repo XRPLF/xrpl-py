@@ -3,12 +3,13 @@ Codec for encoding objects into the XRP Ledger's canonical binary format and
 decoding them.
 """
 
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, Optional, Union, cast
 
 from typing_extensions import Final
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.types.account_id import AccountID
+from xrpl.core.binarycodec.types.amount import Amount
 from xrpl.core.binarycodec.types.hash256 import Hash256
 from xrpl.core.binarycodec.types.st_object import STObject
 from xrpl.core.binarycodec.types.uint64 import UInt64
@@ -67,7 +68,11 @@ def encode_for_signing_claim(json: Dict[str, Any]) -> str:
     """
     prefix = _PAYMENT_CHANNEL_CLAIM_PREFIX
     channel = Hash256.from_value(json["channel"])
-    amount = UInt64.from_value(int(json["amount"]))
+
+    if isinstance(json["amount"], str):
+        amount: Union[Amount, UInt64] = UInt64.from_value(int(json["amount"]))
+    else:
+        amount = Amount.from_value(json["amount"])
 
     buffer = prefix + bytes(channel) + bytes(amount)
     return buffer.hex().upper()

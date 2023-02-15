@@ -16,20 +16,21 @@ from xrpl.models.utils import require_kwargs_on_init
 class EscrowCreate(Transaction):
     """
     Represents an `EscrowCreate <https://xrpl.org/escrowcreate.html>`_
-    transaction, which locks up XRP until a specific time or condition is met.
+    transaction, which locks up amount until a specific time or condition is met.
     """
 
     amount: Amount = REQUIRED  # type: ignore
     """
-    Amount of XRP, in drops, to deduct from the sender's balance and set
-    aside in escrow. This field is required.
+    Amount to deduct from the sender's balance and escrow. Once escrowed, the
+    amount can either go to the Destination address (after the FinishAfter time)
+    or returned to the sender (after the CancelAfter time). This field is required.
 
     :meta hide-value:
     """
 
     destination: str = REQUIRED  # type: ignore
     """
-    The address that should receive the escrowed XRP when the time or
+    The address that should receive the escrowed amount when the time or
     condition is met. This field is required.
 
     :meta hide-value:
@@ -51,7 +52,7 @@ class EscrowCreate(Transaction):
 
     finish_after: Optional[int] = None
     """
-    The time, in seconds since the Ripple Epoch, when the escrowed XRP can
+    The time, in seconds since the Ripple Epoch, when the escrowed amount can
     be released to the recipient. This value is immutable; the funds cannot
     move until this time is reached.
     """
