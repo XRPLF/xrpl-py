@@ -3,7 +3,7 @@ Codec for encoding objects into the XRP Ledger's canonical binary format and
 decoding them.
 """
 
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, Optional, Union, cast
 
 from typing_extensions import Final
 
@@ -69,9 +69,8 @@ def encode_for_signing_claim(json: Dict[str, Any]) -> str:
     prefix = _PAYMENT_CHANNEL_CLAIM_PREFIX
     channel = Hash256.from_value(json["channel"])
 
-    amount: Any = None
     if isinstance(json["amount"], dict):
-        amount = Amount.from_value(json["amount"])
+        amount: Union[Amount, UInt64] = Amount.from_value(json["amount"])
     else:
         amount = UInt64.from_value(int(json["amount"]))
 
