@@ -13,7 +13,7 @@ from xrpl.models.utils import require_kwargs_on_init
 class EscrowCancel(Transaction):
     """
     Represents an `EscrowCancel <https://xrpl.org/escrowcancel.html>`_
-    transaction, which returns escrowed XRP to the sender after the Escrow has
+    transaction, which returns escrowed amount to the sender after the Escrow has
     expired.
     """
 

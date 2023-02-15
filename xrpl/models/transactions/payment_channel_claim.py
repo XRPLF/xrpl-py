@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 
+from xrpl.models.amounts import Amount
 from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -30,14 +31,14 @@ class PaymentChannelClaimFlag(int, Enum):
     """
     Request to close the channel. Only the channel source and destination addresses
     can use this flag. This flag closes the channel immediately if it has no more
-    XRP allocated to it after processing the current claim, or if the destination
+    funds allocated to it after processing the current claim, or if the destination
     address uses it. If the source address uses this flag when the channel still
-    holds XRP, this schedules the channel to close after `SettleDelay` seconds have
+    holds a value, this schedules the channel to close after `SettleDelay` seconds have
     passed. (Specifically, this sets the `Expiration` of the channel to the close
     time of the previous ledger plus the channel's `SettleDelay` time, unless the
     channel already has an earlier `Expiration` time.) If the destination address
-    uses this flag when the channel still holds XRP, any XRP that remains after
-    processing the claim is returned to the source address.
+    uses this flag when the channel still holds an amount, any amount that remains
+    after processing the claim is returned to the source address.
     """
 
 
@@ -59,7 +60,7 @@ class PaymentChannelClaimFlagInterface(FlagInterface):
 class PaymentChannelClaim(Transaction):
     """
     Represents a `PaymentChannelClaim <https://xrpl.org/paymentchannelclaim.html>`_
-    transaction, which claims XRP from a `payment channel
+    transaction, which claims an amount from a `payment channel
     <https://xrpl.org/payment-channels.html>`_, adjusts
     channel's expiration, or both. This transaction can be used differently
     depending on the transaction sender's role in the specified channel.
@@ -73,16 +74,19 @@ class PaymentChannelClaim(Transaction):
     :meta hide-value:
     """
 
-    balance: Optional[str] = None
+    balance: Optional[Amount] = None
     """
-    The cumulative amount of XRP to have delivered through this channel after
-    processing this claim. Required unless closing the channel.
+    Total amount delivered by this channel after processing this claim. Required
+    to deliver amount. Must be more than the total amount delivered by the channel
+    so far, but not greater than the Amount of the signed claim. Must be provided
+    except when closing the channel.
     """
 
-    amount: Optional[str] = None
+    amount: Optional[Amount] = None
     """
-    The cumulative amount of XRP that has been authorized to deliver by the
-    attached claim signature. Required unless closing the channel.
+    The amount authorized by the Signature. This must match the amount in the signed
+    message. This is the cumulative amount that can be dispensed by the channel,
+    including amounts previously redeemed. Required unless closing the channel.
     """
 
     signature: Optional[str] = None

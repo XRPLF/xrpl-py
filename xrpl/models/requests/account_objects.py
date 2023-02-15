@@ -21,12 +21,14 @@ class AccountObjectType(str, Enum):
     CHECK = "check"
     DEPOSIT_PREAUTH = "deposit_preauth"
     ESCROW = "escrow"
+    NFT_OFFER = "nft_offer"
     OFFER = "offer"
     PAYMENT_CHANNEL = "payment_channel"
     SIGNER_LIST = "signer_list"
     STATE = "state"
     TICKET = "ticket"
-    NFT_OFFER = "nft_offer"
+    XCHAIN_CREATE_ACCOUNT_CLAIM_ID = "xchain_create_account_claim_id"
+    XCHAIN_CLAIM_ID = "xchain_claim_id"
 
 
 @require_kwargs_on_init

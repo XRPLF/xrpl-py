@@ -4,11 +4,13 @@ currencies. Both types have high precision, although their
 formats are different.
 """
 from xrpl.models.currencies.currency import Currency
+from xrpl.models.currencies.issue import Issue
 from xrpl.models.currencies.issued_currency import IssuedCurrency
 from xrpl.models.currencies.xrp import XRP
 
 __all__ = [
     "Currency",
+    "Issue",
     "IssuedCurrency",
     "XRP",
 ]

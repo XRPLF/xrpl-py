@@ -4,6 +4,7 @@ from unittest import TestCase
 
 from xrpl.models import XRPLModelException
 from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.models.currencies import XRP, Issue
 from xrpl.models.requests import (
     AccountChannels,
     BookOffers,
@@ -16,6 +17,12 @@ from xrpl.models.requests import (
     SubmitOnly,
 )
 from xrpl.models.transactions import (
+    AMMBid,
+    AMMCreate,
+    AMMDeposit,
+    AMMVote,
+    AMMWithdraw,
+    AuthAccount,
     CheckCreate,
     Memo,
     Payment,
@@ -24,8 +31,10 @@ from xrpl.models.transactions import (
     SignerListSet,
     TrustSet,
     TrustSetFlag,
+    XChainClaim,
 )
 from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.xchain_bridge import XChainBridge
 
 currency = "BTC"
 value = "100"
@@ -595,5 +604,424 @@ class TestFromDict(TestCase):
                     }
                 }
             ],
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_from_xrpl_xchain(self):
+        tx_json = {
+            "Account": account,
+            "Amount": value,
+            "XChainBridge": {
+                "LockingChainDoor": "rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
+                "LockingChainIssue": {"currency": "XRP"},
+                "IssuingChainDoor": "r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
+                "IssuingChainIssue": {"currency": "XRP"},
+            },
+            "Destination": destination,
+            "TransactionType": "XChainClaim",
+            "Flags": 0,
+            "SigningPubKey": "",
+            "XChainClaimID": 1,
+        }
+        tx_obj = XChainClaim(
+            account=account,
+            amount=value,
+            xchain_bridge=XChainBridge(
+                locking_chain_door="rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
+                locking_chain_issue=XRP(),
+                issuing_chain_door="r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
+                issuing_chain_issue=XRP(),
+            ),
+            destination=destination,
+            xchain_claim_id=1,
+        )
+        self.assertEqual(tx_obj.to_xrpl(), tx_json)
+        self.assertEqual(Transaction.from_xrpl(tx_json), tx_obj)
+
+    def test_to_xrpl_amm_create(self):
+        tx = AMMCreate(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            amount="1000",
+            amount2=IssuedCurrencyAmount(
+                currency="USD",
+                issuer="rPyfep3gcLzkosKC9XiE77Y8DZWG6iWDT9",
+                value="1000",
+            ),
+            trading_fee=12,
+        )
+        expected = {
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Amount": "1000",
+            "Amount2": {
+                "currency": "USD",
+                "issuer": "rPyfep3gcLzkosKC9XiE77Y8DZWG6iWDT9",
+                "value": "1000",
+            },
+            "TransactionType": "AMMCreate",
+            "SigningPubKey": "",
+            "TradingFee": 12,
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_deposit_lptoken(self):
+        tx = AMMDeposit(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
+            lp_token_out=IssuedCurrencyAmount(
+                currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
+                issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
+                value="1000",
+            ),
+        )
+        expected = {
+            "Asset": {"currency": "XRP"},
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
+            },
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "LPTokenOut": {
+                "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
+                "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
+                "value": "1000",
+            },
+            "TransactionType": "AMMDeposit",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_deposit_amount(self):
+        tx = AMMDeposit(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
+            amount="1000",
+        )
+        expected = {
+            "Asset": {"currency": "XRP"},
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
+            },
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Amount": "1000",
+            "TransactionType": "AMMDeposit",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_deposit_amount_amount2(self):
+        tx = AMMDeposit(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
+            amount="1000",
+            amount2="500",
+        )
+        expected = {
+            "Asset": {"currency": "XRP"},
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
+            },
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Amount": "1000",
+            "Amount2": "500",
+            "TransactionType": "AMMDeposit",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_deposit_amount_lptoken(self):
+        tx = AMMDeposit(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
+            amount="1000",
+            lp_token_out=IssuedCurrencyAmount(
+                currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
+                issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
+                value="500",
+            ),
+        )
+        expected = {
+            "Asset": {"currency": "XRP"},
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
+            },
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Amount": "1000",
+            "LPTokenOut": {
+                "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
+                "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
+                "value": "500",
+            },
+            "TransactionType": "AMMDeposit",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_deposit_amount_eprice(self):
+        tx = AMMDeposit(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
+            amount="1000",
+            e_price="25",
+        )
+        expected = {
+            "Asset": {"currency": "XRP"},
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
+            },
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Amount": "1000",
+            "EPrice": "25",
+            "TransactionType": "AMMDeposit",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_withdraw_lptoken(self):
+        tx = AMMWithdraw(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
+            lp_token_in=IssuedCurrencyAmount(
+                currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
+                issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
+                value="1000",
+            ),
+        )
+        expected = {
+            "Asset": {"currency": "XRP"},
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
+            },
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "LPTokenIn": {
+                "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
+                "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
+                "value": "1000",
+            },
+            "TransactionType": "AMMWithdraw",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_withdraw_amount(self):
+        tx = AMMWithdraw(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
+            amount="1000",
+        )
+        expected = {
+            "Asset": {"currency": "XRP"},
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
+            },
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Amount": "1000",
+            "TransactionType": "AMMWithdraw",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_withdraw_amount_amount2(self):
+        tx = AMMWithdraw(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
+            amount="1000",
+            amount2="500",
+        )
+        expected = {
+            "Asset": {"currency": "XRP"},
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
+            },
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Amount": "1000",
+            "Amount2": "500",
+            "TransactionType": "AMMWithdraw",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_withdraw_amount_lptoken(self):
+        tx = AMMWithdraw(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
+            amount="1000",
+            lp_token_in=IssuedCurrencyAmount(
+                currency="B3813FCAB4EE68B3D0D735D6849465A9113EE048",
+                issuer="rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
+                value="500",
+            ),
+        )
+        expected = {
+            "Asset": {"currency": "XRP"},
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
+            },
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Amount": "1000",
+            "LPTokenIn": {
+                "currency": "B3813FCAB4EE68B3D0D735D6849465A9113EE048",
+                "issuer": "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg",
+                "value": "500",
+            },
+            "TransactionType": "AMMWithdraw",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_withdraw_amount_eprice(self):
+        tx = AMMWithdraw(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            sequence=1337,
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
+            amount="1000",
+            e_price="25",
+        )
+        expected = {
+            "Asset": {"currency": "XRP"},
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
+            },
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Amount": "1000",
+            "EPrice": "25",
+            "TransactionType": "AMMWithdraw",
+            "Sequence": 1337,
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_vote(self):
+        tx = AMMVote(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
+            trading_fee=234,
+        )
+        expected = {
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Asset": {"currency": "XRP"},
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
+            },
+            "TradingFee": 234,
+            "TransactionType": "AMMVote",
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_amm_bid(self):
+        tx = AMMBid(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            asset=Issue(currency="XRP"),
+            asset2=Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"),
+            bid_min=IssuedCurrencyAmount(
+                currency="5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
+                issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                value="25",
+            ),
+            bid_max=IssuedCurrencyAmount(
+                currency="5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
+                issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                value="35",
+            ),
+            auth_accounts=[
+                AuthAccount(account="rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh"),
+                AuthAccount(account="rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH"),
+                AuthAccount(account="rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb"),
+                AuthAccount(account="rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4"),
+            ],
+        )
+        expected = {
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Asset": {"currency": "XRP"},
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
+            },
+            "BidMin": {
+                "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
+                "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                "value": "25",
+            },
+            "BidMax": {
+                "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
+                "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                "value": "35",
+            },
+            "AuthAccounts": [
+                {
+                    "AuthAccount": {
+                        "Account": "rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh",
+                    }
+                },
+                {
+                    "AuthAccount": {
+                        "Account": "rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH",
+                    }
+                },
+                {
+                    "AuthAccount": {
+                        "Account": "rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb",
+                    }
+                },
+                {
+                    "AuthAccount": {
+                        "Account": "rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4",
+                    }
+                },
+            ],
+            "TransactionType": "AMMBid",
+            "SigningPubKey": "",
+            "Flags": 0,
         }
         self.assertEqual(tx.to_xrpl(), expected)

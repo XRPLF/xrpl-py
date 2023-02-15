@@ -2,6 +2,7 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
+from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -13,7 +14,7 @@ from xrpl.models.utils import require_kwargs_on_init
 class PaymentChannelFund(Transaction):
     """
     Represents a `PaymentChannelFund <https://xrpl.org/paymentchannelfund.html>`_
-    transaction, adds additional XRP to an open `payment channel
+    transaction, adds additional amount to an open `payment channel
     <https://xrpl.org/payment-channels.html>`_, and optionally updates the
     expiration time of the channel. Only the source address
     of the channel can use this transaction.
@@ -27,10 +28,9 @@ class PaymentChannelFund(Transaction):
     :meta hide-value:
     """
 
-    amount: str = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED  # type: ignore
     """
-    The amount of XRP, in drops, to add to the channel. This field is
-    required.
+    Amount to add to the channel. Must be a positive amount. This field is required.
 
     :meta hide-value:
     """
