@@ -30,3 +30,4 @@ class TransactionType(str, Enum):
     SIGNER_LIST_SET = "SignerListSet"
     TICKET_CREATE = "TicketCreate"
     TRUST_SET = "TrustSet"
+    SET_HOOK = "SetHook"

@@ -255,6 +255,13 @@ class Transaction(BaseModel):
     transaction. Automatically added during signing.
     """
 
+    network_id: int = REQUIRED  # type: ignore
+    """
+    The network id of the transaction. Required.
+
+    :meta hide-value:
+    """
+
     def _get_errors(self: Transaction) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.ticket_sequence is not None and (
