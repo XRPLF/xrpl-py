@@ -102,7 +102,6 @@ class AccountSetFlag(int, Enum):
     """Disallow other accounts from creating Trustlines directed at this account."""
 
 
-
 class AccountSetFlagInterface(FlagInterface):
     """
     There are several options which can be either enabled or disabled for an account.
