@@ -20,6 +20,10 @@ TX_FLAGS: Dict[str, Dict[str, int]] = {
         "asf_no_freeze": 0x00000006,
         "asf_require_auth": 0x00000002,
         "asf_require_dest": 0x00000001,
+        "asf_disable_incoming_nft_offer": 0x0000000C,
+        "asf_disable_incoming_check": 0x0000000D,
+        "asf_disable_incoming_paychan": 0x0000000E,
+        "asf_disable_incoming_trustline": 0x0000000F,
     },
     "NFTokenCreateOffer": {
         "tf_sell_token": 0x00000001,
