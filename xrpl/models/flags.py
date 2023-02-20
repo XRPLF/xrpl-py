@@ -1,4 +1,4 @@
-"""All transacion flags and utils to build a list of ints from a FlagInterface"""
+"""All transaction flags and utils to build a list of ints from a FlagInterface"""
 
 from typing import Dict, List, Union
 
