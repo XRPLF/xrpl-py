@@ -9,6 +9,39 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.wallet.main import Wallet
 
 
+def submit_and_wait(
+    transaction: Transaction,
+    wallet: Wallet,
+    client: SyncClient,
+    check_fee: bool = True,
+) -> Response:
+    """
+    Signs a transaction (locally, without trusting external rippled nodes), submits,
+    and verifies that it has been included in a validated ledger (or has errored
+    /will not be included for some reason).
+    `See Reliable Transaction Submission
+    <https://xrpl.org/reliable-transaction-submission.html>`_
+
+    Args:
+        transaction: the transaction to be signed and submitted.
+        wallet: the wallet with which to sign the transaction.
+        client: the network client with which to submit the transaction.
+        check_fee: whether to check if the fee is higher than the expected transaction
+            type fee. Defaults to True.
+
+    Returns:
+        The response from the ledger.
+    """
+    return asyncio.run(
+        main.sign_and_submit(
+            transaction,
+            wallet,
+            client,
+            check_fee,
+        )
+    )
+
+
 def sign_and_submit(
     transaction: Transaction,
     wallet: Wallet,
