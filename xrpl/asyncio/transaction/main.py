@@ -7,7 +7,6 @@ from typing_extensions import Final
 from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
-from xrpl.asyncio.transaction.reliable_submission import send_reliable_submission
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec import encode, encode_for_multisigning, encode_for_signing
@@ -27,35 +26,6 @@ _LEDGER_OFFSET: Final[int] = 20
 
 # TODO: make this dynamic based on the current ledger fee
 _ACCOUNT_DELETE_FEE: Final[int] = int(xrp_to_drops(2))
-
-
-async def submit_and_wait(
-    transaction: Transaction,
-    wallet: Wallet,
-    client: Client,
-    check_fee: bool = True,
-) -> Response:
-    """
-    Signs a transaction (locally, without trusting external rippled nodes), submits,
-    and verifies that it has been included in a validated ledger (or has errored
-    /will not be included for some reason).
-    `See Reliable Transaction Submission
-    <https://xrpl.org/reliable-transaction-submission.html>`_
-
-    Args:
-        transaction: the transaction to be signed and submitted.
-        wallet: the wallet with which to sign the transaction.
-        client: the network client with which to submit the transaction.
-        check_fee: whether to check if the fee is higher than the expected transaction
-            type fee. Defaults to True.
-
-    Returns:
-        The response from the ledger.
-    """
-    signed_transaction = await safe_sign_and_autofill_transaction(
-        transaction, wallet, client, check_fee
-    )
-    return await send_reliable_submission(signed_transaction, client)
 
 
 async def sign_and_submit(
