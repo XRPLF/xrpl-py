@@ -1,5 +1,6 @@
 """Convenience utilities for the XRP Ledger"""
 
+from xrpl.utils.hooks import calculate_hook_on, hex_hook_parameters, hex_namespace
 from xrpl.utils.sidechain import create_cross_chain_payment
 from xrpl.utils.str_conversions import hex_to_str, str_to_hex
 from xrpl.utils.time_conversions import (
@@ -31,4 +32,7 @@ __all__ = [
     "get_balance_changes",
     "get_final_balances",
     "get_order_book_changes",
+    "calculate_hook_on",
+    "hex_hook_parameters",
+    "hex_namespace",
 ]
