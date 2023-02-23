@@ -6,7 +6,7 @@ from enum import Enum
 from typing import Dict, Optional
 
 from xrpl.models.amounts import Amount, IssuedCurrencyAmount
-from xrpl.models.currencies.issue import Issue
+from xrpl.models.currencies import Currency
 from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -60,12 +60,12 @@ class AMMWithdraw(Transaction):
     - Amount and EPrice
     """
 
-    asset: Issue = REQUIRED  # type: ignore
+    asset: Currency = REQUIRED  # type: ignore
     """
     Specifies one of the pool assets (XRP or token) of the AMM instance.
     """
 
-    asset2: Issue = REQUIRED  # type: ignore
+    asset2: Currency = REQUIRED  # type: ignore
     """
     Specifies the other pool asset of the AMM instance.
     """
