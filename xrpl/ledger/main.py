@@ -68,3 +68,25 @@ def get_fee(
         XRPLRequestFailureException: if the rippled API call fails.
     """
     return asyncio.run(main.get_fee(client, max_fee=max_fee, fee_type=fee_type))
+
+
+def get_fee_estimate(
+    client: SyncClient,
+    tx_blob: str,
+) -> str:
+    """
+    Query the ledger for the estimated transaction fee.
+
+    Args:
+        client: the network client used to make network calls.
+        tx_blob: the encoded transaction that you want the fee estimate for.
+
+    Returns:
+        The transaction fee, in drops.
+        `Read more about drops <https://xrpl.org/currency-formats.html#xrp-amounts>`_
+
+    Raises:
+        XRPLException: if an incorrect option for `fee_type` is passed in.
+        XRPLRequestFailureException: if the rippled API call fails.
+    """
+    return asyncio.run(main.get_fee_estimate(client, tx_blob=tx_blob))
