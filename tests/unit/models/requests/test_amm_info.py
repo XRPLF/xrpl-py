@@ -1,10 +1,10 @@
 from unittest import TestCase
 
-from xrpl.models.currencies.issue import Issue
+from xrpl.models.currencies import XRP, IssuedCurrency
 from xrpl.models.requests import AMMInfo
 
-_ASSET = Issue(currency="XRP")
-_ASSET_2 = Issue(currency="USD", issuer="rN6zcSynkRnf8zcgTVrRL8K7r4ovE7J4Zj")
+_ASSET = XRP()
+_ASSET_2 = IssuedCurrency(currency="USD", issuer="rN6zcSynkRnf8zcgTVrRL8K7r4ovE7J4Zj")
 
 
 class TestAMMInfo(TestCase):
