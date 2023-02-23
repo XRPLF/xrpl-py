@@ -63,7 +63,7 @@ To run linting and other checks, `xrpl-py` uses [`pre-commit`](https://pre-commi
 To run the linter:
 
 ```bash
-poetry run flake8 ./xrpl
+poetry run flake8 xrpl tests --darglint-ignore-regex="^_(.*)"
 ```
 
 ### Running Tests
