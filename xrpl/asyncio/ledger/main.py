@@ -5,7 +5,7 @@ from typing import Optional, cast
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.asyncio.ledger.utils import calculate_fee_dynamically
 from xrpl.constants import XRPLException
-from xrpl.models.requests import Fee, GenericRequest, Ledger
+from xrpl.models.requests import Fee, GenericRequest, Ledger, ServerInfo
 from xrpl.utils import xrp_to_drops
 
 
@@ -96,6 +96,26 @@ async def get_fee(
         if max_fee_drops < int(fee):
             fee = str(max_fee_drops)
     return fee
+
+
+async def get_network_id(client: Client) -> int:
+    """
+    Returns the network id of the connected server.
+
+    Args:
+        client: The network client to use to send the request.
+
+    Returns:
+        The network id of the connected server
+
+    Raises:
+        XRPLRequestFailureException: if the rippled API call fails.
+    """
+    response = await client._request_impl(ServerInfo())
+    if response.is_successful():
+        return cast(int, response.result["info"]["network_id"] or 1)
+
+    raise XRPLRequestFailureException(response.result)
 
 
 async def get_fee_estimate(client: Client, tx_blob: str) -> str:

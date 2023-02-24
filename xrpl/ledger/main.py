@@ -70,6 +70,21 @@ def get_fee(
     return asyncio.run(main.get_fee(client, max_fee=max_fee, fee_type=fee_type))
 
 
+def get_network_id(
+    client: SyncClient,
+) -> int:
+    """
+    Query the ledger for the current network id.
+
+    Args:
+        client: the network client used to make network calls.
+
+    Returns:
+        The network id as an integer
+    """
+    return asyncio.run(main.get_network_id(client))
+
+
 def get_fee_estimate(
     client: SyncClient,
     tx_blob: str,

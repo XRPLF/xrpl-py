@@ -4,6 +4,7 @@ from xrpl.asyncio.ledger.main import (
     get_fee_estimate,
     get_latest_open_ledger_sequence,
     get_latest_validated_ledger_sequence,
+    get_network_id,
 )
 
 __all__ = [
@@ -11,4 +12,5 @@ __all__ = [
     "get_fee",
     "get_fee_estimate",
     "get_latest_open_ledger_sequence",
+    "get_network_id",
 ]
