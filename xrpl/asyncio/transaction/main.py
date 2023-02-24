@@ -228,6 +228,8 @@ async def autofill(
         The autofilled transaction.
     """
     transaction_json = transaction.to_dict()
+    if client.network_id > 1024 and not transaction_json["network_id"]:
+        transaction_json["network_id"] = client.network_id
     if "sequence" not in transaction_json:
         sequence = await get_next_valid_seq_number(transaction_json["account"], client)
         transaction_json["sequence"] = sequence
