@@ -2,13 +2,7 @@
 from xrpl.clients import JsonRpcClient
 from xrpl.models.requests import SubmitMultisigned
 from xrpl.models.transactions import AccountSet, SignerEntry, SignerListSet
-from xrpl.transaction import (
-    autofill,
-    autofill_and_sign,
-    multisign,
-    send_reliable_submission,
-    sign,
-)
+from xrpl.transaction import autofill, multisign, sign, submit_and_wait
 from xrpl.utils import str_to_hex
 from xrpl.wallet import generate_faucet_wallet
 
@@ -29,12 +23,9 @@ signer_list_set_tx = SignerListSet(
     signer_quorum=2,
     signer_entries=signer_entries,
 )
-signed_signer_list_set_tx = autofill_and_sign(signer_list_set_tx, master_wallet, client)
 
-print("Constructed SignerListSet and submitting it to the ledger...")
-signed_list_set_tx_response = send_reliable_submission(
-    signed_signer_list_set_tx, client
-)
+print("Constructing SignerListSet and submitting it to the ledger...")
+signed_list_set_tx_response = submit_and_wait(signer_list_set_tx, master_wallet, client)
 print("SignerListSet submitted, here's the response:")
 print(signed_list_set_tx_response)
 
