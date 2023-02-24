@@ -22,6 +22,7 @@ class Client(ABC):
             url: The url to which this client will connect
         """
         self.url = url
+        self.network_id: int = 1
 
     @abstractmethod
     async def _request_impl(self: Client, request: Request) -> Response:
