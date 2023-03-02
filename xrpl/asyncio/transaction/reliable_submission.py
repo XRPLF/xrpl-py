@@ -6,7 +6,9 @@ from typing_extensions import Final
 
 from xrpl.asyncio.clients import Client
 from xrpl.asyncio.ledger import get_latest_validated_ledger_sequence
-from xrpl.asyncio.transaction.main import safe_sign_and_autofill_transaction, submit
+from xrpl.asyncio.transaction.main import _check_fee
+from xrpl.asyncio.transaction.main import autofill as _autofill
+from xrpl.asyncio.transaction.main import sign, submit
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.constants import XRPLException
 from xrpl.models.requests import Tx
@@ -116,11 +118,59 @@ async def send_reliable_submission(
     )
 
 
+def _is_signed(transaction: Transaction) -> bool:
+    """
+    Checks if a transaction has been signed.
+
+    Args:
+        transaction: the transaction to check.
+
+    Returns:
+        Whether the transaction has been signed
+    """
+    return (
+        transaction.signing_pub_key is not None or transaction.txn_signature is not None
+    )
+
+
+async def _get_signed_tx(
+    transaction: Transaction,
+    wallet: Wallet,
+    client: Client,
+    check_fee: bool = True,
+    autofill: bool = True,
+) -> Transaction:
+    """
+    Initializes a transaction for a submit request.
+
+    Args:
+        transaction: the transaction to be submitted.
+        wallet: the wallet with which to sign the transaction.
+        client: the network client with which to submit the transaction.
+        check_fee: whether to check if the fee is higher than the expected transaction
+            type fee. Defaults to True.
+        autofill: an optional boolean indicating whether to autofill the transaction.
+
+    Returns:
+        The signed transaction.
+    """
+    if _is_signed(transaction):
+        return transaction
+
+    if check_fee:
+        await _check_fee(transaction, client)
+
+    if autofill:
+        transaction = await _autofill(transaction, client)
+    return await sign(transaction, wallet, False)
+
+
 async def submit_and_wait(
     transaction: Transaction,
     wallet: Wallet,
     client: Client,
     check_fee: bool = True,
+    autofill: bool = True,
 ) -> Response:
     """
     Signs a transaction (locally, without trusting external rippled nodes), submits,
@@ -135,11 +185,12 @@ async def submit_and_wait(
         client: the network client with which to submit the transaction.
         check_fee: whether to check if the fee is higher than the expected transaction
             type fee. Defaults to True.
+        autofill: an optional boolean indicating whether to autofill the transaction.
 
     Returns:
         The response from the ledger.
     """
-    signed_transaction = await safe_sign_and_autofill_transaction(
-        transaction, wallet, client, check_fee
+    signed_transaction = await _get_signed_tx(
+        transaction, wallet, client, check_fee, autofill
     )
     return await send_reliable_submission(signed_transaction, client)

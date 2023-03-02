@@ -510,6 +510,34 @@ class TestSubmitAndWait(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
+            "xrpl.transaction.autofill_and_sign",
+            "xrpl.transaction.submit_and_wait",
+            "xrpl.account.get_next_valid_seq_number",
+            "xrpl.ledger.get_fee",
+        ],
+    )
+    async def test_submit_and_wait_signed(self, client):
+        WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
+        payment_dict = {
+            "account": ACCOUNT,
+            "sequence": WALLET.sequence,
+            "amount": "10",
+            "destination": DESTINATION,
+        }
+        payment_transaction_signed = await autofill_and_sign(
+            Payment.from_dict(payment_dict), WALLET, client
+        )
+        await accept_ledger_async()
+        response = await submit_and_wait(payment_transaction_signed, WALLET, client)
+        self.assertTrue(response.result["validated"])
+        self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
+        self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["Fee"], await get_fee(client))
+        WALLET.sequence += 1
+
+    @test_async_and_sync(
+        globals(),
+        [
             "xrpl.transaction.submit_and_wait",
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_latest_validated_ledger_sequence",
