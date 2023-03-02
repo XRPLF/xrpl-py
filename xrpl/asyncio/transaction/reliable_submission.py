@@ -129,8 +129,8 @@ def _is_signed(transaction: Transaction) -> bool:
         Whether the transaction has been signed
     """
     return (
-        transaction.signing_pub_key is not None or transaction.txn_signature is not None
-    )
+        transaction.signing_pub_key is not None and len(transaction.signing_pub_key) > 0
+    ) or (transaction.txn_signature is not None and len(transaction.txn_signature) > 0)
 
 
 async def _get_signed_tx(
