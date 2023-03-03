@@ -1,10 +1,8 @@
 from typing import Any, List
 from unittest import TestCase
 
-import xrpl.utils
-
-# from xrpl.constants import XRPLException
-
+from xrpl import XRPLException
+from xrpl.utils import calculate_hook_on, hex_hook_parameters, hex_namespace
 
 _HOOK_ON_DEFAULT = "000000000000000000000000000000000000000000000000000000003E3FF5BF"
 _HOOK_ON = "000000000000000000000000000000000000000000000000000000003E3FF5B7"
@@ -14,19 +12,23 @@ _PARAM_VALUE = "76616C756531"
 
 
 class TestHooks(TestCase):
+    def test_calculate_hook_on_invalid(self):
+        with self.assertRaises(XRPLException):
+            calculate_hook_on(["AccountSet1"])
+
     def test_calculate_hook_on_all(self):
-        hook_on: str = xrpl.utils.calculate_hook_on([])
+        hook_on: str = calculate_hook_on([])
         self.assertEqual(hook_on, _HOOK_ON_DEFAULT)
 
     def test_calculate_hook_on_account_set(self):
-        invoke_on: List[str] = ["ttACCOUNT_SET"]
+        invoke_on: List[str] = ["AccountSet"]
         hook_on_values: List[str] = [v for v in invoke_on]
-        hook_on: str = xrpl.utils.calculate_hook_on(hook_on_values)
+        hook_on: str = calculate_hook_on(hook_on_values)
         self.assertEqual(hook_on, _HOOK_ON)
 
     def test_hook_namespace(self):
         namespace: str = "starter"
-        sha_namespace: str = xrpl.utils.hex_namespace(namespace)
+        sha_namespace: str = hex_namespace(namespace)
         self.assertEqual(
             sha_namespace,
             _NAMESPACE,
@@ -41,7 +43,7 @@ class TestHooks(TestCase):
                 }
             }
         ]
-        result: str = xrpl.utils.hex_hook_parameters(parameters)
+        result: str = hex_hook_parameters(parameters)
         self.assertEqual(
             result,
             [
