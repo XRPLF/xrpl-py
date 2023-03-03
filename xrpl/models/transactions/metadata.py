@@ -5,6 +5,7 @@ from typing import Dict, List, Union
 from typing_extensions import Literal, NotRequired, TypedDict
 
 from xrpl.models.amounts.amount import Amount
+from xrpl.models.ledger.nft import NFToken
 
 
 class Fields(TypedDict):
@@ -20,6 +21,7 @@ class Fields(TypedDict):
     TakerPays: NotRequired[Union[Dict[str, str], str]]
     BookDirectory: NotRequired[str]
     Expiration: NotRequired[int]
+    NFTokens: NotRequired[List[NFToken]]
 
 
 class CreatedNodeFields(TypedDict):
