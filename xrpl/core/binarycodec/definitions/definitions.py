@@ -52,6 +52,14 @@ _DEFINITIONS = load_definitions()
 _TRANSACTION_TYPE_CODE_TO_STR_MAP = {
     value: key for (key, value) in _DEFINITIONS["TRANSACTION_TYPES"].items()
 }
+_TRANSACTION_TYPES = {
+    key for (key, value) in _DEFINITIONS["TRANSACTION_TYPES"].items() if value >= 0
+}
+_TRANSACTION_TYPE_MAP = {
+    key: value
+    for (key, value) in _DEFINITIONS["TRANSACTION_TYPES"].items()
+    if value >= 0
+}
 _TRANSACTION_RESULTS_CODE_TO_STR_MAP = {
     value: key for (key, value) in _DEFINITIONS["TRANSACTION_RESULTS"].items()
 }
