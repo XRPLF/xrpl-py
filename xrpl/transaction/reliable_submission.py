@@ -39,6 +39,7 @@ def submit_and_wait(
     wallet: Wallet,
     client: SyncClient,
     check_fee: bool = True,
+    autofill: bool = True,
 ) -> Response:
     """
     Signs a transaction (locally, without trusting external rippled nodes), submits,
@@ -51,8 +52,10 @@ def submit_and_wait(
         transaction: the transaction to be signed and submitted.
         wallet: the wallet with which to sign the transaction.
         client: the network client with which to submit the transaction.
-        check_fee: whether to check if the fee is higher than the expected transaction
-            type fee. Defaults to True.
+        check_fee: an optional bolean indicating whether to check if the fee is
+            higher than the expected transaction type fee. Defaults to True.
+        autofill: an optional boolean indicating whether to autofill the
+            transaction. Defaults to True.
 
     Returns:
         The response from the ledger.
@@ -63,5 +66,6 @@ def submit_and_wait(
             wallet,
             client,
             check_fee,
+            autofill,
         )
     )
