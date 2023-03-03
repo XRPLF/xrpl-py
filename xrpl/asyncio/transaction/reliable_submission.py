@@ -141,15 +141,16 @@ async def _get_signed_tx(
     autofill: bool = True,
 ) -> Transaction:
     """
-    Initializes a transaction for a submit request.
+    Initializes a signed transaction for a submit request.
 
     Args:
         transaction: the transaction to be submitted.
         wallet: the wallet with which to sign the transaction.
         client: the network client with which to submit the transaction.
-        check_fee: whether to check if the fee is higher than the expected transaction
-            type fee. Defaults to True.
-        autofill: an optional boolean indicating whether to autofill the transaction.
+        check_fee: an optional bolean indicating whether to check if the fee is
+            higher than the expected transaction type fee. Defaults to True.
+        autofill: an optional boolean indicating whether to autofill the
+            transaction. Defaults to True.
 
     Returns:
         The signed transaction.
@@ -183,9 +184,10 @@ async def submit_and_wait(
         transaction: the transaction to be signed and submitted.
         wallet: the wallet with which to sign the transaction.
         client: the network client with which to submit the transaction.
-        check_fee: whether to check if the fee is higher than the expected transaction
-            type fee. Defaults to True.
-        autofill: an optional boolean indicating whether to autofill the transaction.
+        check_fee: an optional bolean indicating whether to check if the fee is
+            higher than the expected transaction type fee. Defaults to True.
+        autofill: an optional boolean indicating whether to autofill the
+            transaction. Defaults to True.
 
     Returns:
         The response from the ledger.
