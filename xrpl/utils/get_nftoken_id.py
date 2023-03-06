@@ -1,5 +1,5 @@
 """Utils to get an NFTokenID from metadata"""
-from typing import TypedDict, Union, List, cast
+from typing import Optional, TypedDict, Union, List, cast
 from typing_extensions import TypeGuard, TypeAlias
 from xrpl.models.transactions.metadata import (
     CreatedNode,
@@ -36,6 +36,9 @@ def isModifiedNode(node: Node) -> TypeGuard[ModifiedNode]:
 
 def isDeletedNode(node: Node) -> TypeGuard[DeletedNode]:
     return "DeletedNode" in node
+
+def get_nftoken_ids_from_nftokens(nftokens: List[NFToken]):
+    return filter(lambda id : id is not None, [token["NFToken"]["NFTokenID"] for token in nftokens])
 
 def get_nftoken_id(meta: TransactionMetadata) -> str:
     '''
@@ -97,58 +100,43 @@ def get_nftoken_id(meta: TransactionMetadata) -> str:
         return nftokens.map((token) => token.NFToken.NFTokenID)
         }).filter((id) => Boolean(id)),
     )
-    #TODO: Verify that the above code is mirrored below.
     '''
-
-    def get_new_nftoken_ids(node: Node) -> List[str]:
+    def get_previous_nftokens(node: Node) -> List[NFToken]:
         nftokens: List[NFToken] = []
         if(isModifiedNode(node)):
             new_nftokens = node["ModifiedNode"]["PreviousFields"].get("NFTokens")
             if(new_nftokens != None):
                 nftokens = cast(List[NFToken], new_nftokens)
-        return [token["NFToken"]["NFTokenId"] for token in nftokens]
+        return nftokens
 
-    previous_token_ids = filter(lambda id : id is not None, set(flatmap(get_new_nftoken_ids, affected_nodes)))
+    previous_token_ids = set(get_nftoken_ids_from_nftokens(flatmap(get_previous_nftokens, affected_nodes)))
     
+    '''
+    /* eslint-disable @typescript-eslint/no-unnecessary-condition -- Cleaner to read */
+    const finalTokenIDs = flatMap(affectedNodes, (node) =>
+        (
+        (((node as ModifiedNode).ModifiedNode?.FinalFields?.NFTokens ??
+            (node as CreatedNode).CreatedNode?.NewFields?.NFTokens) as NFToken[]) ??
+        []
+        ).map((token) => token.NFToken.NFTokenID),
+    ).filter((nftokenID) => Boolean(nftokenID))
+    /* eslint-enable @typescript-eslint/consistent-type-assertions -- Necessary for parsing metadata */
+    /* eslint-enable @typescript-eslint/no-unnecessary-condition -- Cleaner to read */
 
+    const nftokenID = finalTokenIDs.find((id) => !previousTokenIDSet.has(id))
 
-    return ""
-    
+    return nftokenID
+    # TODO: Remove the in-line javascript code 
+    '''
+    def get_new_nftokens(node: Union[CreatedNode, ModifiedNode, DeletedNode]):
+        nftokens: List[NFToken] = []
+        if(isModifiedNode(node)):
+            nftokens = node["ModifiedNode"]["FinalFields"].get("NFTokens") or nftokens
+        if(isCreatedNode(node)):
+            nftokens = node["CreatedNode"]["NewFields"].get("NFTokens") or nftokens
+        return nftokens
 
-'''
-/**
- * Gets the NFTokenID for an NFT recently minted with NFTokenMint.
- *
- * @param meta - Metadata from the response to submitting an NFTokenMint transaction.
- * @returns The NFTokenID for the minted NFT.
- * @throws if meta is not TransactionMetadata.
- */
-export default function getNFTokenID(
-  meta: TransactionMetadata,
-): string | undefined {
-  /* eslint-disable @typescript-eslint/consistent-type-assertions -- Necessary for parsing metadata */
-  const previousTokenIDSet = new Set(
-    flatMap(affectedNodes, (node) => {
-      const nftokens = isModifiedNode(node)
-        ? (node.ModifiedNode.PreviousFields?.NFTokens as NFToken[])
-        : []
-      return nftokens.map((token) => token.NFToken.NFTokenID)
-    }).filter((id) => Boolean(id)),
-  )
+    final_token_ids = get_nftoken_ids_from_nftokens(flatmap(get_new_nftokens, affected_nodes))
 
-  /* eslint-disable @typescript-eslint/no-unnecessary-condition -- Cleaner to read */
-  const finalTokenIDs = flatMap(affectedNodes, (node) =>
-    (
-      (((node as ModifiedNode).ModifiedNode?.FinalFields?.NFTokens ??
-        (node as CreatedNode).CreatedNode?.NewFields?.NFTokens) as NFToken[]) ??
-      []
-    ).map((token) => token.NFToken.NFTokenID),
-  ).filter((nftokenID) => Boolean(nftokenID))
-  /* eslint-enable @typescript-eslint/consistent-type-assertions -- Necessary for parsing metadata */
-  /* eslint-enable @typescript-eslint/no-unnecessary-condition -- Cleaner to read */
-
-  const nftokenID = finalTokenIDs.find((id) => !previousTokenIDSet.has(id))
-
-  return nftokenID
-}
-'''
+    # Get the NFTokenID which wasn't there before this transaction completed.
+    return [id for id in final_token_ids if not (id in previous_token_ids)][0]

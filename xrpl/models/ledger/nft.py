@@ -2,7 +2,7 @@ from typing import TypedDict
 
 
 class NFTokenFields(TypedDict):
-    NFTokenId: str
+    NFTokenID: str
     URI: str
 
 class NFToken(TypedDict):
