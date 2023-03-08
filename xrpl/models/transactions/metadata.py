@@ -2,7 +2,7 @@
 
 from typing import Dict, List, Union
 
-from typing_extensions import Literal, NotRequired, TypedDict
+from typing_extensions import Literal, NotRequired, TypedDict, TypeGuard, TypeAlias
 
 from xrpl.models.amounts.amount import Amount
 from xrpl.models.ledger.nft import NFToken
@@ -79,3 +79,45 @@ class TransactionMetadata(TypedDict):
     DeliveredAmount: NotRequired[Amount]
     # "unavailable" possible for transactions before 2014-01-20
     delivered_amount: NotRequired[Union[Amount, Literal["unavailable"]]]
+
+
+Node: TypeAlias = Union[CreatedNode, ModifiedNode, DeletedNode]
+
+
+def isCreatedNode(node: Node) -> TypeGuard[CreatedNode]:
+    """
+    Typeguard for CreatedNode
+
+    Args:
+        node: A node of any type (CreatedNode, ModifiedNode, or DeletedNode)
+
+    Returns:
+        Whether this node is a CreatedNode.
+    """
+    return "CreatedNode" in node
+
+
+def isModifiedNode(node: Node) -> TypeGuard[ModifiedNode]:
+    """
+    Typeguard for ModifiedNode
+
+    Args:
+        node: A node of any type (CreatedNode, ModifiedNode, or DeletedNode)
+
+    Returns:
+        Whether this node is a ModifiedNode.
+    """
+    return "ModifiedNode" in node
+
+
+def isDeletedNode(node: Node) -> TypeGuard[DeletedNode]:
+    """
+    Typeguard for DeletedNode
+
+    Args:
+        node: A node of any type (CreatedNode, ModifiedNode, or DeletedNode)
+
+    Returns:
+        Whether this node is a DeletedNode.
+    """
+    return "DeletedNode" in node

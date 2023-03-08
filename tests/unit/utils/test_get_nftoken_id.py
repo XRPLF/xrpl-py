@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 from unittest import TestCase
 
-from xrpl import XRPLException
 from xrpl.utils.get_nftoken_id import get_nftoken_id
 
 path_to_json = "tests/unit/utils/txn_parser/transaction_jsons/"

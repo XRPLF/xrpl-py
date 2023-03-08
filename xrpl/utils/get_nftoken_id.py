@@ -1,19 +1,19 @@
 """Utils to get an NFTokenID from metadata"""
-from typing import List, Optional, TypedDict, Union, cast
-
-from typing_extensions import TypeAlias, TypeGuard
+from typing import Callable, List, TypeVar, cast
 
 from xrpl.models.ledger.nft import NFToken
 from xrpl.models.transactions.metadata import (
-    CreatedNode,
-    DeletedNode,
-    ModifiedNode,
+    Node,
     TransactionMetadata,
+    isCreatedNode,
+    isModifiedNode,
 )
 
+T = TypeVar("T")
+R = TypeVar("R")
 
-# TODO: Add dynamic typing on the return type
-def flatmap(func, objects):
+
+def _flatmap(func: Callable[[T], List[R]], list_of_items: List[T]) -> List[R]:
     """
     Flattens objects into a single list, and applies func to every object in objects.
 
@@ -21,51 +21,15 @@ def flatmap(func, objects):
 
     Args:
         func: A function to apply to every object.
-        objects: A list of lists to be flattened and updated.
-    """
-    return [updated_object for object in objects for updated_object in func(object)]
-
-
-Node: TypeAlias = Union[CreatedNode, ModifiedNode, DeletedNode]
-
-
-def isCreatedNode(node: Node) -> TypeGuard[CreatedNode]:
-    """
-    Typeguard for CreatedNode
-
-    Args:
-        node: A node of any type (CreatedNode, ModifiedNode, or DeletedNode)
+        list_of_items: A list of lists to be flattened and updated.
 
     Returns:
-        Whether this node is a CreatedNode.
+        A flattened list of modified items.
     """
-    return "CreatedNode" in node
-
-
-def isModifiedNode(node: Node) -> TypeGuard[ModifiedNode]:
-    """
-    Typeguard for ModifiedNode
-
-    Args:
-        node: A node of any type (CreatedNode, ModifiedNode, or DeletedNode)
-
-    Returns:
-        Whether this node is a ModifiedNode.
-    """
-    return "ModifiedNode" in node
-
-
-def isDeletedNode(node: Node) -> TypeGuard[DeletedNode]:
-    """
-    Typeguard for DeletedNode
-
-    Args:
-        node: A node of any type (CreatedNode, ModifiedNode, or DeletedNode)
-
-    Returns:
-        Whether this node is a DeletedNode.
-    """
-    return "DeletedNode" in node
+    modified_items: List[R] = []
+    for item in list_of_items:
+        modified_items.extend(func(item))
+    return modified_items
 
 
 def get_nftoken_ids_from_nftokens(nftokens: List[NFToken]) -> List[str]:
@@ -119,7 +83,7 @@ def get_nftoken_id(meta: TransactionMetadata) -> str:
     * if the PreviousFields contains NFTokens
     """
 
-    def has_nftoken_page(node: Union[CreatedNode, ModifiedNode, DeletedNode]) -> bool:
+    def has_nftoken_page(node: Node) -> bool:
         if isCreatedNode(node):
             return node["CreatedNode"]["LedgerEntryType"] == "NFTokenPage"
         elif isModifiedNode(node):
@@ -142,12 +106,10 @@ def get_nftoken_id(meta: TransactionMetadata) -> str:
         return nftokens
 
     previous_token_ids = set(
-        get_nftoken_ids_from_nftokens(flatmap(get_previous_nftokens, affected_nodes))
+        get_nftoken_ids_from_nftokens(_flatmap(get_previous_nftokens, affected_nodes))
     )
 
-    def get_new_nftokens(
-        node: Union[CreatedNode, ModifiedNode, DeletedNode]
-    ) -> List[NFToken]:
+    def get_new_nftokens(node: Node) -> List[NFToken]:
         nftokens: List[NFToken] = []
         if isModifiedNode(node):
             nftokens = node["ModifiedNode"]["FinalFields"].get("NFTokens") or nftokens
@@ -156,7 +118,7 @@ def get_nftoken_id(meta: TransactionMetadata) -> str:
         return nftokens
 
     final_token_ids = get_nftoken_ids_from_nftokens(
-        flatmap(get_new_nftokens, affected_nodes)
+        _flatmap(get_new_nftokens, affected_nodes)
     )
 
     # Get the NFTokenID which wasn't there before this transaction completed.
