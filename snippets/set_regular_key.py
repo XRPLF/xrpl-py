@@ -41,7 +41,7 @@ payment = Payment(
     amount="1000",
 )
 
-payment_response = submit_and_wait(payment, regular_key_wallet, client)
+payment_response = submit_and_wait(payment, client, regular_key_wallet)
 
 print("Response for tx signed using Regular Key:")
 print(payment_response)

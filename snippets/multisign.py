@@ -25,7 +25,7 @@ signer_list_set_tx = SignerListSet(
 )
 
 print("Constructing SignerListSet and submitting it to the ledger...")
-signed_list_set_tx_response = submit_and_wait(signer_list_set_tx, master_wallet, client)
+signed_list_set_tx_response = submit_and_wait(signer_list_set_tx, client, master_wallet)
 print("SignerListSet submitted, here's the response:")
 print(signed_list_set_tx_response)
 

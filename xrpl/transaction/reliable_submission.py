@@ -1,6 +1,7 @@
 """High-level reliable submission methods with XRPL transactions."""
 
 import asyncio
+from typing import Optional
 
 from xrpl.asyncio.transaction import (
     send_reliable_submission as async_send_reliable_submission,
@@ -36,8 +37,8 @@ def send_reliable_submission(transaction: Transaction, client: SyncClient) -> Re
 
 def submit_and_wait(
     transaction: Transaction,
-    wallet: Wallet,
     client: SyncClient,
+    wallet: Optional[Wallet] = None,
     check_fee: bool = True,
     autofill: bool = True,
 ) -> Response:
@@ -50,8 +51,9 @@ def submit_and_wait(
 
     Args:
         transaction: the transaction (or transaction blob) to be signed and submitted.
-        wallet: the wallet with which to sign the transaction.
         client: the network client with which to submit the transaction.
+        wallet: the wallet with which to sign the transaction (optional, only needed
+            if the transaction is not signed).
         check_fee: an optional bolean indicating whether to check if the fee is
             higher than the expected transaction type fee. Defaults to True.
         autofill: an optional boolean indicating whether to autofill the
@@ -63,8 +65,8 @@ def submit_and_wait(
     return asyncio.run(
         async_submit_and_wait(
             transaction,
-            wallet,
             client,
+            wallet,
             check_fee,
             autofill,
         )

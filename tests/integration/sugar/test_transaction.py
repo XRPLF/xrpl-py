@@ -476,7 +476,7 @@ class TestSubmitAndWait(IntegrationTestCase):
             set_flag=SET_FLAG,
         )
         await accept_ledger_async()
-        response = await submit_and_wait(account_set, WALLET, client)
+        response = await submit_and_wait(account_set, client, WALLET)
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
@@ -501,7 +501,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         }
         payment_transaction = Payment.from_dict(payment_dict)
         await accept_ledger_async()
-        response = await submit_and_wait(payment_transaction, WALLET, client)
+        response = await submit_and_wait(payment_transaction, client, WALLET)
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
@@ -529,7 +529,7 @@ class TestSubmitAndWait(IntegrationTestCase):
             Payment.from_dict(payment_dict), WALLET, client
         )
         await accept_ledger_async()
-        response = await submit_and_wait(payment_transaction_signed, WALLET, client)
+        response = await submit_and_wait(payment_transaction_signed, client)
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
@@ -559,9 +559,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         )
         await accept_ledger_async()
         payment_transaction_signed_blob = encode(payment_transaction_signed.to_xrpl())
-        response = await submit_and_wait(
-            payment_transaction_signed_blob, WALLET, client
-        )
+        response = await submit_and_wait(payment_transaction_signed_blob, client)
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
@@ -589,4 +587,4 @@ class TestSubmitAndWait(IntegrationTestCase):
         payment_transaction = Payment.from_dict(payment_dict)
         await accept_ledger_async()
         with self.assertRaises(XRPLReliableSubmissionException):
-            await submit_and_wait(payment_transaction, WALLET, client)
+            await submit_and_wait(payment_transaction, client, WALLET)

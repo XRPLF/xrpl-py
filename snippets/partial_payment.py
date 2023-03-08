@@ -30,7 +30,7 @@ trust_set_tx = TrustSet(
 )
 
 # Sign and autofill, then send transaction to the ledger
-submit_and_wait(trust_set_tx, wallet2, client)
+submit_and_wait(trust_set_tx, client, wallet2)
 
 # Both balances should be zero since nothing has been sent yet
 print("Balances after trustline is claimed:")
@@ -50,7 +50,7 @@ payment_tx = Payment(
 )
 
 # Sign and autofill, then send transaction to the ledger
-payment_response = submit_and_wait(payment_tx, wallet1, client)
+payment_response = submit_and_wait(payment_tx, client, wallet1)
 print(payment_response)
 
 # Issuer (wallet1) should have -3840 FOO and destination (wallet2) should have 3840 FOO
@@ -84,7 +84,7 @@ partial_payment_tx = Payment(
 )
 
 # Sign and autofill, then send transaction to the ledger
-partial_payment_response = submit_and_wait(partial_payment_tx, wallet2, client)
+partial_payment_response = submit_and_wait(partial_payment_tx, client, wallet2)
 print(partial_payment_response)
 
 # Tried sending 4000 of 3840 FOO -> wallet1 and wallet2 should have 0 FOO

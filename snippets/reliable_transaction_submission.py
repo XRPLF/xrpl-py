@@ -31,7 +31,7 @@ payment_tx = Payment(
 )
 
 # Sign, autofill, submit transaction and waits for response (validated or rejected)
-payment_response = submit_and_wait(payment_tx, wallet1, client)
+payment_response = submit_and_wait(payment_tx, client, wallet1)
 print("Transaction was submitted")
 
 # Create a Transaction request to see transaction

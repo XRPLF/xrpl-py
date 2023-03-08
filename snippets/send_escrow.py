@@ -54,7 +54,7 @@ finish_tx = EscrowFinish(
     offer_sequence=create_escrow_response.result["Sequence"],
 )
 
-submit_and_wait(finish_tx, wallet1, client)
+submit_and_wait(finish_tx, client, wallet1)
 
 # If escrow went through successfully, 1000000 exchanged
 print("Balances of wallets after Escrow was sent:")

@@ -1,7 +1,7 @@
 """High-level reliable submission methods with XRPL transactions."""
 
 import asyncio
-from typing import Union, cast
+from typing import Optional, Union, cast
 
 from typing_extensions import Final
 
@@ -156,8 +156,8 @@ def _decode_tx_blob(tx_blob: str) -> Transaction:
 
 async def _get_signed_tx(
     transaction: Union[Transaction, str],
-    wallet: Wallet,
     client: Client,
+    wallet: Optional[Wallet] = None,
     check_fee: bool = True,
     autofill: bool = True,
 ) -> Transaction:
@@ -166,8 +166,9 @@ async def _get_signed_tx(
 
     Args:
         transaction: the transaction (or transaction blob) to be submitted.
-        wallet: the wallet with which to sign the transaction.
         client: the network client with which to submit the transaction.
+        wallet: the wallet with which to sign the transaction (optional, only needed
+        if the transaction is not signed).
         check_fee: an optional bolean indicating whether to check if the fee is
             higher than the expected transaction type fee. Defaults to True.
         autofill: an optional boolean indicating whether to autofill the
@@ -181,6 +182,14 @@ async def _get_signed_tx(
 
     transaction = cast(Transaction, transaction)
 
+    if _is_signed(transaction):
+        return transaction
+
+    if not wallet:
+        raise XRPLGetSignedTransactionException(
+            "Wallet must be provided when submitting an unsigned transaction"
+        )
+
     if check_fee:
         await _check_fee(transaction, client)
 
@@ -191,8 +200,8 @@ async def _get_signed_tx(
 
 async def submit_and_wait(
     transaction: Union[Transaction, str],
-    wallet: Wallet,
     client: Client,
+    wallet: Optional[Wallet] = None,
     check_fee: bool = True,
     autofill: bool = True,
 ) -> Response:
@@ -205,8 +214,9 @@ async def submit_and_wait(
 
     Args:
         transaction: the transaction (or transaction blob) to be signed and submitted.
-        wallet: the wallet with which to sign the transaction.
         client: the network client with which to submit the transaction.
+        wallet: the wallet with which to sign the transaction (optional, only needed
+            if the transaction is not signed).
         check_fee: an optional bolean indicating whether to check if the fee is
             higher than the expected transaction type fee. Defaults to True.
         autofill: an optional boolean indicating whether to autofill the
@@ -216,6 +226,6 @@ async def submit_and_wait(
         The response from the ledger.
     """
     signed_transaction = await _get_signed_tx(
-        transaction, wallet, client, check_fee, autofill
+        transaction, client, wallet, check_fee, autofill
     )
     return await send_reliable_submission(signed_transaction, client)
