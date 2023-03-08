@@ -49,7 +49,7 @@ def submit_and_wait(
     <https://xrpl.org/reliable-transaction-submission.html>`_
 
     Args:
-        transaction: the transaction to be signed and submitted.
+        transaction: the transaction (or transaction blob) to be signed and submitted.
         wallet: the wallet with which to sign the transaction.
         client: the network client with which to submit the transaction.
         check_fee: an optional bolean indicating whether to check if the fee is

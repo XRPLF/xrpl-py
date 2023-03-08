@@ -1,6 +1,7 @@
 """High-level reliable submission methods with XRPL transactions."""
 
 import asyncio
+from typing import Union, cast
 
 from typing_extensions import Final
 
@@ -11,6 +12,7 @@ from xrpl.asyncio.transaction.main import autofill as _autofill
 from xrpl.asyncio.transaction.main import sign, submit
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.constants import XRPLException
+from xrpl.core.binarycodec.main import decode
 from xrpl.models.requests import Tx
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
@@ -21,6 +23,12 @@ _LEDGER_CLOSE_TIME: Final[int] = 1
 
 class XRPLReliableSubmissionException(XRPLException):
     """General XRPL Reliable Submission Exception."""
+
+    pass
+
+
+class XRPLGetSignedTransactionException(XRPLException):
+    """General XRPL Get Signed Transaction Submission Exception."""
 
     pass
 
@@ -133,8 +141,21 @@ def _is_signed(transaction: Transaction) -> bool:
     ) or (transaction.txn_signature is not None and len(transaction.txn_signature) > 0)
 
 
+def _decode_tx_blob(tx_blob: str) -> Transaction:
+    """
+    Decodes a transaction blob.
+
+    Args:
+        tx_blob: the tx blob to decode.
+
+    Returns:
+        The formatted transaction.
+    """
+    return Transaction.from_xrpl(decode(tx_blob))
+
+
 async def _get_signed_tx(
-    transaction: Transaction,
+    transaction: Union[Transaction, str],
     wallet: Wallet,
     client: Client,
     check_fee: bool = True,
@@ -144,7 +165,7 @@ async def _get_signed_tx(
     Initializes a signed transaction for a submit request.
 
     Args:
-        transaction: the transaction to be submitted.
+        transaction: the transaction (or transaction blob) to be submitted.
         wallet: the wallet with which to sign the transaction.
         client: the network client with which to submit the transaction.
         check_fee: an optional bolean indicating whether to check if the fee is
@@ -155,8 +176,10 @@ async def _get_signed_tx(
     Returns:
         The signed transaction.
     """
-    if _is_signed(transaction):
-        return transaction
+    if type(transaction) is str:
+        transaction = _decode_tx_blob(transaction)
+
+    transaction = cast(Transaction, transaction)
 
     if check_fee:
         await _check_fee(transaction, client)
@@ -167,7 +190,7 @@ async def _get_signed_tx(
 
 
 async def submit_and_wait(
-    transaction: Transaction,
+    transaction: Union[Transaction, str],
     wallet: Wallet,
     client: Client,
     check_fee: bool = True,
@@ -181,7 +204,7 @@ async def submit_and_wait(
     <https://xrpl.org/reliable-transaction-submission.html>`_
 
     Args:
-        transaction: the transaction to be signed and submitted.
+        transaction: the transaction (or transaction blob) to be signed and submitted.
         wallet: the wallet with which to sign the transaction.
         client: the network client with which to submit the transaction.
         check_fee: an optional bolean indicating whether to check if the fee is

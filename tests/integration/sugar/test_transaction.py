@@ -23,6 +23,7 @@ from xrpl.asyncio.transaction import (
 )
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
+from xrpl.core.binarycodec.main import encode
 from xrpl.models.exceptions import XRPLException
 from xrpl.models.requests import Tx
 from xrpl.models.transactions import AccountDelete, AccountSet, EscrowFinish, Payment
@@ -529,6 +530,38 @@ class TestSubmitAndWait(IntegrationTestCase):
         )
         await accept_ledger_async()
         response = await submit_and_wait(payment_transaction_signed, WALLET, client)
+        self.assertTrue(response.result["validated"])
+        self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
+        self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["Fee"], await get_fee(client))
+        WALLET.sequence += 1
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.autofill_and_sign",
+            "xrpl.transaction.submit_and_wait",
+            "xrpl.account.get_next_valid_seq_number",
+            "xrpl.ledger.get_fee",
+            "xrpl.core.binarycodec.main.encode",
+        ],
+    )
+    async def test_submit_and_wait_blob(self, client):
+        WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
+        payment_dict = {
+            "account": ACCOUNT,
+            "sequence": WALLET.sequence,
+            "amount": "10",
+            "destination": DESTINATION,
+        }
+        payment_transaction_signed = await autofill_and_sign(
+            Payment.from_dict(payment_dict), WALLET, client
+        )
+        await accept_ledger_async()
+        payment_transaction_signed_blob = encode(payment_transaction_signed.to_xrpl())
+        response = await submit_and_wait(
+            payment_transaction_signed_blob, WALLET, client
+        )
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
