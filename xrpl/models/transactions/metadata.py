@@ -2,10 +2,22 @@
 
 from typing import Dict, List, Union
 
-from typing_extensions import Literal, NotRequired, TypedDict, TypeGuard, TypeAlias
+from typing_extensions import Literal, NotRequired, TypeAlias, TypedDict, TypeGuard
 
 from xrpl.models.amounts.amount import Amount
-from xrpl.models.ledger.nft import NFToken
+
+
+class NFTokenMetadataFields(TypedDict):
+    """Model for NFToken data in metadata."""
+
+    NFTokenID: str
+    URI: str
+
+
+class NFTokenMetadata(TypedDict):
+    """Model what NFTokens look like in metadata."""
+
+    NFToken: NFTokenMetadataFields
 
 
 class Fields(TypedDict):
@@ -21,7 +33,7 @@ class Fields(TypedDict):
     TakerPays: NotRequired[Union[Dict[str, str], str]]
     BookDirectory: NotRequired[str]
     Expiration: NotRequired[int]
-    NFTokens: NotRequired[List[NFToken]]
+    NFTokens: NotRequired[List[NFTokenMetadata]]
 
 
 class CreatedNodeFields(TypedDict):

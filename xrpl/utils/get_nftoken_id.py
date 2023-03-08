@@ -1,8 +1,8 @@
 """Utils to get an NFTokenID from metadata"""
 from typing import Callable, List, TypeVar, cast
 
-from xrpl.models.ledger.nft import NFToken
 from xrpl.models.transactions.metadata import (
+    NFTokenMetadata,
     Node,
     TransactionMetadata,
     isCreatedNode,
@@ -32,7 +32,7 @@ def _flatmap(func: Callable[[T], List[R]], list_of_items: List[T]) -> List[R]:
     return modified_items
 
 
-def get_nftoken_ids_from_nftokens(nftokens: List[NFToken]) -> List[str]:
+def get_nftoken_ids_from_nftokens(nftokens: List[NFTokenMetadata]) -> List[str]:
     """
     Extract NFTokenIDs from a list of NFTokens.
 
@@ -97,20 +97,20 @@ def get_nftoken_id(meta: TransactionMetadata) -> str:
 
     affected_nodes = [node for node in meta["AffectedNodes"] if has_nftoken_page(node)]
 
-    def get_previous_nftokens(node: Node) -> List[NFToken]:
-        nftokens: List[NFToken] = []
+    def get_previous_nftokens(node: Node) -> List[NFTokenMetadata]:
+        nftokens: List[NFTokenMetadata] = []
         if isModifiedNode(node):
             new_nftokens = node["ModifiedNode"]["PreviousFields"].get("NFTokens")
             if new_nftokens is not None:
-                nftokens = cast(List[NFToken], new_nftokens)
+                nftokens = cast(List[NFTokenMetadata], new_nftokens)
         return nftokens
 
     previous_token_ids = set(
         get_nftoken_ids_from_nftokens(_flatmap(get_previous_nftokens, affected_nodes))
     )
 
-    def get_new_nftokens(node: Node) -> List[NFToken]:
-        nftokens: List[NFToken] = []
+    def get_new_nftokens(node: Node) -> List[NFTokenMetadata]:
+        nftokens: List[NFTokenMetadata] = []
         if isModifiedNode(node):
             nftokens = node["ModifiedNode"]["FinalFields"].get("NFTokens") or nftokens
         if isCreatedNode(node):
