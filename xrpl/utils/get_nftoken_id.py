@@ -1,5 +1,5 @@
 """Utils to get an NFTokenID from metadata"""
-from typing import Callable, List, TypeVar, cast
+from typing import Callable, List, TypeVar
 
 from xrpl.models.transactions.metadata import (
     NFTokenMetadata,
@@ -102,7 +102,7 @@ def get_nftoken_id(meta: TransactionMetadata) -> str:
         if isModifiedNode(node):
             new_nftokens = node["ModifiedNode"]["PreviousFields"].get("NFTokens")
             if new_nftokens is not None:
-                nftokens = cast(List[NFTokenMetadata], new_nftokens)
+                nftokens = new_nftokens
         return nftokens
 
     previous_token_ids = set(
