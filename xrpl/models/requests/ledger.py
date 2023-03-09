@@ -27,3 +27,4 @@ class Ledger(Request):
     owner_funds: bool = False
     binary: bool = False
     queue: bool = False
+    type: Optional[str] = None

@@ -31,3 +31,4 @@ class LedgerData(Request):
     # marker data shape is actually undefined in the spec, up to the
     # implementation of an individual server
     marker: Optional[Any] = None
+    type: Optional[str] = None
