@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - When connected to nft devnet or hooks v2 testnet generate_faucet_wallet now defaults to using the faucet instead of requiring specification
 - Deprecated `get_account_info`, `get_transaction_from_hash`, `get_account_payment_transactions` for direct requests
 - Private function `request_impl` has been renamed to `_request_impl`. Users should always use `request` over `request_impl`.
+- Removed nft-devnet faucet support as it has been decommissioned ([Blog Post](https://xrpl.org/blog/2023/nft-devnet-decommission.html))
 
 ### Fixed:
 - Properly type the instance functions of NestedModel
