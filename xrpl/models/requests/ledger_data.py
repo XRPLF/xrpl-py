@@ -8,6 +8,7 @@ of a single ledger version.
 from dataclasses import dataclass, field
 from typing import Any, Optional, Union
 
+from xrpl.models.requests.ledger_entry import LedgerEntryType
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.utils import require_kwargs_on_init
 
@@ -31,4 +32,4 @@ class LedgerData(Request):
     # marker data shape is actually undefined in the spec, up to the
     # implementation of an individual server
     marker: Optional[Any] = None
-    type: Optional[str] = None
+    type: Optional[LedgerEntryType] = None
