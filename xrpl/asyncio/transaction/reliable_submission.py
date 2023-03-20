@@ -159,7 +159,8 @@ async def _get_signed_tx(
     Initializes a signed transaction for a submit request.
 
     Args:
-        transaction: the transaction (or transaction blob) to be submitted.
+        transaction: the signed/unsigned transaction (or transaction blob) to
+            be submitted.
         client: the network client with which to submit the transaction.
         wallet: the wallet with which to sign the transaction (optional, only needed
         if the transaction is not signed).
