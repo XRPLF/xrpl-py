@@ -89,7 +89,7 @@ class AccountSetFlag(int, Enum):
     ASF_AUTHORIZED_NFTOKEN_MINTER = 10
     """Allow another account to mint and burn tokens on behalf of this account."""
 
-    ASF_DISABLE_INCOMING_NFT_OFFER = 12
+    ASF_DISABLE_INCOMING_NFTOKEN_OFFER = 12
     """Disallow other accounts from creating NFTokenOffers directed at this account."""
 
     ASF_DISABLE_INCOMING_CHECK = 13
@@ -124,7 +124,7 @@ class AccountSetFlagInterface(FlagInterface):
     ASF_REQUIRE_AUTH: bool
     ASF_REQUIRE_DEST: bool
     ASF_AUTHORIZED_NFTOKEN_MINTER: bool
-    ASF_DISABLE_INCOMING_NFT_OFFER: bool
+    ASF_DISABLE_INCOMING_NFTOKEN_OFFER: bool
     ASF_DISABLE_INCOMING_CHECK: bool
     ASF_DISABLE_INCOMING_PAYCHAN: bool
     ASF_DISABLE_INCOMING_TRUSTLINE: bool
