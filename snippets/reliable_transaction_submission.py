@@ -30,7 +30,7 @@ payment_tx = Payment(
     destination=wallet2.classic_address,
 )
 
-# Sign, autofill, submit transaction and waits for response (validated or rejected)
+# Signs, autofills, and submits transaction and waits for response (validated or rejected)
 payment_response = submit_and_wait(payment_tx, client, wallet1)
 print("Transaction was submitted")
 
