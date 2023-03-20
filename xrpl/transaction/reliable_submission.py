@@ -43,17 +43,19 @@ def submit_and_wait(
     autofill: bool = True,
 ) -> Response:
     """
-    Signs a transaction (locally, without trusting external rippled nodes), submits,
+    Signs a transaction locally, without trusting external rippled nodes (only if
+    the input transaction is unsigned; otherwise, proceeds to the next steps), submits,
     and verifies that it has been included in a validated ledger (or has errored
     /will not be included for some reason).
     `See Reliable Transaction Submission
     <https://xrpl.org/reliable-transaction-submission.html>`_
 
     Args:
-        transaction: the transaction (or transaction blob) to be signed and submitted.
+        transaction: the signed/unsigned transaction (or transaction blob) to
+            be submitted.
         client: the network client with which to submit the transaction.
         wallet: the wallet with which to sign the transaction (optional, only needed
-            if the transaction is not signed).
+            if the transaction is unsigned).
         check_fee: an optional bolean indicating whether to check if the fee is
             higher than the expected transaction type fee. Defaults to True.
         autofill: an optional boolean indicating whether to autofill the

@@ -1,7 +1,7 @@
 """High-level reliable submission methods with XRPL transactions."""
 
 import asyncio
-from typing import Optional, Union, cast
+from typing import Optional, Union
 
 from typing_extensions import Final
 
@@ -23,12 +23,6 @@ _LEDGER_CLOSE_TIME: Final[int] = 1
 
 class XRPLReliableSubmissionException(XRPLException):
     """General XRPL Reliable Submission Exception."""
-
-    pass
-
-
-class XRPLGetSignedTransactionException(XRPLException):
-    """General XRPL Get Signed Transaction Submission Exception."""
 
     pass
 
@@ -177,16 +171,14 @@ async def _get_signed_tx(
     Returns:
         The signed transaction.
     """
-    if type(transaction) is str:
+    if isinstance(transaction, str):
         transaction = _decode_tx_blob(transaction)
-
-    transaction = cast(Transaction, transaction)
 
     if _is_signed(transaction):
         return transaction
 
     if not wallet:
-        raise XRPLGetSignedTransactionException(
+        raise XRPLException(
             "Wallet must be provided when submitting an unsigned transaction"
         )
 
@@ -206,17 +198,19 @@ async def submit_and_wait(
     autofill: bool = True,
 ) -> Response:
     """
-    Signs a transaction (locally, without trusting external rippled nodes), submits,
+    Signs a transaction locally, without trusting external rippled nodes (only if
+    the input transaction is unsigned; otherwise, proceeds to the next steps), submits,
     and verifies that it has been included in a validated ledger (or has errored
     /will not be included for some reason).
     `See Reliable Transaction Submission
     <https://xrpl.org/reliable-transaction-submission.html>`_
 
     Args:
-        transaction: the transaction (or transaction blob) to be signed and submitted.
+        transaction: the signed/unsigned transaction (or transaction blob) to
+            be submitted.
         client: the network client with which to submit the transaction.
         wallet: the wallet with which to sign the transaction (optional, only needed
-            if the transaction is not signed).
+            if the transaction is unsigned).
         check_fee: an optional bolean indicating whether to check if the fee is
             higher than the expected transaction type fee. Defaults to True.
         autofill: an optional boolean indicating whether to autofill the
