@@ -195,6 +195,7 @@ async def submit_and_wait(
     transaction: Union[Transaction, str],
     client: Client,
     wallet: Optional[Wallet] = None,
+    *,
     check_fee: bool = True,
     autofill: bool = True,
 ) -> Response:

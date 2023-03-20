@@ -39,6 +39,7 @@ def submit_and_wait(
     transaction: Transaction,
     client: SyncClient,
     wallet: Optional[Wallet] = None,
+    *,
     check_fee: bool = True,
     autofill: bool = True,
 ) -> Response:
@@ -69,7 +70,7 @@ def submit_and_wait(
             transaction,
             client,
             wallet,
-            check_fee,
-            autofill,
+            check_fee=check_fee,
+            autofill=autofill,
         )
     )
