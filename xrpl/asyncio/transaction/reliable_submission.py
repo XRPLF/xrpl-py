@@ -59,7 +59,9 @@ async def _wait_for_final_transaction_outcome(
     if last_ledger_sequence > latest_ledger_sequence:
         # outcome is not yet final
         return await _wait_for_final_transaction_outcome(
-            transaction_hash, client, prelim_result, 0
+            transaction_hash,
+            client,
+            prelim_result,
         )
 
     raise XRPLReliableSubmissionException(
@@ -107,5 +109,7 @@ async def send_reliable_submission(
         )
 
     return await _wait_for_final_transaction_outcome(
-        transaction_hash, client, prelim_result, 0
+        transaction_hash,
+        client,
+        prelim_result,
     )
