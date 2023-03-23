@@ -35,7 +35,9 @@ class XChainCreateClaimID(Transaction):
         if self.signature_reward is not None and not self.signature_reward.isnumeric():
             errors["signature_reward"] = "`signature_reward` must be numeric."
 
-        if not is_valid_classic_address(self.other_chain_source):
+        if self.other_chain_source is not None and not is_valid_classic_address(
+            self.other_chain_source
+        ):
             errors[
                 "other_chain_source"
             ] = "`other_chain_source` must be a valid XRPL address."
