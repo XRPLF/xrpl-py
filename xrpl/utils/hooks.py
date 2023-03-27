@@ -7,7 +7,7 @@ import binascii
 import hashlib
 from typing import Any, Dict, List, Optional  # noqa: F401
 
-from xrpl import XRPLException
+from xrpl.constants import XRPLException
 from xrpl.core.binarycodec.definitions import _TRANSACTION_TYPE_MAP, _TRANSACTION_TYPES
 
 
