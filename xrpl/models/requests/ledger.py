@@ -5,6 +5,7 @@ Retrieve information about the public ledger.
 from dataclasses import dataclass, field
 from typing import Optional, Union
 
+from xrpl.models.requests.ledger_entry import LedgerEntryType
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.utils import require_kwargs_on_init
 
@@ -27,3 +28,4 @@ class Ledger(Request):
     owner_funds: bool = False
     binary: bool = False
     queue: bool = False
+    type: Optional[LedgerEntryType] = None
