@@ -469,10 +469,8 @@ class TestSubmitAndWait(IntegrationTestCase):
         ],
     )
     async def test_submit_and_wait_simple(self, client):
-        WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
         account_set = AccountSet(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             set_flag=SET_FLAG,
         )
         await accept_ledger_async(delay=1)
@@ -492,10 +490,8 @@ class TestSubmitAndWait(IntegrationTestCase):
         ],
     )
     async def test_submit_and_wait_payment(self, client):
-        WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
         payment_transaction = Payment(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             amount="10",
             destination=DESTINATION,
         )
@@ -517,10 +513,8 @@ class TestSubmitAndWait(IntegrationTestCase):
         ],
     )
     async def test_submit_and_wait_signed(self, client):
-        WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
         payment_transaction = Payment(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             amount="10",
             destination=DESTINATION,
         )
@@ -546,10 +540,8 @@ class TestSubmitAndWait(IntegrationTestCase):
         ],
     )
     async def test_submit_and_wait_blob(self, client):
-        WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
         payment_transaction = Payment(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             amount="10",
             destination=DESTINATION,
         )
@@ -574,10 +566,8 @@ class TestSubmitAndWait(IntegrationTestCase):
         ],
     )
     async def test_submit_and_wait_last_ledger_expiration(self, client):
-        WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
         payment_transaction = Payment(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             last_ledger_sequence=await get_latest_validated_ledger_sequence(client),
             fee="10",
             amount="100",
