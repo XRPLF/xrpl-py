@@ -132,6 +132,13 @@ def _is_signed(transaction: Transaction) -> bool:
     Returns:
         Whether the transaction has been signed
     """
+    if transaction.signers:
+        for signer in transaction.signers:
+            if (
+                signer.signing_pub_key is None or len(transaction.signing_pub_key) <= 0
+            ) and (signer.txn_signature is None or len(signer.txn_signature) <= 0):
+                return False
+        return True
     return (
         transaction.signing_pub_key is not None and len(transaction.signing_pub_key) > 0
     ) or (transaction.txn_signature is not None and len(transaction.txn_signature) > 0)
@@ -189,7 +196,12 @@ async def _get_signed_tx(
 
     if autofill:
         transaction = await _autofill(transaction, client)
-    return await sign(transaction, wallet, False)
+
+    return (
+        await sign(transaction, wallet, True)
+        if transaction.signers
+        else await sign(transaction, wallet, True)
+    )
 
 
 async def submit_and_wait(
