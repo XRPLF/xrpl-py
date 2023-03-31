@@ -493,13 +493,12 @@ class TestSubmitAndWait(IntegrationTestCase):
     )
     async def test_submit_and_wait_payment(self, client):
         WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
-        payment_dict = {
-            "account": ACCOUNT,
-            "sequence": WALLET.sequence,
-            "amount": "10",
-            "destination": DESTINATION,
-        }
-        payment_transaction = Payment.from_dict(payment_dict)
+        payment_transaction = Payment(
+            account=ACCOUNT,
+            sequence=WALLET.sequence,
+            amount="10",
+            destination=DESTINATION,
+        )
         await accept_ledger_async(delay=1)
         response = await submit_and_wait(payment_transaction, client, WALLET)
         self.assertTrue(response.result["validated"])
@@ -519,14 +518,14 @@ class TestSubmitAndWait(IntegrationTestCase):
     )
     async def test_submit_and_wait_signed(self, client):
         WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
-        payment_dict = {
-            "account": ACCOUNT,
-            "sequence": WALLET.sequence,
-            "amount": "10",
-            "destination": DESTINATION,
-        }
+        payment_transaction = Payment(
+            account=ACCOUNT,
+            sequence=WALLET.sequence,
+            amount="10",
+            destination=DESTINATION,
+        )
         payment_transaction_signed = await autofill_and_sign(
-            Payment.from_dict(payment_dict), WALLET, client
+            payment_transaction, WALLET, client
         )
         await accept_ledger_async(delay=1)
         response = await submit_and_wait(payment_transaction_signed, client)
@@ -548,14 +547,14 @@ class TestSubmitAndWait(IntegrationTestCase):
     )
     async def test_submit_and_wait_blob(self, client):
         WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
-        payment_dict = {
-            "account": ACCOUNT,
-            "sequence": WALLET.sequence,
-            "amount": "10",
-            "destination": DESTINATION,
-        }
+        payment_transaction = Payment(
+            account=ACCOUNT,
+            sequence=WALLET.sequence,
+            amount="10",
+            destination=DESTINATION,
+        )
         payment_transaction_signed = await autofill_and_sign(
-            Payment.from_dict(payment_dict), WALLET, client
+            payment_transaction, WALLET, client
         )
         await accept_ledger_async(delay=1)
         payment_transaction_signed_blob = encode(payment_transaction_signed.to_xrpl())
@@ -576,15 +575,14 @@ class TestSubmitAndWait(IntegrationTestCase):
     )
     async def test_submit_and_wait_last_ledger_expiration(self, client):
         WALLET.sequence = await get_next_valid_seq_number(ACCOUNT, client)
-        payment_dict = {
-            "account": ACCOUNT,
-            "sequence": WALLET.sequence,
-            "last_ledger_sequence": await get_latest_validated_ledger_sequence(client),
-            "fee": "10",
-            "amount": "100",
-            "destination": DESTINATION,
-        }
-        payment_transaction = Payment.from_dict(payment_dict)
+        payment_transaction = Payment(
+            account=ACCOUNT,
+            sequence=WALLET.sequence,
+            last_ledger_sequence=await get_latest_validated_ledger_sequence(client),
+            fee="10",
+            amount="100",
+            destination=DESTINATION,
+        )
         await accept_ledger_async(delay=1)
         with self.assertRaises(XRPLReliableSubmissionException):
             await submit_and_wait(payment_transaction, client, WALLET)
