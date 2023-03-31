@@ -40,13 +40,9 @@ async def _wait_for_final_transaction_outcome(
     # new persisted transaction
 
     # query transaction by hash
-    try:
-        transaction_response = await client._request_impl(
-            Tx(transaction=transaction_hash)
-        )
-    except XRPLRequestFailureException as e:
-        if e.error == "txnNotFound" and attempts < 4:
-
+    transaction_response = await client._request_impl(Tx(transaction=transaction_hash))
+    if not transaction_response.is_successful():
+        if transaction_response.result["error"] == "txnNotFound" and attempts < 4:
             """
             For the case if a submitted transaction is still
             in queue and not processed on the ledger yet.
@@ -56,7 +52,7 @@ async def _wait_for_final_transaction_outcome(
                 transaction_hash, client, prelim_result, attempts + 1
             )
         else:
-            raise e
+            raise XRPLRequestFailureException(transaction_response.result)
     result = transaction_response.result
     if "validated" in result and result["validated"]:
         # result is in a validated ledger, outcome is final
@@ -68,7 +64,9 @@ async def _wait_for_final_transaction_outcome(
     if last_ledger_sequence > latest_ledger_sequence:
         # outcome is not yet final
         return await _wait_for_final_transaction_outcome(
-            transaction_hash, client, prelim_result, 0
+            transaction_hash,
+            client,
+            prelim_result,
         )
 
     raise XRPLReliableSubmissionException(
@@ -116,7 +114,9 @@ async def send_reliable_submission(
         )
 
     return await _wait_for_final_transaction_outcome(
-        transaction_hash, client, prelim_result, 0
+        transaction_hash,
+        client,
+        prelim_result,
     )
 
 

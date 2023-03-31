@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Created function alias to `safe_sign_and_submit_transaction` called `sign_and_submit`
 - AccountSetFlags for disallowing incoming objects (e.g. `asf_disallow_incoming_trustline`)
 - Added `getNFTokenID` to get the NFTokenID after minting a token.
+- Added `LedgerEntryType` enum and added `type` field to `Ledger` and `LedgerData` requests
 
 ### Changed:
 - `check_fee` now has a higher limit that is less likely to be hit
@@ -23,8 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed:
 - Properly type the instance functions of NestedModel
-- Added additional check to `txnNotFound` error from `reliable_submission` due to race condition
-- Added `nft_offer` type in `AccountObjects`
+- Add additional check to `txnNotFound` error from `reliable_submission` due to race condition
+- Add `nft_offer` type in `AccountObjects`
+- Handle errors better in `send_reliable_submission`
 
 ## [1.7.0] - 2022-10-12
 ### Added:
