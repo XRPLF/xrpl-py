@@ -13,7 +13,12 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.wallet.main import Wallet
 
 
-def send_reliable_submission(transaction: Transaction, client: SyncClient) -> Response:
+def send_reliable_submission(
+    transaction: Transaction,
+    client: SyncClient,
+    *,
+    fail_hard: bool = False,
+) -> Response:
     """
     Submits a transaction and verifies that it has been included in a validated ledger
     (or has errored/will not be included for some reason).
@@ -28,11 +33,15 @@ def send_reliable_submission(transaction: Transaction, client: SyncClient) -> Re
         transaction: the signed transaction to submit to the ledger. Requires a
             `last_ledger_sequence` param.
         client: the network client used to submit the transaction to a rippled node.
+        fail_hard: an optional boolean. If True, and the transaction fails locally,
+            do not retry or relay the transaction to other servers. Defaults to False.
 
     Returns:
         The response from a validated ledger.
     """
-    return asyncio.run(async_send_reliable_submission(transaction, client))
+    return asyncio.run(
+        async_send_reliable_submission(transaction, client, fail_hard=fail_hard)
+    )
 
 
 def submit_and_wait(
@@ -42,6 +51,7 @@ def submit_and_wait(
     *,
     check_fee: bool = True,
     autofill: bool = True,
+    fail_hard: bool = False,
 ) -> Response:
     """
     Signs a transaction locally, without trusting external rippled nodes (only if
@@ -61,6 +71,8 @@ def submit_and_wait(
             higher than the expected transaction type fee. Defaults to True.
         autofill: an optional boolean indicating whether to autofill the
             transaction. Defaults to True.
+        fail_hard: an optional boolean. If True, and the transaction fails locally,
+            do not retry or relay the transaction to other servers. Defaults to False.
 
     Returns:
         The response from the ledger.
@@ -72,5 +84,6 @@ def submit_and_wait(
             wallet,
             check_fee=check_fee,
             autofill=autofill,
+            fail_hard=fail_hard,
         )
     )

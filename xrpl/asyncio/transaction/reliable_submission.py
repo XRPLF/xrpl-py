@@ -77,7 +77,7 @@ async def _wait_for_final_transaction_outcome(
 
 
 async def send_reliable_submission(
-    transaction: Transaction, client: Client
+    transaction: Transaction, client: Client, *, fail_hard: bool = False
 ) -> Response:
     """
     Asynchronously submits a transaction and verifies that it has been included in a
@@ -93,6 +93,8 @@ async def send_reliable_submission(
         transaction: the signed transaction to submit to the ledger. Requires a
             `last_ledger_sequence` param.
         client: the network client used to submit the transaction to a rippled node.
+        fail_hard: an optional boolean. If True, and the transaction fails locally,
+            do not retry or relay the transaction to other servers. Defaults to False.
 
     Returns:
         The response from a validated ledger.
@@ -106,7 +108,7 @@ async def send_reliable_submission(
             "Transaction must have a `last_ledger_sequence` param."
         )
     transaction_hash = transaction.get_hash()
-    submit_response = await submit(transaction, client)
+    submit_response = await submit(transaction, client, fail_hard=fail_hard)
     prelim_result = submit_response.result["engine_result"]
     if prelim_result[0:3] == "tem":
         raise XRPLReliableSubmissionException(
@@ -197,6 +199,7 @@ async def submit_and_wait(
     *,
     check_fee: bool = True,
     autofill: bool = True,
+    fail_hard: bool = False,
 ) -> Response:
     """
     Signs a transaction locally, without trusting external rippled nodes (only if
@@ -216,6 +219,8 @@ async def submit_and_wait(
             higher than the expected transaction type fee. Defaults to True.
         autofill: an optional boolean indicating whether to autofill the
             transaction. Defaults to True.
+        fail_hard: an optional boolean. If True, and the transaction fails locally,
+            do not retry or relay the transaction to other servers. Defaults to False.
 
     Returns:
         The response from the ledger.
@@ -223,4 +228,6 @@ async def submit_and_wait(
     signed_transaction = await _get_signed_tx(
         transaction, client, wallet, check_fee, autofill
     )
-    return await send_reliable_submission(signed_transaction, client)
+    return await send_reliable_submission(
+        signed_transaction, client, fail_hard=fail_hard
+    )
