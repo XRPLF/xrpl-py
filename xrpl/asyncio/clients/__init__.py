@@ -2,7 +2,10 @@
 from xrpl.asyncio.clients.async_json_rpc_client import AsyncJsonRpcClient
 from xrpl.asyncio.clients.async_websocket_client import AsyncWebsocketClient
 from xrpl.asyncio.clients.client import Client
-from xrpl.asyncio.clients.exceptions import XRPLRequestFailureException
+from xrpl.asyncio.clients.exceptions import (
+    XRPLRequestFailureException,
+    XRPLWebsocketClosedUnexpectedlyException,
+)
 from xrpl.asyncio.clients.utils import (
     json_to_response,
     request_to_json_rpc,
@@ -17,6 +20,7 @@ __all__ = [
     "json_to_response",
     "request_to_json_rpc",
     "XRPLRequestFailureException",
+    "XRPLWebsocketClosedUnexpectedlyException",
     "request_to_websocket",
     "websocket_to_response",
 ]

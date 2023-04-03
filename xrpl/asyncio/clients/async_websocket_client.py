@@ -61,7 +61,10 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
 
         import asyncio
 
-        from xrpl.asyncio.clients import AsyncWebsocketClient
+        from xrpl.asyncio.clients import (
+            AsyncWebsocketClient,
+            XRPLWebsocketClosedUnexpectedlyException,
+        )
         from xrpl.models import Subscribe, Unsubscribe, StreamParameter
 
         URL = "wss://s.devnet.rippletest.net:51233"
@@ -192,8 +195,9 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
                 ))
 
                 # sleep infinitely until the connection closes on us
-                while True:
+                while client.is_open():
                     await asyncio.sleep(0)
+                listener.cancel()
 
 
         async def main():

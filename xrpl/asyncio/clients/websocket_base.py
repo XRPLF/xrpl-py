@@ -10,7 +10,10 @@ from typing_extensions import Final
 from websockets import client as websocket_client
 
 from xrpl.asyncio.clients.client import Client
-from xrpl.asyncio.clients.exceptions import XRPLWebsocketException
+from xrpl.asyncio.clients.exceptions import (
+    XRPLWebsocketClosedUnexpectedlyException,
+    XRPLWebsocketException,
+)
 from xrpl.asyncio.clients.utils import request_to_websocket, websocket_to_response
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
