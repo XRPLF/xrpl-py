@@ -56,7 +56,8 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
     using the ``asyncio`` library to listen to incoming
     messages and do something with them, but the above will
     work fine if you want to listen indefinitely. This is how
-    you can use a Task to listen to messages without blocking::
+    you can use a Task to listen to messages without blocking. Note this
+    example can be copied directly into a file and run with no changes::
 
         import asyncio
 
@@ -66,7 +67,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
         )
         from xrpl.models import Subscribe, Unsubscribe, StreamParameter
 
-        URL = "wss://some-url-to-connect-to"
+        URL = "wss://s.devnet.rippletest.net:51233"
 
 
         def on_open():
@@ -127,7 +128,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
                     # async code instead of `time.sleep`, otherwise
                     # you will block all the waiting tasks instead of
                     # just this code path.
-                    await asyncio.sleep(5)
+                    await asyncio.sleep(50)
 
                     # now that we're done, we can unsubscribe if
                     # we like
@@ -137,7 +138,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
                     print("Unsubscribed from the ledger!")
                 except XRPLWebsocketClosedUnexpectedlyException:
                     # if you wish you perform some logic when the websocket
-                    # connection closes on you without your asking to to,
+                    # connection closes on you without your asking it to,
                     # you can catch this error and run whatever you need
                     # to here. this is equivalent to the javascript 'error'
                     # event
@@ -158,14 +159,18 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
 
 
     If you need to ensure that you reconnect your websockets whenever they
-    disconnect, you can create a supervisor like so::
+    disconnect, you can create a supervisor like the example below. Note this
+    example can be copied and run directly with no changes::
 
         import asyncio
 
-        from xrpl.asyncio.clients import AsyncWebsocketClient,
+        from xrpl.asyncio.clients import (
+            AsyncWebsocketClient,
+            XRPLWebsocketClosedUnexpectedlyException,
+        )
         from xrpl.models import Subscribe, StreamParameter
 
-        URL = "wss://some-url-to-connect-to"
+        URL = "wss://s.devnet.rippletest.net:51233"
 
 
         async def websocket_supervisor():
@@ -174,18 +179,13 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
             while True:
                 try:
                     await long_websocket_task()
-                except:
-                    pass
+                except XRPLWebsocketClosedUnexpectedlyException:
+                    print("Lost connection! Reconnecting")
 
 
         async def on_message(client):
             async for message in client:
                 print(message)
-
-
-        async sleep_forever():
-            while True:
-                await asyncio.sleep(0)
 
 
         async def long_websocket_task():
@@ -199,7 +199,8 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
                 ))
 
                 # sleep infinitely until the connection closes on us
-                await sleep_forever()
+                while True:
+                    await asyncio.sleep(0)
 
 
         async def main():
