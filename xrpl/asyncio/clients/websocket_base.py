@@ -7,10 +7,14 @@ from random import randrange
 from typing import TYPE_CHECKING, Any, Dict, Optional, cast
 
 from typing_extensions import Final
-from websockets.legacy.client import WebSocketClientProtocol, connect
+from websockets import client as websocket_client
+from websockets import exceptions as websocket_exceptions
 
 from xrpl.asyncio.clients.client import Client
-from xrpl.asyncio.clients.exceptions import XRPLWebsocketException
+from xrpl.asyncio.clients.exceptions import (
+    XRPLWebsocketClosedUnexpectedlyException,
+    XRPLWebsocketException,
+)
 from xrpl.asyncio.clients.utils import request_to_websocket, websocket_to_response
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
@@ -62,7 +66,7 @@ class WebsocketBase(Client):
             url: The URL of the rippled node to submit requests to.
         """
         self._open_requests: _REQUESTS_TYPE = {}
-        self._websocket: Optional[WebSocketClientProtocol] = None
+        self._websocket: Optional[websocket_client.WebSocketClientProtocol] = None
         self._handler_task: Optional[_HANDLER_TYPE] = None
         # unfortunately, we cannot create the Queue here because it needs to be
         # tied to a currently-running event loop. the sync websocket client
@@ -88,7 +92,7 @@ class WebsocketBase(Client):
     async def _do_open(self: WebsocketBase) -> None:
         """Connects the client to the Web Socket API at its URL."""
         # open the connection
-        self._websocket = await connect(self.url)
+        self._websocket = await websocket_client.connect(self.url)
 
         # make a message queue
         self._messages = asyncio.Queue()
@@ -114,7 +118,7 @@ class WebsocketBase(Client):
         self._messages = None
 
         # close the connection
-        await cast(WebSocketClientProtocol, self._websocket).close()
+        await cast(websocket_client.WebSocketClientProtocol, self._websocket).close()
 
     async def _handler(self: WebsocketBase) -> None:
         """
@@ -126,15 +130,20 @@ class WebsocketBase(Client):
 
         As long as a given client remains open, this handler will be running as a Task.
         """
-        async for response in cast(WebSocketClientProtocol, self._websocket):
-            response_dict = json.loads(response)
+        try:
+            async for response in cast(
+                websocket_client.WebSocketClientProtocol, self._websocket
+            ):
+                response_dict = json.loads(response)
 
-            # if this response corresponds to request, fulfill the Future
-            if "id" in response_dict and response_dict["id"] in self._open_requests:
-                self._open_requests[response_dict["id"]].set_result(response_dict)
+                # if this response corresponds to request, fulfill the Future
+                if "id" in response_dict and response_dict["id"] in self._open_requests:
+                    self._open_requests[response_dict["id"]].set_result(response_dict)
 
-            # enqueue the response for the message queue
-            cast(_MESSAGES_TYPE, self._messages).put_nowait(response_dict)
+                # enqueue the response for the message queue
+                cast(_MESSAGES_TYPE, self._messages).put_nowait(response_dict)
+        except websocket_exceptions.ConnectionClosedError as e:
+            raise XRPLWebsocketClosedUnexpectedlyException(str(e))
 
     def _set_up_future(self: WebsocketBase, request: Request) -> None:
         """
@@ -168,11 +177,14 @@ class WebsocketBase(Client):
         Arguments:
             request: The request to send.
         """
-        await cast(WebSocketClientProtocol, self._websocket).send(
-            json.dumps(
-                request_to_websocket(request),
-            ),
-        )
+        try:
+            await cast(websocket_client.WebSocketClientProtocol, self._websocket).send(
+                json.dumps(
+                    request_to_websocket(request),
+                ),
+            )
+        except websocket_exceptions.ConnectionClosedError as e:
+            raise XRPLWebsocketClosedUnexpectedlyException(str(e))
 
     async def _do_send(self: WebsocketBase, request: Request) -> None:
         """
