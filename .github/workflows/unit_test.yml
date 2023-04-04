@@ -72,7 +72,7 @@ jobs:
           key: dotlocal-${{ env.POETRY_VERSION }}-${{ hashFiles('.github/workflows') }}
 
       - name: Install poetry
-        # if: steps.cache-poetry.outputs.cache-hit != 'true'
+        if: steps.cache-poetry.outputs.cache-hit != 'true'
         run: |
           curl -sSL https://install.python-poetry.org/ | python - --version ${{ env.POETRY_VERSION }}
           echo "$HOME/.local/bin" >> $GITHUB_PATH
