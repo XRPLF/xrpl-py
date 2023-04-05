@@ -36,13 +36,35 @@ class XChainModifyBridgeFlagInterface(FlagInterface):
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class XChainModifyBridge(Transaction):
-    """Represents a XChainModifyBridge transaction."""
+    """
+    Represents a XChainModifyBridge transaction.
+    The XChainModifyBridge transaction allows bridge managers to modify the
+    parameters of the bridge.
+    """
 
     xchain_bridge: XChainBridge = REQUIRED  # type: ignore
+    """
+    The bridge to modify. This field is required.
+
+    :meta hide-value:
+    """
 
     signature_reward: Optional[str] = None
+    """
+    The signature reward split between the witnesses for submitting
+    attestations.
+
+    :meta hide-value:
+    """
 
     min_account_create_amount: Optional[str] = None
+    """
+    The minimum amount, in XRP, required for a ``XChainAccountCreateCommit``
+    transaction. If this is not present, the ``XChainAccountCreateCommit``
+    transaction will fail. This field can only be present on XRP-XRP bridges.
+
+    :meta hide-value:
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.XCHAIN_MODIFY_BRIDGE,
