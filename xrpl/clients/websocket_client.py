@@ -1,7 +1,7 @@
 """A sync client for interacting with the rippled WebSocket API."""
 from __future__ import annotations
 
-from asyncio import AbstractEventLoop, new_event_loop, run_coroutine_threadsafe
+import asyncio
 from concurrent.futures import CancelledError, TimeoutError
 from threading import Thread
 from types import TracebackType
@@ -77,7 +77,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
                 If this limit is met, iteration will stop.
         """
         self.timeout = timeout
-        self._loop: Optional[AbstractEventLoop] = None
+        self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._thread: Optional[Thread] = None
         super().__init__(url)
 
@@ -96,7 +96,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
             return
 
         # make a new asyncio event loop
-        self._loop = new_event_loop()
+        self._loop = asyncio.new_event_loop()
 
         # create and start a thread to run that event loop
         self._thread = Thread(
@@ -107,7 +107,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
 
         # run WebsocketBase._do_open on the event loop of the child thread and
         # wait for it to finish
-        run_coroutine_threadsafe(self._do_open(), self._loop).result()
+        asyncio.run_coroutine_threadsafe(self._do_open(), self._loop).result()
 
     def close(self: WebsocketClient) -> None:
         """Closes the connection."""
@@ -116,19 +116,19 @@ class WebsocketClient(SyncClient, WebsocketBase):
 
         # run WebsocketBase._do_close on the event loop of the child thread and
         # wait for it to finish
-        run_coroutine_threadsafe(
-            self._do_close(), cast(AbstractEventLoop, self._loop)
+        asyncio.run_coroutine_threadsafe(
+            self._do_close(), cast(asyncio.AbstractEventLoop, self._loop)
         ).result()
 
         # request the child thread to stop the loop and wait for it to
         # terminate
-        cast(AbstractEventLoop, self._loop).call_soon_threadsafe(
-            cast(AbstractEventLoop, self._loop).stop
+        cast(asyncio.AbstractEventLoop, self._loop).call_soon_threadsafe(
+            cast(asyncio.AbstractEventLoop, self._loop).stop
         )
         cast(Thread, self._thread).join()
 
         # close the stopped loop
-        cast(AbstractEventLoop, self._loop).close()
+        cast(asyncio.AbstractEventLoop, self._loop).close()
 
         # clear state
         self._loop = None
@@ -160,10 +160,13 @@ class WebsocketClient(SyncClient, WebsocketBase):
         `self.timeout` seconds then the iterator will exit. If
         `self.timeout` is `None` or `0` then the iterator will block
         indefinetly for the next messsage.
+
+        Yields:
+            The message at the top of the queue.
         """
         while self.is_open():
-            future = run_coroutine_threadsafe(
-                self._do_pop_message(), cast(AbstractEventLoop, self._loop)
+            future = asyncio.run_coroutine_threadsafe(
+                self._do_pop_message(), cast(asyncio.AbstractEventLoop, self._loop)
             )
             try:
                 yield future.result(self.timeout)
@@ -193,8 +196,8 @@ class WebsocketClient(SyncClient, WebsocketBase):
         """
         if not self.is_open():
             raise XRPLWebsocketException("Websocket is not open")
-        run_coroutine_threadsafe(
-            self._do_send(request), cast(AbstractEventLoop, self._loop)
+        asyncio.run_coroutine_threadsafe(
+            self._do_send(request), cast(asyncio.AbstractEventLoop, self._loop)
         ).result()
 
     async def _request_impl(self: WebsocketClient, request: Request) -> Response:
@@ -228,7 +231,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
         # when this is run via `await client._request_impl`, it will
         # completely block the main thread until completed,
         # just as if it were not async.
-        return run_coroutine_threadsafe(
+        return asyncio.run_coroutine_threadsafe(
             self._do_request_impl(request),
-            cast(AbstractEventLoop, self._loop),
+            cast(asyncio.AbstractEventLoop, self._loop),
         ).result()
