@@ -23,7 +23,7 @@ class XRPLReliableSubmissionException(XRPLException):
 
 
 async def _wait_for_final_transaction_outcome(
-    transaction_hash: str, client: Client, prelim_result: str
+    transaction_hash: str, client: Client, prelim_result: str, last_ledger_sequence: int
 ) -> Response:
     """
     The core logic of reliable submission.  Polls the ledger until the result of the
@@ -34,6 +34,15 @@ async def _wait_for_final_transaction_outcome(
     await asyncio.sleep(_LEDGER_CLOSE_TIME)
     # new persisted transaction
 
+    latest_ledger_sequence = await get_latest_validated_ledger_sequence(client)
+
+    if last_ledger_sequence < latest_ledger_sequence:
+        raise XRPLReliableSubmissionException(
+            f"The latest ledger sequence {latest_ledger_sequence} is greater than the "
+            f"last ledger sequence {last_ledger_sequence} in the transaction. Prelim "
+            f"result: {prelim_result}"
+        )
+
     # query transaction by hash
     transaction_response = await client._request_impl(Tx(transaction=transaction_hash))
     if not transaction_response.is_successful():
@@ -43,30 +52,22 @@ async def _wait_for_final_transaction_outcome(
             in queue and not processed on the ledger yet.
             """
             return await _wait_for_final_transaction_outcome(
-                transaction_hash, client, prelim_result
+                transaction_hash, client, prelim_result, last_ledger_sequence
             )
         else:
             raise XRPLRequestFailureException(transaction_response.result)
+
     result = transaction_response.result
     if "validated" in result and result["validated"]:
         # result is in a validated ledger, outcome is final
         return transaction_response
 
-    last_ledger_sequence = result["LastLedgerSequence"]
-    latest_ledger_sequence = await get_latest_validated_ledger_sequence(client)
-
-    if last_ledger_sequence > latest_ledger_sequence:
-        # outcome is not yet final
-        return await _wait_for_final_transaction_outcome(
-            transaction_hash,
-            client,
-            prelim_result,
-        )
-
-    raise XRPLReliableSubmissionException(
-        f"The latest ledger sequence {latest_ledger_sequence} is greater than the "
-        f"last ledger sequence {last_ledger_sequence} in the transaction. Prelim "
-        f"result: {prelim_result}"
+    # outcome is not yet final
+    return await _wait_for_final_transaction_outcome(
+        transaction_hash,
+        client,
+        prelim_result,
+        last_ledger_sequence
     )
 
 
@@ -111,4 +112,5 @@ async def send_reliable_submission(
         transaction_hash,
         client,
         prelim_result,
+        transaction.last_ledger_sequence
     )
