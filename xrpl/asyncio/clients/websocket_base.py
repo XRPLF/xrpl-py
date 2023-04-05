@@ -1,8 +1,8 @@
 """A client for interacting with the rippled WebSocket API."""
 from __future__ import annotations
 
+import asyncio
 import json
-from asyncio import Future, Queue, Task, create_task, get_running_loop
 from random import randrange
 from typing import TYPE_CHECKING, Any, Dict, Optional, cast
 
@@ -19,13 +19,13 @@ _REQ_ID_MAX: Final[int] = 1_000_000
 # the types from asyncio are not implemented as generics in python 3.8 and
 # lower, so we need to only subscript them when running typechecking.
 if TYPE_CHECKING:
-    _REQUESTS_TYPE = Dict[str, Future[Dict[str, Any]]]
-    _MESSAGES_TYPE = Queue[Dict[str, Any]]
-    _HANDLER_TYPE = Task[None]
+    _REQUESTS_TYPE = Dict[str, asyncio.Future[Dict[str, Any]]]
+    _MESSAGES_TYPE = asyncio.Queue[Dict[str, Any]]
+    _HANDLER_TYPE = asyncio.Task[None]
 else:
-    _REQUESTS_TYPE = Dict[str, Future]
-    _MESSAGES_TYPE = Queue
-    _HANDLER_TYPE = Task
+    _REQUESTS_TYPE = Dict[str, asyncio.Future]
+    _MESSAGES_TYPE = asyncio.Queue
+    _HANDLER_TYPE = asyncio.Task
 
 
 def _inject_request_id(request: Request) -> Request:
@@ -33,6 +33,12 @@ def _inject_request_id(request: Request) -> Request:
     Given a Request with an ID, return the same Request.
 
     Given a Request without an ID, make a copy with a randomly generated ID.
+
+    Arguments:
+        request: The request to inject an ID into.
+
+    Returns:
+        The request with an ID injected into it.
     """
     if request.id is not None:
         return request
@@ -85,10 +91,10 @@ class WebsocketBase(Client):
         self._websocket = await connect(self.url)
 
         # make a message queue
-        self._messages = Queue()
+        self._messages = asyncio.Queue()
 
         # start the handler
-        self._handler_task = create_task(self._handler())
+        self._handler_task = asyncio.create_task(self._handler())
 
     async def _do_close(self: WebsocketBase) -> None:
         """Closes the connection."""
@@ -135,6 +141,13 @@ class WebsocketBase(Client):
         Only to be called from the public send and _request_impl functions.
         Given a request with an ID, ensure that that ID is backed by an open
         Future in self._open_requests.
+
+        Arguments:
+            request: The request with which to set up a future.
+
+        Raises:
+            XRPLWebsocketException: if there is already a request with this ID
+                in progress.
         """
         if request.id is None:
             return
@@ -146,9 +159,15 @@ class WebsocketBase(Client):
             raise XRPLWebsocketException(
                 f"Request {request_str} is already in progress."
             )
-        self._open_requests[request_str] = get_running_loop().create_future()
+        self._open_requests[request_str] = asyncio.get_running_loop().create_future()
 
     async def _do_send_no_future(self: WebsocketBase, request: Request) -> None:
+        """
+        Base websocket send function
+
+        Arguments:
+            request: The request to send.
+        """
         await cast(WebSocketClientProtocol, self._websocket).send(
             json.dumps(
                 request_to_websocket(request),
@@ -156,12 +175,23 @@ class WebsocketBase(Client):
         )
 
     async def _do_send(self: WebsocketBase, request: Request) -> None:
+        """
+        Websocket send function that should be used by
+        any inherited classes.
+
+        Arguments:
+            request: The request to send.
+        """
         # we need to set up a future here, even if no one cares about it, so
         # that if a user submits a few requests with the same ID they fail.
         self._set_up_future(request)
         await self._do_send_no_future(request)
 
     async def _do_pop_message(self: WebsocketBase) -> Dict[str, Any]:
+        """
+        Returns:
+            The top message from the queue
+        """
         msg = await cast(_MESSAGES_TYPE, self._messages).get()
         cast(_MESSAGES_TYPE, self._messages).task_done()
         return msg
@@ -187,7 +217,7 @@ class WebsocketBase(Client):
         self._set_up_future(request_with_id)
 
         # fire-and-forget the send, and await the Future
-        create_task(self._do_send_no_future(request_with_id))
+        asyncio.create_task(self._do_send_no_future(request_with_id))
         raw_response = await self._open_requests[request_str]
 
         # remove the resolved Future, hopefully getting it garbage colleted
