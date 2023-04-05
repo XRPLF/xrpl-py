@@ -4,6 +4,7 @@ import importlib
 import inspect
 from threading import Timer as ThreadingTimer
 from time import sleep
+from typing import cast
 
 import xrpl  # noqa: F401 - needed for sync tests
 from xrpl.account import get_next_valid_seq_number
@@ -17,8 +18,11 @@ from xrpl.clients import Client, JsonRpcClient, WebsocketClient
 from xrpl.clients.sync_client import SyncClient
 from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
 from xrpl.transaction import (  # noqa: F401 - needed for sync tests
-    safe_sign_and_autofill_transaction,
+    autofill_and_sign,
     safe_sign_and_submit_transaction,
+)
+from xrpl.transaction import (  # noqa: F401 - needed for sync tests
+    submit_transaction as submit_transaction_alias,
 )
 from xrpl.wallet import Wallet
 
@@ -26,7 +30,7 @@ JSON_RPC_URL = "http://127.0.0.1:5005"
 WEBSOCKET_URL = "ws://127.0.0.1:6006"
 
 JSON_TESTNET_URL = "https://s.altnet.rippletest.net:51234"
-WEBSOCKET_TESTNET_URL = "wss://s.altnet.rippletest.net"
+WEBSOCKET_TESTNET_URL = "wss://s.altnet.rippletest.net:51233"
 
 JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
 ASYNC_JSON_RPC_CLIENT = AsyncJsonRpcClient(JSON_RPC_URL)
@@ -88,7 +92,8 @@ class SyncTestTimer:
         delay: float = LEDGER_ACCEPT_TIME,
         request: Request = LEDGER_ACCEPT_REQUEST,
     ):
-        self._timer = ThreadingTimer(delay, client.request, (request,)).start()
+        self._timer = ThreadingTimer(delay, client.request, (request,))
+        self._timer.start()
 
     def cancel(self):
         self._timer.cancel()
@@ -122,7 +127,7 @@ async def fund_wallet(
 def submit_transaction(
     transaction: Transaction,
     wallet: Wallet,
-    client: Client = JSON_RPC_CLIENT,
+    client: SyncClient = JSON_RPC_CLIENT,
     check_fee: bool = True,
 ) -> Response:
     """Signs and submits a transaction to the XRPL."""
@@ -188,19 +193,18 @@ async def accept_ledger_async(
     AsyncTestTimer(client, delay)
 
 
-def _choose_client(use_json_client: bool) -> Client:
-    return _CLIENTS[(False, use_json_client, False)]
+def _choose_client(use_json_client: bool) -> SyncClient:
+    return cast(SyncClient, _CLIENTS[(False, use_json_client, False)])
 
 
-def _choose_client_async(use_json_client: bool) -> Client:
-    return _CLIENTS[(True, use_json_client, False)]
+def _choose_client_async(use_json_client: bool) -> AsyncClient:
+    return cast(AsyncClient, _CLIENTS[(True, use_json_client, False)])
 
 
 def _get_client(is_async: bool, is_json: bool, is_testnet: bool) -> Client:
     return _CLIENTS[(is_async, is_json, is_testnet)]
 
 
-# TODO: document how to write tests, for posterity
 def test_async_and_sync(
     original_globals,
     modules=None,

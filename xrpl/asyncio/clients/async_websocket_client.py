@@ -116,15 +116,13 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
 
     async def open(self: AsyncWebsocketClient) -> None:
         """Connects the client to the Web Socket API at the given URL."""
-        if self.is_open():
-            return
-        await self._do_open()
+        if not self.is_open():
+            await self._do_open()
 
     async def close(self: AsyncWebsocketClient) -> None:
         """Closes the connection."""
-        if not self.is_open():
-            return
-        await self._do_close()
+        if self.is_open():
+            await self._do_close()
 
     async def __aenter__(self: AsyncWebsocketClient) -> AsyncWebsocketClient:
         """
@@ -146,7 +144,12 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
         await self.close()
 
     async def __aiter__(self: AsyncWebsocketClient) -> AsyncIterator[Dict[str, Any]]:
-        """Iterate on received messages."""
+        """
+        Iterate on received messages.
+
+        Yields:
+            Message at the top of the queue.
+        """
         while self.is_open():
             yield await self._do_pop_message()
 
@@ -168,9 +171,9 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
             raise XRPLWebsocketException("Websocket is not open")
         await self._do_send(request)
 
-    async def request_impl(self: WebsocketBase, request: Request) -> Response:
+    async def _request_impl(self: WebsocketBase, request: Request) -> Response:
         """
-        ``request_impl`` implementation for async websocket.
+        ``_request_impl`` implementation for async websocket.
 
         Arguments:
             request: An object representing information about a rippled request.

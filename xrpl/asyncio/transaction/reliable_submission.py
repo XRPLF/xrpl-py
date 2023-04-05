@@ -6,9 +6,10 @@ from typing_extensions import Final
 
 from xrpl.asyncio.clients import Client
 from xrpl.asyncio.ledger import get_latest_validated_ledger_sequence
-from xrpl.asyncio.transaction.ledger import get_transaction_from_hash
-from xrpl.asyncio.transaction.main import submit_transaction
+from xrpl.asyncio.transaction.main import submit
+from xrpl.clients import XRPLRequestFailureException
 from xrpl.constants import XRPLException
+from xrpl.models.requests import Tx
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 
@@ -22,7 +23,7 @@ class XRPLReliableSubmissionException(XRPLException):
 
 
 async def _wait_for_final_transaction_outcome(
-    transaction_hash: str, client: Client, prelim_result: str
+    transaction_hash: str, client: Client, prelim_result: str, attempts: int = 0
 ) -> Response:
     """
     The core logic of reliable submission.  Polls the ledger until the result of the
@@ -34,8 +35,19 @@ async def _wait_for_final_transaction_outcome(
     # new persisted transaction
 
     # query transaction by hash
-    transaction_response = await get_transaction_from_hash(transaction_hash, client)
-
+    transaction_response = await client._request_impl(Tx(transaction=transaction_hash))
+    if not transaction_response.is_successful():
+        if transaction_response.result["error"] == "txnNotFound" and attempts < 4:
+            """
+            For the case if a submitted transaction is still
+            in queue and not processed on the ledger yet.
+            Retry 4 times before raising an exception.
+            """
+            return await _wait_for_final_transaction_outcome(
+                transaction_hash, client, prelim_result, attempts + 1
+            )
+        else:
+            raise XRPLRequestFailureException(transaction_response.result)
     result = transaction_response.result
     if "validated" in result and result["validated"]:
         # result is in a validated ledger, outcome is final
@@ -47,7 +59,9 @@ async def _wait_for_final_transaction_outcome(
     if last_ledger_sequence > latest_ledger_sequence:
         # outcome is not yet final
         return await _wait_for_final_transaction_outcome(
-            transaction_hash, client, prelim_result
+            transaction_hash,
+            client,
+            prelim_result,
         )
 
     raise XRPLReliableSubmissionException(
@@ -87,7 +101,7 @@ async def send_reliable_submission(
             "Transaction must have a `last_ledger_sequence` param."
         )
     transaction_hash = transaction.get_hash()
-    submit_response = await submit_transaction(transaction, client)
+    submit_response = await submit(transaction, client)
     prelim_result = submit_response.result["engine_result"]
     if prelim_result[0:3] == "tem":
         raise XRPLReliableSubmissionException(
@@ -95,5 +109,7 @@ async def send_reliable_submission(
         )
 
     return await _wait_for_final_transaction_outcome(
-        transaction_hash, client, prelim_result
+        transaction_hash,
+        client,
+        prelim_result,
     )

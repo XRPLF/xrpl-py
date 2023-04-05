@@ -25,4 +25,4 @@ class SyncClient(Client):
         Returns:
             The Response for the given Request.
         """
-        return asyncio.run(self.request_impl(request))
+        return asyncio.run(self._request_impl(request))

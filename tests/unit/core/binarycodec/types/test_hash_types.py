@@ -34,6 +34,10 @@ class TestHash128(TestCase):
         invalid_value = 1
         self.assertRaises(XRPLBinaryCodecException, Hash128.from_value, invalid_value)
 
+    def test_unset_value(self):
+        unset_value = Hash128.from_value("")
+        self.assertEqual(str(unset_value), "")
+
 
 class TestHash160(TestCase):
     def setUp(self):

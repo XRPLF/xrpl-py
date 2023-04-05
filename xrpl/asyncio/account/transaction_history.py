@@ -26,7 +26,7 @@ async def get_latest_transaction(account: str, client: Client) -> Response:
     # max == -1 means that it's the most recent validated ledger version
     if is_valid_xaddress(account):
         account, _, _ = xaddress_to_classic_address(account)
-    response = await client.request_impl(
+    response = await client._request_impl(
         AccountTx(account=account, ledger_index_max=-1, limit=1)
     )
     if not response.is_successful():
@@ -35,7 +35,7 @@ async def get_latest_transaction(account: str, client: Client) -> Response:
 
 
 @deprecated(
-    reason="Sending an AccountTx request directly allows you to page through all"
+    reason="Sending an AccountTx request directly allows you to page through all "
     "results and is just as easy to use.",
     version="1.6.0",
 )
@@ -62,12 +62,17 @@ async def get_account_transactions(
     if is_valid_xaddress(address):
         address, _, _ = xaddress_to_classic_address(address)
     request = AccountTx(account=address)
-    response = await client.request_impl(request)
+    response = await client._request_impl(request)
     if not response.is_successful():
         raise XRPLRequestFailureException(response.result)
     return cast(List[Dict[str, Any]], response.result["transactions"])
 
 
+@deprecated(
+    reason="Sending an AccountTx request directly and filtering for payments allows "
+    "you to page through all results and is just as easy to use.",
+    version="1.8.0",
+)
 async def get_account_payment_transactions(
     address: str,
     client: Client,
@@ -82,7 +87,7 @@ async def get_account_payment_transactions(
         client: the network client used to make network calls.
 
     Returns:
-        The most page of payment transaction history for the address. For the full
+        The first page of payment transaction history for the address. For the full
         history, page through the :class:`AccountTx` request directly.
     """
     all_transactions = await get_account_transactions(address, client)
