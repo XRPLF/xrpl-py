@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Created function alias to `safe_sign_and_autofill_transaction` called `autofill_and_sign` to reflect order of operations
 - Created function alias to `submit_transaction` called `submit`
 - Created function alias to `safe_sign_and_submit_transaction` called `sign_and_submit`
+- AccountSetFlags for disallowing incoming objects (e.g. `asf_disallow_incoming_trustline`)
+- Added `getNFTokenID` to get the NFTokenID after minting a token.
+- Added `LedgerEntryType` enum and added `type` field to `Ledger` and `LedgerData` requests
+- Added the algorithm used to encode a wallet's seed to the wallet.
 - Support for cross-chain bridge proposal
 
 ### Changed:
@@ -18,11 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - When connected to nft devnet or hooks v2 testnet generate_faucet_wallet now defaults to using the faucet instead of requiring specification
 - Deprecated `get_account_info`, `get_transaction_from_hash`, `get_account_payment_transactions` for direct requests
 - Private function `request_impl` has been renamed to `_request_impl`. Users should always use `request` over `request_impl`.
+- Removed nft-devnet faucet support as it has been decommissioned ([Blog Post](https://xrpl.org/blog/2023/nft-devnet-decommission.html))
 
 ### Fixed:
 - Properly type the instance functions of NestedModel
-- Added additional check to `txnNotFound` error from `reliable_submission` due to race condition
-- Added `nft_offer` type in `AccountObjects`
+- Add additional check to `txnNotFound` error from `reliable_submission` due to race condition
+- Add `nft_offer` type in `AccountObjects`
+- Handle errors better in `send_reliable_submission`
 
 ## [1.7.0] - 2022-10-12
 ### Added:

@@ -2,9 +2,22 @@
 
 from typing import Dict, List, Union
 
-from typing_extensions import Literal, NotRequired, TypedDict
+from typing_extensions import Literal, NotRequired, TypeAlias, TypedDict, TypeGuard
 
 from xrpl.models.amounts.amount import Amount
+
+
+class NFTokenMetadataFields(TypedDict):
+    """Model for NFToken data in metadata."""
+
+    NFTokenID: str
+    URI: str
+
+
+class NFTokenMetadata(TypedDict):
+    """Model what NFTokens look like in metadata."""
+
+    NFToken: NFTokenMetadataFields
 
 
 class Fields(TypedDict):
@@ -20,6 +33,7 @@ class Fields(TypedDict):
     TakerPays: NotRequired[Union[Dict[str, str], str]]
     BookDirectory: NotRequired[str]
     Expiration: NotRequired[int]
+    NFTokens: NotRequired[List[NFTokenMetadata]]
 
 
 class CreatedNodeFields(TypedDict):
@@ -77,3 +91,45 @@ class TransactionMetadata(TypedDict):
     DeliveredAmount: NotRequired[Amount]
     # "unavailable" possible for transactions before 2014-01-20
     delivered_amount: NotRequired[Union[Amount, Literal["unavailable"]]]
+
+
+Node: TypeAlias = Union[CreatedNode, ModifiedNode, DeletedNode]
+
+
+def isCreatedNode(node: Node) -> TypeGuard[CreatedNode]:
+    """
+    Typeguard for CreatedNode
+
+    Args:
+        node: A node of any type (CreatedNode, ModifiedNode, or DeletedNode)
+
+    Returns:
+        Whether this node is a CreatedNode.
+    """
+    return "CreatedNode" in node
+
+
+def isModifiedNode(node: Node) -> TypeGuard[ModifiedNode]:
+    """
+    Typeguard for ModifiedNode
+
+    Args:
+        node: A node of any type (CreatedNode, ModifiedNode, or DeletedNode)
+
+    Returns:
+        Whether this node is a ModifiedNode.
+    """
+    return "ModifiedNode" in node
+
+
+def isDeletedNode(node: Node) -> TypeGuard[DeletedNode]:
+    """
+    Typeguard for DeletedNode
+
+    Args:
+        node: A node of any type (CreatedNode, ModifiedNode, or DeletedNode)
+
+    Returns:
+        Whether this node is a DeletedNode.
+    """
+    return "DeletedNode" in node
