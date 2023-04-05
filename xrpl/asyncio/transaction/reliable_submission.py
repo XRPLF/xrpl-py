@@ -23,7 +23,7 @@ class XRPLReliableSubmissionException(XRPLException):
 
 
 async def _wait_for_final_transaction_outcome(
-    transaction_hash: str, client: Client, prelim_result: str, attempts: int = 0
+    transaction_hash: str, client: Client, prelim_result: str
 ) -> Response:
     """
     The core logic of reliable submission.  Polls the ledger until the result of the
@@ -37,14 +37,13 @@ async def _wait_for_final_transaction_outcome(
     # query transaction by hash
     transaction_response = await client._request_impl(Tx(transaction=transaction_hash))
     if not transaction_response.is_successful():
-        if transaction_response.result["error"] == "txnNotFound" and attempts < 4:
+        if transaction_response.result["error"] == "txnNotFound":
             """
             For the case if a submitted transaction is still
             in queue and not processed on the ledger yet.
-            Retry 4 times before raising an exception.
             """
             return await _wait_for_final_transaction_outcome(
-                transaction_hash, client, prelim_result, attempts + 1
+                transaction_hash, client, prelim_result
             )
         else:
             raise XRPLRequestFailureException(transaction_response.result)
