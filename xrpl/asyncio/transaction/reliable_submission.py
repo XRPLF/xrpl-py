@@ -64,10 +64,7 @@ async def _wait_for_final_transaction_outcome(
 
     # outcome is not yet final
     return await _wait_for_final_transaction_outcome(
-        transaction_hash,
-        client,
-        prelim_result,
-        last_ledger_sequence
+        transaction_hash, client, prelim_result, last_ledger_sequence
     )
 
 
@@ -109,8 +106,5 @@ async def send_reliable_submission(
         )
 
     return await _wait_for_final_transaction_outcome(
-        transaction_hash,
-        client,
-        prelim_result,
-        transaction.last_ledger_sequence
+        transaction_hash, client, prelim_result, transaction.last_ledger_sequence
     )
