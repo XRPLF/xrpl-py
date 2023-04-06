@@ -28,19 +28,18 @@ async def _wait_for_final_transaction_outcome(
     """
     The core logic of reliable submission.  Polls the ledger until the result of the
     transaction can be considered final, meaning it has either been included in a
-    validated ledger, or the transaction's lastLedgerSequence has been surpassed by the
+    validated ledger, or the transaction's LastLedgerSequence has been surpassed by the
     latest ledger sequence (meaning it will never be included in a validated ledger).
     """
     await asyncio.sleep(_LEDGER_CLOSE_TIME)
-    # new persisted transaction
 
-    latest_ledger_sequence = await get_latest_validated_ledger_sequence(client)
+    current_ledger_sequence = await get_latest_validated_ledger_sequence(client)
 
-    if last_ledger_sequence < latest_ledger_sequence:
+    if current_ledger_sequence >= last_ledger_sequence:
         raise XRPLReliableSubmissionException(
-            f"The latest ledger sequence {latest_ledger_sequence} is greater than the "
-            f"last ledger sequence {last_ledger_sequence} in the transaction. Prelim "
-            f"result: {prelim_result}"
+            f"The latest validated ledger sequence {current_ledger_sequence} is "
+            f"greater than LastLedgerSequence {last_ledger_sequence} in "
+            f"the transaction. Prelim result: {prelim_result}"
         )
 
     # query transaction by hash
