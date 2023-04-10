@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [[Unreleased]]
+
+## [1.8.0] - 2023-04-10
 ### Added:
 - Created function alias to `safe_sign_transaction` called `sign` - safe originally used to indicate local offline signing (keys aren't exposed)
 - Created function alias to `safe_sign_and_autofill_transaction` called `autofill_and_sign` to reflect order of operations
