@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed:
 - `check_fee` now has a higher limit that is less likely to be hit
-- When connected to nft devnet or hooks v2 testnet generate_faucet_wallet now defaults to using the faucet instead of requiring specification
+- When connected hooks v2 testnet generate_faucet_wallet now defaults to using the faucet instead of requiring specification
 - Deprecated `get_account_info`, `get_transaction_from_hash`, `get_account_payment_transactions` for direct requests
 - Private function `request_impl` has been renamed to `_request_impl`. Users should always use `request` over `request_impl`.
 - Removed nft-devnet faucet support as it has been decommissioned ([Blog Post](https://xrpl.org/blog/2023/nft-devnet-decommission.html))
@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add additional check to `txnNotFound` error from `reliable_submission` due to race condition
 - Add `nft_offer` type in `AccountObjects`
 - Handle errors better in `send_reliable_submission`
+- Made `send_reliable_submission` wait the full duration until `LastLedgerSequence` passes by
 
 ## [1.7.0] - 2022-10-12
 ### Added:
