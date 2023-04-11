@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed deprecated request wrappers (the preferred method is to directly do client.request instead)
 - `sign` is now synchronous instead of async (done by removing the optional `check_fee` param & moving checks up to other functions)
 - In order to be internally consistent, all signing/submitting functions will follow the parameter order of `transaction`, `client`, `wallet`, and then other parameters. (This is because `wallet` is optional for `submit_and_wait` and so must come after `client`)
+- `XRP.to_amount` now converts from XRP to drops, instead of expecting a drops amount
 
 ### Removed:
 - Longer aliases for signing/submitting functions have been removed. Specifically
@@ -38,8 +39,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed:
 - Replaced the flags defined in `AccountSetFlag` (now defines the transaction `tf` flags, previously not defined anywhere)
-
-### Changed:
 - Allowed keypairs.sign to take a hex string in addition to bytes
 
 ### Fixed:
