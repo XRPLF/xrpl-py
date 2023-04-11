@@ -407,6 +407,9 @@ class TestReliableSubmission(IntegrationTestCase):
         signed_payment_transaction = await autofill_and_sign(
             payment_transaction, WALLET, client
         )
+
+        await accept_ledger_async()
+
         with self.assertRaises(XRPLReliableSubmissionException):
             await send_reliable_submission(signed_payment_transaction, client)
 

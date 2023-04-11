@@ -13,6 +13,7 @@
         "asyncio",
         "binarycodec",
         "isnumeric",
+        "keypair",
         "nftoken",
         "rippletest",
         "ripplex",

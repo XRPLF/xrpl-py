@@ -38,8 +38,20 @@ class Wallet:
         this wallet. MUST be kept secret!
         """
 
+        if algorithm is None:
+            if self.seed.startswith("sEd"):
+                wallet_algorithm = CryptoAlgorithm.ED25519
+            else:
+                wallet_algorithm = CryptoAlgorithm.SECP256K1
+        else:
+            wallet_algorithm = algorithm
+
+        self.algorithm = wallet_algorithm
+        """
+        The algorithm that is used to convert the seed into its public/private keypair.
+        """
+
         pk, sk = derive_keypair(self.seed, algorithm=algorithm)
-        self.algorithm = algorithm
         self.public_key = pk
         """
         The public key that is used to identify this wallet's signatures, as

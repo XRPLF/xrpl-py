@@ -21,7 +21,7 @@ from xrpl.models.requests.ledger import Ledger
 from xrpl.models.requests.ledger_closed import LedgerClosed
 from xrpl.models.requests.ledger_current import LedgerCurrent
 from xrpl.models.requests.ledger_data import LedgerData
-from xrpl.models.requests.ledger_entry import LedgerEntry
+from xrpl.models.requests.ledger_entry import LedgerEntry, LedgerEntryType
 from xrpl.models.requests.manifest import Manifest
 from xrpl.models.requests.nft_buy_offers import NFTBuyOffers
 from xrpl.models.requests.nft_sell_offers import NFTSellOffers
@@ -68,6 +68,7 @@ __all__ = [
     "LedgerCurrent",
     "LedgerData",
     "LedgerEntry",
+    "LedgerEntryType",
     "Manifest",
     "NFTBuyOffers",
     "NFTSellOffers",
