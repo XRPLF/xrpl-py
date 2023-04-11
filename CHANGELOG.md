@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for cross-chain bridge proposal
 - Support for Automated Market Maker (AMM) transactions and requests as defined in XLS-30.
 
+### Fixed:
+- Refactored `does_account_exist` to avoid deprecated methods and use `ledger_index` parameter
+
 ## [1.8.0] - 2023-04-10
 ### Added:
 - Created function alias to `safe_sign_transaction` called `sign` - safe originally used to indicate local offline signing (keys aren't exposed)
