@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 ### Fixed:
-- Refactored `does_account_exist` to avoid deprecated methods and use `ledger_index` parameter
+- Refactored `does_account_exist` and `get_balance` to avoid deprecated methods and use `ledger_index` parameter
 
 ## [1.8.0] - 2023-04-10
 ### Added:
