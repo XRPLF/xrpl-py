@@ -16,7 +16,7 @@ from typing import Any, Dict, Type, Union
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.utils import require_kwargs_on_init
-from xrpl.utils import xrp_to_drops
+from xrpl.utils.xrp_conversions import xrp_to_drops
 
 
 @require_kwargs_on_init
