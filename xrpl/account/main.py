@@ -99,7 +99,7 @@ def get_account_root(
 )
 def get_account_info(
     address: str, client: SyncClient, ledger_index: Union[str, int] = "validated"
-) -> Response:
+) -> Response:  # pragma: no cover
     """
     Query the ledger for account info of given address.
 
