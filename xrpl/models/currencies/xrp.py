@@ -16,6 +16,7 @@ from typing import Any, Dict, Type, Union
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.utils import require_kwargs_on_init
+from xrpl.utils import xrp_to_drops
 
 
 @require_kwargs_on_init
@@ -61,7 +62,7 @@ class XRP(BaseModel):
         """
         return {**super().to_dict(), "currency": "XRP"}
 
-    def to_amount(self: XRP, value: Union[str, int]) -> str:
+    def to_amount(self: XRP, value: Union[str, int, float]) -> str:
         """
         Converts value to XRP.
 
@@ -71,4 +72,6 @@ class XRP(BaseModel):
         Returns:
             A string representation of XRP amount.
         """
-        return str(value)
+        if isinstance(value, str):
+            return xrp_to_drops(float(value))
+        return xrp_to_drops(value)
