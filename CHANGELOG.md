@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AccountSetFlags for disallowing incoming objects (e.g. `asf_disallow_incoming_trustline`)
 - Added `getNFTokenID` to get the NFTokenID after minting a token.
 - Added `LedgerEntryType` enum and added `type` field to `Ledger` and `LedgerData` requests
+- Added `submit_and_wait` to sign (if needed), autofill, submit a transaction and wait for its final outcome
 
 ### Changed:
 - `check_fee` now has a higher limit that is less likely to be hit
