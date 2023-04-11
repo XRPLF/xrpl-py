@@ -371,6 +371,24 @@ class Transaction(BaseModel):
         else:  # is List[int]
             return flag in self.flags
 
+    def is_signed(self: Transaction) -> bool:
+        """
+        Checks if a transaction has been signed.
+
+        Returns:
+            Whether the transaction has been signed
+        """
+        if self.signers:
+            for signer in self.signers:
+                if (
+                    signer.signing_pub_key is None or len(self.signing_pub_key) <= 0
+                ) and (signer.txn_signature is None or len(signer.txn_signature) <= 0):
+                    return False
+            return True
+        return (self.signing_pub_key is not None and len(self.signing_pub_key) > 0) or (
+            self.txn_signature is not None and len(self.txn_signature) > 0
+        )
+
     def get_hash(self: Transaction) -> str:
         """
         Hashes the Transaction object as the ledger does. Only valid for signed

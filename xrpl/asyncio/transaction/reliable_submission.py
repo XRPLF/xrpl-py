@@ -122,28 +122,6 @@ async def send_reliable_submission(
     )
 
 
-def _is_signed(transaction: Transaction) -> bool:
-    """
-    Checks if a transaction has been signed.
-
-    Args:
-        transaction: the transaction to check.
-
-    Returns:
-        Whether the transaction has been signed
-    """
-    if transaction.signers:
-        for signer in transaction.signers:
-            if (
-                signer.signing_pub_key is None or len(transaction.signing_pub_key) <= 0
-            ) and (signer.txn_signature is None or len(signer.txn_signature) <= 0):
-                return False
-        return True
-    return (
-        transaction.signing_pub_key is not None and len(transaction.signing_pub_key) > 0
-    ) or (transaction.txn_signature is not None and len(transaction.txn_signature) > 0)
-
-
 def _decode_tx_blob(tx_blob: str) -> Transaction:
     """
     Decodes a transaction blob.
@@ -183,7 +161,7 @@ async def _get_signed_tx(
     if isinstance(transaction, str):
         transaction = _decode_tx_blob(transaction)
 
-    if _is_signed(transaction):
+    if transaction.is_signed():
         return transaction
 
     if not wallet:
