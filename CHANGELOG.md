@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Removed:
+- RPCs and utils related to the old sidechain design
+
 ## [1.8.0] - 2023-04-10
 ### Added:
 - Created function alias to `safe_sign_transaction` called `sign` - safe originally used to indicate local offline signing (keys aren't exposed)
@@ -31,9 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `nft_offer` type in `AccountObjects`
 - Handle errors better in `send_reliable_submission`
 - Made `send_reliable_submission` wait the full duration until `LastLedgerSequence` passes by
-
-### Removed:
-- RPCs and utils related to the old sidechain design
 
 ## [1.7.0] - 2022-10-12
 ### Added:
