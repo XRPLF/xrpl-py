@@ -32,7 +32,7 @@ async def does_account_exist(
         XRPLRequestFailureException: if the transaction fails.
     """
     try:
-        await get_account_info(address, client)
+        await get_account_root(address, client, ledger_index=ledger_index)
         return True
     except XRPLRequestFailureException as e:
         if e.error == "actNotFound":
