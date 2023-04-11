@@ -145,9 +145,9 @@ class TestWallet(IntegrationTestCase):
         ) as client:
             await generate_faucet_wallet_and_fund_again(self, client)
 
-    async def _test_generate_faucet_wallet_nft_devnet_async_websockets(self):
+    async def _test_generate_faucet_wallet_amm_devnet_async_websockets(self):
         async with AsyncWebsocketClient(
-            "ws://xls20-sandbox.rippletest.net:51233"
+            "wss://amm.devnet.rippletest.net:51233"
         ) as client:
             await generate_faucet_wallet_and_fund_again(self, client)
 

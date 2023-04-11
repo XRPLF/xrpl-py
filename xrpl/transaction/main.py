@@ -1,5 +1,6 @@
 """High-level transaction methods with XRPL transactions."""
 import asyncio
+from typing import Optional
 
 from xrpl.asyncio.transaction import main
 from xrpl.clients.sync_client import SyncClient
@@ -8,7 +9,7 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.wallet.main import Wallet
 
 
-def safe_sign_and_submit_transaction(
+def sign_and_submit(
     transaction: Transaction,
     wallet: Wallet,
     client: SyncClient,
@@ -31,7 +32,7 @@ def safe_sign_and_submit_transaction(
         The response from the ledger.
     """
     return asyncio.run(
-        main.safe_sign_and_submit_transaction(
+        main.sign_and_submit(
             transaction,
             wallet,
             client,
@@ -41,7 +42,10 @@ def safe_sign_and_submit_transaction(
     )
 
 
-def submit_transaction(
+safe_sign_and_submit_transaction = sign_and_submit
+
+
+def submit(
     transaction: Transaction,
     client: SyncClient,
 ) -> Response:
@@ -59,17 +63,21 @@ def submit_transaction(
         XRPLRequestFailureException: if the rippled API call fails.
     """
     return asyncio.run(
-        main.submit_transaction(
+        main.submit(
             transaction,
             client,
         )
     )
 
 
-def safe_sign_transaction(
+submit_transaction = submit
+
+
+def sign(
     transaction: Transaction,
     wallet: Wallet,
     check_fee: bool = True,
+    multisign: bool = False,
 ) -> Transaction:
     """
     Signs a transaction locally, without trusting external rippled nodes.
@@ -79,20 +87,25 @@ def safe_sign_transaction(
         wallet: the wallet with which to sign the transaction.
         check_fee: whether to check if the fee is higher than the expected transaction
             type fee. Defaults to True.
+        multisign: whether to sign the transaction for a multisignature transaction.
 
     Returns:
         The signed transaction.
     """
     return asyncio.run(
-        main.safe_sign_transaction(
+        main.sign(
             transaction,
             wallet,
             check_fee,
+            multisign,
         )
     )
 
 
-def safe_sign_and_autofill_transaction(
+safe_sign_transaction = sign
+
+
+def autofill_and_sign(
     transaction: Transaction,
     wallet: Wallet,
     client: SyncClient,
@@ -113,7 +126,7 @@ def safe_sign_and_autofill_transaction(
         The signed transaction.
     """
     return asyncio.run(
-        main.safe_sign_and_autofill_transaction(
+        main.autofill_and_sign(
             transaction,
             wallet,
             client,
@@ -122,7 +135,12 @@ def safe_sign_and_autofill_transaction(
     )
 
 
-def autofill(transaction: Transaction, client: SyncClient) -> Transaction:
+safe_sign_and_autofill_transaction = autofill_and_sign
+
+
+def autofill(
+    transaction: Transaction, client: SyncClient, signers_count: Optional[int] = None
+) -> Transaction:
     """
     Autofills fields in a transaction. This will set `sequence`, `fee`, and
     `last_ledger_sequence` according to the current state of the server this Client is
@@ -131,6 +149,8 @@ def autofill(transaction: Transaction, client: SyncClient) -> Transaction:
     Args:
         transaction: the transaction to be signed.
         client: a network client.
+        signers_count: the expected number of signers for this transaction.
+            Only used for multisigned transactions.
 
     Returns:
         The autofilled transaction.
@@ -139,5 +159,6 @@ def autofill(transaction: Transaction, client: SyncClient) -> Transaction:
         main.autofill(
             transaction,
             client,
+            signers_count,
         )
     )

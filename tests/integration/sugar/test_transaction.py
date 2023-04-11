@@ -12,14 +12,18 @@ from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.asyncio.transaction import (
     XRPLReliableSubmissionException,
     autofill,
+    autofill_and_sign,
     get_transaction_from_hash,
-    safe_sign_and_autofill_transaction,
-    safe_sign_transaction,
     send_reliable_submission,
+    sign,
+)
+from xrpl.asyncio.transaction import (
+    submit_transaction as submit_transaction_alias_async,
 )
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.exceptions import XRPLException
+from xrpl.models.requests import Tx
 from xrpl.models.transactions import AccountDelete, AccountSet, EscrowFinish, Payment
 from xrpl.utils import xrp_to_drops
 
@@ -47,7 +51,7 @@ class TestTransaction(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_and_autofill_transaction",
+            "xrpl.transaction.autofill_and_sign",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.transaction.get_transaction_from_hash",
         ],
@@ -79,7 +83,7 @@ class TestTransaction(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_and_autofill_transaction",
+            "xrpl.transaction.autofill_and_sign",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.transaction.get_transaction_from_hash",
         ],
@@ -111,7 +115,7 @@ class TestTransaction(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_and_autofill_transaction",
+            "xrpl.transaction.autofill_and_sign",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.transaction.get_transaction_from_hash",
         ],
@@ -149,9 +153,6 @@ class TestTransaction(IntegrationTestCase):
 
     @test_async_and_sync(
         globals(),
-        [
-            "xrpl.transaction.get_transaction_from_hash",
-        ],
     )
     async def test_none_as_destination_tag(self, client):
         # GIVEN a new transaction (payment)
@@ -169,12 +170,12 @@ class TestTransaction(IntegrationTestCase):
 
         # THEN we expect to retrieve this transaction from its hash with
         # min_ledger and max_ledger parameters
-        payment = await get_transaction_from_hash(
-            payment_hash,
-            client,
-            False,
-            payment_ledger_index - 5,
-            payment_ledger_index + 5,
+        payment = await client.request(
+            Tx(
+                transaction=payment_hash,
+                min_ledger=payment_ledger_index - 5,
+                max_ledger=payment_ledger_index + 5,
+            )
         )
 
         # AND we expect the result Account to be the same as the original payment Acct
@@ -235,6 +236,31 @@ class TestTransaction(IntegrationTestCase):
             check_fee=False,
         )
         # THEN we expect the transaction to be successful
+        self.assertTrue(response.is_successful())
+        WALLET.sequence += 1
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.autofill_and_sign",
+            "xrpl.transaction.submit_transaction",
+        ],
+    )
+    async def test_payment_high_fee_authorized_with_submit_alias(self, client):
+        signed_and_autofilled = await autofill_and_sign(
+            Payment(
+                account=WALLET.classic_address,
+                sequence=WALLET.sequence,
+                amount="1",
+                fee=FEE,
+                destination=DESTINATION,
+            ),
+            WALLET,
+            client,
+            check_fee=False,
+        )
+
+        response = await submit_transaction_alias_async(signed_and_autofilled, client)
         self.assertTrue(response.is_successful())
         WALLET.sequence += 1
 
@@ -307,7 +333,7 @@ class TestReliableSubmission(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_and_autofill_transaction",
+            "xrpl.transaction.autofill_and_sign",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
@@ -320,9 +346,7 @@ class TestReliableSubmission(IntegrationTestCase):
             sequence=WALLET.sequence,
             set_flag=SET_FLAG,
         )
-        signed_account_set = await safe_sign_and_autofill_transaction(
-            account_set, WALLET, client
-        )
+        signed_account_set = await autofill_and_sign(account_set, WALLET, client)
         await accept_ledger_async()
         response = await send_reliable_submission(signed_account_set, client)
         self.assertTrue(response.result["validated"])
@@ -334,7 +358,7 @@ class TestReliableSubmission(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_and_autofill_transaction",
+            "xrpl.transaction.autofill_and_sign",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
@@ -349,7 +373,7 @@ class TestReliableSubmission(IntegrationTestCase):
             "destination": DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
-        signed_payment_transaction = await safe_sign_and_autofill_transaction(
+        signed_payment_transaction = await autofill_and_sign(
             payment_transaction, WALLET, client
         )
         await accept_ledger_async()
@@ -363,7 +387,7 @@ class TestReliableSubmission(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_and_autofill_transaction",
+            "xrpl.transaction.autofill_and_sign",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_latest_validated_ledger_sequence",
@@ -380,16 +404,19 @@ class TestReliableSubmission(IntegrationTestCase):
             "destination": DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
-        signed_payment_transaction = await safe_sign_and_autofill_transaction(
+        signed_payment_transaction = await autofill_and_sign(
             payment_transaction, WALLET, client
         )
+
+        await accept_ledger_async()
+
         with self.assertRaises(XRPLReliableSubmissionException):
             await send_reliable_submission(signed_payment_transaction, client)
 
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_transaction",
+            "xrpl.transaction.sign",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
@@ -405,16 +432,14 @@ class TestReliableSubmission(IntegrationTestCase):
             "destination": DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
-        signed_payment_transaction = await safe_sign_transaction(
-            payment_transaction, WALLET
-        )
+        signed_payment_transaction = await sign(payment_transaction, WALLET)
         with self.assertRaises(XRPLRequestFailureException):
             await send_reliable_submission(signed_payment_transaction, client)
 
     @test_async_and_sync(
         globals(),
         [
-            "xrpl.transaction.safe_sign_transaction",
+            "xrpl.transaction.sign",
             "xrpl.transaction.send_reliable_submission",
             "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
@@ -430,8 +455,6 @@ class TestReliableSubmission(IntegrationTestCase):
             "destination": DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
-        signed_payment_transaction = await safe_sign_transaction(
-            payment_transaction, WALLET
-        )
+        signed_payment_transaction = await sign(payment_transaction, WALLET)
         with self.assertRaises(XRPLReliableSubmissionException):
             await send_reliable_submission(signed_payment_transaction, client)

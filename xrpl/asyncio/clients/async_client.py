@@ -23,4 +23,4 @@ class AsyncClient(Client):
         Returns:
             The Response for the given Request.
         """
-        return await self.request_impl(request)
+        return await self._request_impl(request)
