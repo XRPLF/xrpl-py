@@ -61,10 +61,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
 
         import asyncio
 
-        from xrpl.asyncio.clients import (
-            AsyncWebsocketClient,
-            XRPLWebsocketClosedUnexpectedlyException,
-        )
+        from xrpl.asyncio.clients import AsyncWebsocketClient
         from xrpl.models import Subscribe, Unsubscribe, StreamParameter
 
         URL = "wss://s.devnet.rippletest.net:51233"
@@ -136,12 +133,11 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
                         streams=[StreamParameter.LEDGER],
                     ))
                     print("Unsubscribed from the ledger!")
-                except XRPLWebsocketClosedUnexpectedlyException:
+                except:
                     # if you wish you perform some logic when the websocket
-                    # connection closes on you without your asking it to,
-                    # you can catch this error and run whatever you need
-                    # to here. this is equivalent to the javascript 'error'
-                    # event
+                    # connection closes due to error, you can catch and run
+                    # whatever you need to here. this is equivalent to the
+                    # javascript 'error' event
                     error_happened = True
                     on_error()
             # now, outside of the context, the client is closed.
@@ -164,10 +160,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
 
         import asyncio
 
-        from xrpl.asyncio.clients import (
-            AsyncWebsocketClient,
-            XRPLWebsocketClosedUnexpectedlyException,
-        )
+        from xrpl.asyncio.clients import AsyncWebsocketClient
         from xrpl.models import Subscribe, StreamParameter
 
         URL = "wss://s.devnet.rippletest.net:51233"
@@ -179,7 +172,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
             while True:
                 try:
                     await long_websocket_task()
-                except XRPLWebsocketClosedUnexpectedlyException:
+                except:
                     print("Lost connection! Reconnecting")
 
 
