@@ -33,12 +33,3 @@ class XRPLWebsocketException(XRPLException):
     """
 
     pass
-
-
-class XRPLWebsocketClosedUnexpectedlyException(XRPLWebsocketException):
-    """
-    Raised if the websocket is closed while making a request or reading from
-    the websocket.
-    """
-
-    pass

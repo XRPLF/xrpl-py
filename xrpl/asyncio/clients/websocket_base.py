@@ -8,18 +8,15 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, cast
 
 from typing_extensions import Final
 from websockets import client as websocket_client
-from websockets import exceptions as websocket_exceptions
 
 from xrpl.asyncio.clients.client import Client
-from xrpl.asyncio.clients.exceptions import (
-    XRPLWebsocketClosedUnexpectedlyException,
-    XRPLWebsocketException,
-)
+from xrpl.asyncio.clients.exceptions import XRPLWebsocketException
 from xrpl.asyncio.clients.utils import request_to_websocket, websocket_to_response
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
 
 _REQ_ID_MAX: Final[int] = 1_000_000
+
 # the types from asyncio are not implemented as generics in python 3.8 and
 # lower, so we need to only subscript them when running typechecking.
 if TYPE_CHECKING:
@@ -130,20 +127,17 @@ class WebsocketBase(Client):
 
         As long as a given client remains open, this handler will be running as a Task.
         """
-        try:
-            async for response in cast(
-                websocket_client.WebSocketClientProtocol, self._websocket
-            ):
-                response_dict = json.loads(response)
+        async for response in cast(
+            websocket_client.WebSocketClientProtocol, self._websocket
+        ):
+            response_dict = json.loads(response)
 
-                # if this response corresponds to request, fulfill the Future
-                if "id" in response_dict and response_dict["id"] in self._open_requests:
-                    self._open_requests[response_dict["id"]].set_result(response_dict)
+            # if this response corresponds to request, fulfill the Future
+            if "id" in response_dict and response_dict["id"] in self._open_requests:
+                self._open_requests[response_dict["id"]].set_result(response_dict)
 
-                # enqueue the response for the message queue
-                cast(_MESSAGES_TYPE, self._messages).put_nowait(response_dict)
-        except websocket_exceptions.ConnectionClosedError as e:
-            raise XRPLWebsocketClosedUnexpectedlyException(str(e))
+            # enqueue the response for the message queue
+            cast(_MESSAGES_TYPE, self._messages).put_nowait(response_dict)
 
     def _set_up_future(self: WebsocketBase, request: Request) -> None:
         """
@@ -177,14 +171,11 @@ class WebsocketBase(Client):
         Arguments:
             request: The request to send.
         """
-        try:
-            await cast(websocket_client.WebSocketClientProtocol, self._websocket).send(
-                json.dumps(
-                    request_to_websocket(request),
-                ),
-            )
-        except websocket_exceptions.ConnectionClosedError as e:
-            raise XRPLWebsocketClosedUnexpectedlyException(str(e))
+        await cast(websocket_client.WebSocketClientProtocol, self._websocket).send(
+            json.dumps(
+                request_to_websocket(request),
+            ),
+        )
 
     async def _do_send(self: WebsocketBase, request: Request) -> None:
         """
