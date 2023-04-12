@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [[Unreleased]]
+### Added:
+- Added `submit_and_wait` to sign (if needed), autofill, submit a transaction and wait for its final outcome
+- `submit` and `send_reliable_submission` now accepting a boolean param `fail_hard` (default to `False`; if `True`, halt the submission
+if fails locally)
+
 ### Fixed:
 - Refactored `does_account_exist` and `get_balance` to avoid deprecated methods and use `ledger_index` parameter
 
@@ -22,7 +27,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `getNFTokenID` to get the NFTokenID after minting a token.
 - Added `LedgerEntryType` enum and added `type` field to `Ledger` and `LedgerData` requests
 - Added the algorithm used to encode a wallet's seed to the wallet.
-- Added `submit_and_wait` to sign (if needed), autofill, submit a transaction and wait for its final outcome
 
 ### Changed:
 - `check_fee` now has a higher limit that is less likely to be hit
