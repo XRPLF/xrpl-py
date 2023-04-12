@@ -61,10 +61,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
 
         import asyncio
 
-        from xrpl.asyncio.clients import (
-            AsyncWebsocketClient,
-            XRPLWebsocketClosedUnexpectedlyException,
-        )
+        from xrpl.asyncio.clients import AsyncWebsocketClient
         from xrpl.models import Subscribe, Unsubscribe, StreamParameter
 
         URL = "wss://s.devnet.rippletest.net:51233"
