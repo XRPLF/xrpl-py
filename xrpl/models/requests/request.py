@@ -58,9 +58,9 @@ class RequestMethod(str, Enum):
     # NFT methods
     NFT_BUY_OFFERS = "nft_buy_offers"
     NFT_SELL_OFFERS = "nft_sell_offers"
-    NFT_INFO = "nft_info"
-    NFT_HISTORY = "nft_history"
-    NFTS_BY_ISSUER = "nfts_by_issuer"
+    NFT_INFO = "nft_info"  # clio only
+    NFT_HISTORY = "nft_history"  # clio only
+    NFTS_BY_ISSUER = "nfts_by_issuer"  # clio only
 
     # subscription methods
     SUBSCRIBE = "subscribe"
