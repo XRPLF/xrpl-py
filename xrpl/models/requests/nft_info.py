@@ -22,7 +22,7 @@ class NFTInfo(Request):
     nft_id: str = REQUIRED  # type: ignore
     """
     The unique identifier of an NFToken.
-    The request returns buy offers for this NFToken. This value is required.
+    The request returns information of this NFToken. This value is required.
 
     :meta hide-value:
     """
