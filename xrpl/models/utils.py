@@ -1,7 +1,7 @@
 """Helper util functions for the models module."""
 
 from dataclasses import is_dataclass
-from typing import Any, Dict, List, Type, TypeVar
+from typing import Any, Dict, List, Type, TypeVar, cast
 
 from xrpl.models.exceptions import XRPLModelException
 
@@ -62,4 +62,4 @@ def require_kwargs_on_init(cls: Type[_T]) -> Type[_T]:
     # noinspection PyTypeHints
     cls.__init__ = new_init  # type: ignore
 
-    return cls
+    return cast(Type[_T], cls)
