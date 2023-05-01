@@ -22,7 +22,7 @@ from xrpl.asyncio.transaction import (
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.exceptions import XRPLException
-from xrpl.models.requests import Tx
+from xrpl.models.requests import ServerState, Tx
 from xrpl.models.transactions import AccountDelete, AccountSet, EscrowFinish, Payment
 from xrpl.utils import xrp_to_drops
 
@@ -174,7 +174,10 @@ class TestTransaction(IntegrationTestCase):
         account_delete_autofilled = await autofill(account_delete, client)
 
         # THEN we expect the calculated fee to be 50 XRP (default in standalone)
-        expected_fee = xrp_to_drops(50)
+        server_state = await client.request(ServerState())
+        expected_fee = str(
+            server_state.result["state"]["validated_ledger"]["reserve_inc"]
+        )
         self.assertEqual(account_delete_autofilled.fee, expected_fee)
 
     @test_async_and_sync(
