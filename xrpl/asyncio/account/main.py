@@ -80,7 +80,9 @@ async def get_balance(
     Returns:
         The balance of the address.
     """
-    return int((await get_account_root(address, client))["Balance"])
+    return int(
+        (await get_account_root(address, client, ledger_index=ledger_index))["Balance"]
+    )
 
 
 async def get_account_root(
@@ -127,7 +129,7 @@ async def get_account_root(
 )
 async def get_account_info(
     address: str, client: Client, ledger_index: Union[str, int] = "validated"
-) -> Response:
+) -> Response:  # pragma: no cover
     """
     Query the ledger for account info of given address.
 

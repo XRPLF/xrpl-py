@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import re
 from abc import ABC
-from dataclasses import fields
+from dataclasses import dataclass, fields
 from enum import Enum
 from typing import Any, Dict, List, Pattern, Type, TypeVar, Union, cast, get_type_hints
 
@@ -63,6 +63,7 @@ def _value_to_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     return value
 
 
+@dataclass(frozen=True)
 class BaseModel(ABC):
     """The base class for all model types."""
 
@@ -276,7 +277,7 @@ class BaseModel(ABC):
             The dictionary representation of a BaseModel.
         """
         # mypy doesn't realize that BaseModel has a field called __dataclass_fields__
-        dataclass_fields = self.__dataclass_fields__.keys()  # type: ignore
+        dataclass_fields = self.__dataclass_fields__.keys()
         return {
             key: self._to_dict_elem(getattr(self, key))
             for key in dataclass_fields
