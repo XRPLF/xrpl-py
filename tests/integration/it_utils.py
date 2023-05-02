@@ -18,6 +18,9 @@ from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
 from xrpl.transaction import (  # noqa: F401 - needed for sync tests
     safe_sign_and_submit_transaction,
 )
+from xrpl.transaction import (  # noqa: F401 - needed for sync tests
+    submit_transaction as submit_transaction_alias,
+)
 from xrpl.wallet import Wallet
 
 JSON_RPC_URL = "http://127.0.0.1:5005"
