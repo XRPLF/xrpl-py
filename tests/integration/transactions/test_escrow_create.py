@@ -22,7 +22,6 @@ class TestEscrowCreate(IntegrationTestCase):
     async def test_all_fields(self, client):
         escrow_create = EscrowCreate(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             amount=AMOUNT,
             destination=DESTINATION,
             destination_tag=DESTINATION_TAG,

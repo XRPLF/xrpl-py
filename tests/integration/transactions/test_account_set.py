@@ -20,19 +20,16 @@ class TestAccountSet(IntegrationTestCase):
     async def test_required_fields_and_set_flag(self, client):
         account_set = AccountSet(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             set_flag=SET_FLAG,
         )
         response = await submit_transaction_async(account_set, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-        WALLET.sequence += 1
 
     @test_async_and_sync(globals())
     async def test_all_fields_minus_set_flag(self, client):
         account_set = AccountSet(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             clear_flag=CLEAR_FLAG,
             domain=DOMAIN,
             email_hash=EMAIL_HASH,
@@ -43,4 +40,3 @@ class TestAccountSet(IntegrationTestCase):
         response = await submit_transaction_async(account_set, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-        WALLET.sequence += 1
