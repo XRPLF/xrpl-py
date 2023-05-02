@@ -7,8 +7,6 @@ from time import sleep
 from typing import cast
 
 import xrpl  # noqa: F401 - needed for sync tests
-from xrpl.account import get_next_valid_seq_number
-from xrpl.asyncio.account import get_next_valid_seq_number as get_seq_num_async
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.asyncio.transaction import (
@@ -18,11 +16,7 @@ from xrpl.clients import Client, JsonRpcClient, WebsocketClient
 from xrpl.clients.sync_client import SyncClient
 from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
 from xrpl.transaction import (  # noqa: F401 - needed for sync tests
-    autofill_and_sign,
     safe_sign_and_submit_transaction,
-)
-from xrpl.transaction import (  # noqa: F401 - needed for sync tests
-    submit_transaction as submit_transaction_alias,
 )
 from xrpl.wallet import Wallet
 
@@ -108,7 +102,6 @@ def fund_wallet_sync(wallet: Wallet) -> None:
     )
     safe_sign_and_submit_transaction(payment, MASTER_WALLET, client, check_fee=True)
     client.request(LEDGER_ACCEPT_REQUEST)
-    wallet.sequence = get_next_valid_seq_number(wallet.classic_address, client)
 
 
 async def fund_wallet(
@@ -121,7 +114,6 @@ async def fund_wallet(
     )
     await sign_and_submit_async(payment, MASTER_WALLET, client, check_fee=True)
     await client.request(LEDGER_ACCEPT_REQUEST)
-    wallet.sequence = await get_seq_num_async(wallet.classic_address, client)
 
 
 def submit_transaction(
