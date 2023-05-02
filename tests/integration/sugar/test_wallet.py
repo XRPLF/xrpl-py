@@ -68,7 +68,6 @@ class TestWallet(IntegrationTestCase):
         response = await submit_transaction_async(
             Payment(
                 account=wallet.classic_address,
-                sequence=wallet.sequence,
                 fee="10",
                 amount="1",
                 destination=destination.classic_address,
