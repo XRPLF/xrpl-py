@@ -97,10 +97,18 @@ class SignerListSet(Transaction):
         if self.signer_entries is None:  # deletion of the SignerList object
             return errors
 
-        if self.signer_quorum <= 0:
+        if self.signer_quorum == REQUIRED:
+            errors["signer_quorum"] = "`signer_quorum` is not set."
+        elif self.signer_quorum <= 0:
             errors[
                 "signer_quorum"
             ] = "`signer_quorum` must be greater than or equal to 0."
+
+        if not isinstance(self.signer_entries, list):
+            errors[
+                "signer_entries"
+            ] = "`signer_entries` must be a list of `SignerEntry` objects."
+            return errors
 
         if (
             len(self.signer_entries) < 1
