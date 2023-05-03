@@ -1,9 +1,13 @@
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
+from tests.integration.it_utils import (
+    LEDGER_ACCEPT_REQUEST,
+    submit_transaction_async,
+    test_async_and_sync,
+)
 from tests.integration.reusable_values import BRIDGE, DESTINATION, WITNESS_WALLET
 from xrpl.core.binarycodec import encode
 from xrpl.core.keypairs import sign
-from xrpl.models import AccountInfo, XChainAddClaimAttestation, XChainCreateClaimID
+from xrpl.models import AccountInfo, Tx, XChainAddClaimAttestation, XChainCreateClaimID
 from xrpl.utils import xrp_to_drops
 from xrpl.wallet import Wallet
 
@@ -22,8 +26,13 @@ class TestXChainAddClaimAttestation(IntegrationTestCase):
             DESTINATION,
             client,
         )
+        await client.request(LEDGER_ACCEPT_REQUEST)
+        claim_id_hash = (
+            claim_id_response.result.get("tx_json") or claim_id_response.result
+        )["hash"]
+        claim_id_tx_response = await client.request(Tx(transaction=claim_id_hash))
 
-        nodes = claim_id_response.result["meta"]["AffectedNodes"]
+        nodes = claim_id_tx_response.result["meta"]["AffectedNodes"]
         created_nodes = [
             node["CreatedNode"] for node in nodes if "CreatedNode" in node.keys()
         ]
@@ -52,7 +61,7 @@ class TestXChainAddClaimAttestation(IntegrationTestCase):
         }
         encoded_attestation = encode(attestation_to_sign)
         attestation_signature = sign(
-            encoded_attestation,
+            bytes.fromhex(encoded_attestation),
             WITNESS_WALLET.private_key,
         )
 
@@ -70,7 +79,8 @@ class TestXChainAddClaimAttestation(IntegrationTestCase):
             client,
         )
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+        await client.request(LEDGER_ACCEPT_REQUEST)
 
         account_info2 = await client.request(
             AccountInfo(account=DESTINATION.classic_address)

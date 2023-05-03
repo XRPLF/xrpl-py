@@ -1,5 +1,9 @@
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
+from tests.integration.it_utils import (
+    LEDGER_ACCEPT_REQUEST,
+    submit_transaction_async,
+    test_async_and_sync,
+)
 from tests.integration.reusable_values import BRIDGE, WITNESS_WALLET
 from xrpl.asyncio.account import does_account_exist
 from xrpl.core.binarycodec import encode
@@ -40,7 +44,7 @@ class TestXChainAddAccountCreateAttestation(IntegrationTestCase):
         }
         encoded_attestation = encode(attestation_to_sign)
         attestation_signature = sign(
-            encoded_attestation,
+            bytes.fromhex(encoded_attestation),
             WITNESS_WALLET.private_key,
         )
 
@@ -59,5 +63,6 @@ class TestXChainAddAccountCreateAttestation(IntegrationTestCase):
         )
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+        await client.request(LEDGER_ACCEPT_REQUEST)
 
         self.assertTrue(await does_account_exist(destination, client))
