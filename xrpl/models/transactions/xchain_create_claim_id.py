@@ -55,10 +55,10 @@ class XChainCreateClaimID(Transaction):
     def _get_errors(self: XChainCreateClaimID) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        if self.signature_reward is not None and not self.signature_reward.isnumeric():
+        if self.signature_reward != REQUIRED and not self.signature_reward.isnumeric():
             errors["signature_reward"] = "`signature_reward` must be numeric."
 
-        if self.other_chain_source is not None and not is_valid_classic_address(
+        if self.other_chain_source != REQUIRED and not is_valid_classic_address(
             self.other_chain_source
         ):
             errors[
