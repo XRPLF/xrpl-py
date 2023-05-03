@@ -1,23 +1,25 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import BRIDGE, WALLET
-from xrpl.models import AccountInfo, XChainCommit
+from xrpl.models import AccountInfo, XChainAccountCreateCommit
+from xrpl.wallet import Wallet
 
 
-class TestXChainCommit(IntegrationTestCase):
+class TestXChainAccountCreateCommit(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
         locking_chain_door = BRIDGE.xchain_bridge.locking_chain_door
         account_info1 = await client.request(AccountInfo(account=locking_chain_door))
         initial_balance = int(account_info1.result["account_data"]["Balance"])
-        amount = 1000000
+        amount = int(BRIDGE.min_account_create_amount)
 
         response = await submit_transaction_async(
-            XChainCommit(
+            XChainAccountCreateCommit(
                 account=WALLET.classic_address,
                 xchain_bridge=BRIDGE.xchain_bridge,
                 amount=str(amount),
-                xchain_claim_id=1,
+                signature_reward=BRIDGE.signature_reward,
+                destination=Wallet.create().classic_address,
             ),
             WALLET,
         )
@@ -26,4 +28,6 @@ class TestXChainCommit(IntegrationTestCase):
 
         account_info2 = await client.request(AccountInfo(account=locking_chain_door))
         final_balance = int(account_info2.result["account_data"]["Balance"])
-        self.assertEqual(final_balance, initial_balance + amount)
+        self.assertEqual(
+            final_balance, initial_balance + amount + int(BRIDGE.signature_reward)
+        )
