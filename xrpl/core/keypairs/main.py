@@ -94,7 +94,7 @@ def derive_classic_address(public_key: str) -> str:
     return addresscodec.encode_classic_address(account_id)
 
 
-def sign(message: bytes, private_key: str) -> str:
+def sign(message: str | bytes, private_key: str) -> str:
     """
     Sign a message using a given private key.
 
@@ -105,6 +105,8 @@ def sign(message: bytes, private_key: str) -> str:
     Returns:
         Signed message, as hexadecimal.
     """
+    if isinstance(message, str):
+        message = bytes.fromhex(message)
     return (
         _get_module_from_key(private_key)
         .sign(
