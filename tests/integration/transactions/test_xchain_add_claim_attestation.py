@@ -48,7 +48,7 @@ class TestXChainAddClaimAttestation(IntegrationTestCase):
             AccountInfo(account=DESTINATION.classic_address)
         )
         initial_balance = int(account_info1.result["account_data"]["Balance"])
-        amount = xrp_to_drops(300)
+        amount = xrp_to_drops(3)
 
         attestation_to_sign = {
             "XChainBridge": BRIDGE.to_xrpl()["XChainBridge"],
@@ -86,6 +86,4 @@ class TestXChainAddClaimAttestation(IntegrationTestCase):
             AccountInfo(account=DESTINATION.classic_address)
         )
         final_balance = int(account_info2.result["account_data"]["Balance"])
-        self.assertEqual(
-            final_balance, initial_balance + int(amount) - int(BRIDGE.signature_reward)
-        )
+        self.assertEqual(final_balance, initial_balance + int(amount))
