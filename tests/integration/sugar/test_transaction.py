@@ -58,7 +58,9 @@ class TestTransaction(IntegrationTestCase):
         )
 
         # WHEN we sign locally, autofill, and submit the transaction
-        response = await sign_and_reliable_submission_async(payment_transaction, WALLET)
+        response = await sign_and_reliable_submission_async(
+            payment_transaction, WALLET, client
+        )
         payment_hash = response.result["tx_json"]["hash"]
         payment_ledger_index = response.result["validated_ledger_index"]
 

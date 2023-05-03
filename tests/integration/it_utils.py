@@ -126,10 +126,9 @@ def submit_transaction(
     check_fee: bool = True,
 ) -> Response:
     """Signs and submits a transaction to the XRPL."""
-    response = safe_sign_and_submit_transaction(
+    return safe_sign_and_submit_transaction(
         transaction, wallet, client, check_fee=check_fee
     )
-    return response
 
 
 async def submit_transaction_async(
@@ -138,27 +137,28 @@ async def submit_transaction_async(
     client: AsyncClient,
     check_fee: bool = True,
 ) -> Response:
-    response = await sign_and_submit_async(
-        transaction, wallet, client, check_fee=check_fee
-    )
-    return response
+    return await sign_and_submit_async(transaction, wallet, client, check_fee=check_fee)
 
 
 # TODO: figure out why there are different functions for `submit_transaction` and
 # `sign_and_reliable_submission` - they feel like they should be the same
 def sign_and_reliable_submission(
-    transaction: Transaction, wallet: Wallet, use_json_client: bool = True
+    transaction: Transaction,
+    wallet: Wallet,
+    client: SyncClient = JSON_RPC_CLIENT,
+    check_fee: bool = True,
 ) -> Response:
-    client = _choose_client(use_json_client)
     response = submit_transaction(transaction, wallet, client)
     client.request(LEDGER_ACCEPT_REQUEST)
     return response
 
 
 async def sign_and_reliable_submission_async(
-    transaction: Transaction, wallet: Wallet, use_json_client: bool = True
+    transaction: Transaction,
+    wallet: Wallet,
+    client: AsyncClient = ASYNC_JSON_RPC_CLIENT,
+    check_fee: bool = True,
 ) -> Response:
-    client = _choose_client_async(use_json_client)
     response = await submit_transaction_async(transaction, wallet, client)
     await client.request(LEDGER_ACCEPT_REQUEST)
     return response
