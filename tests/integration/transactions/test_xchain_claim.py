@@ -18,7 +18,7 @@ from xrpl.utils import xrp_to_drops
 from xrpl.wallet import Wallet
 
 
-class TestXChainAddClaimAttestation(IntegrationTestCase):
+class TestXChainClaim(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
         other_chain_source = Wallet.create().classic_address
