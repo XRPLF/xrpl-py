@@ -1,10 +1,18 @@
 import asyncio
 
 from tests.integration.it_utils import (
+    MASTER_ACCOUNT,
     fund_wallet_async,
     sign_and_reliable_submission_async,
 )
-from xrpl.models import IssuedCurrencyAmount, OfferCreate, PaymentChannelCreate
+from xrpl.models import (
+    XRP,
+    IssuedCurrencyAmount,
+    OfferCreate,
+    PaymentChannelCreate,
+    XChainBridge,
+    XChainCreateBridge,
+)
 from xrpl.wallet import Wallet
 
 
@@ -12,46 +20,67 @@ from xrpl.wallet import Wallet
 # TODO: set up wallet for each test instead of using one for all tests (now that it's
 # faster)
 async def _set_up_reusable_values():
-    WALLET = Wallet.create()
-    await fund_wallet_async(WALLET)
-    DESTINATION = Wallet.create()
-    await fund_wallet_async(DESTINATION)
+    wallet = Wallet.create()
+    await fund_wallet_async(wallet)
+    destination = Wallet.create()
+    await fund_wallet_async(destination)
+    door_wallet = Wallet.create()
+    await fund_wallet_async(door_wallet)
 
-    OFFER = await sign_and_reliable_submission_async(
+    offer = await sign_and_reliable_submission_async(
         OfferCreate(
-            account=WALLET.address,
+            account=wallet.address,
             taker_gets="13100000",
             taker_pays=IssuedCurrencyAmount(
                 currency="USD",
-                issuer=WALLET.address,
+                issuer=wallet.address,
                 value="10",
             ),
         ),
-        WALLET,
+        wallet,
     )
 
-    PAYMENT_CHANNEL = await sign_and_reliable_submission_async(
+    payment_channel = await sign_and_reliable_submission_async(
         PaymentChannelCreate(
-            account=WALLET.address,
+            account=wallet.address,
             amount="1",
             destination=DESTINATION.address,
             settle_delay=86400,
-            public_key=WALLET.public_key,
+            public_key=wallet.public_key,
         ),
-        WALLET,
+        wallet,
+    )
+
+    bridge = await sign_and_reliable_submission_async(
+        XChainCreateBridge(
+            account=door_wallet.address,
+            xchain_bridge=XChainBridge(
+                locking_chain_door=door_wallet.address,
+                locking_chain_issue=XRP(),
+                issuing_chain_door=MASTER_ACCOUNT,
+                issuing_chain_issue=XRP(),
+            ),
+            signature_reward="200",
+            min_account_create_amount="10000000",
+        ),
+        door_wallet,
     )
 
     return (
-        WALLET,
-        DESTINATION,
-        OFFER,
-        PAYMENT_CHANNEL,
+        wallet,
+        destination,
+        door_wallet,
+        offer,
+        payment_channel,
+        bridge,
     )
 
 
 (
     WALLET,
     DESTINATION,
+    DOOR_WALLET,
     OFFER,
     PAYMENT_CHANNEL,
+    BRIDGE,
 ) = asyncio.run(_set_up_reusable_values())
