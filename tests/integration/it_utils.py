@@ -126,9 +126,11 @@ def submit_transaction(
     check_fee: bool = True,
 ) -> Response:
     """Signs and submits a transaction to the XRPL."""
-    return safe_sign_and_submit_transaction(
+    response = safe_sign_and_submit_transaction(
         transaction, wallet, client, check_fee=check_fee
     )
+    client.request(LEDGER_ACCEPT_REQUEST)
+    return response
 
 
 async def submit_transaction_async(
@@ -137,7 +139,11 @@ async def submit_transaction_async(
     client: Client = ASYNC_JSON_RPC_CLIENT,
     check_fee: bool = True,
 ) -> Response:
-    return await sign_and_submit_async(transaction, wallet, client, check_fee=check_fee)
+    response = await sign_and_submit_async(
+        transaction, wallet, client, check_fee=check_fee
+    )
+    await client.request(LEDGER_ACCEPT_REQUEST)
+    return response
 
 
 def sign_and_reliable_submission(
