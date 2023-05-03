@@ -122,7 +122,7 @@ async def fund_wallet(
 def submit_transaction(
     transaction: Transaction,
     wallet: Wallet,
-    client: SyncClient = JSON_RPC_CLIENT,
+    client: SyncClient,
     check_fee: bool = True,
 ) -> Response:
     """Signs and submits a transaction to the XRPL."""
@@ -136,7 +136,7 @@ def submit_transaction(
 async def submit_transaction_async(
     transaction: Transaction,
     wallet: Wallet,
-    client: Client,
+    client: AsyncClient,
     check_fee: bool = True,
 ) -> Response:
     response = await sign_and_submit_async(
@@ -146,6 +146,8 @@ async def submit_transaction_async(
     return response
 
 
+# TODO: figure out why there are different functions for `submit_transaction` and
+# `sign_and_reliable_submission` - they feel like they should be the same
 def sign_and_reliable_submission(
     transaction: Transaction, wallet: Wallet, use_json_client: bool = True
 ) -> Response:
