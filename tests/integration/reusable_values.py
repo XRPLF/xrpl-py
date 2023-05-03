@@ -10,6 +10,8 @@ from xrpl.models import (
     IssuedCurrencyAmount,
     OfferCreate,
     PaymentChannelCreate,
+    SignerEntry,
+    SignerListSet,
     XChainBridge,
     XChainCreateBridge,
 )
@@ -26,6 +28,8 @@ async def _set_up_reusable_values():
     await fund_wallet_async(destination)
     door_wallet = Wallet.create()
     await fund_wallet_async(door_wallet)
+    witness_wallet = Wallet.create()
+    await fund_wallet_async(witness_wallet)
 
     offer = await sign_and_reliable_submission_async(
         OfferCreate(
@@ -66,11 +70,25 @@ async def _set_up_reusable_values():
         bridge,
         door_wallet,
     )
+    await sign_and_reliable_submission_async(
+        SignerListSet(
+            account=door_wallet.classic_address,
+            signer_entries=[
+                SignerEntry(
+                    account=witness_wallet.classic_address,
+                    signer_weight=1,
+                )
+            ],
+            signer_quorum=1,
+        ),
+        door_wallet,
+    )
 
     return (
         wallet,
         destination,
         door_wallet,
+        witness_wallet,
         offer,
         payment_channel,
         bridge,
@@ -81,6 +99,7 @@ async def _set_up_reusable_values():
     WALLET,
     DESTINATION,
     DOOR_WALLET,
+    WITNESS_WALLET,
     OFFER,
     PAYMENT_CHANNEL,
     BRIDGE,
