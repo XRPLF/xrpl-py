@@ -6,8 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [[Unreleased]]
+
+### Changed:
+- Allowed keypairs.sign to take a hex string in addition to bytes
+
 ### Fixed:
 - Refactored `does_account_exist` and `get_balance` to avoid deprecated methods and use `ledger_index` parameter
+- Fixed crashes in the SignerListSet validation
 
 ### Removed:
 - RPCs and utils related to the old sidechain design
