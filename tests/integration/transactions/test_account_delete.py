@@ -25,7 +25,7 @@ class TestAccountDelete(IntegrationTestCase):
             destination_tag=DESTINATION_TAG,
         )
         response = await submit_transaction_async(
-            account_delete, WALLET, check_fee=False
+            account_delete, WALLET, client, check_fee=False
         )
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
 

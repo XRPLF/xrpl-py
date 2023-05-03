@@ -121,6 +121,7 @@ class TestTransaction(IntegrationTestCase):
                 destination=DESTINATION,
             ),
             WALLET,
+            client,
             # WITHOUT checking the fee value
             check_fee=False,
         )
