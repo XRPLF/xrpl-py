@@ -51,18 +51,19 @@ async def _set_up_reusable_values():
         wallet,
     )
 
-    bridge = await sign_and_reliable_submission_async(
-        XChainCreateBridge(
-            account=door_wallet.address,
-            xchain_bridge=XChainBridge(
-                locking_chain_door=door_wallet.address,
-                locking_chain_issue=XRP(),
-                issuing_chain_door=MASTER_ACCOUNT,
-                issuing_chain_issue=XRP(),
-            ),
-            signature_reward="200",
-            min_account_create_amount="10000000",
+    bridge = XChainCreateBridge(
+        account=door_wallet.address,
+        xchain_bridge=XChainBridge(
+            locking_chain_door=door_wallet.address,
+            locking_chain_issue=XRP(),
+            issuing_chain_door=MASTER_ACCOUNT,
+            issuing_chain_issue=XRP(),
         ),
+        signature_reward="200",
+        min_account_create_amount="10000000",
+    )
+    await sign_and_reliable_submission_async(
+        bridge,
         door_wallet,
     )
 
