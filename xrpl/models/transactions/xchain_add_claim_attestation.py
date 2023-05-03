@@ -87,7 +87,7 @@ class XChainAddClaimAttestation(Transaction):
     :meta hide-value:
     """
 
-    xchain_claim_id: str = REQUIRED  # type: ignore
+    xchain_claim_id: Union[str, int] = REQUIRED  # type: ignore
     """
     The ``XChainClaimID`` associated with the transfer, which was included in
     the ``XChainCommit`` transaction. This field is required.
