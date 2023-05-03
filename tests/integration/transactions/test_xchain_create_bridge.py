@@ -5,7 +5,13 @@ from tests.integration.it_utils import (
     submit_transaction_async,
     test_async_and_sync,
 )
-from xrpl.models import XRP, XChainBridge, XChainCreateBridge
+from xrpl.models import (
+    XRP,
+    AccountObjects,
+    AccountObjectType,
+    XChainBridge,
+    XChainCreateBridge,
+)
 from xrpl.wallet import Wallet
 
 
@@ -30,3 +36,10 @@ class TestXChainCreateBridge(IntegrationTestCase):
         )
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        account_objects_response = await client.request(
+            AccountObjects(
+                account=door_wallet.classic_address, type=AccountObjectType.BRIDGE
+            )
+        )
+        self.assertEqual(len(account_objects_response.result["account_objects"]), 1)
