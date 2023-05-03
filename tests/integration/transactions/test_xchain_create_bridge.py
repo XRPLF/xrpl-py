@@ -2,7 +2,7 @@ from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     MASTER_ACCOUNT,
     fund_wallet_async,
-    submit_transaction_async,
+    sign_and_reliable_submission_async,
     test_async_and_sync,
 )
 from xrpl.models import (
@@ -20,7 +20,7 @@ class TestXChainCreateBridge(IntegrationTestCase):
     async def test_basic_functionality(self, client):
         door_wallet = Wallet.create()
         await fund_wallet_async(door_wallet)
-        response = await submit_transaction_async(
+        response = await sign_and_reliable_submission_async(
             XChainCreateBridge(
                 account=door_wallet.classic_address,
                 xchain_bridge=XChainBridge(
@@ -33,6 +33,7 @@ class TestXChainCreateBridge(IntegrationTestCase):
                 min_account_create_amount="10000000",
             ),
             door_wallet,
+            client,
         )
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")

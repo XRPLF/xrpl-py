@@ -1,5 +1,8 @@
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
+from tests.integration.it_utils import (
+    sign_and_reliable_submission_async,
+    test_async_and_sync,
+)
 from tests.integration.reusable_values import BRIDGE, WALLET
 from xrpl.models import AccountInfo, XChainAccountCreateCommit
 from xrpl.wallet import Wallet
@@ -13,7 +16,7 @@ class TestXChainAccountCreateCommit(IntegrationTestCase):
         initial_balance = int(account_info1.result["account_data"]["Balance"])
         amount = int(BRIDGE.min_account_create_amount)
 
-        response = await submit_transaction_async(
+        response = await sign_and_reliable_submission_async(
             XChainAccountCreateCommit(
                 account=WALLET.classic_address,
                 xchain_bridge=BRIDGE.xchain_bridge,
@@ -22,6 +25,7 @@ class TestXChainAccountCreateCommit(IntegrationTestCase):
                 destination=Wallet.create().classic_address,
             ),
             WALLET,
+            client,
         )
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")

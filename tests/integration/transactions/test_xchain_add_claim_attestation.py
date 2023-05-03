@@ -1,7 +1,7 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     LEDGER_ACCEPT_REQUEST,
-    submit_transaction_async,
+    sign_and_reliable_submission_async,
     test_async_and_sync,
 )
 from tests.integration.reusable_values import BRIDGE, DESTINATION, WITNESS_WALLET
@@ -16,7 +16,7 @@ class TestXChainAddClaimAttestation(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
         other_chain_source = Wallet.create().classic_address
-        claim_id_response = await submit_transaction_async(
+        claim_id_response = await sign_and_reliable_submission_async(
             XChainCreateClaimID(
                 account=DESTINATION.classic_address,
                 xchain_bridge=BRIDGE.xchain_bridge,
@@ -65,7 +65,7 @@ class TestXChainAddClaimAttestation(IntegrationTestCase):
             WITNESS_WALLET.private_key,
         )
 
-        response = await submit_transaction_async(
+        response = await sign_and_reliable_submission_async(
             XChainAddClaimAttestation.from_xrpl(
                 {
                     "Account": WITNESS_WALLET.classic_address,
@@ -86,4 +86,6 @@ class TestXChainAddClaimAttestation(IntegrationTestCase):
             AccountInfo(account=DESTINATION.classic_address)
         )
         final_balance = int(account_info2.result["account_data"]["Balance"])
-        self.assertEqual(final_balance, initial_balance + int(amount))
+        self.assertEqual(
+            final_balance, initial_balance + int(amount) - int(BRIDGE.signature_reward)
+        )

@@ -1,7 +1,7 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     LEDGER_ACCEPT_REQUEST,
-    submit_transaction_async,
+    sign_and_reliable_submission_async,
     test_async_and_sync,
 )
 from tests.integration.reusable_values import BRIDGE, WITNESS_WALLET
@@ -48,7 +48,7 @@ class TestXChainAddAccountCreateAttestation(IntegrationTestCase):
             WITNESS_WALLET.private_key,
         )
 
-        response = await submit_transaction_async(
+        response = await sign_and_reliable_submission_async(
             XChainAddAccountCreateAttestation.from_xrpl(
                 {
                     "Account": WITNESS_WALLET.classic_address,
