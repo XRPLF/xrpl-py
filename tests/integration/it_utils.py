@@ -148,7 +148,7 @@ def sign_and_reliable_submission(
     client: SyncClient = JSON_RPC_CLIENT,
     check_fee: bool = True,
 ) -> Response:
-    response = submit_transaction(transaction, wallet, client)
+    response = submit_transaction(transaction, wallet, client, check_fee=check_fee)
     client.request(LEDGER_ACCEPT_REQUEST)
     return response
 
@@ -159,7 +159,9 @@ async def sign_and_reliable_submission_async(
     client: AsyncClient = ASYNC_JSON_RPC_CLIENT,
     check_fee: bool = True,
 ) -> Response:
-    response = await submit_transaction_async(transaction, wallet, client)
+    response = await submit_transaction_async(
+        transaction, wallet, client, check_fee=check_fee
+    )
     await client.request(LEDGER_ACCEPT_REQUEST)
     return response
 

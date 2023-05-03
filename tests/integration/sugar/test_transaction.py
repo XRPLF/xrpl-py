@@ -2,7 +2,6 @@ from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     accept_ledger_async,
     sign_and_reliable_submission_async,
-    submit_transaction_async,
     test_async_and_sync,
 )
 from tests.integration.reusable_values import DESTINATION as DESTINATION_WALLET
@@ -91,7 +90,7 @@ class TestTransaction(IntegrationTestCase):
         )
         # We expect an XRPLException to be raised
         with self.assertRaises(XRPLException):
-            await submit_transaction_async(account_delete, WALLET, client)
+            await sign_and_reliable_submission_async(account_delete, WALLET, client)
 
     @test_async_and_sync(globals())
     async def test_high_fee_account_set_unauthorized(self, client):
@@ -109,12 +108,12 @@ class TestTransaction(IntegrationTestCase):
         )
         # We expect an XRPLException to be raised
         with self.assertRaises(XRPLException):
-            await submit_transaction_async(account_set, WALLET, client)
+            await sign_and_reliable_submission_async(account_set, WALLET, client)
 
     @test_async_and_sync(globals())
     async def test_payment_high_fee_authorized(self, client):
         # GIVEN a new Payment transaction
-        response = await submit_transaction_async(
+        response = await sign_and_reliable_submission_async(
             Payment(
                 account=WALLET.classic_address,
                 amount="1",
