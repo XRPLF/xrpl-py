@@ -14,5 +14,6 @@ class TestPaymentChannelFund(IntegrationTestCase):
                 amount="1",
             ),
             WALLET,
+            client,
         )
         self.assertTrue(response.is_successful())

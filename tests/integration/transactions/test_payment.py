@@ -14,5 +14,6 @@ class TestPayment(IntegrationTestCase):
                 destination=DESTINATION.classic_address,
             ),
             WALLET,
+            client,
         )
         self.assertTrue(response.is_successful())

@@ -89,7 +89,7 @@ class TestTransaction(IntegrationTestCase):
         )
         # We expect an XRPLException to be raised
         with self.assertRaises(XRPLException):
-            await submit_transaction_async(account_delete, WALLET)
+            await submit_transaction_async(account_delete, WALLET, client)
 
     @test_async_and_sync(globals())
     async def test_high_fee_account_set_unauthorized(self, client):
@@ -107,7 +107,7 @@ class TestTransaction(IntegrationTestCase):
         )
         # We expect an XRPLException to be raised
         with self.assertRaises(XRPLException):
-            await submit_transaction_async(account_set, WALLET)
+            await submit_transaction_async(account_set, WALLET, client)
 
     @test_async_and_sync(globals())
     async def test_payment_high_fee_authorized(self, client):

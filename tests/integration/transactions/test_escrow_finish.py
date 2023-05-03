@@ -27,7 +27,7 @@ class TestEscrowFinish(IntegrationTestCase):
             condition=CONDITION,
             fulfillment=FULFILLMENT,
         )
-        response = await submit_transaction_async(escrow_finish, WALLET)
+        response = await submit_transaction_async(escrow_finish, WALLET, client)
         # Actual engine_result will be 'tecNO_TARGET' since using non-extant
         # account for OWNER
         self.assertEqual(response.status, ResponseStatus.SUCCESS)

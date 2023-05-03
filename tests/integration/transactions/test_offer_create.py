@@ -19,5 +19,6 @@ class TestOfferCreate(IntegrationTestCase):
                 ),
             ),
             WALLET,
+            client,
         )
         self.assertTrue(offer.is_successful())

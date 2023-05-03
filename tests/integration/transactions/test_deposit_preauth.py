@@ -15,7 +15,7 @@ class TestDepositPreauth(IntegrationTestCase):
             account=ACCOUNT,
             authorize=ADDRESS,
         )
-        response = await submit_transaction_async(deposit_preauth, WALLET)
+        response = await submit_transaction_async(deposit_preauth, WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
 
     @test_async_and_sync(globals())
@@ -24,5 +24,5 @@ class TestDepositPreauth(IntegrationTestCase):
             account=ACCOUNT,
             unauthorize=ADDRESS,
         )
-        response = await submit_transaction_async(deposit_preauth, WALLET)
+        response = await submit_transaction_async(deposit_preauth, WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)

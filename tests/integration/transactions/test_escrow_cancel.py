@@ -17,6 +17,6 @@ class TestEscrowCancel(IntegrationTestCase):
             owner=OWNER,
             offer_sequence=OFFER_SEQUENCE,
         )
-        response = await submit_transaction_async(escrow_cancel, WALLET)
+        response = await submit_transaction_async(escrow_cancel, WALLET, client)
         # Actual engine_result is `tecNO_TARGET since OWNER account doesn't exist
         self.assertEqual(response.status, ResponseStatus.SUCCESS)

@@ -13,6 +13,7 @@ class TestOfferCancel(IntegrationTestCase):
                 offer_sequence=OFFER.result["tx_json"]["Sequence"],
             ),
             WALLET,
+            client,
         )
         self.assertTrue(response.is_successful())
         # NOTE: offer cancellations are difficult to test because not

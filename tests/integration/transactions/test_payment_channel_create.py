@@ -16,5 +16,6 @@ class TestPaymentChannelCreate(IntegrationTestCase):
                 public_key=WALLET.public_key,
             ),
             WALLET,
+            client,
         )
         self.assertTrue(payment_channel.is_successful())

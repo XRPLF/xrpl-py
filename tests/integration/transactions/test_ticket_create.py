@@ -13,5 +13,6 @@ class TestTicketCreate(IntegrationTestCase):
                 ticket_count=2,
             ),
             WALLET,
+            client,
         )
         self.assertTrue(response.is_successful())

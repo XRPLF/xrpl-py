@@ -136,7 +136,7 @@ def submit_transaction(
 async def submit_transaction_async(
     transaction: Transaction,
     wallet: Wallet,
-    client: Client = ASYNC_JSON_RPC_CLIENT,
+    client: Client,
     check_fee: bool = True,
 ) -> Response:
     response = await sign_and_submit_async(

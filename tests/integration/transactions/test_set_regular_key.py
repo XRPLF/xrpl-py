@@ -15,5 +15,6 @@ class TestSetRegularKey(IntegrationTestCase):
                 regular_key=regular_key,
             ),
             WALLET,
+            client,
         )
         self.assertTrue(response.is_successful())

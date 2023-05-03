@@ -16,7 +16,7 @@ class TestCheckCancel(IntegrationTestCase):
             account=ACCOUNT,
             check_id=CHECK_ID,
         )
-        response = await submit_transaction_async(check_cancel, WALLET)
+        response = await submit_transaction_async(check_cancel, WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         # This transaction shouldn't actually succeed, because this isn't a real check:
         # Docs for tecNO_ENTRY read:

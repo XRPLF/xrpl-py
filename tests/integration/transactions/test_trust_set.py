@@ -21,5 +21,6 @@ class TestTrustSet(IntegrationTestCase):
                 ),
             ),
             WALLET,
+            client,
         )
         self.assertTrue(response.is_successful())

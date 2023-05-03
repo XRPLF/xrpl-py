@@ -22,7 +22,7 @@ class TestAccountSet(IntegrationTestCase):
             account=ACCOUNT,
             set_flag=SET_FLAG,
         )
-        response = await submit_transaction_async(account_set, WALLET)
+        response = await submit_transaction_async(account_set, WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
@@ -37,6 +37,6 @@ class TestAccountSet(IntegrationTestCase):
             transfer_rate=TRANSFER_RATE,
             tick_size=TICK_SIZE,
         )
-        response = await submit_transaction_async(account_set, WALLET)
+        response = await submit_transaction_async(account_set, WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")

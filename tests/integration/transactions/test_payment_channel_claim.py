@@ -13,5 +13,6 @@ class TestPaymentChannelClaim(IntegrationTestCase):
                 channel=PAYMENT_CHANNEL.result["tx_json"]["hash"],
             ),
             WALLET,
+            client,
         )
         self.assertTrue(response.is_successful())

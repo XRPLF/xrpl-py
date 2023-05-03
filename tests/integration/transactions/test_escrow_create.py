@@ -29,7 +29,7 @@ class TestEscrowCreate(IntegrationTestCase):
             finish_after=FINISH_AFTER,
             source_tag=SOURCE_TAG,
         )
-        response = await submit_transaction_async(escrow_create, WALLET)
+        response = await submit_transaction_async(escrow_create, WALLET, client)
         # Actual engine_result will be `tecNO_PERMISSION`...
         # maybe due to CONDITION or something
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
