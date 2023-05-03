@@ -129,7 +129,6 @@ def submit_transaction(
     response = safe_sign_and_submit_transaction(
         transaction, wallet, client, check_fee=check_fee
     )
-    client.request(LEDGER_ACCEPT_REQUEST)
     return response
 
 
@@ -142,7 +141,6 @@ async def submit_transaction_async(
     response = await sign_and_submit_async(
         transaction, wallet, client, check_fee=check_fee
     )
-    await client.request(LEDGER_ACCEPT_REQUEST)
     return response
 
 
