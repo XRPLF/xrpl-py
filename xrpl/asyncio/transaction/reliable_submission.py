@@ -169,11 +169,10 @@ async def _get_signed_tx(
     if autofill:
         transaction = await _autofill(transaction, client)
 
-    return (
-        await sign(transaction, wallet, True)
-        if transaction.signers
-        else await sign(transaction, wallet, True)
-    )
+    if transaction.signers:
+        return await sign(transaction, wallet, True, True)
+
+    return await sign(transaction, wallet, True, False)
 
 
 async def submit_and_wait(
