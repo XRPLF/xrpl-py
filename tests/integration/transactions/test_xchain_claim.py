@@ -1,6 +1,5 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
-    LEDGER_ACCEPT_REQUEST,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
@@ -32,7 +31,6 @@ class TestXChainClaim(IntegrationTestCase):
             DESTINATION,
             client,
         )
-        await client.request(LEDGER_ACCEPT_REQUEST)
         claim_id_hash = (
             claim_id_response.result.get("tx_json") or claim_id_response.result
         )["hash"]
@@ -85,7 +83,6 @@ class TestXChainClaim(IntegrationTestCase):
         )
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-        await client.request(LEDGER_ACCEPT_REQUEST)
 
         account_info2 = await client.request(
             AccountInfo(account=DESTINATION.classic_address)
@@ -106,7 +103,6 @@ class TestXChainClaim(IntegrationTestCase):
         )
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-        await client.request(LEDGER_ACCEPT_REQUEST)
 
         account_info3 = await client.request(
             AccountInfo(account=DESTINATION.classic_address)

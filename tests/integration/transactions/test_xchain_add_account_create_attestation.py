@@ -1,6 +1,5 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
-    LEDGER_ACCEPT_REQUEST,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
@@ -63,6 +62,5 @@ class TestXChainAddAccountCreateAttestation(IntegrationTestCase):
         )
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-        await client.request(LEDGER_ACCEPT_REQUEST)
 
         self.assertTrue(await does_account_exist(destination, client))

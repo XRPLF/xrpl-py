@@ -1,6 +1,5 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
-    LEDGER_ACCEPT_REQUEST,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
@@ -16,6 +15,7 @@ class TestXChainAddClaimAttestation(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
         other_chain_source = Wallet.create().classic_address
+
         claim_id_response = await sign_and_reliable_submission_async(
             XChainCreateClaimID(
                 account=DESTINATION.classic_address,
@@ -26,7 +26,6 @@ class TestXChainAddClaimAttestation(IntegrationTestCase):
             DESTINATION,
             client,
         )
-        await client.request(LEDGER_ACCEPT_REQUEST)
         claim_id_hash = (
             claim_id_response.result.get("tx_json") or claim_id_response.result
         )["hash"]
@@ -80,7 +79,6 @@ class TestXChainAddClaimAttestation(IntegrationTestCase):
         )
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-        await client.request(LEDGER_ACCEPT_REQUEST)
 
         account_info2 = await client.request(
             AccountInfo(account=DESTINATION.classic_address)
