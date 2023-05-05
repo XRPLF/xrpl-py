@@ -119,6 +119,7 @@ async def fund_wallet(
     await client.request(LEDGER_ACCEPT_REQUEST)
 
 
+# just submits a transaction to the ledger, synchronously
 def submit_transaction(
     transaction: Transaction,
     wallet: Wallet,
@@ -131,6 +132,7 @@ def submit_transaction(
     )
 
 
+# just submits a transaction to the ledger, asynchronously
 async def submit_transaction_async(
     transaction: Transaction,
     wallet: Wallet,
@@ -140,8 +142,7 @@ async def submit_transaction_async(
     return await sign_and_submit_async(transaction, wallet, client, check_fee=check_fee)
 
 
-# TODO: figure out why there are different functions for `submit_transaction` and
-# `sign_and_reliable_submission` - they feel like they should be the same
+# submits a transaction to the ledger and closes a ledger, synchronously
 def sign_and_reliable_submission(
     transaction: Transaction,
     wallet: Wallet,
@@ -153,6 +154,7 @@ def sign_and_reliable_submission(
     return response
 
 
+# submits a transaction to the ledger and closes a ledger, asynchronously
 async def sign_and_reliable_submission_async(
     transaction: Transaction,
     wallet: Wallet,
