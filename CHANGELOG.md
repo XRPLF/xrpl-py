@@ -8,8 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 ### Added:
 - Added `submit_and_wait` to sign (if needed), autofill, submit a transaction and wait for its final outcome
-- `submit` and `send_reliable_submission` now accepting a boolean param `fail_hard` (default to `False`; if `True`, halt the submission
-if fails locally)
+- `submit` and `send_reliable_submission` now accept an optional boolean param `fail_hard` (if `True` halt the submission if it's not immediately validated)
 
 ### Fixed:
 - Refactored `does_account_exist` and `get_balance` to avoid deprecated methods and use `ledger_index` parameter
