@@ -185,11 +185,10 @@ async def submit_and_wait(
     fail_hard: bool = False,
 ) -> Response:
     """
-    Signs a transaction locally, without trusting external rippled nodes (only if
-    the input transaction is unsigned; otherwise, proceeds to the next steps), submits,
-    and verifies that it has been included in a validated ledger (or has errored
-    /will not be included for some reason).
-    `See Reliable Transaction Submission
+    Signs a transaction locally if the transaction is unsigned, then submits,
+    and verifies that it has been included in a validated ledger (or has errored/
+    will not be included for some reason).
+    `See Reliable Transaction Submission for a full explanation of this workflow
     <https://xrpl.org/reliable-transaction-submission.html>`_
 
     Args:
