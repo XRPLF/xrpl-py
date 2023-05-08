@@ -65,8 +65,8 @@ def submit_and_wait(
         transaction: the signed/unsigned transaction (or transaction blob) to
             be submitted.
         client: the network client with which to submit the transaction.
-        wallet: the wallet with which to sign the transaction (optional, only needed
-            if the transaction is unsigned).
+        wallet: an optional wallet with which to sign the transaction. This is
+            only needed if the transaction is unsigned.
         check_fee: an optional bolean indicating whether to check if the fee is
             higher than the expected transaction type fee. Defaults to True.
         autofill: an optional boolean indicating whether to autofill the
