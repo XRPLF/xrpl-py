@@ -57,8 +57,9 @@ def submit(
     Args:
         transaction: the Transaction to be submitted.
         client: the network client with which to submit the transaction.
-        fail_hard: an optional boolean. If True, and the transaction fails locally,
-            do not retry or relay the transaction to other servers. Defaults to False.
+        fail_hard: an optional boolean. If True, and the transaction fails for
+            the initial server, do not retry or relay the transaction to other
+            servers. Defaults to False.
 
     Returns:
         The response from the ledger.

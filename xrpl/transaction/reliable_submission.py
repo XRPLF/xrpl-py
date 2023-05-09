@@ -33,8 +33,9 @@ def send_reliable_submission(
         transaction: the signed transaction to submit to the ledger. Requires a
             `last_ledger_sequence` param.
         client: the network client used to submit the transaction to a rippled node.
-        fail_hard: an optional boolean. If True, and the transaction fails locally,
-            do not retry or relay the transaction to other servers. Defaults to False.
+        fail_hard: an optional boolean. If True, and the transaction fails for
+            the initial server, do not retry or relay the transaction to other
+            servers. Defaults to False.
 
     Returns:
         The response from a validated ledger.
@@ -71,8 +72,9 @@ def submit_and_wait(
             higher than the expected transaction type fee. Defaults to True.
         autofill: an optional boolean indicating whether to autofill the
             transaction. Defaults to True.
-        fail_hard: an optional boolean. If True, and the transaction fails locally,
-            do not retry or relay the transaction to other servers. Defaults to False.
+        fail_hard: an optional boolean. If True, and the transaction fails for
+            the initial server, do not retry or relay the transaction to other
+            servers. Defaults to False.
 
     Returns:
         The response from the ledger.
