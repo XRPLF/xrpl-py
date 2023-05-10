@@ -135,7 +135,10 @@ async def _check_wallet_balance(address: str, client: Client) -> int:
 
 async def _request_funding(url: str, address: str) -> None:
     async with httpx.AsyncClient() as http_client:
-        response = await http_client.post(url=url, json={"destination": address})
+        headers = {"User-Agent": "xrpl-py", "Content-Type": "application/json"}
+        response = await http_client.post(
+            url=url, json={"destination": address}, headers=headers
+        )
     if not response.status_code == httpx.codes.OK:
         response.raise_for_status()
 
