@@ -16,7 +16,6 @@ class TestCheckCreate(IntegrationTestCase):
     async def test_all_fields(self, client):
         check_create = CheckCreate(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             destination=DESTINATION.classic_address,
             destination_tag=DESTINATION_TAG,
             send_max=SENDMAX,
@@ -26,4 +25,3 @@ class TestCheckCreate(IntegrationTestCase):
         response = await submit_transaction_async(check_create, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-        WALLET.sequence += 1

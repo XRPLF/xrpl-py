@@ -14,7 +14,6 @@ class TestEscrowCancel(IntegrationTestCase):
     async def test_all_fields(self, client):
         escrow_cancel = EscrowCancel(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             owner=OWNER,
             offer_sequence=OFFER_SEQUENCE,
         )

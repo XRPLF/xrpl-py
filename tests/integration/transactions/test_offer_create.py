@@ -11,7 +11,6 @@ class TestOfferCreate(IntegrationTestCase):
         offer = await submit_transaction_async(
             OfferCreate(
                 account=WALLET.classic_address,
-                sequence=WALLET.sequence,
                 taker_gets="13100000",
                 taker_pays=IssuedCurrencyAmount(
                     currency="USD",
@@ -22,4 +21,3 @@ class TestOfferCreate(IntegrationTestCase):
             WALLET,
         )
         self.assertTrue(offer.is_successful())
-        WALLET.sequence += 1
