@@ -381,13 +381,13 @@ class Transaction(BaseModel):
         if self.signers:
             for signer in self.signers:
                 if (
-                    signer.signing_pub_key is None or len(self.signing_pub_key) <= 0
-                ) and (signer.txn_signature is None or len(signer.txn_signature) <= 0):
+                    signer.signing_pub_key is None or len(signer.signing_pub_key) <= 0
+                ) or (signer.txn_signature is None or len(signer.txn_signature) <= 0):
                     return False
             return True
-        return (self.signing_pub_key is not None and len(self.signing_pub_key) > 0) or (
-            self.txn_signature is not None and len(self.txn_signature) > 0
-        )
+        return (
+            self.signing_pub_key is not None and len(self.signing_pub_key) > 0
+        ) and (self.txn_signature is not None and len(self.txn_signature) > 0)
 
     def get_hash(self: Transaction) -> str:
         """
