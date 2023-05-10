@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
 from typing_extensions import Final
 
-from xrpl.core.binarycodec import encode
+from xrpl.core.binarycodec import decode, encode
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
@@ -316,6 +316,15 @@ class Transaction(BaseModel):
         """
         return transaction_json_to_binary_codec_form(self.to_dict())
 
+    def blob(self: Transaction) -> str:
+        """
+        Creates the canonical binary format of the Transaction object.
+
+        Returns:
+            The binary-encoded object, as a hexadecimal string.
+        """
+        return encode(self.to_xrpl())
+
     @classmethod
     def from_dict(cls: Type[T], value: Dict[str, Any]) -> T:
         """
@@ -442,3 +451,16 @@ class Transaction(BaseModel):
             return pseudo_transaction_types[transaction_type]
 
         raise XRPLModelException(f"{transaction_type} is not a valid Transaction type")
+
+    @staticmethod
+    def from_blob(tx_blob: str) -> Transaction:
+        """
+        Decodes a transaction blob.
+
+        Args:
+            tx_blob: the tx blob to decode.
+
+        Returns:
+            The formatted transaction.
+        """
+        return Transaction.from_xrpl(decode(tx_blob))

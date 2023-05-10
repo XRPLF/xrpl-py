@@ -12,7 +12,6 @@ from xrpl.asyncio.transaction.main import autofill as _autofill
 from xrpl.asyncio.transaction.main import sign, submit
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.constants import XRPLException
-from xrpl.core.binarycodec.main import decode
 from xrpl.models.requests import Tx
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
@@ -117,19 +116,6 @@ async def send_reliable_submission(
     )
 
 
-def _decode_tx_blob(tx_blob: str) -> Transaction:
-    """
-    Decodes a transaction blob.
-
-    Args:
-        tx_blob: the tx blob to decode.
-
-    Returns:
-        The formatted transaction.
-    """
-    return Transaction.from_xrpl(decode(tx_blob))
-
-
 async def _get_signed_tx(
     transaction: Union[Transaction, str],
     client: Client,
@@ -154,7 +140,7 @@ async def _get_signed_tx(
         The signed transaction.
     """
     if isinstance(transaction, str):
-        transaction = _decode_tx_blob(transaction)
+        transaction = Transaction.from_blob(transaction)
 
     if transaction.is_signed():
         return transaction
