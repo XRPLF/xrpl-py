@@ -15,7 +15,6 @@ class TestCheckCreate(IntegrationTestCase):
     async def test_required_fields_with_amount(self, client):
         check_cash = CheckCash(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             check_id=CHECK_ID,
             amount=AMOUNT,
         )
@@ -23,17 +22,14 @@ class TestCheckCreate(IntegrationTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         # Getting `tecNO_ENTRY` codes because using a non-existent check ID
         self.assertEqual(response.result["engine_result"], "tecNO_ENTRY")
-        WALLET.sequence += 1
 
     @test_async_and_sync(globals())
     async def test_required_fields_with_deliver_min(self, client):
         check_cash = CheckCash(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             check_id=CHECK_ID,
             deliver_min=DELIVER_MIN,
         )
         response = await submit_transaction_async(check_cash, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tecNO_ENTRY")
-        WALLET.sequence += 1
