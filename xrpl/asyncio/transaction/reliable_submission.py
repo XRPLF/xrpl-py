@@ -124,7 +124,8 @@ async def _get_signed_tx(
     autofill: bool = True,
 ) -> Transaction:
     """
-    Initializes a signed transaction for a submit request.
+    Sets up a transaction to be submitted by optionally autofilling, signing,
+        and checking the fee validity.
 
     Args:
         transaction: the transaction or transaction blob to be signed if unsigned.
@@ -138,6 +139,10 @@ async def _get_signed_tx(
 
     Returns:
         The signed transaction.
+
+    Raises:
+        XRPLException: if the transaction is unsigned and a wallet is not
+            provided for signing.
     """
     if isinstance(transaction, str):
         transaction = Transaction.from_blob(transaction)
@@ -145,6 +150,7 @@ async def _get_signed_tx(
     if transaction.is_signed():
         return transaction
 
+    # Attempts to validate fee, autofill, and sign the transaction when unsigned.
     if not wallet:
         raise XRPLException(
             "Wallet must be provided when submitting an unsigned transaction"
