@@ -48,6 +48,8 @@ safe_sign_and_submit_transaction = sign_and_submit
 def submit(
     transaction: Transaction,
     client: SyncClient,
+    *,
+    fail_hard: bool = False,
 ) -> Response:
     """
     Submits a transaction to the ledger.
@@ -55,6 +57,9 @@ def submit(
     Args:
         transaction: the Transaction to be submitted.
         client: the network client with which to submit the transaction.
+        fail_hard: an optional boolean. If True, and the transaction fails for
+            the initial server, do not retry or relay the transaction to other
+            servers. Defaults to False.
 
     Returns:
         The response from the ledger.
@@ -66,6 +71,7 @@ def submit(
         main.submit(
             transaction,
             client,
+            fail_hard=fail_hard,
         )
     )
 
