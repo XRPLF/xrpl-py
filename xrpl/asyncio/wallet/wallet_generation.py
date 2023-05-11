@@ -31,6 +31,7 @@ async def generate_faucet_wallet(
     wallet: Optional[Wallet] = None,
     debug: bool = False,
     faucet_host: Optional[str] = None,
+    use_case: Optional[str] = None,
 ) -> Wallet:
     """
     Generates a random wallet and funds it using the XRPL Testnet Faucet.
@@ -41,6 +42,10 @@ async def generate_faucet_wallet(
         debug: Whether to print debug information as it creates the wallet.
         faucet_host: A custom host to use for funding a wallet. In environments other
             than devnet and testnet, this parameter is required.
+        use_case: The intended use case for the funding request (for example, testing).
+            This information  will be included in the 'User-Agent' header of the HTTP
+            request to the faucet.
+
 
     Returns:
         A Wallet on the testnet that contains some amount of XRP.
@@ -66,7 +71,7 @@ async def generate_faucet_wallet(
     starting_balance = await _check_wallet_balance(address, client)
 
     # Ask the faucet to send funds to the given address
-    await _request_funding(faucet_url, address)
+    await _request_funding(faucet_url, address, use_case)
     # Wait for the faucet to fund our account or until timeout
     # Waits one second checks if balance has changed
     # If balance doesn't change it will attempt again until _TIMEOUT_SECONDS
@@ -133,9 +138,15 @@ async def _check_wallet_balance(address: str, client: Client) -> int:
         raise
 
 
-async def _request_funding(url: str, address: str) -> None:
+async def _request_funding(
+    url: str, address: str, use_case: Optional[str] = None
+) -> None:
     async with httpx.AsyncClient() as http_client:
-        headers = {"User-Agent": "xrpl-py", "Content-Type": "application/json"}
+        headers = {"Content-Type": "application/json"}
+        if use_case:
+            headers["User-Agent"] = f"xrpl-py ({use_case})"
+        else:
+            headers["User-Agent"] = "xrpl-py"
         response = await http_client.post(
             url=url, json={"destination": address}, headers=headers
         )

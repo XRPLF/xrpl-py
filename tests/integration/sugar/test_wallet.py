@@ -15,8 +15,12 @@ from xrpl.wallet.main import Wallet
 time_of_last_hooks_faucet_call = 0
 
 
-def sync_generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
-    wallet = sync_generate_faucet_wallet(client, faucet_host=faucet_host)
+def sync_generate_faucet_wallet_and_fund_again(
+    self, client, faucet_host=None, use_case="integration_test"
+):
+    wallet = sync_generate_faucet_wallet(
+        client, faucet_host=faucet_host, use_case=use_case
+    )
     result = client.request(
         AccountInfo(
             account=wallet.classic_address,
@@ -25,7 +29,9 @@ def sync_generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
     balance = int(result.result["account_data"]["Balance"])
     self.assertTrue(balance > 0)
 
-    new_wallet = sync_generate_faucet_wallet(client, wallet, faucet_host=faucet_host)
+    new_wallet = sync_generate_faucet_wallet(
+        client, wallet, faucet_host=faucet_host, use_case="integration_test"
+    )
     new_result = client.request(
         AccountInfo(
             account=new_wallet.classic_address,
@@ -35,8 +41,12 @@ def sync_generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
     self.assertTrue(new_balance > balance)
 
 
-async def generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
-    wallet = await generate_faucet_wallet(client, faucet_host=faucet_host)
+async def generate_faucet_wallet_and_fund_again(
+    self, client, faucet_host=None, use_case="integration_test"
+):
+    wallet = await generate_faucet_wallet(
+        client, faucet_host=faucet_host, use_case=use_case
+    )
     result = await client.request(
         AccountInfo(
             account=wallet.classic_address,
@@ -45,7 +55,9 @@ async def generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
     balance = int(result.result["account_data"]["Balance"])
     self.assertTrue(balance > 0)
 
-    new_wallet = await generate_faucet_wallet(client, wallet, faucet_host=faucet_host)
+    new_wallet = await generate_faucet_wallet(
+        client, wallet, faucet_host=faucet_host, use_case=use_case
+    )
     new_result = await client.request(
         AccountInfo(
             account=new_wallet.classic_address,
@@ -63,8 +75,8 @@ class TestWallet(IntegrationTestCase):
         use_testnet=True,
     )
     async def test_generate_faucet_wallet_rel_sub(self, client):
-        destination = await generate_faucet_wallet(client)
-        wallet = await generate_faucet_wallet(client)
+        destination = await generate_faucet_wallet(client, use_case="integration_test")
+        wallet = await generate_faucet_wallet(client, use_case="integration_test")
         response = await submit_transaction_async(
             Payment(
                 account=wallet.classic_address,
@@ -81,20 +93,25 @@ class TestWallet(IntegrationTestCase):
         async with AsyncWebsocketClient(
             "wss://s.altnet.rippletest.net:51233"
         ) as client:
-            await generate_faucet_wallet_and_fund_again(self, client)
+            await generate_faucet_wallet_and_fund_again(
+                self, client, use_case="integration_test"
+            )
 
     async def test_generate_faucet_wallet_custom_host_async_websockets(self):
         async with AsyncWebsocketClient(
             "wss://s.devnet.rippletest.net:51233/"
         ) as client:
             await generate_faucet_wallet_and_fund_again(
-                self, client, "faucet.devnet.rippletest.net"
+                self,
+                client,
+                "faucet.devnet.rippletest.net",
+                use_case="integration_test",
             )
 
     async def test_generate_faucet_wallet_custom_host_async_json_rpc(self):
         client = AsyncJsonRpcClient("https://s.devnet.rippletest.net:51234/")
         await generate_faucet_wallet_and_fund_again(
-            self, client, "faucet.devnet.rippletest.net"
+            self, client, "faucet.devnet.rippletest.net", use_case="integration_test"
         )
 
     def test_generate_faucet_wallet_custom_host_sync_websockets(self):
@@ -131,7 +148,7 @@ class TestWallet(IntegrationTestCase):
             if time_since_last_hooks_call < 10:
                 time.sleep(11 - time_since_last_hooks_call)
 
-            wallet = await generate_faucet_wallet(client)
+            wallet = await generate_faucet_wallet(client, use_case="integration_test")
             time_of_last_hooks_faucet_call = time.time()
 
             result = await client.request(
@@ -164,7 +181,9 @@ class TestWallet(IntegrationTestCase):
                 time.sleep(11 - time_since_last_hooks_call)
             time_of_last_hooks_faucet_call = time.time()
 
-            new_wallet = await generate_faucet_wallet(client, wallet)
+            new_wallet = await generate_faucet_wallet(
+                client, wallet, use_case="integration_test"
+            )
             new_result = await client.request(
                 AccountInfo(
                     account=new_wallet.classic_address,

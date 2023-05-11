@@ -12,6 +12,7 @@ def generate_faucet_wallet(
     wallet: Optional[Wallet] = None,
     debug: bool = False,
     faucet_host: Optional[str] = None,
+    use_case: Optional[str] = None,
 ) -> Wallet:
     """
     Generates a random wallet and funds it using the XRPL Testnet Faucet.
@@ -22,6 +23,9 @@ def generate_faucet_wallet(
         debug: Whether to print debug information as it creates the wallet.
         faucet_host: A custom host to use for funding a wallet. In environments other
             than devnet and testnet, this parameter is required.
+        use_case: The intended use case for the funding request (for example, testing).
+            This informationwill be included in the 'User-Agent' header
+            of the HTTP request to the faucet.
 
     Returns:
         A Wallet on the testnet that contains some amount of XRP.
@@ -33,4 +37,6 @@ def generate_faucet_wallet(
 
     .. # noqa: DAR402 exception raised in private method
     """
-    return asyncio.run(async_generate_faucet_wallet(client, wallet, debug, faucet_host))
+    return asyncio.run(
+        async_generate_faucet_wallet(client, wallet, debug, faucet_host, use_case)
+    )
