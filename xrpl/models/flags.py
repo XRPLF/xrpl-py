@@ -56,6 +56,10 @@ TX_FLAGS: Dict[str, Dict[str, int]] = {
         "tf_got_majority": 0x00010000,
         "tf_lost_majority": 0x00020000,
     },
+    "Clawback": {
+        "tf_set_freeze": 0x00100000,
+        "tf_clear_freeze": 0x00200000,
+    },
 }
 
 
