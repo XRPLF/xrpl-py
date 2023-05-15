@@ -91,5 +91,4 @@ __all__ = [
     "TransactionEntry",
     "Tx",
     "Unsubscribe",
-    "Clawback",
 ]

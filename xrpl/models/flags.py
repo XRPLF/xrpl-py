@@ -20,6 +20,7 @@ TX_FLAGS: Dict[str, Dict[str, int]] = {
         "asf_no_freeze": 0x00000006,
         "asf_require_auth": 0x00000002,
         "asf_require_dest": 0x00000001,
+        "asf_allow_clawback": 0x00000010,
     },
     "NFTokenCreateOffer": {
         "tf_sell_token": 0x00000001,

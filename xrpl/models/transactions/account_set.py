@@ -101,6 +101,9 @@ class AccountSetFlag(int, Enum):
     ASF_DISABLE_INCOMING_TRUSTLINE = 15
     """Disallow other accounts from creating Trustlines directed at this account."""
 
+    ASF_ALLOW_CLAWBACK = 16
+    """Allow clawback feature"""
+
 
 class AccountSetFlagInterface(FlagInterface):
     """
@@ -128,6 +131,7 @@ class AccountSetFlagInterface(FlagInterface):
     ASF_DISABLE_INCOMING_CHECK: bool
     ASF_DISABLE_INCOMING_PAYCHAN: bool
     ASF_DISABLE_INCOMING_TRUSTLINE: bool
+    ASF_ALLOW_CLAWBACK: bool
 
 
 @require_kwargs_on_init
