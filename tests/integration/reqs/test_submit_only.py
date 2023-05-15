@@ -9,8 +9,6 @@ from xrpl.models.transactions import OfferCreate
 
 TX = OfferCreate(
     account=WALLET.classic_address,
-    sequence=WALLET.sequence,
-    last_ledger_sequence=WALLET.sequence + 10,
     taker_gets="13100000",
     taker_pays=IssuedCurrencyAmount(
         currency="USD",
