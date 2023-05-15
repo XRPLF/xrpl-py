@@ -60,7 +60,6 @@ class RequestMethod(str, Enum):
     NFT_SELL_OFFERS = "nft_sell_offers"
     NFT_INFO = "nft_info"  # clio only
     NFT_HISTORY = "nft_history"  # clio only
-    NFTS_BY_ISSUER = "nfts_by_issuer"  # clio only
 
     # subscription methods
     SUBSCRIBE = "subscribe"
@@ -165,8 +164,6 @@ class Request(BaseModel):
             return xrpl.models.requests.NFTInfo
         if method == RequestMethod.NFT_HISTORY:
             return xrpl.models.requests.NFTHistory
-        if method == RequestMethod.NFTS_BY_ISSUER:
-            return xrpl.models.requests.NFTsByIssuer
 
         parsed_name = "".join([word.capitalize() for word in method.split("_")])
         if parsed_name in xrpl.models.requests.__all__:
