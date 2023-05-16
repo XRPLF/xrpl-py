@@ -142,14 +142,10 @@ async def _request_funding(
     url: str, address: str, use_case: Optional[str] = None
 ) -> None:
     async with httpx.AsyncClient() as http_client:
-        headers = {"Content-Type": "application/json"}
-        if use_case:
-            headers["User-Agent"] = f"xrpl-py ({use_case})"
-        else:
-            headers["User-Agent"] = "xrpl-py"
-        response = await http_client.post(
-            url=url, json={"destination": address}, headers=headers
-        )
+        json_body = {"destination": address, "user_agent": "xrpl-py"}
+        if use_case is not None:
+            json_body["use_case"] = use_case
+        response = await http_client.post(url=url, json=json_body)
     if not response.status_code == httpx.codes.OK:
         response.raise_for_status()
 
