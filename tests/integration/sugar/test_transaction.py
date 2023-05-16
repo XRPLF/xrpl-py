@@ -13,12 +13,14 @@ from xrpl.asyncio.transaction import (
     autofill_and_sign,
     send_reliable_submission,
     sign,
+    submit_and_wait,
 )
 from xrpl.asyncio.transaction import (
     submit_transaction as submit_transaction_alias_async,
 )
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
+from xrpl.core.binarycodec.main import encode
 from xrpl.models.exceptions import XRPLException
 from xrpl.models.requests import ServerState, Tx
 from xrpl.models.transactions import AccountDelete, AccountSet, EscrowFinish, Payment
@@ -337,3 +339,122 @@ class TestReliableSubmission(IntegrationTestCase):
         signed_payment_transaction = await sign(payment_transaction, WALLET)
         with self.assertRaises(XRPLReliableSubmissionException):
             await send_reliable_submission(signed_payment_transaction, client)
+
+
+class TestSubmitAndWait(IntegrationTestCase):
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.submit_and_wait",
+            "xrpl.account.get_next_valid_seq_number",
+            "xrpl.ledger.get_fee",
+        ],
+    )
+    async def test_submit_and_wait_simple(self, client):
+        account_set = AccountSet(
+            account=ACCOUNT,
+            set_flag=SET_FLAG,
+        )
+        await accept_ledger_async(delay=1)
+        response = await submit_and_wait(account_set, client, WALLET)
+        self.assertTrue(response.result["validated"])
+        self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
+        self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["Fee"], await get_fee(client))
+        WALLET.sequence += 1
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.submit_and_wait",
+            "xrpl.account.get_next_valid_seq_number",
+            "xrpl.ledger.get_fee",
+        ],
+    )
+    async def test_submit_and_wait_payment(self, client):
+        payment_transaction = Payment(
+            account=ACCOUNT,
+            amount="10",
+            destination=DESTINATION,
+        )
+        await accept_ledger_async(delay=1)
+        response = await submit_and_wait(payment_transaction, client, WALLET)
+        self.assertTrue(response.result["validated"])
+        self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
+        self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["Fee"], await get_fee(client))
+        WALLET.sequence += 1
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.autofill_and_sign",
+            "xrpl.transaction.submit_and_wait",
+            "xrpl.account.get_next_valid_seq_number",
+            "xrpl.ledger.get_fee",
+        ],
+    )
+    async def test_submit_and_wait_signed(self, client):
+        payment_transaction = Payment(
+            account=ACCOUNT,
+            amount="10",
+            destination=DESTINATION,
+        )
+        payment_transaction_signed = await autofill_and_sign(
+            payment_transaction, WALLET, client
+        )
+        await accept_ledger_async(delay=1)
+        response = await submit_and_wait(payment_transaction_signed, client)
+        self.assertTrue(response.result["validated"])
+        self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
+        self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["Fee"], await get_fee(client))
+        WALLET.sequence += 1
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.autofill_and_sign",
+            "xrpl.transaction.submit_and_wait",
+            "xrpl.account.get_next_valid_seq_number",
+            "xrpl.ledger.get_fee",
+            "xrpl.core.binarycodec.main.encode",
+        ],
+    )
+    async def test_submit_and_wait_blob(self, client):
+        payment_transaction = Payment(
+            account=ACCOUNT,
+            amount="10",
+            destination=DESTINATION,
+        )
+        payment_transaction_signed = await autofill_and_sign(
+            payment_transaction, WALLET, client
+        )
+        await accept_ledger_async(delay=1)
+        payment_transaction_signed_blob = encode(payment_transaction_signed.to_xrpl())
+        response = await submit_and_wait(payment_transaction_signed_blob, client)
+        self.assertTrue(response.result["validated"])
+        self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
+        self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["Fee"], await get_fee(client))
+        WALLET.sequence += 1
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.submit_and_wait",
+            "xrpl.account.get_next_valid_seq_number",
+            "xrpl.ledger.get_latest_validated_ledger_sequence",
+        ],
+    )
+    async def test_submit_and_wait_last_ledger_expiration(self, client):
+        payment_transaction = Payment(
+            account=ACCOUNT,
+            last_ledger_sequence=await get_latest_validated_ledger_sequence(client),
+            fee="10",
+            amount="100",
+            destination=DESTINATION,
+        )
+        await accept_ledger_async(delay=1)
+        with self.assertRaises(XRPLReliableSubmissionException):
+            await submit_and_wait(payment_transaction, client, WALLET)

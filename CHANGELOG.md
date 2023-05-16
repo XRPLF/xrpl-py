@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [[Unreleased]]
+### Added:
+- Added `submit_and_wait` to sign (if needed), autofill, submit a transaction and wait for its final outcome
+- `submit` and `send_reliable_submission` now accept an optional boolean param `fail_hard` (if `True` halt the submission if it's not immediately validated)
 
 ### Changed:
 - Allowed keypairs.sign to take a hex string in addition to bytes
