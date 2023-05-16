@@ -88,7 +88,7 @@ class XChainAddAccountCreateAttestation(Transaction):
     :meta hide-value:
     """
 
-    xchain_account_create_count: str = REQUIRED  # type: ignore
+    xchain_account_create_count: Union[str, int] = REQUIRED  # type: ignore
     """
     The counter that represents the order that the claims must be processed in.
     This field is required.

@@ -81,7 +81,7 @@ class XChainCreateBridge(Transaction):
                 "min_account_create_amount"
             ] = "Cannot have MinAccountCreateAmount if bridge is IOU-IOU."
 
-        if self.signature_reward is not None and not self.signature_reward.isnumeric():
+        if self.signature_reward != REQUIRED and not self.signature_reward.isnumeric():
             errors["signature_reward"] = "signature_reward must be numeric."
 
         if (

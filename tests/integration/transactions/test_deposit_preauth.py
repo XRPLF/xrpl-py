@@ -13,20 +13,16 @@ class TestDepositPreauth(IntegrationTestCase):
     async def test_authorize(self, client):
         deposit_preauth = DepositPreauth(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             authorize=ADDRESS,
         )
         response = await submit_transaction_async(deposit_preauth, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
-        WALLET.sequence += 1
 
     @test_async_and_sync(globals())
     async def test_unauthorize(self, client):
         deposit_preauth = DepositPreauth(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             unauthorize=ADDRESS,
         )
         response = await submit_transaction_async(deposit_preauth, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
-        WALLET.sequence += 1

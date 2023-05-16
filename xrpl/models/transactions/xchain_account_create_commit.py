@@ -62,10 +62,10 @@ class XChainAccountCreateCommit(Transaction):
     def _get_errors(self: XChainAccountCreateCommit) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        if self.signature_reward is not None and not self.signature_reward.isnumeric():
+        if self.signature_reward != REQUIRED and not self.signature_reward.isnumeric():
             errors["signature_reward"] = "`signature_reward` must be numeric."
 
-        if self.amount is not None and not self.amount.isnumeric():
+        if self.amount != REQUIRED and not self.amount.isnumeric():
             errors["amount"] = "`amount` must be numeric."
 
         return errors

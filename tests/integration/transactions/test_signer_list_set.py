@@ -13,7 +13,6 @@ class TestSignerListSet(IntegrationTestCase):
         response = await submit_transaction_async(
             SignerListSet(
                 account=WALLET.classic_address,
-                sequence=WALLET.sequence,
                 signer_quorum=1,
                 signer_entries=[
                     SignerEntry(
@@ -25,4 +24,3 @@ class TestSignerListSet(IntegrationTestCase):
             WALLET,
         )
         self.assertTrue(response.is_successful())
-        WALLET.sequence += 1
