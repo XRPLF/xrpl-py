@@ -115,9 +115,9 @@ class SignerListSet(Transaction):
             or len(self.signer_entries) > MAX_SIGNER_ENTRIES
         ):
             errors["signer_entries"] = (
-                "`signer_entries` must have at least 1 member and no more than {} "
-                "members. If this transaction is deleting the SignerList, then "
-                "this parameter must be omitted.".format(MAX_SIGNER_ENTRIES)
+                "`signer_entries` must have at least 1 member and no more than "
+                f"{MAX_SIGNER_ENTRIES} members. If this transaction is deleting the "
+                "SignerList, then this parameter must be omitted."
             )
             return errors
 
