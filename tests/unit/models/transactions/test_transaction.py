@@ -1,15 +1,24 @@
+import asyncio
 from unittest import TestCase
 
+from xrpl.asyncio.transaction.main import sign
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.transactions import OfferCreate
+from xrpl.models.transactions import AccountSet, OfferCreate
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types.transaction_type import TransactionType
+from xrpl.transaction.multisign import multisign
+from xrpl.utils.str_conversions import str_to_hex
+from xrpl.wallet import Wallet
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _FEE = "0.00001"
 _SEQUENCE = 19048
 _TICKET_SEQUENCE = 20510
 _ACCOUNT_TXN_ID = "66F3D6158CAB6E53405F8C264DB39F07D8D0454433A63DDFB98218ED1BC99B60"
+_WALLET = Wallet.create()
+_FIRST_SIGNER = Wallet.create()
+_SECOND_SIGNER = Wallet.create()
+EXAMPLE_DOMAIN = str_to_hex("example.com")
 
 
 class TestTransaction(TestCase):
@@ -122,3 +131,20 @@ class TestTransaction(TestCase):
                 ticket_sequence=_TICKET_SEQUENCE,
                 transaction_type=TransactionType.ACCOUNT_DELETE,
             )
+
+    def test_is_signed_for_signed_transaction(self):
+        tx = AccountSet(account=_WALLET.classic_address, domain=EXAMPLE_DOMAIN)
+        signed_tx = asyncio.run(sign(tx, _WALLET))
+        self.assertTrue(signed_tx.is_signed())
+
+    def test_is_signed_for_unsigned_transaction(self):
+        tx = AccountSet(account=_WALLET.classic_address, domain=EXAMPLE_DOMAIN)
+        self.assertFalse(tx.is_signed())
+
+    def test_is_signed_for_multisigned_transaction(self):
+        tx = AccountSet(account=_WALLET.classic_address, domain=EXAMPLE_DOMAIN)
+        tx_1 = asyncio.run(sign(tx, _FIRST_SIGNER, multisign=True))
+        tx_2 = asyncio.run(sign(tx, _SECOND_SIGNER, multisign=True))
+
+        multisigned_tx = multisign(tx, [tx_1, tx_2])
+        self.assertTrue(multisigned_tx.is_signed())
