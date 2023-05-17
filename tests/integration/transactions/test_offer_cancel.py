@@ -10,7 +10,6 @@ class TestOfferCancel(IntegrationTestCase):
         response = await submit_transaction_async(
             OfferCancel(
                 account=WALLET.classic_address,
-                sequence=WALLET.sequence,
                 offer_sequence=OFFER.result["tx_json"]["Sequence"],
             ),
             WALLET,
@@ -21,4 +20,3 @@ class TestOfferCancel(IntegrationTestCase):
         #
         # This TX will result in a success essentially as long as it is
         # correctly formatted.
-        WALLET.sequence += 1

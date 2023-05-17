@@ -10,11 +10,9 @@ class TestPayment(IntegrationTestCase):
         response = await submit_transaction_async(
             Payment(
                 account=WALLET.classic_address,
-                sequence=WALLET.sequence,
                 amount="1",
                 destination=DESTINATION.classic_address,
             ),
             WALLET,
         )
         self.assertTrue(response.is_successful())
-        WALLET.sequence += 1

@@ -15,4 +15,3 @@ class TestTicketCreate(IntegrationTestCase):
             WALLET,
         )
         self.assertTrue(response.is_successful())
-        WALLET.sequence += 1

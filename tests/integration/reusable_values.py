@@ -18,7 +18,6 @@ async def _set_up_reusable_values():
     OFFER = await sign_and_reliable_submission_async(
         OfferCreate(
             account=WALLET.classic_address,
-            sequence=WALLET.sequence,
             taker_gets="13100000",
             taker_pays=IssuedCurrencyAmount(
                 currency="USD",
@@ -28,12 +27,10 @@ async def _set_up_reusable_values():
         ),
         WALLET,
     )
-    WALLET.sequence += 1
 
     PAYMENT_CHANNEL = await sign_and_reliable_submission_async(
         PaymentChannelCreate(
             account=WALLET.classic_address,
-            sequence=WALLET.sequence,
             amount="1",
             destination=DESTINATION.classic_address,
             settle_delay=86400,
@@ -41,7 +38,6 @@ async def _set_up_reusable_values():
         ),
         WALLET,
     )
-    WALLET.sequence += 1
 
     return (
         WALLET,

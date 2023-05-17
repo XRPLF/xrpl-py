@@ -10,10 +10,8 @@ class TestPaymentChannelClaim(IntegrationTestCase):
         response = await submit_transaction_async(
             PaymentChannelClaim(
                 account=WALLET.classic_address,
-                sequence=WALLET.sequence,
                 channel=PAYMENT_CHANNEL.result["tx_json"]["hash"],
             ),
             WALLET,
         )
         self.assertTrue(response.is_successful())
-        WALLET.sequence += 1
