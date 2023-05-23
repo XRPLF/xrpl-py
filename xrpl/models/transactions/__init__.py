@@ -7,6 +7,7 @@ from xrpl.models.transactions.account_delete import AccountDelete
 from xrpl.models.transactions.account_set import (
     AccountSet,
     AccountSetAsfFlag,
+    AccountSetFlag,
     AccountSetFlagInterface,
 )
 from xrpl.models.transactions.check_cancel import CheckCancel
@@ -58,6 +59,7 @@ __all__ = [
     "AccountDelete",
     "AccountSet",
     "AccountSetAsfFlag",
+    "AccountSetFlag",
     "AccountSetFlagInterface",
     "CheckCancel",
     "CheckCash",

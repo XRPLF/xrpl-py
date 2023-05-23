@@ -104,6 +104,47 @@ class AccountSetAsfFlag(int, Enum):
     """Disallow other accounts from creating Trustlines directed at this account."""
 
 
+class AccountSetFlag(int, Enum):
+    """
+    Enum for AccountSet Transaction Flags.
+
+    Transactions of the AccountSet type support additional values in the Flags field.
+    This enum represents those options.
+
+    `See AccountSet tf Flags <https://xrpl.org/accountset.html#accountset-flags>`_
+    """
+
+    TF_REQUIRE_DEST_TAG = 0x00010000
+    """
+    The same as SetFlag: asfRequireDest.
+    """
+
+    TF_OPTIONAL_DEST_TAG = 0x00020000
+    """
+    The same as ClearFlag: asfRequireDest.
+    """
+
+    TF_REQUIRE_AUTH = 0x00040000
+    """
+    The same as SetFlag: asfRequireAuth.
+    """
+
+    TF_OPTIONAL_AUTH = 0x00080000
+    """
+    The same as ClearFlag: asfRequireAuth.
+    """
+
+    TF_DISALLOW_XRP = 0x00100000
+    """
+    The same as SetFlag: asfDisallowXRP.
+    """
+
+    TF_ALLOW_XRP = 0x00200000
+    """
+    The same as ClearFlag: asfDisallowXRP.
+    """
+
+
 class AccountSetFlagInterface(FlagInterface):
     """
     There are several options which can be either enabled or disabled for an account.
