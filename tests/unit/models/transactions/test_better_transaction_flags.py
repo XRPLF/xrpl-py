@@ -18,25 +18,17 @@ class TestBetterTransactionFlags(TestCase):
         actual = models.AccountSet(
             account=ACCOUNT,
             flags=models.AccountSetFlagInterface(
-                asf_account_tx_id=True,
-                asf_authorized_nftoken_minter=True,
-                asf_default_ripple=True,
-                asf_deposit_auth=True,
-                asf_disable_master=True,
-                asf_disallow_xrp=True,
-                asf_global_freeze=True,
-                asf_no_freeze=True,
-                asf_require_auth=True,
-                asf_require_dest=True,
-                asf_disable_incoming_nftoken_offer=True,
-                asf_disable_incoming_check=True,
-                asf_disable_incoming_paychan=True,
-                asf_disable_incoming_trustline=True,
+                tf_require_dest_tag=True,
+                tf_optional_dest_tag=True,
+                tf_require_auth=True,
+                tf_optional_auth=True,
+                tf_disallow_xrp=True,
+                tf_allow_xrp=True,
             ),
         )
-        self.assertTrue(actual.has_flag(flag=0x00000005))
+        self.assertTrue(actual.has_flag(flag=0x00010000))
         self.assertTrue(actual.is_valid())
-        flags = models.AccountSetAsfFlag
+        flags = models.AccountSetFlag
         expected = models.AccountSet(
             account=ACCOUNT,
             flags=[*flags],

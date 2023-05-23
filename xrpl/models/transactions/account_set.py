@@ -147,30 +147,18 @@ class AccountSetFlag(int, Enum):
 
 class AccountSetFlagInterface(FlagInterface):
     """
-    There are several options which can be either enabled or disabled for an account.
-    Account options are represented by different types of flags depending on the
-    situation. The AccountSet transaction type has several "AccountSet Flags" (prefixed
-    `asf`) that can enable an option when passed as the SetFlag parameter, or disable
-    an option when passed as the ClearFlag parameter. This TypedDict represents those
-    options.
+    Transactions of the AccountSet type support additional values in the Flags field.
+    This TypedDict represents those options.
 
-    `See AccountSet Flags <https://xrpl.org/accountset.html#accountset-flags>`_
+    `See AccountSet tf Flags <https://xrpl.org/accountset.html#accountset-flags>`_
     """
 
-    ASF_ACCOUNT_TXN_ID: bool
-    ASF_DEFAULT_RIPPLE: bool
-    ASF_DEPOSIT_AUTH: bool
-    ASF_DISABLE_MASTER: bool
-    ASF_DISALLOW_XRP: bool
-    ASF_GLOBAL_FREEZE: bool
-    ASF_NO_FREEZE: bool
-    ASF_REQUIRE_AUTH: bool
-    ASF_REQUIRE_DEST: bool
-    ASF_AUTHORIZED_NFTOKEN_MINTER: bool
-    ASF_DISABLE_INCOMING_NFTOKEN_OFFER: bool
-    ASF_DISABLE_INCOMING_CHECK: bool
-    ASF_DISABLE_INCOMING_PAYCHAN: bool
-    ASF_DISABLE_INCOMING_TRUSTLINE: bool
+    TF_REQUIRE_DEST_TAG: bool
+    TF_OPTIONAL_DEST_TAG: bool
+    TF_REQUIRE_AUTH: bool
+    TF_OPTIONAL_AUTH: bool
+    TF_DISALLOW_XRP: bool
+    TF_ALLOW_XRP: bool
 
 
 @require_kwargs_on_init
