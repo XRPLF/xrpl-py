@@ -10,7 +10,6 @@ class TestPaymentChannelFund(IntegrationTestCase):
         response = await submit_transaction_async(
             PaymentChannelFund(
                 account=WALLET.classic_address,
-                sequence=WALLET.sequence,
                 channel=PAYMENT_CHANNEL.result["tx_json"]["hash"],
                 amount="1",
             ),

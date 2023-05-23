@@ -147,6 +147,8 @@ safe_sign_and_autofill_transaction = autofill_and_sign
 async def submit(
     transaction: Transaction,
     client: Client,
+    *,
+    fail_hard: bool = False,
 ) -> Response:
     """
     Submits a transaction to the ledger.
@@ -154,6 +156,9 @@ async def submit(
     Args:
         transaction: the Transaction to be submitted.
         client: the network client with which to submit the transaction.
+        fail_hard: an optional boolean. If True, and the transaction fails for
+            the initial server, do not retry or relay the transaction to other
+            servers. Defaults to False.
 
     Returns:
         The response from the ledger.
@@ -162,7 +167,9 @@ async def submit(
         XRPLRequestFailureException: if the rippled API call fails.
     """
     transaction_blob = encode(transaction.to_xrpl())
-    response = await client._request_impl(SubmitOnly(tx_blob=transaction_blob))
+    response = await client._request_impl(
+        SubmitOnly(tx_blob=transaction_blob, fail_hard=fail_hard)
+    )
     if response.is_successful():
         return response
 
