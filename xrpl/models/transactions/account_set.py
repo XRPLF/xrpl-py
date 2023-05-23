@@ -23,8 +23,10 @@ _DISABLE_TICK_SIZE: Final[int] = 0
 _MAX_DOMAIN_LENGTH: Final[int] = 256
 
 
-class AccountSetFlag(int, Enum):
+class AccountSetAsfFlag(int, Enum):
     """
+    Enum for AccountSet Flags.
+
     There are several options which can be either enabled or disabled for an account.
     Account options are represented by different types of flags depending on the
     situation. The AccountSet transaction type has several "AccountSet Flags" (prefixed
@@ -32,7 +34,7 @@ class AccountSetFlag(int, Enum):
     an option when passed as the ClearFlag parameter. This enum represents those
     options.
 
-    `See AccountSet Flags <https://xrpl.org/accountset.html#accountset-flags>`_
+    `See AccountSet asf Flags <https://xrpl.org/accountset.html#accountset-flags>`_
     """
 
     ASF_ACCOUNT_TXN_ID = 5
@@ -183,7 +185,7 @@ class AccountSet(Transaction):
     """
     Sets an alternate account that is allowed to mint NFTokens on this
     account's behalf using NFTokenMint's `Issuer` field. If set, you must
-    also set the AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER flag.
+    also set the AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER flag.
     """
 
     transaction_type: TransactionType = field(
@@ -240,25 +242,28 @@ class AccountSet(Transaction):
 
     def _get_nftoken_minter_error(self: AccountSet) -> Optional[str]:
         if (
-            self.set_flag != AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER
+            self.set_flag != AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER
             and self.nftoken_minter is not None
         ):
             return (
                 "Will not set the minter unless "
-                "AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER is set"
+                "AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER is set"
             )
         if (
-            self.set_flag == AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER
+            self.set_flag == AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER
             and self.nftoken_minter is None
         ):
-            return "\
-                Must be present if AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER is set"
+            return (
+                "Must be present if AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER "
+                "is set"
+            )
         if (
-            self.clear_flag == AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER
+            self.clear_flag == AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER
             and self.nftoken_minter is not None
         ):
             return (
-                "Must not be present if AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER "
-                "is unset using clear_flag"
+                "Must not be present if "
+                "AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER is unset "
+                "using clear_flag"
             )
         return None

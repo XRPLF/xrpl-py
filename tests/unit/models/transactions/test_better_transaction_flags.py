@@ -36,7 +36,7 @@ class TestBetterTransactionFlags(TestCase):
         )
         self.assertTrue(actual.has_flag(flag=0x00000005))
         self.assertTrue(actual.is_valid())
-        flags = models.AccountSetFlag
+        flags = models.AccountSetAsfFlag
         expected = models.AccountSet(
             account=ACCOUNT,
             flags=[*flags],

@@ -6,7 +6,7 @@ Model objects for specific `types of Transactions
 from xrpl.models.transactions.account_delete import AccountDelete
 from xrpl.models.transactions.account_set import (
     AccountSet,
-    AccountSetFlag,
+    AccountSetAsfFlag,
     AccountSetFlagInterface,
 )
 from xrpl.models.transactions.check_cancel import CheckCancel
@@ -57,7 +57,7 @@ from xrpl.models.transactions.trust_set import (
 __all__ = [
     "AccountDelete",
     "AccountSet",
-    "AccountSetFlag",
+    "AccountSetAsfFlag",
     "AccountSetFlagInterface",
     "CheckCancel",
     "CheckCash",
