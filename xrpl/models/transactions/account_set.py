@@ -169,7 +169,7 @@ class AccountSet(Transaction):
     which modifies the properties of an account in the XRP Ledger.
     """
 
-    clear_flag: Optional[int] = None
+    clear_flag: Optional[AccountSetAsfFlag] = None
     """
     Disable a specific `AccountSet Flag
     <https://xrpl.org/accountset.html#accountset-flags>`_
@@ -190,7 +190,7 @@ class AccountSet(Transaction):
     message_key: Optional[str] = None
     """Set a public key for sending encrypted messages to this account."""
 
-    set_flag: Optional[int] = None
+    set_flag: Optional[AccountSetAsfFlag] = None
     """
     Enable a specific `AccountSet Flag
     <https://xrpl.org/accountset.html#accountset-flags>`_
