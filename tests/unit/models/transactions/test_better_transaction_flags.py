@@ -28,6 +28,10 @@ class TestBetterTransactionFlags(TestCase):
                 asf_no_freeze=True,
                 asf_require_auth=True,
                 asf_require_dest=True,
+                asf_disable_incoming_nftoken_offer=True,
+                asf_disable_incoming_check=True,
+                asf_disable_incoming_paychan=True,
+                asf_disable_incoming_trustline=True,
             ),
         )
         self.assertTrue(actual.has_flag(flag=0x00000005))

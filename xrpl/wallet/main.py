@@ -36,6 +36,7 @@ class Wallet:
         *,
         master_address: Optional[str] = None,
         seed: Optional[str] = None,
+        algorithm: Optional[CryptoAlgorithm] = None,
     ) -> None:
         """
         Generate a new Wallet.
@@ -46,7 +47,28 @@ class Wallet:
             master_address: Include if a Wallet uses a Regular Key Pair. This sets the
                 address that this wallet corresponds to. The default is `None`.
             seed: The seed used to derive the account keys. The default is `None`.
+            algorithm: The algorithm used to encode the keys. Inferred from the seed if
+                not included
         """
+        self.seed = seed
+        """
+        The core value that is used to derive all other information about
+        this wallet. MUST be kept secret!
+        """
+
+        if algorithm is None:
+            if seed is not None and seed.startswith("sEd"):
+                wallet_algorithm = CryptoAlgorithm.ED25519
+            else:
+                wallet_algorithm = CryptoAlgorithm.SECP256K1
+        else:
+            wallet_algorithm = algorithm
+
+        self.algorithm = wallet_algorithm
+        """
+        The algorithm that is used to convert the seed into its public/private keypair.
+        """
+
         self.public_key = public_key
         """
         The public key that is used to identify this wallet's signatures, as
@@ -65,12 +87,6 @@ class Wallet:
             else derive_classic_address(self.public_key)
         )
         """Internal variable for classic_address. Use classic_address instead."""
-
-        self.seed = seed
-        """
-        The core value that is used to derive all other information about
-        this wallet. MUST be kept secret!
-        """
 
     @classmethod
     def create(
@@ -111,7 +127,7 @@ class Wallet:
             The wallet that is generated from the given secret.
         """
         public_key, private_key = derive_keypair(seed, algorithm=algorithm)
-        return cls(public_key, private_key, master_address=master_address, seed=seed)
+        return cls(public_key, private_key, master_address=master_address, seed=seed, algorithm=algorithm)
 
     from_secret = from_seed
 

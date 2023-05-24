@@ -31,7 +31,9 @@ def get_latest_transaction(account: str, client: SyncClient) -> Response:
     "results and is just as easy to use.",
     version="1.6.0",
 )
-def get_account_transactions(address: str, client: SyncClient) -> List[Dict[str, Any]]:
+def get_account_transactions(
+    address: str, client: SyncClient
+) -> List[Dict[str, Any]]:  # pragma: no cover
     """
     Query the ledger for a list of transactions that involved a given account.
     To access more than just the first page of results, use the :class:`AccountTx`
@@ -58,7 +60,7 @@ def get_account_transactions(address: str, client: SyncClient) -> List[Dict[str,
 )
 def get_account_payment_transactions(
     address: str, client: SyncClient
-) -> List[Dict[str, Any]]:
+) -> List[Dict[str, Any]]:  # pragma: no cover
     """
     Query the ledger for a list of payment transactions that involved a given account.
     To access more than just the first page of results, use the :class:`AccountTx`

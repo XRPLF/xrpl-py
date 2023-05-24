@@ -6,13 +6,7 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from tests.integration.reusable_values import DESTINATION, WALLET
-from xrpl.asyncio.account import (
-    does_account_exist,
-    get_account_info,
-    get_account_transactions,
-    get_balance,
-    get_latest_transaction,
-)
+from xrpl.asyncio.account import does_account_exist, get_balance, get_latest_transaction
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.transactions import Payment
 from xrpl.wallet import Wallet
@@ -44,39 +38,6 @@ class TestAccount(IntegrationTestCase):
             int(FUNDING_AMOUNT),
         )
 
-    @test_async_and_sync(globals(), ["xrpl.account.get_account_transactions"])
-    async def test_get_account_transactions(self, client):
-        transactions = await get_account_transactions(
-            NEW_WALLET.classic_address, client
-        )
-        self.assertEqual(len(transactions), 1)
-        self.assertEqual(transactions[0]["tx"]["TransactionType"], "Payment")
-        self.assertEqual(transactions[0]["tx"]["Amount"], FUNDING_AMOUNT)
-
-    @test_async_and_sync(globals(), ["xrpl.account.get_account_transactions"])
-    async def test_get_account_transactions_empty(self, client):
-        transactions = await get_account_transactions(
-            EMPTY_WALLET.classic_address, client
-        )
-        self.assertEqual(len(transactions), 0)
-
-    @test_async_and_sync(globals(), ["xrpl.account.get_account_transactions"])
-    async def test_payment_transactions(self, client):
-        transactions = await get_account_transactions(
-            NEW_WALLET.classic_address, client
-        )
-        self.assertEqual(len(transactions), 1)
-        self.assertEqual(transactions[0]["tx"]["TransactionType"], "Payment")
-        self.assertEqual(transactions[0]["tx"]["Amount"], FUNDING_AMOUNT)
-
-    @test_async_and_sync(globals(), ["xrpl.account.get_account_transactions"])
-    async def test_payment_transactions_xaddress(self, client):
-        xaddress = classic_address_to_xaddress(NEW_WALLET.classic_address, None, True)
-        transactions = await get_account_transactions(xaddress, client)
-        self.assertEqual(len(transactions), 1)
-        self.assertEqual(transactions[0]["tx"]["TransactionType"], "Payment")
-        self.assertEqual(transactions[0]["tx"]["Amount"], FUNDING_AMOUNT)
-
     @test_async_and_sync(globals(), ["xrpl.account.get_latest_transaction"])
     async def test_get_latest_transaction(self, client):
         # NOTE: this test may take a long time to run
@@ -94,12 +55,3 @@ class TestAccount(IntegrationTestCase):
         self.assertEqual(transaction["TransactionType"], "Payment")
         self.assertEqual(transaction["Amount"], amount)
         self.assertEqual(transaction["Account"], WALLET.classic_address)
-
-    @test_async_and_sync(globals(), ["xrpl.account.get_account_info"])
-    async def test_get_account_info(self, client):
-        response = await get_account_info(WALLET.classic_address, client)
-        self.assertTrue(response.is_successful())
-        self.assertEqual(
-            response.result["account_data"]["Account"],
-            WALLET.classic_address,
-        )

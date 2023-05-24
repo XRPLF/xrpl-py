@@ -9,12 +9,12 @@ from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
-from xrpl.core.binarycodec import encode, encode_for_signing
+from xrpl.core.binarycodec import encode, encode_for_multisigning, encode_for_signing
 from xrpl.core.keypairs.main import sign as keypairs_sign
 from xrpl.models.requests import ServerState, SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions import EscrowFinish
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import Signer, Transaction
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )
@@ -51,9 +51,7 @@ async def sign_and_submit(
         The response from the ledger.
     """
     if autofill:
-        transaction = await safe_sign_and_autofill_transaction(
-            transaction, wallet, client, check_fee
-        )
+        transaction = await autofill_and_sign(transaction, wallet, client, check_fee)
     else:
         transaction = await sign(transaction, wallet, check_fee)
     return await submit(transaction, client)
@@ -66,6 +64,7 @@ async def sign(
     transaction: Transaction,
     wallet: Wallet,
     check_fee: bool = True,
+    multisign: bool = False,
 ) -> Transaction:
     """
     Signs a transaction locally, without trusting external rippled nodes.
@@ -75,10 +74,31 @@ async def sign(
         wallet: the wallet with which to sign the transaction.
         check_fee: whether to check if the fee is higher than the expected transaction
             type fee. Defaults to True.
+        multisign: whether to sign the transaction for a multisignature transaction.
 
     Returns:
         The signed transaction blob.
     """
+    if multisign:
+        signature = keypairs_sign(
+            bytes.fromhex(
+                encode_for_multisigning(
+                    transaction.to_xrpl(),
+                    wallet.classic_address,
+                )
+            ),
+            wallet.private_key,
+        )
+        tx_dict = transaction.to_dict()
+        tx_dict["signers"] = [
+            Signer(
+                account=wallet.classic_address,
+                txn_signature=signature,
+                signing_pub_key=wallet.public_key,
+            )
+        ]
+        return Transaction.from_dict(tx_dict)
+
     if check_fee:
         await _check_fee(transaction)
     transaction_json = _prepare_transaction(transaction, wallet)
@@ -127,6 +147,8 @@ safe_sign_and_autofill_transaction = autofill_and_sign
 async def submit(
     transaction: Transaction,
     client: Client,
+    *,
+    fail_hard: bool = False,
 ) -> Response:
     """
     Submits a transaction to the ledger.
@@ -134,6 +156,9 @@ async def submit(
     Args:
         transaction: the Transaction to be submitted.
         client: the network client with which to submit the transaction.
+        fail_hard: an optional boolean. If True, and the transaction fails for
+            the initial server, do not retry or relay the transaction to other
+            servers. Defaults to False.
 
     Returns:
         The response from the ledger.
@@ -142,7 +167,9 @@ async def submit(
         XRPLRequestFailureException: if the rippled API call fails.
     """
     transaction_blob = encode(transaction.to_xrpl())
-    response = await client._request_impl(SubmitOnly(tx_blob=transaction_blob))
+    response = await client._request_impl(
+        SubmitOnly(tx_blob=transaction_blob, fail_hard=fail_hard)
+    )
     if response.is_successful():
         return response
 
@@ -190,7 +217,9 @@ def _prepare_transaction(
     return transaction_json
 
 
-async def autofill(transaction: Transaction, client: Client) -> Transaction:
+async def autofill(
+    transaction: Transaction, client: Client, signers_count: Optional[int] = None
+) -> Transaction:
     """
     Autofills fields in a transaction. This will set `sequence`, `fee`, and
     `last_ledger_sequence` according to the current state of the server this Client is
@@ -199,6 +228,8 @@ async def autofill(transaction: Transaction, client: Client) -> Transaction:
     Args:
         transaction: the transaction to be signed.
         client: a network client.
+        signers_count: the expected number of signers for this transaction.
+            Only used for multisigned transactions.
 
     Returns:
         The autofilled transaction.
@@ -209,7 +240,7 @@ async def autofill(transaction: Transaction, client: Client) -> Transaction:
         transaction_json["sequence"] = sequence
     if "fee" not in transaction_json:
         transaction_json["fee"] = await _calculate_fee_per_transaction_type(
-            transaction, client
+            transaction, client, signers_count
         )
     if "last_ledger_sequence" not in transaction_json:
         ledger_sequence = await get_latest_validated_ledger_sequence(client)
@@ -293,7 +324,9 @@ async def _check_fee(transaction: Transaction, client: Optional[Client] = None) 
 
 
 async def _calculate_fee_per_transaction_type(
-    transaction: Transaction, client: Optional[Client] = None
+    transaction: Transaction,
+    client: Optional[Client] = None,
+    signers_count: Optional[int] = None,
 ) -> str:
     """
     Calculate the total fee in drops for a transaction based on:
@@ -305,6 +338,8 @@ async def _calculate_fee_per_transaction_type(
     Args:
         transaction: the Transaction to be submitted.
         client: the network client with which to submit the transaction.
+        signers_count: the expected number of signers for this transaction.
+            Only used for multisigned transactions.
 
     Returns:
         The expected Transaction fee in drops
@@ -335,9 +370,8 @@ async def _calculate_fee_per_transaction_type(
 
     # Multi-signed Transaction
     # 10 drops × (1 + Number of Signatures Provided)
-    if transaction.signers and len(transaction.signers) > 0:
-        base_fee = net_fee * (1 + len(transaction.signers)) + base_fee
-
+    if signers_count is not None and signers_count > 0:
+        base_fee += net_fee * (1 + signers_count)
     # Round Up base_fee and return it as a String
     return str(math.ceil(base_fee))
 

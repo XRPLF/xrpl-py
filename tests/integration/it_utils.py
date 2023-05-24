@@ -17,7 +17,6 @@ from xrpl.clients.sync_client import SyncClient
 from xrpl.constants import CryptoAlgorithm
 from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
 from xrpl.transaction import (  # noqa: F401 - needed for sync tests
-    autofill_and_sign,
     safe_sign_and_submit_transaction,
 )
 from xrpl.transaction import (  # noqa: F401 - needed for sync tests
@@ -58,7 +57,7 @@ _CLIENTS = {
 MASTER_ACCOUNT = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
 MASTER_SEED = "snoPBrXtMeMyMHUVTgbuqAfg1SUTb"
 MASTER_WALLET = Wallet.from_seed(MASTER_SEED, algorithm=CryptoAlgorithm.SECP256K1)
-FUNDING_AMOUNT = "1200000000"
+FUNDING_AMOUNT = "2000000000"
 
 LEDGER_ACCEPT_REQUEST = GenericRequest(method="ledger_accept")
 LEDGER_ACCEPT_TIME = 0.1
