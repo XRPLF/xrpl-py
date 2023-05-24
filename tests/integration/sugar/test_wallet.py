@@ -2,8 +2,8 @@ import asyncio
 import time
 from threading import Thread
 
-from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import submit_transaction_async
+from tests.integration.integration_test_case import IsolatedAsyncioTestCase
+from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.wallet import generate_faucet_wallet
 from xrpl.clients import JsonRpcClient, WebsocketClient
@@ -67,7 +67,7 @@ class TestProcess(Thread):
             asyncio.run(method(self.testcase))
 
 
-class TestWallet(IntegrationTestCase):
+class TestWallet(IsolatedAsyncioTestCase):
     async def test_run_faucet_tests(self):
         def run_test(test_name):
             with self.subTest(method=test_name):
@@ -87,6 +87,12 @@ class TestWallet(IntegrationTestCase):
         for process in processes:
             process.join()
 
+    @test_async_and_sync(
+        globals(),
+        ["xrpl.wallet.generate_faucet_wallet"],
+        num_retries=5,
+        use_testnet=True,
+    )
     async def _test_generate_faucet_wallet_rel_sub(self):
         async with AsyncWebsocketClient(
             "wss://s.altnet.rippletest.net:51233"
@@ -97,8 +103,6 @@ class TestWallet(IntegrationTestCase):
             response = await submit_transaction_async(
                 Payment(
                     account=wallet.classic_address,
-                    sequence=wallet.sequence,
-                    fee="10",
                     amount="1",
                     destination=destination.classic_address,
                 ),

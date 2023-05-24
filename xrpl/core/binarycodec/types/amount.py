@@ -93,6 +93,8 @@ def verify_iou_value(issued_currency_value: str) -> None:
     if decimal_value.is_zero():
         return
     exponent = decimal_value.as_tuple().exponent
+    if not isinstance(exponent, int):  # NaN, sNaN, Infinity
+        raise XRPLBinaryCodecException(f"Expected exponent to be int, is {exponent}")
     if (
         (_calculate_precision(issued_currency_value) > MAX_IOU_PRECISION)
         or (exponent > MAX_IOU_EXPONENT)
@@ -149,6 +151,8 @@ def _serialize_issued_currency_value(value: str) -> bytes:
     # Convert components to integers ---------------------------------------
     sign, digits, exp = decimal_value.as_tuple()
     mantissa = int("".join([str(d) for d in digits]))
+    if not isinstance(exp, int):  # NaN, sNaN, Infinity
+        raise XRPLBinaryCodecException(f"Expected exp to be int, is {exp}")
 
     # Canonicalize to expected range ---------------------------------------
     while mantissa < MIN_IOU_MANTISSA and exp > MIN_IOU_EXPONENT:

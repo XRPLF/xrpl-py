@@ -13,7 +13,6 @@ class TestTrustSet(IntegrationTestCase):
         response = await submit_transaction_async(
             TrustSet(
                 account=WALLET.classic_address,
-                sequence=WALLET.sequence,
                 flags=TrustSetFlag.TF_SET_NO_RIPPLE,
                 limit_amount=IssuedCurrencyAmount(
                     issuer=issuer_wallet.classic_address,
@@ -24,4 +23,3 @@ class TestTrustSet(IntegrationTestCase):
             WALLET,
         )
         self.assertTrue(response.is_successful())
-        WALLET.sequence += 1

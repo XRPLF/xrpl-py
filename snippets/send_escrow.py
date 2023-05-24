@@ -5,7 +5,7 @@ from xrpl.account import get_balance
 from xrpl.clients import JsonRpcClient
 from xrpl.models.requests import AccountObjects
 from xrpl.models.transactions import EscrowCreate, EscrowFinish
-from xrpl.transaction import autofill_and_sign, send_reliable_submission
+from xrpl.transaction.reliable_submission import submit_and_wait
 from xrpl.utils import datetime_to_ripple_time
 from xrpl.wallet import generate_faucet_wallet
 
@@ -37,8 +37,7 @@ create_tx = EscrowCreate(
     finish_after=finish_after,
 )
 
-signed_create_tx = autofill_and_sign(create_tx, wallet1, client)
-create_escrow_response = send_reliable_submission(signed_create_tx, client)
+create_escrow_response = submit_and_wait(create_tx, wallet1, client)
 print(create_escrow_response)
 
 # Create an AccountObjects request and have the client call it to see if escrow exists
@@ -55,8 +54,7 @@ finish_tx = EscrowFinish(
     offer_sequence=create_escrow_response.result["Sequence"],
 )
 
-signed_finish_tx = autofill_and_sign(finish_tx, wallet1, client)
-send_reliable_submission(signed_finish_tx, client)
+submit_and_wait(finish_tx, client, wallet1)
 
 # If escrow went through successfully, 1000000 exchanged
 print("Balances of wallets after Escrow was sent:")
