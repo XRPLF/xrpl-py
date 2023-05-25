@@ -5,9 +5,7 @@ from xrpl.account.main import (
     get_balance,
     get_next_valid_seq_number,
 )
-from xrpl.account.transaction_history import (
-    get_latest_transaction,
-)
+from xrpl.account.transaction_history import get_latest_transaction
 
 __all__ = [
     "get_next_valid_seq_number",
