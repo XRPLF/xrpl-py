@@ -150,8 +150,12 @@ class TestWallet(IntegrationTestCase):
             "wss://hooks-testnet-v3.xrpl-labs.com"
         ) as client:
             global time_of_last_hooks_faucet_call
-            wallet = Wallet("sEdSigMti9uJFCnrkwsB3LJRGkVZHVA", 0)
-            wallet = await generate_faucet_wallet(client, wallet)
+            wallet = Wallet.create()
+            time_since_last_hooks_call = time.time() - time_of_last_hooks_faucet_call
+            if time_since_last_hooks_call < 10:
+                time.sleep(11 - time_since_last_hooks_call)
+            time_of_last_hooks_faucet_call = time.time()
+            await generate_faucet_wallet(client, wallet)
             result = await client.request(
                 AccountInfo(
                     account=wallet.classic_address,
