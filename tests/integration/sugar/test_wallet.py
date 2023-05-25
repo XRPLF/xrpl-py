@@ -151,6 +151,7 @@ class TestWallet(IntegrationTestCase):
         ) as client:
             global time_of_last_hooks_faucet_call
             wallet = Wallet("sEdSigMti9uJFCnrkwsB3LJRGkVZHVA", 0)
+            wallet = await generate_faucet_wallet(client, wallet)
             result = await client.request(
                 AccountInfo(
                     account=wallet.classic_address,
