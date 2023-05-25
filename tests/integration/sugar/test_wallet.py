@@ -65,6 +65,7 @@ class TestWallet(IntegrationTestCase):
     async def test_generate_faucet_wallet_rel_sub(self, client):
         destination = await generate_faucet_wallet(client)
         wallet = await generate_faucet_wallet(client)
+        # TODO: refactor so this actually waits for validation
         response = await submit_transaction_async(
             Payment(
                 account=wallet.classic_address,
