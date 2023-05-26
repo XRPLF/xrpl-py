@@ -31,8 +31,6 @@ class TestCheckCreate(IntegrationTestCase):
             expiration=EXPIRATION,
             invoice_id=INVOICE_ID,
         )
-        response = await submit_transaction_async(
-            check_create, WALLET, client
-        )
+        response = await submit_transaction_async(check_create, WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
