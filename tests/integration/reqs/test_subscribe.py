@@ -83,11 +83,7 @@ class TestSubscribe(IntegrationTestCase):
 
         count = 0
         async for message in client:
-            # TODO: refactor so this can use the same client
-            await sign_and_reliable_submission_async(
-                payment_transaction,
-                WALLET,
-            )
+            await sign_and_reliable_submission_async(payment_transaction, WALLET)
             if count != 0:
                 self.assertEqual(message["type"], "transaction")
             if count == _MESSAGE_LIMIT:
@@ -112,11 +108,7 @@ class TestSubscribe(IntegrationTestCase):
 
         count = 0
         async for message in client:
-            # TODO: refactor so this can use the same client
-            await sign_and_reliable_submission_async(
-                payment_transaction,
-                WALLET,
-            )
+            await sign_and_reliable_submission_async(payment_transaction, WALLET)
             if count != 0:
                 self.assertEqual(message["type"], "transaction")
             if count == _MESSAGE_LIMIT:

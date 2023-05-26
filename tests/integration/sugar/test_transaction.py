@@ -2,6 +2,7 @@ from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     accept_ledger_async,
     sign_and_reliable_submission_async,
+    submit_transaction_async,
     test_async_and_sync,
 )
 from tests.integration.reusable_values import DESTINATION as DESTINATION_WALLET
@@ -60,9 +61,7 @@ class TestTransaction(IntegrationTestCase):
         )
 
         # WHEN we sign locally, autofill, and submit the transaction
-        response = await sign_and_reliable_submission_async(
-            payment_transaction, WALLET, client
-        )
+        response = await sign_and_reliable_submission_async(payment_transaction, WALLET)
         payment_hash = response.result["tx_json"]["hash"]
         payment_ledger_index = response.result["validated_ledger_index"]
 
@@ -93,7 +92,7 @@ class TestTransaction(IntegrationTestCase):
         )
         # We expect an XRPLException to be raised
         with self.assertRaises(XRPLException):
-            await sign_and_reliable_submission_async(account_delete, WALLET, client)
+            await submit_transaction_async(account_delete, WALLET)
 
     @test_async_and_sync(globals())
     async def test_high_fee_account_set_unauthorized(self, client):
@@ -111,12 +110,12 @@ class TestTransaction(IntegrationTestCase):
         )
         # We expect an XRPLException to be raised
         with self.assertRaises(XRPLException):
-            await sign_and_reliable_submission_async(account_set, WALLET, client)
+            await submit_transaction_async(account_set, WALLET)
 
     @test_async_and_sync(globals())
     async def test_payment_high_fee_authorized(self, client):
         # GIVEN a new Payment transaction
-        response = await sign_and_reliable_submission_async(
+        response = await submit_transaction_async(
             Payment(
                 account=WALLET.classic_address,
                 amount="1",
@@ -125,7 +124,6 @@ class TestTransaction(IntegrationTestCase):
                 destination=DESTINATION,
             ),
             WALLET,
-            client,
             # WITHOUT checking the fee value
             check_fee=False,
         )

@@ -120,11 +120,10 @@ async def fund_wallet(
     await client.request(LEDGER_ACCEPT_REQUEST)
 
 
-# just submits a transaction to the ledger, synchronously
 def submit_transaction(
     transaction: Transaction,
     wallet: Wallet,
-    client: SyncClient,
+    client: SyncClient = JSON_RPC_CLIENT,
     check_fee: bool = True,
 ) -> Response:
     """Signs and submits a transaction to the XRPL."""
@@ -133,38 +132,29 @@ def submit_transaction(
     )
 
 
-# just submits a transaction to the ledger, asynchronously
 async def submit_transaction_async(
     transaction: Transaction,
     wallet: Wallet,
-    client: AsyncClient,
+    client: Client = ASYNC_JSON_RPC_CLIENT,
     check_fee: bool = True,
 ) -> Response:
     return await sign_and_submit_async(transaction, wallet, client, check_fee=check_fee)
 
 
-# submits a transaction to the ledger and closes a ledger, synchronously
 def sign_and_reliable_submission(
-    transaction: Transaction,
-    wallet: Wallet,
-    client: SyncClient = JSON_RPC_CLIENT,
-    check_fee: bool = True,
+    transaction: Transaction, wallet: Wallet, use_json_client: bool = True
 ) -> Response:
-    response = submit_transaction(transaction, wallet, client, check_fee=check_fee)
+    client = _choose_client(use_json_client)
+    response = submit_transaction(transaction, wallet, client)
     client.request(LEDGER_ACCEPT_REQUEST)
     return response
 
 
-# submits a transaction to the ledger and closes a ledger, asynchronously
 async def sign_and_reliable_submission_async(
-    transaction: Transaction,
-    wallet: Wallet,
-    client: AsyncClient = ASYNC_JSON_RPC_CLIENT,
-    check_fee: bool = True,
+    transaction: Transaction, wallet: Wallet, use_json_client: bool = True
 ) -> Response:
-    response = await submit_transaction_async(
-        transaction, wallet, client, check_fee=check_fee
-    )
+    client = _choose_client_async(use_json_client)
+    response = await submit_transaction_async(transaction, wallet, client)
     await client.request(LEDGER_ACCEPT_REQUEST)
     return response
 

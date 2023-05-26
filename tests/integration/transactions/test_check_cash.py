@@ -1,8 +1,5 @@
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import (
-    sign_and_reliable_submission_async,
-    test_async_and_sync,
-)
+from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import CheckCash
@@ -21,7 +18,7 @@ class TestCheckCreate(IntegrationTestCase):
             check_id=CHECK_ID,
             amount=AMOUNT,
         )
-        response = await sign_and_reliable_submission_async(check_cash, WALLET, client)
+        response = await submit_transaction_async(check_cash, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         # Getting `tecNO_ENTRY` codes because using a non-existent check ID
         self.assertEqual(response.result["engine_result"], "tecNO_ENTRY")
@@ -33,6 +30,6 @@ class TestCheckCreate(IntegrationTestCase):
             check_id=CHECK_ID,
             deliver_min=DELIVER_MIN,
         )
-        response = await sign_and_reliable_submission_async(check_cash, WALLET, client)
+        response = await submit_transaction_async(check_cash, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tecNO_ENTRY")

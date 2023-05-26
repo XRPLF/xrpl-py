@@ -1,8 +1,5 @@
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import (
-    sign_and_reliable_submission_async,
-    test_async_and_sync,
-)
+from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import DepositPreauth
@@ -18,9 +15,7 @@ class TestDepositPreauth(IntegrationTestCase):
             account=ACCOUNT,
             authorize=ADDRESS,
         )
-        response = await sign_and_reliable_submission_async(
-            deposit_preauth, WALLET, client
-        )
+        response = await submit_transaction_async(deposit_preauth, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
 
     @test_async_and_sync(globals())
@@ -29,7 +24,5 @@ class TestDepositPreauth(IntegrationTestCase):
             account=ACCOUNT,
             unauthorize=ADDRESS,
         )
-        response = await sign_and_reliable_submission_async(
-            deposit_preauth, WALLET, client
-        )
+        response = await submit_transaction_async(deposit_preauth, WALLET)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
