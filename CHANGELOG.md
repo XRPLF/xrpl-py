@@ -12,8 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for cross-chain bridge proposal
 - Support for Automated Market Maker (AMM) transactions and requests as defined in XLS-30.
 
+### Changed:
+- Allowed keypairs.sign to take a hex string in addition to bytes
+
 ### Fixed:
 - Refactored `does_account_exist` and `get_balance` to avoid deprecated methods and use `ledger_index` parameter
+- Fixed crashes in the SignerListSet validation
 
 ### Removed:
 - RPCs and utils related to the old sidechain design
