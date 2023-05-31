@@ -2,7 +2,15 @@ import asyncio
 
 from tests.integration.it_utils import fund_wallet, sign_and_reliable_submission_async
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.transactions import OfferCreate, PaymentChannelCreate
+from xrpl.models.transactions import (
+    AccountSet,
+    AccountSetFlag,
+    OfferCreate,
+    Payment,
+    PaymentChannelCreate,
+    TrustSet,
+    TrustSetFlag,
+)
 from xrpl.wallet import Wallet
 
 
@@ -35,6 +43,38 @@ async def _set_up_reusable_values():
             destination=DESTINATION.classic_address,
             settle_delay=86400,
             public_key=WALLET.public_key,
+        ),
+        WALLET,
+    )
+
+    await sign_and_reliable_submission_async(
+        AccountSet(
+            account=WALLET.classic_address,
+            set_flag=AccountSetFlag.ASF_ALLOW_CLAWBACK,
+        ),
+        WALLET,
+    )
+
+    await sign_and_reliable_submission_async(
+        TrustSet(
+            account=DESTINATION.classic_address,
+            flags=TrustSetFlag.TF_SET_NO_RIPPLE,
+            limit_amount=IssuedCurrencyAmount(
+                issuer=WALLET.classic_address,
+                currency="USD",
+                value="1000",
+            ),
+        ),
+        DESTINATION,
+    )
+
+    await sign_and_reliable_submission_async(
+        Payment(
+            account=WALLET.classic_address,
+            destination=DESTINATION.classic_address,
+            amount=IssuedCurrencyAmount(
+                currency="USD", issuer=WALLET.classic_address, value="1000"
+            ),
         ),
         WALLET,
     )

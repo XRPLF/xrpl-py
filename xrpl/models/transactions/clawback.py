@@ -2,34 +2,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
 
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
-
-
-class ClawbackFlag(int, Enum):
-    """Transaction Flags for an Clawback Transaction."""
-
-    TF_SET_FREEZE = 0x00100000
-    """Freeze the trust line."""
-
-    TF_CLEAR_FREEZE = 0x00200000
-    """Unfreeze the trust line."""
-
-
-class ClawbackFlagInterface(FlagInterface):
-    """
-    Transactions of the Clawback type support additional values in the Flags field.
-    This TypedDict represents those options.
-    """
-
-    TF_SET_FREEZE: bool
-    TF_CLEAR_FREEZE: bool
 
 
 @require_kwargs_on_init

@@ -12,11 +12,7 @@ from xrpl.models.transactions.account_set import (
 from xrpl.models.transactions.check_cancel import CheckCancel
 from xrpl.models.transactions.check_cash import CheckCash
 from xrpl.models.transactions.check_create import CheckCreate
-from xrpl.models.transactions.clawback import (
-    Clawback,
-    ClawbackFlag,
-    ClawbackFlagInterface,
-)
+from xrpl.models.transactions.clawback import Clawback
 from xrpl.models.transactions.deposit_preauth import DepositPreauth
 from xrpl.models.transactions.escrow_cancel import EscrowCancel
 from xrpl.models.transactions.escrow_create import EscrowCreate
@@ -68,8 +64,6 @@ __all__ = [
     "CheckCash",
     "CheckCreate",
     "Clawback",
-    "ClawbackFlag",
-    "ClawbackFlagInterface",
     "DepositPreauth",
     "EscrowCancel",
     "EscrowCreate",
