@@ -1,5 +1,8 @@
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
+from tests.integration.it_utils import (
+    sign_and_reliable_submission_async,
+    test_async_and_sync,
+)
 from tests.integration.reusable_values import WALLET
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.transactions import TrustSet, TrustSetFlag
@@ -10,7 +13,7 @@ class TestTrustSet(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
         issuer_wallet = Wallet.create()
-        response = await submit_transaction_async(
+        response = await sign_and_reliable_submission_async(
             TrustSet(
                 account=WALLET.classic_address,
                 flags=TrustSetFlag.TF_SET_NO_RIPPLE,
@@ -21,5 +24,6 @@ class TestTrustSet(IntegrationTestCase):
                 ),
             ),
             WALLET,
+            client,
         )
         self.assertTrue(response.is_successful())
