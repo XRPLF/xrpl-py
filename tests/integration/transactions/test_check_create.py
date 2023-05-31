@@ -1,7 +1,7 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     fund_wallet_sync,
-    submit_transaction_async,
+    sign_and_reliable_submission_async,
     test_async_and_sync,
 )
 from xrpl.models.response import ResponseStatus
@@ -31,6 +31,8 @@ class TestCheckCreate(IntegrationTestCase):
             expiration=EXPIRATION,
             invoice_id=INVOICE_ID,
         )
-        response = await submit_transaction_async(check_create, WALLET)
+        response = await sign_and_reliable_submission_async(
+            check_create, WALLET, client
+        )
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")

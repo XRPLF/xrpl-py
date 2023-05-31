@@ -127,7 +127,13 @@ class Wallet:
             The wallet that is generated from the given secret.
         """
         public_key, private_key = derive_keypair(seed, algorithm=algorithm)
-        return cls(public_key, private_key, master_address=master_address, seed=seed, algorithm=algorithm)
+        return cls(
+            public_key,
+            private_key,
+            master_address=master_address,
+            seed=seed,
+            algorithm=algorithm,
+        )
 
     from_secret = from_seed
 
