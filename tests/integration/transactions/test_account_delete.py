@@ -1,5 +1,8 @@
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
+from tests.integration.it_utils import (
+    sign_and_reliable_submission_async,
+    test_async_and_sync,
+)
 from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountDelete
@@ -24,8 +27,8 @@ class TestAccountDelete(IntegrationTestCase):
             destination=DESTINATION.classic_address,
             destination_tag=DESTINATION_TAG,
         )
-        response = await submit_transaction_async(
-            account_delete, WALLET, check_fee=False
+        response = await sign_and_reliable_submission_async(
+            account_delete, WALLET, client, check_fee=False
         )
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
 
