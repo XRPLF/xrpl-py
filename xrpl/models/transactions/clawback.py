@@ -17,8 +17,8 @@ class Clawback(Transaction):
 
     amount: IssuedCurrencyAmount = REQUIRED  # type: ignore
     """
-    The amount of currency to deliver. If the Partial Payment flag is set,
-    deliver *up to* this amount instead. This field is required.
+    The amount of currency to claw back. The issuer field is used for the token holder's
+    address, from whom the tokens will be clawed back.
 
     :meta hide-value:
     """
