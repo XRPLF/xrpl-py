@@ -5,7 +5,7 @@ from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.transactions import Clawback
 
 
-class TestTrustSet(IntegrationTestCase):
+class TestClawback(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
         response = await submit_transaction_async(
