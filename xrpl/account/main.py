@@ -3,11 +3,8 @@
 import asyncio
 from typing import Dict, Union
 
-from deprecated.sphinx import deprecated
-
 from xrpl.asyncio.account import main
 from xrpl.clients.sync_client import SyncClient
-from xrpl.models.response import Response
 
 
 def does_account_exist(
@@ -91,30 +88,3 @@ def get_account_root(
         The AccountRoot dictionary for the address.
     """
     return asyncio.run(main.get_account_root(address, client, ledger_index))
-
-
-@deprecated(
-    reason="Sending an AccountInfo request directly is just as easy to use.",
-    version="1.8.0",
-)
-def get_account_info(
-    address: str, client: SyncClient, ledger_index: Union[str, int] = "validated"
-) -> Response:  # pragma: no cover
-    """
-    Query the ledger for account info of given address.
-
-    Args:
-        address: the account to query.
-        client: the network client used to make network calls.
-        ledger_index: The ledger index to use for the request. Must be an integer
-            ledger value or "current" (the current working version), "closed" (for the
-            closed-and-proposed version), or "validated" (the most recent version
-            validated by consensus). The default is "validated".
-
-    Returns:
-        The account info for the address.
-
-    Raises:
-        XRPLRequestFailureException: if the rippled API call fails.
-    """
-    return asyncio.run(main.get_account_info(address, client, ledger_index))

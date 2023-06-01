@@ -2,13 +2,9 @@
 
 from typing import Dict, Union, cast
 
-from deprecated.sphinx import deprecated
-
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
-from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.models.requests import AccountInfo
-from xrpl.models.response import Response
 
 
 async def does_account_exist(
@@ -121,52 +117,3 @@ async def get_account_root(
         raise XRPLRequestFailureException(account_info.result)
 
     return cast(Dict[str, Union[int, str]], account_info.result["account_data"])
-
-
-@deprecated(
-    reason="Sending an AccountInfo request directly is just as easy to use.",
-    version="1.8.0",
-)
-async def get_account_info(
-    address: str, client: Client, ledger_index: Union[str, int] = "validated"
-) -> Response:  # pragma: no cover
-    """
-    Query the ledger for account info of given address.
-
-    Args:
-        address: the account to query.
-        client: the network client used to make network calls.
-        ledger_index: The ledger index to use for the request. Must be an integer
-            ledger value or "current" (the current working version), "closed" (for the
-            closed-and-proposed version), or "validated" (the most recent version
-            validated by consensus). The default is "validated".
-
-    Returns:
-        The account info for the address.
-
-    Raises:
-        XRPLException: If the ledger_index value is invalid.
-        XRPLRequestFailureException: if the rippled API call fails.
-    """
-    if is_valid_xaddress(address):
-        address, _, _ = xaddress_to_classic_address(address)
-
-    if isinstance(ledger_index, str) and ledger_index not in {
-        "validated",
-        "current",
-        "closed",
-    }:
-        raise XRPLException(
-            "`ledger_index` is not valid - must be an `int` or one of {'validated', "
-            "'current', 'closed'}."
-        )
-    response = await client._request_impl(
-        AccountInfo(
-            account=address,
-            ledger_index=ledger_index,
-        )
-    )
-    if response.is_successful():
-        return response
-
-    raise XRPLRequestFailureException(response.result)
