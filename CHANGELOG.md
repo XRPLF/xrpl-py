@@ -5,11 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
 ## [2.0.0]
 ### Added:
 - Wallet support for regular key compatibility
 - Added new ways of wallet generation: `from_seed`, `from_secret`, `from_entropy`, `from_secret_numbers`
-- Added address alias to `Wallet.classic_address `
+- Added address alias to `Wallet.classic_address`
 
 ### Changed:
 - Updated params for Wallet class constructor
@@ -18,8 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Core keypairs generate seed must take in hexstring instead of bytestring
 - Core keypairs formatting for ED25519 is now padded with zeros if length of keystring is less than 64
 - Removed deprecated request wrappers (the preferred method is to directly do client.request instead)
+- `AccountSetFlagInterface` now operates on transaction `tf` flags (as opposed to `asf` flags)
 
-## [[Unreleased]]
 ### Fixed:
 - Added a sort of the account IDs in `multisign`, so that the `multisign` always works.
 - Add `ledger_hash` and `ledger_index` to `account_nfts`, `nft_buy_offers`, and `nft_sell_offers` requests.
