@@ -3,6 +3,7 @@
 import asyncio
 from typing import Optional, Union
 
+from deprecated import deprecated
 from typing_extensions import Final
 
 from xrpl.asyncio.clients import Client
@@ -71,7 +72,47 @@ async def _wait_for_final_transaction_outcome(
     )
 
 
+@deprecated(
+    reason="'send_reliable_submission' has been replaced with 'submit_and_wait'."
+    " 'submit_and_wait' is backwards compatible and has additional"
+    " features such as built-in autofill and signing to let autofilling, signing, and"
+    " submitting a transaction be a one-liner.",
+    version="2.0.0",
+)
 async def send_reliable_submission(
+    transaction: Transaction, client: Client, *, fail_hard: bool = False
+) -> Response:
+    """
+    Deprecated - please use `submit_and_wait` instead.
+
+    Asynchronously submits a transaction and verifies that it has been included in a
+    validated ledger (or has errored/will not be included for some reason).
+
+    `See Reliable Transaction Submission
+    <https://xrpl.org/reliable-transaction-submission.html>`_
+
+    Note: This cannot be used with a standalone rippled node, because ledgers do not
+    close automatically.
+
+    Args:
+        transaction: the signed transaction to submit to the ledger. Requires a
+            `last_ledger_sequence` param.
+        client: the network client used to submit the transaction to a rippled node.
+        fail_hard: an optional boolean. If True, and the transaction fails for
+            the initial server, do not retry or relay the transaction to other
+            servers. Defaults to False.
+
+    Returns:
+        The response from a validated ledger.
+
+    Raises:
+        XRPLReliableSubmissionException: if the transaction fails, is malformed, or is
+            missing a `last_ledger_sequence` param.
+    """
+    return await _send_reliable_submission(transaction, client, fail_hard=fail_hard)
+
+
+async def _send_reliable_submission(
     transaction: Transaction, client: Client, *, fail_hard: bool = False
 ) -> Response:
     """
@@ -204,6 +245,6 @@ async def submit_and_wait(
     signed_transaction = await _get_signed_tx(
         transaction, client, wallet, check_fee, autofill
     )
-    return await send_reliable_submission(
+    return await _send_reliable_submission(
         signed_transaction, client, fail_hard=fail_hard
     )

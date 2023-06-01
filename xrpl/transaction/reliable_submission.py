@@ -13,6 +13,7 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.wallet.main import Wallet
 
 
+# TODO: Remove this at the same time we remove async_send_reliable_submission
 def send_reliable_submission(
     transaction: Transaction,
     client: SyncClient,
