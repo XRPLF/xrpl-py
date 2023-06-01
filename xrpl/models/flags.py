@@ -1,4 +1,4 @@
-"""All transacion flags and utils to build a list of ints from a FlagInterface"""
+"""All transaction flags and utils to build a list of ints from a FlagInterface"""
 
 from typing import Dict, List, Union
 
@@ -10,16 +10,12 @@ from xrpl.models.transactions.types.transaction_type import TransactionType
 
 TX_FLAGS: Dict[str, Dict[str, int]] = {
     "AccountSet": {
-        "asf_account_tx_id": 0x00000005,
-        "asf_authorized_nftoken_minter": 0x0000000A,
-        "asf_default_ripple": 0x00000008,
-        "asf_deposit_auth": 0x00000009,
-        "asf_disable_master": 0x00000004,
-        "asf_disallow_xrp": 0x00000003,
-        "asf_global_freeze": 0x00000007,
-        "asf_no_freeze": 0x00000006,
-        "asf_require_auth": 0x00000002,
-        "asf_require_dest": 0x00000001,
+        "tf_require_dest_tag": 0x00010000,
+        "tf_optional_dest_tag": 0x00020000,
+        "tf_require_auth": 0x00040000,
+        "tf_optional_auth": 0x00080000,
+        "tf_disallow_xrp": 0x00100000,
+        "tf_allow_xrp": 0x00200000,
     },
     "NFTokenCreateOffer": {
         "tf_sell_token": 0x00000001,
