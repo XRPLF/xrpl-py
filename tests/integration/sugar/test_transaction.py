@@ -1,3 +1,5 @@
+import warnings
+
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     accept_ledger_async,
@@ -58,6 +60,9 @@ class TestTransaction(IntegrationTestCase):
             amount="100",
             destination=classic_address_to_xaddress(DESTINATION, None, False),
         )
+
+        # Silence warnings from send_reliable_submission being deprecated
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
 
         # WHEN we sign locally, autofill, and submit the transaction
         response = await sign_and_reliable_submission_async(
@@ -236,6 +241,8 @@ class TestReliableSubmission(IntegrationTestCase):
         )
         signed_account_set = await autofill_and_sign(account_set, WALLET, client)
         await accept_ledger_async()
+        # Silence warnings from send_reliable_submission being deprecated
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         response = await send_reliable_submission(signed_account_set, client)
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
@@ -261,6 +268,8 @@ class TestReliableSubmission(IntegrationTestCase):
             payment_transaction, WALLET, client
         )
         await accept_ledger_async()
+        # Silence warnings from send_reliable_submission being deprecated
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         response = await send_reliable_submission(signed_payment_transaction, client)
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
@@ -290,6 +299,8 @@ class TestReliableSubmission(IntegrationTestCase):
 
         await accept_ledger_async()
 
+        # Silence warnings from send_reliable_submission being deprecated
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         with self.assertRaises(XRPLReliableSubmissionException):
             await send_reliable_submission(signed_payment_transaction, client)
 
@@ -312,6 +323,8 @@ class TestReliableSubmission(IntegrationTestCase):
         }
         payment_transaction = Payment.from_dict(payment_dict)
         signed_payment_transaction = await sign(payment_transaction, WALLET)
+        # Silence warnings from send_reliable_submission being deprecated
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         with self.assertRaises(XRPLRequestFailureException):
             await send_reliable_submission(signed_payment_transaction, client)
 
@@ -333,6 +346,8 @@ class TestReliableSubmission(IntegrationTestCase):
         }
         payment_transaction = Payment.from_dict(payment_dict)
         signed_payment_transaction = await sign(payment_transaction, WALLET)
+        # Silence warnings from send_reliable_submission being deprecated
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         with self.assertRaises(XRPLReliableSubmissionException):
             await send_reliable_submission(signed_payment_transaction, client)
 
