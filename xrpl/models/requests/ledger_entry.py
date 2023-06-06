@@ -8,6 +8,7 @@ different types of objects you can retrieve.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Dict, List, Optional, Union
 
 from xrpl.models.base_model import BaseModel
@@ -15,7 +16,25 @@ from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
-from xrpl.models.xchain_bridge import XChainBridge
+
+
+class LedgerEntryType(str, Enum):
+    """Identifiers for on-ledger objects."""
+
+    ACCOUNT = "account"
+    AMENDMENTS = "amendments"
+    CHECK = "check"
+    DEPOSIT_PREAUTH = "deposit_preauth"
+    DIRECTORY = "directory"
+    ESCROW = "escrow"
+    FEE = "fee"
+    HASHES = "hashes"
+    OFFER = "offer"
+    PAYMENT_CHANNEL = "payment_channel"
+    SIGNER_LIST = "signer_list"
+    STATE = "state"
+    TICKET = "ticket"
+    NFT_OFFER = "nft_offer"
 
 
 @require_kwargs_on_init
@@ -200,7 +219,7 @@ class LedgerEntry(Request):
     payment_channel: Optional[str] = None
     ripple_state: Optional[RippleState] = None
     ticket: Optional[Union[str, Ticket]] = None
-    xchain_bridge: Optional[Union[str, XChainBridge]] = None
+    bridge_account: Optional[str] = None
     xchain_claim_id: Optional[Union[str, XChainClaimID]] = None
     xchain_create_account_claim_id: Optional[
         Union[str, XChainCreateAccountClaimID]

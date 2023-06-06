@@ -16,21 +16,23 @@ class PaymentChannelCreate(Transaction):
     Represents a `PaymentChannelCreate
     <https://xrpl.org/paymentchannelcreate.html>`_ transaction, which creates a
     `payment channel <https://xrpl.org/payment-channels.html>`_ and funds it with
-    XRP. The sender of this transaction is the "source address" of the payment
+    an amount. The sender of this transaction is the "source address" of the payment
     channel.
     """
 
     amount: Amount = REQUIRED  # type: ignore
     """
-    The amount of XRP, in drops, to set aside in this channel. This field is
-    required.
+    Amount to deduct from the sender's balance and set aside in this channel.
+    While the channel is open, the amount can only go to the Destination address.
+    When the channel closes, any unclaimed amount is returned to the source
+    address's balance. This field is required.
 
     :meta hide-value:
     """
 
     destination: str = REQUIRED  # type: ignore
     """
-    The account that can receive XRP from this channel, also known as the
+    The account that can receive amounts from this channel, also known as the
     "destination address" of the channel. Cannot be the same as the sender.
     This field is required.
 

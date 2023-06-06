@@ -17,7 +17,6 @@ from xrpl.core.binarycodec.types.uint16 import UInt16
 from xrpl.core.binarycodec.types.uint32 import UInt32
 from xrpl.core.binarycodec.types.uint64 import UInt64
 from xrpl.core.binarycodec.types.vector256 import Vector256
-from xrpl.core.binarycodec.types.xchain_attestation_batch import XChainAttestationBatch
 from xrpl.core.binarycodec.types.xchain_bridge import XChainBridge
 
 __all__ = [
@@ -40,5 +39,4 @@ __all__ = [
     "UInt64",
     "Vector256",
     "XChainBridge",
-    "XChainAttestationBatch",
 ]

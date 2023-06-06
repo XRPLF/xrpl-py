@@ -167,7 +167,7 @@ from xrpl.ledger import get_latest_validated_ledger_sequence
 from xrpl.account import get_next_valid_seq_number
 
 current_validated_ledger = get_latest_validated_ledger_sequence(client)
-test_wallet.sequence = get_next_valid_seq_number(test_wallet.classic_address, client)
+wallet_sequence = get_next_valid_seq_number(test_wallet.classic_address, client)
 
 # prepare the transaction
 # the amount is expressed in drops, not XRP
@@ -177,7 +177,7 @@ my_tx_payment = Payment(
     amount="2200000",
     destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
     last_ledger_sequence=current_validated_ledger + 20,
-    sequence=test_wallet.sequence,
+    sequence=wallet_sequence,
     fee="10",
 )
 # sign the transaction
@@ -285,7 +285,7 @@ async_client = AsyncJsonRpcClient(JSON_RPC_URL)
 
 async def submit_sample_transaction():
     current_validated_ledger = await get_latest_validated_ledger_sequence(async_client)
-    test_wallet.sequence = await get_next_valid_seq_number(test_wallet.classic_address, async_client)
+    wallet_sequence = await get_next_valid_seq_number(test_wallet.classic_address, async_client)
 
     # prepare the transaction
     # the amount is expressed in drops, not XRP
@@ -295,7 +295,7 @@ async def submit_sample_transaction():
         amount="2200000",
         destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
         last_ledger_sequence=current_validated_ledger + 20,
-        sequence=test_wallet.sequence,
+        sequence=wallet_sequence,
         fee="10",
     )
     # sign the transaction
@@ -332,13 +332,17 @@ If you want to contribute to this project, see [CONTRIBUTING.md].
 
 ### Mailing Lists
 
-We have a low-traffic mailing list for announcements of new `xrpl.js` releases. (About 1 email per week)
+We have a low-traffic mailing list for announcements of new `xrpl-py` releases. (About 1 email per week)
 
 + [Subscribe to xrpl-announce](https://groups.google.com/g/xrpl-announce)
 
 If you're using the XRP Ledger in production, you should run a [rippled server](https://github.com/ripple/rippled) and subscribe to the ripple-server mailing list as well.
 
 + [Subscribe to ripple-server](https://groups.google.com/g/ripple-server)
+
+### Code Samples
+- For samples of common use cases, see the [XRPL.org Code Samples](https://xrpl.org/code-samples.html) page.
+- You can also browse those samples [directly on GitHub](https://github.com/XRPLF/xrpl-dev-portal/tree/master/content/_code-samples).
 
 ### Report an issue
 

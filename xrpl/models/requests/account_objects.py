@@ -18,16 +18,18 @@ from xrpl.models.utils import require_kwargs_on_init
 class AccountObjectType(str, Enum):
     """Represents the object types that an AccountObjectsRequest can ask for."""
 
+    BRIDGE = "bridge"
     CHECK = "check"
     DEPOSIT_PREAUTH = "deposit_preauth"
     ESCROW = "escrow"
+    NFT_OFFER = "nft_offer"
     OFFER = "offer"
     PAYMENT_CHANNEL = "payment_channel"
     SIGNER_LIST = "signer_list"
     STATE = "state"
     TICKET = "ticket"
-    XCHAIN_CREATE_ACCOUNT_CLAIM_ID = "xchain_create_account_claim_id"
-    XCHAIN_CLAIM_ID = "xchain_claim_id"
+    XCHAIN_OWNED_CREATE_ACCOUNT_CLAIM_ID = "xchain_owned_create_account_claim_id"
+    XCHAIN_OWNED_CLAIM_ID = "xchain_owned_claim_id"
 
 
 @require_kwargs_on_init

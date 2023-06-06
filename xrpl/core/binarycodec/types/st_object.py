@@ -142,7 +142,7 @@ class STObject(SerializedType):
         serializer = BinarySerializer()
 
         xaddress_decoded = {}
-        for (k, v) in value.items():
+        for k, v in value.items():
             if isinstance(v, str) and is_valid_xaddress(v):
                 handled = _handle_xaddress(k, v)
                 if (

@@ -7,22 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 ### Added:
+- Added `submit_and_wait` to sign (if needed), autofill, submit a transaction and wait for its final outcome
+- `submit` and `send_reliable_submission` now accept an optional boolean param `fail_hard` (if `True` halt the submission if it's not immediately validated)
+- Support for cross-chain bridge proposal
+- Support for Automated Market Maker (AMM) transactions and requests as defined in XLS-30.
+
+### Changed:
+- Allowed keypairs.sign to take a hex string in addition to bytes
+
+### Fixed:
+- Refactored `does_account_exist` and `get_balance` to avoid deprecated methods and use `ledger_index` parameter
+- Fixed crashes in the SignerListSet validation
+
+### Removed:
+- RPCs and utils related to the old sidechain design
+
+## [1.8.0] - 2023-04-10
+### Added:
 - Created function alias to `safe_sign_transaction` called `sign` - safe originally used to indicate local offline signing (keys aren't exposed)
 - Created function alias to `safe_sign_and_autofill_transaction` called `autofill_and_sign` to reflect order of operations
 - Created function alias to `submit_transaction` called `submit`
 - Created function alias to `safe_sign_and_submit_transaction` called `sign_and_submit`
-- Support for cross-chain bridge proposal
+- AccountSetFlags for disallowing incoming objects (e.g. `asf_disallow_incoming_trustline`)
+- Added `getNFTokenID` to get the NFTokenID after minting a token.
+- Added `LedgerEntryType` enum and added `type` field to `Ledger` and `LedgerData` requests
+- Added the algorithm used to encode a wallet's seed to the wallet.
 
 ### Changed:
 - `check_fee` now has a higher limit that is less likely to be hit
-- When connected to nft devnet or hooks v2 testnet generate_faucet_wallet now defaults to using the faucet instead of requiring specification
+- When connected hooks v2 testnet generate_faucet_wallet now defaults to using the faucet instead of requiring specification
 - Deprecated `get_account_info`, `get_transaction_from_hash`, `get_account_payment_transactions` for direct requests
 - Private function `request_impl` has been renamed to `_request_impl`. Users should always use `request` over `request_impl`.
-- Support for cross-chain bridge proposal
-- New AMM API signature changes
+- Removed nft-devnet faucet support as it has been decommissioned ([Blog Post](https://xrpl.org/blog/2023/nft-devnet-decommission.html))
 
 ### Fixed:
 - Properly type the instance functions of NestedModel
+- Add additional check to `txnNotFound` error from `reliable_submission` due to race condition
+- Add `nft_offer` type in `AccountObjects`
+- Handle errors better in `send_reliable_submission`
+- Made `send_reliable_submission` wait the full duration until `LastLedgerSequence` passes by
 
 ## [1.7.0] - 2022-10-12
 ### Added:
@@ -30,11 +53,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Function to parse the final account balances from a transaction's metadata
 - Function to parse order book changes from a transaction's metadata
 - Support for Ed25519 seeds that don't use the `sEd` prefix
-- Support for cross-chain bridge proposal
-- Support for Automated Market Maker (AMM) transactions and requests as defined in XLS-30.
 - Add docs to`get_account_transactions` explaining how to allow pagination through all transaction history [#462]
 - Common field `ticket_sequence` to Transaction class
-- Support for cross-chain bridge proposal
 
 ### Fixed:
 - Typing for factory classmethods on models

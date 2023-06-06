@@ -1,14 +1,14 @@
 from unittest import TestCase
 
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.currencies.issue import Issue
+from xrpl.models.currencies import XRP, IssuedCurrency
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMDeposit
 from xrpl.models.transactions.amm_deposit import AMMDepositFlag
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
-_ASSET = Issue(currency="XRP")
-_ASSET2 = Issue(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW")
+_ASSET = XRP()
+_ASSET2 = IssuedCurrency(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW")
 _AMOUNT = "1000"
 _LPTOKEN_CURRENCY = "B3813FCAB4EE68B3D0D735D6849465A9113EE048"
 _LPTOKEN_ISSUER = "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg"

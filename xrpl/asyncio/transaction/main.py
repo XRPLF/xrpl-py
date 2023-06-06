@@ -25,7 +25,7 @@ from xrpl.wallet.main import Wallet
 _LEDGER_OFFSET: Final[int] = 20
 
 # TODO: make this dynamic based on the current ledger fee
-_ACCOUNT_DELETE_FEE: Final[int] = int(xrp_to_drops(2))
+_OWNER_RESERVE_FEE: Final[int] = int(xrp_to_drops(2))
 
 
 async def sign_and_submit(
@@ -147,6 +147,8 @@ safe_sign_and_autofill_transaction = autofill_and_sign
 async def submit(
     transaction: Transaction,
     client: Client,
+    *,
+    fail_hard: bool = False,
 ) -> Response:
     """
     Submits a transaction to the ledger.
@@ -154,6 +156,9 @@ async def submit(
     Args:
         transaction: the Transaction to be submitted.
         client: the network client with which to submit the transaction.
+        fail_hard: an optional boolean. If True, and the transaction fails for
+            the initial server, do not retry or relay the transaction to other
+            servers. Defaults to False.
 
     Returns:
         The response from the ledger.
@@ -162,7 +167,9 @@ async def submit(
         XRPLRequestFailureException: if the rippled API call fails.
     """
     transaction_blob = encode(transaction.to_xrpl())
-    response = await client._request_impl(SubmitOnly(tx_blob=transaction_blob))
+    response = await client._request_impl(
+        SubmitOnly(tx_blob=transaction_blob, fail_hard=fail_hard)
+    )
     if response.is_successful():
         return response
 
@@ -355,11 +362,14 @@ async def _calculate_fee_per_transaction_type(
             base_fee = math.ceil(net_fee * (33 + (len(fulfillment_bytes) / 16)))
 
     # AccountDelete Transaction
-    if transaction.transaction_type == TransactionType.ACCOUNT_DELETE:
+    if (
+        transaction.transaction_type == TransactionType.ACCOUNT_DELETE
+        or transaction.transaction_type == TransactionType.AMM_CREATE
+    ):
         if client is None:
-            base_fee = _ACCOUNT_DELETE_FEE
+            base_fee = _OWNER_RESERVE_FEE
         else:
-            base_fee = await _fetch_account_delete_fee(client)
+            base_fee = await _fetch_owner_reserve_fee(client)
 
     # Multi-signed Transaction
     # 10 drops × (1 + Number of Signatures Provided)
@@ -369,7 +379,7 @@ async def _calculate_fee_per_transaction_type(
     return str(math.ceil(base_fee))
 
 
-async def _fetch_account_delete_fee(client: Client) -> int:
+async def _fetch_owner_reserve_fee(client: Client) -> int:
     server_state = await client._request_impl(ServerState())
     fee = server_state.result["state"]["validated_ledger"]["reserve_inc"]
     return int(fee)

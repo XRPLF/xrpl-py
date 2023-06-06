@@ -65,10 +65,10 @@ class TestWallet(IntegrationTestCase):
     async def test_generate_faucet_wallet_rel_sub(self, client):
         destination = await generate_faucet_wallet(client)
         wallet = await generate_faucet_wallet(client)
+        # TODO: refactor so this actually waits for validation
         response = await submit_transaction_async(
             Payment(
                 account=wallet.classic_address,
-                sequence=wallet.sequence,
                 fee="10",
                 amount="1",
                 destination=destination.classic_address,
@@ -78,47 +78,41 @@ class TestWallet(IntegrationTestCase):
         )
         self.assertTrue(response.is_successful())
 
-    async def test_generate_faucet_wallet_custom_host_async_websockets(self):
-        async with AsyncWebsocketClient(
-            "wss://xls20-sandbox.rippletest.net:51233"
-        ) as client:
-            await generate_faucet_wallet_and_fund_again(
-                self, client, "faucet-nft.ripple.com"
-            )
-
-    async def test_generate_faucet_wallet_custom_host_async_json_rpc(self):
-        client = AsyncJsonRpcClient("http://xls20-sandbox.rippletest.net:51234")
-        await generate_faucet_wallet_and_fund_again(
-            self, client, "faucet-nft.ripple.com"
-        )
-
-    def test_generate_faucet_wallet_custom_host_sync_websockets(self):
-        with WebsocketClient("wss://xls20-sandbox.rippletest.net:51233") as client:
-            sync_generate_faucet_wallet_and_fund_again(
-                self, client, "faucet-nft.ripple.com"
-            )
-
-    def test_generate_faucet_wallet_custom_host_sync_json_rpc(self):
-        client = JsonRpcClient("http://xls20-sandbox.rippletest.net:51234")
-        sync_generate_faucet_wallet_and_fund_again(
-            self, client, "faucet-nft.ripple.com"
-        )
-
     async def test_generate_faucet_wallet_testnet_async_websockets(self):
         async with AsyncWebsocketClient(
             "wss://s.altnet.rippletest.net:51233"
         ) as client:
             await generate_faucet_wallet_and_fund_again(self, client)
 
+    async def test_generate_faucet_wallet_custom_host_async_websockets(self):
+        async with AsyncWebsocketClient(
+            "wss://s.devnet.rippletest.net:51233/"
+        ) as client:
+            await generate_faucet_wallet_and_fund_again(
+                self, client, "faucet.devnet.rippletest.net"
+            )
+
+    async def test_generate_faucet_wallet_custom_host_async_json_rpc(self):
+        client = AsyncJsonRpcClient("https://s.devnet.rippletest.net:51234/")
+        await generate_faucet_wallet_and_fund_again(
+            self, client, "faucet.devnet.rippletest.net"
+        )
+
+    def test_generate_faucet_wallet_custom_host_sync_websockets(self):
+        with WebsocketClient("wss://s.devnet.rippletest.net:51233/") as client:
+            sync_generate_faucet_wallet_and_fund_again(
+                self, client, "faucet.devnet.rippletest.net"
+            )
+
+    def test_generate_faucet_wallet_custom_host_sync_json_rpc(self):
+        client = JsonRpcClient("https://s.devnet.rippletest.net:51234/")
+        sync_generate_faucet_wallet_and_fund_again(
+            self, client, "faucet.devnet.rippletest.net"
+        )
+
     async def test_generate_faucet_wallet_devnet_async_websockets(self):
         async with AsyncWebsocketClient(
             "wss://s.devnet.rippletest.net:51233"
-        ) as client:
-            await generate_faucet_wallet_and_fund_again(self, client)
-
-    async def test_generate_faucet_wallet_nft_devnet_async_websockets(self):
-        async with AsyncWebsocketClient(
-            "ws://xls20-sandbox.rippletest.net:51233"
         ) as client:
             await generate_faucet_wallet_and_fund_again(self, client)
 
@@ -128,12 +122,12 @@ class TestWallet(IntegrationTestCase):
         ) as client:
             await generate_faucet_wallet_and_fund_again(self, client)
 
-    async def test_generate_faucet_wallet_hooks_v2_testnet_async_websockets(self):
+    async def test_generate_faucet_wallet_hooks_v3_testnet_async_websockets(self):
         async with AsyncWebsocketClient(
-            "wss://hooks-testnet-v2.xrpl-labs.com"
+            "wss://hooks-testnet-v3.xrpl-labs.com"
         ) as client:
             global time_of_last_hooks_faucet_call
-            # Wait at least 10 seconds since last call to hooks v2 testnet faucet
+            # Wait at least 10 seconds since last call to hooks v3 testnet faucet
             time_since_last_hooks_call = time.time() - time_of_last_hooks_faucet_call
             if time_since_last_hooks_call < 10:
                 time.sleep(11 - time_since_last_hooks_call)
@@ -149,15 +143,20 @@ class TestWallet(IntegrationTestCase):
             balance = int(result.result["account_data"]["Balance"])
             self.assertTrue(balance > 0)
 
-    # Named different from test_generate_faucet_wallet_hooks_v2_testnet_async_websockets
-    # so the test runs far from each other since hooks v2 testnet faucet
+    # Named different from test_generate_faucet_wallet_hooks_v3_testnet_async_websockets
+    # so the test runs far from each other since hooks v3 testnet faucet
     # requires 10 seconds between calls
-    async def test_fund_given_wallet_hooks_v2_testnet_async_websockets(self):
+    async def test_fund_given_wallet_hooks_v3_testnet_async_websockets(self):
         async with AsyncWebsocketClient(
-            "wss://hooks-testnet-v2.xrpl-labs.com"
+            "wss://hooks-testnet-v3.xrpl-labs.com"
         ) as client:
             global time_of_last_hooks_faucet_call
-            wallet = Wallet("sEdSigMti9uJFCnrkwsB3LJRGkVZHVA", 0)
+            wallet = Wallet.create()
+            time_since_last_hooks_call = time.time() - time_of_last_hooks_faucet_call
+            if time_since_last_hooks_call < 10:
+                time.sleep(11 - time_since_last_hooks_call)
+            time_of_last_hooks_faucet_call = time.time()
+            await generate_faucet_wallet(client, wallet)
             result = await client.request(
                 AccountInfo(
                     account=wallet.classic_address,
@@ -165,7 +164,7 @@ class TestWallet(IntegrationTestCase):
             )
             balance = int(result.result["account_data"]["Balance"])
 
-            # Wait at least 10 seconds since last call to hooks v2 testnet faucet
+            # Wait at least 10 seconds since last call to hooks v3 testnet faucet
             time_since_last_hooks_call = time.time() - time_of_last_hooks_faucet_call
             if time_since_last_hooks_call < 10:
                 time.sleep(11 - time_since_last_hooks_call)
