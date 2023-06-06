@@ -789,6 +789,16 @@
       }
     ],
     [
+      "LockCount",
+      {
+        "nth": 47,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "UInt32"
+      }
+    ],
+    [
       "VoteWeight",
       {
         "nth": 47,
@@ -1542,6 +1552,16 @@
       "LPTokenOut",
       {
         "nth": 20,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Amount"
+      }
+    ],
+    [
+      "LockedBalance",
+      {
+        "nth": 21,
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
@@ -2857,7 +2877,9 @@
     "tecXCHAIN_ACCOUNT_CREATE_PAST": 183,
     "tecXCHAIN_ACCOUNT_CREATE_TOO_MANY": 184,
     "tecXCHAIN_PAYMENT_FAILED": 185,
-    "tecXCHAIN_SELF_COMMIT": 186
+    "tecXCHAIN_SELF_COMMIT": 186,
+    "tecREQUIRES_FLAG": 187,
+    "tecPRECISION_LOSS": 188
   },
   "TRANSACTION_TYPES": {
     "Invalid": -1,
