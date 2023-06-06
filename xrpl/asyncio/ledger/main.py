@@ -5,7 +5,7 @@ from typing import Optional, cast
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
 from xrpl.asyncio.ledger.utils import calculate_fee_dynamically
 from xrpl.constants import XRPLException
-from xrpl.models.requests import Fee, Ledger, ServerInfo
+from xrpl.models.requests import Fee, Ledger
 from xrpl.utils import xrp_to_drops
 
 
