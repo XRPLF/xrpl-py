@@ -261,8 +261,8 @@ async def _get_network_id_and_build_version(client: Client) -> None:
     """
     response = await client._request_impl(ServerInfo())
     if response.is_successful():
-        client.network_id = response.result["info"]["network_id"] or None
-        client.build_version = response.result["info"]["build_version"] or None
+        client.network_id = response.result["info"]["network_id"] if "network_id" in response.result["info"] else None
+        client.build_version = response.result["info"]["build_version"] if "build_version" in response.result["info"] else None
         return
 
     raise XRPLRequestFailureException(response.result)
