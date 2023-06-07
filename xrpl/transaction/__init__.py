@@ -16,7 +16,6 @@ from xrpl.transaction.main import (
 )
 from xrpl.transaction.multisign import multisign
 from xrpl.transaction.reliable_submission import (
-    send_reliable_submission,
     submit_and_wait,
 )
 
@@ -32,7 +31,6 @@ __all__ = [
     "submit_and_wait",
     "submit_transaction",
     "transaction_json_to_binary_codec_form",
-    "send_reliable_submission",
     "multisign",
     "XRPLReliableSubmissionException",
 ]
