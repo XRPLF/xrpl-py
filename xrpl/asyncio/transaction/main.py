@@ -24,9 +24,10 @@ from xrpl.wallet.main import Wallet
 
 _LEDGER_OFFSET: Final[int] = 20
 # Sidechains are expected to have network IDs above this.
-# Mainnet and testnet are exceptions. More context: https://github.com/XRPLF/rippled/pull/4370
+# Mainnet and testnet are exceptions.
+# More context: https://github.com/XRPLF/rippled/pull/4370
 _RESTRICTED_NETWORKS = 1024
-_REQUIRED_NETWORKID_VERSION = '1.11.0'
+_REQUIRED_NETWORKID_VERSION = "1.11.0"
 _HOOKS_TESTNET_ID = 21338
 # TODO: make this dynamic based on the current ledger fee
 _ACCOUNT_DELETE_FEE: Final[int] = int(xrp_to_drops(2))
@@ -233,9 +234,9 @@ async def autofill(
     """
     transaction_json = transaction.to_dict()
     if not client.network_id:
-       await _get_network_id_and_build_version(client)
-    if "network_id" not in transaction_json:
-        transaction_json["network_id"] = client.network_id if _tx_needs_networkID(client) else None
+        await _get_network_id_and_build_version(client)
+    if "network_id" not in transaction_json and _tx_needs_networkID(client):
+        transaction_json["network_id"] = client.network_id
     if "sequence" not in transaction_json:
         sequence = await get_next_valid_seq_number(transaction_json["account"], client)
         transaction_json["sequence"] = sequence
@@ -261,8 +262,10 @@ async def _get_network_id_and_build_version(client: Client) -> None:
     """
     response = await client._request_impl(ServerInfo())
     if response.is_successful():
-        client.network_id = response.result["info"]["network_id"] if "network_id" in response.result["info"] else None
-        client.build_version = response.result["info"]["build_version"] if "build_version" in response.result["info"] else None
+        if "network_id" in response.result["info"]:
+            client.network_id = response.result["info"]["network_id"]
+        if "build_version" in response.result["info"]:
+            client.build_version = response.result["info"]["build_version"]
         return
 
     raise XRPLRequestFailureException(response.result)
@@ -280,10 +283,15 @@ def _tx_needs_networkID(client: Client) -> bool:
         bool: whether the transactions required network ID to be valid
     """
     if client.network_id and client.network_id > _RESTRICTED_NETWORKS:
-        # transaction needs networkID if either the network is hooks testnet or build version is >= 1.11.0
+        # transaction needs networkID if either the network is hooks testnet
+        # or build version is >= 1.11.0.
         # TODO: remove the buildVersion logic when 1.11.0 is out and widely used.
-        if ((client.build_version and _is_earlier_rippled_version(_REQUIRED_NETWORKID_VERSION, client.build_version)) 
-            or client.network_id == _HOOKS_TESTNET_ID):
+        if (
+            client.build_version
+            and _is_earlier_rippled_version(
+                _REQUIRED_NETWORKID_VERSION, client.build_version
+            )
+        ) or client.network_id == _HOOKS_TESTNET_ID:
             return True
     return False
 
@@ -295,42 +303,44 @@ def _is_earlier_rippled_version(source: str, target: str) -> bool:
     Args:
         source: the source rippled version.
         target: the target rippled version.
-    
+
     Returns:
         bool: true if source is earlier, false otherwise.
     """
-    if (source == target):
+    if source == target:
         return False
-    source_decomp = source.split('.')
-    target_decomp = target.split('.')
+    source_decomp = source.split(".")
+    target_decomp = target.split(".")
     source_major, source_minor = int(source_decomp[0]), int(source_decomp[1])
     target_major, target_minor = int(target_decomp[0]), int(target_decomp[1])
-    
+
     # Compare major version
     if source_major != target_major:
         return source_major < target_major
-    
+
     # Compare minor version
     if source_minor != target_minor:
         return source_minor < target_minor
 
-    source_patch, target_patch = source_decomp[2].split('-'), target_decomp[2].split('-')
-    source_patch_version, target_patch_version = int(source_patch[0]), int(target_patch[0])
-    
+    source_patch = source_decomp[2].split("-")
+    target_patch = target_decomp[2].split("-")
+    source_patch_version = int(source_patch[0])
+    target_patch_version = int(target_patch[0])
+
     # Compare patch version
     if source_patch_version != target_patch_version:
         return source_patch_version < target_patch_version
-    
+
     # Compare release version
     if len(source_patch) != len(target_patch):
         return len(source_patch) > len(target_patch)
-    
+
     if len(source_patch) == 2:
         # Compare release types
         if not source_patch[1][0].startswith(target_patch[1][0]):
             return source_patch[1] < target_patch[1]
         # Compare beta versions
-        if source_patch[1].startswith('b'):
+        if source_patch[1].startswith("b"):
             return int(source_patch[1][1:]) < int(target_patch[1][1:])
         # Compare rc versions
         return int(source_patch[1][2:]) < int(target_patch[1][2:])
