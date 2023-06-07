@@ -15,9 +15,7 @@ from xrpl.transaction.main import (
     submit_transaction,
 )
 from xrpl.transaction.multisign import multisign
-from xrpl.transaction.reliable_submission import (
-    submit_and_wait,
-)
+from xrpl.transaction.reliable_submission import submit_and_wait
 
 __all__ = [
     "autofill",
