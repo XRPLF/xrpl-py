@@ -68,25 +68,6 @@ class TestProcess(Thread):
 
 
 class TestWallet(IsolatedAsyncioTestCase):
-    async def test_run_faucet_tests(self):
-        def run_test(test_name):
-            with self.subTest(method=test_name):
-                method = getattr(self, test_name)
-                if asyncio.iscoroutinefunction(method):
-                    asyncio.run(method())
-                else:
-                    method()
-
-        test_methods = [method for method in dir(self) if method.startswith("_test_")]
-
-        processes = []
-        for method in test_methods:
-            process = Thread(target=run_test, args=(method,))
-            process.start()
-            processes.append(process)
-        for process in processes:
-            process.join()
-
     @test_async_and_sync(
         globals(),
         ["xrpl.wallet.generate_faucet_wallet"],
@@ -108,6 +89,25 @@ class TestWallet(IsolatedAsyncioTestCase):
             client=client,
         )
         self.assertTrue(response.is_successful())
+
+    async def test_run_faucet_tests(self):
+        def run_test(test_name):
+            with self.subTest(method=test_name):
+                method = getattr(self, test_name)
+                if asyncio.iscoroutinefunction(method):
+                    asyncio.run(method())
+                else:
+                    method()
+
+        test_methods = [method for method in dir(self) if method.startswith("_test_")]
+
+        processes = []
+        for method in test_methods:
+            process = Thread(target=run_test, args=(method,))
+            process.start()
+            processes.append(process)
+        for process in processes:
+            process.join()
 
     async def _test_generate_faucet_wallet_testnet_async_websockets(self):
         async with AsyncWebsocketClient(
