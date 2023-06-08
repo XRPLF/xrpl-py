@@ -68,28 +68,6 @@ class TestProcess(Thread):
 
 
 class TestWallet(IntegrationTestCase):
-    @test_async_and_sync(
-        globals(),
-        ["xrpl.wallet.generate_faucet_wallet"],
-        num_retries=5,
-        use_testnet=True,
-    )
-    async def test_generate_faucet_wallet_rel_sub(self, client):
-        destination = await generate_faucet_wallet(client)
-        wallet = await generate_faucet_wallet(client)
-        # TODO: refactor so this actually waits for validation
-        response = await submit_transaction_async(
-            Payment(
-                account=wallet.classic_address,
-                fee="10",
-                amount="1",
-                destination=destination.classic_address,
-            ),
-            wallet,
-            client=client,
-        )
-        self.assertTrue(response.is_successful())
-
     async def test_run_faucet_tests(self):
         def run_test(test_name):
             with self.subTest(method=test_name):
@@ -108,6 +86,28 @@ class TestWallet(IntegrationTestCase):
             processes.append(process)
         for process in processes:
             process.join()
+
+    @test_async_and_sync(
+        globals(),
+        ["xrpl.wallet.generate_faucet_wallet"],
+        num_retries=5,
+        use_testnet=True,
+    )
+    async def _test_generate_faucet_wallet_rel_sub(self, client):
+        destination = await generate_faucet_wallet(client)
+        wallet = await generate_faucet_wallet(client)
+        # TODO: refactor so this actually waits for validation
+        response = await submit_transaction_async(
+            Payment(
+                account=wallet.classic_address,
+                fee="10",
+                amount="1",
+                destination=destination.classic_address,
+            ),
+            wallet,
+            client=client,
+        )
+        self.assertTrue(response.is_successful())
 
     async def _test_generate_faucet_wallet_testnet_async_websockets(self):
         async with AsyncWebsocketClient(
