@@ -28,7 +28,7 @@ tx = SetRegularKey(
     account=wallet1.classic_address, regular_key=regular_key_wallet.classic_address
 )
 
-set_regular_key_response = submit_and_wait(tx, wallet1, client)
+set_regular_key_response = submit_and_wait(tx, client, wallet1)
 
 print("Response for successful SetRegularKey tx:")
 print(set_regular_key_response)
