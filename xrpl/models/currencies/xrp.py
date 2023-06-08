@@ -72,3 +72,12 @@ class XRP(BaseModel):
             A string representation of XRP amount.
         """
         return str(value)
+
+    def __repr__(self: XRP) -> str:
+        """
+        Generate string representation of XRP.
+
+        Returns:
+            A string representation of XRP currency.
+        """
+        return "XRP()"
