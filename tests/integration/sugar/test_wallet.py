@@ -109,6 +109,12 @@ class TestWallet(IsolatedAsyncioTestCase):
         )
         self.assertTrue(response.is_successful())
 
+    async def _test_generate_faucet_wallet_testnet_async_websockets(self):
+        async with AsyncWebsocketClient(
+            "wss://s.altnet.rippletest.net:51233"
+        ) as client:
+            await generate_faucet_wallet_and_fund_again(self, client)
+
     async def _test_generate_faucet_wallet_custom_host_async_websockets(self):
         async with AsyncWebsocketClient(
             "wss://s.devnet.rippletest.net:51233"
@@ -134,12 +140,6 @@ class TestWallet(IsolatedAsyncioTestCase):
         sync_generate_faucet_wallet_and_fund_again(
             self, client, "faucet.devnet.rippletest.net"
         )
-
-    async def _test_generate_faucet_wallet_testnet_async_websockets(self):
-        async with AsyncWebsocketClient(
-            "wss://s.altnet.rippletest.net:51233"
-        ) as client:
-            await generate_faucet_wallet_and_fund_again(self, client)
 
     async def _test_generate_faucet_wallet_devnet_async_websockets(self):
         async with AsyncWebsocketClient(
