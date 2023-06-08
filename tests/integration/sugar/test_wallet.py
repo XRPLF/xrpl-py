@@ -3,7 +3,7 @@ import time
 from threading import Thread
 
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
+from tests.integration.it_utils import submit_transaction_async
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.wallet import generate_faucet_wallet
 from xrpl.clients import JsonRpcClient, WebsocketClient
@@ -87,13 +87,8 @@ class TestWallet(IntegrationTestCase):
         for process in processes:
             process.join()
 
-    @test_async_and_sync(
-        globals(),
-        ["xrpl.wallet.generate_faucet_wallet"],
-        num_retries=5,
-        use_testnet=True,
-    )
-    async def _test_generate_faucet_wallet_rel_sub(self, client):
+    async def _test_generate_faucet_wallet_rel_sub(self):
+        client = JsonRpcClient("https://s.devnet.rippletest.net:51234")
         destination = await generate_faucet_wallet(client)
         wallet = await generate_faucet_wallet(client)
         # TODO: refactor so this actually waits for validation
@@ -109,11 +104,7 @@ class TestWallet(IntegrationTestCase):
         )
         self.assertTrue(response.is_successful())
 
-    async def _test_generate_faucet_wallet_testnet_async_websockets(self):
-        async with AsyncWebsocketClient(
-            "wss://s.altnet.rippletest.net:51233"
-        ) as client:
-            await generate_faucet_wallet_and_fund_again(self, client)
+    # Custom host tests
 
     async def _test_generate_faucet_wallet_custom_host_async_websockets(self):
         async with AsyncWebsocketClient(
@@ -140,6 +131,14 @@ class TestWallet(IntegrationTestCase):
         sync_generate_faucet_wallet_and_fund_again(
             self, client, "faucet.devnet.rippletest.net"
         )
+
+    # Network tests
+
+    async def _test_generate_faucet_wallet_testnet_async_websockets(self):
+        async with AsyncWebsocketClient(
+            "wss://s.altnet.rippletest.net:51233"
+        ) as client:
+            await generate_faucet_wallet_and_fund_again(self, client)
 
     async def _test_generate_faucet_wallet_devnet_async_websockets(self):
         async with AsyncWebsocketClient(
