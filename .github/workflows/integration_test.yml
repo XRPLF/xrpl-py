@@ -18,15 +18,6 @@ jobs:
       matrix:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
 
-    services:
-      rippled:
-        image: natenichols/rippled-standalone:latest
-        ports:
-        - 5005:5005
-        - 6006:6006
-        options:
-          --health-cmd="wget localhost:6006 || exit 1" --health-interval=5s --health-retries=10 --health-timeout=2s
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -37,6 +28,10 @@ jobs:
         with:
           path: /home/runner/.local
           key: dotlocal-${{ env.POETRY_VERSION }}
+
+      - name: Run docker in background
+        run: |
+          docker run --detach --rm --name rippled-service -p 5005:5005 -p 6006:6006 --volume "${{ github.workspace }}/.ci-config/":"/config/" --health-cmd="wget localhost:6006 || exit 1" --health-interval=5s --health-retries=10 --health-timeout=2s --env "ENV_ARGS=-a --start" --env GITHUB_ACTIONS=true --env CI=true xrpllabsofficial/xrpld:latest
 
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'
@@ -61,3 +56,7 @@ jobs:
         run: |
           poetry run poe test_integration
           poetry run coverage report --fail-under=70
+
+      - name: Stop docker container
+        if: always()
+        run: docker stop rippled-service

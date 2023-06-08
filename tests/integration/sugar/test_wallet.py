@@ -93,23 +93,21 @@ class TestWallet(IsolatedAsyncioTestCase):
         num_retries=5,
         use_testnet=True,
     )
-    async def _test_generate_faucet_wallet_rel_sub(self):
-        async with AsyncWebsocketClient(
-            "wss://s.altnet.rippletest.net:51233"
-        ) as client:
-            destination, wallet = await asyncio.gather(
-                generate_faucet_wallet(client), generate_faucet_wallet(client)
-            )
-            response = await submit_transaction_async(
-                Payment(
-                    account=wallet.classic_address,
-                    amount="1",
-                    destination=destination.classic_address,
-                ),
-                wallet,
-                client=client,
-            )
-            self.assertTrue(response.is_successful())
+    async def test_generate_faucet_wallet_rel_sub(self, client):
+        destination = await generate_faucet_wallet(client)
+        wallet = await generate_faucet_wallet(client)
+        # TODO: refactor so this actually waits for validation
+        response = await submit_transaction_async(
+            Payment(
+                account=wallet.classic_address,
+                fee="10",
+                amount="1",
+                destination=destination.classic_address,
+            ),
+            wallet,
+            client=client,
+        )
+        self.assertTrue(response.is_successful())
 
     async def _test_generate_faucet_wallet_custom_host_async_websockets(self):
         async with AsyncWebsocketClient(
@@ -155,10 +153,16 @@ class TestWallet(IsolatedAsyncioTestCase):
         ) as client:
             await generate_faucet_wallet_and_fund_again(self, client)
 
-    async def _test_generate_faucet_wallet_hooks_v2_testnet_async_websockets(self):
+    async def test_generate_faucet_wallet_hooks_v3_testnet_async_websockets(self):
         async with AsyncWebsocketClient(
-            "wss://hooks-testnet-v2.xrpl-labs.com"
+            "wss://hooks-testnet-v3.xrpl-labs.com"
         ) as client:
+            global time_of_last_hooks_faucet_call
+            # Wait at least 10 seconds since last call to hooks v3 testnet faucet
+            time_since_last_hooks_call = time.time() - time_of_last_hooks_faucet_call
+            if time_since_last_hooks_call < 10:
+                time.sleep(11 - time_since_last_hooks_call)
+
             wallet = await generate_faucet_wallet(client)
             time_of_last_hooks_faucet_call = time.time()
 
@@ -170,7 +174,20 @@ class TestWallet(IsolatedAsyncioTestCase):
             balance = int(result.result["account_data"]["Balance"])
             self.assertTrue(balance > 0)
 
-            wallet = Wallet("sEdSigMti9uJFCnrkwsB3LJRGkVZHVA", 0)
+    # Named different from test_generate_faucet_wallet_hooks_v3_testnet_async_websockets
+    # so the test runs far from each other since hooks v3 testnet faucet
+    # requires 10 seconds between calls
+    async def test_fund_given_wallet_hooks_v3_testnet_async_websockets(self):
+        async with AsyncWebsocketClient(
+            "wss://hooks-testnet-v3.xrpl-labs.com"
+        ) as client:
+            global time_of_last_hooks_faucet_call
+            wallet = Wallet.create()
+            time_since_last_hooks_call = time.time() - time_of_last_hooks_faucet_call
+            if time_since_last_hooks_call < 10:
+                time.sleep(11 - time_since_last_hooks_call)
+            time_of_last_hooks_faucet_call = time.time()
+            await generate_faucet_wallet(client, wallet)
             result = await client.request(
                 AccountInfo(
                     account=wallet.classic_address,
@@ -178,7 +195,7 @@ class TestWallet(IsolatedAsyncioTestCase):
             )
             balance = int(result.result["account_data"]["Balance"])
 
-            # Wait at least 10 seconds since last call to hooks v2 testnet faucet
+            # Wait at least 10 seconds since last call to hooks v3 testnet faucet
             time_since_last_hooks_call = time.time() - time_of_last_hooks_faucet_call
             if time_since_last_hooks_call < 10:
                 await asyncio.sleep(11 - time_since_last_hooks_call)
