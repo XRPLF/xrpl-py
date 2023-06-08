@@ -2,7 +2,7 @@ import asyncio
 import time
 from threading import Thread
 
-from tests.integration.integration_test_case import IsolatedAsyncioTestCase
+from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.wallet import generate_faucet_wallet
@@ -67,7 +67,7 @@ class TestProcess(Thread):
             asyncio.run(method(self.testcase))
 
 
-class TestWallet(IsolatedAsyncioTestCase):
+class TestWallet(IntegrationTestCase):
     @test_async_and_sync(
         globals(),
         ["xrpl.wallet.generate_faucet_wallet"],
