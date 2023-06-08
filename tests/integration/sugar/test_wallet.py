@@ -124,7 +124,7 @@ class TestWallet(IsolatedAsyncioTestCase):
             )
 
     async def _test_generate_faucet_wallet_custom_host_async_json_rpc(self):
-        client = AsyncJsonRpcClient("http://s.devnet.rippletest.net:51234")
+        client = AsyncJsonRpcClient("https://s.devnet.rippletest.net:51234")
         await generate_faucet_wallet_and_fund_again(
             self, client, "faucet.devnet.rippletest.net"
         )
@@ -136,7 +136,7 @@ class TestWallet(IsolatedAsyncioTestCase):
             )
 
     def _test_generate_faucet_wallet_custom_host_sync_json_rpc(self):
-        client = JsonRpcClient("http://s.devnet.rippletest.net:51234")
+        client = JsonRpcClient("https://s.devnet.rippletest.net:51234")
         sync_generate_faucet_wallet_and_fund_again(
             self, client, "faucet.devnet.rippletest.net"
         )
@@ -198,7 +198,7 @@ class TestWallet(IsolatedAsyncioTestCase):
             # Wait at least 10 seconds since last call to hooks v3 testnet faucet
             time_since_last_hooks_call = time.time() - time_of_last_hooks_faucet_call
             if time_since_last_hooks_call < 10:
-                await asyncio.sleep(11 - time_since_last_hooks_call)
+                time.sleep(11 - time_since_last_hooks_call)
             time_of_last_hooks_faucet_call = time.time()
 
             new_wallet = await generate_faucet_wallet(client, wallet)
