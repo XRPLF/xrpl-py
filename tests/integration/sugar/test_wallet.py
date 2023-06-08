@@ -111,28 +111,28 @@ class TestWallet(IsolatedAsyncioTestCase):
 
     async def _test_generate_faucet_wallet_custom_host_async_websockets(self):
         async with AsyncWebsocketClient(
-            "wss://xls20-sandbox.rippletest.net:51233"
+            "wss://s.devnet.rippletest.net:51233"
         ) as client:
             await generate_faucet_wallet_and_fund_again(
-                self, client, "faucet-nft.ripple.com"
+                self, client, "faucet.devnet.rippletest.net"
             )
 
     async def _test_generate_faucet_wallet_custom_host_async_json_rpc(self):
-        client = AsyncJsonRpcClient("http://xls20-sandbox.rippletest.net:51234")
+        client = AsyncJsonRpcClient("http://s.devnet.rippletest.net:51234")
         await generate_faucet_wallet_and_fund_again(
-            self, client, "faucet-nft.ripple.com"
+            self, client, "faucet.devnet.rippletest.net"
         )
 
     def _test_generate_faucet_wallet_custom_host_sync_websockets(self):
-        with WebsocketClient("wss://xls20-sandbox.rippletest.net:51233") as client:
+        with WebsocketClient("wss://s.devnet.rippletest.net:51233") as client:
             sync_generate_faucet_wallet_and_fund_again(
-                self, client, "faucet-nft.ripple.com"
+                self, client, "faucet.devnet.rippletest.net"
             )
 
     def _test_generate_faucet_wallet_custom_host_sync_json_rpc(self):
-        client = JsonRpcClient("http://xls20-sandbox.rippletest.net:51234")
+        client = JsonRpcClient("http://s.devnet.rippletest.net:51234")
         sync_generate_faucet_wallet_and_fund_again(
-            self, client, "faucet-nft.ripple.com"
+            self, client, "faucet.devnet.rippletest.net"
         )
 
     async def _test_generate_faucet_wallet_testnet_async_websockets(self):
