@@ -63,6 +63,9 @@ async def _wait_for_final_transaction_outcome(
     result = transaction_response.result
     if "validated" in result and result["validated"]:
         # result is in a validated ledger, outcome is final
+        return_code = result["meta"]["TransactionResult"]
+        if return_code != "tesSUCCESS":
+            raise XRPLReliableSubmissionException(f"Transaction failed: {return_code}")
         return transaction_response
 
     # outcome is not yet final
