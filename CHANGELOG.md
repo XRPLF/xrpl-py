@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `submit` and `send_reliable_submission` now accept an optional boolean param `fail_hard` (if `True` halt the submission if it's not immediately validated)
 - Support for cross-chain bridge proposal
 - Support for Automated Market Maker (AMM) transactions and requests as defined in XLS-30.
+- Added sidechain devnet support to faucet generation
 
 ### Changed:
 - Allowed keypairs.sign to take a hex string in addition to bytes
@@ -19,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored `does_account_exist` and `get_balance` to avoid deprecated methods and use `ledger_index` parameter
 - Fixed crashes in the SignerListSet validation
 - Improved error messages in `send_reliable_submission`
+- Better error handling in reliable submission
 
 ### Removed:
 - RPCs and utils related to the old sidechain design
