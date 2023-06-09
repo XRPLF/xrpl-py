@@ -35,7 +35,7 @@ fund_tx = XChainAccountCreateCommit(
     xchain_bridge=bridge,
     signature_reward=bridge_data["SignatureReward"],
     destination=wallet2.classic_address,
-    amount=bridge_data["MinAccountCreateAmount"] * 2,
+    amount=str(int(bridge_data["MinAccountCreateAmount"]) * 2),
 )
 fund_response = submit_and_wait(fund_tx, locking_client, wallet1)
 
