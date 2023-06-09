@@ -346,6 +346,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         globals(),
         [
             "xrpl.transaction.submit_and_wait",
+            "xrpl.ledger.get_fee",
         ],
     )
     async def test_submit_and_wait_simple(self, client):
@@ -365,6 +366,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         globals(),
         [
             "xrpl.transaction.submit_and_wait",
+            "xrpl.ledger.get_fee",
         ],
     )
     async def test_submit_and_wait_payment(self, client):
@@ -386,6 +388,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         [
             "xrpl.transaction.autofill_and_sign",
             "xrpl.transaction.submit_and_wait",
+            "xrpl.ledger.get_fee",
         ],
     )
     async def test_submit_and_wait_signed(self, client):
@@ -410,6 +413,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         [
             "xrpl.transaction.autofill_and_sign",
             "xrpl.transaction.submit_and_wait",
+            "xrpl.ledger.get_fee",
         ],
     )
     async def test_submit_and_wait_blob(self, client):
