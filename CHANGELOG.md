@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored `does_account_exist` and `get_balance` to avoid deprecated methods and use `ledger_index` parameter
 - Fixed crashes in the SignerListSet validation
 - Improved error messages in `send_reliable_submission`
+- Better error handling in reliable submission
 
 ### Removed:
 - RPCs and utils related to the old sidechain design
