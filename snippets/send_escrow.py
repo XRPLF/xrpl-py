@@ -37,7 +37,7 @@ create_tx = EscrowCreate(
     finish_after=finish_after,
 )
 
-create_escrow_response = submit_and_wait(create_tx, wallet1, client)
+create_escrow_response = submit_and_wait(create_tx, client, wallet1)
 print(create_escrow_response)
 
 # Create an AccountObjects request and have the client call it to see if escrow exists
