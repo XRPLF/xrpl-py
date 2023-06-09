@@ -16,6 +16,9 @@ _AMM_DEV_FAUCET_URL: Final[str] = "https://ammfaucet.devnet.rippletest.net/accou
 _HOOKS_V3_TEST_FAUCET_URL: Final[
     str
 ] = "https://hooks-testnet-v3.xrpl-labs.com/accounts"
+_SIDECHAIN_DEVNET_FAUCET_URL: Final[
+    str
+] = "https://sidechain-faucet.devnet.rippletest.net/accounts"
 
 _TIMEOUT_SECONDS: Final[int] = 40
 
@@ -116,6 +119,13 @@ def get_faucet_url(url: str, faucet_host: Optional[str] = None) -> str:
         return _TEST_FAUCET_URL
     if "amm" in url:  # amm devnet
         return _AMM_DEV_FAUCET_URL
+    if "sidechain-net1" in url:  # sidechain devnet
+        return _SIDECHAIN_DEVNET_FAUCET_URL
+    elif "sidechain-net2" in url:  # sidechain issuing chain devnet
+        raise XRPLFaucetException(
+            "Cannot fund an account on an issuing chain. Accounts must be created via "
+            "the bridge."
+        )
     if "devnet" in url:  # devnet
         return _DEV_FAUCET_URL
     raise XRPLFaucetException(
