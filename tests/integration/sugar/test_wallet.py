@@ -55,19 +55,6 @@ async def generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
     self.assertTrue(new_balance > balance)
 
 
-class TestProcess(Thread):
-    def __init__(self, testcase, test):
-        # initialize thread and data
-        super().__init__(self)
-        self.testcase = testcase
-        self.test = test
-
-    def run(self):
-        with self.testcase.subTest(method=self.test):
-            method = getattr(TestWallet, self.test)
-            asyncio.run(method(self.testcase))
-
-
 class TestWallet(IntegrationTestCase):
     async def test_run_faucet_tests(self):
         # run all the tests that start with `_test_` in parallel
