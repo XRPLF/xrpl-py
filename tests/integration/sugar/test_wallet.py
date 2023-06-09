@@ -57,7 +57,8 @@ async def generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
 
 class TestProcess(Thread):
     def __init__(self, testcase, test):
-        Thread.__init__(self)
+        # initialize thread and data
+        super().__init__(self)
         self.testcase = testcase
         self.test = test
 
@@ -69,16 +70,19 @@ class TestProcess(Thread):
 
 class TestWallet(IntegrationTestCase):
     async def test_run_faucet_tests(self):
+        # run all the tests that start with `_test_` in parallel
         def run_test(test_name):
             with self.subTest(method=test_name):
-                method = getattr(self, test_name)
-                if asyncio.iscoroutinefunction(method):
+                method = getattr(self, test_name)  # get the test with the given name
+                if asyncio.iscoroutinefunction(method):  # is async
                     asyncio.run(method())
-                else:
+                else:  # is sync
                     method()
 
+        # get all the test methods starting with `_test_` (the ones to run in parallel)
         test_methods = [method for method in dir(self) if method.startswith("_test_")]
 
+        # run all the tests in parallel
         processes = []
         for method in test_methods:
             process = Thread(target=run_test, args=(method,))
@@ -87,6 +91,7 @@ class TestWallet(IntegrationTestCase):
         for process in processes:
             process.join()
 
+    # ensure that the wallet creation has been validated and the account actually exists
     async def _test_generate_faucet_wallet_rel_sub(self):
         client = JsonRpcClient("https://s.devnet.rippletest.net:51234")
         destination = await generate_faucet_wallet(client)
