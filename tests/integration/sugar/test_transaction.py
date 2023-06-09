@@ -346,7 +346,6 @@ class TestSubmitAndWait(IntegrationTestCase):
         globals(),
         [
             "xrpl.transaction.submit_and_wait",
-            "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
         ],
     )
@@ -367,7 +366,6 @@ class TestSubmitAndWait(IntegrationTestCase):
         globals(),
         [
             "xrpl.transaction.submit_and_wait",
-            "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
         ],
     )
@@ -390,7 +388,6 @@ class TestSubmitAndWait(IntegrationTestCase):
         [
             "xrpl.transaction.autofill_and_sign",
             "xrpl.transaction.submit_and_wait",
-            "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
         ],
     )
@@ -416,9 +413,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         [
             "xrpl.transaction.autofill_and_sign",
             "xrpl.transaction.submit_and_wait",
-            "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_fee",
-            "xrpl.core.binarycodec.main.encode",
         ],
     )
     async def test_submit_and_wait_blob(self, client):
@@ -443,7 +438,6 @@ class TestSubmitAndWait(IntegrationTestCase):
         globals(),
         [
             "xrpl.transaction.submit_and_wait",
-            "xrpl.account.get_next_valid_seq_number",
             "xrpl.ledger.get_latest_validated_ledger_sequence",
         ],
     )
@@ -451,8 +445,23 @@ class TestSubmitAndWait(IntegrationTestCase):
         payment_transaction = Payment(
             account=ACCOUNT,
             last_ledger_sequence=await get_latest_validated_ledger_sequence(client),
-            fee="10",
             amount="100",
+            destination=DESTINATION,
+        )
+        await accept_ledger_async(delay=1)
+        with self.assertRaises(XRPLReliableSubmissionException):
+            await submit_and_wait(payment_transaction, client, WALLET)
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.submit_and_wait",
+        ],
+    )
+    async def test_submit_and_wait_tec_error(self, client):
+        payment_transaction = Payment(
+            account=ACCOUNT,
+            amount=xrp_to_drops(10**10),  # tecINSUFFICIENT_FUNDS
             destination=DESTINATION,
         )
         await accept_ledger_async(delay=1)
