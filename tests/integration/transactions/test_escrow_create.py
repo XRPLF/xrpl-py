@@ -1,5 +1,8 @@
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
+from tests.integration.it_utils import (
+    sign_and_reliable_submission_async,
+    test_async_and_sync,
+)
 from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import EscrowCreate
@@ -22,7 +25,6 @@ class TestEscrowCreate(IntegrationTestCase):
     async def test_all_fields(self, client):
         escrow_create = EscrowCreate(
             account=ACCOUNT,
-            sequence=WALLET.sequence,
             amount=AMOUNT,
             destination=DESTINATION,
             destination_tag=DESTINATION_TAG,
@@ -30,7 +32,9 @@ class TestEscrowCreate(IntegrationTestCase):
             finish_after=FINISH_AFTER,
             source_tag=SOURCE_TAG,
         )
-        response = await submit_transaction_async(escrow_create, WALLET)
+        response = await sign_and_reliable_submission_async(
+            escrow_create, WALLET, client
+        )
         # Actual engine_result will be `tecNO_PERMISSION`...
         # maybe due to CONDITION or something
         self.assertEqual(response.status, ResponseStatus.SUCCESS)

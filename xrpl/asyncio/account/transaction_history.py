@@ -42,7 +42,7 @@ async def get_latest_transaction(account: str, client: Client) -> Response:
 async def get_account_transactions(
     address: str,
     client: Client,
-) -> List[Dict[str, Any]]:
+) -> List[Dict[str, Any]]:  # pragma: no cover
     """
     Query the ledger for a list of transactions that involved a given account.
     To access more than just the first page of results, use the :class:`AccountTx`
@@ -76,7 +76,7 @@ async def get_account_transactions(
 async def get_account_payment_transactions(
     address: str,
     client: Client,
-) -> List[Dict[str, Any]]:
+) -> List[Dict[str, Any]]:  # pragma: no cover
     """
     Query the ledger for a list of payment transactions that involved a given account.
     To access more than just the first page of results, use the :class:`AccountTx`

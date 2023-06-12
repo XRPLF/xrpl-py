@@ -1,14 +1,7 @@
 """Example of how we can multisign a transaction"""
 from xrpl.clients import JsonRpcClient
-from xrpl.models.requests import SubmitMultisigned
 from xrpl.models.transactions import AccountSet, SignerEntry, SignerListSet
-from xrpl.transaction import (
-    autofill,
-    autofill_and_sign,
-    multisign,
-    send_reliable_submission,
-    sign,
-)
+from xrpl.transaction import autofill, multisign, sign, submit_and_wait
 from xrpl.utils import str_to_hex
 from xrpl.wallet import generate_faucet_wallet
 
@@ -29,12 +22,12 @@ signer_list_set_tx = SignerListSet(
     signer_quorum=2,
     signer_entries=signer_entries,
 )
-signed_signer_list_set_tx = autofill_and_sign(signer_list_set_tx, master_wallet, client)
 
-print("Constructed SignerListSet and submitting it to the ledger...")
-signed_list_set_tx_response = send_reliable_submission(
-    signed_signer_list_set_tx, client
+print(
+    """Constructing SignerListSet then autofilling, signing,
+    and submitting it to the ledger..."""
 )
+signed_list_set_tx_response = submit_and_wait(signer_list_set_tx, client, master_wallet)
 print("SignerListSet submitted, here's the response:")
 print(signed_list_set_tx_response)
 
@@ -57,15 +50,17 @@ multisigned_tx = multisign(autofilled_account_set_tx, [tx_1, tx_2])
 print("Successfully multisigned the transaction")
 print(multisigned_tx)
 
-multisigned_tx_response = client.request(SubmitMultisigned(tx_json=multisigned_tx))
+multisigned_tx_response = submit_and_wait(multisigned_tx, client)
 
-if multisigned_tx_response.result["engine_result"] == "tesSUCCESS":
+print(multisigned_tx_response)
+
+if multisigned_tx_response.result["validated"]:
     print("The multisigned transaction was accepted by the ledger:")
     print(multisigned_tx_response)
-    if multisigned_tx_response.result["tx_json"]["Signers"]:
+    if multisigned_tx_response.result["Signers"]:
         print(
             "The transaction had "
-            f"{len(multisigned_tx_response.result['tx_json']['Signers'])} signatures"
+            f"{len(multisigned_tx_response.result['Signers'])} signatures"
         )
 else:
     print(

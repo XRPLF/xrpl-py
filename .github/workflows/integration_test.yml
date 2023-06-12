@@ -6,6 +6,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  POETRY_VERSION: 1.4.2
+
 jobs:
   integration-test:
     name: Integration test
@@ -15,28 +18,25 @@ jobs:
       matrix:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
 
-    services:
-      rippled:
-        image: natenichols/rippled-standalone:latest
-        ports:
-        - 5005:5005
-        - 6006:6006
-        options:
-          --health-cmd="wget localhost:6006 || exit 1" --health-interval=5s --health-retries=10 --health-timeout=2s
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Load cached .local
+        id: cache-poetry
         uses: actions/cache@v3
         with:
           path: /home/runner/.local
-          key: dotlocal-${{ matrix.python-version }}-${{ hashFiles('.github/workflows') }}
+          key: dotlocal-${{ env.POETRY_VERSION }}
+
+      - name: Run docker in background
+        run: |
+          docker run --detach --rm --name rippled-service -p 5005:5005 -p 6006:6006 --volume "${{ github.workspace }}/.ci-config/":"/config/" --health-cmd="wget localhost:6006 || exit 1" --health-interval=5s --health-retries=10 --health-timeout=2s --env "ENV_ARGS=-a --start" --env GITHUB_ACTIONS=true --env CI=true xrpllabsofficial/xrpld:latest
 
       - name: Install poetry
+        if: steps.cache-poetry.outputs.cache-hit != 'true'
         run: |
-          curl -sSL https://install.python-poetry.org/ | python -
+          curl -sSL https://install.python-poetry.org/ | python - --version ${{ env.POETRY_VERSION }}
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install Python + Retrieve Poetry dependencies from cache
@@ -56,3 +56,7 @@ jobs:
         run: |
           poetry run poe test_integration
           poetry run coverage report --fail-under=70
+
+      - name: Stop docker container
+        if: always()
+        run: docker stop rippled-service

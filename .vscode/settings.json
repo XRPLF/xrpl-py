@@ -12,6 +12,8 @@
         "altnet",
         "asyncio",
         "binarycodec",
+        "keypair",
+        "keypairs",
         "nftoken",
         "rippletest",
         "ripplex",

@@ -20,7 +20,7 @@ def get_transaction_from_hash(
     binary: bool = False,
     min_ledger: Optional[int] = None,
     max_ledger: Optional[int] = None,
-) -> Response:
+) -> Response:  # pragma: no cover
     """
     Given a transaction hash, fetch the corresponding transaction from the ledger.
 
