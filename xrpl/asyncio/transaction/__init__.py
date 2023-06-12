@@ -13,7 +13,6 @@ from xrpl.asyncio.transaction.main import (
 )
 from xrpl.asyncio.transaction.reliable_submission import (
     XRPLReliableSubmissionException,
-    send_reliable_submission,
     submit_and_wait,
 )
 
@@ -29,6 +28,5 @@ __all__ = [
     "submit_and_wait",
     "submit_transaction",
     "transaction_json_to_binary_codec_form",
-    "send_reliable_submission",
     "XRPLReliableSubmissionException",
 ]
