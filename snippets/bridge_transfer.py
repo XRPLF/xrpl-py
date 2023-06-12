@@ -6,6 +6,7 @@ from xrpl.account import does_account_exist, get_balance
 from xrpl.clients import JsonRpcClient
 from xrpl.models import (
     AccountObjects,
+    AccountObjectType,
     XChainAccountCreateCommit,
     XChainBridge,
     XChainCommit,
@@ -19,9 +20,9 @@ locking_client = JsonRpcClient("https://sidechain-net1.devnet.rippletest.net:512
 issuing_client = JsonRpcClient("https://sidechain-net2.devnet.rippletest.net:51234")
 
 locking_chain_door = "rMAXACCrp3Y8PpswXcg3bKggHX76V3F8M4"
-bridge_data = locking_client.request(AccountObjects(account=locking_chain_door)).result[
-    "account_objects"
-][0]
+bridge_data = locking_client.request(
+    AccountObjects(account=locking_chain_door, type=AccountObjectType.BRIDGE)
+).result["account_objects"][0]
 bridge = XChainBridge.from_xrpl(bridge_data["XChainBridge"])
 print(bridge)
 
