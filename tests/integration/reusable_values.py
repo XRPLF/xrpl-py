@@ -47,36 +47,41 @@ async def _set_up_reusable_values():
         WALLET,
     )
 
+    CLAWBACK_ISSUER = Wallet.create()
+    await fund_wallet(CLAWBACK_ISSUER)
+    CLAWBACK_HOLDER = Wallet.create()
+    await fund_wallet(CLAWBACK_HOLDER)
+
     await sign_and_reliable_submission_async(
         AccountSet(
-            account=WALLET.classic_address,
+            account=CLAWBACK_ISSUER.classic_address,
             set_flag=AccountSetFlag.ASF_ALLOW_CLAWBACK,
         ),
-        WALLET,
+        CLAWBACK_ISSUER,
     )
 
     await sign_and_reliable_submission_async(
         TrustSet(
-            account=DESTINATION.classic_address,
+            account=CLAWBACK_HOLDER.classic_address,
             flags=TrustSetFlag.TF_SET_NO_RIPPLE,
             limit_amount=IssuedCurrencyAmount(
-                issuer=WALLET.classic_address,
+                issuer=CLAWBACK_ISSUER.classic_address,
                 currency="USD",
                 value="1000",
             ),
         ),
-        DESTINATION,
+        CLAWBACK_HOLDER,
     )
 
     await sign_and_reliable_submission_async(
         Payment(
-            account=WALLET.classic_address,
-            destination=DESTINATION.classic_address,
+            account=CLAWBACK_ISSUER.classic_address,
+            destination=CLAWBACK_HOLDER.classic_address,
             amount=IssuedCurrencyAmount(
-                currency="USD", issuer=WALLET.classic_address, value="1000"
+                currency="USD", issuer=CLAWBACK_ISSUER.classic_address, value="1000"
             ),
         ),
-        WALLET,
+        CLAWBACK_ISSUER,
     )
 
     return (
@@ -84,6 +89,8 @@ async def _set_up_reusable_values():
         DESTINATION,
         OFFER,
         PAYMENT_CHANNEL,
+        CLAWBACK_ISSUER,
+        CLAWBACK_HOLDER,
     )
 
 
@@ -92,4 +99,6 @@ async def _set_up_reusable_values():
     DESTINATION,
     OFFER,
     PAYMENT_CHANNEL,
+    CLAWBACK_ISSUER,
+    CLAWBACK_HOLDER,
 ) = asyncio.run(_set_up_reusable_values())
