@@ -271,7 +271,7 @@ async def _get_network_id_and_build_version(client: Client) -> None:
     if response.is_successful():
         if "network_id" in response.result["info"]:
             client.network_id = response.result["info"]["network_id"]
-        if "build_version" in response.result["info"]:
+        if not client.build_version and "build_version" in response.result["info"]:
             client.build_version = response.result["info"]["build_version"]
         return
 
@@ -295,7 +295,7 @@ def _tx_needs_networkID(client: Client) -> bool:
         # TODO: remove the buildVersion logic when 1.11.0 is out and widely used.
         if (
             client.build_version
-            and _is_earlier_rippled_version(
+            and _is_not_later_rippled_version(
                 _REQUIRED_NETWORKID_VERSION, client.build_version
             )
         ) or client.network_id == _HOOKS_TESTNET_ID:
@@ -303,9 +303,9 @@ def _tx_needs_networkID(client: Client) -> bool:
     return False
 
 
-def _is_earlier_rippled_version(source: str, target: str) -> bool:
+def _is_not_later_rippled_version(source: str, target: str) -> bool:
     """
-    Determines whether the source version is an earlier release than the target version.
+    Determines whether the source version is not a later release than the target version.
 
     Args:
         source: the source rippled version.
@@ -315,7 +315,7 @@ def _is_earlier_rippled_version(source: str, target: str) -> bool:
         bool: true if source is earlier, false otherwise.
     """
     if source == target:
-        return False
+        return True
     source_decomp = source.split(".")
     target_decomp = target.split(".")
     source_major, source_minor = int(source_decomp[0]), int(source_decomp[1])
