@@ -63,6 +63,9 @@ async def _wait_for_final_transaction_outcome(
     result = transaction_response.result
     if "validated" in result and result["validated"]:
         # result is in a validated ledger, outcome is final
+        return_code = result["meta"]["TransactionResult"]
+        if return_code != "tesSUCCESS":
+            raise XRPLReliableSubmissionException(f"Transaction failed: {return_code}")
         return transaction_response
 
     # outcome is not yet final
@@ -107,9 +110,8 @@ async def send_reliable_submission(
     submit_response = await submit(transaction, client, fail_hard=fail_hard)
     prelim_result = submit_response.result["engine_result"]
     if prelim_result[0:3] == "tem":
-        raise XRPLReliableSubmissionException(
-            submit_response.result["engine_result_message"]
-        )
+        error_message = submit_response.result["engine_result_message"]
+        raise XRPLReliableSubmissionException(f"{prelim_result}: {error_message}")
 
     return await _wait_for_final_transaction_outcome(
         transaction_hash, client, prelim_result, transaction.last_ledger_sequence
