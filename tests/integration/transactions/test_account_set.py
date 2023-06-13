@@ -1,5 +1,8 @@
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import submit_transaction_async, test_async_and_sync
+from tests.integration.it_utils import (
+    sign_and_reliable_submission_async,
+    test_async_and_sync,
+)
 from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountSet
@@ -22,7 +25,7 @@ class TestAccountSet(IntegrationTestCase):
             account=ACCOUNT,
             set_flag=SET_FLAG,
         )
-        response = await submit_transaction_async(account_set, WALLET)
+        response = await sign_and_reliable_submission_async(account_set, WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
@@ -37,6 +40,6 @@ class TestAccountSet(IntegrationTestCase):
             transfer_rate=TRANSFER_RATE,
             tick_size=TICK_SIZE,
         )
-        response = await submit_transaction_async(account_set, WALLET)
+        response = await sign_and_reliable_submission_async(account_set, WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
