@@ -24,8 +24,8 @@ from xrpl.wallet.main import Wallet
 
 _LEDGER_OFFSET: Final[int] = 20
 # Sidechains are expected to have network IDs above this.
-# Networks with ID above this restricted number are expected specify an accurate NetworkID field
-# in every transaction to that chain to prevent replay attacks.
+# Networks with ID above this restricted number are expected to specify an
+# accurate NetworkID field in every transaction to that chain to prevent replay attacks.
 # Mainnet and testnet are exceptions.
 # More context: https://github.com/XRPLF/rippled/pull/4370
 _RESTRICTED_NETWORKS = 1024
@@ -283,8 +283,8 @@ async def _get_network_id_and_build_version(client: Client) -> None:
 def _tx_needs_networkID(client: Client) -> bool:
     """
     Determines whether the transactions required network ID to be valid.
-    Transaction needs networkID if later than restricted ID and either the network is hooks testnet 
-        or build version is >= 1.11.0.
+    Transaction needs networkID if later than restricted ID and either
+        the network is hooks testnet or build version is >= 1.11.0.
     More context: https://github.com/XRPLF/rippled/pull/4370
 
     Args:
@@ -308,7 +308,8 @@ def _tx_needs_networkID(client: Client) -> bool:
 
 def _is_not_later_rippled_version(source: str, target: str) -> bool:
     """
-    Determines whether the source version is not a later release than the target version.
+    Determines whether the source version is not a later release than the
+        target version.
 
     Args:
         source: the source rippled version.
