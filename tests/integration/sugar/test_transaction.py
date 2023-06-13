@@ -351,7 +351,7 @@ class TestSubmitAndWait(IntegrationTestCase):
             "destination": DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
-        signed_payment_transaction = await sign(payment_transaction, WALLET)
+        signed_payment_transaction = sign(payment_transaction, WALLET)
         with self.assertRaises(XRPLRequestFailureException):
             await submit_and_wait(signed_payment_transaction, client)
 
@@ -372,6 +372,6 @@ class TestSubmitAndWait(IntegrationTestCase):
             "destination": DESTINATION,
         }
         payment_transaction = Payment.from_dict(payment_dict)
-        signed_payment_transaction = await sign(payment_transaction, WALLET)
+        signed_payment_transaction = sign(payment_transaction, WALLET)
         with self.assertRaises(XRPLReliableSubmissionException):
             await submit_and_wait(signed_payment_transaction, client)

@@ -130,8 +130,8 @@ class TestSubmitMultisigned(IntegrationTestCase):
 
         autofilled_tx = await autofill(tx, client, len(SIGNER_ENTRIES))
 
-        tx_1 = await sign(autofilled_tx, FIRST_SIGNER, multisign=True)
-        tx_2 = await sign(autofilled_tx, SECOND_SIGNER, multisign=True)
+        tx_1 = sign(autofilled_tx, FIRST_SIGNER, multisign=True)
+        tx_2 = sign(autofilled_tx, SECOND_SIGNER, multisign=True)
 
         multisigned_tx = multisign(autofilled_tx, [tx_1, tx_2])
 

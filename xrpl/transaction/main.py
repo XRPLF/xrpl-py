@@ -98,14 +98,7 @@ def sign(
     Returns:
         The signed transaction.
     """
-    return asyncio.run(
-        main.sign(
-            transaction,
-            wallet,
-            check_fee,
-            multisign,
-        )
-    )
+    return main.sign(transaction, wallet, multisign)
 
 
 safe_sign_transaction = sign
