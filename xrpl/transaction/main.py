@@ -78,25 +78,7 @@ def submit(
 
 submit_transaction = submit
 
-
-def sign(
-    transaction: Transaction,
-    wallet: Wallet,
-    multisign: bool = False,
-) -> Transaction:
-    """
-    Signs a transaction locally, without trusting external rippled nodes.
-
-    Args:
-        transaction: the transaction to be signed.
-        wallet: the wallet with which to sign the transaction.
-        multisign: whether to sign the transaction for a multisignature transaction.
-
-    Returns:
-        The signed transaction.
-    """
-    return main.sign(transaction, wallet, multisign)
-
+sign = main.sign
 
 safe_sign_transaction = sign
 

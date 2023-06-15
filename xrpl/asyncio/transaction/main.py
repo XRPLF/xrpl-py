@@ -62,6 +62,10 @@ async def sign_and_submit(
 safe_sign_and_submit_transaction = sign_and_submit
 
 
+# Even though this is synchronous - this is here because it used to be async in
+# xrpl-py 1.0, and we decided it wasn't worth breaking people's imports to move
+# It to a central location as part of the xrpl-py 2.0 changes. It is aliased in
+# The synchronous half of the library as well.
 def sign(
     transaction: Transaction,
     wallet: Wallet,
