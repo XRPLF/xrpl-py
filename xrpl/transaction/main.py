@@ -11,8 +11,8 @@ from xrpl.wallet.main import Wallet
 
 def sign_and_submit(
     transaction: Transaction,
-    wallet: Wallet,
     client: SyncClient,
+    wallet: Wallet,
     autofill: bool = True,
     check_fee: bool = True,
 ) -> Response:
@@ -22,8 +22,8 @@ def sign_and_submit(
 
     Args:
         transaction: the transaction to be signed and submitted.
-        wallet: the wallet with which to sign the transaction.
         client: the network client with which to submit the transaction.
+        wallet: the wallet with which to sign the transaction.
         autofill: whether to autofill the relevant fields. Defaults to True.
         check_fee: whether to check if the fee is higher than the expected transaction
             type fee. Defaults to True.
@@ -34,8 +34,8 @@ def sign_and_submit(
     return asyncio.run(
         main.sign_and_submit(
             transaction,
-            wallet,
             client,
+            wallet,
             autofill,
             check_fee,
         )
@@ -78,8 +78,8 @@ sign = main.sign
 
 def autofill_and_sign(
     transaction: Transaction,
-    wallet: Wallet,
     client: SyncClient,
+    wallet: Wallet,
     check_fee: bool = True,
 ) -> Transaction:
     """
@@ -88,8 +88,8 @@ def autofill_and_sign(
 
     Args:
         transaction: the transaction to be signed.
-        wallet: the wallet with which to sign the transaction.
         client: a network client.
+        wallet: the wallet with which to sign the transaction.
         check_fee: whether to check if the fee is higher than the expected transaction
             type fee. Defaults to True.
 
@@ -99,8 +99,8 @@ def autofill_and_sign(
     return asyncio.run(
         main.autofill_and_sign(
             transaction,
-            wallet,
             client,
+            wallet,
             check_fee,
         )
     )
