@@ -64,9 +64,6 @@ async def sign_and_submit(
     return await submit(transaction, client)
 
 
-safe_sign_and_submit_transaction = sign_and_submit
-
-
 async def sign(
     transaction: Transaction,
     wallet: Wallet,
@@ -116,9 +113,6 @@ async def sign(
     return Transaction.from_xrpl(transaction_json)
 
 
-safe_sign_transaction = sign
-
-
 async def autofill_and_sign(
     transaction: Transaction,
     wallet: Wallet,
@@ -146,9 +140,6 @@ async def autofill_and_sign(
         await _check_fee(transaction, client)
 
     return await sign(await autofill(transaction, client), wallet, False)
-
-
-safe_sign_and_autofill_transaction = autofill_and_sign
 
 
 async def submit(
@@ -181,9 +172,6 @@ async def submit(
         return response
 
     raise XRPLRequestFailureException(response.result)
-
-
-submit_transaction = submit
 
 
 def _prepare_transaction(

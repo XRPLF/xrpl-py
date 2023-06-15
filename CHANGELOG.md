@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [[Unreleased]]
 
 ## [2.0.0]
 ### Added:
@@ -26,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a sort of the account IDs in `multisign`, so that the `multisign` always works.
 - Add `ledger_hash` and `ledger_index` to `account_nfts`, `nft_buy_offers`, and `nft_sell_offers` requests.
 - Add `nft_page` to `ledger_entry` request.
+
+### Removed:
+- Longer aliases for signing/submitting functions have been removed. Specifically
+  - `submit_transaction` is now `submit`
+  - `safe_sign_transaction` is now `sign`
+  - `safe_sign_and_submit_transaction` is now `sign_and_submit`
+  - `safe_sign_and_autofill_transaction` is now `sign_and_autofill`
 
 ## [1.9.0] - 2023-06-13
 ### Added:
