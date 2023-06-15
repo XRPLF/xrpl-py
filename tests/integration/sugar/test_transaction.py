@@ -13,11 +13,9 @@ from xrpl.asyncio.transaction import (
     autofill,
     autofill_and_sign,
     sign,
-    submit_and_wait,
 )
-from xrpl.asyncio.transaction import (
-    submit_transaction as submit_transaction_alias_async,
-)
+from xrpl.asyncio.transaction import submit as submit_transaction_alias_async
+from xrpl.asyncio.transaction import submit_and_wait
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.core.binarycodec.main import encode
