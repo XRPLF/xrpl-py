@@ -53,14 +53,19 @@ async def sign_and_submit(
     if autofill:
         transaction = await autofill_and_sign(transaction, wallet, client, check_fee)
     else:
-        transaction = await sign(transaction, wallet, check_fee)
+        if check_fee:
+            await _check_fee(transaction, client)
+        transaction = sign(transaction, wallet)
     return await submit(transaction, client)
 
 
-async def sign(
+# Even though this is synchronous - this is here because it used to be async in
+# xrpl-py 1.0, and we decided it wasn't worth breaking people's imports to move
+# It to a central location as part of the xrpl-py 2.0 changes. It is aliased in
+# The synchronous half of the library as well.
+def sign(
     transaction: Transaction,
     wallet: Wallet,
-    check_fee: bool = True,
     multisign: bool = False,
 ) -> Transaction:
     """
@@ -69,8 +74,6 @@ async def sign(
     Args:
         transaction: the transaction to be signed.
         wallet: the wallet with which to sign the transaction.
-        check_fee: whether to check if the fee is higher than the expected transaction
-            type fee. Defaults to True.
         multisign: whether to sign the transaction for a multisignature transaction.
 
     Returns:
@@ -96,8 +99,6 @@ async def sign(
         ]
         return Transaction.from_dict(tx_dict)
 
-    if check_fee:
-        await _check_fee(transaction)
     transaction_json = _prepare_transaction(transaction, wallet)
     serialized_for_signing = encode_for_signing(transaction_json)
     serialized_bytes = bytes.fromhex(serialized_for_signing)
@@ -132,7 +133,7 @@ async def autofill_and_sign(
     if check_fee:
         await _check_fee(transaction, client)
 
-    return await sign(await autofill(transaction, client), wallet, False)
+    return sign(await autofill(transaction, client), wallet, multisign=False)
 
 
 async def submit(
@@ -287,20 +288,26 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
     return model_transaction_to_binary_codec(dictionary)
 
 
-async def _check_fee(transaction: Transaction, client: Optional[Client] = None) -> None:
+async def _check_fee(
+    transaction: Transaction,
+    client: Optional[Client] = None,
+    signers_count: Optional[int] = None,
+) -> None:
     """
     Checks if the Transaction fee is lower than the expected Transaction type fee.
 
     Args:
         transaction: The transaction to check.
         client: Client instance to use to look up network load
+        signers_count: the expected number of signers for this transaction.
+            Only used for multisigned transactions.
 
     Raises:
         XRPLException: if the transaction fee is higher than the expected fee.
     """
     expected_fee = max(
         xrp_to_drops(0.1),  # a fee that is obviously too high
-        await _calculate_fee_per_transaction_type(transaction, client),
+        await _calculate_fee_per_transaction_type(transaction, client, signers_count),
     )
 
     if transaction.fee and int(transaction.fee) > int(expected_fee):
