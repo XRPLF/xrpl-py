@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Core keypairs formatting for ED25519 is now padded with zeros if length of keystring is less than 64
 - Removed deprecated request wrappers (the preferred method is to directly do client.request instead)
 
+### Removed:
+- Longer aliases for signing/submitting functions have been removed. Specifically
+  - `submit_transaction` is now `submit`
+  - `safe_sign_transaction` is now `sign`
+  - `safe_sign_and_submit_transaction` is now `sign_and_submit`
+  - `safe_sign_and_autofill_transaction` is now `sign_and_autofill`
+
 ## [[Unreleased]]
 ### Added:
 - Added `submit_and_wait` to sign (if needed), autofill, submit a transaction and wait for its final outcome
