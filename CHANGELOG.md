@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Core keypairs formatting for ED25519 is now padded with zeros if length of keystring is less than 64
 - Removed deprecated request wrappers (the preferred method is to directly do client.request instead)
 - Replaced the flags defined in `AccountSetFlag` (now defines the transaction `tf` flags, previously not defined anywhere)
+- Longer aliases for signing/submitting functions have been removed. Specifically
+  - `submit_transaction` is now `submit`
+  - `safe_sign_transaction` is now `sign`
+  - `safe_sign_and_submit_transaction` is now `sign_and_submit`
+  - `safe_sign_and_autofill_transaction` is now `sign_and_autofill`
 
 ### Fixed:
 - Added a sort of the account IDs in `multisign`, so that the `multisign` always works.
@@ -26,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `nft_page` to `ledger_entry` request.
 
 ## [1.9.0] - 2023-06-13
+
 ### Added:
 - Added `submit_and_wait` to sign (if needed), autofill, submit a transaction and wait for its final outcome
 - `submit` and `send_reliable_submission` now accept an optional boolean param `fail_hard` (if `True` halt the submission if it's not immediately validated)
