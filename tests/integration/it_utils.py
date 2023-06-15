@@ -9,18 +9,14 @@ from typing import cast
 import xrpl  # noqa: F401 - needed for sync tests
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.clients.async_client import AsyncClient
-from xrpl.asyncio.transaction import (
-    safe_sign_and_submit_transaction as sign_and_submit_async,
-)
+from xrpl.asyncio.transaction import sign_and_submit as sign_and_submit_async
 from xrpl.clients import Client, JsonRpcClient, WebsocketClient
 from xrpl.clients.sync_client import SyncClient
 from xrpl.constants import CryptoAlgorithm
 from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
+from xrpl.transaction import sign_and_submit  # noqa: F401 - needed for sync tests
 from xrpl.transaction import (  # noqa: F401 - needed for sync tests
-    safe_sign_and_submit_transaction,
-)
-from xrpl.transaction import (  # noqa: F401 - needed for sync tests
-    submit_transaction as submit_transaction_alias,
+    submit as submit_transaction_alias,
 )
 from xrpl.wallet import Wallet
 
@@ -104,7 +100,7 @@ def fund_wallet_sync(wallet: Wallet) -> None:
         destination=wallet.address,
         amount=FUNDING_AMOUNT,
     )
-    safe_sign_and_submit_transaction(payment, MASTER_WALLET, client, check_fee=True)
+    sign_and_submit(payment, MASTER_WALLET, client, check_fee=True)
     client.request(LEDGER_ACCEPT_REQUEST)
 
 
@@ -128,9 +124,7 @@ def submit_transaction(
     check_fee: bool = True,
 ) -> Response:
     """Signs and submits a transaction to the XRPL."""
-    return safe_sign_and_submit_transaction(
-        transaction, wallet, client, check_fee=check_fee
-    )
+    return sign_and_submit(transaction, wallet, client, check_fee=check_fee)
 
 
 # just submits a transaction to the ledger, asynchronously
