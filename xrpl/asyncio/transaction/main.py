@@ -167,9 +167,6 @@ async def submit(
     raise XRPLRequestFailureException(response.result)
 
 
-submit_transaction = submit
-
-
 def _prepare_transaction(
     transaction: Transaction,
     wallet: Wallet,

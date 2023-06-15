@@ -73,9 +73,6 @@ def submit(
     )
 
 
-submit_transaction = submit
-
-
 def sign(
     transaction: Transaction,
     wallet: Wallet,
