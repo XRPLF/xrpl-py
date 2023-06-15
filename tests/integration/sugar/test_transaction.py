@@ -133,7 +133,7 @@ class TestTransaction(IntegrationTestCase):
         globals(),
         [
             "xrpl.transaction.autofill_and_sign",
-            "xrpl.transaction.submit_transaction",
+            "xrpl.transaction.submit",
         ],
     )
     async def test_payment_high_fee_authorized_with_submit_alias(self, client):
