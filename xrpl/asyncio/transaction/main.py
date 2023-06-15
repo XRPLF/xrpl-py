@@ -135,7 +135,7 @@ async def autofill_and_sign(
     if check_fee:
         await _check_fee(transaction, client)
 
-    return sign(await autofill(transaction, client), wallet, False)
+    return sign(await autofill(transaction, client), wallet, multisign=False)
 
 
 safe_sign_and_autofill_transaction = autofill_and_sign

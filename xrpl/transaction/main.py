@@ -82,7 +82,6 @@ submit_transaction = submit
 def sign(
     transaction: Transaction,
     wallet: Wallet,
-    check_fee: bool = True,
     multisign: bool = False,
 ) -> Transaction:
     """
@@ -91,8 +90,6 @@ def sign(
     Args:
         transaction: the transaction to be signed.
         wallet: the wallet with which to sign the transaction.
-        check_fee: whether to check if the fee is higher than the expected transaction
-            type fee. Defaults to True.
         multisign: whether to sign the transaction for a multisignature transaction.
 
     Returns:
