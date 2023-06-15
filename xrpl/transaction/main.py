@@ -42,9 +42,6 @@ def sign_and_submit(
     )
 
 
-safe_sign_and_submit_transaction = sign_and_submit
-
-
 def submit(
     transaction: Transaction,
     client: SyncClient,
@@ -76,11 +73,7 @@ def submit(
     )
 
 
-submit_transaction = submit
-
 sign = main.sign
-
-safe_sign_transaction = sign
 
 
 def autofill_and_sign(
@@ -111,9 +104,6 @@ def autofill_and_sign(
             check_fee,
         )
     )
-
-
-safe_sign_and_autofill_transaction = autofill_and_sign
 
 
 def autofill(

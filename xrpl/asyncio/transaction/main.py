@@ -59,9 +59,6 @@ async def sign_and_submit(
     return await submit(transaction, client)
 
 
-safe_sign_and_submit_transaction = sign_and_submit
-
-
 # Even though this is synchronous - this is here because it used to be async in
 # xrpl-py 1.0, and we decided it wasn't worth breaking people's imports to move
 # It to a central location as part of the xrpl-py 2.0 changes. It is aliased in
@@ -110,9 +107,6 @@ def sign(
     return Transaction.from_xrpl(transaction_json)
 
 
-safe_sign_transaction = sign
-
-
 async def autofill_and_sign(
     transaction: Transaction,
     wallet: Wallet,
@@ -140,9 +134,6 @@ async def autofill_and_sign(
         await _check_fee(transaction, client)
 
     return sign(await autofill(transaction, client), wallet, multisign=False)
-
-
-safe_sign_and_autofill_transaction = autofill_and_sign
 
 
 async def submit(
@@ -175,9 +166,6 @@ async def submit(
         return response
 
     raise XRPLRequestFailureException(response.result)
-
-
-submit_transaction = submit
 
 
 def _prepare_transaction(
