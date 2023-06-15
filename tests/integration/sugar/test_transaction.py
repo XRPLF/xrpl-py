@@ -143,8 +143,8 @@ class TestTransaction(IntegrationTestCase):
                 fee=FEE,
                 destination=DESTINATION,
             ),
-            WALLET,
             client,
+            WALLET,
             check_fee=False,
         )
 
@@ -271,7 +271,7 @@ class TestSubmitAndWait(IntegrationTestCase):
             destination=DESTINATION,
         )
         payment_transaction_signed = await autofill_and_sign(
-            payment_transaction, WALLET, client
+            payment_transaction, client, WALLET
         )
         await accept_ledger_async(delay=1)
         response = await submit_and_wait(payment_transaction_signed, client)
@@ -295,7 +295,7 @@ class TestSubmitAndWait(IntegrationTestCase):
             destination=DESTINATION,
         )
         payment_transaction_signed = await autofill_and_sign(
-            payment_transaction, WALLET, client
+            payment_transaction, client, WALLET
         )
         await accept_ledger_async(delay=1)
         payment_transaction_signed_blob = encode(payment_transaction_signed.to_xrpl())
