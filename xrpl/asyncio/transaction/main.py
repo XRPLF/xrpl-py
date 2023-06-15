@@ -37,8 +37,8 @@ _ACCOUNT_DELETE_FEE: Final[int] = int(xrp_to_drops(2))
 
 async def sign_and_submit(
     transaction: Transaction,
-    wallet: Wallet,
     client: Client,
+    wallet: Wallet,
     autofill: bool = True,
     check_fee: bool = True,
 ) -> Response:
@@ -48,8 +48,8 @@ async def sign_and_submit(
 
     Args:
         transaction: the transaction to be signed and submitted.
-        wallet: the wallet with which to sign the transaction.
         client: the network client with which to submit the transaction.
+        wallet: the wallet with which to sign the transaction.
         autofill: whether to autofill the relevant fields. Defaults to True.
         check_fee: whether to check if the fee is higher than the expected transaction
             type fee. Defaults to True.
@@ -58,7 +58,7 @@ async def sign_and_submit(
         The response from the ledger.
     """
     if autofill:
-        transaction = await autofill_and_sign(transaction, wallet, client, check_fee)
+        transaction = await autofill_and_sign(transaction, client, wallet, check_fee)
     else:
         if check_fee:
             await _check_fee(transaction, client)
@@ -116,8 +116,8 @@ def sign(
 
 async def autofill_and_sign(
     transaction: Transaction,
-    wallet: Wallet,
     client: Client,
+    wallet: Wallet,
     check_fee: bool = True,
 ) -> Transaction:
     """
