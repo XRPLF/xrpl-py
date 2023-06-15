@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Core keypairs formatting for ED25519 is now padded with zeros if length of keystring is less than 64
 - Removed deprecated request wrappers (the preferred method is to directly do client.request instead)
 - `AccountSetFlagInterface` now operates on transaction `tf` flags (as opposed to `asf` flags)
+- `sign` is now synchronous instead of async (done by removing the optional `check_fee` param & moving checks up to other functions)
 
 ### Fixed:
 - Added a sort of the account IDs in `multisign`, so that the `multisign` always works.
