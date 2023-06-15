@@ -1,4 +1,3 @@
-import asyncio
 from unittest import TestCase
 
 from xrpl.asyncio.transaction.main import sign
