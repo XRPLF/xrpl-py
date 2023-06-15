@@ -73,33 +73,7 @@ def submit(
     )
 
 
-def sign(
-    transaction: Transaction,
-    wallet: Wallet,
-    check_fee: bool = True,
-    multisign: bool = False,
-) -> Transaction:
-    """
-    Signs a transaction locally, without trusting external rippled nodes.
-
-    Args:
-        transaction: the transaction to be signed.
-        wallet: the wallet with which to sign the transaction.
-        check_fee: whether to check if the fee is higher than the expected transaction
-            type fee. Defaults to True.
-        multisign: whether to sign the transaction for a multisignature transaction.
-
-    Returns:
-        The signed transaction.
-    """
-    return asyncio.run(
-        main.sign(
-            transaction,
-            wallet,
-            check_fee,
-            multisign,
-        )
-    )
+sign = main.sign
 
 
 def autofill_and_sign(
