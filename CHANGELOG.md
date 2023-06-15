@@ -20,13 +20,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed deprecated request wrappers (the preferred method is to directly do client.request instead)
 - Replaced the flags defined in `AccountSetFlag` (now defines the transaction `tf` flags, previously not defined anywhere)
 - `sign` is now synchronous instead of async (done by removing the optional `check_fee` param & moving checks up to other functions)
+- In order to be internally consistent, all signing/submitting functions will follow the parameter order of `transaction`, `client`, `wallet`, and then other parameters. (This is because `wallet` is optional for `submit_and_wait` and so must come after `client`)
 
 ### Removed:
 - Longer aliases for signing/submitting functions have been removed. Specifically
   - `submit_transaction` is now `submit`
   - `safe_sign_transaction` is now `sign`
   - `safe_sign_and_submit_transaction` is now `sign_and_submit`
-  - `safe_sign_and_autofill_transaction` is now `sign_and_autofill`
+    - The param order for `sign_and_submit` moves `wallet` after `client` to be consistent with `submit_and_wait`
+  - `safe_sign_and_autofill_transaction` is now `autofill_and_sign`
+    - The param order for `autofill_and_sign` moves `wallet` after `client` to be consistent with `submit_and_wait`
 
 ### Fixed:
 - Added a sort of the account IDs in `multisign`, so that the `multisign` always works.

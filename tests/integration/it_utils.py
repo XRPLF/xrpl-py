@@ -100,7 +100,7 @@ def fund_wallet_sync(wallet: Wallet) -> None:
         destination=wallet.classic_address,
         amount=FUNDING_AMOUNT,
     )
-    sign_and_submit(payment, MASTER_WALLET, client, check_fee=True)
+    sign_and_submit(payment, client, MASTER_WALLET, check_fee=True)
     client.request(LEDGER_ACCEPT_REQUEST)
 
 
@@ -112,7 +112,7 @@ async def fund_wallet(
         destination=wallet.classic_address,
         amount=FUNDING_AMOUNT,
     )
-    await sign_and_submit_async(payment, MASTER_WALLET, client, check_fee=True)
+    await sign_and_submit_async(payment, client, MASTER_WALLET, check_fee=True)
     await client.request(LEDGER_ACCEPT_REQUEST)
 
 
@@ -124,7 +124,7 @@ def submit_transaction(
     check_fee: bool = True,
 ) -> Response:
     """Signs and submits a transaction to the XRPL."""
-    return sign_and_submit(transaction, wallet, client, check_fee=check_fee)
+    return sign_and_submit(transaction, client, wallet, check_fee=check_fee)
 
 
 # just submits a transaction to the ledger, asynchronously
@@ -134,7 +134,7 @@ async def submit_transaction_async(
     client: AsyncClient,
     check_fee: bool = True,
 ) -> Response:
-    return await sign_and_submit_async(transaction, wallet, client, check_fee=check_fee)
+    return await sign_and_submit_async(transaction, client, wallet, check_fee=check_fee)
 
 
 # submits a transaction to the ledger and closes a ledger, synchronously
