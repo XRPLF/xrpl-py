@@ -64,7 +64,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
         from xrpl.asyncio.clients import AsyncWebsocketClient
         from xrpl.models import Subscribe, Unsubscribe, StreamParameter
 
-        URL = "wss://s.devnet.rippletest.net:51233"
+        URL = "wss://s.altnet.rippletest.net:51233"
 
 
         def on_open():
@@ -163,7 +163,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
         from xrpl.asyncio.clients import AsyncWebsocketClient
         from xrpl.models import Subscribe, StreamParameter
 
-        URL = "wss://s.devnet.rippletest.net:51233"
+        URL = "wss://s.altnet.rippletest.net:51233"
 
 
         async def websocket_supervisor():
