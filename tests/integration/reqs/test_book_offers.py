@@ -10,7 +10,7 @@ class TestBookOffers(IntegrationTestCase):
     async def test_basic_functionality(self, client):
         response = await client.request(
             BookOffers(
-                taker=WALLET.classic_address,
+                taker=WALLET.address,
                 taker_gets=XRP(),
                 taker_pays=IssuedCurrency(
                     currency="USD",

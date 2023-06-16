@@ -21,12 +21,12 @@ constants = {
         "ed25519": {
             "public_key": "ED16FD02F7A7E52B6ACB35F8A4D7013DC94755951629DB6611483590AC0E9FC6D5",  # noqa:E501
             "private_key": "ED713A8C3171A3D8F69FE9526D9243834B3A30BF893B1EBC1824B1D96F18B44DCF",  # noqa:E501
-            "classic_address": "rPxLJ2GumwfLk3z9njmmpo8nAX7sfZYptV",
+            "address": "rPxLJ2GumwfLk3z9njmmpo8nAX7sfZYptV",
         },
         "secp256k1": {
             "public_key": "030E58CDD076E798C84755590AAF6237CA8FAE821070A59F648B517A30DC6F589D",  # noqa:E501
             "private_key": "00141BA006D3363D2FB2785E8DF4E44D3A49908780CB4FB51F6D217C08C021429F",  # noqa:E501
-            "classic_address": "rhvh5SrgBL5V8oeV9EpDuVszeJSSCEkbPc",
+            "address": "rhvh5SrgBL5V8oeV9EpDuVszeJSSCEkbPc",
         },
     },
     "entropy": {
@@ -35,13 +35,13 @@ constants = {
             "seed": "sEdSJHS4oiAdz7w2X2ni1gFiqtbJHqE",
             "public_key": "ED1A7C082846CFF58FF9A892BA4BA2593151CCF1DBA59F37714CC9ED39824AF85F",  # noqa:E501
             "private_key": "ED0B6CBAC838DFE7F47EA1BD0DF00EC282FDF45510C92161072CCFB84035390C4D",  # noqa:E501
-            "classic_address": "r9zRhGr7b6xPekLvT6wP4qNdWMryaumZS7",
+            "address": "r9zRhGr7b6xPekLvT6wP4qNdWMryaumZS7",
         },
         "secp256k1": {
             "seed": "sp6JS7f14BuwFY8Mw6bTtLKWauoUs",
             "public_key": "0390A196799EE412284A5D80BF78C3E84CBB80E1437A0AECD9ADF94D7FEAAFA284",  # noqa:E501
             "private_key": "002512BBDFDBB77510883B7DCCBEF270B86DEAC8B64AC762873D75A1BEE6298665",  # noqa:E501
-            "classic_address": "rGCkuB7PBr5tNy68tPEABEtcdno4hE6Y7f",
+            "address": "rGCkuB7PBr5tNy68tPEABEtcdno4hE6Y7f",
         },
     },
     "secret_numbers": {
@@ -60,17 +60,17 @@ constants = {
             "seed": "sEd77GiNwRkBYwqzZiTrmh21oovzSAC",
             "public_key": "ED8079E575450E256C496578480020A33E19B579D58A2DB8FF13FC6B05B9229DE3",  # noqa:E501
             "private_key": "EDD2AF6288A903DED9860FC62E778600A985BDF804E40BD8266505553E3222C3DA",  # noqa:E501
-            "classic_address": "rHnnXF4oYodLonx7P7MV4WaqPUvBWzskEw",
+            "address": "rHnnXF4oYodLonx7P7MV4WaqPUvBWzskEw",
         },
         "secp256k1": {
             "seed": "sh1HiK7SwjS1VxFdXi7qeMHRedrYX",
             "public_key": "03BFC2F7AE242C3493187FA0B72BE97B2DF71194FB772E507FF9DEA0AD13CA1625",  # noqa:E501
             "private_key": "00B6FE8507D977E46E988A8A94DB3B8B35E404B60F8B11AC5213FA8B5ABC8A8D19",  # noqa:E501
-            "classic_address": "rQKQsPeE3iTRyfUypLhuq74gZdcRdwWqDp",
+            "address": "rQKQsPeE3iTRyfUypLhuq74gZdcRdwWqDp",
         },
     },
     "prefix": {
-        "classic_address": "r",
+        "address": "r",
         "ed25519_key": "ED",
         "secp256k1_private_key": "00",
     },
@@ -102,20 +102,20 @@ def _test_wallet_values(
 
     if method == "regular_key_pair" or is_entropy_with_regular_key_pair:
         self.assertEqual(
-            wallet.classic_address, constants["regular_key_pair"]["master_address"]
+            wallet.address, constants["regular_key_pair"]["master_address"]
         )
     else:
-        self.assertEqual(wallet.classic_address, algorithm_constants["classic_address"])
+        self.assertEqual(wallet.address, algorithm_constants["address"])
 
 
 def _test_wallet_types(self, wallet, algorithm):
     self.assertIsInstance(wallet.public_key, str)
     self.assertIsInstance(wallet.private_key, str)
-    self.assertIsInstance(wallet.classic_address, str)
+    self.assertIsInstance(wallet.address, str)
     self.assertIsInstance(wallet.address, str)
     self.assertIsInstance(wallet.seed, str)
     self.assertTrue(
-        wallet.classic_address.startswith(constants["prefix"]["classic_address"])
+        wallet.address.startswith(constants["prefix"]["address"])
     )
 
     if algorithm == "ed25519":
@@ -395,7 +395,7 @@ class TestWalletMain(TestCase):
 
     def test_address_alias(self):
         wallet = Wallet.create()
-        self.assertEqual(wallet.address, wallet.classic_address)
+        self.assertEqual(wallet.address, wallet.address)
 
     def test_get_only_address(self):
         wallet = Wallet.create()
@@ -404,4 +404,4 @@ class TestWalletMain(TestCase):
             wallet.address = "rhvh5SrgBL5V8oeV9EpDuVszeJSSCEkbPc"
 
         with self.assertRaises(AttributeError):
-            wallet.classic_address = "rhvh5SrgBL5V8oeV9EpDuVszeJSSCEkbPc"
+            wallet.address = "rhvh5SrgBL5V8oeV9EpDuVszeJSSCEkbPc"

@@ -7,7 +7,7 @@ from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import CheckCancel
 
-ACCOUNT = WALLET.classic_address
+ACCOUNT = WALLET.address
 
 CHECK_ID = "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
 
