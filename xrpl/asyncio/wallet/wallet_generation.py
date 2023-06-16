@@ -13,9 +13,12 @@ from xrpl.wallet.main import Wallet
 _TEST_FAUCET_URL: Final[str] = "https://faucet.altnet.rippletest.net/accounts"
 _DEV_FAUCET_URL: Final[str] = "https://faucet.devnet.rippletest.net/accounts"
 _AMM_DEV_FAUCET_URL: Final[str] = "https://ammfaucet.devnet.rippletest.net/accounts"
-_HOOKS_V2_TEST_FAUCET_URL: Final[
+_HOOKS_V3_TEST_FAUCET_URL: Final[
     str
-] = "https://hooks-testnet-v2.xrpl-labs.com/accounts"
+] = "https://hooks-testnet-v3.xrpl-labs.com/accounts"
+_SIDECHAIN_DEVNET_FAUCET_URL: Final[
+    str
+] = "https://sidechain-faucet.devnet.rippletest.net/accounts"
 
 _TIMEOUT_SECONDS: Final[int] = 40
 
@@ -31,6 +34,8 @@ async def generate_faucet_wallet(
     wallet: Optional[Wallet] = None,
     debug: bool = False,
     faucet_host: Optional[str] = None,
+    usage_context: Optional[str] = None,
+    user_agent: Optional[str] = "xrpl-py",
 ) -> Wallet:
     """
     Generates a random wallet and funds it using the XRPL Testnet Faucet.
@@ -41,6 +46,12 @@ async def generate_faucet_wallet(
         debug: Whether to print debug information as it creates the wallet.
         faucet_host: A custom host to use for funding a wallet. In environments other
             than devnet and testnet, this parameter is required.
+        usage_context: The intended use case for the funding request
+            (for example, testing). This information  will be included
+            in the json body of the HTTP request to the faucet.
+        user_agent: A string representing the user agent (software/ client used)
+            for the HTTP request. Default is "xrpl-py".
+
 
     Returns:
         A Wallet on the testnet that contains some amount of XRP.
@@ -66,7 +77,7 @@ async def generate_faucet_wallet(
     starting_balance = await _check_wallet_balance(address, client)
 
     # Ask the faucet to send funds to the given address
-    await _request_funding(faucet_url, address)
+    await _request_funding(faucet_url, address, usage_context, user_agent)
     # Wait for the faucet to fund our account or until timeout
     # Waits one second checks if balance has changed
     # If balance doesn't change it will attempt again until _TIMEOUT_SECONDS
@@ -110,12 +121,19 @@ def get_faucet_url(url: str, faucet_host: Optional[str] = None) -> str:
     """
     if faucet_host is not None:
         return f"https://{faucet_host}/accounts"
-    if "hooks-testnet-v2" in url:  # hooks v2 testnet
-        return _HOOKS_V2_TEST_FAUCET_URL
+    if "hooks-testnet-v3" in url:  # hooks v3 testnet
+        return _HOOKS_V3_TEST_FAUCET_URL
     if "altnet" in url or "testnet" in url:  # testnet
         return _TEST_FAUCET_URL
     if "amm" in url:  # amm devnet
         return _AMM_DEV_FAUCET_URL
+    if "sidechain-net1" in url:  # sidechain devnet
+        return _SIDECHAIN_DEVNET_FAUCET_URL
+    elif "sidechain-net2" in url:  # sidechain issuing chain devnet
+        raise XRPLFaucetException(
+            "Cannot fund an account on an issuing chain. Accounts must be created via "
+            "the bridge."
+        )
     if "devnet" in url:  # devnet
         return _DEV_FAUCET_URL
     raise XRPLFaucetException(
@@ -133,9 +151,17 @@ async def _check_wallet_balance(address: str, client: Client) -> int:
         raise
 
 
-async def _request_funding(url: str, address: str) -> None:
+async def _request_funding(
+    url: str,
+    address: str,
+    usage_context: Optional[str] = None,
+    user_agent: Optional[str] = None,
+) -> None:
     async with httpx.AsyncClient() as http_client:
-        response = await http_client.post(url=url, json={"destination": address})
+        json_body = {"destination": address, "userAgent": user_agent}
+        if usage_context is not None:
+            json_body["usageContext"] = usage_context
+        response = await http_client.post(url=url, json=json_body)
     if not response.status_code == httpx.codes.OK:
         response.raise_for_status()
 

@@ -6,8 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [[Unreleased]]
+
+## [1.9.0] - 2023-06-13
+### Added:
+- Added `submit_and_wait` to sign (if needed), autofill, submit a transaction and wait for its final outcome
+- `submit` and `send_reliable_submission` now accept an optional boolean param `fail_hard` (if `True` halt the submission if it's not immediately validated)
+- Added sidechain devnet support to faucet generation
+- Added `user_agent` and `usage_context` to `generate_faucet_wallet`
+
+### Changed:
+- Allowed keypairs.sign to take a hex string in addition to bytes
+
 ### Fixed:
 - Refactored `does_account_exist` and `get_balance` to avoid deprecated methods and use `ledger_index` parameter
+- Fixed crashes in the `SignerListSet` validation
+- Improved error messages in `send_reliable_submission`
+- Better error handling in reliable submission
 
 ### Removed:
 - RPCs and utils related to the old sidechain design

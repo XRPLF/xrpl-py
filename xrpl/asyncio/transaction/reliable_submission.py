@@ -1,17 +1,21 @@
 """High-level reliable submission methods with XRPL transactions."""
 
 import asyncio
+from typing import Optional, Union
 
 from typing_extensions import Final
 
 from xrpl.asyncio.clients import Client
 from xrpl.asyncio.ledger import get_latest_validated_ledger_sequence
-from xrpl.asyncio.transaction.main import submit
+from xrpl.asyncio.transaction.main import _check_fee
+from xrpl.asyncio.transaction.main import autofill as _autofill
+from xrpl.asyncio.transaction.main import sign, submit
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.constants import XRPLException
 from xrpl.models.requests import Tx
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
+from xrpl.wallet.main import Wallet
 
 _LEDGER_CLOSE_TIME: Final[int] = 1
 
@@ -59,6 +63,9 @@ async def _wait_for_final_transaction_outcome(
     result = transaction_response.result
     if "validated" in result and result["validated"]:
         # result is in a validated ledger, outcome is final
+        return_code = result["meta"]["TransactionResult"]
+        if return_code != "tesSUCCESS":
+            raise XRPLReliableSubmissionException(f"Transaction failed: {return_code}")
         return transaction_response
 
     # outcome is not yet final
@@ -68,7 +75,7 @@ async def _wait_for_final_transaction_outcome(
 
 
 async def send_reliable_submission(
-    transaction: Transaction, client: Client
+    transaction: Transaction, client: Client, *, fail_hard: bool = False
 ) -> Response:
     """
     Asynchronously submits a transaction and verifies that it has been included in a
@@ -84,6 +91,9 @@ async def send_reliable_submission(
         transaction: the signed transaction to submit to the ledger. Requires a
             `last_ledger_sequence` param.
         client: the network client used to submit the transaction to a rippled node.
+        fail_hard: an optional boolean. If True, and the transaction fails for
+            the initial server, do not retry or relay the transaction to other
+            servers. Defaults to False.
 
     Returns:
         The response from a validated ledger.
@@ -97,13 +107,105 @@ async def send_reliable_submission(
             "Transaction must have a `last_ledger_sequence` param."
         )
     transaction_hash = transaction.get_hash()
-    submit_response = await submit(transaction, client)
+    submit_response = await submit(transaction, client, fail_hard=fail_hard)
     prelim_result = submit_response.result["engine_result"]
     if prelim_result[0:3] == "tem":
-        raise XRPLReliableSubmissionException(
-            submit_response.result["engine_result_message"]
-        )
+        error_message = submit_response.result["engine_result_message"]
+        raise XRPLReliableSubmissionException(f"{prelim_result}: {error_message}")
 
     return await _wait_for_final_transaction_outcome(
         transaction_hash, client, prelim_result, transaction.last_ledger_sequence
+    )
+
+
+async def _get_signed_tx(
+    transaction: Union[Transaction, str],
+    client: Client,
+    wallet: Optional[Wallet] = None,
+    check_fee: bool = True,
+    autofill: bool = True,
+) -> Transaction:
+    """
+    Sets up a transaction to be submitted by optionally autofilling, signing,
+        and checking the fee validity.
+
+    Args:
+        transaction: the transaction or transaction blob to be signed if unsigned.
+        client: the network client to autofill from.
+        wallet: an optional wallet with which to sign the transaction. This is
+            only needed if the transaction is unsigned.
+        check_fee: an optional bolean indicating whether to check if the fee is
+            higher than the expected transaction type fee. Defaults to True.
+        autofill: an optional boolean indicating whether to autofill the
+            transaction. Defaults to True.
+
+    Returns:
+        The signed transaction.
+
+    Raises:
+        XRPLException: if the transaction is unsigned and a wallet is not
+            provided for signing.
+    """
+    if isinstance(transaction, str):
+        transaction = Transaction.from_blob(transaction)
+
+    if transaction.is_signed():
+        return transaction
+
+    # Attempts to validate fee, autofill, and sign the transaction when unsigned.
+    if not wallet:
+        raise XRPLException(
+            "Wallet must be provided when submitting an unsigned transaction"
+        )
+
+    if check_fee:
+        await _check_fee(transaction, client)
+
+    if autofill:
+        transaction = await _autofill(transaction, client)
+
+    if transaction.signers:
+        return await sign(transaction, wallet, True, True)
+
+    return await sign(transaction, wallet, True, False)
+
+
+async def submit_and_wait(
+    transaction: Union[Transaction, str],
+    client: Client,
+    wallet: Optional[Wallet] = None,
+    *,
+    check_fee: bool = True,
+    autofill: bool = True,
+    fail_hard: bool = False,
+) -> Response:
+    """
+    Signs a transaction locally if the transaction is unsigned, then submits,
+    and verifies that it has been included in a validated ledger (or has errored/
+    will not be included for some reason).
+    `See Reliable Transaction Submission for a full explanation of this workflow
+    <https://xrpl.org/reliable-transaction-submission.html>`_
+
+    Args:
+        transaction: the signed/unsigned transaction (or transaction blob) to
+            be submitted.
+        client: the network client with which to submit the transaction.
+        wallet: an optional wallet with which to sign the transaction. This is
+            only needed if the transaction is unsigned.
+        check_fee: an optional bolean indicating whether to check if the fee is
+            higher than the expected transaction type fee. Defaults to True.
+        autofill: an optional boolean indicating whether to autofill the
+            transaction. Defaults to True.
+        fail_hard: an optional boolean. If True, and the transaction fails for
+            the initial server, do not retry or relay the transaction to other
+            servers. Defaults to False.
+
+    Returns:
+        The response from the ledger.
+    """
+    signed_transaction = await _get_signed_tx(
+        transaction, client, wallet, check_fee, autofill
+    )
+    return await send_reliable_submission(
+        signed_transaction, client, fail_hard=fail_hard
     )
