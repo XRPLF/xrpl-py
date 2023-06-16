@@ -24,9 +24,7 @@ print(get_balance(wallet1.address, client))
 print(get_balance(wallet2.address, client))
 
 # Assign key pair (regular_key_wallet) to wallet1 using SetRegularKey transaction
-tx = SetRegularKey(
-    account=wallet1.address, regular_key=regular_key_wallet.address
-)
+tx = SetRegularKey(account=wallet1.address, regular_key=regular_key_wallet.address)
 
 set_regular_key_response = submit_and_wait(tx, client, wallet1)
 

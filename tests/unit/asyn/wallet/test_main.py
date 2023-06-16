@@ -114,9 +114,7 @@ def _test_wallet_types(self, wallet, algorithm):
     self.assertIsInstance(wallet.address, str)
     self.assertIsInstance(wallet.address, str)
     self.assertIsInstance(wallet.seed, str)
-    self.assertTrue(
-        wallet.address.startswith(constants["prefix"]["address"])
-    )
+    self.assertTrue(wallet.address.startswith(constants["prefix"]["address"]))
 
     if algorithm == "ed25519":
         self.assertTrue(
