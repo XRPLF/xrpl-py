@@ -6,7 +6,7 @@ from tests.integration.reusable_values import WALLET
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.wallet import generate_faucet_wallet
 from xrpl.clients import JsonRpcClient, WebsocketClient
-from xrpl.core.addresscodec import address_to_xaddress
+from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.requests import AccountInfo
 from xrpl.models.transactions import Payment
 from xrpl.wallet import generate_faucet_wallet as sync_generate_faucet_wallet
@@ -180,5 +180,5 @@ class TestWallet(IntegrationTestCase):
             self.assertTrue(new_balance > balance)
 
     def test_wallet_get_xaddress(self):
-        expected = address_to_xaddress(WALLET.address, None, False)
+        expected = classic_address_to_xaddress(WALLET.address, None, False)
         self.assertEqual(WALLET.get_xaddress(), expected)

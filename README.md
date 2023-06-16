@@ -310,7 +310,7 @@ Use [`xrpl.core.addresscodec`](https://xrpl-py.readthedocs.io/en/stable/source/x
 # convert classic address to x-address
 from xrpl.core import addresscodec
 testnet_xaddress = (
-    addresscodec.address_to_xaddress(
+    addresscodec.classic_classic_address_to_xaddress(
         "rMPUKmzmDWEX1tQhzQ8oGFNfAEhnWNFwz",
         tag=0,
         is_test_network=True,

@@ -7,7 +7,7 @@ from tests.integration.it_utils import (
 )
 from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.asyncio.account import does_account_exist, get_balance, get_latest_transaction
-from xrpl.core.addresscodec import address_to_xaddress
+from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.transactions import Payment
 from xrpl.wallet import Wallet
 
@@ -28,7 +28,7 @@ class TestAccount(IntegrationTestCase):
 
     @test_async_and_sync(globals(), ["xrpl.account.does_account_exist"])
     async def test_does_account_exist_xaddress(self, client):
-        xaddress = address_to_xaddress(WALLET.address, None, True)
+        xaddress = classic_address_to_xaddress(WALLET.address, None, True)
         self.assertTrue(await does_account_exist(xaddress, client))
 
     @test_async_and_sync(globals(), ["xrpl.account.get_balance"])
