@@ -192,8 +192,9 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
                 ))
 
                 # sleep infinitely until the connection closes on us
-                while True:
+                while client.is_open():
                     await asyncio.sleep(0)
+                listener.cancel()
 
 
         async def main():
