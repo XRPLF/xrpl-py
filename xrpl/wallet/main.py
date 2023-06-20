@@ -19,10 +19,17 @@ class Wallet:
     @property
     def address(self: Wallet) -> str:
         """
-        The address that publicly identifies this wallet,
-        as a base58 string.
+        The XRPL address that publicly identifies this wallet,
+        as a base58 string. This is the same value as the `classic_address`.
         """  # noqa: DAR201
         return self._address
+
+    classic_address = address
+    """
+    `classic_address` is the same as `address`. It is called `classic_address` to
+    differentiate it from the x-address standard, which encodes the network,
+    destination tag, and XRPL address into a single value. It's also a base58 string.
+    """
 
     def __init__(
         self: Wallet,
