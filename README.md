@@ -20,7 +20,7 @@ private_key: -HIDDEN-
 classic_address: rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo
 
 # look up account info
-from xrpl.models.requests.account_info import AccountInfo
+from xrpl.models import AccountInfo
 acct_info = AccountInfo(
     account="rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo",
     ledger_index="current",
@@ -161,7 +161,7 @@ Use the [`xrpl.transaction`](https://xrpl-py.readthedocs.io/en/stable/source/xrp
 
 
 ```py
-from xrpl.models.transactions import Payment
+from xrpl.models import Payment
 from xrpl.transaction import sign, send_reliable_submission
 from xrpl.ledger import get_latest_validated_ledger_sequence
 from xrpl.account import get_next_valid_seq_number
@@ -204,7 +204,7 @@ print(fee)
 The `xrpl-py` library automatically populates the `fee`, `sequence` and `last_ledger_sequence` fields when you create transactions. In the example above, you could omit those fields and let the library fill them in for you.
 
 ```py
-from xrpl.models.transactions import Payment
+from xrpl.models import Payment
 from xrpl.transaction import send_reliable_submission, autofill_and_sign
 # prepare the transaction
 # the amount is expressed in drops, not XRP
@@ -253,7 +253,7 @@ You can send `subscribe` and `unsubscribe` requests only using the WebSocket net
 ```py
 from xrpl.clients import WebsocketClient
 url = "wss://s.altnet.rippletest.net/"
-from xrpl.models.requests import Subscribe, StreamParameter
+from xrpl.models import Subscribe, StreamParameter
 req = Subscribe(streams=[StreamParameter.LEDGER])
 # NOTE: this code will run forever without a timeout, until the process is killed
 with WebsocketClient(url) as client:
@@ -275,7 +275,7 @@ This sample code is the asynchronous equivalent of the above section on submitti
 
 ```py
 import asyncio
-from xrpl.models.transactions import Payment
+from xrpl.models import Payment
 from xrpl.asyncio.transaction import sign, send_reliable_submission
 from xrpl.asyncio.ledger import get_latest_validated_ledger_sequence
 from xrpl.asyncio.account import get_next_valid_seq_number

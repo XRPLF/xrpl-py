@@ -1,9 +1,6 @@
 """Example of how to find the best path to trade with"""
 from xrpl.clients import JsonRpcClient
-from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.currencies.xrp import XRP
-from xrpl.models.requests import RipplePathFind
-from xrpl.models.transactions import Payment
+from xrpl.models import XRP, IssuedCurrencyAmount, Payment, RipplePathFind
 from xrpl.transaction import autofill_and_sign
 from xrpl.wallet import generate_faucet_wallet
 

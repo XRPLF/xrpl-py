@@ -1,6 +1,6 @@
 """Example of how we can multisign a transaction"""
 from xrpl.clients import JsonRpcClient
-from xrpl.models.transactions import AccountSet, SignerEntry, SignerListSet
+from xrpl.models import AccountSet, SignerEntry, SignerListSet
 from xrpl.transaction import autofill, multisign, sign, submit_and_wait
 from xrpl.utils import str_to_hex
 from xrpl.wallet import Wallet, generate_faucet_wallet

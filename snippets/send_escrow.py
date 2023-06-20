@@ -1,8 +1,11 @@
 """Example of how we can set up an escrow"""
+from datetime import datetime
+
 from xrpl.account import get_balance
 from xrpl.clients import JsonRpcClient
-from xrpl.models import AccountObjects, EscrowCreate, EscrowFinish, Ledger
+from xrpl.models import AccountObjects, EscrowCreate, EscrowFinish
 from xrpl.transaction.reliable_submission import submit_and_wait
+from xrpl.utils import datetime_to_ripple_time
 from xrpl.wallet import generate_faucet_wallet
 
 # References
@@ -23,9 +26,7 @@ print(get_balance(wallet1.classic_address, client))
 print(get_balance(wallet2.classic_address, client))
 
 # Create a finish time (2 seconds from last ledger close)
-last_ledger = client.request(Ledger(ledger_index="validated"))
-last_ledger_close_time = last_ledger.result["ledger"]["close_time"]
-finish_after = last_ledger_close_time + 5
+finish_after = datetime_to_ripple_time(datetime.now()) + 2
 
 # Create an EscrowCreate transaction, then sign, autofill, and send it
 create_tx = EscrowCreate(

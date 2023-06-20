@@ -11,6 +11,7 @@
         "aiounittest",
         "altnet",
         "asyncio",
+        "autofills",
         "binarycodec",
         "keypair",
         "keypairs",

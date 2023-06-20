@@ -1,7 +1,7 @@
 """Example of how we can setting a regular key"""
 from xrpl.account import get_balance
 from xrpl.clients import JsonRpcClient
-from xrpl.models.transactions import Payment, SetRegularKey
+from xrpl.models import Payment, SetRegularKey
 from xrpl.transaction import submit_and_wait
 from xrpl.wallet import generate_faucet_wallet
 
