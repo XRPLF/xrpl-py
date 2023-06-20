@@ -25,7 +25,7 @@ print(get_balance(wallet2.classic_address, client))
 # Create a finish time (2 seconds from last ledger close)
 last_ledger = client.request(Ledger(ledger_index="validated"))
 last_ledger_close_time = last_ledger.result["ledger"]["close_time"]
-finish_after = last_ledger_close_time + 2
+finish_after = last_ledger_close_time + 5
 
 # Create an EscrowCreate transaction, then sign, autofill, and send it
 create_tx = EscrowCreate(
