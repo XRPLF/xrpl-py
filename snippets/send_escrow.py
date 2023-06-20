@@ -25,8 +25,8 @@ print("Balances of wallets before Escrow tx was created:")
 print(get_balance(wallet1.classic_address, client))
 print(get_balance(wallet2.classic_address, client))
 
-# Create a finish time (2 seconds from last ledger close)
-finish_after = datetime_to_ripple_time(datetime.now()) + 3
+# Create a finish time (4 seconds from last ledger close)
+finish_after = datetime_to_ripple_time(datetime.now()) + 4
 
 # Create an EscrowCreate transaction, then sign, autofill, and send it
 create_tx = EscrowCreate(
