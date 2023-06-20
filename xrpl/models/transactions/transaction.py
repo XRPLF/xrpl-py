@@ -261,6 +261,9 @@ class Transaction(BaseModel):
     transaction. Automatically added during signing.
     """
 
+    network_id: Optional[int] = None
+    """The network id of the transaction."""
+
     def _get_errors(self: Transaction) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.ticket_sequence is not None and (
