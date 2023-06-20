@@ -1,5 +1,6 @@
 """Example of how we can set up an escrow"""
 from datetime import datetime
+from time import sleep
 
 from xrpl.account import get_balance
 from xrpl.clients import JsonRpcClient
@@ -45,6 +46,7 @@ account_objects = (client.request(account_objects_request)).result["account_obje
 
 print("Escrow object exists in wallet1's account:")
 print(account_objects)
+sleep(3)
 
 # Create an EscrowFinish transaction, then sign, autofill, and send it
 finish_tx = EscrowFinish(
