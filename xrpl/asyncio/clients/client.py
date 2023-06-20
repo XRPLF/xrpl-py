@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
@@ -22,6 +23,8 @@ class Client(ABC):
             url: The url to which this client will connect
         """
         self.url = url
+        self.network_id: Optional[int] = None
+        self.build_version: Optional[str] = None
 
     @abstractmethod
     async def _request_impl(self: Client, request: Request) -> Response:

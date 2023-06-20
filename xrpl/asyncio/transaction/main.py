@@ -11,7 +11,7 @@ from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec import encode, encode_for_multisigning, encode_for_signing
 from xrpl.core.keypairs.main import sign as keypairs_sign
-from xrpl.models.requests import ServerState, SubmitOnly
+from xrpl.models.requests import ServerInfo, ServerState, SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions import EscrowFinish
 from xrpl.models.transactions.transaction import Signer, Transaction
@@ -23,7 +23,14 @@ from xrpl.utils import drops_to_xrp, xrp_to_drops
 from xrpl.wallet.main import Wallet
 
 _LEDGER_OFFSET: Final[int] = 20
-
+# Sidechains are expected to have network IDs above this.
+# Networks with ID above this restricted number are expected to specify an
+# accurate NetworkID field in every transaction to that chain to prevent replay attacks.
+# Mainnet and testnet are exceptions.
+# More context: https://github.com/XRPLF/rippled/pull/4370
+_RESTRICTED_NETWORKS = 1024
+_REQUIRED_NETWORKID_VERSION = "1.11.0"
+_HOOKS_TESTNET_ID = 21338
 # TODO: make this dynamic based on the current ledger fee
 _ACCOUNT_DELETE_FEE: Final[int] = int(xrp_to_drops(2))
 
@@ -235,6 +242,10 @@ async def autofill(
         The autofilled transaction.
     """
     transaction_json = transaction.to_dict()
+    if not client.network_id:
+        await _get_network_id_and_build_version(client)
+    if "network_id" not in transaction_json and _tx_needs_networkID(client):
+        transaction_json["network_id"] = client.network_id
     if "sequence" not in transaction_json:
         sequence = await get_next_valid_seq_number(transaction_json["account"], client)
         transaction_json["sequence"] = sequence
@@ -246,6 +257,105 @@ async def autofill(
         ledger_sequence = await get_latest_validated_ledger_sequence(client)
         transaction_json["last_ledger_sequence"] = ledger_sequence + _LEDGER_OFFSET
     return Transaction.from_dict(transaction_json)
+
+
+async def _get_network_id_and_build_version(client: Client) -> None:
+    """
+    Get the network id and build version of the connected server.
+
+    Args:
+        client: The network client to use to send the request.
+
+    Raises:
+        XRPLRequestFailureException: if the rippled API call fails.
+    """
+    response = await client._request_impl(ServerInfo())
+    if response.is_successful():
+        if "network_id" in response.result["info"]:
+            client.network_id = response.result["info"]["network_id"]
+        if not client.build_version and "build_version" in response.result["info"]:
+            client.build_version = response.result["info"]["build_version"]
+        return
+
+    raise XRPLRequestFailureException(response.result)
+
+
+def _tx_needs_networkID(client: Client) -> bool:
+    """
+    Determines whether the transactions required network ID to be valid.
+    Transaction needs networkID if later than restricted ID and either
+        the network is hooks testnet or build version is >= 1.11.0.
+    More context: https://github.com/XRPLF/rippled/pull/4370
+
+    Args:
+        client (Client): The network client to use to send the request.
+
+    Returns:
+        bool: whether the transactions required network ID to be valid
+    """
+    if client.network_id and client.network_id > _RESTRICTED_NETWORKS:
+        # TODO: remove the buildVersion logic when 1.11.0 is out and widely used.
+        # Issue: https://github.com/XRPLF/xrpl-py/issues/595
+        if (
+            client.build_version
+            and _is_not_later_rippled_version(
+                _REQUIRED_NETWORKID_VERSION, client.build_version
+            )
+        ) or client.network_id == _HOOKS_TESTNET_ID:
+            return True
+    return False
+
+
+def _is_not_later_rippled_version(source: str, target: str) -> bool:
+    """
+    Determines whether the source version is not a later release than the
+        target version.
+
+    Args:
+        source: the source rippled version.
+        target: the target rippled version.
+
+    Returns:
+        bool: true if source is earlier, false otherwise.
+    """
+    if source == target:
+        return True
+    source_decomp = source.split(".")
+    target_decomp = target.split(".")
+    source_major, source_minor = int(source_decomp[0]), int(source_decomp[1])
+    target_major, target_minor = int(target_decomp[0]), int(target_decomp[1])
+
+    # Compare major version
+    if source_major != target_major:
+        return source_major < target_major
+
+    # Compare minor version
+    if source_minor != target_minor:
+        return source_minor < target_minor
+
+    source_patch = source_decomp[2].split("-")
+    target_patch = target_decomp[2].split("-")
+    source_patch_version = int(source_patch[0])
+    target_patch_version = int(target_patch[0])
+
+    # Compare patch version
+    if source_patch_version != target_patch_version:
+        return source_patch_version < target_patch_version
+
+    # Compare release version
+    if len(source_patch) != len(target_patch):
+        return len(source_patch) > len(target_patch)
+
+    if len(source_patch) == 2:
+        # Compare release types
+        if not source_patch[1][0].startswith(target_patch[1][0]):
+            return source_patch[1] < target_patch[1]
+        # Compare beta versions
+        if source_patch[1].startswith("b"):
+            return int(source_patch[1][1:]) < int(target_patch[1][1:])
+        # Compare rc versions
+        return int(source_patch[1][2:]) < int(target_patch[1][2:])
+    return False
 
 
 def _validate_account_xaddress(
