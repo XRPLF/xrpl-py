@@ -28,5 +28,6 @@ def multisign(transaction: Transaction, tx_list: List[Transaction]) -> Transacti
         )
         for decoded_tx_signer in decoded_tx_signers
     ]
+    tx_dict["signers"].sort(key=lambda signer: signer.account)
 
     return Transaction.from_dict(tx_dict)
