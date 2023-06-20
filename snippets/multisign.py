@@ -3,15 +3,15 @@ from xrpl.clients import JsonRpcClient
 from xrpl.models.transactions import AccountSet, SignerEntry, SignerListSet
 from xrpl.transaction import autofill, multisign, sign, submit_and_wait
 from xrpl.utils import str_to_hex
-from xrpl.wallet import generate_faucet_wallet
+from xrpl.wallet import Wallet, generate_faucet_wallet
 
 client = JsonRpcClient("https://s.altnet.rippletest.net:51234")
 
 # Create a wallets to use for multisigning
 # Prints debug info as it creates the wallet
 master_wallet = generate_faucet_wallet(client, debug=True)
-signer_wallet_1 = generate_faucet_wallet(client, debug=True)
-signer_wallet_2 = generate_faucet_wallet(client, debug=True)
+signer_wallet_1 = Wallet.create()
+signer_wallet_2 = Wallet.create()
 
 signer_entries = [
     SignerEntry(account=signer_wallet_1.classic_address, signer_weight=1),
@@ -48,7 +48,7 @@ tx_2 = sign(autofilled_account_set_tx, signer_wallet_2, multisign=True)
 multisigned_tx = multisign(autofilled_account_set_tx, [tx_1, tx_2])
 
 print("Successfully multisigned the transaction")
-print(multisigned_tx)
+print(multisigned_tx.to_xrpl())
 
 multisigned_tx_response = submit_and_wait(multisigned_tx, client)
 
