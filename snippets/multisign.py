@@ -17,6 +17,7 @@ signer_entries = [
     SignerEntry(account=signer_wallet_1.classic_address, signer_weight=1),
     SignerEntry(account=signer_wallet_2.classic_address, signer_weight=1),
 ]
+signer_entries.sort(key=lambda entry: entry.account)
 signer_list_set_tx = SignerListSet(
     account=master_wallet.classic_address,
     signer_quorum=2,
