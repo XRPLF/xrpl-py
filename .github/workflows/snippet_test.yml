@@ -49,4 +49,4 @@ jobs:
 
 
       - name: Run Snippets
-        run: (for i in packages/xrpl/snippets/src/*.ts; do echo "Running $i" && python $i || exit 1; done)
+        run: (for i in snippets/*.py; do echo "Running $i" && poetry run python $i || exit 1; done)
