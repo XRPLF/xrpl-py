@@ -10,7 +10,7 @@ _FEE = "0.00001"
 
 
 # TODO: move to test_transaction and use the standard integration test setup
-class TestAutofill(TestCase):
+class TestNetworkID(TestCase):
     # Autofill should override tx networkID for network with ID > 1024
     # and build_version from 1.11.0 or later.
     def test_networkid_override(self):
