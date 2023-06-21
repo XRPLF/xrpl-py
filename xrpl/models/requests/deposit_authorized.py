@@ -5,16 +5,15 @@ Deposit Authorization for information on how to require
 authorization to deliver money to your account.
 """
 from dataclasses import dataclass, field
-from typing import Optional
 
-from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class DepositAuthorized(Request):
+class DepositAuthorized(Request, LookupByLedgerRequest):
     """
     The deposit_authorized command indicates whether one account
     is authorized to send payments directly to another. See
@@ -37,5 +36,3 @@ class DepositAuthorized(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.DEPOSIT_AUTHORIZED, init=False)
-    ledger_hash: Optional[str] = None
-    ledger_index: Optional[str] = None
