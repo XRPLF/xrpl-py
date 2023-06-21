@@ -1,8 +1,7 @@
 """Example of how to send a transaction and see its validation response"""
 from xrpl.account import get_balance
 from xrpl.clients import JsonRpcClient
-from xrpl.models.requests import Tx
-from xrpl.models.transactions import Payment
+from xrpl.models import Payment, Tx
 from xrpl.transaction import submit_and_wait
 from xrpl.wallet import generate_faucet_wallet
 
@@ -30,7 +29,8 @@ payment_tx = Payment(
     destination=wallet2.classic_address,
 )
 
-# Signs, autofills, and submits transaction and waits for response (validated or rejected)
+# Signs, autofills, and submits transaction and waits for response
+# (validated or rejected)
 payment_response = submit_and_wait(payment_tx, client, wallet1)
 print("Transaction was submitted")
 
