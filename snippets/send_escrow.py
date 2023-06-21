@@ -46,7 +46,9 @@ account_objects = (client.request(account_objects_request)).result["account_obje
 
 print("Escrow object exists in wallet1's account:")
 print(account_objects)
-sleep(3)
+
+print("Waiting for the escrow finish time to pass...")
+sleep(6)
 
 # Create an EscrowFinish transaction, then sign, autofill, and send it
 finish_tx = EscrowFinish(
