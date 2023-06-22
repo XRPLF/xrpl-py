@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed:
 - Added a sort of the account IDs in `multisign`, so that the `multisign` always works.
 - Add `ledger_hash` and `ledger_index` to `account_nfts`, `nft_buy_offers`, and `nft_sell_offers` requests.
+- Add `nft_page` to `ledger_entry` request.
 
 ## [1.9.0] - 2023-06-13
 ### Added:
