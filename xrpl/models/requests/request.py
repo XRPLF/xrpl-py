@@ -83,7 +83,6 @@ class RequestMethod(str, Enum):
 R = TypeVar("R", bound="Request")
 
 
-@require_kwargs_on_init
 @dataclass(frozen=True)
 class Request(BaseModel):
     """
@@ -182,6 +181,8 @@ class Request(BaseModel):
         return {**super().to_dict(), "method": self.method.value}
 
 
+@require_kwargs_on_init
+@dataclass(frozen=True)
 class LookupByLedgerRequest:
     """Represents requests that need specifying an instance of the ledger"""
 
