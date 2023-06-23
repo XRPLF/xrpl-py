@@ -1,10 +1,10 @@
 """Example of how we can set up an escrow"""
 from datetime import datetime
+from time import sleep
 
 from xrpl.account import get_balance
 from xrpl.clients import JsonRpcClient
-from xrpl.models.requests import AccountObjects
-from xrpl.models.transactions import EscrowCreate, EscrowFinish
+from xrpl.models import AccountObjects, EscrowCreate, EscrowFinish
 from xrpl.transaction.reliable_submission import submit_and_wait
 from xrpl.utils import datetime_to_ripple_time
 from xrpl.wallet import generate_faucet_wallet
@@ -26,8 +26,8 @@ print("Balances of wallets before Escrow tx was created:")
 print(get_balance(wallet1.classic_address, client))
 print(get_balance(wallet2.classic_address, client))
 
-# Create a finish time (2 seconds from current time)
-finish_after = datetime_to_ripple_time(datetime.now()) + 2
+# Create a finish time (8 seconds from last ledger close)
+finish_after = datetime_to_ripple_time(datetime.now()) + 8
 
 # Create an EscrowCreate transaction, then sign, autofill, and send it
 create_tx = EscrowCreate(
@@ -37,7 +37,7 @@ create_tx = EscrowCreate(
     finish_after=finish_after,
 )
 
-create_escrow_response = submit_and_wait(create_tx, wallet1, client)
+create_escrow_response = submit_and_wait(create_tx, client, wallet1)
 print(create_escrow_response)
 
 # Create an AccountObjects request and have the client call it to see if escrow exists
@@ -46,6 +46,9 @@ account_objects = (client.request(account_objects_request)).result["account_obje
 
 print("Escrow object exists in wallet1's account:")
 print(account_objects)
+
+print("Waiting for the escrow finish time to pass...")
+sleep(6)
 
 # Create an EscrowFinish transaction, then sign, autofill, and send it
 finish_tx = EscrowFinish(

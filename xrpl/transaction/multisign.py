@@ -1,6 +1,7 @@
 """Multisign transaction methods with XRPL transactions."""
 from typing import List
 
+from xrpl.core.addresscodec import decode_classic_address
 from xrpl.models.transactions.transaction import Signer, Transaction
 
 
@@ -28,5 +29,6 @@ def multisign(transaction: Transaction, tx_list: List[Transaction]) -> Transacti
         )
         for decoded_tx_signer in decoded_tx_signers
     ]
+    tx_dict["signers"].sort(key=lambda signer: decode_classic_address(signer.account))
 
     return Transaction.from_dict(tx_dict)

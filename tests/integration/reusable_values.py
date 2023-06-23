@@ -1,8 +1,7 @@
 import asyncio
 
 from tests.integration.it_utils import fund_wallet, sign_and_reliable_submission_async
-from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.transactions import OfferCreate, PaymentChannelCreate
+from xrpl.models import IssuedCurrencyAmount, OfferCreate, PaymentChannelCreate
 from xrpl.wallet import Wallet
 
 

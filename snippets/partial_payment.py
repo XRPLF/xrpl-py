@@ -1,8 +1,12 @@
 """Example of how to handle partial payments"""
 from xrpl.clients import JsonRpcClient
-from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.requests import AccountLines
-from xrpl.models.transactions import Payment, PaymentFlag, TrustSet
+from xrpl.models import (
+    AccountLines,
+    IssuedCurrencyAmount,
+    Payment,
+    PaymentFlag,
+    TrustSet,
+)
 from xrpl.transaction import submit_and_wait
 from xrpl.wallet import generate_faucet_wallet
 

@@ -1,7 +1,7 @@
 """Example of how we can setting a regular key"""
 from xrpl.account import get_balance
 from xrpl.clients import JsonRpcClient
-from xrpl.models.transactions import Payment, SetRegularKey
+from xrpl.models import Payment, SetRegularKey
 from xrpl.transaction import submit_and_wait
 from xrpl.wallet import generate_faucet_wallet
 
@@ -28,7 +28,7 @@ tx = SetRegularKey(
     account=wallet1.classic_address, regular_key=regular_key_wallet.classic_address
 )
 
-set_regular_key_response = submit_and_wait(tx, wallet1, client)
+set_regular_key_response = submit_and_wait(tx, client, wallet1)
 
 print("Response for successful SetRegularKey tx:")
 print(set_regular_key_response)

@@ -1,6 +1,6 @@
 """Example of how we can see a transaction that was validated on the ledger"""
 from xrpl.clients import JsonRpcClient
-from xrpl.models.requests import Ledger, Tx
+from xrpl.models import Ledger, Tx
 
 # References
 # - https://xrpl.org/look-up-transaction-results.html
