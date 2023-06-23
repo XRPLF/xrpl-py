@@ -16,7 +16,6 @@ from typing import Any, Dict, Type, Union
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.utils import require_kwargs_on_init
-from xrpl.utils.xrp_conversions import xrp_to_drops
 
 
 @require_kwargs_on_init
@@ -72,6 +71,8 @@ class XRP(BaseModel):
         Returns:
             A string representation of XRP amount.
         """
+        from xrpl.utils.xrp_conversions import xrp_to_drops
+
         if isinstance(value, str):
             return xrp_to_drops(float(value))
         return xrp_to_drops(value)
