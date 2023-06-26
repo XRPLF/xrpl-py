@@ -8,16 +8,16 @@ All information retrieved is relative to a particular version of the ledger.
 `See account_channels <https://xrpl.org/account_channels.html>`_
 """
 from dataclasses import dataclass, field
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
-from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class AccountChannels(Request):
+class AccountChannels(Request, LookupByLedgerRequest):
     """
     This request returns information about an account's Payment Channels. This includes
     only channels where the specified account is the channel's source, not the
@@ -41,5 +41,3 @@ class AccountChannels(Request):
     # marker data shape is actually undefined in the spec, up to the
     # implementation of an individual server
     marker: Optional[Any] = None
-    ledger_hash: Optional[str] = None
-    ledger_index: Optional[Union[str, int]] = None
