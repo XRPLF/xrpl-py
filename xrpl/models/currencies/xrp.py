@@ -71,7 +71,7 @@ class XRP(BaseModel):
         Returns:
             A string representation of XRP amount.
         """
-        # needed to avoid circular dependency
+        # import needed here to avoid circular dependency
         from xrpl.utils.xrp_conversions import xrp_to_drops
 
         if isinstance(value, str):
