@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `AccountSetFlagInterface` now operates on transaction `tf` flags (as opposed to `asf` flags)
 - `sign` is now synchronous instead of async (done by removing the optional `check_fee` param & moving checks up to other functions)
 - In order to be internally consistent, all signing/submitting functions will follow the parameter order of `transaction`, `client`, `wallet`, and then other parameters. (This is because `wallet` is optional for `submit_and_wait` and so must come after `client`)
+- `XRP.to_amount` now converts from XRP to drops, instead of expecting a drops amount
 
 ### Fixed:
 - Added a sort of the account IDs in `multisign`, so that the `multisign` always works.
