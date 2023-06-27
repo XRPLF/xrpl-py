@@ -11,7 +11,7 @@ from xrpl.models.transactions import EscrowFinish
 # See note here: https://xrpl.org/escrowfinish.html
 FEE = "600000000"
 
-ACCOUNT = WALLET.classic_address
+ACCOUNT = WALLET.address
 OWNER = "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
 OFFER_SEQUENCE = 7
 CONDITION = (

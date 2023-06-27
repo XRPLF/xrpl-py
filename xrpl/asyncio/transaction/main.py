@@ -91,7 +91,7 @@ def sign(
             bytes.fromhex(
                 encode_for_multisigning(
                     transaction.to_xrpl(),
-                    wallet.classic_address,
+                    wallet.address,
                 )
             ),
             wallet.private_key,
@@ -99,7 +99,7 @@ def sign(
         tx_dict = transaction.to_dict()
         tx_dict["signers"] = [
             Signer(
-                account=wallet.classic_address,
+                account=wallet.address,
                 txn_signature=signature,
                 signing_pub_key=wallet.public_key,
             )
