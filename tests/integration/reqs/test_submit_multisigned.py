@@ -12,17 +12,17 @@ FIRST_SIGNER = Wallet("sEdTLQkHAWpdS7FDk7EvuS7Mz8aSMRh", 0)
 SECOND_SIGNER = Wallet("sEd7DXaHkGQD8mz8xcRLDxfMLqCurif", 0)
 SIGNER_ENTRIES = [
     SignerEntry(
-        account=FIRST_SIGNER.classic_address,
+        account=FIRST_SIGNER.address,
         signer_weight=1,
     ),
     SignerEntry(
-        account=SECOND_SIGNER.classic_address,
+        account=SECOND_SIGNER.address,
         signer_weight=1,
     ),
 ]
 LIST_SET_TX = sign_and_reliable_submission(
     SignerListSet(
-        account=WALLET.classic_address,
+        account=WALLET.address,
         signer_quorum=2,
         signer_entries=SIGNER_ENTRIES,
     ),

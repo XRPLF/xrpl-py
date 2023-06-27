@@ -97,7 +97,7 @@ def fund_wallet_sync(wallet: Wallet) -> None:
     client = JSON_RPC_CLIENT
     payment = Payment(
         account=MASTER_ACCOUNT,
-        destination=wallet.classic_address,
+        destination=wallet.address,
         amount=FUNDING_AMOUNT,
     )
     sign_and_submit(payment, client, MASTER_WALLET, check_fee=True)
@@ -109,7 +109,7 @@ async def fund_wallet(
 ) -> None:
     payment = Payment(
         account=MASTER_ACCOUNT,
-        destination=wallet.classic_address,
+        destination=wallet.address,
         amount=FUNDING_AMOUNT,
     )
     await sign_and_submit_async(payment, client, MASTER_WALLET, check_fee=True)

@@ -13,7 +13,7 @@ fund_wallet_sync(WALLET)
 DESTINATION = Wallet.create()
 fund_wallet_sync(DESTINATION)
 
-ACCOUNT = WALLET.classic_address
+ACCOUNT = WALLET.address
 DESTINATION_TAG = 1
 SENDMAX = "100000000"
 EXPIRATION = 970113521
@@ -25,7 +25,7 @@ class TestCheckCreate(IntegrationTestCase):
     async def test_all_fields(self, client):
         check_create = CheckCreate(
             account=ACCOUNT,
-            destination=DESTINATION.classic_address,
+            destination=DESTINATION.address,
             destination_tag=DESTINATION_TAG,
             send_max=SENDMAX,
             expiration=EXPIRATION,

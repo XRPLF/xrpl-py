@@ -9,11 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added:
 - Wallet support for regular key compatibility
 - Added new ways of wallet generation: `from_seed`, `from_secret`, `from_entropy`, `from_secret_numbers`
-- Added address alias to `Wallet.classic_address `
+- Replaced `Wallet.classic_address` with `Wallet.address` to avoid confusion. (`classic_address` is the same as your XRPL account `address`, and is only called classic since it's an older standard than `x-address`)
 
 ### Changed:
 - Updated params for Wallet class constructor
-- `Wallet.address` and `Wallet.classic_address` are now readonly
+- `Wallet.address` is now readonly
 - Removed Sequence from Wallet class
 - Core keypairs generate seed must take in hexstring instead of bytestring
 - Core keypairs formatting for ED25519 is now padded with zeros if length of keystring is less than 64

@@ -24,8 +24,8 @@ from xrpl.models.requests import ServerState, Tx
 from xrpl.models.transactions import AccountDelete, AccountSet, EscrowFinish, Payment
 from xrpl.utils import xrp_to_drops
 
-ACCOUNT = WALLET.classic_address
-DESTINATION = DESTINATION_WALLET.classic_address
+ACCOUNT = WALLET.address
+DESTINATION = DESTINATION_WALLET.address
 
 CLEAR_FLAG = 3
 DOMAIN = "6578616D706C652E636F6D".lower()
@@ -49,7 +49,7 @@ class TestTransaction(IntegrationTestCase):
     async def test_none_as_destination_tag(self, client):
         # GIVEN a new transaction (payment)
         payment_transaction = Payment(
-            account=WALLET.classic_address,
+            account=WALLET.address,
             amount="100",
             destination=classic_address_to_xaddress(DESTINATION, None, False),
         )
@@ -113,7 +113,7 @@ class TestTransaction(IntegrationTestCase):
         # GIVEN a new Payment transaction
         response = await sign_and_reliable_submission_async(
             Payment(
-                account=WALLET.classic_address,
+                account=WALLET.address,
                 amount="1",
                 # WITH the fee higher than 2 XRP
                 fee=FEE,
@@ -137,7 +137,7 @@ class TestTransaction(IntegrationTestCase):
     async def test_payment_high_fee_authorized_with_submit_alias(self, client):
         signed_and_autofilled = await autofill_and_sign(
             Payment(
-                account=WALLET.classic_address,
+                account=WALLET.address,
                 amount="1",
                 fee=FEE,
                 destination=DESTINATION,
@@ -202,7 +202,7 @@ class TestTransaction(IntegrationTestCase):
     async def test_calculate_payment_fee(self, client):
         # GIVEN a new Payment transaction
         payment = Payment(
-            account=WALLET.classic_address,
+            account=WALLET.address,
             amount="100",
             destination=DESTINATION,
         )

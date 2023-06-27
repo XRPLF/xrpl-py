@@ -23,7 +23,7 @@ def sync_generate_faucet_wallet_and_fund_again(
     )
     result = client.request(
         AccountInfo(
-            account=wallet.classic_address,
+            account=wallet.address,
         ),
     )
     balance = int(result.result["account_data"]["Balance"])
@@ -34,7 +34,7 @@ def sync_generate_faucet_wallet_and_fund_again(
     )
     new_result = client.request(
         AccountInfo(
-            account=new_wallet.classic_address,
+            account=new_wallet.address,
         ),
     )
     new_balance = int(new_result.result["account_data"]["Balance"])
@@ -49,7 +49,7 @@ async def generate_faucet_wallet_and_fund_again(
     )
     result = await client.request(
         AccountInfo(
-            account=wallet.classic_address,
+            account=wallet.address,
         ),
     )
     balance = int(result.result["account_data"]["Balance"])
@@ -60,7 +60,7 @@ async def generate_faucet_wallet_and_fund_again(
     )
     new_result = await client.request(
         AccountInfo(
-            account=new_wallet.classic_address,
+            account=new_wallet.address,
         ),
     )
     new_balance = int(new_result.result["account_data"]["Balance"])
@@ -101,10 +101,10 @@ class TestWallet(IntegrationTestCase):
         # TODO: refactor so this actually waits for validation
         response = await submit_transaction_async(
             Payment(
-                account=wallet.classic_address,
+                account=wallet.address,
                 fee="10",
                 amount="1",
-                destination=destination.classic_address,
+                destination=destination.address,
             ),
             wallet,
             client=client,
@@ -192,7 +192,7 @@ class TestWallet(IntegrationTestCase):
 
             result = await client.request(
                 AccountInfo(
-                    account=wallet.classic_address,
+                    account=wallet.address,
                 ),
             )
             balance = int(result.result["account_data"]["Balance"])
@@ -214,7 +214,7 @@ class TestWallet(IntegrationTestCase):
             await generate_faucet_wallet(client, wallet)
             result = await client.request(
                 AccountInfo(
-                    account=wallet.classic_address,
+                    account=wallet.address,
                 ),
             )
             balance = int(result.result["account_data"]["Balance"])
@@ -230,7 +230,7 @@ class TestWallet(IntegrationTestCase):
             )
             new_result = await client.request(
                 AccountInfo(
-                    account=new_wallet.classic_address,
+                    account=new_wallet.address,
                 ),
             )
             new_balance = int(new_result.result["account_data"]["Balance"])
