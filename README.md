@@ -130,7 +130,7 @@ Here's an example of how to generate a `seed` value and derive an [XRP Ledger "c
 from xrpl.core import keypairs
 seed = keypairs.generate_seed()
 public, private = keypairs.derive_keypair(seed)
-test_account = keypairs.derive_address(public)
+test_account = keypairs.derive_classic_address(public)
 print("Here's the public key:")
 print(public)
 print("Here's the private key:")
