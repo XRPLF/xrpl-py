@@ -12,7 +12,7 @@ class TestPaymentChannelClaim(IntegrationTestCase):
     async def test_receiver_claim(self, client):
         response = await sign_and_reliable_submission_async(
             PaymentChannelClaim(
-                account=WALLET.classic_address,
+                account=WALLET.address,
                 channel=PAYMENT_CHANNEL.result["tx_json"]["hash"],
             ),
             WALLET,

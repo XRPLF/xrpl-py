@@ -13,11 +13,11 @@ class TestOfferCreate(IntegrationTestCase):
     async def test_basic_functionality(self, client):
         offer = await sign_and_reliable_submission_async(
             OfferCreate(
-                account=WALLET.classic_address,
+                account=WALLET.address,
                 taker_gets="13100000",
                 taker_pays=IssuedCurrencyAmount(
                     currency="USD",
-                    issuer=WALLET.classic_address,
+                    issuer=WALLET.address,
                     value="10",
                 ),
             ),

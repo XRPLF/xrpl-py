@@ -15,11 +15,11 @@ class TestSignerListSet(IntegrationTestCase):
         other_signer = Wallet.create()
         response = await sign_and_reliable_submission_async(
             SignerListSet(
-                account=WALLET.classic_address,
+                account=WALLET.address,
                 signer_quorum=1,
                 signer_entries=[
                     SignerEntry(
-                        account=other_signer.classic_address,
+                        account=other_signer.address,
                         signer_weight=1,
                     ),
                 ],

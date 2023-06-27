@@ -12,7 +12,7 @@ class TestPaymentChannelFund(IntegrationTestCase):
     async def test_basic_functionality(self, client):
         response = await sign_and_reliable_submission_async(
             PaymentChannelFund(
-                account=WALLET.classic_address,
+                account=WALLET.address,
                 channel=PAYMENT_CHANNEL.result["tx_json"]["hash"],
                 amount="1",
             ),

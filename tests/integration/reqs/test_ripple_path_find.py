@@ -9,8 +9,8 @@ class TestRipplePathFind(IntegrationTestCase):
     async def test_basic_functionality(self, client):
         response = await client.request(
             RipplePathFind(
-                source_account=WALLET.classic_address,
-                destination_account=DESTINATION.classic_address,
+                source_account=WALLET.address,
+                destination_account=DESTINATION.address,
                 destination_amount="100",
             ),
         )
