@@ -57,7 +57,7 @@ async def generate_faucet_wallet(
     if wallet is None:
         wallet = Wallet.create()
 
-    address = wallet.classic_address
+    address = wallet.address
     # The faucet *can* be flakey... by printing info about this it's easier to
     # understand if tests are actually failing, or if it was just a faucet failure.
     if debug:

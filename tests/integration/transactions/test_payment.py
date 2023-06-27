@@ -12,9 +12,9 @@ class TestPayment(IntegrationTestCase):
     async def test_basic_functionality(self, client):
         response = await sign_and_reliable_submission_async(
             Payment(
-                account=WALLET.classic_address,
+                account=WALLET.address,
                 amount="1",
-                destination=DESTINATION.classic_address,
+                destination=DESTINATION.address,
             ),
             WALLET,
             client,

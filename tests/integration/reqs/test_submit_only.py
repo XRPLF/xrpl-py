@@ -8,11 +8,11 @@ from xrpl.models.requests import SubmitOnly
 from xrpl.models.transactions import OfferCreate
 
 TX = OfferCreate(
-    account=WALLET.classic_address,
+    account=WALLET.address,
     taker_gets="13100000",
     taker_pays=IssuedCurrencyAmount(
         currency="USD",
-        issuer=WALLET.classic_address,
+        issuer=WALLET.address,
         value="10",
     ),
 )

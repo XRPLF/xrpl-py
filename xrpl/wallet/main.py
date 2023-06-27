@@ -17,16 +17,18 @@ class Wallet:
     """
 
     @property
-    def classic_address(self: Wallet) -> str:
+    def address(self: Wallet) -> str:
         """
-        The address that publicly identifies this wallet,
-        as a base58 string.
+        The XRPL address that publicly identifies this wallet,
+        as a base58 string. This is the same value as the `classic_address`.
         """  # noqa: DAR201
-        return self._classic_address
+        return self._address
 
-    address = classic_address
+    classic_address = address
     """
-    The address that publicly identifies this wallet, as a base58 string.
+    `classic_address` is the same as `address`. It is called `classic_address` to
+    differentiate it from the x-address standard, which encodes the network,
+    destination tag, and XRPL address into a single value. It's also a base58 string.
     """
 
     def __init__(
@@ -81,7 +83,7 @@ class Wallet:
         string. MUST be kept secret!
         """
 
-        self._classic_address = (
+        self._address = (
             ensure_classic_address(master_address)
             if master_address is not None
             else derive_classic_address(self.public_key)
@@ -244,7 +246,7 @@ class Wallet:
         Returns:
             The X-Address of the Wallet's account.
         """
-        return classic_address_to_xaddress(self.classic_address, tag, is_test)
+        return classic_address_to_xaddress(self.address, tag, is_test)
 
     def __str__(self: Wallet) -> str:
         """
@@ -257,6 +259,6 @@ class Wallet:
             [
                 f"public_key: {self.public_key}",
                 "private_key: -HIDDEN-",
-                f"classic_address: {self.classic_address}",
+                f"classic_address: {self.address}",
             ]
         )

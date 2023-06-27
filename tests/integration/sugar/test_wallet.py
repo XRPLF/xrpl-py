@@ -19,7 +19,7 @@ def sync_generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
     wallet = sync_generate_faucet_wallet(client, faucet_host=faucet_host)
     result = client.request(
         AccountInfo(
-            account=wallet.classic_address,
+            account=wallet.address,
         ),
     )
     balance = int(result.result["account_data"]["Balance"])
@@ -28,7 +28,7 @@ def sync_generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
     new_wallet = sync_generate_faucet_wallet(client, wallet, faucet_host=faucet_host)
     new_result = client.request(
         AccountInfo(
-            account=new_wallet.classic_address,
+            account=new_wallet.address,
         ),
     )
     new_balance = int(new_result.result["account_data"]["Balance"])
@@ -39,7 +39,7 @@ async def generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
     wallet = await generate_faucet_wallet(client, faucet_host=faucet_host)
     result = await client.request(
         AccountInfo(
-            account=wallet.classic_address,
+            account=wallet.address,
         ),
     )
     balance = int(result.result["account_data"]["Balance"])
@@ -48,7 +48,7 @@ async def generate_faucet_wallet_and_fund_again(self, client, faucet_host=None):
     new_wallet = await generate_faucet_wallet(client, wallet, faucet_host=faucet_host)
     new_result = await client.request(
         AccountInfo(
-            account=new_wallet.classic_address,
+            account=new_wallet.address,
         ),
     )
     new_balance = int(new_result.result["account_data"]["Balance"])
@@ -68,10 +68,10 @@ class TestWallet(IntegrationTestCase):
         # TODO: refactor so this actually waits for validation
         response = await submit_transaction_async(
             Payment(
-                account=wallet.classic_address,
+                account=wallet.address,
                 fee="10",
                 amount="1",
-                destination=destination.classic_address,
+                destination=destination.address,
             ),
             wallet,
             client=client,
@@ -137,7 +137,7 @@ class TestWallet(IntegrationTestCase):
 
             result = await client.request(
                 AccountInfo(
-                    account=wallet.classic_address,
+                    account=wallet.address,
                 ),
             )
             balance = int(result.result["account_data"]["Balance"])
@@ -159,7 +159,7 @@ class TestWallet(IntegrationTestCase):
             await generate_faucet_wallet(client, wallet)
             result = await client.request(
                 AccountInfo(
-                    account=wallet.classic_address,
+                    account=wallet.address,
                 ),
             )
             balance = int(result.result["account_data"]["Balance"])
@@ -173,12 +173,12 @@ class TestWallet(IntegrationTestCase):
             new_wallet = await generate_faucet_wallet(client, wallet)
             new_result = await client.request(
                 AccountInfo(
-                    account=new_wallet.classic_address,
+                    account=new_wallet.address,
                 ),
             )
             new_balance = int(new_result.result["account_data"]["Balance"])
             self.assertTrue(new_balance > balance)
 
     def test_wallet_get_xaddress(self):
-        expected = classic_address_to_xaddress(WALLET.classic_address, None, False)
+        expected = classic_address_to_xaddress(WALLET.address, None, False)
         self.assertEqual(WALLET.get_xaddress(), expected)
