@@ -24,22 +24,22 @@ class TestWallet(TestCase):
         self.assertFalse(wallet.seed.startswith("sEd"))
         self.assertTrue(wallet.seed.startswith("s"))
 
-    def test_init_auto_with_s_seed(self):
-        wallet = Wallet.from_seed(SEED, algorithm=CryptoAlgorithm.SECP256K1)
-        self.assertEqual(wallet.seed, SEED)
-        self.assertEqual(wallet.classic_address, SECP_ADDRESS)
-        self.assertEqual(wallet.algorithm, CryptoAlgorithm.SECP256K1)
+    def test_init_auto_with_default_algorithm(self):
+        wallet = Wallet.from_seed(SED_SEED)
+        self.assertEqual(wallet.seed, SED_SEED)
+        self.assertEqual(wallet.address, SED_ADDRESS)
+        self.assertEqual(wallet.algorithm, CryptoAlgorithm.ED25519)
 
     def test_init_auto_with_sEd_seed(self):
         wallet = Wallet.from_seed(SED_SEED)
         self.assertEqual(wallet.seed, SED_SEED)
-        self.assertEqual(wallet.classic_address, SED_ADDRESS)
+        self.assertEqual(wallet.address, SED_ADDRESS)
         self.assertEqual(wallet.algorithm, CryptoAlgorithm.ED25519)
 
     def test_init_secp256k1_with_s_seed(self):
         wallet = Wallet.from_seed(SEED, algorithm=CryptoAlgorithm.SECP256K1)
         self.assertEqual(wallet.seed, SEED)
-        self.assertEqual(wallet.classic_address, SECP_ADDRESS)
+        self.assertEqual(wallet.address, SECP_ADDRESS)
         self.assertEqual(wallet.algorithm, CryptoAlgorithm.SECP256K1)
 
     def test_init_ed25519_with_s_seed(self):

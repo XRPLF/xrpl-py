@@ -17,7 +17,7 @@ test_wallet = generate_faucet_wallet(client)
 print(test_wallet)
 public_key: ED3CC1BBD0952A60088E89FA502921895FC81FBD79CAE9109A8FE2D23659AD5D56
 private_key: -HIDDEN-
-classic_address: rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo
+address: rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo
 
 # look up account info
 from xrpl.models import AccountInfo
@@ -107,14 +107,14 @@ wallet_from_seed = xrpl.wallet.Wallet.from_seed(seed)
 print(wallet_from_seed)
 # pub_key: ED46949E414A3D6D758D347BAEC9340DC78F7397FEE893132AAF5D56E4D7DE77B0
 # priv_key: -HIDDEN-
-# classic_address: rG5ZvYsK5BPi9f1Nb8mhFGDTNMJhEhufn6
+# address: rG5ZvYsK5BPi9f1Nb8mhFGDTNMJhEhufn6
 ```
 
 To create a wallet from a Testnet faucet:
 
 ```py
 test_wallet = generate_faucet_wallet(client)
-test_account = test_wallet.classic_address
+test_account = test_wallet.address
 print("Classic address:", test_account)
 # Classic address: rEQB2hhp3rg7sHj6L8YyR4GG47Cb7pfcuw
 ```
@@ -172,11 +172,11 @@ current_validated_ledger = get_latest_validated_ledger_sequence(client)
 # the amount is expressed in drops, not XRP
 # see https://xrpl.org/basic-data-types.html#specifying-currency-amounts
 my_tx_payment = Payment(
-    account=test_wallet.classic_address,
+    account=test_wallet.address,
     amount="2200000",
     destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
     last_ledger_sequence=current_validated_ledger + 20,
-    sequence=get_next_valid_seq_number(test_wallet.classic_address, client),
+    sequence=get_next_valid_seq_number(test_wallet.address, client),
     fee="10",
 )
 # sign the transaction
@@ -209,7 +209,7 @@ from xrpl.transaction import submit_and_wait, autofill_and_sign
 # the amount is expressed in drops, not XRP
 # see https://xrpl.org/basic-data-types.html#specifying-currency-amounts
 my_tx_payment = Payment(
-    account=test_wallet.classic_address,
+    account=test_wallet.address,
     amount="2200000",
     destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
 )
@@ -289,11 +289,11 @@ async def submit_sample_transaction():
     # the amount is expressed in drops, not XRP
     # see https://xrpl.org/basic-data-types.html#specifying-currency-amounts
     my_tx_payment = Payment(
-        account=test_wallet.classic_address,
+        account=test_wallet.address,
         amount="2200000",
         destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
         last_ledger_sequence=current_validated_ledger + 20,
-        sequence=await get_next_valid_seq_number(test_wallet.classic_address, async_client),
+        sequence=await get_next_valid_seq_number(test_wallet.address, async_client),
         fee="10",
     )
     # sign and submit the transaction
