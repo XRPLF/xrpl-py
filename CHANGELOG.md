@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `user_agent` and `usage_context` to `generate_faucet_wallet`
 
 ### Changed:
+- Replaced the flags defined in `AccountSetFlag` (now defines the transaction `tf` flags, previously not defined anywhere)
 - Allowed keypairs.sign to take a hex string in addition to bytes
 
 ### Fixed:

@@ -234,7 +234,6 @@ class TestSubmitAndWait(IntegrationTestCase):
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["Fee"], await get_fee(client))
-        WALLET.sequence += 1
 
     @test_async_and_sync(
         globals(),
@@ -255,7 +254,6 @@ class TestSubmitAndWait(IntegrationTestCase):
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["Fee"], await get_fee(client))
-        WALLET.sequence += 1
 
     @test_async_and_sync(
         globals(),
@@ -280,7 +278,6 @@ class TestSubmitAndWait(IntegrationTestCase):
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["Fee"], await get_fee(client))
-        WALLET.sequence += 1
 
     @test_async_and_sync(
         globals(),
@@ -306,7 +303,6 @@ class TestSubmitAndWait(IntegrationTestCase):
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["Fee"], await get_fee(client))
-        WALLET.sequence += 1
 
     @test_async_and_sync(
         globals(),

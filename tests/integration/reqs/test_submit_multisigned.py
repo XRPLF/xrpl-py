@@ -41,7 +41,7 @@ class TestSubmitMultisigned(IntegrationTestCase):
         ],
     )
     async def test_basic_functionality(self, client):
-        tx = AccountSet(account=WALLET.classic_address, domain=EXAMPLE_DOMAIN)
+        tx = AccountSet(account=WALLET.address, domain=EXAMPLE_DOMAIN)
 
         autofilled_tx = await autofill(tx, client, len(SIGNER_ENTRIES))
 
