@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added new ways of wallet generation: `from_seed`, `from_secret`, `from_entropy`, `from_secret_numbers`
 - Added address alias to `Wallet.classic_address`
 - Replaced `Wallet.classic_address` with `Wallet.address` to avoid confusion. (`classic_address` is the same as your XRPL account `address`, and is only called classic since it's an older standard than `x-address`)
+- Added `network_id` to clients in order to use the `Client` with networks beyond mainnet
 
 ### Changed:
 - Updated params for Wallet class constructor
