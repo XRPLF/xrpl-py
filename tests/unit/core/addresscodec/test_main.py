@@ -1,3 +1,4 @@
+import asyncio
 from unittest import TestCase
 
 from tests.unit.core.addresscodec.test_main_test_cases import test_cases
@@ -172,21 +173,23 @@ class TestMain(TestCase):
         result = addresscodec.is_valid_xaddress(xaddress)
         self.assertFalse(result)
 
-    async def test_basic_calculate_fee_per_transaction_type_ofline(self):
-        fee = await _calculate_fee_per_transaction_type(
-            Payment(
-                account="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
-                amount=IssuedCurrencyAmount(
-                    currency="USD",
-                    issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
-                    value="0.0001",
-                ),
-                destination="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
-                send_max=IssuedCurrencyAmount(
-                    currency="BTC",
-                    issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
-                    value="0.0000002831214446",
-                ),
+    def test_basic_calculate_fee_per_transaction_type_offline(self):
+        fee = asyncio.run(
+            _calculate_fee_per_transaction_type(
+                Payment(
+                    account="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                    amount=IssuedCurrencyAmount(
+                        currency="USD",
+                        issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                        value="0.0001",
+                    ),
+                    destination="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                    send_max=IssuedCurrencyAmount(
+                        currency="BTC",
+                        issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                        value="0.0000002831214446",
+                    ),
+                )
             )
         )
         self.assertEqual(fee, "10")
