@@ -15,6 +15,7 @@ from xrpl.asyncio.transaction import (
 )
 from xrpl.asyncio.transaction import submit as submit_transaction_alias_async
 from xrpl.asyncio.transaction import submit_and_wait
+from xrpl.asyncio.transaction.main import sign_and_submit
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.core.binarycodec.main import encode
@@ -380,3 +381,20 @@ class TestSubmitAndWait(IntegrationTestCase):
         signed_payment_transaction = sign(payment_transaction, WALLET)
         with self.assertRaises(XRPLReliableSubmissionException):
             await submit_and_wait(signed_payment_transaction, client)
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.sign_and_submit",
+        ],
+    )
+    async def test_sign_and_submit(self, client):
+        payment_dict = {
+            "account": ACCOUNT,
+            "fee": "10",
+            "amount": "100",
+            "destination": DESTINATION,
+        }
+        payment_transaction = Payment.from_dict(payment_dict)
+        response = await sign_and_submit(payment_transaction, client, WALLET)
+        self.assertTrue(response.is_successful())
