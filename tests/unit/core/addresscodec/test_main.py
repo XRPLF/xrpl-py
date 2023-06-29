@@ -1,8 +1,11 @@
 from unittest import TestCase
 
 from tests.unit.core.addresscodec.test_main_test_cases import test_cases
+from xrpl.asyncio.transaction.main import _calculate_fee_per_transaction_type
 from xrpl.core import addresscodec
 from xrpl.core.addresscodec.main import MAX_32_BIT_UNSIGNED_INT
+from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
+from xrpl.models.transactions.payment import Payment
 
 
 class TestMain(TestCase):
@@ -168,3 +171,22 @@ class TestMain(TestCase):
 
         result = addresscodec.is_valid_xaddress(xaddress)
         self.assertFalse(result)
+
+    async def test_basic_calculate_fee_per_transaction_type_ofline(self):
+        fee = await _calculate_fee_per_transaction_type(
+            Payment(
+                account="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                amount=IssuedCurrencyAmount(
+                    currency="USD",
+                    issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                    value="0.0001",
+                ),
+                destination="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                send_max=IssuedCurrencyAmount(
+                    currency="BTC",
+                    issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                    value="0.0000002831214446",
+                ),
+            )
+        )
+        self.assertEqual(fee, "10")
