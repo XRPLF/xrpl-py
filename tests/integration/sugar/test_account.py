@@ -24,7 +24,7 @@ class TestAccount(IntegrationTestCase):
 
     @test_async_and_sync(globals(), ["xrpl.account.does_account_exist"])
     async def test_does_account_exist_false(self, client):
-        address = Wallet.create()
+        address = Wallet.create().classic_address
         self.assertFalse(await does_account_exist(address, client))
 
     @test_async_and_sync(globals(), ["xrpl.account.does_account_exist"])
