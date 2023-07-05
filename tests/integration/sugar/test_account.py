@@ -7,6 +7,7 @@ from tests.integration.it_utils import (
 )
 from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.asyncio.account import does_account_exist, get_balance, get_latest_transaction
+from xrpl.asyncio.clients.exceptions import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.models.transactions import Payment
 from xrpl.wallet import Wallet
@@ -23,8 +24,14 @@ class TestAccount(IntegrationTestCase):
 
     @test_async_and_sync(globals(), ["xrpl.account.does_account_exist"])
     async def test_does_account_exist_false(self, client):
-        address = "rG1QQv2nh2gr7RCZ1P8YYcBUcCCN633jCn"
+        address = Wallet.create().classic_address
         self.assertFalse(await does_account_exist(address, client))
+
+    @test_async_and_sync(globals(), ["xrpl.account.does_account_exist"])
+    async def test_does_account_exist_throws_for_invalid_account(self, client):
+        address = "a"
+        with self.assertRaises(XRPLRequestFailureException):
+            await does_account_exist(address, client)
 
     @test_async_and_sync(globals(), ["xrpl.account.does_account_exist"])
     async def test_does_account_exist_xaddress(self, client):
