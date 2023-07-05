@@ -12,7 +12,7 @@ class TestOfferCancel(IntegrationTestCase):
     async def test_all_fields(self, client):
         response = await sign_and_reliable_submission_async(
             OfferCancel(
-                account=WALLET.classic_address,
+                account=WALLET.address,
                 offer_sequence=OFFER.result["tx_json"]["Sequence"],
             ),
             WALLET,

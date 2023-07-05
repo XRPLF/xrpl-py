@@ -61,7 +61,7 @@ class XRP(BaseModel):
         """
         return {**super().to_dict(), "currency": "XRP"}
 
-    def to_amount(self: XRP, value: Union[str, int]) -> str:
+    def to_amount(self: XRP, value: Union[str, int, float]) -> str:
         """
         Converts value to XRP.
 
@@ -71,4 +71,9 @@ class XRP(BaseModel):
         Returns:
             A string representation of XRP amount.
         """
-        return str(value)
+        # import needed here to avoid circular dependency
+        from xrpl.utils.xrp_conversions import xrp_to_drops
+
+        if isinstance(value, str):
+            return xrp_to_drops(float(value))
+        return xrp_to_drops(value)

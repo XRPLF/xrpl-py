@@ -12,9 +12,9 @@ class TestPaymentChannelCreate(IntegrationTestCase):
     async def test_basic_functionality(self, client):
         payment_channel = await sign_and_reliable_submission_async(
             PaymentChannelCreate(
-                account=WALLET.classic_address,
+                account=WALLET.address,
                 amount="1",
-                destination=DESTINATION.classic_address,
+                destination=DESTINATION.address,
                 settle_delay=86400,
                 public_key=WALLET.public_key,
             ),

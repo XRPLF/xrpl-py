@@ -95,6 +95,37 @@ def xaddress_to_classic_address(xaddress: str) -> Tuple[str, Optional[int], bool
     return (classic_address, tag, is_test_network)
 
 
+def ensure_classic_address(account: str) -> str:
+    """
+    If an address is an X-Address, converts it to a classic address.
+
+    Args:
+        account: A classic address or X-address.
+
+    Returns:
+        The account's classic address
+
+    Raises:
+        XRPLAddressCodecException: if the X-Address has an associated tag.
+    """
+    if is_valid_xaddress(account):
+        classic_address, tag, _ = xaddress_to_classic_address(account)
+
+        """
+        Except for special cases, X-addresses used for requests must not
+        have an embedded tag. In other words, `tag` should be None.
+        """
+        if tag is not None:
+            raise XRPLAddressCodecException(
+                "This command does not support the use of a tag. Use "
+                "an address without a tag"
+            )
+
+        return classic_address
+
+    return account
+
+
 def _is_test_address(prefix: bytes) -> bool:
     """
     Returns whether a decoded X-Address is a test address.
