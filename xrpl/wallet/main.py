@@ -31,7 +31,8 @@ class Wallet:
         """
         `classic_address` is the same as `address`. It is called `classic_address` to
         differentiate it from the x-address standard, which encodes the network,
-        destination tag, and XRPL address into a single value. It's also a base58 string.
+        destination tag, and XRPL address into a single value.
+        It's also a base58 string.
         """  # noqa: DAR201
         return self._address
 
