@@ -15,10 +15,10 @@ class TestTrustSet(IntegrationTestCase):
         issuer_wallet = Wallet.create()
         response = await sign_and_reliable_submission_async(
             TrustSet(
-                account=WALLET.classic_address,
+                account=WALLET.address,
                 flags=TrustSetFlag.TF_SET_NO_RIPPLE,
                 limit_amount=IssuedCurrencyAmount(
-                    issuer=issuer_wallet.classic_address,
+                    issuer=issuer_wallet.address,
                     currency="USD",
                     value="100",
                 ),

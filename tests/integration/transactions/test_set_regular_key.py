@@ -11,10 +11,10 @@ from xrpl.wallet import Wallet
 class TestSetRegularKey(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_all_fields(self, client):
-        regular_key = Wallet.create().classic_address
+        regular_key = Wallet.create().address
         response = await sign_and_reliable_submission_async(
             SetRegularKey(
-                account=WALLET.classic_address,
+                account=WALLET.address,
                 regular_key=regular_key,
             ),
             WALLET,

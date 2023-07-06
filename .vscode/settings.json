@@ -1,26 +1,29 @@
 {
-    "python.formatting.provider": "black",
-    "python.linting.pylintEnabled": false,
-    "python.linting.flake8Enabled": true,
-    "python.linting.enabled": true,
-    "esbonio.sphinx.confDir": "${workspaceFolder}/docs",
-    "python.linting.mypyEnabled": true,
-    "mypy.runUsingActiveInterpreter": true,
-    "cSpell.words": [
-        "addresscodec",
-        "aiounittest",
-        "altnet",
-        "asyncio",
-        "autofills",
-        "binarycodec",
-        "isnumeric",
-        "keypair",
-        "keypairs",
-        "multisign",
-        "nftoken",
-        "rippletest",
-        "ripplex",
-        "xaddress",
-        "xchain"
-    ],
+  "python.formatting.provider": "none",
+  "python.linting.pylintEnabled": false,
+  "python.linting.flake8Enabled": true,
+  "python.linting.enabled": true,
+  "esbonio.sphinx.confDir": "${workspaceFolder}/docs",
+  "python.linting.mypyEnabled": true,
+  "mypy.runUsingActiveInterpreter": true,
+  "cSpell.words": [
+    "addresscodec",
+    "aiounittest",
+    "altnet",
+    "asyncio",
+    "autofills",
+    "binarycodec",
+    "isnumeric",
+    "keypair",
+    "keypairs",
+    "multisign",
+    "nftoken",
+    "rippletest",
+    "ripplex",
+    "xaddress",
+    "xchain"
+  ],
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  }
 }
