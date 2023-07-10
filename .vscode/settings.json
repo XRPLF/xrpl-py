@@ -1,5 +1,5 @@
 {
-    "python.formatting.provider": "black",
+    "python.formatting.provider": "none",
     "python.linting.pylintEnabled": false,
     "python.linting.flake8Enabled": true,
     "python.linting.enabled": true,
@@ -11,14 +11,19 @@
         "aiounittest",
         "altnet",
         "asyncio",
+        "autofills",
         "binarycodec",
         "isnumeric",
         "keypair",
         "keypairs",
+        "multisign",
         "nftoken",
         "rippletest",
         "ripplex",
         "xaddress",
         "xchain"
     ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    }
 }

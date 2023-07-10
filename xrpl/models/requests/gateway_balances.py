@@ -7,14 +7,14 @@ excluding amounts held by operational addresses.
 from dataclasses import dataclass, field
 from typing import List, Optional, Union
 
-from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class GatewayBalances(Request):
+class GatewayBalances(Request, LookupByLedgerRequest):
     """
     This request calculates the total balances issued by a given account, optionally
     excluding amounts held by operational addresses.
@@ -29,8 +29,6 @@ class GatewayBalances(Request):
     :meta hide-value:
     """
 
-    ledger_hash: Optional[str] = None
-    ledger_index: Optional[Union[str, int]] = None
     method: RequestMethod = field(default=RequestMethod.GATEWAY_BALANCES, init=False)
     strict: bool = False
     hotwallet: Optional[Union[str, List[str]]] = None

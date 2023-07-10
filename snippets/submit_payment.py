@@ -1,8 +1,7 @@
 """Example of how to send a transaction and see its validation response"""
 from xrpl.account import get_balance
 from xrpl.clients import JsonRpcClient
-from xrpl.models.requests import Tx
-from xrpl.models.transactions import Payment
+from xrpl.models import Payment, Tx
 from xrpl.transaction import submit_and_wait
 from xrpl.wallet import generate_faucet_wallet
 
@@ -20,17 +19,18 @@ wallet2 = generate_faucet_wallet(client, debug=True)
 
 # Both balances should be zero since nothing has been sent yet
 print("Balances of wallets before Payment tx")
-print(get_balance(wallet1.classic_address, client))
-print(get_balance(wallet2.classic_address, client))
+print(get_balance(wallet1.address, client))
+print(get_balance(wallet2.address, client))
 
 # Create a Payment transaction
 payment_tx = Payment(
-    account=wallet1.classic_address,
+    account=wallet1.address,
     amount="1000",
-    destination=wallet2.classic_address,
+    destination=wallet2.address,
 )
 
-# Signs, autofills, and submits transaction and waits for response (validated or rejected)
+# Signs, autofills, and submits transaction and waits for response
+# (validated or rejected)
 payment_response = submit_and_wait(payment_tx, client, wallet1)
 print("Transaction was submitted")
 
@@ -42,5 +42,5 @@ print("Validated:", tx_response.result["validated"])
 
 # Check balances after 1000 was sent from wallet1 to wallet2
 print("Balances of wallets after Payment tx:")
-print(get_balance(wallet1.classic_address, client))
-print(get_balance(wallet2.classic_address, client))
+print(get_balance(wallet1.address, client))
+print(get_balance(wallet2.address, client))

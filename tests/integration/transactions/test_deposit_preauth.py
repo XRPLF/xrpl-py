@@ -7,7 +7,7 @@ from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import DepositPreauth
 
-ACCOUNT = WALLET.classic_address
+ACCOUNT = WALLET.address
 ADDRESS = "rEhxGqkqPPSxQ3P25J66ft5TwpzV14k2de"
 
 

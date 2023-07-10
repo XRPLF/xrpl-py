@@ -12,7 +12,7 @@ class TestTicketCreate(IntegrationTestCase):
     async def test_basic_functionality(self, client):
         response = await sign_and_reliable_submission_async(
             TicketCreate(
-                account=WALLET.classic_address,
+                account=WALLET.address,
                 ticket_count=2,
             ),
             WALLET,

@@ -9,7 +9,7 @@ class TestAccountInfo(IntegrationTestCase):
     async def test_basic_functionality(self, client):
         response = await client.request(
             AccountInfo(
-                account=WALLET.classic_address,
+                account=WALLET.address,
             )
         )
         self.assertTrue(response.is_successful())

@@ -86,7 +86,6 @@ class RequestMethod(str, Enum):
 R = TypeVar("R", bound="Request")
 
 
-@require_kwargs_on_init
 @dataclass(frozen=True)
 class Request(BaseModel):
     """
@@ -183,3 +182,18 @@ class Request(BaseModel):
         # we need to override this because method is using ``field``
         # which will not include the value in the object's __dict__
         return {**super().to_dict(), "method": self.method.value}
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True)
+class LookupByLedgerRequest:
+    """Represents requests that need specifying an instance of the ledger"""
+
+    ledger_hash: Optional[str] = None
+    """
+    A 20-byte hex string for the ledger version to use.
+    """
+    ledger_index: Optional[Union[str, int]] = None
+    """
+    The ledger index of the ledger to use, or a shortcut string.
+    """

@@ -3,16 +3,15 @@ The `nft_info` method retrieves all the information about the
 NFToken
 """
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
-from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class NFTInfo(Request):
+class NFTInfo(Request, LookupByLedgerRequest):
     """
     The `nft_info` method retrieves all the information about the
     NFToken
@@ -26,6 +25,3 @@ class NFTInfo(Request):
 
     :meta hide-value:
     """
-
-    ledger_hash: Optional[str] = None
-    ledger_index: Optional[Union[str, int]] = None

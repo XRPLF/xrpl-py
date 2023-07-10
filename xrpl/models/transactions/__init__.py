@@ -6,6 +6,7 @@ Model objects for specific `types of Transactions
 from xrpl.models.transactions.account_delete import AccountDelete
 from xrpl.models.transactions.account_set import (
     AccountSet,
+    AccountSetAsfFlag,
     AccountSetFlag,
     AccountSetFlagInterface,
 )
@@ -88,6 +89,7 @@ from xrpl.models.transactions.xchain_modify_bridge import (
 __all__ = [
     "AccountDelete",
     "AccountSet",
+    "AccountSetAsfFlag",
     "AccountSetFlag",
     "AccountSetFlagInterface",
     "AMMBid",
@@ -122,13 +124,13 @@ __all__ = [
     "OfferCreateFlag",
     "OfferCreateFlagInterface",
     "Payment",
-    "PaymentFlag",
-    "PaymentFlagInterface",
     "PaymentChannelClaim",
     "PaymentChannelClaimFlag",
     "PaymentChannelClaimFlagInterface",
     "PaymentChannelCreate",
     "PaymentChannelFund",
+    "PaymentFlag",
+    "PaymentFlagInterface",
     "SetRegularKey",
     "Signer",
     "SignerEntry",

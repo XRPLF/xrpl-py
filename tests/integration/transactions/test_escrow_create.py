@@ -7,7 +7,7 @@ from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import EscrowCreate
 
-ACCOUNT = WALLET.classic_address
+ACCOUNT = WALLET.address
 
 AMOUNT = "10000"
 DESTINATION = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
