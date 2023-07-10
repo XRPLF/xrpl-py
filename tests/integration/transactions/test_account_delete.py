@@ -10,7 +10,7 @@ from xrpl.utils import xrp_to_drops
 
 # We can re-use the shared wallet bc this test should fail to actually delete
 # the associated account.
-ACCOUNT = WALLET.classic_address
+ACCOUNT = WALLET.address
 
 # AccountDelete transactions have a special fee.
 # See https://xrpl.org/accountdelete.html#special-transaction-cost.
@@ -24,7 +24,7 @@ class TestAccountDelete(IntegrationTestCase):
         account_delete = AccountDelete(
             account=ACCOUNT,
             fee=FEE,
-            destination=DESTINATION.classic_address,
+            destination=DESTINATION.address,
             destination_tag=DESTINATION_TAG,
         )
         response = await sign_and_reliable_submission_async(

@@ -74,7 +74,7 @@ async def _wait_for_final_transaction_outcome(
     )
 
 
-async def send_reliable_submission(
+async def _send_reliable_submission(
     transaction: Transaction, client: Client, *, fail_hard: bool = False
 ) -> Response:
     """
@@ -165,9 +165,9 @@ async def _get_signed_tx(
         transaction = await _autofill(transaction, client)
 
     if transaction.signers:
-        return await sign(transaction, wallet, True, True)
+        return sign(transaction, wallet, multisign=True)
 
-    return await sign(transaction, wallet, True, False)
+    return sign(transaction, wallet, multisign=False)
 
 
 async def submit_and_wait(
@@ -206,6 +206,6 @@ async def submit_and_wait(
     signed_transaction = await _get_signed_tx(
         transaction, client, wallet, check_fee, autofill
     )
-    return await send_reliable_submission(
+    return await _send_reliable_submission(
         signed_transaction, client, fail_hard=fail_hard
     )

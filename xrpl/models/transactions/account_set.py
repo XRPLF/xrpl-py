@@ -23,8 +23,10 @@ _DISABLE_TICK_SIZE: Final[int] = 0
 _MAX_DOMAIN_LENGTH: Final[int] = 256
 
 
-class AccountSetFlag(int, Enum):
+class AccountSetAsfFlag(int, Enum):
     """
+    Enum for AccountSet Flags.
+
     There are several options which can be either enabled or disabled for an account.
     Account options are represented by different types of flags depending on the
     situation. The AccountSet transaction type has several "AccountSet Flags" (prefixed
@@ -32,7 +34,7 @@ class AccountSetFlag(int, Enum):
     an option when passed as the ClearFlag parameter. This enum represents those
     options.
 
-    `See AccountSet Flags <https://xrpl.org/accountset.html#accountset-flags>`_
+    `See AccountSet asf Flags <https://xrpl.org/accountset.html#accountset-flags>`_
     """
 
     ASF_ACCOUNT_TXN_ID = 5
@@ -102,32 +104,61 @@ class AccountSetFlag(int, Enum):
     """Disallow other accounts from creating Trustlines directed at this account."""
 
 
+class AccountSetFlag(int, Enum):
+    """
+    Enum for AccountSet Transaction Flags.
+
+    Transactions of the AccountSet type support additional values in the Flags field.
+    This enum represents those options.
+
+    `See AccountSet tf Flags <https://xrpl.org/accountset.html#accountset-flags>`_
+    """
+
+    TF_REQUIRE_DEST_TAG = 0x00010000
+    """
+    The same as SetFlag: asfRequireDest.
+    """
+
+    TF_OPTIONAL_DEST_TAG = 0x00020000
+    """
+    The same as ClearFlag: asfRequireDest.
+    """
+
+    TF_REQUIRE_AUTH = 0x00040000
+    """
+    The same as SetFlag: asfRequireAuth.
+    """
+
+    TF_OPTIONAL_AUTH = 0x00080000
+    """
+    The same as ClearFlag: asfRequireAuth.
+    """
+
+    TF_DISALLOW_XRP = 0x00100000
+    """
+    The same as SetFlag: asfDisallowXRP.
+    """
+
+    TF_ALLOW_XRP = 0x00200000
+    """
+    The same as ClearFlag: asfDisallowXRP.
+    """
+
+
 class AccountSetFlagInterface(FlagInterface):
     """
-    There are several options which can be either enabled or disabled for an account.
-    Account options are represented by different types of flags depending on the
-    situation. The AccountSet transaction type has several "AccountSet Flags" (prefixed
-    `asf`) that can enable an option when passed as the SetFlag parameter, or disable
-    an option when passed as the ClearFlag parameter. This TypedDict represents those
-    options.
+    Transactions of the AccountSet type support additional values in the Flags field.
+    This TypedDict represents those options.
 
-    `See AccountSet Flags <https://xrpl.org/accountset.html#accountset-flags>`_
+    `See AccountSet tf Flags <https://xrpl.org/accountset.html#accountset-flags>`_
     """
 
-    ASF_ACCOUNT_TXN_ID: bool
-    ASF_DEFAULT_RIPPLE: bool
-    ASF_DEPOSIT_AUTH: bool
-    ASF_DISABLE_MASTER: bool
-    ASF_DISALLOW_XRP: bool
-    ASF_GLOBAL_FREEZE: bool
-    ASF_NO_FREEZE: bool
-    ASF_REQUIRE_AUTH: bool
-    ASF_REQUIRE_DEST: bool
-    ASF_AUTHORIZED_NFTOKEN_MINTER: bool
-    ASF_DISABLE_INCOMING_NFTOKEN_OFFER: bool
-    ASF_DISABLE_INCOMING_CHECK: bool
-    ASF_DISABLE_INCOMING_PAYCHAN: bool
-    ASF_DISABLE_INCOMING_TRUSTLINE: bool
+    TF_REQUIRE_DEST_TAG: bool
+    TF_OPTIONAL_DEST_TAG: bool
+    TF_REQUIRE_AUTH: bool
+    TF_OPTIONAL_AUTH: bool
+    TF_DISALLOW_XRP: bool
+    TF_ALLOW_XRP: bool
 
 
 @require_kwargs_on_init
@@ -138,7 +169,7 @@ class AccountSet(Transaction):
     which modifies the properties of an account in the XRP Ledger.
     """
 
-    clear_flag: Optional[int] = None
+    clear_flag: Optional[AccountSetAsfFlag] = None
     """
     Disable a specific `AccountSet Flag
     <https://xrpl.org/accountset.html#accountset-flags>`_
@@ -159,7 +190,7 @@ class AccountSet(Transaction):
     message_key: Optional[str] = None
     """Set a public key for sending encrypted messages to this account."""
 
-    set_flag: Optional[int] = None
+    set_flag: Optional[AccountSetAsfFlag] = None
     """
     Enable a specific `AccountSet Flag
     <https://xrpl.org/accountset.html#accountset-flags>`_
@@ -183,7 +214,7 @@ class AccountSet(Transaction):
     """
     Sets an alternate account that is allowed to mint NFTokens on this
     account's behalf using NFTokenMint's `Issuer` field. If set, you must
-    also set the AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER flag.
+    also set the AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER flag.
     """
 
     transaction_type: TransactionType = field(
@@ -240,25 +271,28 @@ class AccountSet(Transaction):
 
     def _get_nftoken_minter_error(self: AccountSet) -> Optional[str]:
         if (
-            self.set_flag != AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER
+            self.set_flag != AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER
             and self.nftoken_minter is not None
         ):
             return (
                 "Will not set the minter unless "
-                "AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER is set"
+                "AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER is set"
             )
         if (
-            self.set_flag == AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER
+            self.set_flag == AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER
             and self.nftoken_minter is None
         ):
-            return "\
-                Must be present if AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER is set"
+            return (
+                "Must be present if AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER "
+                "is set"
+            )
         if (
-            self.clear_flag == AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER
+            self.clear_flag == AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER
             and self.nftoken_minter is not None
         ):
             return (
-                "Must not be present if AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER "
-                "is unset using clear_flag"
+                "Must not be present if "
+                "AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER is unset "
+                "using clear_flag"
             )
         return None

@@ -8,21 +8,21 @@ from xrpl.transaction.multisign import multisign
 from xrpl.utils.str_conversions import str_to_hex
 from xrpl.wallet import Wallet
 
-FIRST_SIGNER = Wallet("sEdTLQkHAWpdS7FDk7EvuS7Mz8aSMRh", 0)
-SECOND_SIGNER = Wallet("sEd7DXaHkGQD8mz8xcRLDxfMLqCurif", 0)
+FIRST_SIGNER = Wallet.from_seed("sEdTLQkHAWpdS7FDk7EvuS7Mz8aSMRh")
+SECOND_SIGNER = Wallet.from_seed("sEd7DXaHkGQD8mz8xcRLDxfMLqCurif")
 SIGNER_ENTRIES = [
     SignerEntry(
-        account=FIRST_SIGNER.classic_address,
+        account=FIRST_SIGNER.address,
         signer_weight=1,
     ),
     SignerEntry(
-        account=SECOND_SIGNER.classic_address,
+        account=SECOND_SIGNER.address,
         signer_weight=1,
     ),
 ]
 LIST_SET_TX = sign_and_reliable_submission(
     SignerListSet(
-        account=WALLET.classic_address,
+        account=WALLET.address,
         signer_quorum=2,
         signer_entries=SIGNER_ENTRIES,
     ),
@@ -41,12 +41,12 @@ class TestSubmitMultisigned(IntegrationTestCase):
         ],
     )
     async def test_basic_functionality(self, client):
-        tx = AccountSet(account=WALLET.classic_address, domain=EXAMPLE_DOMAIN)
+        tx = AccountSet(account=WALLET.address, domain=EXAMPLE_DOMAIN)
 
         autofilled_tx = await autofill(tx, client, len(SIGNER_ENTRIES))
 
-        tx_1 = await sign(autofilled_tx, FIRST_SIGNER, multisign=True)
-        tx_2 = await sign(autofilled_tx, SECOND_SIGNER, multisign=True)
+        tx_1 = sign(autofilled_tx, FIRST_SIGNER, multisign=True)
+        tx_2 = sign(autofilled_tx, SECOND_SIGNER, multisign=True)
 
         multisigned_tx = multisign(autofilled_tx, [tx_1, tx_2])
 

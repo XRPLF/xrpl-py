@@ -8,9 +8,9 @@ AccountLinesRequest instead.
 """
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
-from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
@@ -31,7 +31,7 @@ class AccountObjectType(str, Enum):
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class AccountObjects(Request):
+class AccountObjects(Request, LookupByLedgerRequest):
     """
     This request returns the raw ledger format for all objects owned by an account.
 
@@ -48,8 +48,6 @@ class AccountObjects(Request):
     :meta hide-value:
     """
 
-    ledger_hash: Optional[str] = None
-    ledger_index: Optional[Union[str, int]] = None
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_OBJECTS, init=False)
     type: Optional[AccountObjectType] = None
     deletion_blockers_only: bool = False
