@@ -3,7 +3,7 @@ import asyncio
 from tests.integration.it_utils import fund_wallet, sign_and_reliable_submission_async
 from xrpl.models import (
     AccountSet,
-    AccountSetFlag,
+    AccountSetAsfFlag,
     IssuedCurrencyAmount,
     OfferCreate,
     Payment,
@@ -55,7 +55,7 @@ async def _set_up_reusable_values():
     await sign_and_reliable_submission_async(
         AccountSet(
             account=CLAWBACK_ISSUER.classic_address,
-            set_flag=AccountSetFlag.ASF_ALLOW_CLAWBACK,
+            set_flag=AccountSetAsfFlag.ASF_ALLOW_CLAWBACK,
         ),
         CLAWBACK_ISSUER,
     )
