@@ -2,46 +2,54 @@
 
 # xrpl-py
 
-A pure Python implementation for interacting with the XRP Ledger, the `xrpl-py` library simplifies the hardest parts of XRP Ledger interaction, like serialization and transaction signing, by providing native Python methods and models for [XRP Ledger transactions](https://xrpl.org/transaction-formats.html) and core server [API](https://xrpl.org/api-conventions.html) ([`rippled`](https://github.com/ripple/rippled)) objects.
+A pure Python implementation for interacting with the [XRP Ledger](https://xrpl.org/). 
 
+The `xrpl-py` library simplifies the hardest parts of XRP Ledger interaction, like serialization and transaction signing. It also provides native Python methods and models for [XRP Ledger transactions](https://xrpl.org/transaction-formats.html) and core server [API](https://xrpl.org/api-conventions.html) ([`rippled`](https://github.com/ripple/rippled)) objects.
 
+As an example, this is how you would use this library to send a payment on testnet:
 
 ```py
-# create a network client
+from xrpl.account import get_balance
 from xrpl.clients import JsonRpcClient
+from xrpl.models import Payment, Tx
+from xrpl.transaction import submit_and_wait
+from xrpl.wallet import generate_faucet_wallet
+
+# Create a client to connect to the test network
 client = JsonRpcClient("https://s.altnet.rippletest.net:51234")
 
-# create a wallet on the testnet
-from xrpl.wallet import generate_faucet_wallet
-test_wallet = generate_faucet_wallet(client)
-print(test_wallet)
-public_key: ED3CC1BBD0952A60088E89FA502921895FC81FBD79CAE9109A8FE2D23659AD5D56
-private_key: -HIDDEN-
-address: rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo
+# Create two wallets to send money between on the test network
+wallet1 = generate_faucet_wallet(client, debug=True)
+wallet2 = generate_faucet_wallet(client, debug=True)
 
-# look up account info
-from xrpl.models import AccountInfo
-acct_info = AccountInfo(
-    account="rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo",
-    ledger_index="current",
-    queue=True,
-    strict=True,
+# Both balances should be zero since nothing has been sent yet
+print("Balances of wallets before Payment tx")
+print(get_balance(wallet1.address, client))
+print(get_balance(wallet2.address, client))
+
+# Create a Payment transaction from wallet1 to wallet2
+payment_tx = Payment(
+    account=wallet1.address,
+    amount="1000",
+    destination=wallet2.address,
 )
-response = client.request(acct_info)
-result = response.result
-import json
-print(json.dumps(result["account_data"], indent=4, sort_keys=True))
-# {
-#     "Account": "rBtXmAdEYcno9LWRnAGfT9qBxCeDvuVRZo",
-#     "Balance": "1000000000",
-#     "Flags": 0,
-#     "LedgerEntryType": "AccountRoot",
-#     "OwnerCount": 0,
-#     "PreviousTxnID": "73CD4A37537A992270AAC8472F6681F44E400CBDE04EC8983C34B519F56AB107",
-#     "PreviousTxnLgrSeq": 16233962,
-#     "Sequence": 16233962,
-#     "index": "FD66EC588B52712DCE74831DCB08B24157DC3198C29A0116AA64D310A58512D7"
-# }
+
+# Submit the payment to the network and wait to see a response
+#   Behind the scenes, this fills in fields which can be looked up automatically like the fee.
+#   It also signs the transaction with wallet1 to prove you own the account you're paying from.
+payment_response = submit_and_wait(payment_tx, client, wallet1)
+print("Transaction was submitted")
+
+# Create a "Tx" request to look up the transaction on the ledger
+tx_response = client.request(Tx(transaction=payment_response.result["hash"]))
+
+# Check whether the transaction was actually validated on ledger
+print("Validated:", tx_response.result["validated"])
+
+# Check balances after 1000 drops (.001 XRP) was sent from wallet1 to wallet2
+print("Balances of wallets after Payment tx:")
+print(get_balance(wallet1.address, client))
+print(get_balance(wallet2.address, client))
 ```
 
 [![Downloads](https://pepy.tech/badge/xrpl-py/month)](https://pepy.tech/project/xrpl-py/month)
@@ -320,6 +328,9 @@ print(testnet_xaddress)
 # T7QDemmxnuN7a52A62nx2fxGPWcRahLCf3qaswfrsNW9Lps
 ```
 
+## Migrating
+
+If you're currently using `xrpl-py` version 1, you can use [this guide to migrate to v2](https://xrpl.org/blog/2023/xrpl-py-2.0-release.html).
 
 ## Contributing
 
