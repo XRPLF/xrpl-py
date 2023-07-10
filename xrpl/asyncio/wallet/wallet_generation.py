@@ -34,6 +34,8 @@ async def generate_faucet_wallet(
     wallet: Optional[Wallet] = None,
     debug: bool = False,
     faucet_host: Optional[str] = None,
+    usage_context: Optional[str] = None,
+    user_agent: Optional[str] = "xrpl-py",
 ) -> Wallet:
     """
     Generates a random wallet and funds it using the XRPL Testnet Faucet.
@@ -44,6 +46,12 @@ async def generate_faucet_wallet(
         debug: Whether to print debug information as it creates the wallet.
         faucet_host: A custom host to use for funding a wallet. In environments other
             than devnet and testnet, this parameter is required.
+        usage_context: The intended use case for the funding request
+            (for example, testing). This information  will be included
+            in the json body of the HTTP request to the faucet.
+        user_agent: A string representing the user agent (software/ client used)
+            for the HTTP request. Default is "xrpl-py".
+
 
     Returns:
         A Wallet on the testnet that contains some amount of XRP.
@@ -60,7 +68,7 @@ async def generate_faucet_wallet(
     if wallet is None:
         wallet = Wallet.create()
 
-    address = wallet.classic_address
+    address = wallet.address
     # The faucet *can* be flakey... by printing info about this it's easier to
     # understand if tests are actually failing, or if it was just a faucet failure.
     if debug:
@@ -69,7 +77,7 @@ async def generate_faucet_wallet(
     starting_balance = await _check_wallet_balance(address, client)
 
     # Ask the faucet to send funds to the given address
-    await _request_funding(faucet_url, address)
+    await _request_funding(faucet_url, address, usage_context, user_agent)
     # Wait for the faucet to fund our account or until timeout
     # Waits one second checks if balance has changed
     # If balance doesn't change it will attempt again until _TIMEOUT_SECONDS
@@ -86,7 +94,6 @@ async def generate_faucet_wallet(
         else:  # wallet has been funded, now the ledger needs to know the account exists
             next_seq_num = await _try_to_get_next_seq(address, client)
             if next_seq_num is not None:
-                wallet.sequence = next_seq_num
                 return wallet
 
     raise XRPLFaucetException(
@@ -143,9 +150,17 @@ async def _check_wallet_balance(address: str, client: Client) -> int:
         raise
 
 
-async def _request_funding(url: str, address: str) -> None:
+async def _request_funding(
+    url: str,
+    address: str,
+    usage_context: Optional[str] = None,
+    user_agent: Optional[str] = None,
+) -> None:
     async with httpx.AsyncClient() as http_client:
-        response = await http_client.post(url=url, json={"destination": address})
+        json_body = {"destination": address, "userAgent": user_agent}
+        if usage_context is not None:
+            json_body["usageContext"] = usage_context
+        response = await http_client.post(url=url, json=json_body)
     if not response.status_code == httpx.codes.OK:
         response.raise_for_status()
 

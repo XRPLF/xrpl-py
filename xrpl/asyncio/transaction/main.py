@@ -11,7 +11,7 @@ from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec import encode, encode_for_multisigning, encode_for_signing
 from xrpl.core.keypairs.main import sign as keypairs_sign
-from xrpl.models.requests import ServerState, SubmitOnly
+from xrpl.models.requests import ServerInfo, ServerState, SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions import EscrowFinish
 from xrpl.models.transactions.transaction import Signer, Transaction
@@ -23,15 +23,22 @@ from xrpl.utils import drops_to_xrp, xrp_to_drops
 from xrpl.wallet.main import Wallet
 
 _LEDGER_OFFSET: Final[int] = 20
-
+# Sidechains are expected to have network IDs above this.
+# Networks with ID above this restricted number are expected to specify an
+# accurate NetworkID field in every transaction to that chain to prevent replay attacks.
+# Mainnet and testnet are exceptions.
+# More context: https://github.com/XRPLF/rippled/pull/4370
+_RESTRICTED_NETWORKS = 1024
+_REQUIRED_NETWORKID_VERSION = "1.11.0"
+_HOOKS_TESTNET_ID = 21338
 # TODO: make this dynamic based on the current ledger fee
 _ACCOUNT_DELETE_FEE: Final[int] = int(xrp_to_drops(2))
 
 
 async def sign_and_submit(
     transaction: Transaction,
-    wallet: Wallet,
     client: Client,
+    wallet: Wallet,
     autofill: bool = True,
     check_fee: bool = True,
 ) -> Response:
@@ -41,8 +48,8 @@ async def sign_and_submit(
 
     Args:
         transaction: the transaction to be signed and submitted.
-        wallet: the wallet with which to sign the transaction.
         client: the network client with which to submit the transaction.
+        wallet: the wallet with which to sign the transaction.
         autofill: whether to autofill the relevant fields. Defaults to True.
         check_fee: whether to check if the fee is higher than the expected transaction
             type fee. Defaults to True.
@@ -51,19 +58,21 @@ async def sign_and_submit(
         The response from the ledger.
     """
     if autofill:
-        transaction = await autofill_and_sign(transaction, wallet, client, check_fee)
+        transaction = await autofill_and_sign(transaction, client, wallet, check_fee)
     else:
-        transaction = await sign(transaction, wallet, check_fee)
+        if check_fee:
+            await _check_fee(transaction, client)
+        transaction = sign(transaction, wallet)
     return await submit(transaction, client)
 
 
-safe_sign_and_submit_transaction = sign_and_submit
-
-
-async def sign(
+# Even though this is synchronous - this is here because it used to be async in
+# xrpl-py 1.0, and we decided it wasn't worth breaking people's imports to move
+# It to a central location as part of the xrpl-py 2.0 changes. It is aliased in
+# The synchronous half of the library as well.
+def sign(
     transaction: Transaction,
     wallet: Wallet,
-    check_fee: bool = True,
     multisign: bool = False,
 ) -> Transaction:
     """
@@ -72,8 +81,6 @@ async def sign(
     Args:
         transaction: the transaction to be signed.
         wallet: the wallet with which to sign the transaction.
-        check_fee: whether to check if the fee is higher than the expected transaction
-            type fee. Defaults to True.
         multisign: whether to sign the transaction for a multisignature transaction.
 
     Returns:
@@ -84,7 +91,7 @@ async def sign(
             bytes.fromhex(
                 encode_for_multisigning(
                     transaction.to_xrpl(),
-                    wallet.classic_address,
+                    wallet.address,
                 )
             ),
             wallet.private_key,
@@ -92,15 +99,13 @@ async def sign(
         tx_dict = transaction.to_dict()
         tx_dict["signers"] = [
             Signer(
-                account=wallet.classic_address,
+                account=wallet.address,
                 txn_signature=signature,
                 signing_pub_key=wallet.public_key,
             )
         ]
         return Transaction.from_dict(tx_dict)
 
-    if check_fee:
-        await _check_fee(transaction)
     transaction_json = _prepare_transaction(transaction, wallet)
     serialized_for_signing = encode_for_signing(transaction_json)
     serialized_bytes = bytes.fromhex(serialized_for_signing)
@@ -109,13 +114,10 @@ async def sign(
     return Transaction.from_xrpl(transaction_json)
 
 
-safe_sign_transaction = sign
-
-
 async def autofill_and_sign(
     transaction: Transaction,
-    wallet: Wallet,
     client: Client,
+    wallet: Wallet,
     check_fee: bool = True,
 ) -> Transaction:
     """
@@ -138,10 +140,7 @@ async def autofill_and_sign(
     if check_fee:
         await _check_fee(transaction, client)
 
-    return await sign(await autofill(transaction, client), wallet, False)
-
-
-safe_sign_and_autofill_transaction = autofill_and_sign
+    return sign(await autofill(transaction, client), wallet, multisign=False)
 
 
 async def submit(
@@ -174,9 +173,6 @@ async def submit(
         return response
 
     raise XRPLRequestFailureException(response.result)
-
-
-submit_transaction = submit
 
 
 def _prepare_transaction(
@@ -235,6 +231,10 @@ async def autofill(
         The autofilled transaction.
     """
     transaction_json = transaction.to_dict()
+    if not client.network_id:
+        await _get_network_id_and_build_version(client)
+    if "network_id" not in transaction_json and _tx_needs_networkID(client):
+        transaction_json["network_id"] = client.network_id
     if "sequence" not in transaction_json:
         sequence = await get_next_valid_seq_number(transaction_json["account"], client)
         transaction_json["sequence"] = sequence
@@ -246,6 +246,105 @@ async def autofill(
         ledger_sequence = await get_latest_validated_ledger_sequence(client)
         transaction_json["last_ledger_sequence"] = ledger_sequence + _LEDGER_OFFSET
     return Transaction.from_dict(transaction_json)
+
+
+async def _get_network_id_and_build_version(client: Client) -> None:
+    """
+    Get the network id and build version of the connected server.
+
+    Args:
+        client: The network client to use to send the request.
+
+    Raises:
+        XRPLRequestFailureException: if the rippled API call fails.
+    """
+    response = await client._request_impl(ServerInfo())
+    if response.is_successful():
+        if "network_id" in response.result["info"]:
+            client.network_id = response.result["info"]["network_id"]
+        if not client.build_version and "build_version" in response.result["info"]:
+            client.build_version = response.result["info"]["build_version"]
+        return
+
+    raise XRPLRequestFailureException(response.result)
+
+
+def _tx_needs_networkID(client: Client) -> bool:
+    """
+    Determines whether the transactions required network ID to be valid.
+    Transaction needs networkID if later than restricted ID and either
+        the network is hooks testnet or build version is >= 1.11.0.
+    More context: https://github.com/XRPLF/rippled/pull/4370
+
+    Args:
+        client (Client): The network client to use to send the request.
+
+    Returns:
+        bool: whether the transactions required network ID to be valid
+    """
+    if client.network_id and client.network_id > _RESTRICTED_NETWORKS:
+        # TODO: remove the buildVersion logic when 1.11.0 is out and widely used.
+        # Issue: https://github.com/XRPLF/xrpl-py/issues/595
+        if (
+            client.build_version
+            and _is_not_later_rippled_version(
+                _REQUIRED_NETWORKID_VERSION, client.build_version
+            )
+        ) or client.network_id == _HOOKS_TESTNET_ID:
+            return True
+    return False
+
+
+def _is_not_later_rippled_version(source: str, target: str) -> bool:
+    """
+    Determines whether the source version is not a later release than the
+        target version.
+
+    Args:
+        source: the source rippled version.
+        target: the target rippled version.
+
+    Returns:
+        bool: true if source is earlier, false otherwise.
+    """
+    if source == target:
+        return True
+    source_decomp = source.split(".")
+    target_decomp = target.split(".")
+    source_major, source_minor = int(source_decomp[0]), int(source_decomp[1])
+    target_major, target_minor = int(target_decomp[0]), int(target_decomp[1])
+
+    # Compare major version
+    if source_major != target_major:
+        return source_major < target_major
+
+    # Compare minor version
+    if source_minor != target_minor:
+        return source_minor < target_minor
+
+    source_patch = source_decomp[2].split("-")
+    target_patch = target_decomp[2].split("-")
+    source_patch_version = int(source_patch[0])
+    target_patch_version = int(target_patch[0])
+
+    # Compare patch version
+    if source_patch_version != target_patch_version:
+        return source_patch_version < target_patch_version
+
+    # Compare release version
+    if len(source_patch) != len(target_patch):
+        return len(source_patch) > len(target_patch)
+
+    if len(source_patch) == 2:
+        # Compare release types
+        if not source_patch[1][0].startswith(target_patch[1][0]):
+            return source_patch[1] < target_patch[1]
+        # Compare beta versions
+        if source_patch[1].startswith("b"):
+            return int(source_patch[1][1:]) < int(target_patch[1][1:])
+        # Compare rc versions
+        return int(source_patch[1][2:]) < int(target_patch[1][2:])
+    return False
 
 
 def _validate_account_xaddress(
@@ -299,20 +398,26 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
     return model_transaction_to_binary_codec(dictionary)
 
 
-async def _check_fee(transaction: Transaction, client: Optional[Client] = None) -> None:
+async def _check_fee(
+    transaction: Transaction,
+    client: Optional[Client] = None,
+    signers_count: Optional[int] = None,
+) -> None:
     """
     Checks if the Transaction fee is lower than the expected Transaction type fee.
 
     Args:
         transaction: The transaction to check.
         client: Client instance to use to look up network load
+        signers_count: the expected number of signers for this transaction.
+            Only used for multisigned transactions.
 
     Raises:
         XRPLException: if the transaction fee is higher than the expected fee.
     """
     expected_fee = max(
         xrp_to_drops(0.1),  # a fee that is obviously too high
-        await _calculate_fee_per_transaction_type(transaction, client),
+        await _calculate_fee_per_transaction_type(transaction, client, signers_count),
     )
 
     if transaction.fee and int(transaction.fee) > int(expected_fee):

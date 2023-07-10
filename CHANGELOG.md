@@ -6,17 +6,60 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [[Unreleased]]
+
+## [2.0.0] - 2023-07-05
+### Added:
+- Wallet support for regular key compatibility
+- Added new ways of wallet generation: `from_seed`, `from_secret`, `from_entropy`, `from_secret_numbers`
+- Added `address` alias to `Wallet.classic_address`
+  - Replaced `Wallet.classic_address` with `Wallet.address` to avoid confusion. (`classic_address` is the same as your XRPL account `address`, and is only called classic since it's an older standard than `x-address`)
+- Added `network_id` to clients in order to use the `Client` with networks beyond mainnet
+
+### Changed:
+- Updated params for `Wallet` class constructor
+- `Wallet.address` is now readonly
+- Removed `sequence` from `Wallet` class
+- Core keypairs generate seed must take in hexstring instead of bytestring
+- Core keypairs formatting for `ED25519` is now padded with zeros if length of keystring is less than 64
+- Removed deprecated request wrappers (the preferred method is to directly do client.request instead)
+- `AccountSetFlagInterface` now operates on transaction `tf` flags (as opposed to `asf` flags)
+- `sign` is now synchronous instead of async (done by removing the optional `check_fee` param & moving checks up to other functions)
+- In order to be internally consistent, all signing/submitting functions will follow the parameter order of `transaction`, `client`, `wallet`, and then other parameters. (This is because `wallet` is optional for `submit_and_wait` and so must come after `client`)
+- `XRP.to_amount` now converts from XRP to drops, instead of expecting a drops amount
+
+### Fixed:
+- Added a sort of the account IDs in `multisign`, so that the `multisign` always works.
+- Add `ledger_hash` and `ledger_index` to `account_nfts`, `nft_buy_offers`, and `nft_sell_offers` requests.
+- Add `nft_page` to `ledger_entry` request.
+
+### Removed:
+- `send_reliable_submission` has been replaced by `submit_and_wait`
+- Longer aliases for signing/submitting functions have been removed. Specifically
+  - `submit_transaction` is now `submit`
+  - `safe_sign_transaction` is now `sign`
+  - `safe_sign_and_submit_transaction` is now `sign_and_submit`
+    - The param order for `sign_and_submit` moves `wallet` after `client` to be consistent with `submit_and_wait`
+  - `safe_sign_and_autofill_transaction` is now `autofill_and_sign`
+    - The param order for `autofill_and_sign` moves `wallet` after `client` to be consistent with `submit_and_wait`
+- Removed deprecated request functions which were just wrappers around `Client.request()`. Specifically this includes:
+  - `get_account_info`
+  - `get_account_transactions`
+  - `get_account_payment_transactions`
+  - `get_transaction_from_hash`
+
+## [1.9.0] - 2023-06-13
 ### Added:
 - Added `submit_and_wait` to sign (if needed), autofill, submit a transaction and wait for its final outcome
 - `submit` and `send_reliable_submission` now accept an optional boolean param `fail_hard` (if `True` halt the submission if it's not immediately validated)
 - Added sidechain devnet support to faucet generation
+- Added `user_agent` and `usage_context` to `generate_faucet_wallet`
 
 ### Changed:
 - Allowed keypairs.sign to take a hex string in addition to bytes
 
 ### Fixed:
 - Refactored `does_account_exist` and `get_balance` to avoid deprecated methods and use `ledger_index` parameter
-- Fixed crashes in the SignerListSet validation
+- Fixed crashes in the `SignerListSet` validation
 - Improved error messages in `send_reliable_submission`
 - Better error handling in reliable submission
 

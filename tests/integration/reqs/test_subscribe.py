@@ -76,9 +76,9 @@ class TestSubscribe(IntegrationTestCase):
         await client.send(Subscribe(streams=[StreamParameter.TRANSACTIONS]))
 
         payment_transaction = Payment(
-            account=WALLET.classic_address,
+            account=WALLET.address,
             amount="100",
-            destination=DESTINATION.classic_address,
+            destination=DESTINATION.address,
         )
 
         count = 0
@@ -105,9 +105,9 @@ class TestSubscribe(IntegrationTestCase):
         await client.send(Subscribe(streams=[StreamParameter.TRANSACTIONS_PROPOSED]))
 
         payment_transaction = Payment(
-            account=WALLET.classic_address,
+            account=WALLET.address,
             amount="100",
-            destination=DESTINATION.classic_address,
+            destination=DESTINATION.address,
         )
 
         count = 0

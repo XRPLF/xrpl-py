@@ -7,7 +7,7 @@ from tests.integration.reusable_values import WALLET
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import EscrowCancel
 
-ACCOUNT = WALLET.classic_address
+ACCOUNT = WALLET.address
 OWNER = "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
 OFFER_SEQUENCE = 7
 

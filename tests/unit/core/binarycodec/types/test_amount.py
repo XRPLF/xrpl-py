@@ -5,6 +5,8 @@ from tests.unit.core.binarycodec.types.test_serialized_type import (
 )
 from xrpl.core.binarycodec.binary_wrappers import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
+from xrpl.models.amounts.amount import is_issued_currency
+from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 
 # [IOU dict, expected serialized hex]
 IOU_CASES = [
@@ -161,3 +163,11 @@ class TestAmount(TestSerializedType):
     def test_fixtures(self):
         for fixture in data_driven_fixtures_for_type("Amount"):
             self.fixture_test(fixture)
+
+    def test_is_issued_currency(self):
+        issued_currency = IssuedCurrencyAmount(
+            currency="USD", issuer="rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw", value=10
+        )
+        self.assertTrue(is_issued_currency(issued_currency))
+        xrp_amount = "10"
+        self.assertFalse(is_issued_currency(xrp_amount))

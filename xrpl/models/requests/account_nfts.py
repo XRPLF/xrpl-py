@@ -2,14 +2,14 @@
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class AccountNFTs(Request):
+class AccountNFTs(Request, LookupByLedgerRequest):
     """
     This method retrieves all of the NFTs currently owned
     by the specified account.

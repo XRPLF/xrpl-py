@@ -12,7 +12,7 @@ from enum import Enum
 from typing import Dict, List, Optional, Union
 
 from xrpl.models.base_model import BaseModel
-from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
@@ -174,7 +174,7 @@ class Ticket(BaseModel):
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class LedgerEntry(Request):
+class LedgerEntry(Request, LookupByLedgerRequest):
     """
     The ledger_entry method returns a single ledger
     object from the XRP Ledger in its raw format.
@@ -195,8 +195,8 @@ class LedgerEntry(Request):
     ripple_state: Optional[RippleState] = None
     ticket: Optional[Union[str, Ticket]] = None
     binary: bool = False
-    ledger_hash: Optional[str] = None
-    ledger_index: Optional[Union[str, int]] = None
+    nft_page: Optional[str] = None
+    """Must be the object ID of the NFToken page, as hexadecimal"""
 
     def _get_errors(self: LedgerEntry) -> Dict[str, str]:
         errors = super()._get_errors()

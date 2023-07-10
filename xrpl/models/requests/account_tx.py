@@ -5,16 +5,16 @@ specified account.
 `See account_tx <https://xrpl.org/account_tx.html>`_
 """
 from dataclasses import dataclass, field
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
-from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class AccountTx(Request):
+class AccountTx(Request, LookupByLedgerRequest):
     """
     This request retrieves from the ledger a list of transactions that involved the
     specified account.
@@ -29,8 +29,6 @@ class AccountTx(Request):
     :meta hide-value:
     """
 
-    ledger_hash: Optional[str] = None
-    ledger_index: Optional[Union[str, int]] = None
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_TX, init=False)
     ledger_index_min: Optional[int] = None
     ledger_index_max: Optional[int] = None
