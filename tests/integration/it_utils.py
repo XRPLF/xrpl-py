@@ -93,7 +93,7 @@ class SyncTestTimer:
         self._timer.cancel()
 
 
-def fund_wallet_sync(wallet: Wallet) -> None:
+def fund_wallet(wallet: Wallet) -> None:
     client = JSON_RPC_CLIENT
     payment = Payment(
         account=MASTER_ACCOUNT,
@@ -104,7 +104,7 @@ def fund_wallet_sync(wallet: Wallet) -> None:
     client.request(LEDGER_ACCEPT_REQUEST)
 
 
-async def fund_wallet(
+async def fund_wallet_async(
     wallet: Wallet, client: AsyncClient = ASYNC_JSON_RPC_CLIENT
 ) -> None:
     payment = Payment(
