@@ -1,16 +1,7 @@
 import asyncio
 
 from tests.integration.it_utils import fund_wallet, sign_and_reliable_submission_async
-from xrpl.models import (
-    AccountSet,
-    AccountSetAsfFlag,
-    IssuedCurrencyAmount,
-    OfferCreate,
-    Payment,
-    PaymentChannelCreate,
-    TrustSet,
-    TrustSetFlag,
-)
+from xrpl.models import IssuedCurrencyAmount, OfferCreate, PaymentChannelCreate
 from xrpl.wallet import Wallet
 
 
@@ -47,50 +38,11 @@ async def _set_up_reusable_values():
         WALLET,
     )
 
-    CLAWBACK_ISSUER = Wallet.create()
-    await fund_wallet(CLAWBACK_ISSUER)
-    CLAWBACK_HOLDER = Wallet.create()
-    await fund_wallet(CLAWBACK_HOLDER)
-
-    await sign_and_reliable_submission_async(
-        AccountSet(
-            account=CLAWBACK_ISSUER.classic_address,
-            set_flag=AccountSetAsfFlag.ASF_ALLOW_CLAWBACK,
-        ),
-        CLAWBACK_ISSUER,
-    )
-
-    await sign_and_reliable_submission_async(
-        TrustSet(
-            account=CLAWBACK_HOLDER.classic_address,
-            flags=TrustSetFlag.TF_SET_NO_RIPPLE,
-            limit_amount=IssuedCurrencyAmount(
-                issuer=CLAWBACK_ISSUER.classic_address,
-                currency="USD",
-                value="1000",
-            ),
-        ),
-        CLAWBACK_HOLDER,
-    )
-
-    await sign_and_reliable_submission_async(
-        Payment(
-            account=CLAWBACK_ISSUER.classic_address,
-            destination=CLAWBACK_HOLDER.classic_address,
-            amount=IssuedCurrencyAmount(
-                currency="USD", issuer=CLAWBACK_ISSUER.classic_address, value="1000"
-            ),
-        ),
-        CLAWBACK_ISSUER,
-    )
-
     return (
         WALLET,
         DESTINATION,
         OFFER,
         PAYMENT_CHANNEL,
-        CLAWBACK_ISSUER,
-        CLAWBACK_HOLDER,
     )
 
 
@@ -99,6 +51,4 @@ async def _set_up_reusable_values():
     DESTINATION,
     OFFER,
     PAYMENT_CHANNEL,
-    CLAWBACK_ISSUER,
-    CLAWBACK_HOLDER,
 ) = asyncio.run(_set_up_reusable_values())
