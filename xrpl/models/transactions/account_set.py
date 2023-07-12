@@ -103,8 +103,8 @@ class AccountSetAsfFlag(int, Enum):
     ASF_DISABLE_INCOMING_TRUSTLINE = 15
     """Disallow other accounts from creating Trustlines directed at this account."""
 
-    ASF_ALLOW_CLAWBACK = 16
-    """Allow clawback feature"""
+    ASF_ALLOW_TRUSTLINE_CLAWBACK = 16
+    """Allow trustline clawback feature"""
 
 
 class AccountSetFlag(int, Enum):

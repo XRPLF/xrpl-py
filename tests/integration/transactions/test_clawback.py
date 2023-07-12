@@ -27,7 +27,7 @@ class TestClawback(IntegrationTestCase):
         await sign_and_reliable_submission_async(
             AccountSet(
                 account=WALLET.classic_address,
-                set_flag=AccountSetAsfFlag.ASF_ALLOW_CLAWBACK,
+                set_flag=AccountSetAsfFlag.ASF_ALLOW_TRUSTLINE_CLAWBACK,
             ),
             WALLET,
         )
