@@ -16,13 +16,14 @@ from xrpl.models import (
 )
 from xrpl.wallet import Wallet
 
+HOLDER = Wallet.create()
+fund_wallet(HOLDER)
+
 
 class TestClawback(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
         # test setup
-        HOLDER = Wallet.create()
-        await fund_wallet(HOLDER)
 
         await sign_and_reliable_submission_async(
             AccountSet(
