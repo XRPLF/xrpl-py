@@ -90,7 +90,7 @@ poetry run poe test_unit
 To run integration tests, you'll need a standalone rippled node running with WS port `6006` and JSON RPC port `5005`. You can run a docker container for this:
 
 ```bash
-docker run -p 5005:5005 -p 6006:6006 --interactive -t --volume $PWD/.ci-config:/config/ xrpllabsofficial/xrpld:latest -a --start
+docker run -p 5005:5005 -p 6006:6006 --interactive -t --volume $PWD/.ci-config:/config/ xrpllabsofficial/xrpld:1.12.0-b1 -a --start
 ```
 
 Breaking down the command:
@@ -98,7 +98,7 @@ Breaking down the command:
 * `--interactive` allows you to interact with the container.
 * `-t` starts a terminal in the container for you to send commands to.
 * `--volume $PWD/.ci-config:/config/` identifies the `rippled.cfg` and `validators.txt` to import. It must be an absolute path, so we use `$PWD` instead of `./`.
-* `xrpllabsofficial/xrpld:latest` is an image that is regularly updated with the latest `rippled` releases and can be found here: https://github.com/WietseWind/docker-rippled
+* `xrpllabsofficial/xrpld:1.12.0-b1` is an image that is regularly updated with the latest `rippled` releases and can be found here: https://github.com/WietseWind/docker-rippled
 * `-a` starts `rippled` in standalone mode
 * `--start` signals to start `rippled` with the specified amendments in `rippled.cfg` enabled immediately instead of voting for 2 weeks on them.
 
