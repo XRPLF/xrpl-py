@@ -48,50 +48,42 @@ class AMMWithdrawFlagInterface(FlagInterface):
 @dataclass(frozen=True)
 class AMMWithdraw(Transaction):
     """
-    AMMWithdraw is the withdraw transaction used to remove liquidity from the AMM
-    instance pool, thus redeeming some share of the pools that one owns in the form
-    of LPToken.
-
-    The following are the recommended valid combinations:
-    - LPTokenIn
-    - Amount
-    - Amount and Amount2
-    - Amount and LPTokenIn
-    - Amount and EPrice
+    Withdraw assets from an Automated Market Maker (AMM) instance by returning the
+    AMM's liquidity provider tokens (LP Tokens).
     """
 
     asset: Currency = REQUIRED  # type: ignore
     """
-    Specifies one of the pool assets (XRP or token) of the AMM instance.
+    The definition for one of the assets in the AMM's pool. This field is required.
     """
 
     asset2: Currency = REQUIRED  # type: ignore
     """
-    Specifies the other pool asset of the AMM instance.
-    """
-
-    lp_token_in: Optional[IssuedCurrencyAmount] = None
-    """
-    Specifies the amount of shares of the AMM instance pools that the trader
-    wants to redeem or trade in.
+    The definition for the other asset in the AMM's pool. This field is required.
     """
 
     amount: Optional[Amount] = None
     """
-    Specifies one of the pools assets that the trader wants to remove.
-    If the asset is XRP, then the Amount is a string specifying the number of drops.
-    Otherwise it is an IssuedCurrencyAmount object.
+    The amount of one asset to withdraw from the AMM.
+    This must match the type of one of the assets (tokens or XRP) in the AMM's pool.
     """
 
     amount2: Optional[Amount] = None
     """
-    Specifies the other pool asset that the trader wants to remove.
+    The amount of another asset to withdraw from the AMM.
+    If present, this must match the type of the other asset in the AMM's pool
+    and cannot be the same type as Amount.
     """
 
     e_price: Optional[Amount] = None
     """
-    Specifies the effective-price of the token out after successful execution of
-    the transaction.
+    The minimum effective price, in LP Token returned, to pay per unit of the asset
+    to withdraw.
+    """
+
+    lp_token_in: Optional[IssuedCurrencyAmount] = None
+    """
+    How many of the AMM's LP Tokens to redeem.
     """
 
     transaction_type: TransactionType = field(

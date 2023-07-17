@@ -44,48 +44,47 @@ class AMMDepositFlagInterface(FlagInterface):
 @dataclass(frozen=True)
 class AMMDeposit(Transaction):
     """
-    AMMDeposit is the deposit transaction used to add liquidity to the AMM instance
-    pool, thus obtaining some share of the instance's pools in the form of LPToken.
+    Deposit funds into an Automated Market Maker (AMM) instance
+    and receive the AMM's liquidity provider tokens (LP Tokens) in exchange.
 
-    The following are the recommended valid combinations:
-    - LPTokenOut
-    - Amount
-    - Amount and Amount2
-    - Amount and LPTokenOut
-    - Amount and EPrice
+    You can deposit one or both of the assets in the AMM's pool.
+    If successful, this transaction creates a trust line to the AMM Account (limit 0)
+    to hold the LP Tokens.
     """
 
     asset: Currency = REQUIRED  # type: ignore
     """
-    Specifies one of the pool assets (XRP or token) of the AMM instance.
+    The definition for one of the assets in the AMM's pool. This field is required.
     """
 
     asset2: Currency = REQUIRED  # type: ignore
     """
-    Specifies the other pool asset of the AMM instance.
-    """
-
-    lp_token_out: Optional[IssuedCurrencyAmount] = None
-    """
-    Specifies the amount of shares of the AMM instance pools that the trader
-    wants to redeem or trade in.
+    The definition for the other asset in the AMM's pool. This field is required.
     """
 
     amount: Optional[Amount] = None
     """
-    Specifies one of the pool assets (XRP or token) of the AMM instance to
-    deposit more of its value.
+    The amount of one asset to deposit to the AMM.
+    If present, this must match the type of one of the assets (tokens or XRP)
+    in the AMM's pool.
     """
 
     amount2: Optional[Amount] = None
     """
-    Specifies the other pool asset of the AMM instance to deposit more of its
-    value.
+    The amount of another asset to add to the AMM.
+    If present, this must match the type of the other asset in the AMM's pool
+    and cannot be the same asset as Amount.
     """
 
     e_price: Optional[Amount] = None
     """
-    Specifies the maximum effective-price that LPToken can be traded out.
+    The maximum effective price, in the deposit asset, to pay
+    for each LP Token received.
+    """
+
+    lp_token_out: Optional[IssuedCurrencyAmount] = None
+    """
+    How many of the AMM's LP Tokens to buy.
     """
 
     transaction_type: TransactionType = field(

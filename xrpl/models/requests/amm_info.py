@@ -1,4 +1,4 @@
-"""This request retrieves information about an AMM instance."""
+"""This request gets information about an Automated Market Maker (AMM) instance."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -13,19 +13,18 @@ from xrpl.models.utils import require_kwargs_on_init
 @dataclass(frozen=True)
 class AMMInfo(Request):
     """
-    This request retrieves information about an AMM instance.
-
-    Must provide Asset and Asset2 params.
+    The `amm_info` method gets information about an Automated Market Maker
+    (AMM) instance.
     """
 
     asset: Currency = REQUIRED  # type: ignore
     """
-    Specifies one of the pool assets (XRP or token) of the AMM instance.
+    One of the assets of the AMM pool to look up. This field is required.
     """
 
     asset2: Currency = REQUIRED  # type: ignore
     """
-    Specifies the other pool asset of the AMM instance.
+    The other asset of the AMM pool. This field is required.
     """
 
     method: RequestMethod = field(default=RequestMethod.AMM_INFO, init=False)

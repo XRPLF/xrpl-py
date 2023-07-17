@@ -21,42 +21,44 @@ _MAX_AUTH_ACCOUNTS: Final[int] = 4
 @dataclass(frozen=True)
 class AMMBid(Transaction):
     """
-    AMMBid is used to place a bid for the auction slot of obtaining trading advantages
-    of an AMM instance.
+    Bid on an Automated Market Maker's (AMM's) auction slot.
 
-    An AMM instance auctions off the trading advantages to users (arbitrageurs) at a
-    discounted TradingFee for a 24 hour slot.
+    If you win, you can trade against the AMM at a discounted fee until you are outbid
+    or 24 hours have passed.
+    If you are outbid before 24 hours have passed, you are refunded part of the cost
+    of your bid based on how much time remains.
+    You bid using the AMM's LP Tokens; the amount of a winning bid is returned
+    to the AMM, decreasing the outstanding balance of LP Tokens.
     """
 
     asset: Currency = REQUIRED  # type: ignore
     """
-    Specifies one of the pool assets (XRP or token) of the AMM instance.
+    The definition for one of the assets in the AMM's pool. This field is required.
     """
 
     asset2: Currency = REQUIRED  # type: ignore
     """
-    Specifies the other pool asset of the AMM instance.
+    The definition for the other asset in the AMM's pool. This field is required.
     """
 
     bid_min: Optional[Amount] = None
     """
-    This field represents the minimum price that the bidder wants to pay for the slot.
-    It is specified in units of LPToken. If specified let MinSlotPrice be X and let
-    the slot-price computed by price scheduling algorithm be Y, then bidder always pays
-    the max(X, Y).
+    Pay at least this amount for the slot.
+    Setting this value higher makes it harder for others to outbid you.
+    If omitted, pay the minimum necessary to win the bid.
     """
 
     bid_max: Optional[Amount] = None
     """
-    This field represents the maximum price that the bidder wants to pay for the slot.
-    It is specified in units of LPToken.
+    Pay at most this amount for the slot.
+    If the cost to win the bid is higher than this amount, the transaction fails.
+    If omitted, pay as much as necessary to win the bid.
     """
 
     auth_accounts: Optional[List[AuthAccount]] = None
     """
-    This field represents an array of XRPL account IDs that are authorized to trade
-    at the discounted fee against the AMM instance.
-    A maximum of four accounts can be provided.
+    A list of up to 4 additional accounts that you allow to trade at the discounted fee.
+    This cannot include the address of the transaction sender.
     """
 
     transaction_type: TransactionType = field(
