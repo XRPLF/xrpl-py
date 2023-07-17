@@ -24,12 +24,17 @@ class Wallet:
         """  # noqa: DAR201
         return self._address
 
-    classic_address = address
-    """
-    `classic_address` is the same as `address`. It is called `classic_address` to
-    differentiate it from the x-address standard, which encodes the network,
-    destination tag, and XRPL address into a single value. It's also a base58 string.
-    """
+    # TODO: Just alias classic_address once mypy has resolved this issue:
+    #       https://github.com/python/mypy/issues/6700
+    @property
+    def classic_address(self: Wallet) -> str:
+        """
+        `classic_address` is the same as `address`. It is called `classic_address` to
+        differentiate it from the x-address standard, which encodes the network,
+        destination tag, and XRPL address into a single value.
+        It's also a base58 string.
+        """  # noqa: DAR201
+        return self._address
 
     def __init__(
         self: Wallet,

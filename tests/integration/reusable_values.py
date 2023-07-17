@@ -1,6 +1,9 @@
 import asyncio
 
-from tests.integration.it_utils import fund_wallet, sign_and_reliable_submission_async
+from tests.integration.it_utils import (
+    fund_wallet_async,
+    sign_and_reliable_submission_async,
+)
 from xrpl.models import IssuedCurrencyAmount, OfferCreate, PaymentChannelCreate
 from xrpl.wallet import Wallet
 
@@ -10,9 +13,9 @@ from xrpl.wallet import Wallet
 # faster)
 async def _set_up_reusable_values():
     WALLET = Wallet.create()
-    await fund_wallet(WALLET)
+    await fund_wallet_async(WALLET)
     DESTINATION = Wallet.create()
-    await fund_wallet(DESTINATION)
+    await fund_wallet_async(DESTINATION)
 
     OFFER = await sign_and_reliable_submission_async(
         OfferCreate(

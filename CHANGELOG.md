@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Fixed
+- Replaced alias for `classic_address` with separate property to work around this mypy issue: 
+  https://github.com/python/mypy/issues/6700
+
 ## [2.0.0] - 2023-07-05
 ### Added:
 - Wallet support for regular key compatibility
