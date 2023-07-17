@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict
 
 from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
@@ -30,7 +29,3 @@ class AMMInfo(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.AMM_INFO, init=False)
-
-    def _get_errors(self: AMMInfo) -> Dict[str, str]:
-        errors = super()._get_errors()
-        return errors

@@ -467,9 +467,9 @@ async def _calculate_fee_per_transaction_type(
             base_fee = math.ceil(net_fee * (33 + (len(fulfillment_bytes) / 16)))
 
     # AccountDelete Transaction
-    if (
-        transaction.transaction_type == TransactionType.ACCOUNT_DELETE
-        or transaction.transaction_type == TransactionType.AMM_CREATE
+    if transaction.transaction_type in (
+        TransactionType.ACCOUNT_DELETE,
+        TransactionType.AMM_CREATE,
     ):
         if client is None:
             base_fee = _OWNER_RESERVE_FEE
