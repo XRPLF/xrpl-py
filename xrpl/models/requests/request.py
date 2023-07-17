@@ -75,9 +75,6 @@ class RequestMethod(str, Enum):
     PING = "ping"
     RANDOM = "random"
 
-    # sidechain methods
-    FEDERATOR_INFO = "federator_info"
-
     # amm methods
     AMM_INFO = "amm_info"
 
