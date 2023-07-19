@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Dict
 
-from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.models.amounts import IssuedCurrencyAmount, is_issued_currency, is_xrp
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -27,3 +28,16 @@ class Clawback(Transaction):
         default=TransactionType.CLAWBACK,
         init=False,
     )
+
+    def _get_errors(self: Clawback) -> Dict[str, str]:
+        errors = super()._get_errors()
+
+        # Amount transaction errors
+        if is_xrp(self.amount):
+            errors["amount"] = "``amount`` cannot be XRP."
+
+        if is_issued_currency(self.amount):
+            if self.account == self.amount.issuer:
+                errors["amount"] = "Holder's address is wrong."
+
+        return errors
