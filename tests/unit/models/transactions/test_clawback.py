@@ -11,7 +11,7 @@ _ISSUED_CURRENCY_AMOUNT = IssuedCurrencyAmount(
 )
 
 
-class TestNFTokenMint(TestCase):
+class TestClawback(TestCase):
     def test_amount_is_XRP(self):
         with self.assertRaises(XRPLModelException):
             Clawback(
