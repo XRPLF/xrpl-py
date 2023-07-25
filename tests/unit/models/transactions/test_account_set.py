@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.transactions import AccountSet, AccountSetFlag
+from xrpl.models.transactions import AccountSet, AccountSetAsfFlag
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _ANOTHER_ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
@@ -98,7 +98,7 @@ class TestAccountSet(TestCase):
             AccountSet(
                 account=_ACCOUNT,
                 fee=_FEE,
-                set_flag=AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
+                set_flag=AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
             )
 
     def test_nftoken_minter_set_with_clear_minter_flag(self):
@@ -106,7 +106,7 @@ class TestAccountSet(TestCase):
             AccountSet(
                 account=_ACCOUNT,
                 fee=_FEE,
-                clear_flag=AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
+                clear_flag=AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
                 nftoken_minter=_ANOTHER_ACCOUNT,
             )
 
@@ -114,7 +114,7 @@ class TestAccountSet(TestCase):
         tx = AccountSet(
             account=_ACCOUNT,
             fee=_FEE,
-            set_flag=AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
+            set_flag=AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
             nftoken_minter=_ANOTHER_ACCOUNT,
         )
         self.assertTrue(tx.is_valid())
@@ -123,6 +123,6 @@ class TestAccountSet(TestCase):
         tx = AccountSet(
             account=_ACCOUNT,
             fee=_FEE,
-            clear_flag=AccountSetFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
+            clear_flag=AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
         )
         self.assertTrue(tx.is_valid())

@@ -8,11 +8,11 @@ from xrpl.models.requests import SubmitOnly
 from xrpl.models.transactions import OfferCreate
 
 TX = OfferCreate(
-    account=WALLET.classic_address,
+    account=WALLET.address,
     taker_gets="13100000",
     taker_pays=IssuedCurrencyAmount(
         currency="USD",
-        issuer=WALLET.classic_address,
+        issuer=WALLET.address,
         value="10",
     ),
 )
@@ -21,7 +21,8 @@ TX = OfferCreate(
 class TestSubmitOnly(IntegrationTestCase):
     @test_async_and_sync(globals(), ["xrpl.transaction.autofill_and_sign"])
     async def test_basic_functionality(self, client):
-        transaction = await autofill_and_sign(TX, WALLET, client)
+        transaction = await autofill_and_sign(TX, client, WALLET)
+
         tx_json = transaction.to_xrpl()
         tx_blob = encode(tx_json)
         response = await client.request(

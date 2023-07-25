@@ -9,7 +9,7 @@ class TestNoRippleCheck(IntegrationTestCase):
     async def test_basic_functionality(self, client):
         response = await client.request(
             NoRippleCheck(
-                account=WALLET.classic_address,
+                account=WALLET.address,
                 role=NoRippleCheckRole.USER,
             )
         )

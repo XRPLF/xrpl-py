@@ -68,7 +68,7 @@ async def generate_faucet_wallet(
     if wallet is None:
         wallet = Wallet.create()
 
-    address = wallet.classic_address
+    address = wallet.address
     # The faucet *can* be flakey... by printing info about this it's easier to
     # understand if tests are actually failing, or if it was just a faucet failure.
     if debug:
@@ -94,7 +94,6 @@ async def generate_faucet_wallet(
         else:  # wallet has been funded, now the ledger needs to know the account exists
             next_seq_num = await _try_to_get_next_seq(address, client)
             if next_seq_num is not None:
-                wallet.sequence = next_seq_num
                 return wallet
 
     raise XRPLFaucetException(

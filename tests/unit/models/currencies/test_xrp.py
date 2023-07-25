@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from xrpl.models.currencies import XRP
+from xrpl.utils import xrp_to_drops
 
 
 class TestXRP(TestCase):
@@ -8,7 +9,8 @@ class TestXRP(TestCase):
         self.assertEqual(XRP().to_dict()["currency"], "XRP")
 
     def test_to_amount(self):
-        amount = "12"
-        issued_currency_amount = XRP().to_amount(amount)
+        amount = 12
+        expected = xrp_to_drops(amount)
+        result = XRP().to_amount(amount)
 
-        self.assertEqual(issued_currency_amount, amount)
+        self.assertEqual(result, expected)

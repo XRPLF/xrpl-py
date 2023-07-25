@@ -9,17 +9,14 @@ from typing import cast
 import xrpl  # noqa: F401 - needed for sync tests
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.clients.async_client import AsyncClient
-from xrpl.asyncio.transaction import (
-    safe_sign_and_submit_transaction as sign_and_submit_async,
-)
+from xrpl.asyncio.transaction import sign_and_submit as sign_and_submit_async
 from xrpl.clients import Client, JsonRpcClient, WebsocketClient
 from xrpl.clients.sync_client import SyncClient
+from xrpl.constants import CryptoAlgorithm
 from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
+from xrpl.transaction import sign_and_submit  # noqa: F401 - needed for sync tests
 from xrpl.transaction import (  # noqa: F401 - needed for sync tests
-    safe_sign_and_submit_transaction,
-)
-from xrpl.transaction import (  # noqa: F401 - needed for sync tests
-    submit_transaction as submit_transaction_alias,
+    submit as submit_transaction_alias,
 )
 from xrpl.wallet import Wallet
 
@@ -55,7 +52,7 @@ _CLIENTS = {
 
 MASTER_ACCOUNT = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
 MASTER_SECRET = "snoPBrXtMeMyMHUVTgbuqAfg1SUTb"
-MASTER_WALLET = Wallet(MASTER_SECRET, 0)
+MASTER_WALLET = Wallet.from_seed(MASTER_SECRET, algorithm=CryptoAlgorithm.SECP256K1)
 FUNDING_AMOUNT = "2000000000"
 
 LEDGER_ACCEPT_REQUEST = GenericRequest(method="ledger_accept")
@@ -96,26 +93,26 @@ class SyncTestTimer:
         self._timer.cancel()
 
 
-def fund_wallet_sync(wallet: Wallet) -> None:
+def fund_wallet(wallet: Wallet) -> None:
     client = JSON_RPC_CLIENT
     payment = Payment(
         account=MASTER_ACCOUNT,
-        destination=wallet.classic_address,
+        destination=wallet.address,
         amount=FUNDING_AMOUNT,
     )
-    safe_sign_and_submit_transaction(payment, MASTER_WALLET, client, check_fee=True)
+    sign_and_submit(payment, client, MASTER_WALLET, check_fee=True)
     client.request(LEDGER_ACCEPT_REQUEST)
 
 
-async def fund_wallet(
+async def fund_wallet_async(
     wallet: Wallet, client: AsyncClient = ASYNC_JSON_RPC_CLIENT
 ) -> None:
     payment = Payment(
         account=MASTER_ACCOUNT,
-        destination=wallet.classic_address,
+        destination=wallet.address,
         amount=FUNDING_AMOUNT,
     )
-    await sign_and_submit_async(payment, MASTER_WALLET, client, check_fee=True)
+    await sign_and_submit_async(payment, client, MASTER_WALLET, check_fee=True)
     await client.request(LEDGER_ACCEPT_REQUEST)
 
 
@@ -127,9 +124,7 @@ def submit_transaction(
     check_fee: bool = True,
 ) -> Response:
     """Signs and submits a transaction to the XRPL."""
-    return safe_sign_and_submit_transaction(
-        transaction, wallet, client, check_fee=check_fee
-    )
+    return sign_and_submit(transaction, client, wallet, check_fee=check_fee)
 
 
 # just submits a transaction to the ledger, asynchronously
@@ -139,7 +134,7 @@ async def submit_transaction_async(
     client: AsyncClient,
     check_fee: bool = True,
 ) -> Response:
-    return await sign_and_submit_async(transaction, wallet, client, check_fee=check_fee)
+    return await sign_and_submit_async(transaction, client, wallet, check_fee=check_fee)
 
 
 # submits a transaction to the ledger and closes a ledger, synchronously

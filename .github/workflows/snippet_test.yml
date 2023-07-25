@@ -1,4 +1,4 @@
-name: Integration test
+name: Snippets
 
 on:
   push:
@@ -10,10 +10,9 @@ env:
   POETRY_VERSION: 1.4.2
 
 jobs:
-  integration-test:
-    name: Integration test
+  snippet-test:
+    name: Snippet test
     runs-on: ubuntu-latest
-    timeout-minutes: 30
     strategy:
       matrix:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
@@ -28,10 +27,6 @@ jobs:
         with:
           path: /home/runner/.local
           key: dotlocal-${{ env.POETRY_VERSION }}
-
-      - name: Run docker in background
-        run: |
-          docker run --detach --rm --name rippled-service -p 5005:5005 -p 6006:6006 --volume "${{ github.workspace }}/.ci-config/":"/config/" --health-cmd="wget localhost:6006 || exit 1" --health-interval=5s --health-retries=10 --health-timeout=2s --env "ENV_ARGS=-a --start" --env GITHUB_ACTIONS=true --env CI=true xrpllabsofficial/xrpld:1.12.0-b1
 
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'
@@ -52,11 +47,6 @@ jobs:
       - name: Install poetry dependencies
         run: poetry install
 
-      - name: Integration test
-        run: |
-          poetry run poe test_integration
-          poetry run coverage report --fail-under=70
 
-      - name: Stop docker container
-        if: always()
-        run: docker stop rippled-service
+      - name: Run Snippets
+        run: (for i in snippets/*.py; do echo "Running $i" && poetry run python $i || exit 1; done)

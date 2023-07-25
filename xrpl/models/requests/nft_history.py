@@ -3,16 +3,16 @@ The `nft_history` method retreives a list of transactions that involved the
 specified NFToken.
 """
 from dataclasses import dataclass, field
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
-from xrpl.models.requests.request import Request, RequestMethod
+from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class NFTHistory(Request):
+class NFTHistory(Request, LookupByLedgerRequest):
     """
     The `nft_history` method retreives a list of transactions that involved the
     specified NFToken.
@@ -27,8 +27,6 @@ class NFTHistory(Request):
     :meta hide-value:
     """
 
-    ledger_hash: Optional[str] = None
-    ledger_index: Optional[Union[str, int]] = None
     ledger_index_min: Optional[int] = None
     ledger_index_max: Optional[int] = None
     binary: bool = False

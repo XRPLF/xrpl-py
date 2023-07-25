@@ -1,8 +1,12 @@
+import asyncio
 from unittest import TestCase
 
 from tests.unit.core.addresscodec.test_main_test_cases import test_cases
+from xrpl.asyncio.transaction.main import _calculate_fee_per_transaction_type
 from xrpl.core import addresscodec
 from xrpl.core.addresscodec.main import MAX_32_BIT_UNSIGNED_INT
+from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
+from xrpl.models.transactions.payment import Payment
 
 
 class TestMain(TestCase):
@@ -91,6 +95,42 @@ class TestMain(TestCase):
             False,
         )
 
+    def test_ensure_classic_address(self):
+        for test_case in test_cases:
+            (
+                expected_classic_address,
+                tag,
+                main_xaddress,
+                test_xaddress,
+            ) = test_case
+
+            # classic address
+            classic_address = addresscodec.ensure_classic_address(
+                expected_classic_address
+            )
+            self.assertEqual(classic_address, expected_classic_address)
+
+            # tagged xaddress
+            if tag is not None:
+                self.assertRaises(
+                    addresscodec.XRPLAddressCodecException,
+                    addresscodec.ensure_classic_address,
+                    main_xaddress,
+                )
+                self.assertRaises(
+                    addresscodec.XRPLAddressCodecException,
+                    addresscodec.ensure_classic_address,
+                    test_xaddress,
+                )
+            else:
+                # main xaddress
+                classic_address = addresscodec.ensure_classic_address(main_xaddress)
+                self.assertEqual(classic_address, expected_classic_address)
+
+                # test xaddress
+                classic_address = addresscodec.ensure_classic_address(test_xaddress)
+                self.assertEqual(classic_address, expected_classic_address)
+
     def test_is_valid_classic_address_secp256k1(self):
         classic_address = "rU6K7V3Po4snVhBBaU29sesqs2qTQJWDw1"
 
@@ -132,3 +172,24 @@ class TestMain(TestCase):
 
         result = addresscodec.is_valid_xaddress(xaddress)
         self.assertFalse(result)
+
+    def test_basic_calculate_fee_per_transaction_type_offline(self):
+        fee = asyncio.run(
+            _calculate_fee_per_transaction_type(
+                Payment(
+                    account="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                    amount=IssuedCurrencyAmount(
+                        currency="USD",
+                        issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                        value="0.0001",
+                    ),
+                    destination="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                    send_max=IssuedCurrencyAmount(
+                        currency="BTC",
+                        issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                        value="0.0000002831214446",
+                    ),
+                )
+            )
+        )
+        self.assertEqual(fee, "10")
