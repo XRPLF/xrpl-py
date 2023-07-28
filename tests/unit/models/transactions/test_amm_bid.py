@@ -60,7 +60,7 @@ class TestAMMBid(TestCase):
                 asset2=_ASSET2,
                 auth_accounts=auth_accounts,
             )
-        self.assertEqual(
-            error.exception.args[0],
-            "{'auth_accounts': 'Length must not be greater than 4'}",
-        )
+            self.assertEqual(
+                error.exception.args[0],
+                "{'auth_accounts': 'Length must not be greater than 4'}",
+            )
