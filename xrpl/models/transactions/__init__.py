@@ -12,6 +12,7 @@ from xrpl.models.transactions.account_set import (
 )
 from xrpl.models.transactions.amm_bid import AMMBid, AuthAccount
 from xrpl.models.transactions.amm_create import AMMCreate
+from xrpl.models.transactions.amm_delete import AMMDelete
 from xrpl.models.transactions.amm_deposit import (
     AMMDeposit,
     AMMDepositFlag,
@@ -77,6 +78,7 @@ __all__ = [
     "AccountSetFlagInterface",
     "AMMBid",
     "AMMCreate",
+    "AMMDelete",
     "AMMDeposit",
     "AMMDepositFlag",
     "AMMDepositFlagInterface",
