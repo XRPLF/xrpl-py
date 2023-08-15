@@ -16,6 +16,7 @@ from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.xchain_bridge import XChainBridge
 
 
 class LedgerEntryType(str, Enum):
@@ -220,6 +221,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     ripple_state: Optional[RippleState] = None
     ticket: Optional[Union[str, Ticket]] = None
     bridge_account: Optional[str] = None
+    bridge: Optional[XChainBridge] = None
     xchain_claim_id: Optional[Union[str, XChainClaimID]] = None
     xchain_create_account_claim_id: Optional[
         Union[str, XChainCreateAccountClaimID]
@@ -236,17 +238,24 @@ class LedgerEntry(Request, LookupByLedgerRequest):
             for param in [
                 self.index,
                 self.account_root,
-                self.directory,
-                self.offer,
-                self.ripple_state,
                 self.check,
-                self.escrow,
-                self.payment_channel,
                 self.deposit_preauth,
+                self.directory,
+                self.escrow,
+                self.offer,
+                self.payment_channel,
+                self.ripple_state,
                 self.ticket,
+                self.xchain_claim_id,
+                self.xchain_create_account_claim_id,
             ]
             if param is not None
         ]
         if len(query_params) != 1:
             errors["LedgerEntry"] = "Must choose exactly one data to query"
+
+        if (self.bridge is not None) == (self.bridge_account is not None):
+            # assert that you either have both of these or neither
+            errors["Bridge"] = "Must include both `bridge` and `bridge_account`."
+
         return errors
