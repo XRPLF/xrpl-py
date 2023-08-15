@@ -7,7 +7,6 @@ immutable yet.)
 from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import Request, RequestMethod
-from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
@@ -22,16 +21,3 @@ class LedgerClosed(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.LEDGER_CLOSED, init=False)
-    ledger_hash: str = REQUIRED  # type: ignore
-    """
-    This field is required.
-
-    :meta hide-value:
-    """
-
-    ledger_index: int = REQUIRED  # type: ignore
-    """
-    This field is required.
-
-    :meta hide-value:
-    """
