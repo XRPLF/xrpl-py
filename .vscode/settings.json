@@ -13,6 +13,7 @@
         "asyncio",
         "autofills",
         "binarycodec",
+        "Clawback",
         "isnumeric",
         "keypair",
         "keypairs",

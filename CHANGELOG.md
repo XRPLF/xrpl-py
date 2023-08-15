@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+## [2.2.0] - 2023-08-07
+### Added
+- Added new `Clawback` transaction as per [XLS-39](https://github.com/XRPLF/XRPL-Standards/discussions/94)
+
+## [2.1.0] - 2023-07-24
 ### Fixed
-- Replaced alias for `classic_address` with separate property to work around this mypy issue: 
+- Replaced alias for `classic_address` with separate property to work around this mypy issue:
   https://github.com/python/mypy/issues/6700
 
 ## [2.0.0] - 2023-07-05
