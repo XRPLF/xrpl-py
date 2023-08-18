@@ -75,6 +75,9 @@ class RequestMethod(str, Enum):
     PING = "ping"
     RANDOM = "random"
 
+    # amm methods
+    AMM_INFO = "amm_info"
+
     # generic unknown/unsupported request
     # (there is no XRPL analog, this model is specific to xrpl-py)
     GENERIC_REQUEST = "zzgeneric_request"
