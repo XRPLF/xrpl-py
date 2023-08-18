@@ -2,6 +2,7 @@
 The base class for all network request types.
 Represents fields common to all request types.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -75,6 +76,9 @@ class RequestMethod(str, Enum):
 
     # sidechain methods
     FEDERATOR_INFO = "federator_info"
+
+    # amm methods
+    AMM_INFO = "amm_info"
 
     # generic unknown/unsupported request
     # (there is no XRPL analog, this model is specific to xrpl-py)
