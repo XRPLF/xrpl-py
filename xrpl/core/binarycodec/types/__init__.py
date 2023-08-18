@@ -7,6 +7,7 @@ from xrpl.core.binarycodec.types.hash import Hash
 from xrpl.core.binarycodec.types.hash128 import Hash128
 from xrpl.core.binarycodec.types.hash160 import Hash160
 from xrpl.core.binarycodec.types.hash256 import Hash256
+from xrpl.core.binarycodec.types.issue import Issue
 from xrpl.core.binarycodec.types.path_set import PathSet
 from xrpl.core.binarycodec.types.st_array import STArray
 from xrpl.core.binarycodec.types.st_object import STObject
@@ -26,6 +27,7 @@ __all__ = [
     "Hash128",
     "Hash160",
     "Hash256",
+    "Issue",
     "PathSet",
     "STObject",
     "STArray",
