@@ -1,7 +1,6 @@
 """Model for SetFee pseudo-transaction type."""
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.pseudo_transactions.pseudo_transaction import (
@@ -13,12 +12,31 @@ from xrpl.models.utils import require_kwargs_on_init
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class SetFee(PseudoTransaction):
+class SetFeeBase(PseudoTransaction):
     """
     A SetFee pseudo-transaction marks a change in `transaction cost
     <https://xrpl.org/transaction-cost.html>`_ or `reserve requirements
     <https://xrpl.org/reserves.html>`_ as a result of `Fee Voting
     <https://xrpl.org/fee-voting.html>`_.
+    """
+
+    transaction_type: PseudoTransactionType = field(
+        default=PseudoTransactionType.SET_FEE,
+        init=False,
+    )
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True)
+class SetFeePreAmendment(SetFeeBase):
+    """
+    A SetFee pseudo-transaction marks a change in `transaction cost
+    <https://xrpl.org/transaction-cost.html>`_ or `reserve requirements
+    <https://xrpl.org/reserves.html>`_ as a result of `Fee Voting
+    <https://xrpl.org/fee-voting.html>`_.
+
+    Syntax used prior to the `XRPFees Amendment
+    <https://xrpl.org/known-amendments.html#xrpfees>`_.
     """
 
     base_fee: str = REQUIRED  # type: ignore
@@ -50,14 +68,52 @@ class SetFee(PseudoTransaction):
     :meta hide-value:
     """
 
-    ledger_sequence: Optional[int] = None
+
+@require_kwargs_on_init
+@dataclass(frozen=True)
+class SetFeePostAmendment(SetFeeBase):
     """
-    The index of the ledger version where this pseudo-transaction appears. This
-    distinguishes the pseudo-transaction from other occurrences of the same change.
-    This field is omitted for some historical SetFee pseudo-transactions.
+    A SetFee pseudo-transaction marks a change in `transaction cost
+    <https://xrpl.org/transaction-cost.html>`_ or `reserve requirements
+    <https://xrpl.org/reserves.html>`_ as a result of `Fee Voting
+    <https://xrpl.org/fee-voting.html>`_.
+
+    Updated by the `XRPFees Amendment
+    <https://xrpl.org/known-amendments.html#xrpfees>`_
     """
 
-    transaction_type: PseudoTransactionType = field(
-        default=PseudoTransactionType.SET_FEE,
-        init=False,
-    )
+    base_fee_drops: str = REQUIRED  # type: ignore
+    """
+    The charge, in drops of XRP, for the reference transaction, as hex. (This is the
+    transaction cost before scaling for load.) This field is required.
+
+    :meta hide-value:
+    """
+
+    reserve_base_drops: int = REQUIRED  # type: ignore
+    """
+    The base reserve, in drops. This field is required.
+
+    :meta hide-value:
+    """
+
+    reserve_increment_drops: int = REQUIRED  # type: ignore
+    """
+    The incremental reserve, in drops. This field is required.
+
+    :meta hide-value:
+    """
+
+
+class SetFee(SetFeePreAmendment, SetFeePostAmendment):
+    """
+    A SetFee pseudo-transaction marks a change in `transaction cost
+    <https://xrpl.org/transaction-cost.html>`_ or `reserve requirements
+    <https://xrpl.org/reserves.html>`_ as a result of `Fee Voting
+    <https://xrpl.org/fee-voting.html>`_.
+
+    The parameters are different depending on if this is before or after the
+    `XRPFees Amendment<https://xrpl.org/known-amendments.html#xrpfees>`_.
+    """
+
+    pass
