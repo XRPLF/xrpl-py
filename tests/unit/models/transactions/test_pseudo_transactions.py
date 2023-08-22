@@ -1,6 +1,6 @@
 from unittest import TestCase
-from xrpl.models.exceptions import XRPLModelException
 
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions.pseudo_transactions import (
     EnableAmendment,
     SetFee,
