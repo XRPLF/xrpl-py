@@ -37,7 +37,7 @@ class TestPseudoTransactions(TestCase):
         full_dict = {**amendment_dict, "Flags": 0, "TxnSignature": ""}
         self.assertEqual(actual.to_xrpl(), full_dict)
 
-    def test_from_xrpl_set_fee(self):
+    def test_from_xrpl_set_fee_pre_amendment(self):
         reference_fee_units = 10
         reserve_base = 20000000
         reserve_increment = 5000000
@@ -58,6 +58,56 @@ class TestPseudoTransactions(TestCase):
             reserve_base=reserve_base,
             reserve_increment=reserve_increment,
             base_fee=base_fee,
+        )
+        actual = Transaction.from_xrpl(set_fee_dict)
+        self.assertEqual(actual, expected)
+        full_dict = {**set_fee_dict, "Flags": 0, "TxnSignature": ""}
+        self.assertEqual(actual.to_xrpl(), full_dict)
+
+    def test_from_xrpl_set_fee_post_amendment(self):
+        reserve_base = 20000000
+        reserve_increment = 5000000
+        base_fee = "000000000000000A"
+        set_fee_dict = {
+            "Account": "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
+            "BaseFeeDrops": base_fee,
+            "Fee": "0",
+            "ReserveBaseDrops": reserve_base,
+            "ReserveIncrementDrops": reserve_increment,
+            "Sequence": 0,
+            "SigningPubKey": "",
+            "TransactionType": "SetFee",
+        }
+        expected = SetFee(
+            reserve_base_drops=reserve_base,
+            reserve_increment_drops=reserve_increment,
+            base_fee_drops=base_fee,
+        )
+        actual = Transaction.from_xrpl(set_fee_dict)
+        self.assertEqual(actual, expected)
+        full_dict = {**set_fee_dict, "Flags": 0, "TxnSignature": ""}
+        self.assertEqual(actual.to_xrpl(), full_dict)
+
+    def test_from_xrpl_set_fee_disallows_mixed_typing(self):
+        reserve_base = 20000000
+        reserve_increment = 5000000
+        base_fee = "000000000000000A"
+        set_fee_dict = {
+            "Account": "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
+            "BaseFeeDrops": base_fee,
+            "Fee": "0",
+            "ReserveBase": reserve_base,  # Pre-XRPFees amendment version
+            "ReserveBaseDrops": reserve_base,  # Post-XRPFees amendment version
+            "ReserveIncrementDrops": reserve_increment,
+            "Sequence": 0,
+            "SigningPubKey": "",
+            "TransactionType": "SetFee",
+        }
+        expected = SetFee(
+            reserve_base=reserve_base,  # Pre-XRPFees amendment version
+            reserve_base_drops=reserve_base,  # Post-XRPFees amendment version
+            reserve_increment_drops=reserve_increment,
+            base_fee_drops=base_fee,
         )
         actual = Transaction.from_xrpl(set_fee_dict)
         self.assertEqual(actual, expected)
