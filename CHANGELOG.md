@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Added
+- Added new syntax for `SetFee` psuedo transaction sent after the [XRPFees](https://xrpl.org/known-amendments.html#xrpfees) amendment. (Backwards compatible)
+
 ## [2.2.0] - 2023-08-07
 ### Added
 - Added new `Clawback` transaction as per [XLS-39](https://github.com/XRPLF/XRPL-Standards/discussions/94)
