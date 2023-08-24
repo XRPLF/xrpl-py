@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+## [2.3.0] - 2023-08-24
+### Added
+- Add AMM support [XLS-30](https://github.com/XRPLF/XRPL-Standards/discussions/78)
+
 ## [2.2.0] - 2023-08-07
 ### Added
 - Added new `Clawback` transaction as per [XLS-39](https://github.com/XRPLF/XRPL-Standards/discussions/94)
