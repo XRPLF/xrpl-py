@@ -48,7 +48,7 @@ async def _set_up_reusable_values():
         PaymentChannelCreate(
             account=wallet.address,
             amount="1",
-            destination=DESTINATION.address,
+            destination=destination.address,
             settle_delay=86400,
             public_key=wallet.public_key,
         ),
