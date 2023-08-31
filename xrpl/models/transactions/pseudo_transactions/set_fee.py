@@ -30,7 +30,7 @@ class SetFee(PseudoTransaction):
     After the XRPFees Amendment, base_fee_drops, reserve_base_drops,
     and reserve_increment_drops are required fields.
 
-    No SetFee Psuedo Transaction should contain fields from BOTH before
+    No SetFee Pseudo Transaction should contain fields from BOTH before
     and after the XRPFees amendment.
     """
 
