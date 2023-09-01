@@ -3,9 +3,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from pyparsing import Optional
+
 from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
-from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
@@ -17,14 +18,19 @@ class AMMInfo(Request):
     (AMM) instance.
     """
 
-    asset: Currency = REQUIRED  # type: ignore
+    amm_account: Optional[str] = None
     """
-    One of the assets of the AMM pool to look up. This field is required.
+    The address of the AMM pool to look up.
     """
 
-    asset2: Currency = REQUIRED  # type: ignore
+    asset: Optional[Currency] = None
     """
-    The other asset of the AMM pool. This field is required.
+    One of the assets of the AMM pool to look up.
+    """
+
+    asset2: Optional[Currency] = None
+    """
+    The other asset of the AMM pool.
     """
 
     method: RequestMethod = field(default=RequestMethod.AMM_INFO, init=False)
