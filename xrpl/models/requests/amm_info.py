@@ -2,8 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-
-from pyparsing import Optional
+from typing import Optional
 
 from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
