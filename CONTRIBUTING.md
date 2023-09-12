@@ -157,6 +157,14 @@ cd docs/_build/html/
 open index.html
 ```
 
+You can view docs builds for xrpl-py versions on the ReadTheDocs website here: https://readthedocs.org/projects/xrpl-py/builds/
+
+In order to test how a change in docs configuration looks like on ReadTheDocs before merging:
+1. Publish a branch with your docs configuration changes
+2. Active and hide the branch by scrolling down on this page: https://readthedocs.org/projects/xrpl-py/versions/
+3. View the page / build results here: https://readthedocs.org/projects/xrpl-py/builds/
+4. Once you're done testing, make the test branch inactive.
+
 ## Write integration tests
 
 1. If adding functionality to a new part of the library, create new file with a class that inherits `IntegrationTestCase` from `tests.integration.integration_test_case` to store all individual tests under (ex: `class TestWallet(IntegrationTestCase)`). Otherwise, add to an existing file.
