@@ -18,6 +18,7 @@ from xrpl.models.utils import require_kwargs_on_init
 class AccountObjectType(str, Enum):
     """Represents the object types that an AccountObjectsRequest can ask for."""
 
+    AMM = "amm"
     BRIDGE = "bridge"
     CHECK = "check"
     DEPOSIT_PREAUTH = "deposit_preauth"

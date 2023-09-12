@@ -207,6 +207,7 @@ This should almost always be done using the [`xrpl-codec-gen`](https://github.co
    - This will require entering PyPI login info.
 6. Create a new Github release/tag off of this branch.
 7. Send an email to [xrpl-announce](https://groups.google.com/g/xrpl-announce).
+8. Post an announcement in the [XRPL Discord #python channel](https://discord.com/channels/886050993802985492/886053080913821717) with a link to the changes and highlighting key changes.
 
 ## Mailing Lists
 

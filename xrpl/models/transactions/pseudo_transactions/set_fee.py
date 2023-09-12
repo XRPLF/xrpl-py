@@ -1,9 +1,9 @@
 """Model for SetFee pseudo-transaction type."""
+from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Optional
 
-from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.pseudo_transactions.pseudo_transaction import (
     PseudoTransaction,
 )
@@ -19,9 +19,24 @@ class SetFee(PseudoTransaction):
     <https://xrpl.org/transaction-cost.html>`_ or `reserve requirements
     <https://xrpl.org/reserves.html>`_ as a result of `Fee Voting
     <https://xrpl.org/fee-voting.html>`_.
+
+    The parameters are different depending on if this is before or after the
+    `XRPFees Amendment<https://xrpl.org/known-amendments.html#xrpfees>`_
+
+    Before the XRPFees Amendment which was proposed in rippled 1.10.0
+    base_fee, reference_fee_units, reserve_base, and reserve_increment
+    were required fields.
+
+    After the XRPFees Amendment, base_fee_drops, reserve_base_drops,
+    and reserve_increment_drops are required fields.
+
+    No SetFee Pseudo Transaction should contain fields from BOTH before
+    and after the XRPFees amendment.
     """
 
-    base_fee: str = REQUIRED  # type: ignore
+    # Required BEFORE the XRPFees Amendment
+
+    base_fee: Optional[str] = None
     """
     The charge, in drops of XRP, for the reference transaction, as hex. (This is the
     transaction cost before scaling for load.) This field is required.
@@ -29,32 +44,49 @@ class SetFee(PseudoTransaction):
     :meta hide-value:
     """
 
-    reference_fee_units: int = REQUIRED  # type: ignore
+    reference_fee_units: Optional[int] = None
     """
     The cost, in fee units, of the reference transaction. This field is required.
 
     :meta hide-value:
     """
 
-    reserve_base: int = REQUIRED  # type: ignore
+    reserve_base: Optional[int] = None
     """
     The base reserve, in drops. This field is required.
 
     :meta hide-value:
     """
 
-    reserve_increment: int = REQUIRED  # type: ignore
+    reserve_increment: Optional[int] = None
     """
     The incremental reserve, in drops. This field is required.
 
     :meta hide-value:
     """
 
-    ledger_sequence: Optional[int] = None
+    # Required AFTER the XRPFees Amendment
+
+    base_fee_drops: Optional[str] = None
     """
-    The index of the ledger version where this pseudo-transaction appears. This
-    distinguishes the pseudo-transaction from other occurrences of the same change.
-    This field is omitted for some historical SetFee pseudo-transactions.
+    The charge, in drops of XRP, for the reference transaction, as hex. (This is the
+    transaction cost before scaling for load.) This field is required.
+
+    :meta hide-value:
+    """
+
+    reserve_base_drops: Optional[str] = None
+    """
+    The base reserve, in drops. This field is required.
+
+    :meta hide-value:
+    """
+
+    reserve_increment_drops: Optional[str] = None
+    """
+    The incremental reserve, in drops. This field is required.
+
+    :meta hide-value:
     """
 
     transaction_type: PseudoTransactionType = field(

@@ -24,6 +24,7 @@ class LedgerEntryType(str, Enum):
 
     ACCOUNT = "account"
     AMENDMENTS = "amendments"
+    AMM = "amm"
     CHECK = "check"
     DEPOSIT_PREAUTH = "deposit_preauth"
     DIRECTORY = "directory"
