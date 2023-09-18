@@ -178,7 +178,9 @@ class BaseModel(ABC):
             return param_value
 
         if get_origin(param_type) == Literal:
+            # param_type is Literal (has very specific values it will accept)
             if param_value in get_args(param_type):
+                # param_value is one of the accepted values
                 return param_value
 
         if (

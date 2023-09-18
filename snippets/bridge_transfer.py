@@ -1,5 +1,6 @@
 """CLI command for setting up a bridge."""
 
+from pprint import pprint
 from time import sleep
 
 from xrpl.account import does_account_exist, get_balance
@@ -26,6 +27,7 @@ bridge_data = locking_client.request(
 bridge = XChainBridge.from_xrpl(bridge_data["XChainBridge"])
 print(bridge)
 
+print("Funding a wallet via the faucet on the locking chain...")
 wallet1 = generate_faucet_wallet(locking_client, debug=True)
 wallet2 = Wallet.create()
 
@@ -39,9 +41,10 @@ fund_tx = XChainAccountCreateCommit(
     amount=str(int(bridge_data["MinAccountCreateAmount"]) * 2),
 )
 fund_response = submit_and_wait(fund_tx, locking_client, wallet1)
+pprint(fund_response.result)
 
 
-# wait for the attestation to go through
+print("Waiting for the attestation to go through on the issuing chain...")
 ledgers_waited = 0
 MAX_LEDGERS_WAITED = 5
 while ledgers_waited < MAX_LEDGERS_WAITED:
@@ -58,6 +61,10 @@ while ledgers_waited < MAX_LEDGERS_WAITED:
     if ledgers_waited == MAX_LEDGERS_WAITED:
         raise Exception("Destination account creation via the bridge failed.")
 
+print(
+    "Submitting XChainCreateClaimID transaction on the issuing chain to get an "
+    "XChainOwnedClaimID for the transfer..."
+)
 seq_num_tx = XChainCreateClaimID(
     account=wallet2.classic_address,
     xchain_bridge=bridge,
@@ -65,8 +72,9 @@ seq_num_tx = XChainCreateClaimID(
     other_chain_source=wallet1.classic_address,
 )
 seq_num_result = submit_and_wait(seq_num_tx, issuing_client, wallet2)
+pprint(seq_num_result.result)
 
-# # extract new sequence number from metadata
+# Extract new sequence number from metadata
 nodes = seq_num_result.result["meta"]["AffectedNodes"]
 created_nodes = [node["CreatedNode"] for node in nodes if "CreatedNode" in node.keys()]
 claim_ids_ledger_entries = [
@@ -75,8 +83,9 @@ claim_ids_ledger_entries = [
 assert len(claim_ids_ledger_entries) == 1, len(claim_ids_ledger_entries)
 xchain_claim_id = claim_ids_ledger_entries[0]["NewFields"]["XChainClaimID"]
 
-# # XChainCommit
+# XChainCommit
 
+print("Sending XChainCommit tx to lock the funds for transfer...")
 commit_tx = XChainCommit(
     account=wallet1.classic_address,
     amount=xrp_to_drops(1),
@@ -84,15 +93,16 @@ commit_tx = XChainCommit(
     xchain_claim_id=xchain_claim_id,
     other_chain_destination=wallet2.classic_address,
 )
-submit_and_wait(commit_tx, locking_client, wallet1)
+commit_result = submit_and_wait(commit_tx, locking_client, wallet1)
+pprint(commit_result.result)
 
-# wait for the attestations to go through
+print("Waiting for the attestation to go through on the issuing chain...")
 ledgers_waited = 0
 while ledgers_waited < MAX_LEDGERS_WAITED:
     sleep(4)
     current_balance = get_balance(wallet2.classic_address, issuing_client)
     if current_balance != initial_balance:
-        print("Transfer is complete")
+        print("Transfer is complete!")
         break
 
     ledgers_waited += 1

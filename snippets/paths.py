@@ -36,7 +36,7 @@ print(path_response)
 paths = path_response.result["alternatives"][0]["paths_computed"]
 print(paths)
 
-# # Create a Payment to send money from wallet to destination_account using path
+# Create a Payment to send money from wallet to destination_account using path
 payment_tx = Payment(
     account=wallet.address,
     amount=destination_amount,

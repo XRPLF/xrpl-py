@@ -259,7 +259,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
         ):
             errors["LedgerEntry"] = "Must choose exactly one data to query"
 
-        if (self.bridge is not None) != (self.bridge_account is not None):
+        if (self.bridge is None) != (self.bridge_account is None):
             # assert that you either have both of these or neither
             errors["Bridge"] = "Must include both `bridge` and `bridge_account`."
 

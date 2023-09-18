@@ -93,6 +93,22 @@ class TestLedgerEntry(TestCase):
         )
         self.assertTrue(req.is_valid())
 
+    def test_missing_bridge_field_is_valid(self):
+        with self.assertRaises(XRPLModelException):
+            LedgerEntry(
+                bridge=XChainBridge(
+                    locking_chain_door="rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
+                    locking_chain_issue=XRP(),
+                    issuing_chain_door="r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
+                    issuing_chain_issue=XRP(),
+                ),
+            )
+
+        with self.assertRaises(XRPLModelException):
+            LedgerEntry(
+                bridge_account="rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
+            )
+
     def test_has_no_query_param_is_invalid(self):
         with self.assertRaises(XRPLModelException):
             LedgerEntry()
