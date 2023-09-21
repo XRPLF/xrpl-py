@@ -76,7 +76,7 @@ create_claim_id_result = submit_and_wait(create_claim_id_tx, issuing_client, wal
 pprint(create_claim_id_result.result)
 
 # Extract new sequence number from metadata
-xchain_claim_id = get_xchain_claim_id(create_claim_id_result["meta"])
+xchain_claim_id = get_xchain_claim_id(create_claim_id_result.result["meta"])
 
 # XChainCommit
 
