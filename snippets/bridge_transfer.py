@@ -14,7 +14,7 @@ from xrpl.models import (
     XChainCreateClaimID,
 )
 from xrpl.transaction import submit_and_wait
-from xrpl.utils import xrp_to_drops
+from xrpl.utils import get_xchain_claim_id, xrp_to_drops
 from xrpl.wallet import Wallet, generate_faucet_wallet
 
 locking_client = JsonRpcClient("https://sidechain-net1.devnet.rippletest.net:51234")
@@ -29,6 +29,7 @@ print(bridge)
 
 print("Funding a wallet via the faucet on the locking chain...")
 wallet1 = generate_faucet_wallet(locking_client, debug=True)
+print(wallet1)
 wallet2 = Wallet.create()
 
 print(f"Creating {wallet2.classic_address} on the issuing chain via the bridge...")
@@ -65,23 +66,17 @@ print(
     "Submitting XChainCreateClaimID transaction on the issuing chain to get an "
     "XChainOwnedClaimID for the transfer..."
 )
-seq_num_tx = XChainCreateClaimID(
+create_claim_id_tx = XChainCreateClaimID(
     account=wallet2.classic_address,
     xchain_bridge=bridge,
     signature_reward=bridge_data["SignatureReward"],
     other_chain_source=wallet1.classic_address,
 )
-seq_num_result = submit_and_wait(seq_num_tx, issuing_client, wallet2)
-pprint(seq_num_result.result)
+create_claim_id_result = submit_and_wait(create_claim_id_tx, issuing_client, wallet2)
+pprint(create_claim_id_result.result)
 
 # Extract new sequence number from metadata
-nodes = seq_num_result.result["meta"]["AffectedNodes"]
-created_nodes = [node["CreatedNode"] for node in nodes if "CreatedNode" in node.keys()]
-claim_ids_ledger_entries = [
-    node for node in created_nodes if node["LedgerEntryType"] == "XChainOwnedClaimID"
-]
-assert len(claim_ids_ledger_entries) == 1, len(claim_ids_ledger_entries)
-xchain_claim_id = claim_ids_ledger_entries[0]["NewFields"]["XChainClaimID"]
+xchain_claim_id = get_xchain_claim_id(create_claim_id_result["meta"])
 
 # XChainCommit
 
