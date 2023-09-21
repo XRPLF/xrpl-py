@@ -2,6 +2,7 @@ import asyncio
 
 from tests.integration.it_utils import (
     fund_wallet_async,
+    setup_amm_pool_async,
     sign_and_reliable_submission_async,
 )
 from xrpl.models import IssuedCurrencyAmount, OfferCreate, PaymentChannelCreate
@@ -41,11 +42,14 @@ async def _set_up_reusable_values():
         WALLET,
     )
 
+    AMM = await setup_amm_pool_async()
+
     return (
         WALLET,
         DESTINATION,
         OFFER,
         PAYMENT_CHANNEL,
+        AMM,
     )
 
 
@@ -54,4 +58,5 @@ async def _set_up_reusable_values():
     DESTINATION,
     OFFER,
     PAYMENT_CHANNEL,
+    AMM,
 ) = asyncio.run(_set_up_reusable_values())

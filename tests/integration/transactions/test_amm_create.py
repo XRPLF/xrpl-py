@@ -1,0 +1,30 @@
+from tests.integration.integration_test_case import IntegrationTestCase
+from tests.integration.it_utils import test_async_and_sync
+from tests.integration.reusable_values import AMM
+from xrpl.models.requests.amm_info import AMMInfo
+
+
+class TestAMMCreate(IntegrationTestCase):
+    @test_async_and_sync(globals())
+    async def test_basic_functionality(self, client):
+        issuer_wallet = AMM["issuer_wallet"]
+        asset = AMM["asset"]
+        asset2 = AMM["asset2"]
+
+        amm_info = await client.request(
+            AMMInfo(
+                asset=asset,
+                asset2=asset2,
+            )
+        )
+
+        self.assertEqual(amm_info.result["amm"]["amount"], "250")
+        self.assertEqual(
+            amm_info.result["amm"]["amount2"],
+            {
+                "currency": "USD",
+                "issuer": issuer_wallet.classic_address,
+                "value": "250",
+            },
+        )
+        self.assertEqual(amm_info.result["amm"]["trading_fee"], 12)
