@@ -97,6 +97,9 @@ def get_nftoken_id(meta: TransactionMetadata) -> str:
 
     affected_nodes = [node for node in meta["AffectedNodes"] if has_nftoken_page(node)]
 
+    if len(affected_nodes) == 0:
+        raise TypeError("Wrong Metadata: No NFTs affected in this transaction.")
+
     def get_previous_nftokens(node: Node) -> List[NFTokenMetadata]:
         nftokens: List[NFTokenMetadata] = []
         if isModifiedNode(node):

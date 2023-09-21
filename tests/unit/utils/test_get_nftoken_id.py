@@ -11,7 +11,7 @@ with open(path_to_json + "nftokenmint_response1.json", "r") as infile:
     nftokenmint_response1 = json.load(infile)
 with open(path_to_json + "nftokenmint_response2.json", "r") as infile:
     nftokenmint_response2 = json.load(infile)
-with open(path_to_json + "XChainCreateClaimID.json", "r") as infile:
+with open(path_to_json + "offer_cancelled.json", "r") as infile:
     wrong_fixture = json.load(infile)
 
 
@@ -33,7 +33,7 @@ class TestGetNFTokenID(TestCase):
         self.assertEqual(result, expected_nftoken_id)
 
     def test_error_with_wrong_tx_metadata(self: TestGetNFTokenID) -> None:
-        self.assertRaises(TypeError, lambda: get_nftoken_id(wrong_fixture))
+        self.assertRaises(TypeError, lambda: get_nftoken_id(wrong_fixture["meta"]))
 
     def test_error_when_given_raw_instead_of_meta(self: TestGetNFTokenID) -> None:
         self.assertRaises(TypeError, lambda: get_nftoken_id(nftokenmint_response1))
