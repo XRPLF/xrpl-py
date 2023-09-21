@@ -37,7 +37,7 @@ def unscramble_taxon(taxon: int, token_seq: int) -> int:
         taxon: The scrambled or unscrambled taxon (The XOR is both the
                 encoding and decoding)
         token_seq: The account sequence when the token was minted. Used as a
-                psuedorandom seed.
+                pseudorandom seed.
 
     Returns:
         The opposite taxon. If the taxon was scrambled it becomes unscrambled,
