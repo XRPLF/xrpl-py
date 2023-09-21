@@ -10,7 +10,7 @@ from xrpl.models.requests.amm_info import AMMInfo
 from xrpl.models.transactions.amm_deposit import AMMDepositFlag
 
 
-class TestAMMCreate(IntegrationTestCase):
+class TestAMMDeposit(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_single_asset(self, client):
         asset = AMM["asset"]
