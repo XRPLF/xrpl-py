@@ -42,7 +42,7 @@ class TestAMMVote(IntegrationTestCase):
                 account=WALLET.classic_address,
                 asset=asset,
                 asset2=asset2,
-                trading_fee=150,
+                trading_fee=pre_amm_info.result["amm"]["trading_fee"] + 10,
             ),
             WALLET,
             client,
@@ -59,7 +59,7 @@ class TestAMMVote(IntegrationTestCase):
         )
 
         self.assertGreater(
-            float(amm_info.result["amm"]["trading_fee"]),
-            float(pre_amm_info.result["amm"]["trading_fee"]),
+            amm_info.result["amm"]["trading_fee"],
+            pre_amm_info.result["amm"]["trading_fee"],
         )
         self.assertEqual(len(amm_info.result["amm"]["vote_slots"]), 2)
