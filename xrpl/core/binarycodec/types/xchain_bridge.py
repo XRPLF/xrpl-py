@@ -72,8 +72,9 @@ class XChainBridge(SerializedType):
         """
         buffer = b""
 
-        for name, object_type in _TYPE_ORDER:
+        for _, object_type in _TYPE_ORDER:
             if object_type == AccountID:
+                # skip the `14` byte and add it by hand
                 parser.skip(1)
                 buffer += bytes.fromhex("14")
             obj = object_type.from_parser(parser, length_hint)
