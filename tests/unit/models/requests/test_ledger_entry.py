@@ -93,7 +93,7 @@ class TestLedgerEntry(TestCase):
         )
         self.assertTrue(req.is_valid())
 
-    def test_missing_bridge_field_is_valid(self):
+    def test_missing_bridge_field_is_invalid(self):
         with self.assertRaises(XRPLModelException):
             LedgerEntry(
                 bridge=XChainBridge(
