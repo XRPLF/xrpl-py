@@ -8,8 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 
 ### Added
-- Added new syntax for `SetFee` psuedo transaction sent after the [XRPFees](https://xrpl.org/known-amendments.html#xrpfees) amendment. (Backwards compatible)
+- Added new syntax for `SetFee` pseudo transaction sent after the [XRPFees](https://xrpl.org/known-amendments.html#xrpfees) amendment. (Backwards compatible)
+
+### Fixed
 - Update request models related to AMM
+- Better error handling for when a `Wallet` is passed into an account or destination field
 
 ## [2.3.0] - 2023-08-24
 ### Added

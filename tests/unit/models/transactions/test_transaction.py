@@ -131,6 +131,16 @@ class TestTransaction(TestCase):
                 transaction_type=TransactionType.ACCOUNT_DELETE,
             )
 
+    def test_throws_when_account_is_wallet(self):
+        with self.assertRaises(XRPLModelException):
+            Transaction(
+                account=_WALLET,
+                fee=_FEE,
+                account_txn_id=_ACCOUNT_TXN_ID,
+                ticket_sequence=_TICKET_SEQUENCE,
+                transaction_type=TransactionType.ACCOUNT_DELETE,
+            )
+
     def test_is_signed_for_signed_transaction(self):
         tx = AccountSet(account=_WALLET.address, domain=EXAMPLE_DOMAIN)
         signed_tx = sign(tx, _WALLET)
