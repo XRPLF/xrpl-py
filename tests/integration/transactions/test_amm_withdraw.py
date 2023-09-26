@@ -17,6 +17,7 @@ class TestAMMWithdraw(IntegrationTestCase):
         asset = AMM["asset"]
         asset2 = AMM["asset2"]
 
+        # Need to deposit (be an LP) before withdraw is eligible
         response = await sign_and_reliable_submission_async(
             AMMDeposit(
                 account=WALLET.classic_address,
@@ -79,6 +80,7 @@ class TestAMMWithdraw(IntegrationTestCase):
         asset = AMM["asset"]
         asset2 = AMM["asset2"]
 
+        # Need to deposit (be an LP) before withdraw is eligible
         response = await sign_and_reliable_submission_async(
             AMMDeposit(
                 account=WALLET.classic_address,
@@ -146,6 +148,7 @@ class TestAMMWithdraw(IntegrationTestCase):
         asset = AMM["asset"]
         asset2 = AMM["asset2"]
 
+        # Need to deposit (be an LP) before withdraw is eligible
         response = await sign_and_reliable_submission_async(
             AMMDeposit(
                 account=WALLET.classic_address,
@@ -215,6 +218,7 @@ class TestAMMWithdraw(IntegrationTestCase):
         asset = AMM["asset"]
         asset2 = AMM["asset2"]
 
+        # Need to deposit (be an LP) before withdraw is eligible
         response = await sign_and_reliable_submission_async(
             AMMDeposit(
                 account=WALLET.classic_address,

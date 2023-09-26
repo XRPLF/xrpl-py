@@ -7,7 +7,6 @@ from xrpl.models.requests.amm_info import AMMInfo
 class TestAMMCreate(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
-        # issuer_wallet = AMM["issuer_wallet"]
         asset = AMM["asset"]
         asset2 = AMM["asset2"]
 

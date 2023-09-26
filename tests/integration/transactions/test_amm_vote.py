@@ -15,6 +15,7 @@ class TestAMMVote(IntegrationTestCase):
         asset = AMM["asset"]
         asset2 = AMM["asset2"]
 
+        # Need to deposit (be an LP) before voting is eligible
         response = await sign_and_reliable_submission_async(
             AMMDeposit(
                 account=WALLET.classic_address,
