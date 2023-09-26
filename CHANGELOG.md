@@ -10,8 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added new syntax for `SetFee` pseudo transaction sent after the [XRPFees](https://xrpl.org/known-amendments.html#xrpfees) amendment. (Backwards compatible)
-- Update request models related to AMM
 - Support for [XLS-38d (XChainBridge)](https://github.com/XRPLF/XRPL-Standards/tree/master/XLS-38d-XChainBridge)
+
+### Fixed
+
+- Update request models related to AMM
+- Better error handling for when a `Wallet` is passed into an account or destination field
 
 ## [2.3.0] - 2023-08-24
 
