@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 
 from typing_extensions import Final
 
-from xrpl.models.amounts import Amount
+from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.auth_account import AuthAccount
 from xrpl.models.currencies import Currency
 from xrpl.models.required import REQUIRED
@@ -41,16 +41,16 @@ class AMMBid(Transaction):
     The definition for the other asset in the AMM's pool. This field is required.
     """
 
-    bid_min: Optional[Amount] = None
+    bid_min: Optional[IssuedCurrencyAmount] = None
     """
-    Pay at least this amount for the slot.
+    Pay at least this LPToken amount for the slot.
     Setting this value higher makes it harder for others to outbid you.
     If omitted, pay the minimum necessary to win the bid.
     """
 
-    bid_max: Optional[Amount] = None
+    bid_max: Optional[IssuedCurrencyAmount] = None
     """
-    Pay at most this amount for the slot.
+    Pay at most this LPToken amount for the slot.
     If the cost to win the bid is higher than this amount, the transaction fails.
     If omitted, pay as much as necessary to win the bid.
     """
