@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+## [2.4.0] - 2023-09-27
 ### Added
 - Added new syntax for `SetFee` pseudo transaction sent after the [XRPFees](https://xrpl.org/known-amendments.html#xrpfees) amendment. (Backwards compatible)
 - Support for [XLS-38d (XChainBridge)](https://github.com/XRPLF/XRPL-Standards/tree/master/XLS-38d-XChainBridge)
