@@ -1,5 +1,5 @@
 """Utils to get an NFTokenID from metadata"""
-from typing import Callable, List, TypeVar
+from typing import Callable, List, TypeVar, Union
 
 from xrpl.models.transactions.metadata import (
     NFTokenMetadata,
@@ -49,7 +49,7 @@ def get_nftoken_ids_from_nftokens(nftokens: List[NFTokenMetadata]) -> List[str]:
     ]
 
 
-def get_nftoken_id(meta: TransactionMetadata) -> str | None:
+def get_nftoken_id(meta: TransactionMetadata) -> Union[str, None]:
     """
     Gets the NFTokenID for an NFT recently minted with NFTokenMint.
 
