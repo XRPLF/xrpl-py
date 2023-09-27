@@ -27,8 +27,10 @@ from xrpl.models.transactions import (
     SignerListSet,
     TrustSet,
     TrustSetFlag,
+    XChainClaim,
 )
 from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.xchain_bridge import XChainBridge
 
 currency = "BTC"
 value = "100"
@@ -669,3 +671,34 @@ class TestFromDict(TestCase):
             "Flags": 0,
         }
         self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_from_xrpl_xchain(self):
+        tx_json = {
+            "Account": account,
+            "Amount": value,
+            "XChainBridge": {
+                "LockingChainDoor": "rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
+                "LockingChainIssue": {"currency": "XRP"},
+                "IssuingChainDoor": "r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
+                "IssuingChainIssue": {"currency": "XRP"},
+            },
+            "Destination": destination,
+            "TransactionType": "XChainClaim",
+            "Flags": 0,
+            "SigningPubKey": "",
+            "XChainClaimID": 1,
+        }
+        tx_obj = XChainClaim(
+            account=account,
+            amount=value,
+            xchain_bridge=XChainBridge(
+                locking_chain_door="rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
+                locking_chain_issue=XRP(),
+                issuing_chain_door="r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
+                issuing_chain_issue=XRP(),
+            ),
+            destination=destination,
+            xchain_claim_id=1,
+        )
+        self.assertEqual(tx_obj.to_xrpl(), tx_json)
+        self.assertEqual(Transaction.from_xrpl(tx_json), tx_obj)
