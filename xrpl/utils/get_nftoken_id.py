@@ -49,7 +49,7 @@ def get_nftoken_ids_from_nftokens(nftokens: List[NFTokenMetadata]) -> List[str]:
     ]
 
 
-def get_nftoken_id(meta: TransactionMetadata) -> str:
+def get_nftoken_id(meta: TransactionMetadata) -> str | None:
     """
     Gets the NFTokenID for an NFT recently minted with NFTokenMint.
 
@@ -57,7 +57,8 @@ def get_nftoken_id(meta: TransactionMetadata) -> str:
         meta: Metadata from the response to submitting an NFTokenMint transaction.
 
     Returns:
-        The newly minted NFToken's NFTokenID.
+        The newly minted NFToken's NFTokenID. None if there is no NFTokenID that was
+        minted.
 
     Raises:
         TypeError: if given something other than metadata (e.g. the full
@@ -98,7 +99,7 @@ def get_nftoken_id(meta: TransactionMetadata) -> str:
     affected_nodes = [node for node in meta["AffectedNodes"] if has_nftoken_page(node)]
 
     if len(affected_nodes) == 0:
-        raise TypeError("Wrong Metadata: No NFTs affected in this transaction.")
+        return None
 
     def get_previous_nftokens(node: Node) -> List[NFTokenMetadata]:
         nftokens: List[NFTokenMetadata] = []
