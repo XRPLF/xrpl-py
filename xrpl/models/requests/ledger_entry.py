@@ -12,7 +12,6 @@ from enum import Enum
 from typing import Dict, List, Optional, Union
 
 from xrpl.models.base_model import BaseModel
-from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
@@ -174,40 +173,13 @@ class Ticket(BaseModel):
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class XChainClaimID(BaseModel):
+class XChainClaimID(XChainBridge):
     """Required fields for requesting an XChainClaimID if not querying by object ID."""
-
-    locking_chain_door: str = REQUIRED  # type: ignore
-    """
-    This field is required.
-
-    :meta hide-value:
-    """
-
-    locking_chain_issue: Currency = REQUIRED  # type: ignore
-    """
-    This field is required.
-
-    :meta hide-value:
-    """
-
-    issuing_chain_door: str = REQUIRED  # type: ignore
-    """
-    This field is required.
-
-    :meta hide-value:
-    """
-
-    issuing_chain_issue: Currency = REQUIRED  # type: ignore
-    """
-    This field is required.
-
-    :meta hide-value:
-    """
 
     xchain_claim_id: Union[int, str] = REQUIRED  # type: ignore
     """
-    This field is required.
+    The `XChainClaimID` associated with a cross-chain transfer, which was created in an
+    `XChainCreateClaimID` transaction. This field is required.
 
     :meta hide-value:
     """
@@ -215,43 +187,16 @@ class XChainClaimID(BaseModel):
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class XChainCreateAccountClaimID(BaseModel):
+class XChainCreateAccountClaimID(XChainBridge):
     """
     Required fields for requesting an XChainCreateAccountClaimID if not querying by
     object ID.
     """
 
-    locking_chain_door: str = REQUIRED  # type: ignore
-    """
-    This field is required.
-
-    :meta hide-value:
-    """
-
-    locking_chain_issue: Currency = REQUIRED  # type: ignore
-    """
-    This field is required.
-
-    :meta hide-value:
-    """
-
-    issuing_chain_door: str = REQUIRED  # type: ignore
-    """
-    This field is required.
-
-    :meta hide-value:
-    """
-
-    issuing_chain_issue: Currency = REQUIRED  # type: ignore
-    """
-    This field is required.
-
-    :meta hide-value:
-    """
-
     xchain_create_account_claim_id: Union[int, str] = REQUIRED  # type: ignore
     """
-    This field is required.
+    The `XChainCreateAccountClaimID` associated with a cross-chain account create. This
+    field is required.
 
     :meta hide-value:
     """
