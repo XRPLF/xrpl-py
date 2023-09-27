@@ -177,11 +177,40 @@ class Ticket(BaseModel):
 class XChainClaimID(BaseModel):
     """Required fields for requesting an XChainClaimID if not querying by object ID."""
 
-    locking_chain_door: str
-    locking_chain_issue: Currency
-    issuing_chain_door: str
-    issuing_chain_issue: Currency
-    xchain_claim_id: Union[int, str]
+    locking_chain_door: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+    locking_chain_issue: Currency = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+    issuing_chain_door: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+    issuing_chain_issue: Currency = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+    xchain_claim_id: Union[int, str] = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
 
 
 @require_kwargs_on_init
@@ -192,11 +221,40 @@ class XChainCreateAccountClaimID(BaseModel):
     object ID.
     """
 
-    locking_chain_door: str
-    locking_chain_issue: Currency
-    issuing_chain_door: str
-    issuing_chain_issue: Currency
-    xchain_create_account_claim_id: Union[int, str]
+    locking_chain_door: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+    locking_chain_issue: Currency = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+    issuing_chain_door: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+    issuing_chain_issue: Currency = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+    xchain_create_account_claim_id: Union[int, str] = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
 
 
 @require_kwargs_on_init

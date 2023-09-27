@@ -82,6 +82,6 @@ class XChainClaim(Transaction):
         ):
             errors[
                 "amount"
-            ] = "Amount must match either locking chain issue or issuing chain issue."
+            ] = "amount must match either locking chain issue or issuing chain issue."
 
         return errors

@@ -84,7 +84,7 @@ class XChainModifyBridge(Transaction):
         if self.account not in [bridge.locking_chain_door, bridge.issuing_chain_door]:
             errors[
                 "account"
-            ] = "Account must be either locking chain door or issuing chain door."
+            ] = "account must be either locking chain door or issuing chain door."
 
         if self.signature_reward is not None and not self.signature_reward.isnumeric():
             errors["signature_reward"] = "`signature_reward` must be numeric."

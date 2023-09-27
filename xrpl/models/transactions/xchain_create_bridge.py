@@ -66,7 +66,7 @@ class XChainCreateBridge(Transaction):
         if self.account not in [bridge.locking_chain_door, bridge.issuing_chain_door]:
             errors[
                 "account"
-            ] = "Account must be either locking chain door or issuing chain door."
+            ] = "account must be either locking chain door or issuing chain door."
 
         if (bridge.locking_chain_issue == XRP()) != (
             bridge.issuing_chain_issue == XRP()
