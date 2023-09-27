@@ -33,7 +33,7 @@ class TestGetNFTokenID(TestCase):
         self.assertEqual(result, expected_nftoken_id)
 
     def test_error_with_wrong_tx_metadata(self: TestGetNFTokenID) -> None:
-        self.assertRaises(TypeError, lambda: get_nftoken_id(wrong_fixture["meta"]))
+        self.assertIsNone(get_nftoken_id(wrong_fixture["meta"]))
 
     def test_error_when_given_raw_instead_of_meta(self: TestGetNFTokenID) -> None:
         self.assertRaises(TypeError, lambda: get_nftoken_id(nftokenmint_response1))
