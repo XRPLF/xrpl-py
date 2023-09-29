@@ -97,6 +97,23 @@ def _generate_param_line(param: str, is_required: bool) -> str:
     return f"    {_key_to_json(param_name)}: {param_type_output}"
 
 
+def _update_index_file(tx: str, name: str) -> None:
+    filename = "xrpl/models/transactions/__init__.py"
+    with open(filename) as f:
+        index_file = f.read()
+    index_file = index_file.replace(
+        "    XChainModifyBridgeFlagInterface,\n)",
+        "    XChainModifyBridgeFlagInterface,\n)\n"
+        + f"from xrpl.models.transactions.{name} import {tx}",
+    )
+    index_file = index_file.replace(
+        '"XChainModifyBridgeFlagInterface",',
+        f'"XChainModifyBridgeFlagInterface",\n    "{tx}",',
+    )
+    with open(filename, "w") as f:
+        f.write(index_file)
+
+
 for tx, name in txs_to_add:
     tx_format = tx_formats[tx]
 
@@ -155,5 +172,7 @@ from xrpl.models.utils import require_kwargs_on_init
 
     with open(f"xrpl/models/transactions/{name}.py", "w+") as f:
         f.write(imported_models + "\n\n" + model)
+
+    _update_index_file(tx, name)
 
     print("Added " + tx)
