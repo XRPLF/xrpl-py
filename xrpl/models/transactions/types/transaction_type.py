@@ -45,3 +45,5 @@ class TransactionType(str, Enum):
     XCHAIN_CREATE_BRIDGE = "XChainCreateBridge"
     XCHAIN_CREATE_CLAIM_ID = "XChainCreateClaimID"
     XCHAIN_MODIFY_BRIDGE = "XChainModifyBridge"
+    DID_SET = "DIDSet"
+    DID_DELETE = "DIDDelete"
