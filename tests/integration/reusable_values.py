@@ -10,9 +10,9 @@ from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.models import IssuedCurrencyAmount, OfferCreate, PaymentChannelCreate
 from xrpl.models.currencies.issued_currency import IssuedCurrency
 from xrpl.models.currencies.xrp import XRP
-from xrpl.models.requests.amm_info import AMMInfo
 from xrpl.models.transactions.account_set import AccountSet, AccountSetAsfFlag
 from xrpl.models.transactions.amm_create import AMMCreate
+from xrpl.models.transactions.amm_deposit import AMMDeposit, AMMDepositFlag
 from xrpl.models.transactions.payment import Payment
 from xrpl.models.transactions.trust_set import TrustSet, TrustSetFlag
 from xrpl.wallet import Wallet
@@ -51,7 +51,7 @@ async def _set_up_reusable_values():
         WALLET,
     )
 
-    setup_amm_pool_res = await setup_amm_pool()
+    setup_amm_pool_res = await setup_amm_pool(wallet=WALLET)
     AMM_ASSET = setup_amm_pool_res["asset"]
     AMM_ASSET2 = setup_amm_pool_res["asset2"]
     AMM_ISSUER_WALLET = setup_amm_pool_res["issuer_wallet"]
@@ -68,6 +68,7 @@ async def _set_up_reusable_values():
 
 
 async def setup_amm_pool(
+    wallet: Wallet,
     client: AsyncClient = ASYNC_JSON_RPC_CLIENT,
 ) -> Dict[str, Any]:
     issuer_wallet = Wallet.create()
@@ -126,12 +127,28 @@ async def setup_amm_pool(
         client,
     )
 
-    return {
-        "asset": XRP(),
-        "asset2": IssuedCurrency(
-            currency=currency_code,
-            issuer=issuer_wallet.classic_address,
+    asset = XRP()
+    asset2 = IssuedCurrency(
+        currency=currency_code,
+        issuer=issuer_wallet.classic_address,
+    )
+
+    # Need to deposit (be an LP) to make bid/vote/withdraw eligible in tests for WALLET
+    await sign_and_reliable_submission_async(
+        AMMDeposit(
+            account=wallet.classic_address,
+            asset=asset,
+            asset2=asset2,
+            amount="1000",
+            flags=AMMDepositFlag.TF_SINGLE_ASSET,
         ),
+        wallet,
+        client,
+    )
+
+    return {
+        "asset": asset,
+        "asset2": asset2,
         "issuer_wallet": issuer_wallet,
     }
 

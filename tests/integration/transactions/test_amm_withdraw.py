@@ -9,10 +9,8 @@ from tests.integration.reusable_values import (
     AMM_ISSUER_WALLET,
     WALLET,
 )
-from xrpl.models import AMMDeposit
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.requests.amm_info import AMMInfo
-from xrpl.models.transactions.amm_deposit import AMMDepositFlag
 from xrpl.models.transactions.amm_withdraw import AMMWithdraw, AMMWithdrawFlag
 
 asset = AMM_ASSET
@@ -23,22 +21,6 @@ issuer_wallet = AMM_ISSUER_WALLET
 class TestAMMWithdraw(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_single_asset(self, client):
-        # Need to deposit (be an LP) before withdraw is eligible
-        response = await sign_and_reliable_submission_async(
-            AMMDeposit(
-                account=WALLET.classic_address,
-                asset=asset,
-                asset2=asset2,
-                amount="1000",
-                flags=AMMDepositFlag.TF_SINGLE_ASSET,
-            ),
-            WALLET,
-            client,
-        )
-
-        self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-
         pre_amm_info = await client.request(
             AMMInfo(
                 asset=asset,
@@ -83,22 +65,6 @@ class TestAMMWithdraw(IntegrationTestCase):
 
     @test_async_and_sync(globals())
     async def test_two_assets(self, client):
-        # Need to deposit (be an LP) before withdraw is eligible
-        response = await sign_and_reliable_submission_async(
-            AMMDeposit(
-                account=WALLET.classic_address,
-                asset=asset,
-                asset2=asset2,
-                amount="1000",
-                flags=AMMDepositFlag.TF_SINGLE_ASSET,
-            ),
-            WALLET,
-            client,
-        )
-
-        self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-
         pre_amm_info = await client.request(
             AMMInfo(
                 asset=asset,
@@ -148,22 +114,6 @@ class TestAMMWithdraw(IntegrationTestCase):
 
     @test_async_and_sync(globals())
     async def test_one_asset_with_lptoken(self, client):
-        # Need to deposit (be an LP) before withdraw is eligible
-        response = await sign_and_reliable_submission_async(
-            AMMDeposit(
-                account=WALLET.classic_address,
-                asset=asset,
-                asset2=asset2,
-                amount="1000",
-                flags=AMMDepositFlag.TF_SINGLE_ASSET,
-            ),
-            WALLET,
-            client,
-        )
-
-        self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-
         pre_amm_info = await client.request(
             AMMInfo(
                 asset=asset,
@@ -215,22 +165,6 @@ class TestAMMWithdraw(IntegrationTestCase):
 
     @test_async_and_sync(globals())
     async def test_lptoken(self, client):
-        # Need to deposit (be an LP) before withdraw is eligible
-        response = await sign_and_reliable_submission_async(
-            AMMDeposit(
-                account=WALLET.classic_address,
-                asset=asset,
-                asset2=asset2,
-                amount="1000",
-                flags=AMMDepositFlag.TF_SINGLE_ASSET,
-            ),
-            WALLET,
-            client,
-        )
-
-        self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-
         pre_amm_info = await client.request(
             AMMInfo(
                 asset=asset,

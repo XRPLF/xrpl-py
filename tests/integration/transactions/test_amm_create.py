@@ -17,13 +17,12 @@ class TestAMMCreate(IntegrationTestCase):
             )
         )
 
-        self.assertGreater(float(amm_info.result["amm"]["amount"]), 0)
+        self.assertEqual(float(amm_info.result["amm"]["amount"]), 1250)
         self.assertEqual(
-            amm_info.result["amm"]["amount2"]["currency"],
-            asset2.currency,
+            amm_info.result["amm"]["amount2"],
+            {
+                "currency": asset2.currency,
+                "issuer": asset2.issuer,
+                "value": "250",
+            },
         )
-        self.assertEqual(
-            amm_info.result["amm"]["amount2"]["issuer"],
-            asset2.issuer,
-        )
-        self.assertGreater(float(amm_info.result["amm"]["amount2"]["value"]), 0)

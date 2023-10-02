@@ -13,7 +13,6 @@ from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.auth_account import AuthAccount
 from xrpl.models.requests.amm_info import AMMInfo
 from xrpl.models.transactions.amm_bid import AMMBid
-from xrpl.models.transactions.amm_deposit import AMMDeposit, AMMDepositFlag
 
 asset = AMM_ASSET
 asset2 = AMM_ASSET2
@@ -23,22 +22,6 @@ issuer_wallet = AMM_ISSUER_WALLET
 class TestAMMBid(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
-        # Need to deposit (be an LP) before bidding is eligible
-        response = await sign_and_reliable_submission_async(
-            AMMDeposit(
-                account=WALLET.classic_address,
-                asset=asset,
-                asset2=asset2,
-                amount="1000",
-                flags=AMMDepositFlag.TF_SINGLE_ASSET,
-            ),
-            WALLET,
-            client,
-        )
-
-        self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-
         pre_amm_info = await client.request(
             AMMInfo(
                 asset=asset,
@@ -77,22 +60,6 @@ class TestAMMBid(IntegrationTestCase):
 
     @test_async_and_sync(globals())
     async def test_with_auth_account_bidmin_bidmax(self, client):
-        # Need to deposit (be an LP) before bidding is eligible
-        response = await sign_and_reliable_submission_async(
-            AMMDeposit(
-                account=WALLET.classic_address,
-                asset=asset,
-                asset2=asset2,
-                amount="1000",
-                flags=AMMDepositFlag.TF_SINGLE_ASSET,
-            ),
-            WALLET,
-            client,
-        )
-
-        self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-
         pre_amm_info = await client.request(
             AMMInfo(
                 asset=asset,
