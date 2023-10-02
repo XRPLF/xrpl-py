@@ -77,3 +77,12 @@ class XRP(BaseModel):
         if isinstance(value, str):
             return xrp_to_drops(float(value))
         return xrp_to_drops(value)
+
+    def __repr__(self: XRP) -> str:
+        """
+        Generate string representation of XRP.
+
+        Returns:
+            A string representation of XRP currency.
+        """
+        return "XRP()"
