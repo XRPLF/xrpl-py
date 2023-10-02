@@ -10,6 +10,7 @@ from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.models import IssuedCurrencyAmount, OfferCreate, PaymentChannelCreate
 from xrpl.models.currencies.issued_currency import IssuedCurrency
 from xrpl.models.currencies.xrp import XRP
+from xrpl.models.requests.amm_info import AMMInfo
 from xrpl.models.transactions.account_set import AccountSet, AccountSetAsfFlag
 from xrpl.models.transactions.amm_create import AMMCreate
 from xrpl.models.transactions.payment import Payment
@@ -50,14 +51,19 @@ async def _set_up_reusable_values():
         WALLET,
     )
 
-    AMM = await setup_amm_pool()
+    setup_amm_pool_res = await setup_amm_pool()
+    AMM_ASSET = setup_amm_pool_res["asset"]
+    AMM_ASSET2 = setup_amm_pool_res["asset2"]
+    AMM_ISSUER_WALLET = setup_amm_pool_res["issuer_wallet"]
 
     return (
         WALLET,
         DESTINATION,
         OFFER,
         PAYMENT_CHANNEL,
-        AMM,
+        AMM_ASSET,
+        AMM_ASSET2,
+        AMM_ISSUER_WALLET,
     )
 
 
@@ -121,13 +127,12 @@ async def setup_amm_pool(
     )
 
     return {
-        "issuer_wallet": issuer_wallet,
-        "lp_wallet": lp_wallet,
         "asset": XRP(),
         "asset2": IssuedCurrency(
             currency=currency_code,
             issuer=issuer_wallet.classic_address,
         ),
+        "issuer_wallet": issuer_wallet,
     }
 
 
@@ -136,5 +141,7 @@ async def setup_amm_pool(
     DESTINATION,
     OFFER,
     PAYMENT_CHANNEL,
-    AMM,
+    AMM_ASSET,
+    AMM_ASSET2,
+    AMM_ISSUER_WALLET,
 ) = asyncio.run(_set_up_reusable_values())
