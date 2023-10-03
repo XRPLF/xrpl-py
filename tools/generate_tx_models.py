@@ -3,39 +3,16 @@
 import os
 import re
 import sys
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 from xrpl.models.base_model import _key_to_json
 from xrpl.models.transactions.types.pseudo_transaction_type import PseudoTransactionType
 from xrpl.models.transactions.types.transaction_type import TransactionType
 
-folder = sys.argv[1]
-
 
 def _read_file(filename: str) -> str:
-    """Read a file to a string."""
     with open(filename) as f:
         return f.read()
-
-
-sfield_cpp = _read_file(os.path.join(folder, "src/ripple/protocol/impl/SField.cpp"))
-sfield_hits = re.findall(
-    r'^ *CONSTRUCT_[^\_]+_SFIELD *\( *[^,\n]*,[ \n]*"([^\"\n ]+)"[ \n]*,[ \n]*'
-    + r"([^, \n]+)[ \n]*,[ \n]*([0-9]+)(,.*?(notSigning))?",
-    sfield_cpp,
-    re.MULTILINE,
-)
-sfields = {hit[0]: hit[1:] for hit in sfield_hits}
-
-tx_formats_cpp = _read_file(
-    os.path.join(folder, "src/ripple/protocol/impl/TxFormats.cpp")
-)
-tx_formats_hits = re.findall(
-    r"^ *add\(jss::([^\"\n, ]+),[ \n]*tt[A-Z_]+,[ \n]*{[ \n]*(({sf[A-Za-z0-9]+, "
-    + r"soe(OPTIONAL|REQUIRED|DEFAULT)},[ \n]+)*)},[ \n]*[pseudocC]+ommonFields\);",
-    tx_formats_cpp,
-    re.MULTILINE,
-)
 
 
 def _format_tx_format(raw_tx_format: str) -> List[Tuple[str, ...]]:
@@ -45,21 +22,35 @@ def _format_tx_format(raw_tx_format: str) -> List[Tuple[str, ...]]:
     ]
 
 
-tx_formats = {hit[0]: _format_tx_format(hit[1]) for hit in tx_formats_hits}
+def _parse_rippled_source(
+    folder: str,
+) -> Tuple[Dict[str, List[str]], Dict[str, List[Tuple[str, ...]]]]:
+    # Get SFields
+    sfield_cpp = _read_file(os.path.join(folder, "src/ripple/protocol/impl/SField.cpp"))
+    sfield_hits = re.findall(
+        r'^ *CONSTRUCT_[^\_]+_SFIELD *\( *[^,\n]*,[ \n]*"([^\"\n ]+)"[ \n]*,[ \n]*'
+        + r"([^, \n]+)[ \n]*,[ \n]*([0-9]+)(,.*?(notSigning))?",
+        sfield_cpp,
+        re.MULTILINE,
+    )
+    sfields = {hit[0]: hit[1:] for hit in sfield_hits}
 
-txs_to_add = []
-existing_library_txs = {m.value for m in TransactionType} | {
-    m.value for m in PseudoTransactionType
-}
-for tx in tx_formats:
-    if tx not in existing_library_txs:
-        txs_to_add.append((tx, _key_to_json(tx)))
+    # Get TxFormats
+    tx_formats_cpp = _read_file(
+        os.path.join(folder, "src/ripple/protocol/impl/TxFormats.cpp")
+    )
+    tx_formats_hits = re.findall(
+        r"^ *add\(jss::([^\"\n, ]+),[ \n]*tt[A-Z_]+,[ \n]*{[ \n]*(({sf[A-Za-z0-9]+, "
+        + r"soe(OPTIONAL|REQUIRED|DEFAULT)},[ \n]+)*)},[ \n]*[pseudocC]+ommonFields\);",
+        tx_formats_cpp,
+        re.MULTILINE,
+    )
+    tx_formats = {hit[0]: _format_tx_format(hit[1]) for hit in tx_formats_hits}
 
-with open("xrpl/models/transactions/types/transaction_type.py", "a") as f:
-    for tx, name in txs_to_add:
-        f.write(f'    {name.upper()} = "{tx}"\n')
+    return sfields, tx_formats
 
-type_map = {
+
+TYPE_MAP = {
     "UINT8": "int",
     "UINT16": "int",
     "UINT32": "int",
@@ -78,23 +69,13 @@ type_map = {
     "ARRAY": "List[????]",
 }
 
-import_map = {
+IMPORT_MAP = {
     "Amount": "from xrpl.models.amounts import Amount",
     "Currency": "from xrpl.models.currencies import Currency",
     "Path": "from xrpl.models.path import Path",
     "XChainBridge": "from xrpl.models.xchain_bridge import XChainBridge",
     "REQUIRED": "from xrpl.models.required import REQUIRED",
 }
-
-
-def _generate_param_line(param: str, is_required: bool) -> str:
-    param_name = param[2:]
-    param_type = sfields[param_name][0]
-    if is_required:
-        param_type_output = f"{type_map[param_type]} = REQUIRED  # type: ignore"
-    else:
-        param_type_output = f"Optional[{type_map[param_type]}] = None"
-    return f"    {_key_to_json(param_name)}: {param_type_output}"
 
 
 def _update_index_file(tx: str, name: str) -> None:
@@ -114,17 +95,41 @@ def _update_index_file(tx: str, name: str) -> None:
         f.write(index_file)
 
 
-for tx, name in txs_to_add:
-    tx_format = tx_formats[tx]
+def _main(
+    sfields: Dict[str, List[str]], tx_formats: Dict[str, List[Tuple[str, ...]]]
+) -> None:
+    txs_to_add = []
+    existing_library_txs = {m.value for m in TransactionType} | {
+        m.value for m in PseudoTransactionType
+    }
+    for tx in tx_formats:
+        if tx not in existing_library_txs:
+            txs_to_add.append((tx, _key_to_json(tx)))
 
-    param_lines = [
-        _generate_param_line(param[0], param[1] == "soeREQUIRED")
-        for param in sorted(tx_format, key=lambda x: x[0])
-        if param != ("",)
-    ]
-    param_lines.sort(key=lambda x: "REQUIRED" not in x)
-    params = "\n".join(param_lines)
-    model = f"""@require_kwargs_on_init
+    with open("xrpl/models/transactions/types/transaction_type.py", "a") as f:
+        for tx, name in txs_to_add:
+            f.write(f'    {name.upper()} = "{tx}"\n')
+
+    for tx, name in txs_to_add:
+        tx_format = tx_formats[tx]
+
+        def _generate_param_line(param: str, is_required: bool) -> str:
+            param_name = param[2:]
+            param_type = sfields[param_name][0]
+            if is_required:
+                param_type_output = f"{TYPE_MAP[param_type]} = REQUIRED  # type: ignore"
+            else:
+                param_type_output = f"Optional[{TYPE_MAP[param_type]}] = None"
+            return f"    {_key_to_json(param_name)}: {param_type_output}"
+
+        param_lines = [
+            _generate_param_line(param[0], param[1] == "soeREQUIRED")
+            for param in sorted(tx_format, key=lambda x: x[0])
+            if param != ("",)
+        ]
+        param_lines.sort(key=lambda x: "REQUIRED" not in x)
+        params = "\n".join(param_lines)
+        model = f"""@require_kwargs_on_init
 @dataclass(frozen=True)
 class {tx}(Transaction):
     \"\"\"Represents a {tx} transaction.\"\"\"
@@ -137,23 +142,23 @@ class {tx}(Transaction):
     )
 """
 
-    type_imports = []
-    for item in ("List", "Optional", "Union"):
-        if item in model:
-            type_imports.append(item)
+        type_imports = []
+        for item in ("List", "Optional", "Union"):
+            if item in model:
+                type_imports.append(item)
 
-    type_line = (
-        "from typing import " + ", ".join(sorted(type_imports))
-        if len(type_imports) > 0
-        else ""
-    )
-    other_imports = []
-    for item in import_map:
-        if item in model:
-            other_imports.append(import_map[item])
-    other_import_lines = "\n".join(other_imports)
+        type_line = (
+            "from typing import " + ", ".join(sorted(type_imports))
+            if len(type_imports) > 0
+            else ""
+        )
+        other_imports = []
+        for item in IMPORT_MAP:
+            if item in model:
+                other_imports.append(IMPORT_MAP[item])
+        other_import_lines = "\n".join(other_imports)
 
-    imported_models = f"""\"\"\"Model for {tx} transaction type.\"\"\"
+        imported_models = f"""\"\"\"Model for {tx} transaction type.\"\"\"
 
 from __future__ import annotations
 
@@ -166,13 +171,19 @@ from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 """
 
-    imported_models = imported_models.replace("\n\n\n\n", "\n\n")
-    imported_models = imported_models.replace("\n\n\n", "\n\n")
-    model = model.replace("\n\n\n\n", "\n\n")
+        imported_models = imported_models.replace("\n\n\n\n", "\n\n")
+        imported_models = imported_models.replace("\n\n\n", "\n\n")
+        model = model.replace("\n\n\n\n", "\n\n")
 
-    with open(f"xrpl/models/transactions/{name}.py", "w+") as f:
-        f.write(imported_models + "\n\n" + model)
+        with open(f"xrpl/models/transactions/{name}.py", "w+") as f:
+            f.write(imported_models + "\n\n" + model)
 
-    _update_index_file(tx, name)
+        _update_index_file(tx, name)
 
-    print("Added " + tx)
+        print("Added " + tx)
+
+
+if __name__ == "__main__":
+    folder = sys.argv[1]
+    sfields, tx_formats = _parse_rippled_source(folder)
+    _main(sfields, tx_formats)
