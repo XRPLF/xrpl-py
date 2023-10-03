@@ -30,7 +30,6 @@ _LEDGER_OFFSET: Final[int] = 20
 # More context: https://github.com/XRPLF/rippled/pull/4370
 _RESTRICTED_NETWORKS = 1024
 _REQUIRED_NETWORKID_VERSION = "1.11.0"
-_HOOKS_TESTNET_ID = 21338
 # TODO: make this dynamic based on the current ledger fee
 _OWNER_RESERVE_FEE: Final[int] = int(xrp_to_drops(2))
 
@@ -285,12 +284,9 @@ def _tx_needs_networkID(client: Client) -> bool:
     if client.network_id and client.network_id > _RESTRICTED_NETWORKS:
         # TODO: remove the buildVersion logic when 1.11.0 is out and widely used.
         # Issue: https://github.com/XRPLF/xrpl-py/issues/595
-        if (
-            client.build_version
-            and _is_not_later_rippled_version(
-                _REQUIRED_NETWORKID_VERSION, client.build_version
-            )
-        ) or client.network_id == _HOOKS_TESTNET_ID:
+        if client.build_version and _is_not_later_rippled_version(
+            _REQUIRED_NETWORKID_VERSION, client.build_version
+        ):
             return True
     return False
 
