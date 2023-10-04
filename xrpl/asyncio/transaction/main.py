@@ -283,8 +283,6 @@ def _tx_needs_networkID(client: Client) -> bool:
         bool: whether the transactions required network ID to be valid
     """
     if client.network_id and client.network_id > _RESTRICTED_NETWORKS:
-        # TODO: remove the buildVersion logic when 1.11.0 is out and widely used.
-        # Issue: https://github.com/XRPLF/xrpl-py/issues/595
         if (
             client.build_version
             and _is_not_later_rippled_version(
