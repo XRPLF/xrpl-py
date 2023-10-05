@@ -1,16 +1,18 @@
-"""Test the parse_nftoken_id util."""
+"""Test the get_nftoken_id util."""
 from __future__ import annotations
 
 import json
 from unittest import TestCase
 
-from xrpl.utils.get_nftoken_id import get_nftoken_id
+from xrpl.utils import get_nftoken_id
 
 path_to_json = "tests/unit/utils/txn_parser/transaction_jsons/"
 with open(path_to_json + "nftokenmint_response1.json", "r") as infile:
     nftokenmint_response1 = json.load(infile)
 with open(path_to_json + "nftokenmint_response2.json", "r") as infile:
     nftokenmint_response2 = json.load(infile)
+with open(path_to_json + "offer_cancelled.json", "r") as infile:
+    wrong_fixture = json.load(infile)
 
 
 class TestGetNFTokenID(TestCase):
@@ -29,6 +31,9 @@ class TestGetNFTokenID(TestCase):
             "0008125CBE4B401B2F62ED35CC67362165AA813CCA06316FFA766254000003EE"
         )
         self.assertEqual(result, expected_nftoken_id)
+
+    def test_error_with_wrong_tx_metadata(self: TestGetNFTokenID) -> None:
+        self.assertIsNone(get_nftoken_id(wrong_fixture["meta"]))
 
     def test_error_when_given_raw_instead_of_meta(self: TestGetNFTokenID) -> None:
         self.assertRaises(TypeError, lambda: get_nftoken_id(nftokenmint_response1))
