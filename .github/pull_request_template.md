@@ -31,6 +31,11 @@ Please check relevant options, delete irrelevant ones.
 - [ ] Documentation Updates
 - [ ] Release
 
+### Did you update CHANGELOG.md?
+
+- [ ] Yes
+- [ ] No, this change does not impact library users
+
 ## Test Plan
 
 <!--

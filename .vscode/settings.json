@@ -13,12 +13,18 @@
         "asyncio",
         "autofills",
         "binarycodec",
+        "Clawback",
+        "isnumeric",
         "keypair",
         "keypairs",
         "multisign",
         "nftoken",
         "rippletest",
         "ripplex",
-        "xaddress"
+        "xaddress",
+        "xchain"
     ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    }
 }

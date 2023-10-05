@@ -8,6 +8,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 
 ### Fixed
+- Exported `get_nftoken_id` and `parse_nftoken_id` at the `xrpl.utils` level
+- Fixed issue in `get_nftoken_id` where error is opaque when there are no `NFTokenPage`s
+
+## [2.4.0] - 2023-09-27
+### Added
+- Added new syntax for `SetFee` pseudo transaction sent after the [XRPFees](https://xrpl.org/known-amendments.html#xrpfees) amendment. (Backwards compatible)
+- Support for [XLS-38d (XChainBridge)](https://github.com/XRPLF/XRPL-Standards/tree/master/XLS-38d-XChainBridge)
+
+### Fixed
+- Update request models related to AMM
+- Better error handling for when a `Wallet` is passed into an account or destination field
+- Fixed AMMBid fields (BidMin, BidMax) with correct type IssuedCurrencyAmount
+
+## [2.3.0] - 2023-08-24
+### Added
+- Add AMM support [XLS-30](https://github.com/XRPLF/XRPL-Standards/discussions/78)
+
+## [2.2.0] - 2023-08-07
+### Added
+- Added new `Clawback` transaction as per [XLS-39](https://github.com/XRPLF/XRPL-Standards/discussions/94)
+
+## [2.1.0] - 2023-07-24
+### Fixed
 - Replaced alias for `classic_address` with separate property to work around this mypy issue:
   https://github.com/python/mypy/issues/6700
 
@@ -101,6 +124,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Function to parse the final account balances from a transaction's metadata
 - Function to parse order book changes from a transaction's metadata
 - Support for Ed25519 seeds that don't use the `sEd` prefix
+- Support for Automated Market Maker (AMM) transactions and requests as defined in XLS-30.
 - Add docs to`get_account_transactions` explaining how to allow pagination through all transaction history [#462]
 - Common field `ticket_sequence` to Transaction class
 

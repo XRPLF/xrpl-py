@@ -3,6 +3,7 @@ from unittest import TestCase
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import Payment, PaymentFlag
+from xrpl.wallet import Wallet
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _FEE = "0.00001"
@@ -120,3 +121,15 @@ class TestPayment(TestCase):
         }
         tx = Payment(**transaction_dict)
         self.assertTrue(tx.is_valid())
+
+    def test_destination_wallet(self):
+        transaction_dict = {
+            "account": _ACCOUNT,
+            "fee": _FEE,
+            "sequence": _SEQUENCE,
+            "amount": _XRP_AMOUNT,
+            "send_max": _XRP_AMOUNT,
+            "destination": Wallet.create(),
+        }
+        with self.assertRaises(XRPLModelException):
+            Payment(**transaction_dict)

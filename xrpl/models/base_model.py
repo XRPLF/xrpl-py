@@ -9,7 +9,7 @@ from dataclasses import dataclass, fields
 from enum import Enum
 from typing import Any, Dict, List, Pattern, Type, TypeVar, Union, cast, get_type_hints
 
-from typing_extensions import Final, get_args, get_origin
+from typing_extensions import Final, Literal, get_args, get_origin
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
@@ -32,8 +32,17 @@ _CAMEL_CASE_TYPICAL: Final[str] = "[A-Z][^A-Z]*"
 _CAMEL_TO_SNAKE_CASE_REGEX: Final[Pattern[str]] = re.compile(
     f"(?:{_CAMEL_CASE_LEADING_LOWER}|{_CAMEL_CASE_ABBREVIATION}|{_CAMEL_CASE_TYPICAL})"
 )
-# used for converting special substrings inside CamelCase fields
-SPECIAL_CAMELCASE_STRINGS = ["NFToken"]
+# This is used to make exceptions when converting dictionary keys to xrpl JSON
+# keys. We snake case keys, but some keys are abbreviations.
+ABBREVIATIONS: Final[Dict[str, str]] = {
+    "amm": "AMM",
+    "id": "ID",
+    "lp": "LP",
+    "nftoken": "NFToken",
+    "unl": "UNL",
+    "uri": "URI",
+    "xchain": "XChain",
+}
 
 BM = TypeVar("BM", bound="BaseModel")  # any type inherited from BaseModel
 
@@ -46,7 +55,7 @@ def _key_to_json(field: str) -> str:
         3. 'URI' becomes 'uri'
     """
     # convert all special CamelCase substrings to capitalized strings
-    for spec_str in SPECIAL_CAMELCASE_STRINGS:
+    for spec_str in ABBREVIATIONS.values():
         if spec_str in field:
             field = field.replace(spec_str, spec_str.capitalize())
 
@@ -167,6 +176,12 @@ class BaseModel(ABC):
         if isinstance(param_type, type) and isinstance(param_value, param_type):
             # expected an object, received the correct object
             return param_value
+
+        if get_origin(param_type) == Literal:
+            # param_type is Literal (has very specific values it will accept)
+            if param_value in get_args(param_type):
+                # param_value is one of the accepted values
+                return param_value
 
         if (
             isinstance(param_type, type)

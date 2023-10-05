@@ -3,7 +3,7 @@ from unittest import TestCase
 from xrpl.constants import CryptoAlgorithm
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests import Sign
-from xrpl.models.transactions import AccountSet
+from xrpl.models.transactions import AccountSet, AccountSetAsfFlag
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _FEE = "0.00001"
@@ -12,7 +12,7 @@ _DOMAIN = "asjcsodafsaid0f9asdfasdf"
 _TRANSACTION = AccountSet(
     account=_ACCOUNT,
     fee=_FEE,
-    set_flag=3,
+    set_flag=AccountSetAsfFlag.ASF_DISALLOW_XRP,
     domain=_DOMAIN,
     sequence=_SEQUENCE,
 )

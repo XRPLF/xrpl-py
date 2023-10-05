@@ -1,5 +1,8 @@
 """Convenience utilities for the XRP Ledger"""
 
+from xrpl.utils.get_nftoken_id import get_nftoken_id
+from xrpl.utils.get_xchain_claim_id import get_xchain_claim_id
+from xrpl.utils.parse_nftoken_id import parse_nftoken_id
 from xrpl.utils.str_conversions import hex_to_str, str_to_hex
 from xrpl.utils.time_conversions import (
     XRPLTimeRangeException,
@@ -29,4 +32,7 @@ __all__ = [
     "get_balance_changes",
     "get_final_balances",
     "get_order_book_changes",
+    "get_nftoken_id",
+    "parse_nftoken_id",
+    "get_xchain_claim_id",
 ]

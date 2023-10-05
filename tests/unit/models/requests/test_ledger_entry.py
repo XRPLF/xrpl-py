@@ -1,7 +1,7 @@
 from unittest import TestCase
 
+from xrpl.models import XRP, LedgerEntry, XChainBridge
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.requests import LedgerEntry
 from xrpl.models.requests.ledger_entry import RippleState
 
 
@@ -68,6 +68,46 @@ class TestLedgerEntry(TestCase):
             ticket="hello",
         )
         self.assertTrue(req.is_valid())
+
+    def test_has_only_xchain_claim_id_is_valid(self):
+        req = LedgerEntry(
+            xchain_claim_id=1,
+        )
+        self.assertTrue(req.is_valid())
+
+    def test_has_only_xchain_create_account_claim_id_is_valid(self):
+        req = LedgerEntry(
+            xchain_create_account_claim_id=1,
+        )
+        self.assertTrue(req.is_valid())
+
+    def test_has_both_bridge_fields_is_valid(self):
+        req = LedgerEntry(
+            bridge=XChainBridge(
+                locking_chain_door="rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
+                locking_chain_issue=XRP(),
+                issuing_chain_door="r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
+                issuing_chain_issue=XRP(),
+            ),
+            bridge_account="rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
+        )
+        self.assertTrue(req.is_valid())
+
+    def test_missing_bridge_field_is_invalid(self):
+        with self.assertRaises(XRPLModelException):
+            LedgerEntry(
+                bridge=XChainBridge(
+                    locking_chain_door="rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
+                    locking_chain_issue=XRP(),
+                    issuing_chain_door="r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
+                    issuing_chain_issue=XRP(),
+                ),
+            )
+
+        with self.assertRaises(XRPLModelException):
+            LedgerEntry(
+                bridge_account="rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
+            )
 
     def test_has_no_query_param_is_invalid(self):
         with self.assertRaises(XRPLModelException):

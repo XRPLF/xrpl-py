@@ -157,6 +157,14 @@ cd docs/_build/html/
 open index.html
 ```
 
+You can view docs builds for xrpl-py versions on the ReadTheDocs website here: https://readthedocs.org/projects/xrpl-py/builds/
+
+In order to test how a change in docs configuration looks like on ReadTheDocs before merging:
+1. Publish a branch with your docs configuration changes
+2. Active and hide the branch by scrolling down on this page: https://readthedocs.org/projects/xrpl-py/versions/
+3. View the page / build results here: https://readthedocs.org/projects/xrpl-py/builds/
+4. Once you're done testing, make the test branch inactive.
+
 ## Write integration tests
 
 1. If adding functionality to a new part of the library, create new file with a class that inherits `IntegrationTestCase` from `tests.integration.integration_test_case` to store all individual tests under (ex: `class TestWallet(IntegrationTestCase)`). Otherwise, add to an existing file.
@@ -171,9 +179,16 @@ open index.html
 
 Examples can be found in subfolders of [tests/integrations](https://github.com/XRPLF/xrpl-py/tree/master/tests/integration)
 
-## Update `definitions.json`
+## Updating `definitions.json`
 
-Use [this repo](https://github.com/RichardAH/xrpl-codec-gen) to generate a new `definitions.json` file from the rippled source code. Instructions are available in that README.
+This should almost always be done using the [`xrpl-codec-gen`](https://github.com/RichardAH/xrpl-codec-gen) script - if the output needs manual intervention afterwards, consider updating the script instead.
+
+1. Clone / pull the latest changes from [rippled](https://github.com/XRPLF/rippled) - Specifically the `develop` branch is usually the right one.
+2. Clone / pull the latest changes from [`xrpl-codec-gen`](https://github.com/RichardAH/xrpl-codec-gen)
+3. From the `xrpl-codec-gen` tool, follow the steps in the `README.md` to generate a new `definitions.json` file.
+4. Replace the `definitions.json` file in the `ripple-binary-codec` with the newly generated file.
+5. Verify that the changes make sense by inspection before submitting, as there may be updates required for the `xrpl-codec-gen` tool depending on the latest amendments we're updating to match.
+
 
 ## Release process
 
@@ -200,6 +215,7 @@ Use [this repo](https://github.com/RichardAH/xrpl-codec-gen) to generate a new `
    - This will require entering PyPI login info.
 6. Create a new Github release/tag off of this branch.
 7. Send an email to [xrpl-announce](https://groups.google.com/g/xrpl-announce).
+8. Post an announcement in the [XRPL Discord #python channel](https://discord.com/channels/886050993802985492/886053080913821717) with a link to the changes and highlighting key changes.
 
 ## Mailing Lists
 

@@ -34,6 +34,7 @@ class Fields(TypedDict):
     BookDirectory: NotRequired[str]
     Expiration: NotRequired[int]
     NFTokens: NotRequired[List[NFTokenMetadata]]
+    XChainClaimID: NotRequired[str]
 
 
 class CreatedNodeFields(TypedDict):
@@ -96,6 +97,7 @@ class TransactionMetadata(TypedDict):
 Node: TypeAlias = Union[CreatedNode, ModifiedNode, DeletedNode]
 
 
+# TODO: make these methods use snake_case
 def isCreatedNode(node: Node) -> TypeGuard[CreatedNode]:
     """
     Typeguard for CreatedNode

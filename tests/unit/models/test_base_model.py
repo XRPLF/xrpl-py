@@ -4,6 +4,7 @@ from unittest import TestCase
 
 from xrpl.models import XRPLModelException
 from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.models.currencies import XRP, IssuedCurrency
 from xrpl.models.requests import (
     AccountChannels,
     BookOffers,
@@ -16,6 +17,8 @@ from xrpl.models.requests import (
     SubmitOnly,
 )
 from xrpl.models.transactions import (
+    AMMBid,
+    AuthAccount,
     CheckCreate,
     Memo,
     Payment,
@@ -24,8 +27,10 @@ from xrpl.models.transactions import (
     SignerListSet,
     TrustSet,
     TrustSetFlag,
+    XChainClaim,
 )
 from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.xchain_bridge import XChainBridge
 
 currency = "BTC"
 value = "100"
@@ -597,3 +602,103 @@ class TestFromDict(TestCase):
             ],
         }
         self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_xrpl_auth_accounts(self):
+        tx = AMMBid(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            asset=XRP(),
+            asset2=IssuedCurrency(
+                currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW"
+            ),
+            bid_min=IssuedCurrencyAmount(
+                currency="5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
+                issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                value="25",
+            ),
+            bid_max=IssuedCurrencyAmount(
+                currency="5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
+                issuer="r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                value="35",
+            ),
+            auth_accounts=[
+                AuthAccount(account="rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh"),
+                AuthAccount(account="rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH"),
+                AuthAccount(account="rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb"),
+                AuthAccount(account="rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4"),
+            ],
+        )
+        expected = {
+            "Account": "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            "Asset": {"currency": "XRP"},
+            "Asset2": {
+                "currency": "ETH",
+                "issuer": "rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW",
+            },
+            "BidMin": {
+                "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
+                "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                "value": "25",
+            },
+            "BidMax": {
+                "currency": "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A",
+                "issuer": "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw",
+                "value": "35",
+            },
+            "AuthAccounts": [
+                {
+                    "AuthAccount": {
+                        "Account": "rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh",
+                    }
+                },
+                {
+                    "AuthAccount": {
+                        "Account": "rfpFv97Dwu89FTyUwPjtpZBbuZxTqqgTmH",
+                    }
+                },
+                {
+                    "AuthAccount": {
+                        "Account": "rzzYHPGb8Pa64oqxCzmuffm122bitq3Vb",
+                    }
+                },
+                {
+                    "AuthAccount": {
+                        "Account": "rhwxHxaHok86fe4LykBom1jSJ3RYQJs1h4",
+                    }
+                },
+            ],
+            "TransactionType": "AMMBid",
+            "SigningPubKey": "",
+            "Flags": 0,
+        }
+        self.assertEqual(tx.to_xrpl(), expected)
+
+    def test_to_from_xrpl_xchain(self):
+        tx_json = {
+            "Account": account,
+            "Amount": value,
+            "XChainBridge": {
+                "LockingChainDoor": "rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
+                "LockingChainIssue": {"currency": "XRP"},
+                "IssuingChainDoor": "r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
+                "IssuingChainIssue": {"currency": "XRP"},
+            },
+            "Destination": destination,
+            "TransactionType": "XChainClaim",
+            "Flags": 0,
+            "SigningPubKey": "",
+            "XChainClaimID": 1,
+        }
+        tx_obj = XChainClaim(
+            account=account,
+            amount=value,
+            xchain_bridge=XChainBridge(
+                locking_chain_door="rGzx83BVoqTYbGn7tiVAnFw7cbxjin13jL",
+                locking_chain_issue=XRP(),
+                issuing_chain_door="r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
+                issuing_chain_issue=XRP(),
+            ),
+            destination=destination,
+            xchain_claim_id=1,
+        )
+        self.assertEqual(tx_obj.to_xrpl(), tx_json)
+        self.assertEqual(Transaction.from_xrpl(tx_json), tx_obj)
