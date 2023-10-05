@@ -4,7 +4,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 from xrpl import XRPLException
-from xrpl.utils.parse_nftoken_id import parse_nftoken_id
+from xrpl.utils import parse_nftoken_id
 
 
 class TestParseNFTokenID(TestCase):

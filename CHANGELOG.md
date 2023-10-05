@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Fixed
+- Exported `get_nftoken_id` and `parse_nftoken_id` at the `xrpl.utils` level
+- Fixed issue in `get_nftoken_id` where error is opaque when there are no `NFTokenPage`s
+
 ## [2.4.0] - 2023-09-27
 ### Added
 - Added new syntax for `SetFee` pseudo transaction sent after the [XRPFees](https://xrpl.org/known-amendments.html#xrpfees) amendment. (Backwards compatible)
