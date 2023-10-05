@@ -1,5 +1,6 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
+    compare_amm_values,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
@@ -51,17 +52,29 @@ class TestAMMDeposit(IntegrationTestCase):
             )
         )
 
-        self.assertGreater(
-            float(amm_info.result["amm"]["amount"]),
-            float(pre_amm_info.result["amm"]["amount"]),
-        )
+        before_amount = float(pre_amm_info.result["amm"]["amount"])
+        diff_amount = 1000
+        expected_amount = before_amount + diff_amount
+
+        before_lptoken_value = float(pre_amm_info.result["amm"]["lp_token"]["value"])
+        diff_lptoken_value = 143.850763914
+        expected_lptoken_value = before_lptoken_value + diff_lptoken_value
+
+        self.assertEqual(float(amm_info.result["amm"]["amount"]), expected_amount)
         self.assertEqual(
-            amm_info.result["amm"]["amount2"],
-            pre_amm_info.result["amm"]["amount2"],
+            float(amm_info.result["amm"]["amount2"]["value"]),
+            float(pre_amm_info.result["amm"]["amount2"]["value"]),
         )
         self.assertGreater(
             float(amm_info.result["amm"]["lp_token"]["value"]),
-            float(pre_amm_info.result["amm"]["lp_token"]["value"]),
+            before_lptoken_value,
+        )
+        self.assertTrue(
+            compare_amm_values(
+                amm_info.result["amm"]["lp_token"]["value"],
+                expected_lptoken_value,
+                41.016240932237565,
+            )
         )
 
     @test_async_and_sync(globals())
@@ -100,17 +113,43 @@ class TestAMMDeposit(IntegrationTestCase):
             )
         )
 
-        self.assertGreater(
+        before_amount = float(pre_amm_info.result["amm"]["amount"])
+        diff_amount = 100
+        expected_amount = before_amount + diff_amount
+
+        before_amount2_value = float(pre_amm_info.result["amm"]["amount2"]["value"])
+        diff_amount2 = 5
+        expected_amount2_value = before_amount2_value + diff_amount2
+
+        before_lptoken_value = float(pre_amm_info.result["amm"]["lp_token"]["value"])
+        diff_lptoken = 21.6824186193
+        expected_lptoken_value = before_lptoken_value + diff_lptoken
+
+        self.assertEqual(
             float(amm_info.result["amm"]["amount"]),
-            float(pre_amm_info.result["amm"]["amount"]),
+            expected_amount,
         )
         self.assertGreater(
             float(amm_info.result["amm"]["amount2"]["value"]),
             float(pre_amm_info.result["amm"]["amount2"]["value"]),
         )
+        self.assertTrue(
+            compare_amm_values(
+                amm_info.result["amm"]["amount2"]["value"],
+                expected_amount2_value,
+                0.1902856440025289,
+            )
+        )
         self.assertGreater(
             float(amm_info.result["amm"]["lp_token"]["value"]),
-            float(pre_amm_info.result["amm"]["lp_token"]["value"]),
+            before_lptoken_value,
+        )
+        self.assertTrue(
+            compare_amm_values(
+                amm_info.result["amm"]["lp_token"]["value"],
+                expected_lptoken_value,
+                8.185452315956354e-12,
+            )
         )
 
     @test_async_and_sync(globals())
@@ -151,17 +190,24 @@ class TestAMMDeposit(IntegrationTestCase):
             )
         )
 
-        self.assertGreater(
+        before_amount = float(pre_amm_info.result["amm"]["amount"])
+        diff_amount = 23
+        expected_amount = before_amount + diff_amount
+
+        before_lptoken_value = float(pre_amm_info.result["amm"]["lp_token"]["value"])
+        diff_lptoken = 5
+        expected_lptoken_value = before_lptoken_value + diff_lptoken
+
+        self.assertEqual(
             float(amm_info.result["amm"]["amount"]),
-            float(pre_amm_info.result["amm"]["amount"]),
+            expected_amount,
         )
         self.assertEqual(
             amm_info.result["amm"]["amount2"],
             pre_amm_info.result["amm"]["amount2"],
         )
-        self.assertGreater(
-            float(amm_info.result["amm"]["lp_token"]["value"]),
-            float(pre_amm_info.result["amm"]["lp_token"]["value"]),
+        self.assertEqual(
+            float(amm_info.result["amm"]["lp_token"]["value"]), expected_lptoken_value
         )
 
     @test_async_and_sync(globals())
@@ -201,15 +247,34 @@ class TestAMMDeposit(IntegrationTestCase):
             )
         )
 
-        self.assertGreater(
+        before_amount = float(pre_amm_info.result["amm"]["amount"])
+        diff_amount = 11
+        expected_amount = before_amount + diff_amount
+
+        before_amount2_value = float(pre_amm_info.result["amm"]["amount2"]["value"])
+        diff_amount2_value = 2.2628038035
+        expected_amount2_value = before_amount2_value + diff_amount2_value
+
+        before_lptoken_value = float(pre_amm_info.result["amm"]["lp_token"]["value"])
+        diff_lptoken_value = 5
+        expected_lptoken_value = before_lptoken_value + diff_lptoken_value
+
+        self.assertEqual(
             float(amm_info.result["amm"]["amount"]),
-            float(pre_amm_info.result["amm"]["amount"]),
+            expected_amount,
         )
         self.assertGreater(
             float(amm_info.result["amm"]["amount2"]["value"]),
-            float(pre_amm_info.result["amm"]["amount2"]["value"]),
+            diff_amount2_value,
         )
-        self.assertGreater(
+        self.assertTrue(
+            compare_amm_values(
+                amm_info.result["amm"]["amount2"]["value"],
+                expected_amount2_value,
+                8.924416761146858e-12,
+            )
+        )
+        self.assertEqual(
             float(amm_info.result["amm"]["lp_token"]["value"]),
-            float(pre_amm_info.result["amm"]["lp_token"]["value"]),
+            expected_lptoken_value,
         )

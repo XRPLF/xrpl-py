@@ -302,3 +302,13 @@ def _get_non_decorator_code(function):
         if "def " in code_lines[line]:
             return code_lines[line:]
         line += 1
+
+
+def compare_amm_values(val, val2, round_buffer):
+    diff = abs(float(val) - float(val2))
+    if diff > round_buffer:
+        raise ValueError(
+            f"Values [{val}, {val2}] with difference {diff} are too far apart "
+            f"with round_buffer {round_buffer}"
+        )
+    return True

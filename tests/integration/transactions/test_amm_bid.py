@@ -1,5 +1,6 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
+    compare_amm_values,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
@@ -49,13 +50,37 @@ class TestAMMBid(IntegrationTestCase):
             )
         )
 
+        before_price = float(
+            pre_amm_info.result["amm"]["auction_slot"]["price"]["value"]
+        )
+        diff_price = -0.002891202555
+        expected_price = before_price + diff_price
+
+        before_lptoken = float(pre_amm_info.result["amm"]["lp_token"]["value"])
+        diff_lptoken = -0.003099233161
+        expected_lptoken = before_lptoken + diff_lptoken
+
         self.assertGreater(
             float(amm_info.result["amm"]["auction_slot"]["price"]["value"]),
-            float(pre_amm_info.result["amm"]["auction_slot"]["price"]["value"]),
+            before_price,
+        )
+        self.assertTrue(
+            compare_amm_values(
+                amm_info.result["amm"]["auction_slot"]["price"]["value"],
+                expected_price,
+                0.0059972887619810945,
+            )
         )
         self.assertLess(
             float(amm_info.result["amm"]["lp_token"]["value"]),
-            float(pre_amm_info.result["amm"]["lp_token"]["value"]),
+            before_lptoken,
+        )
+        self.assertTrue(
+            compare_amm_values(
+                amm_info.result["amm"]["lp_token"]["value"],
+                expected_lptoken,
+                0.0004297892464819597,
+            )
         )
 
     @test_async_and_sync(globals())
@@ -99,13 +124,37 @@ class TestAMMBid(IntegrationTestCase):
             )
         )
 
+        before_price = float(
+            pre_amm_info.result["amm"]["auction_slot"]["price"]["value"]
+        )
+        diff_price = 1.4462339482
+        expected_price = before_price + diff_price
+
+        before_lptoken = float(pre_amm_info.result["amm"]["lp_token"]["value"])
+        diff_lptoken = -1.6435111096
+        expected_lptoken = before_lptoken + diff_lptoken
+
         self.assertGreater(
             float(amm_info.result["amm"]["auction_slot"]["price"]["value"]),
-            float(pre_amm_info.result["amm"]["auction_slot"]["price"]["value"]),
+            before_price,
+        )
+        self.assertTrue(
+            compare_amm_values(
+                amm_info.result["amm"]["auction_slot"]["price"]["value"],
+                expected_price,
+                3.542201241578838,
+            )
         )
         self.assertLess(
             float(amm_info.result["amm"]["lp_token"]["value"]),
-            float(pre_amm_info.result["amm"]["lp_token"]["value"]),
+            before_lptoken,
+        )
+        self.assertTrue(
+            compare_amm_values(
+                amm_info.result["amm"]["lp_token"]["value"],
+                expected_lptoken,
+                3.345502320689775,
+            )
         )
         self.assertEqual(
             amm_info.result["amm"]["auction_slot"]["auth_accounts"],

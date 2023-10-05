@@ -1,5 +1,6 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
+    compare_amm_values,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
@@ -48,8 +49,19 @@ class TestAMMVote(IntegrationTestCase):
             )
         )
 
+        before_trading_fee = pre_amm_info.result["amm"]["trading_fee"]
+        diff_trading_fee = 5.75
+        expected_trading_fee = before_trading_fee + diff_trading_fee
+
         self.assertGreater(
             amm_info.result["amm"]["trading_fee"],
             pre_amm_info.result["amm"]["trading_fee"],
+        )
+        self.assertTrue(
+            compare_amm_values(
+                amm_info.result["amm"]["trading_fee"],
+                expected_trading_fee,
+                2.25,
+            )
         )
         self.assertEqual(len(amm_info.result["amm"]["vote_slots"]), 2)

@@ -1,5 +1,6 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
+    compare_amm_values,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
@@ -50,9 +51,17 @@ class TestAMMWithdraw(IntegrationTestCase):
             )
         )
 
-        self.assertLess(
+        before_amount = float(pre_amm_info.result["amm"]["amount"])
+        diff_amount = -500
+        expected_amount = before_amount + diff_amount
+
+        before_lptoken_value = float(pre_amm_info.result["amm"]["lp_token"]["value"])
+        diff_lptoken_value = -61.2810042329
+        expected_lptoken_value = before_lptoken_value + diff_lptoken_value
+
+        self.assertEqual(
             float(amm_info.result["amm"]["amount"]),
-            float(pre_amm_info.result["amm"]["amount"]),
+            expected_amount,
         )
         self.assertEqual(
             amm_info.result["amm"]["amount2"],
@@ -60,7 +69,14 @@ class TestAMMWithdraw(IntegrationTestCase):
         )
         self.assertLess(
             float(amm_info.result["amm"]["lp_token"]["value"]),
-            float(pre_amm_info.result["amm"]["lp_token"]["value"]),
+            before_lptoken_value,
+        )
+        self.assertTrue(
+            compare_amm_values(
+                amm_info.result["amm"]["lp_token"]["value"],
+                expected_lptoken_value,
+                5.450667606084835,
+            )
         )
 
     @test_async_and_sync(globals())
@@ -99,17 +115,35 @@ class TestAMMWithdraw(IntegrationTestCase):
             )
         )
 
-        self.assertLess(
+        diff_amount = -50
+        expected_amount = float(pre_amm_info.result["amm"]["amount"]) + diff_amount
+        diff_amount2 = 3.8999367945
+        expected_amount2 = (
+            float(pre_amm_info.result["amm"]["amount2"]["value"]) + diff_amount2
+        )
+        diff_lptoken = -13.805478843361811
+        expected_lptoken = (
+            float(pre_amm_info.result["amm"]["lp_token"]["value"]) + diff_lptoken
+        )
+
+        self.assertEqual(
             float(amm_info.result["amm"]["amount"]),
-            float(pre_amm_info.result["amm"]["amount"]),
+            expected_amount,
         )
         self.assertLess(
             float(amm_info.result["amm"]["amount2"]["value"]),
             float(pre_amm_info.result["amm"]["amount2"]["value"]),
         )
-        self.assertLess(
+        self.assertTrue(
+            compare_amm_values(
+                amm_info.result["amm"]["amount2"]["value"],
+                expected_amount2,
+                7.799873589023093,
+            )
+        )
+        self.assertEqual(
             float(amm_info.result["amm"]["lp_token"]["value"]),
-            float(pre_amm_info.result["amm"]["lp_token"]["value"]),
+            expected_lptoken,
         )
 
     @test_async_and_sync(globals())
@@ -150,17 +184,31 @@ class TestAMMWithdraw(IntegrationTestCase):
             )
         )
 
+        diff_amount = -45
+        expected_amount = float(pre_amm_info.result["amm"]["amount"]) + diff_amount
+        diff_lptoken = -5
+        expected_lptoken = (
+            float(pre_amm_info.result["amm"]["lp_token"]["value"]) + diff_lptoken
+        )
+
         self.assertLess(
             float(amm_info.result["amm"]["amount"]),
             float(pre_amm_info.result["amm"]["amount"]),
+        )
+        self.assertTrue(
+            compare_amm_values(
+                float(amm_info.result["amm"]["amount"]),
+                expected_amount,
+                1,
+            )
         )
         self.assertEqual(
             amm_info.result["amm"]["amount2"],
             pre_amm_info.result["amm"]["amount2"],
         )
-        self.assertLess(
+        self.assertEqual(
             float(amm_info.result["amm"]["lp_token"]["value"]),
-            float(pre_amm_info.result["amm"]["lp_token"]["value"]),
+            expected_lptoken,
         )
 
     @test_async_and_sync(globals())
@@ -200,15 +248,32 @@ class TestAMMWithdraw(IntegrationTestCase):
             )
         )
 
-        self.assertLess(
+        diff_amount = -23
+        expected_amount = float(pre_amm_info.result["amm"]["amount"]) + diff_amount
+        diff_amount2 = -1.1091277317
+        expected_amount2 = (
+            float(pre_amm_info.result["amm"]["amount2"]["value"]) + diff_amount2
+        )
+        diff_lptoken = -5
+        expected_lptoken = (
+            float(pre_amm_info.result["amm"]["lp_token"]["value"]) + diff_lptoken
+        )
+        self.assertEqual(
             float(amm_info.result["amm"]["amount"]),
-            float(pre_amm_info.result["amm"]["amount"]),
+            expected_amount,
         )
         self.assertLess(
             float(amm_info.result["amm"]["amount2"]["value"]),
             float(pre_amm_info.result["amm"]["amount2"]["value"]),
         )
-        self.assertLess(
+        self.assertTrue(
+            compare_amm_values(
+                float(amm_info.result["amm"]["amount2"]["value"]),
+                expected_amount2,
+                4.604316927725449e-11,
+            )
+        )
+        self.assertEqual(
             float(amm_info.result["amm"]["lp_token"]["value"]),
-            float(pre_amm_info.result["amm"]["lp_token"]["value"]),
+            expected_lptoken,
         )
