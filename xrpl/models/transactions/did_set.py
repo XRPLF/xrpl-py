@@ -12,7 +12,7 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
-HEX_REGEX: Final[Pattern[str]] = re.compile("[A-F0-9]+")
+HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]+")
 
 
 @require_kwargs_on_init
@@ -36,11 +36,11 @@ class DIDSet(Transaction):
             if value is not None:
                 error_strs = []
                 if not bool(HEX_REGEX.fullmatch(value)):
-                    error_strs.append("is not hex")
+                    error_strs.append("must be hex")
                 if len(value) > 256:
-                    error_strs.append("is too long")
+                    error_strs.append("must be <= 256 characters")
                 if len(error_strs) > 0:
-                    errors[name] = f"`{name}` " + " and ".join(error_strs) + "."
+                    errors[name] = (" and ".join(error_strs) + ".").capitalize()
 
         _process_field("did_document", self.did_document)
         _process_field("data", self.data)
