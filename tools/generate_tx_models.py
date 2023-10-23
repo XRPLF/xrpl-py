@@ -65,7 +65,7 @@ TYPE_MAP = {
     "PATHSET": "List[Path]",
     "ISSUE": "Currency",
     "XCHAIN_BRIDGE": "XChainBridge",
-    "OBJECT": "????",
+    "OBJECT": "????",  # TODO: add inner object format support
     "ARRAY": "List[????]",
 }
 
