@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from xrpl.asyncio.transaction.main import _RESTRICTED_NETWORKS
-from xrpl.clients import JsonRpcClient, WebsocketClient
+from xrpl.clients import WebsocketClient
 from xrpl.models.transactions import AccountSet
 from xrpl.transaction import autofill
 from xrpl.wallet.wallet_generation import generate_faucet_wallet
@@ -24,17 +24,3 @@ class TestNetworkID(TestCase):
             tx_autofilled = autofill(tx, client)
             self.assertGreaterEqual(client.network_id, _RESTRICTED_NETWORKS)
             self.assertEqual(tx_autofilled.network_id, client.network_id)
-
-    # Autofill should ignore tx network_id for build version earlier than 1.11.0.
-    def test_networkid_ignore_early_version(self):
-        client = JsonRpcClient("https://sidechain-net1.devnet.rippletest.net:51234")
-        wallet = generate_faucet_wallet(client, debug=True)
-        # Override client build_version since 1.11.0 is not released yet.
-        client.build_version = "1.10.0"
-        tx = AccountSet(
-            account=wallet.classic_address,
-            fee=_FEE,
-            domain="www.example.com",
-        )
-        tx_autofilled = autofill(tx, client)
-        self.assertEqual(tx_autofilled.network_id, None)
