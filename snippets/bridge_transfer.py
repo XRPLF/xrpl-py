@@ -17,10 +17,10 @@ from xrpl.transaction import submit_and_wait
 from xrpl.utils import get_xchain_claim_id, xrp_to_drops
 from xrpl.wallet import Wallet, generate_faucet_wallet
 
-locking_client = JsonRpcClient("https://sidechain-net1.devnet.rippletest.net:51234")
+locking_client = JsonRpcClient("https://s.devnet.rippletest.net:51234")
 issuing_client = JsonRpcClient("https://sidechain-net2.devnet.rippletest.net:51234")
 
-locking_chain_door = "rMAXACCrp3Y8PpswXcg3bKggHX76V3F8M4"
+locking_chain_door = "rNQQyL2bJqbtgP5zXHJyQXamtrKYpgsbzV"
 bridge_data = locking_client.request(
     AccountObjects(account=locking_chain_door, type=AccountObjectType.BRIDGE)
 ).result["account_objects"][0]
