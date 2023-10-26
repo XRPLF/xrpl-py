@@ -20,7 +20,7 @@ from xrpl.wallet import Wallet, generate_faucet_wallet
 locking_client = JsonRpcClient("https://s.devnet.rippletest.net:51234")
 issuing_client = JsonRpcClient("https://sidechain-net2.devnet.rippletest.net:51234")
 
-locking_chain_door = "rNQQyL2bJqbtgP5zXHJyQXamtrKYpgsbzV"
+locking_chain_door = "rnQAXXWoFNN6PEqwqsdTngCtFPCrmfuqFJ"
 bridge_data = locking_client.request(
     AccountObjects(account=locking_chain_door, type=AccountObjectType.BRIDGE)
 ).result["account_objects"][0]
