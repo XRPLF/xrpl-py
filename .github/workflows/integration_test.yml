@@ -1,6 +1,7 @@
 name: Integration test
 
 env:
+  POETRY_VERSION: 1.4.2
   RIPPLED_DOCKER_IMAGE: rippleci/rippled:2.0.0-b3
 
 on:
@@ -8,9 +9,6 @@ on:
     branches: [ master ]
   pull_request:
   workflow_dispatch:
-
-env:
-  POETRY_VERSION: 1.4.2
 
 jobs:
   integration-test:
