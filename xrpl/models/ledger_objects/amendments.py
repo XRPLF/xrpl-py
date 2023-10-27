@@ -29,20 +29,6 @@ class Amendments(LedgerObject):
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class MDAmendmentsFields(LedgerObject):
-    """
-    The model for the `Amendments` Ledger Object when
-    represented in a transaction's metadata.
-    """
-
-    # always 0
-    flags: Optional[int] = None
-    amendments: Optional[List[str]] = None
-    majorities: Optional[List[Majority]] = None
-
-
-@require_kwargs_on_init
-@dataclass(frozen=True)
 class Majority(NestedModel):
     """A model for the `Majority` object"""
 

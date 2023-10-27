@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List
 
 from xrpl.models.ledger_objects.ledger_entry_type import LedgerEntryType
 from xrpl.models.ledger_objects.ledger_object import LedgerObject
@@ -25,18 +25,3 @@ class LedgerHashes(LedgerObject):
         default=LedgerEntryType.LEDGER_HASHES,
         init=False,
     )
-
-
-@require_kwargs_on_init
-@dataclass(frozen=True)
-class MDLedgerHashesFields(LedgerObject):
-    """
-    The model for the `LedgerHashes` Ledger Object when
-    represented in a transaction's metadata.
-    """
-
-    first_ledger_sequence: Optional[int] = None
-    last_ledger_sequence: Optional[int] = None
-    hashes: Optional[List[str]] = None
-    # always 0
-    flags: Optional[int] = None

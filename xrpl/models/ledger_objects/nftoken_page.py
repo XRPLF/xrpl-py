@@ -27,20 +27,3 @@ class NFTokenPage(LedgerObject):
         default=LedgerEntryType.NFTOKEN_PAGE,
         init=False,
     )
-
-
-@require_kwargs_on_init
-@dataclass(frozen=True)
-class MDNFTokenPageFields(LedgerObject):
-    """
-    The model for the `NFTokenPage` Ledger Object when
-    represented in a transaction's metadata.
-    """
-
-    previous_page_min: Optional[str] = None
-    next_page_min: Optional[str] = None
-    previous_token_page: Optional[str] = None
-    previous_token_next: Optional[str] = None
-    previous_txn_id: Optional[str] = None
-    previous_txn_lgr_seq: Optional[int] = None
-    nftokens: Optional[List[NFToken]] = None
