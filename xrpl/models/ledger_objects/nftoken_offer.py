@@ -19,7 +19,7 @@ class NFTokenOffer(LedgerObject):
     """The model for the `NFTokenOffer` Ledger Object"""
 
     amount: Union[str, NFToken] = REQUIRED  # type: ignore
-    flags: int = REQUIRED  # type: ignore
+    flags: Union[int, NFTokenOfferFlags] = REQUIRED  # type: ignore
     nftoken_id: str = REQUIRED  # type: ignore
     owner: str = REQUIRED  # type: ignore
     previous_txn_id: str = REQUIRED  # type: ignore

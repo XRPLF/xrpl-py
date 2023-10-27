@@ -14,6 +14,8 @@ from xrpl.models.ledger_objects import (  # NFTokenOffer,
     Majority,
     NegativeUNL,
     NFToken,
+    NFTokenOffer,
+    NFTokenOfferFlags,
     NFTokenPage,
     Offer,
     PayChannel,
@@ -167,8 +169,19 @@ negative_unl_json = {
     "index": "2E8A59AA9D3B5B186B0B9E0F62E6C02587CA74A4D778938E957B6357D364B244",
 }
 
-# TODO: Find example
-# nftoken_offer_json = {}
+nftoken_offer_json = {
+    "ledger_entry_type": "NFTokenOffer",
+    "index": "AEBABA4FAC212BF28E0F9A9C3788A47B085557EC5D1429E7A8266FB859C863B3",
+    "amount": "1000000",
+    "flags": 1,
+    "nftoken_id": "00081B5825A08C22787716FA031B432EBBC1B101BB54875F0002D2A400000000",
+    "owner": "rhRxL3MNvuKEjWjL7TBbZSDacb8PmzAd7m",
+    "previous_txn_id": "BFA9BE27383FA315651E26FDE1FA30815C5A5D0544EE10EC33D3E92532993"
+    "769",
+    "previous_txn_lgr_seq": 75443565,
+    "owner_node": "17",
+    "nftoken_offer_node": "0"
+}
 
 nftoken_page_json = {
     "ledger_entry_type": "NFTokenPage",
@@ -187,7 +200,7 @@ nftoken_page_json = {
             "7568377932366E6634646675796C71616266336F636C67747179353566627A6469",
         },
     ],
-    "index": "",  # TODO: Find out if there is unique index
+    "index": "",
 }
 
 offer_json = {
@@ -487,6 +500,24 @@ class TestFromTODict(TestCase):
         )
         self.assertEqual(actual, expected)
         self.assertEqual(negative_unl_json, expected.to_dict())
+
+    def test_nftoken_offer(self):
+        actual = NFTokenOffer.from_dict(nftoken_offer_json)
+        expected = NFTokenOffer(
+            index="AEBABA4FAC212BF28E0F9A9C3788A47B085557EC5D1429E7A8266FB859C863B3",
+            amount="1000000",
+            flags=1,
+            nftoken_id="00081B5825A08C22787716FA031B432EBBC1B101BB54875F0002D2A400000"
+            "000",
+            owner="rhRxL3MNvuKEjWjL7TBbZSDacb8PmzAd7m",
+            previous_txn_id="BFA9BE27383FA315651E26FDE1FA30815C5A5D0544EE10EC33D3E925"
+            "32993769",
+            previous_txn_lgr_seq=75443565,
+            owner_node="17",
+            nftoken_offer_node="0",
+        )
+        self.assertEqual(actual, expected)
+        self.assertEqual(nftoken_offer_json, expected.to_dict())
 
     def test_nftoken_page(self):
         actual = NFTokenPage.from_dict(nftoken_page_json)
