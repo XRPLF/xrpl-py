@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from xrpl.models import IssuedCurrencyAmount
-from xrpl.models.ledger_objects import (  # NFTokenOffer,
+from xrpl.models.ledger_objects import (
     AccountRoot,
     Amendments,
     Check,
@@ -15,7 +15,6 @@ from xrpl.models.ledger_objects import (  # NFTokenOffer,
     NegativeUNL,
     NFToken,
     NFTokenOffer,
-    NFTokenOfferFlags,
     NFTokenPage,
     Offer,
     PayChannel,
@@ -180,7 +179,7 @@ nftoken_offer_json = {
     "769",
     "previous_txn_lgr_seq": 75443565,
     "owner_node": "17",
-    "nftoken_offer_node": "0"
+    "nftoken_offer_node": "0",
 }
 
 nftoken_page_json = {
