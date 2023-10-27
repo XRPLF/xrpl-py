@@ -33,27 +33,3 @@ class Escrow(LedgerObject):
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.ESCROW, init=False
     )
-
-
-@require_kwargs_on_init
-@dataclass(frozen=True)
-class MDEscrowFields(LedgerObject):
-    """
-    The model for the `Escrow` Ledger Object when
-    represented in a transaction's metadata.
-    """
-
-    account: Optional[str] = None
-    amount: Optional[str] = None
-    destination: Optional[str] = None
-    # always 0
-    flags: Optional[int] = None
-    owner_node: Optional[str] = None
-    previous_txn_id: Optional[str] = None
-    previous_txn_lgr_seq: Optional[int] = None
-    condition: Optional[str] = None
-    cancel_after: Optional[int] = None
-    destination_node: Optional[str] = None
-    destination_tag: Optional[int] = None
-    finish_after: Optional[int] = None
-    source_tag: Optional[int] = None

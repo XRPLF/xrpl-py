@@ -28,20 +28,6 @@ class NegativeUNL(LedgerObject):
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class MDNegativeUNLFields(LedgerObject):
-    """
-    The model for the `NegativeUNL` Ledger Object when
-    represented in a transaction's metadata.
-    """
-
-    flags: Optional[int] = None
-    disabled_validators: Optional[List[DisabledValidator]] = None
-    validator_to_disable: Optional[str] = None
-    validator_to_enable: Optional[str] = None
-
-
-@require_kwargs_on_init
-@dataclass(frozen=True)
 class DisabledValidator(NestedModel):
     """A model for the `DisabledValidator` object"""
 
