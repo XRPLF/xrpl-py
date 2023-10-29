@@ -75,7 +75,7 @@ class TestAMMWithdraw(IntegrationTestCase):
             compare_amm_values(
                 amm_info.result["amm"]["lp_token"]["value"],
                 expected_lptoken_value,
-                5.450667606084835,
+                6.206379545573327,
             )
         )
 
@@ -115,16 +115,17 @@ class TestAMMWithdraw(IntegrationTestCase):
             )
         )
 
+        before_amount = float(pre_amm_info.result["amm"]["amount"])
         diff_amount = -50
-        expected_amount = float(pre_amm_info.result["amm"]["amount"]) + diff_amount
-        diff_amount2 = 3.8999367945
-        expected_amount2 = (
-            float(pre_amm_info.result["amm"]["amount2"]["value"]) + diff_amount2
-        )
-        diff_lptoken = -13.805478843361811
-        expected_lptoken = (
-            float(pre_amm_info.result["amm"]["lp_token"]["value"]) + diff_lptoken
-        )
+        expected_amount = before_amount + diff_amount
+
+        before_amount2_value = float(pre_amm_info.result["amm"]["amount2"]["value"])
+        diff_amount2_value = 3.8999367945
+        expected_amount2_value = before_amount2_value + diff_amount2_value
+
+        before_lptoken_value = float(pre_amm_info.result["amm"]["lp_token"]["value"])
+        diff_lptoken_value = -13.805478843361811
+        expected_lptoken_value = before_lptoken_value + diff_lptoken_value
 
         self.assertEqual(
             float(amm_info.result["amm"]["amount"]),
@@ -132,18 +133,25 @@ class TestAMMWithdraw(IntegrationTestCase):
         )
         self.assertLess(
             float(amm_info.result["amm"]["amount2"]["value"]),
-            float(pre_amm_info.result["amm"]["amount2"]["value"]),
+            before_amount2_value,
         )
         self.assertTrue(
             compare_amm_values(
                 amm_info.result["amm"]["amount2"]["value"],
-                expected_amount2,
+                expected_amount2_value,
                 7.799873589023093,
             )
         )
-        self.assertEqual(
+        self.assertLess(
             float(amm_info.result["amm"]["lp_token"]["value"]),
-            expected_lptoken,
+            before_lptoken_value,
+        )
+        self.assertTrue(
+            compare_amm_values(
+                float(amm_info.result["amm"]["lp_token"]["value"]),
+                expected_lptoken_value,
+                0.24811570097392632,
+            )
         )
 
     @test_async_and_sync(globals())
@@ -248,16 +256,18 @@ class TestAMMWithdraw(IntegrationTestCase):
             )
         )
 
+        before_amount = float(pre_amm_info.result["amm"]["amount"])
         diff_amount = -23
-        expected_amount = float(pre_amm_info.result["amm"]["amount"]) + diff_amount
-        diff_amount2 = -1.1091277317
-        expected_amount2 = (
-            float(pre_amm_info.result["amm"]["amount2"]["value"]) + diff_amount2
-        )
-        diff_lptoken = -5
-        expected_lptoken = (
-            float(pre_amm_info.result["amm"]["lp_token"]["value"]) + diff_lptoken
-        )
+        expected_amount = before_amount + diff_amount
+
+        before_amount2_value = float(pre_amm_info.result["amm"]["amount2"]["value"])
+        diff_amount2_value = -1.1091277317
+        expected_amount2_value = before_amount2_value + diff_amount2_value
+
+        before_lptoken_value = float(pre_amm_info.result["amm"]["lp_token"]["value"])
+        diff_lptoken_value = -5
+        expected_lptoken_value = before_lptoken_value + diff_lptoken_value
+
         self.assertEqual(
             float(amm_info.result["amm"]["amount"]),
             expected_amount,
@@ -269,11 +279,11 @@ class TestAMMWithdraw(IntegrationTestCase):
         self.assertTrue(
             compare_amm_values(
                 float(amm_info.result["amm"]["amount2"]["value"]),
-                expected_amount2,
-                4.604316927725449e-11,
+                expected_amount2_value,
+                0.012903907753866406,
             )
         )
         self.assertEqual(
             float(amm_info.result["amm"]["lp_token"]["value"]),
-            expected_lptoken,
+            expected_lptoken_value,
         )

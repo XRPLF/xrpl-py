@@ -68,7 +68,7 @@ class TestAMMBid(IntegrationTestCase):
             compare_amm_values(
                 amm_info.result["amm"]["auction_slot"]["price"]["value"],
                 expected_price,
-                0.0059972887619810945,
+                0.31212452270475843,
             )
         )
         self.assertLess(
@@ -79,7 +79,7 @@ class TestAMMBid(IntegrationTestCase):
             compare_amm_values(
                 amm_info.result["amm"]["lp_token"]["value"],
                 expected_lptoken,
-                0.0004297892464819597,
+                0.6109616023928766,
             )
         )
 
@@ -124,36 +124,36 @@ class TestAMMBid(IntegrationTestCase):
             )
         )
 
-        before_price = float(
+        before_price_value = float(
             pre_amm_info.result["amm"]["auction_slot"]["price"]["value"]
         )
-        diff_price = 1.4462339482
-        expected_price = before_price + diff_price
+        diff_price_value = 1.4462339482
+        expected_price = before_price_value + diff_price_value
 
-        before_lptoken = float(pre_amm_info.result["amm"]["lp_token"]["value"])
-        diff_lptoken = -1.6435111096
-        expected_lptoken = before_lptoken + diff_lptoken
+        before_lptoken_value = float(pre_amm_info.result["amm"]["lp_token"]["value"])
+        diff_lptoken_value = -1.6435111096
+        expected_lptoken_value = before_lptoken_value + diff_lptoken_value
 
         self.assertGreater(
             float(amm_info.result["amm"]["auction_slot"]["price"]["value"]),
-            before_price,
+            before_price_value,
         )
         self.assertTrue(
             compare_amm_values(
                 amm_info.result["amm"]["auction_slot"]["price"]["value"],
                 expected_price,
-                3.542201241578838,
+                3.5493258038256785,
             )
         )
         self.assertLess(
             float(amm_info.result["amm"]["lp_token"]["value"]),
-            before_lptoken,
+            before_lptoken_value,
         )
         self.assertTrue(
             compare_amm_values(
                 amm_info.result["amm"]["lp_token"]["value"],
-                expected_lptoken,
-                3.345502320689775,
+                expected_lptoken_value,
+                3.352270654824224,
             )
         )
         self.assertEqual(

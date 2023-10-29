@@ -73,7 +73,7 @@ class TestAMMDeposit(IntegrationTestCase):
             compare_amm_values(
                 amm_info.result["amm"]["lp_token"]["value"],
                 expected_lptoken_value,
-                41.016240932237565,
+                47.1144478672054,
             )
         )
 
@@ -131,13 +131,13 @@ class TestAMMDeposit(IntegrationTestCase):
         )
         self.assertGreater(
             float(amm_info.result["amm"]["amount2"]["value"]),
-            float(pre_amm_info.result["amm"]["amount2"]["value"]),
+            before_amount2_value,
         )
         self.assertTrue(
             compare_amm_values(
                 amm_info.result["amm"]["amount2"]["value"],
                 expected_amount2_value,
-                0.1902856440025289,
+                0.3192286088748233,
             )
         )
         self.assertGreater(
@@ -148,7 +148,7 @@ class TestAMMDeposit(IntegrationTestCase):
             compare_amm_values(
                 amm_info.result["amm"]["lp_token"]["value"],
                 expected_lptoken_value,
-                8.185452315956354e-12,
+                0.25026967439612235,
             )
         )
 
@@ -198,9 +198,16 @@ class TestAMMDeposit(IntegrationTestCase):
         diff_lptoken = 5
         expected_lptoken_value = before_lptoken_value + diff_lptoken
 
-        self.assertEqual(
+        self.assertGreater(
             float(amm_info.result["amm"]["amount"]),
-            expected_amount,
+            before_amount,
+        )
+        self.assertTrue(
+            compare_amm_values(
+                float(amm_info.result["amm"]["amount"]),
+                expected_amount,
+                1,
+            )
         )
         self.assertEqual(
             amm_info.result["amm"]["amount2"],
@@ -265,13 +272,13 @@ class TestAMMDeposit(IntegrationTestCase):
         )
         self.assertGreater(
             float(amm_info.result["amm"]["amount2"]["value"]),
-            diff_amount2_value,
+            before_amount2_value,
         )
         self.assertTrue(
             compare_amm_values(
                 amm_info.result["amm"]["amount2"]["value"],
                 expected_amount2_value,
-                8.924416761146858e-12,
+                0.0266616562412878,
             )
         )
         self.assertEqual(

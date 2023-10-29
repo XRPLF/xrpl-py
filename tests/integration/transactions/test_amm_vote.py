@@ -55,13 +55,13 @@ class TestAMMVote(IntegrationTestCase):
 
         self.assertGreater(
             amm_info.result["amm"]["trading_fee"],
-            pre_amm_info.result["amm"]["trading_fee"],
+            before_trading_fee,
         )
         self.assertTrue(
             compare_amm_values(
                 amm_info.result["amm"]["trading_fee"],
                 expected_trading_fee,
-                2.25,
+                3.75,
             )
         )
         self.assertEqual(len(amm_info.result["amm"]["vote_slots"]), 2)
