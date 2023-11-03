@@ -68,6 +68,7 @@ class RequestMethod(str, Enum):
     # server info methods
     FEE = "fee"
     MANIFEST = "manifest"
+    SERVER_DEFINITIONS = "server_definitions"
     SERVER_INFO = "server_info"
     SERVER_STATE = "server_state"
 
