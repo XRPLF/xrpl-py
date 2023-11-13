@@ -98,7 +98,7 @@ Breaking down the command:
 * `--interactive` allows you to interact with the container.
 * `-t` starts a terminal in the container for you to send commands to.
 * `--volume $PWD/.ci-config:/config/` identifies the `rippled.cfg` and `validators.txt` to import. It must be an absolute path, so we use `$PWD` instead of `./`.
-* `xrpllabsofficial/xrpld:1.12.0-b1` is an image that is regularly updated with the latest `rippled` releases and can be found here: https://github.com/WietseWind/docker-rippled
+* `xrpllabsofficial/xrpld:1.12.0` is an image that is regularly updated with the latest `rippled` releases and can be found here: https://github.com/WietseWind/docker-rippled
 * `-a` starts `rippled` in standalone mode
 * `--start` signals to start `rippled` with the specified amendments in `rippled.cfg` enabled immediately instead of voting for 2 weeks on them.
 
