@@ -7,7 +7,7 @@ _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _VALID_FIELD = "1234567890abcdefABCDEF"
 _TOO_LONG_FIELD = "A" * 257
 _BAD_HEX_FIELD = "random_non_hex_content"
-_BAD_HEX_TOO_LONG_FIELD = "r" * 257
+_BAD_HEX_TOO_LONG_FIELD = "q" * 257
 
 
 class TestDIDSet(TestCase):
@@ -51,4 +51,14 @@ class TestDIDSet(TestCase):
             self.assertEqual(
                 error.exception.args[0],
                 "{'uri': 'Must be hex and must be <= 256 characters.'}",
+            )
+
+    def test_empty(self):
+        with self.assertRaises(XRPLModelException) as error:
+            DIDSet(
+                account=_ACCOUNT,
+            )
+            self.assertEqual(
+                error.exception.args[0],
+                "{'did_set': 'Must have one of `did_document`, `data`, and `uri`.'}",
             )

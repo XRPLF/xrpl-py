@@ -4,8 +4,8 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from tests.integration.reusable_values import WALLET
+from xrpl.models import AccountObjects, AccountObjectType, DIDSet
 from xrpl.models.response import ResponseStatus
-from xrpl.models.transactions import DIDSet
 
 _VALID_FIELD = "1234567890abcdefABCDEF"
 
@@ -21,3 +21,10 @@ class TestDIDSet(IntegrationTestCase):
         )
         response = await sign_and_reliable_submission_async(tx, WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # confirm that the DID was actually created
+        account_objects_response = await client.request(
+            AccountObjects(account=WALLET.address, type=AccountObjectType.DID)
+        )
+        self.assertEqual(len(account_objects_response.result["account_objects"]), 1)

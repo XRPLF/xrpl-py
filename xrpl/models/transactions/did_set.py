@@ -32,6 +32,11 @@ class DIDSet(Transaction):
     def _get_errors(self: DIDSet) -> Dict[str, str]:
         errors = super()._get_errors()
 
+        if self.did_document is None and self.data is None and self.uri is None:
+            errors["did_set"] = "Must have one of `did_document`, `data`, and `uri`."
+            # Can return here because there are no fields to process
+            return errors
+
         def _process_field(name: str, value: Optional[str]) -> None:
             if value is not None:
                 error_strs = []
