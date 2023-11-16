@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from xrpl.models.transactions import DIDDelete
+from xrpl.models import DIDDelete
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 
@@ -11,3 +11,7 @@ class TestDIDDelete(TestCase):
             account=_ACCOUNT,
         )
         self.assertTrue(tx.is_valid())
+
+    def test_invalid(self):
+        with self.assertRaises(TypeError):
+            DIDDelete(account=_ACCOUNT, field="invalid")
