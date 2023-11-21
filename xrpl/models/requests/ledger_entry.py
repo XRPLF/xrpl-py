@@ -27,6 +27,7 @@ class LedgerEntryType(str, Enum):
     CHECK = "check"
     DEPOSIT_PREAUTH = "deposit_preauth"
     DIRECTORY = "directory"
+    DID = "did"
     ESCROW = "escrow"
     FEE = "fee"
     HASHES = "hashes"
@@ -218,6 +219,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     account_root: Optional[str] = None
     check: Optional[str] = None
     deposit_preauth: Optional[Union[str, DepositPreauth]] = None
+    did: Optional[str] = None
     directory: Optional[Union[str, Directory]] = None
     escrow: Optional[Union[str, Escrow]] = None
     offer: Optional[Union[str, Offer]] = None
@@ -244,6 +246,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
                 self.account_root,
                 self.check,
                 self.deposit_preauth,
+                self.did,
                 self.directory,
                 self.escrow,
                 self.offer,

@@ -36,6 +36,7 @@ _CAMEL_TO_SNAKE_CASE_REGEX: Final[Pattern[str]] = re.compile(
 # keys. We snake case keys, but some keys are abbreviations.
 ABBREVIATIONS: Final[Dict[str, str]] = {
     "amm": "AMM",
+    "did": "DID",
     "id": "ID",
     "lp": "LP",
     "nftoken": "NFToken",
