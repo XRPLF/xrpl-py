@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Removed sidechain-net1 Devnet faucet support as it has been decommissioned. Users should instead use the bridge between Devnet and sidechain-net2 for testing.
+- Removed nft-devnet faucet support as is will soon be decommissioned
 
 ## [2.4.0] - 2023-09-27
 ### Added
