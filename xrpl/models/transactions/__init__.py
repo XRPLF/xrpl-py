@@ -29,6 +29,8 @@ from xrpl.models.transactions.check_cash import CheckCash
 from xrpl.models.transactions.check_create import CheckCreate
 from xrpl.models.transactions.clawback import Clawback
 from xrpl.models.transactions.deposit_preauth import DepositPreauth
+from xrpl.models.transactions.did_delete import DIDDelete
+from xrpl.models.transactions.did_set import DIDSet
 from xrpl.models.transactions.escrow_cancel import EscrowCancel
 from xrpl.models.transactions.escrow_create import EscrowCreate
 from xrpl.models.transactions.escrow_finish import EscrowFinish
@@ -110,6 +112,8 @@ __all__ = [
     "CheckCreate",
     "Clawback",
     "DepositPreauth",
+    "DIDDelete",
+    "DIDSet",
     "EscrowCancel",
     "EscrowCreate",
     "EscrowFinish",

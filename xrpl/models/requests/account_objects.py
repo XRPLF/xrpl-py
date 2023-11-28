@@ -22,6 +22,7 @@ class AccountObjectType(str, Enum):
     BRIDGE = "bridge"
     CHECK = "check"
     DEPOSIT_PREAUTH = "deposit_preauth"
+    DID = "did"
     ESCROW = "escrow"
     NFT_OFFER = "nft_offer"
     OFFER = "offer"
