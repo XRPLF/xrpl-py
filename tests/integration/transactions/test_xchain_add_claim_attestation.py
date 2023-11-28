@@ -7,7 +7,7 @@ from tests.integration.reusable_values import BRIDGE, DESTINATION, WITNESS_WALLE
 from xrpl.core.binarycodec import encode
 from xrpl.core.keypairs import sign
 from xrpl.models import AccountInfo, Tx, XChainAddClaimAttestation, XChainCreateClaimID
-from xrpl.utils import xrp_to_drops
+from xrpl.utils import get_xchain_claim_id, xrp_to_drops
 from xrpl.wallet import Wallet
 
 
@@ -30,18 +30,7 @@ class TestXChainAddClaimAttestation(IntegrationTestCase):
             claim_id_response.result.get("tx_json") or claim_id_response.result
         )["hash"]
         claim_id_tx_response = await client.request(Tx(transaction=claim_id_hash))
-
-        nodes = claim_id_tx_response.result["meta"]["AffectedNodes"]
-        created_nodes = [
-            node["CreatedNode"] for node in nodes if "CreatedNode" in node.keys()
-        ]
-        claim_ids_ledger_entries = [
-            node
-            for node in created_nodes
-            if node["LedgerEntryType"] == "XChainOwnedClaimID"
-        ]
-        assert len(claim_ids_ledger_entries) == 1, len(claim_ids_ledger_entries)
-        xchain_claim_id = claim_ids_ledger_entries[0]["NewFields"]["XChainClaimID"]
+        xchain_claim_id = get_xchain_claim_id(claim_id_tx_response.result["meta"])
 
         account_info1 = await client.request(
             AccountInfo(account=DESTINATION.classic_address)
