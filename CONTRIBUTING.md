@@ -18,7 +18,7 @@ To make it easy to manage your Python environment with `xrpl-py`, including swit
 
         pyenv install 3.9.1
 
-- Set the [global](https://github.com/pyenv/pyenv/blob/master/COMMANDS.md#pyenv-global) version of Python with `pyenv`:
+- Set the [global](https://github.com/pyenv/pyenv/blob/main/COMMANDS.md#pyenv-global) version of Python with `pyenv`:
 
         pyenv global 3.9.1
 
@@ -90,7 +90,7 @@ poetry run poe test_unit
 To run integration tests, you'll need a standalone rippled node running with WS port `6006` and JSON RPC port `5005`. You can run a docker container for this:
 
 ```bash
-docker run -p 5005:5005 -p 6006:6006 --interactive -t --volume $PWD/.ci-config:/opt/ripple/etc/ --platform linux/amd64 rippleci/rippled:2.0.0-b3 /opt/ripple/bin/rippled -a --conf /opt/ripple/etc/rippled.cfg
+docker run -p 5005:5005 -p 6006:6006 --interactive -t --volume $PWD/.ci-config:/opt/ripple/etc/ --platform linux/amd64 rippleci/rippled:2.0.0-b4 /opt/ripple/bin/rippled -a --conf /opt/ripple/etc/rippled.cfg
 ```
 
 Breaking down the command:
@@ -177,7 +177,7 @@ In order to test how a change in docs configuration looks like on ReadTheDocs be
 4. Be sure to reuse pre-made values, `WALLET`, `DESTINATION`, `TESTNET_WALLET`, `TESTNET_DESTINATION`, `OFFER`, and `PAYMENT_CHANNEL`, from `tests/integrations/reusable_values.py`
 5. Be sure to use condensed functions, like `submit_transaction_async` and `sign_and_reliable_submission_async`, from `tests/integrations/it_utils.py`
 
-Examples can be found in subfolders of [tests/integrations](https://github.com/XRPLF/xrpl-py/tree/master/tests/integration)
+Examples can be found in subfolders of [tests/integrations](https://github.com/XRPLF/xrpl-py/tree/main/tests/integration)
 
 ## Updating `definitions.json`
 
@@ -197,16 +197,16 @@ This should almost always be done using the [`xrpl-codec-gen`](https://github.co
 - Your changes should have unit and/or integration tests.
 - Your changes should pass the linter.
 - Your code should pass all the unit and integration tests on Github (which check all versions of Python).
-- Open a PR against `master` and ensure that all CI passes.
+- Open a PR against `main` and ensure that all CI passes.
 - Get a full code review from one of the maintainers.
 - Merge your changes.
 
 ### Release
 
-1. Create a branch off master that properly increments the version in `pyproject.toml` and updates the `CHANGELOG` appropriately. We follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-2. Merge this branch into `master`.
+1. Create a branch off main that properly increments the version in `pyproject.toml` and updates the `CHANGELOG` appropriately. We follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+2. Merge this branch into `main`.
 3. Locally build and download the package.
-   1. Pull master locally.
+   1. Pull main locally.
    2. Run `poetry build` to build the package locally.
    3. Locally download the package by running `pip install path/to/local/xrpl-py/dist/.whl`.
    4. Make sure that this local installation works as intended, and that the changes are reflected properly.
