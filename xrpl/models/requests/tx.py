@@ -79,7 +79,6 @@ class Tx(Request):
         return errors
 
     def _has_only_one_input(self: Tx) -> bool:
-        present_items = [
-            item for item in [self.transaction, self.ctid] if item is not None
-        ]
+        unique_ids = [self.transaction, self.ctid]
+        present_items = list(filter(bool, unique_ids))
         return len(present_items) == 1
