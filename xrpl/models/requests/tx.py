@@ -23,11 +23,52 @@ class Tx(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.TX, init=False)
-    transaction: Optional[str] = None
-    binary: bool = False
-    min_ledger: Optional[int] = None
-    max_ledger: Optional[int] = None
     ctid: Optional[str] = None
+    """
+    This field is optional.
+
+    The compact transaction identifier of the transaction to look up.
+    Must use uppercase hexadecimal only. New in: rippled 1.12.0  (Not supported in
+    Clio v2.0 and earlier)
+
+    The tx request accepts either ctid or transaction parameter, but not both.
+    """
+
+    transaction: Optional[str] = None
+    """
+    This field is optional.
+
+    The 256-bit hash of the transaction to look up, as hexadecimal.
+
+    The tx request accepts either ctid or transaction parameter, but not both.
+    """
+
+    binary: bool = False
+    """
+    This field is optional.
+
+    If true, return transaction data and metadata as binary serialized to
+    hexadecimal strings. If false, return transaction data and metadata as JSON.
+    The default is false.
+    """
+
+    min_ledger: Optional[int] = None
+    """
+    This field is optional.
+
+    Use this with max_ledger to specify a range of up to 1000 ledger indexes, starting
+    with this ledger (inclusive). If the server cannot find the transaction, it
+    confirms whether it was able to search all the ledgers in this range.
+    """
+
+    max_ledger: Optional[int] = None
+    """
+    This field is optional.
+
+    Use this with min_ledger to specify a range of up to 1000 ledger indexes, ending
+    with this ledger (inclusive). If the server cannot find the transaction, it
+    confirms whether it was able to search all the ledgers in the requested range.
+    """
 
     def _get_errors(self: Tx) -> Dict[str, str]:
         errors = super()._get_errors()
