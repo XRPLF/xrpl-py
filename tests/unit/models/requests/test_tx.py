@@ -8,7 +8,7 @@ _CTID = "C005523E00000000"
 
 
 class TestTx(TestCase):
-    def test_invalid_input__ctid_and_txnhash(self):
+    def test_invalid_input_ctid_and_txn_hash(self):
         with self.assertRaises(XRPLModelException):
             Tx(transaction=_TRANSACTION_HASH, ctid=_CTID)
 
