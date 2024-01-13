@@ -11,7 +11,7 @@ from xrpl.models.path import Path
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class PaymentFlag(int, Enum):
@@ -58,7 +58,7 @@ class PaymentFlagInterface(FlagInterface):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Payment(Transaction):
     """
     Represents a Payment <https://xrpl.org/payment.html>`_ transaction, which

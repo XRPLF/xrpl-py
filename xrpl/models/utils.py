@@ -1,9 +1,12 @@
 """Helper util functions for the models module."""
 
-from dataclasses import is_dataclass
+from dataclasses import dataclass, is_dataclass
 from typing import Any, Dict, List, Type, TypeVar, cast
 
 from xrpl.models.exceptions import XRPLModelException
+
+# Python 3.10 and higer versions of Python enable a new KW_ONLY parameter in dataclass
+KW_ONLY_DATACLASS = dict(kw_only=True) if "kw_only" in dataclass.__kwdefaults__ else {}
 
 # Code source for requiring kwargs:
 # https://gist.github.com/mikeholler/4be180627d3f8fceb55704b729464adb
