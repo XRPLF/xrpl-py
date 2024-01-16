@@ -22,7 +22,7 @@ class LedgerObject(BaseModel):
     """The base model for a Ledger Object."""
 
     # TODO: Try without optional
-    ledger_entry_type: Optional[LedgerEntryType] = None
+    ledger_entry_type: LedgerEntryType = None
     index: Optional[str] = None
 
     @classmethod
