@@ -33,6 +33,7 @@ from xrpl.models.requests.ping import Ping
 from xrpl.models.requests.random import Random
 from xrpl.models.requests.request import Request
 from xrpl.models.requests.ripple_path_find import RipplePathFind
+from xrpl.models.requests.server_definitions import ServerDefinitions
 from xrpl.models.requests.server_info import ServerInfo
 from xrpl.models.requests.server_state import ServerState
 from xrpl.models.requests.sign import Sign
@@ -85,6 +86,7 @@ __all__ = [
     "Random",
     "Request",
     "RipplePathFind",
+    "ServerDefinitions",
     "ServerInfo",
     "ServerState",
     "Sign",

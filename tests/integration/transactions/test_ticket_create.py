@@ -19,3 +19,4 @@ class TestTicketCreate(IntegrationTestCase):
             client,
         )
         self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")

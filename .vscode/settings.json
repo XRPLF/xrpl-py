@@ -19,8 +19,11 @@
         "keypairs",
         "multisign",
         "nftoken",
+        "PATHSET",
         "rippletest",
         "ripplex",
+        "sfield",
+        "sfields",
         "xaddress",
         "xchain"
     ],
