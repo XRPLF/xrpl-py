@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+- ### Fixed
+- Currency codes with special characters not being allowed by IssuedCurrency objects.
+
 ## [2.5.0] - 2023-11-30
 
 ### Added
