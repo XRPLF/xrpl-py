@@ -2,6 +2,7 @@
 
 from xrpl.models.ledger_objects.account_root import AccountRoot, AccountRootFlags
 from xrpl.models.ledger_objects.amendments import Amendments, Majority
+from xrpl.models.ledger_objects.amm import AMM
 from xrpl.models.ledger_objects.check import Check
 from xrpl.models.ledger_objects.deposit_preauth import DepositPreauth
 from xrpl.models.ledger_objects.directory_node import DirectoryNode
@@ -30,6 +31,7 @@ __all__ = [
     "AccountRoot",
     "AccountRootFlags",
     "Amendments",
+    "AMM",
     "Check",
     "DepositPreauth",
     "DirectoryNode",

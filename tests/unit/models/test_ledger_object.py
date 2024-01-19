@@ -1,7 +1,11 @@
 from unittest import TestCase
 
 from xrpl.models import IssuedCurrencyAmount
+from xrpl.models.auth_account import AuthAccount
+from xrpl.models.currencies.issued_currency import IssuedCurrency
+from xrpl.models.currencies.xrp import XRP
 from xrpl.models.ledger_objects import (
+    AMM,
     AccountRoot,
     Amendments,
     Check,
@@ -23,6 +27,7 @@ from xrpl.models.ledger_objects import (
     SignerList,
     Ticket,
 )
+from xrpl.models.ledger_objects.amm import AuctionSlot, VoteEntry
 
 account_root_json = {
     "account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
@@ -63,6 +68,43 @@ amendment_json = {
     "flags": 0,
     "ledger_entry_type": "Amendments",
     "index": "7DB0788C020F02780A673DC74757F23823FA3014C1866E72CC4CD8B226CD6EF4",
+}
+
+amm_json = {
+    "account": "rE54zDvgnghAoPopCgvtiqWNq3dU5y836S",
+    "asset": {"currency": "XRP"},
+    "asset2": {"currency": "TST", "issuer": "rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd"},
+    "auction_slot": {
+        "account": "rJVUeRqDFNs2xqA7ncVE6ZoAhPUoaJJSQm",
+        "auth_accounts": [
+            {"auth_account": {"account": "rMKXGCbJ5d8LbrqthdG46q3f969MVK2Qeg"}},
+            {"auth_account": {"account": "rBepJuTLFJt3WmtLXYAxSjtBWAeQxVbncv"}},
+        ],
+        "discounted_fee": 0,
+        "expiration": 721870180,
+        "price": {
+            "currency": "039C99CD9AB0B70B32ECDA51EAAE471625608EA2",
+            "issuer": "rE54zDvgnghAoPopCgvtiqWNq3dU5y836S",
+            "value": "0.8696263565463045",
+        },
+    },
+    "lptoken_balance": {
+        "currency": "039C99CD9AB0B70B32ECDA51EAAE471625608EA2",
+        "issuer": "rE54zDvgnghAoPopCgvtiqWNq3dU5y836S",
+        "value": "71150.53584131501",
+    },
+    "trading_fee": 600,
+    "vote_slots": [
+        {
+            "vote_entry": {
+                "account": "rJVUeRqDFNs2xqA7ncVE6ZoAhPUoaJJSQm",
+                "trading_fee": 600,
+                "vote_weight": 100000,
+            }
+        }
+    ],
+    "flags": 0,
+    "ledger_entry_type": "AMM",
 }
 
 check_json = {
@@ -367,6 +409,48 @@ class TestFromTODict(TestCase):
         )
         self.assertEqual(actual, expected)
         self.assertEqual(amendment_json, expected.to_dict())
+
+    def test_amm(self):
+        actual = AMM.from_dict(amm_json)
+        expected = AMM(
+            account="rE54zDvgnghAoPopCgvtiqWNq3dU5y836S",
+            asset=XRP(),
+            asset2=IssuedCurrency(
+                currency="TST",
+                issuer="rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd",
+            ),
+            auction_slot=AuctionSlot(
+                account="rJVUeRqDFNs2xqA7ncVE6ZoAhPUoaJJSQm",
+                auth_accounts=[
+                    AuthAccount(account="rMKXGCbJ5d8LbrqthdG46q3f969MVK2Qeg"),
+                    AuthAccount(account="rBepJuTLFJt3WmtLXYAxSjtBWAeQxVbncv"),
+                ],
+                discounted_fee=0,
+                expiration=721870180,
+                price=IssuedCurrencyAmount(
+                    currency="039C99CD9AB0B70B32ECDA51EAAE471625608EA2",
+                    issuer="rE54zDvgnghAoPopCgvtiqWNq3dU5y836S",
+                    value="0.8696263565463045",
+                ),
+            ),
+            flags=0,
+            lptoken_balance=IssuedCurrencyAmount(
+                currency="039C99CD9AB0B70B32ECDA51EAAE471625608EA2",
+                issuer="rE54zDvgnghAoPopCgvtiqWNq3dU5y836S",
+                value="71150.53584131501",
+            ),
+            trading_fee=600,
+            vote_slots=[
+                VoteEntry(
+                    account="rJVUeRqDFNs2xqA7ncVE6ZoAhPUoaJJSQm",
+                    trading_fee=600,
+                    vote_weight=100000,
+                ),
+            ],
+        )
+        self.maxDiff = None
+        self.assertEqual(actual, expected)
+        self.assertEqual(amm_json, expected.to_dict())
 
     def test_check(self):
         actual = Check.from_dict(check_json)

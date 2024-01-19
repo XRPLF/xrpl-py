@@ -8,6 +8,7 @@ class LedgerEntryType(str, Enum):
 
     ACCOUNT_ROOT = "AccountRoot"
     AMENDMENTS = "Amendments"
+    AMM = "AMM"
     CHECK = "Check"
     DEPOSIT_PREAUTH = "DepositPreauth"
     DIRECTORY_NODE = "DirectoryNode"
