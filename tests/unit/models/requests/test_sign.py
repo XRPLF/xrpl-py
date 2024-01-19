@@ -72,3 +72,13 @@ class TestSign(TestCase):
             transaction=_TRANSACTION, seed=_SEED, key_type=CryptoAlgorithm.SECP256K1
         )
         self.assertTrue(request.is_valid())
+
+    def test_ctor_has_positional_args(self):
+        with self.assertRaises(XRPLModelException):
+            Sign(
+                "invalidInput",
+                [1, 2, "example invalid positional arg"],
+                transaction=_TRANSACTION,
+                seed=_SEED,
+                key_type=CryptoAlgorithm.SECP256K1,
+            )
