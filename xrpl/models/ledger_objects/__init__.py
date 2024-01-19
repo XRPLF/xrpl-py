@@ -5,6 +5,7 @@ from xrpl.models.ledger_objects.amendments import Amendments, Majority
 from xrpl.models.ledger_objects.amm import AMM
 from xrpl.models.ledger_objects.check import Check
 from xrpl.models.ledger_objects.deposit_preauth import DepositPreauth
+from xrpl.models.ledger_objects.did import DID
 from xrpl.models.ledger_objects.directory_node import DirectoryNode
 from xrpl.models.ledger_objects.escrow import Escrow
 from xrpl.models.ledger_objects.fee_settings import FeeSettings
@@ -34,6 +35,7 @@ __all__ = [
     "AMM",
     "Check",
     "DepositPreauth",
+    "DID",
     "DirectoryNode",
     "DisabledValidator",
     "Escrow",

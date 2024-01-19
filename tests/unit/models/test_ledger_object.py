@@ -6,6 +6,7 @@ from xrpl.models.currencies.issued_currency import IssuedCurrency
 from xrpl.models.currencies.xrp import XRP
 from xrpl.models.ledger_objects import (
     AMM,
+    DID,
     AccountRoot,
     Amendments,
     Check,
@@ -135,6 +136,20 @@ deposit_preauth_json = {
     "AD2B7E29F8326702",
     "previous_txn_lgr_seq": 7,
     "index": "4A255038CC3ADCC1A9C91509279B59908251728D0DAADB248FFE297D0F7E068C",
+}
+
+did_json = {
+    "account": "rpfqJrXg5uidNo2ZsRhRY6TiF1cvYmV9Fg",
+    "did_document": "646F63",
+    "data": "617474657374",
+    "flags": 0,
+    "ledger_entry_type": "DID",
+    "owner_node": "0",
+    "previous_txn_id": "A4C15DA185E6092DF5954FF62A1446220C61A5F60F0D93B4B0"
+    "9F708778E41120",
+    "previous_txn_lgr_seq": 4,
+    "uri": "6469645F6578616D706C65",
+    "index": "46813BE38B798B3752CA590D44E7FEADB17485649074403AD1761A2835CE91FF",
 }
 
 directory_node_json = {
@@ -448,7 +463,6 @@ class TestFromTODict(TestCase):
                 ),
             ],
         )
-        self.maxDiff = None
         self.assertEqual(actual, expected)
         self.assertEqual(amm_json, expected.to_dict())
 
@@ -489,6 +503,23 @@ class TestFromTODict(TestCase):
         )
         self.assertEqual(actual, expected)
         self.assertEqual(deposit_preauth_json, expected.to_dict())
+
+    def test_did(self):
+        actual = DID.from_dict(did_json)
+        expected = DID(
+            account="rpfqJrXg5uidNo2ZsRhRY6TiF1cvYmV9Fg",
+            did_document="646F63",
+            data="617474657374",
+            flags=0,
+            owner_node="0",
+            previous_txn_id="A4C15DA185E6092DF5954FF62A1446220C61A5F60F0D93B4B09F"
+            "708778E41120",
+            previous_txn_lgr_seq=4,
+            uri="6469645F6578616D706C65",
+            index="46813BE38B798B3752CA590D44E7FEADB17485649074403AD1761A2835CE91FF",
+        )
+        self.assertEqual(actual, expected)
+        self.assertEqual(did_json, expected.to_dict())
 
     def test_directory_node(self):
         actual = DirectoryNode.from_dict(directory_node_json)

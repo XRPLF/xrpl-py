@@ -11,6 +11,7 @@ class LedgerEntryType(str, Enum):
     AMM = "AMM"
     CHECK = "Check"
     DEPOSIT_PREAUTH = "DepositPreauth"
+    DID = "DID"
     DIRECTORY_NODE = "DirectoryNode"
     ESCROW = "Escrow"
     FEE_SETTINGS = "FeeSettings"
