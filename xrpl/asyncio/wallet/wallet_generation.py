@@ -42,6 +42,10 @@ async def generate_faucet_wallet(
         debug: Whether to print debug information as it creates the wallet.
         faucet_host: A custom host to use for funding a wallet. In environments other
             than devnet and testnet, this parameter is required.
+            Note: If the NFT faucet is hosted at https://faucet-nft.ripple.com/accounts,
+            then set faucet_host=faucet-nft.ripple.com
+            Do not include the application layer protocol (http://, https://, etc)
+            or the trailing resource path (/accounts) in the faucet_host parameter.
         usage_context: The intended use case for the funding request
             (for example, testing). This information  will be included
             in the json body of the HTTP request to the faucet.
