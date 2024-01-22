@@ -76,11 +76,24 @@ async def generate_faucet_wallet(
     # Balance prior to asking for more funds
     starting_balance = await _check_wallet_balance(address, client)
 
-    # Ask the faucet to send funds to the given address
-    await _request_funding(faucet_url, address, usage_context, user_agent)
-    # Wait for the faucet to fund our account or until timeout
-    # Waits one second checks if balance has changed
-    # If balance doesn't change it will attempt again until _TIMEOUT_SECONDS
+    try:
+        # Ask the faucet to send funds to the given address
+        await _request_funding(faucet_url, address, usage_context, user_agent)
+        # Wait for the faucet to fund our account or until timeout
+        # Waits one second checks if balance has changed
+        # If balance doesn't change it will attempt again until _TIMEOUT_SECONDS
+    except XRPLFaucetException:
+        raise XRPLFaucetException(
+            f"Error in generate_faucet_wallet:\n"
+            f"Error pertains to the faucet: '{faucet_url}'"
+        )
+    except Exception as e:
+        print(
+            f"Error in generate_faucet_wallet:\nUnable to transfer funds from "
+            f"faucet: '{faucet_url}' to address: '{address}'. Error: '{e}'"
+        )
+        raise
+
     is_funded = False
     for _ in range(_TIMEOUT_SECONDS):
         await asyncio.sleep(1)
