@@ -29,6 +29,8 @@ from xrpl.models.ledger_objects import (
     Ticket,
 )
 from xrpl.models.ledger_objects.amm import AuctionSlot, VoteEntry
+from xrpl.models.ledger_objects.bridge import Bridge
+from xrpl.models.xchain_bridge import XChainBridge
 
 account_root_json = {
     "account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
@@ -106,6 +108,28 @@ amm_json = {
     ],
     "flags": 0,
     "ledger_entry_type": "AMM",
+}
+
+bridge_json = {
+    "account": "r3nCVTbZGGYoWvZ58BcxDmiMUU7ChMa1eC",
+    "flags": 0,
+    "ledger_entry_type": "Bridge",
+    "min_account_create_amount": "2000000000",
+    "owner_node": "0",
+    "previous_txn_id": "67A8A1B36C1B97BE3AAB6B19CB3A3069034877DE917FD1A71919EAE7548E56"
+    "36",
+    "previous_txn_lgr_seq": 102,
+    "signature_reward": "204",
+    "xchain_account_claim_count": "0",
+    "xchain_account_create_count": "0",
+    "xchain_bridge": {
+        "issuing_chain_door": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+        "issuing_chain_issue": {"currency": "XRP"},
+        "locking_chain_door": "r3nCVTbZGGYoWvZ58BcxDmiMUU7ChMa1eC",
+        "locking_chain_issue": {"currency": "XRP"},
+    },
+    "xchain_claim_id": "1",
+    "index": "9F2C9E23343852036AFD323025A8506018ABF9D4DBAA746D61BF1CFB5C297D10",
 }
 
 check_json = {
@@ -465,6 +489,31 @@ class TestFromTODict(TestCase):
         )
         self.assertEqual(actual, expected)
         self.assertEqual(amm_json, expected.to_dict())
+
+    def test_bridge(self):
+        actual = Bridge.from_dict(bridge_json)
+        expected = Bridge(
+            account="r3nCVTbZGGYoWvZ58BcxDmiMUU7ChMa1eC",
+            flags=0,
+            min_account_create_amount="2000000000",
+            owner_node="0",
+            previous_txn_id="67A8A1B36C1B97BE3AAB6B19CB3A3069034877DE917FD1A71919EAE75"
+            "48E5636",
+            previous_txn_lgr_seq=102,
+            signature_reward="204",
+            xchain_account_claim_count="0",
+            xchain_account_create_count="0",
+            xchain_bridge=XChainBridge(
+                issuing_chain_door="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+                issuing_chain_issue=XRP(),
+                locking_chain_door="r3nCVTbZGGYoWvZ58BcxDmiMUU7ChMa1eC",
+                locking_chain_issue=XRP(),
+            ),
+            xchain_claim_id="1",
+            index="9F2C9E23343852036AFD323025A8506018ABF9D4DBAA746D61BF1CFB5C297D10",
+        )
+        self.assertEqual(actual, expected)
+        self.assertEqual(bridge_json, expected.to_dict())
 
     def test_check(self):
         actual = Check.from_dict(check_json)
