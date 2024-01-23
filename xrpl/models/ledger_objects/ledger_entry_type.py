@@ -25,3 +25,4 @@ class LedgerEntryType(str, Enum):
     RIPPLE_STATE = "RippleState"
     SIGNER_LIST = "SignerList"
     TICKET = "Ticket"
+    XCHAIN_OWNED_CLAIM_ID = "XChainOwnedClaimID"
