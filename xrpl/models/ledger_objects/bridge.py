@@ -1,4 +1,4 @@
-"""Models for the Ledger Object `Amendments`"""
+"""Models for the Ledger Object `Bridge`"""
 
 from __future__ import annotations
 
