@@ -15,7 +15,7 @@ from xrpl.models.xchain_bridge import XChainBridge
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class Bridge(LedgerObject):
-    """The model for the `DID` Ledger Object"""
+    """The model for the `Bridge` Ledger Object"""
 
     account: str = REQUIRED  # type: ignore
     """
