@@ -54,7 +54,7 @@ class XChainOwnedCreateAccountClaimID(LedgerObject):
     owner_node: str = REQUIRED  # type: ignore
     """
     A hint indicating which page of the sender's owner directory links to this entry,
-    in case the directory consists of multiple pages.
+    in case the directory consists of multiple pages. This field is required.
     """
 
     previous_txn_id: str = REQUIRED  # type: ignore
@@ -66,10 +66,14 @@ class XChainOwnedCreateAccountClaimID(LedgerObject):
     previous_txn_lgr_seq: int = REQUIRED  # type: ignore
     """
     The index of the ledger that contains the transaction that most recently modified
-    this object.
+    this object. This field is required.
     """
 
     flags: int = 0
+    """
+    A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
+    XChainOwnedCreateAccountClaimID entries.
+    """
 
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.XCHAIN_OWNED_CREATE_ACCOUNT_CLAIM_ID,

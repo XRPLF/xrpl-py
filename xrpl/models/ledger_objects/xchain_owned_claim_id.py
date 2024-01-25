@@ -85,7 +85,8 @@ class XChainOwnedClaimID(LedgerObject):
 
     flags: int = 0
     """
-    Flags is always 0 since there are no flags defined for Chain entries.
+    A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
+    XChainOwnedClaimID entries.
     """
 
     ledger_entry_type: LedgerEntryType = field(
