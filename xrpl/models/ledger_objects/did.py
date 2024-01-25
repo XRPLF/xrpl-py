@@ -23,13 +23,13 @@ class DID(LedgerObject):
 
     did_document: Optional[str] = None
     """
-    The W3C standard DID document associated with the DID. The DIDDocument field isn't
+    The W3C standard DID document associated with the DID. The `DIDDocument` field isn't
     checked for validity and is limited to a maximum length of 256 bytes.
     """
 
     data: Optional[str] = None
     """
-    The public attestations of identity credentials associated with the DID. The Data
+    The public attestations of identity credentials associated with the DID. The `Data`
     field isn't checked for validity and is limited to a maximum length of 256 bytes.
     """
 

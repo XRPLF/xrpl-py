@@ -19,14 +19,14 @@ class Bridge(LedgerObject):
 
     account: str = REQUIRED  # type: ignore
     """
-    The account that submitted the XChainCreateBridge transaction on the blockchain.
+    The account that submitted the `XChainCreateBridge` transaction on the blockchain.
     This field is required.
     """
 
     min_account_create_amount: Optional[str] = None
     """
-    The minimum amount, in XRP, required for an XChainAccountCreateCommit transaction.
-    If this isn't present, the XChainAccountCreateCommit transaction will fail.
+    The minimum amount, in XRP, required for an `XChainAccountCreateCommit` transaction.
+    If this isn't present, the `XChainAccountCreateCommit` transaction will fail.
     This field can only be present on XRP-XRP bridges.
     """
 
@@ -40,32 +40,32 @@ class Bridge(LedgerObject):
     xchain_account_claim_count: Union[int, str] = REQUIRED  # type: ignore
     """
     A counter used to order the execution of account create transactions. It is
-    incremented every time a XChainAccountCreateCommit transaction is "claimed" on the
+    incremented every time a `XChainAccountCreateCommit` transaction is "claimed" on the
     destination chain. When the "claim" transaction is run on the destination chain,
     the XChainAccountClaimCount must match the value that the XChainAccountCreateCount
     had at the time the XChainAccountClaimCount was run on the source chain. This
     orders the claims so that they run in the same order that the
-    XChainAccountCreateCommit transactions ran on the source chain, to prevent
+    `XChainAccountCreateCommit` transactions ran on the source chain, to prevent
     transaction replay. This field is required.
     """
 
     xchain_account_create_count: Union[int, str] = REQUIRED  # type: ignore
     """
     A counter used to order the execution of account create transactions. It is
-    incremented every time a successful XChainAccountCreateCommit transaction is run
+    incremented every time a successful `XChainAccountCreateCommit` transaction is run
     for the source chain. This field is required.
     """
 
     xchain_bridge: XChainBridge = REQUIRED  # type: ignore
     """
     A counter used to order the execution of account create transactions. It is
-    incremented every time a successful XChainAccountCreateCommit transaction is run
+    incremented every time a successful `XChainAccountCreateCommit` transaction is run
     for the source chain. This field is required.
     """
 
     xchain_claim_id: Union[int, str] = REQUIRED  # type: ignore
     """
-    The value of the next XChainClaimID to be created. This field is required.
+    The value of the next `XChainClaimID` to be created. This field is required.
     """
 
     owner_node: str = REQUIRED  # type: ignore
