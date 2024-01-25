@@ -1,4 +1,4 @@
-"""Models for the Ledger Object `XChainOwnedClaimID`"""
+"""Models for the Ledger Object `XChainOwnedCreateAccountClaimID`"""
 
 from __future__ import annotations
 
@@ -15,8 +15,8 @@ from xrpl.models.xchain_bridge import XChainBridge
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class XChainOwnedClaimID(LedgerObject):
-    """The model for the `XChainOwnedClaimID` Ledger Object"""
+class XChainOwnedCreateAccountClaimID(LedgerObject):
+    """The model for the `XChainOwnedCreateAccountClaimID` Ledger Object"""
 
     account: str = REQUIRED  # type: ignore
     """
@@ -29,20 +29,10 @@ class XChainOwnedClaimID(LedgerObject):
     `XChainClaimID` value, and the fields in `XChainBridge`. This field is required.
     """
 
-    other_chain_source: str = REQUIRED  # type: ignore
+    xchain_account_create_count: Union[int, str] = REQUIRED  # type: ignore
     """
-    The account that must send the corresponding `XChainCommit` on the source chain. The
-    destination may be specified in the `XChainCommit` transaction, which means that if
-    the `OtherChainSource` isn't specified, another account can try to specify a
-    different destination and steal the funds. This also allows tracking only a single
-    set of signatures, since we know which account will send the `XChainCommit`
-    transaction. This field is required.
-    """
-
-    signature_reward: str = REQUIRED  # type: ignore
-    """
-    The total amount to pay the witness servers for their signatures. It must be at
-    least the value of `SignatureReward` in the `Bridge` ledger object.
+    An integer that determines the order that accounts created through cross-chain
+    transfers must be performed. Smaller numbers must execute before larger numbers.
     This field is required.
     """
 
@@ -52,17 +42,13 @@ class XChainOwnedClaimID(LedgerObject):
     This field is required.
     """
 
-    xchain_claim_attestations: List[XChainClaimProofSig] = REQUIRED  # type: ignore
+    xchain_create_account_attestations: List[XChainCreateAccountProofSig] = REQUIRED
+    # type: ignore
     """
     Attestations collected from the witness servers. This includes the parameters
     needed to recreate the message that was signed, including the amount, which chain
     (locking or issuing), optional destination, and reward account for that signature.
     This field is required.
-    """
-
-    xchain_claim_id: Union[int, str] = REQUIRED  # type: ignore
-    """
-    The unique sequence number for a cross-chain transfer. This field is required.
     """
 
     owner_node: str = REQUIRED  # type: ignore
@@ -83,21 +69,16 @@ class XChainOwnedClaimID(LedgerObject):
     this object.
     """
 
-    flags: int = REQUIRED  # type: ignore
-    """
-    Flags is always 0 since there are no flags defined for Chain entries.
-    """
-
     ledger_entry_type: LedgerEntryType = field(
-        default=LedgerEntryType.XCHAIN_OWNED_CLAIM_ID,
+        default=LedgerEntryType.XCHAIN_OWNED_CREATE_ACCOUNT_CLAIM_ID,
         init=False,
     )
 
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class XChainClaimProofSig(NestedModel):
-    """A model for the `XChainClaimProofSig` object"""
+class XChainCreateAccountProofSig(NestedModel):
+    """A model for the `XChainCreateAccountProofSig` object"""
 
     amount: str = REQUIRED  # type: ignore
     """
@@ -125,6 +106,13 @@ class XChainClaimProofSig(NestedModel):
     public_key: str = REQUIRED  # type: ignore
     """
     The public key used to verify the signature. This field is required.
+    """
+
+    signature_reward: str = REQUIRED  # type: ignore
+    """
+    The total amount to pay the witness servers for their signatures. It must be at
+    least the value of `SignatureReward` in the `Bridge` ledger object.
+    This field is required.
     """
 
     was_locking_chain_send: int = REQUIRED  # type: ignore

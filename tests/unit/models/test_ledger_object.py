@@ -34,6 +34,10 @@ from xrpl.models.ledger_objects.xchain_owned_claim_id import (
     XChainClaimProofSig,
     XChainOwnedClaimID,
 )
+from xrpl.models.ledger_objects.xchain_owned_create_account_claim_id import (
+    XChainCreateAccountProofSig,
+    XChainOwnedCreateAccountClaimID,
+)
 from xrpl.models.xchain_bridge import XChainBridge
 
 account_root_json = {
@@ -441,6 +445,36 @@ xchain_owned_claim_id_json = {
     "xchain_claim_id": "b5",
     "ledger_entry_type": "XChainOwnedClaimID",
     "ledger_index": "20B136D7BF6D2E3D610E28E3E6BE09F5C8F4F0241BBF6E2D072AE1BACB1388F5",
+}
+
+xchain_owned_create_account_claim_id_json = {
+    "ledger_entry_type": "XChainOwnedCreateAccountClaimID",
+    "ledger_index": "5A92F6ED33FDA68FB4B9FD140EA38C056CD2BA9673ECA5B4CEF40F2166BB6F0C",
+    "owner_node": "0",
+    "previous_txn_id": "1CFD80E9CF232B8EED62A52857DE97438D12230C06496932A81DEFA6E660",
+    "previous_txn_lgr_seq": 58673,
+    "account": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "xchain_account_create_count": "66",
+    "xchain_bridge": {
+        "issuing_chain_door": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+        "issuing_chain_issue": {"currency": "XRP"},
+        "locking_chain_door": "rMAXACCrp3Y8PpswXcg3bKggHX76V3F8M4",
+        "locking_chain_issue": {"currency": "XRP"},
+    },
+    "xchain_create_account_attestations": [
+        {
+            "xchain_create_account_proof_sig": {
+                "amount": "20000000",
+                "attestation_reward_account": "rMtYb1vNdeMDpD9tA5qSFm8WXEBdEoKKVw",
+                "attestation_signer_account": "rL8qTrAvZ8Q1o1H9H9Ahpj3xjgmRvFLvJ3",
+                "destination": "rBW1U7J9mEhEdk6dMHEFUjqQ7HW7WpaEMi",
+                "public_key": "021F7CC4033EFBE5E8214B04D1BAAEC14808DC6C02F4ACE930A8"
+                "EF0F5909B0C438",
+                "signature_reward": "100",
+                "was_locking_chain_send": 1,
+            }
+        }
+    ],
 }
 
 
@@ -918,3 +952,38 @@ class TestFromTODict(TestCase):
         )
         self.assertEqual(actual, expected)
         self.assertEqual(xchain_owned_claim_id_json, expected.to_dict())
+
+    def test_xchain_owned_create_account_claim_id(self):
+        actual = XChainOwnedCreateAccountClaimID.from_dict(
+            xchain_owned_create_account_claim_id_json
+        )
+        expected = XChainOwnedCreateAccountClaimID(
+            account="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+            owner_node="0",
+            previous_txn_id="1CFD80E9CF232B8EED62A52857DE97438D12230C06496932A81D"
+            "EFA6E660",
+            previous_txn_lgr_seq=58673,
+            ledger_index="5A92F6ED33FDA68FB4B9FD140EA38C056CD2BA9673ECA5B4CEF40F2166B"
+            "B6F0C",
+            xchain_account_create_count="66",
+            xchain_bridge=XChainBridge(
+                issuing_chain_door="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+                issuing_chain_issue=XRP(),
+                locking_chain_door="rMAXACCrp3Y8PpswXcg3bKggHX76V3F8M4",
+                locking_chain_issue=XRP(),
+            ),
+            xchain_create_account_attestations=[
+                XChainCreateAccountProofSig(
+                    amount="20000000",
+                    attestation_reward_account="rMtYb1vNdeMDpD9tA5qSFm8WXEBdEoKKVw",
+                    attestation_signer_account="rL8qTrAvZ8Q1o1H9H9Ahpj3xjgmRvFLvJ3",
+                    destination="rBW1U7J9mEhEdk6dMHEFUjqQ7HW7WpaEMi",
+                    public_key="021F7CC4033EFBE5E8214B04D1BAAEC14808DC6C02F4ACE930A8E"
+                    "F0F5909B0C438",
+                    signature_reward="100",
+                    was_locking_chain_send=1,
+                )
+            ],
+        )
+        self.assertEqual(actual, expected)
+        self.assertEqual(xchain_owned_create_account_claim_id_json, expected.to_dict())

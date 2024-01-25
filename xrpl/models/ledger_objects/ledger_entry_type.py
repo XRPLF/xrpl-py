@@ -26,3 +26,4 @@ class LedgerEntryType(str, Enum):
     SIGNER_LIST = "SignerList"
     TICKET = "Ticket"
     XCHAIN_OWNED_CLAIM_ID = "XChainOwnedClaimID"
+    XCHAIN_OWNED_CREATE_ACCOUNT_CLAIM_ID = "XChainOwnedCreateAccountClaimID"

@@ -29,6 +29,9 @@ from xrpl.models.ledger_objects.signer_list import (
 )
 from xrpl.models.ledger_objects.ticket import Ticket
 from xrpl.models.ledger_objects.xchain_owned_claim_id import XChainOwnedClaimID
+from xrpl.models.ledger_objects.xchain_owned_create_account_claim_id import (
+    XChainOwnedCreateAccountClaimID,
+)
 
 __all__ = [
     "AccountRoot",
@@ -60,4 +63,5 @@ __all__ = [
     "SignerListFlag",
     "Ticket",
     "XChainOwnedClaimID",
+    "XChainOwnedCreateAccountClaimID",
 ]
