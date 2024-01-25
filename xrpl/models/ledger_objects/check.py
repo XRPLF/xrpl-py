@@ -29,7 +29,7 @@ class Check(LedgerObject):
     `CheckCash` transaction. This field is required.
     """
 
-    destination_node: Optional[str] = None
+    destination_node: str = REQUIRED  # type: ignore
     """
     A hint indicating which page of the destination's owner directory links to this
     object, in case the directory consists of multiple pages.
