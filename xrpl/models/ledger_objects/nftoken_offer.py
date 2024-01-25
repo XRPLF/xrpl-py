@@ -76,11 +76,6 @@ class NFTokenOffer(LedgerObject):
     efficient deletion of offers.
     """
 
-    flags: Union[int, NFTokenOfferFlags] = REQUIRED  # type: ignore
-    """
-    A bit-map of boolean flags.
-    """
-
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.NFTOKEN_OFFER,
         init=False,

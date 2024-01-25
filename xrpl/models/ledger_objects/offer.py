@@ -76,11 +76,6 @@ class Offer(LedgerObject):
     This field is required.
     """
 
-    flags: int = REQUIRED  # type: ignore
-    """
-    A bit-map of boolean flags.
-    """
-
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.OFFER,
         init=False,

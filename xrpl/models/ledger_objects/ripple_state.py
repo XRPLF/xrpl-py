@@ -92,11 +92,6 @@ class RippleState(LedgerObject):
     billion, or face value.
     """
 
-    flags: int = REQUIRED  # type: ignore
-    """
-    A bit-map of boolean options enabled for this entry.
-    """
-
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.RIPPLE_STATE,
         init=False,

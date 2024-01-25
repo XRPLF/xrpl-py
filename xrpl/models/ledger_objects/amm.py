@@ -67,7 +67,7 @@ class AMM(LedgerObject):
     in case the directory consists of multiple pages.
     """
 
-    flags: int = 0  # type: ignore
+    flags: int = 0
     """
     A bit-map of boolean flags. No flags are defined for the AMM object
     type, so this value is always 0.

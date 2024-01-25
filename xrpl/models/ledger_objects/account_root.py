@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional, Union
+from typing import Optional
 
 from xrpl.models.ledger_objects.ledger_entry_type import LedgerEntryType
 from xrpl.models.ledger_objects.ledger_object import LedgerObject
@@ -139,11 +139,6 @@ class AccountRoot(LedgerObject):
     wallet_size: Optional[int] = None
     """
     Unused. (The code supports this field but there is no way to set it.)
-    """
-
-    flags: Union[int, AccountRootFlags] = REQUIRED  # type: ignore
-    """
-    A bit-map of boolean flags. This field is required.
     """
 
     ledger_entry_type: LedgerEntryType = field(
