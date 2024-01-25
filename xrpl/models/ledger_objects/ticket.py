@@ -16,13 +16,44 @@ class Ticket(LedgerObject):
     """The model for the `Ticket` Ledger Object"""
 
     account: str = REQUIRED  # type: ignore
-    # always 0
-    flags: int = REQUIRED  # type: ignore
+    """
+    The account that owns this Ticket. This field is required.
+    """
+
     owner_node: str = REQUIRED  # type: ignore
+    """
+    A hint indicating which page of the owner directory links to this entry, in case
+    the directory consists of multiple pages. This field is required.
+    """
+
     previous_txn_id: str = REQUIRED  # type: ignore
+    """
+    The identifying hash of the transaction that most recently modified this entry.
+    This field is required.
+    """
+
     previous_txn_lgr_seq: int = REQUIRED  # type: ignore
+    """
+    The index of the ledger that contains the transaction that most recently modified
+    this entry. This field is required.
+    """
+
     ticket_sequence: int = REQUIRED  # type: ignore
+    """
+    The Sequence Number this Ticket sets aside. This field is required.
+    """
+
+    flags: int = 0
+    """
+    A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
+    Ticket entries.
+    """
+
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.TICKET,
         init=False,
     )
+    """
+    The value `0x0054`, mapped to the string `Ticket`, indicates that this is a Ticket
+    entry.
+    """
