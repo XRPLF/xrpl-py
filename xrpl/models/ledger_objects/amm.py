@@ -38,6 +38,9 @@ class AMM(LedgerObject):
     """
 
     auction_slot: Optional[AuctionSlot] = None
+    """
+    Details of the current owner of the auction slot, as an Auction Slot object.
+    """
 
     lptoken_balance: IssuedCurrencyAmount = REQUIRED  # type: ignore
     """
@@ -56,6 +59,12 @@ class AMM(LedgerObject):
     vote_slots: Optional[List[VoteEntry]] = None
     """
     A list of vote objects, representing votes on the pool's trading fee.
+    """
+
+    owner_node: str = REQUIRED  # type: ignore
+    """
+    A hint indicating which page of the sender's owner directory links to this entry,
+    in case the directory consists of multiple pages.
     """
 
     flags: int = REQUIRED  # type: ignore

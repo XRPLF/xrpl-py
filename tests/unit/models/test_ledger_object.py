@@ -114,6 +114,7 @@ amm_json = {
             }
         }
     ],
+    "owner_node": "0",
     "flags": 0,
     "ledger_entry_type": "AMM",
 }
@@ -556,6 +557,7 @@ class TestFromTODict(TestCase):
                     value="0.8696263565463045",
                 ),
             ),
+            owner_node="0",
             flags=0,
             lptoken_balance=IssuedCurrencyAmount(
                 currency="039C99CD9AB0B70B32ECDA51EAAE471625608EA2",
