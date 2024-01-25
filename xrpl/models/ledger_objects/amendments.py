@@ -17,14 +17,33 @@ from xrpl.models.utils import require_kwargs_on_init
 class Amendments(LedgerObject):
     """The model for the `Amendments` Ledger Object"""
 
-    # always 0
-    flags: int = REQUIRED  # type: ignore
     amendments: Optional[List[str]] = None
-    majorities: Optional[List[Majority]] = None
+    """
+    Array of 256-bit amendment IDs for all currently enabled amendments. If omitted,
+    there are no enabled amendments.
+    """
+
+    flags: int = REQUIRED  # type: ignore
+    """
+    A bit-map of boolean flags enabled for this object. Currently, the protocol defines
+    no flags for `Amendments` objects. The value is always 0. This field is required.
+    """
+
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.AMENDMENTS,
         init=False,
     )
+    """
+    The value `0x0066`, mapped to the string `Amendments`, indicates that this object
+    describes the status of amendments to the XRP Ledger.
+    """
+
+    majorities: Optional[List[Majority]] = None
+    """
+    Array of objects describing the status of amendments that have majority support but
+    are not yet enabled. If omitted, there are no pending amendments with majority
+    support.
+    """
 
 
 @require_kwargs_on_init
