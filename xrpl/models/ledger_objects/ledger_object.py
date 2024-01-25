@@ -24,10 +24,20 @@ class LedgerObject(BaseModel):
 
     index: Optional[str] = None
     """
-    The unique ID for this ledger entry. In JSON, this field is represented with
-    different names depending on the context and API method. (Note, even though this is
-    specified as "optional" in the code, every ledger entry should have one unless it's
-    legacy data from very early in the XRP Ledger's history.)
+    The unique ID for this ledger entry; either `index` or `LedgerIndex` is used. In
+    JSON, this field is represented with different names depending on the context and
+    API method. (Note, even though this is specified as "optional" in the code, every
+    ledger entry should have one unless it's legacy data from very early in the XRP
+    Ledger's history.)
+    """
+
+    ledger_index: Optional[str] = None
+    """
+    The unique ID for this ledger entry; either `index` or `LedgerIndex` is used. In
+    JSON, this field is represented with different names depending on the context and
+    API method. (Note, even though this is specified as "optional" in the code, every
+    ledger entry should have one unless it's legacy data from very early in the XRP
+    Ledger's history.)
     """
 
     ledger_entry_type: LedgerEntryType = REQUIRED  # type: ignore
