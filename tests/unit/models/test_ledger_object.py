@@ -484,6 +484,7 @@ class TestFromTODict(TestCase):
         expected = AccountRoot(
             index="13F1A95D7AAB7108D5CE7EEAF504B2894B8C674E6D68499076441C4837282BF8",
             account="rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+            amm_id=None,
             balance="148446663",
             flags=8388608,
             owner_count=3,
@@ -494,6 +495,7 @@ class TestFromTODict(TestCase):
             account_txn_id="0D5FB50FA65C9FE1538FD7E398FFFE9D1"
             "908DFA4576D8D7A020040686F93C77D",
             burned_nftokens=None,
+            first_nftoken_sequence=None,
             domain="6D64756F31332E636F6D",
             email_hash="98B4375E1D753E5B91627516F6D70977",
             message_key="0000000000000000000000070000000300",
@@ -501,7 +503,7 @@ class TestFromTODict(TestCase):
             nftoken_minter="rHello",
             regular_key=None,
             ticket_count=None,
-            ticket_size=None,
+            tick_size=None,
             transfer_rate=1004999999,
             wallet_locator=None,
             wallet_size=None,
