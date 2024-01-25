@@ -398,7 +398,7 @@ ticket_json = {
     "644F2E854D46E8D62E9C95D18E9708CBFB1",
     "previous_txn_lgr_seq": 4,
     "ticket_sequence": 3,
-    "index": "",  # TODO: Find out if there is an unique index
+    "index": "A9C28A28B85CD533217F5C0A0C7767666B093FA58A0F2D80026FCC4CD932DDC7",
 }
 
 xchain_owned_claim_id_json = {
@@ -885,7 +885,7 @@ class TestFromTODict(TestCase):
     def test_ticket(self):
         actual = Ticket.from_dict(ticket_json)
         expected = Ticket(
-            index="",
+            index="A9C28A28B85CD533217F5C0A0C7767666B093FA58A0F2D80026FCC4CD932DDC7",
             account="rEhxGqkqPPSxQ3P25J66ft5TwpzV14k2de",
             flags=0,
             owner_node="0000000000000000",
