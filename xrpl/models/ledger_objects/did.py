@@ -51,11 +51,6 @@ class DID(LedgerObject):
     this object.
     """
 
-    flags: int = REQUIRED  # type: ignore
-    """
-    Flags is always 0 since there are no flags defined for DID entries.
-    """
-
     uri: Optional[str] = None
     """
     The Universal Resource Identifier that points to the corresponding DID document or
@@ -64,7 +59,16 @@ class DID(LedgerObject):
     bytes.
     """
 
+    flags: int = REQUIRED  # type: ignore
+    """
+    Flags is always 0 since there are no flags defined for DID entries.
+    """
+
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.DID,
         init=False,
     )
+    """
+    The value `0x0049`, mapped to the string `DID`, indicates that this object is a DID
+    object.
+    """

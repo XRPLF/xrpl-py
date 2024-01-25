@@ -25,8 +25,8 @@ class Amendments(LedgerObject):
 
     flags: int = REQUIRED  # type: ignore
     """
-    A bit-map of boolean flags enabled for this object. Currently, the protocol defines
-    no flags for `Amendments` objects. The value is always 0. This field is required.
+    A bit-map of boolean flags. Currently, the protocol defines no flags for
+    `Amendments` objects. The value is always 0. This field is required.
     """
 
     ledger_entry_type: LedgerEntryType = field(

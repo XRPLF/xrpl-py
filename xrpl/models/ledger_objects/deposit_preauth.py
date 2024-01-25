@@ -49,8 +49,8 @@ class DepositPreauth(LedgerObject):
 
     flags: int = REQUIRED  # type: ignore
     """
-    Flags is always 0 since there are no flags defined for DepositPreauth entries.
-    This field is required.
+    A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
+    DepositPreauth entries. This field is required.
     """
 
     ledger_entry_type: LedgerEntryType = field(

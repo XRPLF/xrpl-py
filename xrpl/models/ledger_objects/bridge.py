@@ -88,7 +88,8 @@ class Bridge(LedgerObject):
 
     flags: int = REQUIRED  # type: ignore
     """
-    Flags is always 0 since there are no flags defined for Chain entries.
+    A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
+    Chain entries. This field is required.
     """
 
     ledger_entry_type: LedgerEntryType = field(
