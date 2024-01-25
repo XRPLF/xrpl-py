@@ -275,10 +275,6 @@ nftoken_offer_json = {
 nftoken_page_json = {
     "flags": 0,
     "ledger_entry_type": "NFTokenPage",
-    "previous_token_page": "598EDFD7CF73460FB8C695d6a9397E"
-    "907378C8A841F7204C793DCBEF5406",
-    "previous_token_next": "598EDFD7CF73460FB8C695d6a9397E90"
-    "73781BA3B78198904F659AAA252A",
     "previous_txn_id": "95C8761B22894E328646F7A70035E9DFBECC9"
     "0EDD83E43B7B973F626D21A0822",
     "previous_txn_lgr_seq": 42891441,
@@ -766,10 +762,6 @@ class TestFromTODict(TestCase):
             index="",
             previous_page_min=None,
             next_page_min=None,
-            previous_token_page="598EDFD7CF73460FB8C695d6a9397E9"
-            "07378C8A841F7204C793DCBEF5406",
-            previous_token_next="598EDFD7CF73460FB8C695d6a9397E90"
-            "73781BA3B78198904F659AAA252A",
             previous_txn_id="95C8761B22894E328646F7A70035E9DFBEC"
             "C90EDD83E43B7B973F626D21A0822",
             previous_txn_lgr_seq=42891441,
