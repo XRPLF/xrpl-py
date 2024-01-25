@@ -70,7 +70,7 @@ class AMM(LedgerObject):
     flags: int = 0  # type: ignore
     """
     A bit-map of boolean flags. No flags are defined for the AMM object
-    type, so this value is always 0. This field is required.
+    type, so this value is always 0.
     """
 
     ledger_entry_type: LedgerEntryType = field(

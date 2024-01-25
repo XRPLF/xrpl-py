@@ -518,7 +518,6 @@ class TestFromTODict(TestCase):
         actual = Amendments.from_dict(amendment_json)
         expected = Amendments(
             index="7DB0788C020F02780A673DC74757F23823FA3014C1866E72CC4CD8B226CD6EF4",
-            flags=0,
             amendments=[
                 "42426C4D4F1009EE67080A9B7965B44656D7714D104A72F9B4369F97ABF044EE",
                 "4C97EBA926031A7CF7D7B36FDE3ED66DDA5421192D63DE53FFB46E43B9DC8373",
@@ -560,7 +559,6 @@ class TestFromTODict(TestCase):
                 ),
             ),
             owner_node="0",
-            flags=0,
             lptoken_balance=IssuedCurrencyAmount(
                 currency="039C99CD9AB0B70B32ECDA51EAAE471625608EA2",
                 issuer="rE54zDvgnghAoPopCgvtiqWNq3dU5y836S",
@@ -582,7 +580,6 @@ class TestFromTODict(TestCase):
         actual = Bridge.from_dict(bridge_json)
         expected = Bridge(
             account="r3nCVTbZGGYoWvZ58BcxDmiMUU7ChMa1eC",
-            flags=0,
             min_account_create_amount="2000000000",
             owner_node="0",
             previous_txn_id="67A8A1B36C1B97BE3AAB6B19CB3A3069034877DE917FD1A71919EAE75"
@@ -609,7 +606,6 @@ class TestFromTODict(TestCase):
             index="49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
             account="rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo",
             destination="rfkE1aSy9G8Upk4JssnwBxhEv5p4mn2KTy",
-            flags=0,
             owner_node="0000000000000000",
             previous_txn_id="5463C6E08862A1FAE5EDAC12D70ADB16546A"
             "1F674930521295BC082494B62924",
@@ -632,7 +628,6 @@ class TestFromTODict(TestCase):
             index="4A255038CC3ADCC1A9C91509279B59908251728D0DAADB248FFE297D0F7E068C",
             account="rsUiUMpnrgxQp24dJYZDhmV4bE3aBtQyt8",
             authorize="rEhxGqkqPPSxQ3P25J66ft5TwpzV14k2de",
-            flags=0,
             owner_node="0000000000000000",
             previous_txn_id="3E8964D5A86B3CD6B9ECB33310D4E073D64C8"
             "65A5B866200AD2B7E29F8326702",
@@ -647,7 +642,6 @@ class TestFromTODict(TestCase):
             account="rpfqJrXg5uidNo2ZsRhRY6TiF1cvYmV9Fg",
             did_document="646F63",
             data="617474657374",
-            flags=0,
             owner_node="0",
             previous_txn_id="A4C15DA185E6092DF5954FF62A1446220C61A5F60F0D93B4B09F"
             "708778E41120",
@@ -662,7 +656,6 @@ class TestFromTODict(TestCase):
         actual = DirectoryNode.from_dict(directory_node_json)
         expected = DirectoryNode(
             index="1BBEF97EDE88D40CEE2ADE6FEF121166AFE80D99EBADB01A4F069BA8FF484000",
-            flags=0,
             root_index="1BBEF97EDE88D40CEE2ADE6FEF121166A"
             "FE80D99EBADB01A4F069BA8FF484000",
             indexes=[
@@ -688,7 +681,6 @@ class TestFromTODict(TestCase):
             account="rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
             amount="10000",
             destination="ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
-            flags=0,
             owner_node="0000000000000000",
             previous_txn_id="C44F2EB84196B9AD820313DBEBA6316A15"
             "C9A2D35787579ED172B87A30131DA7",
@@ -709,7 +701,6 @@ class TestFromTODict(TestCase):
         expected = FeeSettings(
             index="4BC50C9B0D8515D3EAAE1E74B29A95804346C491EE1A95BF25E4AAB854A6A651",
             base_fee="000000000000000A",
-            flags=0,
             reference_fee_units=10,
             reserve_base=20000000,
             reserve_increment=5000000,
@@ -730,7 +721,6 @@ class TestFromTODict(TestCase):
                 "AB4014846DF818A4B43D6B1686D0DE0644FE711577C5AB6F0B2A21CCEE280140",
                 "3383784E82A8BA45F4DD5EF4EE90A1B2D3B4571317DBAC37B859836ADDE644C1",
             ],
-            flags=0,
         )
         self.assertEqual(actual, expected)
         self.assertEqual(ledger_hashes_json, expected.to_dict())
@@ -739,7 +729,6 @@ class TestFromTODict(TestCase):
         actual = NegativeUNL.from_dict(negative_unl_json)
         expected = NegativeUNL(
             index="2E8A59AA9D3B5B186B0B9E0F62E6C02587CA74A4D778938E957B6357D364B244",
-            flags=0,
             disabled_validators=[
                 DisabledValidator(
                     first_ledger_sequence=1609728,
@@ -748,7 +737,7 @@ class TestFromTODict(TestCase):
                 )
             ],
             validator_to_disable=None,
-            validator_to_enable=None,
+            validator_to_re_enable=None,
         )
         self.assertEqual(actual, expected)
         self.assertEqual(negative_unl_json, expected.to_dict())

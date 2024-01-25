@@ -17,13 +17,37 @@ from xrpl.models.utils import require_kwargs_on_init
 class NegativeUNL(LedgerObject):
     """The model for the `NegativeUNL` Ledger Object"""
 
-    flags: int = REQUIRED  # type: ignore
     disabled_validators: Optional[List[DisabledValidator]] = None
+    """
+    A list of `DisabledValidator` objects (see below), each representing a trusted
+    validator that is currently disabled.
+    """
+
     validator_to_disable: Optional[str] = None
-    validator_to_enable: Optional[str] = None
+    """
+    The public key of a trusted validator that is scheduled to be disabled in the next
+    flag ledger.
+    """
+
+    validator_to_re_enable: Optional[str] = None
+    """
+    The public key of a trusted validator in the Negative UNL that is scheduled to be
+    re-enabled in the next flag ledger.
+    """
+
+    flags: int = 0
+    """
+    A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
+    NegativeUNL entries.
+    """
+
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.NEGATIVE_UNL, init=False
     )
+    """
+    The value `0x004E`, mapped to the string `NegativeUNL`, indicates that this entry
+    is the Negative UNL.
+    """
 
 
 @require_kwargs_on_init
@@ -32,4 +56,13 @@ class DisabledValidator(NestedModel):
     """A model for the `DisabledValidator` object"""
 
     first_ledger_sequence: int = REQUIRED  # type: ignore
+    """
+    The ledger index when the validator was added to the Negative UNL.
+    This field is required.
+    """
+
     public_key: str = REQUIRED  # type: ignore
+    """
+    The master public key of the validator, in hexadecimal.
+    This field is required.
+    """

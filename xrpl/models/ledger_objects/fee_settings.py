@@ -56,7 +56,7 @@ class FeeSettings(LedgerObject):
     flags: int = 0
     """
     A bit-map of boolean flags enabled for this object. Currently, the protocol defines
-    no flags for `FeeSettings` objects. The value is always 0. This field is required.
+    no flags for `FeeSettings` objects. The value is always 0.
     """
 
     ledger_entry_type: LedgerEntryType = field(

@@ -82,7 +82,7 @@ class DirectoryNode(LedgerObject):
     flags: int = 0
     """
     A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
-    DirectoryNode entries. This field is required.
+    DirectoryNode entries.
     """
 
     ledger_entry_type: LedgerEntryType = field(

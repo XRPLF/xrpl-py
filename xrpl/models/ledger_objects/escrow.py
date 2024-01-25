@@ -94,7 +94,7 @@ class Escrow(LedgerObject):
     flags: int = 0
     """
     A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
-    Escrow entries. This field is required.
+    Escrow entries.
     """
 
     ledger_entry_type: LedgerEntryType = field(
