@@ -90,7 +90,7 @@ class Check(LedgerObject):
     recipient at the sender's address.
     """
 
-    flags: int = REQUIRED  # type: ignore
+    flags: int = 0
     """
     A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
     Check entries. This field is required.

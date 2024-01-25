@@ -59,7 +59,7 @@ class DID(LedgerObject):
     bytes.
     """
 
-    flags: int = REQUIRED  # type: ignore
+    flags: int = 0
     """
     A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
     DID entries. This field is required.

@@ -23,7 +23,7 @@ class Amendments(LedgerObject):
     there are no enabled amendments.
     """
 
-    flags: int = REQUIRED  # type: ignore
+    flags: int = 0
     """
     A bit-map of boolean flags. Currently, the protocol defines no flags for
     `Amendments` objects. The value is always 0. This field is required.

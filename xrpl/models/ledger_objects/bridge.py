@@ -86,7 +86,7 @@ class Bridge(LedgerObject):
     this object.
     """
 
-    flags: int = REQUIRED  # type: ignore
+    flags: int = 0  # type: ignore
     """
     A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
     Chain entries. This field is required.

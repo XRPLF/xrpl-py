@@ -69,6 +69,8 @@ class XChainOwnedCreateAccountClaimID(LedgerObject):
     this object.
     """
 
+    flags: int = 0
+
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.XCHAIN_OWNED_CREATE_ACCOUNT_CLAIM_ID,
         init=False,

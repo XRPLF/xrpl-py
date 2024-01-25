@@ -23,6 +23,7 @@ class NFTokenPage(LedgerObject):
     previous_txn_id: Optional[str] = None
     previous_txn_lgr_seq: Optional[int] = None
     nftokens: Optional[List[NFToken]] = None
+    flags: int = 0
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.NFTOKEN_PAGE,
         init=False,

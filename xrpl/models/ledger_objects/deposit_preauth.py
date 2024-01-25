@@ -47,7 +47,7 @@ class DepositPreauth(LedgerObject):
     this object. This field is required.
     """
 
-    flags: int = REQUIRED  # type: ignore
+    flags: int = 0
     """
     A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
     DepositPreauth entries. This field is required.

@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional, Type, TypeVar
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.ledger_objects.ledger_entry_type import LedgerEntryType
+from xrpl.models.required import REQUIRED
 
 # TODO: REMOVE if optional is needed
 # from xrpl.models.required import REQUIRED
@@ -21,9 +22,24 @@ L = TypeVar("L", bound="LedgerObject")
 class LedgerObject(BaseModel):
     """The base model for a Ledger Object."""
 
-    # TODO: Try without optional
-    ledger_entry_type: LedgerEntryType = None
     index: Optional[str] = None
+    """
+    The unique ID for this ledger entry. In JSON, this field is represented with
+    different names depending on the context and API method. (Note, even though this is
+    specified as "optional" in the code, every ledger entry should have one unless it's
+    legacy data from very early in the XRP Ledger's history.)
+    """
+
+    ledger_entry_type: LedgerEntryType = REQUIRED  # type: ignore
+    """
+    The type of ledger entry. Valid ledger entry types include AccountRoot, Offer,
+    RippleState, and others. This field is required.
+    """
+
+    flags: int = REQUIRED  # type: ignore
+    """
+    Set of bit-flags for this ledger entry.
+    """
 
     @classmethod
     def from_dict(cls: Type[L], value: Dict[str, Any]) -> L:
@@ -129,7 +145,15 @@ class LedgerObject(BaseModel):
         )
 
     def __getitem__(self: LedgerObject, field_name: str) -> Any:
-        """Enable to get the fields like from a `dict`"""
+        """
+        Enable to get the fields like from a `dict`
+
+        Args:
+            field_name: The field name to get.
+
+        Returns:
+            Any: The field value.
+        """
         if field_name == self.__class__.__name__ or self.__class__.__name__ == "".join(
             [word.capitalize() for word in field_name.split("_")]
         ):

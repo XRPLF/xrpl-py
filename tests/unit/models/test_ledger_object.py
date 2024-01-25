@@ -273,6 +273,7 @@ nftoken_offer_json = {
 }
 
 nftoken_page_json = {
+    "flags": 0,
     "ledger_entry_type": "NFTokenPage",
     "previous_token_page": "598EDFD7CF73460FB8C695d6a9397E"
     "907378C8A841F7204C793DCBEF5406",
@@ -449,6 +450,7 @@ xchain_owned_claim_id_json = {
 }
 
 xchain_owned_create_account_claim_id_json = {
+    "flags": 0,
     "ledger_entry_type": "XChainOwnedCreateAccountClaimID",
     "ledger_index": "5A92F6ED33FDA68FB4B9FD140EA38C056CD2BA9673ECA5B4CEF40F2166BB6F0C",
     "owner_node": "0",
@@ -918,7 +920,6 @@ class TestFromTODict(TestCase):
         actual = XChainOwnedClaimID.from_dict(xchain_owned_claim_id_json)
         expected = XChainOwnedClaimID(
             account="rBW1U7J9mEhEdk6dMHEFUjqQ7HW7WpaEMi",
-            flags=0,
             other_chain_source="r9oXrvBX5aDoyMGkoYvzazxDhYoWFUjz8p",
             owner_node="0",
             previous_txn_id="1CFD80E9CF232B8EED62A52857DE97438D12230C06496932A81DEFA6E6"

@@ -36,7 +36,7 @@ class LedgerHashes(LedgerObject):
     LedgerHashes object this is. This field is required.
     """
 
-    flags: int = REQUIRED  # type: ignore
+    flags: int = 0
     """
     A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
     Escrow entries. This field is required.

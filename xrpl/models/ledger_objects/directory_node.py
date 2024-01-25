@@ -79,7 +79,7 @@ class DirectoryNode(LedgerObject):
     (Non-Fungible Token Directories only) The ID of the non-fungible token.
     """
 
-    flags: int = REQUIRED  # type: ignore
+    flags: int = 0
     """
     A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
     DirectoryNode entries. This field is required.

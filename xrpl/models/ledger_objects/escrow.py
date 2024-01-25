@@ -91,7 +91,7 @@ class Escrow(LedgerObject):
     recipient at the owner's address.
     """
 
-    flags: int = REQUIRED  # type: ignore
+    flags: int = 0
     """
     A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
     Escrow entries. This field is required.

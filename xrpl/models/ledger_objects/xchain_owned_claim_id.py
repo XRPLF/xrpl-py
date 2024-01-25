@@ -83,7 +83,7 @@ class XChainOwnedClaimID(LedgerObject):
     this object.
     """
 
-    flags: int = REQUIRED  # type: ignore
+    flags: int = 0
     """
     Flags is always 0 since there are no flags defined for Chain entries.
     """

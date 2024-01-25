@@ -7,7 +7,6 @@ from typing import Optional
 
 from xrpl.models.ledger_objects.ledger_entry_type import LedgerEntryType
 from xrpl.models.ledger_objects.ledger_object import LedgerObject
-from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
@@ -54,7 +53,7 @@ class FeeSettings(LedgerObject):
     The incremental owner reserve for owning objects, as drops of XRP.
     """
 
-    flags: int = REQUIRED  # type: ignore
+    flags: int = 0
     """
     A bit-map of boolean flags enabled for this object. Currently, the protocol defines
     no flags for `FeeSettings` objects. The value is always 0. This field is required.
