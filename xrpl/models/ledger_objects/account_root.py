@@ -62,7 +62,7 @@ class AccountRoot(LedgerObject):
 
     first_nftoken_sequence: Optional[int] = None
     """
-    The account's Sequence Number at the time it minted its first non-fungible-token.
+    The account's Sequence Number at the time it minted its first non-fungible token.
     """
 
     message_key: Optional[str] = None

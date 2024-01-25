@@ -674,6 +674,7 @@ class TestFromTODict(TestCase):
             taker_pays_issuer="5BBC0F22F61D9224A110650CFE21CC0C4BE13098",
             taker_gets_currency="0000000000000000000000000000000000000000",
             taker_gets_issuer="0000000000000000000000000000000000000000",
+            nftoken_id=None,
         )
         self.assertEqual(actual, expected)
         self.assertEqual(directory_node_json, expected.to_dict())
