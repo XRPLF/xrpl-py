@@ -116,6 +116,37 @@ async def generate_faucet_wallet(
     )
 
 
+def process_faucet_host_url(url: str) -> str:
+    """
+    A utility function to process the faucet_host URL. This function prepends
+    "https://" and appends "/accounts" resource path, if they are not
+    already present in the URL.
+
+    Args:
+        url: User specified faucet_host url.
+
+    Returns:
+        The processed URL with the appropriate resource path and protocol header
+    """
+    # Note: String utility functions are used instead of urllib.parse.urljoin because
+    # the latter expects all URLs to necessarily end with a forward-slash character.
+    # This needs to be communicated in the documentation. For instance:
+    # urljoin("abcd.com", "accounts") --> accounts
+    # urljoin("abcd.com/", "accounts") --> abcd.com/accounts
+    # urljoin("abcd.com/", "/accounts") --> /accounts
+
+    # https is preferred over http due to security considerations
+    # prepend https:// to the url
+    if not url.startswith("https://"):
+        url = "https://" + url
+
+    # append the "/accounts" resource path to the url
+    if not url.endswith("/accounts"):
+        url = url + "/accounts"
+
+    return url
+
+
 def get_faucet_url(url: str, faucet_host: Optional[str] = None) -> str:
     """
     Returns the URL of the faucet that should be used, based on whether the URL is from
@@ -131,8 +162,9 @@ def get_faucet_url(url: str, faucet_host: Optional[str] = None) -> str:
     Raises:
         XRPLFaucetException: if the provided URL is not for the testnet or devnet.
     """
-    if faucet_host is not None:
-        return f"https://{faucet_host}/accounts"
+    if faucet_host:
+        return process_faucet_host_url(faucet_host)
+        # return f"https://{faucet_host}/accounts"
     if "hooks-testnet-v3" in url:  # hooks v3 testnet
         return _HOOKS_V3_TEST_FAUCET_URL
     if "altnet" in url or "testnet" in url:  # testnet

@@ -146,6 +146,29 @@ class TestWallet(IntegrationTestCase):
             self, client, "faucet.devnet.rippletest.net"
         )
 
+    # # custom faucet_host URL tests
+
+    # # positive tests
+    # def test_generate_faucet_wallet_custom_url1(self):
+    #     client = JsonRpcClient("https://s.devnet.rippletest.net:51234")
+    #     sync_generate_faucet_wallet_and_fund_again(
+    #         self, client, faucet_host="https://faucet-nft.ripple.com/accounts"
+    #     )
+
+    # def test_generate_faucet_wallet_custom_url2(self):
+    #     client = JsonRpcClient("https://s.devnet.rippletest.net:51234")
+    #     sync_generate_faucet_wallet_and_fund_again(
+    #         self, client, faucet_host="faucet-nft.ripple.com/accounts"
+    #     )
+
+    # def test_generate_faucet_wallet_custom_url3(self):
+    #     client = JsonRpcClient("https://s.devnet.rippletest.net:51234")
+    #     sync_generate_faucet_wallet_and_fund_again(
+    #         self, client, faucet_host="https://faucet-nft.ripple.com"
+    #     )
+
+    # TODO: negative tests
+
     # Network tests
 
     async def _parallel_test_generate_faucet_wallet_testnet_async_websockets(self):
