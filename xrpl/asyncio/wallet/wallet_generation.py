@@ -42,10 +42,6 @@ async def generate_faucet_wallet(
         debug: Whether to print debug information as it creates the wallet.
         faucet_host: A custom host to use for funding a wallet. In environments other
             than devnet and testnet, this parameter is required.
-            Note: If the NFT faucet is hosted at https://faucet-nft.ripple.com/accounts,
-            then set faucet_host=faucet-nft.ripple.com
-            Do not include the application layer protocol (http://, https://, etc)
-            or the trailing resource path (/accounts) in the faucet_host parameter.
         usage_context: The intended use case for the funding request
             (for example, testing). This information  will be included
             in the json body of the HTTP request to the faucet.
@@ -76,24 +72,11 @@ async def generate_faucet_wallet(
     # Balance prior to asking for more funds
     starting_balance = await _check_wallet_balance(address, client)
 
-    try:
-        # Ask the faucet to send funds to the given address
-        await _request_funding(faucet_url, address, usage_context, user_agent)
-        # Wait for the faucet to fund our account or until timeout
-        # Waits one second checks if balance has changed
-        # If balance doesn't change it will attempt again until _TIMEOUT_SECONDS
-    except XRPLFaucetException:
-        raise XRPLFaucetException(
-            f"Error in generate_faucet_wallet:\n"
-            f"Error pertains to the faucet: '{faucet_url}'"
-        )
-    except Exception as e:
-        print(
-            f"Error in generate_faucet_wallet:\nUnable to transfer funds from "
-            f"faucet: '{faucet_url}' to address: '{address}'. Error: '{e}'"
-        )
-        raise
-
+    # Ask the faucet to send funds to the given address
+    await _request_funding(faucet_url, address, usage_context, user_agent)
+    # Wait for the faucet to fund our account or until timeout
+    # Waits one second checks if balance has changed
+    # If balance doesn't change it will attempt again until _TIMEOUT_SECONDS
     is_funded = False
     for _ in range(_TIMEOUT_SECONDS):
         await asyncio.sleep(1)
@@ -164,7 +147,6 @@ def get_faucet_url(url: str, faucet_host: Optional[str] = None) -> str:
     """
     if faucet_host:
         return process_faucet_host_url(faucet_host)
-        # return f"https://{faucet_host}/accounts"
     if "hooks-testnet-v3" in url:  # hooks v3 testnet
         return _HOOKS_V3_TEST_FAUCET_URL
     if "altnet" in url or "testnet" in url:  # testnet
