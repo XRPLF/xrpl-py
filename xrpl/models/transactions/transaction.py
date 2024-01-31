@@ -15,7 +15,6 @@ from xrpl.models.flags import check_false_flag_definition, interface_to_flag_lis
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.flag_interface import FlagInterface
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
 from xrpl.models.types import XRPL_VALUE_TYPE
 from xrpl.models.utils import require_kwargs_on_init
@@ -200,7 +199,7 @@ class Transaction(BaseModel):
     details.
     """
 
-    flags: Union[FlagInterface, int, List[int]] = 0
+    flags: Union[Dict[str, bool], int, List[int]] = 0
     """
     A List of flags, or a bitwise map of flags, modifying this transaction's
     behavior. See `Flags Field
@@ -301,15 +300,15 @@ class Transaction(BaseModel):
         if isinstance(self.flags, int):
             return self.flags
         check_false_flag_definition(tx_type=self.transaction_type, tx_flags=self.flags)
-        if isinstance(self.flags, list):
-            return self._iter_to_int(lst=self.flags)
-
-        return self._iter_to_int(
-            lst=interface_to_flag_list(
-                tx_type=self.transaction_type,
-                tx_flags=self.flags,
+        if isinstance(self.flags, dict):
+            return self._iter_to_int(
+                lst=interface_to_flag_list(
+                    tx_type=self.transaction_type,
+                    tx_flags=self.flags,
+                )
             )
-        )
+
+        return self._iter_to_int(lst=self.flags)
 
     def to_xrpl(self: Transaction) -> Dict[str, Any]:
         """
