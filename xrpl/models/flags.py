@@ -20,16 +20,14 @@ def interface_to_flag_list(
     """Parse a list of flags expressed as integers from the FlagInterface.
 
     Args:
-        tx_type:
-            Type of the transaction.
-        tx_flags:
-            FlagInterface
+        tx_type: Type of the transaction.
+        tx_flags: FlagInterface
 
     Returns:
         List[int]:
             A list of flags expressed as integers.
     """
-    from xrpl.models import transactions
+    from xrpl.models import transactions  # Avoid circular dependencies
 
     flag_enums = [
         f for f in transactions.__all__ if f.endswith("Flag") and "Asf" not in f
@@ -40,7 +38,10 @@ def interface_to_flag_list(
         if f.endswith("Flag") and "Asf" not in f
     ]
 
+    # Key is transaction type name, value is mapping of flag name to int value
     all_tx_flags: Dict[str, Dict[str, int]] = {
+        # The `:-4` here removes the `Flag` at the end of the class type to just get
+        # the transaction type name
         **{f[:-4]: _get_flag_map(getattr(transactions, f)) for f in flag_enums},
         **{
             f[:-4]: _get_flag_map(getattr(transactions.pseudo_transactions, f))
@@ -48,15 +49,17 @@ def interface_to_flag_list(
         },
     }
 
-    if tx_type not in all_tx_flags:  # if transaction types has no flags
+    if tx_type not in all_tx_flags:
+        # if transaction types has no flags
         return [0]
-    all_flags_for_tx = all_tx_flags[tx_type]
-    flag_list = []
+
+    tx_specific_flags = all_tx_flags[tx_type]  # get flags for that transaction type
+    flag_list = []  # accumulator of the flag numbers
     for flag, flag_on in tx_flags.items():
         flag = flag.lower()
         if flag_on:  # if flag was set to True
-            if flag in all_flags_for_tx:  # if flag was defined
-                flag_list.append(all_flags_for_tx[flag])
+            if flag in tx_specific_flags:  # if flag was defined
+                flag_list.append(tx_specific_flags[flag])
             else:
                 flag_list.append(0)  # if flag was set to False
     return flag_list
