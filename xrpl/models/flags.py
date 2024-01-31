@@ -3,9 +3,17 @@
 from enum import Enum
 from typing import Dict, List, Type, Union
 
+from typing_extensions import TypedDict
+
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions.types.pseudo_transaction_type import PseudoTransactionType
 from xrpl.models.transactions.types.transaction_type import TransactionType
+
+
+class FlagInterface(TypedDict):
+    """A TypedDict to define transaction flags by bool."""
+
+    pass
 
 
 def _get_flag_map(flag_enum: Type[Enum]) -> Dict[str, int]:

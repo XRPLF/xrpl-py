@@ -7,8 +7,8 @@ from typing import Dict, Optional
 
 from typing_extensions import Final
 
+from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.flag_interface import FlagInterface
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
