@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Dict, List, Type, Union
 
 from xrpl.models.exceptions import XRPLModelException
+from xrpl.models.transactions.flag_interface import FlagInterface
 from xrpl.models.transactions.types.pseudo_transaction_type import PseudoTransactionType
 from xrpl.models.transactions.types.transaction_type import TransactionType
 
@@ -14,14 +15,14 @@ def _get_flag_map(flag_enum: Type[Enum]) -> Dict[str, int]:
 
 def interface_to_flag_list(
     tx_type: Union[TransactionType, PseudoTransactionType],
-    tx_flags: Dict[str, bool],
+    tx_flags: FlagInterface,
 ) -> List[int]:
     """Parse a list of flags expressed as integers from the FlagInterface.
 
     Args:
-        tx_type (Union[TransactionType, PseudoTransactionType]):
+        tx_type:
             Type of the transaction.
-        tx_flags (dict):
+        tx_flags:
             FlagInterface
 
     Returns:
@@ -63,7 +64,7 @@ def interface_to_flag_list(
 
 def check_false_flag_definition(
     tx_type: Union[TransactionType, PseudoTransactionType],
-    tx_flags: Union[Dict[str, bool], List[int]],
+    tx_flags: Union[FlagInterface, List[int]],
 ) -> None:
     """Check the flags were set correctly if not defined as integer.
 
@@ -77,8 +78,9 @@ def check_false_flag_definition(
         XRPLModelException: Flags were not set correctly.
     """
     try:
-        if isinstance(tx_flags, dict):
-            interface_flags: Dict[str, bool] = tx_flags
+        if isinstance(tx_flags, list):  # List[int]
+            assert all(isinstance(flag, int) for flag in tx_flags)
+        else:  # FlagInterface
             assert all(
                 [
                     all(
@@ -87,12 +89,9 @@ def check_false_flag_definition(
                             isinstance(set_flag, bool),
                         )
                     )
-                    for flag, set_flag in interface_flags.items()
+                    for flag, set_flag in tx_flags.items()
                 ]
             )
-        else:  # List[int]
-            list_flags: List[int] = tx_flags
-            assert all(isinstance(flag, int) for flag in list_flags)
     except AssertionError:
         msg = f"""
 False flag definition: Please define flags either by setting bools using
