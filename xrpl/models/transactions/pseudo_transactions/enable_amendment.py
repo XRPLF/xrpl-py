@@ -4,8 +4,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Optional, Union
 
-from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
+from xrpl.models.transactions.flag_interface import FlagInterface
 from xrpl.models.transactions.pseudo_transactions.pseudo_transaction import (
     PseudoTransaction,
 )

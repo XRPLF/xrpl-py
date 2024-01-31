@@ -1,80 +1,15 @@
 """All transaction flags and utils to build a list of ints from a FlagInterface"""
 
-from typing import Dict, List, Union
-
-from typing_extensions import TypedDict
+from enum import Enum
+from typing import Dict, List, Type, Union
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions.types.pseudo_transaction_type import PseudoTransactionType
 from xrpl.models.transactions.types.transaction_type import TransactionType
 
-TX_FLAGS: Dict[str, Dict[str, int]] = {
-    "AccountSet": {
-        "tf_require_dest_tag": 0x00010000,
-        "tf_optional_dest_tag": 0x00020000,
-        "tf_require_auth": 0x00040000,
-        "tf_optional_auth": 0x00080000,
-        "tf_disallow_xrp": 0x00100000,
-        "tf_allow_xrp": 0x00200000,
-    },
-    "AMMDeposit": {
-        "tf_lp_token": 0x00010000,
-        "tf_single_asset": 0x00080000,
-        "tf_two_asset": 0x00100000,
-        "tf_one_asset_lp_token": 0x00200000,
-        "tf_limit_lp_token": 0x00400000,
-    },
-    "AMMWithdraw": {
-        "tf_lp_token": 0x00010000,
-        "tf_withdraw_all": 0x00020000,
-        "tf_one_asset_withdraw_all": 0x00040000,
-        "tf_single_asset": 0x00080000,
-        "tf_two_asset": 0x00100000,
-        "tf_one_asset_lp_token": 0x00200000,
-        "tf_limit_lp_token": 0x00400000,
-    },
-    "NFTokenCreateOffer": {
-        "tf_sell_token": 0x00000001,
-    },
-    "NFTokenMint": {
-        "tf_burnable": 0x00000001,
-        "tf_only_xrp": 0x00000002,
-        "tf_trustline": 0x00000004,
-        "tf_transferable": 0x00000008,
-    },
-    "OfferCreate": {
-        "tf_passive": 0x00010000,
-        "tf_immediate_or_cancel": 0x00020000,
-        "tf_fill_or_kill": 0x00040000,
-        "tf_sell": 0x00080000,
-    },
-    "Payment": {
-        "tf_no_direct_ripple": 0x00010000,
-        "tf_partial_payment": 0x00020000,
-        "tf_limit_quality": 0x00040000,
-    },
-    "PaymentChannelClaim": {
-        "tf_renew": 0x00010000,
-        "tf_close": 0x00020000,
-    },
-    "TrustSet": {
-        "tf_set_auth": 0x00010000,
-        "tf_set_no_ripple": 0x00020000,
-        "tf_clear_no_ripple": 0x00040000,
-        "tf_set_freeze": 0x00100000,
-        "tf_clear_freeze": 0x00200000,
-    },
-    "EnableAmendment": {
-        "tf_got_majority": 0x00010000,
-        "tf_lost_majority": 0x00020000,
-    },
-}
 
-
-class FlagInterface(TypedDict):
-    """A TypedDict to define transaction flags by bool."""
-
-    pass
+def _get_flag_map(flag_enum: Type[Enum]) -> Dict[str, int]:
+    return {flag.name.lower(): flag.value for flag in flag_enum}
 
 
 def interface_to_flag_list(
@@ -93,18 +28,36 @@ def interface_to_flag_list(
         List[int]:
             A list of flags expressed as integers.
     """
-    if tx_type not in TX_FLAGS:  # if transaction types has no flags
+    from xrpl.models import transactions
+
+    flag_enums = [
+        f for f in transactions.__all__ if f.endswith("Flag") and "Asf" not in f
+    ]
+    pseudo_tx_flag_enums = [
+        f
+        for f in transactions.pseudo_transactions.__all__
+        if f.endswith("Flag") and "Asf" not in f
+    ]
+
+    all_tx_flags: Dict[str, Dict[str, int]] = {
+        **{f[:-4]: _get_flag_map(getattr(transactions, f)) for f in flag_enums},
+        **{
+            f[:-4]: _get_flag_map(getattr(transactions.pseudo_transactions, f))
+            for f in pseudo_tx_flag_enums
+        },
+    }
+
+    if tx_type not in all_tx_flags:  # if transaction types has no flags
         return [0]
-    flags = TX_FLAGS[tx_type]
+    all_flags_for_tx = all_tx_flags[tx_type]
     flag_list = []
-    for flag, num in flags.items():
-        if flag in tx_flags:  # if flag was defined
-            if tx_flags[flag]:  # if flag was set to True
-                flag_list.append(num)
+    for flag, flag_on in tx_flags.items():
+        flag = flag.lower()
+        if flag_on:  # if flag was set to True
+            if flag in all_flags_for_tx:  # if flag was defined
+                flag_list.append(all_flags_for_tx[flag])
             else:
                 flag_list.append(0)  # if flag was set to False
-        else:  # if flag was not defined
-            flag_list.append(0)
     return flag_list
 
 
@@ -119,9 +72,6 @@ def check_false_flag_definition(
             Type of the transaction.
         tx_flags (Iterable):
             FlagInterface
-
-    Retruns:
-        None
 
     Raises:
         XRPLModelException: Flags were not set correctly.
