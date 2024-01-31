@@ -36,6 +36,8 @@ def interface_to_flag_list(
     """
     from xrpl.models import transactions  # Avoid circular dependencies
 
+    # Get all exported classes with names of the form `{TxType}Flag`
+    # These are all the flag value enums for transactions/pseudo-transactions
     flag_enums = [
         f for f in transactions.__all__ if f.endswith("Flag") and "Asf" not in f
     ]
@@ -56,14 +58,14 @@ def interface_to_flag_list(
         },
     }
 
+    # if transaction types has no flags
     if tx_type not in all_tx_flags:
-        # if transaction types has no flags
         return [0]
 
     tx_specific_flags = all_tx_flags[tx_type]  # get flags for that transaction type
     flag_list = []  # accumulator of the flag numbers
-    for flag, flag_on in tx_flags.items():
-        flag = flag.lower()
+    for flag, flag_on in tx_flags.items():  # iterate through user-included flags
+        flag = flag.lower()  # normalize capitalization
         if flag_on:  # if flag was set to True
             if flag in tx_specific_flags:  # if flag was defined
                 flag_list.append(tx_specific_flags[flag])
