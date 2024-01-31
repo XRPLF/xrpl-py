@@ -299,6 +299,41 @@ class TestBetterTransactionFlags(TestCase):
             second=signed_expected,
         )
 
+    def test_xchain_modify_bridge_flags(self):
+        bridge = models.XChainBridge(
+            locking_chain_door=ACCOUNT,
+            locking_chain_issue=models.XRP(),
+            issuing_chain_door="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+            issuing_chain_issue=models.XRP(),
+        )
+        actual = models.XChainModifyBridge(
+            account=ACCOUNT,
+            xchain_bridge=bridge,
+            flags=models.XChainModifyBridgeFlagInterface(
+                TF_CLEAR_ACCOUNT_CREATE_AMOUNT=True,
+            ),
+        )
+        self.assertTrue(actual.has_flag(flag=0x00010000))
+        self.assertTrue(actual.is_valid())
+        flags = models.XChainModifyBridgeFlag
+        expected = models.XChainModifyBridge(
+            account=ACCOUNT,
+            xchain_bridge=bridge,
+            flags=[*flags],
+        )
+        signed_actual = sign(
+            transaction=actual,
+            wallet=WALLET,
+        )
+        signed_expected = sign(
+            transaction=expected,
+            wallet=WALLET,
+        )
+        self.assertEqual(
+            first=signed_actual,
+            second=signed_expected,
+        )
+
     def test_enable_amendment(self):
         amdmt = "42426C4D4F1009EE67080A9B7965B44656D7714D104A72F9B4369F97ABF044EE"
         seq = 21225473

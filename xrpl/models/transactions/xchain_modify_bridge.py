@@ -76,10 +76,15 @@ class XChainModifyBridge(Transaction):
 
         bridge = self.xchain_bridge
 
-        if self.signature_reward is None and self.min_account_create_amount is None:
-            errors[
-                "xchain_modify_bridge"
-            ] = "Must either change signature_reward or min_account_create_amount."
+        if (
+            self.signature_reward is None
+            and self.min_account_create_amount is None
+            and not self.has_flag(XChainModifyBridgeFlag.TF_CLEAR_ACCOUNT_CREATE_AMOUNT)
+        ):
+            errors["xchain_modify_bridge"] = (
+                "Must either change signature_reward, change "
+                + "min_account_create_amount, or clear min_account_create_amount."
+            )
 
         if self.account not in [bridge.locking_chain_door, bridge.issuing_chain_door]:
             errors[
