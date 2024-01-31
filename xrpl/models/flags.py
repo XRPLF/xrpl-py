@@ -16,7 +16,7 @@ class FlagInterface(TypedDict):
     pass
 
 
-def _get_flag_map(flag_enum: Type[Enum]) -> Dict[str, int]:
+def _flag_enum_to_dict(flag_enum: Type[Enum]) -> Dict[str, int]:
     return {flag.name.lower(): flag.value for flag in flag_enum}
 
 
@@ -51,9 +51,9 @@ def interface_to_flag_list(
     all_tx_flags: Dict[str, Dict[str, int]] = {
         # The `:-4` here removes the `Flag` at the end of the class type to just get
         # the transaction type name
-        **{f[:-4]: _get_flag_map(getattr(transactions, f)) for f in flag_enums},
+        **{f[:-4]: _flag_enum_to_dict(getattr(transactions, f)) for f in flag_enums},
         **{
-            f[:-4]: _get_flag_map(getattr(transactions.pseudo_transactions, f))
+            f[:-4]: _flag_enum_to_dict(getattr(transactions.pseudo_transactions, f))
             for f in pseudo_tx_flag_enums
         },
     }
