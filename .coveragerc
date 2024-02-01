@@ -1,0 +1,3 @@
+[run]
+omit =
+    */xrpl/models/ledger_objects/*
