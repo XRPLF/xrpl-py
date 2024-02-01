@@ -9,9 +9,6 @@ from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.ledger_objects.ledger_entry_type import LedgerEntryType
 from xrpl.models.required import REQUIRED
-
-# TODO: REMOVE if optional is needed
-# from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 L = TypeVar("L", bound="LedgerObject")

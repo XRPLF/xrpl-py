@@ -12,6 +12,7 @@ from xrpl.models.ledger_objects.escrow import Escrow
 from xrpl.models.ledger_objects.fee_settings import FeeSettings
 from xrpl.models.ledger_objects.ledger_entry_type import LedgerEntryType
 from xrpl.models.ledger_objects.ledger_hashes import LedgerHashes
+from xrpl.models.ledger_objects.ledger_object import LedgerObject
 from xrpl.models.ledger_objects.negative_unl import DisabledValidator, NegativeUNL
 from xrpl.models.ledger_objects.nftoken_offer import (
     NFToken,
@@ -48,6 +49,7 @@ __all__ = [
     "FeeSettings",
     "LedgerEntryType",
     "LedgerHashes",
+    "LedgerObject",
     "Majority",
     "NegativeUNL",
     "NFToken",
