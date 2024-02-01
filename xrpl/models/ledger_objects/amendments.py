@@ -23,12 +23,6 @@ class Amendments(LedgerObject):
     there are no enabled amendments.
     """
 
-    flags: int = 0
-    """
-    A bit-map of boolean flags. Currently, the protocol defines no flags for
-    `Amendments` objects. The value is always 0.
-    """
-
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.AMENDMENTS,
         init=False,

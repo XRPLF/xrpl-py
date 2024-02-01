@@ -43,7 +43,7 @@ class LedgerObject(BaseModel):
     RippleState, and others. This field is required.
     """
 
-    flags: int = REQUIRED  # type: ignore
+    flags: int = 0
     """
     Set of bit-flags for this ledger entry.
     """

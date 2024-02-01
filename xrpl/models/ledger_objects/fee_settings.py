@@ -53,12 +53,6 @@ class FeeSettings(LedgerObject):
     The incremental owner reserve for owning objects, as drops of XRP.
     """
 
-    flags: int = 0
-    """
-    A bit-map of boolean flags enabled for this object. Currently, the protocol defines
-    no flags for `FeeSettings` objects. The value is always 0.
-    """
-
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.FEE_SETTINGS, init=False
     )

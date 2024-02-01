@@ -43,12 +43,6 @@ class Ticket(LedgerObject):
     The Sequence Number this Ticket sets aside. This field is required.
     """
 
-    flags: int = 0
-    """
-    A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
-    Ticket entries.
-    """
-
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.TICKET,
         init=False,

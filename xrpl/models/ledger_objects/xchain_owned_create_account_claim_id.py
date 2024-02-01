@@ -70,12 +70,6 @@ class XChainOwnedCreateAccountClaimID(LedgerObject):
     this object. This field is required.
     """
 
-    flags: int = 0
-    """
-    A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
-    XChainOwnedCreateAccountClaimID entries.
-    """
-
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.XCHAIN_OWNED_CREATE_ACCOUNT_CLAIM_ID,
         init=False,

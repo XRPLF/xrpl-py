@@ -116,12 +116,6 @@ class PayChannel(LedgerObject):
     hosted recipient at the owner's address.
     """
 
-    flags: int = 0
-    """
-    A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
-    PayChannel entries.
-    """
-
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.PAY_CHANNEL,
         init=False,

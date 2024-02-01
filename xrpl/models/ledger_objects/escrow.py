@@ -91,12 +91,6 @@ class Escrow(LedgerObject):
     recipient at the owner's address.
     """
 
-    flags: int = 0
-    """
-    A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
-    Escrow entries.
-    """
-
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.ESCROW, init=False
     )

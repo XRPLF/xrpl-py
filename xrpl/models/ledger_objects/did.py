@@ -59,12 +59,6 @@ class DID(LedgerObject):
     bytes.
     """
 
-    flags: int = 0
-    """
-    A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
-    DID entries.
-    """
-
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.DID,
         init=False,

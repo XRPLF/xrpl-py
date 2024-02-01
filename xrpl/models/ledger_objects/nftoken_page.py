@@ -48,12 +48,6 @@ class NFTokenPage(LedgerObject):
     modified this NFTokenPage object.
     """
 
-    flags: int = 0
-    """
-    A bit-map of boolean flags. Flags is always 0 since there are no flags defined for
-    NFTokenPage entries.
-    """
-
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.NFTOKEN_PAGE,
         init=False,
