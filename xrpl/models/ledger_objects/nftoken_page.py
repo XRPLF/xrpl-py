@@ -58,7 +58,3 @@ class NFTokenPage(LedgerObject):
         default=LedgerEntryType.NFTOKEN_PAGE,
         init=False,
     )
-    """
-    The value `0x0050`, mapped to the string `NFTokenPage`, indicates that this is a
-    page containing `NFToken` objects.
-    """

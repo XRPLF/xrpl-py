@@ -42,7 +42,9 @@ class XChainOwnedCreateAccountClaimID(LedgerObject):
     This field is required.
     """
 
-    xchain_create_account_attestations: List[XChainCreateAccountProofSig] = REQUIRED  # type: ignore
+    xchain_create_account_attestations: List[
+        XChainCreateAccountProofSig
+    ] = REQUIRED  # type: ignore
     """
     Attestations collected from the witness servers. This includes the parameters
     needed to recreate the message that was signed, including the amount, which chain

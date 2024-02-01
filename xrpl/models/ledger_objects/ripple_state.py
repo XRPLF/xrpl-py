@@ -96,10 +96,6 @@ class RippleState(LedgerObject):
         default=LedgerEntryType.RIPPLE_STATE,
         init=False,
     )
-    """
-    The value `0x0072`, mapped to the string `RippleState`, indicates that this is a
-    RippleState entry.
-    """
 
 
 class RippleStateFlag(Enum):

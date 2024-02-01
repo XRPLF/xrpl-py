@@ -80,10 +80,6 @@ class NFTokenOffer(LedgerObject):
         default=LedgerEntryType.NFTOKEN_OFFER,
         init=False,
     )
-    """
-    The value `0x0037`, mapped to the string `NFTokenOffer`, indicates that this is an
-    offer to trade a `NFToken`.
-    """
 
 
 @require_kwargs_on_init

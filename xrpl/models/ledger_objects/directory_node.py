@@ -89,7 +89,3 @@ class DirectoryNode(LedgerObject):
         default=LedgerEntryType.DIRECTORY_NODE,
         init=False,
     )
-    """
-    The value `0x0064`, mapped to the string `DirectoryNode`, indicates that this
-    object is part of a Directory.
-    """

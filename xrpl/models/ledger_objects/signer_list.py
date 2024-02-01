@@ -59,10 +59,6 @@ class SignerList(LedgerObject):
         default=LedgerEntryType.SIGNER_LIST,
         init=False,
     )
-    """
-    The value `0x0053`, mapped to the string `SignerList`, indicates that this is a
-    SignerList ledger entry.
-    """
 
 
 class SignerListFlag(Enum):

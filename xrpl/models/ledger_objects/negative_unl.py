@@ -44,10 +44,6 @@ class NegativeUNL(LedgerObject):
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.NEGATIVE_UNL, init=False
     )
-    """
-    The value `0x004E`, mapped to the string `NegativeUNL`, indicates that this entry
-    is the Negative UNL.
-    """
 
 
 @require_kwargs_on_init

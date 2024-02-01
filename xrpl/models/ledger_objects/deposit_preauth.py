@@ -57,7 +57,3 @@ class DepositPreauth(LedgerObject):
         default=LedgerEntryType.DEPOSIT_PREAUTH,
         init=False,
     )
-    """
-    The value `0x0070`, mapped to the string `DepositPreauth`, indicates that this is a
-    DepositPreauth object.
-    """

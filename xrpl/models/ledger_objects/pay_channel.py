@@ -126,7 +126,3 @@ class PayChannel(LedgerObject):
         default=LedgerEntryType.PAY_CHANNEL,
         init=False,
     )
-    """
-    The value `0x0078`, mapped to the string `PayChannel`, indicates that this is a
-    payment channel entry.
-    """

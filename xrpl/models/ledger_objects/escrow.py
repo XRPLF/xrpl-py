@@ -100,7 +100,3 @@ class Escrow(LedgerObject):
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.ESCROW, init=False
     )
-    """
-    The value `0x0075`, mapped to the string `Escrow`, indicates that this is an Escrow
-    entry.
-    """

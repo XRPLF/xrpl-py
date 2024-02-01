@@ -100,7 +100,3 @@ class Check(LedgerObject):
         default=LedgerEntryType.CHECK,
         init=False,
     )
-    """
-    The value 0x0043, mapped to the string `Check`, indicates that this object is a
-    Check object.
-    """

@@ -33,10 +33,6 @@ class Amendments(LedgerObject):
         default=LedgerEntryType.AMENDMENTS,
         init=False,
     )
-    """
-    The value `0x0066`, mapped to the string `Amendments`, indicates that this object
-    describes the status of amendments to the XRP Ledger.
-    """
 
     majorities: Optional[List[Majority]] = None
     """

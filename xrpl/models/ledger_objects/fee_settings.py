@@ -62,7 +62,3 @@ class FeeSettings(LedgerObject):
     ledger_entry_type: LedgerEntryType = field(
         default=LedgerEntryType.FEE_SETTINGS, init=False
     )
-    """
-    The value `0x0073`, mapped to the string `FeeSettings`, indicates that this object
-    contains the ledger's fee settings.
-    """

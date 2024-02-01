@@ -69,7 +69,3 @@ class DID(LedgerObject):
         default=LedgerEntryType.DID,
         init=False,
     )
-    """
-    The value `0x0049`, mapped to the string `DID`, indicates that this object is a DID
-    object.
-    """

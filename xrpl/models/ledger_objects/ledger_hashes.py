@@ -46,7 +46,3 @@ class LedgerHashes(LedgerObject):
         default=LedgerEntryType.LEDGER_HASHES,
         init=False,
     )
-    """
-    The value `0x0068`, mapped to the string `LedgerHashes`, indicates that this object
-    is a list of ledger hashes.
-    """

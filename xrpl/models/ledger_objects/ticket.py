@@ -53,7 +53,3 @@ class Ticket(LedgerObject):
         default=LedgerEntryType.TICKET,
         init=False,
     )
-    """
-    The value `0x0054`, mapped to the string `Ticket`, indicates that this is a Ticket
-    entry.
-    """
