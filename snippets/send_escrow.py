@@ -48,6 +48,7 @@ print("Escrow object exists in wallet1's account:")
 print(account_objects)
 
 print("Waiting for the escrow finish time to pass...")
+
 sleep(9)
 
 # Create an EscrowFinish transaction, then sign, autofill, and send it
