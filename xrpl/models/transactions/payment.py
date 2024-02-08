@@ -3,9 +3,10 @@ from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type, TypeVar
 
 from xrpl.models.amounts import Amount, is_xrp
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.flags import FlagInterface
 from xrpl.models.path import Path
 from xrpl.models.required import REQUIRED
@@ -55,6 +56,9 @@ class PaymentFlagInterface(FlagInterface):
     TF_NO_DIRECT_RIPPLE: bool
     TF_PARTIAL_PAYMENT: bool
     TF_LIMIT_QUALITY: bool
+
+
+P = TypeVar("P", bound="Payment")
 
 
 @require_kwargs_on_init
@@ -167,3 +171,34 @@ class Payment(Transaction):
                 ] = "A currency conversion requires a `send_max` value."
 
         return errors
+
+    @classmethod
+    def from_dict(cls: Type[P], value: Dict[str, Any]) -> P:
+        """
+        Construct a new XRP from a dictionary of parameters.
+
+        Args:
+            value: The value to construct the XRP from.
+
+        Returns:
+            A new XRP object, constructed using the given parameters.
+
+        Raises:
+            XRPLModelException: If the dictionary provided is invalid.
+        """
+        # if len(value) != 1 or "currency" not in value or value["currency"] != "XRP":
+        #     raise XRPLModelException("Not a valid XRP type")
+        # return XRP()
+
+        if "deliver_max" in value:
+            if "amount" in value:
+                if value["amount"] != value["deliver_max"]:
+                    raise XRPLModelException(
+                        "Error: amount and deliver_max fields are not identical"
+                    )
+
+            else:
+                value["amount"] = value["deliver_max"]
+            del value["deliver_max"]
+
+        return super(Payment, cls).from_dict(value)
