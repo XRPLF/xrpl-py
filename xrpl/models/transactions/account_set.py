@@ -89,6 +89,21 @@ class AccountSetFlag(int, Enum):
     ASF_AUTHORIZED_NFTOKEN_MINTER = 10
     """Allow another account to mint and burn tokens on behalf of this account."""
 
+    ASF_DISABLE_INCOMING_NFTOKEN_OFFER = 12
+    """Disallow other accounts from creating NFTokenOffers directed at this account."""
+
+    ASF_DISABLE_INCOMING_CHECK = 13
+    """Disallow other accounts from creating Checks directed at this account."""
+
+    ASF_DISABLE_INCOMING_PAYCHAN = 14
+    """Disallow other accounts from creating PayChannels directed at this account."""
+
+    ASF_DISABLE_INCOMING_TRUSTLINE = 15
+    """Disallow other accounts from creating Trustlines directed at this account."""
+
+    ASF_ALLOW_TRUSTLINE_CLAWBACK = 16
+    """Allow trustline clawback feature"""
+
 
 class AccountSetFlagInterface(FlagInterface):
     """
