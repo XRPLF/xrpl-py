@@ -8,14 +8,14 @@ from typing import Optional, Union
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.ledger_objects.ledger_entry_type import LedgerEntryType
-from xrpl.models.ledger_objects.ledger_object import LedgerObject
+from xrpl.models.ledger_objects.ledger_object import HasPreviousTxnID, LedgerObject
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class NFTokenOffer(LedgerObject):
+class NFTokenOffer(LedgerObject, HasPreviousTxnID):
     """The model for the `NFTokenOffer` Ledger Object"""
 
     amount: Union[str, NFToken] = REQUIRED  # type: ignore
@@ -37,18 +37,6 @@ class NFTokenOffer(LedgerObject):
     Owner of the account that is creating and owns the offer. Only the current Owner of
     an NFToken can create an offer to sell an NFToken, but any account can create an
     offer to buy an NFToken. This field is required.
-    """
-
-    previous_txn_id: str = REQUIRED  # type: ignore
-    """
-    Identifying hash of the transaction that most recently modified this object.
-    This field is required.
-    """
-
-    previous_txn_lgr_seq: int = REQUIRED  # type: ignore
-    """
-    Index of the ledger that contains the transaction that most recently modified this
-    object. This field is required.
     """
 
     destination: Optional[str] = None

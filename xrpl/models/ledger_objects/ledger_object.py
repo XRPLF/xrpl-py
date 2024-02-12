@@ -166,3 +166,24 @@ class LedgerObject(BaseModel):
         ):
             return self
         return self.__getattribute__(field_name)
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True)
+class HasPreviousTxnID:
+    """
+    A mixin for ledger objects that have `PreviousTxnID` and `PreviousTxnLgrSeq`
+    fields.
+    """
+
+    previous_txn_id: str = REQUIRED  # type: ignore
+    """
+    The identifying hash of the transaction that most recently modified this entry.
+    This field is required.
+    """
+
+    previous_txn_lgr_seq: int = REQUIRED  # type: ignore
+    """
+    The index of the ledger that contains the transaction that most recently modified
+    this entry. This field is required.
+    """

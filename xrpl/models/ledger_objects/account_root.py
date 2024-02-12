@@ -7,14 +7,14 @@ from enum import Enum
 from typing import Optional
 
 from xrpl.models.ledger_objects.ledger_entry_type import LedgerEntryType
-from xrpl.models.ledger_objects.ledger_object import LedgerObject
+from xrpl.models.ledger_objects.ledger_object import HasPreviousTxnID, LedgerObject
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class AccountRoot(LedgerObject):
+class AccountRoot(LedgerObject, HasPreviousTxnID):
     """The model for the `AccountRoot` Ledger Object"""
 
     account: str = REQUIRED  # type: ignore
@@ -87,18 +87,6 @@ class AccountRoot(LedgerObject):
     """
     The number of objects this account owns in the ledger, which contributes to its
     owner reserve.
-    """
-
-    previous_txn_id: str = REQUIRED  # type: ignore
-    """
-    The identifying hash of the transaction that most recently modified this object.
-    This field is required.
-    """
-
-    previous_txn_lgr_seq: int = REQUIRED  # type: ignore
-    """
-    The index of the ledger that contains the transaction that most recently modified
-    this object. This field is required.
     """
 
     regular_key: Optional[str] = None

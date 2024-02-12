@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import Optional, Union
 
 from xrpl.models.ledger_objects.ledger_entry_type import LedgerEntryType
-from xrpl.models.ledger_objects.ledger_object import LedgerObject
+from xrpl.models.ledger_objects.ledger_object import HasPreviousTxnID, LedgerObject
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 from xrpl.models.xchain_bridge import XChainBridge
@@ -14,7 +14,7 @@ from xrpl.models.xchain_bridge import XChainBridge
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class Bridge(LedgerObject):
+class Bridge(LedgerObject, HasPreviousTxnID):
     """The model for the `Bridge` Ledger Object"""
 
     account: str = REQUIRED  # type: ignore
@@ -72,18 +72,6 @@ class Bridge(LedgerObject):
     """
     A hint indicating which page of the sender's owner directory links to this entry,
     in case the directory consists of multiple pages.
-    """
-
-    previous_txn_id: str = REQUIRED  # type: ignore
-    """
-    The identifying hash of the transaction that most recently modified this object.
-    This field is required.
-    """
-
-    previous_txn_lgr_seq: int = REQUIRED  # type: ignore
-    """
-    The index of the ledger that contains the transaction that most recently modified
-    this object.
     """
 
     ledger_entry_type: LedgerEntryType = field(

@@ -5,14 +5,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from xrpl.models.ledger_objects.ledger_entry_type import LedgerEntryType
-from xrpl.models.ledger_objects.ledger_object import LedgerObject
+from xrpl.models.ledger_objects.ledger_object import HasPreviousTxnID, LedgerObject
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class DepositPreauth(LedgerObject):
+class DepositPreauth(LedgerObject, HasPreviousTxnID):
     """The model for the `DepositPreauth` Ledger Object"""
 
     account: str = REQUIRED  # type: ignore
@@ -33,18 +33,6 @@ class DepositPreauth(LedgerObject):
     in case the directory consists of multiple pages. Note: The object does not contain
     a direct link to the owner directory containing it, since that value can be derived
     from the Account. This field is required.
-    """
-
-    previous_txn_id: str = REQUIRED  # type: ignore
-    """
-    The identifying hash of the transaction that most recently modified this object.
-    This field is required.
-    """
-
-    previous_txn_lgr_seq: int = REQUIRED  # type: ignore
-    """
-    The index of the ledger that contains the transaction that most recently modified
-    this object. This field is required.
     """
 
     ledger_entry_type: LedgerEntryType = field(

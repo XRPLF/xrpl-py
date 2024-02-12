@@ -6,14 +6,14 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from xrpl.models.ledger_objects.ledger_entry_type import LedgerEntryType
-from xrpl.models.ledger_objects.ledger_object import LedgerObject
+from xrpl.models.ledger_objects.ledger_object import HasPreviousTxnID, LedgerObject
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
 
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class PayChannel(LedgerObject):
+class PayChannel(LedgerObject, HasPreviousTxnID):
     """The model for the `PayChannel` Ledger Object"""
 
     account: str = REQUIRED  # type: ignore
@@ -72,18 +72,6 @@ class PayChannel(LedgerObject):
     the transaction that created the channel and must match the public key used in
     claims against the channel. The channel source address can also send XRP from this
     channel to the destination without signed claims. This field is required.
-    """
-
-    previous_txn_id: str = REQUIRED  # type: ignore
-    """
-    The identifying hash of the transaction that most recently modified this entry.
-    This field is required.
-    """
-
-    previous_txn_lgr_seq: int = REQUIRED  # type: ignore
-    """
-    The index of the ledger that contains the transaction that most recently modified
-    this entry. This field is required.
     """
 
     settle_delay: int = REQUIRED  # type: ignore
