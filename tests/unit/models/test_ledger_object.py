@@ -479,7 +479,7 @@ xchain_owned_create_account_claim_id_json = {
 
 class TestFromTODict(TestCase):
     def test_account_root(self):
-        actual = AccountRoot.from_dict(account_root_json)
+        actual = AccountRoot.from_xrpl(account_root_json)
         expected = AccountRoot(
             index="13F1A95D7AAB7108D5CE7EEAF504B2894B8C674E6D68499076441C4837282BF8",
             account="rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
@@ -511,7 +511,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(account_root_json, expected.to_dict())
 
     def test_amendments(self):
-        actual = Amendments.from_dict(amendment_json)
+        actual = Amendments.from_xrpl(amendment_json)
         expected = Amendments(
             index="7DB0788C020F02780A673DC74757F23823FA3014C1866E72CC4CD8B226CD6EF4",
             amendments=[
@@ -532,7 +532,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(amendment_json, expected.to_dict())
 
     def test_amm(self):
-        actual = AMM.from_dict(amm_json)
+        actual = AMM.from_xrpl(amm_json)
         expected = AMM(
             account="rE54zDvgnghAoPopCgvtiqWNq3dU5y836S",
             asset=XRP(),
@@ -573,7 +573,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(amm_json, expected.to_dict())
 
     def test_bridge(self):
-        actual = Bridge.from_dict(bridge_json)
+        actual = Bridge.from_xrpl(bridge_json)
         expected = Bridge(
             account="r3nCVTbZGGYoWvZ58BcxDmiMUU7ChMa1eC",
             min_account_create_amount="2000000000",
@@ -597,7 +597,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(bridge_json, expected.to_dict())
 
     def test_check(self):
-        actual = Check.from_dict(check_json)
+        actual = Check.from_xrpl(check_json)
         expected = Check(
             index="49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
             account="rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo",
@@ -619,7 +619,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(check_json, expected.to_dict())
 
     def test_deposit_preauth(self):
-        actual = DepositPreauth.from_dict(deposit_preauth_json)
+        actual = DepositPreauth.from_xrpl(deposit_preauth_json)
         expected = DepositPreauth(
             index="4A255038CC3ADCC1A9C91509279B59908251728D0DAADB248FFE297D0F7E068C",
             account="rsUiUMpnrgxQp24dJYZDhmV4bE3aBtQyt8",
@@ -633,7 +633,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(deposit_preauth_json, expected.to_dict())
 
     def test_did(self):
-        actual = DID.from_dict(did_json)
+        actual = DID.from_xrpl(did_json)
         expected = DID(
             account="rpfqJrXg5uidNo2ZsRhRY6TiF1cvYmV9Fg",
             did_document="646F63",
@@ -649,7 +649,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(did_json, expected.to_dict())
 
     def test_directory_node(self):
-        actual = DirectoryNode.from_dict(directory_node_json)
+        actual = DirectoryNode.from_xrpl(directory_node_json)
         expected = DirectoryNode(
             index="1BBEF97EDE88D40CEE2ADE6FEF121166AFE80D99EBADB01A4F069BA8FF484000",
             root_index="1BBEF97EDE88D40CEE2ADE6FEF121166A"
@@ -671,7 +671,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(directory_node_json, expected.to_dict())
 
     def test_escrow(self):
-        actual = Escrow.from_dict(escrow_json)
+        actual = Escrow.from_xrpl(escrow_json)
         expected = Escrow(
             index="DC5F3851D8A1AB622F957761E5963BC5BD439D5C24AC6AD7AC4523F0640244AC",
             account="rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
@@ -693,7 +693,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(escrow_json, expected.to_dict())
 
     def test_fee_settings(self):
-        actual = FeeSettings.from_dict(fee_settings_json)
+        actual = FeeSettings.from_xrpl(fee_settings_json)
         expected = FeeSettings(
             index="4BC50C9B0D8515D3EAAE1E74B29A95804346C491EE1A95BF25E4AAB854A6A651",
             base_fee="000000000000000A",
@@ -705,7 +705,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(fee_settings_json, expected.to_dict())
 
     def test_ledger_hashes(self):
-        actual = LedgerHashes.from_dict(ledger_hashes_json)
+        actual = LedgerHashes.from_xrpl(ledger_hashes_json)
         expected = LedgerHashes(
             index="B4979A36CDC7F3D3D5C31A4EAE2AC7D7209DDA877588B9AFC66799692AB0D66B",
             first_ledger_sequence=2,
@@ -722,7 +722,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(ledger_hashes_json, expected.to_dict())
 
     def test_negative_unl(self):
-        actual = NegativeUNL.from_dict(negative_unl_json)
+        actual = NegativeUNL.from_xrpl(negative_unl_json)
         expected = NegativeUNL(
             index="2E8A59AA9D3B5B186B0B9E0F62E6C02587CA74A4D778938E957B6357D364B244",
             disabled_validators=[
@@ -739,7 +739,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(negative_unl_json, expected.to_dict())
 
     def test_nftoken_offer(self):
-        actual = NFTokenOffer.from_dict(nftoken_offer_json)
+        actual = NFTokenOffer.from_xrpl(nftoken_offer_json)
         expected = NFTokenOffer(
             index="AEBABA4FAC212BF28E0F9A9C3788A47B085557EC5D1429E7A8266FB859C863B3",
             amount="1000000",
@@ -757,7 +757,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(nftoken_offer_json, expected.to_dict())
 
     def test_nftoken_page(self):
-        actual = NFTokenPage.from_dict(nftoken_page_json)
+        actual = NFTokenPage.from_xrpl(nftoken_page_json)
         expected = NFTokenPage(
             index="",
             previous_page_min=None,
@@ -779,7 +779,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(nftoken_page_json, expected.to_dict())
 
     def test_offer(self):
-        actual = Offer.from_dict(offer_json)
+        actual = Offer.from_xrpl(offer_json)
         expected = Offer(
             index="96F76F27D8A327FC48753167EC04A46AA0E382E6F57F32FD12274144D00F1797",
             account="rBqb89MRQJnMPq8wTwEbtz4kvxrEDfcYvt",
@@ -802,7 +802,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(offer_json, expected.to_dict())
 
     def test_pay_channel(self):
-        actual = PayChannel.from_dict(pay_channel_json)
+        actual = PayChannel.from_xrpl(pay_channel_json)
         expected = PayChannel(
             index="96F76F27D8A327FC48753167EC04A46AA0E382E6F57F32FD12274144D00F1797",
             account="rBqb89MRQJnMPq8wTwEbtz4kvxrEDfcYvt",
@@ -827,7 +827,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(pay_channel_json, expected.to_dict())
 
     def test_ripple_state(self):
-        actual = RippleState.from_dict(ripple_state_json)
+        actual = RippleState.from_xrpl(ripple_state_json)
         expected = RippleState(
             index="9CA88CDEDFF9252B3DE183CE35B038F57282BC9503CDFA1923EF9A95DF0D6F7B",
             balance=IssuedCurrencyAmount(
@@ -854,7 +854,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(ripple_state_json, expected.to_dict())
 
     def test_signer_list(self):
-        actual = SignerList.from_dict(signer_list_json)
+        actual = SignerList.from_xrpl(signer_list_json)
         expected = SignerList(
             index="A9C28A28B85CD533217F5C0A0C7767666B093FA58A0F2D80026FCC4CD932DDC7",
             flags=0,
@@ -883,7 +883,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(signer_list_json, expected.to_dict())
 
     def test_ticket(self):
-        actual = Ticket.from_dict(ticket_json)
+        actual = Ticket.from_xrpl(ticket_json)
         expected = Ticket(
             index="A9C28A28B85CD533217F5C0A0C7767666B093FA58A0F2D80026FCC4CD932DDC7",
             account="rEhxGqkqPPSxQ3P25J66ft5TwpzV14k2de",
@@ -898,7 +898,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(ticket_json, expected.to_dict())
 
     def test_xchain_owned_claim_id(self):
-        actual = XChainOwnedClaimID.from_dict(xchain_owned_claim_id_json)
+        actual = XChainOwnedClaimID.from_xrpl(xchain_owned_claim_id_json)
         expected = XChainOwnedClaimID(
             account="rBW1U7J9mEhEdk6dMHEFUjqQ7HW7WpaEMi",
             other_chain_source="r9oXrvBX5aDoyMGkoYvzazxDhYoWFUjz8p",
@@ -941,7 +941,7 @@ class TestFromTODict(TestCase):
         self.assertEqual(xchain_owned_claim_id_json, expected.to_dict())
 
     def test_xchain_owned_create_account_claim_id(self):
-        actual = XChainOwnedCreateAccountClaimID.from_dict(
+        actual = XChainOwnedCreateAccountClaimID.from_xrpl(
             xchain_owned_create_account_claim_id_json
         )
         expected = XChainOwnedCreateAccountClaimID(
