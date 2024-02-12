@@ -27,13 +27,13 @@ class DirectoryNode(LedgerObject):
     This field is required.
     """
 
-    index_next: Optional[int] = None
+    index_next: Optional[str] = None
     """
     If this Directory consists of multiple pages, this ID links to the next object in
     the chain, wrapping around at the end.
     """
 
-    index_previous: Optional[int] = None
+    index_previous: Optional[str] = None
     """
     If this Directory consists of multiple pages, this ID links to the previous object
     in the chain, wrapping around at the beginning. This field is required.
