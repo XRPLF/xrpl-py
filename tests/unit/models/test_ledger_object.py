@@ -483,7 +483,6 @@ class TestFromTODict(TestCase):
         expected = AccountRoot(
             index="13F1A95D7AAB7108D5CE7EEAF504B2894B8C674E6D68499076441C4837282BF8",
             account="rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
-            amm_id=None,
             balance="148446663",
             flags=8388608,
             owner_count=3,
@@ -493,19 +492,11 @@ class TestFromTODict(TestCase):
             sequence=336,
             account_txn_id="0D5FB50FA65C9FE1538FD7E398FFFE9D1"
             "908DFA4576D8D7A020040686F93C77D",
-            burned_nftokens=None,
-            first_nftoken_sequence=None,
             domain="6D64756F31332E636F6D",
             email_hash="98B4375E1D753E5B91627516F6D70977",
             message_key="0000000000000000000000070000000300",
-            minted_nftokens=None,
             nftoken_minter="rHello",
-            regular_key=None,
-            ticket_count=None,
-            tick_size=None,
             transfer_rate=1004999999,
-            wallet_locator=None,
-            wallet_size=None,
         )
         self.assertEqual(actual, expected)
         self.assertEqual(account_root_json, expected.to_dict())
@@ -613,7 +604,6 @@ class TestFromTODict(TestCase):
             expiration=570113521,
             invoice_id="46060241FABCF692D4D934BA2A6C4427CD427"
             "9083E38C77CBE642243E43BE291",
-            source_tag=None,
         )
         self.assertEqual(actual, expected)
         self.assertEqual(check_json, expected.to_dict())
@@ -657,15 +647,11 @@ class TestFromTODict(TestCase):
             indexes=[
                 "AD7EAE148287EF12D213A251015F86E6D4BD34B3C4A0A1ED9A17198373F908AD"
             ],
-            index_next=None,
-            index_previous=None,
-            owner=None,
             exchange_rate="4F069BA8FF484000",
             taker_pays_currency="0000000000000000000000004A50590000000000",
             taker_pays_issuer="5BBC0F22F61D9224A110650CFE21CC0C4BE13098",
             taker_gets_currency="0000000000000000000000000000000000000000",
             taker_gets_issuer="0000000000000000000000000000000000000000",
-            nftoken_id=None,
         )
         self.assertEqual(actual, expected)
         self.assertEqual(directory_node_json, expected.to_dict())
@@ -732,8 +718,6 @@ class TestFromTODict(TestCase):
                     "3921F309949AFCD2CA7AFEC16FE",
                 )
             ],
-            validator_to_disable=None,
-            validator_to_re_enable=None,
         )
         self.assertEqual(actual, expected)
         self.assertEqual(negative_unl_json, expected.to_dict())
@@ -760,8 +744,6 @@ class TestFromTODict(TestCase):
         actual = NFTokenPage.from_xrpl(nftoken_page_json)
         expected = NFTokenPage(
             index="",
-            previous_page_min=None,
-            next_page_min=None,
             previous_txn_id="95C8761B22894E328646F7A70035E9DFBEC"
             "C90EDD83E43B7B973F626D21A0822",
             previous_txn_lgr_seq=42891441,
@@ -796,7 +778,6 @@ class TestFromTODict(TestCase):
             previous_txn_id="F0AB71E777B2DA54B86231E19B82554EF1F821"
             "1F92ECA473121C655BFC5329BF",
             previous_txn_lgr_seq=14524914,
-            expiration=None,
         )
         self.assertEqual(actual, expected)
         self.assertEqual(offer_json, expected.to_dict())
@@ -845,10 +826,6 @@ class TestFromTODict(TestCase):
             previous_txn_lgr_seq=14090896,
             high_node="0000000000000000",
             low_node="0000000000000000",
-            high_quality_in=None,
-            high_quality_out=None,
-            low_quality_in=None,
-            low_quality_out=None,
         )
         self.assertEqual(actual, expected)
         self.assertEqual(ripple_state_json, expected.to_dict())
