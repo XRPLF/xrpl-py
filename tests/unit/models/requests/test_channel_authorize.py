@@ -57,7 +57,7 @@ class TestChannelAuthorize(TestCase):
                 seed_hex=_DUMMY_STRING,
             )
 
-    def test_ctor_has_positional_args(self):
+    def test_throws_if_positional_args_mixed_with_non_positional_args(self):
         with self.assertRaises(XRPLModelException):
             ChannelAuthorize(
                 20,
