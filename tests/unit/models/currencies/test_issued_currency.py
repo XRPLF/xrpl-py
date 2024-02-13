@@ -21,6 +21,25 @@ class TestIssuedCurrency(TestCase):
         )
         self.assertTrue(obj.is_valid())
 
+    def test_lower_currency_code_special_chars(self):
+        obj = IssuedCurrency(
+            currency="$$$",
+            issuer=_ACCOUNT,
+        )
+        self.assertTrue(obj.is_valid())
+
+        obj = IssuedCurrency(
+            currency="^%#",
+            issuer=_ACCOUNT,
+        )
+        self.assertTrue(obj.is_valid())
+
+        obj = IssuedCurrency(
+            currency="a1@",
+            issuer=_ACCOUNT,
+        )
+        self.assertTrue(obj.is_valid())
+
     def test_incorrect_currency_code_format(self):
         # the "+" is not allowed in a currency format"
         with self.assertRaises(XRPLModelException):
