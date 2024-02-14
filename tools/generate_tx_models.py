@@ -168,7 +168,7 @@ from dataclasses import dataclass, field
 {other_import_lines}
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init, KW_ONLY_DATACLASS
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 """
 
         imported_models = imported_models.replace("\n\n\n\n", "\n\n")
