@@ -6,8 +6,8 @@ from typing import Any, Dict, List, Type, TypeVar, cast
 from xrpl.models.exceptions import XRPLModelException
 
 # Python 3.10 and higer versions of Python enable a new KW_ONLY parameter in dataclass
-# This dictionary is used to ensure that Ledger Objects constructors reject 
-# positional arguments. It obviates the need to maintain decorators for the same 
+# This dictionary is used to ensure that Ledger Objects constructors reject
+# positional arguments. It obviates the need to maintain decorators for the same
 # functionality and enbles IDEs to auto-complete the constructor arguments.
 # KW_ONLY Docs: https://docs.python.org/3/library/dataclasses.html#dataclasses.KW_ONLY
 
