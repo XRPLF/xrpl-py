@@ -1,11 +1,10 @@
-import sys
 from unittest import TestCase
 
-from xrpl.constants import CryptoAlgorithm
 from xrpl.models.currencies import IssuedCurrency
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.requests import Sign
+from xrpl.models.requests import AccountInfo
 from xrpl.models.transactions import AccountSet, AccountSetAsfFlag, Payment, PaymentFlag
+from xrpl.models.utils import is_kw_only_attr_defined_in_dataclass
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _FEE = "0.00001"
@@ -30,7 +29,7 @@ _XRP_AMOUNT = "10000"
 
 class TestUtils(TestCase):
     def test_kwargs_req(self):
-        if sys.version_info.major == 3 and sys.version_info.minor < 10:
+        if is_kw_only_attr_defined_in_dataclass():
             with self.assertRaises(XRPLModelException):
                 IssuedCurrency(currency, issuer)
         else:
@@ -38,7 +37,7 @@ class TestUtils(TestCase):
                 IssuedCurrency(currency, issuer)
 
     def test_throws_if_positional_args_mixed_with_non_positional_args(self):
-        if sys.version_info.major == 3 and sys.version_info.minor < 10:
+        if is_kw_only_attr_defined_in_dataclass():
             with self.assertRaises(XRPLModelException):
                 Payment(
                     20,
@@ -66,21 +65,17 @@ class TestUtils(TestCase):
                 )
 
     def test_positional_args_in_model_constructor_throws(self):
-        if sys.version_info.major == 3 and sys.version_info.minor < 10:
+        if is_kw_only_attr_defined_in_dataclass():
             with self.assertRaises(XRPLModelException):
-                Sign(
+                AccountInfo(
                     "invalidInput",
                     [1, 2, "example invalid positional arg"],
-                    transaction=_TRANSACTION,
-                    seed=_SEED,
-                    key_type=CryptoAlgorithm.SECP256K1,
+                    account=_ACCOUNT,
                 )
         else:
             with self.assertRaises(TypeError):
-                Sign(
+                AccountInfo(
                     "invalidInput",
                     [1, 2, "example invalid positional arg"],
-                    transaction=_TRANSACTION,
-                    seed=_SEED,
-                    key_type=CryptoAlgorithm.SECP256K1,
+                    account=_ACCOUNT,
                 )

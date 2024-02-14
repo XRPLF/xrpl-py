@@ -74,6 +74,7 @@ def _value_to_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     return value
 
 
+# @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class BaseModel(ABC):
     """The base class for all model types."""

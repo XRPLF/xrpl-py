@@ -1,6 +1,4 @@
 """Helper util functions for the models module."""
-
-import sys
 from dataclasses import dataclass, is_dataclass
 from typing import Any, Dict, List, Type, TypeVar, cast
 
@@ -21,6 +19,25 @@ KW_ONLY_DATACLASS = dict(kw_only=True) if "kw_only" in dataclass.__kwdefaults__ 
 
 _T = TypeVar("_T")
 _Self = TypeVar("_Self")
+
+
+def is_kw_only_attr_defined_in_dataclass() -> bool:
+    """
+    Returns:
+        Utility function to determine if the Python interpreter's version is older
+        than 3.10. This information is used to check the presence of KW_ONLY attribute
+        in the dataclass
+
+    For ease of understanding, the output of this function should be equivalent to the
+    below code, unless the `kw_only` attribute is backported to older versions of
+    Python interpreter
+
+    Returns:
+    if sys.version_info.major < 3:
+        return True
+    return sys.version_info.minor < 10
+    """
+    return not ("kw_only" in dataclass.__kwdefaults__)
 
 
 def require_kwargs_on_init(cls: Type[_T]) -> Type[_T]:
@@ -74,7 +91,7 @@ def require_kwargs_on_init(cls: Type[_T]) -> Type[_T]:
     # performs the functionality of require_kwargs_on_init class.
     # When support for older versions of Python (earlier than v3.10) is removed, the
     # usage of require_kwargs_on_init decorator on model classes can also be removed.
-    if sys.version_info.major == 3 and sys.version_info.minor < 10:
+    if is_kw_only_attr_defined_in_dataclass():
         # noinspection PyTypeHints
         cls.__init__ = new_init  # type: ignore
     return cast(Type[_T], cls)
