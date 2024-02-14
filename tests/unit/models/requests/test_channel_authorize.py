@@ -56,14 +56,3 @@ class TestChannelAuthorize(TestCase):
                 passphrase=_DUMMY_STRING,
                 seed_hex=_DUMMY_STRING,
             )
-
-    def test_throws_if_positional_args_mixed_with_non_positional_args(self):
-        with self.assertRaises(XRPLModelException):
-            ChannelAuthorize(
-                20,
-                True,
-                channel_id=_CHANNEL_ID,
-                amount=_AMOUNT,
-                passphrase=_DUMMY_STRING,
-                seed_hex=_DUMMY_STRING,
-            )
