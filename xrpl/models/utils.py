@@ -1,5 +1,6 @@
 """Helper util functions for the models module."""
 
+import sys
 from dataclasses import dataclass, is_dataclass
 from typing import Any, Dict, List, Type, TypeVar, cast
 
@@ -69,7 +70,11 @@ def require_kwargs_on_init(cls: Type[_T]) -> Type[_T]:
             )
         original_init(self, **kwargs)
 
-    # noinspection PyTypeHints
-    cls.__init__ = new_init  # type: ignore
-
+    # For Python v3.10 and above, the KW_ONLY attribute in data_class
+    # performs the functionality of require_kwargs_on_init class.
+    # When support for older versions of Python (earlier than v3.10) is removed, the
+    # usage of require_kwargs_on_init decorator on model classes can also be removed.
+    if sys.version_info.major == 3 and sys.version_info.minor < 10:
+        # noinspection PyTypeHints
+        cls.__init__ = new_init  # type: ignore
     return cast(Type[_T], cls)
