@@ -3,8 +3,8 @@ from unittest import TestCase
 from xrpl.constants import CryptoAlgorithm
 from xrpl.models.currencies import IssuedCurrency
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.requests import ChannelAuthorize, Sign
-from xrpl.models.transactions import AccountSet, AccountSetAsfFlag
+from xrpl.models.requests import Sign
+from xrpl.models.transactions import AccountSet, AccountSetAsfFlag, Payment, PaymentFlag
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _FEE = "0.00001"
@@ -27,6 +27,9 @@ _DUMMY_STRING = "loremipsem"
 currency = "BTC"
 issuer = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 
+_DESTINATION = "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+_XRP_AMOUNT = "10000"
+
 
 class TestUtils(TestCase):
     def test_kwargs_req(self):
@@ -35,16 +38,19 @@ class TestUtils(TestCase):
 
     def test_throws_if_positional_args_mixed_with_non_positional_args(self):
         with self.assertRaises(XRPLModelException):
-            ChannelAuthorize(
+            Payment(
                 20,
                 True,
-                channel_id=_CHANNEL_ID,
-                amount=_AMOUNT,
-                passphrase=_DUMMY_STRING,
-                seed_hex=_DUMMY_STRING,
+                account=_ACCOUNT,
+                fee=_FEE,
+                sequence=_SEQUENCE,
+                amount=_XRP_AMOUNT,
+                send_max=_XRP_AMOUNT,
+                destination=_DESTINATION,
+                flags=PaymentFlag.TF_PARTIAL_PAYMENT,
             )
 
-    def test_positional_args_in_ledger_objects_constructor_throws(self):
+    def test_positional_args_in_model_constructor_throws(self):
         with self.assertRaises(XRPLModelException):
             Sign(
                 "invalidInput",
