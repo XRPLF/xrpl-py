@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from collections.abc import AsyncIterator
 from types import TracebackType
-from typing import Any, Dict, Type
+from typing import Any, Dict, Optional, Type
 
 from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.asyncio.clients.exceptions import XRPLWebsocketException
@@ -262,7 +262,9 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
             raise XRPLWebsocketException("Websocket is not open")
         await self._do_send(request)
 
-    async def _request_impl(self: WebsocketBase, request: Request) -> Response:
+    async def _request_impl(
+        self: WebsocketBase, request: Request, timeout: Optional[float] = None
+    ) -> Response:
         """
         ``_request_impl`` implementation for async websocket.
 
@@ -280,4 +282,4 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
         """
         if not self.is_open():
             raise XRPLWebsocketException("Websocket is not open")
-        return await self._do_request_impl(request)
+        return await self._do_request_impl(request, timeout)

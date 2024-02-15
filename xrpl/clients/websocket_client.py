@@ -200,7 +200,9 @@ class WebsocketClient(SyncClient, WebsocketBase):
             self._do_send(request), cast(asyncio.AbstractEventLoop, self._loop)
         ).result()
 
-    async def _request_impl(self: WebsocketClient, request: Request) -> Response:
+    async def _request_impl(
+        self: WebsocketClient, request: Request, timeout: Optional[float] = None
+    ) -> Response:
         """
         ``_request_impl`` implementation for sync websockets that ensures the
         ``WebsocketBase._do_request_impl`` implementation is run on the other thread.
@@ -232,6 +234,6 @@ class WebsocketClient(SyncClient, WebsocketBase):
         # completely block the main thread until completed,
         # just as if it were not async.
         return asyncio.run_coroutine_threadsafe(
-            self._do_request_impl(request),
+            self._do_request_impl(request, timeout),
             cast(asyncio.AbstractEventLoop, self._loop),
         ).result()
