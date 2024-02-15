@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added support for `XChainModifyBridge` flag maps (fixing an issue with `NFTokenCreateOffer` flag names)
 - Fixed `XChainModifyBridge` validation to allow just clearing of `MinAccountCreateAmount`
 - Currency codes with special characters not being allowed by IssuedCurrency objects.
-- Specify custom timeout parameter for requests.
 
 ## [2.5.0] - 2023-11-30
 
