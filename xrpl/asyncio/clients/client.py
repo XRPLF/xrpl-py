@@ -34,7 +34,7 @@ class Client(ABC):
 
     @abstractmethod
     async def _request_impl(
-        self: Client, request: Request, timeout: Optional[float] = _TIMEOUT
+        self: Client, request: Request, *, timeout: Optional[float] = _TIMEOUT
     ) -> Response:
         """
         This is the actual driver for a given Client's request. It must be

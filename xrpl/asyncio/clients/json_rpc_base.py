@@ -21,7 +21,7 @@ class JsonRpcBase(Client):
     """
 
     async def _request_impl(
-        self: JsonRpcBase, request: Request, timeout: Optional[float] = _TIMEOUT
+        self: JsonRpcBase, request: Request, *, timeout: Optional[float] = _TIMEOUT
     ) -> Response:
         """
         Base ``_request_impl`` implementation for JSON RPC.

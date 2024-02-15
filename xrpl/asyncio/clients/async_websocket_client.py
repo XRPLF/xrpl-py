@@ -263,7 +263,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
         await self._do_send(request)
 
     async def _request_impl(
-        self: WebsocketBase, request: Request, timeout: Optional[float] = None
+        self: WebsocketBase, request: Request, *, timeout: Optional[float] = None
     ) -> Response:
         """
         ``_request_impl`` implementation for async websocket.

@@ -201,7 +201,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
         ).result()
 
     async def _request_impl(
-        self: WebsocketClient, request: Request, timeout: Optional[float] = None
+        self: WebsocketClient, request: Request, *, timeout: Optional[float] = None
     ) -> Response:
         """
         ``_request_impl`` implementation for sync websockets that ensures the
