@@ -4,16 +4,6 @@ from typing import Any, Dict, List, Type, TypeVar, cast
 
 from xrpl.models.exceptions import XRPLModelException
 
-# Python 3.10 and higer versions of Python enable a new KW_ONLY parameter in dataclass
-# This dictionary is used to ensure that Ledger Objects constructors reject
-# positional arguments. It obviates the need to maintain decorators for the same
-# functionality and enbles IDEs to auto-complete the constructor arguments.
-# KW_ONLY Docs: https://docs.python.org/3/library/dataclasses.html#dataclasses.KW_ONLY
-
-# Unit tests that validate this behavior can be found at test_channel_authorize.py
-# and test_sign.py files.
-KW_ONLY_DATACLASS = dict(kw_only=True) if "kw_only" in dataclass.__kwdefaults__ else {}
-
 # Code source for requiring kwargs:
 # https://gist.github.com/mikeholler/4be180627d3f8fceb55704b729464adb
 
@@ -21,7 +11,7 @@ _T = TypeVar("_T")
 _Self = TypeVar("_Self")
 
 
-def is_kw_only_attr_defined_in_dataclass() -> bool:
+def _is_kw_only_attr_defined_in_dataclass() -> bool:
     """
     Returns:
         Utility function to determine if the Python interpreter's version is older
@@ -38,6 +28,19 @@ def is_kw_only_attr_defined_in_dataclass() -> bool:
     return sys.version_info.minor < 10
     """
     return not ("kw_only" in dataclass.__kwdefaults__)
+
+
+# Python 3.10 and higer versions of Python enable a new KW_ONLY parameter in dataclass
+# This dictionary is used to ensure that Ledger Objects constructors reject
+# positional arguments. It obviates the need to maintain decorators for the same
+# functionality and enbles IDEs to auto-complete the constructor arguments.
+# KW_ONLY Docs: https://docs.python.org/3/library/dataclasses.html#dataclasses.KW_ONLY
+
+# Unit tests that validate this behavior can be found at test_channel_authorize.py
+# and test_sign.py files.
+KW_ONLY_DATACLASS = (
+    dict(kw_only=True) if (not _is_kw_only_attr_defined_in_dataclass()) else {}
+)
 
 
 def require_kwargs_on_init(cls: Type[_T]) -> Type[_T]:
@@ -91,7 +94,6 @@ def require_kwargs_on_init(cls: Type[_T]) -> Type[_T]:
     # performs the functionality of require_kwargs_on_init class.
     # When support for older versions of Python (earlier than v3.10) is removed, the
     # usage of require_kwargs_on_init decorator on model classes can also be removed.
-    if is_kw_only_attr_defined_in_dataclass():
-        # noinspection PyTypeHints
+    if _is_kw_only_attr_defined_in_dataclass():
         cls.__init__ = new_init  # type: ignore
     return cast(Type[_T], cls)

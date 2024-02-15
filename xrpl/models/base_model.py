@@ -14,7 +14,6 @@ from typing_extensions import Final, Literal, get_args, get_origin
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 from xrpl.models.types import XRPL_VALUE_TYPE
-from xrpl.models.utils import KW_ONLY_DATACLASS
 
 # this regex splits words based on one of three cases:
 #
@@ -74,8 +73,7 @@ def _value_to_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     return value
 
 
-# @require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True)
 class BaseModel(ABC):
     """The base class for all model types."""
 
