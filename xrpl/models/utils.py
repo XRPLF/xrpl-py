@@ -10,8 +10,6 @@ from xrpl.models.exceptions import XRPLModelException
 # functionality and enbles IDEs to auto-complete the constructor arguments.
 # KW_ONLY Docs: https://docs.python.org/3/library/dataclasses.html#dataclasses.KW_ONLY
 
-# Unit tests that validate this behavior can be found at test_channel_authorize.py
-# and test_sign.py files.
 KW_ONLY_DATACLASS = dict(kw_only=True) if "kw_only" in dataclass.__kwdefaults__ else {}
 
 # Code source for requiring kwargs:
