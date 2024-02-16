@@ -42,7 +42,7 @@ class AMM(LedgerObject):
     Details of the current owner of the auction slot, as an Auction Slot object.
     """
 
-    lptoken_balance: IssuedCurrencyAmount = REQUIRED  # type: ignore
+    lp_token_balance: IssuedCurrencyAmount = REQUIRED  # type: ignore
     """
     The total outstanding balance of liquidity provider tokens from this AMM instance.
     The holders of these tokens can vote on the AMM's trading fee in proportion to
