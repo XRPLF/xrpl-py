@@ -104,7 +104,7 @@ class LedgerObject(BaseModel):
             ledger_object_type: The ledger object type willing to get.
 
         Returns:
-            Type[AffectedNode]: The correct ledger object type.
+            Type[LedgerObject]: The correct ledger object type.
 
         Raises:
             XRPLModelException: If the Ledger Object type does not exist.
