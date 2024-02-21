@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional, Union
+from typing import Optional
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.ledger_objects.ledger_entry_type import LedgerEntryType
@@ -18,7 +18,7 @@ from xrpl.models.utils import require_kwargs_on_init
 class NFTokenOffer(LedgerObject, HasPreviousTxnID):
     """The model for the `NFTokenOffer` Ledger Object"""
 
-    amount: Union[str, NFToken] = REQUIRED  # type: ignore
+    amount: str = REQUIRED  # type: ignore
     """
     Amount expected or offered for the NFToken. If the token has the `lsfOnlyXRP` flag
     set, the amount must be specified in XRP. Sell offers that specify assets other
