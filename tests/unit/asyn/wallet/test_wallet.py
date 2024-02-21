@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from xrpl.asyncio.wallet.wallet_generation import (
     _DEV_FAUCET_URL,
-    _HOOKS_V3_TEST_FAUCET_URL,
+    _HOOKS_TEST_FAUCET_URL,
     _TEST_FAUCET_URL,
     get_faucet_url,
 )
@@ -41,10 +41,10 @@ class TestWallet(TestCase):
         self.assertEqual(get_faucet_url(json_client_url), expected_faucet)
         self.assertEqual(get_faucet_url(ws_client_url), expected_faucet)
 
-    def test_get_faucet_wallet_hooks_v3_test(self):
-        json_client_url = "https://hooks-testnet-v3.xrpl-labs.com"
-        ws_client_url = "wss://hooks-testnet-v3.xrpl-labs.com"
-        expected_faucet = _HOOKS_V3_TEST_FAUCET_URL
+    def test_get_faucet_wallet_hooks_test(self):
+        json_client_url = "https://xahau-test.net"
+        ws_client_url = "wss://xahau-test.net"
+        expected_faucet = _HOOKS_TEST_FAUCET_URL
 
         self.assertEqual(get_faucet_url(json_client_url), expected_faucet)
         self.assertEqual(get_faucet_url(ws_client_url), expected_faucet)
