@@ -98,7 +98,8 @@ class LedgerObject(BaseModel):
     def get_ledger_object_type(
         cls: Type[LedgerObject], ledger_object_type: str
     ) -> Type[LedgerObject]:
-        """Get the correct model
+        """
+        Gets the correct ledger object type.
 
         Args:
             ledger_object_type: The ledger object type willing to get.
@@ -127,7 +128,8 @@ class LedgerObject(BaseModel):
         cls: Type[LedgerObject], ledger_object_type: str
     ) -> Type[LedgerObject]:
         """
-        Get the correct model
+        Gets the ledger object type within fields prefixed with "MD and suffixed with
+        "Fields".
 
         Args:
             ledger_object_type: The object type willing to get.
