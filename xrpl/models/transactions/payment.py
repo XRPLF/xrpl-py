@@ -3,7 +3,7 @@ from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional, TypeVar
+from typing import Dict, List, Optional
 
 from xrpl.models.amounts import Amount, is_xrp
 from xrpl.models.flags import FlagInterface
@@ -55,9 +55,6 @@ class PaymentFlagInterface(FlagInterface):
     TF_NO_DIRECT_RIPPLE: bool
     TF_PARTIAL_PAYMENT: bool
     TF_LIMIT_QUALITY: bool
-
-
-P = TypeVar("P", bound="Payment")
 
 
 @require_kwargs_on_init
