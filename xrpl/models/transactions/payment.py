@@ -3,10 +3,9 @@ from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Type, TypeVar
+from typing import Dict, List, Optional, TypeVar
 
 from xrpl.models.amounts import Amount, is_xrp
-from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.flags import FlagInterface
 from xrpl.models.path import Path
 from xrpl.models.required import REQUIRED
@@ -171,40 +170,3 @@ class Payment(Transaction):
                 ] = "A currency conversion requires a `send_max` value."
 
         return errors
-
-    @classmethod
-    def from_dict(cls: Type[P], value: Dict[str, Any]) -> P:
-        """
-        Construct a new Payment object from a dictionary of parameters. This function
-        handles the `DeliverMax` field in the Payment transactions.
-
-        Note: This behavior of the xrpl-py library does not depend on the API version
-        of rippled. The support for `DeliverMax` is only added at the RPC layer of
-        rippled, hence no changes are needed in the Payment Transaction request type.
-        Appropos the response from rippled, xrpl-py is flexible in modelling the
-        responses. Both API Version 1 and 2 can be accomodated in the existing Response
-        dictionary.
-
-        Args:
-            value: The value to construct the Payment transaction from.
-
-        Returns:
-            A new Payment object, constructed using the given parameters.
-
-        Raises:
-            XRPLModelException: If the deliver_max and amount fields are not identical
-        """
-        if "deliver_max" in value:
-            if "amount" in value:
-                if value["amount"] != value["deliver_max"]:
-                    raise XRPLModelException(
-                        "Error: amount and deliver_max fields are not identical"
-                    )
-            else:
-                value["amount"] = value["deliver_max"]
-
-            # deliver_max field is not recognised in the Payment Request format, nor is
-            # it supported in the serialization operations.
-            del value["deliver_max"]
-
-        return super(Payment, cls).from_dict(value)
