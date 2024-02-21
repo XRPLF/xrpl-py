@@ -81,6 +81,9 @@ def process_json_binary_codec_input(
     format used by the binary codec, or an actual JSON string representing the same
     data.
 
+    This utility function is used in BaseModel.from_xrpl and Transaction.from_xrpl for
+    handling JSON and JSON-string like inputs.
+
     Args:
         value: The dictionary or JSON string to be processed.
 
