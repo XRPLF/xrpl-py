@@ -58,7 +58,7 @@ class TestNetworkID(TestCase):
 
     # Autofill should override tx networkID for hooks-testnet.
     def test_networkid_override_hooks_testnet(self):
-        with WebsocketClient("wss://hooks-testnet-v3.xrpl-labs.com") as client:
+        with WebsocketClient("wss://xahau-test.net") as client:
             wallet = generate_faucet_wallet(client, debug=True)
             tx = AccountSet(
                 account=wallet.classic_address,

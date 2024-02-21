@@ -13,9 +13,7 @@ from xrpl.wallet.main import Wallet
 _TEST_FAUCET_URL: Final[str] = "https://faucet.altnet.rippletest.net/accounts"
 _DEV_FAUCET_URL: Final[str] = "https://faucet.devnet.rippletest.net/accounts"
 _AMM_DEV_FAUCET_URL: Final[str] = "https://ammfaucet.devnet.rippletest.net/accounts"
-_HOOKS_V3_TEST_FAUCET_URL: Final[
-    str
-] = "https://hooks-testnet-v3.xrpl-labs.com/accounts"
+_HOOKS_TEST_FAUCET_URL: Final[str] = "https://xahau-test.net/accounts"
 _SIDECHAIN_DEVNET_FAUCET_URL: Final[
     str
 ] = "https://sidechain-faucet.devnet.rippletest.net/accounts"
@@ -120,8 +118,8 @@ def get_faucet_url(url: str, faucet_host: Optional[str] = None) -> str:
     """
     if faucet_host is not None:
         return f"https://{faucet_host}/accounts"
-    if "hooks-testnet-v3" in url:  # hooks v3 testnet
-        return _HOOKS_V3_TEST_FAUCET_URL
+    if "xahau-test" in url:  # hooks v3 testnet
+        return _HOOKS_TEST_FAUCET_URL
     if "altnet" in url or "testnet" in url:  # testnet
         return _TEST_FAUCET_URL
     if "amm" in url:  # amm devnet
