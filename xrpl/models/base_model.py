@@ -73,6 +73,31 @@ def _value_to_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     return value
 
 
+def process_json_binary_codec_input(
+    value: Union[str, Dict[str, Any]]
+) -> Dict[str, Any]:
+    """
+    Creates a dictionary object based on a JSON-like dictionary of keys in the JSON
+    format used by the binary codec, or an actual JSON string representing the same
+    data.
+
+    Args:
+        value: The dictionary or JSON string to be processed.
+
+    Returns:
+        A formatted dictionary instantiated from the input.
+    """
+    if isinstance(value, str):
+        value = json.loads(value)
+
+    formatted_dict = {
+        _key_to_json(k): _value_to_json(v)
+        for (k, v) in cast(Dict[str, XRPL_VALUE_TYPE], value).items()
+    }
+
+    return formatted_dict
+
+
 @dataclass(frozen=True)
 class BaseModel(ABC):
     """The base class for all model types."""
@@ -232,13 +257,7 @@ class BaseModel(ABC):
         Returns:
             A BaseModel object instantiated from the input.
         """
-        if isinstance(value, str):
-            value = json.loads(value)
-
-        formatted_dict = {
-            _key_to_json(k): _value_to_json(v)
-            for (k, v) in cast(Dict[str, XRPL_VALUE_TYPE], value).items()
-        }
+        formatted_dict = process_json_binary_codec_input(value)
 
         return cls.from_dict(formatted_dict)
 

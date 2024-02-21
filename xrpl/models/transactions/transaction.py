@@ -9,7 +9,11 @@ from typing_extensions import Final
 
 from xrpl.core.binarycodec import decode, encode
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.base_model import ABBREVIATIONS, BaseModel
+from xrpl.models.base_model import (
+    ABBREVIATIONS,
+    BaseModel,
+    process_json_binary_codec_input,
+)
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.flags import check_false_flag_definition, interface_to_flag_list
 from xrpl.models.nested_model import NestedModel
@@ -333,8 +337,6 @@ class Transaction(BaseModel):
     def from_dict(cls: Type[T], value: Dict[str, Any]) -> T:
         """
         Construct a new Transaction from a dictionary of parameters.
-        In Payment transactions, the deliver_max field (alias of the amount field) is
-        handled in this function
 
         Args:
             value: The value to construct the Transaction from.
@@ -345,21 +347,6 @@ class Transaction(BaseModel):
         Raises:
             XRPLModelException: If the dictionary provided is invalid.
         """
-        # handle the deliver_max alias in Payment transactions
-        if "transaction_type" in value and value["transaction_type"] == "Payment":
-            if "deliver_max" in value:
-                if "amount" in value:
-                    if value["amount"] != value["deliver_max"]:
-                        raise XRPLModelException(
-                            "Error: amount and deliver_max fields are not identical"
-                        )
-                else:
-                    value["amount"] = value["deliver_max"]
-
-                # deliver_max field is not recognised in the Payment Request format,
-                # nor is it supported in the serialization operations.
-                del value["deliver_max"]
-
         if cls.__name__ == "Transaction" or cls.__name__ == "PseudoTransaction":
             # using `(Pseudo)Transaction.from_dict` and not a subclass
             if "transaction_type" not in value:
@@ -485,3 +472,42 @@ class Transaction(BaseModel):
             The formatted transaction.
         """
         return Transaction.from_xrpl(decode(tx_blob))
+
+    @classmethod
+    def from_xrpl(cls: Type[T], inp_params: Union[str, Dict[str, Any]]) -> T:
+        """
+        Creates a Transaction object based on a JSON-like dictionary of keys in the JSON
+        format used by the binary codec, or an actual JSON string representing the same
+        data.
+
+        In Payment transactions, the deliver_max field (alias of the amount field) is
+        handled in this function
+
+        Args:
+            inp_params: The dictionary or JSON string to be instantiated.
+
+        Returns:
+            A Transaction object instantiated from the input.
+
+        Raises:
+            XRPLModelException: If Payment transactions have different values for
+                                amount and deliver_max fields
+        """
+        value = process_json_binary_codec_input(inp_params)
+
+        # handle the deliver_max alias in Payment transactions
+        if "transaction_type" in value and value["transaction_type"] == "Payment":
+            if "deliver_max" in value:
+                if "amount" in value:
+                    if value["amount"] != value["deliver_max"]:
+                        raise XRPLModelException(
+                            "Error: amount and deliver_max fields are not identical"
+                        )
+                else:
+                    value["amount"] = value["deliver_max"]
+
+                # deliver_max field is not recognised in the Payment Request format,
+                # nor is it supported in the serialization operations.
+                del value["deliver_max"]
+
+        return cls.from_dict(value)
