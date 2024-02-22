@@ -13,7 +13,7 @@ from xrpl.models.transactions import Payment
 from xrpl.wallet import generate_faucet_wallet as sync_generate_faucet_wallet
 from xrpl.wallet.main import Wallet
 
-time_of_last_hooks_faucet_call = 0
+time_of_last_xahau_faucet_call = 0
 
 
 def sync_generate_faucet_wallet_and_fund_again(
@@ -160,22 +160,20 @@ class TestWallet(IntegrationTestCase):
         ) as client:
             await generate_faucet_wallet_and_fund_again(self, client)
 
-    async def _parallel_test_generate_faucet_wallet_hooks_testnet_async_websockets(
+    async def _parallel_test_generate_faucet_wallet_xahaunet_async_websockets(
         self,
     ):
-        async with AsyncWebsocketClient(
-            "wss://xahau-test.net"
-        ) as client:
-            global time_of_last_hooks_faucet_call
-            # Wait at least 10 seconds since last call to hooks testnet faucet
-            time_since_last_hooks_call = time.time() - time_of_last_hooks_faucet_call
-            if time_since_last_hooks_call < 10:
-                time.sleep(11 - time_since_last_hooks_call)
+        async with AsyncWebsocketClient("wss://xahau-test.net") as client:
+            global time_of_last_xahau_faucet_call
+            # Wait at least 10 seconds since last call to xahau testnet faucet
+            time_since_last_xahau_call = time.time() - time_of_last_xahau_faucet_call
+            if time_since_last_xahau_call < 10:
+                time.sleep(11 - time_since_last_xahau_call)
 
             wallet = await generate_faucet_wallet(
                 client, usage_context="integration_test"
             )
-            time_of_last_hooks_faucet_call = time.time()
+            time_of_last_xahau_faucet_call = time.time()
 
             result = await client.request(
                 AccountInfo(
@@ -185,19 +183,17 @@ class TestWallet(IntegrationTestCase):
             balance = int(result.result["account_data"]["Balance"])
             self.assertTrue(balance > 0)
 
-    # Named different from test_generate_faucet_wallet_hooks_testnet_async_websockets
-    # so the test runs far from each other since hooks testnet faucet
+    # Named different from test_generate_faucet_wallet_xahaunet_async_websockets
+    # so the test runs far from each other since xahau testnet faucet
     # requires 10 seconds between calls
-    async def test_fund_given_wallet_hooks_testnet_async_websockets(self):
-        async with AsyncWebsocketClient(
-            "wss://xahau-test.net"
-        ) as client:
-            global time_of_last_hooks_faucet_call
+    async def test_fund_given_wallet_xahaunet_async_websockets(self):
+        async with AsyncWebsocketClient("wss://xahau-test.net") as client:
+            global time_of_last_xahau_faucet_call
             wallet = Wallet.create()
-            time_since_last_hooks_call = time.time() - time_of_last_hooks_faucet_call
-            if time_since_last_hooks_call < 10:
-                time.sleep(11 - time_since_last_hooks_call)
-            time_of_last_hooks_faucet_call = time.time()
+            time_since_last_xahau_call = time.time() - time_of_last_xahau_faucet_call
+            if time_since_last_xahau_call < 10:
+                time.sleep(11 - time_since_last_xahau_call)
+            time_of_last_xahau_faucet_call = time.time()
             await generate_faucet_wallet(client, wallet)
             result = await client.request(
                 AccountInfo(
@@ -206,11 +202,11 @@ class TestWallet(IntegrationTestCase):
             )
             balance = int(result.result["account_data"]["Balance"])
 
-            # Wait at least 10 seconds since last call to hooks testnet faucet
-            time_since_last_hooks_call = time.time() - time_of_last_hooks_faucet_call
-            if time_since_last_hooks_call < 10:
-                time.sleep(11 - time_since_last_hooks_call)
-            time_of_last_hooks_faucet_call = time.time()
+            # Wait at least 10 seconds since last call to xahau testnet faucet
+            time_since_last_xahau_call = time.time() - time_of_last_xahau_faucet_call
+            if time_since_last_xahau_call < 10:
+                time.sleep(11 - time_since_last_xahau_call)
+            time_of_last_xahau_faucet_call = time.time()
 
             new_wallet = await generate_faucet_wallet(
                 client, wallet, usage_context="integration_test"
