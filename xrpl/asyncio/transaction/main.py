@@ -272,7 +272,7 @@ def _tx_needs_networkID(client: Client) -> bool:
     """
     Determines whether the transactions required network ID to be valid.
     Transaction needs networkID if later than restricted ID and either
-        the network is hooks testnet or build version is >= 1.11.0.
+        the network is xahau testnet or build version is >= 1.11.0.
     More context: https://github.com/XRPLF/rippled/pull/4370
 
     Args:
