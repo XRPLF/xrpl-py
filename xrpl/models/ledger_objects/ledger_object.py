@@ -48,6 +48,18 @@ class LedgerObject(BaseModel):
     Set of bit-flags for this ledger entry.
     """
 
+    def to_dict(self: LedgerObject) -> Dict[str, Any]:
+        """
+        Returns the dictionary representation of a LedgerObject.
+
+        Returns:
+            The dictionary representation of a LedgerObject.
+        """
+        return {
+            **super().to_dict(),
+            "flags": self._flags_to_int(),
+        }
+
     @classmethod
     def from_dict(cls: Type[L], value: Dict[str, Any]) -> L:
         """Derive the model from a dict.
@@ -68,6 +80,7 @@ class LedgerObject(BaseModel):
                     "Ledger Object does not include ledger_entry_type."
                 )
             correct_type = cls.get_ledger_object_type(value["ledger_entry_type"])
+            del value["ledger_entry_type"]
             return correct_type.from_dict(value)  # type: ignore
         elif cls.__name__ in ["FinalFields", "PreviousFields", "NewFields"]:
             if "ledger_entry_type" not in value:
