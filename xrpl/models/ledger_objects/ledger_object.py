@@ -48,18 +48,6 @@ class LedgerObject(BaseModel):
     Set of bit-flags for this ledger entry.
     """
 
-    def to_dict(self: LedgerObject) -> Dict[str, Any]:
-        """
-        Returns the dictionary representation of a LedgerObject.
-
-        Returns:
-            The dictionary representation of a LedgerObject.
-        """
-        return {
-            **super().to_dict(),
-            "flags": self._flags_to_int(),
-        }
-
     @classmethod
     def from_dict(cls: Type[L], value: Dict[str, Any]) -> L:
         """Derive the model from a dict.
