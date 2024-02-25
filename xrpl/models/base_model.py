@@ -77,9 +77,7 @@ def process_xrpl_json(
     value: Union[str, Dict[str, Any]]
 ) -> Dict[str, Any]:
     """
-    Creates a dictionary object based on a JSON-like dictionary of keys in the JSON
-    format used by the binary codec, or an actual JSON string representing the same
-    data.
+    Creates a dictionary object based on a JSON or dictionary in the standard XRPL format.
 
 
     Args:
