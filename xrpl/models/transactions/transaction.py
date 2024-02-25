@@ -480,8 +480,7 @@ class Transaction(BaseModel):
         format used by the binary codec, or an actual JSON string representing the same
         data.
 
-        In Payment transactions, the deliver_max field (alias of the amount field) is
-        handled in this function
+        In Payment transactions, the DeliverMax field is renamed to the Amount field.
 
         Args:
             inp_params: The dictionary or JSON string to be instantiated.
