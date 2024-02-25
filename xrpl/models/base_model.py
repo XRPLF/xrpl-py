@@ -73,12 +73,10 @@ def _value_to_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     return value
 
 
-def process_xrpl_json(
-    value: Union[str, Dict[str, Any]]
-) -> Dict[str, Any]:
+def process_xrpl_json(value: Union[str, Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Creates a dictionary object based on a JSON or dictionary in the standard XRPL format.
-
+    Creates a dictionary object based on a JSON or dictionary in the standard XRPL
+    format.
 
     Args:
         value: The dictionary or JSON string to be processed.
@@ -256,7 +254,7 @@ class BaseModel(ABC):
         Returns:
             A BaseModel object instantiated from the input.
         """
-        formatted_dict = process_json_binary_codec_input(value)
+        formatted_dict = process_xrpl_json(value)
 
         return cls.from_dict(formatted_dict)
 
