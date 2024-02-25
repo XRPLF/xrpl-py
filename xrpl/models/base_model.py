@@ -73,7 +73,7 @@ def _value_to_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     return value
 
 
-def process_json_binary_codec_input(
+def process_xrpl_json(
     value: Union[str, Dict[str, Any]]
 ) -> Dict[str, Any]:
     """
