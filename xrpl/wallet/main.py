@@ -229,7 +229,7 @@ class Wallet:
                 invalid.
         """
         # Logic adapted from xrpl-secret-numbers secretToEntropy function
-        # https://github.com/WietseWind/xrpl-secret-numbers/blob/master/src/utils/index.ts
+        # https://github.com/XRPLF/xrpl.js/blob/main/packages/secret-numbers/src/utils/index.ts
 
         parsed_secret_numbers = (
             secret_numbers.split()
