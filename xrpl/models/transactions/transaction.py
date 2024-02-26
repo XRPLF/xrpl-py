@@ -498,7 +498,7 @@ class Transaction(BaseModel):
                 if "amount" in processed_value:
                     if processed_value["amount"] != processed_value["deliver_max"]:
                         raise XRPLModelException(
-                            "Error: amount and deliver_max fields are not identical"
+                            "Error: Amount and DeliverMax fields are not identical"
                         )
                 else:
                     processed_value["amount"] = processed_value["deliver_max"]
