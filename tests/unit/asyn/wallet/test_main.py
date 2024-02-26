@@ -140,13 +140,12 @@ class TestWalletMain(TestCase):
 
         _test_wallet_values(self, wallet, "seed", "secp256k1")
 
-    def test_wallet_contructor_throws_on_empty_seed(self):
+    def test_wallet_contructor_throws_with_invalid_seed(self):
         with self.assertRaises(XRPLAddressCodecException):
             Wallet(
                 constants["regular_key_pair"]["secp256k1"]["public_key"],
                 constants["regular_key_pair"]["secp256k1"]["private_key"],
-                master_address=constants["regular_key_pair"]["master_address"],
-                seed="",
+                seed="abc",
             )
 
     def test_constructor_using_regular_key_pair(self):
