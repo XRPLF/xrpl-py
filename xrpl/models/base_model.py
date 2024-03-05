@@ -15,6 +15,24 @@ from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 from xrpl.models.types import XRPL_VALUE_TYPE
 
+
+def is_snake_case(k: str) -> bool:
+    """
+    Utility function: Detects if the input is in snake_case format
+
+    Args:
+        k: input string
+
+    Returns:
+        True, if the input is in snake_case
+    """
+    # Input strings are accepted as a match if and only if they contain an "underscore"
+    # character
+    _DETECT_SNAKE_CASE: Final[Pattern[str]] = re.compile("[a-zA-Z]+(?:_[a-zA-Z]+)+")
+
+    return bool(re.fullmatch(pattern=_DETECT_SNAKE_CASE, string=k))
+
+
 # this regex splits words based on one of three cases:
 #
 # 1. 1-or-more non-capital chars at the beginning of the string. Handles cases
@@ -231,9 +249,20 @@ class BaseModel(ABC):
 
         Returns:
             A BaseModel object instantiated from the input.
+
+        Raises:
+            XRPLModelException: If the input dictionary has keys in snake_case format
         """
         if isinstance(value, str):
             value = json.loads(value)
+
+        for k in value:
+            if is_snake_case(k):
+                raise XRPLModelException(
+                    "BaseModel.from_xrpl (and it's overridden) methods accepts JSON "
+                    "keys in the camelCase format only, snake_case inputs are not "
+                    "accepted"
+                )
 
         formatted_dict = {
             _key_to_json(k): _value_to_json(v)
