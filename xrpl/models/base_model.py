@@ -251,7 +251,7 @@ class BaseModel(ABC):
             A BaseModel object instantiated from the input.
 
         Raises:
-            XRPLModelException: If the input dictionary has keys in snake_case format
+            XRPLModelException: If the input dictionary has invalid keys.
         """
         if isinstance(value, str):
             value = json.loads(value)
