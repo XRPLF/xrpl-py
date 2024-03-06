@@ -72,7 +72,18 @@ def _key_to_json(field: str) -> str:
         1. 'TransactionType' becomes 'transaction_type'
         2. 'value' remains 'value'
         3. 'URI' becomes 'uri'
+
+        This function accepts inputs in camelCase only
+
+    Raises:
+        XRPLModelException: If the input is invalid
     """
+    if is_snake_case(field):
+        raise XRPLModelException(
+            "_key_to_json accepts input strings in the camelCase format only, "
+            "snake_case inputs are not accepted"
+        )
+
     # convert all special CamelCase substrings to capitalized strings
     for spec_str in ABBREVIATIONS.values():
         if spec_str in field:
@@ -249,20 +260,9 @@ class BaseModel(ABC):
 
         Returns:
             A BaseModel object instantiated from the input.
-
-        Raises:
-            XRPLModelException: If the input dictionary has keys in snake_case format
         """
         if isinstance(value, str):
             value = json.loads(value)
-
-        for k in value:
-            if is_snake_case(k):
-                raise XRPLModelException(
-                    "BaseModel.from_xrpl (and it's overridden) methods accepts JSON "
-                    "keys in the camelCase format only, snake_case inputs are not "
-                    "accepted"
-                )
 
         formatted_dict = {
             _key_to_json(k): _value_to_json(v)
