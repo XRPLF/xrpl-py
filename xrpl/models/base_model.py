@@ -15,22 +15,9 @@ from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 from xrpl.models.types import XRPL_VALUE_TYPE
 
-
-def is_snake_case(k: str) -> bool:
-    """
-    Utility function: Detects if the input is in snake_case format
-
-    Args:
-        k: input string
-
-    Returns:
-        True, if the input is in snake_case
-    """
-    # Input strings are accepted as a match if and only if they contain an "underscore"
-    # character
-    _DETECT_SNAKE_CASE: Final[Pattern[str]] = re.compile("[a-zA-Z]+(?:_[a-zA-Z]+)+")
-
-    return bool(re.fullmatch(pattern=_DETECT_SNAKE_CASE, string=k))
+_DETECT_PASCAL_OR_CAMEL_CASE: Final[Pattern[str]] = re.compile(
+    "^[A-Za-z]+(?:[A-Z][a-z]+)*$"
+)
 
 
 # this regex splits words based on one of three cases:
@@ -78,11 +65,8 @@ def _key_to_json(field: str) -> str:
     Raises:
         XRPLModelException: If the input is invalid
     """
-    if is_snake_case(field):
-        raise XRPLModelException(
-            "_key_to_json accepts input strings in the camelCase format only, "
-            "snake_case inputs are not accepted"
-        )
+    if not re.fullmatch(pattern=_DETECT_PASCAL_OR_CAMEL_CASE, string=field):
+        raise XRPLModelException(f"Key {field} is not in the proper XRPL format.")
 
     # convert all special CamelCase substrings to capitalized strings
     for spec_str in ABBREVIATIONS.values():
