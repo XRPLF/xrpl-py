@@ -18,8 +18,6 @@ from xrpl.models.types import XRPL_VALUE_TYPE
 _DETECT_PASCAL_OR_CAMEL_CASE: Final[Pattern[str]] = re.compile(
     "^[A-Za-z]+(?:[A-Z][a-z]+)*$"
 )
-
-
 # this regex splits words based on one of three cases:
 #
 # 1. 1-or-more non-capital chars at the beginning of the string. Handles cases
@@ -60,7 +58,7 @@ def _key_to_json(field: str) -> str:
         2. 'value' remains 'value'
         3. 'URI' becomes 'uri'
 
-        This function accepts inputs in camelCase only
+        This function accepts inputs in PascalCase or camelCase only
 
     Raises:
         XRPLModelException: If the input is invalid

@@ -388,8 +388,8 @@ class TestFromDict(TestCase):
         actual = Request.from_dict(request)
         self.assertEqual(actual, expected)
 
-    # Note: BaseModel.from_xrpl and its overridden methods accept only camelCase inputs
-    # (i.e. snake_case is not accepted)
+    # Note: BaseModel.from_xrpl and its overridden methods accept only camelCase or
+    # PascalCase inputs (i.e. snake_case is not accepted)
     def test_from_xrpl_accepts_only_camel_case_inputs(self):
         blob = "SOISUSF9SD0839W8U98J98SF"
         id_val = "submit_786514"
