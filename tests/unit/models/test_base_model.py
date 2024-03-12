@@ -391,51 +391,34 @@ class TestFromDict(TestCase):
     # Note: BaseModel.from_xrpl and its overridden methods accept only camelCase or
     # PascalCase inputs (i.e. snake_case is not accepted)
     def test_from_xrpl_accepts_only_camel_case_inputs(self):
-        blob = "SOISUSF9SD0839W8U98J98SF"
-        id_val = "submit_786514"
         request = {
-            "method_name": "submit",
-            "tx_blob": blob,
+            "method": "submit",
+            "tx_json": {
+                "Account": "rnD6t3JF9RTG4VgNLoc4i44bsQLgJUSi6h",
+                "transaction_type": "TrustSet",
+                "Fee": "10",
+                "Sequence": 17896798,
+                "Flags": 131072,
+                "signing_pub_key": "",
+                "limit_amount": {
+                    "currency": "USD",
+                    "issuer": "rH5gvkKxGHrFAMAACeu9CB3FMu7pQ9jfZm",
+                    "value": "10",
+                },
+            },
             "fail_hard": False,
-            "id_in_snake_case": id_val,
         }
 
         with self.assertRaises(XRPLModelException):
             Request.from_xrpl(request)
 
         # verify that Transaction.from_xrpl method does not accept snake_case JSON keys
-        txn_sig1 = (
-            "F80E201FE295AA08678F8542D8FC18EA18D582A0BD19BE77B9A24479418ADBCF4CAD28E7BD"
-            "96137F88DE7736827C7AC6204FBA8DDADB7394E6D704CD1F4CD609"
-        )
-        txn_sig2 = (
-            "036E95B8100EBA2A4A447A3AF24500261BF480A0E8D62EE15D03A697C85E73237A5202BD9A"
-            "F2D9C68B8E8A5FA8B8DA4F8DABABE95E8401C5E57EC783291EF80C"
-        )
-        pubkey1 = "ED621D6D4FF54E809397195C4E24EF05E8500A7CE45CDD211F523A892CDBCDCDB2"
-        pubkey2 = "EDD3ABCFF008ECE9ED3073B41913619341519BFF01F07331B56E5D6D2EC4A94A57"
         tx_snake_case_keys = {
             "Account": "rnoGkgSpt6AX1nQxZ2qVGx7Fgw6JEcoQas",
             "transaction_type": "TrustSet",
             "Fee": "10",
             "Sequence": 17892983,
             "Flags": 131072,
-            "Signers": [
-                {
-                    "Signer": {
-                        "Account": "rGVXgBz4NraZcwi5vqpmwPW6P4y74A4YvX",
-                        "TxnSignature": txn_sig1,
-                        "SigningPubKey": pubkey1,
-                    }
-                },
-                {
-                    "Signer": {
-                        "Account": "rB5q2wsHeXdQeh2KFzBb1CujNAfSKys6GN",
-                        "TxnSignature": txn_sig2,
-                        "SigningPubKey": pubkey2,
-                    }
-                },
-            ],
             "signing_pub_key": "",
             "limit_amount": {
                 "currency": "USD",
