@@ -9,7 +9,7 @@ Welcome to xrpl-py's Documentation!
 A pure Python implementation for interacting with the XRP Ledger, the ``xrpl-py`` library simplifies the hardest parts of XRP Ledger interaction, like serialization and transaction signing, by providing native Python methods and models for `XRP Ledger transactions <https://xrpl.org/transaction-formats.html>`_ and core server `API <https://xrpl.org/api-conventions.html>`_ (`rippled <https://github.com/ripple/rippled>`_) objects.
 
 
-See the `project README <https://github.com/XRPLF/xrpl-py/blob/master/README.md>`_ for more information about its features and usage examples.
+See the `project README <https://github.com/XRPLF/xrpl-py/blob/main/README.md>`_ for more information about its features and usage examples.
 
 
 
