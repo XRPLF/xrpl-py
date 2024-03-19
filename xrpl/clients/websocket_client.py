@@ -7,6 +7,7 @@ from threading import Thread
 from types import TracebackType
 from typing import Any, Dict, Iterator, Optional, Type, Union, cast
 
+from xrpl.asyncio.clients.client import REQUEST_TIMEOUT
 from xrpl.asyncio.clients.exceptions import XRPLWebsocketException
 from xrpl.asyncio.clients.websocket_base import WebsocketBase
 from xrpl.clients.sync_client import SyncClient
@@ -201,7 +202,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
         ).result()
 
     async def _request_impl(
-        self: WebsocketClient, request: Request, *, timeout: Optional[float] = None
+        self: WebsocketClient, request: Request, *, timeout: float = REQUEST_TIMEOUT
     ) -> Response:
         """
         ``_request_impl`` implementation for sync websockets that ensures the

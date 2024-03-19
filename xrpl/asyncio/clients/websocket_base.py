@@ -200,7 +200,7 @@ class WebsocketBase(Client):
         return msg
 
     async def _do_request_impl(
-        self: WebsocketBase, request: Request, timeout: Optional[float]
+        self: WebsocketBase, request: Request, timeout: float
     ) -> Response:
         """
         Base ``_request_impl`` implementation for websockets.

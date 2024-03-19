@@ -2,11 +2,10 @@
 from __future__ import annotations
 
 from json import JSONDecodeError
-from typing import Optional
 
 from httpx import AsyncClient
 
-from xrpl.asyncio.clients.client import _TIMEOUT, Client
+from xrpl.asyncio.clients.client import REQUEST_TIMEOUT, Client
 from xrpl.asyncio.clients.exceptions import XRPLRequestFailureException
 from xrpl.asyncio.clients.utils import json_to_response, request_to_json_rpc
 from xrpl.models.requests.request import Request
@@ -21,7 +20,7 @@ class JsonRpcBase(Client):
     """
 
     async def _request_impl(
-        self: JsonRpcBase, request: Request, *, timeout: Optional[float] = _TIMEOUT
+        self: JsonRpcBase, request: Request, *, timeout: float = REQUEST_TIMEOUT
     ) -> Response:
         """
         Base ``_request_impl`` implementation for JSON RPC.
