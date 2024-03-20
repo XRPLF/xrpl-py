@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `XChainModifyBridge` validation to allow just clearing of `MinAccountCreateAmount`
 - Currency codes with special characters not being allowed by IssuedCurrency objects.
 - Construction of Wallet throws an "Invalid Seed" error, if the secret is not decode-able.
+- Rectify the incorrect usage of a transaction flag name: Update `TF_NO_DIRECT_RIPPLE` to `TF_NO_RIPPLE_DIRECT`
 
 ## [2.5.0] - 2023-11-30
 
