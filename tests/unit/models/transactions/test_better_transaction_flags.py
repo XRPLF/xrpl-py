@@ -235,7 +235,7 @@ class TestBetterTransactionFlags(TestCase):
             amount=amnt,
             flags=models.PaymentFlagInterface(
                 TF_LIMIT_QUALITY=True,
-                TF_NO_DIRECT_RIPPLE=True,
+                TF_NO_RIPPLE_DIRECT=True,
                 TF_PARTIAL_PAYMENT=True,
             ),
         )
@@ -401,7 +401,7 @@ class TestBetterTransactionFlags(TestCase):
                 flags=[
                     models.PaymentFlagInterface(
                         TF_LIMIT_QUALITY=True,
-                        TF_NO_DIRECT_RIPPLE=True,
+                        TF_NO_RIPPLE_DIRECT=True,
                         TF_PARTIAL_PAYMENT=True,
                     ),
                 ],
