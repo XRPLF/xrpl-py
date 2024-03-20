@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from xrpl.constants import CryptoAlgorithm, XRPLException
+from xrpl.core.addresscodec.exceptions import XRPLAddressCodecException
 from xrpl.wallet.main import Wallet
 
 constants = {
@@ -138,6 +139,14 @@ class TestWalletMain(TestCase):
         )
 
         _test_wallet_values(self, wallet, "seed", "secp256k1")
+
+    def test_wallet_contructor_throws_with_invalid_seed(self):
+        with self.assertRaises(XRPLAddressCodecException):
+            Wallet(
+                constants["regular_key_pair"]["secp256k1"]["public_key"],
+                constants["regular_key_pair"]["secp256k1"]["private_key"],
+                seed="abc",
+            )
 
     def test_constructor_using_regular_key_pair(self):
         wallet = Wallet(
