@@ -5,7 +5,9 @@ from __future__ import annotations
 from typing import List, Optional, Type
 
 from xrpl.constants import CryptoAlgorithm, XRPLException
+from xrpl.core import addresscodec
 from xrpl.core.addresscodec import classic_address_to_xaddress, ensure_classic_address
+from xrpl.core.addresscodec.exceptions import XRPLAddressCodecException
 from xrpl.core.keypairs import derive_classic_address, derive_keypair, generate_seed
 
 
@@ -57,12 +59,6 @@ class Wallet:
             algorithm: The algorithm used to encode the keys. Inferred from the seed if
                 not included
         """
-        self.seed = seed
-        """
-        The core value that is used to derive all other information about
-        this wallet. MUST be kept secret!
-        """
-
         if algorithm is None:
             if seed is not None and seed.startswith("sEd"):
                 wallet_algorithm = CryptoAlgorithm.ED25519
@@ -70,6 +66,30 @@ class Wallet:
                 wallet_algorithm = CryptoAlgorithm.SECP256K1
         else:
             wallet_algorithm = algorithm
+
+        """
+        The core value that is used to derive all other information about
+        this wallet. MUST be kept secret!
+        """
+        # Validate the seed before initialization of Wallet object
+        if seed is not None:
+            try:
+                # We do not use the outputs of the below function, we are interested in
+                # whether it throws an exception or not
+                addresscodec.decode_seed(seed, wallet_algorithm)
+            except Exception as e:
+                raise XRPLAddressCodecException(
+                    "Attempted to initialize a Wallet with "
+                    + "an invalid seed: "
+                    + seed
+                    + ". The cryptographic algorithm"
+                    + " used is: "
+                    + wallet_algorithm
+                    + "\nError message: "
+                    + str(e)
+                )
+
+        self.seed = seed
 
         self.algorithm = wallet_algorithm
         """
