@@ -493,18 +493,19 @@ class Transaction(BaseModel):
         if (
             "transaction_type" in processed_value
             and processed_value["transaction_type"] == "Payment"
-        ):
-            if "deliver_max" in processed_value:
-                if "amount" in processed_value:
-                    if processed_value["amount"] != processed_value["deliver_max"]:
-                        raise XRPLModelException(
-                            "Error: amount and deliver_max fields are not identical"
-                        )
-                else:
-                    processed_value["amount"] = processed_value["deliver_max"]
+        ) and "deliver_max" in processed_value:
+            if (
+                "amount" in processed_value
+                and processed_value["amount"] != processed_value["deliver_max"]
+            ):
+                raise XRPLModelException(
+                    "Error: amount and deliver_max fields are not identical"
+                )
+            else:
+                processed_value["amount"] = processed_value["deliver_max"]
 
-                # deliver_max field is not recognised in the Payment Request format,
-                # nor is it supported in the serialization operations.
-                del processed_value["deliver_max"]
+            # deliver_max field is not recognised in the Payment Request format,
+            # nor is it supported in the serialization operations.
+            del processed_value["deliver_max"]
 
         return cls.from_dict(processed_value)
