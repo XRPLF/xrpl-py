@@ -2,10 +2,11 @@
 from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional, TypedDict
+from typing import Dict, Optional
 
 # CK: TODO Find a py.typed or library stub for cryptoconditions
 from cryptoconditions import PreimageSha256  # type: ignore
+from typing_extensions import TypedDict
 
 from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
@@ -108,7 +109,12 @@ def generate_escrow_cryptoconditions(secret: bytes) -> CryptoConditions:
 
     """
     fufill = PreimageSha256(preimage=secret)
-    return {
+    cond_fulfillment: CryptoConditions = {
         "condition": str.upper(fufill.condition_binary.hex()),
         "fulfillment": str.upper(fufill.serialize_binary().hex()),
     }
+    return cond_fulfillment
+    # return {
+    #     "condition": str.upper(fufill.condition_binary.hex()),
+    #     "fulfillment": str.upper(fufill.serialize_binary().hex()),
+    # }
