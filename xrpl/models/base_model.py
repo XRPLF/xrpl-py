@@ -33,8 +33,16 @@ _CAMEL_CASE_TYPICAL: Final[str] = "[A-Z][^A-Z]*"
 _CAMEL_TO_SNAKE_CASE_REGEX: Final[Pattern[str]] = re.compile(
     f"(?:{_CAMEL_CASE_LEADING_LOWER}|{_CAMEL_CASE_ABBREVIATION}|{_CAMEL_CASE_TYPICAL})"
 )
-# used for converting special substrings inside CamelCase fields
-SPECIAL_CAMELCASE_STRINGS = ["NFToken"]
+# This is used to make exceptions when converting dictionary keys to xrpl JSON
+# keys. We snake case keys, but some keys are abbreviations.
+ABBREVIATIONS: Final[Dict[str, str]] = {
+    "amm": "AMM",
+    "id": "ID",
+    "lp": "LP",
+    "nftoken": "NFToken",
+    "unl": "UNL",
+    "uri": "URI",
+}
 
 BM = TypeVar("BM", bound="BaseModel")  # any type inherited from BaseModel
 
@@ -47,7 +55,7 @@ def _key_to_json(field: str) -> str:
         3. 'URI' becomes 'uri'
     """
     # convert all special CamelCase substrings to capitalized strings
-    for spec_str in SPECIAL_CAMELCASE_STRINGS:
+    for spec_str in ABBREVIATIONS.values():
         if spec_str in field:
             field = field.replace(spec_str, spec_str.capitalize())
 

@@ -1,4 +1,5 @@
 """High-level transaction methods with XRPL transactions."""
+
 import math
 from typing import Any, Dict, Optional, cast
 
@@ -25,7 +26,7 @@ from xrpl.wallet.main import Wallet
 _LEDGER_OFFSET: Final[int] = 20
 
 # TODO: make this dynamic based on the current ledger fee
-_ACCOUNT_DELETE_FEE: Final[int] = int(xrp_to_drops(2))
+_OWNER_RESERVE_FEE: Final[int] = int(xrp_to_drops(2))
 
 
 async def safe_sign_and_submit_transaction(
@@ -319,11 +320,14 @@ async def _calculate_fee_per_transaction_type(
             base_fee = math.ceil(net_fee * (33 + (len(fulfillment_bytes) / 16)))
 
     # AccountDelete Transaction
-    if transaction.transaction_type == TransactionType.ACCOUNT_DELETE:
+    if transaction.transaction_type in (
+        TransactionType.ACCOUNT_DELETE,
+        TransactionType.AMM_CREATE,
+    ):
         if client is None:
-            base_fee = _ACCOUNT_DELETE_FEE
+            base_fee = _OWNER_RESERVE_FEE
         else:
-            base_fee = await _fetch_account_delete_fee(client)
+            base_fee = await _fetch_owner_reserve_fee(client)
 
     # Multi-signed Transaction
     # 10 drops × (1 + Number of Signatures Provided)
@@ -334,7 +338,7 @@ async def _calculate_fee_per_transaction_type(
     return str(math.ceil(base_fee))
 
 
-async def _fetch_account_delete_fee(client: Client) -> int:
-    server_state = await client.request_impl(ServerState())
+async def _fetch_owner_reserve_fee(client: Client) -> int:
+    server_state = await client._request_impl(ServerState())
     fee = server_state.result["state"]["validated_ledger"]["reserve_inc"]
     return int(fee)
