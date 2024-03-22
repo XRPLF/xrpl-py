@@ -4,6 +4,7 @@ from __future__ import annotations  # Requires Python 3.7+
 from dataclasses import dataclass, field
 from typing import Dict, Optional, TypedDict
 
+# CK: TODO Find a py.typed or library stub for cryptoconditions
 from cryptoconditions import PreimageSha256  # type: ignore
 
 from xrpl.models.amounts import Amount
