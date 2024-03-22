@@ -9,7 +9,7 @@ from typing_extensions import Final
 
 from xrpl.core.binarycodec import decode, encode
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.base_model import ABBREVIATIONS, BaseModel, process_xrpl_json
+from xrpl.models.base_model import ABBREVIATIONS, BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.flags import check_false_flag_definition, interface_to_flag_list
 from xrpl.models.nested_model import NestedModel
@@ -487,7 +487,7 @@ class Transaction(BaseModel):
             XRPLModelException: If Payment transactions have different values for
                                 amount and deliver_max fields
         """
-        processed_value = process_xrpl_json(value)
+        processed_value = cls.process_xrpl_json(value)
 
         # handle the deliver_max alias in Payment transactions
         if (

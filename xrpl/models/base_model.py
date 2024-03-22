@@ -73,28 +73,6 @@ def _value_to_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     return value
 
 
-def process_xrpl_json(value: Union[str, Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Creates a dictionary object based on a JSON or dictionary in the standard XRPL
-    format.
-
-    Args:
-        value: The dictionary or JSON string to be processed.
-
-    Returns:
-        A formatted dictionary instantiated from the input.
-    """
-    if isinstance(value, str):
-        value = json.loads(value)
-
-    formatted_dict = {
-        _key_to_json(k): _value_to_json(v)
-        for (k, v) in cast(Dict[str, XRPL_VALUE_TYPE], value).items()
-    }
-
-    return formatted_dict
-
-
 @dataclass(frozen=True)
 class BaseModel(ABC):
     """The base class for all model types."""
@@ -236,6 +214,30 @@ class BaseModel(ABC):
         raise XRPLModelException(error_message)
 
     @classmethod
+    def process_xrpl_json(
+        cls: Type[BM], value: Union[str, Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Creates a dictionary object based on a JSON or dictionary in the standard XRPL
+        format.
+
+        Args:
+            value: The dictionary or JSON string to be processed.
+
+        Returns:
+            A formatted dictionary instantiated from the input.
+        """
+        if isinstance(value, str):
+            value = json.loads(value)
+
+        formatted_dict = {
+            _key_to_json(k): _value_to_json(v)
+            for (k, v) in cast(Dict[str, XRPL_VALUE_TYPE], value).items()
+        }
+
+        return formatted_dict
+
+    @classmethod
     def _get_only_init_args(cls: Type[BM], args: Dict[str, Any]) -> Dict[str, Any]:
         init_keys = {field.name for field in fields(cls) if field.init is True}
         valid_args = {key: value for key, value in args.items() if key in init_keys}
@@ -254,7 +256,7 @@ class BaseModel(ABC):
         Returns:
             A BaseModel object instantiated from the input.
         """
-        formatted_dict = process_xrpl_json(value)
+        formatted_dict = cls.process_xrpl_json(value)
 
         return cls.from_dict(formatted_dict)
 
