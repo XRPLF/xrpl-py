@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from xrpl.asyncio.transaction.main import sign
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.transactions import AccountSet, OfferCreate
+from xrpl.models.transactions import AccountSet, OfferCreate, Payment
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types.transaction_type import TransactionType
 from xrpl.transaction.multisign import multisign
@@ -157,3 +157,69 @@ class TestTransaction(TestCase):
 
         multisigned_tx = multisign(tx, [tx_1, tx_2])
         self.assertTrue(multisigned_tx.is_signed())
+
+    # test the usage  of DeliverMax field in Payment transactions
+    def test_payment_txn_API_no_deliver_max(self):
+        delivered_amount = "200000"
+        payment_tx_json = {
+            "Account": "rGWTUVmm1fB5QUjMYn8KfnyrFNgDiD9H9e",
+            "Destination": "rw71Qs1UYQrSQ9hSgRohqNNQcyjCCfffkQ",
+            "TransactionType": "Payment",
+            "Amount": delivered_amount,
+            "Fee": "15",
+            "Flags": 0,
+            "Sequence": 144,
+            "LastLedgerSequence": 6220218,
+        }
+
+        payment_txn = Payment.from_xrpl(payment_tx_json)
+        self.assertEqual(delivered_amount, payment_txn.to_dict()["amount"])
+
+    def test_payment_txn_API_no_amount(self):
+        delivered_amount = "200000"
+        payment_tx_json = {
+            "Account": "rGWTUVmm1fB5QUjMYn8KfnyrFNgDiD9H9e",
+            "Destination": "rw71Qs1UYQrSQ9hSgRohqNNQcyjCCfffkQ",
+            "TransactionType": "Payment",
+            "DeliverMax": delivered_amount,
+            "Fee": "15",
+            "Flags": 0,
+            "Sequence": 144,
+            "LastLedgerSequence": 6220218,
+        }
+
+        payment_txn = Payment.from_xrpl(payment_tx_json)
+        self.assertEqual(delivered_amount, payment_txn.to_dict()["amount"])
+
+    def test_payment_txn_API_different_amount_and_deliver_max(self):
+        payment_tx_json = {
+            "Account": "rGWTUVmm1fB5QUjMYn8KfnyrFNgDiD9H9e",
+            "Destination": "rw71Qs1UYQrSQ9hSgRohqNNQcyjCCfffkQ",
+            "TransactionType": "Payment",
+            "DeliverMax": "200000",
+            "Amount": "200010",
+            "Fee": "15",
+            "Flags": 0,
+            "Sequence": 144,
+            "LastLedgerSequence": 6220218,
+        }
+
+        with self.assertRaises(XRPLModelException):
+            Payment.from_xrpl(payment_tx_json)
+
+    def test_payment_txn_API_identical_amount_and_deliver_max(self):
+        delivered_amount = "200000"
+        payment_tx_json = {
+            "Account": "rGWTUVmm1fB5QUjMYn8KfnyrFNgDiD9H9e",
+            "Destination": "rw71Qs1UYQrSQ9hSgRohqNNQcyjCCfffkQ",
+            "TransactionType": "Payment",
+            "DeliverMax": delivered_amount,
+            "Amount": delivered_amount,
+            "Fee": "15",
+            "Flags": 0,
+            "Sequence": 144,
+            "LastLedgerSequence": 6220218,
+        }
+
+        payment_txn = Payment.from_xrpl(payment_tx_json)
+        self.assertEqual(delivered_amount, payment_txn.to_dict()["amount"])
