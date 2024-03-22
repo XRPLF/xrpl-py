@@ -39,6 +39,7 @@ websockets = "^11.0"
 Deprecated = "^1.2.13"
 types-Deprecated = "^1.2.9"
 pycryptodome = "^3.16.0"
+cryptoconditions = "0.8.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
