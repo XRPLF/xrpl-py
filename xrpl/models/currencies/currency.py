@@ -8,4 +8,4 @@ from typing import Union
 from xrpl.models.currencies.issued_currency import IssuedCurrency
 from xrpl.models.currencies.xrp import XRP
 
-Currency = Union[IssuedCurrency, XRP]
+Currency = Union[XRP, IssuedCurrency]
