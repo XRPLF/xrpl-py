@@ -418,3 +418,6 @@ class Transaction(BaseModel):
             return pseudo_transaction_types[transaction_type]
 
         raise XRPLModelException(f"{transaction_type} is not a valid Transaction type")
+
+    class Config:
+        smart_union = True
