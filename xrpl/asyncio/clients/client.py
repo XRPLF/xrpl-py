@@ -4,8 +4,14 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional
 
+from typing_extensions import Final
+
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
+
+# The default request timeout duration. Set in Client._request_impl to allow more time
+# for longer running commands.
+REQUEST_TIMEOUT: Final[float] = 10.0
 
 
 class Client(ABC):
@@ -27,7 +33,9 @@ class Client(ABC):
         self.build_version: Optional[str] = None
 
     @abstractmethod
-    async def _request_impl(self: Client, request: Request) -> Response:
+    async def _request_impl(
+        self: Client, request: Request, *, timeout: float = REQUEST_TIMEOUT
+    ) -> Response:
         """
         This is the actual driver for a given Client's request. It must be
         async because all of the helper functions in this library are
@@ -35,6 +43,7 @@ class Client(ABC):
 
         Arguments:
             request: An object representing information about a rippled request.
+            timeout: The maximum tolerable delay on waiting for a response.
 
         Returns:
             The response from the server, as a Response object.

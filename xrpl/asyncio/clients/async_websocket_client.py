@@ -6,6 +6,7 @@ from types import TracebackType
 from typing import Any, Dict, Type
 
 from xrpl.asyncio.clients.async_client import AsyncClient
+from xrpl.asyncio.clients.client import REQUEST_TIMEOUT
 from xrpl.asyncio.clients.exceptions import XRPLWebsocketException
 from xrpl.asyncio.clients.websocket_base import WebsocketBase
 from xrpl.models.requests.request import Request
@@ -262,7 +263,9 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
             raise XRPLWebsocketException("Websocket is not open")
         await self._do_send(request)
 
-    async def _request_impl(self: WebsocketBase, request: Request) -> Response:
+    async def _request_impl(
+        self: WebsocketBase, request: Request, *, timeout: float = REQUEST_TIMEOUT
+    ) -> Response:
         """
         ``_request_impl`` implementation for async websocket.
 
@@ -280,4 +283,4 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
         """
         if not self.is_open():
             raise XRPLWebsocketException("Websocket is not open")
-        return await self._do_request_impl(request)
+        return await self._do_request_impl(request, timeout)

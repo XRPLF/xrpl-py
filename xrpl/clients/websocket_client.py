@@ -7,6 +7,7 @@ from threading import Thread
 from types import TracebackType
 from typing import Any, Dict, Iterator, Optional, Type, Union, cast
 
+from xrpl.asyncio.clients.client import REQUEST_TIMEOUT
 from xrpl.asyncio.clients.exceptions import XRPLWebsocketException
 from xrpl.asyncio.clients.websocket_base import WebsocketBase
 from xrpl.clients.sync_client import SyncClient
@@ -200,7 +201,9 @@ class WebsocketClient(SyncClient, WebsocketBase):
             self._do_send(request), cast(asyncio.AbstractEventLoop, self._loop)
         ).result()
 
-    async def _request_impl(self: WebsocketClient, request: Request) -> Response:
+    async def _request_impl(
+        self: WebsocketClient, request: Request, *, timeout: float = REQUEST_TIMEOUT
+    ) -> Response:
         """
         ``_request_impl`` implementation for sync websockets that ensures the
         ``WebsocketBase._do_request_impl`` implementation is run on the other thread.
@@ -232,6 +235,6 @@ class WebsocketClient(SyncClient, WebsocketBase):
         # completely block the main thread until completed,
         # just as if it were not async.
         return asyncio.run_coroutine_threadsafe(
-            self._do_request_impl(request),
+            self._do_request_impl(request, timeout),
             cast(asyncio.AbstractEventLoop, self._loop),
         ).result()
