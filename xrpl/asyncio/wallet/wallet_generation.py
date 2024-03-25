@@ -1,6 +1,7 @@
 """Handles wallet generation from a faucet."""
 import asyncio
 from typing import Optional
+from urllib.parse import urlparse, urlunparse
 
 import httpx
 from typing_extensions import Final
@@ -99,6 +100,59 @@ async def generate_faucet_wallet(
     )
 
 
+def process_faucet_host_url(input_url: str) -> str:
+    """
+    Construct a URL from the given input string.
+
+    Args:
+        input_url (str): The input string that may or may not include a protocol,
+                       and may or may not have a path.
+
+    Returns:
+        str: The constructed URL with https as the default protocol and /accounts as the
+        default path.
+    """
+    # Strip the trailing forward slash
+    input_url = input_url.rstrip("/")
+
+    # prepend the layer-5 internet protocol, if not already present
+    # Read the comment about netloc to understand the behavior of urllib.urlparse
+    # without the protocol at the beginning of the URL
+    if "://" not in input_url:
+        input_url = "https://" + input_url
+
+    # Parse the input URL to identify its components.
+    parsed_url = urlparse(input_url)
+
+    # If the input string includes a protocol (e.g., "https://"), urlparse will
+    # correctly parse it.
+    # Scheme refers to the protocol (e.g., "https", "http").
+    scheme = parsed_url.scheme if parsed_url.scheme else "https"
+
+    # Netloc is the network location part, which usually includes the domain name.
+    # For input "https://abcd.com", netloc is "abcd.com".
+    # If no protocol is provided, the domain might be parsed as the path.
+    # Consider the input string "abcd.com". If you were to parse this string using
+    # urlparse without manually prepending a protocol (like http:// or https://), the
+    # parsing logic would interpret "abcd.com" not as the network location part
+    # (or domain) of the URL, but rather as the path component. This is because
+    # urlparse expects a scheme (protocol) to correctly identify the parts of the URL.
+    # Hence, we check if netloc is present; if not, assume the path is actually the
+    # netloc.
+    netloc = parsed_url.netloc if parsed_url.netloc else parsed_url.path
+    path = parsed_url.path if parsed_url.netloc else ""
+
+    # If no specific path is provided, append '/accounts' to the URL.
+    # For input "abcd.com", the constructed path will be "/accounts".
+    if not path:
+        path = "/accounts"
+
+    # Construct the final URL by reassembling its components.
+    final_url = urlunparse((scheme, netloc, path, "", "", ""))
+
+    return final_url
+
+
 def get_faucet_url(url: str, faucet_host: Optional[str] = None) -> str:
     """
     Returns the URL of the faucet that should be used, based on whether the URL is from
@@ -115,7 +169,7 @@ def get_faucet_url(url: str, faucet_host: Optional[str] = None) -> str:
         XRPLFaucetException: if the provided URL is not for the testnet or devnet.
     """
     if faucet_host is not None:
-        return f"https://{faucet_host}/accounts"
+        return process_faucet_host_url(faucet_host)
     if "hooks-testnet-v3" in url:  # hooks v3 testnet
         return _HOOKS_V3_TEST_FAUCET_URL
     if "altnet" in url or "testnet" in url:  # testnet
