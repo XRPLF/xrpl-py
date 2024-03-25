@@ -10,7 +10,7 @@ from xrpl.models.transactions.pseudo_transactions.pseudo_transaction import (
     PseudoTransaction,
 )
 from xrpl.models.transactions.types import PseudoTransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class EnableAmendmentFlag(int, Enum):
@@ -55,7 +55,7 @@ class EnableAmendmentFlagInterface(FlagInterface):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class EnableAmendment(PseudoTransaction):
     """
     An EnableAmendment pseudo-transaction marks a change in status of an amendment to

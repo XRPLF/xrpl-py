@@ -11,7 +11,7 @@ from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 MAX_SIGNER_ENTRIES: Final[int] = 32
 """
@@ -29,7 +29,7 @@ Matches hex-encoded WalletLocator in the format allowed by XRPL.
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class SignerEntry(NestedModel):
     """Represents one entry in a list of multi-signers authorized to an account."""
 
@@ -56,7 +56,7 @@ class SignerEntry(NestedModel):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class SignerListSet(Transaction):
     """
     Represents a `SignerListSet <https://xrpl.org/signerlistset.html>`_

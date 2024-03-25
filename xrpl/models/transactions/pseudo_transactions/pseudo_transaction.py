@@ -5,13 +5,13 @@ from dataclasses import dataclass, field
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import PseudoTransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 _ACCOUNT_ZERO = "rrrrrrrrrrrrrrrrrrrrrhoLvTp"  # base58 encoding of the value `0`
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class PseudoTransaction(Transaction):
     """
     Pseudo-transactions are never submitted by users, nor propagated through the

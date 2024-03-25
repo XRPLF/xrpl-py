@@ -5,11 +5,11 @@ from typing import Optional
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class PaymentChannelFund(Transaction):
     """
     Represents a `PaymentChannelFund <https://xrpl.org/paymentchannelfund.html>`_

@@ -14,7 +14,7 @@ from xrpl.models.base_model import BaseModel
 from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class StreamParameter(str, Enum):
@@ -31,7 +31,7 @@ class StreamParameter(str, Enum):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class SubscribeBook(BaseModel):
     """Format for elements in the ``books`` array for Subscribe only."""
 
@@ -61,7 +61,7 @@ class SubscribeBook(BaseModel):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Subscribe(Request):
     """
     The subscribe method requests periodic notifications from the server
