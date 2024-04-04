@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "ms-python.flake8",
+    "ms-python.black-formatter",
+    "ms-python.mypy-type-checker",
+    "swyddfa.esbonio",
+    "streetsidesoftware.code-spell-checker",
+    "njqdev.vscode-python-typehint",
+    "ms-python.isort",
+    "ms-python.pylint"
+  ]
+}
