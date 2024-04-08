@@ -14,13 +14,13 @@ To make it easy to manage your Python environment with `xrpl-py`, including swit
 
   For other installation options, see the [`pyenv` README](https://github.com/pyenv/pyenv#installation).
 
-- Use `pyenv` to install the optimized version for `xrpl-py` (currently 3.9.1):
+- Use `pyenv` to install the optimized version for `xrpl-py` (currently 3.11.6):
 
-        pyenv install 3.9.1
+        pyenv install 3.11.6
 
 - Set the [global](https://github.com/pyenv/pyenv/blob/main/COMMANDS.md#pyenv-global) version of Python with `pyenv`:
 
-        pyenv global 3.9.1
+        pyenv global 3.11.6
 
 ### Set up shell environment
 
@@ -127,12 +127,12 @@ poetry run coverage report
 To switch your python version before running tests:
 
 ```bash
-pyenv local 3.9
-poetry env use python3.9
+pyenv local 3.11
+poetry env use python3.11
 poetry install
 ```
 
-Replace `python3.9` with whatever version of Python you want to use (you must have it installed with `pyenv` for it to work).
+Replace `python3.11` with whatever version of Python you want to use (you must have it installed with `pyenv` for it to work).
 
 ## Generate reference docs
 
