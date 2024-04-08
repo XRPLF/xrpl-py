@@ -4,6 +4,10 @@ from __future__ import annotations  # Requires Python 3.7+
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
+# CK: TODO Find a py.typed or library stub for cryptoconditions
+from cryptoconditions import PreimageSha256  # type: ignore
+from typing_extensions import TypedDict
+
 from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -81,3 +85,36 @@ class EscrowCreate(Transaction):
             ] = "The finish_after time must be before the cancel_after time."
 
         return errors
+
+
+class CryptoConditions(TypedDict):
+    """
+    A typed-dictionary containing the condition and the fulfillment for
+    conditional Escrows
+    """
+
+    condition: str
+    fulfillment: str
+
+
+def generate_escrow_cryptoconditions(secret: bytes) -> CryptoConditions:
+    """Generate a condition and fulfillment for escrows
+
+    Args:
+        secret: Cryptographic source of randomness used to generate the condition and
+            fulfillment
+
+    Returns:
+        A pair of condition and fulfillment is returned
+
+    """
+    fufill = PreimageSha256(preimage=secret)
+    cond_fulfillment: CryptoConditions = {
+        "condition": str.upper(fufill.condition_binary.hex()),
+        "fulfillment": str.upper(fufill.serialize_binary().hex()),
+    }
+    return cond_fulfillment
+    # return {
+    #     "condition": str.upper(fufill.condition_binary.hex()),
+    #     "fulfillment": str.upper(fufill.serialize_binary().hex()),
+    # }

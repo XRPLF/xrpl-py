@@ -1,10 +1,12 @@
 """Example of how we can set up an escrow"""
 from datetime import datetime
+from os import urandom
 from time import sleep
 
 from xrpl.account import get_balance
 from xrpl.clients import JsonRpcClient
 from xrpl.models import AccountObjects, EscrowCreate, EscrowFinish
+from xrpl.models.transactions.escrow_create import generate_escrow_cryptoconditions
 from xrpl.transaction.reliable_submission import submit_and_wait
 from xrpl.utils import datetime_to_ripple_time
 from xrpl.wallet import generate_faucet_wallet
@@ -61,6 +63,44 @@ finish_tx = EscrowFinish(
 submit_and_wait(finish_tx, client, wallet1)
 
 # If escrow went through successfully, 1000000 exchanged
+print("Balances of wallets after Escrow was sent:")
+print(get_balance(wallet1.address, client))
+print(get_balance(wallet2.address, client))
+
+# Setup conditional escrows
+cryptoCondition = generate_escrow_cryptoconditions(urandom(32))
+
+create_tx = EscrowCreate(
+    account=wallet1.address,
+    destination=wallet2.address,
+    amount="1000000",
+    condition=cryptoCondition["condition"],
+    cancel_after=datetime_to_ripple_time(datetime.now()) + 100,
+)
+
+create_escrow_response = submit_and_wait(create_tx, client, wallet1)
+print(create_escrow_response)
+
+# Create an AccountObjects request and have the client call it to see if escrow exists
+account_objects_request = AccountObjects(account=wallet1.address)
+account_objects = (client.request(account_objects_request)).result["account_objects"]
+
+print("Conditional Escrow object exists in wallet1's account:")
+print(account_objects)
+
+# Create an EscrowFinish transaction, then sign, autofill, and send it
+finish_tx = EscrowFinish(
+    account=wallet1.address,
+    owner=wallet1.address,
+    offer_sequence=create_escrow_response.result["Sequence"],
+    fulfillment=cryptoCondition["fulfillment"],
+    condition=cryptoCondition["condition"],
+)
+
+submit_and_wait(finish_tx, client, wallet1)
+
+# The fees for EscrowFinish transaction of a conditional escrows are higher.
+# Additionally, the fees scale with the reference load on the server
 print("Balances of wallets after Escrow was sent:")
 print(get_balance(wallet1.address, client))
 print(get_balance(wallet2.address, client))
