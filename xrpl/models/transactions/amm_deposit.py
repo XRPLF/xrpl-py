@@ -25,6 +25,7 @@ class AMMDepositFlag(int, Enum):
     TF_TWO_ASSET = 0x00100000
     TF_ONE_ASSET_LP_TOKEN = 0x00200000
     TF_LIMIT_LP_TOKEN = 0x00400000
+    TF_TWO_ASSET_IF_EMPTY = 0x00800000
 
 
 class AMMDepositFlagInterface(FlagInterface):
@@ -38,6 +39,7 @@ class AMMDepositFlagInterface(FlagInterface):
     TF_TWO_ASSET: bool
     TF_ONE_ASSET_LP_TOKEN: bool
     TF_LIMIT_LP_TOKEN: bool
+    TF_TWO_ASSET_IF_EMPTY: bool
 
 
 @require_kwargs_on_init
