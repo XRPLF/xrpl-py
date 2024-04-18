@@ -66,6 +66,7 @@ __all__ = [
     "Fee",
     "GatewayBalances",
     "GenericRequest",
+    # "GetAggregatePrice",
     "Ledger",
     "LedgerClosed",
     "LedgerCurrent",

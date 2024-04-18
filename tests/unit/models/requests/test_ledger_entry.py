@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from xrpl.models import XRP, LedgerEntry, XChainBridge
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.requests.ledger_entry import RippleState
+from xrpl.models.requests.ledger_entry import Oracle, RippleState
 
 
 class TestLedgerEntry(TestCase):
@@ -27,6 +27,15 @@ class TestLedgerEntry(TestCase):
     def test_has_only_offer_is_valid(self):
         req = LedgerEntry(
             offer="hello",
+        )
+        self.assertTrue(req.is_valid())
+
+    def test_has_only_price_oracle_is_valid(self):
+        req = LedgerEntry(
+            ripple_state=Oracle(
+                account="account1",
+                oracle_document_id=1,
+            ),
         )
         self.assertTrue(req.is_valid())
 
