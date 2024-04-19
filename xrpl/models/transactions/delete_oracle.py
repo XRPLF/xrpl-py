@@ -1,4 +1,4 @@
-"""Model for DeleteOracle transaction type."""
+"""Model for OracleDelete transaction type."""
 
 from __future__ import annotations
 
@@ -13,8 +13,8 @@ from xrpl.models.utils import require_kwargs_on_init
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class DeleteOracle(Transaction):
-    """Represents a DeleteOracle transaction."""
+class OracleDelete(Transaction):
+    """Represents a OracleDelete transaction."""
 
     account: str = REQUIRED  # type: ignore
     oracle_document_id: Union[int, str] = REQUIRED  # type: ignore

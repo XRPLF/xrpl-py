@@ -1,4 +1,4 @@
-"""Model for SetOracle transaction type."""
+"""Model for OracleSet transaction type."""
 
 from __future__ import annotations
 
@@ -14,8 +14,8 @@ from xrpl.models.utils import require_kwargs_on_init
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class SetOracle(Transaction):
-    """Represents a SetOracle transaction."""
+class OracleSet(Transaction):
+    """Represents a OracleSet transaction."""
 
     account: str = REQUIRED  # type: ignore
     oracle_document_id: int = REQUIRED  # type: ignore
@@ -34,7 +34,7 @@ class SetOracle(Transaction):
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class PriceData(BaseModel):
-    """Represents one PriceData element. It is used in SetOracle transaction"""
+    """Represents one PriceData element. It is used in OracleSet transaction"""
 
     base_asset: str = REQUIRED  # type: ignore
     quote_asset: str = REQUIRED  # type: ignore

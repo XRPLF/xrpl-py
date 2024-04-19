@@ -191,6 +191,8 @@ def get_transaction_type_code(transaction_type: str) -> int:
     Returns:
         An integer representing the given transaction type string in an enum.
     """
+    print("Available definitions.json transactions: ")
+    print(_DEFINITIONS["TRANSACTION_TYPES"])
     return cast(int, _DEFINITIONS["TRANSACTION_TYPES"][transaction_type])
 
 
