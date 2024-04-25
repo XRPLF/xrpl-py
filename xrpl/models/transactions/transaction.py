@@ -487,7 +487,7 @@ class Transaction(BaseModel):
             XRPLModelException: If Payment transactions have different values for
                                 amount and deliver_max fields
         """
-        processed_value = cls.process_xrpl_json(value)
+        processed_value = cls._process_xrpl_json(value)
 
         # handle the deliver_max alias in Payment transactions
         if (

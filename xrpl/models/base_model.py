@@ -214,7 +214,7 @@ class BaseModel(ABC):
         raise XRPLModelException(error_message)
 
     @classmethod
-    def process_xrpl_json(
+    def _process_xrpl_json(
         cls: Type[BM], value: Union[str, Dict[str, Any]]
     ) -> Dict[str, Any]:
         """
@@ -256,7 +256,7 @@ class BaseModel(ABC):
         Returns:
             A BaseModel object instantiated from the input.
         """
-        formatted_dict = cls.process_xrpl_json(value)
+        formatted_dict = cls._process_xrpl_json(value)
 
         return cls.from_dict(formatted_dict)
 
