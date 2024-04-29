@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from xrpl.models.base_model import BaseModel
+from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -19,9 +19,15 @@ class OracleSet(Transaction):
 
     account: str = REQUIRED  # type: ignore
     oracle_document_id: int = REQUIRED  # type: ignore
+
+    """
+    The below three fields must be hex-encoded. You can
+    use `xrpl.utils.str_to_hex` to convert a UTF-8 string to hex.
+    """
     provider: Optional[str] = None
     uri: Optional[str] = None
     asset_class: Optional[str] = None
+
     last_update_time: int = REQUIRED  # type: ignore
     price_data_series: List[PriceData] = REQUIRED  # type: ignore
 
@@ -33,7 +39,7 @@ class OracleSet(Transaction):
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class PriceData(BaseModel):
+class PriceData(NestedModel):
     """Represents one PriceData element. It is used in OracleSet transaction"""
 
     base_asset: str = REQUIRED  # type: ignore
