@@ -50,5 +50,5 @@ class GetAggregatePrice(Request):
 class OracleInfo(NestedModel):
     """Represents one PriceData element. It is used in OracleSet transaction"""
 
-    oracle_document_id: str = REQUIRED  # type: ignore
+    oracle_document_id: int = REQUIRED  # type: ignore
     account: str = REQUIRED  # type: ignore
