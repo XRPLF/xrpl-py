@@ -30,15 +30,6 @@ class TestLedgerEntry(TestCase):
         )
         self.assertTrue(req.is_valid())
 
-    def test_has_only_price_oracle_is_valid(self):
-        req = LedgerEntry(
-            ripple_state=Oracle(
-                account="account1",
-                oracle_document_id=1,
-            ),
-        )
-        self.assertTrue(req.is_valid())
-
     def test_has_only_ripple_state_is_valid(self):
         req = LedgerEntry(
             ripple_state=RippleState(
@@ -127,4 +118,37 @@ class TestLedgerEntry(TestCase):
             LedgerEntry(
                 index="hello",
                 account_root="hello",
+            )
+
+    # fetch a valid PriceOracle object
+    def test_get_priceoracle(self):
+        # oracle_document_id is specified as uint
+        req = LedgerEntry(
+            oracle=Oracle(
+                account="rB6XJbxKx2oBSK1E3Hvh7KcZTCCBukWyhv",
+                oracle_document_id=1,
+            ),
+        )
+        self.assertTrue(req.is_valid())
+
+        # oracle_document_id is specified as string
+        req = LedgerEntry(
+            oracle=Oracle(
+                account="rB6XJbxKx2oBSK1E3Hvh7KcZTCCBukWyhv",
+                oracle_document_id="1",
+            ),
+        )
+        self.assertTrue(req.is_valid())
+
+    def test_invalid_priceoracle_object(self):
+        # missing oracle_document_id
+        with self.assertRaises(XRPLModelException):
+            LedgerEntry(
+                oracle=Oracle(account="rB6XJbxKx2oBSK1E3Hvh7KcZTCCBukWyhv"),
+            )
+
+        # missing account information
+        with self.assertRaises(XRPLModelException):
+            LedgerEntry(
+                oracle=Oracle(oracle_document_id=1),
             )
