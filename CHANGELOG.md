@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 - Included `ctid` field in the `tx` request.
 
+### Added
+- Support for the PriceOracle amendment (XLS-47d).
+
 ### Fixed
 - Added support for `XChainModifyBridge` flag maps (fixing an issue with `NFTokenCreateOffer` flag names)
 - Fixed `XChainModifyBridge` validation to allow just clearing of `MinAccountCreateAmount`
