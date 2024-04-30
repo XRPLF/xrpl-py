@@ -1,3 +1,4 @@
+import random
 import time
 
 from tests.integration.integration_test_case import IntegrationTestCase
@@ -20,7 +21,11 @@ class TestSetOracle(IntegrationTestCase):
     async def test_all_fields(self, client):
         tx = OracleSet(
             account=WALLET.address,
-            oracle_document_id=1,
+            # if oracle_document_id is not modified, the (sync, async) +
+            # (json, websocket) combination of integration tests will update the same
+            # oracle object using identical "LastUpdateTime". Updates to an oracle must
+            # be more recent than its previous LastUpdateTime
+            oracle_document_id=random.randint(100, 300),
             provider=_PROVIDER,
             asset_class=_ASSET_CLASS,
             last_update_time=int(time.time()),
@@ -42,4 +47,6 @@ class TestSetOracle(IntegrationTestCase):
             AccountObjects(account=WALLET.address, type=AccountObjectType.ORACLE)
         )
 
-        self.assertEqual(len(account_objects_response.result["account_objects"]), 1)
+        # subsequent integration tests (sync/async + json/websocket) add one
+        # oracle object to the account
+        self.assertTrue(len(account_objects_response.result["account_objects"]) > 0)

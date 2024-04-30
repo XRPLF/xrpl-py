@@ -1,3 +1,6 @@
+import random
+import time
+
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     sign_and_reliable_submission_async,
@@ -6,35 +9,46 @@ from tests.integration.it_utils import (
 from tests.integration.reusable_values import WALLET
 from xrpl.models import AccountObjects, AccountObjectType, OracleDelete, OracleSet
 from xrpl.models.response import ResponseStatus
+from xrpl.models.transactions.set_oracle import PriceData
+from xrpl.utils import str_to_hex
 
-_PROVIDER = "chainlink"
-_ASSET_CLASS = "currency"
+_PROVIDER = str_to_hex("chainlink")
+_ASSET_CLASS = str_to_hex("currency")
 
 
 class TestDeleteOracle(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic(self, client):
-        # Create PriceOracle to delete
-        setup_tx = OracleSet(
+        oracle_id = random.randint(100, 10000)
+
+        # Create PriceOracle, to be deleted later
+        tx = OracleSet(
             account=WALLET.address,
-            oracle_document_id=1,
+            # if oracle_document_id is not modified, the (sync, async) +
+            # (json, websocket) combination of integration tests will update the same
+            # oracle object using identical "LastUpdateTime". Updates to an oracle must
+            # be more recent than its previous LastUpdateTime
+            oracle_document_id=oracle_id,
             provider=_PROVIDER,
             asset_class=_ASSET_CLASS,
+            last_update_time=int(time.time()),
+            price_data_series=[
+                PriceData(
+                    base_asset="XRP", quote_asset="USD", asset_price=740, scale=1
+                ),
+                PriceData(
+                    base_asset="BTC", quote_asset="EUR", asset_price=100, scale=2
+                ),
+            ],
         )
-        response = await sign_and_reliable_submission_async(setup_tx, WALLET, client)
+        response = await sign_and_reliable_submission_async(tx, WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-
-        # confirm that the PriceOracle was actually created
-        account_objects_response = await client.request(
-            AccountObjects(account=WALLET.address, type=AccountObjectType.ORACLE)
-        )
-        self.assertEqual(len(account_objects_response.result["account_objects"]), 1)
 
         # Create PriceOracle to delete
         tx = OracleDelete(
             account=WALLET.address,
-            oracle_document_id=1,
+            oracle_document_id=oracle_id,
         )
         response = await sign_and_reliable_submission_async(tx, WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
