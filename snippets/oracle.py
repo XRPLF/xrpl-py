@@ -1,4 +1,4 @@
-"""Example of how we can set up an escrow"""
+"""Example of how we can create, update and delete oracles"""
 import time
 
 from xrpl.clients import JsonRpcClient
