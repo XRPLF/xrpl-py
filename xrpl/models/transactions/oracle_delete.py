@@ -19,6 +19,6 @@ class OracleDelete(Transaction):
     oracle_document_id: int = REQUIRED  # type: ignore
 
     transaction_type: TransactionType = field(
-        default=TransactionType.DELETE_ORACLE,
+        default=TransactionType.ORACLE_DELETE,
         init=False,
     )

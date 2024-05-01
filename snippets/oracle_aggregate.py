@@ -3,7 +3,7 @@ import time
 
 from xrpl.clients import JsonRpcClient
 from xrpl.models.requests.get_aggregate_price import GetAggregatePrice, OracleInfo
-from xrpl.models.transactions.set_oracle import OracleSet, PriceData
+from xrpl.models.transactions.oracle_set import OracleSet, PriceData
 from xrpl.transaction.reliable_submission import submit_and_wait
 from xrpl.utils import str_to_hex
 from xrpl.wallet import generate_faucet_wallet

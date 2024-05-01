@@ -32,7 +32,7 @@ class OracleSet(Transaction):
     price_data_series: List[PriceData] = REQUIRED  # type: ignore
 
     transaction_type: TransactionType = field(
-        default=TransactionType.SET_ORACLE,
+        default=TransactionType.ORACLE_SET,
         init=False,
     )
 

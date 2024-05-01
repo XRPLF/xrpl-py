@@ -28,7 +28,6 @@ from xrpl.models.transactions.check_cancel import CheckCancel
 from xrpl.models.transactions.check_cash import CheckCash
 from xrpl.models.transactions.check_create import CheckCreate
 from xrpl.models.transactions.clawback import Clawback
-from xrpl.models.transactions.delete_oracle import OracleDelete
 from xrpl.models.transactions.deposit_preauth import DepositPreauth
 from xrpl.models.transactions.did_delete import DIDDelete
 from xrpl.models.transactions.did_set import DIDSet
@@ -55,6 +54,8 @@ from xrpl.models.transactions.offer_create import (
     OfferCreateFlag,
     OfferCreateFlagInterface,
 )
+from xrpl.models.transactions.oracle_delete import OracleDelete
+from xrpl.models.transactions.oracle_set import OracleSet
 from xrpl.models.transactions.payment import Payment, PaymentFlag, PaymentFlagInterface
 from xrpl.models.transactions.payment_channel_claim import (
     PaymentChannelClaim,
@@ -63,7 +64,6 @@ from xrpl.models.transactions.payment_channel_claim import (
 )
 from xrpl.models.transactions.payment_channel_create import PaymentChannelCreate
 from xrpl.models.transactions.payment_channel_fund import PaymentChannelFund
-from xrpl.models.transactions.set_oracle import OracleSet
 from xrpl.models.transactions.set_regular_key import SetRegularKey
 from xrpl.models.transactions.signer_list_set import SignerEntry, SignerListSet
 from xrpl.models.transactions.ticket_create import TicketCreate
@@ -113,7 +113,6 @@ __all__ = [
     "CheckCash",
     "CheckCreate",
     "Clawback",
-    "OracleDelete",
     "DepositPreauth",
     "DIDDelete",
     "DIDSet",
@@ -134,6 +133,8 @@ __all__ = [
     "OfferCreate",
     "OfferCreateFlag",
     "OfferCreateFlagInterface",
+    "OracleDelete",
+    "OracleSet",
     "Payment",
     "PaymentChannelClaim",
     "PaymentChannelClaimFlag",
@@ -142,7 +143,6 @@ __all__ = [
     "PaymentChannelFund",
     "PaymentFlag",
     "PaymentFlagInterface",
-    "OracleSet",
     "SetRegularKey",
     "Signer",
     "SignerEntry",

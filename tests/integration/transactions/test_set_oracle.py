@@ -9,7 +9,7 @@ from tests.integration.it_utils import (
 from tests.integration.reusable_values import WALLET
 from xrpl.models import AccountObjects, AccountObjectType, OracleSet
 from xrpl.models.response import ResponseStatus
-from xrpl.models.transactions.set_oracle import PriceData
+from xrpl.models.transactions.oracle_set import PriceData
 from xrpl.utils import str_to_hex
 
 _PROVIDER = str_to_hex("provider")

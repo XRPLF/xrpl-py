@@ -2,8 +2,8 @@
 import time
 
 from xrpl.clients import JsonRpcClient
-from xrpl.models.transactions.delete_oracle import OracleDelete
-from xrpl.models.transactions.set_oracle import OracleSet, PriceData
+from xrpl.models.transactions.oracle_delete import OracleDelete
+from xrpl.models.transactions.oracle_set import OracleSet, PriceData
 from xrpl.transaction.reliable_submission import submit_and_wait
 from xrpl.utils import str_to_hex
 from xrpl.wallet import generate_faucet_wallet
