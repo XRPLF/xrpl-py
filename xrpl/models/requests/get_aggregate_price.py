@@ -8,7 +8,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
-from xrpl.models.nested_model import NestedModel
+from typing_extensions import TypedDict
+
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
@@ -47,7 +48,7 @@ class GetAggregatePrice(Request):
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class OracleInfo(NestedModel):
+class OracleInfo(TypedDict):
     """Represents one PriceData element. It is used in OracleSet transaction"""
 
     oracle_document_id: int = REQUIRED  # type: ignore

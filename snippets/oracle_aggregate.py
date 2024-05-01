@@ -2,7 +2,7 @@
 import time
 
 from xrpl.clients import JsonRpcClient
-from xrpl.models.requests.get_aggregate_price import GetAggregatePrice
+from xrpl.models.requests.get_aggregate_price import GetAggregatePrice, OracleInfo
 from xrpl.models.transactions.set_oracle import OracleSet, PriceData
 from xrpl.transaction.reliable_submission import submit_and_wait
 from xrpl.utils import str_to_hex
@@ -39,7 +39,7 @@ for i in range(10):
     response = submit_and_wait(create_tx, client, wallet)
 
     # store the (account, oracle_document_id) for future use
-    oracle_info.append({"account": wallet.address, "oracle_document_id": i})
+    oracle_info.append(OracleInfo(account=wallet.address, oracle_document_id=i))
 
 get_agg_request = GetAggregatePrice(
     base_asset="XRP", quote_asset="USD", oracles=oracle_info
