@@ -2,6 +2,9 @@
 import time
 
 from xrpl.clients import JsonRpcClient
+from xrpl.models import LedgerEntry
+from xrpl.models.requests.ledger_entry import Oracle
+from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions.oracle_delete import OracleDelete
 from xrpl.models.transactions.oracle_set import OracleSet, PriceData
 from xrpl.transaction.reliable_submission import submit_and_wait
@@ -31,11 +34,10 @@ create_tx = OracleSet(
 )
 
 response = submit_and_wait(create_tx, client, wallet)
-# TODO: Keshava
-# print(response.result['meta']['TransactionResult'] == 'tesSUCCESS') # does not work
-print(
-    "Result of SetOracle transaction: " + response.result["meta"]["TransactionResult"]
-)
+
+if response.status != ResponseStatus.SUCCESS:
+    print("Create Oracle operation failed, recieved the following response")
+    print(response)
 
 # update the oracle data
 update_tx = OracleSet(
@@ -49,17 +51,33 @@ update_tx = OracleSet(
 )
 response = submit_and_wait(update_tx, client, wallet)
 
-print(
-    "Result of the Update Oracle transaction: "
-    + response.result["meta"]["TransactionResult"]
+if response.status != ResponseStatus.SUCCESS:
+    print("Update Oracle operation failed, recieved the following response")
+    print(response)
+
+ledger_entry_req = LedgerEntry(
+    oracle=Oracle(account=wallet.address, oracle_document_id=_ORACLE_DOC_ID)
 )
+response = client.request(ledger_entry_req)
+
+if response.status != ResponseStatus.SUCCESS:
+    print("Test failed: Oracle Ledger Entry is not present")
+    print(response)
 
 
 # delete the oracle
 delete_tx = OracleDelete(account=wallet.address, oracle_document_id=_ORACLE_DOC_ID)
 response = submit_and_wait(delete_tx, client, wallet)
 
-print(
-    "Result of DeleteOracle transaction: "
-    + response.result["meta"]["TransactionResult"]
+if response.status != ResponseStatus.SUCCESS:
+    print("Delete Oracle operation failed, recieved the following response")
+    print(response)
+
+ledger_entry_req = LedgerEntry(
+    oracle=Oracle(account=wallet.address, oracle_document_id=_ORACLE_DOC_ID)
 )
+response = client.request(ledger_entry_req)
+
+if response.status != ResponseStatus.ERROR:
+    print("Test failed: Oracle Ledger Entry has not been deleted")
+    print(response)
