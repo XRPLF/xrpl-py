@@ -1,4 +1,3 @@
-import random
 import time
 
 from tests.integration.integration_test_case import IntegrationTestCase
@@ -19,15 +18,14 @@ _ASSET_CLASS = str_to_hex("currency")
 class TestDeleteOracle(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic(self, client):
-        oracle_id = random.randint(100, 10000)
+        oracle_id = 1
 
         # Create PriceOracle, to be deleted later
         tx = OracleSet(
             account=WALLET.address,
-            # if oracle_document_id is not modified, the (sync, async) +
-            # (json, websocket) combination of integration tests will update the same
-            # oracle object using identical "LastUpdateTime". Updates to an oracle must
-            # be more recent than its previous LastUpdateTime
+            # unlike the integration tests for OracleSet transaction, we do not have to
+            # dynamically change the oracle_document_id for these integration tests.
+            # This is because the Oracle LedgerObject is deleted by th end of the test.
             oracle_document_id=oracle_id,
             provider=_PROVIDER,
             asset_class=_ASSET_CLASS,

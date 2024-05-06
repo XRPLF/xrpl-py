@@ -1,4 +1,3 @@
-import random
 import time
 
 from tests.integration.integration_test_case import IntegrationTestCase
@@ -25,7 +24,9 @@ class TestSetOracle(IntegrationTestCase):
             # (json, websocket) combination of integration tests will update the same
             # oracle object using identical "LastUpdateTime". Updates to an oracle must
             # be more recent than its previous LastUpdateTime
-            oracle_document_id=random.randint(100, 300),
+            # a unique value is obtained for each combination of test run within the
+            # implementation of the test_async_and_sync decorator.
+            oracle_document_id=self.value,
             provider=_PROVIDER,
             asset_class=_ASSET_CLASS,
             last_update_time=int(time.time()),
