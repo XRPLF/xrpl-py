@@ -22,20 +22,21 @@ class GetAggregatePrice(Request):
 
     method: RequestMethod = field(default=RequestMethod.GET_AGGREGATE_PRICE, init=False)
 
-    """base_asset is the asset to be priced"""
     base_asset: str = REQUIRED  # type: ignore
+    """base_asset is the asset to be priced"""
 
-    """quote_asset is the denomination in which the prices are expressed"""
     quote_asset: str = REQUIRED  # type: ignore
+    """quote_asset is the denomination in which the prices are expressed"""
 
-    oracles: List[OracleInfo] = REQUIRED  # type: ignore
+    oracles: List[Oracle] = REQUIRED  # type: ignore
+    """oracles is an array of oracle objects to aggregate over"""
 
-    """percentage of outliers to trim"""
     trim: Optional[int] = None
+    """percentage of outliers to trim"""
 
+    time_threshold: Optional[int] = None
     """time_threshold : defines a range of prices to include based on the timestamp
     range - {most recent, most recent - time_threshold}"""
-    time_threshold: Optional[int] = None
 
     def _get_errors(self: GetAggregatePrice) -> Dict[str, str]:
         errors = super()._get_errors()
@@ -48,8 +49,12 @@ class GetAggregatePrice(Request):
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class OracleInfo(TypedDict):
-    """Represents one PriceData element. It is used in OracleSet transaction"""
+class Oracle(TypedDict):
+    """Represents one Oracle element. It is used in GetAggregatePrice request"""
 
     oracle_document_id: int = REQUIRED  # type: ignore
+    """oracle_document_id is a unique identifier of the Price Oracle for the given
+    Account"""
+
     account: str = REQUIRED  # type: ignore
+    """account is the Oracle's account."""

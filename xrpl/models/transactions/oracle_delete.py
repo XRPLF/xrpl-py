@@ -16,7 +16,12 @@ class OracleDelete(Transaction):
     """Represents an OracleDelete transaction."""
 
     account: str = REQUIRED  # type: ignore
+    """Account is the account that has the Oracle update and delete privileges.
+    This field corresponds to the Owner field on the PriceOracle ledger object."""
+
     oracle_document_id: int = REQUIRED  # type: ignore
+    """OracleDocumentID is a unique identifier of the Price Oracle for the given
+    Account."""
 
     transaction_type: TransactionType = field(
         default=TransactionType.ORACLE_DELETE,
