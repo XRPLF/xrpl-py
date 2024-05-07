@@ -368,6 +368,9 @@ class Transaction(BaseModel):
 
         Returns:
             Whether the transaction has the given flag value set.
+
+        Raises:
+            XRPLModelException: if `self.flags` is invalid.
         """
         if isinstance(self.flags, int):
             return self.flags & flag != 0
@@ -376,8 +379,10 @@ class Transaction(BaseModel):
                 tx_type=self.transaction_type,
                 tx_flags=self.flags,
             )
-        else:  # is List[int]
+        elif isinstance(self.flags, list):
             return flag in self.flags
+        else:
+            raise XRPLModelException("self.flags is not an int, dict, or list")
 
     def is_signed(self: Transaction) -> bool:
         """

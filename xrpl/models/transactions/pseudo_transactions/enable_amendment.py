@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
@@ -101,7 +101,7 @@ class EnableAmendment(PseudoTransaction):
         init=False,
     )
 
-    flags: Union[int, List[int]] = 0
+    flags: Union[Dict[str, bool], int, List[int]] = 0
     """
     The Flags value of the EnableAmendment pseudo-transaction indicates the status
     of the amendment at the time of the ledger including the pseudo-transaction.

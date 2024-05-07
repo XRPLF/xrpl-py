@@ -5,6 +5,7 @@ See ledger format for information on the
 different types of objects you can retrieve.
 `See ledger entry <https://xrpl.org/ledger_entry.html>`_
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -253,9 +254,9 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     ticket: Optional[Union[str, Ticket]] = None
     bridge_account: Optional[str] = None
     bridge: Optional[XChainBridge] = None
-    xchain_claim_id: Optional[Union[str, XChainClaimID]] = None
+    xchain_claim_id: Optional[Union[int, str, XChainClaimID]] = None
     xchain_create_account_claim_id: Optional[
-        Union[str, XChainCreateAccountClaimID]
+        Union[int, str, XChainCreateAccountClaimID]
     ] = None
 
     binary: bool = False

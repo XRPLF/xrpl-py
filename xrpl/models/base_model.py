@@ -273,11 +273,11 @@ class BaseModel(ABC):
         expected_type_origin = get_origin(expected_type)
         if expected_type_origin is Union:
             if any(
-                self._check_type(attr, value, expected_type_option) is None
+                len(self._check_type(attr, value, expected_type_option)) == 0
                 for expected_type_option in get_args(expected_type)
             ):
-                return {attr: f"{attr} is {type(value)}, expected {expected_type}"}
-            return {}
+                return {}
+            return {attr: f"{attr} is {type(value)}, expected {expected_type}"}
 
         if expected_type is Any:
             return {}
@@ -312,6 +312,10 @@ class BaseModel(ABC):
                 }
             )
 
+        if expected_type_origin is Literal:
+            arg = get_args(expected_type)
+            return {} if value in arg else {attr: f"{attr} is {value}, expected {arg}"}
+
         if not isinstance(value, expected_type):
             return {attr: f"{attr} is {type(value)}, expected {expected_type}"}
 
@@ -327,7 +331,6 @@ class BaseModel(ABC):
         class_types = get_type_hints(self.__class__)
         result: Dict[str, str] = {}
         for attr, value in self.__dict__.items():
-            # print(attr, value, class_types[attr])
             if value is REQUIRED:
                 result[attr] = f"{attr} is not set"
             else:

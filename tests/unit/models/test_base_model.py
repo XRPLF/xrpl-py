@@ -27,6 +27,7 @@ from xrpl.models.transactions import (
     SignerListSet,
     TrustSet,
     TrustSetFlag,
+    XChainAddAccountCreateAttestation,
     XChainClaim,
 )
 from xrpl.models.transactions.transaction import Transaction
@@ -87,6 +88,16 @@ class TestBaseModel(TestCase):
             "account": 1,
             "amount": 10,
             "destination": 1,
+        }
+        with self.assertRaises(XRPLModelException):
+            Payment(**transaction_dict)
+
+    def test_bad_type_flags(self):
+        transaction_dict = {
+            "account": 1,
+            "amount": 10,
+            "destination": 1,
+            "flags": "1234",
         }
         with self.assertRaises(XRPLModelException):
             Payment(**transaction_dict)
@@ -407,6 +418,81 @@ class TestFromDict(TestCase):
         actual = Request.from_dict(request)
         self.assertEqual(actual, expected)
 
+    def test_from_dict_nonexistent_field(self):
+        tx = {
+            "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
+            "bad_field": "random",
+            "flags": 131072,
+            "limit_amount": {
+                "currency": "USD",
+                "issuer": "raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
+                "value": "100",
+            },
+        }
+        with self.assertRaises(XRPLModelException):
+            TrustSet.from_dict(tx)
+
+    def test_from_dict_bad_literal(self):
+        tx = {
+            "account": issuer,
+            "xchain_bridge": {
+                "locking_chain_door": issuer,
+                "locking_chain_issue": {"currency": "XRP"},
+                "issuing_chain_door": issuer,
+                "issuing_chain_issue": {"currency": "XRP"},
+            },
+            "public_key": "0342E083EA762D91D621714C394",
+            "signature": "3044022053B26DAAC9C886192C95",
+            "other_chain_source": issuer,
+            "amount": amount_dict,
+            "attestation_reward_account": issuer,
+            "attestation_signer_account": issuer,
+            "was_locking_chain_send": 2,
+            "xchain_account_create_count": 12,
+            "destination": issuer,
+            "signature_reward": "200",
+        }
+        with self.assertRaises(XRPLModelException):
+            XChainAddAccountCreateAttestation.from_dict(tx)
+
+    def test_from_dict_good_literal(self):
+        tx = {
+            "account": issuer,
+            "xchain_bridge": {
+                "locking_chain_door": issuer,
+                "locking_chain_issue": {"currency": "XRP"},
+                "issuing_chain_door": issuer,
+                "issuing_chain_issue": {"currency": "XRP"},
+            },
+            "public_key": "0342E083EA762D91D621714C394",
+            "signature": "3044022053B26DAAC9C886192C95",
+            "other_chain_source": issuer,
+            "amount": "100",
+            "attestation_reward_account": issuer,
+            "attestation_signer_account": issuer,
+            "was_locking_chain_send": 1,
+            "xchain_account_create_count": 12,
+            "destination": issuer,
+            "signature_reward": "200",
+        }
+        expected_dict = {
+            **tx,
+            "xchain_bridge": XChainBridge.from_dict(tx["xchain_bridge"]),
+        }
+        expected = XChainAddAccountCreateAttestation(
+            **expected_dict,
+        )
+        self.assertEqual(XChainAddAccountCreateAttestation.from_dict(tx), expected)
+
+    def test_from_dict_enum(self):
+        path_find_dict = {
+            "subcommand": "create",
+            "source_account": "raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
+            "destination_account": "rJjusz1VauNA9XaHxJoiwHe38bmQFz1sUV",
+            "destination_amount": "100",
+        }
+        self.assertEqual(PathFind.from_dict(path_find_dict), PathFind(**path_find_dict))
+
     def test_from_xrpl(self):
         dirname = os.path.dirname(__file__)
         full_filename = "x-codec-fixtures.json"
@@ -416,12 +502,16 @@ class TestFromDict(TestCase):
             for test in fixtures_json["transactions"]:
                 x_json = test["xjson"]
                 r_json = test["rjson"]
-                with self.subTest(json=x_json):
+                with self.subTest(json=x_json, use_json=False):
                     tx = Transaction.from_xrpl(x_json)
                     translated_tx = tx.to_xrpl()
                     self.assertEqual(x_json, translated_tx)
-                with self.subTest(json=r_json):
+                with self.subTest(json=r_json, use_json=False):
                     tx = Transaction.from_xrpl(r_json)
+                    translated_tx = tx.to_xrpl()
+                    self.assertEqual(r_json, translated_tx)
+                with self.subTest(json=r_json, use_json=True):
+                    tx = Transaction.from_xrpl(json.dumps(r_json))
                     translated_tx = tx.to_xrpl()
                     self.assertEqual(r_json, translated_tx)
 
@@ -555,7 +645,9 @@ class TestFromDict(TestCase):
                 issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
                 value="0.0000002831214446",
             ),
-            paths=paths_json,
+            paths=[
+                [PathStep(**path_data) for path_data in path] for path in paths_json
+            ],
             sequence=290,
         )
         tx_json = p.to_xrpl()
