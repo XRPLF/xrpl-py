@@ -22,7 +22,7 @@ class PaymentFlag(int, Enum):
     `See Payment Flags <https://xrpl.org/payment.html#payment-flags>`_
     """
 
-    TF_NO_DIRECT_RIPPLE = 0x00010000
+    TF_NO_RIPPLE_DIRECT = 0x00010000
     """
     Do not use the default path; only use paths included in the Paths field.
     This is intended to force the transaction to take arbitrage opportunities.
@@ -52,7 +52,7 @@ class PaymentFlagInterface(FlagInterface):
     `See Payment Flags <https://xrpl.org/payment.html#payment-flags>`_
     """
 
-    TF_NO_DIRECT_RIPPLE: bool
+    TF_NO_RIPPLE_DIRECT: bool
     TF_PARTIAL_PAYMENT: bool
     TF_LIMIT_QUALITY: bool
 
