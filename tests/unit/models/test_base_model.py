@@ -390,7 +390,7 @@ class TestFromDict(TestCase):
 
     # Note: BaseModel.from_xrpl and its overridden methods accept only camelCase or
     # PascalCase inputs (i.e. snake_case is not accepted)
-    def test_from_xrpl_accepts_only_camel_case_inputs(self):
+    def test_request_input_from_xrpl_accepts_camel_case(self):
         request = {
             "method": "submit",
             "tx_json": {
@@ -412,6 +412,7 @@ class TestFromDict(TestCase):
         with self.assertRaises(XRPLModelException):
             Request.from_xrpl(request)
 
+    def test_transaction_input_from_xrpl_accepts_only_camel_case(self):
         # verify that Transaction.from_xrpl method does not accept snake_case JSON keys
         tx_snake_case_keys = {
             "Account": "rnoGkgSpt6AX1nQxZ2qVGx7Fgw6JEcoQas",
