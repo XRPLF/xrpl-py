@@ -25,7 +25,7 @@ class TestDeleteOracle(IntegrationTestCase):
             account=WALLET.address,
             # unlike the integration tests for OracleSet transaction, we do not have to
             # dynamically change the oracle_document_id for these integration tests.
-            # This is because the Oracle LedgerObject is deleted by th end of the test.
+            # This is because the Oracle LedgerObject is deleted by the end of the test.
             oracle_document_id=oracle_id,
             provider=_PROVIDER,
             asset_class=_ASSET_CLASS,
