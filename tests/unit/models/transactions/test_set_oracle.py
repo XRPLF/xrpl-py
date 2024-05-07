@@ -37,8 +37,7 @@ class TestSetOracle(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-    def validate_data_series(self):
-        # price_data_series is missing in the input
+    def test_missing_data_series(self):
         with self.assertRaises(XRPLModelException):
             OracleSet(
                 account=_ACCOUNT,
@@ -48,6 +47,7 @@ class TestSetOracle(TestCase):
                 last_update_time=int(time.time()),
             )
 
+    def test_exceed_length_price_data_series(self):
         # price_data_series exceeds the mandated length (10 elements)
         with self.assertRaises(XRPLModelException):
             OracleSet(
@@ -93,7 +93,7 @@ class TestSetOracle(TestCase):
                 ],
             )
 
-    def validate_provider_field(self):
+    def test_valid_provider_field(self):
         tx = OracleSet(
             account=_ACCOUNT,
             oracle_document_id=1,
@@ -112,7 +112,7 @@ class TestSetOracle(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-        # empty provider
+    def test_empty_provider_field(self):
         with self.assertRaises(XRPLModelException):
             OracleSet(
                 account=_ACCOUNT,
@@ -122,6 +122,7 @@ class TestSetOracle(TestCase):
                 last_update_time=int(time.time()),
             )
 
+    def test_long_provider_field(self):
         # provider exceeds MAX_ORACLE_PROVIDER characters
         with self.assertRaises(XRPLModelException):
             OracleSet(
@@ -132,7 +133,7 @@ class TestSetOracle(TestCase):
                 last_update_time=int(time.time()),
             )
 
-    def validate_uri_field(self):
+    def test_valid_uri_field(self):
         tx = OracleSet(
             account=_ACCOUNT,
             oracle_document_id=1,
@@ -151,7 +152,7 @@ class TestSetOracle(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-        # empty URI
+    def test_empty_uri_field(self):
         with self.assertRaises(XRPLModelException):
             OracleSet(
                 account=_ACCOUNT,
@@ -162,6 +163,7 @@ class TestSetOracle(TestCase):
                 uri="",
             )
 
+    def test_long_uri_field(self):
         # URI exceeds MAX_ORACLE_URI characters
         with self.assertRaises(XRPLModelException):
             OracleSet(
@@ -173,7 +175,7 @@ class TestSetOracle(TestCase):
                 uri=("x" * (MAX_ORACLE_URI + 1)),
             )
 
-    def validate_asset_class_field(self):
+    def test_valid_asset_class_field(self):
         tx = OracleSet(
             account=_ACCOUNT,
             oracle_document_id=1,
@@ -192,7 +194,7 @@ class TestSetOracle(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-        # empty asset class
+    def test_empty_asset_class_field(self):
         with self.assertRaises(XRPLModelException):
             OracleSet(
                 account=_ACCOUNT,
@@ -202,6 +204,7 @@ class TestSetOracle(TestCase):
                 asset_class="",
             )
 
+    def test_long_asset_class_field(self):
         # URI exceeds MAX_ORACLE_SYMBOL_CLASS characters
         with self.assertRaises(XRPLModelException):
             OracleSet(

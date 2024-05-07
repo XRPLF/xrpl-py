@@ -18,25 +18,29 @@ from xrpl.models.utils import require_kwargs_on_init
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class GetAggregatePrice(Request):
-    """This request returns aggregate stats pertaining to the specified input oracles"""
+    """
+    The get_aggregate_price method retrieves the aggregate price of specified Oracle
+    objects, returning three price statistics: mean, median, and trimmed mean.
+    """
 
     method: RequestMethod = field(default=RequestMethod.GET_AGGREGATE_PRICE, init=False)
 
     base_asset: str = REQUIRED  # type: ignore
-    """base_asset is the asset to be priced"""
+    """The currency code of the asset to be priced"""
 
     quote_asset: str = REQUIRED  # type: ignore
-    """quote_asset is the denomination in which the prices are expressed"""
+    """The currency code of the asset to quote the price of the base asset"""
 
     oracles: List[Oracle] = REQUIRED  # type: ignore
-    """oracles is an array of oracle objects to aggregate over"""
+    """The oracle identifier"""
 
     trim: Optional[int] = None
-    """percentage of outliers to trim"""
+    """The percentage of outliers to trim. Valid trim range is 1-25. If included, the
+    API returns statistics for the trimmed mean"""
 
     time_threshold: Optional[int] = None
-    """time_threshold : defines a range of prices to include based on the timestamp
-    range - {most recent, most recent - time_threshold}"""
+    """Defines a time range in seconds for filtering out older price data. Default
+    value is 0, which doesn't filter any data"""
 
     def _get_errors(self: GetAggregatePrice) -> Dict[str, str]:
         errors = super()._get_errors()
@@ -53,8 +57,7 @@ class Oracle(TypedDict):
     """Represents one Oracle element. It is used in GetAggregatePrice request"""
 
     oracle_document_id: int = REQUIRED  # type: ignore
-    """oracle_document_id is a unique identifier of the Price Oracle for the given
-    Account"""
+    """A unique identifier of the price oracle for the Account"""
 
     account: str = REQUIRED  # type: ignore
-    """account is the Oracle's account."""
+    """The XRPL account that controls the Oracle object"""

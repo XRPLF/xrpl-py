@@ -18,7 +18,7 @@ _ASSET_CLASS = str_to_hex("currency")
 class TestDeleteOracle(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic(self, client):
-        oracle_id = 1
+        oracle_id = self.value
 
         # Create PriceOracle, to be deleted later
         tx = OracleSet(

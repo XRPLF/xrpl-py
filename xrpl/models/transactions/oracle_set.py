@@ -20,33 +20,51 @@ MAX_ORACLE_SYMBOL_CLASS = 16
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class OracleSet(Transaction):
-    """Represents a OracleSet transaction."""
+    """Creates a new Oracle ledger entry or updates the fields of an existing one,
+    using the Oracle ID.
+
+    The oracle provider must complete these steps before submitting this transaction:
+
+    Create or own the XRPL account in the Owner field and have enough XRP to meet the
+    reserve and transaction fee requirements.
+    Publish the XRPL account public key, so it can be used for verification by dApps.
+    Publish a registry of available price oracles with their unique OracleDocumentID .
+    """
 
     account: str = REQUIRED  # type: ignore
-    """Account is the XRPL account that has update and delete privileges on the Oracle
-    being set. This field corresponds to the Owner field on the PriceOracle ledger
-    object."""
+    """This account must match the account in the Owner field of the Oracle object."""
 
     oracle_document_id: int = REQUIRED  # type: ignore
-    """OracleDocumentID is a unique identifier of the Price Oracle for the given
-    Account."""
+    """A unique identifier of the price oracle for the Account."""
 
     provider: Optional[str] = None
     """
     This field must be hex-encoded. You can use `xrpl.utils.str_to_hex` to
     convert a UTF-8 string to hex.
+
+    An arbitrary value that identifies an oracle provider, such as Chainlink, Band, or
+    DIA. This field is a string, up to 256 ASCII hex encoded characters (0x20-0x7E).
+    This field is required when creating a new Oracle ledger entry, but is optional for
+    updates.
     """
 
     uri: Optional[str] = None
     """
     This field must be hex-encoded. You can use `xrpl.utils.str_to_hex` to
     convert a UTF-8 string to hex.
+
+    An optional Universal Resource Identifier to reference price data off-chain. This
+    field is limited to 256 bytes.
     """
 
     asset_class: Optional[str] = None
     """
     This field must be hex-encoded. You can use `xrpl.utils.str_to_hex` to
     convert a UTF-8 string to hex.
+
+    Describes the type of asset, such as "currency", "commodity", or "index". This
+    field is a string, up to 16 ASCII hex encoded characters (0x20-0x7E). This field is
+    required when creating a new Oracle ledger entry, but is optional for updates.
     """
 
     last_update_time: int = REQUIRED  # type: ignore
@@ -55,8 +73,8 @@ class OracleSet(Transaction):
     January 1, 1970 (00:00 UTC)."""
 
     price_data_series: List[PriceData] = REQUIRED  # type: ignore
-    """PriceDataSeries is an array of up to ten PriceData objects, where PriceData
-    represents the price information for a token pair"""
+    """An array of up to 10 PriceData objects, each representing the price information
+    for a token pair. More than five PriceData objects require two owner reserves."""
 
     transaction_type: TransactionType = field(
         default=TransactionType.ORACLE_SET,
@@ -67,41 +85,38 @@ class OracleSet(Transaction):
         errors = super()._get_errors()
 
         # If price_data_series is not set, do not perform further validation
-        if "price_data_series" not in errors and (
-            len(self.price_data_series) == 0
-            or len(self.price_data_series) > MAX_ORACLE_DATA_SERIES
-        ):
-            errors["OracleSet: price_data_series"] = (
-                "The Price Data Series list must have a length of >0 and <"
-                + str(MAX_ORACLE_DATA_SERIES)
-                + "."
-            )
+        if "price_data_series" not in errors and len(self.price_data_series) == 0:
+            errors["price_data_series"] = "Field must have a length greater than 0."
 
-        if self.asset_class and (
-            len(self.asset_class) == 0
-            or len(self.asset_class) > MAX_ORACLE_SYMBOL_CLASS
+        if (
+            "price_data_series" not in errors
+            and len(self.price_data_series) > MAX_ORACLE_DATA_SERIES
         ):
-            errors["OracleSet: asset_class"] = (
-                "The asset_class field must have a length of >0 and <"
-                + str(MAX_ORACLE_SYMBOL_CLASS)
-                + "."
-            )
+            errors[
+                "price_data_series"
+            ] = f"Field must have a length less than {MAX_ORACLE_DATA_SERIES}."
 
-        if self.provider and (
-            len(self.provider) == 0 or len(self.provider) > MAX_ORACLE_PROVIDER
-        ):
-            errors["OracleSet: provider"] = (
-                "The provider field must have a length of >0 and <"
-                + str(MAX_ORACLE_PROVIDER)
-                + "."
-            )
+        if self.asset_class and len(self.asset_class) == 0:
+            errors["asset_class"] = "Field must have a length greater than 0."
 
-        if self.uri and (len(self.uri) == 0 or len(self.uri) > MAX_ORACLE_URI):
-            errors["OracleSet: uri"] = (
-                "The uri field must have a length of >0 and <"
-                + str(MAX_ORACLE_URI)
-                + "."
-            )
+        if self.asset_class and len(self.asset_class) > MAX_ORACLE_SYMBOL_CLASS:
+            errors[
+                "asset_class"
+            ] = f"Field must have a length less than {MAX_ORACLE_SYMBOL_CLASS}."
+
+        if self.provider and len(self.provider) == 0:
+            errors["provider"] = "Field must have a length greater than 0."
+
+        if self.provider and len(self.provider) > MAX_ORACLE_PROVIDER:
+            errors[
+                "provider"
+            ] = f"Field must have a length less than {MAX_ORACLE_PROVIDER}."
+
+        if self.uri and len(self.uri) == 0:
+            errors["uri"] = "Field must have a length greater than 0."
+
+        if self.uri and len(self.uri) > MAX_ORACLE_URI:
+            errors["uri"] = f"Field must have a length less than {MAX_ORACLE_URI}."
 
         return errors
 
@@ -112,17 +127,21 @@ class PriceData(NestedModel):
     """Represents one PriceData element. It is used in OracleSet transaction"""
 
     base_asset: str = REQUIRED  # type: ignore
-    """BaseAsset refers to the primary asset within a trading pair. It is the asset
-    against which the price of the quote asset is quoted."""
+    """The primary asset in a trading pair. Any valid identifier, such as a stock
+    symbol, bond CUSIP, or currency code is allowed. For example, in the BTC/USD pair,
+    BTC is the base asset; in 912810RR9/BTC, 912810RR9 is the base asset."""
 
     quote_asset: str = REQUIRED  # type: ignore
-    """QuoteAsset represents the secondary or quote asset in a trading pair. It denotes
-    the price of one unit of the base asset."""
+    """The quote asset in a trading pair. The quote asset denotes the price of one unit
+    of the base asset. For example, in the BTC/USD pair, BTC is the base asset; in
+    912810RR9/BTC, 912810RR9 is the base asset."""
 
     asset_price: Optional[int] = None
-    """AssetPrice is the scaled asset price, which is the price value after applying
-    the scaling factor."""
+    """The asset price after applying the Scale precision level. It's not included if
+    the last update transaction didn't include the BaseAsset/QuoteAsset pair."""
 
     scale: Optional[int] = None
-    """Scale is the price's scaling factor.
-    It represents the price's precision level. """
+    """The scaling factor to apply to an asset price. For example, if Scale is 6 and
+    original price is 0.155, then the scaled price is 155000. Valid scale ranges are
+    0-10. It's not included if the last update transaction didn't include the
+    BaseAsset/QuoteAsset pair."""
