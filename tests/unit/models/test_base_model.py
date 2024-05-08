@@ -493,6 +493,8 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(PathFind.from_dict(path_find_dict), PathFind(**path_find_dict))
 
+
+class TestToFromXrpl(TestCase):
     def test_from_xrpl(self):
         dirname = os.path.dirname(__file__)
         full_filename = "x-codec-fixtures.json"
