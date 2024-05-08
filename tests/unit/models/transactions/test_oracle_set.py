@@ -122,7 +122,7 @@ class TestSetOracle(TestCase):
                 last_update_time=int(time.time()),
             )
 
-    def test_long_provider_field(self):
+    def test_lengthy_provider_field(self):
         # provider exceeds MAX_ORACLE_PROVIDER characters
         with self.assertRaises(XRPLModelException):
             OracleSet(
@@ -163,7 +163,7 @@ class TestSetOracle(TestCase):
                 uri="",
             )
 
-    def test_long_uri_field(self):
+    def test_lengthy_uri_field(self):
         # URI exceeds MAX_ORACLE_URI characters
         with self.assertRaises(XRPLModelException):
             OracleSet(
@@ -204,7 +204,7 @@ class TestSetOracle(TestCase):
                 asset_class="",
             )
 
-    def test_long_asset_class_field(self):
+    def test_lengthy_asset_class_field(self):
         # URI exceeds MAX_ORACLE_SYMBOL_CLASS characters
         with self.assertRaises(XRPLModelException):
             OracleSet(
