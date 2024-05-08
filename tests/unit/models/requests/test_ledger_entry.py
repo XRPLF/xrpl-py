@@ -140,7 +140,7 @@ class TestLedgerEntry(TestCase):
         )
         self.assertTrue(req.is_valid())
 
-    def test_invalid_priceoracle_object(self):
+    def test_invalid_price_oracle_object(self):
         # missing oracle_document_id
         with self.assertRaises(XRPLModelException):
             LedgerEntry(
