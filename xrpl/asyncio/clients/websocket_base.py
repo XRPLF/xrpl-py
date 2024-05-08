@@ -199,7 +199,9 @@ class WebsocketBase(Client):
         cast(_MESSAGES_TYPE, self._messages).task_done()
         return msg
 
-    async def _do_request_impl(self: WebsocketBase, request: Request) -> Response:
+    async def _do_request_impl(
+        self: WebsocketBase, request: Request, timeout: float
+    ) -> Response:
         """
         Base ``_request_impl`` implementation for websockets.
 
@@ -221,8 +223,14 @@ class WebsocketBase(Client):
 
         # fire-and-forget the send, and await the Future
         asyncio.create_task(self._do_send_no_future(request_with_id))
-        raw_response = await self._open_requests[request_str]
 
-        # remove the resolved Future, hopefully getting it garbage colleted
-        del self._open_requests[request_str]
+        try:
+            raw_response = await asyncio.wait_for(
+                self._open_requests[request_str], timeout
+            )
+        finally:
+            # remove the resolved Future, hopefully getting it garbage colleted
+            # Ensure the request is removed whether it times out or not
+            del self._open_requests[request_str]
+
         return websocket_to_response(raw_response)
