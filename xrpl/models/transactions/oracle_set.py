@@ -92,10 +92,17 @@ class OracleSet(Transaction):
             "price_data_series" not in errors
             and len(self.price_data_series) > MAX_ORACLE_DATA_SERIES
         ):
+            errors["price_data_series"] = (
+                "Field must have a length less than"
+                + " or equal to "
+                + str(MAX_ORACLE_DATA_SERIES)
+            )
+
             errors[
                 "price_data_series"
-            ] = f"Field must have a length less than {MAX_ORACLE_DATA_SERIES}."
-
+            ] = f""" Field must have a length less than or
+            equal to {MAX_ORACLE_DATA_SERIES}
+            """
         if self.asset_class is not None and len(self.asset_class) == 0:
             errors["asset_class"] = "Field must have a length greater than 0."
 
@@ -105,7 +112,8 @@ class OracleSet(Transaction):
         ):
             errors[
                 "asset_class"
-            ] = f"Field must have a length less than {MAX_ORACLE_SYMBOL_CLASS}."
+            ] = f"""Field must have a length less than or equal to
+            {MAX_ORACLE_SYMBOL_CLASS}."""
 
         if self.provider is not None and len(self.provider) == 0:
             errors["provider"] = "Field must have a length greater than 0."
@@ -113,13 +121,15 @@ class OracleSet(Transaction):
         if self.provider is not None and len(self.provider) > MAX_ORACLE_PROVIDER:
             errors[
                 "provider"
-            ] = f"Field must have a length less than {MAX_ORACLE_PROVIDER}."
+            ] = f"Field must have a length less than or equal to {MAX_ORACLE_PROVIDER}."
 
         if self.uri is not None and len(self.uri) == 0:
             errors["uri"] = "Field must have a length greater than 0."
 
         if self.uri is not None and len(self.uri) > MAX_ORACLE_URI:
-            errors["uri"] = f"Field must have a length less than {MAX_ORACLE_URI}."
+            errors[
+                "uri"
+            ] = f"Field must have a length less than or equal to {MAX_ORACLE_URI}."
 
         return errors
 
