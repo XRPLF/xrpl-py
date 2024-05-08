@@ -121,7 +121,7 @@ class TestLedgerEntry(TestCase):
             )
 
     # fetch a valid PriceOracle object
-    def test_get_priceoracle(self):
+    def test_get_price_oracle(self):
         # oracle_document_id is specified as uint
         req = LedgerEntry(
             oracle=Oracle(
