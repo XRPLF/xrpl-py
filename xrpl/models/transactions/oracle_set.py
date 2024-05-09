@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
@@ -15,6 +16,12 @@ MAX_ORACLE_DATA_SERIES = 10
 MAX_ORACLE_PROVIDER = 256
 MAX_ORACLE_URI = 256
 MAX_ORACLE_SYMBOL_CLASS = 16
+
+# epoch offset must equal 946684800 seconds. It represents the diff between the
+# genesis of Unix time and Ripple-Epoch time
+EPOCH_OFFSET = (
+    datetime.datetime(2000, 1, 1) - datetime.datetime(1970, 1, 1)
+).total_seconds()
 
 
 @require_kwargs_on_init
@@ -124,6 +131,13 @@ class OracleSet(Transaction):
             errors[
                 "uri"
             ] = f"Field must have a length less than or equal to {MAX_ORACLE_URI}."
+
+        # check on the last_update_time
+        if self.last_update_time < EPOCH_OFFSET:
+            errors["last_update_time"] = (
+                "LastUpdateTime must be greater than or equal"
+                f" to Ripple-Epoch {EPOCH_OFFSET} seconds"
+            )
 
         return errors
 

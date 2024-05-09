@@ -4,6 +4,7 @@ from unittest import TestCase
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import OracleSet
 from xrpl.models.transactions.oracle_set import (
+    EPOCH_OFFSET,
     MAX_ORACLE_PROVIDER,
     MAX_ORACLE_SYMBOL_CLASS,
     MAX_ORACLE_URI,
@@ -303,3 +304,49 @@ class TestSetOracle(TestCase):
             err.exception.args[0],
             "{'asset_class': 'Field must have" + " a length less than or equal to 16'}",
         )
+
+    def test_early_last_update_time_field(self):
+        with self.assertRaises(XRPLModelException) as err:
+            OracleSet(
+                account=_ACCOUNT,
+                oracle_document_id=1,
+                provider=_PROVIDER,
+                asset_class=_ASSET_CLASS,
+                last_update_time=EPOCH_OFFSET - 1,
+                price_data_series=[
+                    PriceData(
+                        base_asset="XRP", quote_asset="USD", asset_price=740, scale=1
+                    ),
+                    PriceData(
+                        base_asset="BTC", quote_asset="EUR", asset_price=100, scale=2
+                    ),
+                ],
+            )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'last_update_time': 'LastUpdateTime"
+            + " must be greater than or equal to Ripple-Epoch 946684800.0 seconds'}",
+        )
+
+    # Validity depends on the time of the Last Closed Ledger. This test verifies the
+    # validity with respect to the Ripple Epoch time
+    def test_valid_last_update_time(self):
+        # Note: This test fails in an integration test because it's older than 300s
+        # with respect to the LastClosedLedger
+        tx = OracleSet(
+            account=_ACCOUNT,
+            oracle_document_id=1,
+            provider=_PROVIDER,
+            asset_class=_ASSET_CLASS,
+            last_update_time=EPOCH_OFFSET,
+            price_data_series=[
+                PriceData(
+                    base_asset="XRP", quote_asset="USD", asset_price=740, scale=1
+                ),
+                PriceData(
+                    base_asset="BTC", quote_asset="EUR", asset_price=100, scale=2
+                ),
+            ],
+        )
+        self.assertTrue(tx.is_valid())
