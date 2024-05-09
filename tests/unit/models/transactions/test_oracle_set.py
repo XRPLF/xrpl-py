@@ -38,7 +38,7 @@ class TestSetOracle(TestCase):
         self.assertTrue(tx.is_valid())
 
     def test_missing_data_series(self):
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as err:
             OracleSet(
                 account=_ACCOUNT,
                 oracle_document_id=1,
@@ -47,9 +47,14 @@ class TestSetOracle(TestCase):
                 last_update_time=int(time.time()),
             )
 
+        self.assertEqual(
+            err.exception.args[0],
+            "{'price_data_series': " + "'price_data_series is not set'}",
+        )
+
     def test_exceed_length_price_data_series(self):
         # price_data_series exceeds the mandated length (10 elements)
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as err:
             OracleSet(
                 account=_ACCOUNT,
                 oracle_document_id=1,
@@ -93,6 +98,12 @@ class TestSetOracle(TestCase):
                 ],
             )
 
+        self.assertEqual(
+            err.exception.args[0],
+            "{'price_data_series': 'Field must "
+            + "have a length less than or equal to 10'}",
+        )
+
     def test_valid_provider_field(self):
         tx = OracleSet(
             account=_ACCOUNT,
@@ -113,25 +124,51 @@ class TestSetOracle(TestCase):
         self.assertTrue(tx.is_valid())
 
     def test_empty_provider_field(self):
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as err:
             OracleSet(
                 account=_ACCOUNT,
                 oracle_document_id=1,
                 provider=_EMPTY_PROVIDER,
                 asset_class=_ASSET_CLASS,
                 last_update_time=int(time.time()),
+                price_data_series=[
+                    PriceData(
+                        base_asset="XRP", quote_asset="USD", asset_price=740, scale=1
+                    ),
+                    PriceData(
+                        base_asset="BTC", quote_asset="EUR", asset_price=100, scale=2
+                    ),
+                ],
             )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'provider': 'Field must have a " + "length greater than 0.'}",
+        )
 
     def test_lengthy_provider_field(self):
         # provider exceeds MAX_ORACLE_PROVIDER characters
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as err:
             OracleSet(
                 account=_ACCOUNT,
                 oracle_document_id=1,
                 provider=_LENGTHY_PROVIDER,
                 asset_class=_ASSET_CLASS,
                 last_update_time=int(time.time()),
+                price_data_series=[
+                    PriceData(
+                        base_asset="XRP", quote_asset="USD", asset_price=740, scale=1
+                    ),
+                    PriceData(
+                        base_asset="BTC", quote_asset="EUR", asset_price=100, scale=2
+                    ),
+                ],
             )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'provider': 'Field must have a " + "length less than or equal to 256.'}",
+        )
 
     def test_valid_uri_field(self):
         tx = OracleSet(
@@ -153,7 +190,7 @@ class TestSetOracle(TestCase):
         self.assertTrue(tx.is_valid())
 
     def test_empty_uri_field(self):
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as err:
             OracleSet(
                 account=_ACCOUNT,
                 oracle_document_id=1,
@@ -161,11 +198,24 @@ class TestSetOracle(TestCase):
                 asset_class=_ASSET_CLASS,
                 last_update_time=int(time.time()),
                 uri="",
+                price_data_series=[
+                    PriceData(
+                        base_asset="XRP", quote_asset="USD", asset_price=740, scale=1
+                    ),
+                    PriceData(
+                        base_asset="BTC", quote_asset="EUR", asset_price=100, scale=2
+                    ),
+                ],
             )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'uri': 'Field must have a" + " length greater than 0.'}",
+        )
 
     def test_lengthy_uri_field(self):
         # URI exceeds MAX_ORACLE_URI characters
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as err:
             OracleSet(
                 account=_ACCOUNT,
                 oracle_document_id=1,
@@ -173,7 +223,20 @@ class TestSetOracle(TestCase):
                 asset_class=_ASSET_CLASS,
                 last_update_time=int(time.time()),
                 uri=("x" * (MAX_ORACLE_URI + 1)),
+                price_data_series=[
+                    PriceData(
+                        base_asset="XRP", quote_asset="USD", asset_price=740, scale=1
+                    ),
+                    PriceData(
+                        base_asset="BTC", quote_asset="EUR", asset_price=100, scale=2
+                    ),
+                ],
             )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'uri': 'Field must have a" + " length less than or equal to 256.'}",
+        )
 
     def test_valid_asset_class_field(self):
         tx = OracleSet(
@@ -195,22 +258,48 @@ class TestSetOracle(TestCase):
         self.assertTrue(tx.is_valid())
 
     def test_empty_asset_class_field(self):
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as err:
             OracleSet(
                 account=_ACCOUNT,
                 oracle_document_id=1,
                 provider=_PROVIDER,
                 last_update_time=int(time.time()),
                 asset_class="",
+                price_data_series=[
+                    PriceData(
+                        base_asset="XRP", quote_asset="USD", asset_price=740, scale=1
+                    ),
+                    PriceData(
+                        base_asset="BTC", quote_asset="EUR", asset_price=100, scale=2
+                    ),
+                ],
             )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'asset_class': 'Field must have" + " a length greater than 0.'}",
+        )
 
     def test_lengthy_asset_class_field(self):
         # URI exceeds MAX_ORACLE_SYMBOL_CLASS characters
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as err:
             OracleSet(
                 account=_ACCOUNT,
                 oracle_document_id=1,
                 provider=_PROVIDER,
                 last_update_time=int(time.time()),
                 asset_class=("x" * (MAX_ORACLE_SYMBOL_CLASS + 1)),
+                price_data_series=[
+                    PriceData(
+                        base_asset="XRP", quote_asset="USD", asset_price=740, scale=1
+                    ),
+                    PriceData(
+                        base_asset="BTC", quote_asset="EUR", asset_price=100, scale=2
+                    ),
+                ],
             )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'asset_class': 'Field must have" + " a length less than or equal to 16'}",
+        )

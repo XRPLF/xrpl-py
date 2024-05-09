@@ -94,15 +94,9 @@ class OracleSet(Transaction):
         ):
             errors["price_data_series"] = (
                 "Field must have a length less than"
-                + " or equal to "
-                + str(MAX_ORACLE_DATA_SERIES)
+                f" or equal to {MAX_ORACLE_DATA_SERIES}"
             )
 
-            errors[
-                "price_data_series"
-            ] = f""" Field must have a length less than or
-            equal to {MAX_ORACLE_DATA_SERIES}
-            """
         if self.asset_class is not None and len(self.asset_class) == 0:
             errors["asset_class"] = "Field must have a length greater than 0."
 
@@ -110,10 +104,10 @@ class OracleSet(Transaction):
             self.asset_class is not None
             and len(self.asset_class) > MAX_ORACLE_SYMBOL_CLASS
         ):
-            errors[
-                "asset_class"
-            ] = f"""Field must have a length less than or equal to
-            {MAX_ORACLE_SYMBOL_CLASS}."""
+            errors["asset_class"] = (
+                "Field must have a length less than"
+                f" or equal to {MAX_ORACLE_SYMBOL_CLASS}"
+            )
 
         if self.provider is not None and len(self.provider) == 0:
             errors["provider"] = "Field must have a length greater than 0."
