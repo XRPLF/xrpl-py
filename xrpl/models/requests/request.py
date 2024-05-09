@@ -79,6 +79,9 @@ class RequestMethod(str, Enum):
     # amm methods
     AMM_INFO = "amm_info"
 
+    # price oracle methods
+    GET_AGGREGATE_PRICE = "get_aggregate_price"
+
     # generic unknown/unsupported request
     # (there is no XRPL analog, this model is specific to xrpl-py)
     GENERIC_REQUEST = "zzgeneric_request"

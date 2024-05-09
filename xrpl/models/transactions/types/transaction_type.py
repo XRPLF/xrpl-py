@@ -31,6 +31,8 @@ class TransactionType(str, Enum):
     NFTOKEN_MINT = "NFTokenMint"
     OFFER_CANCEL = "OfferCancel"
     OFFER_CREATE = "OfferCreate"
+    ORACLE_SET = "OracleSet"
+    ORACLE_DELETE = "OracleDelete"
     PAYMENT = "Payment"
     PAYMENT_CHANNEL_CLAIM = "PaymentChannelClaim"
     PAYMENT_CHANNEL_CREATE = "PaymentChannelCreate"
