@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, Optional, Type, TypeVar, Union, cast
+from typing import Any, Dict, Optional, Type, Union, cast
 
 from typing_extensions import Self
 
@@ -90,9 +90,6 @@ class RequestMethod(str, Enum):
     GENERIC_REQUEST = "zzgeneric_request"
 
 
-R = TypeVar("R", bound="Request")
-
-
 @dataclass(frozen=True)
 class Request(BaseModel):
     """
@@ -110,7 +107,7 @@ class Request(BaseModel):
     id: Optional[Union[str, int]] = None
 
     @classmethod
-    def from_dict(cls: Type[R], value: Dict[str, Any]) -> R:
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
         """
         Construct a new Request from a dictionary of parameters.
 

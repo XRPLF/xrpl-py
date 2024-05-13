@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from hashlib import sha512
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 from typing_extensions import Final, Self
 
@@ -151,9 +151,6 @@ class Signer(NestedModel):
 
     :meta hide-value:
     """
-
-
-T = TypeVar("T", bound="Transaction")  # any type inherited from Transaction
 
 
 @require_kwargs_on_init
@@ -331,7 +328,7 @@ class Transaction(BaseModel):
         return encode(self.to_xrpl())
 
     @classmethod
-    def from_dict(cls: Type[T], value: Dict[str, Any]) -> T:
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
         """
         Construct a new Transaction from a dictionary of parameters.
 
