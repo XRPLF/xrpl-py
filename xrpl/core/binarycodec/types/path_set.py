@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional, Type, cast
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -102,7 +102,7 @@ class PathStep(SerializedType):
 
         return PathStep(bytes([data_type]) + buffer)
 
-    def to_json(self: PathStep) -> Dict[str, str]:
+    def to_json(self: Self) -> Dict[str, str]:
         """
         Returns the JSON representation of a PathStep.
 
@@ -126,7 +126,7 @@ class PathStep(SerializedType):
         return json
 
     @property
-    def type(self: PathStep) -> int:
+    def type(self: Self) -> int:
         """Get a number representing the type of this PathStep.
 
         Returns:
@@ -189,7 +189,7 @@ class Path(SerializedType):
                 break
         return Path(b"".join(buffer))
 
-    def to_json(self: Path) -> List[Dict[str, str]]:
+    def to_json(self: Self) -> List[Dict[str, str]]:
         """
         Returns the JSON representation of a Path.
 
@@ -266,7 +266,7 @@ class PathSet(SerializedType):
                 break
         return PathSet(b"".join(buffer))
 
-    def to_json(self: PathSet) -> List[List[Dict[str, str]]]:
+    def to_json(self: Self) -> List[List[Dict[str, str]]]:
         """
         Returns the JSON representation of a PathSet.
 

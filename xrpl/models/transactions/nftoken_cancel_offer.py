@@ -1,8 +1,11 @@
 """Model for NFTokenCancelOffer transaction type."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
+
+from typing_extensions import Self
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -42,7 +45,7 @@ class NFTokenCancelOffer(Transaction):
         init=False,
     )
 
-    def _get_errors(self: NFTokenCancelOffer) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         return {
             key: value
             for key, value in {
@@ -52,7 +55,7 @@ class NFTokenCancelOffer(Transaction):
             if value is not None
         }
 
-    def _get_nftoken_offers_error(self: NFTokenCancelOffer) -> Optional[str]:
+    def _get_nftoken_offers_error(self: Self) -> Optional[str]:
         if len(self.nftoken_offers) < 1:
             return "Must specify at least one NFTokenOffer to cancel"
         return None

@@ -3,10 +3,13 @@ The tx method retrieves information on a single transaction.
 
 `See tx <https://xrpl.org/tx.html>`_
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Dict, Optional
+
+from typing_extensions import Self
 
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.utils import require_kwargs_on_init
@@ -70,7 +73,7 @@ class Tx(Request):
     confirms whether it was able to search all the ledgers in the requested range.
     """
 
-    def _get_errors(self: Tx) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if not self._has_only_one_input():
             errors[
@@ -78,7 +81,7 @@ class Tx(Request):
             ] = "Must have only one of `ctid` or `transaction`, but not both."
         return errors
 
-    def _has_only_one_input(self: Tx) -> bool:
+    def _has_only_one_input(self: Self) -> bool:
         unique_ids = [self.transaction, self.ctid]
         present_items = list(filter(bool, unique_ids))
         return len(present_items) == 1

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Type, Union
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
@@ -217,7 +217,7 @@ class STObject(SerializedType):
 
         return STObject(bytes(serializer))
 
-    def to_json(self: STObject) -> Dict[str, Any]:
+    def to_json(self: Self) -> Dict[str, Any]:
         """
         Returns the JSON representation of a STObject.
 

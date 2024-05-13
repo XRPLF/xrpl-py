@@ -9,7 +9,7 @@ from dataclasses import dataclass, fields
 from enum import Enum
 from typing import Any, Dict, List, Pattern, Type, TypeVar, Union, cast, get_type_hints
 
-from typing_extensions import Final, Literal, get_args, get_origin
+from typing_extensions import Final, Literal, Self, get_args, get_origin
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
@@ -242,11 +242,11 @@ class BaseModel(ABC):
 
         return cls.from_dict(formatted_dict)
 
-    def __post_init__(self: BaseModel) -> None:
+    def __post_init__(self: Self) -> None:
         """Called by dataclasses immediately after __init__."""
         self.validate()
 
-    def validate(self: BaseModel) -> None:
+    def validate(self: Self) -> None:
         """
         Raises if this object is invalid.
 
@@ -257,7 +257,7 @@ class BaseModel(ABC):
         if len(errors) > 0:
             raise XRPLModelException(str(errors))
 
-    def is_valid(self: BaseModel) -> bool:
+    def is_valid(self: Self) -> bool:
         """
         Returns whether this BaseModel is valid.
 
@@ -266,7 +266,7 @@ class BaseModel(ABC):
         """
         return len(self._get_errors()) == 0
 
-    def _get_errors(self: BaseModel) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         """
         Extended in subclasses to define custom validation logic.
 
@@ -279,7 +279,7 @@ class BaseModel(ABC):
             if value is REQUIRED
         }
 
-    def to_dict(self: BaseModel) -> Dict[str, Any]:
+    def to_dict(self: Self) -> Dict[str, Any]:
         """
         Returns the dictionary representation of a BaseModel.
 
@@ -296,7 +296,7 @@ class BaseModel(ABC):
             if getattr(self, key) is not None
         }
 
-    def _to_dict_elem(self: BaseModel, elem: Any) -> Any:
+    def _to_dict_elem(self: Self, elem: Any) -> Any:
         if isinstance(elem, BaseModel):
             return elem.to_dict()
         if isinstance(elem, Enum):
@@ -309,11 +309,11 @@ class BaseModel(ABC):
             ]
         return elem
 
-    def __eq__(self: BaseModel, other: object) -> bool:
+    def __eq__(self: Self, other: object) -> bool:
         """Compares a BaseModel to another object to determine if they are equal."""
         return isinstance(other, BaseModel) and self.to_dict() == other.to_dict()
 
-    def __repr__(self: BaseModel) -> str:
+    def __repr__(self: Self) -> str:
         """Returns a string representation of a BaseModel object"""
         repr_items = [f"{key}={repr(value)}" for key, value in self.to_dict().items()]
         return f"{type(self).__name__}({repr_items})"

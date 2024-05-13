@@ -1,9 +1,10 @@
 """Codec for serializing and deserializing vectors of Hash256."""
+
 from __future__ import annotations
 
 from typing import List, Optional, Type
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.core.binarycodec import XRPLBinaryCodecException
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
@@ -16,7 +17,7 @@ _HASH_LENGTH_BYTES: Final[int] = 32
 class Vector256(SerializedType):
     """Codec for serializing and deserializing vectors of Hash256."""
 
-    def __init__(self: Vector256, buffer: bytes) -> None:
+    def __init__(self: Self, buffer: bytes) -> None:
         """Construct a Vector256."""
         super().__init__(buffer)
 
@@ -64,7 +65,7 @@ class Vector256(SerializedType):
             byte_list.append(bytes(Hash256.from_parser(parser)))
         return cls(b"".join(byte_list))
 
-    def to_json(self: Vector256) -> List[str]:
+    def to_json(self: Self) -> List[str]:
         """Return a list of hashes encoded as hex strings.
 
         Returns:

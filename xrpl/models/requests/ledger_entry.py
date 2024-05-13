@@ -5,11 +5,14 @@ See ledger format for information on the
 different types of objects you can retrieve.
 `See ledger entry <https://xrpl.org/ledger_entry.html>`_
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Union
+
+from typing_extensions import Self
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
@@ -262,7 +265,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     nft_page: Optional[str] = None
     """Must be the object ID of the NFToken page, as hexadecimal"""
 
-    def _get_errors(self: LedgerEntry) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         query_params = [
             param

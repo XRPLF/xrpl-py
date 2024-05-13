@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict
 
+from typing_extensions import Self
+
 from xrpl.core.addresscodec import is_valid_classic_address
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -52,7 +54,7 @@ class XChainCreateClaimID(Transaction):
         init=False,
     )
 
-    def _get_errors(self: XChainCreateClaimID) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
         if self.signature_reward != REQUIRED and not self.signature_reward.isnumeric():

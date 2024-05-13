@@ -1,8 +1,11 @@
 """Model for DepositPreauth transaction type."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Dict, Optional
+
+from typing_extensions import Self
 
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -36,7 +39,7 @@ class DepositPreauth(Transaction):
         init=False,
     )
 
-    def _get_errors(self: DepositPreauth) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.authorize and self.unauthorize:
             errors[

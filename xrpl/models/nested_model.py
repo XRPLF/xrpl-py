@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Type, TypeVar, Union
 
+from typing_extensions import Self
+
 from xrpl.models.base_model import BaseModel, _key_to_json
 
 NM = TypeVar("NM", bound="NestedModel")  # any type inherited from NestedModel
@@ -62,7 +64,7 @@ class NestedModel(BaseModel):
             return super(NestedModel, cls).from_dict(value)
         return super(NestedModel, cls).from_dict(value[_get_nested_name(cls)])
 
-    def to_dict(self: NestedModel) -> Dict[str, Any]:
+    def to_dict(self: Self) -> Dict[str, Any]:
         """
         Returns the dictionary representation of a NestedModel.
 

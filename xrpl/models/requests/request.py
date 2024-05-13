@@ -2,11 +2,14 @@
 The base class for all network request types.
 Represents fields common to all request types.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, Optional, Type, TypeVar, Union, cast
+
+from typing_extensions import Self
 
 import xrpl.models.requests  # bare import to get around circular dependency
 from xrpl.models.base_model import BaseModel
@@ -176,7 +179,7 @@ class Request(BaseModel):
             return cast(Type[Request], getattr(xrpl.models.requests, parsed_name))
         return xrpl.models.requests.GenericRequest
 
-    def to_dict(self: Request) -> Dict[str, Any]:
+    def to_dict(self: Self) -> Dict[str, Any]:
         """
         Returns the dictionary representation of a Request.
 

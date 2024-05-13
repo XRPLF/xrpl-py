@@ -1,11 +1,12 @@
 """Class for serializing and deserializing a 32-bit UInt.
 See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
 """
+
 from __future__ import annotations
 
 from typing import Optional, Type, Union
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -20,7 +21,7 @@ class UInt32(UInt):
     See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
     """
 
-    def __init__(self: UInt32, buffer: bytes = bytes(_WIDTH)) -> None:
+    def __init__(self: Self, buffer: bytes = bytes(_WIDTH)) -> None:
         """Construct a new UInt32 type from a ``bytes`` value."""
         super().__init__(buffer)
 

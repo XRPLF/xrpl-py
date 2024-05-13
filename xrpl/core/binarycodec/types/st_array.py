@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any, List, Optional, Type
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -85,7 +85,7 @@ class STArray(SerializedType):
         bytestring += _ARRAY_END_MARKER
         return STArray(bytestring)
 
-    def to_json(self: STArray) -> List[Any]:
+    def to_json(self: Self) -> List[Any]:
         """
         Returns the JSON representation of a STArray.
 

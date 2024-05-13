@@ -25,6 +25,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Type
 
+from typing_extensions import Self
+
 from xrpl.constants import CryptoAlgorithm
 from xrpl.models.requests.submit import Submit
 from xrpl.models.required import REQUIRED
@@ -92,7 +94,7 @@ class SignAndSubmit(Submit):
             fixed_value = value
         return super(SignAndSubmit, cls).from_dict(fixed_value)
 
-    def to_dict(self: SignAndSubmit) -> Dict[str, Any]:
+    def to_dict(self: Self) -> Dict[str, Any]:
         """
         Returns the dictionary representation of a SignAndSubmit.
 
@@ -104,7 +106,7 @@ class SignAndSubmit(Submit):
         return_dict["tx_json"] = self.transaction.to_xrpl()
         return return_dict
 
-    def _get_errors(self: SignAndSubmit) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if not self._has_only_one_seed():
             errors[
@@ -116,7 +118,7 @@ class SignAndSubmit(Submit):
 
         return errors
 
-    def _has_only_one_seed(self: SignAndSubmit) -> bool:
+    def _has_only_one_seed(self: Self) -> bool:
         present_items = [
             item
             for item in [self.secret, self.seed, self.seed_hex, self.passphrase]

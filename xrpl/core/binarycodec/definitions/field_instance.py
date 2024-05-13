@@ -1,7 +1,10 @@
 """A collection of serialization information about a specific field type."""
+
 from __future__ import annotations  # Requires Python 3.7+
 
 from typing import TYPE_CHECKING, Dict, Type
+
+from typing_extensions import Self
 
 from xrpl.core.binarycodec.definitions.field_header import FieldHeader
 from xrpl.core.binarycodec.definitions.field_info import FieldInfo
@@ -36,7 +39,7 @@ class FieldInstance:
     """A collection of serialization information about a specific field type."""
 
     def __init__(
-        self: FieldInstance,
+        self: Self,
         field_info: FieldInfo,
         field_name: str,
         field_header: FieldHeader,

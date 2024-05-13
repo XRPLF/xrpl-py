@@ -3,12 +3,15 @@ The base class for all network response types.
 
 Represents fields common to all response types.
 """
+
 from __future__ import annotations
 
 import warnings
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, Optional, Union
+
+from typing_extensions import Self
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
@@ -58,7 +61,7 @@ class Response(BaseModel):
     id: Optional[Union[int, str]] = None
     type: Optional[ResponseType] = None
 
-    def __post_init__(self: Response) -> None:
+    def __post_init__(self: Self) -> None:
         """Called by dataclasses immediately after __init__."""
         super().__post_init__()
         if self.contains_partial_payment():
@@ -68,7 +71,7 @@ class Response(BaseModel):
                 stacklevel=2,
             )
 
-    def is_successful(self: Response) -> bool:
+    def is_successful(self: Self) -> bool:
         """
         Returns whether the request was successfully received and understood by the
         server.
@@ -78,7 +81,7 @@ class Response(BaseModel):
         """
         return self.status == ResponseStatus.SUCCESS
 
-    def contains_partial_payment(self: Response) -> bool:
+    def contains_partial_payment(self: Self) -> bool:
         """
         Returns whether the request contains at least one transactions with
         the partial payment flag set.
@@ -89,7 +92,7 @@ class Response(BaseModel):
         """
         return self._do_contains_partial_payment(self.result)
 
-    def _do_contains_partial_payment(self: Response, val: Any) -> bool:
+    def _do_contains_partial_payment(self: Self, val: Any) -> bool:
         flagged = []
         if isinstance(val, dict):
             formatted = {key.strip().lower(): value for key, value in val.items()}
@@ -108,7 +111,7 @@ class Response(BaseModel):
             ]
         return len(flagged) > 0
 
-    def _is_partial_payment(self: Response, key: str, val: Any) -> bool:
+    def _is_partial_payment(self: Self, key: str, val: Any) -> bool:
         if isinstance(val, dict):
             return self._do_contains_partial_payment(val)
         try:

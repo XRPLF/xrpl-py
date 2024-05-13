@@ -2,12 +2,13 @@
 Codec for serializing and deserializing Amount fields.
 See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
 """
+
 from __future__ import annotations
 
 from decimal import MAX_PREC, Context, Decimal, localcontext
 from typing import Any, Dict, Optional, Type, Union
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.constants import (
     IOU_DECIMAL_CONTEXT,
@@ -222,7 +223,7 @@ class Amount(SerializedType):
     See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
     """
 
-    def __init__(self: Amount, buffer: bytes) -> None:
+    def __init__(self: Self, buffer: bytes) -> None:
         """Construct an Amount from given bytes."""
         super().__init__(buffer)
 
@@ -277,7 +278,7 @@ class Amount(SerializedType):
             num_bytes = _NATIVE_AMOUNT_BYTE_LENGTH
         return cls(parser.read(num_bytes))
 
-    def to_json(self: Amount) -> Union[str, Dict[Any, Any]]:
+    def to_json(self: Self) -> Union[str, Dict[Any, Any]]:
         """Construct a JSON object representing this Amount.
 
         Returns:
@@ -314,7 +315,7 @@ class Amount(SerializedType):
             "issuer": issuer.to_json(),
         }
 
-    def is_native(self: Amount) -> bool:
+    def is_native(self: Self) -> bool:
         """Returns True if this amount is a native XRP amount.
 
         Returns:
@@ -323,7 +324,7 @@ class Amount(SerializedType):
         # 1st bit in 1st byte is set to 0 for native XRP
         return (self.buffer[0] & 0x80) == 0
 
-    def is_positive(self: Amount) -> bool:
+    def is_positive(self: Self) -> bool:
         """Returns True if 2nd bit in 1st byte is set to 1 (positive amount).
 
         Returns:

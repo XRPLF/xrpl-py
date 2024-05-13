@@ -1,7 +1,10 @@
 """Codec for serializing and deserializing bridge fields."""
+
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
+
+from typing_extensions import Self
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -22,7 +25,7 @@ _TYPE_KEYS = {type[0] for type in _TYPE_ORDER}
 class XChainBridge(SerializedType):
     """Codec for serializing and deserializing bridge fields."""
 
-    def __init__(self: XChainBridge, buffer: bytes) -> None:
+    def __init__(self: Self, buffer: bytes) -> None:
         """Construct a XChainBridge from given bytes."""
         super().__init__(buffer)
 
@@ -82,7 +85,7 @@ class XChainBridge(SerializedType):
 
         return cls(buffer)
 
-    def to_json(self: XChainBridge) -> Union[str, Dict[Any, Any]]:
+    def to_json(self: Self) -> Union[str, Dict[Any, Any]]:
         """
         Returns the JSON representation of a bridge.
 

@@ -1,8 +1,11 @@
 """A generic request that can be used for unsupported requests."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any, Dict, Type, Union, cast
+
+from typing_extensions import Self
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests.request import Request, RequestMethod
@@ -25,7 +28,7 @@ class GenericRequest(Request):
     :meta hide-value:
     """
 
-    def __init__(self: GenericRequest, **kwargs: Any) -> None:
+    def __init__(self: Self, **kwargs: Any) -> None:
         """
         Initializes a GenericRequest.
 
@@ -70,7 +73,7 @@ class GenericRequest(Request):
 
         return cls(**value)
 
-    def to_dict(self: GenericRequest) -> Dict[str, Any]:
+    def to_dict(self: Self) -> Dict[str, Any]:
         """
         Returns the dictionary representation of a GenericRequest.
 

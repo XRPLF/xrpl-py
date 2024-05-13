@@ -2,12 +2,13 @@
 Class for serializing and deserializing a 64-bit UInt.
 See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
 """
+
 from __future__ import annotations
 
 import re
 from typing import Optional, Pattern, Type, Union
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -24,7 +25,7 @@ class UInt64(UInt):
     See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
     """
 
-    def __init__(self: UInt64, buffer: bytes = bytes(_WIDTH)) -> None:
+    def __init__(self: Self, buffer: bytes = bytes(_WIDTH)) -> None:
         """Construct a new UInt64 type from a ``bytes`` value."""
         super().__init__(buffer)
 
@@ -80,7 +81,7 @@ class UInt64(UInt):
             "Cannot construct UInt64 from given value {value}"
         )
 
-    def to_json(self: UInt64) -> str:
+    def to_json(self: Self) -> str:
         """
         Convert a UInt64 object to JSON (hex).
 
