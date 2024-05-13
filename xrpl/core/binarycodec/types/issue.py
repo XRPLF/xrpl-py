@@ -29,7 +29,7 @@ class Issue(SerializedType):
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls: Type[Issue], value: Dict[str, str]) -> Issue:
+    def from_value(cls: Type[Self], value: Dict[str, str]) -> Self:
         """
         Construct an Issue object from a string or dictionary representation
         of an issued currency.
@@ -59,10 +59,10 @@ class Issue(SerializedType):
 
     @classmethod
     def from_parser(
-        cls: Type[Issue],
+        cls: Type[Self],
         parser: BinaryParser,
         length_hint: Optional[int] = None,
-    ) -> Issue:
+    ) -> Self:
         """
         Construct an Issue object from an existing BinaryParser.
 

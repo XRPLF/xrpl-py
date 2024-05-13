@@ -77,7 +77,7 @@ class SignAndSubmit(Submit):
     fee_div_max: int = 1
 
     @classmethod
-    def from_dict(cls: Type[SignAndSubmit], value: Dict[str, Any]) -> SignAndSubmit:
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
         """
         Construct a new SignAndSubmit from a dictionary of parameters.
 

@@ -45,7 +45,7 @@ class GenericRequest(Request):
             object.__setattr__(self, key, value)
 
     @classmethod
-    def from_dict(cls: Type[GenericRequest], value: Dict[str, Any]) -> GenericRequest:
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
         """
         Construct a new GenericRequest from a dictionary of parameters. Also converts
         from JSON and WS formatting.

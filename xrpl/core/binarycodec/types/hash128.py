@@ -49,5 +49,5 @@ class Hash128(Hash):
         return hex
 
     @classmethod
-    def _get_length(cls: Type[Hash128]) -> int:
+    def _get_length(cls: Type[Self]) -> int:
         return 16

@@ -41,7 +41,7 @@ class Hash(SerializedType, ABC):
         return self.to_hex()
 
     @classmethod
-    def from_value(cls: Type[Hash], value: str) -> Hash:
+    def from_value(cls: Type[Self], value: str) -> Self:
         """
         Construct a Hash object from a hex string.
 
@@ -64,8 +64,8 @@ class Hash(SerializedType, ABC):
 
     @classmethod
     def from_parser(
-        cls: Type[Hash], parser: BinaryParser, length_hint: Optional[int] = None
-    ) -> Hash:
+        cls: Type[Self], parser: BinaryParser, length_hint: Optional[int] = None
+    ) -> Self:
         """
         Construct a Hash object from an existing BinaryParser.
 
@@ -81,5 +81,5 @@ class Hash(SerializedType, ABC):
 
     @classmethod
     @abstractmethod
-    def _get_length(cls: Type[Hash]) -> int:
+    def _get_length(cls: Type[Self]) -> int:
         pass

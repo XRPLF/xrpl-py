@@ -421,7 +421,7 @@ class Transaction(BaseModel):
 
     @classmethod
     def get_transaction_type(
-        cls: Type[Transaction], transaction_type: str
+        cls: Type[Self], transaction_type: str
     ) -> Type[Transaction]:
         """
         Returns the correct transaction type based on the string name.

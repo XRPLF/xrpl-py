@@ -68,7 +68,7 @@ class Sign(Request):
     fee_div_max: int = 1
 
     @classmethod
-    def from_dict(cls: Type[Sign], value: Dict[str, Any]) -> Sign:
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
         """
         Construct a new Sign from a dictionary of parameters.
 

@@ -94,7 +94,7 @@ class Currency(Hash160):
             self._iso = _iso_code_from_hex(code_bytes)
 
     @classmethod
-    def from_value(cls: Type[Currency], value: str) -> Currency:
+    def from_value(cls: Type[Self], value: str) -> Self:
         """
         Construct a Currency object from a string representation of a currency.
 
@@ -114,7 +114,7 @@ class Currency(Hash160):
             )
 
         if _is_iso_code(value):
-            return Currency(_iso_to_bytes(value))
+            return cls(_iso_to_bytes(value))
         if _is_hex(value):
             return cls(bytes.fromhex(value))
         raise XRPLBinaryCodecException("Unsupported Currency representation: {value}")

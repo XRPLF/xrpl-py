@@ -31,8 +31,8 @@ class UInt64(UInt):
 
     @classmethod
     def from_parser(
-        cls: Type[UInt64], parser: BinaryParser, _length_hint: Optional[int] = None
-    ) -> UInt64:
+        cls: Type[Self], parser: BinaryParser, _length_hint: Optional[int] = None
+    ) -> Self:
         """
         Construct a new UInt64 type from a BinaryParser.
 
@@ -45,7 +45,7 @@ class UInt64(UInt):
         return cls(parser.read(_WIDTH))
 
     @classmethod
-    def from_value(cls: Type[UInt64], value: Union[str, int]) -> UInt64:
+    def from_value(cls: Type[Self], value: Union[str, int]) -> Self:
         """
         Construct a new UInt64 type from a number.
 

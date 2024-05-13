@@ -42,7 +42,7 @@ class AccountID(Hash160):
             super().__init__(bytes(self.LENGTH))
 
     @classmethod
-    def from_value(cls: Type[AccountID], value: str) -> AccountID:
+    def from_value(cls: Type[Self], value: str) -> Self:
         """
         Construct an AccountID from a hex string or a base58 r-Address.
 

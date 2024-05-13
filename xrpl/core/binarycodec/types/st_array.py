@@ -26,10 +26,10 @@ class STArray(SerializedType):
 
     @classmethod
     def from_parser(
-        cls: Type[STArray],
+        cls: Type[Self],
         parser: BinaryParser,
         _length_hint: Optional[None] = None,
-    ) -> STArray:
+    ) -> Self:
         """
         Construct a STArray from a BinaryParser.
 
@@ -50,10 +50,10 @@ class STArray(SerializedType):
             bytestring += _OBJECT_END_MARKER
 
         bytestring += _ARRAY_END_MARKER
-        return STArray(bytestring)
+        return cls(bytestring)
 
     @classmethod
-    def from_value(cls: Type[STArray], value: List[Any]) -> STArray:
+    def from_value(cls: Type[Self], value: List[Any]) -> Self:
         """
         Create a STArray object from a dictionary.
 
@@ -83,7 +83,7 @@ class STArray(SerializedType):
             transaction = STObject.from_value(obj)
             bytestring += bytes(transaction)
         bytestring += _ARRAY_END_MARKER
-        return STArray(bytestring)
+        return cls(bytestring)
 
     def to_json(self: Self) -> List[Any]:
         """

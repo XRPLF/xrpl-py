@@ -45,9 +45,7 @@ class SubmitMultisigned(Request):
     fail_hard: bool = False
 
     @classmethod
-    def from_dict(
-        cls: Type[SubmitMultisigned], value: Dict[str, Any]
-    ) -> SubmitMultisigned:
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
         """
         Construct a new SubmitMultisigned object from a dictionary of parameters.
 

@@ -22,7 +22,7 @@ class Vector256(SerializedType):
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls: Type[Vector256], value: List[str]) -> Vector256:
+    def from_value(cls: Type[Self], value: List[str]) -> Self:
         """Construct a Vector256 from a list of strings.
 
         Args:
@@ -47,8 +47,8 @@ class Vector256(SerializedType):
 
     @classmethod
     def from_parser(
-        cls: Type[Vector256], parser: BinaryParser, length_hint: Optional[int] = None
-    ) -> SerializedType:
+        cls: Type[Self], parser: BinaryParser, length_hint: Optional[int] = None
+    ) -> Self:
         """Construct a Vector256 from a BinaryParser.
 
         Args:

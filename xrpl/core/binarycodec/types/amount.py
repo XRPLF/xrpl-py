@@ -228,7 +228,7 @@ class Amount(SerializedType):
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls: Type[Amount], value: Union[str, Dict[str, str]]) -> Amount:
+    def from_value(cls: Type[Self], value: Union[str, Dict[str, str]]) -> Self:
         """
         Construct an Amount from an issued currency amount or (for XRP),
         a string amount.
@@ -257,8 +257,8 @@ class Amount(SerializedType):
 
     @classmethod
     def from_parser(
-        cls: Type[Amount], parser: BinaryParser, length_hint: Optional[int] = None
-    ) -> Amount:
+        cls: Type[Self], parser: BinaryParser, length_hint: Optional[int] = None
+    ) -> Self:
         """Construct an Amount from an existing BinaryParser.
 
         Args:

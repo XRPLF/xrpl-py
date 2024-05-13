@@ -146,7 +146,7 @@ class Request(BaseModel):
         return super(Request, cls).from_dict(value)
 
     @classmethod
-    def get_method(cls: Type[Request], method: str) -> Type[Request]:
+    def get_method(cls: Type[Self], method: str) -> Type[Request]:
         """
         Returns the correct request method based on the string name.
 

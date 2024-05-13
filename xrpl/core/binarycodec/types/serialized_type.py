@@ -22,18 +22,16 @@ class SerializedType(ABC):
     @classmethod
     @abstractmethod
     def from_parser(  # noqa: D102
-        cls: Type[SerializedType],
+        cls: Type[Self],
         parser: BinaryParser,
         # length_hint is Any so that subclasses can choose whether or not to require it.
         length_hint: Any,
-    ) -> SerializedType:
+    ) -> Self:
         pass
 
     @classmethod
     @abstractmethod
-    def from_value(  # noqa: D102
-        cls: Type[SerializedType], value: Any
-    ) -> SerializedType:
+    def from_value(cls: Type[Self], value: Any) -> Self:  # noqa: D102
         pass
 
     def to_byte_sink(self: Self, bytesink: bytearray) -> None:

@@ -28,8 +28,8 @@ class UInt8(UInt):
 
     @classmethod
     def from_parser(
-        cls: Type[UInt8], parser: BinaryParser, _length_hint: Optional[int] = None
-    ) -> UInt8:
+        cls: Type[Self], parser: BinaryParser, _length_hint: Optional[int] = None
+    ) -> Self:
         """
         Construct a new UInt8 type from a BinaryParser.
 
@@ -42,7 +42,7 @@ class UInt8(UInt):
         return cls(parser.read(_WIDTH))
 
     @classmethod
-    def from_value(cls: Type[UInt8], value: int) -> UInt8:
+    def from_value(cls: Type[Self], value: int) -> Self:
         """
         Construct a new UInt8 type from a number.
 

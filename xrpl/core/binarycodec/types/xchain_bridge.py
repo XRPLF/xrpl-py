@@ -30,9 +30,7 @@ class XChainBridge(SerializedType):
         super().__init__(buffer)
 
     @classmethod
-    def from_value(
-        cls: Type[XChainBridge], value: Union[str, Dict[str, str]]
-    ) -> XChainBridge:
+    def from_value(cls: Type[Self], value: Union[str, Dict[str, str]]) -> Self:
         """
         Construct a XChainBridge object from a dictionary representation of a bridge.
 
@@ -61,8 +59,8 @@ class XChainBridge(SerializedType):
 
     @classmethod
     def from_parser(
-        cls: Type[XChainBridge], parser: BinaryParser, length_hint: Optional[int] = None
-    ) -> XChainBridge:
+        cls: Type[Self], parser: BinaryParser, length_hint: Optional[int] = None
+    ) -> Self:
         """
         Construct a XChainBridge object from an existing BinaryParser.
 

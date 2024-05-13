@@ -25,7 +25,7 @@ class Blob(SerializedType):
         super().__init__(buffer)
 
     @classmethod
-    def from_parser(cls: Type[Blob], parser: BinaryParser, length_hint: int) -> Blob:
+    def from_parser(cls: Type[Self], parser: BinaryParser, length_hint: int) -> Self:
         """
         Defines how to read a Blob from a BinaryParser.
 
@@ -39,7 +39,7 @@ class Blob(SerializedType):
         return cls(parser.read(length_hint))
 
     @classmethod
-    def from_value(cls: Type[Blob], value: str) -> Blob:
+    def from_value(cls: Type[Self], value: str) -> Self:
         """
         Create a Blob object from a hex-string.
 

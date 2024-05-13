@@ -38,7 +38,7 @@ class XRP(BaseModel):
     currency: str = field(default="XRP", init=False)
 
     @classmethod
-    def from_dict(cls: Type[XRP], value: Dict[str, Any]) -> XRP:
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
         """
         Construct a new XRP from a dictionary of parameters.
 
@@ -53,7 +53,7 @@ class XRP(BaseModel):
         """
         if len(value) != 1 or "currency" not in value or value["currency"] != "XRP":
             raise XRPLModelException("Not a valid XRP type")
-        return XRP()
+        return cls()
 
     def to_dict(self: Self) -> Dict[str, Any]:
         """

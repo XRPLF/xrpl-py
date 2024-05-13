@@ -86,10 +86,10 @@ class STObject(SerializedType):
 
     @classmethod
     def from_parser(
-        cls: Type[STObject],
+        cls: Type[Self],
         parser: BinaryParser,
         _length_hint: Optional[None] = None,
-    ) -> STObject:
+    ) -> Self:
         """
         Construct a STObject from a BinaryParser.
 
@@ -115,12 +115,12 @@ class STObject(SerializedType):
             if field.type == _ST_OBJECT:
                 serializer.append(_OBJECT_END_MARKER_BYTE)
 
-        return STObject(bytes(serializer))
+        return cls(bytes(serializer))
 
     @classmethod
     def from_value(
-        cls: Type[STObject], value: Dict[str, Any], only_signing: bool = False
-    ) -> STObject:
+        cls: Type[Self], value: Dict[str, Any], only_signing: bool = False
+    ) -> Self:
         """
         Create a STObject object from a dictionary.
 
@@ -215,7 +215,7 @@ class STObject(SerializedType):
             if field.type == _ST_OBJECT:
                 serializer.append(_OBJECT_END_MARKER_BYTE)
 
-        return STObject(bytes(serializer))
+        return cls(bytes(serializer))
 
     def to_json(self: Self) -> Dict[str, Any]:
         """

@@ -59,7 +59,7 @@ class SignFor(Request):
     key_type: Optional[CryptoAlgorithm] = None
 
     @classmethod
-    def from_dict(cls: Type[SignFor], value: Dict[str, Any]) -> SignFor:
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
         """
         Construct a new SignFor from a dictionary of parameters.
 
