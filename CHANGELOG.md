@@ -18,7 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Construction of Wallet throws an "Invalid Seed" error, if the secret is not decode-able.
 - Rectify the incorrect usage of a transaction flag name: Update `TF_NO_DIRECT_RIPPLE` to `TF_NO_RIPPLE_DIRECT`
 - Add the missing `AMMDeposit` Flag `TF_TWO_ASSET_IF_EMPTY`
-- Minor refactor changes for Price Oracles support.
 
 ## [2.5.0] - 2023-11-30
 
