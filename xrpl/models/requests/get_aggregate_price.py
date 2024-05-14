@@ -8,8 +8,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
-from typing_extensions import TypedDict
-
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
@@ -31,7 +29,7 @@ class GetAggregatePrice(Request):
     quote_asset: str = REQUIRED  # type: ignore
     """The currency code of the asset to quote the price of the base asset"""
 
-    oracles: List[Oracle] = REQUIRED  # type: ignore
+    oracles: List[OracleEntry] = REQUIRED  # type: ignore
     """The oracle identifier"""
 
     trim: Optional[int] = None
@@ -53,7 +51,7 @@ class GetAggregatePrice(Request):
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class Oracle:
+class OracleEntry:
     """Represents one Oracle element. It is used in GetAggregatePrice request"""
 
     oracle_document_id: int = REQUIRED  # type: ignore
