@@ -53,7 +53,7 @@ class GetAggregatePrice(Request):
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class Oracle(TypedDict):
+class Oracle:
     """Represents one Oracle element. It is used in GetAggregatePrice request"""
 
     oracle_document_id: int = REQUIRED  # type: ignore
