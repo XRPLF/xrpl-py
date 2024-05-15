@@ -13,9 +13,7 @@ class TestNetworkID(TestCase):
     # Autofill should override tx networkID for network with ID > 1024
     # and build_version from 1.11.0 or later.
     def test_networkid_override(self):
-        with WebsocketClient(
-            "wss://hooks-testnet-v3.xrpl-labs.com"
-        ) as client:
+        with WebsocketClient("wss://hooks-testnet-v3.xrpl-labs.com") as client:
             tx = AccountSet(
                 account="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
                 fee=_FEE,
