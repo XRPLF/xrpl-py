@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from xrpl.models import XRPLModelException
 from xrpl.models.requests import GetAggregatePrice
-from xrpl.models.requests.get_aggregate_price import Oracle
+from xrpl.models.requests.ledger_entry import Oracle
 
 _ACCT_STR_1 = "rBwHKFS534tfG3mATXSycCnX8PAd3XJswj"
 _ORACLE_DOC_ID_1 = 1
