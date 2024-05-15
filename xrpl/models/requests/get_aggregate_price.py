@@ -8,6 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
+from xrpl.models.requests.ledger_entry import Oracle
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import require_kwargs_on_init
@@ -29,7 +30,7 @@ class GetAggregatePrice(Request):
     quote_asset: str = REQUIRED  # type: ignore
     """The currency code of the asset to quote the price of the base asset"""
 
-    oracles: List[OracleEntry] = REQUIRED  # type: ignore
+    oracles: List[Oracle] = REQUIRED  # type: ignore
     """The oracle identifier"""
 
     trim: Optional[int] = None
@@ -47,15 +48,3 @@ class GetAggregatePrice(Request):
                 "GetAggregatePrice"
             ] = "Oracles array must contain at least one element"
         return errors
-
-
-@require_kwargs_on_init
-@dataclass(frozen=True)
-class OracleEntry:
-    """Represents one Oracle element. It is used in GetAggregatePrice request"""
-
-    oracle_document_id: int = REQUIRED  # type: ignore
-    """A unique identifier of the price oracle for the Account"""
-
-    account: str = REQUIRED  # type: ignore
-    """The XRPL account that controls the Oracle object"""

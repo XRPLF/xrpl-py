@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from xrpl.models import XRPLModelException
 from xrpl.models.requests import GetAggregatePrice
-from xrpl.models.requests.get_aggregate_price import OracleEntry
+from xrpl.models.requests.ledger_entry import Oracle
 
 _ACCT_STR_1 = "rBwHKFS534tfG3mATXSycCnX8PAd3XJswj"
 _ORACLE_DOC_ID_1 = 1
@@ -27,10 +27,10 @@ class TestGetAggregatePrice(TestCase):
             GetAggregatePrice(
                 quote_asset="XRP",
                 oracles=[
-                    OracleEntry(
+                    Oracle(
                         account=_ACCT_STR_1, oracle_document_id=_ORACLE_DOC_ID_1
                     ),
-                    OracleEntry(
+                    Oracle(
                         account=_ACCT_STR_2, oracle_document_id=_ORACLE_DOC_ID_2
                     ),
                 ],
@@ -41,10 +41,10 @@ class TestGetAggregatePrice(TestCase):
             GetAggregatePrice(
                 base_asset="USD",
                 oracles=[
-                    OracleEntry(
+                    Oracle(
                         account=_ACCT_STR_1, oracle_document_id=_ORACLE_DOC_ID_1
                     ),
-                    OracleEntry(
+                    Oracle(
                         account=_ACCT_STR_2, oracle_document_id=_ORACLE_DOC_ID_2
                     ),
                 ],
@@ -56,8 +56,8 @@ class TestGetAggregatePrice(TestCase):
             base_asset="USD",
             quote_asset="XRP",
             oracles=[
-                OracleEntry(account=_ACCT_STR_1, oracle_document_id=_ORACLE_DOC_ID_1),
-                OracleEntry(account=_ACCT_STR_2, oracle_document_id=_ORACLE_DOC_ID_2),
+                Oracle(account=_ACCT_STR_1, oracle_document_id=_ORACLE_DOC_ID_1),
+                Oracle(account=_ACCT_STR_2, oracle_document_id=_ORACLE_DOC_ID_2),
             ],
         )
         self.assertTrue(request.is_valid())
@@ -67,8 +67,8 @@ class TestGetAggregatePrice(TestCase):
             base_asset="USD",
             quote_asset="XRP",
             oracles=[
-                OracleEntry(account=_ACCT_STR_1, oracle_document_id=_ORACLE_DOC_ID_1),
-                OracleEntry(account=_ACCT_STR_2, oracle_document_id=_ORACLE_DOC_ID_2),
+                Oracle(account=_ACCT_STR_1, oracle_document_id=_ORACLE_DOC_ID_1),
+                Oracle(account=_ACCT_STR_2, oracle_document_id=_ORACLE_DOC_ID_2),
             ],
             trim=20,
             time_threshold=10,
