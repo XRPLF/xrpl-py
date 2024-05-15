@@ -14,7 +14,7 @@ class TestNetworkID(TestCase):
     # and build_version from 1.11.0 or later.
     def test_networkid_override(self):
         with WebsocketClient(
-            "wss://sidechain-net2.devnet.rippletest.net:51233"
+            "wss://hooks-testnet-v3.xrpl-labs.com"
         ) as client:
             tx = AccountSet(
                 account="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
