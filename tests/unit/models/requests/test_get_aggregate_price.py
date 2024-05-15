@@ -27,12 +27,8 @@ class TestGetAggregatePrice(TestCase):
             GetAggregatePrice(
                 quote_asset="XRP",
                 oracles=[
-                    Oracle(
-                        account=_ACCT_STR_1, oracle_document_id=_ORACLE_DOC_ID_1
-                    ),
-                    Oracle(
-                        account=_ACCT_STR_2, oracle_document_id=_ORACLE_DOC_ID_2
-                    ),
+                    Oracle(account=_ACCT_STR_1, oracle_document_id=_ORACLE_DOC_ID_1),
+                    Oracle(account=_ACCT_STR_2, oracle_document_id=_ORACLE_DOC_ID_2),
                 ],
             )
 
@@ -41,12 +37,8 @@ class TestGetAggregatePrice(TestCase):
             GetAggregatePrice(
                 base_asset="USD",
                 oracles=[
-                    Oracle(
-                        account=_ACCT_STR_1, oracle_document_id=_ORACLE_DOC_ID_1
-                    ),
-                    Oracle(
-                        account=_ACCT_STR_2, oracle_document_id=_ORACLE_DOC_ID_2
-                    ),
+                    Oracle(account=_ACCT_STR_1, oracle_document_id=_ORACLE_DOC_ID_1),
+                    Oracle(account=_ACCT_STR_2, oracle_document_id=_ORACLE_DOC_ID_2),
                 ],
             )
 
