@@ -1,6 +1,8 @@
 """Example of how to find the best path to trade with"""
+
 from xrpl.clients import JsonRpcClient
 from xrpl.models import XRP, IssuedCurrencyAmount, Payment, RipplePathFind
+from xrpl.models.path import PathStep
 from xrpl.transaction import autofill_and_sign
 from xrpl.wallet import generate_faucet_wallet
 
@@ -41,7 +43,7 @@ payment_tx = Payment(
     account=wallet.address,
     amount=destination_amount,
     destination=destination_account,
-    paths=paths,
+    paths=[[PathStep(**path_data) for path_data in path] for path in paths],
 )
 
 print("signed: ", autofill_and_sign(payment_tx, client, wallet))
