@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Support for the Price Oracles amendment (XLS-47).
-- Add nfts_by_issuer data type
+- Add `nfts_by_issuer` clio-only API definition
 
 ### Fixed
 - Added support for `XChainModifyBridge` flag maps (fixing an issue with `NFTokenCreateOffer` flag names)
