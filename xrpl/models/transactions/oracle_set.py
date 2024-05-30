@@ -102,29 +102,8 @@ class OracleSet(Transaction):
                     f" or equal to {MAX_ORACLE_DATA_SERIES}"
                 )
 
-            # nested object validation
+            # either asset_price and scale are both present or both excluded
             for price_data in self.price_data_series:
-                # validate base_asset
-                if not isinstance(price_data.base_asset, str):
-                    errors["price_data_series"] = "BaseAsset field must be a string"
-
-                # validate quote_asset
-                if not isinstance(price_data.quote_asset, str):
-                    errors["price_data_series"] = "QuoteAsset must be a string"
-
-                # validate asset_price
-                if price_data.asset_price is not None and not isinstance(
-                    price_data.asset_price, int
-                ):
-                    errors["price_data_series"] = "AssetPrice must be an integer"
-
-                # validate scale
-                if price_data.scale is not None and not isinstance(
-                    price_data.scale, int
-                ):
-                    errors["price_data_series"] = "Scale must be an integer"
-
-                # either asset_price and scale are both present or both excluded
                 if (price_data.asset_price is not None) != (
                     price_data.scale is not None
                 ):
