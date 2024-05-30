@@ -350,3 +350,47 @@ class TestSetOracle(TestCase):
             ],
         )
         self.assertTrue(tx.is_valid())
+
+    def test_invalid_price_data_series(self):
+        with self.assertRaises(XRPLModelException) as err:
+            OracleSet(
+                account=_ACCOUNT,
+                oracle_document_id=1,
+                provider=_PROVIDER,
+                asset_class=_ASSET_CLASS,
+                last_update_time=EPOCH_OFFSET,
+                price_data_series=[
+                    PriceData(
+                        base_asset=1, quote_asset="USD", asset_price=740, scale=1
+                    ),
+                    PriceData(
+                        base_asset="BTC", quote_asset="EUR", asset_price=100, scale=2
+                    ),
+                ],
+            )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'price_data_series': 'BaseAsset field must be a string'}",
+        )
+
+        with self.assertRaises(XRPLModelException) as err:
+            OracleSet(
+                account=_ACCOUNT,
+                oracle_document_id=1,
+                provider=_PROVIDER,
+                asset_class=_ASSET_CLASS,
+                last_update_time=EPOCH_OFFSET,
+                price_data_series=[
+                    PriceData(base_asset="XRP", quote_asset="USD", asset_price=740),
+                    PriceData(
+                        base_asset="BTC", quote_asset="EUR", asset_price=100, scale=2
+                    ),
+                ],
+            )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'price_data_series': "
+            "'Field must have both `AssetPrice` and `Scale` if any are present'}",
+        )
