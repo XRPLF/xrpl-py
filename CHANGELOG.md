@@ -6,10 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [[Unreleased]]
-- Included `ctid` field in the `tx` request.
+
+## [2.6.0] - 2024-06-03
 
 ### Added
 - Support for the Price Oracles amendment (XLS-47).
+- Included `ctid` field in the `tx` request.
 
 ### Fixed
 - Added support for `XChainModifyBridge` flag maps (fixing an issue with `NFTokenCreateOffer` flag names)
