@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from xrpl.models import XRP, LedgerEntry, XChainBridge
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.requests.ledger_entry import RippleState
+from xrpl.models.requests.ledger_entry import Oracle, RippleState
 
 
 class TestLedgerEntry(TestCase):
@@ -118,4 +118,37 @@ class TestLedgerEntry(TestCase):
             LedgerEntry(
                 index="hello",
                 account_root="hello",
+            )
+
+    # fetch a valid PriceOracle object
+    def test_get_price_oracle(self):
+        # oracle_document_id is specified as uint
+        req = LedgerEntry(
+            oracle=Oracle(
+                account="rB6XJbxKx2oBSK1E3Hvh7KcZTCCBukWyhv",
+                oracle_document_id=1,
+            ),
+        )
+        self.assertTrue(req.is_valid())
+
+        # oracle_document_id is specified as string
+        req = LedgerEntry(
+            oracle=Oracle(
+                account="rB6XJbxKx2oBSK1E3Hvh7KcZTCCBukWyhv",
+                oracle_document_id="1",
+            ),
+        )
+        self.assertTrue(req.is_valid())
+
+    def test_invalid_price_oracle_object(self):
+        # missing oracle_document_id
+        with self.assertRaises(XRPLModelException):
+            LedgerEntry(
+                oracle=Oracle(account="rB6XJbxKx2oBSK1E3Hvh7KcZTCCBukWyhv"),
+            )
+
+        # missing account information
+        with self.assertRaises(XRPLModelException):
+            LedgerEntry(
+                oracle=Oracle(oracle_document_id=1),
             )
