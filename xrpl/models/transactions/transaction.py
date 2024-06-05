@@ -466,3 +466,45 @@ class Transaction(BaseModel):
             The formatted transaction.
         """
         return Transaction.from_xrpl(decode(tx_blob))
+
+    @classmethod
+    def from_xrpl(cls: Type[Self], value: Union[str, Dict[str, Any]]) -> Self:
+        """
+        Creates a Transaction object based on a JSON or JSON-string representation of
+        data
+
+        In Payment transactions, the DeliverMax field is renamed to the Amount field.
+
+        Args:
+            value: The dictionary or JSON string to be instantiated.
+
+        Returns:
+            A Transaction object instantiated from the input.
+
+        Raises:
+            XRPLModelException: If Payment transactions have different values for
+                                amount and deliver_max fields
+        """
+        processed_value = cls._process_xrpl_json(value)
+
+        # handle the deliver_max alias in Payment transactions
+        if (
+            "transaction_type" in processed_value
+            and processed_value["transaction_type"] == "Payment"
+        ) and "deliver_max" in processed_value:
+            if (
+                "amount" in processed_value
+                and processed_value["amount"] != processed_value["deliver_max"]
+            ):
+                raise XRPLModelException(
+                    "Error: amount and deliver_max fields must be equal if both are "
+                    + "provided"
+                )
+            else:
+                processed_value["amount"] = processed_value["deliver_max"]
+
+            # deliver_max field is not recognised in the Payment Request format,
+            # nor is it supported in the serialization operations.
+            del processed_value["deliver_max"]
+
+        return cls.from_dict(processed_value)

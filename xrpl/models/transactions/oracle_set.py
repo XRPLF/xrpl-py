@@ -94,17 +94,25 @@ class OracleSet(Transaction):
         errors = super()._get_errors()
 
         # If price_data_series is not set, do not perform further validation
-        if "price_data_series" not in errors and len(self.price_data_series) == 0:
-            errors["price_data_series"] = "Field must have a length greater than 0."
+        if "price_data_series" not in errors:
+            if len(self.price_data_series) == 0:
+                errors["price_data_series"] = "Field must have a length greater than 0."
 
-        if (
-            "price_data_series" not in errors
-            and len(self.price_data_series) > MAX_ORACLE_DATA_SERIES
-        ):
-            errors["price_data_series"] = (
-                "Field must have a length less than"
-                f" or equal to {MAX_ORACLE_DATA_SERIES}"
-            )
+            if len(self.price_data_series) > MAX_ORACLE_DATA_SERIES:
+                errors["price_data_series"] = (
+                    "Field must have a length less than"
+                    f" or equal to {MAX_ORACLE_DATA_SERIES}"
+                )
+
+            # either asset_price and scale are both present or both excluded
+            for price_data in self.price_data_series:
+                if (price_data.asset_price is not None) != (
+                    price_data.scale is not None
+                ):
+                    errors["price_data_series"] = (
+                        "Field must have both "
+                        "`AssetPrice` and `Scale` if any are present"
+                    )
 
         if self.asset_class is not None and len(self.asset_class) == 0:
             errors["asset_class"] = "Field must have a length greater than 0."
