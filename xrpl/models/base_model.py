@@ -284,14 +284,13 @@ class BaseModel(ABC):
 
         if expected_type_origin is list:
             # expected a List, received a List
-            # TODO: check for
             if not isinstance(value, list):
                 return {"attr": f"{attr} is {type(value)}, expected {expected_type}"}
             result = {}
             for i in range(len(value)):
                 result.update(
                     self._check_type(
-                        f"{attr}[{i}]", value[i], get_args(expected_type)[0]
+                        f"{attr}[{i}]", value[i], get_args(expected_type)[i]
                     )
                 )
             return result
@@ -315,6 +314,9 @@ class BaseModel(ABC):
         if expected_type_origin is Literal:
             arg = get_args(expected_type)
             return {} if value in arg else {attr: f"{attr} is {value}, expected {arg}"}
+
+        if issubclass(expected_type, BaseModel) and isinstance(value, dict):
+            return {}
 
         if not isinstance(value, expected_type):
             return {attr: f"{attr} is {type(value)}, expected {expected_type}"}
