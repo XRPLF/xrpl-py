@@ -94,17 +94,17 @@ class TestBaseModel(TestCase):
 
     def test_bad_type_flags(self):
         transaction_dict = {
-            "account": 1,
-            "amount": 10,
-            "destination": 1,
-            "flags": "1234",
+            "account": account,
+            "amount": value,
+            "destination": destination,
+            "flags": "1234",  # should be an int
         }
         with self.assertRaises(XRPLModelException):
             Payment(**transaction_dict)
 
     def test_bad_type_enum(self):
         path_find_dict = {
-            "subcommand": "blah",
+            "subcommand": "blah",  # this is invalid
             "source_account": "raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
             "destination_account": "rJjusz1VauNA9XaHxJoiwHe38bmQFz1sUV",
             "destination_amount": "100",
