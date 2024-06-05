@@ -290,7 +290,7 @@ class BaseModel(ABC):
             for i in range(len(value)):
                 result.update(
                     self._check_type(
-                        f"{attr}[{i}]", value[i], get_args(expected_type)[i]
+                        f"{attr}[{i}]", value[i], get_args(expected_type)[0]
                     )
                 )
             return result

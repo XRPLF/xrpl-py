@@ -116,11 +116,11 @@ class TestBaseModel(TestCase):
 class TestFromDict(TestCase):
     maxDiff = 2000
 
-    def test_from_dict_basic(self):
+    def test_basic(self):
         amount = IssuedCurrencyAmount.from_dict(amount_dict)
         self.assertEqual(amount, IssuedCurrencyAmount(**amount_dict))
 
-    def test_from_dict_recursive_amount(self):
+    def test_recursive_amount(self):
         check_create = CheckCreate.from_dict(check_create_dict)
 
         expected_dict = {
@@ -131,7 +131,7 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(expected_dict, check_create.to_dict())
 
-    def test_from_dict_recursive_currency(self):
+    def test_recursive_currency(self):
         xrp = {"currency": "XRP"}
         issued_currency = {
             "currency": currency,
@@ -150,7 +150,7 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(expected_dict, book_offers.to_dict())
 
-    def test_from_dict_recursive_transaction(self):
+    def test_recursive_transaction(self):
         transaction = CheckCreate.from_dict(check_create_dict)
         sign_dict = {"secret": secret, "transaction": transaction.to_dict()}
         sign = Sign.from_dict(sign_dict)
@@ -166,7 +166,7 @@ class TestFromDict(TestCase):
         del expected_dict["transaction"]
         self.assertEqual(expected_dict, sign.to_dict())
 
-    def test_from_dict_recursive_transaction_tx_json(self):
+    def test_recursive_transaction_tx_json(self):
         transaction = CheckCreate.from_dict(check_create_dict)
         sign_dict = {"secret": secret, "tx_json": transaction.to_dict()}
         sign = Sign.from_dict(sign_dict)
@@ -181,7 +181,7 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(expected_dict, sign.to_dict())
 
-    def test_from_dict_signer(self):
+    def test_signer(self):
         dictionary = {
             "account": "rpqBNcDpWaqZC2Rksayf8UyG66Fyv2JTQy",
             "fee": "10",
@@ -212,7 +212,7 @@ class TestFromDict(TestCase):
         actual = SignerListSet.from_dict(dictionary)
         self.assertEqual(actual, expected)
 
-    def test_from_dict_trust_set(self):
+    def test_trust_set(self):
         dictionary = {
             "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
             "fee": "10",
@@ -236,7 +236,7 @@ class TestFromDict(TestCase):
         actual = TrustSet.from_dict(dictionary)
         self.assertEqual(actual, expected)
 
-    def test_from_dict_list_of_lists(self):
+    def test_list_of_lists(self):
         path_step_dict = {"account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr"}
         path_find_dict = {
             "subcommand": PathFindSubcommand.CREATE,
@@ -256,7 +256,7 @@ class TestFromDict(TestCase):
         actual = PathFind.from_dict(path_find_dict)
         self.assertEqual(actual, expected)
 
-    def test_from_dict_any(self):
+    def test_any(self):
         account_channels_dict = {
             "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
             "marker": "something",
@@ -265,7 +265,7 @@ class TestFromDict(TestCase):
         actual = AccountChannels.from_dict(account_channels_dict)
         self.assertEqual(actual, expected)
 
-    def test_from_dict_bad_str(self):
+    def test_bad_str(self):
         dictionary = {
             "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
             "fee": 10,  # this should be a str instead ("10")
@@ -280,7 +280,7 @@ class TestFromDict(TestCase):
         with self.assertRaises(XRPLModelException):
             TrustSet.from_dict(dictionary)
 
-    def test_from_dict_explicit_none(self):
+    def test_explicit_none(self):
         dictionary = {
             "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
             "fee": "10",
@@ -303,7 +303,7 @@ class TestFromDict(TestCase):
         actual = TrustSet.from_dict(dictionary)
         self.assertEqual(actual, expected)
 
-    def test_from_dict_with_str_enum_value(self):
+    def test_with_str_enum_value(self):
         dictionary = {
             "method": "account_channels",
             "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
@@ -316,7 +316,7 @@ class TestFromDict(TestCase):
         actual = AccountChannels.from_dict(dictionary)
         self.assertEqual(actual, expected)
 
-    def test_from_dict_bad_list(self):
+    def test_bad_list(self):
         dictionary = {
             "account": "rpqBNcDpWaqZC2Rksayf8UyG66Fyv2JTQy",
             "fee": "10",
@@ -333,7 +333,7 @@ class TestFromDict(TestCase):
         with self.assertRaises(XRPLModelException):
             SignerListSet.from_dict(dictionary)
 
-    def test_from_dict_multisign(self):
+    def test_multisign(self):
         txn_sig1 = (
             "F80E201FE295AA08678F8542D8FC18EA18D582A0BD19BE77B9A24479418ADBCF4CAD28E7BD"
             "96137F88DE7736827C7AC6204FBA8DDADB7394E6D704CD1F4CD609"
@@ -405,7 +405,7 @@ class TestFromDict(TestCase):
         actual = Request.from_dict(request)
         self.assertEqual(actual, expected)
 
-    def test_from_dict_submit(self):
+    def test_submit(self):
         blob = "SOISUSF9SD0839W8U98J98SF"
         id_val = "submit_786514"
         request = {
@@ -418,7 +418,7 @@ class TestFromDict(TestCase):
         actual = Request.from_dict(request)
         self.assertEqual(actual, expected)
 
-    def test_from_dict_nonexistent_field(self):
+    def test_nonexistent_field(self):
         tx = {
             "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
             "bad_field": "random",
@@ -432,7 +432,7 @@ class TestFromDict(TestCase):
         with self.assertRaises(XRPLModelException):
             TrustSet.from_dict(tx)
 
-    def test_from_dict_bad_literal(self):
+    def test_bad_literal(self):
         tx = {
             "account": issuer,
             "xchain_bridge": {
@@ -455,7 +455,7 @@ class TestFromDict(TestCase):
         with self.assertRaises(XRPLModelException):
             XChainAddAccountCreateAttestation.from_dict(tx)
 
-    def test_from_dict_good_literal(self):
+    def test_good_literal(self):
         tx = {
             "account": issuer,
             "xchain_bridge": {
@@ -484,7 +484,7 @@ class TestFromDict(TestCase):
         )
         self.assertEqual(XChainAddAccountCreateAttestation.from_dict(tx), expected)
 
-    def test_from_dict_enum(self):
+    def test_enum(self):
         path_find_dict = {
             "subcommand": "create",
             "source_account": "raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
@@ -647,9 +647,7 @@ class TestToFromXrpl(TestCase):
                 issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
                 value="0.0000002831214446",
             ),
-            paths=[
-                [PathStep(**path_data) for path_data in path] for path in paths_json
-            ],
+            paths=paths_json,
             sequence=290,
         )
         tx_json = p.to_xrpl()
