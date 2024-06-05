@@ -447,7 +447,7 @@ class TestFromDict(TestCase):
             "amount": amount_dict,
             "attestation_reward_account": issuer,
             "attestation_signer_account": issuer,
-            "was_locking_chain_send": 2,
+            "was_locking_chain_send": 2,  # supposed to be 0 or 1
             "xchain_account_create_count": 12,
             "destination": issuer,
             "signature_reward": "200",
