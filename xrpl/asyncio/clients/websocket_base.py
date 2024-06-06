@@ -135,9 +135,10 @@ class WebsocketBase(Client):
             # if this response corresponds to request, fulfill the Future
             if "id" in response_dict and response_dict["id"] in self._open_requests:
                 self._open_requests[response_dict["id"]].set_result(response_dict)
-
-            # enqueue the response for the message queue
-            cast(_MESSAGES_TYPE, self._messages).put_nowait(response_dict)
+            else:
+                # a response that corresponds to a request is not enqueued again
+                # enqueue the response for the message queue
+                cast(_MESSAGES_TYPE, self._messages).put_nowait(response_dict)
 
     def _set_up_future(self: WebsocketBase, request: Request) -> None:
         """
