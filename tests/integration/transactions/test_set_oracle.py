@@ -1,3 +1,4 @@
+import asyncio
 import time
 
 from tests.integration.integration_test_case import IntegrationTestCase
@@ -14,32 +15,43 @@ from xrpl.utils import str_to_hex
 _PROVIDER = str_to_hex("provider")
 _ASSET_CLASS = str_to_hex("currency")
 
+lock = asyncio.Lock()
+
 
 class TestSetOracle(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_all_fields(self, client):
-        tx = OracleSet(
-            account=WALLET.address,
-            # if oracle_document_id is not modified, the (sync, async) +
-            # (json, websocket) combination of integration tests will update the same
-            # oracle object using identical "LastUpdateTime". Updates to an oracle must
-            # be more recent than its previous LastUpdateTime
-            # a unique value is obtained for each combination of test run within the
-            # implementation of the test_async_and_sync decorator.
-            oracle_document_id=self.value,
-            provider=_PROVIDER,
-            asset_class=_ASSET_CLASS,
-            last_update_time=int(time.time()),
-            price_data_series=[
-                PriceData(
-                    base_asset="XRP", quote_asset="USD", asset_price=740, scale=1
-                ),
-                PriceData(
-                    base_asset="BTC", quote_asset="EUR", asset_price=100, scale=2
-                ),
-            ],
+        response = await sign_and_reliable_submission_async(
+            OracleSet(
+                account=WALLET.address,
+                # if oracle_document_id is not modified, the (sync, async) +
+                # (json, websocket) combination of integration tests will update the
+                # same oracle object using identical "LastUpdateTime".
+                # Updates to an oracle must be more recent than its previous
+                # LastUpdateTime a unique value is obtained for each combination
+                # of test run within the implementation of the
+                # test_async_and_sync decorator.
+                oracle_document_id=self.value,
+                provider=_PROVIDER,
+                asset_class=_ASSET_CLASS,
+                # contruct the OracleSet transaction in-place with submit-function,
+                # in order to obtain the most-recent timestamp.
+                # Otherwise, async execution of test cases might render this
+                # timestamp stale.
+                last_update_time=int(time.time()),
+                price_data_series=[
+                    PriceData(
+                        base_asset="XRP", quote_asset="USD", asset_price=740, scale=1
+                    ),
+                    PriceData(
+                        base_asset="BTC", quote_asset="EUR", asset_price=100, scale=2
+                    ),
+                ],
+            ),
+            WALLET,
+            client,
         )
-        response = await sign_and_reliable_submission_async(tx, WALLET, client)
+
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 

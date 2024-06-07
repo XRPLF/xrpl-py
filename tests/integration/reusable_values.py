@@ -29,13 +29,15 @@ from xrpl.wallet import Wallet
 # faster)
 async def _set_up_reusable_values():
     wallet = Wallet.create()
-    await fund_wallet_async(wallet)
     destination = Wallet.create()
-    await fund_wallet_async(destination)
     door_wallet = Wallet.create()
-    await fund_wallet_async(door_wallet)
     witness_wallet = Wallet.create()
-    await fund_wallet_async(witness_wallet)
+    await asyncio.gather(
+        fund_wallet_async(wallet),
+        fund_wallet_async(destination),
+        fund_wallet_async(door_wallet),
+        fund_wallet_async(witness_wallet),
+    )
 
     offer = await sign_and_reliable_submission_async(
         OfferCreate(
