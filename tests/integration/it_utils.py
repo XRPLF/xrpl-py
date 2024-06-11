@@ -111,9 +111,6 @@ def fund_wallet(wallet: Wallet) -> None:
     client.request(LEDGER_ACCEPT_REQUEST)
 
 
-async_wallet_fund_lock = asyncio.Lock()
-
-
 async def fund_wallet_async(
     wallet: Wallet, client: AsyncClient = ASYNC_JSON_RPC_CLIENT
 ) -> None:
@@ -122,13 +119,8 @@ async def fund_wallet_async(
         destination=wallet.address,
         amount=FUNDING_AMOUNT,
     )
-
-    # concurrent wallet_fund operations will attempt to advance the ledger at the same
-    # time. Consequently, all the funding operations fail, except for the first one.
-    # using a lock will serialize the access to this critical operation
-    async with async_wallet_fund_lock:
-        await sign_and_submit_async(payment, client, MASTER_WALLET, check_fee=True)
-        await client.request(LEDGER_ACCEPT_REQUEST)
+    await sign_and_submit_async(payment, client, MASTER_WALLET, check_fee=True)
+    await client.request(LEDGER_ACCEPT_REQUEST)
 
 
 # just submits a transaction to the ledger, synchronously

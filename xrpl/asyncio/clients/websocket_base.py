@@ -123,9 +123,7 @@ class WebsocketBase(Client):
         messages we check whether there is an outstanding future we need to resolve,
         and if so do so.
 
-        If the message corresponds to a pending request, it is stored appropriately,
-        otherwise we store the already-parsed JSON in our own queue for generic
-        iteration.
+        Then we store the already-parsed JSON in our own queue for generic iteration.
 
         As long as a given client remains open, this handler will be running as a Task.
         """
