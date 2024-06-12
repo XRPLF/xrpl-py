@@ -1,4 +1,5 @@
 """High-level transaction methods with XRPL transactions."""
+
 import math
 from typing import Any, Dict, Optional, cast
 
@@ -6,12 +7,13 @@ from typing_extensions import Final
 
 from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
+from xrpl.asyncio.clients.client import _get_network_id_and_build_version
 from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec import encode, encode_for_multisigning, encode_for_signing
 from xrpl.core.keypairs.main import sign as keypairs_sign
-from xrpl.models.requests import ServerInfo, ServerState, SubmitOnly
+from xrpl.models.requests import ServerState, SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions import EscrowFinish
 from xrpl.models.transactions.transaction import Signer, Transaction
@@ -245,27 +247,6 @@ async def autofill(
         ledger_sequence = await get_latest_validated_ledger_sequence(client)
         transaction_json["last_ledger_sequence"] = ledger_sequence + _LEDGER_OFFSET
     return Transaction.from_dict(transaction_json)
-
-
-async def _get_network_id_and_build_version(client: Client) -> None:
-    """
-    Get the network id and build version of the connected server.
-
-    Args:
-        client: The network client to use to send the request.
-
-    Raises:
-        XRPLRequestFailureException: if the rippled API call fails.
-    """
-    response = await client._request_impl(ServerInfo())
-    if response.is_successful():
-        if "network_id" in response.result["info"]:
-            client.network_id = response.result["info"]["network_id"]
-        if not client.build_version and "build_version" in response.result["info"]:
-            client.build_version = response.result["info"]["build_version"]
-        return
-
-    raise XRPLRequestFailureException(response.result)
 
 
 def _tx_needs_networkID(client: Client) -> bool:

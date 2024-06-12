@@ -1,4 +1,5 @@
 """Handles wallet generation from a faucet."""
+
 import asyncio
 from typing import Optional
 from urllib.parse import urlparse, urlunparse
@@ -8,6 +9,7 @@ from typing_extensions import Final
 
 from xrpl.asyncio.account import get_balance, get_next_valid_seq_number
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
+from xrpl.asyncio.clients.client import _get_network_id_and_build_version
 from xrpl.constants import XRPLException
 from xrpl.wallet.main import Wallet
 
@@ -57,7 +59,9 @@ async def generate_faucet_wallet(
 
     .. # noqa: DAR402 exception raised in private method
     """
-    faucet_url = get_faucet_url(client.url, faucet_host)
+    if not client.network_id:
+        await _get_network_id_and_build_version(client)
+    faucet_url = get_faucet_url(client.network_id, faucet_host)
 
     if wallet is None:
         wallet = Wallet.create()
@@ -150,34 +154,40 @@ def process_faucet_host_url(input_url: str) -> str:
     return final_url
 
 
-def get_faucet_url(url: str, faucet_host: Optional[str] = None) -> str:
+def get_faucet_url(network_id: Optional[int], faucet_host: Optional[str] = None) -> str:
     """
-    Returns the URL of the faucet that should be used, based on whether the URL is from
-    a testnet or devnet client.
+    Returns the URL of the faucet that should be used, based on network_id and
+    faucet_host
 
     Args:
-        url: The URL that the client is using to access the ledger.
-        faucet_host: A custom host to use for funding a wallet.
+        network_id: The network_id corresponding to the XRPL network. This is parsed
+            from a ServerInfo() rippled response
+        faucet_host: A custom host to use for funding a wallet. This is useful because
+            network_id of sidechains might not be well-known. If faucet_url cannot be
+            gleaned from network_id alone, faucet_host is used
 
     Returns:
         The URL of the matching faucet.
 
     Raises:
-        XRPLFaucetException: if the provided URL is not for the testnet or devnet.
+        XRPLFaucetException: if the provided network_id does not correspond to testnet
+            or devnet.
     """
+    if network_id is not None:
+        if network_id == 1:
+            return _TEST_FAUCET_URL
+        elif network_id == 2:
+            return _DEV_FAUCET_URL
+        elif network_id == 0:
+            raise XRPLFaucetException("Cannot create faucet with a client on mainnet.")
+        elif network_id < 0:
+            raise XRPLFaucetException("network_id cannot be negative.")
+
     if faucet_host is not None:
         return process_faucet_host_url(faucet_host)
-    if "altnet" in url or "testnet" in url:  # testnet
-        return _TEST_FAUCET_URL
-    if "sidechain-net2" in url:  # sidechain issuing chain devnet
-        raise XRPLFaucetException(
-            "Cannot fund an account on an issuing chain. Accounts must be created via "
-            "the bridge."
-        )
-    if "devnet" in url:  # devnet
-        return _DEV_FAUCET_URL
+
     raise XRPLFaucetException(
-        "Cannot fund an account with a client that is not on the testnet or devnet."
+        "Cannot create faucet URL without network_id or the faucet_host information."
     )
 
 
