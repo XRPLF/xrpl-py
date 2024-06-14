@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for the Price Oracles amendment (XLS-47).
 - Add `nfts_by_issuer` clio-only API definition
 - Included `ctid` field in the `tx` request.
-
+- Add `include_deleted` to ledger_entry request
 ### Fixed
 - Added support for `XChainModifyBridge` flag maps (fixing an issue with `NFTokenCreateOffer` flag names)
 - Fixed `XChainModifyBridge` validation to allow just clearing of `MinAccountCreateAmount`
