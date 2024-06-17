@@ -62,3 +62,20 @@ class TestDIDSet(TestCase):
                 error.exception.args[0],
                 "{'did_set': 'Must have one of `did_document`, `data`, and `uri`.'}",
             )
+
+    def test_delete_data_field(self):
+        tx = DIDSet(
+            account=_ACCOUNT,
+            did_document=_VALID_FIELD,
+            uri=_VALID_FIELD,
+            data=_VALID_FIELD,
+        )
+        self.assertTrue(tx.is_valid())
+
+        # delete data field
+        tx = DIDSet(
+            account=_ACCOUNT,
+            data="",
+        )
+
+        self.assertTrue(tx.is_valid())
