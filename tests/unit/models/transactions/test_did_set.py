@@ -63,7 +63,12 @@ class TestDIDSet(TestCase):
                 "{'did_set': 'Must have one of `did_document`, `data`, and `uri`.'}",
             )
 
-    def test_delete_data_field(self):
+    def test_DIDSet_all_empty_fields(self):
+        with self.assertRaises(XRPLModelException):
+            DIDSet(account=_ACCOUNT, data="", did_document="", uri="")
+
+    def test_delete_multiple_DID_fields(self):
+        # create a valid DID object
         tx = DIDSet(
             account=_ACCOUNT,
             did_document=_VALID_FIELD,
@@ -76,6 +81,27 @@ class TestDIDSet(TestCase):
         tx = DIDSet(
             account=_ACCOUNT,
             data="",
+        )
+
+        self.assertTrue(tx.is_valid())
+
+        # delete URI field
+        tx = DIDSet(
+            account=_ACCOUNT,
+            uri="",
+        )
+
+        self.assertTrue(tx.is_valid())
+
+        # delete did_document field
+
+        # Note: It is invalid to render a DID LedgerObject empty by removing all the
+        # fields. However, that condition can only be detected by reading the
+        # LedgerEntry, which is out-of-scope for the library. rippled generated a
+        # `tecEMPTY_DID` error code in this case
+        tx = DIDSet(
+            account=_ACCOUNT,
+            did_document="",
         )
 
         self.assertTrue(tx.is_valid())

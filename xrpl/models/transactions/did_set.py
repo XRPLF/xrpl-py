@@ -12,7 +12,9 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
-HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]+")
+# DID LedgerObject fields are removed with an empty string as input.
+# Hence, empty strings need to be supported in the regex
+HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
 
 
 @require_kwargs_on_init
@@ -35,6 +37,14 @@ class DIDSet(Transaction):
         if self.did_document is None and self.data is None and self.uri is None:
             errors["did_set"] = "Must have one of `did_document`, `data`, and `uri`."
             # Can return here because there are no fields to process
+            return errors
+
+        if self.did_document == "" and self.data == "" and self.uri == "":
+            errors["did_set"] = (
+                "At least one of DID fields `did_document`, `data`, and `uri` "
+                + "must be of positive length"
+            )
+
             return errors
 
         def _process_field(name: str, value: Optional[str]) -> None:
