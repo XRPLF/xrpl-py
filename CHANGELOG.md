@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Support for the Price Oracles amendment (XLS-47).
+- Add `nfts_by_issuer` clio-only API definition
 - Included `ctid` field in the `tx` request.
 
 ### Fixed
