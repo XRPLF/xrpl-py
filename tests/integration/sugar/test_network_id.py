@@ -4,7 +4,6 @@ from xrpl.asyncio.transaction.main import _RESTRICTED_NETWORKS
 from xrpl.clients import WebsocketClient
 from xrpl.models.transactions import AccountSet
 from xrpl.transaction import autofill
-from xrpl.wallet.wallet_generation import generate_faucet_wallet
 
 _FEE = "0.00001"
 
@@ -15,9 +14,8 @@ class TestNetworkID(TestCase):
     # and build_version from 1.11.0 or later.
     def test_networkid_override(self):
         with WebsocketClient("wss://hooks-testnet-v3.xrpl-labs.com") as client:
-            wallet = generate_faucet_wallet(client, debug=True)
             tx = AccountSet(
-                account=wallet.classic_address,
+                account="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
                 fee=_FEE,
                 domain="www.example.com",
             )
