@@ -15,7 +15,7 @@ from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 from xrpl.models.types import XRPL_VALUE_TYPE
 
-_PASCAL_OR_CAMEL_CASE: Final[Pattern[str]] = re.compile("^[A-Za-z]+(?:[A-Z][a-z]+)*$")
+_PASCAL_OR_CAMEL_CASE: Final[Pattern[str]] = re.compile("^[A-Za-z]+(?:[A-Za-z0-9]+)*$")
 # this regex splits words based on one of three cases:
 #
 # 1. 1-or-more non-capital chars at the beginning of the string. Handles cases
