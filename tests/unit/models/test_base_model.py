@@ -392,6 +392,49 @@ class TestFromDict(TestCase):
         actual = Request.from_dict(request)
         self.assertEqual(actual, expected)
 
+    # Note: BaseModel.from_xrpl and its overridden methods accept only camelCase or
+    # PascalCase inputs (i.e. snake_case is not accepted)
+    def test_request_input_from_xrpl_accepts_camel_case(self):
+        request = {
+            "method": "submit",
+            "tx_json": {
+                "Account": "rnD6t3JF9RTG4VgNLoc4i44bsQLgJUSi6h",
+                "transaction_type": "TrustSet",
+                "Fee": "10",
+                "Sequence": 17896798,
+                "Flags": 131072,
+                "signing_pub_key": "",
+                "limit_amount": {
+                    "currency": "USD",
+                    "issuer": "rH5gvkKxGHrFAMAACeu9CB3FMu7pQ9jfZm",
+                    "value": "10",
+                },
+            },
+            "fail_hard": False,
+        }
+
+        with self.assertRaises(XRPLModelException):
+            Request.from_xrpl(request)
+
+    def test_transaction_input_from_xrpl_accepts_only_camel_case(self):
+        # verify that Transaction.from_xrpl method does not accept snake_case JSON keys
+        tx_snake_case_keys = {
+            "Account": "rnoGkgSpt6AX1nQxZ2qVGx7Fgw6JEcoQas",
+            "transaction_type": "TrustSet",
+            "Fee": "10",
+            "Sequence": 17892983,
+            "Flags": 131072,
+            "signing_pub_key": "",
+            "limit_amount": {
+                "currency": "USD",
+                "issuer": "rBPvTKisx7UCGLDtiUZ6mDssXNREuVuL8Y",
+                "value": "10",
+            },
+        }
+
+        with self.assertRaises(XRPLModelException):
+            Transaction.from_xrpl(tx_snake_case_keys)
+
     def test_from_xrpl(self):
         dirname = os.path.dirname(__file__)
         full_filename = "x-codec-fixtures.json"
