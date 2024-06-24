@@ -26,6 +26,7 @@ class AccountObjectType(str, Enum):
     ESCROW = "escrow"
     NFT_OFFER = "nft_offer"
     OFFER = "offer"
+    ORACLE = "oracle"
     PAYMENT_CHANNEL = "payment_channel"
     SIGNER_LIST = "signer_list"
     STATE = "state"

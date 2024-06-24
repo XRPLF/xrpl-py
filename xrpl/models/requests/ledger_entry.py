@@ -32,6 +32,7 @@ class LedgerEntryType(str, Enum):
     FEE = "fee"
     HASHES = "hashes"
     OFFER = "offer"
+    ORACLE = "oracle"
     PAYMENT_CHANNEL = "payment_channel"
     SIGNER_LIST = "signer_list"
     STATE = "state"
@@ -134,6 +135,29 @@ class Offer(BaseModel):
 
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
+class Oracle(BaseModel):
+    """
+    Required fields for requesting a Price Oracle Ledger Entry, if not querying by
+    object ID.
+    """
+
+    account: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+    oracle_document_id: Union[str, int] = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True)
 class RippleState(BaseModel):
     """Required fields for requesting a RippleState if not querying by object ID."""
 
@@ -223,6 +247,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     directory: Optional[Union[str, Directory]] = None
     escrow: Optional[Union[str, Escrow]] = None
     offer: Optional[Union[str, Offer]] = None
+    oracle: Optional[Oracle] = None
     payment_channel: Optional[str] = None
     ripple_state: Optional[RippleState] = None
     ticket: Optional[Union[str, Ticket]] = None
@@ -250,6 +275,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
                 self.directory,
                 self.escrow,
                 self.offer,
+                self.oracle,
                 self.payment_channel,
                 self.ripple_state,
                 self.ticket,

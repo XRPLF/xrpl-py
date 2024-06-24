@@ -6,7 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [[Unreleased]]
+- Add support for the DeliverMax field in Payment transactions
+
+## [2.6.0] - 2024-06-03
+
+### Added
+- Support for the Price Oracles amendment (XLS-47).
+- Add `nfts_by_issuer` clio-only API definition
 - Included `ctid` field in the `tx` request.
+- `from_xrpl` method accepts input dictionary keys exclusively in the proper XRPL format.
 
 ### Fixed
 - Added support for `XChainModifyBridge` flag maps (fixing an issue with `NFTokenCreateOffer` flag names)
@@ -16,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Construction of Wallet throws an "Invalid Seed" error, if the secret is not decode-able.
 - Rectify the incorrect usage of a transaction flag name: Update `TF_NO_DIRECT_RIPPLE` to `TF_NO_RIPPLE_DIRECT`
 - Add the missing `AMMDeposit` Flag `TF_TWO_ASSET_IF_EMPTY`
+
+### Removed:
+- Remove Hooks faucet since it's now on the Xahau testnet.
 
 ## [2.5.0] - 2023-11-30
 
