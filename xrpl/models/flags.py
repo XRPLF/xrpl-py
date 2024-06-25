@@ -35,6 +35,7 @@ def interface_to_flag_list(
             A list of flags expressed as integers.
     """
     from xrpl.models import transactions  # Avoid circular dependencies
+    from xrpl.models import ledger_objects
 
     # Get all exported classes with names of the form `{TxType}Flag`
     # These are all the flag value enums for transactions/pseudo-transactions
@@ -44,6 +45,7 @@ def interface_to_flag_list(
     pseudo_tx_flag_enums = [
         f for f in transactions.pseudo_transactions.__all__ if f.endswith("Flag")
     ]
+    ledger_object_flag_enums = [f for f in ledger_objects.__all__ if f.endswith("Flag")]
 
     # Key is transaction type name, value is mapping of flag name to int value
     all_tx_flags: Dict[str, Dict[str, int]] = {
@@ -53,6 +55,10 @@ def interface_to_flag_list(
         **{
             f[:-4]: _flag_enum_to_dict(getattr(transactions.pseudo_transactions, f))
             for f in pseudo_tx_flag_enums
+        },
+        **{
+            f[:-4]: _flag_enum_to_dict(getattr(ledger_objects, f))
+            for f in ledger_object_flag_enums
         },
     }
 
