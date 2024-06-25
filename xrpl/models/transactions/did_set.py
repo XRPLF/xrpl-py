@@ -12,8 +12,6 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
-# DID LedgerObject fields are removed with an empty string as input.
-# Hence, empty strings need to be supported in the regex
 HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
 
 
