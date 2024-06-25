@@ -10,12 +10,12 @@ from xrpl.models.currencies import XRP
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 from xrpl.models.xchain_bridge import XChainBridge
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class XChainClaim(Transaction):
     """
     Represents a XChainClaim transaction.

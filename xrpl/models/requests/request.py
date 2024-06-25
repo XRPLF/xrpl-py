@@ -14,7 +14,7 @@ from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 from xrpl.models.response import DEFAULT_API_VERSION
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class RequestMethod(str, Enum):
@@ -92,7 +92,7 @@ class RequestMethod(str, Enum):
 R = TypeVar("R", bound="Request")
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Request(BaseModel):
     """
     The base class for all network request types.
@@ -199,7 +199,7 @@ class Request(BaseModel):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class LookupByLedgerRequest:
     """Represents requests that need specifying an instance of the ledger"""
 
