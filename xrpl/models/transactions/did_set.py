@@ -42,7 +42,7 @@ class DIDSet(Transaction):
         if self.did_document == "" and self.data == "" and self.uri == "":
             errors["did_set"] = (
                 "At least one of the fields `did_document`, `data`, and `uri` "
-                + "must be of positive length"
+                + "must have a length greater than zero"
             )
 
             return errors
