@@ -14,7 +14,7 @@ from typing import Dict, List, Optional, Union
 from xrpl.models.base_model import BaseModel
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 from xrpl.models.xchain_bridge import XChainBridge
 
 
@@ -41,7 +41,7 @@ class LedgerEntryType(str, Enum):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class DepositPreauth(BaseModel):
     """
     Required fields for requesting a DepositPreauth if not querying by
@@ -64,7 +64,7 @@ class DepositPreauth(BaseModel):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Directory(BaseModel):
     """
     Required fields for requesting a DirectoryNode if not querying by
@@ -88,7 +88,7 @@ class Directory(BaseModel):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Escrow(BaseModel):
     """
     Required fields for requesting a Escrow if not querying by
@@ -111,7 +111,7 @@ class Escrow(BaseModel):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Offer(BaseModel):
     """
     Required fields for requesting a Offer if not querying by
@@ -134,7 +134,7 @@ class Offer(BaseModel):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Oracle(BaseModel):
     """
     Required fields for requesting a Price Oracle Ledger Entry, if not querying by
@@ -177,7 +177,7 @@ class RippleState(BaseModel):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Ticket(BaseModel):
     """Required fields for requesting a Ticket if not querying by object ID."""
 
@@ -197,7 +197,7 @@ class Ticket(BaseModel):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class XChainClaimID(XChainBridge):
     """Required fields for requesting an XChainClaimID if not querying by object ID."""
 
@@ -211,7 +211,7 @@ class XChainClaimID(XChainBridge):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class XChainCreateAccountClaimID(XChainBridge):
     """
     Required fields for requesting an XChainCreateAccountClaimID if not querying by
@@ -228,7 +228,7 @@ class XChainCreateAccountClaimID(XChainBridge):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class LedgerEntry(Request, LookupByLedgerRequest):
     """
     The ledger_entry method returns a single ledger
