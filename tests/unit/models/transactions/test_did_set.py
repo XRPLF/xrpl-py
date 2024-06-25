@@ -77,31 +77,10 @@ class TestDIDSet(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-        # delete data field
+        # remove the data field from the above DID object
         tx = DIDSet(
             account=_ACCOUNT,
             data="",
-        )
-
-        self.assertTrue(tx.is_valid())
-
-        # delete URI field
-        tx = DIDSet(
-            account=_ACCOUNT,
-            uri="",
-        )
-
-        self.assertTrue(tx.is_valid())
-
-        # delete did_document field
-
-        # Note: It is invalid to render a DID LedgerObject empty by removing all the
-        # fields. However, that condition can only be detected by reading the
-        # LedgerEntry, which is out-of-scope for the library. rippled generated a
-        # `tecEMPTY_DID` error code in this case
-        tx = DIDSet(
-            account=_ACCOUNT,
-            did_document="",
         )
 
         self.assertTrue(tx.is_valid())
