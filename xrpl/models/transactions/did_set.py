@@ -21,8 +21,24 @@ class DIDSet(Transaction):
     """Represents a DIDSet transaction."""
 
     did_document: Optional[str] = None
+    """
+    The DID document associated with the DID.
+    You must include either Data, DIDDocument, or URI when you submit the DIDSet
+    transaction. If all three fields are missing, the transaction fails.
+
+    Note: To delete the Data, DIDDocument, or URI field from an existing DID ledger
+    entry, add the field as an empty string.
+    """
+
     data: Optional[str] = None
+    """
+    The public attestations of identity credentials associated with the DID.
+    """
+
     uri: Optional[str] = None
+    """
+    The Universal Resource Identifier associated with the DID.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.DID_SET,
