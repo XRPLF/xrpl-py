@@ -28,6 +28,7 @@ from xrpl.models.requests.nft_buy_offers import NFTBuyOffers
 from xrpl.models.requests.nft_history import NFTHistory
 from xrpl.models.requests.nft_info import NFTInfo
 from xrpl.models.requests.nft_sell_offers import NFTSellOffers
+from xrpl.models.requests.nfts_by_issuer import NFTsByIssuer
 from xrpl.models.requests.no_ripple_check import NoRippleCheck, NoRippleCheckRole
 from xrpl.models.requests.path_find import PathFind, PathFindSubcommand
 from xrpl.models.requests.ping import Ping
@@ -79,6 +80,7 @@ __all__ = [
     "NFTSellOffers",
     "NFTInfo",
     "NFTHistory",
+    "NFTsByIssuer",
     "NoRippleCheck",
     "NoRippleCheckRole",
     "PathFind",

@@ -15,6 +15,7 @@ from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 from xrpl.models.types import XRPL_VALUE_TYPE
 
+_PASCAL_OR_CAMEL_CASE: Final[Pattern[str]] = re.compile("^[A-Za-z]+(?:[A-Za-z0-9]+)*$")
 # this regex splits words based on one of three cases:
 #
 # 1. 1-or-more non-capital chars at the beginning of the string. Handles cases
@@ -52,7 +53,15 @@ def _key_to_json(field: str) -> str:
         1. 'TransactionType' becomes 'transaction_type'
         2. 'value' remains 'value'
         3. 'URI' becomes 'uri'
+
+        This function accepts inputs in PascalCase or camelCase only
+
+    Raises:
+        XRPLModelException: If the input is invalid
     """
+    if not re.fullmatch(pattern=_PASCAL_OR_CAMEL_CASE, string=field):
+        raise XRPLModelException(f"Key {field} is not in the proper XRPL format.")
+
     # convert all special CamelCase substrings to capitalized strings
     for spec_str in ABBREVIATIONS.values():
         if spec_str in field:
