@@ -66,6 +66,10 @@ async def _get_network_id_and_build_version(client: Client) -> None:
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
     """
+    # the required values are already present, no need for further processing
+    if client.network_id and client.build_version:
+        return
+
     response = await client._request_impl(ServerInfo())
     if response.is_successful():
         if "network_id" in response.result["info"]:
