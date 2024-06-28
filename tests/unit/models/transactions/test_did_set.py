@@ -67,7 +67,7 @@ class TestDIDSet(TestCase):
         with self.assertRaises(XRPLModelException):
             DIDSet(account=_ACCOUNT, data="", did_document="", uri="")
 
-    def test_remove_data_field(self):
+    def test_empty_data_field(self):
         # create a valid DID object
         tx = DIDSet(
             account=_ACCOUNT,
