@@ -222,7 +222,6 @@ class TestTransaction(IntegrationTestCase):
     )
     # Autofill should populate the tx networkID and build_version from 1.11.0 or later.
     async def test_autofill_populate_networkid(self, client):
-        # with WebsocketClient("wss://s.altnet.rippletest.net:51233") as client:
         tx = AccountSet(
             account="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
             fee=FEE,
