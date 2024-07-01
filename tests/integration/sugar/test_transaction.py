@@ -74,7 +74,7 @@ class TestTransaction(IntegrationTestCase):
         )
 
         # AND we expect the result Account to be the same as the original payment Acct
-        self.assertEqual(payment.result["Account"], ACCOUNT)
+        self.assertEqual(payment.result["tx_json"]["Account"], ACCOUNT)
         # AND we expect the response to be successful (200)
         self.assertTrue(payment.is_successful())
 
@@ -235,7 +235,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["Fee"], await get_fee(client))
+        self.assertEqual(response.result["tx_json"]["Fee"], await get_fee(client))
 
     @test_async_and_sync(
         globals(),
@@ -255,7 +255,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["Fee"], await get_fee(client))
+        self.assertEqual(response.result["tx_json"]["Fee"], await get_fee(client))
 
     @test_async_and_sync(
         globals(),
@@ -279,7 +279,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["Fee"], await get_fee(client))
+        self.assertEqual(response.result["tx_json"]["Fee"], await get_fee(client))
 
     @test_async_and_sync(
         globals(),
@@ -304,7 +304,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["Fee"], await get_fee(client))
+        self.assertEqual(response.result["tx_json"]["Fee"], await get_fee(client))
 
     @test_async_and_sync(
         globals(),

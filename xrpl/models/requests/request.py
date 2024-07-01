@@ -2,6 +2,7 @@
 The base class for all network request types.
 Represents fields common to all request types.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -12,6 +13,7 @@ import xrpl.models.requests  # bare import to get around circular dependency
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
+from xrpl.models.response import DEFAULT_API_VERSION
 from xrpl.models.utils import require_kwargs_on_init
 
 
@@ -105,6 +107,13 @@ class Request(BaseModel):
     """
 
     id: Optional[Union[str, int]] = None
+
+    api_version: int = DEFAULT_API_VERSION
+    """
+    The API version to use for the said Request. By default, api_version: 2 is used.
+    Docs:
+    https://xrpl.org/docs/references/http-websocket-apis/api-conventions/request-formatting/#api-versioning
+    """
 
     @classmethod
     def from_dict(cls: Type[R], value: Dict[str, Any]) -> R:
