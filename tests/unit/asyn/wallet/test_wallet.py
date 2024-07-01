@@ -3,6 +3,7 @@ from unittest import TestCase
 from xrpl.asyncio.wallet.wallet_generation import (
     _DEV_FAUCET_URL,
     _TEST_FAUCET_URL,
+    XRPLFaucetException,
     get_faucet_url,
     process_faucet_host_url,
 )
@@ -19,27 +20,45 @@ class TestWallet(TestCase):
     def test_get_faucet_wallet_dev(self):
         json_client_url = "https://s.devnet.rippletest.net:51234"
         ws_client_url = "wss://s.devnet.rippletest.net/"
-        expected_faucet = _DEV_FAUCET_URL
 
-        self.assertEqual(get_faucet_url(json_client_url), expected_faucet)
-        self.assertEqual(get_faucet_url(ws_client_url), expected_faucet)
+        self.assertEqual(get_faucet_url(2), _DEV_FAUCET_URL)
+        self.assertEqual(
+            get_faucet_url(network_id=None, faucet_host=json_client_url),
+            "https://s.devnet.rippletest.net:51234/accounts",
+        )
+        self.assertEqual(
+            get_faucet_url(network_id=None, faucet_host=ws_client_url),
+            "wss://s.devnet.rippletest.net/accounts",
+        )
 
     def test_get_faucet_wallet_custom(self):
-        json_client_url = "https://s.devnet.rippletest.net:51234"
-        ws_client_url = "wss://s.devnet.rippletest.net/"
         custom_host = "my_host.org"
         expected_faucet = "https://my_host.org/accounts"
 
-        self.assertEqual(get_faucet_url(json_client_url, custom_host), expected_faucet)
-        self.assertEqual(get_faucet_url(ws_client_url, custom_host), expected_faucet)
+        self.assertEqual(
+            get_faucet_url(network_id=12345, faucet_host=custom_host), expected_faucet
+        )
 
     def test_get_faucet_wallet_test(self):
         json_client_url = "https://testnet.xrpl-labs.com"
         ws_client_url = "wss://testnet.xrpl-labs.com"
-        expected_faucet = _TEST_FAUCET_URL
 
-        self.assertEqual(get_faucet_url(json_client_url), expected_faucet)
-        self.assertEqual(get_faucet_url(ws_client_url), expected_faucet)
+        self.assertEqual(get_faucet_url(1), _TEST_FAUCET_URL)
+        self.assertEqual(
+            get_faucet_url(network_id=None, faucet_host=json_client_url),
+            "https://testnet.xrpl-labs.com/accounts",
+        )
+        self.assertEqual(
+            get_faucet_url(network_id=None, faucet_host=ws_client_url),
+            "wss://testnet.xrpl-labs.com/accounts",
+        )
+
+    def test_get_faucet_wallet_invalid(self):
+        with self.assertRaises(XRPLFaucetException):
+            get_faucet_url(0)  # corresponds to mainnet
+
+        with self.assertRaises(XRPLFaucetException):
+            get_faucet_url(-1)  # network_id must be non-negative
 
 
 class TestProcessFaucetHostURL(TestCase):
