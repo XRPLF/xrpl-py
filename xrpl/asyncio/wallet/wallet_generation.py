@@ -9,7 +9,7 @@ from typing_extensions import Final
 
 from xrpl.asyncio.account import get_balance, get_next_valid_seq_number
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
-from xrpl.asyncio.clients.client import _get_network_id_and_build_version
+from xrpl.asyncio.clients.client import get_network_id_and_build_version
 from xrpl.constants import XRPLException
 from xrpl.wallet.main import Wallet
 
@@ -59,7 +59,8 @@ async def generate_faucet_wallet(
 
     .. # noqa: DAR402 exception raised in private method
     """
-    await _get_network_id_and_build_version(client)
+    if not client.network_id:
+        await get_network_id_and_build_version(client)
     faucet_url = get_faucet_url(client.network_id, faucet_host)
 
     if wallet is None:
@@ -172,6 +173,9 @@ def get_faucet_url(network_id: Optional[int], faucet_host: Optional[str] = None)
         XRPLFaucetException: if the provided network_id does not correspond to testnet
             or devnet.
     """
+    if faucet_host is not None:
+        return process_faucet_host_url(faucet_host)
+
     if network_id is not None:
         if network_id == 1:
             return _TEST_FAUCET_URL
@@ -181,9 +185,6 @@ def get_faucet_url(network_id: Optional[int], faucet_host: Optional[str] = None)
             raise XRPLFaucetException("Cannot create faucet with a client on mainnet.")
         elif network_id < 0:
             raise XRPLFaucetException("network_id cannot be negative.")
-
-    if faucet_host is not None:
-        return process_faucet_host_url(faucet_host)
 
     raise XRPLFaucetException(
         "Cannot create faucet URL without network_id or the faucet_host information."

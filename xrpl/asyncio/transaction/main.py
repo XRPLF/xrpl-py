@@ -7,7 +7,7 @@ from typing_extensions import Final
 
 from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
-from xrpl.asyncio.clients.client import _get_network_id_and_build_version
+from xrpl.asyncio.clients.client import get_network_id_and_build_version
 from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
@@ -233,7 +233,7 @@ async def autofill(
     """
     transaction_json = transaction.to_dict()
     if not client.network_id:
-        await _get_network_id_and_build_version(client)
+        await get_network_id_and_build_version(client)
     if "network_id" not in transaction_json and _tx_needs_networkID(client):
         transaction_json["network_id"] = client.network_id
     if "sequence" not in transaction_json:

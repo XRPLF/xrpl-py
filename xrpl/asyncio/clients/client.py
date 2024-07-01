@@ -56,7 +56,7 @@ class Client(ABC):
         pass
 
 
-async def _get_network_id_and_build_version(client: Client) -> None:
+async def get_network_id_and_build_version(client: Client) -> None:
     """
     Get the network id and build version of the connected server.
 
