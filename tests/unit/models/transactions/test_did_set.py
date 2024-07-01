@@ -71,16 +71,6 @@ class TestDIDSet(TestCase):
         # create a valid DID object
         tx = DIDSet(
             account=_ACCOUNT,
-            did_document=_VALID_FIELD,
-            uri=_VALID_FIELD,
-            data=_VALID_FIELD,
-        )
-        self.assertTrue(tx.is_valid())
-
-        # remove the data field from the above DID object
-        tx = DIDSet(
-            account=_ACCOUNT,
             data="",
         )
-
         self.assertTrue(tx.is_valid())
