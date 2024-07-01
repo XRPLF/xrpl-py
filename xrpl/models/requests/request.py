@@ -2,6 +2,7 @@
 The base class for all network request types.
 Represents fields common to all request types.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -61,6 +62,7 @@ class RequestMethod(str, Enum):
     NFT_INFO = "nft_info"  # clio only
     NFT_HISTORY = "nft_history"  # clio only
     NFTS_BY_ISSUER = "nfts_by_issuer"  # clio only
+
     # subscription methods
     SUBSCRIBE = "subscribe"
     UNSUBSCRIBE = "unsubscribe"
@@ -71,6 +73,7 @@ class RequestMethod(str, Enum):
     SERVER_DEFINITIONS = "server_definitions"
     SERVER_INFO = "server_info"
     SERVER_STATE = "server_state"
+    FEATURE = "feature"
 
     # utility methods
     PING = "ping"
