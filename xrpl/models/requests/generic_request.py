@@ -1,4 +1,5 @@
 """A generic request that can be used for unsupported requests."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -62,7 +63,16 @@ class GenericRequest(Request):
 
         elif "method" in value:  # JSON RPC formatting
             if "params" in value:  # actual JSON RPC formatting
-                value = {"method": value["method"], **value["params"]}
+                if "api_version" in value:
+                    value = {
+                        "api_version": value["api_version"],
+                        "method": value["method"],
+                        **value["params"],
+                    }
+                else:
+                    raise XRPLModelException(
+                        "Request must specify a rippled API version"
+                    )
             # else is the internal request formatting
 
         else:
