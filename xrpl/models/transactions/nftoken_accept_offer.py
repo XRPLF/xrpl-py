@@ -7,11 +7,11 @@ from typing import Dict, Optional
 from xrpl.models.amounts import Amount, get_amount_value
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class NFTokenAcceptOffer(Transaction):
     """
     The NFTokenOfferAccept transaction is used to accept offers
