@@ -6,6 +6,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Optional
 
+from typing_extensions import Self
+
 from xrpl.models.currencies import XRP
 from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
@@ -71,7 +73,7 @@ class XChainModifyBridge(Transaction):
         init=False,
     )
 
-    def _get_errors(self: XChainModifyBridge) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
         bridge = self.xchain_bridge

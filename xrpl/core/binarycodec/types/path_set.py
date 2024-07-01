@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional, Type, cast
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -38,7 +38,7 @@ class PathStep(SerializedType):
     """Serialize and deserialize a single step in a Path."""
 
     @classmethod
-    def from_value(cls: Type[PathStep], value: Dict[str, str]) -> PathStep:
+    def from_value(cls: Type[Self], value: Dict[str, str]) -> Self:
         """
         Construct a PathStep object from a dictionary.
 
@@ -72,12 +72,12 @@ class PathStep(SerializedType):
             buffer += bytes(issuer)
             data_type |= _TYPE_ISSUER
 
-        return PathStep(bytes([data_type]) + buffer)
+        return cls(bytes([data_type]) + buffer)
 
     @classmethod
     def from_parser(
-        cls: Type[PathStep], parser: BinaryParser, _length_hint: Optional[None] = None
-    ) -> PathStep:
+        cls: Type[Self], parser: BinaryParser, _length_hint: Optional[None] = None
+    ) -> Self:
         """
         Construct a PathStep object from an existing BinaryParser.
 
@@ -100,9 +100,9 @@ class PathStep(SerializedType):
             issuer = parser.read(AccountID.LENGTH)
             buffer += issuer
 
-        return PathStep(bytes([data_type]) + buffer)
+        return cls(bytes([data_type]) + buffer)
 
-    def to_json(self: PathStep) -> Dict[str, str]:
+    def to_json(self: Self) -> Dict[str, str]:
         """
         Returns the JSON representation of a PathStep.
 
@@ -126,7 +126,7 @@ class PathStep(SerializedType):
         return json
 
     @property
-    def type(self: PathStep) -> int:
+    def type(self: Self) -> int:
         """Get a number representing the type of this PathStep.
 
         Returns:
@@ -140,7 +140,7 @@ class Path(SerializedType):
     """Class for serializing/deserializing Paths."""
 
     @classmethod
-    def from_value(cls: Type[Path], value: List[Dict[str, str]]) -> Path:
+    def from_value(cls: Type[Self], value: List[Dict[str, str]]) -> Self:
         """
         Construct a Path from an array of dictionaries describing PathSteps.
 
@@ -163,12 +163,12 @@ class Path(SerializedType):
         for PathStep_dict in value:
             pathstep = PathStep.from_value(PathStep_dict)
             buffer += bytes(pathstep)
-        return Path(buffer)
+        return cls(buffer)
 
     @classmethod
     def from_parser(
-        cls: Type[Path], parser: BinaryParser, _length_hint: Optional[None] = None
-    ) -> Path:
+        cls: Type[Self], parser: BinaryParser, _length_hint: Optional[None] = None
+    ) -> Self:
         """
         Construct a Path object from an existing BinaryParser.
 
@@ -187,9 +187,9 @@ class Path(SerializedType):
                 bytes, _PATH_SEPARATOR_BYTE
             ):
                 break
-        return Path(b"".join(buffer))
+        return cls(b"".join(buffer))
 
-    def to_json(self: Path) -> List[Dict[str, str]]:
+    def to_json(self: Self) -> List[Dict[str, str]]:
         """
         Returns the JSON representation of a Path.
 
@@ -212,7 +212,7 @@ class PathSet(SerializedType):
     """
 
     @classmethod
-    def from_value(cls: Type[PathSet], value: List[List[Dict[str, str]]]) -> PathSet:
+    def from_value(cls: Type[Self], value: List[List[Dict[str, str]]]) -> Self:
         """
         Construct a PathSet from a List of Lists representing paths.
 
@@ -239,14 +239,14 @@ class PathSet(SerializedType):
                 buffer.append(bytes([_PATH_SEPARATOR_BYTE]))
 
             buffer[-1] = bytes([_PATHSET_END_BYTE])
-            return PathSet(b"".join(buffer))
+            return cls(b"".join(buffer))
 
         raise XRPLBinaryCodecException("Cannot construct PathSet from given value")
 
     @classmethod
     def from_parser(
-        cls: Type[PathSet], parser: BinaryParser, _length_hint: Optional[None] = None
-    ) -> PathSet:
+        cls: Type[Self], parser: BinaryParser, _length_hint: Optional[None] = None
+    ) -> Self:
         """
         Construct a PathSet object from an existing BinaryParser.
 
@@ -264,9 +264,9 @@ class PathSet(SerializedType):
 
             if buffer[-1][0] == _PATHSET_END_BYTE:
                 break
-        return PathSet(b"".join(buffer))
+        return cls(b"".join(buffer))
 
-    def to_json(self: PathSet) -> List[List[Dict[str, str]]]:
+    def to_json(self: Self) -> List[List[Dict[str, str]]]:
         """
         Returns the JSON representation of a PathSet.
 

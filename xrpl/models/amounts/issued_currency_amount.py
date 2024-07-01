@@ -3,10 +3,13 @@ Specifies an amount in an issued currency.
 
 See https://xrpl.org/currency-formats.html#issued-currency-amounts.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Dict, Union
+
+from typing_extensions import Self
 
 from xrpl.models.currencies import IssuedCurrency
 from xrpl.models.required import REQUIRED
@@ -29,7 +32,7 @@ class IssuedCurrencyAmount(IssuedCurrency):
     :meta hide-value:
     """
 
-    def to_currency(self: IssuedCurrencyAmount) -> IssuedCurrency:
+    def to_currency(self: Self) -> IssuedCurrency:
         """
         Build an IssuedCurrency from this IssuedCurrencyAmount.
 
@@ -38,7 +41,7 @@ class IssuedCurrencyAmount(IssuedCurrency):
         """
         return IssuedCurrency(issuer=self.issuer, currency=self.currency)
 
-    def to_dict(self: IssuedCurrencyAmount) -> Dict[str, str]:
+    def to_dict(self: Self) -> Dict[str, str]:
         """
         Returns the dictionary representation of an IssuedCurrencyAmount.
 

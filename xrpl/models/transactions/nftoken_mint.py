@@ -1,11 +1,12 @@
 """Model for NFTokenMint transaction type and related flags."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Optional
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
@@ -110,7 +111,7 @@ class NFTokenMint(Transaction):
         init=False,
     )
 
-    def _get_errors(self: NFTokenMint) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         return {
             key: value
             for key, value in {
@@ -122,17 +123,17 @@ class NFTokenMint(Transaction):
             if value is not None
         }
 
-    def _get_issuer_error(self: NFTokenMint) -> Optional[str]:
+    def _get_issuer_error(self: Self) -> Optional[str]:
         if self.issuer == self.account:
             return "Must not be the same as the account"
         return None
 
-    def _get_transfer_fee_error(self: NFTokenMint) -> Optional[str]:
+    def _get_transfer_fee_error(self: Self) -> Optional[str]:
         if self.transfer_fee is not None and self.transfer_fee > _MAX_TRANSFER_FEE:
             return f"Must not be greater than {_MAX_TRANSFER_FEE}"
         return None
 
-    def _get_uri_error(self: NFTokenMint) -> Optional[str]:
+    def _get_uri_error(self: Self) -> Optional[str]:
         if self.uri is not None and len(self.uri) > _MAX_URI_LENGTH:
             return f"Must not be longer than {_MAX_URI_LENGTH} characters"
         return None

@@ -1,8 +1,11 @@
 """Model for CheckCash transaction type."""
+
 from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
 from typing import Dict, Optional
+
+from typing_extensions import Self
 
 from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
@@ -49,7 +52,7 @@ class CheckCash(Transaction):
         init=False,
     )
 
-    def _get_errors(self: CheckCash) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if not (self.amount is None) ^ (self.deliver_min is None):
             errors[

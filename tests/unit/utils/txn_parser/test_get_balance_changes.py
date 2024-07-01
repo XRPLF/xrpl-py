@@ -33,7 +33,7 @@ with open(path_to_json + "trustline_set_limit2.json", "r") as infile:
 
 
 class TestGetBalanceChanges(TestCase):
-    def test_payment_iou_destination_no_balance(self: TestGetBalanceChanges):
+    def test_payment_iou_destination_no_balance(self):
         actual = get_balance_changes(payment_iou_destination_no_balance["meta"])
         expected = [
             {
@@ -78,7 +78,7 @@ class TestGetBalanceChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_iou_multipath(self: TestGetBalanceChanges):
+    def test_payment_iou_multipath(self):
         actual = get_balance_changes(payment_iou_multipath["meta"])
         expected = [
             {
@@ -173,7 +173,7 @@ class TestGetBalanceChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_iou_redeem_then_issue(self: TestGetBalanceChanges):
+    def test_payment_iou_redeem_then_issue(self):
         actual = get_balance_changes(payment_iou_redeem_then_issue["meta"])
         expected = [
             {
@@ -200,7 +200,7 @@ class TestGetBalanceChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_iou_redeem(self: TestGetBalanceChanges):
+    def test_payment_iou_redeem(self):
         actual = get_balance_changes(payment_iou_redeem["meta"])
         expected = [
             {
@@ -230,7 +230,7 @@ class TestGetBalanceChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_iou_spend_full_balance(self: TestGetBalanceChanges):
+    def test_payment_iou_spend_full_balance(self):
         actual = get_balance_changes(payment_iou_spend_full_balance["meta"])
         expected = [
             {
@@ -275,7 +275,7 @@ class TestGetBalanceChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_iou(self: TestGetBalanceChanges):
+    def test_payment_iou(self):
         actual = get_balance_changes(payment_iou["meta"])
         expected = [
             {
@@ -320,7 +320,7 @@ class TestGetBalanceChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_xrp_create_account(self: TestGetBalanceChanges):
+    def test_payment_xrp_create_account(self):
         actual = get_balance_changes(payment_xrp_create_account["meta"])
         expected = [
             {
@@ -344,7 +344,7 @@ class TestGetBalanceChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_trustline_create(self: TestGetBalanceChanges):
+    def test_trustline_create(self):
         actual = get_balance_changes(trustline_create["meta"])
         expected = [
             {
@@ -374,7 +374,7 @@ class TestGetBalanceChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_trustline_delete(self: TestGetBalanceChanges):
+    def test_trustline_delete(self):
         actual = get_balance_changes(trustline_delete["meta"])
         expected = [
             {
@@ -419,7 +419,7 @@ class TestGetBalanceChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_trustline_set_limit_zero(self: TestGetBalanceChanges):
+    def test_trustline_set_limit_zero(self):
         actual = get_balance_changes(trustline_set_limit_zero["meta"])
         expected = [
             {
@@ -434,7 +434,7 @@ class TestGetBalanceChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_trustline_set_limit(self: TestGetBalanceChanges):
+    def test_trustline_set_limit(self):
         actual = get_balance_changes(trustline_set_limit["meta"])
         expected = [
             {
@@ -449,7 +449,7 @@ class TestGetBalanceChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_trustline_set_limit2(self: TestGetBalanceChanges):
+    def test_trustline_set_limit2(self):
         actual = get_balance_changes(trustline_set_limit2["meta"])
         expected = [
             {

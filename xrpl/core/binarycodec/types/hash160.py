@@ -2,9 +2,12 @@
 of 160 bits (20 bytes).
 `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
 """
+
 from __future__ import annotations
 
 from typing import Type
+
+from typing_extensions import Self
 
 from xrpl.core.binarycodec.types.hash import Hash
 
@@ -17,5 +20,5 @@ class Hash160(Hash):
     """
 
     @classmethod
-    def _get_length(cls: Type[Hash160]) -> int:
+    def _get_length(cls: Type[Self]) -> int:
         return 20

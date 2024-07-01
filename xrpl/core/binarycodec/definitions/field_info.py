@@ -1,5 +1,8 @@
 """Model object for field info from the "fields" section of definitions.json."""
+
 from __future__ import annotations  # Requires Python 3.7+
+
+from typing_extensions import Self
 
 
 class FieldInfo:
@@ -8,7 +11,7 @@ class FieldInfo:
     """
 
     def __init__(
-        self: FieldInfo,
+        self: Self,
         nth: int,
         is_variable_length_encoded: bool,
         is_serialized: bool,

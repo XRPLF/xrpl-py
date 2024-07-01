@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
+from typing_extensions import Self
+
 from xrpl.models.currencies import XRP
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -53,7 +55,7 @@ class XChainCreateBridge(Transaction):
         init=False,
     )
 
-    def _get_errors(self: XChainCreateBridge) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
         bridge = self.xchain_bridge

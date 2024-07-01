@@ -1,7 +1,10 @@
 """Interface for all sync network clients to follow."""
+
 from __future__ import annotations
 
 import asyncio
+
+from typing_extensions import Self
 
 from xrpl.asyncio.clients.client import Client
 from xrpl.models.requests.request import Request
@@ -15,7 +18,7 @@ class SyncClient(Client):
     :meta private:
     """
 
-    def request(self: SyncClient, request: Request) -> Response:
+    def request(self: Self, request: Request) -> Response:
         """
         Makes a request with this client and returns the response.
 

@@ -8,10 +8,13 @@ object.
 
 See https://xrpl.org/currency-formats.html#specifying-currency-amounts
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any, Dict, Type, Union
+
+from typing_extensions import Self
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
@@ -35,7 +38,7 @@ class XRP(BaseModel):
     currency: str = field(default="XRP", init=False)
 
     @classmethod
-    def from_dict(cls: Type[XRP], value: Dict[str, Any]) -> XRP:
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
         """
         Construct a new XRP from a dictionary of parameters.
 
@@ -50,9 +53,9 @@ class XRP(BaseModel):
         """
         if len(value) != 1 or "currency" not in value or value["currency"] != "XRP":
             raise XRPLModelException("Not a valid XRP type")
-        return XRP()
+        return cls()
 
-    def to_dict(self: XRP) -> Dict[str, Any]:
+    def to_dict(self: Self) -> Dict[str, Any]:
         """
         Returns the dictionary representation of an XRP currency object.
 
@@ -61,7 +64,7 @@ class XRP(BaseModel):
         """
         return {**super().to_dict(), "currency": "XRP"}
 
-    def to_amount(self: XRP, value: Union[str, int, float]) -> str:
+    def to_amount(self: Self, value: Union[str, int, float]) -> str:
         """
         Converts value to XRP.
 
@@ -78,7 +81,7 @@ class XRP(BaseModel):
             return xrp_to_drops(float(value))
         return xrp_to_drops(value)
 
-    def __repr__(self: XRP) -> str:
+    def __repr__(self: Self) -> str:
         """
         Generate string representation of XRP.
 

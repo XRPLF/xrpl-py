@@ -1,10 +1,11 @@
 """Model for AMMBid transaction type."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.auth_account import AuthAccount
@@ -66,7 +67,7 @@ class AMMBid(Transaction):
         init=False,
     )
 
-    def _get_errors(self: AMMBid) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         return {
             key: value
             for key, value in {
@@ -76,7 +77,7 @@ class AMMBid(Transaction):
             if value is not None
         }
 
-    def _get_auth_accounts_error(self: AMMBid) -> Optional[str]:
+    def _get_auth_accounts_error(self: Self) -> Optional[str]:
         if (
             self.auth_accounts is not None
             and len(self.auth_accounts) > _MAX_AUTH_ACCOUNTS

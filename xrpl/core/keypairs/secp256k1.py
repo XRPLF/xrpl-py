@@ -1,4 +1,5 @@
 """secp256k1 elliptic curve cryptography interface."""
+
 # The process for using SECP256k1 is complex and more involved than ED25519.
 #
 # See https://xrpl.org/cryptographic-keys.html#secp256k1-key-derivation
@@ -11,7 +12,7 @@ from typing import Callable, Tuple, Type, cast
 from ecpy.curves import Curve  # type: ignore
 from ecpy.ecdsa import ECDSA  # type: ignore
 from ecpy.keys import ECPrivateKey, ECPublicKey  # type: ignore
-from typing_extensions import Final, Literal
+from typing_extensions import Final, Literal, Self
 
 from xrpl.core.keypairs.crypto_implementation import CryptoImplementation
 from xrpl.core.keypairs.exceptions import XRPLKeypairsException
@@ -46,7 +47,7 @@ class SECP256K1(CryptoImplementation):
 
     @classmethod
     def derive_keypair(
-        cls: Type[SECP256K1], decoded_seed: bytes, is_validator: bool
+        cls: Type[Self], decoded_seed: bytes, is_validator: bool
     ) -> Tuple[str, str]:
         """
         Derive the public and private secp256k1 keys from a given seed value.
@@ -76,7 +77,7 @@ class SECP256K1(CryptoImplementation):
         return cls._format_keys(final_public, final_private)
 
     @classmethod
-    def sign(cls: Type[SECP256K1], message: bytes, private_key: str) -> bytes:
+    def sign(cls: Type[Self], message: bytes, private_key: str) -> bytes:
         """
         Signs a message using a given secp256k1 private key.
 
@@ -100,7 +101,7 @@ class SECP256K1(CryptoImplementation):
 
     @classmethod
     def is_valid_message(
-        cls: Type[SECP256K1], message: bytes, signature: bytes, public_key: str
+        cls: Type[Self], message: bytes, signature: bytes, public_key: str
     ) -> bool:
         """
         Verifies the signature on a given message.
@@ -123,7 +124,7 @@ class SECP256K1(CryptoImplementation):
 
     @classmethod
     def _format_keys(
-        cls: Type[SECP256K1], public: ECPublicKey, private: ECPrivateKey
+        cls: Type[Self], public: ECPublicKey, private: ECPrivateKey
     ) -> Tuple[str, str]:
         return (
             cls._format_key(cls._public_key_to_str(public)),
@@ -131,20 +132,20 @@ class SECP256K1(CryptoImplementation):
         )
 
     @classmethod
-    def _format_key(cls: Type[SECP256K1], keystr: str) -> str:
+    def _format_key(cls: Type[Self], keystr: str) -> str:
         return keystr.rjust(_KEY_LENGTH, _PADDING_PREFIX).upper()
 
     @classmethod
-    def _public_key_to_bytes(cls: Type[SECP256K1], key: ECPublicKey) -> bytes:
+    def _public_key_to_bytes(cls: Type[Self], key: ECPublicKey) -> bytes:
         return bytes(_CURVE.encode_point(key.W, compressed=True))
 
     @classmethod
-    def _public_key_to_str(cls: Type[SECP256K1], key: ECPublicKey) -> str:
+    def _public_key_to_str(cls: Type[Self], key: ECPublicKey) -> str:
         return cls._public_key_to_bytes(key).hex()
 
     @classmethod
     def _do_derive_part(
-        cls: Type[SECP256K1], bytes_input: bytes, phase: Literal["root", "mid"]
+        cls: Type[Self], bytes_input: bytes, phase: Literal["root", "mid"]
     ) -> Tuple[ECPublicKey, ECPrivateKey]:
         """
         Given bytes_input determine public/private keypair for a given phase of
@@ -165,7 +166,7 @@ class SECP256K1(CryptoImplementation):
 
     @classmethod
     def _derive_final_pair(
-        cls: Type[SECP256K1],
+        cls: Type[Self],
         root_public: ECPublicKey,
         root_private: ECPrivateKey,
         mid_public: ECPublicKey,
@@ -178,7 +179,7 @@ class SECP256K1(CryptoImplementation):
 
     @classmethod
     def _get_secret(
-        cls: Type[SECP256K1], candidate_merger: Callable[[bytes], bytes]
+        cls: Type[Self], candidate_merger: Callable[[bytes], bytes]
     ) -> bytes:
         """
         Given a function `candidate_merger` that knows how
@@ -202,6 +203,6 @@ class SECP256K1(CryptoImplementation):
         )
 
     @classmethod
-    def _is_secret_valid(cls: Type[SECP256K1], secret: bytes) -> bool:
+    def _is_secret_valid(cls: Type[Self], secret: bytes) -> bool:
         numerical_secret = int.from_bytes(secret, "big")
         return numerical_secret in range(1, _GROUP_ORDER)

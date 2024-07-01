@@ -1,10 +1,11 @@
 """Interface for all network clients to follow."""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
@@ -21,7 +22,7 @@ class Client(ABC):
     :meta private:
     """
 
-    def __init__(self: Client, url: str) -> None:
+    def __init__(self: Self, url: str) -> None:
         """
         Initializes a client.
 
@@ -34,7 +35,7 @@ class Client(ABC):
 
     @abstractmethod
     async def _request_impl(
-        self: Client, request: Request, *, timeout: float = REQUEST_TIMEOUT
+        self: Self, request: Request, *, timeout: float = REQUEST_TIMEOUT
     ) -> Response:
         """
         This is the actual driver for a given Client's request. It must be

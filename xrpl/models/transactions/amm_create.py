@@ -1,10 +1,11 @@
 """Model for AMMCreate transaction type."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
@@ -62,7 +63,7 @@ class AMMCreate(Transaction):
         init=False,
     )
 
-    def _get_errors(self: AMMCreate) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         return {
             key: value
             for key, value in {
@@ -72,7 +73,7 @@ class AMMCreate(Transaction):
             if value is not None
         }
 
-    def _get_trading_fee_error(self: AMMCreate) -> Optional[str]:
+    def _get_trading_fee_error(self: Self) -> Optional[str]:
         if self.trading_fee < 0 or self.trading_fee > AMM_MAX_TRADING_FEE:
             return f"Must be between 0 and {AMM_MAX_TRADING_FEE}"
         return None

@@ -1,10 +1,13 @@
 """Base class for XRPL Hash types.
 `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
 """
+
 from __future__ import annotations  # Requires Python 3.7+
 
 from abc import ABC, abstractmethod
 from typing import Optional, Type
+
+from typing_extensions import Self
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -17,7 +20,7 @@ class Hash(SerializedType, ABC):
     `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
     """
 
-    def __init__(self: Hash, buffer: Optional[bytes]) -> None:
+    def __init__(self: Self, buffer: Optional[bytes]) -> None:
         """
         Construct a Hash.
 
@@ -33,12 +36,12 @@ class Hash(SerializedType, ABC):
             )
         super().__init__(buffer)
 
-    def __str__(self: Hash) -> str:
+    def __str__(self: Self) -> str:
         """Returns a hex-encoded string representation of the bytes buffer."""
         return self.to_hex()
 
     @classmethod
-    def from_value(cls: Type[Hash], value: str) -> Hash:
+    def from_value(cls: Type[Self], value: str) -> Self:
         """
         Construct a Hash object from a hex string.
 
@@ -61,8 +64,8 @@ class Hash(SerializedType, ABC):
 
     @classmethod
     def from_parser(
-        cls: Type[Hash], parser: BinaryParser, length_hint: Optional[int] = None
-    ) -> Hash:
+        cls: Type[Self], parser: BinaryParser, length_hint: Optional[int] = None
+    ) -> Self:
         """
         Construct a Hash object from an existing BinaryParser.
 
@@ -78,5 +81,5 @@ class Hash(SerializedType, ABC):
 
     @classmethod
     @abstractmethod
-    def _get_length(cls: Type[Hash]) -> int:
+    def _get_length(cls: Type[Self]) -> int:
         pass

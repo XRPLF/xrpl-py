@@ -1,9 +1,12 @@
 """Model for AMMDeposit transaction type."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Optional
+
+from typing_extensions import Self
 
 from xrpl.models.amounts import Amount, IssuedCurrencyAmount
 from xrpl.models.currencies import Currency
@@ -94,7 +97,7 @@ class AMMDeposit(Transaction):
         init=False,
     )
 
-    def _get_errors(self: AMMDeposit) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.amount2 is not None and self.amount is None:
             errors["AMMDeposit"] = "Must set `amount` with `amount2`"

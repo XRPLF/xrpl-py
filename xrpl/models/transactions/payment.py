@@ -1,9 +1,12 @@
 """Model for Payment transaction type and related flags."""
+
 from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional
+
+from typing_extensions import Self
 
 from xrpl.models.amounts import Amount, is_xrp
 from xrpl.models.flags import FlagInterface
@@ -126,7 +129,7 @@ class Payment(Transaction):
         init=False,
     )
 
-    def _get_errors(self: Payment) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
         # XRP transaction errors

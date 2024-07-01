@@ -8,6 +8,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
+from typing_extensions import Self
+
 from xrpl.models.requests.ledger_entry import Oracle
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
@@ -41,7 +43,7 @@ class GetAggregatePrice(Request):
     """Defines a time range in seconds for filtering out older price data. Default
     value is 0, which doesn't filter any data"""
 
-    def _get_errors(self: GetAggregatePrice) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if len(self.oracles) == 0:
             errors[
