@@ -219,7 +219,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
         if self.is_open():
             await self._do_close()
 
-    async def __aenter__(self: Self) -> AsyncWebsocketClient:
+    async def __aenter__(self: Self) -> Self:
         """
         Enters an async context after opening itself.
 

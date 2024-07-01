@@ -138,7 +138,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
         self._loop = None
         self._thread = None
 
-    def __enter__(self: Self) -> WebsocketClient:
+    def __enter__(self: Self) -> Self:
         """
         Enters a context after opening itself.
 
@@ -163,7 +163,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
         a message is received. If no message is received within
         `self.timeout` seconds then the iterator will exit. If
         `self.timeout` is `None` or `0` then the iterator will block
-        indefinetly for the next messsage.
+        indefinitely for the next message.
 
         Yields:
             The message at the top of the queue.
