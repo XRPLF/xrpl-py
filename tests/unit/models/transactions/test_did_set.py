@@ -58,6 +58,10 @@ class TestDIDSet(TestCase):
             DIDSet(
                 account=_ACCOUNT,
             )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'did_set': 'Must have one of `did_document`, `data`, and `uri`.'}",
+        )
 
     def test_create_did_object_all_empty_fields(self):
         with self.assertRaises(XRPLModelException):
