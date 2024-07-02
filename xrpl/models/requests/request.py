@@ -12,7 +12,7 @@ import xrpl.models.requests  # bare import to get around circular dependency
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class RequestMethod(str, Enum):
@@ -60,7 +60,7 @@ class RequestMethod(str, Enum):
     NFT_SELL_OFFERS = "nft_sell_offers"
     NFT_INFO = "nft_info"  # clio only
     NFT_HISTORY = "nft_history"  # clio only
-
+    NFTS_BY_ISSUER = "nfts_by_issuer"  # clio only
     # subscription methods
     SUBSCRIBE = "subscribe"
     UNSUBSCRIBE = "unsubscribe"
@@ -79,6 +79,9 @@ class RequestMethod(str, Enum):
     # amm methods
     AMM_INFO = "amm_info"
 
+    # price oracle methods
+    GET_AGGREGATE_PRICE = "get_aggregate_price"
+
     # generic unknown/unsupported request
     # (there is no XRPL analog, this model is specific to xrpl-py)
     GENERIC_REQUEST = "zzgeneric_request"
@@ -87,7 +90,7 @@ class RequestMethod(str, Enum):
 R = TypeVar("R", bound="Request")
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Request(BaseModel):
     """
     The base class for all network request types.
@@ -167,7 +170,8 @@ class Request(BaseModel):
             return xrpl.models.requests.NFTInfo
         if method == RequestMethod.NFT_HISTORY:
             return xrpl.models.requests.NFTHistory
-
+        if method == RequestMethod.NFTS_BY_ISSUER:
+            return xrpl.models.requests.NFTsByIssuer
         parsed_name = "".join([word.capitalize() for word in method.split("_")])
         if parsed_name in xrpl.models.requests.__all__:
             return cast(Type[Request], getattr(xrpl.models.requests, parsed_name))
@@ -186,7 +190,7 @@ class Request(BaseModel):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class LookupByLedgerRequest:
     """Represents requests that need specifying an instance of the ledger"""
 

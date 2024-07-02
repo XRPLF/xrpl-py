@@ -17,7 +17,7 @@ from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
 from xrpl.models.types import XRPL_VALUE_TYPE
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
 
@@ -73,7 +73,7 @@ def _value_to_tx_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Memo(NestedModel):
     """
     An arbitrary piece of data attached to a transaction. A transaction can
@@ -118,7 +118,7 @@ class Memo(NestedModel):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Signer(NestedModel):
     """
     One Signer in a multi-signature. A multi-signed transaction can have an
@@ -156,7 +156,7 @@ T = TypeVar("T", bound="Transaction")  # any type inherited from Transaction
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Transaction(BaseModel):
     """
     The base class for all `transaction types
@@ -468,3 +468,45 @@ class Transaction(BaseModel):
             The formatted transaction.
         """
         return Transaction.from_xrpl(decode(tx_blob))
+
+    @classmethod
+    def from_xrpl(cls: Type[T], value: Union[str, Dict[str, Any]]) -> T:
+        """
+        Creates a Transaction object based on a JSON or JSON-string representation of
+        data
+
+        In Payment transactions, the DeliverMax field is renamed to the Amount field.
+
+        Args:
+            value: The dictionary or JSON string to be instantiated.
+
+        Returns:
+            A Transaction object instantiated from the input.
+
+        Raises:
+            XRPLModelException: If Payment transactions have different values for
+                                amount and deliver_max fields
+        """
+        processed_value = cls._process_xrpl_json(value)
+
+        # handle the deliver_max alias in Payment transactions
+        if (
+            "transaction_type" in processed_value
+            and processed_value["transaction_type"] == "Payment"
+        ) and "deliver_max" in processed_value:
+            if (
+                "amount" in processed_value
+                and processed_value["amount"] != processed_value["deliver_max"]
+            ):
+                raise XRPLModelException(
+                    "Error: amount and deliver_max fields must be equal if both are "
+                    + "provided"
+                )
+            else:
+                processed_value["amount"] = processed_value["deliver_max"]
+
+            # deliver_max field is not recognised in the Payment Request format,
+            # nor is it supported in the serialization operations.
+            del processed_value["deliver_max"]
+
+        return cls.from_dict(processed_value)

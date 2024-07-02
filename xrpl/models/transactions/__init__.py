@@ -54,6 +54,8 @@ from xrpl.models.transactions.offer_create import (
     OfferCreateFlag,
     OfferCreateFlagInterface,
 )
+from xrpl.models.transactions.oracle_delete import OracleDelete
+from xrpl.models.transactions.oracle_set import OracleSet
 from xrpl.models.transactions.payment import Payment, PaymentFlag, PaymentFlagInterface
 from xrpl.models.transactions.payment_channel_claim import (
     PaymentChannelClaim,
@@ -131,6 +133,8 @@ __all__ = [
     "OfferCreate",
     "OfferCreateFlag",
     "OfferCreateFlagInterface",
+    "OracleDelete",
+    "OracleSet",
     "Payment",
     "PaymentChannelClaim",
     "PaymentChannelClaimFlag",
