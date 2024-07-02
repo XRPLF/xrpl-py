@@ -88,7 +88,7 @@ class TestTrustSet(IntegrationTestCase):
                     value="100",
                 ),
             )
-            self.assertEqual(
-                error.exception.args[0],
-                "{'currency': 'Invalid currency abcd'}",
-            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'currency': 'Invalid currency abcd'}",
+        )
