@@ -29,10 +29,10 @@ class TestAMMVote(TestCase):
                 asset2=_ASSET2,
                 trading_fee=maxsize,
             )
-            self.assertEqual(
-                error.exception.args[0],
-                "{'trading_fee': 'Must be between 0 and 1000'}",
-            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'trading_fee': 'Must be between 0 and 1000'}",
+        )
 
     def test_trading_fee_negative_number(self):
         with self.assertRaises(XRPLModelException) as error:
@@ -42,7 +42,7 @@ class TestAMMVote(TestCase):
                 asset2=_ASSET2,
                 trading_fee=-1,
             )
-            self.assertEqual(
-                error.exception.args[0],
-                "{'trading_fee': 'Must be between 0 and 1000'}",
-            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'trading_fee': 'Must be between 0 and 1000'}",
+        )
