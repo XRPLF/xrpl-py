@@ -11,15 +11,11 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, Optional, Union
 
-from typing_extensions import Final
-
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions import PaymentFlag
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
-
-DEFAULT_API_VERSION: Final[int] = 2
 
 
 class ResponseStatus(str, Enum):

@@ -9,12 +9,15 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, Optional, Type, TypeVar, Union, cast
 
+from typing_extensions import Final
+
 import xrpl.models.requests  # bare import to get around circular dependency
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
-from xrpl.models.response import DEFAULT_API_VERSION
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+
+DEFAULT_API_VERSION: Final[int] = 2
 
 
 class RequestMethod(str, Enum):

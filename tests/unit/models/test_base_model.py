@@ -16,7 +16,7 @@ from xrpl.models.requests import (
     SubmitMultisigned,
     SubmitOnly,
 )
-from xrpl.models.response import DEFAULT_API_VERSION
+from xrpl.models.requests.request import DEFAULT_API_VERSION
 from xrpl.models.transactions import (
     AMMBid,
     AuthAccount,

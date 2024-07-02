@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from xrpl.models.requests import Fee, GenericRequest
-from xrpl.models.response import DEFAULT_API_VERSION
+from xrpl.models.requests.request import DEFAULT_API_VERSION
 
 
 class TestRequest(TestCase):
