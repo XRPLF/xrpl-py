@@ -68,12 +68,12 @@ class RequestMethod(str, Enum):
     UNSUBSCRIBE = "unsubscribe"
 
     # server info methods
+    FEATURE = "feature"
     FEE = "fee"
     MANIFEST = "manifest"
     SERVER_DEFINITIONS = "server_definitions"
     SERVER_INFO = "server_info"
     SERVER_STATE = "server_state"
-    FEATURE = "feature"
 
     # utility methods
     PING = "ping"
