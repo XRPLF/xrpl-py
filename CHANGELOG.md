@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add support for the DeliverMax field in Payment transactions
 
 ### Added
-- Update all requests to use rippled API v2 responses
+- Use rippled API v2 as default in requests
 
 ## [2.6.0] - 2024-06-03
 
