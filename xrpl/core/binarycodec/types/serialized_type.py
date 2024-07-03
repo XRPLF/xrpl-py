@@ -1,8 +1,11 @@
 """The base class for all binary codec field types."""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Type
+
+from typing_extensions import Self
 
 if TYPE_CHECKING:
     # To prevent a circular dependency.
@@ -12,28 +15,26 @@ if TYPE_CHECKING:
 class SerializedType(ABC):
     """The base class for all binary codec field types."""
 
-    def __init__(self: SerializedType, buffer: bytes = bytes()) -> None:
+    def __init__(self: Self, buffer: bytes = bytes()) -> None:
         """Construct a new SerializedType."""
         self.buffer = buffer
 
     @classmethod
     @abstractmethod
     def from_parser(  # noqa: D102
-        cls: Type[SerializedType],
+        cls: Type[Self],
         parser: BinaryParser,
         # length_hint is Any so that subclasses can choose whether or not to require it.
         length_hint: Any,
-    ) -> SerializedType:
+    ) -> Self:
         pass
 
     @classmethod
     @abstractmethod
-    def from_value(  # noqa: D102
-        cls: Type[SerializedType], value: Any
-    ) -> SerializedType:
+    def from_value(cls: Type[Self], value: Any) -> Self:  # noqa: D102
         pass
 
-    def to_byte_sink(self: SerializedType, bytesink: bytearray) -> None:
+    def to_byte_sink(self: Self, bytesink: bytearray) -> None:
         """
         Write the bytes representation of a SerializedType to a bytearray.
 
@@ -44,7 +45,7 @@ class SerializedType(ABC):
         """
         bytesink.extend(self.buffer)
 
-    def __bytes__(self: SerializedType) -> bytes:
+    def __bytes__(self: Self) -> bytes:
         """
         Get the bytes representation of a SerializedType.
 
@@ -53,7 +54,7 @@ class SerializedType(ABC):
         """
         return self.buffer
 
-    def to_json(self: SerializedType) -> Any:
+    def to_json(self: Self) -> Any:
         """
         Returns the JSON representation of a SerializedType.
 
@@ -64,7 +65,7 @@ class SerializedType(ABC):
         """
         return self.to_hex()
 
-    def __str__(self: SerializedType) -> str:
+    def __str__(self: Self) -> str:
         """
         Returns the hex string representation of self.buffer.
 
@@ -73,7 +74,7 @@ class SerializedType(ABC):
         """
         return self.to_hex()
 
-    def to_hex(self: SerializedType) -> str:
+    def to_hex(self: Self) -> str:
         """
         Get the hex representation of a SerializedType's bytes.
 
@@ -82,6 +83,6 @@ class SerializedType(ABC):
         """
         return self.buffer.hex().upper()
 
-    def __len__(self: SerializedType) -> int:
+    def __len__(self: Self) -> int:
         """Get the length of a SerializedType's bytes."""
         return len(self.buffer)

@@ -1,9 +1,12 @@
 """Model for NFTokenCreateOffer transaction type and related flag."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Optional
+
+from typing_extensions import Self
 
 from xrpl.models.amounts import Amount, get_amount_value
 from xrpl.models.flags import FlagInterface
@@ -93,7 +96,7 @@ class NFTokenCreateOffer(Transaction):
         init=False,
     )
 
-    def _get_errors(self: NFTokenCreateOffer) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         return {
             key: value
             for key, value in {
@@ -105,7 +108,7 @@ class NFTokenCreateOffer(Transaction):
             if value is not None
         }
 
-    def _get_amount_error(self: NFTokenCreateOffer) -> Optional[str]:
+    def _get_amount_error(self: Self) -> Optional[str]:
         if (
             not self.has_flag(NFTokenCreateOfferFlag.TF_SELL_NFTOKEN)
             and get_amount_value(self.amount) <= 0
@@ -113,12 +116,12 @@ class NFTokenCreateOffer(Transaction):
             return "Must be greater than 0 for a buy offer"
         return None
 
-    def _get_destination_error(self: NFTokenCreateOffer) -> Optional[str]:
+    def _get_destination_error(self: Self) -> Optional[str]:
         if self.destination == self.account:
             return "Must not be equal to the account"
         return None
 
-    def _get_owner_error(self: NFTokenCreateOffer) -> Optional[str]:
+    def _get_owner_error(self: Self) -> Optional[str]:
         if (
             not self.has_flag(NFTokenCreateOfferFlag.TF_SELL_NFTOKEN)
             and self.owner is None

@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict
 
+from typing_extensions import Self
+
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -59,7 +61,7 @@ class XChainAccountCreateCommit(Transaction):
         init=False,
     )
 
-    def _get_errors(self: XChainAccountCreateCommit) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
         if self.signature_reward != REQUIRED and not self.signature_reward.isnumeric():

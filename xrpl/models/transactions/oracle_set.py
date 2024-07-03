@@ -6,6 +6,8 @@ import datetime
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
+from typing_extensions import Self
+
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -88,7 +90,7 @@ class OracleSet(Transaction):
         init=False,
     )
 
-    def _get_errors(self: OracleSet) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
         # If price_data_series is not set, do not perform further validation
