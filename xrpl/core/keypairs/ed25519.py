@@ -1,4 +1,5 @@
 """Ed25519 elliptic curve cryptography interface."""
+
 from __future__ import annotations
 
 from hashlib import sha512
@@ -7,7 +8,7 @@ from typing import Tuple, Type, cast
 from ecpy.curves import Curve  # type: ignore
 from ecpy.eddsa import EDDSA  # type: ignore
 from ecpy.keys import ECPrivateKey, ECPublicKey  # type: ignore
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.core.keypairs.crypto_implementation import CryptoImplementation
 from xrpl.core.keypairs.exceptions import XRPLKeypairsException
@@ -23,7 +24,7 @@ class ED25519(CryptoImplementation):
 
     @classmethod
     def derive_keypair(
-        cls: Type[ED25519], decoded_seed: bytes, is_validator: bool
+        cls: Type[Self], decoded_seed: bytes, is_validator: bool
     ) -> Tuple[str, str]:
         """
         Derives a key pair in Ed25519 format for use with the XRP Ledger from a
@@ -54,7 +55,7 @@ class ED25519(CryptoImplementation):
         )
 
     @classmethod
-    def sign(cls: Type[ED25519], message: bytes, private_key: str) -> bytes:
+    def sign(cls: Type[Self], message: bytes, private_key: str) -> bytes:
         """
         Signs a message using a given Ed25519 private key.
 
@@ -71,7 +72,7 @@ class ED25519(CryptoImplementation):
 
     @classmethod
     def is_valid_message(
-        cls: Type[ED25519], message: bytes, signature: bytes, public_key: str
+        cls: Type[Self], message: bytes, signature: bytes, public_key: str
     ) -> bool:
         """
         Verifies the signature on a given message.
@@ -91,11 +92,11 @@ class ED25519(CryptoImplementation):
         return cast(bool, _SIGNER.verify(message, signature, wrapped_public))
 
     @classmethod
-    def _public_key_to_str(cls: Type[ED25519], key: ECPublicKey) -> str:
+    def _public_key_to_str(cls: Type[Self], key: ECPublicKey) -> str:
         return cast(str, _CURVE.encode_point(key.W).hex())
 
     @classmethod
-    def _format_key(cls: Type[ED25519], keystr: str) -> str:
+    def _format_key(cls: Type[Self], keystr: str) -> str:
         if len(keystr) < 64:
             keystr = keystr.zfill(64)
         return (PREFIX + keystr).upper()

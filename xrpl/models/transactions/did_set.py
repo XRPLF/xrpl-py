@@ -6,17 +6,17 @@ import re
 from dataclasses import dataclass, field
 from typing import Dict, Optional, Pattern
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]+")
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class DIDSet(Transaction):
     """Represents a DIDSet transaction."""
 
@@ -29,7 +29,7 @@ class DIDSet(Transaction):
         init=False,
     )
 
-    def _get_errors(self: DIDSet) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
         if self.did_document is None and self.data is None and self.uri is None:

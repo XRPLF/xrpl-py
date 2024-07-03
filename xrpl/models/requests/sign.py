@@ -20,15 +20,17 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional, Type
 
+from typing_extensions import Self
+
 from xrpl.constants import CryptoAlgorithm
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Sign(Request):
     """
     The sign method takes a transaction in JSON format and a seed value, and returns a
@@ -66,7 +68,7 @@ class Sign(Request):
     fee_div_max: int = 1
 
     @classmethod
-    def from_dict(cls: Type[Sign], value: Dict[str, Any]) -> Sign:
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
         """
         Construct a new Sign from a dictionary of parameters.
 
@@ -83,7 +85,7 @@ class Sign(Request):
             fixed_value = value
         return super(Sign, cls).from_dict(fixed_value)
 
-    def to_dict(self: Sign) -> Dict[str, Any]:
+    def to_dict(self: Self) -> Dict[str, Any]:
         """
         Returns the dictionary representation of a Sign.
 
@@ -95,7 +97,7 @@ class Sign(Request):
         return_dict["tx_json"] = self.transaction.to_xrpl()
         return return_dict
 
-    def _get_errors(self: Sign) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if not self._has_only_one_seed():
             errors[
@@ -107,7 +109,7 @@ class Sign(Request):
 
         return errors
 
-    def _has_only_one_seed(self: Sign) -> bool:
+    def _has_only_one_seed(self: Self) -> bool:
         present_items = [
             item
             for item in [self.secret, self.seed, self.seed_hex, self.passphrase]

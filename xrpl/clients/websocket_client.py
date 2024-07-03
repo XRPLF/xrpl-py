@@ -1,4 +1,5 @@
 """A sync client for interacting with the rippled WebSocket API."""
+
 from __future__ import annotations
 
 import asyncio
@@ -6,6 +7,8 @@ from concurrent.futures import CancelledError, TimeoutError
 from threading import Thread
 from types import TracebackType
 from typing import Any, Dict, Iterator, Optional, Type, Union, cast
+
+from typing_extensions import Self
 
 from xrpl.asyncio.clients.client import REQUEST_TIMEOUT
 from xrpl.asyncio.clients.exceptions import XRPLWebsocketException
@@ -66,7 +69,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
     """
 
     def __init__(
-        self: WebsocketClient, url: str, timeout: Optional[Union[int, float]] = None
+        self: Self, url: str, timeout: Optional[Union[int, float]] = None
     ) -> None:
         """
         Constructs a WebsocketClient.
@@ -82,7 +85,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
         self._thread: Optional[Thread] = None
         super().__init__(url)
 
-    def is_open(self: WebsocketClient) -> bool:
+    def is_open(self: Self) -> bool:
         """
         Returns whether the client is currently open.
 
@@ -91,7 +94,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
         """
         return self._loop is not None and self._thread is not None and super().is_open()
 
-    def open(self: WebsocketClient) -> None:
+    def open(self: Self) -> None:
         """Connects the client to the Web Socket API at the given URL."""
         if self.is_open():
             return
@@ -110,7 +113,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
         # wait for it to finish
         asyncio.run_coroutine_threadsafe(self._do_open(), self._loop).result()
 
-    def close(self: WebsocketClient) -> None:
+    def close(self: Self) -> None:
         """Closes the connection."""
         if not self.is_open():
             return
@@ -135,7 +138,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
         self._loop = None
         self._thread = None
 
-    def __enter__(self: WebsocketClient) -> WebsocketClient:
+    def __enter__(self: Self) -> Self:
         """
         Enters a context after opening itself.
 
@@ -146,7 +149,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
         return self
 
     def __exit__(
-        self: WebsocketClient,
+        self: Self,
         _exc_type: Type[BaseException],
         _exc_val: BaseException,
         _trace: TracebackType,
@@ -154,13 +157,13 @@ class WebsocketClient(SyncClient, WebsocketBase):
         """Exits a context after closing itself."""
         self.close()
 
-    def __iter__(self: WebsocketClient) -> Iterator[Dict[str, Any]]:
+    def __iter__(self: Self) -> Iterator[Dict[str, Any]]:
         """
         Iterate on received messages. This iterator will block until
         a message is received. If no message is received within
         `self.timeout` seconds then the iterator will exit. If
         `self.timeout` is `None` or `0` then the iterator will block
-        indefinetly for the next messsage.
+        indefinitely for the next message.
 
         Yields:
             The message at the top of the queue.
@@ -181,7 +184,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
                 # stop listening but don't need to cancel it
                 break
 
-    def send(self: WebsocketClient, request: Request) -> None:
+    def send(self: Self, request: Request) -> None:
         """
         Submit the request represented by the request to the
         rippled node specified by this client's URL. Unlike ``request``,
@@ -202,7 +205,7 @@ class WebsocketClient(SyncClient, WebsocketBase):
         ).result()
 
     async def _request_impl(
-        self: WebsocketClient, request: Request, *, timeout: float = REQUEST_TIMEOUT
+        self: Self, request: Request, *, timeout: float = REQUEST_TIMEOUT
     ) -> Response:
         """
         ``_request_impl`` implementation for sync websockets that ensures the

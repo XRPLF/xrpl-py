@@ -1,17 +1,20 @@
 """Model for EscrowFinish transaction type."""
+
 from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
+from typing_extensions import Self
+
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class EscrowFinish(Transaction):
     """
     Represents an `EscrowFinish <https://xrpl.org/escrowfinish.html>`_
@@ -52,7 +55,7 @@ class EscrowFinish(Transaction):
         init=False,
     )
 
-    def _get_errors(self: EscrowFinish) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.condition and not self.fulfillment:
             errors[

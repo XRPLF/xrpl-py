@@ -17,7 +17,7 @@ with open(path_to_json + "offer_with_expiration.json", "r") as infile:
 
 
 class TestGetOrderBookChanges(TestCase):
-    def test_offer_created(self: TestGetOrderBookChanges):
+    def test_offer_created(self):
         actual = get_order_book_changes(offer_created["meta"])
         expected = [
             {
@@ -41,7 +41,7 @@ class TestGetOrderBookChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_offer_partially_filled_and_filled(self: TestGetOrderBookChanges):
+    def test_offer_partially_filled_and_filled(self):
         actual = get_order_book_changes(offer_partially_filled_and_filled["meta"])
         expected = [
             {
@@ -89,7 +89,7 @@ class TestGetOrderBookChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_offer_cancelled(self: TestGetOrderBookChanges):
+    def test_offer_cancelled(self):
         actual = get_order_book_changes(offer_cancelled["meta"])
         expected = [
             {
@@ -112,7 +112,7 @@ class TestGetOrderBookChanges(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_offer_with_expiration(self: TestGetOrderBookChanges):
+    def test_offer_with_expiration(self):
         actual = get_order_book_changes(offer_with_expiration["meta"])
         expected = [
             {
