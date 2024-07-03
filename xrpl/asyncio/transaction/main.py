@@ -232,8 +232,7 @@ async def autofill(
         The autofilled transaction.
     """
     transaction_json = transaction.to_dict()
-    if not client.network_id:
-        await get_network_id_and_build_version(client)
+    await get_network_id_and_build_version(client)
     if "network_id" not in transaction_json and _tx_needs_networkID(client):
         transaction_json["network_id"] = client.network_id
     if "sequence" not in transaction_json:

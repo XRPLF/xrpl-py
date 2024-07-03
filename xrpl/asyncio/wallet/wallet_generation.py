@@ -59,8 +59,7 @@ async def generate_faucet_wallet(
 
     .. # noqa: DAR402 exception raised in private method
     """
-    if not client.network_id:
-        await get_network_id_and_build_version(client)
+    await get_network_id_and_build_version(client)
 
     if faucet_host is not None:
         faucet_url = process_faucet_host_url(faucet_host)
