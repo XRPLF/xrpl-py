@@ -62,3 +62,15 @@ class TestDIDSet(TestCase):
             error.exception.args[0],
             "{'did_set': 'Must have one of `did_document`, `data`, and `uri`.'}",
         )
+
+    def test_create_did_object_all_empty_fields(self):
+        with self.assertRaises(XRPLModelException):
+            DIDSet(account=_ACCOUNT, data="", did_document="", uri="")
+
+    def test_empty_data_field(self):
+        # create a valid DID object
+        tx = DIDSet(
+            account=_ACCOUNT,
+            data="",
+        )
+        self.assertTrue(tx.is_valid())
