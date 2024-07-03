@@ -264,13 +264,9 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     binary: bool = False
     nft_page: Optional[str] = None
     """Must be the object ID of the NFToken page, as hexadecimal"""
-<<<<<<< HEAD
     include_deleted: Optional[bool] = None
-    def _get_errors(self: LedgerEntry) -> Dict[str, str]:
-=======
 
     def _get_errors(self: Self) -> Dict[str, str]:
->>>>>>> upstream/main
         errors = super()._get_errors()
         query_params = [
             param
