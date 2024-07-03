@@ -3,9 +3,12 @@ Codec for serializing and deserializing a hash field with a width
 of 128 bits (16 bytes).
 `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
 """
+
 from __future__ import annotations
 
 from typing import Optional, Type
+
+from typing_extensions import Self
 
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.hash import Hash
@@ -18,7 +21,7 @@ class Hash128(Hash):
     `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
     """
 
-    def __init__(self: Hash128, buffer: Optional[bytes]) -> None:
+    def __init__(self: Self, buffer: Optional[bytes]) -> None:
         """
         Construct a Hash128.
 
@@ -38,7 +41,7 @@ class Hash128(Hash):
             )
         super().__init__(buffer)
 
-    def __str__(self: Hash128) -> str:
+    def __str__(self: Self) -> str:
         """Returns a hex-encoded string representation of the bytes buffer."""
         hex = self.to_hex()
         if hex == "0" * len(hex):
@@ -46,5 +49,5 @@ class Hash128(Hash):
         return hex
 
     @classmethod
-    def _get_length(cls: Type[Hash128]) -> int:
+    def _get_length(cls: Type[Self]) -> int:
         return 16

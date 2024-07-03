@@ -2,9 +2,12 @@
 Codec for serializing and deserializing blob fields.
 See `Blob Fields <https://xrpl.org/serialization.html#blob-fields>`_
 """
+
 from __future__ import annotations
 
 from typing import Type
+
+from typing_extensions import Self
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -17,12 +20,12 @@ class Blob(SerializedType):
     See `Blob Fields <https://xrpl.org/serialization.html#blob-fields>`_
     """
 
-    def __init__(self: Blob, buffer: bytes) -> None:
+    def __init__(self: Self, buffer: bytes) -> None:
         """Construct a new Blob type from a ``bytes`` value."""
         super().__init__(buffer)
 
     @classmethod
-    def from_parser(cls: Type[Blob], parser: BinaryParser, length_hint: int) -> Blob:
+    def from_parser(cls: Type[Self], parser: BinaryParser, length_hint: int) -> Self:
         """
         Defines how to read a Blob from a BinaryParser.
 
@@ -36,7 +39,7 @@ class Blob(SerializedType):
         return cls(parser.read(length_hint))
 
     @classmethod
-    def from_value(cls: Type[Blob], value: str) -> Blob:
+    def from_value(cls: Type[Self], value: str) -> Self:
         """
         Create a Blob object from a hex-string.
 
