@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Type, TypeVar, Union
+from typing import Any, Dict, Type, Union
+
+from typing_extensions import Self
 
 from xrpl.models.base_model import BaseModel, _key_to_json
-
-NM = TypeVar("NM", bound="NestedModel")  # any type inherited from NestedModel
 
 
 def _get_nested_name(cls: Union[NestedModel, Type[NestedModel]]) -> str:
@@ -21,7 +21,7 @@ class NestedModel(BaseModel):
     """The base class for models that involve a nested dictionary e.g. memos."""
 
     @classmethod
-    def is_dict_of_model(cls: Type[NM], dictionary: Any) -> bool:
+    def is_dict_of_model(cls: Type[Self], dictionary: Any) -> bool:
         """
         Returns True if the input dictionary was derived by the `to_dict`
         method of an instance of this class. In other words, True if this is
@@ -45,7 +45,7 @@ class NestedModel(BaseModel):
         )
 
     @classmethod
-    def from_dict(cls: Type[NM], value: Dict[str, Any]) -> NM:
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
         """
         Construct a new NestedModel from a dictionary of parameters.
 
@@ -62,7 +62,7 @@ class NestedModel(BaseModel):
             return super(NestedModel, cls).from_dict(value)
         return super(NestedModel, cls).from_dict(value[_get_nested_name(cls)])
 
-    def to_dict(self: NestedModel) -> Dict[str, Any]:
+    def to_dict(self: Self) -> Dict[str, Any]:
         """
         Returns the dictionary representation of a NestedModel.
 

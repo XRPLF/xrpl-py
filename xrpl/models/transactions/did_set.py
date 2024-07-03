@@ -6,7 +6,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Dict, Optional, Pattern
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -47,7 +47,7 @@ class DIDSet(Transaction):
         init=False,
     )
 
-    def _get_errors(self: DIDSet) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
         if self.did_document is None and self.data is None and self.uri is None:

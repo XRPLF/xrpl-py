@@ -1,8 +1,11 @@
 """Model for NFTokenAcceptOffer transaction type."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Dict, Optional
+
+from typing_extensions import Self
 
 from xrpl.models.amounts import Amount, get_amount_value
 from xrpl.models.transactions.transaction import Transaction
@@ -75,7 +78,7 @@ class NFTokenAcceptOffer(Transaction):
         init=False,
     )
 
-    def _get_errors(self: NFTokenAcceptOffer) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         return {
             key: value
             for key, value in {
@@ -87,21 +90,21 @@ class NFTokenAcceptOffer(Transaction):
             if value is not None
         }
 
-    def _get_nftoken_sell_offer_error(self: NFTokenAcceptOffer) -> Optional[str]:
+    def _get_nftoken_sell_offer_error(self: Self) -> Optional[str]:
         if self.nftoken_broker_fee is not None and self.nftoken_sell_offer is None:
             return "Must be set if using brokered mode"
         if self.nftoken_sell_offer is None and self.nftoken_buy_offer is None:
             return "Must set either nftoken_buy_offer or nftoken_sell_offer"
         return None
 
-    def _get_nftoken_buy_offer_error(self: NFTokenAcceptOffer) -> Optional[str]:
+    def _get_nftoken_buy_offer_error(self: Self) -> Optional[str]:
         if self.nftoken_broker_fee is not None and self.nftoken_buy_offer is None:
             return "Must be set if using brokered mode"
         if self.nftoken_sell_offer is None and self.nftoken_buy_offer is None:
             return "Must set either nftoken_buy_offer or nftoken_sell_offer"
         return None
 
-    def _get_nftoken_broker_fee_error(self: NFTokenAcceptOffer) -> Optional[str]:
+    def _get_nftoken_broker_fee_error(self: Self) -> Optional[str]:
         if (
             self.nftoken_broker_fee is not None
             and get_amount_value(self.nftoken_broker_fee) <= 0
