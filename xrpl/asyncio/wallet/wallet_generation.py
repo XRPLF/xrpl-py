@@ -61,7 +61,16 @@ async def generate_faucet_wallet(
     """
     if not client.network_id:
         await get_network_id_and_build_version(client)
-    faucet_url = get_faucet_url(client.network_id, faucet_host)
+
+    if faucet_host is not None:
+        faucet_url = process_faucet_host_url(faucet_host)
+    else:
+        if client.network_id is None:
+            raise XRPLFaucetException(
+                "Cannot create faucet URL without network_id or the faucet_host "
+                + "information"
+            )
+        faucet_url = get_faucet_url(client.network_id)
 
     if wallet is None:
         wallet = Wallet.create()
@@ -154,17 +163,13 @@ def process_faucet_host_url(input_url: str) -> str:
     return final_url
 
 
-def get_faucet_url(network_id: Optional[int], faucet_host: Optional[str] = None) -> str:
+def get_faucet_url(network_id: int) -> str:
     """
-    Returns the URL of the faucet that should be used, based on network_id and
-    faucet_host
+    Returns the URL of the faucet that should be used, based on network_id
 
     Args:
         network_id: The network_id corresponding to the XRPL network. This is parsed
             from a ServerInfo() rippled response
-        faucet_host: A custom host to use for funding a wallet. This is useful because
-            network_id of sidechains might not be well-known. If faucet_url cannot be
-            gleaned from network_id alone, faucet_host is used
 
     Returns:
         The URL of the matching faucet.
@@ -173,22 +178,17 @@ def get_faucet_url(network_id: Optional[int], faucet_host: Optional[str] = None)
         XRPLFaucetException: if the provided network_id does not correspond to testnet
             or devnet.
     """
-    if faucet_host is not None:
-        return process_faucet_host_url(faucet_host)
+    if network_id == 1:
+        return _TEST_FAUCET_URL
+    elif network_id == 2:
+        return _DEV_FAUCET_URL
+    elif network_id == 0:
+        raise XRPLFaucetException("Cannot create faucet with a client on mainnet.")
+    elif network_id < 0:
+        raise XRPLFaucetException("Unable to parse the specified network_id.")
 
-    if network_id is not None:
-        if network_id == 1:
-            return _TEST_FAUCET_URL
-        elif network_id == 2:
-            return _DEV_FAUCET_URL
-        elif network_id == 0:
-            raise XRPLFaucetException("Cannot create faucet with a client on mainnet.")
-        elif network_id < 0:
-            raise XRPLFaucetException("network_id cannot be negative.")
-
-    raise XRPLFaucetException(
-        "Cannot create faucet URL without network_id or the faucet_host information."
-    )
+    # this line is unreachable. Custom devnets must specify a faucet_host input
+    return ""
 
 
 async def _check_wallet_balance(address: str, client: Client) -> int:

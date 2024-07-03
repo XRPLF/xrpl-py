@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 - Add support for the DeliverMax field in Payment transactions
 
+## Fixed
+- Refactor the API of `get_faucet_wallet` method. This produces a non-ambiguous URL for Testnet and Devnet faucet hosts.
+
 ## [2.6.0] - 2024-06-03
 
 ### Added
