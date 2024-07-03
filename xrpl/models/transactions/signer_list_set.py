@@ -1,17 +1,18 @@
 """Model for SignerListSet transaction type."""
+
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Pattern
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 MAX_SIGNER_ENTRIES: Final[int] = 32
 """
@@ -29,7 +30,7 @@ Matches hex-encoded WalletLocator in the format allowed by XRPL.
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class SignerEntry(NestedModel):
     """Represents one entry in a list of multi-signers authorized to an account."""
 
@@ -56,7 +57,7 @@ class SignerEntry(NestedModel):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class SignerListSet(Transaction):
     """
     Represents a `SignerListSet <https://xrpl.org/signerlistset.html>`_
@@ -78,7 +79,7 @@ class SignerListSet(Transaction):
         init=False,
     )
 
-    def _get_errors(self: SignerListSet) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
         # deleting a signer list requires self.signer_quorum == 0 and

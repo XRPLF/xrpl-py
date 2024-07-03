@@ -1,9 +1,12 @@
 """Model for AMMWithdraw transaction type."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Optional
+
+from typing_extensions import Self
 
 from xrpl.models.amounts import Amount, IssuedCurrencyAmount
 from xrpl.models.currencies import Currency
@@ -11,7 +14,7 @@ from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class AMMWithdrawFlag(int, Enum):
@@ -45,7 +48,7 @@ class AMMWithdrawFlagInterface(FlagInterface):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class AMMWithdraw(Transaction):
     """
     Withdraw assets from an Automated Market Maker (AMM) instance by returning the
@@ -91,7 +94,7 @@ class AMMWithdraw(Transaction):
         init=False,
     )
 
-    def _get_errors(self: AMMWithdraw) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.amount2 is not None and self.amount is None:
             errors["AMMWithdraw"] = "Must set `amount` with `amount2`"

@@ -5,16 +5,18 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict
 
+from typing_extensions import Self
+
 from xrpl.core.addresscodec import is_valid_classic_address
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 from xrpl.models.xchain_bridge import XChainBridge
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class XChainCreateClaimID(Transaction):
     """
     Represents a XChainCreateClaimID transaction.
@@ -52,7 +54,7 @@ class XChainCreateClaimID(Transaction):
         init=False,
     )
 
-    def _get_errors(self: XChainCreateClaimID) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
         if self.signature_reward != REQUIRED and not self.signature_reward.isnumeric():

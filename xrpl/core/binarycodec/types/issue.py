@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional, Type, Union
 
+from typing_extensions import Self
+
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.account_id import AccountID
@@ -16,7 +18,7 @@ from xrpl.models.currencies import IssuedCurrency as IssuedCurrencyModel
 class Issue(SerializedType):
     """Codec for serializing and deserializing issued currency fields."""
 
-    def __init__(self: Issue, buffer: bytes) -> None:
+    def __init__(self: Self, buffer: bytes) -> None:
         """
         Construct an Issue from given bytes.
 
@@ -27,7 +29,7 @@ class Issue(SerializedType):
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls: Type[Issue], value: Dict[str, str]) -> Issue:
+    def from_value(cls: Type[Self], value: Dict[str, str]) -> Self:
         """
         Construct an Issue object from a string or dictionary representation
         of an issued currency.
@@ -57,10 +59,10 @@ class Issue(SerializedType):
 
     @classmethod
     def from_parser(
-        cls: Type[Issue],
+        cls: Type[Self],
         parser: BinaryParser,
         length_hint: Optional[int] = None,
-    ) -> Issue:
+    ) -> Self:
         """
         Construct an Issue object from an existing BinaryParser.
 
@@ -78,7 +80,7 @@ class Issue(SerializedType):
         issuer = parser.read(20)  # the length in bytes of an account ID
         return cls(bytes(currency) + issuer)
 
-    def to_json(self: Issue) -> Union[str, Dict[Any, Any]]:
+    def to_json(self: Self) -> Union[str, Dict[Any, Any]]:
         """
         Returns the JSON representation of an issued currency.
 

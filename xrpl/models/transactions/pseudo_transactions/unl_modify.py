@@ -5,16 +5,18 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict
 
+from typing_extensions import Self
+
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.pseudo_transactions.pseudo_transaction import (
     PseudoTransaction,
 )
 from xrpl.models.transactions.types import PseudoTransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class UNLModify(PseudoTransaction):
     """
     A UNLModify pseudo-transaction marks a change to the `Negative UNL
@@ -61,7 +63,7 @@ class UNLModify(PseudoTransaction):
     amendment has been enabled, and applies to all ledgers afterward.
     """
 
-    def _get_errors(self: UNLModify) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.unl_modify_disabling not in {0, 1}:
             errors[

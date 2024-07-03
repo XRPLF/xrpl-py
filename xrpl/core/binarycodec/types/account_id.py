@@ -1,12 +1,13 @@
 """Codec for serializing and deserializing AccountID fields.
 See `AccountID Fields <https://xrpl.org/serialization.html#accountid-fields>`_
 """
+
 from __future__ import annotations  # Requires Python 3.7+
 
 import re
 from typing import Optional, Pattern, Type
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.core.addresscodec import (
     decode_classic_address,
@@ -30,7 +31,7 @@ class AccountID(Hash160):
 
     LENGTH: Final[int] = 20  # bytes
 
-    def __init__(self: AccountID, buffer: Optional[bytes] = None) -> None:
+    def __init__(self: Self, buffer: Optional[bytes] = None) -> None:
         """
         Construct an AccountID from given bytes.
         If buffer is not provided, default to 20 zero bytes.
@@ -41,7 +42,7 @@ class AccountID(Hash160):
             super().__init__(bytes(self.LENGTH))
 
     @classmethod
-    def from_value(cls: Type[AccountID], value: str) -> AccountID:
+    def from_value(cls: Type[Self], value: str) -> Self:
         """
         Construct an AccountID from a hex string or a base58 r-Address.
 
@@ -78,7 +79,7 @@ class AccountID(Hash160):
             f"or X-Address, received {value.__class__.__name__}."
         )
 
-    def to_json(self: AccountID) -> str:
+    def to_json(self: Self) -> str:
         """
         Return the value of this AccountID encoded as a base58 string.
 

@@ -5,17 +5,19 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, Optional, Union
 
+from typing_extensions import Self
+
 from xrpl.models.amounts import Amount
 from xrpl.models.currencies import XRP
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 from xrpl.models.xchain_bridge import XChainBridge
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class XChainClaim(Transaction):
     """
     Represents a XChainClaim transaction.
@@ -71,7 +73,7 @@ class XChainClaim(Transaction):
         init=False,
     )
 
-    def _get_errors(self: XChainClaim) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
         bridge = self.xchain_bridge
