@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add support for the DeliverMax field in Payment transactions
 - Improved validation for models to also check param types
 
+### Fixed
+- Allow empty strings for the purpose of removing fields in DIDSet transaction
+
 ## [2.6.0] - 2024-06-03
 
 ### Added
