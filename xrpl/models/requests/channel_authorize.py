@@ -12,10 +12,13 @@ anything else using the same key pair. See
 
 `See channel_authorize <https://xrpl.org/channel_authorize.html>`_
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Dict, Optional
+
+from typing_extensions import Self
 
 from xrpl.constants import CryptoAlgorithm
 from xrpl.models.requests.request import Request, RequestMethod
@@ -63,7 +66,7 @@ class ChannelAuthorize(Request):
     passphrase: Optional[str] = None
     key_type: Optional[CryptoAlgorithm] = None
 
-    def _get_errors(self: ChannelAuthorize) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         signing_methods = [
             method

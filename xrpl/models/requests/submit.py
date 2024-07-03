@@ -23,12 +23,12 @@ twice since it has the same sequence number as the old transaction.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Type, TypeVar
+from typing import Any, Dict, Type
+
+from typing_extensions import Self
 
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
-
-S = TypeVar("S", bound="Submit")  # any type inherited from Submit
 
 
 @require_kwargs_on_init
@@ -62,7 +62,7 @@ class Submit(Request):
     method: RequestMethod = field(default=RequestMethod.SUBMIT, init=False)
 
     @classmethod
-    def from_dict(cls: Type[S], value: Dict[str, Any]) -> S:
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
         """
         Construct a new Submit from a dictionary of parameters.
 

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import List, Optional, Type
 
+from typing_extensions import Self
+
 from xrpl.constants import CryptoAlgorithm, XRPLException
 from xrpl.core import addresscodec
 from xrpl.core.addresscodec import classic_address_to_xaddress, ensure_classic_address
@@ -19,7 +21,7 @@ class Wallet:
     """
 
     @property
-    def address(self: Wallet) -> str:
+    def address(self: Self) -> str:
         """
         The XRPL address that publicly identifies this wallet,
         as a base58 string. This is the same value as the `classic_address`.
@@ -29,7 +31,7 @@ class Wallet:
     # TODO: Just alias classic_address once mypy has resolved this issue:
     #       https://github.com/python/mypy/issues/6700
     @property
-    def classic_address(self: Wallet) -> str:
+    def classic_address(self: Self) -> str:
         """
         `classic_address` is the same as `address`. It is called `classic_address` to
         differentiate it from the x-address standard, which encodes the network,
@@ -39,7 +41,7 @@ class Wallet:
         return self._address
 
     def __init__(
-        self: Wallet,
+        self: Self,
         public_key: str,
         private_key: str,
         *,
@@ -117,8 +119,8 @@ class Wallet:
 
     @classmethod
     def create(
-        cls: Type[Wallet], algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519
-    ) -> Wallet:
+        cls: Type[Self], algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519
+    ) -> Self:
         """
         Generates a new seed and Wallet.
 
@@ -130,16 +132,16 @@ class Wallet:
             The wallet that is generated from the given seed.
         """
         seed = generate_seed(algorithm=algorithm)
-        return Wallet.from_seed(seed, algorithm=algorithm)
+        return cls.from_seed(seed, algorithm=algorithm)
 
     @classmethod
     def from_seed(
-        cls: Type[Wallet],
+        cls: Type[Self],
         seed: str,
         *,
         master_address: Optional[str] = None,
         algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
-    ) -> Wallet:
+    ) -> Self:
         """
         Generates a new Wallet from seed (secret).
 
@@ -166,12 +168,12 @@ class Wallet:
 
     @classmethod
     def from_entropy(
-        cls: Type[Wallet],
+        cls: Type[Self],
         entropy: str,
         *,
         master_address: Optional[str] = None,
         algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
-    ) -> Wallet:
+    ) -> Self:
         """
         Generates a new Wallet from entropy (hexadecimal string of random numbers).
 
@@ -195,18 +197,16 @@ class Wallet:
             )
 
         seed = generate_seed(entropy, algorithm)
-        return Wallet.from_seed(
-            seed, master_address=master_address, algorithm=algorithm
-        )
+        return cls.from_seed(seed, master_address=master_address, algorithm=algorithm)
 
     @classmethod
     def from_secret_numbers(
-        self: Type[Wallet],
+        cls: Type[Self],
         secret_numbers: List[str] | str,
         *,
         master_address: Optional[str] = None,
         algorithm: CryptoAlgorithm = CryptoAlgorithm.SECP256K1,
-    ) -> Wallet:
+    ) -> Self:
         """
         Generates a new Wallet from secret numbers.
 
@@ -253,12 +253,12 @@ class Wallet:
             hexed = hex(no)[2:].zfill(4)
             entropy += hexed
 
-        return Wallet.from_entropy(
+        return cls.from_entropy(
             entropy, master_address=master_address, algorithm=algorithm
         )
 
     def get_xaddress(
-        self: Wallet, *, tag: Optional[int] = None, is_test: bool = False
+        self: Self, *, tag: Optional[int] = None, is_test: bool = False
     ) -> str:
         """
         Returns the X-Address of the Wallet's account.
@@ -273,7 +273,7 @@ class Wallet:
         """
         return classic_address_to_xaddress(self.address, tag, is_test)
 
-    def __str__(self: Wallet) -> str:
+    def __str__(self: Self) -> str:
         """
         Returns a string representation of a Wallet.
 
