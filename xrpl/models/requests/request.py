@@ -7,7 +7,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, Optional, Type, TypeVar, Union, cast
+from typing import Any, Dict, Optional, Type, Union, cast
+
+from typing_extensions import Self
 
 from typing_extensions import Final
 
@@ -92,9 +94,6 @@ class RequestMethod(str, Enum):
     GENERIC_REQUEST = "zzgeneric_request"
 
 
-R = TypeVar("R", bound="Request")
-
-
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Request(BaseModel):
     """
@@ -119,7 +118,7 @@ class Request(BaseModel):
     """
 
     @classmethod
-    def from_dict(cls: Type[R], value: Dict[str, Any]) -> R:
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
         """
         Construct a new Request from a dictionary of parameters.
 
@@ -158,7 +157,7 @@ class Request(BaseModel):
         return super(Request, cls).from_dict(value)
 
     @classmethod
-    def get_method(cls: Type[Request], method: str) -> Type[Request]:
+    def get_method(cls: Type[Self], method: str) -> Type[Request]:
         """
         Returns the correct request method based on the string name.
 
@@ -189,7 +188,7 @@ class Request(BaseModel):
             return cast(Type[Request], getattr(xrpl.models.requests, parsed_name))
         return xrpl.models.requests.GenericRequest
 
-    def to_dict(self: Request) -> Dict[str, Any]:
+    def to_dict(self: Self) -> Dict[str, Any]:
         """
         Returns the dictionary representation of a Request.
 
