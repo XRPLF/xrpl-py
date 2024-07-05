@@ -9,9 +9,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, Optional, Type, Union, cast
 
-from typing_extensions import Self
-
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 import xrpl.models.requests  # bare import to get around circular dependency
 from xrpl.models.base_model import BaseModel
