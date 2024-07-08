@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### BREAKING CHANGE
+- Use rippled API v2 as default in requests
+
 ### Added
 - Add support for the DeliverMax field in Payment transactions
-- Use rippled API v2 as default in requests
 
 ### Fixed
 - Allow empty strings for the purpose of removing fields in DIDSet transaction

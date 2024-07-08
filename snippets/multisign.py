@@ -58,11 +58,18 @@ print(multisigned_tx_response)
 if multisigned_tx_response.result["validated"]:
     print("The multisigned transaction was accepted by the ledger:")
     print(multisigned_tx_response)
-    if multisigned_tx_response.result["tx_json"]["Signers"]:
+    signers_in_response = multisigned_tx_response.result["tx_json"]["Signers"]
+
+    if not signers_in_response:
+        print("ERROR: Response does not contain a Signers field")
+    elif len(signers_in_response) != len(signer_entries):
         print(
-            "The transaction had "
-            f"{len(multisigned_tx_response.result['tx_json']['Signers'])} signatures"
+            "ERROR: Response does not contain "
+            + str(len(signer_entries))
+            + " Signers fields"
         )
+    else:
+        print("The transaction had " f"{len(signers_in_response)} signatures")
 else:
     print(
         "The multisigned transaction was rejected by rippled."
