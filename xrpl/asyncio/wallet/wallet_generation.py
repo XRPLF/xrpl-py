@@ -17,7 +17,7 @@ _TEST_FAUCET_URL: Final[str] = "https://faucet.altnet.rippletest.net/accounts"
 _DEV_FAUCET_URL: Final[str] = "https://faucet.devnet.rippletest.net/accounts"
 
 _TIMEOUT_SECONDS: Final[int] = 40
-_MAP_NETWORK_ID_TO_URL: Dict[int, str] = {1: _TEST_FAUCET_URL, 2: _DEV_FAUCET_URL}
+_NETWORK_ID_URL_MAP: Dict[int, str] = {1: _TEST_FAUCET_URL, 2: _DEV_FAUCET_URL}
 
 
 class XRPLFaucetException(XRPLException):
@@ -178,8 +178,8 @@ def get_faucet_url(network_id: int) -> str:
         XRPLFaucetException: if the provided network_id does not correspond to testnet
             or devnet.
     """
-    if network_id in _MAP_NETWORK_ID_TO_URL:
-        return _MAP_NETWORK_ID_TO_URL[network_id]
+    if network_id in _NETWORK_ID_URL_MAP:
+        return _NETWORK_ID_URL_MAP[network_id]
 
     # corresponds to sidechain-net2 network
     if network_id == 262:
