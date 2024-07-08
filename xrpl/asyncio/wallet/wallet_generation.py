@@ -1,7 +1,7 @@
 """Handles wallet generation from a faucet."""
 
 import asyncio
-from typing import Optional
+from typing import Dict, Optional
 from urllib.parse import urlparse, urlunparse
 
 import httpx
@@ -177,17 +177,26 @@ def get_faucet_url(network_id: int) -> str:
         XRPLFaucetException: if the provided network_id does not correspond to testnet
             or devnet.
     """
-    if network_id == 1:
-        return _TEST_FAUCET_URL
-    elif network_id == 2:
-        return _DEV_FAUCET_URL
+    map_network_id_to_url: Dict[int, str] = {1: _TEST_FAUCET_URL, 2: _DEV_FAUCET_URL}
+
+    if network_id in map_network_id_to_url:
+        return map_network_id_to_url[network_id]
+
+    # corresponds to sidechain-net2 network
+    if network_id == 262:
+        raise XRPLFaucetException(
+            "Cannot fund an account on an issuing chain. Accounts must be created via "
+            "the bridge."
+        )
     elif network_id == 0:
         raise XRPLFaucetException("Cannot create faucet with a client on mainnet.")
     elif network_id < 0:
         raise XRPLFaucetException("Unable to parse the specified network_id.")
 
     # this line is unreachable. Custom devnets must specify a faucet_host input
-    return ""
+    raise XRPLFaucetException(
+        "The specified network_id " + str(network_id) + " is not recognizable"
+    )
 
 
 async def _check_wallet_balance(address: str, client: Client) -> int:
