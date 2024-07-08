@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Allow empty strings for the purpose of removing fields in DIDSet transaction
-- Refactor the API of `get_faucet_wallet` method. This produces a non-ambiguous URL for Testnet and Devnet faucet hosts.
+- Use `NetworkID` in faucet processing to produce a non-ambiguous URL for faucet hosts.
 
 ## [2.6.0] - 2024-06-03
 
