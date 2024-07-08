@@ -195,7 +195,7 @@ def get_faucet_url(network_id: int) -> str:
 
     # this line is unreachable. Custom devnets must specify a faucet_host input
     raise XRPLFaucetException(
-        "The specified network_id " + str(network_id) + " is not recognizable"
+        "The NetworkID of the provided network ( " + str(network_id) + ") does not have a known faucet."
     )
 
 
