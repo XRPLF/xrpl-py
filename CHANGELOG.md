@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 
 ### Added
-- Add support for the DeliverMax field in Payment transactions
+- Support for the DeliverMax field in Payment transactions
+- Support for the `feature` RPC
 
 ### Fixed
 - Allow empty strings for the purpose of removing fields in DIDSet transaction
