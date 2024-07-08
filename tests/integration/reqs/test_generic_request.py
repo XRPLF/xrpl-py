@@ -38,7 +38,7 @@ class TestGenericRequest(IntegrationTestCase):
 
     def test_from_dict_json_without_api_version_input(self):
         with self.assertRaises(KeyError):
-            # input JSON does not contain an api_version field
+            # tx_history is invalid in the default API version 2
             GenericRequest.from_dict(
                 {
                     "method": "tx_history",
