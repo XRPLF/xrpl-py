@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from xrpl.models.requests import Fee, GenericRequest
-from xrpl.models.requests.request import DEFAULT_API_VERSION
+from xrpl.models.requests.request import _DEFAULT_API_VERSION
 
 
 class TestRequest(TestCase):
@@ -14,5 +14,5 @@ class TestRequest(TestCase):
         command = "validator_list_sites"
         tx = GenericRequest(command=command).to_dict()
         self.assertDictEqual(
-            tx, {"method": command, "api_version": DEFAULT_API_VERSION}
+            tx, {"method": command, "api_version": _DEFAULT_API_VERSION}
         )

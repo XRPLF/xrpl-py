@@ -17,7 +17,7 @@ from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
-DEFAULT_API_VERSION: Final[int] = 2
+_DEFAULT_API_VERSION: Final[int] = 2
 
 
 class RequestMethod(str, Enum):
@@ -108,7 +108,7 @@ class Request(BaseModel):
 
     id: Optional[Union[str, int]] = None
 
-    api_version: int = DEFAULT_API_VERSION
+    api_version: int = _DEFAULT_API_VERSION
     """
     The API version to use for the said Request. By default, api_version: 2 is used.
     Docs:
