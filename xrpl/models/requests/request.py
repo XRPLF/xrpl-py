@@ -64,11 +64,13 @@ class RequestMethod(str, Enum):
     NFT_INFO = "nft_info"  # clio only
     NFT_HISTORY = "nft_history"  # clio only
     NFTS_BY_ISSUER = "nfts_by_issuer"  # clio only
+
     # subscription methods
     SUBSCRIBE = "subscribe"
     UNSUBSCRIBE = "unsubscribe"
 
     # server info methods
+    FEATURE = "feature"
     FEE = "fee"
     MANIFEST = "manifest"
     SERVER_DEFINITIONS = "server_definitions"
