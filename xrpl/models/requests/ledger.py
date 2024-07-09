@@ -19,7 +19,6 @@ class Ledger(Request, LookupByLedgerRequest):
     """
 
     method: RequestMethod = field(default=RequestMethod.LEDGER, init=False)
-    full: bool = False
     accounts: bool = False
     transactions: bool = False
     expand: bool = False
