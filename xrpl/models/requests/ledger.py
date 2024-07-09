@@ -19,10 +19,8 @@ class Ledger(Request, LookupByLedgerRequest):
     """
 
     method: RequestMethod = field(default=RequestMethod.LEDGER, init=False)
-    accounts: bool = False
     transactions: bool = False
     expand: bool = False
     owner_funds: bool = False
     binary: bool = False
     queue: bool = False
-    type: Optional[LedgerEntryType] = None
