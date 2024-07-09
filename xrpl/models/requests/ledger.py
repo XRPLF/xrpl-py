@@ -3,9 +3,7 @@ Retrieve information about the public ledger.
 `See ledger <https://xrpl.org/ledger.html>`_
 """
 from dataclasses import dataclass, field
-from typing import Optional
 
-from xrpl.models.requests.ledger_entry import LedgerEntryType
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
