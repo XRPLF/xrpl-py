@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow empty strings for the purpose of removing fields in DIDSet transaction
 
 ### Removed
-- Remove deprecated `full` parameter from ledger request model
+- Remove deprecated `full`, `accounts`, and `type` parameters from ledger request model
 
 ## [2.6.0] - 2024-06-03
 
