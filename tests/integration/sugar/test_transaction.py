@@ -244,7 +244,7 @@ class TestTransaction(IntegrationTestCase):
 
         # Although the client network_id property is set,
         # the corresponding field in transaction is not populated
-        self.assertTrue(transaction.network_id is None)
+        self.assertIsNone(transaction.network_id)
         self.assertEqual(client.network_id, 1)
 
 
