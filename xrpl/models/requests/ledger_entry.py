@@ -12,8 +12,6 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Union
 
-from typing_extensions import Self
-
 from xrpl.models.base_model import BaseModel
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
@@ -265,8 +263,9 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     nft_page: Optional[str] = None
     """Must be the object ID of the NFToken page, as hexadecimal"""
     include_deleted: Optional[bool] = None
+    """clio only"""
 
-    def _get_errors(self: Self) -> Dict[str, str]:
+    def _get_errors(self: LedgerEntry) -> Dict[str, str]:
         errors = super()._get_errors()
         query_params = [
             param
