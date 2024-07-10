@@ -220,8 +220,6 @@ class TestTransaction(IntegrationTestCase):
         globals(),
         ["xrpl.transaction.autofill"],
     )
-    # Autofill should populate the tx networkID and build_version from 1.11.0 or later.
-    # NetworkID field is populated only for networks where network_id > 1024
     async def test_autofill_populate_networkid_non_reserved_networks(self, client):
         tx = AccountSet(
             account="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
@@ -229,17 +227,21 @@ class TestTransaction(IntegrationTestCase):
             domain="www.example.com",
         )
         transaction = await autofill(tx, client)
+
+        # Autofill should populate the tx networkID and build_version from 1.11.0 or
+        # later. NetworkID field is populated only for networks where network_id > 1024
         self.assertEqual(client.network_id, 63456)
         self.assertEqual(transaction.network_id, 63456)
 
     @test_async_and_sync(globals(), ["xrpl.transaction.autofill"], use_testnet=True)
-    # The network_id < 1024 for the testnet. Hence network_id field is not set
     async def test_autofill_populate_networkid_reserved_networks(self, client):
         tx = AccountSet(
             account="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
             fee=FEE,
             domain="www.example.com",
         )
+        # The network_id is less than 1024 for the testnet.
+        # Hence network_id field is not set
         transaction = await autofill(tx, client)
 
         # Although the client network_id property is set,
