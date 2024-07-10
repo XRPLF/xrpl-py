@@ -216,6 +216,23 @@ class TestTransaction(IntegrationTestCase):
         expected_fee = await get_fee(client)
         self.assertEqual(payment_autofilled.fee, expected_fee)
 
+    @test_async_and_sync(
+        globals(),
+        ["xrpl.transaction.autofill"],
+    )
+    # Autofill should populate the tx networkID and build_version from 1.11.0 or later.
+    async def test_autofill_populate_networkid(self, client):
+        tx = AccountSet(
+            account="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+            fee=FEE,
+            domain="www.example.com",
+        )
+        await autofill(tx, client)
+        self.assertEqual(client.network_id, 63456)
+
+        # the build_version changes with newer releases of rippled
+        self.assertEqual(client.build_version, "2.2.0-b3")
+
 
 class TestSubmitAndWait(IntegrationTestCase):
     @test_async_and_sync(
