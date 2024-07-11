@@ -234,7 +234,7 @@ class TestTransaction(IntegrationTestCase):
         self.assertEqual(transaction.network_id, 63456)
 
     @test_async_and_sync(globals(), ["xrpl.transaction.autofill"], use_testnet=True)
-    async def test_autofill_populate_networkid_reserved_networks(self, client):
+    async def test_networkid_reserved_networks(self, client):
         tx = AccountSet(
             account="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
             fee=FEE,
