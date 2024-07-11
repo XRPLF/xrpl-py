@@ -58,7 +58,7 @@ print(multisigned_tx_response)
 if multisigned_tx_response.result["validated"]:
     print("The multisigned transaction was accepted by the ledger:")
     print(multisigned_tx_response)
-    signers_in_response = multisigned_tx_response.result["tx_json"]["Signers"]
+    signers_in_response = multisigned_tx_response.result["tx_json"].get("Signers")
 
     if signers_in_response:
         print("The transaction had " f"{len(signers_in_response)} signatures")
