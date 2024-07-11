@@ -162,19 +162,11 @@ class Request(BaseModel):
         # special case for NoRippleCheck and NFT methods
         if method == RequestMethod.NO_RIPPLE_CHECK:
             return xrpl.models.requests.NoRippleCheck
-        if method == RequestMethod.ACCOUNT_NFTS:
-            return xrpl.models.requests.AccountNFTs
-        if method == RequestMethod.NFT_BUY_OFFERS:
-            return xrpl.models.requests.NFTBuyOffers
-        if method == RequestMethod.NFT_SELL_OFFERS:
-            return xrpl.models.requests.NFTSellOffers
-        if method == RequestMethod.NFT_INFO:
-            return xrpl.models.requests.NFTInfo
-        if method == RequestMethod.NFT_HISTORY:
-            return xrpl.models.requests.NFTHistory
-        if method == RequestMethod.NFTS_BY_ISSUER:
-            return xrpl.models.requests.NFTsByIssuer
-        parsed_name = "".join([word.capitalize() for word in method.split("_")])
+        if method == RequestMethod.AMM_INFO:
+            return xrpl.models.requests.AMMInfo
+        parsed_name = "".join(
+            [word.capitalize().replace("Nft", "NFT") for word in method.split("_")]
+        )
         if parsed_name in xrpl.models.requests.__all__:
             return cast(Type[Request], getattr(xrpl.models.requests, parsed_name))
         return xrpl.models.requests.GenericRequest
