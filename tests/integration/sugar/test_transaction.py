@@ -220,7 +220,7 @@ class TestTransaction(IntegrationTestCase):
         globals(),
         ["xrpl.transaction.autofill"],
     )
-    async def test_autofill_populate_networkid_non_reserved_networks(self, client):
+    async def test_networkid_non_reserved_networks(self, client):
         tx = AccountSet(
             account="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
             fee=FEE,
