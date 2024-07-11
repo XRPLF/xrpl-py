@@ -160,11 +160,6 @@ class Request(BaseModel):
             The request class with the given name. If the request doesn't exist, then
             it will return a `GenericRequest`.
         """
-        # special case for NoRippleCheck and NFT methods
-        # if method == RequestMethod.NO_RIPPLE_CHECK:
-        #     return xrpl.models.requests.NoRippleCheck
-        # if method == RequestMethod.AMM_INFO:
-        #     return xrpl.models.requests.AMMInfo
         parsed_name = "".join(
             [
                 ABBREVIATIONS[word] if word in ABBREVIATIONS else word.capitalize()
