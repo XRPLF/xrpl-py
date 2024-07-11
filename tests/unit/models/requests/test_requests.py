@@ -50,8 +50,7 @@ class TestRequest(TestCase):
         }
         obj = Request.from_dict(req)
         self.assertEqual(obj.__class__.__name__, "AccountNFTs")
-        expected = {**req}
-        self.assertDictEqual(obj.to_dict(), expected)
+        self.assertDictEqual(obj.to_dict(), req)
 
     def test_from_dict_amm_info(self):
         req = {
@@ -60,8 +59,7 @@ class TestRequest(TestCase):
         }
         obj = Request.from_dict(req)
         self.assertEqual(obj.__class__.__name__, "AMMInfo")
-        expected = {**req}
-        self.assertDictEqual(obj.to_dict(), expected)
+        self.assertDictEqual(obj.to_dict(), req)
 
     def test_from_dict_generic_request(self):
         req = {
@@ -70,5 +68,4 @@ class TestRequest(TestCase):
         }
         obj = Request.from_dict(req)
         self.assertEqual(obj.__class__.__name__, "GenericRequest")
-        expected = {**req}
-        self.assertDictEqual(obj.to_dict(), expected)
+        self.assertDictEqual(obj.to_dict(), req)
