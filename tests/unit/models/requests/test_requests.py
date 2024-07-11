@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests import Fee, GenericRequest, Request
 
 
@@ -20,6 +21,16 @@ class TestRequest(TestCase):
         self.assertEqual(obj.__class__.__name__, "AccountTx")
         expected = {**req, "binary": False, "forward": False}
         self.assertDictEqual(obj.to_dict(), expected)
+
+    def test_from_dict_no_method(self):
+        req = {"account": "rN6zcSynkRnf8zcgTVrRL8K7r4ovE7J4Zj"}
+        with self.assertRaises(XRPLModelException):
+            Request.from_dict(req)
+
+    def test_from_dict_wrong_method(self):
+        req = {"method": "account_tx"}
+        with self.assertRaises(XRPLModelException):
+            Fee.from_dict(req)
 
     def test_from_dict_noripple_check(self):
         req = {
@@ -49,5 +60,15 @@ class TestRequest(TestCase):
         }
         obj = Request.from_dict(req)
         self.assertEqual(obj.__class__.__name__, "AMMInfo")
+        expected = {**req}
+        self.assertDictEqual(obj.to_dict(), expected)
+
+    def test_from_dict_generic_request(self):
+        req = {
+            "method": "tx_history",
+            "start": 0,
+        }
+        obj = Request.from_dict(req)
+        self.assertEqual(obj.__class__.__name__, "GenericRequest")
         expected = {**req}
         self.assertDictEqual(obj.to_dict(), expected)
