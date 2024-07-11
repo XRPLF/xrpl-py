@@ -44,6 +44,8 @@ ABBREVIATIONS: Final[Dict[str, str]] = {
     "unl": "UNL",
     "uri": "URI",
     "xchain": "XChain",
+    "nfts": "NFTs",
+    "noripple": "NoRipple",
 }
 
 

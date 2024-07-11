@@ -12,7 +12,7 @@ from typing import Any, Dict, Optional, Type, Union, cast
 from typing_extensions import Self
 
 import xrpl.models.requests  # bare import to get around circular dependency
-from xrpl.models.base_model import BaseModel
+from xrpl.models.base_model import ABBREVIATIONS, BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
@@ -160,12 +160,15 @@ class Request(BaseModel):
             it will return a `GenericRequest`.
         """
         # special case for NoRippleCheck and NFT methods
-        if method == RequestMethod.NO_RIPPLE_CHECK:
-            return xrpl.models.requests.NoRippleCheck
-        if method == RequestMethod.AMM_INFO:
-            return xrpl.models.requests.AMMInfo
+        # if method == RequestMethod.NO_RIPPLE_CHECK:
+        #     return xrpl.models.requests.NoRippleCheck
+        # if method == RequestMethod.AMM_INFO:
+        #     return xrpl.models.requests.AMMInfo
         parsed_name = "".join(
-            [word.capitalize().replace("Nft", "NFT") for word in method.split("_")]
+            [
+                ABBREVIATIONS[word] if word in ABBREVIATIONS else word.capitalize()
+                for word in method.split("_")
+            ]
         )
         if parsed_name in xrpl.models.requests.__all__:
             return cast(Type[Request], getattr(xrpl.models.requests, parsed_name))
