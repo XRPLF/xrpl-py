@@ -9,13 +9,15 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, Optional, Type, Union, cast
 
-from typing_extensions import Self
+from typing_extensions import Final, Self
 
 import xrpl.models.requests  # bare import to get around circular dependency
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+
+_DEFAULT_API_VERSION: Final[int] = 2
 
 
 class RequestMethod(str, Enum):
@@ -105,6 +107,13 @@ class Request(BaseModel):
     """
 
     id: Optional[Union[str, int]] = None
+
+    api_version: int = _DEFAULT_API_VERSION
+    """
+    The API version to use for the said Request. By default, api_version: 2 is used.
+    Docs:
+    https://xrpl.org/docs/references/http-websocket-apis/api-conventions/request-formatting/#api-versioning
+    """
 
     @classmethod
     def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
