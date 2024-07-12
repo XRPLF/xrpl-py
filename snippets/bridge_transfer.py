@@ -55,6 +55,7 @@ while ledgers_waited < MAX_LEDGERS_WAITED:
             f"Destination account {wallet2.classic_address} has been created via the "
             "bridge"
         )
+        sleep(0.5)  # to avoid flakiness
         initial_balance = get_balance(wallet2.classic_address, issuing_client)
         break
 
