@@ -87,6 +87,7 @@ class TestBetterTransactionFlags(TestCase):
                 TF_ONLY_XRP=True,
                 TF_TRANSFERABLE=True,
                 TF_TRUSTLINE=True,
+                TF_MUTABLE=True,
             ),
         )
         self.assertTrue(actual.has_flag(flag=0x00000001))

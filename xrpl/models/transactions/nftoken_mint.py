@@ -46,6 +46,11 @@ class NFTokenMintFlag(int, Enum):
     issuer.
     """
 
+    TF_MUTABLE = 0x00000010
+    """
+    If set, indicates that this NFT's URI can be modified.
+    """
+
 
 class NFTokenMintFlagInterface(FlagInterface):
     """Transaction Flags for an NFTokenMint Transaction."""
@@ -54,6 +59,7 @@ class NFTokenMintFlagInterface(FlagInterface):
     TF_ONLY_XRP: bool
     TF_TRUSTLINE: bool
     TF_TRANSFERABLE: bool
+    TF_MUTABLE: bool
 
 
 @require_kwargs_on_init
