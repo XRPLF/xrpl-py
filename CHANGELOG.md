@@ -11,10 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use rippled API v2 as default in requests
 
 ### Added
-- Add support for the DeliverMax field in Payment transactions
+- Support for the DeliverMax field in Payment transactions
+- Support for the `feature` RPC
 
 ### Fixed
 - Allow empty strings for the purpose of removing fields in DIDSet transaction
+
+### Removed
+- Remove deprecated `full`, `accounts`, and `type` parameters from ledger request model
 
 ## [2.6.0] - 2024-06-03
 
