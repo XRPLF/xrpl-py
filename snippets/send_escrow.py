@@ -1,4 +1,5 @@
 """Example of how we can set up an escrow"""
+
 from datetime import datetime
 from time import sleep
 
@@ -55,7 +56,7 @@ sleep(9)
 finish_tx = EscrowFinish(
     account=wallet1.address,
     owner=wallet1.address,
-    offer_sequence=create_escrow_response.result["Sequence"],
+    offer_sequence=create_escrow_response.result["tx_json"]["Sequence"],
 )
 
 submit_and_wait(finish_tx, client, wallet1)

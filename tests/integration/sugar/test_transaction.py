@@ -74,7 +74,7 @@ class TestTransaction(IntegrationTestCase):
         )
 
         # AND we expect the result Account to be the same as the original payment Acct
-        self.assertEqual(payment.result["Account"], ACCOUNT)
+        self.assertEqual(payment.result["tx_json"]["Account"], ACCOUNT)
         # AND we expect the response to be successful (200)
         self.assertTrue(payment.is_successful())
 
@@ -216,6 +216,39 @@ class TestTransaction(IntegrationTestCase):
         expected_fee = await get_fee(client)
         self.assertEqual(payment_autofilled.fee, expected_fee)
 
+    @test_async_and_sync(
+        globals(),
+        ["xrpl.transaction.autofill"],
+    )
+    async def test_networkid_non_reserved_networks(self, client):
+        tx = AccountSet(
+            account="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+            fee=FEE,
+            domain="www.example.com",
+        )
+        transaction = await autofill(tx, client)
+
+        # Autofill should populate the tx networkID and build_version from 1.11.0 or
+        # later. NetworkID field is populated only for networks where network_id > 1024
+        self.assertEqual(client.network_id, 63456)
+        self.assertEqual(transaction.network_id, 63456)
+
+    @test_async_and_sync(globals(), ["xrpl.transaction.autofill"], use_testnet=True)
+    async def test_networkid_reserved_networks(self, client):
+        tx = AccountSet(
+            account="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+            fee=FEE,
+            domain="www.example.com",
+        )
+        # The network_id is less than 1024 for the testnet.
+        # Hence network_id field is not set
+        transaction = await autofill(tx, client)
+
+        # Although the client network_id property is set,
+        # the corresponding field in transaction is not populated
+        self.assertIsNone(transaction.network_id)
+        self.assertEqual(client.network_id, 1)
+
 
 class TestSubmitAndWait(IntegrationTestCase):
     @test_async_and_sync(
@@ -235,7 +268,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["Fee"], await get_fee(client))
+        self.assertEqual(response.result["tx_json"]["Fee"], await get_fee(client))
 
     @test_async_and_sync(
         globals(),
@@ -255,7 +288,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["Fee"], await get_fee(client))
+        self.assertEqual(response.result["tx_json"]["Fee"], await get_fee(client))
 
     @test_async_and_sync(
         globals(),
@@ -279,7 +312,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["Fee"], await get_fee(client))
+        self.assertEqual(response.result["tx_json"]["Fee"], await get_fee(client))
 
     @test_async_and_sync(
         globals(),
@@ -304,7 +337,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["Fee"], await get_fee(client))
+        self.assertEqual(response.result["tx_json"]["Fee"], await get_fee(client))
 
     @test_async_and_sync(
         globals(),
