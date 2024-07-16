@@ -123,6 +123,7 @@ class Request(BaseModel):
             XRPLModelException: If the dictionary provided is invalid.
         """
         # TODO: add support for "command" parameter and proper JSON RPC format
+        # This is already done in `GenericRequest`, for reference
         if cls.__name__ == "Request":
             if "method" not in value:
                 raise XRPLModelException("Request does not include method.")
