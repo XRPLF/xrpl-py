@@ -61,6 +61,16 @@ class TestRequest(TestCase):
         self.assertEqual(obj.__class__.__name__, "AMMInfo")
         self.assertDictEqual(obj.to_dict(), req)
 
+    def test_from_dict_nft_history(self):
+        req = {
+            "method": "nft_history",
+            "nft_id": "00000000",
+        }
+        obj = Request.from_dict(req)
+        expected = {**req, "binary": False, "forward": False}
+        self.assertEqual(obj.__class__.__name__, "NFTHistory")
+        self.assertDictEqual(obj.to_dict(), expected)
+
     def test_from_dict_generic_request(self):
         req = {
             "method": "tx_history",
