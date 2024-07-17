@@ -29,6 +29,7 @@ class TransactionType(str, Enum):
     NFTOKEN_CANCEL_OFFER = "NFTokenCancelOffer"
     NFTOKEN_CREATE_OFFER = "NFTokenCreateOffer"
     NFTOKEN_MINT = "NFTokenMint"
+    NFTOKEN_MODIFY = "NFTokenModify"
     OFFER_CANCEL = "OfferCancel"
     OFFER_CREATE = "OfferCreate"
     ORACLE_SET = "OracleSet"
