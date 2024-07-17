@@ -7,12 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+## [3.0.0] - 2024-07-16
+
+### BREAKING CHANGE
+- Use rippled API v2 as default in requests
+
 ### Added
-- Add support for the DeliverMax field in Payment transactions
+- Support for the DeliverMax field in Payment transactions
+- Support for the `feature` RPC
 
 ### Fixed
 - Allow empty strings for the purpose of removing fields in DIDSet transaction
 - Use `NetworkID` in faucet processing to produce a non-ambiguous URL for faucet hosts.
+
+### Removed
+- Remove deprecated `full`, `accounts`, and `type` parameters from ledger request model
 
 ## [2.6.0] - 2024-06-03
 
