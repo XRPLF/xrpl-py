@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests import Fee, GenericRequest, Request
+from xrpl.models.requests.request import _DEFAULT_API_VERSION
 
 
 class TestRequest(TestCase):
@@ -13,13 +14,19 @@ class TestRequest(TestCase):
     def test_generic_request_to_dict_sets_command_as_method(self):
         command = "validator_list_sites"
         req = GenericRequest(command=command).to_dict()
-        self.assertDictEqual(req, {"method": command})
+        expected = {**req, "api_version": _DEFAULT_API_VERSION}
+        self.assertDictEqual(req, expected)
 
     def test_from_dict(self):
         req = {"method": "account_tx", "account": "rN6zcSynkRnf8zcgTVrRL8K7r4ovE7J4Zj"}
         obj = Request.from_dict(req)
         self.assertEqual(obj.__class__.__name__, "AccountTx")
-        expected = {**req, "binary": False, "forward": False}
+        expected = {
+            **req,
+            "binary": False,
+            "forward": False,
+            "api_version": _DEFAULT_API_VERSION,
+        }
         self.assertDictEqual(obj.to_dict(), expected)
 
     def test_from_dict_no_method(self):
@@ -40,7 +47,12 @@ class TestRequest(TestCase):
         }
         obj = Request.from_dict(req)
         self.assertEqual(obj.__class__.__name__, "NoRippleCheck")
-        expected = {**req, "transactions": False, "limit": 300}
+        expected = {
+            **req,
+            "transactions": False,
+            "limit": 300,
+            "api_version": _DEFAULT_API_VERSION,
+        }
         self.assertDictEqual(obj.to_dict(), expected)
 
     def test_from_dict_account_nfts(self):
@@ -49,8 +61,9 @@ class TestRequest(TestCase):
             "account": "rN6zcSynkRnf8zcgTVrRL8K7r4ovE7J4Zj",
         }
         obj = Request.from_dict(req)
+        expected = {**req, "api_version": _DEFAULT_API_VERSION}
         self.assertEqual(obj.__class__.__name__, "AccountNFTs")
-        self.assertDictEqual(obj.to_dict(), req)
+        self.assertDictEqual(obj.to_dict(), expected)
 
     def test_from_dict_amm_info(self):
         req = {
@@ -58,8 +71,9 @@ class TestRequest(TestCase):
             "amm_account": "rN6zcSynkRnf8zcgTVrRL8K7r4ovE7J4Zj",
         }
         obj = Request.from_dict(req)
+        expected = {**req, "api_version": _DEFAULT_API_VERSION}
         self.assertEqual(obj.__class__.__name__, "AMMInfo")
-        self.assertDictEqual(obj.to_dict(), req)
+        self.assertDictEqual(obj.to_dict(), expected)
 
     def test_from_dict_nft_history(self):
         req = {
@@ -67,7 +81,12 @@ class TestRequest(TestCase):
             "nft_id": "00000000",
         }
         obj = Request.from_dict(req)
-        expected = {**req, "binary": False, "forward": False}
+        expected = {
+            **req,
+            "binary": False,
+            "forward": False,
+            "api_version": _DEFAULT_API_VERSION,
+        }
         self.assertEqual(obj.__class__.__name__, "NFTHistory")
         self.assertDictEqual(obj.to_dict(), expected)
 
@@ -77,5 +96,6 @@ class TestRequest(TestCase):
             "start": 0,
         }
         obj = Request.from_dict(req)
+        expected = {**req, "api_version": _DEFAULT_API_VERSION}
         self.assertEqual(obj.__class__.__name__, "GenericRequest")
-        self.assertDictEqual(obj.to_dict(), req)
+        self.assertDictEqual(obj.to_dict(), expected)
