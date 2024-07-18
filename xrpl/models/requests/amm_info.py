@@ -42,5 +42,5 @@ class AMMInfo(Request):
         if (self.asset is None) != (self.asset2 is None):
             errors["assets"] = "Must have both `asset` and `asset2` fields."
         if (self.asset is None) == (self.amm_account is None):
-            errors["params"] = "Must not have both asset and `amm_account` fields."
+            errors["params"] = "Must not have both `asset` and `amm_account` fields."
         return errors
