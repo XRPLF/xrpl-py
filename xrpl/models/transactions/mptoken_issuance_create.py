@@ -10,7 +10,6 @@ from typing_extensions import Self
 
 from xrpl.constants import HEX_REGEX
 from xrpl.models.flags import FlagInterface
-from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
@@ -57,9 +56,6 @@ class MPTokenIssuanceCreate(Transaction):
     the newly created token will be owned by the account (the creator account) which
     executed the transaction.
     """
-
-    account: str = REQUIRED  # type: ignore
-    """This account must match the account in the Owner field of the Oracle object."""
 
     asset_scale: Optional[int] = None
     """
