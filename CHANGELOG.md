@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Added
+- Support for the Multi-Purpose Tokens (MPT) amendment (XLS-33)
+
 ## [3.0.0] - 2024-07-16
 
 ### BREAKING CHANGE

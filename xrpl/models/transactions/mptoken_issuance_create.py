@@ -49,15 +49,13 @@ class MPTokenIssuanceCreateFlagInterface(FlagInterface):
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class MPTokenIssuanceCreate(Transaction):
-    """Creates a new Oracle ledger entry or updates the fields of an existing one,
-    using the Oracle ID.
-
-    The oracle provider must complete these steps before submitting this transaction:
-
-    Create or own the XRPL account in the Owner field and have enough XRP to meet the
-    reserve and transaction fee requirements.
-    Publish the XRPL account public key, so it can be used for verification by dApps.
-    Publish a registry of available price oracles with their unique OracleDocumentID .
+    """
+    The MPTokenIssuanceCreate transaction creates a MPTokenIssuance object
+    and adds it to the relevant directory node of the creator account.
+    This transaction is the only opportunity an issuer has to specify any token fields
+    that are defined as immutable (e.g., MPT Flags). If the transaction is successful,
+    the newly created token will be owned by the account (the creator account) which
+    executed the transaction.
     """
 
     account: str = REQUIRED  # type: ignore
