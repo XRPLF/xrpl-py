@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+## [3.0.0] - 2024-07-16
+
+### BREAKING CHANGE
+- Use rippled API v2 as default in requests
+
 ### Added
 - Support for the DeliverMax field in Payment transactions
 - Support for the `feature` RPC
