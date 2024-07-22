@@ -68,7 +68,7 @@ class TestXChainClaim(TestCase):
             xchain_bridge=_XRP_BRIDGE,
             xchain_claim_id=_CLAIM_ID,
             destination=_DESTINATION,
-            destination_tag="12345",
+            destination_tag=12345,
             amount=_XRP_AMOUNT,
         )
 
