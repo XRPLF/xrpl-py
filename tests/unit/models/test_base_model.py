@@ -16,6 +16,7 @@ from xrpl.models.requests import (
     SubmitMultisigned,
     SubmitOnly,
 )
+from xrpl.models.requests.request import _DEFAULT_API_VERSION
 from xrpl.models.transactions import (
     AMMBid,
     AuthAccount,
@@ -147,6 +148,7 @@ class TestFromDict(TestCase):
             **book_offers_dict,
             "method": "book_offers",
             "taker_gets": {"currency": "XRP"},
+            "api_version": _DEFAULT_API_VERSION,
         }
         self.assertEqual(expected_dict, book_offers.to_dict())
 
@@ -162,6 +164,7 @@ class TestFromDict(TestCase):
             "fee_mult_max": 10,
             "fee_div_max": 1,
             "offline": False,
+            "api_version": _DEFAULT_API_VERSION,
         }
         del expected_dict["transaction"]
         self.assertEqual(expected_dict, sign.to_dict())
@@ -178,6 +181,7 @@ class TestFromDict(TestCase):
             "fee_mult_max": 10,
             "fee_div_max": 1,
             "offline": False,
+            "api_version": _DEFAULT_API_VERSION,
         }
         self.assertEqual(expected_dict, sign.to_dict())
 
