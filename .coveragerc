@@ -1,0 +1,4 @@
+# TODO: Delete this .coveragerc file once the ledger objects models are incorporated into the rest of the code.
+[run]
+omit =
+    */xrpl/models/ledger_objects/*
