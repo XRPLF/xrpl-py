@@ -1,16 +1,19 @@
 """A generic request that can be used for unsupported requests."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any, Dict, Type, Union, cast
 
+from typing_extensions import Self
+
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests.request import Request, RequestMethod
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 @require_kwargs_on_init
-@dataclass(init=False, frozen=True)
+@dataclass(init=False, frozen=True, **KW_ONLY_DATACLASS)
 class GenericRequest(Request):
     """
     A request object representing all unsupported requests.
@@ -25,7 +28,7 @@ class GenericRequest(Request):
     :meta hide-value:
     """
 
-    def __init__(self: GenericRequest, **kwargs: Any) -> None:
+    def __init__(self: Self, **kwargs: Any) -> None:
         """
         Initializes a GenericRequest.
 
@@ -42,7 +45,7 @@ class GenericRequest(Request):
             object.__setattr__(self, key, value)
 
     @classmethod
-    def from_dict(cls: Type[GenericRequest], value: Dict[str, Any]) -> GenericRequest:
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
         """
         Construct a new GenericRequest from a dictionary of parameters. Also converts
         from JSON and WS formatting.
@@ -62,7 +65,11 @@ class GenericRequest(Request):
 
         elif "method" in value:  # JSON RPC formatting
             if "params" in value:  # actual JSON RPC formatting
-                value = {"method": value["method"], **value["params"]}
+                value = {
+                    "api_version": value["api_version"],
+                    "method": value["method"],
+                    **value["params"],
+                }
             # else is the internal request formatting
 
         else:
@@ -70,7 +77,7 @@ class GenericRequest(Request):
 
         return cls(**value)
 
-    def to_dict(self: GenericRequest) -> Dict[str, Any]:
+    def to_dict(self: Self) -> Dict[str, Any]:
         """
         Returns the dictionary representation of a GenericRequest.
 

@@ -4,13 +4,11 @@ from xrpl.models.requests import GenericRequest
 
 
 class TestGenericRequest(IntegrationTestCase):
+    # Note: Support for the tx_history command has been removed since rippled API v2
     @test_async_and_sync(globals())
     async def test_constructor(self, client):
         response = await client.request(
-            GenericRequest(
-                method="tx_history",
-                start=0,
-            )
+            GenericRequest(method="tx_history", start=0, api_version=1)
         )
         self.assertTrue(response.is_successful())
 
@@ -23,6 +21,7 @@ class TestGenericRequest(IntegrationTestCase):
                     "params": {
                         "start": 0,
                     },
+                    "api_version": 1,
                 }
             )
         )
@@ -32,10 +31,19 @@ class TestGenericRequest(IntegrationTestCase):
     async def test_websocket_formatting(self, client):
         response = await client.request(
             GenericRequest.from_dict(
-                {
-                    "command": "tx_history",
-                    "start": 0,
-                }
+                {"command": "tx_history", "start": 0, "api_version": 1}
             )
         )
         self.assertTrue(response.is_successful())
+
+    def test_from_dict_json_without_api_version_input(self):
+        with self.assertRaises(KeyError):
+            # tx_history is invalid in the default API version 2
+            GenericRequest.from_dict(
+                {
+                    "method": "tx_history",
+                    "params": {
+                        "start": 0,
+                    },
+                }
+            )

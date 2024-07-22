@@ -7,7 +7,7 @@ import json
 from random import randrange
 from typing import TYPE_CHECKING, Any, Dict, Optional, cast
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 from websockets import client as websocket_client
 
 from xrpl.asyncio.clients.client import Client
@@ -56,7 +56,7 @@ class WebsocketBase(Client):
     :meta private:
     """
 
-    def __init__(self: WebsocketBase, url: str) -> None:
+    def __init__(self: Self, url: str) -> None:
         """
         Initializes a websocket client.
 
@@ -73,7 +73,7 @@ class WebsocketBase(Client):
         self._messages: Optional[_MESSAGES_TYPE] = None
         super().__init__(url)
 
-    def is_open(self: WebsocketBase) -> bool:
+    def is_open(self: Self) -> bool:
         """
         Returns whether the client is currently open.
 
@@ -87,7 +87,7 @@ class WebsocketBase(Client):
             and self._websocket.open
         )
 
-    async def _do_open(self: WebsocketBase) -> None:
+    async def _do_open(self: Self) -> None:
         """Connects the client to the Web Socket API at its URL."""
         # open the connection
         self._websocket = await websocket_client.connect(self.url)
@@ -98,7 +98,7 @@ class WebsocketBase(Client):
         # start the handler
         self._handler_task = asyncio.create_task(self._handler())
 
-    async def _do_close(self: WebsocketBase) -> None:
+    async def _do_close(self: Self) -> None:
         """Closes the connection."""
         # cancel the handler
         cast(_HANDLER_TYPE, self._handler_task).cancel()
@@ -118,7 +118,7 @@ class WebsocketBase(Client):
         # close the connection
         await cast(websocket_client.WebSocketClientProtocol, self._websocket).close()
 
-    async def _handler(self: WebsocketBase) -> None:
+    async def _handler(self: Self) -> None:
         """
         This is basically a middleware for the websocket library. For all received
         messages we check whether there is an outstanding future we need to resolve,
@@ -139,7 +139,7 @@ class WebsocketBase(Client):
             else:
                 cast(_MESSAGES_TYPE, self._messages).put_nowait(response_dict)
 
-    def _set_up_future(self: WebsocketBase, request: Request) -> None:
+    def _set_up_future(self: Self, request: Request) -> None:
         """
         Only to be called from the public send and _request_impl functions.
         Given a request with an ID, ensure that that ID is backed by an open
@@ -164,7 +164,7 @@ class WebsocketBase(Client):
             )
         self._open_requests[request_str] = asyncio.get_running_loop().create_future()
 
-    async def _do_send_no_future(self: WebsocketBase, request: Request) -> None:
+    async def _do_send_no_future(self: Self, request: Request) -> None:
         """
         Base websocket send function
 
@@ -177,7 +177,7 @@ class WebsocketBase(Client):
             ),
         )
 
-    async def _do_send(self: WebsocketBase, request: Request) -> None:
+    async def _do_send(self: Self, request: Request) -> None:
         """
         Websocket send function that should be used by
         any inherited classes.
@@ -190,7 +190,7 @@ class WebsocketBase(Client):
         self._set_up_future(request)
         await self._do_send_no_future(request)
 
-    async def _do_pop_message(self: WebsocketBase) -> Dict[str, Any]:
+    async def _do_pop_message(self: Self) -> Dict[str, Any]:
         """
         Returns:
             The top message from the queue
@@ -200,7 +200,7 @@ class WebsocketBase(Client):
         return msg
 
     async def _do_request_impl(
-        self: WebsocketBase, request: Request, timeout: float
+        self: Self, request: Request, timeout: float
     ) -> Response:
         """
         Base ``_request_impl`` implementation for websockets.

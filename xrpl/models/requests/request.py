@@ -2,17 +2,22 @@
 The base class for all network request types.
 Represents fields common to all request types.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, Optional, Type, TypeVar, Union, cast
+from typing import Any, Dict, Optional, Type, Union, cast
+
+from typing_extensions import Final, Self
 
 import xrpl.models.requests  # bare import to get around circular dependency
 from xrpl.models.base_model import BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+
+_DEFAULT_API_VERSION: Final[int] = 2
 
 
 class RequestMethod(str, Enum):
@@ -61,11 +66,13 @@ class RequestMethod(str, Enum):
     NFT_INFO = "nft_info"  # clio only
     NFT_HISTORY = "nft_history"  # clio only
     NFTS_BY_ISSUER = "nfts_by_issuer"  # clio only
+
     # subscription methods
     SUBSCRIBE = "subscribe"
     UNSUBSCRIBE = "unsubscribe"
 
     # server info methods
+    FEATURE = "feature"
     FEE = "fee"
     MANIFEST = "manifest"
     SERVER_DEFINITIONS = "server_definitions"
@@ -87,10 +94,7 @@ class RequestMethod(str, Enum):
     GENERIC_REQUEST = "zzgeneric_request"
 
 
-R = TypeVar("R", bound="Request")
-
-
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Request(BaseModel):
     """
     The base class for all network request types.
@@ -106,8 +110,15 @@ class Request(BaseModel):
 
     id: Optional[Union[str, int]] = None
 
+    api_version: int = _DEFAULT_API_VERSION
+    """
+    The API version to use for the said Request. By default, api_version: 2 is used.
+    Docs:
+    https://xrpl.org/docs/references/http-websocket-apis/api-conventions/request-formatting/#api-versioning
+    """
+
     @classmethod
-    def from_dict(cls: Type[R], value: Dict[str, Any]) -> R:
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
         """
         Construct a new Request from a dictionary of parameters.
 
@@ -146,7 +157,7 @@ class Request(BaseModel):
         return super(Request, cls).from_dict(value)
 
     @classmethod
-    def get_method(cls: Type[Request], method: str) -> Type[Request]:
+    def get_method(cls: Type[Self], method: str) -> Type[Request]:
         """
         Returns the correct request method based on the string name.
 
@@ -177,7 +188,7 @@ class Request(BaseModel):
             return cast(Type[Request], getattr(xrpl.models.requests, parsed_name))
         return xrpl.models.requests.GenericRequest
 
-    def to_dict(self: Request) -> Dict[str, Any]:
+    def to_dict(self: Self) -> Dict[str, Any]:
         """
         Returns the dictionary representation of a Request.
 
@@ -190,7 +201,7 @@ class Request(BaseModel):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class LookupByLedgerRequest:
     """Represents requests that need specifying an instance of the ledger"""
 

@@ -1,4 +1,5 @@
 """Request models."""
+
 from xrpl.models.auth_account import AuthAccount
 from xrpl.models.path import PathStep
 from xrpl.models.requests.account_channels import AccountChannels
@@ -14,6 +15,7 @@ from xrpl.models.requests.book_offers import BookOffers
 from xrpl.models.requests.channel_authorize import ChannelAuthorize
 from xrpl.models.requests.channel_verify import ChannelVerify
 from xrpl.models.requests.deposit_authorized import DepositAuthorized
+from xrpl.models.requests.feature import Feature
 from xrpl.models.requests.fee import Fee
 from xrpl.models.requests.gateway_balances import GatewayBalances
 from xrpl.models.requests.generic_request import GenericRequest
@@ -65,6 +67,7 @@ __all__ = [
     "ChannelAuthorize",
     "ChannelVerify",
     "DepositAuthorized",
+    "Feature",
     "Fee",
     "GatewayBalances",
     "GenericRequest",

@@ -1,18 +1,21 @@
 """Model for Clawback transaction type and related flags."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Dict
 
+from typing_extensions import Self
+
 from xrpl.models.amounts import IssuedCurrencyAmount, is_issued_currency, is_xrp
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Clawback(Transaction):
     """The clawback transaction claws back issued funds from token holders."""
 
@@ -29,7 +32,7 @@ class Clawback(Transaction):
         init=False,
     )
 
-    def _get_errors(self: Clawback) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
         # Amount transaction errors

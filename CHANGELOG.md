@@ -6,7 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [[Unreleased]]
-- Add support for the DeliverMax field in Payment transactions
+
+## [3.0.0] - 2024-07-16
+
+### BREAKING CHANGE
+- Use rippled API v2 as default in requests
+
+### Added
+- Support for the DeliverMax field in Payment transactions
+- Support for the `feature` RPC
+
+### Fixed
+- Allow empty strings for the purpose of removing fields in DIDSet transaction
+
+### Removed
+- Remove deprecated `full`, `accounts`, and `type` parameters from ledger request model
 
 ## [2.6.0] - 2024-06-03
 
@@ -14,10 +28,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for the Price Oracles amendment (XLS-47).
 - Add `nfts_by_issuer` clio-only API definition
 - Included `ctid` field in the `tx` request.
+- `from_xrpl` method accepts input dictionary keys exclusively in the proper XRPL format.
 
 ### Fixed
 - Added support for `XChainModifyBridge` flag maps (fixing an issue with `NFTokenCreateOffer` flag names)
 - Fixed `XChainModifyBridge` validation to allow just clearing of `MinAccountCreateAmount`
+- Added support for IDE auto-completion of model constructors
 - Currency codes with special characters not being allowed by IssuedCurrency objects.
 - Construction of Wallet throws an "Invalid Seed" error, if the secret is not decode-able.
 - Rectify the incorrect usage of a transaction flag name: Update `TF_NO_DIRECT_RIPPLE` to `TF_NO_RIPPLE_DIRECT`

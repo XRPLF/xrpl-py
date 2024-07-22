@@ -33,7 +33,7 @@ with open(path_to_json + "trustline_set_limit2.json", "r") as infile:
 
 
 class TestGetFinalBalances(TestCase):
-    def test_payment_iou_destination_no_balance(self: TestGetFinalBalances):
+    def test_payment_iou_destination_no_balance(self):
         actual = get_final_balances(payment_iou_destination_no_balance["meta"])
         expected = [
             {
@@ -75,7 +75,7 @@ class TestGetFinalBalances(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_iou_multipath(self: TestGetFinalBalances):
+    def test_payment_iou_multipath(self):
         actual = get_final_balances(payment_iou_multipath["meta"])
         expected = [
             {
@@ -135,7 +135,7 @@ class TestGetFinalBalances(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_iou_redeem_then_issue(self: TestGetFinalBalances):
+    def test_payment_iou_redeem_then_issue(self):
         actual = get_final_balances(payment_iou_redeem_then_issue["meta"])
         expected = [
             {
@@ -162,7 +162,7 @@ class TestGetFinalBalances(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_iou_redeem(self: TestGetFinalBalances):
+    def test_payment_iou_redeem(self):
         actual = get_final_balances(payment_iou_redeem["meta"])
         expected = [
             {
@@ -189,7 +189,7 @@ class TestGetFinalBalances(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_iou_spend_full_balance(self: TestGetFinalBalances):
+    def test_payment_iou_spend_full_balance(self):
         actual = get_final_balances(payment_iou_spend_full_balance["meta"])
         expected = [
             {
@@ -219,7 +219,7 @@ class TestGetFinalBalances(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_iou(self: TestGetFinalBalances):
+    def test_payment_iou(self):
         actual = get_final_balances(payment_iou["meta"])
         expected = [
             {
@@ -261,7 +261,7 @@ class TestGetFinalBalances(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_payment_xrp_create_account(self: TestGetFinalBalances):
+    def test_payment_xrp_create_account(self):
         actual = get_final_balances(payment_xrp_create_account["meta"])
         expected = [
             {
@@ -275,7 +275,7 @@ class TestGetFinalBalances(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_trustline_create(self: TestGetFinalBalances):
+    def test_trustline_create(self):
         actual = get_final_balances(trustline_create["meta"])
         expected = [
             {
@@ -302,7 +302,7 @@ class TestGetFinalBalances(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_trustline_delete(self: TestGetFinalBalances):
+    def test_trustline_delete(self):
         actual = get_final_balances(trustline_delete["meta"])
         expected = [
             {
@@ -332,7 +332,7 @@ class TestGetFinalBalances(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_trustline_set_limit_zero(self: TestGetFinalBalances):
+    def test_trustline_set_limit_zero(self):
         actual = get_final_balances(trustline_set_limit_zero["meta"])
         expected = [
             {
@@ -359,7 +359,7 @@ class TestGetFinalBalances(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_trustline_set_limit(self: TestGetFinalBalances):
+    def test_trustline_set_limit(self):
         actual = get_final_balances(trustline_set_limit["meta"])
         expected = [
             {
@@ -386,7 +386,7 @@ class TestGetFinalBalances(TestCase):
         ]
         self.assertEqual(actual, expected)
 
-    def test_trustline_set_limit2(self: TestGetFinalBalances):
+    def test_trustline_set_limit2(self):
         actual = get_final_balances(trustline_set_limit2["meta"])
         expected = [
             {

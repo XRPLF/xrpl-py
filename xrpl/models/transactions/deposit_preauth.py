@@ -1,16 +1,19 @@
 """Model for DepositPreauth transaction type."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
+from typing_extensions import Self
+
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class DepositPreauth(Transaction):
     """
     Represents a `DepositPreauth <https://xrpl.org/depositpreauth.html>`_
@@ -36,7 +39,7 @@ class DepositPreauth(Transaction):
         init=False,
     )
 
-    def _get_errors(self: DepositPreauth) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.authorize and self.unauthorize:
             errors[
