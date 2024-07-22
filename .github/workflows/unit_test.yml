@@ -96,3 +96,16 @@ jobs:
         run: |
           poetry run poe test_unit
           poetry run coverage report --fail-under=85
+          coverage xml
+
+      - name: Check patch coverage
+        run: |
+          coverage xml
+          diff-cover coverage.xml --compare-branch=main --fail-under=95
+
+      - name: Upload Coverage Report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+          if-no-files-found: error
