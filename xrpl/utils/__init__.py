@@ -2,6 +2,7 @@
 
 from xrpl.utils.get_nftoken_id import get_nftoken_id
 from xrpl.utils.get_xchain_claim_id import get_xchain_claim_id
+from xrpl.utils.int_conversions import hex_to_int, int_to_hex
 from xrpl.utils.parse_nftoken_id import parse_nftoken_id
 from xrpl.utils.str_conversions import hex_to_str, str_to_hex
 from xrpl.utils.time_conversions import (
@@ -19,7 +20,9 @@ from xrpl.utils.txn_parser import (
 from xrpl.utils.xrp_conversions import XRPRangeException, drops_to_xrp, xrp_to_drops
 
 __all__ = [
+    "int_to_hex",
     "str_to_hex",
+    "hex_to_int",
     "hex_to_str",
     "xrp_to_drops",
     "drops_to_xrp",
