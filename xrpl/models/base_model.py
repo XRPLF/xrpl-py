@@ -40,13 +40,13 @@ ABBREVIATIONS: Final[Dict[str, str]] = {
     "did": "DID",
     "id": "ID",
     "lp": "LP",
+    "nft": "NFT",
     "nftoken": "NFToken",
+    "nfts": "NFTs",
+    "noripple": "NoRipple",
     "unl": "UNL",
     "uri": "URI",
     "xchain": "XChain",
-    "nfts": "NFTs",
-    "noripple": "NoRipple",
-    "nft": "NFT",
 }
 
 
