@@ -4,6 +4,7 @@ from xrpl.core.binarycodec.binary_wrappers import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.hash128 import Hash128
 from xrpl.core.binarycodec.types.hash160 import Hash160
+from xrpl.core.binarycodec.types.hash192 import Hash192
 from xrpl.core.binarycodec.types.hash256 import Hash256
 
 
@@ -65,6 +66,34 @@ class TestHash160(TestCase):
     def test_raises_invalid_value_type(self):
         invalid_value = 1
         self.assertRaises(XRPLBinaryCodecException, Hash160.from_value, invalid_value)
+
+
+class TestHash192(TestCase):
+    def setUp(self):
+        # 24 bytes, 48 nibbles
+        self.hex_192_bits = "100000000020000000003000000000400000000050000000"
+        self.parser = BinaryParser(self.hex_192_bits)
+        self.expected_width = 24
+
+    def test_constructors(self):
+        from_constructor = Hash192(bytes.fromhex(self.hex_192_bits))
+        from_value = Hash192.from_value(self.hex_192_bits)
+        from_parser = Hash192.from_parser(self.parser)
+
+        self.assertEqual(from_constructor.to_hex(), self.hex_192_bits)
+        self.assertEqual(from_value.to_hex(), self.hex_192_bits)
+        self.assertEqual(from_parser.to_hex(), self.hex_192_bits)
+
+    def test_constructor_raises_invalid_length(self):
+        # 25 bytes, 50 nibbles
+        too_many_bytes_hex = "10000000002000000000300000000040000000005000000012"
+        self.assertRaises(
+            XRPLBinaryCodecException, Hash192.from_value, too_many_bytes_hex
+        )
+
+    def test_raises_invalid_value_type(self):
+        invalid_value = 1
+        self.assertRaises(XRPLBinaryCodecException, Hash192.from_value, invalid_value)
 
 
 class TestHash256(TestCase):

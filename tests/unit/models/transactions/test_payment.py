@@ -133,3 +133,17 @@ class TestPayment(TestCase):
         }
         with self.assertRaises(XRPLModelException):
             Payment(**transaction_dict)
+
+    def test_mpt_payment(self):
+        transaction_dict = {
+            "account": _ACCOUNT,
+            "fee": _FEE,
+            "sequence": _SEQUENCE,
+            "amount": {
+                "mpt_issuance_id": "000004C463C52827307480341125DA0577DEFC38405B0E3E",
+                "value": "10",
+            },
+            "destination": _DESTINATION,
+        }
+        tx = Payment(**transaction_dict)
+        self.assertTrue(tx.is_valid())

@@ -46,6 +46,8 @@ ABBREVIATIONS: Final[Dict[str, str]] = {
     "uri": "URI",
     "xchain": "XChain",
 }
+# Define keys that should be excluded from key to json conversion
+EXCLUDED_KEYS = {"mpt_issuance_id"}
 
 
 def _key_to_json(field: str) -> str:
@@ -60,6 +62,9 @@ def _key_to_json(field: str) -> str:
     Raises:
         XRPLModelException: If the input is invalid
     """
+    if field in EXCLUDED_KEYS:
+        return field
+
     if not re.fullmatch(pattern=_PASCAL_OR_CAMEL_CASE, string=field):
         raise XRPLModelException(f"Key {field} is not in the proper XRPL format.")
 

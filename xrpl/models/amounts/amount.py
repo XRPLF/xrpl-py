@@ -6,8 +6,9 @@ counterparty.
 from typing import Union, cast
 
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
+from xrpl.models.amounts.mpt_amount import MPTAmount
 
-Amount = Union[IssuedCurrencyAmount, str]
+Amount = Union[IssuedCurrencyAmount, MPTAmount, str]
 
 
 def is_xrp(amount: Amount) -> bool:
