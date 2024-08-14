@@ -31,7 +31,6 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.7"
-zipp = "3.14.0"
 base58 = "^2.1.0"
 ECPy = "^1.2.5"
 typing-extensions = "^4.2.0"
