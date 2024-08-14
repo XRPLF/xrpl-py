@@ -3,9 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Union
-
-from typing_extensions import Self
+from typing import Dict, Self, Union
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
