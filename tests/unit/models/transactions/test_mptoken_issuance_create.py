@@ -1,4 +1,3 @@
-# from sys import maxsize
 from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException

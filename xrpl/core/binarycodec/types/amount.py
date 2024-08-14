@@ -136,9 +136,7 @@ def verify_mpt_value(mpt_value: str) -> None:
             # Check if mpt_value can be converted to a Decimal and within valid range
             decimal = Decimal(mpt_value)
     except (InvalidOperation, ValueError):
-        raise XRPLBinaryCodecException(
-            f"{mpt_value} is not a valid MPT amount."
-        )
+        raise XRPLBinaryCodecException(f"{mpt_value} is not a valid MPT amount.")
 
     # Zero is less than both the min and max MPT amounts but is valid.
     if decimal.is_zero():
@@ -423,7 +421,8 @@ class Amount(SerializedType):
         Returns:
             True if this amount is a native XRP amount, False otherwise.
         """
-        # A native amount is one where both the IOU bit (0x80) and MPT bit (0x20) are not set
+        # A native amount is one where both the IOU bit (0x80)
+        # and MPT bit (0x20) are not set
         return (self.buffer[0] & 0x80) == 0 and (self.buffer[0] & 0x20) == 0
 
     def is_iou(self: Self) -> bool:
@@ -440,7 +439,8 @@ class Amount(SerializedType):
         Returns:
             True if this amount is an MPT amount, False otherwise.
         """
-        # An MPT amount is one where the MPT bit (0x20) is set and the IOU bit (0x80) is not set
+        # An MPT amount is one where the MPT bit (0x20) is set
+        # and the IOU bit (0x80) is not set
         return (self.buffer[0] & 0x20) != 0 and (self.buffer[0] & 0x80) == 0
 
     def is_positive(self: Self) -> bool:
