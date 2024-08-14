@@ -10,7 +10,6 @@ from xrpl.models.amounts.amount import (
     is_xrp,
 )
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
-from xrpl.models.amounts.mpt_amount import MPTAmount
 
 __all__ = [
     "Amount",
@@ -18,5 +17,4 @@ __all__ = [
     "is_xrp",
     "is_issued_currency",
     "get_amount_value",
-    "MPTAmount",
 ]
