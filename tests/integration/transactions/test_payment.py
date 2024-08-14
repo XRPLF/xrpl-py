@@ -10,19 +10,6 @@ from xrpl.models.transactions import Payment
 
 class TestPayment(IntegrationTestCase):
     @test_async_and_sync(globals())
-    async def test_branch_builds(self, client):
-        response = await sign_and_reliable_submission_async(
-            Payment(
-                account=WALLET.address,
-                amount="1",
-                destination=DESTINATION.address,
-            ),
-            WALLET,
-            client,
-        )
-        self.assertTrue(response.is_successful())
-
-    @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
         response = await sign_and_reliable_submission_async(
             Payment(
