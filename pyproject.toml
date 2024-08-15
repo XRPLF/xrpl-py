@@ -59,9 +59,6 @@ MarkupSafe = "2.1.5"
 Sphinx = "^5.3.0"
 poethepoet = "^0.19.0"
 
-[tool.poetry.group.dev.dependencies]
-packaging = "^24.1"
-
 [tool.isort]
 # Make sure that isort's settings line up with black
 profile = "black"
