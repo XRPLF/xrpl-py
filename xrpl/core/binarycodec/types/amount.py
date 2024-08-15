@@ -344,12 +344,13 @@ class Amount(SerializedType):
             An Amount object.
         """
         first_byte = parser.peek()
-        is_iou = (first_byte & 0x80) != 0
+
+        is_iou = (first_byte & 0x80) != 0  # type: ignore
         if is_iou:
             return cls(parser.read(_CURRENCY_AMOUNT_BYTE_LENGTH))
 
         # the amount can be either MPT or XRP at this point
-        is_mpt = (first_byte & 0x20) != 0
+        is_mpt = (first_byte & 0x20) != 0  # type: ignore
         num_bytes = 33 if is_mpt else 8
         return cls(parser.read(num_bytes))
 

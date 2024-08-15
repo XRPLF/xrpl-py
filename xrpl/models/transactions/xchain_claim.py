@@ -8,6 +8,7 @@ from typing import Dict, Optional, Union
 from typing_extensions import Self
 
 from xrpl.models.amounts import Amount
+from xrpl.models.amounts.amount import is_issued_currency, is_mpt, is_xrp
 from xrpl.models.currencies import XRP
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -77,7 +78,17 @@ class XChainClaim(Transaction):
         errors = super()._get_errors()
 
         bridge = self.xchain_bridge
-        currency = XRP() if isinstance(self.amount, str) else self.amount.to_currency()
+
+        amount = self.amount
+        if is_xrp(amount):
+            currency = XRP()
+        elif is_issued_currency(amount):
+            currency = amount.to_currency()  # type: ignore
+        elif is_mpt(amount):
+            currency = amount.mpt_issuance_id  # type: ignore
+        else:
+            errors["amount"] = "currency can't be derived."
+
         if (
             currency != bridge.locking_chain_issue
             and currency != bridge.issuing_chain_issue
