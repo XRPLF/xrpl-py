@@ -1,5 +1,5 @@
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import (
+from tests.integration.it_utils import (  # fund_wallet_async,
     fund_wallet,
     sign_and_reliable_submission_async,
     test_async_and_sync,
@@ -14,6 +14,15 @@ from xrpl.models import (
     TrustSet,
     TrustSetFlag,
 )
+
+# from xrpl.models.amounts.mpt_amount import MPTAmount
+# from xrpl.models.requests.ledger_entry import LedgerEntry, MPToken
+# from xrpl.models.requests.tx import Tx
+# from xrpl.models.transactions.mptoken_authorize import MPTokenAuthorize
+# from xrpl.models.transactions.mptoken_issuance_create import (
+#     MPTokenIssuanceCreate,
+#     MPTokenIssuanceCreateFlag,
+# )
 from xrpl.wallet import Wallet
 
 HOLDER = Wallet.create()
@@ -71,3 +80,92 @@ class TestClawback(IntegrationTestCase):
             client,
         )
         self.assertTrue(response.is_successful())
+
+    # TODO: uncomment test when rippled Docker image supports MPT feature
+    # @test_async_and_sync(globals())
+    # async def test_mptoken(self, client):
+    #     wallet2 = Wallet.create()
+    #     await fund_wallet_async(wallet2)
+
+    #     tx = MPTokenIssuanceCreate(
+    #         account=WALLET.classic_address,
+    #         flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_CLAWBACK,
+    #     )
+
+    #     create_res = await sign_and_reliable_submission_async(
+    #         tx,
+    #         WALLET,
+    #         client,
+    #     )
+
+    #     self.assertTrue(create_res.is_successful())
+    #     self.assertEqual(create_res.result["engine_result"], "tesSUCCESS")
+
+    #     tx_hash = create_res.result["tx_json"]["hash"]
+
+    #     tx_res = await client.request(Tx(transaction=tx_hash))
+    #     mpt_issuance_id = tx_res.result["meta"]["mpt_issuance_id"]
+
+    #     auth_tx = MPTokenAuthorize(
+    #         account=wallet2.classic_address,
+    #         mptoken_issuance_id=mpt_issuance_id,
+    #     )
+
+    #     auth_res = await sign_and_reliable_submission_async(
+    #         auth_tx,
+    #         wallet2,
+    #         client,
+    #     )
+
+    #     self.assertTrue(auth_res.is_successful())
+    #     self.assertEqual(auth_res.result["engine_result"], "tesSUCCESS")
+
+    #     await sign_and_reliable_submission_async(
+    #         Payment(
+    #             account=WALLET.classic_address,
+    #             destination=wallet2.classic_address,
+    #             amount=MPTAmount(
+    #                 mpt_issuance_id=mpt_issuance_id, value="9223372036854775807"
+    #             ),
+    #         ),
+    #         WALLET,
+    #     )
+
+    #     ledger_entry_res = await client.request(
+    #         LedgerEntry(
+    #             mptoken=MPToken(
+    #                 mpt_issuance_id=mpt_issuance_id, account=wallet2.classic_address
+    #             )
+    #         )
+    #     )
+    #     self.assertEqual(
+    #         ledger_entry_res.result["node"]["MPTAmount"], "7fffffffffffffff"
+    #     )
+
+    #     # actual test - clawback
+    #     response = await sign_and_reliable_submission_async(
+    #         Clawback(
+    #             account=WALLET.classic_address,
+    #             amount=MPTAmount(
+    #                 mpt_issuance_id=mpt_issuance_id,
+    #                 value="500",
+    #             ),
+    #             mptoken_holder=wallet2.classic_address,
+    #         ),
+    #         WALLET,
+    #         client,
+    #     )
+
+    #     self.assertTrue(response.is_successful())
+    #     self.assertEqual(auth_res.result["engine_result"], "tesSUCCESS")
+
+    #     ledger_entry_res = await client.request(
+    #         LedgerEntry(
+    #             mptoken=MPToken(
+    #                 mpt_issuance_id=mpt_issuance_id, account=wallet2.classic_address
+    #             )
+    #         )
+    #     )
+    #     self.assertEqual(
+    #         ledger_entry_res.result["node"]["MPTAmount"], "7ffffffffffffe0b"
+    #     )
