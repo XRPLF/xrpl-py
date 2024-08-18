@@ -24,6 +24,7 @@ class TransactionType(str, Enum):
     ESCROW_CANCEL = "EscrowCancel"
     ESCROW_CREATE = "EscrowCreate"
     ESCROW_FINISH = "EscrowFinish"
+    MPTOKEN_AUTHORIZE = "MPTokenAuthorize"
     MPTOKEN_ISSUANCE_CREATE = "MPTokenIssuanceCreate"
     NFTOKEN_ACCEPT_OFFER = "NFTokenAcceptOffer"
     NFTOKEN_BURN = "NFTokenBurn"

@@ -35,6 +35,7 @@ from xrpl.models.transactions.escrow_cancel import EscrowCancel
 from xrpl.models.transactions.escrow_create import EscrowCreate
 from xrpl.models.transactions.escrow_finish import EscrowFinish
 from xrpl.models.transactions.metadata import TransactionMetadata
+from xrpl.models.transactions.mptoken_authorize import MPTokenAuthorize
 from xrpl.models.transactions.mptoken_issuance_create import MPTokenIssuanceCreate
 from xrpl.models.transactions.nftoken_accept_offer import NFTokenAcceptOffer
 from xrpl.models.transactions.nftoken_burn import NFTokenBurn
@@ -121,6 +122,7 @@ __all__ = [
     "EscrowCreate",
     "EscrowFinish",
     "Memo",
+    "MPTokenAuthorize",
     "MPTokenIssuanceCreate",
     "NFTokenAcceptOffer",
     "NFTokenBurn",
