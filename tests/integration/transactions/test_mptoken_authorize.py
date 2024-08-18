@@ -41,7 +41,8 @@
 
 #         # confirm MPTokenIssuance ledger object was created
 #         account_objects_response = await client.request(
-#             AccountObjects(account=WALLET.address, type=AccountObjectType.MPT_ISSUANCE)
+#             AccountObjects(account=WALLET.address,
+#               type=AccountObjectType.MPT_ISSUANCE)
 #         )
 
 #         # subsequent integration tests (sync/async + json/websocket) add one
