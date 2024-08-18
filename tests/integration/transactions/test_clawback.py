@@ -5,7 +5,7 @@ from tests.integration.it_utils import (  # fund_wallet_async,
     test_async_and_sync,
 )
 from tests.integration.reusable_values import WALLET
-from xrpl.models import (
+from xrpl.models import (  # MPTAmount,
     AccountSet,
     AccountSetAsfFlag,
     Clawback,
@@ -15,11 +15,10 @@ from xrpl.models import (
     TrustSetFlag,
 )
 
-# from xrpl.models.amounts.mpt_amount import MPTAmount
-# from xrpl.models.requests.ledger_entry import LedgerEntry, MPToken
-# from xrpl.models.requests.tx import Tx
-# from xrpl.models.transactions.mptoken_authorize import MPTokenAuthorize
-# from xrpl.models.transactions.mptoken_issuance_create import (
+# from xrpl.models.requests import LedgerEntry, Tx
+# from xrpl.models.requests.ledger_entry import MPToken
+# from xrpl.models.transactions import (
+#     MPTokenAuthorize,
 #     MPTokenIssuanceCreate,
 #     MPTokenIssuanceCreateFlag,
 # )

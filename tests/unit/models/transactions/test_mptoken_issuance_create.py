@@ -1,8 +1,7 @@
 from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.transactions import MPTokenIssuanceCreate
-from xrpl.models.transactions.mptoken_issuance_create import MPTokenIssuanceCreateFlag
+from xrpl.models.transactions import MPTokenIssuanceCreate, MPTokenIssuanceCreateFlag
 from xrpl.utils import int_to_hex, str_to_hex
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"

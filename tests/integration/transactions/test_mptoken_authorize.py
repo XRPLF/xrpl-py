@@ -8,12 +8,12 @@
 # from tests.integration.reusable_values import WALLET
 # from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
 # from xrpl.models.requests.tx import Tx
-# from xrpl.models.transactions import MPTokenIssuanceCreate
-# from xrpl.models.transactions.mptoken_authorize import (
+# from xrpl.models.transactions import (
 #     MPTokenAuthorize,
 #     MPTokenAuthorizeFlag,
+#     MPTokenIssuanceCreate,
+#     MPTokenIssuanceCreateFlag,
 # )
-# from xrpl.models.transactions.mptoken_issuance_create import MPTokenIssuanceCreateFlag
 # from xrpl.wallet.main import Wallet
 
 
