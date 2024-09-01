@@ -821,13 +821,13 @@ type = ["mypy (>=1.8)"]
 
 [[package]]
 name = "poethepoet"
-version = "0.19.0"
+version = "0.28.0"
 description = "A task runner that works well with poetry."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "poethepoet-0.19.0-py3-none-any.whl", hash = "sha256:87038be589077e4b407050a9da644d9cd9e4076ccfc8abc7f855cf6870d5c6c2"},
-    {file = "poethepoet-0.19.0.tar.gz", hash = "sha256:897eb85ec15876d79befc7d19d4c80ce7c8b214d1bb0dcfec640abd81616bfed"},
+    {file = "poethepoet-0.28.0-py3-none-any.whl", hash = "sha256:db6946ff39a1244235950cd720ee7182107f64126d3dcc64c9a996cc4d755404"},
+    {file = "poethepoet-0.28.0.tar.gz", hash = "sha256:5dc3ee036ab0c93e918b5caed628274618b07d788e5cff6c4ae480913cbe009c"},
 ]
 
 [package.dependencies]
@@ -1368,4 +1368,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "b3ba481a29769ea03fe6430853c9409f2bce61f3dd30ab9a872c63ab8443072c"
+content-hash = "f5a2fc91592afe0a42d12409cd3f936792b21198059cee489215d9fa219f131f"
