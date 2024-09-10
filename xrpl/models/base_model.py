@@ -294,7 +294,7 @@ class BaseModel(ABC):
     def _check_type(
         self: Self, attr: str, value: Any, expected_type: Type[Any]
     ) -> Dict[str, str]:
-        # returns error message if type is bad, None if type is good
+        # returns error dict if type is bad, None if type is good
         expected_type_origin = get_origin(expected_type)
         if expected_type_origin is Union:
             if any(
