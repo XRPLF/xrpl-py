@@ -304,7 +304,8 @@ class BaseModel(ABC):
                 return {}
             return {attr: f"{attr} is {type(value)}, expected {expected_type}"}
 
-        if expected_type is Any:
+        # unsure what the problem with mypy is here
+        if expected_type is Any:  # type: ignore[comparison-overlap]
             return {}
 
         if expected_type_origin is list:
