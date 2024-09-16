@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### BREAKING CHANGE
 - Use rippled API v2 as default in requests
+- The default signing algorithm in the `Wallet` was changed from secp256k1 to ed25519
 
 ### Added
 - Support for the DeliverMax field in Payment transactions
