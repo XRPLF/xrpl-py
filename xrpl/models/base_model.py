@@ -85,7 +85,7 @@ class BaseModel(ABC):
     """The base class for all model types."""
 
     @classmethod
-    def is_dict_of_model(cls: Type[Self], dictionary: Any) -> bool:
+    def is_dict_of_model(cls: Type[Self], dictionary: Any) -> bool:  # noqa: ANN401
         """
         Checks whether the provided ``dictionary`` is a dictionary representation
         of this class.
@@ -150,7 +150,7 @@ class BaseModel(ABC):
         param: str,
         param_type: Type[Any],
         param_value: Union[int, str, bool, BaseModel, Enum, List[Any], Dict[str, Any]],
-    ) -> Any:
+    ) -> Any:  # noqa: ANN401
         """Recursively handles each individual param in `from_dict`."""
         param_type_origin = get_origin(param_type)
         # returns `list` if a List, `Union` if a Union, None otherwise
@@ -321,7 +321,7 @@ class BaseModel(ABC):
             if getattr(self, key) is not None
         }
 
-    def _to_dict_elem(self: Self, elem: Any) -> Any:
+    def _to_dict_elem(self: Self, elem: Any) -> Any:  # noqa: ANN401
         if isinstance(elem, BaseModel):
             return elem.to_dict()
         if isinstance(elem, Enum):

@@ -28,7 +28,7 @@ class GenericRequest(Request):
     :meta hide-value:
     """
 
-    def __init__(self: Self, **kwargs: Any) -> None:
+    def __init__(self: Self, **kwargs: Any) -> None:  # noqa: ANN401
         """
         Initializes a GenericRequest.
 
