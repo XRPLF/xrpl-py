@@ -84,7 +84,7 @@ def drops_to_xrp(drops: str) -> Decimal:
         TypeError: if ``drops`` not given as a string
         XRPRangeException: if the given number of drops is invalid
     """
-    if isinstance(drops, str):
+    if not isinstance(drops, str):
         raise TypeError(f"Drops must be provided as string (got {type(drops)})")
     drops = drops.strip()
     with localcontext(DROPS_DECIMAL_CONTEXT):
