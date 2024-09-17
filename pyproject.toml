@@ -51,7 +51,6 @@ flake8-isort = "^6.0.0"
 flake8-annotations = "3.1.1"
 flake8-absolute-import = "^1.0"
 pydoclint = "^0.5.7"
-darglint = "^1.8.1"
 sphinx-rtd-theme = "^2.0.0"
 aiounittest = "^1.4.0"
 coverage = "^7.2.7"
@@ -81,7 +80,7 @@ precision = 2
 [tool.poe.tasks]
 test_unit = "coverage run -m unittest discover tests/unit"
 test_integration = "coverage run -m unittest discover tests/integration"
-lint = "poetry run flake8 xrpl tests snippets --darglint-ignore-regex=\"^_(.*)\""
+lint = "poetry run flake8 xrpl tests snippets"
 
 [tool.poe.tasks.test]
 cmd  = "python3 -m unittest ${FILE_PATHS}"
