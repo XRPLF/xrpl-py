@@ -18,7 +18,7 @@ allow-init-docstring=True
 
 per-file-ignores =
   # For tests, disable type annotation and docstring linting.
-  tests/*: ANN D
+  tests/*: ANN D DOC
 
 # Select other tools to enable.
 
@@ -30,7 +30,7 @@ per-file-ignores =
 
 # D enables docstrings warnings from pydocstyle.
 
-# DIC enables docstring style linting via pydoclint.
+# DOC enables docstring style linting via pydoclint.
 
 # F are errors reported by pyflakes, a tool which parses source files
 # and finds invalid Python code.
