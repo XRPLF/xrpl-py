@@ -294,7 +294,10 @@ class BaseModel(ABC):
     def _check_type(
         self: Self, attr: str, value: Any, expected_type: Type[Any]
     ) -> Dict[str, str]:
-        # returns error dict if type is bad, None if type is good
+        """
+        Returns error dictionary if the type of `value` does not match the
+        `expected_type`.
+        """
         expected_type_origin = get_origin(expected_type)
         if expected_type_origin is Union:
             if any(
@@ -311,7 +314,7 @@ class BaseModel(ABC):
         if expected_type_origin is list:
             # expected a List, received a List
             if not isinstance(value, list):
-                return {"attr": f"{attr} is {type(value)}, expected {expected_type}"}
+                return {attr: f"{attr} is {type(value)}, expected {expected_type}"}
             result = {}
             for i in range(len(value)):
                 result.update(
