@@ -1,101 +1,52 @@
-"""Example of ripple_path_find request using trustlines and rippling"""
+"""Example of how to find the best path to trade with"""
 
 from xrpl.clients import JsonRpcClient
-from xrpl.models import AccountSet, TrustSet
-from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.requests import RipplePathFind
-from xrpl.models.transactions.account_set import AccountSetAsfFlag
-from xrpl.transaction import submit_and_wait
+from xrpl.models import XRP, IssuedCurrencyAmount, Payment, RipplePathFind
+from xrpl.transaction import autofill_and_sign
 from xrpl.wallet import generate_faucet_wallet
 
-# Note: This test is inspired from a unit test titled `indirect_paths_path_find` in the
-# rippled C++ codebase (Path_test.cpp)
-# https://github.com/XRPLF/rippled/blob/d9bd75e68326861fb38fd5b27d47da1054a7fc3b/src/test/app/Path_test.cpp#L683
+# References
+# - https://xrpl.org/paths.html#paths
+# - https://xrpl.org/ripple_path_find.html#ripple_path_find
+# Prerequisites for this snippet. Please verify these conditions after a reset of the
+# test network:
+# - destination_account must have a trust line with the destination_amount.issuer
+# - There must be appropriate DEX Offers or XRP/TST AMM for the cross-currency exchange
 
 # Create a client to connect to the test network
 client = JsonRpcClient("https://s.altnet.rippletest.net:51234")
 
 # Creating wallet to send money from
-# these wallets will have 100 testnet XRP
-alice = generate_faucet_wallet(client, debug=True)
-bob = generate_faucet_wallet(client, debug=True)
-carol = generate_faucet_wallet(client, debug=True)
+wallet = generate_faucet_wallet(client, debug=True)
 
-# send AccountSet transaction with asfDefaultRipple turned on
-# this enables rippling on all trustlines through these accounts.
-submit_and_wait(
-    AccountSet(account=alice.address, set_flag=AccountSetAsfFlag.ASF_DEFAULT_RIPPLE),
-    client,
-    alice,
+# Create account and amount variables for later transaction
+destination_account = "rJPeZVPty1bXXbDR9oKscg2irqABr7sP3t"
+destination_amount = IssuedCurrencyAmount(
+    value="0.001",
+    currency="TST",
+    issuer="rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd",
 )
 
-submit_and_wait(
-    AccountSet(account=bob.address, set_flag=AccountSetAsfFlag.ASF_DEFAULT_RIPPLE),
-    client,
-    bob,
+# Create a RipplePathFind request and have the client call it
+path_request = RipplePathFind(
+    source_account=wallet.address,
+    source_currencies=[XRP()],
+    destination_account=destination_account,
+    destination_amount=destination_amount,
 )
+path_response = client.request(path_request)
+print(path_response)
 
-submit_and_wait(
-    AccountSet(account=carol.address, set_flag=AccountSetAsfFlag.ASF_DEFAULT_RIPPLE),
-    client,
-    carol,
-)
-
-# set up trustlines from bob -> alice, carol -> bob to transfer IssuedCurrency `USD`
-submit_and_wait(
-    TrustSet(
-        account=bob.address,
-        limit_amount=IssuedCurrencyAmount(
-            currency="USD", issuer=alice.address, value="1000"
-        ),
-    ),
-    client,
-    bob,
-)
-submit_and_wait(
-    TrustSet(
-        account=carol.address,
-        limit_amount=IssuedCurrencyAmount(
-            currency="USD", issuer=bob.address, value="1000"
-        ),
-    ),
-    client,
-    carol,
-)
-
-# Perform path find
-# Note: Rippling allows IssuedCurrencies with identical currency-codes,
-# but different (ex: alice, bob and carol) issuers to settle their transfers.
-# Docs: https://xrpl.org/docs/concepts/tokens/fungible-tokens/rippling
-request = RipplePathFind(
-    source_account=alice.classic_address,
-    source_currencies=[
-        IssuedCurrencyAmount(currency="USD", issuer=alice.address, value="1000")
-    ],
-    destination_account=carol.classic_address,
-    destination_amount=IssuedCurrencyAmount(
-        currency="USD", issuer=carol.classic_address, value="5"
-    ),
-)
-response = client.request(request)
-
-# Check the results
-paths = response.result["alternatives"]
-assert len(paths) > 0, "No paths found"
-
-print("Paths discovered by ripple_path_find RPC:")
+# Extract out paths from the RipplePathFind response
+paths = path_response.result["alternatives"][0]["paths_computed"]
 print(paths)
 
-# Check if the path includes bob
-# the "paths_computed" field uses a 2-D matrix representation as detailed here:
-# https://xrpl.org/docs/concepts/tokens/fungible-tokens/paths#path-specifications
-path = paths[0]["paths_computed"][0][0]
-assert path["account"] == bob.classic_address, "Path does not include bob"
+# Create a Payment to send money from wallet to destination_account using path
+payment_tx = Payment(
+    account=wallet.address,
+    amount=destination_amount,
+    destination=destination_account,
+    paths=paths,
+)
 
-# Check the source amount
-source_amount = paths[0]["source_amount"]
-assert source_amount["currency"] == "USD"
-assert source_amount["issuer"] == alice.classic_address
-assert float(source_amount["value"]) == 5.0
-
-print("Test passed successfully!")
+print("signed: ", autofill_and_sign(payment_tx, client, wallet))
