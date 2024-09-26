@@ -1,4 +1,5 @@
 """Conversions between XRP drops and native number types."""
+
 import re
 from decimal import Decimal, InvalidOperation, localcontext
 from typing import Pattern, Union
@@ -35,7 +36,7 @@ def xrp_to_drops(xrp: Union[int, float, Decimal]) -> str:
         TypeError: if ``xrp`` is given as a string
         XRPRangeException: if the given amount of XRP is invalid
     """
-    if type(xrp) == str:  # type: ignore
+    if isinstance(xrp, str):
         # This protects people from passing drops to this function and getting
         # a million times as many drops back.
         raise TypeError(
@@ -83,7 +84,7 @@ def drops_to_xrp(drops: str) -> Decimal:
         TypeError: if ``drops`` not given as a string
         XRPRangeException: if the given number of drops is invalid
     """
-    if type(drops) != str:
+    if not isinstance(drops, str):
         raise TypeError(f"Drops must be provided as string (got {type(drops)})")
     drops = drops.strip()
     with localcontext(DROPS_DECIMAL_CONTEXT):
