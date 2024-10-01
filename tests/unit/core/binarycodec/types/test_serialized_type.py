@@ -48,7 +48,7 @@ class TestSerializedType(TestCase):
     def fixture_test(self, fixture: ValueTest):
         """Run the appropriate test for given fixture case."""
         serialized_type: SerializedType = TYPE_MAP[fixture.type]
-        if type(fixture.test_json) == dict:
+        if isinstance(fixture.test_json, dict):
             json_value = fixture.test_json
         else:
             json_value = str(fixture.test_json)

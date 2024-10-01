@@ -58,9 +58,9 @@ def _handle_xaddress(field: str, xaddress: str) -> Dict[str, Union[str, int]]:
     return {field: classic_address}
 
 
-def _str_to_enum(field: str, value: Any) -> Any:
-    # all of these fields have enum values that are used for serialization
-    # converts the string name to the corresponding enum code
+# all of these fields have enum values that are used for serialization
+# converts the string name to the corresponding enum code
+def _str_to_enum(field: str, value: Any) -> Any:  # noqa: ANN401
     if field == "TransactionType":
         return get_transaction_type_code(value)
     if field == "TransactionResult":
@@ -70,8 +70,8 @@ def _str_to_enum(field: str, value: Any) -> Any:
     return value
 
 
-def _enum_to_str(field: str, value: Any) -> Any:
-    # reverse of the above function
+# reverse of the above function
+def _enum_to_str(field: str, value: Any) -> Any:  # noqa: ANN401
     if field == "TransactionType":
         return get_transaction_type_name(value)
     if field == "TransactionResult":

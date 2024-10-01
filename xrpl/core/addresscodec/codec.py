@@ -40,8 +40,8 @@ def _encode(bytestring: bytes, prefix: List[int], expected_length: int) -> str:
     length.
     """
     if expected_length and len(bytestring) != expected_length:
-        error_message = """unexpected_payload_length: len(bytestring) does not match expected_length.
-        Ensure that the bytes are a bytestring."""
+        error_message = """unexpected_payload_length: len(bytestring) does not match
+        expected_length. Ensure that the bytes are a bytestring."""
         raise XRPLAddressCodecException(error_message)
     encoded_prefix = bytes(prefix)
     payload = encoded_prefix + bytestring

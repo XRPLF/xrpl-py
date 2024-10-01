@@ -25,13 +25,13 @@ class SerializedType(ABC):
         cls: Type[Self],
         parser: BinaryParser,
         # length_hint is Any so that subclasses can choose whether or not to require it.
-        length_hint: Any,
+        length_hint: Any,  # noqa: ANN401
     ) -> Self:
         pass
 
     @classmethod
     @abstractmethod
-    def from_value(cls: Type[Self], value: Any) -> Self:  # noqa: D102
+    def from_value(cls: Type[Self], value: Any) -> Self:  # noqa: D102 ANN401
         pass
 
     def to_byte_sink(self: Self, bytesink: bytearray) -> None:
@@ -54,7 +54,7 @@ class SerializedType(ABC):
         """
         return self.buffer
 
-    def to_json(self: Self) -> Any:
+    def to_json(self: Self) -> Any:  # noqa: ANN401
         """
         Returns the JSON representation of a SerializedType.
 
