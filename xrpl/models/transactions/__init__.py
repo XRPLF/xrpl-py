@@ -34,6 +34,7 @@ from xrpl.models.transactions.did_set import DIDSet
 from xrpl.models.transactions.escrow_cancel import EscrowCancel
 from xrpl.models.transactions.escrow_create import EscrowCreate
 from xrpl.models.transactions.escrow_finish import EscrowFinish
+from xrpl.models.transactions.ledger_state_fix import LedgerStateFix
 from xrpl.models.transactions.metadata import TransactionMetadata
 from xrpl.models.transactions.nftoken_accept_offer import NFTokenAcceptOffer
 from xrpl.models.transactions.nftoken_burn import NFTokenBurn
@@ -119,6 +120,7 @@ __all__ = [
     "EscrowCancel",
     "EscrowCreate",
     "EscrowFinish",
+    "LedgerStateFix",
     "Memo",
     "NFTokenAcceptOffer",
     "NFTokenBurn",
