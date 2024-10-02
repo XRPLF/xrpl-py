@@ -24,6 +24,7 @@ from xrpl.models.transactions.amm_withdraw import (
     AMMWithdrawFlag,
     AMMWithdrawFlagInterface,
 )
+from xrpl.models.transactions.batch import Batch
 from xrpl.models.transactions.check_cancel import CheckCancel
 from xrpl.models.transactions.check_cash import CheckCash
 from xrpl.models.transactions.check_create import CheckCreate
@@ -110,6 +111,7 @@ __all__ = [
     "AMMWithdrawFlag",
     "AMMWithdrawFlagInterface",
     "AuthAccount",
+    "Batch",
     "CheckCancel",
     "CheckCash",
     "CheckCreate",
