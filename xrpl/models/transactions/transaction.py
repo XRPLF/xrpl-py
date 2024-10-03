@@ -16,6 +16,7 @@ from xrpl.models.flags import check_false_flag_definition, interface_to_flag_lis
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
+from xrpl.models.transactions.batch import BatchInnerTransaction
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
 from xrpl.models.types import XRPL_VALUE_TYPE
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
@@ -411,7 +412,11 @@ class Transaction(BaseModel):
         Raises:
             XRPLModelException: if the Transaction is unsigned.
         """
-        if self.txn_signature is None and self.signers is None:
+        if (
+            self.txn_signature is None
+            and self.signers is None
+            and not isinstance(self, BatchInnerTransaction)
+        ):
             raise XRPLModelException(
                 "Cannot get the hash from an unsigned Transaction."
             )
