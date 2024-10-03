@@ -1,8 +1,9 @@
 from unittest import TestCase
 
 from xrpl.asyncio.transaction.main import sign
+from xrpl.core.addresscodec.main import classic_address_to_xaddress
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.transactions import AccountSet, OfferCreate, Payment
+from xrpl.models.transactions import AccountSet, DepositPreauth, OfferCreate, Payment
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types.transaction_type import TransactionType
 from xrpl.transaction.multisign import multisign
@@ -152,6 +153,17 @@ class TestTransaction(TestCase):
 
     def test_is_signed_for_multisigned_transaction(self):
         tx = AccountSet(account=_WALLET.address, domain=EXAMPLE_DOMAIN)
+        tx_1 = sign(tx, _FIRST_SIGNER, multisign=True)
+        tx_2 = sign(tx, _SECOND_SIGNER, multisign=True)
+
+        multisigned_tx = multisign(tx, [tx_1, tx_2])
+        self.assertTrue(multisigned_tx.is_signed())
+
+    def test_multisigned_transaction_xaddress(self):
+        tx = DepositPreauth(
+            account=classic_address_to_xaddress(_WALLET.address, 1, False),
+            authorize=classic_address_to_xaddress(_ACCOUNT, 1, False),
+        )
         tx_1 = sign(tx, _FIRST_SIGNER, multisign=True)
         tx_2 = sign(tx, _SECOND_SIGNER, multisign=True)
 

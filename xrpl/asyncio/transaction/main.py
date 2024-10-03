@@ -87,11 +87,12 @@ def sign(
     Returns:
         The signed transaction blob.
     """
+    transaction_json = _prepare_transaction(transaction, wallet)
     if multisign:
         signature = keypairs_sign(
             bytes.fromhex(
                 encode_for_multisigning(
-                    transaction.to_xrpl(),
+                    transaction_json,
                     wallet.address,
                 )
             ),
@@ -107,7 +108,6 @@ def sign(
         ]
         return Transaction.from_dict(tx_dict)
 
-    transaction_json = _prepare_transaction(transaction, wallet)
     serialized_for_signing = encode_for_signing(transaction_json)
     serialized_bytes = bytes.fromhex(serialized_for_signing)
     signature = keypairs_sign(serialized_bytes, wallet.private_key)
@@ -194,8 +194,12 @@ def _prepare_transaction(
 
     Raises:
         XRPLException: if both LastLedgerSequence and `ledger_offset` are provided, or
-            if an address tag is provided that does not match the X-Address tag.
+            if an address tag is provided that does not match the X-Address tag, or if
+            attempting to directly sign a Batch inner transaction.
     """
+    if transaction.batch_txn is not None:
+        raise XRPLException("Cannot directly sign a batch inner transaction.")
+
     transaction_json = transaction.to_xrpl()
     transaction_json["SigningPubKey"] = wallet.public_key
 
@@ -214,7 +218,7 @@ def _prepare_transaction(
     return transaction_json
 
 
-T = TypeVar("T", bound=Transaction)
+T = TypeVar("T", bound=Transaction, default=Transaction)
 
 
 async def autofill(
@@ -385,7 +389,7 @@ def _convert_to_classic_address(json: Dict[str, Any], field: str) -> None:
         field: the field in `json` that may contain an X-Address
     """
     if field in json and is_valid_xaddress(json[field]):
-        json[field] = xaddress_to_classic_address(json[field])
+        json[field] = xaddress_to_classic_address(json[field])[0]
 
 
 def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[str, Any]:
