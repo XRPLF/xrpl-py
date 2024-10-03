@@ -16,7 +16,6 @@ from xrpl.models.flags import check_false_flag_definition, interface_to_flag_lis
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.batch import BatchInnerTransaction
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
 from xrpl.models.types import XRPL_VALUE_TYPE
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
@@ -156,6 +155,20 @@ class Signer(NestedModel):
 
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
+class BatchTxn(NestedModel):
+    """Represents the info indicating a Batch transaction."""
+
+    outer_account: str = REQUIRED  # type: ignore
+
+    sequence: Optional[int] = None
+
+    ticket_sequence: Optional[int] = None
+
+    batch_index: int = REQUIRED  # type: ignore
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Transaction(BaseModel):
     """
     The base class for all `transaction types
@@ -250,6 +263,8 @@ class Transaction(BaseModel):
 
     network_id: Optional[int] = None
     """The network id of the transaction."""
+
+    batch_txn: Optional[BatchTxn] = None
 
     def _get_errors(self: Self) -> Dict[str, str]:
         # import must be here to avoid circular dependencies
@@ -415,7 +430,7 @@ class Transaction(BaseModel):
         if (
             self.txn_signature is None
             and self.signers is None
-            and not isinstance(self, BatchInnerTransaction)
+            and self.batch_txn is None
         ):
             raise XRPLModelException(
                 "Cannot get the hash from an unsigned Transaction."

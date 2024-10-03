@@ -28,33 +28,11 @@ class BatchSigner(NestedModel):
 
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
-class BatchTxn(NestedModel):
-    """Represents the info indicating a Batch transaction."""
-
-    outer_account: str = REQUIRED  # type: ignore
-
-    sequence: Optional[int] = None
-
-    ticket_sequence: Optional[int] = None
-
-    batch_index: int = REQUIRED  # type: ignore
-
-
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
-class BatchInnerTransaction(Transaction):
-    """Represents a Batch inner transaction."""
-
-    BatchTxn: BatchTxn = REQUIRED  # type: ignore
-
-
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Batch(Transaction):
     """Represents a Batch transaction."""
 
-    raw_transactions: List[BatchInnerTransaction] = REQUIRED  # type: ignore
-    tx_ids: List[str] = REQUIRED  # type: ignore
+    raw_transactions: List[Transaction] = REQUIRED  # type: ignore
+    tx_ids: Optional[List[str]] = None
     batch_signers: Optional[List[BatchSigner]] = None
 
     transaction_type: TransactionType = field(

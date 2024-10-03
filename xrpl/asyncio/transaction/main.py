@@ -3,7 +3,7 @@
 import math
 from typing import Any, Dict, List, Optional, Tuple, cast
 
-from typing_extensions import Final
+from typing_extensions import Final, TypeVar
 
 from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
@@ -15,7 +15,7 @@ from xrpl.core.keypairs.main import sign as keypairs_sign
 from xrpl.models.requests import ServerInfo, ServerState, SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions import EscrowFinish
-from xrpl.models.transactions.batch import Batch, BatchInnerTransaction
+from xrpl.models.transactions.batch import Batch
 from xrpl.models.transactions.transaction import Signer, Transaction
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
@@ -214,9 +214,12 @@ def _prepare_transaction(
     return transaction_json
 
 
+T = TypeVar("T", bound=Transaction)
+
+
 async def autofill(
-    transaction: Transaction, client: Client, signers_count: Optional[int] = None
-) -> Transaction:
+    transaction: T, client: Client, signers_count: Optional[int] = None
+) -> T:
     """
     Autofills fields in a transaction. This will set `sequence`, `fee`, and
     `last_ledger_sequence` according to the current state of the server this Client is
@@ -251,7 +254,7 @@ async def autofill(
         transaction_json["raw_transactions"] = inner_txs
         if "tx_ids" not in transaction_json:
             transaction_json["tx_ids"] = tx_ids
-    return Transaction.from_dict(transaction_json)
+    return cast(T, Transaction.from_dict(transaction_json))
 
 
 async def _get_network_id_and_build_version(client: Client) -> None:
@@ -493,18 +496,18 @@ async def _fetch_owner_reserve_fee(client: Client) -> int:
 
 async def _autofill_batch(
     client: Client, transaction: Batch
-) -> Tuple[List[BatchInnerTransaction], List[str]]:
+) -> Tuple[List[Transaction], List[str]]:
     account_sequences: Dict[str, int] = {}
     batch_index = 0
     tx_ids: List[str] = []
-    inner_txs: List[BatchInnerTransaction] = []
+    inner_txs: List[Transaction] = []
 
     for raw_txn in transaction.raw_transactions:
-        if raw_txn.BatchTxn is not None:
+        if raw_txn.batch_txn is not None:
             inner_txs.append(raw_txn)
             continue
 
-        batch_txn = {"outer_account": transaction.account}
+        batch_txn: Dict[str, Any] = {"outer_account": transaction.account}
 
         if raw_txn.account in account_sequences:
             batch_txn["sequence"] = account_sequences[raw_txn.account]
@@ -518,8 +521,9 @@ async def _autofill_batch(
         batch_index += 1
 
         raw_txn_dict = raw_txn.to_dict()
-        raw_txn_dict["RawTransaction"]["BatchTxn"] = batch_txn
-        inner_txs.append(BatchInnerTransaction.from_dict(raw_txn_dict))
-        tx_ids.append(raw_txn.get_hash())
+        raw_txn_dict["batch_txn"] = batch_txn
+        new_raw_txn = Transaction.from_dict(raw_txn_dict)
+        inner_txs.append(new_raw_txn)
+        tx_ids.append(new_raw_txn.get_hash())
 
     return inner_txs, tx_ids
