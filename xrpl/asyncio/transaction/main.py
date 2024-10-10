@@ -87,7 +87,7 @@ def sign(
     Returns:
         The signed transaction blob.
     """
-    transaction_json = _prepare_transaction(transaction, wallet)
+    transaction_json = _prepare_transaction(transaction)
     if multisign:
         signature = keypairs_sign(
             bytes.fromhex(
@@ -108,6 +108,7 @@ def sign(
         ]
         return Transaction.from_dict(tx_dict)
 
+    transaction_json["SigningPubKey"] = wallet.public_key
     serialized_for_signing = encode_for_signing(transaction_json)
     serialized_bytes = bytes.fromhex(serialized_for_signing)
     signature = keypairs_sign(serialized_bytes, wallet.private_key)
@@ -176,10 +177,7 @@ async def submit(
     raise XRPLRequestFailureException(response.result)
 
 
-def _prepare_transaction(
-    transaction: Transaction,
-    wallet: Wallet,
-) -> Dict[str, Any]:
+def _prepare_transaction(transaction: Transaction) -> Dict[str, Any]:
     """
     Prepares a Transaction by converting it to a JSON-like dictionary, converting the
     field names to CamelCase. If a Client is provided, then it also autofills any
@@ -201,7 +199,6 @@ def _prepare_transaction(
         raise XRPLException("Cannot directly sign a batch inner transaction.")
 
     transaction_json = transaction.to_xrpl()
-    transaction_json["SigningPubKey"] = wallet.public_key
 
     _validate_account_xaddress(transaction_json, "Account", "SourceTag")
     if "Destination" in transaction_json:
