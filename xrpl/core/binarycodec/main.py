@@ -8,10 +8,7 @@ from typing import Any, Dict, Optional, cast
 from typing_extensions import Final
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
-from xrpl.core.binarycodec.types.account_id import AccountID
-from xrpl.core.binarycodec.types.hash256 import Hash256
-from xrpl.core.binarycodec.types.st_object import STObject
-from xrpl.core.binarycodec.types.uint64 import UInt64
+from xrpl.core.binarycodec.types import AccountID, Hash256, STObject, UInt32, UInt64
 
 
 def _num_to_bytes(num: int) -> bytes:
@@ -21,6 +18,7 @@ def _num_to_bytes(num: int) -> bytes:
 _TRANSACTION_SIGNATURE_PREFIX: Final[bytes] = _num_to_bytes(0x53545800)
 _PAYMENT_CHANNEL_CLAIM_PREFIX: Final[bytes] = _num_to_bytes(0x434C4D00)
 _TRANSACTION_MULTISIG_PREFIX: Final[bytes] = _num_to_bytes(0x534D5400)
+_BATCH_PREFIX: Final[bytes] = _num_to_bytes(0x42434800)
 
 
 def encode(json: Dict[str, Any]) -> str:
@@ -70,6 +68,28 @@ def encode_for_signing_claim(json: Dict[str, Any]) -> str:
     amount = UInt64.from_value(int(json["amount"]))
 
     buffer = prefix + bytes(channel) + bytes(amount)
+    return buffer.hex().upper()
+
+
+def encode_for_batch(json: Dict[str, Any]) -> str:
+    """
+    Encode a Batch transaction's data to be signed.
+
+    Args:
+        json: A JSON-like dictionary representation of Batch data.
+
+    Returns:
+        The binary-encoded Batch data, ready to be signed.
+    """
+    prefix = _BATCH_PREFIX
+    flags = UInt32.from_value(json["flags"])
+    tx_ids = json["tx_ids"]
+    len_tx_ids = UInt32.from_value(len(tx_ids))
+
+    buffer = prefix + bytes(flags) + bytes(len_tx_ids)
+    for tx in tx_ids:
+        buffer += bytes(Hash256.from_value(tx))
+
     return buffer.hex().upper()
 
 
