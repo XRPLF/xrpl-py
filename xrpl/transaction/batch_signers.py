@@ -99,7 +99,7 @@ def combine_batch_signers(transactions: List[Union[Batch, str]]) -> str:
         ):
             raise XRPLException("Transaction must be unsigned.")
 
-    batch_txs = cast(List[Batch], transactions)
+    batch_txs = cast(List[Batch], decoded_txs)
     _validate_batch_equivalence(batch_txs)
 
     return encode(_get_batch_with_all_signers(batch_txs).to_xrpl())
@@ -110,7 +110,7 @@ def combine_batch_signers(transactions: List[Union[Batch, str]]) -> str:
 def _validate_batch_equivalence(transactions: List[Batch]) -> None:
     example_tx = transactions[0]
     for tx in transactions:
-        if tx != example_tx:
+        if tx.flags != example_tx.flags or tx.tx_ids != example_tx.tx_ids:
             raise XRPLException(
                 "Flags and TxIDs is not the same for all provided transactions."
             )

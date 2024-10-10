@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, Self, Type
 
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
@@ -39,3 +39,37 @@ class Batch(Transaction):
         default=TransactionType.BATCH,
         init=False,
     )
+
+    @classmethod
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
+        """
+        Construct a new Batch from a dictionary of parameters.
+
+        Args:
+            value: The value to construct the Batch from.
+
+        Returns:
+            A new Batch object, constructed using the given parameters.
+
+        Raises:
+            XRPLModelException: If the dictionary provided is invalid.
+        """
+        new_value = {**value}
+        new_value["raw_transactions"] = [
+            tx["raw_transaction"] if "raw_transaction" in tx else tx
+            for tx in value["raw_transactions"]
+        ]
+        return super(Transaction, cls).from_dict(new_value)
+
+    def to_dict(self: Self) -> Dict[str, Any]:
+        """
+        Returns the dictionary representation of a Batch.
+
+        Returns:
+            The dictionary representation of a Batch.
+        """
+        tx_dict = super().to_dict()
+        tx_dict["raw_transactions"] = [
+            {"raw_transaction": tx} for tx in tx_dict["raw_transactions"]
+        ]
+        return tx_dict
