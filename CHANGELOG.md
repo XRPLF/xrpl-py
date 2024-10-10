@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### BREAKING CHANGE:
 - Remove Python 3.7 support to fix dependency installation and use 3.8 as new default.
 
+### Added
+- Support for the `Batch` amendment (XLS-56d).
+
+### Fixed
+- Handle autofilling better when multisigning transactions.
+
 ## [3.0.0] - 2024-07-16
 
 ### BREAKING CHANGE
