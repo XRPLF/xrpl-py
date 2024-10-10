@@ -71,7 +71,7 @@ def encode_for_signing_claim(json: Dict[str, Any]) -> str:
     return buffer.hex().upper()
 
 
-def encode_for_batch(json: Dict[str, Any]) -> str:
+def encode_for_signing_batch(json: Dict[str, Any]) -> str:
     """
     Encode a Batch transaction's data to be signed.
 
