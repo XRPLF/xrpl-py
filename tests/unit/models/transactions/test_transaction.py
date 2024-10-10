@@ -179,8 +179,8 @@ class TestTransaction(TestCase):
     def test_payment_txn_api_no_deliver_max(self):
         delivered_amount = "200000"
         payment_tx_json = {
-            "Account": "rGWTUVmm1fB5QUjMYn8KfnyrFNgDiD9H9e",
-            "Destination": "rw71Qs1UYQrSQ9hSgRohqNNQcyjCCfffkQ",
+            "Account": _WALLET.address,
+            "Destination": _ACCOUNT,
             "TransactionType": "Payment",
             "Amount": delivered_amount,
             "Fee": "15",
@@ -195,8 +195,8 @@ class TestTransaction(TestCase):
     def test_payment_txn_api_no_amount(self):
         delivered_amount = "200000"
         payment_tx_json = {
-            "Account": "rGWTUVmm1fB5QUjMYn8KfnyrFNgDiD9H9e",
-            "Destination": "rw71Qs1UYQrSQ9hSgRohqNNQcyjCCfffkQ",
+            "Account": _WALLET.address,
+            "Destination": _ACCOUNT,
             "TransactionType": "Payment",
             "DeliverMax": delivered_amount,
             "Fee": "15",
@@ -210,8 +210,8 @@ class TestTransaction(TestCase):
 
     def test_payment_txn_api_different_amount_and_deliver_max(self):
         payment_tx_json = {
-            "Account": "rGWTUVmm1fB5QUjMYn8KfnyrFNgDiD9H9e",
-            "Destination": "rw71Qs1UYQrSQ9hSgRohqNNQcyjCCfffkQ",
+            "Account": _WALLET.address,
+            "Destination": _ACCOUNT,
             "TransactionType": "Payment",
             "DeliverMax": "200000",
             "Amount": "200010",
@@ -227,8 +227,8 @@ class TestTransaction(TestCase):
     def test_payment_txn_api_identical_amount_and_deliver_max(self):
         delivered_amount = "200000"
         payment_tx_json = {
-            "Account": "rGWTUVmm1fB5QUjMYn8KfnyrFNgDiD9H9e",
-            "Destination": "rw71Qs1UYQrSQ9hSgRohqNNQcyjCCfffkQ",
+            "Account": _WALLET.address,
+            "Destination": _ACCOUNT,
             "TransactionType": "Payment",
             "DeliverMax": delivered_amount,
             "Amount": delivered_amount,
