@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Self, Type
+from typing import Any, Dict, List, Optional, Type
+
+from typing_extensions import Self
 
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
