@@ -249,7 +249,9 @@ async def autofill(
         transaction_json["last_ledger_sequence"] = ledger_sequence + _LEDGER_OFFSET
     if transaction.transaction_type == TransactionType.BATCH:
         inner_txs, tx_ids = await _autofill_batch(client, cast(Batch, transaction))
-        transaction_json["raw_transactions"] = inner_txs
+        transaction_json["raw_transactions"] = [
+            {"raw_transaction": tx} for tx in inner_txs
+        ]
         if "tx_ids" not in transaction_json:
             transaction_json["tx_ids"] = tx_ids
     return cast(T, Transaction.from_dict(transaction_json))

@@ -58,7 +58,11 @@ class Batch(Transaction):
         """
         new_value = {**value}
         new_value["raw_transactions"] = [
-            tx["raw_transaction"] if "raw_transaction" in tx else tx
+            (
+                tx["raw_transaction"]
+                if isinstance(tx, dict) and "raw_transaction" in tx
+                else tx
+            )
             for tx in value["raw_transactions"]
         ]
         return super(Transaction, cls).from_dict(new_value)
