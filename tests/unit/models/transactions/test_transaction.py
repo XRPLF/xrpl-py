@@ -167,6 +167,11 @@ class TestTransaction(TestCase):
         tx_1 = sign(tx, _FIRST_SIGNER, multisign=True)
         tx_2 = sign(tx, _SECOND_SIGNER, multisign=True)
 
+        for tx_signed in (tx_1, tx_2):
+            self.assertEqual(tx_signed.account, _WALLET.address)
+            self.assertEqual(tx_signed.source_tag, 1)
+            self.assertEqual(tx_signed.authorize, _ACCOUNT)
+
         multisigned_tx = multisign(tx, [tx_1, tx_2])
         self.assertTrue(multisigned_tx.is_signed())
 

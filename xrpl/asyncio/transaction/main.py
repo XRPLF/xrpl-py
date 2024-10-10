@@ -16,7 +16,7 @@ from xrpl.models.requests import ServerInfo, ServerState, SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions import EscrowFinish
 from xrpl.models.transactions.batch import Batch
-from xrpl.models.transactions.transaction import Signer, Transaction
+from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )
@@ -100,22 +100,23 @@ def sign(
             ),
             wallet.private_key,
         )
-        tx_dict = transaction.to_dict()
-        tx_dict["signers"] = [
-            Signer(
-                account=wallet.address,
-                txn_signature=signature,
-                signing_pub_key=wallet.public_key,
-            )
+        transaction_json["Signers"] = [
+            {
+                "Signer": {
+                    "Account": wallet.address,
+                    "TxnSignature": signature,
+                    "SigningPubKey": wallet.public_key,
+                }
+            }
         ]
-        return cast(T, Transaction.from_dict(tx_dict))
+        return cast(T, Transaction.from_xrpl(transaction_json))
 
     transaction_json["SigningPubKey"] = wallet.public_key
     serialized_for_signing = encode_for_signing(transaction_json)
     serialized_bytes = bytes.fromhex(serialized_for_signing)
     signature = keypairs_sign(serialized_bytes, wallet.private_key)
     transaction_json["TxnSignature"] = signature
-    return cast(T, Transaction.from_dict(transaction_json))
+    return cast(T, Transaction.from_xrpl(transaction_json))
 
 
 async def autofill_and_sign(
@@ -187,7 +188,6 @@ def _prepare_transaction(transaction: Transaction) -> Dict[str, Any]:
 
     Args:
         transaction: the Transaction to be prepared.
-        wallet: the wallet that will be used for signing.
 
     Returns:
         A JSON-like dictionary that is ready to be signed.
