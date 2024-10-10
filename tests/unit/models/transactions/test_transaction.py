@@ -171,7 +171,7 @@ class TestTransaction(TestCase):
         self.assertTrue(multisigned_tx.is_signed())
 
     # test the usage  of DeliverMax field in Payment transactions
-    def test_payment_txn_API_no_deliver_max(self):
+    def test_payment_txn_api_no_deliver_max(self):
         delivered_amount = "200000"
         payment_tx_json = {
             "Account": "rGWTUVmm1fB5QUjMYn8KfnyrFNgDiD9H9e",
@@ -187,7 +187,7 @@ class TestTransaction(TestCase):
         payment_txn = Payment.from_xrpl(payment_tx_json)
         self.assertEqual(delivered_amount, payment_txn.to_dict()["amount"])
 
-    def test_payment_txn_API_no_amount(self):
+    def test_payment_txn_api_no_amount(self):
         delivered_amount = "200000"
         payment_tx_json = {
             "Account": "rGWTUVmm1fB5QUjMYn8KfnyrFNgDiD9H9e",
@@ -203,7 +203,7 @@ class TestTransaction(TestCase):
         payment_txn = Payment.from_xrpl(payment_tx_json)
         self.assertEqual(delivered_amount, payment_txn.to_dict()["amount"])
 
-    def test_payment_txn_API_different_amount_and_deliver_max(self):
+    def test_payment_txn_api_different_amount_and_deliver_max(self):
         payment_tx_json = {
             "Account": "rGWTUVmm1fB5QUjMYn8KfnyrFNgDiD9H9e",
             "Destination": "rw71Qs1UYQrSQ9hSgRohqNNQcyjCCfffkQ",
@@ -219,7 +219,7 @@ class TestTransaction(TestCase):
         with self.assertRaises(XRPLModelException):
             Payment.from_xrpl(payment_tx_json)
 
-    def test_payment_txn_API_identical_amount_and_deliver_max(self):
+    def test_payment_txn_api_identical_amount_and_deliver_max(self):
         delivered_amount = "200000"
         payment_tx_json = {
             "Account": "rGWTUVmm1fB5QUjMYn8KfnyrFNgDiD9H9e",
