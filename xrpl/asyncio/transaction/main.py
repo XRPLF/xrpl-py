@@ -1,8 +1,9 @@
 """High-level transaction methods with XRPL transactions."""
-import math
-from typing import Any, Dict, Optional, cast
 
-from typing_extensions import Final
+import math
+from typing import Any, Dict, List, Optional, Tuple, cast
+
+from typing_extensions import Final, TypeVar
 
 from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
@@ -13,8 +14,7 @@ from xrpl.core.binarycodec import encode, encode_for_multisigning, encode_for_si
 from xrpl.core.keypairs.main import sign as keypairs_sign
 from xrpl.models.requests import ServerInfo, ServerState, SubmitOnly
 from xrpl.models.response import Response
-from xrpl.models.transactions import EscrowFinish
-from xrpl.models.transactions.transaction import Signer, Transaction
+from xrpl.models.transactions import Batch, EscrowFinish, Transaction
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )
@@ -32,6 +32,8 @@ _RESTRICTED_NETWORKS = 1024
 _REQUIRED_NETWORKID_VERSION = "1.11.0"
 # TODO: make this dynamic based on the current ledger fee
 _OWNER_RESERVE_FEE: Final[int] = int(xrp_to_drops(2))
+
+T = TypeVar("T", bound=Transaction, default=Transaction)
 
 
 async def sign_and_submit(
@@ -70,10 +72,10 @@ async def sign_and_submit(
 # It to a central location as part of the xrpl-py 2.0 changes. It is aliased in
 # The synchronous half of the library as well.
 def sign(
-    transaction: Transaction,
+    transaction: T,
     wallet: Wallet,
     multisign: bool = False,
-) -> Transaction:
+) -> T:
     """
     Signs a transaction locally, without trusting external rippled nodes.
 
@@ -85,40 +87,42 @@ def sign(
     Returns:
         The signed transaction blob.
     """
+    transaction_json = _prepare_transaction(transaction)
     if multisign:
         signature = keypairs_sign(
             bytes.fromhex(
                 encode_for_multisigning(
-                    transaction.to_xrpl(),
+                    transaction_json,
                     wallet.address,
                 )
             ),
             wallet.private_key,
         )
-        tx_dict = transaction.to_dict()
-        tx_dict["signers"] = [
-            Signer(
-                account=wallet.address,
-                txn_signature=signature,
-                signing_pub_key=wallet.public_key,
-            )
+        transaction_json["Signers"] = [
+            {
+                "Signer": {
+                    "Account": wallet.address,
+                    "TxnSignature": signature,
+                    "SigningPubKey": wallet.public_key,
+                }
+            }
         ]
-        return Transaction.from_dict(tx_dict)
+        return cast(T, Transaction.from_xrpl(transaction_json))
 
-    transaction_json = _prepare_transaction(transaction, wallet)
+    transaction_json["SigningPubKey"] = wallet.public_key
     serialized_for_signing = encode_for_signing(transaction_json)
     serialized_bytes = bytes.fromhex(serialized_for_signing)
     signature = keypairs_sign(serialized_bytes, wallet.private_key)
     transaction_json["TxnSignature"] = signature
-    return Transaction.from_xrpl(transaction_json)
+    return cast(T, Transaction.from_xrpl(transaction_json))
 
 
 async def autofill_and_sign(
-    transaction: Transaction,
+    transaction: T,
     client: Client,
     wallet: Wallet,
     check_fee: bool = True,
-) -> Transaction:
+) -> T:
     """
     Autofills relevant fields. Then, signs a transaction locally, without trusting
     external rippled nodes.
@@ -174,10 +178,7 @@ async def submit(
     raise XRPLRequestFailureException(response.result)
 
 
-def _prepare_transaction(
-    transaction: Transaction,
-    wallet: Wallet,
-) -> Dict[str, Any]:
+def _prepare_transaction(transaction: Transaction) -> Dict[str, Any]:
     """
     Prepares a Transaction by converting it to a JSON-like dictionary, converting the
     field names to CamelCase. If a Client is provided, then it also autofills any
@@ -185,17 +186,19 @@ def _prepare_transaction(
 
     Args:
         transaction: the Transaction to be prepared.
-        wallet: the wallet that will be used for signing.
 
     Returns:
         A JSON-like dictionary that is ready to be signed.
 
     Raises:
         XRPLException: if both LastLedgerSequence and `ledger_offset` are provided, or
-            if an address tag is provided that does not match the X-Address tag.
+            if an address tag is provided that does not match the X-Address tag, or if
+            attempting to directly sign a Batch inner transaction.
     """
+    if transaction.batch_txn is not None:
+        raise XRPLException("Cannot directly sign a batch inner transaction.")
+
     transaction_json = transaction.to_xrpl()
-    transaction_json["SigningPubKey"] = wallet.public_key
 
     _validate_account_xaddress(transaction_json, "Account", "SourceTag")
     if "Destination" in transaction_json:
@@ -213,8 +216,8 @@ def _prepare_transaction(
 
 
 async def autofill(
-    transaction: Transaction, client: Client, signers_count: Optional[int] = None
-) -> Transaction:
+    transaction: T, client: Client, signers_count: Optional[int] = None
+) -> T:
     """
     Autofills fields in a transaction. This will set `sequence`, `fee`, and
     `last_ledger_sequence` according to the current state of the server this Client is
@@ -244,7 +247,14 @@ async def autofill(
     if "last_ledger_sequence" not in transaction_json:
         ledger_sequence = await get_latest_validated_ledger_sequence(client)
         transaction_json["last_ledger_sequence"] = ledger_sequence + _LEDGER_OFFSET
-    return Transaction.from_dict(transaction_json)
+    if transaction.transaction_type == TransactionType.BATCH:
+        inner_txs, tx_ids = await _autofill_batch(client, cast(Batch, transaction))
+        transaction_json["raw_transactions"] = [
+            {"raw_transaction": tx.to_dict()} for tx in inner_txs
+        ]
+        if "tx_ids" not in transaction_json:
+            transaction_json["tx_ids"] = tx_ids
+    return cast(T, Transaction.from_dict(transaction_json))
 
 
 async def _get_network_id_and_build_version(client: Client) -> None:
@@ -375,7 +385,7 @@ def _convert_to_classic_address(json: Dict[str, Any], field: str) -> None:
         field: the field in `json` that may contain an X-Address
     """
     if field in json and is_valid_xaddress(json[field]):
-        json[field] = xaddress_to_classic_address(json[field])
+        json[field] = xaddress_to_classic_address(json[field])[0]
 
 
 def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[str, Any]:
@@ -482,3 +492,38 @@ async def _fetch_owner_reserve_fee(client: Client) -> int:
     server_state = await client._request_impl(ServerState())
     fee = server_state.result["state"]["validated_ledger"]["reserve_inc"]
     return int(fee)
+
+
+async def _autofill_batch(
+    client: Client, transaction: Batch
+) -> Tuple[List[Transaction], List[str]]:
+    account_sequences: Dict[str, int] = {}
+    batch_index = 0
+    tx_ids: List[str] = []
+    inner_txs: List[Transaction] = []
+
+    for raw_txn in transaction.raw_transactions:
+        if raw_txn.batch_txn is not None:
+            inner_txs.append(raw_txn)
+            continue
+
+        batch_txn: Dict[str, Any] = {"outer_account": transaction.account}
+
+        if raw_txn.account in account_sequences:
+            batch_txn["sequence"] = account_sequences[raw_txn.account]
+            account_sequences[raw_txn.account] += 1
+        else:
+            sequence = await get_next_valid_seq_number(raw_txn.account, client)
+            account_sequences[raw_txn.account] = sequence + 1
+            batch_txn["sequence"] = sequence
+
+        batch_txn["batch_index"] = batch_index
+        batch_index += 1
+
+        raw_txn_dict = raw_txn.to_dict()
+        raw_txn_dict["batch_txn"] = batch_txn
+        new_raw_txn = Transaction.from_dict(raw_txn_dict)
+        inner_txs.append(new_raw_txn)
+        tx_ids.append(new_raw_txn.get_hash())
+
+    return inner_txs, tx_ids

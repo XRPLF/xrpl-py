@@ -155,6 +155,20 @@ class Signer(NestedModel):
 
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
+class BatchTxn(NestedModel):
+    """Represents the info indicating a Batch transaction."""
+
+    outer_account: str = REQUIRED  # type: ignore
+
+    sequence: Optional[int] = None
+
+    ticket_sequence: Optional[int] = None
+
+    batch_index: int = REQUIRED  # type: ignore
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Transaction(BaseModel):
     """
     The base class for all `transaction types
@@ -249,6 +263,8 @@ class Transaction(BaseModel):
 
     network_id: Optional[int] = None
     """The network id of the transaction."""
+
+    batch_txn: Optional[BatchTxn] = None
 
     def _get_errors(self: Self) -> Dict[str, str]:
         # import must be here to avoid circular dependencies
@@ -411,7 +427,11 @@ class Transaction(BaseModel):
         Raises:
             XRPLModelException: if the Transaction is unsigned.
         """
-        if self.txn_signature is None and self.signers is None:
+        if (
+            self.txn_signature is None
+            and self.signers is None
+            and self.batch_txn is None
+        ):
             raise XRPLModelException(
                 "Cannot get the hash from an unsigned Transaction."
             )
