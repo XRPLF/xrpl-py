@@ -4,13 +4,17 @@
     "aiounittest",
     "altnet",
     "asyncio",
+    "autofilling",
     "autofills",
     "binarycodec",
     "Clawback",
     "isnumeric",
     "keypair",
     "keypairs",
+    "multiaccount",
     "multisign",
+    "multisigned",
+    "multisigning",
     "nftoken",
     "PATHSET",
     "rippletest",
@@ -27,5 +31,8 @@
       "source.organizeImports": "always"
     }
   },
-  "isort.args": ["--profile", "black"]
+  "isort.args": [
+    "--profile",
+    "black"
+  ]
 }

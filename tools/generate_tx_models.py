@@ -26,7 +26,7 @@ def _parse_rippled_source(
     folder: str,
 ) -> Tuple[Dict[str, List[str]], Dict[str, List[Tuple[str, ...]]]]:
     # Get SFields
-    sfield_cpp = _read_file(os.path.join(folder, "src/ripple/protocol/impl/SField.cpp"))
+    sfield_cpp = _read_file(os.path.join(folder, "src/libxrpl/protocol/SField.cpp"))
     sfield_hits = re.findall(
         r'^ *CONSTRUCT_[^\_]+_SFIELD *\( *[^,\n]*,[ \n]*"([^\"\n ]+)"[ \n]*,[ \n]*'
         + r"([^, \n]+)[ \n]*,[ \n]*([0-9]+)(,.*?(notSigning))?",
@@ -37,7 +37,7 @@ def _parse_rippled_source(
 
     # Get TxFormats
     tx_formats_cpp = _read_file(
-        os.path.join(folder, "src/ripple/protocol/impl/TxFormats.cpp")
+        os.path.join(folder, "src/libxrpl/protocol/TxFormats.cpp")
     )
     tx_formats_hits = re.findall(
         r"^ *add\(jss::([^\"\n, ]+),[ \n]*tt[A-Z_]+,[ \n]*{[ \n]*(({sf[A-Za-z0-9]+, "
@@ -102,6 +102,7 @@ def _main(
     existing_library_txs = {m.value for m in TransactionType} | {
         m.value for m in PseudoTransactionType
     }
+    print(sorted(existing_library_txs))
     for tx in tx_formats:
         if tx not in existing_library_txs:
             txs_to_add.append((tx, _key_to_json(tx)))
@@ -130,7 +131,7 @@ def _main(
         param_lines.sort(key=lambda x: "REQUIRED" not in x)
         params = "\n".join(param_lines)
         model = f"""@require_kwargs_on_init
-@dataclass(frozen=True,  **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class {tx}(Transaction):
     \"\"\"Represents a {tx} transaction.\"\"\"
 
@@ -184,6 +185,8 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: poetry run python generate_tx_models.py path/to/rippled")
     folder = sys.argv[1]
     sfields, tx_formats = _parse_rippled_source(folder)
     _main(sfields, tx_formats)
