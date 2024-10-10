@@ -250,7 +250,7 @@ async def autofill(
     if transaction.transaction_type == TransactionType.BATCH:
         inner_txs, tx_ids = await _autofill_batch(client, cast(Batch, transaction))
         transaction_json["raw_transactions"] = [
-            {"raw_transaction": tx} for tx in inner_txs
+            {"raw_transaction": tx.to_dict()} for tx in inner_txs
         ]
         if "tx_ids" not in transaction_json:
             transaction_json["tx_ids"] = tx_ids
