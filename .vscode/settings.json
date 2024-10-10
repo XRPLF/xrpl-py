@@ -11,6 +11,7 @@
     "isnumeric",
     "keypair",
     "keypairs",
+    "multiaccount",
     "multisign",
     "multisigned",
     "multisigning",

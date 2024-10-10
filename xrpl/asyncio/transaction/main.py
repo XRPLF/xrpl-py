@@ -14,9 +14,7 @@ from xrpl.core.binarycodec import encode, encode_for_multisigning, encode_for_si
 from xrpl.core.keypairs.main import sign as keypairs_sign
 from xrpl.models.requests import ServerInfo, ServerState, SubmitOnly
 from xrpl.models.response import Response
-from xrpl.models.transactions import EscrowFinish
-from xrpl.models.transactions.batch import Batch
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions import Batch, EscrowFinish, Transaction
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )

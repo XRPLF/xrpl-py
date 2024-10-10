@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Handle autofilling better when multisigning transactions.
+- Better typing for transaction-related helper functions.
 
 ## [3.0.0] - 2024-07-16
 
