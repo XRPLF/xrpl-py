@@ -35,6 +35,8 @@ _REQUIRED_NETWORKID_VERSION = "1.11.0"
 # TODO: make this dynamic based on the current ledger fee
 _OWNER_RESERVE_FEE: Final[int] = int(xrp_to_drops(2))
 
+T = TypeVar("T", bound=Transaction, default=Transaction)
+
 
 async def sign_and_submit(
     transaction: Transaction,
@@ -72,10 +74,10 @@ async def sign_and_submit(
 # It to a central location as part of the xrpl-py 2.0 changes. It is aliased in
 # The synchronous half of the library as well.
 def sign(
-    transaction: Transaction,
+    transaction: T,
     wallet: Wallet,
     multisign: bool = False,
-) -> Transaction:
+) -> T:
     """
     Signs a transaction locally, without trusting external rippled nodes.
 
@@ -106,22 +108,22 @@ def sign(
                 signing_pub_key=wallet.public_key,
             )
         ]
-        return Transaction.from_dict(tx_dict)
+        return cast(T, Transaction.from_dict(tx_dict))
 
     transaction_json["SigningPubKey"] = wallet.public_key
     serialized_for_signing = encode_for_signing(transaction_json)
     serialized_bytes = bytes.fromhex(serialized_for_signing)
     signature = keypairs_sign(serialized_bytes, wallet.private_key)
     transaction_json["TxnSignature"] = signature
-    return Transaction.from_xrpl(transaction_json)
+    return cast(T, Transaction.from_dict(transaction_json))
 
 
 async def autofill_and_sign(
-    transaction: Transaction,
+    transaction: T,
     client: Client,
     wallet: Wallet,
     check_fee: bool = True,
-) -> Transaction:
+) -> T:
     """
     Autofills relevant fields. Then, signs a transaction locally, without trusting
     external rippled nodes.
@@ -213,9 +215,6 @@ def _prepare_transaction(transaction: Transaction) -> Dict[str, Any]:
     _convert_to_classic_address(transaction_json, "RegularKey")
 
     return transaction_json
-
-
-T = TypeVar("T", bound=Transaction, default=Transaction)
 
 
 async def autofill(
