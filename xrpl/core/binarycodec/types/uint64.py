@@ -61,13 +61,15 @@ class UInt64(UInt):
 
         Args:
             value: The value to construct a UInt64 from.
-            field_name: The optional field name (for special handling of base 10 strings).
+            field_name: The optional field name (for special handling
+                        of base 10 strings).
 
         Returns:
             The UInt64 constructed from the value.
 
         Raises:
-            XRPLBinaryCodecException: If a UInt64 could not be constructed from the value.
+            XRPLBinaryCodecException: If a UInt64 could not be constructed
+                                      from the value.
         """
         if isinstance(value, int):
             if value < 0:
@@ -96,7 +98,8 @@ class UInt64(UInt):
         Convert a UInt64 object to JSON (hex or base 10, depending on field_name).
 
         Args:
-            field_name: The optional field name (for special handling of base 10 format).
+            field_name: The optional field name (for special handling
+                        of base 10 format).
 
         Returns:
             The JSON representation of the UInt64 object.
