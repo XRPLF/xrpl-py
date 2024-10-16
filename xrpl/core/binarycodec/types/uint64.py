@@ -53,7 +53,9 @@ class UInt64(UInt):
         return cls(parser.read(_WIDTH))
 
     @classmethod
-    def from_value(cls: Type[Self], value: Union[str, int], field_name: str = '') -> Self:
+    def from_value(
+        cls: Type[Self], value: Union[str, int], field_name: str = ""
+    ) -> Self:
         """
         Construct a new UInt64 type from a value.
 
@@ -89,7 +91,7 @@ class UInt64(UInt):
             f"Cannot construct UInt64 from given value {value}"
         )
 
-    def to_json(self: Self, field_name: str = '') -> str:
+    def to_json(self: Self, field_name: str = "") -> str:
         """
         Convert a UInt64 object to JSON (hex or base 10, depending on field_name).
 
