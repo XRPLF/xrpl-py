@@ -193,7 +193,7 @@ class TestTransaction(IntegrationTestCase):
         escrow_finish_autofilled = await autofill(escrow_finish, client)
 
         # AND calculating the expected fee with the formula
-        # 10 drops × (33 + (Fulfillment size in bytes ÷ 16))
+        # BaseFee × (33 + (Fulfillment size in bytes ÷ 16))
         net_fee = int(await get_fee(client))
         fulfillment_in_bytes = FULFILLMENT.encode("ascii")
         expected_fee = net_fee * (33 + len(fulfillment_in_bytes) / 16)
@@ -216,7 +216,8 @@ class TestTransaction(IntegrationTestCase):
         # AFTER autofilling the transaction fee
         payment_autofilled = await autofill(payment, client)
 
-        # THEN We expect the fee to be the default network fee (usually 10 drops)
+        # THEN We expect the fee to be the default network fee (The transaction cost of
+        # a reference transaction, in drops of XRP)
         expected_fee = await get_fee(client)
         self.assertEqual(payment_autofilled.fee, expected_fee)
 

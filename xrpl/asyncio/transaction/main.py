@@ -31,8 +31,6 @@ _LEDGER_OFFSET: Final[int] = 20
 # More context: https://github.com/XRPLF/rippled/pull/4370
 _RESTRICTED_NETWORKS = 1024
 _REQUIRED_NETWORKID_VERSION = "1.11.0"
-# TODO: make this dynamic based on the current ledger fee
-_OWNER_RESERVE_FEE: Final[int] = int(xrp_to_drops(2))
 
 
 async def sign_and_submit(
@@ -446,7 +444,9 @@ async def _calculate_fee_per_transaction_type(
     """
     # Reference Transaction (Most transactions)
 
-    net_fee = int(await get_fee(client))  # Usually 0.00001 XRP (10 drops)
+    net_fee = int(
+        await get_fee(client)
+    )  # Latest data is found in FeeSettings ledger-object's BaseFee field.
 
     base_fee = net_fee
 
@@ -456,7 +456,7 @@ async def _calculate_fee_per_transaction_type(
         escrow_finish = cast(EscrowFinish, transaction)
         if escrow_finish.fulfillment is not None:
             fulfillment_bytes = escrow_finish.fulfillment.encode("ascii")
-            # 10 drops × (33 + (Fulfillment size in bytes / 16))
+            # BaseFee × (33 + (Fulfillment size in bytes / 16))
             base_fee = math.ceil(net_fee * (33 + (len(fulfillment_bytes) / 16)))
 
     # AccountDelete Transaction
@@ -467,7 +467,7 @@ async def _calculate_fee_per_transaction_type(
         base_fee = await _fetch_owner_reserve_fee(client)
 
     # Multi-signed Transaction
-    # 10 drops × (1 + Number of Signatures Provided)
+    # BaseFee × (1 + Number of Signatures Provided)
     if signers_count is not None and signers_count > 0:
         base_fee += net_fee * (1 + signers_count)
     # Round Up base_fee and return it as a String
