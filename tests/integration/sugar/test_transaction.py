@@ -464,4 +464,4 @@ class TestSubmitAndWait(IntegrationTestCase):
 
         # If FeeSettings ledger object is updated, the below assert needs to be changed
         # correspondingly
-        self.assertEqual(fee, "10")
+        self.assertEqual(fee, "200")
