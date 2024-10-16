@@ -15,10 +15,14 @@ from xrpl.asyncio.transaction import (
 )
 from xrpl.asyncio.transaction import submit as submit_transaction_alias_async
 from xrpl.asyncio.transaction import submit_and_wait
-from xrpl.asyncio.transaction.main import sign_and_submit
+from xrpl.asyncio.transaction.main import (
+    _calculate_fee_per_transaction_type,
+    sign_and_submit,
+)
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.core.binarycodec.main import encode
+from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.exceptions import XRPLException
 from xrpl.models.requests import ServerState, Tx
 from xrpl.models.transactions import AccountDelete, AccountSet, EscrowFinish, Payment
@@ -431,3 +435,32 @@ class TestSubmitAndWait(IntegrationTestCase):
         payment_transaction = Payment.from_dict(payment_dict)
         response = await sign_and_submit(payment_transaction, client, WALLET)
         self.assertTrue(response.is_successful())
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction._calculate_fee_per_transaction_type",
+        ],
+    )
+    async def test_basic_calculate_fee_per_transaction_type_offline(self, client):
+        fee = await _calculate_fee_per_transaction_type(
+            Payment(
+                account="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                amount=IssuedCurrencyAmount(
+                    currency="USD",
+                    issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                    value="0.0001",
+                ),
+                destination="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                send_max=IssuedCurrencyAmount(
+                    currency="BTC",
+                    issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                    value="0.0000002831214446",
+                ),
+            ),
+            client,
+        )
+
+        # If FeeSettings ledger object is updated, the below assert needs to be changed
+        # correspondingly
+        self.assertEqual(fee, "10")

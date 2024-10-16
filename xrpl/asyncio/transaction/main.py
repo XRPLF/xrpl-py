@@ -1,4 +1,5 @@
 """High-level transaction methods with XRPL transactions."""
+
 import math
 from typing import Any, Dict, Optional, cast
 
@@ -394,11 +395,11 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
 
 async def _check_fee(
     transaction: Transaction,
-    client: Optional[Client] = None,
+    client: Client,
     signers_count: Optional[int] = None,
 ) -> None:
     """
-    Checks if the Transaction fee is lower than the expected Transaction type fee.
+    Checks if the Transaction fee is higher than the expected Transaction type fee.
 
     Args:
         transaction: The transaction to check.
@@ -424,7 +425,7 @@ async def _check_fee(
 
 async def _calculate_fee_per_transaction_type(
     transaction: Transaction,
-    client: Optional[Client] = None,
+    client: Client,
     signers_count: Optional[int] = None,
 ) -> str:
     """
@@ -444,10 +445,8 @@ async def _calculate_fee_per_transaction_type(
         The expected Transaction fee in drops
     """
     # Reference Transaction (Most transactions)
-    if client is None:
-        net_fee = 10  # 10 drops
-    else:
-        net_fee = int(await get_fee(client))  # Usually 0.00001 XRP (10 drops)
+
+    net_fee = int(await get_fee(client))  # Usually 0.00001 XRP (10 drops)
 
     base_fee = net_fee
 
@@ -465,10 +464,7 @@ async def _calculate_fee_per_transaction_type(
         TransactionType.ACCOUNT_DELETE,
         TransactionType.AMM_CREATE,
     ):
-        if client is None:
-            base_fee = _OWNER_RESERVE_FEE
-        else:
-            base_fee = await _fetch_owner_reserve_fee(client)
+        base_fee = await _fetch_owner_reserve_fee(client)
 
     # Multi-signed Transaction
     # 10 drops × (1 + Number of Signatures Provided)
