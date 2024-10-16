@@ -147,7 +147,7 @@ class TestPayment(IntegrationTestCase):
     # async def test_mpt_payment(self, client):
     #     tx = MPTokenIssuanceCreate(
     #         account=WALLET.classic_address,
-    #         maximum_amount=int_to_hex(9223372036854775807),  # "7fffffffffffffff"
+    #         maximum_amount="9223372036854775807",  # "7fffffffffffffff"
     #         asset_scale=2,
     #     )
 

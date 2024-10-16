@@ -7,7 +7,6 @@
 # from tests.integration.reusable_values import WALLET
 # from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
 # from xrpl.models.transactions import MPTokenIssuanceCreate
-# from xrpl.utils import int_to_hex
 
 
 # class TestMPTokenIssuanceCreate(IntegrationTestCase):
@@ -15,7 +14,7 @@
 #     async def test_basic_functionality(self, client):
 #         tx = MPTokenIssuanceCreate(
 #             account=WALLET.classic_address,
-#             maximum_amount=int_to_hex(9223372036854775807),  # "7fffffffffffffff"
+#             maximum_amount="9223372036854775807",  # "7fffffffffffffff"
 #             asset_scale=2,
 #         )
 

@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import MPTokenIssuanceCreate, MPTokenIssuanceCreateFlag
-from xrpl.utils import int_to_hex, str_to_hex
+from xrpl.utils import str_to_hex
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 
@@ -11,7 +11,7 @@ class TestMPTokenIssuanceCreate(TestCase):
     def test_tx_is_valid(self):
         tx = MPTokenIssuanceCreate(
             account=_ACCOUNT,
-            maximum_amount=int_to_hex(9223372036854775807),  # "7fffffffffffffff"
+            maximum_amount="9223372036854775807",  # "7fffffffffffffff"
             asset_scale=2,
             transfer_fee=1,
             flags=2,
