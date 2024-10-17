@@ -462,6 +462,17 @@ class TestSubmitAndWait(IntegrationTestCase):
             client,
         )
 
-        # If FeeSettings ledger object is updated, the below assert needs to be changed
-        # correspondingly
-        self.assertEqual(fee, "200")
+        # The expected fee is read from the below-specified config file
+        expected_fee = ""
+        with open(".ci-config/rippled.cfg", "r", encoding="utf-8") as file:
+            lines = file.readlines()  # Read all lines into a list
+
+            for value in lines:
+                kv_pairs = value.split()
+                # This step assumes that no non-`voting` section in the config file
+                # uses the reference_fee key-value pair.
+                if "reference_fee" in kv_pairs:
+                    expected_fee = kv_pairs[2]
+                    break
+
+        self.assertEqual(fee, expected_fee)
