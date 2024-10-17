@@ -1,4 +1,5 @@
 """High-level transaction methods with XRPL transactions."""
+
 import asyncio
 from typing import Optional
 
@@ -129,4 +130,30 @@ def autofill(
             client,
             signers_count,
         )
+    )
+
+
+def _calculate_fee_per_transaction_type(
+    transaction: Transaction,
+    client: SyncClient,
+    signers_count: Optional[int] = None,
+) -> str:
+    """
+    Calculate the total fee in drops for a transaction based on:
+    - the network fee
+    - the transaction condition
+
+    https://xrpl.org/transaction-cost.html#special-transaction-costs
+
+    Args:
+        transaction: the Transaction to be submitted.
+        client: the network client with which to submit the transaction.
+        signers_count: the expected number of signers for this transaction.
+            Only used for multisigned transactions.
+
+    Returns:
+        The expected Transaction fee in drops
+    """
+    return asyncio.run(
+        main._calculate_fee_per_transaction_type(transaction, client, signers_count)
     )

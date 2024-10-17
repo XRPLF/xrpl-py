@@ -4,6 +4,7 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from tests.integration.reusable_values import BRIDGE, DESTINATION, WITNESS_WALLET
+from xrpl.asyncio.ledger import get_fee
 from xrpl.core.binarycodec import encode
 from xrpl.core.keypairs import sign
 from xrpl.models import (
@@ -18,7 +19,7 @@ from xrpl.wallet import Wallet
 
 
 class TestXChainClaim(IntegrationTestCase):
-    @test_async_and_sync(globals())
+    @test_async_and_sync(globals(), ["xrpl.ledger.get_fee"])
     async def test_basic_functionality(self, client):
         other_chain_source = Wallet.create().classic_address
         claim_id_response = await sign_and_reliable_submission_async(
@@ -97,7 +98,11 @@ class TestXChainClaim(IntegrationTestCase):
             AccountInfo(account=DESTINATION.classic_address)
         )
         final_balance = int(account_info3.result["account_data"]["Balance"])
+        transaction_fee = int(await get_fee(client))
         self.assertEqual(
             final_balance,
-            initial_balance + int(amount) - int(BRIDGE.signature_reward) - 10,
+            initial_balance
+            + int(amount)
+            - int(BRIDGE.signature_reward)
+            - transaction_fee,
         )

@@ -1,5 +1,7 @@
 """Async methods for working with transactions on the XRP Ledger."""
+
 from xrpl.asyncio.transaction.main import (
+    _calculate_fee_per_transaction_type,
     autofill,
     autofill_and_sign,
     sign,
@@ -21,4 +23,5 @@ __all__ = [
     "submit_and_wait",
     "transaction_json_to_binary_codec_form",
     "XRPLReliableSubmissionException",
+    "_calculate_fee_per_transaction_type",
 ]
