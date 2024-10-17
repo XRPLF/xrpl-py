@@ -1,4 +1,4 @@
-"""Model for CredentialAccept transaction type."""
+"""Model for the CredentialDelete transaction"""
 
 from dataclasses import dataclass, field
 from typing import Dict, Optional
@@ -13,35 +13,31 @@ from xrpl.models.utils import HEX_REGEX, KW_ONLY_DATACLASS, require_kwargs_on_in
 
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
-class CredentialAccept(Transaction):
-    """This transaction accepts a credential issued to the Account (i.e. the Account is
-    the Subject of the Credential object). The credential is not considered valid until
-    it has been transferred/accepted.
-    """
+class CredentialDelete(Transaction):
+    """This transaction deletes a Credential object."""
 
     transaction_type: TransactionType = field(
-        default=TransactionType.CREDENTIAL_ACCEPT,
-        init=False,
+        default=TransactionType.CREDENTIAL_DELETE, init=False
     )
+    """
+    The transaction type (CredentialDelete).
+    """
 
     account: str = REQUIRED  # type: ignore
-    """
-    The subject of the credential.
-    """
-    issuer: str = REQUIRED  # type: ignore
-    """
-    The issuer of the credential.
-    """
+    """The transaction submitter."""
+
+    subject: Optional[str] = None
+    """The person that the credential is for. If omitted, Account is assumed to be the
+    subject."""
+
+    issuer: Optional[str] = None
+    """The issuer of the credential. If omitted, Account is assumed to be the issuer."""
 
     credential_type: str = REQUIRED  # type: ignore
-    """
-    A (hex-encoded) value to identify the type of credential from the issuer.
-    """
+    """A (hex-encoded) value to identify the type of credential from the issuer."""
 
-    # Note: Validity checks pertaining to other fields of this transaction require
-    # access to the latest state of the blockchain
     def _get_errors(self: Self) -> Dict[str, str]:
-        return {
+        errors: Dict[str, str] = {
             key: value
             for key, value in {
                 **super()._get_errors(),
@@ -50,8 +46,17 @@ class CredentialAccept(Transaction):
             if value is not None
         }
 
+        if not self.subject and not self.issuer:
+            errors["invalid_params"] = (
+                "CredentialDelete transaction requires at least one input amongst "
+                + "issuer or subject. "
+            )
+
+        return errors
+
     def _get_credential_type_error(self: Self) -> Optional[str]:
         error = ""
+        # credential_type is a required field in this transaction
         if len(self.credential_type) == 0:
             error += "Length of credential_type field must be greater than 0. "
         if len(self.credential_type) > 64:
