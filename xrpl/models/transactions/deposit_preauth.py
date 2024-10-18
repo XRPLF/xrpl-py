@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from typing_extensions import Self
 
+from xrpl.models.nested_model import NestedModel
+from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
@@ -39,14 +41,90 @@ class DepositPreauth(Transaction):
         init=False,
     )
 
+    authorize_credentials: Optional[List[Credential]] = None
+    """The credential(s) that received the preauthorization. (Any account with these
+    credentials can send preauthorized payments)."""
+
+    unauthorize_credentials: Optional[List[Credential]] = None
+    """The credential(s) whose preauthorization should be revoked."""
+
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
-        if self.authorize and self.unauthorize:
-            errors[
-                "DepositPreauth"
-            ] = "One of authorize and unauthorize must be set, not both."
 
-        if not self.authorize and not self.unauthorize:
-            errors["DepositPreauth"] = "One of authorize and unauthorize must be set."
+        if (
+            self.authorize is None
+            and self.unauthorize is None
+            and self.authorize_credentials is None
+            and self.unauthorize_credentials is None
+        ):
+            errors["DepositPreauth"] = (
+                "Exactly one input parameter amongst authorize, unauthorize, "
+                + "authorize_credentials or unauthorize_credentials must be set. It is "
+                + "invalid if none of the params are specified."
+            )
+
+        if (
+            sum(
+                [
+                    param is not None
+                    for param in (
+                        self.authorize,
+                        self.unauthorize,
+                        self.authorize_credentials,
+                        self.unauthorize_credentials,
+                    )
+                ]
+            )
+            > 1
+        ):
+            errors["DepositPreauth"] = (
+                "More than one input param cannot be specified for DepositPreauth "
+                + "transaction. Please specify exactly one input parameter amongst "
+                + "authorize, unauthorize, authorize_credentials and "
+                + "unauthorize_credentials."
+            )
+
+        # checks on the length of the array inputs
+        if self.authorize_credentials is not None:
+            if len(self.authorize_credentials) == 0:
+                errors[
+                    "DepositPreauth_authorize_credentials"
+                ] = "AuthorizeCredentials list cannot be empty. "
+
+            if len(self.authorize_credentials) > 8:
+                errors[
+                    "DepositPreauth_authorize_credentials"
+                ] = "AuthorizeCredentials list cannot have more than 8 elements. "
+
+        # checks on the length of the array inputs
+        if self.unauthorize_credentials is not None:
+            if len(self.unauthorize_credentials) == 0:
+                errors[
+                    "DepositPreauth_unauthorize_credentials"
+                ] = "UnauthorizeCredentials list cannot be empty. "
+
+            if len(self.unauthorize_credentials) > 8:
+                errors[
+                    "DepositPreauth_unauthorize_credentials"
+                ] = "UnauthorizeCredentials list cannot have more than 8 elements. "
+
+        # Note: Other validity checks like sufficient account-reserve balance,
+        # existence of the issuer, etc on the list of credentials need access to the
+        # blockchain state.
 
         return errors
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+class Credential(NestedModel):
+    """
+    An inner object representing individual element inside AuthorizeCredentials and
+    UnauthorizeCredentials array.
+    """
+
+    issuer: str = REQUIRED  # type: ignore
+    """The issuer of the credential."""
+
+    credential_type: str = REQUIRED  # type: ignore
+    """A (hex-encoded) value to identify the type of credential from the issuer."""

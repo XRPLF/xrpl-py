@@ -1,8 +1,17 @@
 """Helper util functions for the models module."""
+
+import re
 from dataclasses import dataclass, is_dataclass
-from typing import Any, Dict, List, Type, TypeVar, cast
+from typing import Any, Dict, List, Pattern, Type, TypeVar, cast
+
+from typing_extensions import Final
 
 from xrpl.models.exceptions import XRPLModelException
+
+# Regular-Expression pertaining to Credentials Ledger Object transactions
+# Note: This regex is not identical to the one used with DIDSet transaction. This regex
+# mandates a minimum of length-1 strings.
+HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]+")
 
 # Code source for requiring kwargs:
 # https://gist.github.com/mikeholler/4be180627d3f8fceb55704b729464adb

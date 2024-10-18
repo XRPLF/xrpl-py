@@ -1,0 +1,68 @@
+"""Model for the CredentialDelete transaction"""
+
+from dataclasses import dataclass, field
+from typing import Dict, Optional
+
+from typing_extensions import Self
+
+from xrpl.models.required import REQUIRED
+from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.types import TransactionType
+from xrpl.models.utils import HEX_REGEX, KW_ONLY_DATACLASS, require_kwargs_on_init
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+class CredentialDelete(Transaction):
+    """This transaction deletes a Credential object."""
+
+    transaction_type: TransactionType = field(
+        default=TransactionType.CREDENTIAL_DELETE, init=False
+    )
+    """
+    The transaction type (CredentialDelete).
+    """
+
+    account: str = REQUIRED  # type: ignore
+    """The transaction submitter."""
+
+    subject: Optional[str] = None
+    """The person that the credential is for. If omitted, Account is assumed to be the
+    subject."""
+
+    issuer: Optional[str] = None
+    """The issuer of the credential. If omitted, Account is assumed to be the issuer."""
+
+    credential_type: str = REQUIRED  # type: ignore
+    """A (hex-encoded) value to identify the type of credential from the issuer."""
+
+    def _get_errors(self: Self) -> Dict[str, str]:
+        errors: Dict[str, str] = {
+            key: value
+            for key, value in {
+                **super()._get_errors(),
+                "credential_type": self._get_credential_type_error(),
+            }.items()
+            if value is not None
+        }
+
+        if not self.subject and not self.issuer:
+            errors["invalid_params"] = (
+                "CredentialDelete transaction requires at least one input amongst "
+                + "issuer or subject. "
+            )
+
+        return errors
+
+    def _get_credential_type_error(self: Self) -> Optional[str]:
+        error = ""
+        # credential_type is a required field in this transaction
+        if len(self.credential_type) == 0:
+            error += "Length of credential_type field must be greater than 0. "
+        if len(self.credential_type) > 64:
+            error += (
+                "Length of credential_type field must not be greater than 64 bytes. "
+            )
+        if not bool(HEX_REGEX.fullmatch(self.credential_type)):
+            error += "credential_type field must be encoded in base-16 format. "
+        return error if error != "" else None
