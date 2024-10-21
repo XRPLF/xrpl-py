@@ -4,7 +4,9 @@ is authorized to send payments directly to another. See
 Deposit Authorization for information on how to require
 authorization to deliver money to your account.
 """
+
 from dataclasses import dataclass, field
+from typing import Optional, Set
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
@@ -36,3 +38,9 @@ class DepositAuthorized(Request, LookupByLedgerRequest):
     """
 
     method: RequestMethod = field(default=RequestMethod.DEPOSIT_AUTHORIZED, init=False)
+
+    credentials: Optional[Set[str]] = None
+    """The object IDs of Credential objects. If this field is included, then the
+    credential will be taken into account when analyzing whether the sender can send
+    funds to the destination.
+    """
