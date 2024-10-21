@@ -65,11 +65,10 @@ class CredentialCreate(Transaction):
                 error += "Length of URI field must be greater than 0. "
             if len(self.uri) > 256:
                 error += "Length of URI field must not be greater than 256 characters. "
-            if not bool(HEX_REGEX.fullmatch(self.uri)):
+            if not HEX_REGEX.fullmatch(self.uri):
                 error += "URI field must be encoded in base-16 format. "
             return error if error != "" else None
-        else:
-            return None
+        return None
 
     def _get_credential_type_error(self: Self) -> Optional[str]:
         error = ""
@@ -80,6 +79,6 @@ class CredentialCreate(Transaction):
             error += (
                 "Length of credential_type field must not be greater than 64 bytes. "
             )
-        if not bool(HEX_REGEX.fullmatch(self.credential_type)):
+        if not HEX_REGEX.fullmatch(self.credential_type):
             error += "credential_type field must be encoded in base-16 format. "
         return error if error != "" else None

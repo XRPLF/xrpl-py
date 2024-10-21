@@ -64,7 +64,7 @@ class DepositPreauth(Transaction):
             )
 
         if (
-            sum(
+            len(
                 [
                     param is not None
                     for param in (
@@ -79,9 +79,7 @@ class DepositPreauth(Transaction):
         ):
             errors["DepositPreauth"] = (
                 "More than one input param cannot be specified for DepositPreauth "
-                + "transaction. Please specify exactly one input parameter amongst "
-                + "authorize, unauthorize, authorize_credentials and "
-                + "unauthorize_credentials."
+                + "transaction. Please specify exactly one input parameter. "
             )
 
         # checks on the length of the array inputs

@@ -73,10 +73,7 @@ class TestDepositPreauth(TestCase):
                         "{'DepositPreauth': '"
                         + "More than one input param cannot be specified for "
                         + "DepositPreauth "
-                        + "transaction. Please specify exactly one input parameter "
-                        + "amongst "
-                        + "authorize, unauthorize, authorize_credentials and "
-                        + "unauthorize_credentials."
+                        + "transaction. Please specify exactly one input parameter. "
                         + "'}",
                     )
 
@@ -129,8 +126,7 @@ class TestDepositPreauth(TestCase):
             Credential(
                 issuer="SampleIssuer_" + str(i), credential_type="SampleCredType"
             )
-            for i in range(9)
-        ]
+        ]*9
 
         with self.assertRaises(XRPLModelException) as error:
             DepositPreauth(
