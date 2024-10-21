@@ -4,6 +4,7 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from tests.integration.reusable_values import DESTINATION, WALLET
+from xrpl.models import AccountObjects, AccountObjectType
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions.credential_accept import CredentialAccept
 from xrpl.models.transactions.credential_create import CredentialCreate
@@ -11,6 +12,26 @@ from xrpl.models.transactions.credential_delete import CredentialDelete
 from xrpl.utils import str_to_hex
 
 _URI = "www.my-id.com/username"
+
+
+def is_cred_object_present(result, issuer, subject, cred_type) -> bool:
+    """
+    Utility method that checks if the specified JSON contains the Credential ledger
+    object. The result JSON must be the output of account_objects RPC command.
+
+    Returns True, if the input JSON contains the Credential Ledger object
+    Returns False, otherwise
+    """
+
+    for val in result["account_objects"]:
+        if (
+            val["Issuer"] == issuer
+            and val["Subject"] == subject
+            and val["CredentialType"] == cred_type
+        ):
+            return True
+
+    return False
 
 
 class TestCredentialCreate(IntegrationTestCase):
@@ -35,6 +56,10 @@ class TestCredentialCreate(IntegrationTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
+        # Note: If it isn't too cluttered, verification tests pertaining to the
+        # existence of Credential ledger object on the Issuer's and Subject's directory
+        # pages can be included here
+
         # Execute the CredentialAccept transaction on the above Credential ledger object
         tx = CredentialAccept(
             issuer=_ISSUER, account=_SUBJECT, credential_type=cred_type
@@ -53,3 +78,31 @@ class TestCredentialCreate(IntegrationTestCase):
         response = await sign_and_reliable_submission_async(tx, DESTINATION, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # The credential ledger object must be deleted from both the Issuer and Subject
+        # account's directory pages
+        account_objects_response = await client.request(
+            AccountObjects(account=_ISSUER, type=AccountObjectType.CREDENTIAL)
+        )
+        self.assertFalse(
+            is_cred_object_present(
+                account_objects_response.result,
+                issuer=_ISSUER,
+                subject=_SUBJECT,
+                cred_type=cred_type,
+            )
+        )
+
+        # Verify that the Credential object has been deleted from the Subject's
+        # directory page as well
+        account_objects_response = await client.request(
+            AccountObjects(account=_SUBJECT, type=AccountObjectType.CREDENTIAL)
+        )
+        self.assertFalse(
+            is_cred_object_present(
+                account_objects_response.result,
+                issuer=_ISSUER,
+                subject=_SUBJECT,
+                cred_type=cred_type,
+            )
+        )
