@@ -64,7 +64,7 @@ class DepositPreauth(Transaction):
             )
 
         if (
-            len(
+            sum(
                 [
                     param is not None
                     for param in (

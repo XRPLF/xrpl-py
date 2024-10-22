@@ -126,7 +126,8 @@ class TestDepositPreauth(TestCase):
             Credential(
                 issuer="SampleIssuer_" + str(i), credential_type="SampleCredType"
             )
-        ]*9
+            for i in range(9)
+        ]
 
         with self.assertRaises(XRPLModelException) as error:
             DepositPreauth(
