@@ -443,7 +443,7 @@ class TestSubmitAndWait(IntegrationTestCase):
             "xrpl.transaction._calculate_fee_per_transaction_type",
         ],
     )
-    async def test_basic_calculate_fee_per_transaction_type_offline(self, client):
+    async def test_basic_calculate_fee_per_transaction_type(self, client):
         fee = await _calculate_fee_per_transaction_type(
             Payment(
                 account="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
