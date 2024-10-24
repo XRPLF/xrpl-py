@@ -3,7 +3,7 @@
 from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional
+from typing import Dict, Optional, Set
 
 from typing_extensions import Self
 
@@ -55,6 +55,11 @@ class EscrowFinish(Transaction):
         init=False,
     )
 
+    credential_ids: Optional[Set[str]] = None
+    """Credentials associated with sender of this transaction. The credentials included
+    must not be expired. If there are duplicates provided in the list, they will be
+    silently de-duped."""
+
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.condition and not self.fulfillment:
@@ -65,5 +70,14 @@ class EscrowFinish(Transaction):
             errors[
                 "condition"
             ] = "If fulfillment is specified, condition must also be specified."
+
+        # Validation checks on the credential_ids field
+        if self.credential_ids is not None:
+            if len(self.credential_ids) == 0:
+                errors["credential_ids"] = "CredentialIDs list cannot be empty."
+            if len(self.credential_ids) > 8:
+                errors[
+                    "credential_ids"
+                ] = "CredentialIDs list cannot have more than 8 elements."
 
         return errors

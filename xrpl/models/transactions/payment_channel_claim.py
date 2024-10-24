@@ -1,7 +1,10 @@
 """Model for PaymentChannelClaim transaction type."""
+
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
+from typing import Dict, Optional, Set
+
+from typing_extensions import Self
 
 from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
@@ -104,3 +107,22 @@ class PaymentChannelClaim(Transaction):
         default=TransactionType.PAYMENT_CHANNEL_CLAIM,
         init=False,
     )
+
+    credential_ids: Optional[Set[str]] = None
+    """Credentials associated with sender of this transaction. The credentials included
+    must not be expired. If there are duplicates provided in the list, they will be
+    silently de-duped."""
+
+    def _get_errors(self: Self) -> Dict[str, str]:
+        errors = super()._get_errors()
+
+        # Validation checks on the credential_ids field
+        if self.credential_ids is not None:
+            if len(self.credential_ids) == 0:
+                errors["credential_ids"] = "CredentialIDs list cannot be empty."
+            if len(self.credential_ids) > 8:
+                errors[
+                    "credential_ids"
+                ] = "CredentialIDs list cannot have more than 8 elements."
+
+        return errors

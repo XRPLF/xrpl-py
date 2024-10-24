@@ -133,3 +133,31 @@ class TestPayment(TestCase):
         }
         with self.assertRaises(XRPLModelException):
             Payment(**transaction_dict)
+
+    def test_credentials_array_empty(self):
+        with self.assertRaises(XRPLModelException) as err:
+            Payment(
+                account=_ACCOUNT,
+                amount=_XRP_AMOUNT,
+                destination=_DESTINATION,
+                credential_ids=[],
+            )
+        self.assertEqual(
+            err.exception.args[0],
+            "{'credential_ids': 'CredentialIDs list cannot be empty.'}",
+        )
+
+    def test_credentials_array_too_long(self):
+        with self.assertRaises(XRPLModelException) as err:
+            Payment(
+                account=_ACCOUNT,
+                amount=_XRP_AMOUNT,
+                destination=_DESTINATION,
+                credential_ids=["credential_index_" + str(i) for i in range(9)],
+            )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'credential_ids': 'CredentialIDs list cannot have more than 8 "
+            + "elements.'}",
+        )

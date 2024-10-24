@@ -36,3 +36,42 @@ class TestEscrowFinish(TestCase):
                 owner=_OWNER,
                 sequence=_SEQUENCE,
             )
+
+    def test_creds_list_too_long(self):
+        with self.assertRaises(XRPLModelException) as err:
+            EscrowFinish(
+                account=_ACCOUNT,
+                owner=_ACCOUNT,
+                offer_sequence=1,
+                credential_ids=["credential_index_" + str(i) for i in range(9)],
+            )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'credential_ids': 'CredentialIDs list cannot have more than 8 "
+            + "elements.'}",
+        )
+
+    def test_creds_list_empty(self):
+        with self.assertRaises(XRPLModelException) as err:
+            EscrowFinish(
+                account=_ACCOUNT,
+                owner=_ACCOUNT,
+                offer_sequence=1,
+                credential_ids=[],
+            )
+        self.assertEqual(
+            err.exception.args[0],
+            "{'credential_ids': 'CredentialIDs list cannot be empty.'}",
+        )
+
+    def test_valid(self):
+        tx = EscrowFinish(
+            account=_ACCOUNT,
+            owner=_ACCOUNT,
+            offer_sequence=1,
+            credential_ids=[
+                "EA85602C1B41F6F1F5E83C0E6B87142FB8957BD209469E4CC347BA2D0C26F66A"
+            ],
+        )
+        self.assertTrue(tx.is_valid())
