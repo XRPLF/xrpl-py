@@ -53,12 +53,12 @@
     "AMM": 121,
     "DID": 73,
     "Oracle": 128,
+    "Credential": 129,
     "Any": -3,
     "Child": -2,
     "Nickname": 110,
     "Contract": 99,
-    "GeneratorMap": 103,
-    "Credential": 129
+    "GeneratorMap": 103
   },
   "FIELDS": [
     [
