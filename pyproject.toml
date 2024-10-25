@@ -30,18 +30,18 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 base58 = "^2.1.0"
 ECPy = "^1.2.5"
 typing-extensions = "^4.2.0"
-httpx = ">=0.18.1,<0.25.0"
-websockets = "^11.0"
+httpx = ">=0.18.1,<0.28.0"
+websockets = ">=11,<14"
 Deprecated = "^1.2.13"
 types-Deprecated = "^1.2.9"
 pycryptodome = "^3.16.0"
 
 [tool.poetry.dev-dependencies]
-flake8 = "^3.8.4"
+flake8 = "^4.0.1"
 black = "23.3.0"
 flake8-black = "^0.3.6"
 flake8-docstrings = "^1.7.0"
@@ -56,8 +56,8 @@ aiounittest = "^1.4.0"
 coverage = "^7.2.7"
 Jinja2 = "^3.1.4"
 MarkupSafe = "2.1.5"
-Sphinx = "^5.3.0"
-poethepoet = "^0.19.0"
+Sphinx = "^7.1.2"
+poethepoet = "^0.29.0"
 
 [tool.isort]
 # Make sure that isort's settings line up with black

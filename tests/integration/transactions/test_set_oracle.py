@@ -13,6 +13,8 @@ from xrpl.utils import str_to_hex
 
 _PROVIDER = str_to_hex("provider")
 _ASSET_CLASS = str_to_hex("currency")
+# int data-type can contain the max UINT64 value, without loss of precision
+_MAX_ASSET_PRICE = int(18446744073709551615)
 
 
 class TestSetOracle(IntegrationTestCase):
@@ -37,6 +39,13 @@ class TestSetOracle(IntegrationTestCase):
                 PriceData(
                     base_asset="BTC", quote_asset="EUR", asset_price=100, scale=2
                 ),
+                # validate the serialization of maximum allowed AssetPrice field
+                PriceData(
+                    base_asset="BTC",
+                    quote_asset="INR",
+                    asset_price=_MAX_ASSET_PRICE,
+                    scale=2,
+                ),
             ],
         )
         response = await sign_and_reliable_submission_async(tx, WALLET, client)
@@ -51,3 +60,11 @@ class TestSetOracle(IntegrationTestCase):
         # subsequent integration tests (sync/async + json/websocket) add one
         # oracle object to the account
         self.assertTrue(len(account_objects_response.result["account_objects"]) > 0)
+
+        # The maximum AssetPrice value is stored as a `str` type in base-16 format
+        self.assertTrue(
+            account_objects_response.result["account_objects"][0]["PriceDataSeries"][2][
+                "PriceData"
+            ]["AssetPrice"],
+            "ffffffffffffffff",
+        )
