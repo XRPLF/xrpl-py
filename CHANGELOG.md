@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Added
+- Add `include_deleted` to ledger_entry request
+
 ### BREAKING CHANGE:
 - Remove Python 3.7 support to fix dependency installation and use 3.8 as new default.
 
@@ -31,7 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for the Price Oracles amendment (XLS-47).
 - Add `nfts_by_issuer` clio-only API definition
 - Included `ctid` field in the `tx` request.
-- Add `include_deleted` to ledger_entry request
 - `from_xrpl` method accepts input dictionary keys exclusively in the proper XRPL format.
 
 ### Fixed
