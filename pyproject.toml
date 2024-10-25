@@ -57,7 +57,7 @@ coverage = "^7.2.7"
 Jinja2 = "^3.1.4"
 MarkupSafe = "2.1.5"
 Sphinx = "^7.1.2"
-poethepoet = "^0.19.0"
+poethepoet = "^0.29.0"
 
 [tool.isort]
 # Make sure that isort's settings line up with black
