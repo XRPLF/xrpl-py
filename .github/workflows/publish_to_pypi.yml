@@ -26,8 +26,9 @@ jobs:
     - name: Install poetry
       if: steps.cache-poetry.outputs.cache-hit != 'true'
       run: |
-        curl -sSL https://install.python-poetry.org/ | python - --version ${{ env.POETRY_VERSION }}
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        curl -sSL https://install.python-poetry.org/ | python - --version "${{ env.POETRY_VERSION }}"
+        echo "${HOME}/.local/bin" >> $GITHUB_PATH
+        poetry --version || exit 1  # Verify installation
     - name: Build a binary wheel and a source tarball
       run: poetry build
     - name: Verify build artifacts
