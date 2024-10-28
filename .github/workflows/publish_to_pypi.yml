@@ -45,6 +45,7 @@ jobs:
     name: >-
         Publish Python 🐍 distribution 📦 to PyPI
     if: startsWith(github.ref, 'refs/tags/')  # only publish to PyPI on tag pushes
+    needs: build  # Explicit dependency on build job
     runs-on: ubuntu-latest
     timeout-minutes: 10  # Adjust based on typical publishing time
     permissions:
@@ -55,8 +56,14 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
+    - name: Verify downloaded artifacts
+      run: |
+        ls dist/*.whl dist/*.tar.gz || exit 1
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        retry-on-error: true
+        verbose: true
 
   github-release:
     name: >-
