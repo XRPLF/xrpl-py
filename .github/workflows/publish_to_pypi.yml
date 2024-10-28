@@ -1,12 +1,15 @@
 name: Publish xrpl-py 🐍 distribution 📦 to PyPI
-env:
-  POETRY_VERSION: 1.8.3
+on:
+  push:
+    tags:
+        - 'v*' # Run on version tags only
 
-on: push
 jobs:
   build:
     name: Build distribution 📦
     runs-on: ubuntu-latest
+    env:
+        POETRY_VERSION: 1.8.3
 
     steps:
     - uses: actions/checkout@v4
@@ -27,6 +30,11 @@ jobs:
         echo "$HOME/.local/bin" >> $GITHUB_PATH
     - name: Build a binary wheel and a source tarball
       run: poetry build
+    - name: Verify build artifacts
+      run: |
+        ls dist/*.whl dist/*.tar.gz || exit 1
+        pip install check-wheel-contents
+        check-wheel-contents dist/*.whl
     - name: Store the distribution packages
       uses: actions/upload-artifact@v4
       with:
