@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### BREAKING CHANGE:
 - Remove Python 3.7 support to fix dependency installation and use 3.8 as new default.
 
+### Fixed
+- Grab the FeeSettings values from the latest validated ledger. Remove hard-coded reference to 10 drops as the reference transaction cost.
+
 ## [3.0.0] - 2024-07-16
 
 ### BREAKING CHANGE
