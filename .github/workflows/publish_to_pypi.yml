@@ -90,7 +90,8 @@ jobs:
             gh release create
             '${{ github.ref_name }}'
             --repo '${{ github.repository }}'
-            --generate-notes
+            --generate-notes ||
+            (echo "::error::Failed to create release" && exit 1)
     - name: Upload artifact signatures to GitHub Release
       env:
         GITHUB_TOKEN: ${{ github.token }}
