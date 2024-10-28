@@ -14,7 +14,7 @@ Look Up a Transaction on the Ledger
 Send a Transaction and See if It Gets Validated
 -----------------------------------------------
 
-.. literalinclude:: ../../snippets/reliable_transaction_submission.py
+.. literalinclude:: ../../snippets/submit_payment.py
 
 Set a Regular Key
 -----------------------------------------------
