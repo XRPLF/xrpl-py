@@ -16,7 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.x"
+        python-version: ">=3.8,<3.13"
     - name: Load cached .local
       id: cache-poetry
       uses: actions/cache@v3
@@ -95,10 +95,16 @@ jobs:
     - name: Upload artifact signatures to GitHub Release
       env:
         GITHUB_TOKEN: ${{ github.token }}
-      # Upload to GitHub Release using the `gh` CLI.
-      # `dist/` contains the built packages, and the
-      # sigstore-produced signatures and certificates.
-      run: >-
-            gh release upload
-            '${{ github.ref_name }}' dist/**
-            --repo '${{ github.repository }}'
+      # Verify signature files exist
+      run: |
+       if ! ls dist/*.sigstore >/dev/null 2>&1; then
+         echo "::error::Signature files not found"
+         exit 1
+       fi
+
+       # Upload to GitHub Release using the `gh` CLI.
+       # `dist/` contains the built packages, and the
+       # sigstore-produced signatures and certificates.
+       gh release upload
+       '${{ github.ref_name }}' dist/**
+       --repo '${{ github.repository }}'
