@@ -99,6 +99,7 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }}
       # Verify signature files exist
       run: |
+       ls dist/*.sigstore;
        if ! ls dist/*.sigstore >/dev/null 2>&1; then
          echo "::error::Signature files not found"
          exit 1
