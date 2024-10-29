@@ -97,17 +97,10 @@ jobs:
     - name: Upload artifact signatures to GitHub Release
       env:
         GITHUB_TOKEN: ${{ github.token }}
-      # Verify signature files exist
-      run: |
-       if ! [ -e dist/*.sigstore ]; then
-         echo "::error::Signature files not found"
-         exit 1
-       fi
-
-
        # Upload to GitHub Release using the `gh` CLI.
        # `dist/` contains the built packages, and the
        # sigstore-produced signatures and certificates.
-       gh release upload
-       '${{ github.ref_name }}' dist/**
-       --repo '${{ github.repository }}'
+      run: >-
+        gh release upload
+        '${{ github.ref_name }}' dist/**
+        --repo '${{ github.repository }}'
