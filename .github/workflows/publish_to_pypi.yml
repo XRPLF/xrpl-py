@@ -48,6 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10  # Adjust based on typical publishing time
     permissions:
+        # More information about Trusted Publishing and OpenID Connect: https://blog.pypi.org/posts/2023-04-20-introducing-trusted-publishers/
         id-token: write  # IMPORTANT: mandatory for trusted publishing
     steps:
     - name: Download all the dists
