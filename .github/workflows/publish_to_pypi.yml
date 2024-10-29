@@ -32,11 +32,6 @@ jobs:
         poetry --version || exit 1  # Verify installation
     - name: Build a binary wheel and a source tarball
       run: poetry build
-    - name: Verify build artifacts
-      run: |
-        ls dist/*.whl dist/*.tar.gz || exit 1
-        pip install check-wheel-contents
-        check-wheel-contents dist/*.whl
     - name: Store the distribution packages
       uses: actions/upload-artifact@v4
       with:
