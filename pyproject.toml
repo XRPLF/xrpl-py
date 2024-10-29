@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "xrpl-py"
+name = "xrpl-py-release-test-1"
 version = "3.0.10"
 description = "A complete Python library for interacting with the XRP ledger"
 readme = "README.md"
