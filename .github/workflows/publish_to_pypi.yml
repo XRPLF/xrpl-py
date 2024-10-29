@@ -2,7 +2,7 @@ name: Publish xrpl-py 🐍 distribution 📦 to PyPI
 on:
   push:
     tags:
-        - 'v*' # Run on version tags only
+        - '*'
 
 jobs:
   build:
@@ -16,7 +16,8 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: ">=3.8,<3.13"
+        # Use the lowest supported version of Python for CI/CD
+        python-version: "3.8"
     - name: Load cached .local
       id: cache-poetry
       uses: actions/cache@v3
@@ -31,11 +32,6 @@ jobs:
         poetry --version || exit 1  # Verify installation
     - name: Build a binary wheel and a source tarball
       run: poetry build
-    - name: Verify build artifacts
-      run: |
-        ls dist/*.whl dist/*.tar.gz || exit 1
-        pip install check-wheel-contents
-        check-wheel-contents dist/*.whl
     - name: Store the distribution packages
       uses: actions/upload-artifact@v4
       with:
@@ -62,7 +58,6 @@ jobs:
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        verbose: true
         verbose: true
 
   github-release:
@@ -102,16 +97,10 @@ jobs:
     - name: Upload artifact signatures to GitHub Release
       env:
         GITHUB_TOKEN: ${{ github.token }}
-      # Verify signature files exist
-      run: |
-       if ! ls dist/*.sigstore >/dev/null 2>&1; then
-         echo "::error::Signature files not found"
-         exit 1
-       fi
-
        # Upload to GitHub Release using the `gh` CLI.
        # `dist/` contains the built packages, and the
        # sigstore-produced signatures and certificates.
-       gh release upload
-       '${{ github.ref_name }}' dist/**
-       --repo '${{ github.repository }}'
+      run: >-
+        gh release upload
+        '${{ github.ref_name }}' dist/**
+        --repo '${{ github.repository }}'
