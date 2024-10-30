@@ -456,6 +456,9 @@ class Transaction(BaseModel):
 
         raise XRPLModelException(f"{transaction_type} is not a valid Transaction type")
 
+    class Config:
+        smart_union = True
+
     @staticmethod
     def from_blob(tx_blob: str) -> Transaction:
         """
