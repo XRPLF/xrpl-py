@@ -8,7 +8,12 @@ _DESTINATION = "rf7HPydP4ihkFkSRHWFq34b4SXRc7GvPCR"
 
 
 class TestAccountDelete(TestCase):
+    MAX_CREDENTIALS_ERROR = (
+        "{'credential_ids': 'CredentialIDs list cannot have more than 8 elements.'}"
+    )
+
     def test_creds_list_too_long(self):
+        """Test that AccountDelete raises exception when credential_ids exceeds max length."""
         with self.assertRaises(XRPLModelException) as err:
             AccountDelete(
                 account=_ACCOUNT,
@@ -16,11 +21,7 @@ class TestAccountDelete(TestCase):
                 credential_ids=["credential_index_" + str(i) for i in range(9)],
             )
 
-        self.assertEqual(
-            err.exception.args[0],
-            "{'credential_ids': 'CredentialIDs list cannot have more than 8 "
-            + "elements.'}",
-        )
+        self.assertEqual(err.exception.args[0], self.MAX_CREDENTIALS_ERROR)
 
     def test_creds_list_empty(self):
         with self.assertRaises(XRPLModelException) as err:
