@@ -6,11 +6,11 @@ import json
 import logging
 import re
 from abc import ABC
-from dataclasses import fields
+from dataclasses import dataclass, fields
 from enum import Enum
 from typing import Any, Dict, List, Pattern, Type, TypeVar, Union, cast, get_type_hints
 
-from typing_extensions import Final, get_args, get_origin
+from typing_extensions import Final, Literal, get_args, get_origin
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
@@ -37,11 +37,13 @@ _CAMEL_TO_SNAKE_CASE_REGEX: Final[Pattern[str]] = re.compile(
 # keys. We snake case keys, but some keys are abbreviations.
 ABBREVIATIONS: Final[Dict[str, str]] = {
     "amm": "AMM",
+    "did": "DID",
     "id": "ID",
     "lp": "LP",
     "nftoken": "NFToken",
     "unl": "UNL",
     "uri": "URI",
+    "xchain": "XChain",
 }
 
 BM = TypeVar("BM", bound="BaseModel")  # any type inherited from BaseModel
@@ -72,6 +74,7 @@ def _value_to_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     return value
 
 
+@dataclass(frozen=True)
 class BaseModel(ABC):
     """The base class for all model types."""
 
@@ -182,6 +185,12 @@ class BaseModel(ABC):
             # expected an object, received the correct object
             return param_value
 
+        if get_origin(param_type) == Literal:
+            # param_type is Literal (has very specific values it will accept)
+            if param_value in get_args(param_type):
+                # param_value is one of the accepted values
+                return param_value
+
         if (
             isinstance(param_type, type)
             and issubclass(param_type, Enum)
@@ -210,6 +219,30 @@ class BaseModel(ABC):
                 f"{param} expected a {param_type}, received a {type(param_value)}"
             )
         raise XRPLModelException(error_message)
+
+    @classmethod
+    def _process_xrpl_json(
+        cls: Type[BM], value: Union[str, Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Creates a dictionary object based on a JSON or dictionary in the standard XRPL
+        format.
+
+        Args:
+            value: The dictionary or JSON string to be processed.
+
+        Returns:
+            A formatted dictionary instantiated from the input.
+        """
+        if isinstance(value, str):
+            value = json.loads(value)
+
+        formatted_dict = {
+            _key_to_json(k): _value_to_json(v)
+            for (k, v) in cast(Dict[str, XRPL_VALUE_TYPE], value).items()
+        }
+
+        return formatted_dict
 
     @classmethod
     def _get_only_init_args(cls: Type[BM], args: Dict[str, Any]) -> Dict[str, Any]:

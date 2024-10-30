@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
 from typing_extensions import Final
 
-from xrpl.core.binarycodec import encode
+from xrpl.core.binarycodec import decode, encode
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.base_model import ABBREVIATIONS, BaseModel
 from xrpl.models.exceptions import XRPLModelException
@@ -249,7 +249,13 @@ class Transaction(BaseModel):
     transaction. Automatically added during signing.
     """
 
+    network_id: Optional[int] = None
+    """The network id of the transaction."""
+
     def _get_errors(self: Transaction) -> Dict[str, str]:
+        # import must be here to avoid circular dependencies
+        from xrpl.wallet.main import Wallet
+
         errors = super()._get_errors()
         if self.ticket_sequence is not None and (
             (self.sequence is not None and self.sequence != 0)
@@ -259,6 +265,10 @@ class Transaction(BaseModel):
                 "Transaction"
             ] = """If ticket_sequence is provided,
             account_txn_id must be None and sequence must be None or 0"""
+
+        if isinstance(self.account, Wallet):
+            errors["account"] = "Must pass in `wallet.address`, not `wallet`."
+
         return errors
 
     def to_dict(self: Transaction) -> Dict[str, Any]:
@@ -309,6 +319,15 @@ class Transaction(BaseModel):
             A JSON-like dictionary in the JSON format used by the binary codec.
         """
         return transaction_json_to_binary_codec_form(self.to_dict())
+
+    def blob(self: Transaction) -> str:
+        """
+        Creates the canonical binary format of the Transaction object.
+
+        Returns:
+            The binary-encoded object, as a hexadecimal string.
+        """
+        return encode(self.to_xrpl())
 
     @classmethod
     def from_dict(cls: Type[T], value: Dict[str, Any]) -> T:
@@ -365,6 +384,24 @@ class Transaction(BaseModel):
         else:  # is List[int]
             return flag in self.flags
 
+    def is_signed(self: Transaction) -> bool:
+        """
+        Checks if a transaction has been signed.
+
+        Returns:
+            Whether the transaction has been signed
+        """
+        if self.signers:
+            for signer in self.signers:
+                if (
+                    signer.signing_pub_key is None or len(signer.signing_pub_key) <= 0
+                ) or (signer.txn_signature is None or len(signer.txn_signature) <= 0):
+                    return False
+            return True
+        return (
+            self.signing_pub_key is not None and len(self.signing_pub_key) > 0
+        ) and (self.txn_signature is not None and len(self.txn_signature) > 0)
+
     def get_hash(self: Transaction) -> str:
         """
         Hashes the Transaction object as the ledger does. Only valid for signed
@@ -376,7 +413,7 @@ class Transaction(BaseModel):
         Raises:
             XRPLModelException: if the Transaction is unsigned.
         """
-        if self.txn_signature is None:
+        if self.txn_signature is None and self.signers is None:
             raise XRPLModelException(
                 "Cannot get the hash from an unsigned Transaction."
             )
@@ -419,5 +456,57 @@ class Transaction(BaseModel):
 
         raise XRPLModelException(f"{transaction_type} is not a valid Transaction type")
 
-    class Config:
-        smart_union = True
+    @staticmethod
+    def from_blob(tx_blob: str) -> Transaction:
+        """
+        Decodes a transaction blob.
+
+        Args:
+            tx_blob: the tx blob to decode.
+
+        Returns:
+            The formatted transaction.
+        """
+        return Transaction.from_xrpl(decode(tx_blob))
+
+    @classmethod
+    def from_xrpl(cls: Type[T], value: Union[str, Dict[str, Any]]) -> T:
+        """
+        Creates a Transaction object based on a JSON or JSON-string representation of
+        data
+
+        In Payment transactions, the DeliverMax field is renamed to the Amount field.
+
+        Args:
+            value: The dictionary or JSON string to be instantiated.
+
+        Returns:
+            A Transaction object instantiated from the input.
+
+        Raises:
+            XRPLModelException: If Payment transactions have different values for
+                                amount and deliver_max fields
+        """
+        processed_value = cls._process_xrpl_json(value)
+
+        # handle the deliver_max alias in Payment transactions
+        if (
+            "transaction_type" in processed_value
+            and processed_value["transaction_type"] == "Payment"
+        ) and "deliver_max" in processed_value:
+            if (
+                "amount" in processed_value
+                and processed_value["amount"] != processed_value["deliver_max"]
+            ):
+                raise XRPLModelException(
+                    "Error: amount and deliver_max fields must be equal if both are "
+                    + "provided"
+                )
+            else:
+                processed_value["amount"] = processed_value["deliver_max"]
+
+            # deliver_max field is not recognised in the Payment Request format,
+            # nor is it supported in the serialization operations.
+            del processed_value["deliver_max"]
+
+        return cls.from_dict(processed_value)
