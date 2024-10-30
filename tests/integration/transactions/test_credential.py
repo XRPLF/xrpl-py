@@ -14,13 +14,18 @@ from xrpl.utils import str_to_hex
 _URI = "www.my-id.com/username"
 
 
-def is_cred_object_present(result, issuer, subject, cred_type) -> bool:
+def is_cred_object_present(
+    result: dict, issuer: str, subject: str, cred_type: str
+) -> bool:
     """
-    Utility method that checks if the specified JSON contains the Credential ledger
-    object. The result JSON must be the output of account_objects RPC command.
+    Args:
+        result: JSON response from account_objects RPC
+        issuer: Address of the credential issuer
+        subject: Address of the credential subject
+        cred_type: Type of the credential
 
-    Returns True, if the input JSON contains the Credential Ledger object
-    Returns False, otherwise
+    Returns:
+        bool: True if credential exists, False otherwise
     """
 
     for val in result["account_objects"]:
@@ -55,10 +60,6 @@ class TestCredentialCreate(IntegrationTestCase):
         response = await sign_and_reliable_submission_async(tx, WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-
-        # Note: If it isn't too cluttered, verification tests pertaining to the
-        # existence of Credential ledger object on the Issuer's and Subject's directory
-        # pages can be included here
 
         # Execute the CredentialAccept transaction on the above Credential ledger object
         tx = CredentialAccept(
