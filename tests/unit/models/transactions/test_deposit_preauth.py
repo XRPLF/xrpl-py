@@ -98,7 +98,7 @@ class TestDepositPreauth(TestCase):
 
         self.assertEqual(
             error.exception.args[0],
-            "{'DepositPreauth_authorize_credentials': '"
+            "{'DepositPreauth': '"
             + "AuthorizeCredentials list cannot have more than 8 elements. "
             + "'}",
         )
@@ -114,7 +114,7 @@ class TestDepositPreauth(TestCase):
 
         self.assertEqual(
             error.exception.args[0],
-            "{'DepositPreauth_authorize_credentials': '"
+            "{'DepositPreauth': '"
             + "AuthorizeCredentials list cannot be empty. "
             + "'}",
         )
@@ -139,7 +139,7 @@ class TestDepositPreauth(TestCase):
 
         self.assertEqual(
             error.exception.args[0],
-            "{'DepositPreauth_unauthorize_credentials': '"
+            "{'DepositPreauth': '"
             + "UnauthorizeCredentials list cannot have more than 8 elements. "
             + "'}",
         )
@@ -155,7 +155,7 @@ class TestDepositPreauth(TestCase):
 
         self.assertEqual(
             error.exception.args[0],
-            "{'DepositPreauth_unauthorize_credentials': '"
+            "{'DepositPreauth': '"
             + "UnauthorizeCredentials list cannot be empty. "
             + "'}",
         )

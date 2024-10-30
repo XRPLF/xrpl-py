@@ -82,29 +82,26 @@ class DepositPreauth(Transaction):
                 + "transaction. Please specify exactly one input parameter. "
             )
 
-        # checks on the length of the array inputs
+        def _validate_credentials_length(
+            credentials: List[Credential], field_name: str
+        ) -> None:
+            if len(credentials) == 0:
+                errors["DepositPreauth"] = f"{field_name} list cannot be empty. "
+            if len(credentials) > 8:
+                errors[
+                    "DepositPreauth"
+                ] = f"{field_name} list cannot have more than 8 elements. "
+
+        # Then replace the checks with:
         if self.authorize_credentials is not None:
-            if len(self.authorize_credentials) == 0:
-                errors[
-                    "DepositPreauth_authorize_credentials"
-                ] = "AuthorizeCredentials list cannot be empty. "
+            _validate_credentials_length(
+                self.authorize_credentials, "AuthorizeCredentials"
+            )
 
-            if len(self.authorize_credentials) > 8:
-                errors[
-                    "DepositPreauth_authorize_credentials"
-                ] = "AuthorizeCredentials list cannot have more than 8 elements. "
-
-        # checks on the length of the array inputs
         if self.unauthorize_credentials is not None:
-            if len(self.unauthorize_credentials) == 0:
-                errors[
-                    "DepositPreauth_unauthorize_credentials"
-                ] = "UnauthorizeCredentials list cannot be empty. "
-
-            if len(self.unauthorize_credentials) > 8:
-                errors[
-                    "DepositPreauth_unauthorize_credentials"
-                ] = "UnauthorizeCredentials list cannot have more than 8 elements. "
+            _validate_credentials_length(
+                self.unauthorize_credentials, "UnauthorizeCredentials"
+            )
 
         # Note: Other validity checks like sufficient account-reserve balance,
         # existence of the issuer, etc on the list of credentials need access to the
