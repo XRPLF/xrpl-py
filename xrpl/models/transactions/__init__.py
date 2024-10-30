@@ -6,6 +6,7 @@ Model objects for specific `types of Transactions
 from xrpl.models.transactions.account_delete import AccountDelete
 from xrpl.models.transactions.account_set import (
     AccountSet,
+    AccountSetAsfFlag,
     AccountSetFlag,
     AccountSetFlagInterface,
 )
@@ -28,6 +29,8 @@ from xrpl.models.transactions.check_cash import CheckCash
 from xrpl.models.transactions.check_create import CheckCreate
 from xrpl.models.transactions.clawback import Clawback
 from xrpl.models.transactions.deposit_preauth import DepositPreauth
+from xrpl.models.transactions.did_delete import DIDDelete
+from xrpl.models.transactions.did_set import DIDSet
 from xrpl.models.transactions.escrow_cancel import EscrowCancel
 from xrpl.models.transactions.escrow_create import EscrowCreate
 from xrpl.models.transactions.escrow_finish import EscrowFinish
@@ -51,6 +54,8 @@ from xrpl.models.transactions.offer_create import (
     OfferCreateFlag,
     OfferCreateFlagInterface,
 )
+from xrpl.models.transactions.oracle_delete import OracleDelete
+from xrpl.models.transactions.oracle_set import OracleSet
 from xrpl.models.transactions.payment import Payment, PaymentFlag, PaymentFlagInterface
 from xrpl.models.transactions.payment_channel_claim import (
     PaymentChannelClaim,
@@ -68,10 +73,29 @@ from xrpl.models.transactions.trust_set import (
     TrustSetFlag,
     TrustSetFlagInterface,
 )
+from xrpl.models.transactions.xchain_account_create_commit import (
+    XChainAccountCreateCommit,
+)
+from xrpl.models.transactions.xchain_add_account_create_attestation import (
+    XChainAddAccountCreateAttestation,
+)
+from xrpl.models.transactions.xchain_add_claim_attestation import (
+    XChainAddClaimAttestation,
+)
+from xrpl.models.transactions.xchain_claim import XChainClaim
+from xrpl.models.transactions.xchain_commit import XChainCommit
+from xrpl.models.transactions.xchain_create_bridge import XChainCreateBridge
+from xrpl.models.transactions.xchain_create_claim_id import XChainCreateClaimID
+from xrpl.models.transactions.xchain_modify_bridge import (
+    XChainModifyBridge,
+    XChainModifyBridgeFlag,
+    XChainModifyBridgeFlagInterface,
+)
 
 __all__ = [
     "AccountDelete",
     "AccountSet",
+    "AccountSetAsfFlag",
     "AccountSetFlag",
     "AccountSetFlagInterface",
     "AMMBid",
@@ -90,6 +114,8 @@ __all__ = [
     "CheckCreate",
     "Clawback",
     "DepositPreauth",
+    "DIDDelete",
+    "DIDSet",
     "EscrowCancel",
     "EscrowCreate",
     "EscrowFinish",
@@ -107,14 +133,16 @@ __all__ = [
     "OfferCreate",
     "OfferCreateFlag",
     "OfferCreateFlagInterface",
+    "OracleDelete",
+    "OracleSet",
     "Payment",
-    "PaymentFlag",
-    "PaymentFlagInterface",
     "PaymentChannelClaim",
     "PaymentChannelClaimFlag",
     "PaymentChannelClaimFlagInterface",
     "PaymentChannelCreate",
     "PaymentChannelFund",
+    "PaymentFlag",
+    "PaymentFlagInterface",
     "SetRegularKey",
     "Signer",
     "SignerEntry",
@@ -125,4 +153,14 @@ __all__ = [
     "TrustSet",
     "TrustSetFlag",
     "TrustSetFlagInterface",
+    "XChainAccountCreateCommit",
+    "XChainAddAccountCreateAttestation",
+    "XChainAddClaimAttestation",
+    "XChainClaim",
+    "XChainCommit",
+    "XChainCreateBridge",
+    "XChainCreateClaimID",
+    "XChainModifyBridge",
+    "XChainModifyBridgeFlag",
+    "XChainModifyBridgeFlagInterface",
 ]
