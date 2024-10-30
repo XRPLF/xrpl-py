@@ -17,6 +17,10 @@ class TestCredentialAccept(TestCase):
             credential_type=_VALID_CREDENTIAL_TYPE,
         )
         self.assertTrue(tx.is_valid())
+        # Verify field values
+        self.assertEqual(tx.issuer, _ACCOUNT_ISSUER)
+        self.assertEqual(tx.account, _ACCOUNT_SUBJECT)
+        self.assertEqual(tx.credential_type, _VALID_CREDENTIAL_TYPE)
 
     # invalid inputs to the credential_type field
     def test_cred_type_field_too_long(self):
