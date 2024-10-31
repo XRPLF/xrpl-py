@@ -63,7 +63,7 @@ class CredentialCreate(Transaction):
             if len(self.uri) > 256:
                 error += "Length must be < 256. "
             if not HEX_REGEX.fullmatch(self.uri):
-                error += "URI field must be encoded in base-16 format. "
+                error += "Must be encoded in hex. "
             return error if error != "" else None
         return None
 
