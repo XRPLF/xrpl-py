@@ -78,8 +78,8 @@ class DepositPreauth(Transaction):
             > 1
         ):
             errors["DepositPreauth"] = (
-                "More than one input param cannot be specified for DepositPreauth "
-                + "transaction. Please specify exactly one input parameter. "
+                "DepositPreauth txn accepts exactly one input amongst authorize, "
+                + "unauthorize, authorize_credentials and unauthorize_credentials."
             )
 
         def _validate_credentials_length(
