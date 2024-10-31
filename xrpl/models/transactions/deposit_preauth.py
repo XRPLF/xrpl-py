@@ -87,7 +87,7 @@ class DepositPreauth(Transaction):
         ) -> None:
             if len(credentials) == 0:
                 errors["DepositPreauth"] = f"{field_name} list cannot be empty. "
-            if len(credentials) > 8:
+            elif len(credentials) > 8:
                 errors[
                     "DepositPreauth"
                 ] = f"{field_name} list cannot have more than 8 elements. "
