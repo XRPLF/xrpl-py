@@ -59,7 +59,7 @@ class CredentialCreate(Transaction):
         if self.uri is not None:
             error = ""
             if len(self.uri) == 0:
-                error += "Length of URI field must be greater than 0. "
+                error += "Length must be > 0. "
             if len(self.uri) > 256:
                 error += "Length of URI field must not be greater than 256 characters. "
             if not HEX_REGEX.fullmatch(self.uri):
