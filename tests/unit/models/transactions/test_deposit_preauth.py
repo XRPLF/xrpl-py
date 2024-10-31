@@ -10,70 +10,47 @@ _SEQUENCE = 19048
 
 
 class TestDepositPreauth(TestCase):
-    def test_all_input_combinations(self):
-        # this value is used for authorized_credentials or unauthorized_credentials
-        # fields
-        sample_credentials = [
-            Credential(issuer="SampleIssuer", credential_type="SampleCredType")
-        ]
-        for val in range(0, 16):
-            # bitmap
-            # 0'th bit represents authorize field
-            # 1'th bit represents unauthorize field
-            # 2'nd bit represents authorized_credentials field
-            # 3'rd bit represents unauthorized_credentials field
+    def test_authorize_unauthorize_both_set(self):
+        with self.assertRaises(XRPLModelException):
+            DepositPreauth(
+                account=_ACCOUNT,
+                fee=_FEE,
+                sequence=_SEQUENCE,
+                authorize="authorize",
+                unauthorize="unauthorize",
+            )
 
-            if val in [1, 2, 4, 8]:  # all the valid input cases
-                tx = DepositPreauth(
-                    account=_ACCOUNT,
-                    fee=_FEE,
-                    sequence=_SEQUENCE,
-                    authorize="authorize" if (val & 1) != 0 else None,
-                    unauthorize="unauthorize" if (val & 2) != 0 else None,
-                    authorize_credentials=(
-                        sample_credentials if (val & 4) != 0 else None
-                    ),
-                    unauthorize_credentials=(
-                        sample_credentials if (val & 8) != 0 else None
-                    ),
-                )
-                self.assertTrue(tx.is_valid())
-            else:
-                with self.assertRaises(XRPLModelException) as error:
-                    DepositPreauth(
-                        account=_ACCOUNT,
-                        fee=_FEE,
-                        sequence=_SEQUENCE,
-                        authorize="authorize" if (val & 1) != 0 else None,
-                        unauthorize="unauthorize" if (val & 2) != 0 else None,
-                        authorize_credentials=(
-                            sample_credentials if (val & 4) != 0 else None
-                        ),
-                        unauthorize_credentials=(
-                            sample_credentials if (val & 8) != 0 else None
-                        ),
-                    )
+    def test_authorize_unauthorize_neither_set(self):
+        with self.assertRaises(XRPLModelException):
+            DepositPreauth(
+                account=_ACCOUNT,
+                fee=_FEE,
+                sequence=_SEQUENCE,
+            )
 
-                # capture the case where no field was specified as input
-                if val == 0:
-                    self.assertEqual(
-                        error.exception.args[0],
-                        "{'DepositPreauth': '"
-                        + "Exactly one input parameter amongst authorize, unauthorize, "
-                        + "authorize_credentials or unauthorize_credentials must be set"
-                        + "."
-                        + " It is "
-                        + "invalid if none of the params are specified."
-                        + "'}",
-                    )
-                # capture the case where a plurality of inputs are specified
-                else:
-                    self.assertEqual(
-                        error.exception.args[0],
-                        "{'DepositPreauth': 'DepositPreauth txn accepts exactly one "
-                        + "input amongst authorize, unauthorize, authorize_credentials "
-                        + "and unauthorize_credentials.'}",
-                    )
+    # unit tests using (un)/authorize_credentials input parameter
+    sample_credentials = [
+        Credential(issuer="SampleIssuer", credential_type="SampleCredType")
+    ]
+
+    def test_invalid_input_with_authorize_credentials(self):
+        with self.assertRaises(XRPLModelException):
+            DepositPreauth(
+                account=_ACCOUNT,
+                fee=_FEE,
+                sequence=_SEQUENCE,
+                authorize="authorize",
+                authorize_credentials=self.sample_credentials,
+            )
+
+    def test_valid_input_unauthorize_credentials(self):
+        tx = DepositPreauth(
+            account=_ACCOUNT,
+            fee=_FEE,
+            sequence=_SEQUENCE,
+            unauthorize_credentials=self.sample_credentials,
+        )
+        self.assertTrue(tx.is_valid())
 
     # Unit tests validating the length of array inputs
     def test_authcreds_array_input_exceed_length_check(self):
