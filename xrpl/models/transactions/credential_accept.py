@@ -39,15 +39,9 @@ class CredentialAccept(Transaction):
     """
 
     def _get_errors(self: Self) -> Dict[str, str]:
-        errors: Dict[str, str] = {
-            key: value
-            for key, value in {
-                **super()._get_errors(),
-                "credential_type": self._get_credential_type_error(),
-            }.items()
-            if value is not None
-        }
-
+        errors = super()._get_errors()
+        if (cred_type_error := self._get_credential_type_error()) is not None:
+            errors["credential_type"] = cred_type_error
         return errors
 
     def _get_credential_type_error(self: Self) -> Optional[str]:
