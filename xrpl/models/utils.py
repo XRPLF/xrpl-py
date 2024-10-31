@@ -8,10 +8,10 @@ from typing_extensions import Final
 
 from xrpl.models.exceptions import XRPLModelException
 
-# Regular-Expression pertaining to Credentials Ledger Object transactions
-# Note: This regex is not identical to the one used with DIDSet transaction. This regex
-# mandates a minimum of length-1 strings.
-HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]+")
+# Note: This regex is used in DIDSet and Credential-related transactions. In addition to
+# this regex, Credential-related transactions requires the input strings to have
+# positive (non-zero) length
+HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
 
 # Code source for requiring kwargs:
 # https://gist.github.com/mikeholler/4be180627d3f8fceb55704b729464adb

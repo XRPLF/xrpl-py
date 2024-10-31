@@ -44,7 +44,7 @@ class TestCredentialCreate(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'uri': 'Length must be > 0. Must be encoded in hex.'}",
+            "{'uri': 'Length must be > 0.'}",
         )
 
     def test_uri_field_not_hex(self):
@@ -84,8 +84,7 @@ class TestCredentialCreate(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'credential_type': 'Length must be > 0. credential_type field must be"
-            + " encoded in hex.'}",
+            "{'credential_type': 'Length must be > 0.'}",
         )
 
     def test_cred_type_field_not_hex(self):
