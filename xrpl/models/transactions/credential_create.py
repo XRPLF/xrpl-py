@@ -74,7 +74,7 @@ class CredentialCreate(Transaction):
             error += "Length of credential_type field must be greater than 0. "
         if len(self.credential_type) > 128:
             error += (
-                "Length of credential_type field must not be greater than 64 bytes. "
+                "Length must less than 128. "
             )
         if not HEX_REGEX.fullmatch(self.credential_type):
             error += "credential_type field must be encoded in base-16 format. "
