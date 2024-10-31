@@ -71,7 +71,7 @@ class CredentialCreate(Transaction):
         error = ""
         # credential_type is a required field in this transaction
         if len(self.credential_type) == 0:
-            error += "Length of credential_type field must be greater than 0. "
+            error += "Length must be > 0. "
         if len(self.credential_type) > 128:
             error += (
                 "Length must less than 128. "
