@@ -6,7 +6,7 @@ authorization to deliver money to your account.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional, Set
+from typing import List, Optional
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
@@ -39,7 +39,7 @@ class DepositAuthorized(Request, LookupByLedgerRequest):
 
     method: RequestMethod = field(default=RequestMethod.DEPOSIT_AUTHORIZED, init=False)
 
-    credentials: Optional[Set[str]] = None
+    credentials: Optional[List[str]] = None
     """The object IDs of Credential objects. If this field is included, then the
     credential will be taken into account when analyzing whether the sender can send
     funds to the destination.

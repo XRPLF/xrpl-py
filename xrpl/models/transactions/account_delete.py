@@ -1,7 +1,7 @@
 """Model for AccountDelete transaction type."""
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Set
+from typing import Dict, List, Optional
 
 from typing_extensions import Self
 
@@ -45,7 +45,7 @@ class AccountDelete(Transaction):
         init=False,
     )
 
-    credential_ids: Optional[Set[str]] = None
+    credential_ids: Optional[List[str]] = None
     """Credentials associated with sender of this transaction. The credentials included
     must not be expired. If there are duplicates provided in the list, they will be
     silently de-duped."""

@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Optional, Set
+from typing import Dict, List, Optional
 
 from typing_extensions import Self
 
@@ -108,7 +108,7 @@ class PaymentChannelClaim(Transaction):
         init=False,
     )
 
-    credential_ids: Optional[Set[str]] = None
+    credential_ids: Optional[List[str]] = None
     """Credentials associated with sender of this transaction. The credentials included
     must not be expired. If there are duplicates provided in the list, they will be
     silently de-duped."""
@@ -121,8 +121,6 @@ class PaymentChannelClaim(Transaction):
             if len(self.credential_ids) == 0:
                 errors["credential_ids"] = "Cannot be empty."
             if len(self.credential_ids) > 8:
-                errors[
-                    "credential_ids"
-                ] = "Length must be <= 8."
+                errors["credential_ids"] = "Length must be <= 8."
 
         return errors
