@@ -52,7 +52,7 @@ class CredentialAccept(Transaction):
         error = ""
         if len(self.credential_type) == 0:
             error += "Length must be > 0. "
-        if len(self.credential_type) > 64:
+        if len(self.credential_type) > 128:
             error += (
                 "Length must be < 128. "
             )
