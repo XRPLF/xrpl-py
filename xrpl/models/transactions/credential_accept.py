@@ -51,7 +51,7 @@ class CredentialAccept(Transaction):
     def _get_credential_type_error(self: Self) -> Optional[str]:
         error = ""
         if len(self.credential_type) == 0:
-            error += "Length of credential_type field must be greater than 0. "
+            error += "Length must be > 0. "
         if len(self.credential_type) > 64:
             error += (
                 "Length of credential_type field must not be greater than 64 bytes. "
