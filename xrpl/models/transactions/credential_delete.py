@@ -47,10 +47,9 @@ class CredentialDelete(Transaction):
         }
 
         if not self.subject and not self.issuer:
-            errors["invalid_params"] = (
-                "CredentialDelete transaction requires at least one input amongst "
-                + "issuer or subject. "
-            )
+            errors[
+                "invalid_params"
+            ] = "CredentialDelete transaction: Neither `issuer` nor `subject` provided."
 
         return errors
 
