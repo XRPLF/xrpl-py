@@ -44,9 +44,6 @@ class CredentialCreate(Transaction):
     Credential document).
     """
 
-    # Note: Validity checks pertaining to expiration, account or subject will need
-    # access to the last closed ledger (or) the latest state of the blockchain. Hence,
-    # these checks are omitted from this implementation.
     def _get_errors(self: Self) -> Dict[str, str]:
         return {
             key: value

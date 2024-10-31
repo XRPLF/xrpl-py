@@ -38,8 +38,6 @@ class CredentialAccept(Transaction):
     A (hex-encoded) value to identify the type of credential from the issuer.
     """
 
-    # Note: Validity checks pertaining to other fields of this transaction require
-    # access to the latest state of the blockchain
     def _get_errors(self: Self) -> Dict[str, str]:
         return {
             key: value
