@@ -123,6 +123,6 @@ class PaymentChannelClaim(Transaction):
             if len(self.credential_ids) > 8:
                 errors[
                     "credential_ids"
-                ] = "CredentialIDs list cannot have more than 8 elements."
+                ] = "Length must be <= 8."
 
         return errors
