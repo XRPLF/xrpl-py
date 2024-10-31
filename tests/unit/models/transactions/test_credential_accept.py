@@ -32,8 +32,7 @@ class TestCredentialAccept(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'credential_type': 'Length of credential_type field must not be greater "
-            + "than 64 bytes. '}",
+            "{'credential_type': 'Length must be < 128.'}",
         )
 
     def test_cred_type_field_empty(self):
@@ -45,8 +44,8 @@ class TestCredentialAccept(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'credential_type': 'Length of credential_type field must be greater than "
-            + "0. credential_type field must be encoded in base-16 format. '}",
+            "{'credential_type': 'Length must be > 0. credential_type field must be"
+            + " encoded in hex.'}",
         )
 
     def test_cred_type_field_not_hex(self):
@@ -58,6 +57,5 @@ class TestCredentialAccept(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'credential_type': 'credential_type field must be encoded in base-16 "
-            + "format. '}",
+            "{'credential_type': 'credential_type field must be encoded in hex.'}",
         )

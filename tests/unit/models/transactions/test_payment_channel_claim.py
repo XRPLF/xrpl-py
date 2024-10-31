@@ -40,8 +40,7 @@ class TestPaymentChannelClaim(TestCase):
 
         self.assertEqual(
             err.exception.args[0],
-            "{'credential_ids': 'CredentialIDs list cannot have more than 8 "
-            + "elements.'}",
+            "{'credential_ids': 'Length must be <= 8.'}",
         )
 
     def test_creds_list_empty(self):
@@ -60,5 +59,5 @@ class TestPaymentChannelClaim(TestCase):
             )
         self.assertEqual(
             err.exception.args[0],
-            "{'credential_ids': 'CredentialIDs list cannot be empty.'}",
+            "{'credential_ids': 'Cannot be empty.'}",
         )

@@ -31,7 +31,7 @@ class TestCredentialCreate(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'uri': 'Length of URI field must not be greater than 256 characters. '}",
+            "{'uri': 'Length must be < 256.'}",
         )
 
     def test_uri_field_empty(self):
@@ -44,8 +44,7 @@ class TestCredentialCreate(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'uri': 'Length of URI field must be greater than 0. URI field must be "
-            + "encoded in base-16 format. '}",
+            "{'uri': 'Length must be > 0. Must be encoded in hex.'}",
         )
 
     def test_uri_field_not_hex(self):
@@ -58,7 +57,7 @@ class TestCredentialCreate(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'uri': 'URI field must be encoded in base-16 format. '}",
+            "{'uri': 'Must be encoded in hex.'}",
         )
 
     # invalid inputs to the credential_type field
@@ -72,8 +71,7 @@ class TestCredentialCreate(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'credential_type': 'Length of credential_type field must not be greater "
-            + "than 64 bytes. '}",
+            "{'credential_type': 'Length must less than 128.'}",
         )
 
     def test_cred_type_field_empty(self):
@@ -86,8 +84,8 @@ class TestCredentialCreate(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'credential_type': 'Length of credential_type field must be greater than "
-            + "0. credential_type field must be encoded in base-16 format. '}",
+            "{'credential_type': 'Length must be > 0. credential_type field must be"
+            + " encoded in hex.'}",
         )
 
     def test_cred_type_field_not_hex(self):
@@ -100,8 +98,7 @@ class TestCredentialCreate(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'credential_type': 'credential_type field must be encoded in base-16 "
-            + "format. '}",
+            "{'credential_type': 'credential_type field must be encoded in hex.'}",
         )
 
     def test_create_cred_type_object_all_empty_fields(self):

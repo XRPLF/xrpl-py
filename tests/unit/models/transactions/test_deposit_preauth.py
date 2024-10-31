@@ -70,11 +70,9 @@ class TestDepositPreauth(TestCase):
                 else:
                     self.assertEqual(
                         error.exception.args[0],
-                        "{'DepositPreauth': '"
-                        + "More than one input param cannot be specified for "
-                        + "DepositPreauth "
-                        + "transaction. Please specify exactly one input parameter. "
-                        + "'}",
+                        "{'DepositPreauth': 'DepositPreauth txn accepts exactly one "
+                        + "input amongst authorize, unauthorize, authorize_credentials "
+                        + "and unauthorize_credentials.'}",
                     )
 
     # Unit tests validating the length of array inputs
