@@ -119,7 +119,7 @@ class PaymentChannelClaim(Transaction):
         # Validation checks on the credential_ids field
         if self.credential_ids is not None:
             if len(self.credential_ids) == 0:
-                errors["credential_ids"] = "CredentialIDs list cannot be empty."
+                errors["credential_ids"] = "Cannot be empty."
             if len(self.credential_ids) > 8:
                 errors[
                     "credential_ids"
