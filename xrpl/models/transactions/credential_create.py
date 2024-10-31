@@ -10,6 +10,8 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import HEX_REGEX, KW_ONLY_DATACLASS, require_kwargs_on_init
 
+_MAX_URI_LENGTH = 256
+
 
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
@@ -57,14 +59,14 @@ class CredentialCreate(Transaction):
 
     def _get_uri_error(self: Self) -> Optional[str]:
         if self.uri is not None:
-            error = ""
+            errors = []
             if len(self.uri) == 0:
-                error += "Length must be > 0. "
-            if len(self.uri) > 256:
-                error += "Length must be < 256. "
+                errors.append("Length must be > 0.")
+            if len(self.uri) > _MAX_URI_LENGTH:
+                errors.append(f"Length must be < {_MAX_URI_LENGTH}.")
             if not HEX_REGEX.fullmatch(self.uri):
-                error += "Must be encoded in hex. "
-            return error if error != "" else None
+                errors.append("Must be encoded in hex.")
+            return " ".join(errors) if errors else None
         return None
 
     def _get_credential_type_error(self: Self) -> Optional[str]:
