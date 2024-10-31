@@ -41,17 +41,15 @@ class CredentialAccept(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if cred_type_error := self._get_credential_type_error() is not None:
-            errors["credential_type"] = cred_type_error
+            errors["credential_type"] = cred_type_error  # type: ignore
         return errors
 
     def _get_credential_type_error(self: Self) -> Optional[str]:
-        error = ""
+        errors = []
         if len(self.credential_type) == 0:
-            error += "Length must be > 0. "
+            errors.append("Length must be > 0.")
         if len(self.credential_type) > 128:
-            error += (
-                "Length must be < 128. "
-            )
+            errors.append("Length must be < 128.")
         if not bool(HEX_REGEX.fullmatch(self.credential_type)):
-            error += "credential_type field must be encoded in base-16 format. "
-        return error if error != "" else None
+            errors.append("credential_type field must be encoded in base-16 format.")
+        return " ".join(errors) if errors else None

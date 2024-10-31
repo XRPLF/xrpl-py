@@ -54,14 +54,12 @@ class CredentialDelete(Transaction):
         return errors
 
     def _get_credential_type_error(self: Self) -> Optional[str]:
-        error = ""
+        errors = []
         # credential_type is a required field in this transaction
         if len(self.credential_type) == 0:
-            error += "Length of credential_type field must be greater than 0. "
-        if len(self.credential_type) > 64:
-            error += (
-                "Length of credential_type field must not be greater than 64 bytes. "
-            )
+            errors.append("Length must be > 0.")
+        if len(self.credential_type) > 128:
+            errors.append("Length must be < 128.")
         if not bool(HEX_REGEX.fullmatch(self.credential_type)):
-            error += "credential_type field must be encoded in base-16 format. "
-        return error if error != "" else None
+            errors.append("credential_type field must be encoded in hex.")
+        return " ".join(errors) if errors else None

@@ -68,14 +68,12 @@ class CredentialCreate(Transaction):
         return None
 
     def _get_credential_type_error(self: Self) -> Optional[str]:
-        error = ""
+        errors = []
         # credential_type is a required field in this transaction
         if len(self.credential_type) == 0:
-            error += "Length must be > 0. "
+            errors.append("Length must be > 0.")
         if len(self.credential_type) > 128:
-            error += (
-                "Length must less than 128. "
-            )
+            errors.append("Length must less than 128.")
         if not HEX_REGEX.fullmatch(self.credential_type):
-            error += "credential_type field must be encoded in base-16 format. "
-        return error if error != "" else None
+            errors.append("credential_type field must be encoded in hex.")
+        return " ".join(errors) if errors else None
