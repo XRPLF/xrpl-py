@@ -13,6 +13,10 @@ from xrpl.models.exceptions import XRPLModelException
 # positive (non-zero) length
 HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
 
+# Credentials are represented in hex. Whilst they are allowed a maximum length of 64
+# bytes, every byte requires 2 hex characters for representation
+_MAX_CREDENTIAL_LENGTH: int = 64 * 2
+
 # Code source for requiring kwargs:
 # https://gist.github.com/mikeholler/4be180627d3f8fceb55704b729464adb
 
