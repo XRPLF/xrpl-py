@@ -2,7 +2,7 @@
 
 import re
 from dataclasses import dataclass, is_dataclass
-from typing import Any, Dict, List, Pattern, Type, TypeVar, cast
+from typing import Any, Dict, List, Optional, Pattern, Type, TypeVar, cast
 
 from typing_extensions import Final
 
@@ -16,6 +16,28 @@ HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
 # Credentials are represented in hex. Whilst they are allowed a maximum length of 64
 # bytes, every byte requires 2 hex characters for representation
 _MAX_CREDENTIAL_LENGTH: int = 64 * 2
+
+
+def validate_credential_ids(credential_list: Optional[List[str]]) -> Dict[str, str]:
+    """
+    Returns:
+        Errors pertaining to credential_ids field
+
+    Args:
+        credential_list: An optional list of input credentials
+
+    """
+    errors = {}
+    if credential_list is not None:
+        if len(credential_list) == 0:
+            errors["credential_ids"] = "CredentialIDs list cannot be empty."
+        if len(credential_list) > 8:
+            errors[
+                "credential_ids"
+            ] = "CredentialIDs list cannot have more than 8 elements."
+
+    return errors
+
 
 # Code source for requiring kwargs:
 # https://gist.github.com/mikeholler/4be180627d3f8fceb55704b729464adb

@@ -8,7 +8,11 @@ from typing_extensions import Self
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+from xrpl.models.utils import (
+    KW_ONLY_DATACLASS,
+    require_kwargs_on_init,
+    validate_credential_ids,
+)
 
 
 @require_kwargs_on_init
@@ -53,13 +57,4 @@ class AccountDelete(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        # Validation checks on the credential_ids field
-        if self.credential_ids is not None:
-            if len(self.credential_ids) == 0:
-                errors["credential_ids"] = "CredentialIDs list cannot be empty."
-            if len(self.credential_ids) > 8:
-                errors[
-                    "credential_ids"
-                ] = "CredentialIDs list cannot have more than 8 elements."
-
-        return errors
+        return errors | validate_credential_ids(self.credential_ids)

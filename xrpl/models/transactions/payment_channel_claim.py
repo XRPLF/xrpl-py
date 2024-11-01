@@ -10,7 +10,11 @@ from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+from xrpl.models.utils import (
+    KW_ONLY_DATACLASS,
+    require_kwargs_on_init,
+    validate_credential_ids,
+)
 
 
 class PaymentChannelClaimFlag(int, Enum):
@@ -115,11 +119,4 @@ class PaymentChannelClaim(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        # Validation checks on the credential_ids field
-        if self.credential_ids is not None:
-            if len(self.credential_ids) == 0:
-                errors["credential_ids"] = "Cannot be empty."
-            if len(self.credential_ids) > 8:
-                errors["credential_ids"] = "Length must be <= 8."
-
-        return errors
+        return errors | validate_credential_ids(self.credential_ids)
