@@ -1,4 +1,5 @@
 """Model for PaymentChannelCreate transaction type."""
+
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -20,7 +21,7 @@ class PaymentChannelCreate(Transaction):
     channel.
     """
 
-    amount: Amount = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED
     """
     The amount of XRP, in drops, to set aside in this channel. This field is
     required.
@@ -28,7 +29,7 @@ class PaymentChannelCreate(Transaction):
     :meta hide-value:
     """
 
-    destination: str = REQUIRED  # type: ignore
+    destination: str = REQUIRED
     """
     The account that can receive XRP from this channel, also known as the
     "destination address" of the channel. Cannot be the same as the sender.
@@ -37,7 +38,7 @@ class PaymentChannelCreate(Transaction):
     :meta hide-value:
     """
 
-    settle_delay: int = REQUIRED  # type: ignore
+    settle_delay: int = REQUIRED
     """
     The amount of time, in seconds, the source address must wait between
     requesting to close the channel and fully closing it. This field is
@@ -46,7 +47,7 @@ class PaymentChannelCreate(Transaction):
     :meta hide-value:
     """
 
-    public_key: str = REQUIRED  # type: ignore
+    public_key: str = REQUIRED
     """
     The public key of the key pair that the source will use to authorize
     claims against this  channel, as hexadecimal. This can be any valid

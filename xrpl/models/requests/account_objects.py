@@ -6,6 +6,7 @@ AccountLinesRequest instead.
 
 `See account_objects <https://xrpl.org/account_objects.html>`_
 """
+
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Optional
@@ -47,7 +48,7 @@ class AccountObjects(Request, LookupByLedgerRequest):
     `See account_objects <https://xrpl.org/account_objects.html>`_
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     This field is required.
 

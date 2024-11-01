@@ -38,19 +38,19 @@ class AMMCreate(Transaction):
     so it's best to set the trading fee based on the volatility of the asset pair.
     """
 
-    amount: Amount = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED
     """
     The first of the two assets to fund this AMM with. This must be a positive amount.
     This field is required.
     """
 
-    amount2: Amount = REQUIRED  # type: ignore
+    amount2: Amount = REQUIRED
     """
     The second of the two assets to fund this AMM with. This must be a positive amount.
     This field is required.
     """
 
-    trading_fee: int = REQUIRED  # type: ignore
+    trading_fee: int = REQUIRED
     """
     The fee to charge for trades against this AMM instance, in units of 1/100,000;
     a value of 1 is equivalent to 0.001%.

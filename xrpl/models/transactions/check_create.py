@@ -1,4 +1,5 @@
 """Model for CheckCreate transaction type."""
+
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -19,7 +20,7 @@ class CheckCreate(Transaction):
     transaction is the sender of the Check.
     """
 
-    destination: str = REQUIRED  # type: ignore
+    destination: str = REQUIRED
     """
     The address of the `account
     <https://xrpl.org/accounts.html>`_ that can cash the Check. This field is
@@ -28,7 +29,7 @@ class CheckCreate(Transaction):
     :meta hide-value:
     """
 
-    send_max: Amount = REQUIRED  # type: ignore
+    send_max: Amount = REQUIRED
     """
     Maximum amount of source token the Check is allowed to debit the
     sender, including transfer fees on non-XRP tokens. The Check can only

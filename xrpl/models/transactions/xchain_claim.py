@@ -26,14 +26,14 @@ class XChainClaim(Transaction):
     equivalent of the value locked on the source chain.
     """
 
-    xchain_bridge: XChainBridge = REQUIRED  # type: ignore
+    xchain_bridge: XChainBridge = REQUIRED
     """
     The bridge to use for the transfer. This field is required.
 
     :meta hide-value:
     """
 
-    xchain_claim_id: Union[int, str] = REQUIRED  # type: ignore
+    xchain_claim_id: Union[int, str] = REQUIRED
     """
     The unique integer ID for the cross-chain transfer that was referenced in
     the corresponding ``XChainCommit`` transaction. This field is required.
@@ -41,7 +41,7 @@ class XChainClaim(Transaction):
     :meta hide-value:
     """
 
-    destination: str = REQUIRED  # type: ignore
+    destination: str = REQUIRED
     """
     The destination account on the destination chain. It must exist or the
     transaction will fail. However, if the transaction fails in this case, the
@@ -59,7 +59,7 @@ class XChainClaim(Transaction):
     :meta hide-value:
     """
 
-    amount: Amount = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED
     """
     The amount to claim on the destination chain. This must match the amount
     attested to on the attestations associated with this ``XChainClaimID``.

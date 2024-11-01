@@ -6,6 +6,7 @@ WebSocket API only.
 
 `See subscribe <https://xrpl.org/subscribe.html>`_
 """
+
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Optional
@@ -35,21 +36,21 @@ class StreamParameter(str, Enum):
 class SubscribeBook(BaseModel):
     """Format for elements in the ``books`` array for Subscribe only."""
 
-    taker_gets: Currency = REQUIRED  # type: ignore
+    taker_gets: Currency = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    taker_pays: Currency = REQUIRED  # type: ignore
+    taker_pays: Currency = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    taker: str = REQUIRED  # type: ignore
+    taker: str = REQUIRED
     """
     This field is required.
 

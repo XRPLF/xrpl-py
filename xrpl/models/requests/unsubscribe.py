@@ -6,6 +6,7 @@ WebSocket API only.
 
 `See unsubscribe <https://xrpl.org/unsubscribe.html>`_
 """
+
 from dataclasses import dataclass, field
 from typing import List, Optional
 
@@ -22,14 +23,14 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class UnsubscribeBook(BaseModel):
     """Format for elements in the ``books`` array for Unsubscribe only."""
 
-    taker_gets: Currency = REQUIRED  # type: ignore
+    taker_gets: Currency = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    taker_pays: Currency = REQUIRED  # type: ignore
+    taker_pays: Currency = REQUIRED
     """
     This field is required.
 

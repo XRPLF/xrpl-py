@@ -101,7 +101,7 @@ class Request(BaseModel):
     Represents fields common to all request types.
     """
 
-    method: RequestMethod = REQUIRED  # type: ignore
+    method: RequestMethod = REQUIRED
     """
     This field is required.
 

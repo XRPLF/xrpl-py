@@ -1,4 +1,5 @@
 """Model used in AMMBid transaction."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -13,7 +14,7 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class AuthAccount(NestedModel):
     """Represents one entry in a list of AuthAccounts used in AMMBid transaction."""
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     This field is required.
 

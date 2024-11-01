@@ -44,14 +44,14 @@ class Response(BaseModel):
     Represents fields common to all response types.
     """
 
-    status: ResponseStatus = REQUIRED  # type: ignore
+    status: ResponseStatus = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    result: Dict[str, Any] = REQUIRED  # type: ignore
+    result: Dict[str, Any] = REQUIRED
     """
     This field is required.
 
@@ -92,7 +92,7 @@ class Response(BaseModel):
         """
         return self._do_contains_partial_payment(self.result)
 
-    def _do_contains_partial_payment(self: Self, val: Any) -> bool:
+    def _do_contains_partial_payment(self: Self, val: Any) -> bool:  # noqa: ANN401
         flagged = []
         if isinstance(val, dict):
             formatted = {key.strip().lower(): value for key, value in val.items()}
@@ -111,7 +111,7 @@ class Response(BaseModel):
             ]
         return len(flagged) > 0
 
-    def _is_partial_payment(self: Self, key: str, val: Any) -> bool:
+    def _is_partial_payment(self: Self, key: str, val: Any) -> bool:  # noqa: ANN401
         if isinstance(val, dict):
             return self._do_contains_partial_payment(val)
         try:

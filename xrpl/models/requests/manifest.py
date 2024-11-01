@@ -4,6 +4,7 @@ The manifest method reports the current
 public key. The "manifest" is the public portion
 of that validator's configured token.
 """
+
 from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import Request, RequestMethod
@@ -22,7 +23,7 @@ class Manifest(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.MANIFEST, init=False)
-    public_key: str = REQUIRED  # type: ignore
+    public_key: str = REQUIRED
     """
     This field is required.
 

@@ -46,14 +46,14 @@ class ChannelAuthorize(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.CHANNEL_AUTHORIZE, init=False)
-    channel_id: str = REQUIRED  # type: ignore
+    channel_id: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    amount: str = REQUIRED  # type: ignore
+    amount: str = REQUIRED
     """
     This field is required.
 

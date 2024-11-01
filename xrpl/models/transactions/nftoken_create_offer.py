@@ -41,7 +41,7 @@ class NFTokenCreateOffer(Transaction):
     the submitting account does own.
     """
 
-    nftoken_id: str = REQUIRED  # type: ignore
+    nftoken_id: str = REQUIRED
     """
     Identifies the TokenID of the NFToken object that the
     offer references. This field is required.
@@ -49,7 +49,7 @@ class NFTokenCreateOffer(Transaction):
     :meta hide-value:
     """
 
-    amount: Amount = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED
     """
     Indicates the amount expected or offered for the Token.
 

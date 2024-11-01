@@ -4,6 +4,7 @@ specified account.
 
 `See account_tx <https://xrpl.org/account_tx.html>`_
 """
+
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
@@ -22,7 +23,7 @@ class AccountTx(Request, LookupByLedgerRequest):
     `See account_tx <https://xrpl.org/account_tx.html>`_
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     This field is required.
 

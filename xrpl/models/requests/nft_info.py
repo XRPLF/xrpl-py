@@ -2,6 +2,7 @@
 The `nft_info` method retrieves all the information about the
 NFToken
 """
+
 from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
@@ -18,7 +19,7 @@ class NFTInfo(Request, LookupByLedgerRequest):
     """
 
     method: RequestMethod = field(default=RequestMethod.NFT_INFO, init=False)
-    nft_id: str = REQUIRED  # type: ignore
+    nft_id: str = REQUIRED
     """
     The unique identifier of an NFToken.
     The request returns information of this NFToken. This value is required.

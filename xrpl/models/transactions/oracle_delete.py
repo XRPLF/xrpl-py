@@ -15,10 +15,10 @@ from xrpl.models.utils import require_kwargs_on_init
 class OracleDelete(Transaction):
     """Delete an Oracle ledger entry."""
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """This account must match the account in the Owner field of the Oracle object."""
 
-    oracle_document_id: int = REQUIRED  # type: ignore
+    oracle_document_id: int = REQUIRED
     """A unique identifier of the price oracle for the Account."""
 
     transaction_type: TransactionType = field(

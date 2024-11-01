@@ -7,6 +7,7 @@ All information retrieved is relative to a particular version of the ledger.
 
 `See account_channels <https://xrpl.org/account_channels.html>`_
 """
+
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
@@ -29,7 +30,7 @@ class AccountChannels(Request, LookupByLedgerRequest):
     """
 
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_CHANNELS, init=False)
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     This field is required.
 

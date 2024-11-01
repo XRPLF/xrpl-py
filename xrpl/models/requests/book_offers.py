@@ -2,6 +2,7 @@
 The book_offers method retrieves a list of offers, also known
 as the order book, between two currencies.
 """
+
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -19,14 +20,14 @@ class BookOffers(Request, LookupByLedgerRequest):
     as the order book, between two currencies.
     """
 
-    taker_gets: Currency = REQUIRED  # type: ignore
+    taker_gets: Currency = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    taker_pays: Currency = REQUIRED  # type: ignore
+    taker_pays: Currency = REQUIRED
     """
     This field is required.
 

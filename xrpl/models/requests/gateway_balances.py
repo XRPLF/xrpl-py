@@ -4,6 +4,7 @@ excluding amounts held by operational addresses.
 
 `See gateway_balances <https://xrpl.org/gateway_balances.html>`_
 """
+
 from dataclasses import dataclass, field
 from typing import List, Optional, Union
 
@@ -22,7 +23,7 @@ class GatewayBalances(Request, LookupByLedgerRequest):
     `See gateway_balances <https://xrpl.org/gateway_balances.html>`_
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     This field is required.
 

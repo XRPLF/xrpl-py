@@ -117,7 +117,7 @@ def _main(
             param_name = param[2:]
             param_type = sfields[param_name][0]
             if is_required:
-                param_type_output = f"{TYPE_MAP[param_type]} = REQUIRED  # type: ignore"
+                param_type_output = f"{TYPE_MAP[param_type]} = REQUIRED"
             else:
                 param_type_output = f"Optional[{TYPE_MAP[param_type]}] = None"
             return f"    {_key_to_json(param_name)}: {param_type_output}"

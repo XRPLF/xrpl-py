@@ -4,6 +4,7 @@ is authorized to send payments directly to another. See
 Deposit Authorization for information on how to require
 authorization to deliver money to your account.
 """
+
 from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
@@ -21,14 +22,14 @@ class DepositAuthorized(Request, LookupByLedgerRequest):
     authorization to deliver money to your account.
     """
 
-    source_account: str = REQUIRED  # type: ignore
+    source_account: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    destination_account: str = REQUIRED  # type: ignore
+    destination_account: str = REQUIRED
     """
     This field is required.
 

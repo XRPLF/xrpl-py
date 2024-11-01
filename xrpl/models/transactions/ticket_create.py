@@ -17,7 +17,7 @@ class TicketCreate(Transaction):
     <https://xrpl.org/tickets.html>`_.
     """
 
-    ticket_count: int = REQUIRED  # type: ignore
+    ticket_count: int = REQUIRED
     """
     How many Tickets to create. This must be a positive number and cannot cause the
     account to own more than 250 Tickets after executing this transaction.

@@ -11,6 +11,7 @@ Although the rippled server tries to find the cheapest path or
 combination of paths for making a payment, it is not guaranteed that
 the paths returned by this method are, in fact, the best paths.
 """
+
 from dataclasses import dataclass, field
 from typing import List, Optional
 
@@ -38,21 +39,21 @@ class RipplePathFind(Request, LookupByLedgerRequest):
     the paths returned by this method are, in fact, the best paths.
     """
 
-    source_account: str = REQUIRED  # type: ignore
+    source_account: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    destination_account: str = REQUIRED  # type: ignore
+    destination_account: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    destination_amount: Amount = REQUIRED  # type: ignore
+    destination_amount: Amount = REQUIRED
     """
     This field is required.
 
