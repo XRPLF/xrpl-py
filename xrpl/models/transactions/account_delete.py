@@ -47,8 +47,8 @@ class AccountDelete(Transaction):
 
     credential_ids: Optional[List[str]] = None
     """Credentials associated with sender of this transaction. The credentials included
-    must not be expired. If there are duplicates provided in the list, they will be
-    silently de-duped."""
+    must not be expired. The list must not be empty when specified and cannot contain
+    more than 8 credentials."""
 
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
