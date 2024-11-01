@@ -8,7 +8,12 @@ from typing_extensions import Self
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import HEX_REGEX, KW_ONLY_DATACLASS, require_kwargs_on_init
+from xrpl.models.utils import (
+    _MAX_CREDENTIAL_LENGTH,
+    HEX_REGEX,
+    KW_ONLY_DATACLASS,
+    require_kwargs_on_init,
+)
 
 
 @require_kwargs_on_init
@@ -58,8 +63,8 @@ class CredentialDelete(Transaction):
         # credential_type is a required field in this transaction
         if len(self.credential_type) == 0:
             errors.append("Length must be > 0.")
-        if len(self.credential_type) > 128:
-            errors.append("Length must be < 128.")
+        if len(self.credential_type) > _MAX_CREDENTIAL_LENGTH:
+            errors.append(f"Length must be < {_MAX_CREDENTIAL_LENGTH}.")
         if not bool(HEX_REGEX.fullmatch(self.credential_type)):
             errors.append("credential_type field must be encoded in hex.")
         return " ".join(errors) if errors else None
