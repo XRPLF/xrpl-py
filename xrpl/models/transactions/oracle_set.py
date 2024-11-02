@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import datetime
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 from typing_extensions import Self
 
@@ -167,7 +167,7 @@ class PriceData(NestedModel):
     of the base asset. For example, in the BTC/USD pair, BTC is the base asset; in
     912810RR9/BTC, 912810RR9 is the base asset."""
 
-    asset_price: Optional[int] = None
+    asset_price: Optional[Any] = None
     """The asset price after applying the Scale precision level. It's not included if
     the last update transaction didn't include the BaseAsset/QuoteAsset pair."""
 
