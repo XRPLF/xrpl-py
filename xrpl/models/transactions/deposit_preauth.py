@@ -65,22 +65,13 @@ class DepositPreauth(Transaction):
 
         # Filter for input parameters which are provided in the transaction
         # Optional fields in the transaction model are set to None
-        if (
-            len(
-                list(
-                    filter(
-                        lambda x: x is not None,
-                        [
-                            self.authorize,
-                            self.unauthorize,
-                            self.authorize_credentials,
-                            self.unauthorize_credentials,
-                        ],
-                    )
-                )
-            )
-            > 1
-        ):
+        params = [
+            self.authorize,
+            self.unauthorize,
+            self.authorize_credentials,
+            self.unauthorize_credentials,
+        ]
+        if sum(param is not None for param in params) > 1:
             errors["DepositPreauth"] = (
                 "DepositPreauth txn accepts exactly one input amongst authorize, "
                 + "unauthorize, authorize_credentials and unauthorize_credentials."
