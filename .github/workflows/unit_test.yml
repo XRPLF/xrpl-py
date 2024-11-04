@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      PYTHON_VERSION: "3.8"
+      PYTHON_VERSION: "3.9"
 
     steps:
       - name: Checkout code

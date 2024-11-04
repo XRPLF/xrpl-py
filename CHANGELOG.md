@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `include_deleted` to ledger_entry request
 
 ### BREAKING CHANGE:
+- Python 3.8 reached End-of-Life on Oct 4, 2024. Upgrade the minimum supported version to Python 3.9. Additionally, `black` dependency ended its supported for Python 3.8.
 - Remove Python 3.7 support to fix dependency installation and use 3.8 as new default.
 
 ### Fixed
@@ -91,7 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0] - 2023-07-05
 ### BREAKING CHANGE
 - The default signing algorithm in the `Wallet` was changed from secp256k1 to ed25519
-- 
+-
 ### Added:
 - Wallet support for regular key compatibility
 - Added new ways of wallet generation: `from_seed`, `from_secret`, `from_entropy`, `from_secret_numbers`
