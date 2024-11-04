@@ -39,7 +39,7 @@ def is_cred_object_present(
     return False
 
 
-class TestCredentialCreate(IntegrationTestCase):
+class TestCredentials(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_valid(self, client):
         # Define entities helpful for Credential lifecycle
