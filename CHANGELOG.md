@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Added
+- Add `include_deleted` to ledger_entry request
+
 ### BREAKING CHANGE:
 - Remove Python 3.7 support to fix dependency installation and use 3.8 as new default.
 
@@ -14,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for the `Batch` amendment (XLS-56d).
 
 ### Fixed
+- Grab the FeeSettings values from the latest validated ledger. Remove hard-coded reference to 10 drops as the reference transaction cost.
 - Handle autofilling better when multisigning transactions.
 - Better typing for transaction-related helper functions.
 

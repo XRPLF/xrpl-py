@@ -9,6 +9,7 @@ from xrpl.transaction.batch_signers import (
     sign_multiaccount_batch,
 )
 from xrpl.transaction.main import (
+    _calculate_fee_per_transaction_type,
     autofill,
     autofill_and_sign,
     sign,
@@ -30,4 +31,5 @@ __all__ = [
     "sign_multiaccount_batch",
     "combine_batch_signers",
     "XRPLReliableSubmissionException",
+    "_calculate_fee_per_transaction_type",
 ]
