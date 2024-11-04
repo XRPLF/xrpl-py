@@ -15,10 +15,14 @@ from xrpl.asyncio.transaction import (
 )
 from xrpl.asyncio.transaction import submit as submit_transaction_alias_async
 from xrpl.asyncio.transaction import submit_and_wait
-from xrpl.asyncio.transaction.main import sign_and_submit
+from xrpl.asyncio.transaction.main import (
+    _calculate_fee_per_transaction_type,
+    sign_and_submit,
+)
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.core.binarycodec.main import encode
+from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.exceptions import XRPLException
 from xrpl.models.requests import ServerState, Tx
 from xrpl.models.transactions import AccountDelete, AccountSet, EscrowFinish, Payment
@@ -189,7 +193,7 @@ class TestTransaction(IntegrationTestCase):
         escrow_finish_autofilled = await autofill(escrow_finish, client)
 
         # AND calculating the expected fee with the formula
-        # 10 drops × (33 + (Fulfillment size in bytes ÷ 16))
+        # BaseFee × (33 + (Fulfillment size in bytes ÷ 16))
         net_fee = int(await get_fee(client))
         fulfillment_in_bytes = FULFILLMENT.encode("ascii")
         expected_fee = net_fee * (33 + len(fulfillment_in_bytes) / 16)
@@ -212,7 +216,8 @@ class TestTransaction(IntegrationTestCase):
         # AFTER autofilling the transaction fee
         payment_autofilled = await autofill(payment, client)
 
-        # THEN We expect the fee to be the default network fee (usually 10 drops)
+        # THEN We expect the fee to be the default network fee (The transaction cost of
+        # a reference transaction, in drops of XRP)
         expected_fee = await get_fee(client)
         self.assertEqual(payment_autofilled.fee, expected_fee)
 
@@ -431,3 +436,43 @@ class TestSubmitAndWait(IntegrationTestCase):
         payment_transaction = Payment.from_dict(payment_dict)
         response = await sign_and_submit(payment_transaction, client, WALLET)
         self.assertTrue(response.is_successful())
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction._calculate_fee_per_transaction_type",
+        ],
+    )
+    async def test_basic_calculate_fee_per_transaction_type(self, client):
+        fee = await _calculate_fee_per_transaction_type(
+            Payment(
+                account="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                amount=IssuedCurrencyAmount(
+                    currency="USD",
+                    issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                    value="0.0001",
+                ),
+                destination="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                send_max=IssuedCurrencyAmount(
+                    currency="BTC",
+                    issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                    value="0.0000002831214446",
+                ),
+            ),
+            client,
+        )
+
+        # The expected fee is read from the below-specified config file
+        expected_fee = ""
+        with open(".ci-config/rippled.cfg", "r", encoding="utf-8") as file:
+            lines = file.readlines()  # Read all lines into a list
+
+            for value in lines:
+                kv_pairs = value.split()
+                # This step assumes that no non-`voting` section in the config file
+                # uses the reference_fee key-value pair.
+                if "reference_fee" in kv_pairs:
+                    expected_fee = kv_pairs[2]
+                    break
+
+        self.assertEqual(fee, expected_fee)
