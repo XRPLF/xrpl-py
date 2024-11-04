@@ -74,4 +74,5 @@ class EscrowFinish(Transaction):
                 "condition"
             ] = "If fulfillment is specified, condition must also be specified."
 
-        return errors | validate_credential_ids(self.credential_ids)
+        errors.update(validate_credential_ids(self.credential_ids))
+        return errors
