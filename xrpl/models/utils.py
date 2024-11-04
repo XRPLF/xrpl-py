@@ -8,9 +8,6 @@ from typing_extensions import Final
 
 from xrpl.models.exceptions import XRPLModelException
 
-# Note: This regex is used in DIDSet and Credential-related transactions. In addition to
-# this regex, Credential-related transactions requires the input strings to have
-# positive (non-zero) length
 HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
 
 # Credentials are represented in hex. Whilst they are allowed a maximum length of 64

@@ -57,4 +57,5 @@ class AccountDelete(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        return errors | validate_credential_ids(self.credential_ids)
+        errors.update(validate_credential_ids(self.credential_ids))
+        return errors

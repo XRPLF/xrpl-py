@@ -63,16 +63,17 @@ class CredentialCreate(Transaction):
         }
 
     def _get_uri_error(self: Self) -> Optional[str]:
-        if self.uri is not None:
-            errors = []
-            if len(self.uri) == 0:
-                errors.append("Length must be > 0.")
-            if len(self.uri) > _MAX_URI_LENGTH:
-                errors.append(f"Length must be < {_MAX_URI_LENGTH}.")
-            if not HEX_REGEX.fullmatch(self.uri):
-                errors.append("Must be encoded in hex.")
-            return " ".join(errors) if errors else None
-        return None
+        if self.uri is None:
+            return None
+
+        errors = []
+        if len(self.uri) == 0:
+            errors.append("Length must be > 0.")
+        if len(self.uri) > _MAX_URI_LENGTH:
+            errors.append(f"Length must be < {_MAX_URI_LENGTH}.")
+        if not HEX_REGEX.fullmatch(self.uri):
+            errors.append("Must be encoded in hex.")
+        return " ".join(errors) if errors else None
 
     def _get_credential_type_error(self: Self) -> Optional[str]:
         errors = []
