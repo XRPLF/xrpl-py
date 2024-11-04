@@ -67,4 +67,4 @@ class CredentialDelete(Transaction):
             errors.append(f"Length must be < {_MAX_CREDENTIAL_LENGTH}.")
         if not bool(HEX_REGEX.fullmatch(self.credential_type)):
             errors.append("credential_type field must be encoded in hex.")
-        return " ".join(errors) if errors else None
+        return " ".join(errors) if len(errors) > 0 else None
