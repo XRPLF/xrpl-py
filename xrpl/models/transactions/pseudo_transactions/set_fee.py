@@ -1,4 +1,5 @@
 """Model for SetFee pseudo-transaction type."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

@@ -1,4 +1,5 @@
 """Conversions between XRP drops and native number types."""
+
 import re
 from decimal import Decimal, InvalidOperation, localcontext
 from typing import Pattern, Union

@@ -1,4 +1,5 @@
 """Miscellaneous functions that are private to xrpl.core.keypairs."""
+
 import hashlib
 
 import Crypto.Hash.RIPEMD160 as RIPEMD160

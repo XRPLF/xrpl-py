@@ -2,6 +2,7 @@
 The `nfts_by_issuer` method retrieves all of the NFTokens
 issued by an account
 """
+
 from dataclasses import dataclass, field
 from typing import Any, Optional
 

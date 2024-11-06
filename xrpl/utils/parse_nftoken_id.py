@@ -1,4 +1,5 @@
 """Utils to parse NFTokenIDs."""
+
 from typing_extensions import TypedDict
 
 from xrpl.constants import XRPLException

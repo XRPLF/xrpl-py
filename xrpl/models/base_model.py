@@ -177,7 +177,7 @@ class BaseModel(ABC):
 
         # no more collections (no params expect a Dict)
 
-        if param_type is Any:  # type: ignore
+        if param_type is Any:
             # param_type is Any (e.g. will accept anything)
             return param_value
 
