@@ -23,7 +23,7 @@ include = ["LICENSE"]
 packages = [{ include = "xrpl" }]
 
 [tool.poetry.dependencies]
-python = ">=3.8.1"
+python = ">=3.8.1,<3.14"
 base58 = "^2.1.0"
 ECPy = "^1.2.5"
 typing-extensions = "^4.2.0"
