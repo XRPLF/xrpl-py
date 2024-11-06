@@ -151,7 +151,7 @@ class BaseModel(ABC):
         param: str,
         param_type: Type[Any],  # noqa: ANN401
         param_value: Union[int, str, bool, BaseModel, Enum, List[Any], Dict[str, Any]],
-    ) -> Any:
+    ) -> Any:  # noqa: ANN401
         """Recursively handles each individual param in `from_dict`."""
         param_type_origin = get_origin(param_type)
         # returns `list` if a List, `Union` if a Union, None otherwise
