@@ -47,7 +47,6 @@ darglint = "^1.5.8"
 sphinx-rtd-theme = "^3.0.0"
 aiounittest = "^1.4.0"
 coverage = "^7.2.7"
-Jinja2 = "^3.1.4"
 Sphinx = "^7.1.2"
 poethepoet = "^0.29.0"
 
