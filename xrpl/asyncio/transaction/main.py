@@ -12,15 +12,22 @@ from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec import encode, encode_for_multisigning, encode_for_signing
 from xrpl.core.keypairs.main import sign as keypairs_sign
-from xrpl.models.requests import ServerInfo, ServerState, SubmitOnly
-from xrpl.models.response import Response
-from xrpl.models.transactions import Batch, EscrowFinish, Transaction
+from xrpl.models import (
+    Batch,
+    EscrowFinish,
+    Response,
+    ServerInfo,
+    ServerState,
+    SubmitOnly,
+    Transaction,
+    TransactionFlag,
+)
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )
 from xrpl.models.transactions.types.transaction_type import TransactionType
 from xrpl.utils import drops_to_xrp, xrp_to_drops
-from xrpl.wallet.main import Wallet
+from xrpl.wallet import Wallet
 
 _LEDGER_OFFSET: Final[int] = 20
 # Sidechains are expected to have network IDs above this.
@@ -193,7 +200,7 @@ def _prepare_transaction(transaction: Transaction) -> Dict[str, Any]:
             if an address tag is provided that does not match the X-Address tag, or if
             attempting to directly sign a Batch inner transaction.
     """
-    if transaction.batch_txn is not None:
+    if transaction.has_flag(TransactionFlag.TF_INNER_BATCH_TXN):
         raise XRPLException("Cannot directly sign a batch inner transaction.")
 
     transaction_json = transaction.to_xrpl()
@@ -231,9 +238,9 @@ async def autofill(
         The autofilled transaction.
     """
     transaction_json = transaction.to_dict()
-    if not client.network_id:
-        await _get_network_id_and_build_version(client)
     if "network_id" not in transaction_json and _tx_needs_networkID(client):
+        if not client.network_id:
+            await _get_network_id_and_build_version(client)
         transaction_json["network_id"] = client.network_id
     if "sequence" not in transaction_json:
         sequence = await get_next_valid_seq_number(transaction_json["account"], client)
@@ -246,7 +253,7 @@ async def autofill(
         ledger_sequence = await get_latest_validated_ledger_sequence(client)
         transaction_json["last_ledger_sequence"] = ledger_sequence + _LEDGER_OFFSET
     if transaction.transaction_type == TransactionType.BATCH:
-        inner_txs, tx_ids = await _autofill_batch(client, cast(Batch, transaction))
+        inner_txs, tx_ids = await _autofill_batch(client, transaction_json)
         transaction_json["raw_transactions"] = [
             {"raw_transaction": tx.to_dict()} for tx in inner_txs
         ]
@@ -490,34 +497,34 @@ async def _fetch_owner_reserve_fee(client: Client) -> int:
 
 
 async def _autofill_batch(
-    client: Client, transaction: Batch
+    client: Client, transaction_dict: Dict[str, Any]
 ) -> Tuple[List[Transaction], List[str]]:
-    account_sequences: Dict[str, int] = {}
-    batch_index = 0
+    transaction = Batch.from_dict(transaction_dict)
+    assert transaction.sequence is not None
+    account_sequences: Dict[str, int] = {transaction.account: transaction.sequence}
     tx_ids: List[str] = []
     inner_txs: List[Transaction] = []
 
     for raw_txn in transaction.raw_transactions:
-        if raw_txn.batch_txn is not None:
+        if raw_txn.has_flag(TransactionFlag.TF_INNER_BATCH_TXN):
             inner_txs.append(raw_txn)
             continue
 
-        batch_txn: Dict[str, Any] = {"outer_account": transaction.account}
+        if raw_txn.sequence is None and raw_txn.ticket_sequence is None:
+            raw_txn_dict = raw_txn.to_dict()
 
-        if raw_txn.account in account_sequences:
-            batch_txn["sequence"] = account_sequences[raw_txn.account]
-            account_sequences[raw_txn.account] += 1
+            if raw_txn.account in account_sequences:
+                raw_txn_dict["sequence"] = account_sequences[raw_txn.account]
+                account_sequences[raw_txn.account] += 1
+            else:
+                sequence = await get_next_valid_seq_number(raw_txn.account, client)
+                account_sequences[raw_txn.account] = sequence + 1
+                raw_txn_dict["sequence"] = sequence
+
+            new_raw_txn = Transaction.from_dict(raw_txn_dict)
         else:
-            sequence = await get_next_valid_seq_number(raw_txn.account, client)
-            account_sequences[raw_txn.account] = sequence + 1
-            batch_txn["sequence"] = sequence
+            new_raw_txn = raw_txn
 
-        batch_txn["batch_index"] = batch_index
-        batch_index += 1
-
-        raw_txn_dict = raw_txn.to_dict()
-        raw_txn_dict["batch_txn"] = batch_txn
-        new_raw_txn = Transaction.from_dict(raw_txn_dict)
         inner_txs.append(new_raw_txn)
         tx_ids.append(new_raw_txn.get_hash())
 

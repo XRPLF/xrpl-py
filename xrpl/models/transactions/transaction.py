@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 from hashlib import sha512
 from typing import Any, Dict, List, Optional, Type, Union
 
@@ -12,7 +13,11 @@ from xrpl.core.binarycodec import decode, encode
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.base_model import ABBREVIATIONS, BaseModel
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.flags import check_false_flag_definition, interface_to_flag_list
+from xrpl.models.flags import (
+    FlagInterface,
+    check_false_flag_definition,
+    interface_to_flag_list,
+)
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
@@ -153,18 +158,22 @@ class Signer(NestedModel):
     """
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
-class BatchTxn(NestedModel):
-    """Represents the info indicating a Batch transaction."""
+class TransactionFlag(int, Enum):
+    """
+    Transactions of the Transaction type support additional values in the Flags field.
+    This enum represents those options.
+    """
 
-    outer_account: str = REQUIRED  # type: ignore
+    TF_INNER_BATCH_TXN = 0x40000000
 
-    sequence: Optional[int] = None
 
-    ticket_sequence: Optional[int] = None
+class TransactionFlagInterface(FlagInterface):
+    """
+    Transactions of the Transaction type support additional values in the Flags field.
+    This TypedDict represents those options.
+    """
 
-    batch_index: int = REQUIRED  # type: ignore
+    TF_INNER_BATCH_TXN: bool
 
 
 @require_kwargs_on_init
@@ -263,8 +272,6 @@ class Transaction(BaseModel):
 
     network_id: Optional[int] = None
     """The network id of the transaction."""
-
-    batch_txn: Optional[BatchTxn] = None
 
     def _get_errors(self: Self) -> Dict[str, str]:
         # import must be here to avoid circular dependencies
@@ -430,7 +437,7 @@ class Transaction(BaseModel):
         if (
             self.txn_signature is None
             and self.signers is None
-            and self.batch_txn is None
+            and not self.has_flag(TransactionFlag.TF_INNER_BATCH_TXN)
         ):
             raise XRPLModelException(
                 "Cannot get the hash from an unsigned Transaction."

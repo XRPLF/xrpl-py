@@ -31,6 +31,7 @@ from xrpl.models.transactions import (
     DepositPreauth,
     EscrowFinish,
     Payment,
+    TransactionFlag,
 )
 from xrpl.utils import xrp_to_drops
 
@@ -284,12 +285,8 @@ class TestTransaction(IntegrationTestCase):
         sequence = await get_next_valid_seq_number(WALLET.address, client)
         for i in range(len(transaction.raw_transactions)):
             raw_tx = transaction.raw_transactions[i]
-            self.assertIsNotNone(raw_tx.batch_txn)
-            self.assertEqual(
-                raw_tx.batch_txn.outer_account, "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
-            )
-            self.assertEqual(raw_tx.batch_txn.sequence, sequence + i)
-            self.assertEqual(raw_tx.batch_txn.batch_index, i)
+            self.assertFalse(raw_tx.has_flag(TransactionFlag.TF_INNER_BATCH_TXN))
+            self.assertEqual(raw_tx.sequence, sequence + i)
             self.assertEqual(raw_tx.get_hash(), transaction.tx_ids[i])
 
 
