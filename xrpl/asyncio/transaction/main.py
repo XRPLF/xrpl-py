@@ -243,7 +243,12 @@ async def autofill(
             await _get_network_id_and_build_version(client)
         transaction_json["network_id"] = client.network_id
     if "sequence" not in transaction_json:
-        sequence = await get_next_valid_seq_number(transaction_json["account"], client)
+        if "ticket_sequence" in transaction_json:
+            sequence = 0
+        else:
+            sequence = await get_next_valid_seq_number(
+                transaction_json["account"], client
+            )
         transaction_json["sequence"] = sequence
     if "fee" not in transaction_json:
         transaction_json["fee"] = await _calculate_fee_per_transaction_type(
