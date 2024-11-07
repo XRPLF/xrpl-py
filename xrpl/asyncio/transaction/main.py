@@ -224,15 +224,18 @@ async def autofill(
     transaction: T, client: Client, signers_count: Optional[int] = None
 ) -> T:
     """
-    Autofills fields in a transaction. This will set `sequence`, `fee`, and
-    `last_ledger_sequence` according to the current state of the server this Client is
-    connected to. It also converts all X-Addresses to classic addresses.
+    Autofills fields in a transaction. This will set all autofill-able fields according
+    to the current state of the server this Client is connected to. It also converts all
+    X-Addresses to classic addresses.
 
     Args:
         transaction: the transaction to be signed.
         client: a network client.
         signers_count: the expected number of signers for this transaction.
             Only used for multisigned transactions.
+
+    Raises:
+        XRPLException: If a field is pre-filled out incorrectly.
 
     Returns:
         The autofilled transaction.
@@ -259,10 +262,13 @@ async def autofill(
         transaction_json["last_ledger_sequence"] = ledger_sequence + _LEDGER_OFFSET
     if transaction.transaction_type == TransactionType.BATCH:
         inner_txs, tx_ids = await _autofill_batch(client, transaction_json)
-        transaction_json["raw_transactions"] = [
-            {"raw_transaction": tx.to_dict()} for tx in inner_txs
-        ]
-        if "tx_ids" not in transaction_json:
+        transaction_json["raw_transactions"] = inner_txs
+        if "tx_ids" in transaction_json:
+            if transaction_json["tx_ids"] != tx_ids:
+                raise XRPLException(
+                    "Batch `TxIDs` don't match what `autofill` generated."
+                )
+        else:
             transaction_json["tx_ids"] = tx_ids
     return cast(T, Transaction.from_dict(transaction_json))
 
@@ -503,21 +509,21 @@ async def _fetch_owner_reserve_fee(client: Client) -> int:
 
 async def _autofill_batch(
     client: Client, transaction_dict: Dict[str, Any]
-) -> Tuple[List[Transaction], List[str]]:
+) -> Tuple[List[Dict[str, Any]], List[str]]:
     transaction = Batch.from_dict(transaction_dict)
     assert transaction.sequence is not None
     account_sequences: Dict[str, int] = {transaction.account: transaction.sequence}
     tx_ids: List[str] = []
-    inner_txs: List[Transaction] = []
+    inner_txs: List[Dict[str, Any]] = []
 
     for raw_txn in transaction.raw_transactions:
         if raw_txn.has_flag(TransactionFlag.TF_INNER_BATCH_TXN):
-            inner_txs.append(raw_txn)
+            inner_txs.append(raw_txn.to_dict())
             continue
 
+        raw_txn_dict = raw_txn.to_dict()
         if raw_txn.sequence is None and raw_txn.ticket_sequence is None:
-            raw_txn_dict = raw_txn.to_dict()
-
+            # autofill sequence
             if raw_txn.account in account_sequences:
                 raw_txn_dict["sequence"] = account_sequences[raw_txn.account]
                 account_sequences[raw_txn.account] += 1
@@ -526,11 +532,38 @@ async def _autofill_batch(
                 account_sequences[raw_txn.account] = sequence + 1
                 raw_txn_dict["sequence"] = sequence
 
-            new_raw_txn = Transaction.from_dict(raw_txn_dict)
-        else:
-            new_raw_txn = raw_txn
+        if raw_txn.is_signed():
+            raise XRPLException("Inner Batch transactions must not be signed.")
 
-        inner_txs.append(new_raw_txn)
-        tx_ids.append(new_raw_txn.get_hash())
+        # validate fields that are supposed to be empty/zeroed
+        def _validate_field(field_name: str, expected_value: str) -> None:
+            if raw_txn_dict[field_name] is None:
+                raw_txn_dict[field_name] = expected_value
+            elif raw_txn_dict[field_name] != expected_value:
+                raise XRPLException(
+                    f"Must have a `{field_name}` of ${repr(expected_value)} in an "
+                    "inner Batch transaction."
+                )
+
+        _validate_field("fee", "0")
+        _validate_field("signing_pub_key", "")
+        _validate_field("txn_signature", "")
+
+        if raw_txn.signers is not None:
+            raise XRPLException(
+                "Must not have a `signers` field in an inner Batch transaction."
+            )
+        if raw_txn.network_id is not None:
+            raise XRPLException(
+                "Must not have a `network_id` field in an inner Batch transaction."
+            )
+        if raw_txn.last_ledger_sequence is not None:
+            raise XRPLException(
+                "Must not have a `last_ledger_sequence` field in an inner Batch "
+                "transaction."
+            )
+
+        inner_txs.append(raw_txn_dict)
+        tx_ids.append(Transaction.from_dict(raw_txn_dict).get_hash())
 
     return inner_txs, tx_ids
