@@ -16,7 +16,6 @@ class TestCredentialCreate(TestCase):
             account=_ACCOUNT_ISSUER,
             subject=_ACCOUNT_SUBJECT,
             credential_type=_VALID_CREDENTIAL_TYPE,
-            uri=_VALID_URI,
         )
         self.assertTrue(tx.is_valid())
 

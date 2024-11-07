@@ -17,12 +17,11 @@ _MAX_CREDENTIAL_LENGTH: Final[int] = 64 * 2
 
 def validate_credential_ids(credential_list: Optional[List[str]]) -> Dict[str, str]:
     """
-    Returns:
-        Errors pertaining to credential_ids field
-
     Args:
         credential_list: An optional list of input credentials
 
+    Returns:
+        Errors pertaining to credential_ids field
     """
     errors = {}
     if credential_list is not None:
