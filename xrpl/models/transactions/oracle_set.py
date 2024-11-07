@@ -20,10 +20,10 @@ MAX_ORACLE_URI = 256
 MAX_ORACLE_SYMBOL_CLASS = 16
 
 # epoch offset must equal 946684800 seconds. It represents the diff between the
-# genesis of Unix time and Ripple-Epoch time
-EPOCH_OFFSET = (
-    datetime.datetime(2000, 1, 1) - datetime.datetime(1970, 1, 1)
-).total_seconds()
+# genesis of Unix time and ripple epoch time
+EPOCH_OFFSET = int(
+    (datetime.datetime(2000, 1, 1) - datetime.datetime(1970, 1, 1)).total_seconds()
+)
 
 
 @require_kwargs_on_init
@@ -146,7 +146,7 @@ class OracleSet(Transaction):
         if self.last_update_time < EPOCH_OFFSET:
             errors["last_update_time"] = (
                 "LastUpdateTime must be greater than or equal"
-                f" to Ripple-Epoch {EPOCH_OFFSET} seconds"
+                f" to ripple epoch - {EPOCH_OFFSET} seconds"
             )
 
         return errors
