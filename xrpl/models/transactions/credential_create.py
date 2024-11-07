@@ -69,7 +69,7 @@ class CredentialCreate(Transaction):
         errors = []
         if len(self.uri) == 0:
             errors.append("Length must be > 0.")
-        if len(self.uri) > _MAX_URI_LENGTH:
+        elif len(self.uri) > _MAX_URI_LENGTH:
             errors.append(f"Length must be < {_MAX_URI_LENGTH}.")
         if not HEX_REGEX.fullmatch(self.uri):
             errors.append("Must be encoded in hex.")
