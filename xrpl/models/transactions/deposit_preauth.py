@@ -83,9 +83,14 @@ class DepositPreauth(Transaction):
             if len(credentials) == 0:
                 errors["DepositPreauth"] = f"{field_name} list cannot be empty. "
             elif len(credentials) > 8:
-                errors[
-                    "DepositPreauth"
-                ] = f"{field_name} list cannot have more than 8 elements. "
+                errors["DepositPreauth"] = (
+                    f"{field_name} list cannot have more than 8 elements. "
+                )
+
+            if len(credentials) != len(set(credentials)):
+                errors["DepositPreauth"] = (
+                    f"{field_name} list cannot contain duplicate credentials."
+                )
 
         # Then replace the checks with:
         if self.authorize_credentials is not None:

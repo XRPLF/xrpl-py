@@ -161,3 +161,18 @@ class TestPayment(TestCase):
             "{'credential_ids': 'CredentialIDs list cannot have more than 8 "
             + "elements.'}",
         )
+
+    def test_credentials_array_duplicates(self):
+        with self.assertRaises(XRPLModelException) as err:
+            Payment(
+                account=_ACCOUNT,
+                amount=_XRP_AMOUNT,
+                destination=_DESTINATION,
+                credential_ids=["credential_index" for _ in range(5)],
+            )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'credential_ids_duplicates': 'CredentialIDs list cannot contain duplicate"
+            + " values.'}",
+        )

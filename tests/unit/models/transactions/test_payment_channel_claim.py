@@ -44,6 +44,27 @@ class TestPaymentChannelClaim(TestCase):
             + "'}",
         )
 
+    def test_creds_list_duplicates(self):
+        with self.assertRaises(XRPLModelException) as err:
+            PaymentChannelClaim(
+                account=_ACCOUNT,
+                channel="5DB01B7FFED6B67E6B0414DED11E051D2EE2B7619CE0EAA6286D67A3A4D5B"
+                "DB3",
+                balance="1000",
+                signature="304402204EF0AFB78AC23ED1C472E74F4299C0C21F1B21D07EFC0A3838A4"
+                "20F76D783A400220154FB11B6F54320666E4C36CA7F686C16A3A0456800BBC43746F34"
+                "AF50290064",
+                public_key="023693F15967AE357D0327974AD46FE3C127113B1110D6044FD41E72368"
+                "9F81CC6",
+                credential_ids=["credential_index" for _ in range(5)],
+            )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'credential_ids_duplicates': 'CredentialIDs list cannot contain duplicate"
+            + " values.'}",
+        )
+
     def test_creds_list_empty(self):
         with self.assertRaises(XRPLModelException) as err:
             PaymentChannelClaim(

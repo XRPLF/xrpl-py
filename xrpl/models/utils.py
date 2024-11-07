@@ -28,10 +28,15 @@ def validate_credential_ids(credential_list: Optional[List[str]]) -> Dict[str, s
     if credential_list is not None:
         if len(credential_list) == 0:
             errors["credential_ids"] = "CredentialIDs list cannot be empty."
-        if len(credential_list) > 8:
-            errors[
-                "credential_ids"
-            ] = "CredentialIDs list cannot have more than 8 elements."
+        elif len(credential_list) > 8:
+            errors["credential_ids"] = (
+                "CredentialIDs list cannot have more than 8 elements."
+            )
+
+        if len(credential_list) != len(set(credential_list)):
+            errors["credential_ids_duplicates"] = (
+                "CredentialIDs list cannot contain duplicate values."
+            )
 
     return errors
 

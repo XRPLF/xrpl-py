@@ -52,6 +52,21 @@ class TestEscrowFinish(TestCase):
             + "elements.'}",
         )
 
+    def test_creds_list_duplicates(self):
+        with self.assertRaises(XRPLModelException) as err:
+            EscrowFinish(
+                account=_ACCOUNT,
+                owner=_ACCOUNT,
+                offer_sequence=1,
+                credential_ids=["credential_index" for _ in range(5)],
+            )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'credential_ids_duplicates': 'CredentialIDs list cannot contain duplicate"
+            + " values.'}",
+        )
+
     def test_creds_list_empty(self):
         with self.assertRaises(XRPLModelException) as err:
             EscrowFinish(

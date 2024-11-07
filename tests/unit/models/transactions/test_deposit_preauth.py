@@ -54,8 +54,6 @@ class TestDepositPreauth(TestCase):
 
     # Unit tests validating the length of array inputs
     def test_authcreds_array_input_exceed_length_check(self):
-        # Note: If credentials de-duplication is implemented in the client library,
-        # additional tests need to be written
         sample_credentials = [
             Credential(
                 issuer="SampleIssuer_" + str(i), credential_type="SampleCredType"
@@ -78,6 +76,22 @@ class TestDepositPreauth(TestCase):
             + "'}",
         )
 
+    def test_auth_cred_duplicates(self):
+        with self.assertRaises(XRPLModelException) as error:
+            DepositPreauth(
+                account=_ACCOUNT,
+                fee=_FEE,
+                sequence=_SEQUENCE,
+                authorize_credentials=["credential", "credential"],
+            )
+
+        self.assertEqual(
+            error.exception.args[0],
+            "{'DepositPreauth': '"
+            + "AuthorizeCredentials list cannot contain duplicate credentials."
+            + "'}",
+        )
+
     def test_authcreds_empty_array_inputs(self):
         with self.assertRaises(XRPLModelException) as error:
             DepositPreauth(
@@ -95,8 +109,6 @@ class TestDepositPreauth(TestCase):
         )
 
     def test_unauthcreds_array_input_exceed_length_check(self):
-        # Note: If credentials de-duplication is implemented in the client library,
-        # additional tests need to be written
         sample_credentials = [
             Credential(
                 issuer="SampleIssuer_" + str(i), credential_type="SampleCredType"

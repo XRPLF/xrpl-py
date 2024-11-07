@@ -13,7 +13,8 @@ class TestAccountDelete(TestCase):
     )
 
     def test_creds_list_too_long(self):
-        """Test that AccountDelete raises exception when credential_ids exceeds max length."""
+        """Test that AccountDelete raises exception when credential_ids exceeds max
+        length."""
         with self.assertRaises(XRPLModelException) as err:
             AccountDelete(
                 account=_ACCOUNT,
@@ -33,6 +34,19 @@ class TestAccountDelete(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'credential_ids': 'CredentialIDs list cannot be empty.'}",
+        )
+
+    def test_creds_list_duplicates(self):
+        with self.assertRaises(XRPLModelException) as err:
+            AccountDelete(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                credential_ids=["credential_index" for _ in range(5)],
+            )
+        self.assertEqual(
+            err.exception.args[0],
+            "{'credential_ids_duplicates': 'CredentialIDs list cannot contain duplicate"
+            + " values.'}",
         )
 
     def test_valid_account_delete_txn(self):
