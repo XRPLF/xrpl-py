@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Grab the FeeSettings values from the latest validated ledger. Remove hard-coded reference to 10 drops as the reference transaction cost.
 - Handle autofilling better when multisigning transactions.
 - Better typing for transaction-related helper functions.
+- Better handling of `TicketSequence`.
 
 ## [3.0.0] - 2024-07-16
 
@@ -96,7 +97,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0] - 2023-07-05
 ### BREAKING CHANGE
 - The default signing algorithm in the `Wallet` was changed from secp256k1 to ed25519
-- 
+-
 ### Added:
 - Wallet support for regular key compatibility
 - Added new ways of wallet generation: `from_seed`, `from_secret`, `from_entropy`, `from_secret_numbers`
