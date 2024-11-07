@@ -35,12 +35,8 @@ class TestSignMultiAccountBatch(TestCase):
                 {
                     "RawTransaction": {
                         "Account": "rJy554HmWFFJQGnRfZuoo8nV97XSMq77h7",
+                        "Flags": 1073741824,
                         "Amount": "5000000",
-                        "BatchTxn": {
-                            "BatchIndex": 1,
-                            "OuterAccount": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
-                            "Sequence": 215,
-                        },
                         "Destination": "rPMh7Pi9ct699iZUTWaytJUoHcJ7cgyziK",
                         "Fee": "0",
                         "NetworkID": 21336,
@@ -53,11 +49,7 @@ class TestSignMultiAccountBatch(TestCase):
                     "RawTransaction": {
                         "Account": "rPMh7Pi9ct699iZUTWaytJUoHcJ7cgyziK",
                         "Amount": "1000000",
-                        "BatchTxn": {
-                            "BatchIndex": 0,
-                            "OuterAccount": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
-                            "Sequence": 470,
-                        },
+                        "Flags": 1073741824,
                         "Destination": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
                         "Fee": "0",
                         "NetworkID": 21336,
@@ -132,11 +124,7 @@ class TestCombineBatchSigners(TestCase):
                     "RawTransaction": {
                         "Account": "rJy554HmWFFJQGnRfZuoo8nV97XSMq77h7",
                         "Amount": "5000000",
-                        "BatchTxn": {
-                            "BatchIndex": 1,
-                            "OuterAccount": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
-                            "Sequence": 215,
-                        },
+                        "Flags": 1073741824,
                         "Destination": "rPMh7Pi9ct699iZUTWaytJUoHcJ7cgyziK",
                         "Fee": "0",
                         "NetworkID": 21336,
@@ -149,11 +137,7 @@ class TestCombineBatchSigners(TestCase):
                     "RawTransaction": {
                         "Account": "rPMh7Pi9ct699iZUTWaytJUoHcJ7cgyziK",
                         "Amount": "1000000",
-                        "BatchTxn": {
-                            "BatchIndex": 0,
-                            "OuterAccount": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
-                            "Sequence": 470,
-                        },
+                        "Flags": 1073741824,
                         "Destination": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
                         "Fee": "0",
                         "NetworkID": 21336,
@@ -194,11 +178,7 @@ class TestCombineBatchSigners(TestCase):
             {
                 "Account": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
                 "Amount": "1000000",
-                "BatchTxn": {
-                    "BatchIndex": 0,
-                    "OuterAccount": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
-                    "Sequence": 470,
-                },
+                "Flags": 1073741824,
                 "Destination": "rPMh7Pi9ct699iZUTWaytJUoHcJ7cgyziK",
                 "Fee": "0",
                 "NetworkID": 21336,
