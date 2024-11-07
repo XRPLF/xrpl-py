@@ -519,6 +519,11 @@ async def _autofill_batch(
     for raw_txn in transaction.raw_transactions:
         raw_txn_dict = raw_txn.to_dict()
 
+        if raw_txn.transaction_type == TransactionType.BATCH:
+            raise XRPLException(
+                "Cannot have a Batch transaction inside a Batch transaction."
+            )
+
         if not raw_txn.has_flag(TransactionFlag.TF_INNER_BATCH_TXN):
             if isinstance(raw_txn.flags, int):
                 raw_txn_dict["flags"] |= TransactionFlag.TF_INNER_BATCH_TXN
