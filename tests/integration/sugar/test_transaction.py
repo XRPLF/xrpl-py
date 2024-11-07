@@ -285,9 +285,14 @@ class TestTransaction(IntegrationTestCase):
         sequence = await get_next_valid_seq_number(WALLET.address, client)
         for i in range(len(transaction.raw_transactions)):
             raw_tx = transaction.raw_transactions[i]
-            self.assertFalse(raw_tx.has_flag(TransactionFlag.TF_INNER_BATCH_TXN))
+            self.assertTrue(raw_tx.has_flag(TransactionFlag.TF_INNER_BATCH_TXN))
             self.assertEqual(raw_tx.sequence, sequence + i)
             self.assertEqual(raw_tx.get_hash(), transaction.tx_ids[i])
+            self.assertIsNone(raw_tx.network_id)
+            self.assertIsNone(raw_tx.last_ledger_sequence)
+            self.assertEqual(raw_tx.fee, "0")
+            self.assertEqual(raw_tx.signing_pub_key, "")
+            self.assertEqual(raw_tx.txn_signature, "")
 
 
 class TestSubmitAndWait(IntegrationTestCase):

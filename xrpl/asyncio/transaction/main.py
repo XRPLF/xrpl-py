@@ -542,7 +542,7 @@ async def _autofill_batch(
 
         # validate fields that are supposed to be empty/zeroed
         def _validate_field(field_name: str, expected_value: str) -> None:
-            if raw_txn_dict[field_name] is None:
+            if field_name not in raw_txn_dict:
                 raw_txn_dict[field_name] = expected_value
             elif raw_txn_dict[field_name] != expected_value:
                 raise XRPLException(
