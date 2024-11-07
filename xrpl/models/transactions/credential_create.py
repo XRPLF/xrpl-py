@@ -80,7 +80,7 @@ class CredentialCreate(Transaction):
         # credential_type is a required field in this transaction
         if len(self.credential_type) == 0:
             errors.append("Length must be > 0.")
-        if len(self.credential_type) > _MAX_CREDENTIAL_LENGTH:
+        elif len(self.credential_type) > _MAX_CREDENTIAL_LENGTH:
             errors.append(f"Length must less than {_MAX_CREDENTIAL_LENGTH}.")
         if not HEX_REGEX.fullmatch(self.credential_type):
             errors.append("credential_type field must be encoded in hex.")
