@@ -3,15 +3,44 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any, Dict, List, Optional, Type
 
 from typing_extensions import Self
 
+from xrpl.models.flags import FlagInterface
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Signer, Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+
+
+class BatchFlag(int, Enum):
+    """
+    Transactions of the Batch type support additional values in the Flags field.
+    This enum represents those options.
+    """
+
+    TF_ALL_OR_NOTHING = 0x00010000
+
+    TF_ONLY_ONE = 0x00020000
+
+    TF_UNTIL_FAILURE = 0x00040000
+
+    TF_INDEPENDENT = 0x00080000
+
+
+class BatchFlagInterface(FlagInterface):
+    """
+    Transactions of the Batch type support additional values in the Flags field.
+    This TypedDict represents those options.
+    """
+
+    TF_ALL_OR_NOTHING: bool
+    TF_ONLY_ONE: bool
+    TF_UNTIL_FAILURE: bool
+    TF_INDEPENDENT: bool
 
 
 @require_kwargs_on_init

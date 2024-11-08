@@ -241,9 +241,9 @@ async def autofill(
         The autofilled transaction.
     """
     transaction_json = transaction.to_dict()
+    if not client.network_id:
+        await _get_network_id_and_build_version(client)
     if "network_id" not in transaction_json and _tx_needs_networkID(client):
-        if not client.network_id:
-            await _get_network_id_and_build_version(client)
         transaction_json["network_id"] = client.network_id
     if "sequence" not in transaction_json:
         if "ticket_sequence" in transaction_json:
@@ -307,7 +307,7 @@ def _tx_needs_networkID(client: Client) -> bool:
     Returns:
         bool: whether the transactions required network ID to be valid
     """
-    if client.network_id and client.network_id > _RESTRICTED_NETWORKS:
+    if client.network_id is not None and client.network_id > _RESTRICTED_NETWORKS:
         if client.build_version and _is_not_later_rippled_version(
             _REQUIRED_NETWORKID_VERSION, client.build_version
         ):
@@ -487,11 +487,17 @@ async def _calculate_fee_per_transaction_type(
             base_fee = math.ceil(net_fee * (33 + (len(fulfillment_bytes) / 16)))
 
     # AccountDelete Transaction
-    if transaction.transaction_type in (
+    elif transaction.transaction_type in (
         TransactionType.ACCOUNT_DELETE,
         TransactionType.AMM_CREATE,
     ):
         base_fee = await _fetch_owner_reserve_fee(client)
+
+    elif transaction.transaction_type == TransactionType.BATCH:
+        batch = cast(Batch, transaction)
+        base_fee = base_fee * (2 + len(batch.raw_transactions))
+        if batch.batch_signers is not None:
+            base_fee += base_fee * len(batch.batch_signers)
 
     # Multi-signed Transaction
     # BaseFee × (1 + Number of Signatures Provided)
@@ -512,7 +518,7 @@ async def _autofill_batch(
 ) -> Tuple[List[Dict[str, Any]], List[str]]:
     transaction = Batch.from_dict(transaction_dict)
     assert transaction.sequence is not None
-    account_sequences: Dict[str, int] = {transaction.account: transaction.sequence}
+    account_sequences: Dict[str, int] = {transaction.account: transaction.sequence + 1}
     tx_ids: List[str] = []
     inner_txs: List[Dict[str, Any]] = []
 
@@ -557,16 +563,19 @@ async def _autofill_batch(
 
         _validate_field("fee", "0")
         _validate_field("signing_pub_key", "")
-        _validate_field("txn_signature", "")
+        # _validate_field("txn_signature", "")
 
+        if raw_txn.txn_signature is not None:
+            raise XRPLException(
+                "Must not have a `txn_signature` field in an inner Batch transaction."
+            )
         if raw_txn.signers is not None:
             raise XRPLException(
                 "Must not have a `signers` field in an inner Batch transaction."
             )
-        if raw_txn.network_id is not None:
-            raise XRPLException(
-                "Must not have a `network_id` field in an inner Batch transaction."
-            )
+        if raw_txn.network_id is None:
+            if _tx_needs_networkID(client):
+                raw_txn_dict["network_id"] = client.network_id
         if raw_txn.last_ledger_sequence is not None:
             raise XRPLException(
                 "Must not have a `last_ledger_sequence` field in an inner Batch "
