@@ -217,6 +217,9 @@ class Wallet:
             algorithm: The digital signature algorithm to generate an address for.
                 The default is ED25519. Docs:
                 https://xrpl.org/docs/concepts/accounts/cryptographic-keys#ed25519-key-derivation
+                Note: If you're upgrading from a previous version that used SECP256K1 as
+                the default, ensure your code explicitly specifies the algorithm if
+                SECP256K1 is required.
 
         Returns:
             The wallet that is generated from the given secret numbers.
