@@ -69,10 +69,9 @@ class Wallet:
         else:
             wallet_algorithm = algorithm
 
-        """
-        The core value that is used to derive all other information about
-        this wallet. MUST be kept secret!
-        """
+        # `seed` is the core value that is used to derive all other information about
+        # this wallet. MUST be kept secret!
+
         # Validate the seed before initialization of Wallet object
         if seed is not None:
             try:
@@ -89,7 +88,7 @@ class Wallet:
                     + wallet_algorithm
                     + "\nError message: "
                     + str(e)
-                )
+                ) from e
 
         self.seed = seed
 
