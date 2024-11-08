@@ -205,7 +205,7 @@ class Wallet:
         secret_numbers: List[str] | str,
         *,
         master_address: Optional[str] = None,
-        algorithm: CryptoAlgorithm = CryptoAlgorithm.SECP256K1,
+        algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
     ) -> Self:
         """
         Generates a new Wallet from secret numbers.
@@ -216,9 +216,8 @@ class Wallet:
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
                 the master address of the account. The default is `None`.
             algorithm: The digital signature algorithm to generate an address for.
-                The default is `SECP256K1
-                <https://xrpl.org/cryptographic-keys.html#secp256k1-key-derivation>`_
-                (XUMM standard as of December 2022).
+                The default is ED25519. Docs:
+                https://xrpl.org/docs/concepts/accounts/cryptographic-keys#ed25519-key-derivation
 
         Returns:
             The wallet that is generated from the given secret numbers.
