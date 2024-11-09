@@ -1074,7 +1074,7 @@
     [
       "IssuerNode",
       {
-        "nth": 24,
+        "nth": 27,
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
@@ -1084,7 +1084,7 @@
     [
       "SubjectNode",
       {
-        "nth": 25,
+        "nth": 28,
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
@@ -2004,7 +2004,7 @@
     [
       "CredentialType",
       {
-        "nth": 30,
+        "nth": 31,
         "isVLEncoded": true,
         "isSerialized": true,
         "isSigningField": true,
@@ -3005,7 +3005,7 @@
     "tecTOKEN_PAIR_NOT_FOUND": 189,
     "tecARRAY_EMPTY": 190,
     "tecARRAY_TOO_LARGE": 191,
-    "tecBAD_CREDENTIALS": 192
+    "tecBAD_CREDENTIALS": 193
   },
   "TRANSACTION_TYPES": {
     "Invalid": -1,
@@ -3056,9 +3056,9 @@
     "DIDDelete": 50,
     "OracleSet": 51,
     "OracleDelete": 52,
-    "CredentialCreate": 54,
-    "CredentialAccept": 55,
-    "CredentialDelete": 56,
+    "CredentialCreate": 58,
+    "CredentialAccept": 59,
+    "CredentialDelete": 60,
     "EnableAmendment": 100,
     "SetFee": 101,
     "UNLModify": 102
