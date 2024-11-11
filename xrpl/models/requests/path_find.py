@@ -26,6 +26,7 @@ returning poor results. (Note: A server returning less-than-optimal
 results is not necessarily proof of malicious behavior; it could also be
 a symptom of heavy server load.)
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

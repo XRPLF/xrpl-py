@@ -21,7 +21,7 @@ class NestedModel(BaseModel):
     """The base class for models that involve a nested dictionary e.g. memos."""
 
     @classmethod
-    def is_dict_of_model(cls: Type[Self], dictionary: Any) -> bool:
+    def is_dict_of_model(cls: Type[Self], dictionary: Any) -> bool:  # noqa: ANN401
         """
         Returns True if the input dictionary was derived by the `to_dict`
         method of an instance of this class. In other words, True if this is

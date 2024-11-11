@@ -1,4 +1,5 @@
 """Model used in AMMBid transaction."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

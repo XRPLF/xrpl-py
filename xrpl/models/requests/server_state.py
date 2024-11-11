@@ -8,6 +8,7 @@ values are given in integer drops instead of scientific
 notation or decimal values, and time is given in
 milliseconds instead of seconds.)
 """
+
 from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import Request, RequestMethod

@@ -82,8 +82,8 @@ class XChainClaim(Transaction):
             currency != bridge.locking_chain_issue
             and currency != bridge.issuing_chain_issue
         ):
-            errors[
-                "amount"
-            ] = "amount must match either locking chain issue or issuing chain issue."
+            errors["amount"] = (
+                "amount must match either locking chain issue or issuing chain issue."
+            )
 
         return errors

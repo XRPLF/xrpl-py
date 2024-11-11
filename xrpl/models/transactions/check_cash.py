@@ -55,7 +55,7 @@ class CheckCash(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if not (self.amount is None) ^ (self.deliver_min is None):
-            errors[
-                "CheckCash"
-            ] = "either amount or deliver_min must be set but not both"
+            errors["CheckCash"] = (
+                "either amount or deliver_min must be set but not both"
+            )
         return errors

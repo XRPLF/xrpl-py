@@ -2,6 +2,7 @@
 The `nft_info` method retrieves all the information about the
 NFToken
 """
+
 from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
