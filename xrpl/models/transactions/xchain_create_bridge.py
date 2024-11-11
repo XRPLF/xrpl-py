@@ -61,14 +61,14 @@ class XChainCreateBridge(Transaction):
         bridge = self.xchain_bridge
 
         if bridge.locking_chain_door == bridge.issuing_chain_door:
-            errors[
-                "xchain_bridge"
-            ] = "Cannot have the same door accounts on the locking and issuing chain."
+            errors["xchain_bridge"] = (
+                "Cannot have the same door accounts on the locking and issuing chain."
+            )
 
         if self.account not in [bridge.locking_chain_door, bridge.issuing_chain_door]:
-            errors[
-                "account"
-            ] = "account must be either locking chain door or issuing chain door."
+            errors["account"] = (
+                "account must be either locking chain door or issuing chain door."
+            )
 
         if (bridge.locking_chain_issue == XRP()) != (
             bridge.issuing_chain_issue == XRP()
@@ -79,9 +79,9 @@ class XChainCreateBridge(Transaction):
             self.min_account_create_amount is not None
             and bridge.locking_chain_issue != XRP()
         ):
-            errors[
-                "min_account_create_amount"
-            ] = "Cannot have MinAccountCreateAmount if bridge is IOU-IOU."
+            errors["min_account_create_amount"] = (
+                "Cannot have MinAccountCreateAmount if bridge is IOU-IOU."
+            )
 
         if self.signature_reward != REQUIRED and not self.signature_reward.isnumeric():
             errors["signature_reward"] = "signature_reward must be numeric."
@@ -90,8 +90,8 @@ class XChainCreateBridge(Transaction):
             self.min_account_create_amount is not None
             and not self.min_account_create_amount.isnumeric()
         ):
-            errors[
-                "min_account_create_amount_value"
-            ] = "min_account_create_amount must be numeric."
+            errors["min_account_create_amount_value"] = (
+                "min_account_create_amount must be numeric."
+            )
 
         return errors

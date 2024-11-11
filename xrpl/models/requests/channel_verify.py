@@ -3,6 +3,7 @@ The channel_verify method checks the validity of a
 signature that can be used to redeem a specific amount of
 XRP from a payment channel.
 """
+
 from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import Request, RequestMethod

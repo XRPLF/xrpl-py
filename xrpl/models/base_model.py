@@ -95,7 +95,8 @@ class BaseModel(ABC):
         a subclass of this class.
 
         Args:
-            dictionary: The dictionary to check.
+            dictionary: The dictionary to check. Note: The input `dictionary` can be of
+                non-dict type. For instance, a `str` representation of JSON.
 
         Returns:
             True if dictionary is a ``dict`` representation of an instance of this
@@ -148,7 +149,7 @@ class BaseModel(ABC):
     def _from_dict_single_param(
         cls: Type[Self],
         param: str,
-        param_type: Type[Any],
+        param_type: Type[Any],  # noqa: ANN401
         param_value: Union[int, str, bool, BaseModel, Enum, List[Any], Dict[str, Any]],
     ) -> Any:  # noqa: ANN401
         """Recursively handles each individual param in `from_dict`."""

@@ -5,6 +5,7 @@ enabled.
 
 This is a public command available to unprivileged users.
 """
+
 from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import Request, RequestMethod

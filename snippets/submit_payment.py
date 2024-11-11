@@ -1,4 +1,5 @@
 """Example of how to send a transaction and see its validation response"""
+
 from xrpl.account import get_balance
 from xrpl.clients import JsonRpcClient
 from xrpl.models import Payment, Tx
