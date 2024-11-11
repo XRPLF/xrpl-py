@@ -5,6 +5,7 @@ several calls to retrieve the entire contents
 of a single ledger version.
 `See ledger data <https://xrpl.org/ledger_data.html>`_
 """
+
 from dataclasses import dataclass, field
 from typing import Any, Optional
 

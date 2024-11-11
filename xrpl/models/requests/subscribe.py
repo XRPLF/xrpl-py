@@ -6,6 +6,7 @@ WebSocket API only.
 
 `See subscribe <https://xrpl.org/subscribe.html>`_
 """
+
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Optional

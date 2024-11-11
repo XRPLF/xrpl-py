@@ -5,6 +5,7 @@ recommended settings.
 
 `See noripple_check <https://xrpl.org/noripple_check.html>`_
 """
+
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional

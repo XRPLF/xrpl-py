@@ -1,4 +1,5 @@
 """Model for SetRegularKey transaction type."""
+
 from dataclasses import dataclass, field
 from typing import Optional
 

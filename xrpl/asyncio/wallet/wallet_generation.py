@@ -1,4 +1,5 @@
 """Handles wallet generation from a faucet."""
+
 import asyncio
 from typing import Optional
 from urllib.parse import urlparse, urlunparse
