@@ -284,13 +284,15 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     bridge_account: Optional[str] = None
     bridge: Optional[XChainBridge] = None
     xchain_claim_id: Optional[Union[str, XChainClaimID]] = None
-    xchain_create_account_claim_id: Optional[
-        Union[str, XChainCreateAccountClaimID]
-    ] = None
+    xchain_create_account_claim_id: Optional[Union[str, XChainCreateAccountClaimID]] = (
+        None
+    )
 
     binary: bool = False
     nft_page: Optional[str] = None
     """Must be the object ID of the NFToken page, as hexadecimal"""
+    include_deleted: Optional[bool] = None
+    """This parameter is supported only by Clio servers"""
 
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()

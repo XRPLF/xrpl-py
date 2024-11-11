@@ -3,6 +3,7 @@ Internal helper types for xrpl.models
 
 :meta private:
 """
+
 from typing import Any, Dict, List, Union
 
 # The type of a parsed model in python, after it is loaded from a JSON string

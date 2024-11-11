@@ -1,4 +1,5 @@
 """Collection of public constants for XRPL."""
+
 import re
 from decimal import Context
 from enum import Enum

@@ -1,4 +1,5 @@
 """Top-level exports for types used in binary_codec."""
+
 from xrpl.core.binarycodec.types.account_id import AccountID
 from xrpl.core.binarycodec.types.amount import Amount
 from xrpl.core.binarycodec.types.blob import Blob
