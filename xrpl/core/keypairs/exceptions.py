@@ -1,4 +1,5 @@
 """XRPL keypair codec exceptions."""
+
 from xrpl.constants import XRPLException
 
 

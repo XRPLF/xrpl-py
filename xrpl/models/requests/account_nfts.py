@@ -1,4 +1,5 @@
 """This method retrieves all of the NFTs currently owned by the specified account."""
+
 from dataclasses import dataclass, field
 from typing import Any, Optional
 

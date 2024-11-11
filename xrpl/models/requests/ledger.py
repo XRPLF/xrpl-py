@@ -2,6 +2,7 @@
 Retrieve information about the public ledger.
 `See ledger <https://xrpl.org/ledger.html>`_
 """
+
 from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
