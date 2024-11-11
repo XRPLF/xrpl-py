@@ -11,9 +11,14 @@ ignore = D205,D212,D415,E203,W503
 # https://black.readthedocs.io/en/stable/the_black_code_style.html#line-length
 max-line-length = 88
 
+# This is for pydocstyle - to allow docstrings in __init__ functions
+# This rule was used for easier migration from darglint
+# TODO: remove this rule
+allow-init-docstring=True
+
 per-file-ignores =
   # For tests, disable type annotation and docstring linting.
-  tests/*: ANN D DAR
+  tests/*: ANN D DOC
 
 # Select other tools to enable.
 
@@ -25,7 +30,7 @@ per-file-ignores =
 
 # D enables docstrings warnings from pydocstyle.
 
-# DAR enables docstring style linting via darglint.
+# DOC enables docstring style linting via pydoclint.
 
 # F are errors reported by pyflakes, a tool which parses source files
 # and finds invalid Python code.
@@ -35,4 +40,4 @@ per-file-ignores =
 
 # W and E are warnings and errors reported by pycodestyle, which checks
 # your Python code against some of the style conventions in PEP 8.
-select = ABS,ANN,DAR,BLK,D,E,F,I,W
+select = ABS,ANN,DOC,BLK,D,E,F,I,W
