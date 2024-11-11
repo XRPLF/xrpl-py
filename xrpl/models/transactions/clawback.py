@@ -33,7 +33,7 @@ class Clawback(Transaction):
     :meta hide-value:
     """
 
-    mptoken_holder: Optional[str] = None
+    holder: Optional[str] = None
     """
     Indicates the AccountID that the issuer wants to clawback. This field is only valid
     for clawing back MPTs.
@@ -52,15 +52,15 @@ class Clawback(Transaction):
             errors["amount"] = "``amount`` cannot be XRP."
 
         if is_issued_currency(self.amount):
-            if self.mptoken_holder is not None:
-                errors["amount"] = "Cannot have MPTokenHolder for currency."
+            if self.holder is not None:
+                errors["amount"] = "Cannot have Holder for currency."
             if self.account == self.amount.issuer:  # type:ignore
                 errors["amount"] = "Holder's address is wrong."
 
         if is_mpt(self.amount):
-            if self.mptoken_holder is None:
-                errors["amount"] = "Missing MPTokenHolder."
-            if self.account == self.mptoken_holder:
-                errors["amount"] = "Invalid MPTokenHolder account."
+            if self.holder is None:
+                errors["amount"] = "Missing Holder."
+            if self.account == self.holder:
+                errors["amount"] = "Invalid Holder account."
 
         return errors

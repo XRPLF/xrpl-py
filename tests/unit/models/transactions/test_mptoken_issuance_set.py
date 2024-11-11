@@ -17,11 +17,11 @@ class TestMPTokenIssuanceSet(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-    def test_tx_with_mptoken_holder(self):
+    def test_tx_with_holder(self):
         tx = MPTokenIssuanceSet(
             account=_ACCOUNT,
             mptoken_issuance_id=_TOKEN_ID,
-            mptoken_holder="rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG",
+            holder="rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG",
             flags=MPTokenIssuanceSetFlag.TF_MPT_LOCK,
         )
         self.assertTrue(tx.is_valid())
@@ -31,7 +31,7 @@ class TestMPTokenIssuanceSet(TestCase):
         tx = MPTokenIssuanceSet(
             account=_ACCOUNT,
             mptoken_issuance_id=_TOKEN_ID,
-            mptoken_holder="rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG",
+            holder="rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG",
         )
         self.assertTrue(tx.is_valid())
 
@@ -40,7 +40,7 @@ class TestMPTokenIssuanceSet(TestCase):
             MPTokenIssuanceSet(
                 account=_ACCOUNT,
                 mptoken_issuance_id=_TOKEN_ID,
-                mptoken_holder="rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG",
+                holder="rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG",
                 flags=MPTokenIssuanceSetFlag.TF_MPT_LOCK
                 | MPTokenIssuanceSetFlag.TF_MPT_UNLOCK,
             )

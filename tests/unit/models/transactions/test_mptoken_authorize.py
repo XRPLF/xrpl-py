@@ -14,10 +14,10 @@ class TestMPTokenAuthorize(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-    def test_mptoken_holder(self):
+    def test_holder(self):
         tx = MPTokenAuthorize(
             account=_ACCOUNT,
-            mptoken_holder="rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG",
+            holder="rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG",
             mptoken_issuance_id=_TOKEN_ID,
         )
         self.assertTrue(tx.is_valid())

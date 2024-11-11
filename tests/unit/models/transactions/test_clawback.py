@@ -29,23 +29,23 @@ class TestClawback(TestCase):
                 amount=_ISSUED_CURRENCY_AMOUNT,
             )
 
-    def test_cannot_have_mptoken_holder(self):
+    def test_cannot_holder(self):
         with self.assertRaises(XRPLModelException):
             Clawback(
                 account=_ACCOUNT,
                 amount=_ISSUED_CURRENCY_AMOUNT,
-                mptoken_holder=_ACCOUNT,
+                holder=_ACCOUNT,
             )
 
-    def test_invalid_mptoken_holder(self):
+    def test_invalid_holder(self):
         with self.assertRaises(XRPLModelException):
             Clawback(
                 account=_ACCOUNT,
                 amount=_MPT_AMOUNT,
-                mptoken_holder=_ACCOUNT,
+                holder=_ACCOUNT,
             )
 
-    def test_missing_mptoken_holder(self):
+    def test_missing_holder(self):
         with self.assertRaises(XRPLModelException):
             Clawback(
                 account=_ACCOUNT,

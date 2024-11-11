@@ -78,7 +78,7 @@
 #         auth_tx2 = MPTokenAuthorize(
 #             account=WALLET.classic_address,
 #             mptoken_issuance_id=mpt_issuance_id,
-#             mptoken_holder=wallet2.classic_address,
+#             holder=wallet2.classic_address,
 #         )
 
 #         auth_res2 = await sign_and_reliable_submission_async(

@@ -149,7 +149,7 @@ class TestClawback(IntegrationTestCase):
     #                 mpt_issuance_id=mpt_issuance_id,
     #                 value="500",
     #             ),
-    #             mptoken_holder=wallet2.classic_address,
+    #             holder=wallet2.classic_address,
     #         ),
     #         WALLET,
     #         client,

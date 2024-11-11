@@ -22,7 +22,6 @@ _HEX_REGEX: Final[Pattern[str]] = re.compile("^[a-fA-F0-9]{1,16}$")
 _SPECIAL_FIELDS: Final[set[str]] = {
     "MaximumAmount",
     "OutstandingAmount",
-    "LockedAmount",
     "MPTAmount",
 }
 

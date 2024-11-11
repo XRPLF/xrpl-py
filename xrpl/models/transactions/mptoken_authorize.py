@@ -52,7 +52,7 @@ class MPTokenAuthorize(Transaction):
     mptoken_issuance_id: str = REQUIRED  # type: ignore
     """Identifies the MPTokenIssuance"""
 
-    mptoken_holder: Optional[str] = None
+    holder: Optional[str] = None
     """
     An optional XRPL Address of an individual token holder balance to lock/unlock.
     If omitted, this transaction will apply to all any accounts holding MPTs.
