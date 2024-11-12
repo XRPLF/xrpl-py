@@ -1,4 +1,5 @@
 """Example of how to handle partial payments"""
+
 from xrpl.clients import JsonRpcClient
 from xrpl.models import (
     AccountLines,

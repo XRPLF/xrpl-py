@@ -2,6 +2,7 @@
 The `nft_sell_offers` method retrieves all of sell offers
 for the specified NFToken.
 """
+
 from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod

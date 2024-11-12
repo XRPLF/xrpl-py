@@ -257,9 +257,9 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     bridge_account: Optional[str] = None
     bridge: Optional[XChainBridge] = None
     xchain_claim_id: Optional[Union[str, XChainClaimID]] = None
-    xchain_create_account_claim_id: Optional[
-        Union[str, XChainCreateAccountClaimID]
-    ] = None
+    xchain_create_account_claim_id: Optional[Union[str, XChainCreateAccountClaimID]] = (
+        None
+    )
 
     binary: bool = False
     nft_page: Optional[str] = None
