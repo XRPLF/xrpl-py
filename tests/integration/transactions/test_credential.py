@@ -5,6 +5,7 @@ from tests.integration.it_utils import (
 )
 from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.models import AccountObjects, AccountObjectType
+from xrpl.models.requests.ledger_entry import Credential, LedgerEntry
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions.credential_accept import CredentialAccept
 from xrpl.models.transactions.credential_create import CredentialCreate
@@ -60,6 +61,17 @@ class TestCredentials(IntegrationTestCase):
         response = await sign_and_reliable_submission_async(tx, WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Use the LedgerEntry RPC to validate the creation of the credential object
+        ledger_entry_response = await client.request(
+            LedgerEntry(
+                credential=Credential(
+                    subject=_SUBJECT, issuer=_ISSUER, credential_type=cred_type
+                )
+            )
+        )
+
+        self.assertEqual(ledger_entry_response.status, ResponseStatus.SUCCESS)
 
         # Execute the CredentialAccept transaction on the above Credential ledger object
         tx = CredentialAccept(
