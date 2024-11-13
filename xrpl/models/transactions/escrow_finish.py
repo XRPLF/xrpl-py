@@ -58,12 +58,12 @@ class EscrowFinish(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.condition and not self.fulfillment:
-            errors[
-                "fulfillment"
-            ] = "If condition is specified, fulfillment must also be specified."
+            errors["fulfillment"] = (
+                "If condition is specified, fulfillment must also be specified."
+            )
         if self.fulfillment and not self.condition:
-            errors[
-                "condition"
-            ] = "If fulfillment is specified, condition must also be specified."
+            errors["condition"] = (
+                "If fulfillment is specified, condition must also be specified."
+            )
 
         return errors

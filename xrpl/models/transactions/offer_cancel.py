@@ -1,4 +1,5 @@
 """Model for OfferCancel transaction type."""
+
 from dataclasses import dataclass, field
 
 from xrpl.models.required import REQUIRED

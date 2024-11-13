@@ -1,4 +1,5 @@
 """This request gets information about an Automated Market Maker (AMM) instance."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
