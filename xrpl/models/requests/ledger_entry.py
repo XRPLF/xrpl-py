@@ -38,6 +38,7 @@ class LedgerEntryType(str, Enum):
     OFFER = "offer"
     ORACLE = "oracle"
     PAYMENT_CHANNEL = "payment_channel"
+    PERMISSIONED_DOMAIN = "permissioned_domain"
     SIGNER_LIST = "signer_list"
     STATE = "state"
     TICKET = "ticket"
@@ -179,6 +180,18 @@ class Oracle(BaseModel):
 
 
 @require_kwargs_on_init
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+class PermissionedDomain(BaseModel):
+    """
+    Required fields for requesting a PermissionedDomain if not querying by
+    object ID.
+    """
+
+    account: str = REQUIRED  # type: ignore
+    sequence: int = REQUIRED  # type: ignore
+
+
+@require_kwargs_on_init
 @dataclass(frozen=True)
 class RippleState(BaseModel):
     """Required fields for requesting a RippleState if not querying by object ID."""
@@ -272,6 +285,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     offer: Optional[Union[str, Offer]] = None
     oracle: Optional[Oracle] = None
     payment_channel: Optional[str] = None
+    permissioned_domain: Optional[Union[str, PermissionedDomain]] = None
     ripple_state: Optional[RippleState] = None
     ticket: Optional[Union[str, Ticket]] = None
     bridge_account: Optional[str] = None
@@ -303,6 +317,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
                 self.offer,
                 self.oracle,
                 self.payment_channel,
+                self.permissioned_domain,
                 self.ripple_state,
                 self.ticket,
                 self.xchain_claim_id,
