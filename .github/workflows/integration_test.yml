@@ -32,8 +32,7 @@ jobs:
 
       - name: Run docker in background
         run: |
-          docker run -dit -p 5005:5005 -p 6006:6006 -v "${{ github.workspace }}/.ci-config/":/etc/opt/ripple/ --name rippled_standalone --health-cmd="rippled server_info || exit 1" --health-interval=5s --health-retries=10 --health-timeout=2s --env GITHUB_ACTIONS=true --env CI=true --entrypoint bash ${{ env.RIPPLED_DOCKER_IMAGE }}
-          docker exec -d rippled_standalone rippled -a
+          docker run -dit -p 5005:5005 -p 6006:6006 -v "${{ github.workspace }}/.ci-config/":/etc/opt/ripple/ --name rippled_standalone --health-cmd="rippled server_info || exit 1" --health-interval=5s --health-retries=10 --health-timeout=2s --env GITHUB_ACTIONS=true --env CI=true --entrypoint bash ${{ env.RIPPLED_DOCKER_IMAGE }} -c "rippled -a"
 
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'
