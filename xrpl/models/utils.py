@@ -15,6 +15,18 @@ HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
 _MAX_CREDENTIAL_LENGTH: Final[int] = 64 * 2
 
 
+def _get_credential_type_error(credential_type: str) -> Optional[str]:
+    errors = []
+    # credential_type is a required field in this transaction
+    if len(credential_type) == 0:
+        errors.append("Length must be > 0.")
+    elif len(credential_type) > _MAX_CREDENTIAL_LENGTH:
+        errors.append(f"Length must be less than {_MAX_CREDENTIAL_LENGTH}.")
+    if not HEX_REGEX.fullmatch(credential_type):
+        errors.append("credential_type field must be encoded in hex.")
+    return " ".join(errors) if len(errors) > 0 else None
+
+
 def validate_credential_ids(credential_list: Optional[List[str]]) -> Dict[str, str]:
     """
     Args:

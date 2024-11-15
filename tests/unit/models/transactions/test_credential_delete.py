@@ -48,7 +48,7 @@ class TestCredentialDelete(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'credential_type': 'Length must be < 128.'}",
+            "{'credential_type': 'Length must be less than 128.'}",
         )
 
     def test_cred_type_field_empty(self):

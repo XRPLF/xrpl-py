@@ -9,9 +9,9 @@ from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import (
-    _MAX_CREDENTIAL_LENGTH,
     HEX_REGEX,
     KW_ONLY_DATACLASS,
+    _get_credential_type_error,
     require_kwargs_on_init,
 )
 
@@ -57,7 +57,7 @@ class CredentialCreate(Transaction):
             for key, value in {
                 **super()._get_errors(),
                 "uri": self._get_uri_error(),
-                "credential_type": self._get_credential_type_error(),
+                "credential_type": _get_credential_type_error(self.credential_type),
             }.items()
             if value is not None
         }
@@ -74,14 +74,3 @@ class CredentialCreate(Transaction):
         if not HEX_REGEX.fullmatch(self.uri):
             errors.append("Must be encoded in hex.")
         return " ".join(errors) if errors else None
-
-    def _get_credential_type_error(self: Self) -> Optional[str]:
-        errors = []
-        # credential_type is a required field in this transaction
-        if len(self.credential_type) == 0:
-            errors.append("Length must be > 0.")
-        elif len(self.credential_type) > _MAX_CREDENTIAL_LENGTH:
-            errors.append(f"Length must less than {_MAX_CREDENTIAL_LENGTH}.")
-        if not HEX_REGEX.fullmatch(self.credential_type):
-            errors.append("credential_type field must be encoded in hex.")
-        return " ".join(errors) if len(errors) > 0 else None
