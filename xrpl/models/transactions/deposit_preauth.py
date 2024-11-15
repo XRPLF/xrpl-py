@@ -96,7 +96,6 @@ class DepositPreauth(Transaction):
                     f"{field_name} list cannot contain duplicate credentials."
                 )
 
-        # Then replace the checks with:
         if self.authorize_credentials is not None:
             _validate_credentials_length(
                 self.authorize_credentials, "AuthorizeCredentials"
@@ -106,10 +105,6 @@ class DepositPreauth(Transaction):
             _validate_credentials_length(
                 self.unauthorize_credentials, "UnauthorizeCredentials"
             )
-
-        # Note: Other validity checks like sufficient account-reserve balance,
-        # existence of the issuer, etc on the list of credentials need access to the
-        # blockchain state.
 
         return errors
 
