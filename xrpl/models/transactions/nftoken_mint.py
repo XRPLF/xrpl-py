@@ -8,6 +8,7 @@ from typing import Dict, Optional
 
 from typing_extensions import Final, Self
 
+from xrpl.models.amounts import Amount, get_amount_value
 from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -106,6 +107,32 @@ class NFTokenMint(Transaction):
     convert a UTF-8 string to hex.
     """
 
+    amount: Optional[Amount] = None
+    """
+    Indicates the amount expected or offered for the Token.
+
+    The amount must be non-zero, except when this is a sell
+    offer and the asset is XRP. This would indicate that the current
+    owner of the token is giving it away free, either to anyone at all,
+    or to the account identified by the Destination field. This field
+    is required.
+
+    """
+
+    destination: Optional[str] = None
+    """
+    If present, indicates that this offer may only be
+    accepted by the specified account. Attempts by other
+    accounts to accept this offer MUST fail.
+    """
+
+    expiration: Optional[int] = None
+    """
+    Indicates the time after which the offer will no longer
+    be valid. The value is the number of seconds since the
+    Ripple Epoch.
+    """
+
     transaction_type: TransactionType = field(
         default=TransactionType.NFTOKEN_MINT,
         init=False,
@@ -119,6 +146,8 @@ class NFTokenMint(Transaction):
                 "issuer": self._get_issuer_error(),
                 "transfer_fee": self._get_transfer_fee_error(),
                 "uri": self._get_uri_error(),
+                "amount": self._get_amount_error(),
+                "destination": self._get_destination_error(),
             }.items()
             if value is not None
         }
@@ -136,4 +165,16 @@ class NFTokenMint(Transaction):
     def _get_uri_error(self: Self) -> Optional[str]:
         if self.uri is not None and len(self.uri) > _MAX_URI_LENGTH:
             return f"Must not be longer than {_MAX_URI_LENGTH} characters"
+        return None
+
+    def _get_amount_error(self: Self) -> Optional[str]:
+        if self.amount is None:
+            return "Amount must be provided"
+        elif get_amount_value(self.amount) <= 0:
+            return "Must be greater than 0 for a buy offer"
+        return None
+
+    def _get_destination_error(self: Self) -> Optional[str]:
+        if self.destination == self.account:
+            return "Must not be equal to the account"
         return None
