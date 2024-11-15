@@ -90,10 +90,7 @@ poetry run poe test_unit
 To run integration tests, you'll need a standalone rippled node running with WS port `6006` and JSON RPC port `5005`. You can run a docker container for this:
 
 ```bash
-docker run -p 5005:5005 -p 6006:6006 --interactive -t --volume $PWD/.ci-config:/opt/ripple/etc/ --platform linux/amd64 rippleci/rippled:2.2.0-b3 /opt/ripple/bin/rippled -a --conf /opt/ripple/etc/rippled.cfg
-
-docker run -dit -p 5005:5005 -p 6006:6006 -v $PWD/.ci-config/:/etc/opt/ripple/ --name rippled_standalone --entrypoint bash rippleci/rippled:develop
-docker exec -d rippled_standalone rippled -a
+docker run -dit -p 5005:5005 -p 6006:6006 --volume $PWD/.ci-config/:/etc/opt/ripple/ --entrypoint bash rippleci/rippled:develop -c 'rippled -a'
 ```
 
 Breaking down the command:
