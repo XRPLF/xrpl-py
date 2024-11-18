@@ -3,6 +3,7 @@ from unittest import TestCase
 from xrpl.asyncio.wallet.wallet_generation import (
     _DEV_FAUCET_URL,
     _TEST_FAUCET_URL,
+    XRPLFaucetException,
     get_faucet_url,
     process_faucet_host_url,
 )
@@ -16,30 +17,16 @@ class TestWallet(TestCase):
         expected = classic_address_to_xaddress(wallet.classic_address, None, False)
         self.assertEqual(wallet.get_xaddress(), expected)
 
-    def test_get_faucet_wallet_dev(self):
-        json_client_url = "https://s.devnet.rippletest.net:51234"
-        ws_client_url = "wss://s.devnet.rippletest.net/"
-        expected_faucet = _DEV_FAUCET_URL
+    def test_get_faucet_wallet_valid(self):
+        self.assertEqual(get_faucet_url(1), _TEST_FAUCET_URL)
+        self.assertEqual(get_faucet_url(2), _DEV_FAUCET_URL)
 
-        self.assertEqual(get_faucet_url(json_client_url), expected_faucet)
-        self.assertEqual(get_faucet_url(ws_client_url), expected_faucet)
+    def test_get_faucet_wallet_invalid(self):
+        with self.assertRaises(XRPLFaucetException):
+            get_faucet_url(0)  # corresponds to mainnet
 
-    def test_get_faucet_wallet_custom(self):
-        json_client_url = "https://s.devnet.rippletest.net:51234"
-        ws_client_url = "wss://s.devnet.rippletest.net/"
-        custom_host = "my_host.org"
-        expected_faucet = "https://my_host.org/accounts"
-
-        self.assertEqual(get_faucet_url(json_client_url, custom_host), expected_faucet)
-        self.assertEqual(get_faucet_url(ws_client_url, custom_host), expected_faucet)
-
-    def test_get_faucet_wallet_test(self):
-        json_client_url = "https://testnet.xrpl-labs.com"
-        ws_client_url = "wss://testnet.xrpl-labs.com"
-        expected_faucet = _TEST_FAUCET_URL
-
-        self.assertEqual(get_faucet_url(json_client_url), expected_faucet)
-        self.assertEqual(get_faucet_url(ws_client_url), expected_faucet)
+        with self.assertRaises(XRPLFaucetException):
+            get_faucet_url(-1)  # network_id must be non-negative
 
 
 class TestProcessFaucetHostURL(TestCase):

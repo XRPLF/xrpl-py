@@ -7,6 +7,8 @@ from typing import Optional
 
 from typing_extensions import Final, Self
 
+from xrpl.asyncio.clients.exceptions import XRPLRequestFailureException
+from xrpl.models.requests import ServerInfo
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
 
@@ -52,3 +54,28 @@ class Client(ABC):
         :meta private:
         """
         pass
+
+
+async def get_network_id_and_build_version(client: Client) -> None:
+    """
+    Get the network id and build version of the connected server.
+
+    Args:
+        client: The network client to use to send the request.
+
+    Raises:
+        XRPLRequestFailureException: if the rippled API call fails.
+    """
+    # the required values are already present, no need for further processing
+    if client.network_id and client.build_version:
+        return
+
+    response = await client._request_impl(ServerInfo())
+    if response.is_successful():
+        if "network_id" in response.result["info"]:
+            client.network_id = response.result["info"]["network_id"]
+        if not client.build_version and "build_version" in response.result["info"]:
+            client.build_version = response.result["info"]["build_version"]
+        return
+
+    raise XRPLRequestFailureException(response.result)
