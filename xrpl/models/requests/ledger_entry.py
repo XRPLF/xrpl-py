@@ -188,7 +188,7 @@ class PermissionedDomain(BaseModel):
     """
 
     account: str = REQUIRED  # type: ignore
-    sequence: int = REQUIRED  # type: ignore
+    seq: int = REQUIRED  # type: ignore
 
 
 @require_kwargs_on_init

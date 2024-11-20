@@ -8,7 +8,7 @@ from xrpl.models.requests.account_objects import AccountObjects, AccountObjectTy
 from xrpl.models.requests.ledger_data import LedgerData
 
 # from xrpl.models.requests.ledger_entry import Credential as CredentialLedgerEntry
-from xrpl.models.requests.ledger_entry import LedgerEntry
+from xrpl.models.requests.ledger_entry import LedgerEntry, PermissionedDomain
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions.permissioned_domain_delete import PermissionedDomainDelete
 from xrpl.models.transactions.permissioned_domain_set import (
@@ -66,6 +66,20 @@ class TestPermissionedDomain(IntegrationTestCase):
                 ]["index"]
             )
         )
+        self.assertEqual(ledger_entry_response.status, ResponseStatus.SUCCESS)
+
+        # Aliter: Use the account and sequence-number to retrieve a PermissionedDomain
+        ledger_entry_response = await client.request(
+            LedgerEntry(
+                permissioned_domain=PermissionedDomain(
+                    account=WALLET.address,
+                    seq=account_objects_response.result["account_objects"][0][
+                        "Sequence"
+                    ],
+                )
+            )
+        )
+
         self.assertEqual(ledger_entry_response.status, ResponseStatus.SUCCESS)
 
         # Use the ledger_data command to validate the creation of PermissionedDomain
