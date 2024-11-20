@@ -8,7 +8,7 @@ from tests.integration.it_utils import (
 from xrpl.models import (
     XRP,
     AccountObjects,
-    AccountObjectType,
+    LedgerEntryType,
     XChainBridge,
     XChainCreateBridge,
 )
@@ -40,7 +40,7 @@ class TestXChainCreateBridge(IntegrationTestCase):
 
         account_objects_response = await client.request(
             AccountObjects(
-                account=door_wallet.classic_address, type=AccountObjectType.BRIDGE
+                account=door_wallet.classic_address, type=LedgerEntryType.BRIDGE
             )
         )
         self.assertEqual(len(account_objects_response.result["account_objects"]), 1)

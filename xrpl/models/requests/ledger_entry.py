@@ -27,6 +27,7 @@ class LedgerEntryType(str, Enum):
     ACCOUNT = "account"
     AMENDMENTS = "amendments"
     AMM = "amm"
+    BRIDGE = "bridge"
     CHECK = "check"
     CREDENTIAL = "credential"
     DEPOSIT_PREAUTH = "deposit_preauth"
@@ -43,6 +44,7 @@ class LedgerEntryType(str, Enum):
     STATE = "state"
     TICKET = "ticket"
     NFT_OFFER = "nft_offer"
+    XCHAIN_OWNED_CLAIM_ID = "xchain_owned_claim_id"
 
 
 @require_kwargs_on_init

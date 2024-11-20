@@ -4,10 +4,8 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from tests.integration.reusable_values import CREDENTIAL_ACCEPT_RESPONSE, WALLET
-from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
+from xrpl.models.requests.account_objects import AccountObjects, LedgerEntryType
 from xrpl.models.requests.ledger_data import LedgerData
-
-# from xrpl.models.requests.ledger_entry import Credential as CredentialLedgerEntry
 from xrpl.models.requests.ledger_entry import LedgerEntry, PermissionedDomain
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions.permissioned_domain_delete import PermissionedDomainDelete
@@ -52,7 +50,7 @@ class TestPermissionedDomain(IntegrationTestCase):
         # ledger object
         account_objects_response = await client.request(
             AccountObjects(
-                account=WALLET.address, type=AccountObjectType.PERMISSIONED_DOMAIN
+                account=WALLET.address, type=LedgerEntryType.PERMISSIONED_DOMAIN
             )
         )
         self.assertEqual(account_objects_response.status, ResponseStatus.SUCCESS)
