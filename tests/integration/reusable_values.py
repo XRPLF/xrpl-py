@@ -13,6 +13,8 @@ from xrpl.models import (
     XRP,
     AMMDeposit,
     AMMDepositFlag,
+    CredentialAccept,
+    CredentialCreate,
     IssuedCurrencyAmount,
     OfferCreate,
     PaymentChannelCreate,
@@ -21,6 +23,7 @@ from xrpl.models import (
     XChainBridge,
     XChainCreateBridge,
 )
+from xrpl.utils import str_to_hex
 from xrpl.wallet import Wallet
 
 
@@ -95,6 +98,26 @@ async def _set_up_reusable_values():
     amm_asset2 = setup_amm_pool_res["asset2"]
     amm_issuer_wallet = setup_amm_pool_res["issuer_wallet"]
 
+    # Create and accept one credential; This is used in the PermissionedDomain tests
+    cred_type: str = str_to_hex("IdentityDocument")
+    await sign_and_reliable_submission_async(
+        CredentialCreate(
+            account=wallet.address,
+            subject=destination.address,
+            credential_type=cred_type,
+        ),
+        wallet,
+    )
+
+    credential_accept_txn_response = await sign_and_reliable_submission_async(
+        CredentialAccept(
+            issuer=wallet.address,
+            credential_type=cred_type,
+            account=destination.address,
+        ),
+        destination,
+    )
+
     return (
         wallet,
         destination,
@@ -106,6 +129,7 @@ async def _set_up_reusable_values():
         amm_asset2,
         amm_issuer_wallet,
         bridge,
+        credential_accept_txn_response,
     )
 
 
@@ -149,4 +173,5 @@ async def setup_amm_pool(
     AMM_ASSET2,
     AMM_ISSUER_WALLET,
     BRIDGE,
+    CREDENTIAL_ACCEPT_RESPONSE,
 ) = asyncio.run(_set_up_reusable_values())

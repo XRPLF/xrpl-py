@@ -5,7 +5,7 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from tests.integration.reusable_values import BRIDGE
-from xrpl.models import AccountObjects, AccountObjectType, XChainCreateClaimID
+from xrpl.models import AccountObjects, LedgerEntryType, XChainCreateClaimID
 from xrpl.wallet import Wallet
 
 
@@ -30,7 +30,7 @@ class TestXChainCreateClaimID(IntegrationTestCase):
         account_objects_response = await client.request(
             AccountObjects(
                 account=account.classic_address,
-                type=AccountObjectType.XCHAIN_OWNED_CLAIM_ID,
+                type=LedgerEntryType.XCHAIN_OWNED_CLAIM_ID,
             )
         )
         self.assertEqual(len(account_objects_response.result["account_objects"]), 1)

@@ -6,7 +6,7 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from tests.integration.reusable_values import WALLET
-from xrpl.models import AccountObjects, AccountObjectType, OracleDelete, OracleSet
+from xrpl.models import AccountObjects, LedgerEntryType, OracleDelete, OracleSet
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions.oracle_set import PriceData
 from xrpl.utils import str_to_hex
@@ -54,6 +54,6 @@ class TestDeleteOracle(IntegrationTestCase):
 
         # confirm that the PriceOracle was actually deleted
         account_objects_response = await client.request(
-            AccountObjects(account=WALLET.address, type=AccountObjectType.ORACLE)
+            AccountObjects(account=WALLET.address, type=LedgerEntryType.ORACLE)
         )
         self.assertEqual(len(account_objects_response.result["account_objects"]), 0)

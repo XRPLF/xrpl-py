@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Add `include_deleted` to ledger_entry request
+- Add support for the `PermissionedDomains` feature
 
 ### BREAKING CHANGE:
 - Remove Python 3.7 support to fix dependency installation and use 3.8 as new default.
+- Remove the AccountObjectType enum. Instead, use the LedgerEntryType enum, this reduces redundancy in the codebase.
 
 ### Fixed
 - Grab the FeeSettings values from the latest validated ledger. Remove hard-coded reference to 10 drops as the reference transaction cost.
@@ -91,7 +93,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0] - 2023-07-05
 ### BREAKING CHANGE
 - The default signing algorithm in the `Wallet` was changed from secp256k1 to ed25519
-- 
+-
 ### Added:
 - Wallet support for regular key compatibility
 - Added new ways of wallet generation: `from_seed`, `from_secret`, `from_entropy`, `from_secret_numbers`
