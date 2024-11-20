@@ -26,10 +26,12 @@ def _parse_rippled_source(
     folder: str,
 ) -> Tuple[Dict[str, List[str]], Dict[str, List[Tuple[str, ...]]]]:
     # Get SFields
-    sfield_cpp = _read_file(os.path.join(folder, "src/ripple/protocol/impl/SField.cpp"))
+    sfield_cpp = _read_file(
+        os.path.join(folder, "include/xrpl/protocol/detail/sfields.macro")
+    )
     sfield_hits = re.findall(
-        r'^ *CONSTRUCT_[^\_]+_SFIELD *\( *[^,\n]*,[ \n]*"([^\"\n ]+)"[ \n]*,[ \n]*'
-        + r"([^, \n]+)[ \n]*,[ \n]*([0-9]+)(,.*?(notSigning))?",
+        r"^ *[A-Z]*TYPED_SFIELD *\( *sf([^,\n]*),[ \n]*([^, \n]+)[ \n]*,[ \n]*([0-9]+)"
+        + r"(,.*?(notSigning))?",
         sfield_cpp,
         re.MULTILINE,
     )
@@ -37,11 +39,12 @@ def _parse_rippled_source(
 
     # Get TxFormats
     tx_formats_cpp = _read_file(
-        os.path.join(folder, "src/ripple/protocol/impl/TxFormats.cpp")
+        os.path.join(folder, "include/xrpl/protocol/detail/transactions.macro")
     )
     tx_formats_hits = re.findall(
-        r"^ *add\(jss::([^\"\n, ]+),[ \n]*tt[A-Z_]+,[ \n]*{[ \n]*(({sf[A-Za-z0-9]+, "
-        + r"soe(OPTIONAL|REQUIRED|DEFAULT)},[ \n]+)*)},[ \n]*[pseudocC]+ommonFields\);",
+        r"^ *TRANSACTION\(tt[A-Z_]+ *,* [0-9]+ *, *([A-Za-z]+)[ \n]*,[ \n]*\({[ \n]*"
+        + r"(({sf[A-Za-z0-9]+, soe(OPTIONAL|REQUIRED|DEFAULT)"
+        + r"(, soeMPT(None|Supported|NotSupported))?},[ \n]+)*)}\)\)$",
         tx_formats_cpp,
         re.MULTILINE,
     )
@@ -57,6 +60,7 @@ TYPE_MAP = {
     "UINT64": "Union[int, str]",
     "UINT128": "str",
     "UINT160": "str",
+    "UINT192": "str",
     "UINT256": "str",
     "AMOUNT": "Amount",
     "VL": "str",
