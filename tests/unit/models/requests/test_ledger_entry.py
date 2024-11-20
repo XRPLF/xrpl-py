@@ -181,8 +181,6 @@ class TestLedgerEntry(TestCase):
     def test_fetch_permissioned_domain_ledger_object_params(self):
         self.assertTrue(
             LedgerEntry(
-                permissioned_domain=PermissionedDomain(
-                    account="rAccount", sequence=1234
-                )
+                permissioned_domain=PermissionedDomain(account="rAccount", seq=1234)
             )
         )
