@@ -25,14 +25,14 @@ class XChainCreateClaimID(Transaction):
     cross-chain transfer of value.
     """
 
-    xchain_bridge: XChainBridge = REQUIRED  # type: ignore
+    xchain_bridge: XChainBridge = REQUIRED
     """
     The bridge to create the claim ID for. This field is required.
 
     :meta hide-value:
     """
 
-    signature_reward: str = REQUIRED  # type: ignore
+    signature_reward: str = REQUIRED
     """
     The amount, in XRP, to reward the witness servers for providing signatures.
     This must match the amount on the ``Bridge`` ledger object. This field is
@@ -41,7 +41,7 @@ class XChainCreateClaimID(Transaction):
     :meta hide-value:
     """
 
-    other_chain_source: str = REQUIRED  # type: ignore
+    other_chain_source: str = REQUIRED
     """
     The account that must send the corresponding ``XChainCommit`` transaction
     on the source chain. This field is required.

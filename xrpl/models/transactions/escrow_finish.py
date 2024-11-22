@@ -21,14 +21,14 @@ class EscrowFinish(Transaction):
     transaction, delivers XRP from a held payment to the recipient.
     """
 
-    owner: str = REQUIRED  # type: ignore
+    owner: str = REQUIRED
     """
     The source account that funded the Escrow. This field is required.
 
     :meta hide-value:
     """
 
-    offer_sequence: int = REQUIRED  # type: ignore
+    offer_sequence: int = REQUIRED
     """
     Transaction sequence (or Ticket number) of the EscrowCreate transaction
     that created the Escrow. This field is required.

@@ -19,7 +19,7 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class Clawback(Transaction):
     """The clawback transaction claws back issued funds from token holders."""
 
-    amount: IssuedCurrencyAmount = REQUIRED  # type: ignore
+    amount: IssuedCurrencyAmount = REQUIRED
     """
     The amount of currency to claw back. The issuer field is used for the token holder's
     address, from whom the tokens will be clawed back.

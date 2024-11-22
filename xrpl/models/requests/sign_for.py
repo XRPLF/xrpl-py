@@ -38,14 +38,14 @@ class SignFor(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.SIGN_FOR, init=False)
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    transaction: Transaction = REQUIRED  # type: ignore
+    transaction: Transaction = REQUIRED
     """
     This field is required.
 
