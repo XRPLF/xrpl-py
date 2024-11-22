@@ -148,9 +148,9 @@ class Payment(Transaction):
         elif self.deliver_min is not None and not self.has_flag(
             PaymentFlag.TF_PARTIAL_PAYMENT
         ):
-            errors[
-                "deliver_min"
-            ] = "A non-partial payment cannot have a `deliver_min` field."
+            errors["deliver_min"] = (
+                "A non-partial payment cannot have a `deliver_min` field."
+            )
 
         elif (
             is_xrp(self.amount)
@@ -165,8 +165,8 @@ class Payment(Transaction):
         # currency conversion errors
         elif self.account == self.destination:
             if self.send_max is None:
-                errors[
-                    "send_max"
-                ] = "A currency conversion requires a `send_max` value."
+                errors["send_max"] = (
+                    "A currency conversion requires a `send_max` value."
+                )
 
         return errors

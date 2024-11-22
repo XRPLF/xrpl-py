@@ -46,7 +46,7 @@ class GetAggregatePrice(Request):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if len(self.oracles) == 0:
-            errors[
-                "GetAggregatePrice"
-            ] = "Oracles array must contain at least one element"
+            errors["GetAggregatePrice"] = (
+                "Oracles array must contain at least one element"
+            )
         return errors

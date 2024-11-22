@@ -4,6 +4,7 @@ identifiers of the most recently closed ledger.
 (This ledger is not necessarily validated and
 immutable yet.)
 """
+
 from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import Request, RequestMethod

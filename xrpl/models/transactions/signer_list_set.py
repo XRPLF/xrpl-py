@@ -107,9 +107,9 @@ class SignerListSet(Transaction):
             )
 
         if not isinstance(self.signer_entries, list):
-            errors[
-                "signer_entries"
-            ] = "`signer_entries` must be a list of `SignerEntry` objects."
+            errors["signer_entries"] = (
+                "`signer_entries` must be a list of `SignerEntry` objects."
+            )
             return errors
 
         if (

@@ -91,9 +91,9 @@ class SignFor(Request):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if not self._has_only_one_seed():
-            errors[
-                "SignFor"
-            ] = "Must have only one of `secret`, `seed`, `seed_hex`, and `passphrase`."
+            errors["SignFor"] = (
+                "Must have only one of `secret`, `seed`, `seed_hex`, and `passphrase`."
+            )
 
         if self.secret is not None and self.key_type is not None:
             errors["key_type"] = "Must omit `key_type` if `secret` is provided."

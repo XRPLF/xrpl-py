@@ -63,8 +63,8 @@ class XChainCreateClaimID(Transaction):
         if self.other_chain_source != REQUIRED and not is_valid_classic_address(
             self.other_chain_source
         ):
-            errors[
-                "other_chain_source"
-            ] = "`other_chain_source` must be a valid XRPL address."
+            errors["other_chain_source"] = (
+                "`other_chain_source` must be a valid XRPL address."
+            )
 
         return errors

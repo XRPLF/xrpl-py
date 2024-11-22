@@ -1,4 +1,5 @@
 """Helper util functions for the models module."""
+
 from dataclasses import dataclass, is_dataclass
 from typing import Any, Dict, List, Type, TypeVar, cast
 

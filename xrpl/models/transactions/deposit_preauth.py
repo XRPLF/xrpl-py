@@ -42,9 +42,9 @@ class DepositPreauth(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.authorize and self.unauthorize:
-            errors[
-                "DepositPreauth"
-            ] = "One of authorize and unauthorize must be set, not both."
+            errors["DepositPreauth"] = (
+                "One of authorize and unauthorize must be set, not both."
+            )
 
         if not self.authorize and not self.unauthorize:
             errors["DepositPreauth"] = "One of authorize and unauthorize must be set."
