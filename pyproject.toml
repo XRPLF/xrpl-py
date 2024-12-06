@@ -48,7 +48,7 @@ sphinx-rtd-theme = "^3.0.2"
 aiounittest = "^1.4.0"
 coverage = "^7.2.7"
 Sphinx = "^7.1.2"
-poethepoet = "^0.29.0"
+poethepoet = "^0.30.0"
 
 [tool.isort]
 # Make sure that isort's settings line up with black
