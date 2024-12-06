@@ -22,6 +22,7 @@ class AccountObjectType(str, Enum):
     AMM = "amm"
     BRIDGE = "bridge"
     CHECK = "check"
+    CREDENTIAL = "credential"
     DEPOSIT_PREAUTH = "deposit_preauth"
     DID = "did"
     ESCROW = "escrow"

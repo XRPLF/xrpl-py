@@ -1,0 +1,76 @@
+"""Model for CredentialCreate transaction type."""
+
+from dataclasses import dataclass, field
+from typing import Dict, Optional
+
+from typing_extensions import Self
+
+from xrpl.models.required import REQUIRED
+from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.types import TransactionType
+from xrpl.models.utils import (
+    HEX_REGEX,
+    KW_ONLY_DATACLASS,
+    _get_credential_type_error,
+    require_kwargs_on_init,
+)
+
+_MAX_URI_LENGTH = 256
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+class CredentialCreate(Transaction):
+    """This transaction creates a Credential object. It must be sent by the issuer."""
+
+    transaction_type: TransactionType = field(
+        default=TransactionType.CREDENTIAL_CREATE,
+        init=False,
+    )
+
+    account: str = REQUIRED  # type: ignore
+    """
+    The issuer of the credential.
+    """
+    subject: str = REQUIRED  # type: ignore
+    """
+    The subject of the credential.
+    """
+
+    credential_type: str = REQUIRED  # type: ignore
+    """
+    A (hex-encoded) value to identify the type of credential from the issuer.
+    """
+    expiration: Optional[int] = None
+    """
+    Optional credential expiration.
+    """
+    uri: Optional[str] = None
+    """
+    Optional additional data about the credential (such as a link to the Verifiable
+    Credential document).
+    """
+
+    def _get_errors(self: Self) -> Dict[str, str]:
+        return {
+            key: value
+            for key, value in {
+                **super()._get_errors(),
+                "uri": self._get_uri_error(),
+                "credential_type": _get_credential_type_error(self.credential_type),
+            }.items()
+            if value is not None
+        }
+
+    def _get_uri_error(self: Self) -> Optional[str]:
+        if self.uri is None:
+            return None
+
+        errors = []
+        if len(self.uri) == 0:
+            errors.append("Length must be > 0.")
+        elif len(self.uri) > _MAX_URI_LENGTH:
+            errors.append(f"Length must be < {_MAX_URI_LENGTH}.")
+        if not HEX_REGEX.fullmatch(self.uri):
+            errors.append("Must be encoded in hex.")
+        return " ".join(errors) if errors else None
