@@ -24,6 +24,7 @@ from xrpl.models.transactions.amm_withdraw import (
     AMMWithdrawFlag,
     AMMWithdrawFlagInterface,
 )
+from xrpl.models.transactions.batch import Batch, BatchFlag, BatchFlagInterface
 from xrpl.models.transactions.check_cancel import CheckCancel
 from xrpl.models.transactions.check_cash import CheckCash
 from xrpl.models.transactions.check_create import CheckCreate
@@ -34,6 +35,7 @@ from xrpl.models.transactions.did_set import DIDSet
 from xrpl.models.transactions.escrow_cancel import EscrowCancel
 from xrpl.models.transactions.escrow_create import EscrowCreate
 from xrpl.models.transactions.escrow_finish import EscrowFinish
+from xrpl.models.transactions.ledger_state_fix import LedgerStateFix
 from xrpl.models.transactions.metadata import TransactionMetadata
 from xrpl.models.transactions.nftoken_accept_offer import NFTokenAcceptOffer
 from xrpl.models.transactions.nftoken_burn import NFTokenBurn
@@ -67,7 +69,13 @@ from xrpl.models.transactions.payment_channel_fund import PaymentChannelFund
 from xrpl.models.transactions.set_regular_key import SetRegularKey
 from xrpl.models.transactions.signer_list_set import SignerEntry, SignerListSet
 from xrpl.models.transactions.ticket_create import TicketCreate
-from xrpl.models.transactions.transaction import Memo, Signer, Transaction
+from xrpl.models.transactions.transaction import (
+    Memo,
+    Signer,
+    Transaction,
+    TransactionFlag,
+    TransactionFlagInterface,
+)
 from xrpl.models.transactions.trust_set import (
     TrustSet,
     TrustSetFlag,
@@ -109,6 +117,9 @@ __all__ = [
     "AMMWithdrawFlag",
     "AMMWithdrawFlagInterface",
     "AuthAccount",
+    "Batch",
+    "BatchFlag",
+    "BatchFlagInterface",
     "CheckCancel",
     "CheckCash",
     "CheckCreate",
@@ -119,6 +130,7 @@ __all__ = [
     "EscrowCancel",
     "EscrowCreate",
     "EscrowFinish",
+    "LedgerStateFix",
     "Memo",
     "NFTokenAcceptOffer",
     "NFTokenBurn",
@@ -149,6 +161,8 @@ __all__ = [
     "SignerListSet",
     "TicketCreate",
     "Transaction",
+    "TransactionFlag",
+    "TransactionFlagInterface",
     "TransactionMetadata",
     "TrustSet",
     "TrustSetFlag",

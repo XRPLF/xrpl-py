@@ -6,26 +6,33 @@ from tests.integration.it_utils import (
 )
 from tests.integration.reusable_values import DESTINATION as DESTINATION_WALLET
 from tests.integration.reusable_values import WALLET
+from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.asyncio.transaction import (
     XRPLReliableSubmissionException,
     autofill,
     autofill_and_sign,
     sign,
+    sign_and_submit,
 )
 from xrpl.asyncio.transaction import submit as submit_transaction_alias_async
 from xrpl.asyncio.transaction import submit_and_wait
-from xrpl.asyncio.transaction.main import (
-    _calculate_fee_per_transaction_type,
-    sign_and_submit,
-)
+from xrpl.asyncio.transaction.main import _calculate_fee_per_transaction_type
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.core.binarycodec.main import encode
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.exceptions import XRPLException
 from xrpl.models.requests import ServerState, Tx
-from xrpl.models.transactions import AccountDelete, AccountSet, EscrowFinish, Payment
+from xrpl.models.transactions import (
+    AccountDelete,
+    AccountSet,
+    Batch,
+    DepositPreauth,
+    EscrowFinish,
+    Payment,
+    TransactionFlag,
+)
 from xrpl.utils import xrp_to_drops
 
 ACCOUNT = WALLET.address
@@ -253,6 +260,39 @@ class TestTransaction(IntegrationTestCase):
         # the corresponding field in transaction is not populated
         self.assertIsNone(transaction.network_id)
         self.assertEqual(client.network_id, 1)
+
+    @test_async_and_sync(
+        globals(),
+        ["xrpl.transaction.autofill", "xrpl.account.get_next_valid_seq_number"],
+    )
+    async def test_batch_autofill(self, client):
+        tx = Batch(
+            account="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+            raw_transactions=[
+                DepositPreauth(
+                    account=WALLET.address,
+                    authorize="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+                ),
+                DepositPreauth(
+                    account=WALLET.address,
+                    authorize="rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+                ),
+            ],
+        )
+        transaction = await autofill(tx, client)
+        self.assertEqual(len(transaction.tx_ids), 2)
+
+        sequence = await get_next_valid_seq_number(WALLET.address, client)
+        for i in range(len(transaction.raw_transactions)):
+            raw_tx = transaction.raw_transactions[i]
+            self.assertTrue(raw_tx.has_flag(TransactionFlag.TF_INNER_BATCH_TXN))
+            self.assertEqual(raw_tx.sequence, sequence + i)
+            self.assertEqual(raw_tx.get_hash(), transaction.tx_ids[i])
+            self.assertIsNone(raw_tx.network_id)
+            self.assertIsNone(raw_tx.last_ledger_sequence)
+            self.assertEqual(raw_tx.fee, "0")
+            self.assertEqual(raw_tx.signing_pub_key, "")
+            self.assertEqual(raw_tx.txn_signature, "")
 
 
 class TestSubmitAndWait(IntegrationTestCase):
