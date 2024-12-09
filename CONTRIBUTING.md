@@ -90,17 +90,17 @@ poetry run poe test_unit
 To run integration tests, you'll need a standalone rippled node running with WS port `6006` and JSON RPC port `5005`. You can run a docker container for this:
 
 ```bash
-docker run -p 5005:5005 -p 6006:6006 --interactive -t --volume $PWD/.ci-config:/opt/ripple/etc/ --platform linux/amd64 rippleci/rippled:2.2.0-b3 /opt/ripple/bin/rippled -a --conf /opt/ripple/etc/rippled.cfg
+docker run -dit -p 5005:5005 -p 6006:6006 --volume $PWD/.ci-config/:/etc/opt/ripple/ --entrypoint bash rippleci/rippled:develop -c 'rippled -a'
 ```
 
 Breaking down the command:
 * `docker run -p 5005:5005 -p 6006:6006` starts a Docker container with an open port for admin JsonRPC and WebSocket requests.
-* `--interactive` allows you to interact with the container.
+* `-it` allows you to interact with the container.
+* `-d` runs the docker container in detached mode. The container will run in the background and developer gets back control of the terminal
 * `-t` starts a terminal in the container for you to send commands to.
-* `--volume $PWD/.ci-config:/config/` identifies the `rippled.cfg` and `validators.txt` to import. It must be an absolute path, so we use `$PWD` instead of `./`.
-* `xrpllabsofficial/xrpld:1.12.0` is an image that is regularly updated with the latest `rippled` releases and can be found here: https://github.com/WietseWind/docker-rippled
+* `--volume $PWD/.ci-config:/etc/opt/ripple/` mounts the directories as indicated. It must be an absolute path, so we use `$PWD` instead of `./`. `rippled` software searches the location `/etc/opt/ripple/` (default behavior) for the config files. Hence there is no need to explicitly specify the config-file path.
+* `rippleci/rippled:develop` is an image that is regularly updated with the latest build of the `develop` branch of `rippled`.
 * `-a` starts `rippled` in standalone mode
-* `--start` signals to start `rippled` with the specified amendments in `rippled.cfg` enabled immediately instead of voting for 2 weeks on them.
 
 Then to actually run the tests, run the command:
 
