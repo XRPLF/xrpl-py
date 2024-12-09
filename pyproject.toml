@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "xrpl-py"
-version = "3.0.0"
+version = "4.0.0"
 description = "A complete Python library for interacting with the XRP ledger"
 readme = "README.md"
 repository = "https://github.com/XRPLF/xrpl-py"
@@ -49,6 +49,9 @@ aiounittest = "^1.4.0"
 coverage = "^7.2.7"
 Sphinx = "^7.1.2"
 poethepoet = "^0.30.0"
+
+[tool.poetry.group.dev.dependencies]
+packaging = "^24.1"
 
 [tool.isort]
 # Make sure that isort's settings line up with black

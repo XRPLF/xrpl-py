@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 
 ### Added
+- Support for the Multi-Purpose Tokens (MPT) amendment (XLS-33)
 - Add `include_deleted` to ledger_entry request
 
 ### BREAKING CHANGE:

@@ -40,6 +40,8 @@ class LedgerEntryType(str, Enum):
     SIGNER_LIST = "signer_list"
     STATE = "state"
     TICKET = "ticket"
+    MPT_ISSUANCE = "mpt_issuance"
+    MPTOKEN = "mptoken"
     NFT_OFFER = "nft_offer"
 
 
@@ -106,6 +108,29 @@ class Escrow(BaseModel):
     """
 
     seq: int = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+class MPToken(BaseModel):
+    """
+    Required fields for requesting a MPToken Ledger Entry, if not querying by
+    object ID.
+    """
+
+    mpt_issuance_id: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+    account: str = REQUIRED  # type: ignore
     """
     This field is required.
 
@@ -249,6 +274,8 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     did: Optional[str] = None
     directory: Optional[Union[str, Directory]] = None
     escrow: Optional[Union[str, Escrow]] = None
+    mpt_issuance: Optional[str] = None
+    mptoken: Optional[Union[MPToken, str]] = None
     offer: Optional[Union[str, Offer]] = None
     oracle: Optional[Oracle] = None
     payment_channel: Optional[str] = None
@@ -280,6 +307,8 @@ class LedgerEntry(Request, LookupByLedgerRequest):
                 self.directory,
                 self.escrow,
                 self.offer,
+                self.mpt_issuance,
+                self.mptoken,
                 self.oracle,
                 self.payment_channel,
                 self.ripple_state,

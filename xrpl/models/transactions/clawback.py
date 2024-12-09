@@ -3,11 +3,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict
+from typing import Dict, Optional, Union
 
 from typing_extensions import Self
 
-from xrpl.models.amounts import IssuedCurrencyAmount, is_issued_currency, is_xrp
+from xrpl.models.amounts import (
+    IssuedCurrencyAmount,
+    MPTAmount,
+    is_issued_currency,
+    is_xrp,
+)
+from xrpl.models.amounts.amount import is_mpt
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -19,12 +25,18 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class Clawback(Transaction):
     """The clawback transaction claws back issued funds from token holders."""
 
-    amount: IssuedCurrencyAmount = REQUIRED  # type: ignore
+    amount: Union[IssuedCurrencyAmount, MPTAmount] = REQUIRED  # type: ignore
     """
     The amount of currency to claw back. The issuer field is used for the token holder's
     address, from whom the tokens will be clawed back.
 
     :meta hide-value:
+    """
+
+    holder: Optional[str] = None
+    """
+    Indicates the AccountID that the issuer wants to clawback. This field is only valid
+    for clawing back MPTs.
     """
 
     transaction_type: TransactionType = field(
@@ -40,7 +52,15 @@ class Clawback(Transaction):
             errors["amount"] = "``amount`` cannot be XRP."
 
         if is_issued_currency(self.amount):
-            if self.account == self.amount.issuer:
+            if self.holder is not None:
+                errors["amount"] = "Cannot have Holder for currency."
+            if self.account == self.amount.issuer:  # type:ignore
                 errors["amount"] = "Holder's address is wrong."
+
+        if is_mpt(self.amount):
+            if self.holder is None:
+                errors["amount"] = "Missing Holder."
+            if self.account == self.holder:
+                errors["amount"] = "Invalid Holder account."
 
         return errors
