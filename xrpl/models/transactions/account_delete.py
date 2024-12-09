@@ -23,7 +23,7 @@ class AccountDelete(Transaction):
     delete an account.
     """
 
-    destination: str = REQUIRED  # type: ignore
+    destination: str = REQUIRED
     """
     The address of the account to which to send any remaining XRP.
     This field is required.
