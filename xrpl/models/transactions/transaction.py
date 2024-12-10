@@ -10,6 +10,7 @@ from typing_extensions import Final, Self
 
 from xrpl.core.binarycodec import decode, encode
 from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.models.amounts.mpt_amount import MPTAmount
 from xrpl.models.base_model import ABBREVIATIONS, BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.flags import check_false_flag_definition, interface_to_flag_list
@@ -65,6 +66,8 @@ def _value_to_tx_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     if isinstance(value, list) and all(PathStep.is_dict_of_model(v) for v in value):
         return value
     if IssuedCurrencyAmount.is_dict_of_model(value):
+        return value
+    if MPTAmount.is_dict_of_model(value):
         return value
     if isinstance(value, dict):
         return transaction_json_to_binary_codec_form(value)

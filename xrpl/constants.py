@@ -33,6 +33,8 @@ https://xrpl.org/currency-formats.html#standard-currency-codes
 :meta private:
 """
 
+HEX_REGEX: Final[Pattern[str]] = re.compile(r"^[0-9A-Fa-f]+$")
+
 HEX_CURRENCY_REGEX: Final[Pattern[str]] = re.compile("[A-F0-9]{40}")
 """
 Matches hex-encoded currencies in the format allowed by XRPL.
