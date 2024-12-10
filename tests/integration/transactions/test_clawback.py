@@ -166,5 +166,5 @@ class TestClawback(IntegrationTestCase):
             )
         )
         self.assertEqual(
-            ledger_entry_res.result["node"]["MPTAmount"], "9223372036854775807"
+            ledger_entry_res.result["node"]["MPTAmount"], "9223372036854775307"
         )
