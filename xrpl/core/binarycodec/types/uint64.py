@@ -77,6 +77,12 @@ class UInt64(UInt):
             return cls(value_bytes)
 
         if isinstance(value, str):
+            # For debugging
+            print("field_name:", field_name)
+            print("value:", value)
+            print("field_name in _SPECIAL_FIELDS:", field_name in _SPECIAL_FIELDS)
+            # For debugging
+
             if field_name in _SPECIAL_FIELDS and _BASE10_REGEX.fullmatch(value):
                 # Convert base 10 string to hex string
                 value = hex(int(value))[2:]
