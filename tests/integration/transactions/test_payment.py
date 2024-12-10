@@ -4,11 +4,15 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from tests.integration.reusable_values import DESTINATION, WALLET
-from xrpl.models.amounts.mpt_amount import MPTAmount
+
+# from xrpl.models.amounts.mpt_amount import MPTAmount
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
+
+# from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
 from xrpl.models.transactions import Payment
-from xrpl.models.transactions.mptoken_issuance_create import MPTokenIssuanceCreate
+
+# from xrpl.models.transactions.mptoken_issuance_create import MPTokenIssuanceCreate
+# from xrpl.utils import int_to_hex
 
 
 class TestPayment(IntegrationTestCase):
@@ -138,44 +142,47 @@ class TestPayment(IntegrationTestCase):
             )
             self.assertFalse(response.is_successful())
 
-    @test_async_and_sync(globals())
-    async def test_mpt_payment(self, client):
-        tx = MPTokenIssuanceCreate(
-            account=WALLET.classic_address,
-            maximum_amount="9223372036854775807",  # "7fffffffffffffff"
-            asset_scale=2,
-        )
+    # TODO: uncomment test module when rippled Docker image supports MPT feature
+    # @test_async_and_sync(globals())
+    # async def test_mpt_payment(self, client):
+    #     tx = MPTokenIssuanceCreate(
+    #         account=WALLET.classic_address,
+    #         maximum_amount="9223372036854775807",  # "7fffffffffffffff"
+    #         asset_scale=2,
+    #     )
 
-        response = await sign_and_reliable_submission_async(
-            tx,
-            WALLET,
-            client,
-        )
+    #     response = await sign_and_reliable_submission_async(
+    #         tx,
+    #         WALLET,
+    #         client,
+    #     )
 
-        self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+    #     self.assertTrue(response.is_successful())
+    #     self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-        # confirm MPTokenIssuance ledger object was created
-        account_objects_response = await client.request(
-            AccountObjects(account=WALLET.address, type=AccountObjectType.MPT_ISSUANCE)
-        )
+    #     # confirm MPTokenIssuance ledger object was created
+    #     account_objects_response = await client.request(
+    #         AccountObjects(
+    #           account=WALLET.address, type=AccountObjectType.MPT_ISSUANCE
+    #       )
+    #     )
 
-        # subsequent integration tests (sync/async + json/websocket) add one
-        # MPTokenIssuance object to the account
-        account_objects = account_objects_response.result["account_objects"]
-        self.assertTrue(len(account_objects) > 0)
+    #     # subsequent integration tests (sync/async + json/websocket) add one
+    #     # MPTokenIssuance object to the account
+    #     account_objects = account_objects_response.result["account_objects"]
+    #     self.assertTrue(len(account_objects) > 0)
 
-        mpt_issuance_id = account_objects[0]["mpt_issuance_id"]
+    #     mpt_issuance_id = account_objects[0]["mpt_issuance_id"]
 
-        payment = Payment(
-            account=WALLET.address,
-            amount=MPTAmount(mpt_issuance_id=mpt_issuance_id, value="10"),
-            destination=DESTINATION.address,
-        )
+    #     payment = Payment(
+    #         account=WALLET.address,
+    #         amount=MPTAmount(mpt_issuance_id=mpt_issuance_id, value="10"),
+    #         destination=DESTINATION.address,
+    #     )
 
-        response = await sign_and_reliable_submission_async(
-            payment,
-            WALLET,
-            client,
-        )
-        self.assertTrue(response.is_successful())
+    #     response = await sign_and_reliable_submission_async(
+    #         payment,
+    #         WALLET,
+    #         client,
+    #     )
+    #     self.assertTrue(response.is_successful())
