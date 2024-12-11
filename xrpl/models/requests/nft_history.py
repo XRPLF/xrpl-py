@@ -2,6 +2,7 @@
 The `nft_history` method retreives a list of transactions that involved the
 specified NFToken.
 """
+
 from dataclasses import dataclass, field
 from typing import Any, Optional
 

@@ -2,6 +2,7 @@
 The book_offers method retrieves a list of offers, also known
 as the order book, between two currencies.
 """
+
 from dataclasses import dataclass, field
 from typing import Optional
 

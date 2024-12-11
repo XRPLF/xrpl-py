@@ -89,9 +89,9 @@ class XChainModifyBridge(Transaction):
             )
 
         if self.account not in [bridge.locking_chain_door, bridge.issuing_chain_door]:
-            errors[
-                "account"
-            ] = "account must be either locking chain door or issuing chain door."
+            errors["account"] = (
+                "account must be either locking chain door or issuing chain door."
+            )
 
         if self.signature_reward is not None and not self.signature_reward.isnumeric():
             errors["signature_reward"] = "`signature_reward` must be numeric."
@@ -100,16 +100,16 @@ class XChainModifyBridge(Transaction):
             self.min_account_create_amount is not None
             and bridge.locking_chain_issue != XRP()
         ):
-            errors[
-                "min_account_create_amount"
-            ] = "Cannot have MinAccountCreateAmount if bridge is IOU-IOU."
+            errors["min_account_create_amount"] = (
+                "Cannot have MinAccountCreateAmount if bridge is IOU-IOU."
+            )
 
         if (
             self.min_account_create_amount is not None
             and not self.min_account_create_amount.isnumeric()
         ):
-            errors[
-                "min_account_create_amount_value"
-            ] = "`min_account_create_amount` must be numeric."
+            errors["min_account_create_amount_value"] = (
+                "`min_account_create_amount` must be numeric."
+            )
 
         return errors
