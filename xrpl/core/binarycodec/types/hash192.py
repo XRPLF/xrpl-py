@@ -1,5 +1,5 @@
 """Codec for serializing and deserializing a hash field with a width
-of 160 bits (20 bytes).
+of 192 bits (24 bytes).
 `See Hash Fields <https://xrpl.org/serialization.html#hash-fields>`_
 """
 
