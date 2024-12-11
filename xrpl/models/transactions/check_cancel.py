@@ -1,4 +1,5 @@
 """Model for CheckCancel transaction type."""
+
 from dataclasses import dataclass, field
 
 from xrpl.models.required import REQUIRED

@@ -4,6 +4,7 @@ is authorized to send payments directly to another. See
 Deposit Authorization for information on how to require
 authorization to deliver money to your account.
 """
+
 from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod

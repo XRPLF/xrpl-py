@@ -76,9 +76,9 @@ class Tx(Request):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if not self._has_only_one_input():
-            errors[
-                "Tx"
-            ] = "Must have only one of `ctid` or `transaction`, but not both."
+            errors["Tx"] = (
+                "Must have only one of `ctid` or `transaction`, but not both."
+            )
         return errors
 
     def _has_only_one_input(self: Self) -> bool:

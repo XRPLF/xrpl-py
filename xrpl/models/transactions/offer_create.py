@@ -1,4 +1,5 @@
 """Model for OfferCreate transaction type."""
+
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional

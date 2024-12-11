@@ -1,4 +1,5 @@
 """Utils to get an XChainClaimID from metadata."""
+
 from xrpl.models.transactions.metadata import TransactionMetadata, isCreatedNode
 
 

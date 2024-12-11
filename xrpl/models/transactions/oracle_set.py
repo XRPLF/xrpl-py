@@ -130,17 +130,17 @@ class OracleSet(Transaction):
             errors["provider"] = "Field must have a length greater than 0."
 
         if self.provider is not None and len(self.provider) > MAX_ORACLE_PROVIDER:
-            errors[
-                "provider"
-            ] = f"Field must have a length less than or equal to {MAX_ORACLE_PROVIDER}."
+            errors["provider"] = (
+                f"Field must have a length less than or equal to {MAX_ORACLE_PROVIDER}."
+            )
 
         if self.uri is not None and len(self.uri) == 0:
             errors["uri"] = "Field must have a length greater than 0."
 
         if self.uri is not None and len(self.uri) > MAX_ORACLE_URI:
-            errors[
-                "uri"
-            ] = f"Field must have a length less than or equal to {MAX_ORACLE_URI}."
+            errors["uri"] = (
+                f"Field must have a length less than or equal to {MAX_ORACLE_URI}."
+            )
 
         # check on the last_update_time
         if self.last_update_time < EPOCH_OFFSET:
