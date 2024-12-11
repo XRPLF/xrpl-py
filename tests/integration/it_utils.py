@@ -119,7 +119,9 @@ async def fund_wallet_async(
         destination=wallet.address,
         amount=FUNDING_AMOUNT,
     )
-    await sign_and_submit_async(payment, client, MASTER_WALLET, check_fee=True)
+    await sign_and_submit_async(
+        payment, client, MASTER_WALLET, autofill=True, check_fee=True
+    )
     await client.request(LEDGER_ACCEPT_REQUEST)
 
 
