@@ -154,7 +154,6 @@ class TestLedgerEntry(TestCase):
             )
 
     def test_get_mpt_issuance(self):
-        # oracle_document_id is specified as uint
         req = LedgerEntry(
             mpt_issuance="rB6XJbxKx2oBSK1E3Hvh7KcZTCCBukWyhv",
         )
