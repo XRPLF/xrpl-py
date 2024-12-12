@@ -43,3 +43,20 @@ class TestUInt(TestCase):
         self.assertRaises(XRPLBinaryCodecException, UInt16.from_value, invalid_value)
         self.assertRaises(XRPLBinaryCodecException, UInt32.from_value, invalid_value)
         self.assertRaises(XRPLBinaryCodecException, UInt64.from_value, invalid_value)
+
+    def test_uint64_parsed_as_base10_for_MPT_amounts(self):
+        maximum_amount_hex_encoded = UInt64.from_value(
+            "9223372036854775807", "MaximumAmount"
+        )
+        outstanding_amount_hex_encoded = UInt64.from_value(
+            "9223372036854775807", "OutstandingAmount"
+        )
+        mpt_amount_hex_encoded = UInt64.from_value("9223372036854775807", "MPTAmount")
+        expect = UInt64.from_value("7FFFFFFFFFFFFFFF")
+        self.assertEqual(maximum_amount_hex_encoded, expect)
+        self.assertEqual(outstanding_amount_hex_encoded, expect)
+        self.assertEqual(mpt_amount_hex_encoded, expect)
+
+    def test_raises_invalid_hex_string(self):
+        invalid_hex_str = "9223372036854775807"
+        self.assertRaises(XRPLBinaryCodecException, UInt64.from_value, invalid_hex_str)
