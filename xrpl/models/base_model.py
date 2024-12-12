@@ -358,7 +358,6 @@ class BaseModel(ABC):
         return {
             key: self._to_dict_elem_no_nesting(getattr(self, key))
             for key in dataclass_fields
-            if getattr(self, key) is not None
         }
 
     def _to_dict_elem_no_nesting(self: BaseModel, elem: Any) -> Any:
