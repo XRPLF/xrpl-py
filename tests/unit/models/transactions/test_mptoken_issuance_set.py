@@ -46,5 +46,6 @@ class TestMPTokenIssuanceSet(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'flags': 'flag conflict'}",
+            "{'flags': \"flag conflict: both TF_MPT_LOCK and TF_MPT_UNLOCK can't be set"
+            '"}',
         )

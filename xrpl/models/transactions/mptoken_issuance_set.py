@@ -74,6 +74,8 @@ class MPTokenIssuanceSet(Transaction):
         if self.has_flag(MPTokenIssuanceSetFlag.TF_MPT_LOCK) and self.has_flag(
             MPTokenIssuanceSetFlag.TF_MPT_UNLOCK
         ):
-            errors["flags"] = "flag conflict"
+            errors["flags"] = (
+                "flag conflict: both TF_MPT_LOCK and TF_MPT_UNLOCK can't be set"
+            )
 
         return errors
