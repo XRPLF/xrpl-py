@@ -293,7 +293,7 @@ class BaseModel(ABC):
         return len(self._get_errors()) == 0
 
     def _check_type(
-        self: Self, attr: str, value: Any, expected_type: Type[Any]
+        self: Self, attr: str, value: Any, expected_type: Type[Any]  # noqa: ANN401
     ) -> Dict[str, str]:
         """
         Returns error dictionary if the type of `value` does not match the
