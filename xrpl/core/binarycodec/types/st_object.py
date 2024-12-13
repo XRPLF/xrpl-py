@@ -20,6 +20,7 @@ from xrpl.core.binarycodec.definitions import (
 )
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
+from xrpl.core.binarycodec.types.uint64 import SPECIAL_FIELDS
 
 _OBJECT_END_MARKER_BYTE: Final[bytes] = bytes([0xE1])
 _OBJECT_END_MARKER: Final[str] = "ObjectEndMarker"
@@ -188,9 +189,12 @@ class STObject(SerializedType):
 
         for field in sorted_keys:
             try:
-                associated_value = field.associated_type.from_value(
-                    xaddress_decoded[field.name]
+                args = (
+                    (xaddress_decoded[field.name], field.name)
+                    if field.name in SPECIAL_FIELDS
+                    else (xaddress_decoded[field.name],)
                 )
+                associated_value = field.associated_type.from_value(*args)
             except XRPLBinaryCodecException as e:
                 # mildly hacky way to get more context in the error
                 # provides the field name and not just the type it's expecting
