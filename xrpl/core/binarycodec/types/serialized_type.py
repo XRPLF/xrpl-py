@@ -16,7 +16,12 @@ class SerializedType(ABC):
     """The base class for all binary codec field types."""
 
     def __init__(self: Self, buffer: bytes = bytes()) -> None:
-        """Construct a new SerializedType."""
+        """
+        Construct a new SerializedType.
+
+        Args:
+            buffer: The buffer containing the data for the SerializedType.
+        """
         self.buffer = buffer
 
     @classmethod
@@ -86,5 +91,10 @@ class SerializedType(ABC):
         return self.buffer.hex().upper()
 
     def __len__(self: Self) -> int:
-        """Get the length of a SerializedType's bytes."""
+        """
+        Get the length of a SerializedType's bytes.
+
+        Returns:
+            The number of bytes.
+        """
         return len(self.buffer)

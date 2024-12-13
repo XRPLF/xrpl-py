@@ -49,7 +49,7 @@ jobs:
 
       - name: Lint
         run: |
-          poetry run flake8 xrpl tests snippets --darglint-ignore-regex="^_(.*)"
+          poetry run poe lint
 
       - name: Type-check
         run: |
