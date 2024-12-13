@@ -37,6 +37,22 @@ from xrpl.models.transactions.escrow_create import EscrowCreate
 from xrpl.models.transactions.escrow_finish import EscrowFinish
 from xrpl.models.transactions.ledger_state_fix import LedgerStateFix
 from xrpl.models.transactions.metadata import TransactionMetadata
+from xrpl.models.transactions.mptoken_authorize import (
+    MPTokenAuthorize,
+    MPTokenAuthorizeFlag,
+    MPTokenAuthorizeFlagInterface,
+)
+from xrpl.models.transactions.mptoken_issuance_create import (
+    MPTokenIssuanceCreate,
+    MPTokenIssuanceCreateFlag,
+    MPTokenIssuanceCreateFlagInterface,
+)
+from xrpl.models.transactions.mptoken_issuance_destroy import MPTokenIssuanceDestroy
+from xrpl.models.transactions.mptoken_issuance_set import (
+    MPTokenIssuanceSet,
+    MPTokenIssuanceSetFlag,
+    MPTokenIssuanceSetFlagInterface,
+)
 from xrpl.models.transactions.nftoken_accept_offer import NFTokenAcceptOffer
 from xrpl.models.transactions.nftoken_burn import NFTokenBurn
 from xrpl.models.transactions.nftoken_cancel_offer import NFTokenCancelOffer
@@ -132,6 +148,16 @@ __all__ = [
     "EscrowFinish",
     "LedgerStateFix",
     "Memo",
+    "MPTokenAuthorize",
+    "MPTokenAuthorizeFlag",
+    "MPTokenAuthorizeFlagInterface",
+    "MPTokenIssuanceCreate",
+    "MPTokenIssuanceCreateFlag",
+    "MPTokenIssuanceCreateFlagInterface",
+    "MPTokenIssuanceDestroy",
+    "MPTokenIssuanceSet",
+    "MPTokenIssuanceSetFlag",
+    "MPTokenIssuanceSetFlagInterface",
     "NFTokenAcceptOffer",
     "NFTokenBurn",
     "NFTokenCancelOffer",
