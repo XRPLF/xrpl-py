@@ -77,8 +77,8 @@ class DepositPreauth(Transaction):
         ]
         if sum(param is not None for param in params) > 1:
             errors["DepositPreauth"] = (
-                "DepositPreauth txn accepts exactly one input amongst authorize, "
-                + "unauthorize, authorize_credentials and unauthorize_credentials."
+                "DepositPreauth txn accepts exactly one input amongst `authorize`, "
+                + "`unauthorize`, `authorize_credentials` and `unauthorize_credentials`."
             )
 
         def _validate_credentials_length(
