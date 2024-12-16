@@ -11,7 +11,7 @@ from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import (
     HEX_REGEX,
     KW_ONLY_DATACLASS,
-    _get_credential_type_error,
+    get_credential_type_error,
     require_kwargs_on_init,
 )
 
@@ -32,6 +32,7 @@ class CredentialCreate(Transaction):
     """
     The issuer of the credential.
     """
+
     subject: str = REQUIRED  # type: ignore
     """
     The subject of the credential.
@@ -41,10 +42,12 @@ class CredentialCreate(Transaction):
     """
     A (hex-encoded) value to identify the type of credential from the issuer.
     """
+
     expiration: Optional[int] = None
     """
     Optional credential expiration.
     """
+
     uri: Optional[str] = None
     """
     Optional additional data about the credential (such as a link to the Verifiable
@@ -57,7 +60,7 @@ class CredentialCreate(Transaction):
             for key, value in {
                 **super()._get_errors(),
                 "uri": self._get_uri_error(),
-                "credential_type": _get_credential_type_error(self.credential_type),
+                "credential_type": get_credential_type_error(self.credential_type),
             }.items()
             if value is not None
         }

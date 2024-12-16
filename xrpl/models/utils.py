@@ -14,8 +14,21 @@ HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
 # bytes, every byte requires 2 hex characters for representation
 _MAX_CREDENTIAL_LENGTH: Final[int] = 64 * 2
 
+MAX_CREDENTIAL_ARRAY_LENGTH = 8
 
-def _get_credential_type_error(credential_type: str) -> Optional[str]:
+
+def get_credential_type_error(credential_type: str) -> Optional[str]:
+    """
+    Utility function for validating the CredentialType field in all
+    Credential-related transactions.
+
+    Args:
+        credential_type: A (hex-encoded) value to identify the type of credential from
+            the issuer.
+
+    Returns:
+        Errors, if any, during validation of credential_type field
+    """
     errors = []
     # credential_type is a required field in this transaction
     if len(credential_type) == 0:
@@ -41,9 +54,10 @@ def validate_credential_ids(credential_list: Optional[List[str]]) -> Dict[str, s
 
     if len(credential_list) == 0:
         errors["credential_ids"] = "CredentialIDs list cannot be empty."
-    elif len(credential_list) > 8:
+    elif len(credential_list) > MAX_CREDENTIAL_ARRAY_LENGTH:
         errors["credential_ids"] = (
-            "CredentialIDs list cannot have more than 8 elements."
+            f"CredentialIDs list cannot have more than {MAX_CREDENTIAL_ARRAY_LENGTH}"
+            + " elements."
         )
 
     if len(credential_list) != len(set(credential_list)):

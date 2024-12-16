@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import PaymentChannelClaim
+from xrpl.models.utils import MAX_CREDENTIAL_ARRAY_LENGTH
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 
@@ -35,13 +36,17 @@ class TestPaymentChannelClaim(TestCase):
                 "AF50290064",
                 public_key="023693F15967AE357D0327974AD46FE3C127113B1110D6044FD41E72368"
                 "9F81CC6",
-                credential_ids=["credential_index_" + str(i) for i in range(9)],
+                credential_ids=[
+                    "credential_index_" + str(i)
+                    for i in range(MAX_CREDENTIAL_ARRAY_LENGTH + 1)
+                ],
             )
 
         self.assertEqual(
             err.exception.args[0],
-            "{'credential_ids': 'CredentialIDs list cannot have more than 8 elements."
-            + "'}",
+            "{'credential_ids': 'CredentialIDs list cannot have more than "
+            + str(MAX_CREDENTIAL_ARRAY_LENGTH)
+            + " elements.'}",
         )
 
     def test_creds_list_duplicates(self):

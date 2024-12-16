@@ -10,7 +10,7 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import (
     KW_ONLY_DATACLASS,
-    _get_credential_type_error,
+    get_credential_type_error,
     require_kwargs_on_init,
 )
 
@@ -45,7 +45,7 @@ class CredentialDelete(Transaction):
             key: value
             for key, value in {
                 **super()._get_errors(),
-                "credential_type": _get_credential_type_error(self.credential_type),
+                "credential_type": get_credential_type_error(self.credential_type),
             }.items()
             if value is not None
         }

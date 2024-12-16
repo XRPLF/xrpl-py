@@ -10,7 +10,7 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import (
     KW_ONLY_DATACLASS,
-    _get_credential_type_error,
+    get_credential_type_error,
     require_kwargs_on_init,
 )
 
@@ -45,7 +45,7 @@ class CredentialAccept(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if (
-            cred_type_error := _get_credential_type_error(self.credential_type)
+            cred_type_error := get_credential_type_error(self.credential_type)
         ) is not None:
             errors["credential_type"] = cred_type_error
         return errors

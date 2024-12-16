@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AccountDelete
+from xrpl.models.utils import MAX_CREDENTIAL_ARRAY_LENGTH
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _DESTINATION = "rf7HPydP4ihkFkSRHWFq34b4SXRc7GvPCR"
@@ -15,12 +16,17 @@ class TestAccountDelete(TestCase):
             AccountDelete(
                 account=_ACCOUNT,
                 destination=_DESTINATION,
-                credential_ids=["credential_index_" + str(i) for i in range(9)],
+                credential_ids=[
+                    "credential_index_" + str(i)
+                    for i in range(MAX_CREDENTIAL_ARRAY_LENGTH + 1)
+                ],
             )
 
         self.assertEqual(
             err.exception.args[0],
-            "{'credential_ids': 'CredentialIDs list cannot have more than 8 elements."
+            "{'credential_ids': 'CredentialIDs list cannot have more than "
+            + str(MAX_CREDENTIAL_ARRAY_LENGTH)
+            + " elements."
             + "'}",
         )
 

@@ -11,7 +11,11 @@ from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+from xrpl.models.utils import (
+    KW_ONLY_DATACLASS,
+    MAX_CREDENTIAL_ARRAY_LENGTH,
+    require_kwargs_on_init,
+)
 
 
 @require_kwargs_on_init
@@ -86,9 +90,11 @@ class DepositPreauth(Transaction):
         ) -> None:
             if len(credentials) == 0:
                 errors["DepositPreauth"] = f"{field_name} list cannot be empty. "
-            elif len(credentials) > 8:
+            elif len(credentials) > MAX_CREDENTIAL_ARRAY_LENGTH:
                 errors["DepositPreauth"] = (
-                    f"{field_name} list cannot have more than 8 elements. "
+                    f"{field_name} list cannot have more than "
+                    + str(MAX_CREDENTIAL_ARRAY_LENGTH)
+                    + " elements. "
                 )
 
             if len(credentials) != len(set(credentials)):
