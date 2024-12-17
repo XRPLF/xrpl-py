@@ -158,8 +158,7 @@ class TestPayment(TestCase):
 
         self.assertEqual(
             err.exception.args[0],
-            "{'credential_ids': 'CredentialIDs list cannot have more than 8 "
-            + "elements.'}",
+            "{'credential_ids': 'CredentialIDs list cannot exceed 8 elements.'}",
         )
 
     def test_credentials_array_duplicates(self):
