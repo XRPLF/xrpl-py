@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from xrpl.models import XRP, LedgerEntry, XChainBridge
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.requests.ledger_entry import MPToken, Oracle, RippleState
+from xrpl.models.requests.ledger_entry import Credential, MPToken, Oracle, RippleState
 
 
 class TestLedgerEntry(TestCase):
@@ -17,6 +17,23 @@ class TestLedgerEntry(TestCase):
             account_root="hello",
         )
         self.assertTrue(req.is_valid())
+
+    def test_query_credential_object_id(self):
+        self.assertTrue(
+            LedgerEntry(
+                credential="EA85602C1B41F6F1F5E83C0E6B87142FB8957B"
+                "D209469E4CC347BA2D0C26F66A"
+            ).is_valid()
+        )
+
+    def test_query_credential_by_object_params(self):
+        self.assertTrue(
+            LedgerEntry(
+                credential=Credential(
+                    subject="rSubject", issuer="rIssuer", credential_type="ABCDE"
+                )
+            ).is_valid()
+        )
 
     def test_has_only_directory_is_valid(self):
         req = LedgerEntry(

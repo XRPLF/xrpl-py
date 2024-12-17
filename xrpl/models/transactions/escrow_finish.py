@@ -3,14 +3,18 @@
 from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from typing_extensions import Self
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+from xrpl.models.utils import (
+    KW_ONLY_DATACLASS,
+    require_kwargs_on_init,
+    validate_credential_ids,
+)
 
 
 @require_kwargs_on_init
@@ -55,6 +59,10 @@ class EscrowFinish(Transaction):
         init=False,
     )
 
+    credential_ids: Optional[List[str]] = None
+    """Credentials associated with sender of this transaction. The credentials included
+    must not be expired."""
+
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.condition and not self.fulfillment:
@@ -66,4 +74,5 @@ class EscrowFinish(Transaction):
                 "If fulfillment is specified, condition must also be specified."
             )
 
+        errors.update(validate_credential_ids(self.credential_ids))
         return errors
