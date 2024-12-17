@@ -20,7 +20,7 @@ MAX_CREDENTIAL_ARRAY_LENGTH = 8
 def get_credential_type_error(credential_type: str) -> Optional[str]:
     """
     Utility function for validating the CredentialType field in all
-    Credential-related transactions.
+    transactions related to Credential.
 
     Args:
         credential_type: A (hex-encoded) value to identify the type of credential from
