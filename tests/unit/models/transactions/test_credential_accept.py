@@ -44,7 +44,7 @@ class TestCredentialAccept(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'credential_type': 'Length must be > 0.'}",
+            "{'credential_type': 'cannot be an empty string.'}",
         )
 
     def test_cred_type_field_not_hex(self):

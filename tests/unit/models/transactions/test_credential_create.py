@@ -30,7 +30,7 @@ class TestCredentialCreate(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'uri': 'Length cannot exceed 128.'}",
+            "{'uri': 'Length cannot exceed 256 characters.'}",
         )
 
     def test_uri_field_empty(self):

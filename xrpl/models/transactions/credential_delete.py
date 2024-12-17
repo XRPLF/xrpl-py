@@ -38,18 +38,16 @@ class CredentialDelete(Transaction):
     """A (hex-encoded) value to identify the type of credential from the issuer."""
 
     def _get_errors(self: Self) -> Dict[str, str]:
-        errors: Dict[str, str] = {
-            key: value
-            for key, value in {
-                **super()._get_errors(),
-                "credential_type": get_credential_type_error(self.credential_type),
-            }.items()
-            if value is not None
-        }
+        errors = super()._get_errors()
+
+        if (
+            cred_type_err := get_credential_type_error(self.credential_type)
+        ) is not None:
+            errors["credential_type"] = cred_type_err
 
         if not self.subject and not self.issuer:
-            errors["invalid_params"] = (
-                "CredentialDelete transaction: Neither `issuer` nor `subject` provided."
+            errors["CredentialDelete"] = (
+                "either `issuer` or `subject` must be provided."
             )
 
         return errors

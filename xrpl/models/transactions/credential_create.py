@@ -55,15 +55,17 @@ class CredentialCreate(Transaction):
     """
 
     def _get_errors(self: Self) -> Dict[str, str]:
-        return {
-            key: value
-            for key, value in {
-                **super()._get_errors(),
-                "uri": self._get_uri_error(),
-                "credential_type": get_credential_type_error(self.credential_type),
-            }.items()
-            if value is not None
-        }
+        errors = super()._get_errors()
+
+        if (uri_error := self._get_uri_error()) is not None:
+            errors["uri"] = uri_error
+
+        if (
+            cred_type_error := get_credential_type_error(self.credential_type)
+        ) is not None:
+            errors["credential_type"] = cred_type_error
+
+        return errors
 
     def _get_uri_error(self: Self) -> Optional[str]:
         if self.uri is None:
@@ -71,7 +73,7 @@ class CredentialCreate(Transaction):
 
         errors = []
         if len(self.uri) == 0:
-            errors.append("Length cannot be an empty string.")
+            errors.append("cannot be an empty string.")
         elif len(self.uri) > _MAX_URI_LENGTH:
             errors.append(f"Length cannot exceed {_MAX_URI_LENGTH} characters.")
         if not HEX_REGEX.fullmatch(self.uri):
