@@ -56,7 +56,7 @@ def validate_credential_ids(credential_list: Optional[List[str]]) -> Dict[str, s
         errors["credential_ids"] = "CredentialIDs list cannot be empty."
     elif len(credential_list) > MAX_CREDENTIAL_ARRAY_LENGTH:
         errors["credential_ids"] = (
-            f"CredentialIDs list cannot have more than {MAX_CREDENTIAL_ARRAY_LENGTH}"
+            f"CredentialIDs list cannot exceed {MAX_CREDENTIAL_ARRAY_LENGTH}"
             + " elements."
         )
 
