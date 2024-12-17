@@ -23,7 +23,7 @@ def get_credential_type_error(credential_type: str) -> Optional[str]:
     transactions related to Credential.
 
     Args:
-        credential_type: A (hex-encoded) value to identify the type of credential from
+        credential_type: A hex-encoded value to identify the type of credential from
             the issuer.
 
     Returns:
