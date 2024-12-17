@@ -80,14 +80,14 @@ class TestDepositPreauth(TestCase):
 
     def test_auth_cred_duplicates(self):
         with self.assertRaises(XRPLModelException) as error:
+            sample_credential = Credential(
+                issuer="SampleIssuer", credential_type="SampleCredType"
+            )
             DepositPreauth(
                 account=_ACCOUNT,
                 fee=_FEE,
                 sequence=_SEQUENCE,
-                authorize_credentials=[
-                    "EA85602C1B41F6F1F5E83C0E6B87142FB8957BD209469E4CC347BA2D0C26F66A",
-                    "EA85602C1B41F6F1F5E83C0E6B87142FB8957BD209469E4CC347BA2D0C26F66A",
-                ],
+                authorize_credentials=[sample_credential, sample_credential],
             )
 
         self.assertEqual(
