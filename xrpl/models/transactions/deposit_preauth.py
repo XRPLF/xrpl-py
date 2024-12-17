@@ -92,7 +92,7 @@ class DepositPreauth(Transaction):
                 errors["DepositPreauth"] = f"{field_name} list cannot be empty. "
             elif len(credentials) > MAX_CREDENTIAL_ARRAY_LENGTH:
                 errors["DepositPreauth"] = (
-                    f"{field_name} list cannot have more than "
+                    f"{field_name} list cannot exceed "
                     + str(MAX_CREDENTIAL_ARRAY_LENGTH)
                     + " elements. "
                 )
@@ -127,4 +127,4 @@ class Credential(NestedModel):
     """The issuer of the credential."""
 
     credential_type: str = REQUIRED  # type: ignore
-    """A (hex-encoded) value to identify the type of credential from the issuer."""
+    """A hex-encoded value to identify the type of credential from the issuer."""

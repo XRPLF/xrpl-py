@@ -46,7 +46,7 @@ class TestPaymentChannelClaim(TestCase):
 
         self.assertEqual(
             err.exception.args[0],
-            "{'credential_ids': 'CredentialIDs list cannot have more than "
+            "{'credential_ids': 'CredentialIDs list cannot exceed "
             + str(MAX_CREDENTIAL_ARRAY_LENGTH)
             + " elements.'}",
         )

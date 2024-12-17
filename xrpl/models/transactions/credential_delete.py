@@ -23,9 +23,6 @@ class CredentialDelete(Transaction):
     transaction_type: TransactionType = field(
         default=TransactionType.CREDENTIAL_DELETE, init=False
     )
-    """
-    The transaction type (CredentialDelete).
-    """
 
     account: str = REQUIRED  # type: ignore
     """The transaction submitter."""

@@ -73,7 +73,7 @@ class TestDepositPreauth(TestCase):
         self.assertEqual(
             error.exception.args[0],
             "{'DepositPreauth': '"
-            + "AuthorizeCredentials list cannot have more than "
+            + "AuthorizeCredentials list cannot exceed "
             + str(MAX_CREDENTIAL_ARRAY_LENGTH)
             + " elements. '}",
         )
@@ -132,7 +132,7 @@ class TestDepositPreauth(TestCase):
         self.assertEqual(
             error.exception.args[0],
             "{'DepositPreauth': '"
-            + "UnauthorizeCredentials list cannot have more than "
+            + "UnauthorizeCredentials list cannot exceed "
             + str(MAX_CREDENTIAL_ARRAY_LENGTH)
             + " elements. '}",
         )
