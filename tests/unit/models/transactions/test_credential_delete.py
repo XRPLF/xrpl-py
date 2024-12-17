@@ -4,24 +4,24 @@ from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions.credential_delete import CredentialDelete
 from xrpl.utils import str_to_hex
 
-_ACCOUNT_ISSUER = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
-_ACCOUNT_SUBJECT = "rNdY9XDnQ4Dr1EgefwU3CBRuAjt3sAutGg"
+_ISSUER = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
+_SUBJECT = "rNdY9XDnQ4Dr1EgefwU3CBRuAjt3sAutGg"
 _VALID_CREDENTIAL_TYPE = str_to_hex("Passport")
 
 
 class TestCredentialDelete(TestCase):
     def test_valid(self):
         tx = CredentialDelete(
-            issuer=_ACCOUNT_ISSUER,
-            account=_ACCOUNT_SUBJECT,
+            issuer=_ISSUER,
+            account=_SUBJECT,
             credential_type=_VALID_CREDENTIAL_TYPE,
         )
         self.assertTrue(tx.is_valid())
 
         # alternative specification of the CredentialDelete transaction
         tx = CredentialDelete(
-            account=_ACCOUNT_ISSUER,
-            subject=_ACCOUNT_SUBJECT,
+            account=_ISSUER,
+            subject=_SUBJECT,
             credential_type=_VALID_CREDENTIAL_TYPE,
         )
         self.assertTrue(tx.is_valid())
@@ -29,7 +29,7 @@ class TestCredentialDelete(TestCase):
     def test_unspecified_subject_and_issuer(self):
         with self.assertRaises(XRPLModelException) as error:
             CredentialDelete(
-                account=_ACCOUNT_SUBJECT,
+                account=_SUBJECT,
                 credential_type=str_to_hex("DMV_ID"),
             )
         self.assertEqual(
@@ -41,8 +41,8 @@ class TestCredentialDelete(TestCase):
     def test_cred_type_field_too_long(self):
         with self.assertRaises(XRPLModelException) as error:
             CredentialDelete(
-                issuer=_ACCOUNT_ISSUER,
-                account=_ACCOUNT_SUBJECT,
+                issuer=_ISSUER,
+                account=_SUBJECT,
                 credential_type=str_to_hex("A" * 65),
             )
         self.assertEqual(
@@ -53,8 +53,8 @@ class TestCredentialDelete(TestCase):
     def test_cred_type_field_empty(self):
         with self.assertRaises(XRPLModelException) as error:
             CredentialDelete(
-                issuer=_ACCOUNT_ISSUER,
-                account=_ACCOUNT_SUBJECT,
+                issuer=_ISSUER,
+                account=_SUBJECT,
                 credential_type="",
             )
         self.assertEqual(
@@ -65,8 +65,8 @@ class TestCredentialDelete(TestCase):
     def test_cred_type_field_not_hex(self):
         with self.assertRaises(XRPLModelException) as error:
             CredentialDelete(
-                issuer=_ACCOUNT_ISSUER,
-                account=_ACCOUNT_SUBJECT,
+                issuer=_ISSUER,
+                account=_SUBJECT,
                 credential_type="Passport",
             )
         self.assertEqual(
