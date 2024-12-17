@@ -32,7 +32,7 @@ def get_credential_type_error(credential_type: str) -> Optional[str]:
     errors = []
     # credential_type is a required field in this transaction
     if len(credential_type) == 0:
-        errors.append("Length must be > 0.")
+        errors.append("Length cannot be an empty string.")
     elif len(credential_type) > _MAX_CREDENTIAL_LENGTH:
         errors.append(f"Length cannot exceed {_MAX_CREDENTIAL_LENGTH}.")
     if not HEX_REGEX.fullmatch(credential_type):
