@@ -189,4 +189,3 @@ class TestPayment(TestCase):
         }
         tx = Payment(**transaction_dict)
         self.assertTrue(tx.is_valid())
-
