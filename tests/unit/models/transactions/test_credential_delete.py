@@ -34,8 +34,7 @@ class TestCredentialDelete(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'invalid_params': 'CredentialDelete transaction: Neither `issuer` nor"
-            + " `subject` provided.'}",
+            "{'CredentialDelete': 'either `issuer` or `subject` must be provided.'}",
         )
 
     # invalid inputs to the credential_type field
