@@ -43,7 +43,7 @@ class TestCredentialCreate(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'uri': 'Length must be > 0.'}",
+            "{'uri': 'cannot be an empty string.'}",
         )
 
     def test_uri_field_not_hex(self):
