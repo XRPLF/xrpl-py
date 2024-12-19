@@ -6,13 +6,15 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Optional
 
-from typing_extensions import Self
+from typing_extensions import Final, Self
 
 from xrpl.constants import HEX_REGEX
 from xrpl.models.flags import FlagInterface
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
+
+_MAX_TRANSFER_FEE: Final[int] = 50000
 
 
 class MPTokenIssuanceCreateFlag(int, Enum):
@@ -95,6 +97,16 @@ class MPTokenIssuanceCreate(Transaction):
 
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
+
+        if self.transfer_fee is not None:
+            if not self.has_flag(MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER):
+                errors["transfer_fee"] = (
+                    "Field cannot be provided without enabling tfMPTCanTransfer flag."
+                )
+            if self.transfer_fee < 0 or self.transfer_fee > _MAX_TRANSFER_FEE:
+                errors["transfer_fee"] = "Field must be between 0 and " + str(
+                    _MAX_TRANSFER_FEE
+                )
 
         if self.mptoken_metadata is not None:
             if len(self.mptoken_metadata) == 0:
