@@ -40,12 +40,12 @@ class CredentialCreate(Transaction):
 
     expiration: Optional[int] = None
     """
-    Optional credential expiration.
+    The credential expiration.
     """
 
     uri: Optional[str] = None
     """
-    Optional additional data about the credential (such as a link to the Verifiable
+    Additional data about the credential (such as a link to the Verifiable
     Credential document).
     """
 
