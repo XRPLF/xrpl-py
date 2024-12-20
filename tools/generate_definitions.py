@@ -46,7 +46,7 @@ transactions_file = _read_file(transactions_macro_fn)
 # Translate from rippled string format to what the binary codecs expect
 def _translate(inp: str) -> str:
     if re.match(r"^UINT", inp):
-        if re.search(r"256|160|128", inp):
+        if re.search(r"256|160|128|192", inp):
             return inp.replace("UINT", "Hash")
         else:
             return inp.replace("UINT", "UInt")
