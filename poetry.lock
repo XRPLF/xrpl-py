@@ -939,18 +939,37 @@ files = [
 
 [[package]]
 name = "pydoclint"
-version = "0.5.7"
+version = "0.5.11"
 description = "A Python docstring linter that checks arguments, returns, yields, and raises sections"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pydoclint-0.5.7-py2.py3-none-any.whl", hash = "sha256:22561b8f876b7bd3d4966a3b7fe27bfdbfa41fa50d0719f13b08844a39e2717c"},
-    {file = "pydoclint-0.5.7.tar.gz", hash = "sha256:d2938efc95233205822bebe5da5c8e1c4796da09988a2a73c2d6b63cef4577a6"},
+    {file = "pydoclint-0.5.11-py2.py3-none-any.whl", hash = "sha256:7ea595c80a3f959defeed08752877b7b85bb4a8197df71dd79863258214b48b4"},
+    {file = "pydoclint-0.5.11.tar.gz", hash = "sha256:abd3e428b1b8a318cafabcbe6355d4ccf27733267b9f2645e0fb967503f5ba8b"},
 ]
 
 [package.dependencies]
 click = ">=8.1.0"
-docstring-parser-fork = ">=0.0.9"
+docstring_parser_fork = ">=0.0.9"
+tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
+
+[package.extras]
+flake8 = ["flake8 (>=4)"]
+
+[[package]]
+name = "pydoclint"
+version = "0.5.13"
+description = "A Python docstring linter that checks arguments, returns, yields, and raises sections"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "pydoclint-0.5.13-py2.py3-none-any.whl", hash = "sha256:ccdc587ee3de15adce1b962ff93bdf8740cfa9a2117607be28f24723e108956d"},
+    {file = "pydoclint-0.5.13.tar.gz", hash = "sha256:5774acaeeb488ace1a9488bc10175025c2006379c237eb062e2ede9a206c121a"},
+]
+
+[package.dependencies]
+click = ">=8.1.0"
+docstring_parser_fork = ">=0.0.9"
 tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
 
 [package.extras]
@@ -1542,4 +1561,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "4e82534bd75fb2b7aa655f0d236a690f3b0bb1961a5b42c6366916f0ae28fdb2"
+content-hash = "1f062dc4f6974d191c273d23dfbeab80b5b2fde0f04e7ab692fb7ae94e57d2ee"
