@@ -25,6 +25,8 @@ class AccountObjectType(str, Enum):
     DEPOSIT_PREAUTH = "deposit_preauth"
     DID = "did"
     ESCROW = "escrow"
+    MPT_ISSUANCE = "mpt_issuance"
+    MPTOKEN = "mptoken"
     NFT_OFFER = "nft_offer"
     OFFER = "offer"
     ORACLE = "oracle"
