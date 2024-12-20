@@ -35,7 +35,7 @@ class CredentialDelete(Transaction):
     """The issuer of the credential. If omitted, Account is assumed to be the issuer."""
 
     credential_type: str = REQUIRED  # type: ignore
-    """A (hex-encoded) value to identify the type of credential from the issuer."""
+    """A hex-encoded value to identify the type of credential from the issuer."""
 
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
