@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for the Multi-Purpose Tokens (MPT) amendment (XLS-33)
 - Add `include_deleted` to ledger_entry request
+- Add support for XLS-70d (Credentials)
 
 ### BREAKING CHANGE:
 - Remove Python 3.7 support to fix dependency installation and use 3.8 as new default.
