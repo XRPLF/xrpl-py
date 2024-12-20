@@ -23,11 +23,6 @@ class CredentialAccept(Transaction):
     it has been transferred/accepted.
     """
 
-    transaction_type: TransactionType = field(
-        default=TransactionType.CREDENTIAL_ACCEPT,
-        init=False,
-    )
-
     account: str = REQUIRED  # type: ignore
     """
     The subject of the credential.
@@ -42,6 +37,11 @@ class CredentialAccept(Transaction):
     """
     A hex-encoded value to identify the type of credential from the issuer.
     """
+
+    transaction_type: TransactionType = field(
+        default=TransactionType.CREDENTIAL_ACCEPT,
+        init=False,
+    )
 
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()

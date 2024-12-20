@@ -20,10 +20,6 @@ from xrpl.models.utils import (
 class CredentialDelete(Transaction):
     """This transaction deletes a Credential object."""
 
-    transaction_type: TransactionType = field(
-        default=TransactionType.CREDENTIAL_DELETE, init=False
-    )
-
     account: str = REQUIRED  # type: ignore
     """The transaction submitter."""
 
@@ -36,6 +32,10 @@ class CredentialDelete(Transaction):
 
     credential_type: str = REQUIRED  # type: ignore
     """A hex-encoded value to identify the type of credential from the issuer."""
+
+    transaction_type: TransactionType = field(
+        default=TransactionType.CREDENTIAL_DELETE, init=False
+    )
 
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()

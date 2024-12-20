@@ -23,11 +23,6 @@ _MAX_URI_LENGTH = 256
 class CredentialCreate(Transaction):
     """This transaction creates a Credential object. It must be sent by the issuer."""
 
-    transaction_type: TransactionType = field(
-        default=TransactionType.CREDENTIAL_CREATE,
-        init=False,
-    )
-
     account: str = REQUIRED  # type: ignore
     """
     The issuer of the credential.
@@ -53,6 +48,11 @@ class CredentialCreate(Transaction):
     Optional additional data about the credential (such as a link to the Verifiable
     Credential document).
     """
+
+    transaction_type: TransactionType = field(
+        default=TransactionType.CREDENTIAL_CREATE,
+        init=False,
+    )
 
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()

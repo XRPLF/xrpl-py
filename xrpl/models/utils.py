@@ -10,11 +10,11 @@ from xrpl.models.exceptions import XRPLModelException
 
 HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
 
+MAX_CREDENTIAL_ARRAY_LENGTH = 8
+
 # Credentials are represented in hex. Whilst they are allowed a maximum length of 64
 # bytes, every byte requires 2 hex characters for representation
 _MAX_CREDENTIAL_LENGTH: Final[int] = 128
-
-MAX_CREDENTIAL_ARRAY_LENGTH = 8
 
 
 def get_credential_type_error(credential_type: str) -> Optional[str]:
