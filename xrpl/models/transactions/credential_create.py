@@ -76,6 +76,7 @@ class CredentialCreate(Transaction):
             errors.append("cannot be an empty string.")
         elif len(self.uri) > _MAX_URI_LENGTH:
             errors.append(f"Length cannot exceed {_MAX_URI_LENGTH} characters.")
+            
         if not HEX_REGEX.fullmatch(self.uri):
             errors.append("Must be encoded in hex.")
         return " ".join(errors) if errors else None
