@@ -66,8 +66,8 @@ class DepositPreauth(Transaction):
             and self.unauthorize_credentials is None
         ):
             errors["DepositPreauth"] = (
-                "Exactly one input parameter amongst authorize, unauthorize, "
-                + "authorize_credentials or unauthorize_credentials must be set. It is "
+                "Exactly one field must be set for either authorize, unauthorize, "
+                + "authorize_credentials or unauthorize_credentials. It is "
                 + "invalid if none of the params are specified."
             )
 
