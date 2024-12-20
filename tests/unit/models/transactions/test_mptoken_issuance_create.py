@@ -14,10 +14,51 @@ class TestMPTokenIssuanceCreate(TestCase):
             maximum_amount="9223372036854775807",  # "7fffffffffffffff"
             asset_scale=2,
             transfer_fee=1,
-            flags=2,
+            flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK
+            | MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
             mptoken_metadata=str_to_hex("http://xrpl.org"),
         )
         self.assertTrue(tx.is_valid())
+
+    def test_transfer_fee_without_can_transfer_flag(self):
+        with self.assertRaises(XRPLModelException) as error:
+            MPTokenIssuanceCreate(
+                account=_ACCOUNT,
+                maximum_amount="9223372036854775807",  # "7fffffffffffffff"
+                transfer_fee=1,
+                flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'transfer_fee': 'Field cannot be provided without enabling "
+            "tfMPTCanTransfer flag.'}",
+        )
+
+    def test_transfer_fee_out_of_range_lower(self):
+        with self.assertRaises(XRPLModelException) as error:
+            MPTokenIssuanceCreate(
+                account=_ACCOUNT,
+                maximum_amount="9223372036854775807",  # "7fffffffffffffff"
+                transfer_fee=-1,
+                flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'transfer_fee': 'Field must be between 0 and 50000'}",
+        )
+
+    def test_transfer_fee_out_of_range_greater(self):
+        with self.assertRaises(XRPLModelException) as error:
+            MPTokenIssuanceCreate(
+                account=_ACCOUNT,
+                maximum_amount="9223372036854775807",  # "7fffffffffffffff"
+                transfer_fee=50001,
+                flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'transfer_fee': 'Field must be between 0 and 50000'}",
+        )
 
     def test_mptoken_metadata_empty_string(self):
         with self.assertRaises(XRPLModelException) as error:
