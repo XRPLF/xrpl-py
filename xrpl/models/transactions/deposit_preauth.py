@@ -89,6 +89,10 @@ class DepositPreauth(Transaction):
         def _validate_credentials_length(
             credentials: List[Credential], field_name: str
         ) -> None:
+
+            if credentials is None:
+                return
+
             if len(credentials) == 0:
                 errors["DepositPreauth"] = f"{field_name} list cannot be empty. "
             elif len(credentials) > MAX_CREDENTIAL_ARRAY_LENGTH:
