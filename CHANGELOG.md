@@ -7,9 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Fixed
+- Added support for `amm_info` to `Request.from_dict`
+- Improved erroring for `amm_info`
+
+## [4.0.0] - 2024-12-23
+
 ### Added
 - Support for the Multi-Purpose Tokens (MPT) amendment (XLS-33)
 - Add `include_deleted` to ledger_entry request
+- Add support for XLS-70d (Credentials)
 
 ### BREAKING CHANGE:
 - Remove Python 3.7 support to fix dependency installation and use 3.8 as new default.
@@ -28,8 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Allow empty strings for the purpose of removing fields in DIDSet transaction
-- Added support for `amm_info` to `Request.from_dict`
-- Improved erroring for `amm_info`
+- Use `NetworkID` in faucet processing to produce a non-ambiguous URL for faucet hosts.
 
 ### Removed
 - Remove deprecated `full`, `accounts`, and `type` parameters from ledger request model
@@ -94,7 +100,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0] - 2023-07-05
 ### BREAKING CHANGE
 - The default signing algorithm in the `Wallet` was changed from secp256k1 to ed25519
-- 
 ### Added:
 - Wallet support for regular key compatibility
 - Added new ways of wallet generation: `from_seed`, `from_secret`, `from_entropy`, `from_secret_numbers`

@@ -2,17 +2,14 @@
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Pattern
+from typing import Dict, Optional
 
-from typing_extensions import Final, Self
+from typing_extensions import Self
 
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
-
-HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
+from xrpl.models.utils import HEX_REGEX, KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 @require_kwargs_on_init
