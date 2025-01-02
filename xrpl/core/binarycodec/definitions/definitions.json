@@ -18,7 +18,7 @@
     "PathSet": 18,
     "Vector256": 19,
     "UInt96": 20,
-    "UInt192": 21,
+    "Hash192": 21,
     "UInt384": 22,
     "UInt512": 23,
     "Issue": 24,
@@ -1197,7 +1197,7 @@
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "UInt192"
+        "type": "Hash192"
       }
     ],
     [
@@ -1504,6 +1504,16 @@
       "HookSetTxnID",
       {
         "nth": 33,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Hash256"
+      }
+    ],
+    [
+      "BatchTransactionID",
+      {
+        "nth": 34,
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
@@ -2081,16 +2091,6 @@
       }
     ],
     [
-      "InnerResult",
-      {
-        "nth": 32,
-        "isVLEncoded": true,
-        "isSerialized": true,
-        "isSigningField": true,
-        "type": "Blob"
-      }
-    ],
-    [
       "Account",
       {
         "nth": 1,
@@ -2321,7 +2321,7 @@
       }
     ],
     [
-      "TxIDs",
+      "TransactionIDs",
       {
         "nth": 6,
         "isVLEncoded": true,
@@ -2721,19 +2721,9 @@
       }
     ],
     [
-      "BatchExecution",
-      {
-        "nth": 35,
-        "isVLEncoded": false,
-        "isSerialized": true,
-        "isSigningField": true,
-        "type": "STObject"
-      }
-    ],
-    [
       "BatchSigner",
       {
-        "nth": 36,
+        "nth": 35,
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
@@ -2951,7 +2941,7 @@
       }
     ],
     [
-      "BatchExecutions",
+      "RawTransactions",
       {
         "nth": 28,
         "isVLEncoded": false,
@@ -2961,19 +2951,9 @@
       }
     ],
     [
-      "RawTransactions",
-      {
-        "nth": 29,
-        "isVLEncoded": false,
-        "isSerialized": true,
-        "isSigningField": true,
-        "type": "STArray"
-      }
-    ],
-    [
       "BatchSigners",
       {
-        "nth": 30,
+        "nth": 29,
         "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
@@ -3168,8 +3148,7 @@
     "tecARRAY_EMPTY": 190,
     "tecARRAY_TOO_LARGE": 191,
     "tecLOCKED": 192,
-    "tecBAD_CREDENTIALS": 193,
-    "tecBATCH_FAILURE": 194
+    "tecBAD_CREDENTIALS": 193
   },
   "TRANSACTION_TYPES": {
     "Invalid": -1,
