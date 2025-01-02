@@ -43,6 +43,7 @@ from xrpl.models.requests.server_state import ServerState
 from xrpl.models.requests.sign import Sign
 from xrpl.models.requests.sign_and_submit import SignAndSubmit
 from xrpl.models.requests.sign_for import SignFor
+from xrpl.models.requests.simulate import Simulate
 from xrpl.models.requests.submit import Submit
 from xrpl.models.requests.submit_multisigned import SubmitMultisigned
 from xrpl.models.requests.submit_only import SubmitOnly
@@ -99,6 +100,7 @@ __all__ = [
     "Sign",
     "SignAndSubmit",
     "SignFor",
+    "Simulate",
     "Submit",
     "SubmitMultisigned",
     "SubmitOnly",

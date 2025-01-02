@@ -38,6 +38,7 @@ class RequestMethod(str, Enum):
     # transaction methods
     SIGN = "sign"
     SIGN_FOR = "sign_for"
+    SIMULATE = "simulate"
     SUBMIT = "submit"
     SUBMIT_MULTISIGNED = "submit_multisigned"
     TRANSACTION_ENTRY = "transaction_entry"
