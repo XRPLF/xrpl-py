@@ -1,9 +1,10 @@
 """Codec for currency property inside an XRPL issued currency amount json."""
+
 from __future__ import annotations  # Requires Python 3.7+
 
 from typing import Optional, Type
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.constants import HEX_CURRENCY_REGEX, ISO_CURRENCY_REGEX
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -73,7 +74,7 @@ class Currency(Hash160):
     LENGTH: Final[int] = 20
     _iso: Optional[str] = None
 
-    def __init__(self: Currency, buffer: Optional[bytes] = None) -> None:
+    def __init__(self: Self, buffer: Optional[bytes] = None) -> None:
         """Construct a Currency."""
         if buffer is not None:
             super().__init__(buffer)
@@ -93,7 +94,7 @@ class Currency(Hash160):
             self._iso = _iso_code_from_hex(code_bytes)
 
     @classmethod
-    def from_value(cls: Type[Currency], value: str) -> Currency:
+    def from_value(cls: Type[Self], value: str) -> Self:
         """
         Construct a Currency object from a string representation of a currency.
 
@@ -113,12 +114,12 @@ class Currency(Hash160):
             )
 
         if _is_iso_code(value):
-            return Currency(_iso_to_bytes(value))
+            return cls(_iso_to_bytes(value))
         if _is_hex(value):
             return cls(bytes.fromhex(value))
         raise XRPLBinaryCodecException("Unsupported Currency representation: {value}")
 
-    def to_json(self: Currency) -> str:
+    def to_json(self: Self) -> str:
         """
         Returns the JSON representation of a currency.
 

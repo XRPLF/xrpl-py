@@ -2,12 +2,14 @@
 Abstract base class for cryptographic algorithms in the XRP Ledger. The classes
 for all cryptographic algorithms are derived from this interface.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import Tuple, Type
 
 from ecpy.keys import ECPrivateKey  # type: ignore
+from typing_extensions import Self
 
 
 class CryptoImplementation(ABC):
@@ -19,7 +21,7 @@ class CryptoImplementation(ABC):
     @classmethod
     @abstractmethod
     def derive_keypair(  # noqa: D102
-        cls: Type[CryptoImplementation],
+        cls: Type[Self],
         decoded_seed: bytes,
         is_validator: bool,
     ) -> Tuple[str, str]:
@@ -28,7 +30,7 @@ class CryptoImplementation(ABC):
     @classmethod
     @abstractmethod
     def sign(  # noqa: D102
-        cls: Type[CryptoImplementation],
+        cls: Type[Self],
         message: bytes,
         private_key: str,
     ) -> bytes:
@@ -37,7 +39,7 @@ class CryptoImplementation(ABC):
     @classmethod
     @abstractmethod
     def is_valid_message(  # noqa: D102
-        cls: Type[CryptoImplementation],
+        cls: Type[Self],
         message: bytes,
         signature: bytes,
         public_key: str,
@@ -45,5 +47,5 @@ class CryptoImplementation(ABC):
         pass
 
     @classmethod
-    def _private_key_to_str(cls: Type[CryptoImplementation], key: ECPrivateKey) -> str:
+    def _private_key_to_str(cls: Type[Self], key: ECPrivateKey) -> str:
         return format(key.d, "x")

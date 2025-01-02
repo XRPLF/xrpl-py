@@ -1,11 +1,12 @@
 """Class for serializing and deserializing a 16-bit UInt.
 See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
 """
+
 from __future__ import annotations
 
 from typing import Optional, Type
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
@@ -19,14 +20,14 @@ class UInt16(UInt):
     See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
     """
 
-    def __init__(self: UInt16, buffer: bytes = bytes(_WIDTH)) -> None:
+    def __init__(self: Self, buffer: bytes = bytes(_WIDTH)) -> None:
         """Construct a new UInt16 type from a ``bytes`` value."""
         super().__init__(buffer)
 
     @classmethod
     def from_parser(
-        cls: Type[UInt16], parser: BinaryParser, _length_hint: Optional[int] = None
-    ) -> UInt16:
+        cls: Type[Self], parser: BinaryParser, _length_hint: Optional[int] = None
+    ) -> Self:
         """
         Construct a new UInt16 type from a BinaryParser.
 
@@ -39,7 +40,7 @@ class UInt16(UInt):
         return cls(parser.read(_WIDTH))
 
     @classmethod
-    def from_value(cls: Type[UInt16], value: int) -> UInt16:
+    def from_value(cls: Type[Self], value: int) -> Self:
         """
         Construct a new UInt16 type from a number.
 

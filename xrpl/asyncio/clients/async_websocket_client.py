@@ -1,11 +1,15 @@
 """A client for interacting with the rippled WebSocket API."""
+
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
 from types import TracebackType
 from typing import Any, Dict, Type
 
+from typing_extensions import Self
+
 from xrpl.asyncio.clients.async_client import AsyncClient
+from xrpl.asyncio.clients.client import REQUEST_TIMEOUT
 from xrpl.asyncio.clients.exceptions import XRPLWebsocketException
 from xrpl.asyncio.clients.websocket_base import WebsocketBase
 from xrpl.models.requests.request import Request
@@ -205,17 +209,17 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
             asyncio.run(main())
     """
 
-    async def open(self: AsyncWebsocketClient) -> None:
+    async def open(self: Self) -> None:
         """Connects the client to the Web Socket API at the given URL."""
         if not self.is_open():
             await self._do_open()
 
-    async def close(self: AsyncWebsocketClient) -> None:
+    async def close(self: Self) -> None:
         """Closes the connection."""
         if self.is_open():
             await self._do_close()
 
-    async def __aenter__(self: AsyncWebsocketClient) -> AsyncWebsocketClient:
+    async def __aenter__(self: Self) -> Self:
         """
         Enters an async context after opening itself.
 
@@ -226,7 +230,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
         return self
 
     async def __aexit__(
-        self: AsyncWebsocketClient,
+        self: Self,
         _exc_type: Type[BaseException],
         _exc_val: BaseException,
         _trace: TracebackType,
@@ -234,7 +238,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
         """Exits an async context after closing itself."""
         await self.close()
 
-    async def __aiter__(self: AsyncWebsocketClient) -> AsyncIterator[Dict[str, Any]]:
+    async def __aiter__(self: Self) -> AsyncIterator[Dict[str, Any]]:
         """
         Iterate on received messages.
 
@@ -244,7 +248,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
         while self.is_open():
             yield await self._do_pop_message()
 
-    async def send(self: AsyncWebsocketClient, request: Request) -> None:
+    async def send(self: Self, request: Request) -> None:
         """
         Submit the request represented by the request to the
         rippled node specified by this client's URL. Unlike ``request``,
@@ -262,7 +266,9 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
             raise XRPLWebsocketException("Websocket is not open")
         await self._do_send(request)
 
-    async def _request_impl(self: WebsocketBase, request: Request) -> Response:
+    async def _request_impl(
+        self: Self, request: Request, *, timeout: float = REQUEST_TIMEOUT
+    ) -> Response:
         """
         ``_request_impl`` implementation for async websocket.
 
@@ -280,4 +286,4 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
         """
         if not self.is_open():
             raise XRPLWebsocketException("Websocket is not open")
-        return await self._do_request_impl(request)
+        return await self._do_request_impl(request, timeout)

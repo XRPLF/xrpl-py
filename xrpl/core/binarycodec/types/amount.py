@@ -2,12 +2,13 @@
 Codec for serializing and deserializing Amount fields.
 See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
 """
+
 from __future__ import annotations
 
-from decimal import MAX_PREC, Context, Decimal, localcontext
+from decimal import MAX_PREC, Context, Decimal, InvalidOperation, localcontext
 from typing import Any, Dict, Optional, Type, Union
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.constants import (
     IOU_DECIMAL_CONTEXT,
@@ -19,10 +20,11 @@ from xrpl.constants import (
 )
 from xrpl.core.binarycodec.binary_wrappers import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
-from xrpl.core.binarycodec.types.account_id import AccountID
+from xrpl.core.binarycodec.types.account_id import _HEX_REGEX, AccountID
 from xrpl.core.binarycodec.types.currency import Currency
+from xrpl.core.binarycodec.types.hash192 import Hash192
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
-from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.models.amounts import IssuedCurrencyAmount, MPTAmount
 
 _MAX_DROPS: Final[Decimal] = Decimal("1e17")
 _MIN_XRP: Final[Decimal] = Decimal("1e-6")
@@ -33,6 +35,7 @@ _POS_SIGN_BIT_MASK: Final[int] = 0x4000000000000000
 _ZERO_CURRENCY_AMOUNT_HEX: Final[int] = 0x8000000000000000
 _NATIVE_AMOUNT_BYTE_LENGTH: Final[int] = 8
 _CURRENCY_AMOUNT_BYTE_LENGTH: Final[int] = 48
+_MPT_MASK: Final[Decimal] = Decimal(0x8000000000000000)
 
 
 def _contains_decimal(string: str) -> bool:
@@ -104,6 +107,44 @@ def verify_iou_value(issued_currency_value: str) -> None:
             "Decimal precision out of range for issued currency value."
         )
     _verify_no_decimal(decimal_value)
+
+
+def verify_mpt_value(mpt_value: str) -> None:
+    """
+    Validates the format of an MPT amount.
+    Raises if value is invalid.
+
+    Args:
+        mpt_value: A string representing an amount of XRP.
+
+    Returns:
+        None, but raises if mpt_value is not a valid MPT amount.
+
+    Raises:
+        XRPLBinaryCodecException: If mpt_value is not a valid MPT amount.
+    """
+    # Contains no decimal point
+    if not _contains_decimal(mpt_value):
+        raise XRPLBinaryCodecException(f"{mpt_value} is an invalid MPT amount.")
+
+    decimal = None
+    try:
+        # Check if the value is hexadecimal
+        if mpt_value.startswith("0x") or _HEX_REGEX.fullmatch(mpt_value):
+            decimal = Decimal(int(mpt_value, 16))
+        else:
+            # Check if mpt_value can be converted to a Decimal and within valid range
+            decimal = Decimal(mpt_value)
+    except (InvalidOperation, ValueError):
+        raise XRPLBinaryCodecException(f"{mpt_value} is not a valid MPT amount.")
+
+    # Zero is less than both the min and max MPT amounts but is valid.
+    if decimal.is_zero():
+        return
+
+    # Perform the bitwise AND operation to check the MSB
+    if int(decimal) & int(_MPT_MASK) != 0:
+        raise XRPLBinaryCodecException(f"{mpt_value} is an illegal amount")
 
 
 def _calculate_precision(value: str) -> int:
@@ -217,17 +258,50 @@ def _serialize_issued_currency_amount(value: Dict[str, str]) -> bytes:
     return amount_bytes + currency_bytes + issuer_bytes
 
 
+def _serialize_mpt_amount(value: Dict[str, str]) -> bytes:
+    """Serializes an MPT amount.
+
+    Args:
+        value: A dictionary representing a quantity of MPT.
+
+    Returns:
+        The bytes representing the serialized MPT amount.
+    """
+    amount_string = value["value"]
+    verify_mpt_value(amount_string)
+
+    # Convert the MPT amount string to a 64-bit integer and then to bytes
+    decimal_value = None
+    if amount_string.startswith("0x") or _HEX_REGEX.fullmatch(amount_string):
+        decimal_value = Decimal(int(amount_string, 16))
+    else:
+        decimal_value = Decimal(amount_string)
+
+    amount_bytes = int(decimal_value).to_bytes(8, byteorder="big", signed=False)
+
+    # Create a bytearray for the mpt_issuance_id and serialize it
+    mpt_issuance_id = bytearray()
+    Hash192.from_value(value["mpt_issuance_id"]).to_byte_sink(mpt_issuance_id)
+
+    # Create the leading byte and set the MPT leading byte
+    leading_byte = bytearray(1)
+    leading_byte[0] |= 0x60  # Set MPT leading byte
+
+    # Concatenate the bytes
+    return bytes(leading_byte + amount_bytes + mpt_issuance_id)
+
+
 class Amount(SerializedType):
     """Codec for serializing and deserializing Amount fields.
     See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
     """
 
-    def __init__(self: Amount, buffer: bytes) -> None:
+    def __init__(self: Self, buffer: bytes) -> None:
         """Construct an Amount from given bytes."""
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls: Type[Amount], value: Union[str, Dict[str, str]]) -> Amount:
+    def from_value(cls: Type[Self], value: Union[str, Dict[str, str]]) -> Self:
         """
         Construct an Amount from an issued currency amount or (for XRP),
         a string amount.
@@ -248,6 +322,8 @@ class Amount(SerializedType):
                 return cls(_serialize_xrp_amount(value))
             if IssuedCurrencyAmount.is_dict_of_model(value):
                 return cls(_serialize_issued_currency_amount(value))
+            if MPTAmount.is_dict_of_model(value):
+                return cls(_serialize_mpt_amount(value))
 
         raise XRPLBinaryCodecException(
             "Invalid type to construct an Amount: expected str or dict,"
@@ -256,8 +332,8 @@ class Amount(SerializedType):
 
     @classmethod
     def from_parser(
-        cls: Type[Amount], parser: BinaryParser, length_hint: Optional[int] = None
-    ) -> Amount:
+        cls: Type[Self], parser: BinaryParser, length_hint: Optional[int] = None
+    ) -> Self:
         """Construct an Amount from an existing BinaryParser.
 
         Args:
@@ -267,21 +343,25 @@ class Amount(SerializedType):
         Returns:
             An Amount object.
         """
-        parser_first_byte = parser.peek()
-        not_xrp = (
-            int(parser_first_byte) if parser_first_byte is not None else 0x00
-        ) & 0x80
-        if not_xrp:
-            num_bytes = _CURRENCY_AMOUNT_BYTE_LENGTH
-        else:
-            num_bytes = _NATIVE_AMOUNT_BYTE_LENGTH
+        first_byte = parser.peek()
+
+        is_iou = (first_byte & 0x80) != 0  # type: ignore
+        if is_iou:
+            return cls(parser.read(_CURRENCY_AMOUNT_BYTE_LENGTH))
+
+        # the amount can be either MPT or XRP at this point
+        is_mpt = (first_byte & 0x20) != 0  # type: ignore
+        num_bytes = 33 if is_mpt else 8
         return cls(parser.read(num_bytes))
 
-    def to_json(self: Amount) -> Union[str, Dict[Any, Any]]:
+    def to_json(self: Self) -> Union[str, Dict[Any, Any]]:
         """Construct a JSON object representing this Amount.
 
         Returns:
             The JSON representation of this amount.
+
+        Raises:
+            XRPLBinaryCodecException: if invalid amount type for JSON conversion.
         """
         if self.is_native():
             sign = "" if self.is_positive() else "-"
@@ -289,41 +369,82 @@ class Amount(SerializedType):
                 int.from_bytes(self.buffer, byteorder="big") & 0x3FFFFFFFFFFFFFFF
             )
             return f"{sign}{masked_bytes}"
-        parser = BinaryParser(str(self))
-        value_bytes = parser.read(8)
-        currency = Currency.from_parser(parser)
-        issuer = AccountID.from_parser(parser)
-        b1 = value_bytes[0]
-        b2 = value_bytes[1]
-        is_positive = b1 & 0x40
-        sign = "" if is_positive else "-"
-        exponent = ((b1 & 0x3F) << 2) + ((b2 & 0xFF) >> 6) - 97
-        hex_mantissa = hex(b2 & 0x3F) + value_bytes[2:].hex()
-        int_mantissa = int(hex_mantissa[2:], 16)
-        value = Decimal(f"{sign}{int_mantissa}") * Decimal(f"1e{exponent}")
 
-        if value.is_zero():
-            value_str = "0"
-        else:
-            value_str = str(value).rstrip("0").rstrip(".")
-        verify_iou_value(value_str)
+        if self.is_iou():
+            parser = BinaryParser(str(self))
+            value_bytes = parser.read(8)
+            currency = Currency.from_parser(parser)
+            issuer = AccountID.from_parser(parser)
+            b1 = value_bytes[0]
+            b2 = value_bytes[1]
+            is_positive = b1 & 0x40
+            sign = "" if is_positive else "-"
+            exponent = ((b1 & 0x3F) << 2) + ((b2 & 0xFF) >> 6) - 97
+            hex_mantissa = hex(b2 & 0x3F) + value_bytes[2:].hex()
+            int_mantissa = int(hex_mantissa[2:], 16)
+            value = Decimal(f"{sign}{int_mantissa}") * Decimal(f"1e{exponent}")
 
-        return {
-            "value": value_str,
-            "currency": currency.to_json(),
-            "issuer": issuer.to_json(),
-        }
+            if value.is_zero():
+                value_str = "0"
+            else:
+                value_str = str(value).rstrip("0").rstrip(".")
+            verify_iou_value(value_str)
 
-    def is_native(self: Amount) -> bool:
+            return {
+                "value": value_str,
+                "currency": currency.to_json(),
+                "issuer": issuer.to_json(),
+            }
+
+        if self.is_mpt():
+            parser = BinaryParser(self.to_hex())
+            leading_byte = parser.read(1)
+            value_bytes = parser.read(8)
+            mpt_issuance_id = Hash192.from_parser(parser)
+
+            is_positive = leading_byte[0] & 0x40
+            sign = "" if is_positive else "-"
+
+            msb = int.from_bytes(value_bytes[:4], byteorder="big")
+            lsb = int.from_bytes(value_bytes[4:], byteorder="big")
+            num = (msb << 32) | lsb
+
+            return {
+                "value": f"{sign}{num}",
+                "mpt_issuance_id": mpt_issuance_id.to_hex(),
+            }
+
+        raise XRPLBinaryCodecException("Invalid amount type for JSON conversion")
+
+    def is_native(self: Self) -> bool:
         """Returns True if this amount is a native XRP amount.
 
         Returns:
             True if this amount is a native XRP amount, False otherwise.
         """
-        # 1st bit in 1st byte is set to 0 for native XRP
-        return (self.buffer[0] & 0x80) == 0
+        # A native amount is one where both the IOU bit (0x80)
+        # and MPT bit (0x20) are not set
+        return (self.buffer[0] & 0x80) == 0 and (self.buffer[0] & 0x20) == 0
 
-    def is_positive(self: Amount) -> bool:
+    def is_iou(self: Self) -> bool:
+        """Returns True if this amount is an IOU amount.
+
+        Returns:
+            True if this amount is an IOU amount, False otherwise.
+        """
+        return (self.buffer[0] & 0x80) != 0
+
+    def is_mpt(self: Self) -> bool:
+        """Returns True if this amount is an MPT amount.
+
+        Returns:
+            True if this amount is an MPT amount, False otherwise.
+        """
+        # An MPT amount is one where the MPT bit (0x20) is set
+        # and the IOU bit (0x80) is not set
+        return (self.buffer[0] & 0x20) != 0 and (self.buffer[0] & 0x80) == 0
+
+    def is_positive(self: Self) -> bool:
         """Returns True if 2nd bit in 1st byte is set to 1 (positive amount).
 
         Returns:

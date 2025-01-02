@@ -7,14 +7,15 @@ import re
 from abc import ABC
 from dataclasses import dataclass, fields
 from enum import Enum
-from typing import Any, Dict, List, Pattern, Type, TypeVar, Union, cast, get_type_hints
+from typing import Any, Dict, List, Pattern, Type, Union, cast, get_type_hints
 
-from typing_extensions import Final, Literal, get_args, get_origin
+from typing_extensions import Final, Literal, Self, get_args, get_origin
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 from xrpl.models.types import XRPL_VALUE_TYPE
 
+_PASCAL_OR_CAMEL_CASE: Final[Pattern[str]] = re.compile("^[A-Za-z]+(?:[A-Za-z0-9]+)*$")
 # this regex splits words based on one of three cases:
 #
 # 1. 1-or-more non-capital chars at the beginning of the string. Handles cases
@@ -39,13 +40,14 @@ ABBREVIATIONS: Final[Dict[str, str]] = {
     "did": "DID",
     "id": "ID",
     "lp": "LP",
+    "mptoken": "MPToken",
     "nftoken": "NFToken",
     "unl": "UNL",
     "uri": "URI",
     "xchain": "XChain",
 }
-
-BM = TypeVar("BM", bound="BaseModel")  # any type inherited from BaseModel
+# Define keys that should be excluded from key to json conversion
+EXCLUDED_KEYS = {"mpt_issuance_id"}
 
 
 def _key_to_json(field: str) -> str:
@@ -54,7 +56,18 @@ def _key_to_json(field: str) -> str:
         1. 'TransactionType' becomes 'transaction_type'
         2. 'value' remains 'value'
         3. 'URI' becomes 'uri'
+
+        This function accepts inputs in PascalCase or camelCase only
+
+    Raises:
+        XRPLModelException: If the input is invalid
     """
+    if field in EXCLUDED_KEYS:
+        return field
+
+    if not re.fullmatch(pattern=_PASCAL_OR_CAMEL_CASE, string=field):
+        raise XRPLModelException(f"Key {field} is not in the proper XRPL format.")
+
     # convert all special CamelCase substrings to capitalized strings
     for spec_str in ABBREVIATIONS.values():
         if spec_str in field:
@@ -78,7 +91,7 @@ class BaseModel(ABC):
     """The base class for all model types."""
 
     @classmethod
-    def is_dict_of_model(cls: Type[BM], dictionary: Any) -> bool:
+    def is_dict_of_model(cls: Type[Self], dictionary: Any) -> bool:  # noqa: ANN401
         """
         Checks whether the provided ``dictionary`` is a dictionary representation
         of this class.
@@ -88,7 +101,8 @@ class BaseModel(ABC):
         a subclass of this class.
 
         Args:
-            dictionary: The dictionary to check.
+            dictionary: The dictionary to check. Note: The input `dictionary` can be of
+                non-dict type. For instance, a `str` representation of JSON.
 
         Returns:
             True if dictionary is a ``dict`` representation of an instance of this
@@ -107,7 +121,7 @@ class BaseModel(ABC):
         )
 
     @classmethod
-    def from_dict(cls: Type[BM], value: Dict[str, XRPL_VALUE_TYPE]) -> BM:
+    def from_dict(cls: Type[Self], value: Dict[str, XRPL_VALUE_TYPE]) -> Self:
         """
         Construct a new BaseModel from a dictionary of parameters.
 
@@ -139,11 +153,11 @@ class BaseModel(ABC):
 
     @classmethod
     def _from_dict_single_param(
-        cls: Type[BM],
+        cls: Type[Self],
         param: str,
-        param_type: Type[Any],
+        param_type: Type[Any],  # noqa: ANN401
         param_value: Union[int, str, bool, BaseModel, Enum, List[Any], Dict[str, Any]],
-    ) -> Any:
+    ) -> Any:  # noqa: ANN401
         """Recursively handles each individual param in `from_dict`."""
         param_type_origin = get_origin(param_type)
         # returns `list` if a List, `Union` if a Union, None otherwise
@@ -170,7 +184,7 @@ class BaseModel(ABC):
 
         # no more collections (no params expect a Dict)
 
-        if param_type is Any:
+        if param_type is Any:  # type: ignore
             # param_type is Any (e.g. will accept anything)
             return param_value
 
@@ -214,13 +228,37 @@ class BaseModel(ABC):
         raise XRPLModelException(error_message)
 
     @classmethod
-    def _get_only_init_args(cls: Type[BM], args: Dict[str, Any]) -> Dict[str, Any]:
+    def _process_xrpl_json(
+        cls: Type[Self], value: Union[str, Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Creates a dictionary object based on a JSON or dictionary in the standard XRPL
+        format.
+
+        Args:
+            value: The dictionary or JSON string to be processed.
+
+        Returns:
+            A formatted dictionary instantiated from the input.
+        """
+        if isinstance(value, str):
+            value = json.loads(value)
+
+        formatted_dict = {
+            _key_to_json(k): _value_to_json(v)
+            for (k, v) in cast(Dict[str, XRPL_VALUE_TYPE], value).items()
+        }
+
+        return formatted_dict
+
+    @classmethod
+    def _get_only_init_args(cls: Type[Self], args: Dict[str, Any]) -> Dict[str, Any]:
         init_keys = {field.name for field in fields(cls) if field.init is True}
         valid_args = {key: value for key, value in args.items() if key in init_keys}
         return valid_args
 
     @classmethod
-    def from_xrpl(cls: Type[BM], value: Union[str, Dict[str, Any]]) -> BM:
+    def from_xrpl(cls: Type[Self], value: Union[str, Dict[str, Any]]) -> Self:
         """
         Creates a BaseModel object based on a JSON-like dictionary of keys in the JSON
         format used by the binary codec, or an actual JSON string representing the same
@@ -232,21 +270,15 @@ class BaseModel(ABC):
         Returns:
             A BaseModel object instantiated from the input.
         """
-        if isinstance(value, str):
-            value = json.loads(value)
-
-        formatted_dict = {
-            _key_to_json(k): _value_to_json(v)
-            for (k, v) in cast(Dict[str, XRPL_VALUE_TYPE], value).items()
-        }
+        formatted_dict = cls._process_xrpl_json(value)
 
         return cls.from_dict(formatted_dict)
 
-    def __post_init__(self: BaseModel) -> None:
+    def __post_init__(self: Self) -> None:
         """Called by dataclasses immediately after __init__."""
         self.validate()
 
-    def validate(self: BaseModel) -> None:
+    def validate(self: Self) -> None:
         """
         Raises if this object is invalid.
 
@@ -257,7 +289,7 @@ class BaseModel(ABC):
         if len(errors) > 0:
             raise XRPLModelException(str(errors))
 
-    def is_valid(self: BaseModel) -> bool:
+    def is_valid(self: Self) -> bool:
         """
         Returns whether this BaseModel is valid.
 
@@ -266,7 +298,7 @@ class BaseModel(ABC):
         """
         return len(self._get_errors()) == 0
 
-    def _get_errors(self: BaseModel) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         """
         Extended in subclasses to define custom validation logic.
 
@@ -279,7 +311,7 @@ class BaseModel(ABC):
             if value is REQUIRED
         }
 
-    def to_dict(self: BaseModel) -> Dict[str, Any]:
+    def to_dict(self: Self) -> Dict[str, Any]:
         """
         Returns the dictionary representation of a BaseModel.
 
@@ -296,7 +328,7 @@ class BaseModel(ABC):
             if getattr(self, key) is not None
         }
 
-    def _to_dict_elem(self: BaseModel, elem: Any) -> Any:
+    def _to_dict_elem(self: Self, elem: Any) -> Any:  # noqa: ANN401
         if isinstance(elem, BaseModel):
             return elem.to_dict()
         if isinstance(elem, Enum):
@@ -309,11 +341,11 @@ class BaseModel(ABC):
             ]
         return elem
 
-    def __eq__(self: BaseModel, other: object) -> bool:
+    def __eq__(self: Self, other: object) -> bool:
         """Compares a BaseModel to another object to determine if they are equal."""
         return isinstance(other, BaseModel) and self.to_dict() == other.to_dict()
 
-    def __repr__(self: BaseModel) -> str:
+    def __repr__(self: Self) -> str:
         """Returns a string representation of a BaseModel object"""
         repr_items = [f"{key}={repr(value)}" for key, value in self.to_dict().items()]
         return f"{type(self).__name__}({repr_items})"

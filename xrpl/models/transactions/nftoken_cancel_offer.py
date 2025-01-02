@@ -1,17 +1,20 @@
 """Model for NFTokenCancelOffer transaction type."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
+from typing_extensions import Self
+
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class NFTokenCancelOffer(Transaction):
     """
     The NFTokenCancelOffer transaction deletes existing NFTokenOffer objects.
@@ -42,7 +45,7 @@ class NFTokenCancelOffer(Transaction):
         init=False,
     )
 
-    def _get_errors(self: NFTokenCancelOffer) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         return {
             key: value
             for key, value in {
@@ -52,7 +55,7 @@ class NFTokenCancelOffer(Transaction):
             if value is not None
         }
 
-    def _get_nftoken_offers_error(self: NFTokenCancelOffer) -> Optional[str]:
+    def _get_nftoken_offers_error(self: Self) -> Optional[str]:
         if len(self.nftoken_offers) < 1:
             return "Must specify at least one NFTokenOffer to cancel"
         return None

@@ -16,6 +16,7 @@ from xrpl.models.requests import (
     SubmitMultisigned,
     SubmitOnly,
 )
+from xrpl.models.requests.request import _DEFAULT_API_VERSION
 from xrpl.models.transactions import (
     AMMBid,
     AuthAccount,
@@ -117,6 +118,7 @@ class TestFromDict(TestCase):
             **book_offers_dict,
             "method": "book_offers",
             "taker_gets": {"currency": "XRP"},
+            "api_version": _DEFAULT_API_VERSION,
         }
         self.assertEqual(expected_dict, book_offers.to_dict())
 
@@ -132,6 +134,7 @@ class TestFromDict(TestCase):
             "fee_mult_max": 10,
             "fee_div_max": 1,
             "offline": False,
+            "api_version": _DEFAULT_API_VERSION,
         }
         del expected_dict["transaction"]
         self.assertEqual(expected_dict, sign.to_dict())
@@ -148,6 +151,7 @@ class TestFromDict(TestCase):
             "fee_mult_max": 10,
             "fee_div_max": 1,
             "offline": False,
+            "api_version": _DEFAULT_API_VERSION,
         }
         self.assertEqual(expected_dict, sign.to_dict())
 
@@ -387,6 +391,49 @@ class TestFromDict(TestCase):
         expected = SubmitOnly(tx_blob=blob, id=id_val)
         actual = Request.from_dict(request)
         self.assertEqual(actual, expected)
+
+    # Note: BaseModel.from_xrpl and its overridden methods accept only camelCase or
+    # PascalCase inputs (i.e. snake_case is not accepted)
+    def test_request_input_from_xrpl_accepts_camel_case(self):
+        request = {
+            "method": "submit",
+            "tx_json": {
+                "Account": "rnD6t3JF9RTG4VgNLoc4i44bsQLgJUSi6h",
+                "transaction_type": "TrustSet",
+                "Fee": "10",
+                "Sequence": 17896798,
+                "Flags": 131072,
+                "signing_pub_key": "",
+                "limit_amount": {
+                    "currency": "USD",
+                    "issuer": "rH5gvkKxGHrFAMAACeu9CB3FMu7pQ9jfZm",
+                    "value": "10",
+                },
+            },
+            "fail_hard": False,
+        }
+
+        with self.assertRaises(XRPLModelException):
+            Request.from_xrpl(request)
+
+    def test_transaction_input_from_xrpl_accepts_only_camel_case(self):
+        # verify that Transaction.from_xrpl method does not accept snake_case JSON keys
+        tx_snake_case_keys = {
+            "Account": "rnoGkgSpt6AX1nQxZ2qVGx7Fgw6JEcoQas",
+            "transaction_type": "TrustSet",
+            "Fee": "10",
+            "Sequence": 17892983,
+            "Flags": 131072,
+            "signing_pub_key": "",
+            "limit_amount": {
+                "currency": "USD",
+                "issuer": "rBPvTKisx7UCGLDtiUZ6mDssXNREuVuL8Y",
+                "value": "10",
+            },
+        }
+
+        with self.assertRaises(XRPLModelException):
+            Transaction.from_xrpl(tx_snake_case_keys)
 
     def test_from_xrpl(self):
         dirname = os.path.dirname(__file__)

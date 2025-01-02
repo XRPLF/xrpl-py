@@ -6,12 +6,14 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Optional
 
+from typing_extensions import Self
+
 from xrpl.models.currencies import XRP
 from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 from xrpl.models.xchain_bridge import XChainBridge
 
 
@@ -34,7 +36,7 @@ class XChainModifyBridgeFlagInterface(FlagInterface):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class XChainModifyBridge(Transaction):
     """
     Represents a XChainModifyBridge transaction.
@@ -71,7 +73,7 @@ class XChainModifyBridge(Transaction):
         init=False,
     )
 
-    def _get_errors(self: XChainModifyBridge) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
         bridge = self.xchain_bridge
@@ -87,9 +89,9 @@ class XChainModifyBridge(Transaction):
             )
 
         if self.account not in [bridge.locking_chain_door, bridge.issuing_chain_door]:
-            errors[
-                "account"
-            ] = "account must be either locking chain door or issuing chain door."
+            errors["account"] = (
+                "account must be either locking chain door or issuing chain door."
+            )
 
         if self.signature_reward is not None and not self.signature_reward.isnumeric():
             errors["signature_reward"] = "`signature_reward` must be numeric."
@@ -98,16 +100,16 @@ class XChainModifyBridge(Transaction):
             self.min_account_create_amount is not None
             and bridge.locking_chain_issue != XRP()
         ):
-            errors[
-                "min_account_create_amount"
-            ] = "Cannot have MinAccountCreateAmount if bridge is IOU-IOU."
+            errors["min_account_create_amount"] = (
+                "Cannot have MinAccountCreateAmount if bridge is IOU-IOU."
+            )
 
         if (
             self.min_account_create_amount is not None
             and not self.min_account_create_amount.isnumeric()
         ):
-            errors[
-                "min_account_create_amount_value"
-            ] = "`min_account_create_amount` must be numeric."
+            errors["min_account_create_amount_value"] = (
+                "`min_account_create_amount` must be numeric."
+            )
 
         return errors

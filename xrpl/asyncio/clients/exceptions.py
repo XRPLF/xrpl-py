@@ -1,7 +1,10 @@
 """General XRPL Client Exceptions."""
+
 from __future__ import annotations
 
 from typing import Any, Dict
+
+from typing_extensions import Self
 
 from xrpl.constants import XRPLException
 
@@ -9,7 +12,7 @@ from xrpl.constants import XRPLException
 class XRPLRequestFailureException(XRPLException):
     """XRPL Request Exception, when the request fails."""
 
-    def __init__(self: XRPLRequestFailureException, result: Dict[str, Any]) -> None:
+    def __init__(self: Self, result: Dict[str, Any]) -> None:
         """
         Initializes a XRPLRequestFailureException.
 

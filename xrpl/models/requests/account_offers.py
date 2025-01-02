@@ -4,16 +4,17 @@ outstanding as of a particular ledger version.
 
 `See account_offers <https://xrpl.org/account_offers.html>`_
 """
+
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class AccountOffers(Request, LookupByLedgerRequest):
     """
     This request retrieves a list of offers made by a given account that are

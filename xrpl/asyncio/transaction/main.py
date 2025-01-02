@@ -1,4 +1,5 @@
 """High-level transaction methods with XRPL transactions."""
+
 import math
 from typing import Any, Dict, Optional, cast
 
@@ -6,12 +7,13 @@ from typing_extensions import Final
 
 from xrpl.asyncio.account import get_next_valid_seq_number
 from xrpl.asyncio.clients import Client, XRPLRequestFailureException
+from xrpl.asyncio.clients.client import get_network_id_and_build_version
 from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec import encode, encode_for_multisigning, encode_for_signing
 from xrpl.core.keypairs.main import sign as keypairs_sign
-from xrpl.models.requests import ServerInfo, ServerState, SubmitOnly
+from xrpl.models.requests import ServerState, SubmitOnly
 from xrpl.models.response import Response
 from xrpl.models.transactions import EscrowFinish
 from xrpl.models.transactions.transaction import Signer, Transaction
@@ -30,8 +32,6 @@ _LEDGER_OFFSET: Final[int] = 20
 # More context: https://github.com/XRPLF/rippled/pull/4370
 _RESTRICTED_NETWORKS = 1024
 _REQUIRED_NETWORKID_VERSION = "1.11.0"
-# TODO: make this dynamic based on the current ledger fee
-_OWNER_RESERVE_FEE: Final[int] = int(xrp_to_drops(2))
 
 
 async def sign_and_submit(
@@ -230,8 +230,7 @@ async def autofill(
         The autofilled transaction.
     """
     transaction_json = transaction.to_dict()
-    if not client.network_id:
-        await _get_network_id_and_build_version(client)
+    await get_network_id_and_build_version(client)
     if "network_id" not in transaction_json and _tx_needs_networkID(client):
         transaction_json["network_id"] = client.network_id
     if "sequence" not in transaction_json:
@@ -245,27 +244,6 @@ async def autofill(
         ledger_sequence = await get_latest_validated_ledger_sequence(client)
         transaction_json["last_ledger_sequence"] = ledger_sequence + _LEDGER_OFFSET
     return Transaction.from_dict(transaction_json)
-
-
-async def _get_network_id_and_build_version(client: Client) -> None:
-    """
-    Get the network id and build version of the connected server.
-
-    Args:
-        client: The network client to use to send the request.
-
-    Raises:
-        XRPLRequestFailureException: if the rippled API call fails.
-    """
-    response = await client._request_impl(ServerInfo())
-    if response.is_successful():
-        if "network_id" in response.result["info"]:
-            client.network_id = response.result["info"]["network_id"]
-        if not client.build_version and "build_version" in response.result["info"]:
-            client.build_version = response.result["info"]["build_version"]
-        return
-
-    raise XRPLRequestFailureException(response.result)
 
 
 def _tx_needs_networkID(client: Client) -> bool:
@@ -394,11 +372,11 @@ def transaction_json_to_binary_codec_form(dictionary: Dict[str, Any]) -> Dict[st
 
 async def _check_fee(
     transaction: Transaction,
-    client: Optional[Client] = None,
+    client: Client,
     signers_count: Optional[int] = None,
 ) -> None:
     """
-    Checks if the Transaction fee is lower than the expected Transaction type fee.
+    Checks if the Transaction fee is higher than the expected Transaction type fee.
 
     Args:
         transaction: The transaction to check.
@@ -424,7 +402,7 @@ async def _check_fee(
 
 async def _calculate_fee_per_transaction_type(
     transaction: Transaction,
-    client: Optional[Client] = None,
+    client: Client,
     signers_count: Optional[int] = None,
 ) -> str:
     """
@@ -444,10 +422,10 @@ async def _calculate_fee_per_transaction_type(
         The expected Transaction fee in drops
     """
     # Reference Transaction (Most transactions)
-    if client is None:
-        net_fee = 10  # 10 drops
-    else:
-        net_fee = int(await get_fee(client))  # Usually 0.00001 XRP (10 drops)
+
+    net_fee = int(
+        await get_fee(client)
+    )  # Latest data is found in FeeSettings ledger-object's BaseFee field.
 
     base_fee = net_fee
 
@@ -457,7 +435,7 @@ async def _calculate_fee_per_transaction_type(
         escrow_finish = cast(EscrowFinish, transaction)
         if escrow_finish.fulfillment is not None:
             fulfillment_bytes = escrow_finish.fulfillment.encode("ascii")
-            # 10 drops × (33 + (Fulfillment size in bytes / 16))
+            # BaseFee × (33 + (Fulfillment size in bytes / 16))
             base_fee = math.ceil(net_fee * (33 + (len(fulfillment_bytes) / 16)))
 
     # AccountDelete Transaction
@@ -465,13 +443,10 @@ async def _calculate_fee_per_transaction_type(
         TransactionType.ACCOUNT_DELETE,
         TransactionType.AMM_CREATE,
     ):
-        if client is None:
-            base_fee = _OWNER_RESERVE_FEE
-        else:
-            base_fee = await _fetch_owner_reserve_fee(client)
+        base_fee = await _fetch_owner_reserve_fee(client)
 
     # Multi-signed Transaction
-    # 10 drops × (1 + Number of Signatures Provided)
+    # BaseFee × (1 + Number of Signatures Provided)
     if signers_count is not None and signers_count > 0:
         base_fee += net_fee * (1 + signers_count)
     # Round Up base_fee and return it as a String

@@ -11,6 +11,7 @@ Although the rippled server tries to find the cheapest path or
 combination of paths for making a payment, it is not guaranteed that
 the paths returned by this method are, in fact, the best paths.
 """
+
 from dataclasses import dataclass, field
 from typing import List, Optional
 
@@ -18,11 +19,11 @@ from xrpl.models.amounts import Amount
 from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class RipplePathFind(Request, LookupByLedgerRequest):
     """
     The ripple_path_find method is a simplified version of the

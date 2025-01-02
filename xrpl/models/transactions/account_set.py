@@ -1,16 +1,17 @@
 """Model for AccountSet transaction type."""
+
 from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Optional
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.models.flags import FlagInterface
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 _MAX_TRANSFER_RATE: Final[int] = 2000000000
 _MIN_TRANSFER_RATE: Final[int] = 1000000000
@@ -165,7 +166,7 @@ class AccountSetFlagInterface(FlagInterface):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class AccountSet(Transaction):
     """
     Represents an `AccountSet transaction <https://xrpl.org/accountset.html>`_,
@@ -225,7 +226,7 @@ class AccountSet(Transaction):
         init=False,
     )
 
-    def _get_errors(self: AccountSet) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         return {
             key: value
             for key, value in {
@@ -239,7 +240,7 @@ class AccountSet(Transaction):
             if value is not None
         }
 
-    def _get_tick_size_error(self: AccountSet) -> Optional[str]:
+    def _get_tick_size_error(self: Self) -> Optional[str]:
         if self.tick_size is None:
             return None
         if self.tick_size > _MAX_TICK_SIZE:
@@ -248,7 +249,7 @@ class AccountSet(Transaction):
             return f"`tick_size` is below {_MIN_TICK_SIZE}."
         return None
 
-    def _get_transfer_rate_error(self: AccountSet) -> Optional[str]:
+    def _get_transfer_rate_error(self: Self) -> Optional[str]:
         if self.transfer_rate is None:
             return None
         if self.transfer_rate > _MAX_TRANSFER_RATE:
@@ -260,19 +261,19 @@ class AccountSet(Transaction):
             return f"`transfer_rate` is below {_MIN_TRANSFER_RATE}."
         return None
 
-    def _get_domain_error(self: AccountSet) -> Optional[str]:
+    def _get_domain_error(self: Self) -> Optional[str]:
         if self.domain is not None and self.domain.lower() != self.domain:
             return f"Domain {self.domain} is not lowercase"
         if self.domain is not None and len(self.domain) > _MAX_DOMAIN_LENGTH:
             return f"Must not be longer than {_MAX_DOMAIN_LENGTH} characters"
         return None
 
-    def _get_clear_flag_error(self: AccountSet) -> Optional[str]:
+    def _get_clear_flag_error(self: Self) -> Optional[str]:
         if self.clear_flag is not None and self.clear_flag == self.set_flag:
             return "Must not be equal to the set_flag"
         return None
 
-    def _get_nftoken_minter_error(self: AccountSet) -> Optional[str]:
+    def _get_nftoken_minter_error(self: Self) -> Optional[str]:
         if (
             self.set_flag != AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER
             and self.nftoken_minter is not None

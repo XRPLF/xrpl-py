@@ -5,17 +5,20 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, Optional, Union
 
+from typing_extensions import Self
+
 from xrpl.models.amounts import Amount
+from xrpl.models.amounts.amount import is_issued_currency, is_mpt, is_xrp
 from xrpl.models.currencies import XRP
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 from xrpl.models.xchain_bridge import XChainBridge
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class XChainClaim(Transaction):
     """
     Represents a XChainClaim transaction.
@@ -71,17 +74,27 @@ class XChainClaim(Transaction):
         init=False,
     )
 
-    def _get_errors(self: XChainClaim) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
         bridge = self.xchain_bridge
-        currency = XRP() if isinstance(self.amount, str) else self.amount.to_currency()
+
+        amount = self.amount
+        if is_xrp(amount):
+            currency = XRP()
+        elif is_issued_currency(amount):
+            currency = amount.to_currency()  # type: ignore
+        elif is_mpt(amount):
+            currency = amount.mpt_issuance_id  # type: ignore
+        else:
+            errors["amount"] = "currency can't be derived."
+
         if (
             currency != bridge.locking_chain_issue
             and currency != bridge.issuing_chain_issue
         ):
-            errors[
-                "amount"
-            ] = "amount must match either locking chain issue or issuing chain issue."
+            errors["amount"] = (
+                "amount must match either locking chain issue or issuing chain issue."
+            )
 
         return errors

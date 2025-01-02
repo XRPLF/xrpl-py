@@ -1,4 +1,5 @@
 """Handles the XRPL type and definition specifics."""
+
 from xrpl.core.binarycodec.definitions.definitions import (
     get_field_header_from_name,
     get_field_instance,

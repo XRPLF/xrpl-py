@@ -7,19 +7,22 @@ This command requires the MultiSign amendment to be enabled.
 
 `See submit_multisigned <https://xrpl.org/submit_multisigned.html>`_
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any, Dict, Type
 
+from typing_extensions import Self
+
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class SubmitMultisigned(Request):
     """
     The submit_multisigned command applies a multi-signed transaction and sends it to
@@ -42,9 +45,7 @@ class SubmitMultisigned(Request):
     fail_hard: bool = False
 
     @classmethod
-    def from_dict(
-        cls: Type[SubmitMultisigned], value: Dict[str, Any]
-    ) -> SubmitMultisigned:
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
         """
         Construct a new SubmitMultisigned object from a dictionary of parameters.
 
@@ -59,7 +60,7 @@ class SubmitMultisigned(Request):
             fixed_value["tx_json"] = Transaction.from_xrpl(fixed_value["tx_json"])
         return super(SubmitMultisigned, cls).from_dict(fixed_value)
 
-    def to_dict(self: SubmitMultisigned) -> Dict[str, Any]:
+    def to_dict(self: Self) -> Dict[str, Any]:
         """
         Returns the dictionary representation of a SubmitMultisigned object.
 

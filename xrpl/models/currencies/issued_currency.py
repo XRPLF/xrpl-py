@@ -4,16 +4,19 @@ This format is used for some book order requests.
 
 See https://xrpl.org/currency-formats.html#specifying-currency-amounts
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Dict, Union
 
+from typing_extensions import Self
+
 import xrpl.models.amounts  # not a direct import, to get around circular imports
 from xrpl.constants import HEX_CURRENCY_REGEX, ISO_CURRENCY_REGEX
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 def _is_valid_currency(candidate: str) -> bool:
@@ -24,7 +27,7 @@ def _is_valid_currency(candidate: str) -> bool:
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class IssuedCurrency(BaseModel):
     """
     Specifies an amount in an issued currency, but without a value field.
@@ -47,7 +50,7 @@ class IssuedCurrency(BaseModel):
     :meta hide-value:
     """
 
-    def _get_errors(self: IssuedCurrency) -> Dict[str, str]:
+    def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.currency.upper() == "XRP":
             errors["currency"] = "Currency must not be XRP for issued currency"
@@ -56,7 +59,7 @@ class IssuedCurrency(BaseModel):
         return errors
 
     def to_amount(
-        self: IssuedCurrency, value: Union[str, int, float]
+        self: Self, value: Union[str, int, float]
     ) -> xrpl.models.amounts.IssuedCurrencyAmount:
         """
         Converts an IssuedCurrency to an IssuedCurrencyAmount.

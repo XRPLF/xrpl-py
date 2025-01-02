@@ -6,15 +6,16 @@ All information retrieved is relative to a particular version of the ledger.
 
 `See account_info <https://xrpl.org/account_info.html>`_
 """
+
 from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class AccountInfo(Request, LookupByLedgerRequest):
     """
     This request retrieves information about an account, its activity, and its XRP

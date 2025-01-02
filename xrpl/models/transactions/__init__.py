@@ -28,6 +28,9 @@ from xrpl.models.transactions.check_cancel import CheckCancel
 from xrpl.models.transactions.check_cash import CheckCash
 from xrpl.models.transactions.check_create import CheckCreate
 from xrpl.models.transactions.clawback import Clawback
+from xrpl.models.transactions.credential_accept import CredentialAccept
+from xrpl.models.transactions.credential_create import CredentialCreate
+from xrpl.models.transactions.credential_delete import CredentialDelete
 from xrpl.models.transactions.deposit_preauth import DepositPreauth
 from xrpl.models.transactions.did_delete import DIDDelete
 from xrpl.models.transactions.did_set import DIDSet
@@ -35,6 +38,22 @@ from xrpl.models.transactions.escrow_cancel import EscrowCancel
 from xrpl.models.transactions.escrow_create import EscrowCreate
 from xrpl.models.transactions.escrow_finish import EscrowFinish
 from xrpl.models.transactions.metadata import TransactionMetadata
+from xrpl.models.transactions.mptoken_authorize import (
+    MPTokenAuthorize,
+    MPTokenAuthorizeFlag,
+    MPTokenAuthorizeFlagInterface,
+)
+from xrpl.models.transactions.mptoken_issuance_create import (
+    MPTokenIssuanceCreate,
+    MPTokenIssuanceCreateFlag,
+    MPTokenIssuanceCreateFlagInterface,
+)
+from xrpl.models.transactions.mptoken_issuance_destroy import MPTokenIssuanceDestroy
+from xrpl.models.transactions.mptoken_issuance_set import (
+    MPTokenIssuanceSet,
+    MPTokenIssuanceSetFlag,
+    MPTokenIssuanceSetFlagInterface,
+)
 from xrpl.models.transactions.nftoken_accept_offer import NFTokenAcceptOffer
 from xrpl.models.transactions.nftoken_burn import NFTokenBurn
 from xrpl.models.transactions.nftoken_cancel_offer import NFTokenCancelOffer
@@ -54,6 +73,8 @@ from xrpl.models.transactions.offer_create import (
     OfferCreateFlag,
     OfferCreateFlagInterface,
 )
+from xrpl.models.transactions.oracle_delete import OracleDelete
+from xrpl.models.transactions.oracle_set import OracleSet
 from xrpl.models.transactions.payment import Payment, PaymentFlag, PaymentFlagInterface
 from xrpl.models.transactions.payment_channel_claim import (
     PaymentChannelClaim,
@@ -111,6 +132,9 @@ __all__ = [
     "CheckCash",
     "CheckCreate",
     "Clawback",
+    "CredentialAccept",
+    "CredentialCreate",
+    "CredentialDelete",
     "DepositPreauth",
     "DIDDelete",
     "DIDSet",
@@ -118,6 +142,16 @@ __all__ = [
     "EscrowCreate",
     "EscrowFinish",
     "Memo",
+    "MPTokenAuthorize",
+    "MPTokenAuthorizeFlag",
+    "MPTokenAuthorizeFlagInterface",
+    "MPTokenIssuanceCreate",
+    "MPTokenIssuanceCreateFlag",
+    "MPTokenIssuanceCreateFlagInterface",
+    "MPTokenIssuanceDestroy",
+    "MPTokenIssuanceSet",
+    "MPTokenIssuanceSetFlag",
+    "MPTokenIssuanceSetFlagInterface",
     "NFTokenAcceptOffer",
     "NFTokenBurn",
     "NFTokenCancelOffer",
@@ -131,6 +165,8 @@ __all__ = [
     "OfferCreate",
     "OfferCreateFlag",
     "OfferCreateFlagInterface",
+    "OracleDelete",
+    "OracleSet",
     "Payment",
     "PaymentChannelClaim",
     "PaymentChannelClaimFlag",

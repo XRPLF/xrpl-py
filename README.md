@@ -64,7 +64,7 @@ The `xrpl-py` library is available on [PyPI](https://pypi.org/). Install with `p
 pip3 install xrpl-py
 ```
 
-The library supports [Python 3.7](https://www.python.org/downloads/) and later.
+The library supports [Python 3.8](https://www.python.org/downloads/) and later.
 
 [![Supported Versions](https://img.shields.io/pypi/pyversions/xrpl-py.svg)](https://pypi.org/project/xrpl-py)
 

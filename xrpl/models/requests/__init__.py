@@ -1,4 +1,5 @@
 """Request models."""
+
 from xrpl.models.auth_account import AuthAccount
 from xrpl.models.path import PathStep
 from xrpl.models.requests.account_channels import AccountChannels
@@ -14,9 +15,11 @@ from xrpl.models.requests.book_offers import BookOffers
 from xrpl.models.requests.channel_authorize import ChannelAuthorize
 from xrpl.models.requests.channel_verify import ChannelVerify
 from xrpl.models.requests.deposit_authorized import DepositAuthorized
+from xrpl.models.requests.feature import Feature
 from xrpl.models.requests.fee import Fee
 from xrpl.models.requests.gateway_balances import GatewayBalances
 from xrpl.models.requests.generic_request import GenericRequest
+from xrpl.models.requests.get_aggregate_price import GetAggregatePrice
 from xrpl.models.requests.ledger import Ledger
 from xrpl.models.requests.ledger_closed import LedgerClosed
 from xrpl.models.requests.ledger_current import LedgerCurrent
@@ -27,6 +30,7 @@ from xrpl.models.requests.nft_buy_offers import NFTBuyOffers
 from xrpl.models.requests.nft_history import NFTHistory
 from xrpl.models.requests.nft_info import NFTInfo
 from xrpl.models.requests.nft_sell_offers import NFTSellOffers
+from xrpl.models.requests.nfts_by_issuer import NFTsByIssuer
 from xrpl.models.requests.no_ripple_check import NoRippleCheck, NoRippleCheckRole
 from xrpl.models.requests.path_find import PathFind, PathFindSubcommand
 from xrpl.models.requests.ping import Ping
@@ -63,9 +67,11 @@ __all__ = [
     "ChannelAuthorize",
     "ChannelVerify",
     "DepositAuthorized",
+    "Feature",
     "Fee",
     "GatewayBalances",
     "GenericRequest",
+    "GetAggregatePrice",
     "Ledger",
     "LedgerClosed",
     "LedgerCurrent",
@@ -77,6 +83,7 @@ __all__ = [
     "NFTSellOffers",
     "NFTInfo",
     "NFTHistory",
+    "NFTsByIssuer",
     "NoRippleCheck",
     "NoRippleCheckRole",
     "PathFind",

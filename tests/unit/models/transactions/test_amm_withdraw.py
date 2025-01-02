@@ -115,10 +115,10 @@ class TestAMMWithdraw(TestCase):
                     currency=_ASSET2.currency, issuer=_ASSET2.issuer, value="500"
                 ),
             )
-            self.assertEqual(
-                error.exception.args[0],
-                "{'AMMWithdraw': 'Must set `amount` with `amount2`'}",
-            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'AMMWithdraw': 'Must set `amount` with `amount2`'}",
+        )
 
     def test_undefined_amount_defined_eprice_invalid_combo(self):
         with self.assertRaises(XRPLModelException) as error:
@@ -129,7 +129,7 @@ class TestAMMWithdraw(TestCase):
                 asset2=_ASSET2,
                 e_price="25",
             )
-            self.assertEqual(
-                error.exception.args[0],
-                "{'AMMWithdraw': 'Must set `amount` with `e_price`'}",
-            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'AMMWithdraw': 'Must set `amount` with `e_price`'}",
+        )

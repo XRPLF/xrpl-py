@@ -1,4 +1,5 @@
 """Utility functions and variables for integration tests."""
+
 import asyncio
 import importlib
 import inspect
@@ -246,7 +247,8 @@ def test_async_and_sync(
         # NOTE: passing `globals()` into `exec` is really bad practice and not safe at
         # all, but in this case it's fine because it's only running test code
 
-        def _run_sync_test(self, client):
+        def _run_sync_test(self, client, value):
+            self.value = value
             for i in range(num_retries):
                 try:
                     exec(
@@ -261,7 +263,8 @@ def test_async_and_sync(
                         raise e
                     sleep(2)
 
-        async def _run_async_test(self, client):
+        async def _run_async_test(self, client, value):
+            self.value = value
             if isinstance(client, AsyncWebsocketClient):
                 await client.open()
                 # this is happening with each test because IsolatedAsyncioTestCase is
@@ -285,16 +288,16 @@ def test_async_and_sync(
             if not websockets_only:
                 with self.subTest(version="async", client="json"):
                     asyncio.run(
-                        _run_async_test(self, _get_client(True, True, use_testnet))
+                        _run_async_test(self, _get_client(True, True, use_testnet), 1)
                     )
                 with self.subTest(version="sync", client="json"):
-                    _run_sync_test(self, _get_client(False, True, use_testnet))
+                    _run_sync_test(self, _get_client(False, True, use_testnet), 2)
             with self.subTest(version="async", client="websocket"):
                 asyncio.run(
-                    _run_async_test(self, _get_client(True, False, use_testnet))
+                    _run_async_test(self, _get_client(True, False, use_testnet), 3)
                 )
             with self.subTest(version="sync", client="websocket"):
-                _run_sync_test(self, _get_client(False, False, use_testnet))
+                _run_sync_test(self, _get_client(False, False, use_testnet), 4)
 
         return modified_test
 

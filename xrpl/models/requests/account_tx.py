@@ -4,16 +4,17 @@ specified account.
 
 `See account_tx <https://xrpl.org/account_tx.html>`_
 """
+
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class AccountTx(Request, LookupByLedgerRequest):
     """
     This request retrieves from the ledger a list of transactions that involved the

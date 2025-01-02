@@ -26,6 +26,7 @@ returning poor results. (Note: A server returning less-than-optimal
 results is not necessarily proof of malicious behavior; it could also be
 a symptom of heavy server load.)
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -36,7 +37,7 @@ from xrpl.models.amounts import Amount
 from xrpl.models.path import Path
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class PathFindSubcommand(str, Enum):
@@ -55,7 +56,7 @@ class PathFindSubcommand(str, Enum):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class PathFind(Request):
     """
     WebSocket API only! The path_find method searches for a

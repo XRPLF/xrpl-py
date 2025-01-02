@@ -2,7 +2,7 @@
 
 from __future__ import annotations  # Requires Python 3.7+
 
-from typing_extensions import Final
+from typing_extensions import Final, Self
 
 from xrpl.core.binarycodec.definitions.field_instance import FieldInstance
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
@@ -54,11 +54,11 @@ def _encode_variable_length_prefix(length: int) -> bytes:
 class BinarySerializer:
     """Serializes JSON to XRPL binary format."""
 
-    def __init__(self: BinarySerializer) -> None:
+    def __init__(self: Self) -> None:
         """Construct a BinarySerializer."""
         self.bytesink = bytes()
 
-    def append(self: BinarySerializer, bytes_object: bytes) -> None:
+    def append(self: Self, bytes_object: bytes) -> None:
         """
         Write given bytes to this BinarySerializer's bytesink.
 
@@ -67,7 +67,7 @@ class BinarySerializer:
         """
         self.bytesink += bytes_object
 
-    def __bytes__(self: BinarySerializer) -> bytes:
+    def __bytes__(self: Self) -> bytes:
         """
         Get the bytes representation of a BinarySerializer.
 
@@ -77,7 +77,7 @@ class BinarySerializer:
         return self.bytesink
 
     def write_length_encoded(
-        self: BinarySerializer,
+        self: Self,
         value: SerializedType,
         encode_value: bool = True,
     ) -> None:
@@ -97,7 +97,7 @@ class BinarySerializer:
         self.bytesink += byte_object
 
     def write_field_and_value(
-        self: BinarySerializer,
+        self: Self,
         field: FieldInstance,
         value: SerializedType,
         is_unl_modify_workaround: bool = False,

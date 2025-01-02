@@ -4,6 +4,7 @@ Creates or modifies a trust line linking two accounts.
 
 `See TrustSet <https://xrpl.org/trustset.html>`_
 """
+
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
@@ -13,7 +14,7 @@ from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class TrustSetFlag(int, Enum):
@@ -61,7 +62,7 @@ class TrustSetFlagInterface(FlagInterface):
 
 
 @require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class TrustSet(Transaction):
     """
     Represents a TrustSet transaction on the XRP Ledger.

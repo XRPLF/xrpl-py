@@ -58,7 +58,7 @@ class TestAccount(IntegrationTestCase):
 
         response = await get_latest_transaction(WALLET.address, client)
         self.assertEqual(len(response.result["transactions"]), 1)
-        transaction = response.result["transactions"][0]["tx"]
+        transaction = response.result["transactions"][0]["tx_json"]
         self.assertEqual(transaction["TransactionType"], "Payment")
-        self.assertEqual(transaction["Amount"], amount)
+        self.assertEqual(transaction["DeliverMax"], amount)
         self.assertEqual(transaction["Account"], WALLET.address)
