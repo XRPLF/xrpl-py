@@ -5,7 +5,8 @@ from __future__ import annotations  # Requires Python 3.7+
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
-from typing_extensions import Self
+from cryptoconditions import PreimageSha256  # type: ignore
+from typing_extensions import Self, TypedDict
 
 from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
@@ -84,3 +85,32 @@ class EscrowCreate(Transaction):
             )
 
         return errors
+
+
+class CryptoConditions(TypedDict):
+    """
+    A typed-dictionary containing the condition and the fulfillment for
+    conditional Escrows
+    """
+
+    condition: str
+    fulfillment: str
+
+
+def generate_escrow_cryptoconditions(secret: bytes) -> CryptoConditions:
+    """Generate a condition and fulfillment for escrows
+
+    Args:
+        secret: Cryptographic source of randomness used to generate the condition and
+            fulfillment
+
+    Returns:
+        A pair of condition and fulfillment is returned
+
+    """
+    fulfillment = PreimageSha256(preimage=secret)
+    cond_fulfillment: CryptoConditions = {
+        "condition": str.upper(fulfillment.condition_binary.hex()),
+        "fulfillment": str.upper(fulfillment.serialize_binary().hex()),
+    }
+    return cond_fulfillment
