@@ -14,7 +14,11 @@ from xrpl.models.path import Path
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+from xrpl.models.utils import (
+    KW_ONLY_DATACLASS,
+    require_kwargs_on_init,
+    validate_credential_ids,
+)
 
 
 class PaymentFlag(int, Enum):
@@ -129,8 +133,14 @@ class Payment(Transaction):
         init=False,
     )
 
+    credential_ids: Optional[List[str]] = None
+    """Credentials associated with sender of this transaction. The credentials included
+    must not be expired."""
+
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
+
+        errors.update(validate_credential_ids(self.credential_ids))
 
         # XRP transaction errors
         if is_xrp(self.amount) and self.send_max is None:
@@ -148,9 +158,9 @@ class Payment(Transaction):
         elif self.deliver_min is not None and not self.has_flag(
             PaymentFlag.TF_PARTIAL_PAYMENT
         ):
-            errors[
-                "deliver_min"
-            ] = "A non-partial payment cannot have a `deliver_min` field."
+            errors["deliver_min"] = (
+                "A non-partial payment cannot have a `deliver_min` field."
+            )
 
         elif (
             is_xrp(self.amount)
@@ -165,8 +175,8 @@ class Payment(Transaction):
         # currency conversion errors
         elif self.account == self.destination:
             if self.send_max is None:
-                errors[
-                    "send_max"
-                ] = "A currency conversion requires a `send_max` value."
+                errors["send_max"] = (
+                    "A currency conversion requires a `send_max` value."
+                )
 
         return errors

@@ -1,4 +1,5 @@
 """Model for a PaymentChannelFund transaction type."""
+
 from dataclasses import dataclass, field
 from typing import Optional
 

@@ -7,8 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+## [4.0.0] - 2024-12-23
+
+### Added
+- Support for the Multi-Purpose Tokens (MPT) amendment (XLS-33)
+- Add `include_deleted` to ledger_entry request
+- Add support for XLS-70d (Credentials)
+
 ### BREAKING CHANGE:
 - Remove Python 3.7 support to fix dependency installation and use 3.8 as new default.
+
+### Fixed
+- Grab the FeeSettings values from the latest validated ledger. Remove hard-coded reference to 10 drops as the reference transaction cost.
 
 ## [3.0.0] - 2024-07-16
 
@@ -84,6 +94,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   https://github.com/python/mypy/issues/6700
 
 ## [2.0.0] - 2023-07-05
+### BREAKING CHANGE
+- The default signing algorithm in the `Wallet` was changed from secp256k1 to ed25519
 ### Added:
 - Wallet support for regular key compatibility
 - Added new ways of wallet generation: `from_seed`, `from_secret`, `from_entropy`, `from_secret_numbers`

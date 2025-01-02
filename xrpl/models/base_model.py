@@ -40,11 +40,14 @@ ABBREVIATIONS: Final[Dict[str, str]] = {
     "did": "DID",
     "id": "ID",
     "lp": "LP",
+    "mptoken": "MPToken",
     "nftoken": "NFToken",
     "unl": "UNL",
     "uri": "URI",
     "xchain": "XChain",
 }
+# Define keys that should be excluded from key to json conversion
+EXCLUDED_KEYS = {"mpt_issuance_id"}
 
 
 def _key_to_json(field: str) -> str:
@@ -59,6 +62,9 @@ def _key_to_json(field: str) -> str:
     Raises:
         XRPLModelException: If the input is invalid
     """
+    if field in EXCLUDED_KEYS:
+        return field
+
     if not re.fullmatch(pattern=_PASCAL_OR_CAMEL_CASE, string=field):
         raise XRPLModelException(f"Key {field} is not in the proper XRPL format.")
 
@@ -85,7 +91,7 @@ class BaseModel(ABC):
     """The base class for all model types."""
 
     @classmethod
-    def is_dict_of_model(cls: Type[Self], dictionary: Any) -> bool:
+    def is_dict_of_model(cls: Type[Self], dictionary: Any) -> bool:  # noqa: ANN401
         """
         Checks whether the provided ``dictionary`` is a dictionary representation
         of this class.
@@ -95,7 +101,8 @@ class BaseModel(ABC):
         a subclass of this class.
 
         Args:
-            dictionary: The dictionary to check.
+            dictionary: The dictionary to check. Note: The input `dictionary` can be of
+                non-dict type. For instance, a `str` representation of JSON.
 
         Returns:
             True if dictionary is a ``dict`` representation of an instance of this
@@ -148,9 +155,9 @@ class BaseModel(ABC):
     def _from_dict_single_param(
         cls: Type[Self],
         param: str,
-        param_type: Type[Any],
+        param_type: Type[Any],  # noqa: ANN401
         param_value: Union[int, str, bool, BaseModel, Enum, List[Any], Dict[str, Any]],
-    ) -> Any:
+    ) -> Any:  # noqa: ANN401
         """Recursively handles each individual param in `from_dict`."""
         param_type_origin = get_origin(param_type)
         # returns `list` if a List, `Union` if a Union, None otherwise
@@ -321,7 +328,7 @@ class BaseModel(ABC):
             if getattr(self, key) is not None
         }
 
-    def _to_dict_elem(self: Self, elem: Any) -> Any:
+    def _to_dict_elem(self: Self, elem: Any) -> Any:  # noqa: ANN401
         if isinstance(elem, BaseModel):
             return elem.to_dict()
         if isinstance(elem, Enum):

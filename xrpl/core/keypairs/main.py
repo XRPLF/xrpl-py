@@ -1,4 +1,5 @@
 """Interface for cryptographic key pairs for use with the XRP Ledger."""
+
 from secrets import token_bytes
 from typing import Dict, Optional, Tuple, Type, Union
 
