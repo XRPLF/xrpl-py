@@ -118,7 +118,7 @@ def _unhex(x: str) -> str:
 
 
 lt_hits = re.findall(
-    r"^ *LEDGER_ENTRY\(lt[A-Z_]+ *, *([x0-9a-f]+) *, *([^,]+), \({$",
+    r"^ *LEDGER_ENTRY[A-Z_]*\(lt[A-Z_]+ *, *([x0-9a-f]+) *, *([^,]+), *([^,]+), \({$",
     ledger_entries_file,
     re.MULTILINE,
 )
