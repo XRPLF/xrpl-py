@@ -4,6 +4,10 @@ from xrpl.asyncio.transaction import (
     XRPLReliableSubmissionException,
     transaction_json_to_binary_codec_form,
 )
+from xrpl.transaction.batch_signers import (
+    combine_batch_signers,
+    sign_multiaccount_batch,
+)
 from xrpl.transaction.main import (
     _calculate_fee_per_transaction_type,
     autofill,
@@ -24,6 +28,8 @@ __all__ = [
     "submit_and_wait",
     "transaction_json_to_binary_codec_form",
     "multisign",
+    "sign_multiaccount_batch",
+    "combine_batch_signers",
     "XRPLReliableSubmissionException",
     "_calculate_fee_per_transaction_type",
 ]
