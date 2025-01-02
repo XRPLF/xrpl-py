@@ -108,10 +108,10 @@ def generate_escrow_cryptoconditions(secret: bytes) -> CryptoConditions:
         A pair of condition and fulfillment is returned
 
     """
-    fufill = PreimageSha256(preimage=secret)
+    fulfill = PreimageSha256(preimage=secret)
     cond_fulfillment: CryptoConditions = {
-        "condition": str.upper(fufill.condition_binary.hex()),
-        "fulfillment": str.upper(fufill.serialize_binary().hex()),
+        "condition": str.upper(fulfill.condition_binary.hex()),
+        "fulfillment": str.upper(fulfill.serialize_binary.hex()),
     }
     return cond_fulfillment
     # return {
