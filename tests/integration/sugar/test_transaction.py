@@ -280,14 +280,14 @@ class TestTransaction(IntegrationTestCase):
             ],
         )
         transaction = await autofill(tx, client)
-        self.assertEqual(len(transaction.tx_ids), 2)
+        self.assertEqual(len(transaction.transaction_ids), 2)
 
         sequence = await get_next_valid_seq_number(WALLET.address, client)
         for i in range(len(transaction.raw_transactions)):
             raw_tx = transaction.raw_transactions[i]
             self.assertTrue(raw_tx.has_flag(TransactionFlag.TF_INNER_BATCH_TXN))
             self.assertEqual(raw_tx.sequence, sequence + i)
-            self.assertEqual(raw_tx.get_hash(), transaction.tx_ids[i])
+            self.assertEqual(raw_tx.get_hash(), transaction.transaction_ids[i])
             self.assertIsNone(raw_tx.network_id)
             self.assertIsNone(raw_tx.last_ledger_sequence)
             self.assertEqual(raw_tx.fee, "0")

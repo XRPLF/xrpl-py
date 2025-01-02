@@ -83,11 +83,11 @@ def encode_for_signing_batch(json: Dict[str, Any]) -> str:
     """
     prefix = _BATCH_PREFIX
     flags = UInt32.from_value(json["flags"])
-    tx_ids = json["tx_ids"]
-    len_tx_ids = UInt32.from_value(len(tx_ids))
+    transaction_ids = json["transaction_ids"]
+    len_transaction_ids = UInt32.from_value(len(transaction_ids))
 
-    buffer = prefix + bytes(flags) + bytes(len_tx_ids)
-    for tx in tx_ids:
+    buffer = prefix + bytes(flags) + bytes(len_transaction_ids)
+    for tx in transaction_ids:
         buffer += bytes(Hash256.from_value(tx))
 
     return buffer.hex().upper()

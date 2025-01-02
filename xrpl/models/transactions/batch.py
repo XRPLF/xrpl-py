@@ -63,7 +63,7 @@ class Batch(Transaction):
     """Represents a Batch transaction."""
 
     raw_transactions: List[Transaction] = REQUIRED  # type: ignore
-    tx_ids: Optional[List[str]] = None
+    transaction_ids: Optional[List[str]] = None
     batch_signers: Optional[List[BatchSigner]] = None
 
     transaction_type: TransactionType = field(
