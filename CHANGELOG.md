@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Added
+- Improved validation for models to also check param types
+
 ## [4.0.0] - 2024-12-23
 
 ### Added
