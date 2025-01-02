@@ -112,7 +112,8 @@ def _validate_batch_equivalence(transactions: List[Batch]) -> None:
     for tx in transactions:
         if tx.flags != example_tx.flags or tx.tx_ids != example_tx.tx_ids:
             raise XRPLException(
-                "Flags and TxIDs is not the same for all provided transactions."
+                "Flags and TransactionIDs are not the same for all provided "
+                "transactions."
             )
 
 

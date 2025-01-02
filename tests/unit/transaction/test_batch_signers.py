@@ -60,7 +60,7 @@ class TestSignMultiAccountBatch(TestCase):
                 },
             ],
             "TransactionType": "Batch",
-            "TxIDs": [
+            "TransactionIDs": [
                 "ABE4871E9083DF66727045D49DEEDD3A6F166EB7F8D1E92FE868F02E76B2C5CA",
                 "795AAC88B59E95C3497609749127E69F12958BC016C600C770AEEB1474C840B4",
             ],
@@ -149,7 +149,7 @@ class TestCombineBatchSigners(TestCase):
             ],
             "Sequence": 215,
             "TransactionType": "Batch",
-            "TxIDs": [
+            "TransactionIDs": [
                 "ABE4871E9083DF66727045D49DEEDD3A6F166EB7F8D1E92FE868F02E76B2C5CA",
                 "795AAC88B59E95C3497609749127E69F12958BC016C600C770AEEB1474C840B4",
             ],
@@ -189,7 +189,7 @@ class TestCombineBatchSigners(TestCase):
         )
         original_dict = self.batch_tx.to_xrpl()
         original_dict["RawTransactions"].append({"RawTransaction": tx.to_xrpl()})
-        original_dict["TxIDs"].append(tx.get_hash())
+        original_dict["TransactionIDs"].append(tx.get_hash())
 
         batch_tx = Batch.from_xrpl(original_dict)
         tx1 = sign_multiaccount_batch(ed_wallet, batch_tx)

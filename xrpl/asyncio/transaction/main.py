@@ -265,7 +265,7 @@ async def autofill(
         if "tx_ids" in transaction_json:
             if transaction_json["tx_ids"] != tx_ids:
                 raise XRPLException(
-                    "Batch `TxIDs` don't match what `autofill` generated."
+                    "Batch `TransactionIDs` don't match what `autofill` generated."
                 )
         else:
             transaction_json["tx_ids"] = tx_ids
