@@ -93,7 +93,7 @@ print(account_objects)
 finish_tx = EscrowFinish(
     account=wallet1.address,
     owner=wallet1.address,
-    offer_sequence=create_escrow_response.result["Sequence"],
+    offer_sequence=create_escrow_response.result["tx_json"]["Sequence"],
     fulfillment=cryptoCondition["fulfillment"],
     condition=cryptoCondition["condition"],
 )
