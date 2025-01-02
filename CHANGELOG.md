@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Allow empty strings for the purpose of removing fields in DIDSet transaction
+- Use `NetworkID` in faucet processing to produce a non-ambiguous URL for faucet hosts.
 
 ### Removed
 - Remove deprecated `full`, `accounts`, and `type` parameters from ledger request model
