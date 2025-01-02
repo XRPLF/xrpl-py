@@ -28,6 +28,7 @@ class LedgerEntryType(str, Enum):
     AMENDMENTS = "amendments"
     AMM = "amm"
     CHECK = "check"
+    CREDENTIAL = "credential"
     DEPOSIT_PREAUTH = "deposit_preauth"
     DIRECTORY = "directory"
     DID = "did"
@@ -43,6 +44,24 @@ class LedgerEntryType(str, Enum):
     MPT_ISSUANCE = "mpt_issuance"
     MPTOKEN = "mptoken"
     NFT_OFFER = "nft_offer"
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+class Credential(BaseModel):
+    """Specify the Credential to retrieve. If a string, must be the ledger entry ID of
+    the entry, as hexadecimal. If an object, requires subject, issuer, and
+    credential_type sub-fields.
+    """
+
+    subject: str = REQUIRED  # type: ignore
+    """The account that is the subject of the credential."""
+
+    issuer: str = REQUIRED  # type: ignore
+    """The account that issued the credential."""
+
+    credential_type: str = REQUIRED  # type: ignore
+    """The type of the credential, as issued."""
 
 
 @require_kwargs_on_init
@@ -270,6 +289,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     index: Optional[str] = None
     account_root: Optional[str] = None
     check: Optional[str] = None
+    credential: Optional[Union[str, Credential]] = None
     deposit_preauth: Optional[Union[str, DepositPreauth]] = None
     did: Optional[str] = None
     directory: Optional[Union[str, Directory]] = None
@@ -302,6 +322,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
                 self.index,
                 self.account_root,
                 self.check,
+                self.credential,
                 self.deposit_preauth,
                 self.did,
                 self.directory,
