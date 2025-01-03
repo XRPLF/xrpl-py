@@ -35,7 +35,7 @@ class SubmitMultisigned(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.SUBMIT_MULTISIGNED, init=False)
-    tx_json: Transaction = REQUIRED  # type: ignore
+    tx_json: Transaction = REQUIRED
     """
     This field is required.
 
