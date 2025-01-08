@@ -7,7 +7,7 @@ from xrpl.models.requests.account_currencies import AccountCurrencies
 from xrpl.models.requests.account_info import AccountInfo
 from xrpl.models.requests.account_lines import AccountLines
 from xrpl.models.requests.account_nfts import AccountNFTs
-from xrpl.models.requests.account_objects import AccountObjects
+from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
 from xrpl.models.requests.account_offers import AccountOffers
 from xrpl.models.requests.account_tx import AccountTx
 from xrpl.models.requests.amm_info import AMMInfo
@@ -58,6 +58,7 @@ __all__ = [
     "AccountLines",
     "AccountNFTs",
     "AccountObjects",
+    "AccountObjectType",
     "AccountOffers",
     "AccountTx",
     "AMMInfo",

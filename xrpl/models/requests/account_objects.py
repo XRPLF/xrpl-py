@@ -7,13 +7,55 @@ AccountLinesRequest instead.
 `See account_objects <https://xrpl.org/account_objects.html>`_
 """
 
+import warnings
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from enum import Enum, EnumMeta
+from typing import Any, Optional, cast
 
-from xrpl.models.requests.ledger_entry import LedgerEntryType
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+
+
+class allow_enum_deprecation(EnumMeta):
+    """Metaclass to properly handle the access to `deprecated` enum members"""
+
+    def __getattribute__(cls: type, name: str) -> str:
+        """Override the getter method to emit a DeprecationWarning"""
+        attr = type.__getattribute__(cls, name)
+        if hasattr(attr, "value"):
+            warnings.warn(
+                "AccountObjectType is deprecated and will be removed in a future "
+                "release. Use LedgerEntryType instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return cast(str, attr)
+
+
+class AccountObjectType(str, Enum, metaclass=allow_enum_deprecation):
+    """
+    Represents the object types that an AccountObjectsRequest can ask for.
+
+    DEPRECATED: This enum is slated for removal. Please use LedgerEntryType instead.
+    """
+
+    AMM = "amm"
+    BRIDGE = "bridge"
+    CHECK = "check"
+    CREDENTIAL = "credential"
+    DEPOSIT_PREAUTH = "deposit_preauth"
+    DID = "did"
+    ESCROW = "escrow"
+    NFT_OFFER = "nft_offer"
+    OFFER = "offer"
+    ORACLE = "oracle"
+    PAYMENT_CHANNEL = "payment_channel"
+    SIGNER_LIST = "signer_list"
+    STATE = "state"
+    TICKET = "ticket"
+    XCHAIN_OWNED_CREATE_ACCOUNT_CLAIM_ID = "xchain_owned_create_account_claim_id"
+    XCHAIN_OWNED_CLAIM_ID = "xchain_owned_claim_id"
 
 
 @require_kwargs_on_init
@@ -36,7 +78,7 @@ class AccountObjects(Request, LookupByLedgerRequest):
     """
 
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_OBJECTS, init=False)
-    type: Optional[LedgerEntryType] = None
+    type: Optional[AccountObjectType] = None
     deletion_blockers_only: bool = False
     limit: Optional[int] = None
     # marker data shape is actually undefined in the spec, up to the
