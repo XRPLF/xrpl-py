@@ -16,7 +16,7 @@ from xrpl.asyncio.clients.utils import request_to_websocket, websocket_to_respon
 from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
 
-PAYLOAD_MAX_SIZE: Final[int] = 2**24
+_PAYLOAD_MAX_SIZE: Final[int] = 2**24
 _REQ_ID_MAX: Final[int] = 1_000_000
 
 # the types from asyncio are not implemented as generics in python 3.8 and
@@ -92,7 +92,7 @@ class WebsocketBase(Client):
         """Connects the client to the Web Socket API at its URL."""
         # open the connection
         self._websocket = await websocket_client.connect(
-            self.url, max_size=PAYLOAD_MAX_SIZE
+            self.url, max_size=_PAYLOAD_MAX_SIZE
         )
 
         # make a message queue
