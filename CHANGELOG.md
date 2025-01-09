@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Fixed
+- Increase default maximum payload size for websocket client
+
 ## [4.0.0] - 2024-12-23
 
 ### Added
