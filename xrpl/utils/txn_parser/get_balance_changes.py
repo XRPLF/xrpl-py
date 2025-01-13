@@ -14,7 +14,8 @@ from xrpl.utils.txn_parser.utils import (
 
 def get_balance_changes(metadata: TransactionMetadata) -> List[AccountBalances]:
     """
-    Parse all balance changes from a transaction's metadata.
+    Parse all balance changes from a transaction's metadata. Does not include
+    MPT balance.
 
     Args:
         metadata: Transactions metadata.
@@ -23,6 +24,7 @@ def get_balance_changes(metadata: TransactionMetadata) -> List[AccountBalances]:
         All balance changes caused by a transaction.
         The balance changes are grouped by the affected account addresses.
     """
+    # TODO: add support for MPT balance
     return derive_account_balances(metadata, _compute_balance_change)
 
 

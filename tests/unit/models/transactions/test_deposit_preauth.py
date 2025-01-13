@@ -3,6 +3,7 @@ from unittest import TestCase
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import DepositPreauth
 from xrpl.models.transactions.deposit_preauth import Credential
+from xrpl.models.utils import MAX_CREDENTIAL_ARRAY_LENGTH
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _FEE = "0.00001"
@@ -58,7 +59,7 @@ class TestDepositPreauth(TestCase):
             Credential(
                 issuer="SampleIssuer_" + str(i), credential_type="SampleCredType"
             )
-            for i in range(9)
+            for i in range(MAX_CREDENTIAL_ARRAY_LENGTH + 1)
         ]
 
         with self.assertRaises(XRPLModelException) as error:
@@ -72,17 +73,21 @@ class TestDepositPreauth(TestCase):
         self.assertEqual(
             error.exception.args[0],
             "{'DepositPreauth': '"
-            + "AuthorizeCredentials list cannot have more than 8 elements. "
-            + "'}",
+            + "AuthorizeCredentials list cannot exceed "
+            + str(MAX_CREDENTIAL_ARRAY_LENGTH)
+            + " elements. '}",
         )
 
     def test_auth_cred_duplicates(self):
         with self.assertRaises(XRPLModelException) as error:
+            sample_credential = Credential(
+                issuer="SampleIssuer", credential_type="SampleCredType"
+            )
             DepositPreauth(
                 account=_ACCOUNT,
                 fee=_FEE,
                 sequence=_SEQUENCE,
-                authorize_credentials=["credential", "credential"],
+                authorize_credentials=[sample_credential, sample_credential],
             )
 
         self.assertEqual(
@@ -113,7 +118,7 @@ class TestDepositPreauth(TestCase):
             Credential(
                 issuer="SampleIssuer_" + str(i), credential_type="SampleCredType"
             )
-            for i in range(9)
+            for i in range(MAX_CREDENTIAL_ARRAY_LENGTH + 1)
         ]
 
         with self.assertRaises(XRPLModelException) as error:
@@ -127,8 +132,9 @@ class TestDepositPreauth(TestCase):
         self.assertEqual(
             error.exception.args[0],
             "{'DepositPreauth': '"
-            + "UnauthorizeCredentials list cannot have more than 8 elements. "
-            + "'}",
+            + "UnauthorizeCredentials list cannot exceed "
+            + str(MAX_CREDENTIAL_ARRAY_LENGTH)
+            + " elements. '}",
         )
 
     def test_unauthcreds_empty_array_inputs(self):

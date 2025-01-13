@@ -10,9 +10,34 @@ from xrpl.models.exceptions import XRPLModelException
 
 HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
 
+MAX_CREDENTIAL_ARRAY_LENGTH = 8
+
 # Credentials are represented in hex. Whilst they are allowed a maximum length of 64
 # bytes, every byte requires 2 hex characters for representation
-_MAX_CREDENTIAL_LENGTH: Final[int] = 64 * 2
+_MAX_CREDENTIAL_LENGTH: Final[int] = 128
+
+
+def get_credential_type_error(credential_type: str) -> Optional[str]:
+    """
+    Utility function for validating the CredentialType field in all
+    transactions related to Credential.
+
+    Args:
+        credential_type: A hex-encoded value to identify the type of credential from
+            the issuer.
+
+    Returns:
+        Errors, if any, during validation of credential_type field
+    """
+    errors = []
+    # credential_type is a required field in this transaction
+    if len(credential_type) == 0:
+        errors.append("cannot be an empty string.")
+    elif len(credential_type) > _MAX_CREDENTIAL_LENGTH:
+        errors.append(f"Length cannot exceed {_MAX_CREDENTIAL_LENGTH}.")
+    if not HEX_REGEX.fullmatch(credential_type):
+        errors.append("credential_type field must be encoded in hex.")
+    return " ".join(errors) if len(errors) > 0 else None
 
 
 def validate_credential_ids(credential_list: Optional[List[str]]) -> Dict[str, str]:
@@ -29,9 +54,10 @@ def validate_credential_ids(credential_list: Optional[List[str]]) -> Dict[str, s
 
     if len(credential_list) == 0:
         errors["credential_ids"] = "CredentialIDs list cannot be empty."
-    elif len(credential_list) > 8:
+    elif len(credential_list) > MAX_CREDENTIAL_ARRAY_LENGTH:
         errors["credential_ids"] = (
-            "CredentialIDs list cannot have more than 8 elements."
+            f"CredentialIDs list cannot exceed {MAX_CREDENTIAL_ARRAY_LENGTH}"
+            + " elements."
         )
 
     if len(credential_list) != len(set(credential_list)):

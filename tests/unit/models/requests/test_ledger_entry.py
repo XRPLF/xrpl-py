@@ -4,6 +4,7 @@ from xrpl.models import XRP, LedgerEntry, XChainBridge
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests.ledger_entry import (
     Credential,
+    MPToken,
     Oracle,
     PermissionedDomain,
     RippleState,
@@ -184,3 +185,35 @@ class TestLedgerEntry(TestCase):
                 permissioned_domain=PermissionedDomain(account="rAccount", seq=1234)
             )
         )
+
+    def test_get_mpt_issuance(self):
+        req = LedgerEntry(
+            mpt_issuance="rB6XJbxKx2oBSK1E3Hvh7KcZTCCBukWyhv",
+        )
+        self.assertTrue(req.is_valid())
+
+    def test_get_mptoken(self):
+        req = LedgerEntry(
+            mptoken=MPToken(
+                mpt_issuance_id="00002403C84A0A28E0190E208E982C352BBD5006600555CF",
+                account="rB6XJbxKx2oBSK1E3Hvh7KcZTCCBukWyhv",
+            )
+        )
+        self.assertTrue(req.is_valid())
+
+    def test_invalid_mptoken(self):
+        # missing mpt_issuance_id
+        with self.assertRaises(XRPLModelException):
+            LedgerEntry(
+                mptoken=MPToken(
+                    account="rB6XJbxKx2oBSK1E3Hvh7KcZTCCBukWyhv",
+                )
+            )
+
+        # missing account
+        with self.assertRaises(XRPLModelException):
+            LedgerEntry(
+                mptoken=MPToken(
+                    mpt_issuance_id="00002403C84A0A28E0190E208E982C352BBD5006600555CF",
+                )
+            )

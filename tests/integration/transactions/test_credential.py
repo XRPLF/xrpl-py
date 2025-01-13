@@ -46,6 +46,7 @@ class TestCredentials(IntegrationTestCase):
         # Define entities helpful for Credential lifecycle
         _ISSUER = WALLET.address
         _SUBJECT = DESTINATION.address
+        _SUBJECT_WALLET = DESTINATION
 
         # Disambiguate the sync/async, json/websocket tests with different
         # credential type values -- this avoids tecDUPLICATE error
@@ -78,7 +79,7 @@ class TestCredentials(IntegrationTestCase):
             issuer=_ISSUER, account=_SUBJECT, credential_type=cred_type
         )
         # CredentialAccept transaction is submitted by SUBJECT
-        response = await sign_and_reliable_submission_async(tx, DESTINATION, client)
+        response = await sign_and_reliable_submission_async(tx, _SUBJECT_WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
@@ -88,7 +89,7 @@ class TestCredentials(IntegrationTestCase):
             issuer=_ISSUER, account=_SUBJECT, credential_type=cred_type
         )
 
-        response = await sign_and_reliable_submission_async(tx, DESTINATION, client)
+        response = await sign_and_reliable_submission_async(tx, _SUBJECT_WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 

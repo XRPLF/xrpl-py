@@ -11,7 +11,11 @@ from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+from xrpl.models.utils import (
+    KW_ONLY_DATACLASS,
+    MAX_CREDENTIAL_ARRAY_LENGTH,
+    require_kwargs_on_init,
+)
 
 
 @require_kwargs_on_init
@@ -62,8 +66,8 @@ class DepositPreauth(Transaction):
             and self.unauthorize_credentials is None
         ):
             errors["DepositPreauth"] = (
-                "Exactly one input parameter amongst authorize, unauthorize, "
-                + "authorize_credentials or unauthorize_credentials must be set. It is "
+                "Exactly one field must be set for either authorize, unauthorize, "
+                + "authorize_credentials or unauthorize_credentials. It is "
                 + "invalid if none of the params are specified."
             )
 
@@ -77,18 +81,24 @@ class DepositPreauth(Transaction):
         ]
         if sum(param is not None for param in params) > 1:
             errors["DepositPreauth"] = (
-                "DepositPreauth txn accepts exactly one input amongst authorize, "
-                + "unauthorize, authorize_credentials and unauthorize_credentials."
+                "DepositPreauth txn accepts exactly one input amongst `authorize`, "
+                + "`unauthorize`, `authorize_credentials` and `unauthorize_credentials`"
+                + "."
             )
 
         def _validate_credentials_length(
             credentials: List[Credential], field_name: str
         ) -> None:
+            if credentials is None:
+                return
+
             if len(credentials) == 0:
                 errors["DepositPreauth"] = f"{field_name} list cannot be empty. "
-            elif len(credentials) > 8:
+            elif len(credentials) > MAX_CREDENTIAL_ARRAY_LENGTH:
                 errors["DepositPreauth"] = (
-                    f"{field_name} list cannot have more than 8 elements. "
+                    f"{field_name} list cannot exceed "
+                    + str(MAX_CREDENTIAL_ARRAY_LENGTH)
+                    + " elements. "
                 )
 
             if len(credentials) != len(set(credentials)):
@@ -96,7 +106,6 @@ class DepositPreauth(Transaction):
                     f"{field_name} list cannot contain duplicate credentials."
                 )
 
-        # Then replace the checks with:
         if self.authorize_credentials is not None:
             _validate_credentials_length(
                 self.authorize_credentials, "AuthorizeCredentials"
@@ -106,10 +115,6 @@ class DepositPreauth(Transaction):
             _validate_credentials_length(
                 self.unauthorize_credentials, "UnauthorizeCredentials"
             )
-
-        # Note: Other validity checks like sufficient account-reserve balance,
-        # existence of the issuer, etc on the list of credentials need access to the
-        # blockchain state.
 
         return errors
 
@@ -126,4 +131,4 @@ class Credential(NestedModel):
     """The issuer of the credential."""
 
     credential_type: str = REQUIRED  # type: ignore
-    """A (hex-encoded) value to identify the type of credential from the issuer."""
+    """A hex-encoded value to identify the type of credential from the issuer."""

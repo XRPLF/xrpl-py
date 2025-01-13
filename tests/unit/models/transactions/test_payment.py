@@ -158,8 +158,7 @@ class TestPayment(TestCase):
 
         self.assertEqual(
             err.exception.args[0],
-            "{'credential_ids': 'CredentialIDs list cannot have more than 8 "
-            + "elements.'}",
+            "{'credential_ids': 'CredentialIDs list cannot exceed 8 elements.'}",
         )
 
     def test_credentials_array_duplicates(self):
@@ -176,3 +175,17 @@ class TestPayment(TestCase):
             "{'credential_ids_duplicates': 'CredentialIDs list cannot contain duplicate"
             + " values.'}",
         )
+
+    def test_mpt_payment(self):
+        transaction_dict = {
+            "account": _ACCOUNT,
+            "fee": _FEE,
+            "sequence": _SEQUENCE,
+            "amount": {
+                "mpt_issuance_id": "000004C463C52827307480341125DA0577DEFC38405B0E3E",
+                "value": "10",
+            },
+            "destination": _DESTINATION,
+        }
+        tx = Payment(**transaction_dict)
+        self.assertTrue(tx.is_valid())
