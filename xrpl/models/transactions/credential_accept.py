@@ -27,7 +27,7 @@ class CredentialAccept(Transaction):
     """
     The subject of the credential.
     """
-    
+
     issuer: str = REQUIRED  # type: ignore
     """
     The issuer of the credential.

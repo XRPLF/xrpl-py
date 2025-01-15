@@ -6,11 +6,7 @@ from tests.integration.it_utils import (
 from tests.integration.reusable_values import CREDENTIAL_ACCEPT_RESPONSE, WALLET
 from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
 from xrpl.models.requests.ledger_data import LedgerData
-from xrpl.models.requests.ledger_entry import (
-    LedgerEntry,
-    LedgerEntryType,
-    PermissionedDomain,
-)
+from xrpl.models.requests.ledger_entry import LedgerEntry, PermissionedDomain
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions.permissioned_domain_delete import PermissionedDomainDelete
 from xrpl.models.transactions.permissioned_domain_set import (
