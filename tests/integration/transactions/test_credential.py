@@ -4,7 +4,7 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from tests.integration.reusable_values import DESTINATION, WALLET
-from xrpl.models import AccountObjects, LedgerEntryType
+from xrpl.models import AccountObjects, AccountObjectType
 from xrpl.models.requests.ledger_entry import Credential, LedgerEntry
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions.credential_accept import CredentialAccept
@@ -96,7 +96,7 @@ class TestCredentials(IntegrationTestCase):
         # The credential ledger object must be deleted from both the Issuer and Subject
         # account's directory pages
         account_objects_response = await client.request(
-            AccountObjects(account=_ISSUER, type=LedgerEntryType.CREDENTIAL)
+            AccountObjects(account=_ISSUER, type=AccountObjectType.CREDENTIAL)
         )
         self.assertFalse(
             is_cred_object_present(
@@ -110,7 +110,7 @@ class TestCredentials(IntegrationTestCase):
         # Verify that the Credential object has been deleted from the Subject's
         # directory page as well
         account_objects_response = await client.request(
-            AccountObjects(account=_SUBJECT, type=LedgerEntryType.CREDENTIAL)
+            AccountObjects(account=_SUBJECT, type=AccountObjectType.CREDENTIAL)
         )
         self.assertFalse(
             is_cred_object_present(

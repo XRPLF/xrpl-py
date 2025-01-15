@@ -9,7 +9,7 @@ from xrpl.core.binarycodec import encode
 from xrpl.core.keypairs import sign
 from xrpl.models import (
     AccountObjects,
-    LedgerEntryType,
+    AccountObjectType,
     XChainAddAccountCreateAttestation,
 )
 from xrpl.utils import xrp_to_drops
@@ -26,7 +26,7 @@ class TestXChainAddAccountCreateAttestation(IntegrationTestCase):
         account_objects = await client.request(
             AccountObjects(
                 account=BRIDGE.xchain_bridge.locking_chain_door,
-                type=LedgerEntryType.BRIDGE,
+                type=AccountObjectType.BRIDGE,
             )
         )
         bridge_obj = account_objects.result["account_objects"][0]

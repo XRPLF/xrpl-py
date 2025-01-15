@@ -4,7 +4,7 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from tests.integration.reusable_values import WALLET
-from xrpl.models import AccountObjects, DIDDelete, DIDSet, LedgerEntryType
+from xrpl.models import AccountObjects, AccountObjectType, DIDDelete, DIDSet
 from xrpl.models.response import ResponseStatus
 
 _VALID_FIELD = "1234567890abcdefABCDEF"
@@ -26,7 +26,7 @@ class TestDIDDelete(IntegrationTestCase):
 
         # confirm that the DID was actually created
         account_objects_response = await client.request(
-            AccountObjects(account=WALLET.address, type=LedgerEntryType.DID)
+            AccountObjects(account=WALLET.address, type=AccountObjectType.DID)
         )
         self.assertEqual(len(account_objects_response.result["account_objects"]), 1)
 
@@ -40,6 +40,6 @@ class TestDIDDelete(IntegrationTestCase):
 
         # confirm that the DID was actually deleted
         account_objects_response = await client.request(
-            AccountObjects(account=WALLET.address, type=LedgerEntryType.DID)
+            AccountObjects(account=WALLET.address, type=AccountObjectType.DID)
         )
         self.assertEqual(len(account_objects_response.result["account_objects"]), 0)
