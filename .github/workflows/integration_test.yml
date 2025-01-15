@@ -60,4 +60,4 @@ jobs:
 
       - name: Stop docker container
         if: always()
-        run: docker stop rippled_standalone
+        run: docker stop rippled-service
