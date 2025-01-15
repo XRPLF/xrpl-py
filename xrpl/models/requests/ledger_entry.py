@@ -46,25 +46,6 @@ class LedgerEntryType(str, Enum):
     MPT_ISSUANCE = "mpt_issuance"
     MPTOKEN = "mptoken"
     NFT_OFFER = "nft_offer"
-    XCHAIN_OWNED_CLAIM_ID = "xchain_owned_claim_id"
-
-
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
-class Credential(BaseModel):
-    """Specify the Credential to retrieve. If a string, must be the ledger entry ID of
-    the entry, as hexadecimal. If an object, requires subject, issuer, and
-    credential_type sub-fields.
-    """
-
-    subject: str = REQUIRED  # type: ignore
-    """The account that is the subject of the credential."""
-
-    issuer: str = REQUIRED  # type: ignore
-    """The account that issued the credential."""
-
-    credential_type: str = REQUIRED  # type: ignore
-    """The type of the credential, as issued."""
 
 
 @require_kwargs_on_init

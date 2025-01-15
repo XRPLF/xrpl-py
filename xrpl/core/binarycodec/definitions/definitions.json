@@ -1,66 +1,4 @@
 {
-  "TYPES": {
-    "Done": -1,
-    "Unknown": -2,
-    "NotPresent": 0,
-    "UInt16": 1,
-    "UInt32": 2,
-    "UInt64": 3,
-    "Hash128": 4,
-    "Hash256": 5,
-    "Amount": 6,
-    "Blob": 7,
-    "AccountID": 8,
-    "STObject": 14,
-    "STArray": 15,
-    "UInt8": 16,
-    "Hash160": 17,
-    "PathSet": 18,
-    "Vector256": 19,
-    "UInt96": 20,
-    "UInt192": 21,
-    "UInt384": 22,
-    "UInt512": 23,
-    "Issue": 24,
-    "XChainBridge": 25,
-    "Currency": 26,
-    "Transaction": 10001,
-    "LedgerEntry": 10002,
-    "Validation": 10003,
-    "Metadata": 10004
-  },
-  "LEDGER_ENTRY_TYPES": {
-    "Invalid": -1,
-    "AccountRoot": 97,
-    "DirectoryNode": 100,
-    "RippleState": 114,
-    "Ticket": 84,
-    "SignerList": 83,
-    "Offer": 111,
-    "Bridge": 105,
-    "LedgerHashes": 104,
-    "Amendments": 102,
-    "XChainOwnedClaimID": 113,
-    "XChainOwnedCreateAccountClaimID": 116,
-    "FeeSettings": 115,
-    "Escrow": 117,
-    "PayChannel": 120,
-    "Check": 67,
-    "DepositPreauth": 112,
-    "NegativeUNL": 78,
-    "NFTokenPage": 80,
-    "NFTokenOffer": 55,
-    "AMM": 121,
-    "DID": 73,
-    "Oracle": 128,
-    "Credential": 129,
-    "PermissionedDomain": 130,
-    "Any": -3,
-    "Child": -2,
-    "Nickname": 110,
-    "Contract": 99,
-    "GeneratorMap": 103
-  },
   "FIELDS": [
     [
       "Generic",
@@ -943,27 +881,7 @@
       }
     ],
     [
-      "IssuerNode",
-      {
-        "nth": 27,
-        "isVLEncoded": false,
-        "isSerialized": true,
-        "isSigningField": true,
-        "type": "UInt64"
-      }
-    ],
-    [
-      "SubjectNode",
-      {
-        "nth": 28,
-        "isVLEncoded": false,
-        "isSerialized": true,
-        "isSigningField": true,
-        "type": "UInt64"
-      }
-    ],
-    [
-      "EmailHash",
+      "MaximumAmount",
       {
         "isSerialized": true,
         "isSigningField": true,
@@ -1343,7 +1261,7 @@
       }
     ],
     [
-      "Amount",
+      "hash",
       {
         "isSerialized": false,
         "isSigningField": false,
@@ -1913,17 +1831,7 @@
       }
     ],
     [
-      "CredentialType",
-      {
-        "nth": 31,
-        "isVLEncoded": true,
-        "isSerialized": true,
-        "isSigningField": true,
-        "type": "Blob"
-      }
-    ],
-    [
-      "Account",
+      "MPTokenMetadata",
       {
         "isSerialized": true,
         "isSigningField": true,
@@ -2123,16 +2031,6 @@
       }
     ],
     [
-      "Indexes",
-      {
-        "nth": 24,
-        "isVLEncoded": true,
-        "isSerialized": true,
-        "isSigningField": true,
-        "type": "AccountID"
-      }
-    ],
-    [
       "TransactionMetaData",
       {
         "isSerialized": true,
@@ -2163,17 +2061,7 @@
       }
     ],
     [
-      "CredentialIDs",
-      {
-        "nth": 5,
-        "isVLEncoded": true,
-        "isSerialized": true,
-        "isSigningField": true,
-        "type": "Vector256"
-      }
-    ],
-    [
-      "Paths",
+      "ModifiedNode",
       {
         "isSerialized": true,
         "isSigningField": true,
@@ -2543,17 +2431,7 @@
       }
     ],
     [
-      "Credential",
-      {
-        "nth": 33,
-        "isVLEncoded": false,
-        "isSerialized": true,
-        "isSigningField": true,
-        "type": "STObject"
-      }
-    ],
-    [
-      "Signers",
+      "Majorities",
       {
         "isSerialized": true,
         "isSigningField": true,
@@ -2663,6 +2541,15 @@
       }
     ],
     [
+      "AcceptedCredentials", {
+        "nth": 28,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "STArray"
+      }
+    ],
+    [
       "CloseResolution",
       {
         "isSerialized": true,
@@ -2763,32 +2650,213 @@
       }
     ],
     [
-      "AuthorizeCredentials",
+      "TakerPaysIssuer",
       {
-        "nth": 26,
-        "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STArray"
+        "isVLEncoded": false,
+        "nth": 2,
+        "type": "Hash160"
       }
     ],
     [
-      "UnauthorizeCredentials",
+      "TakerGetsCurrency",
       {
-        "nth": 27,
-        "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STArray"
+        "isVLEncoded": false,
+        "nth": 3,
+        "type": "Hash160"
       }
     ],
     [
-      "AcceptedCredentials", {
-        "nth": 28,
-        "isVLEncoded": false,
+      "TakerGetsIssuer",
+      {
         "isSerialized": true,
         "isSigningField": true,
-        "type": "STArray"
+        "isVLEncoded": false,
+        "nth": 4,
+        "type": "Hash160"
+      }
+    ],
+    [
+      "Paths",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 1,
+        "type": "PathSet"
+      }
+    ],
+    [
+      "Indexes",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": true,
+        "nth": 1,
+        "type": "Vector256"
+      }
+    ],
+    [
+      "Hashes",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": true,
+        "nth": 2,
+        "type": "Vector256"
+      }
+    ],
+    [
+      "Amendments",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": true,
+        "nth": 3,
+        "type": "Vector256"
+      }
+    ],
+    [
+      "NFTokenOffers",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": true,
+        "nth": 4,
+        "type": "Vector256"
+      }
+    ],
+    [
+      "CredentialIDs",
+      {
+        "nth": 5,
+        "isVLEncoded": true,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "Vector256"
+      }
+    ],
+    [
+      "MPTokenIssuanceID",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 1,
+        "type": "Hash192"
+      }
+    ],
+    [
+      "LockingChainIssue",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 1,
+        "type": "Issue"
+      }
+    ],
+    [
+      "IssuingChainIssue",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 2,
+        "type": "Issue"
+      }
+    ],
+    [
+      "Asset",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 3,
+        "type": "Issue"
+      }
+    ],
+    [
+      "Asset2",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 4,
+        "type": "Issue"
+      }
+    ],
+    [
+      "XChainBridge",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 1,
+        "type": "XChainBridge"
+      }
+    ],
+    [
+      "BaseAsset",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 1,
+        "type": "Currency"
+      }
+    ],
+    [
+      "QuoteAsset",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 2,
+        "type": "Currency"
+      }
+    ],
+    [
+      "Transaction",
+      {
+        "isSerialized": false,
+        "isSigningField": false,
+        "isVLEncoded": false,
+        "nth": 257,
+        "type": "Transaction"
+      }
+    ],
+    [
+      "LedgerEntry",
+      {
+        "isSerialized": false,
+        "isSigningField": false,
+        "isVLEncoded": false,
+        "nth": 257,
+        "type": "LedgerEntry"
+      }
+    ],
+    [
+      "Validation",
+      {
+        "isSerialized": false,
+        "isSigningField": false,
+        "isVLEncoded": false,
+        "nth": 257,
+        "type": "Validation"
+      }
+    ],
+    [
+      "Metadata",
+      {
+        "isSerialized": false,
+        "isSigningField": false,
+        "isVLEncoded": false,
+        "nth": 257,
+        "type": "Metadata"
       }
     ]
   ],
@@ -2814,6 +2882,7 @@
     "Oracle": 128,
     "Credential": 129,
     "PayChannel": 120,
+    "PermissionedDomain": 130,
     "RippleState": 114,
     "SignerList": 83,
     "Ticket": 84,
@@ -2998,88 +3067,9 @@
     "terOWNERS": -93,
     "terPRE_SEQ": -92,
     "terPRE_TICKET": -88,
-    "terNO_AMM": -87,
-
-    "tesSUCCESS": 0,
-
-    "tecCLAIM": 100,
-    "tecPATH_PARTIAL": 101,
-    "tecUNFUNDED_ADD": 102,
-    "tecUNFUNDED_OFFER": 103,
-    "tecUNFUNDED_PAYMENT": 104,
-    "tecFAILED_PROCESSING": 105,
-    "tecDIR_FULL": 121,
-    "tecINSUF_RESERVE_LINE": 122,
-    "tecINSUF_RESERVE_OFFER": 123,
-    "tecNO_DST": 124,
-    "tecNO_DST_INSUF_XRP": 125,
-    "tecNO_LINE_INSUF_RESERVE": 126,
-    "tecNO_LINE_REDUNDANT": 127,
-    "tecPATH_DRY": 128,
-    "tecUNFUNDED": 129,
-    "tecNO_ALTERNATIVE_KEY": 130,
-    "tecNO_REGULAR_KEY": 131,
-    "tecOWNERS": 132,
-    "tecNO_ISSUER": 133,
-    "tecNO_AUTH": 134,
-    "tecNO_LINE": 135,
-    "tecINSUFF_FEE": 136,
-    "tecFROZEN": 137,
-    "tecNO_TARGET": 138,
-    "tecNO_PERMISSION": 139,
-    "tecNO_ENTRY": 140,
-    "tecINSUFFICIENT_RESERVE": 141,
-    "tecNEED_MASTER_KEY": 142,
-    "tecDST_TAG_NEEDED": 143,
-    "tecINTERNAL": 144,
-    "tecOVERSIZE": 145,
-    "tecCRYPTOCONDITION_ERROR": 146,
-    "tecINVARIANT_FAILED": 147,
-    "tecEXPIRED": 148,
-    "tecDUPLICATE": 149,
-    "tecKILLED": 150,
-    "tecHAS_OBLIGATIONS": 151,
-    "tecTOO_SOON": 152,
-    "tecHOOK_REJECTED": 153,
-    "tecMAX_SEQUENCE_REACHED": 154,
-    "tecNO_SUITABLE_NFTOKEN_PAGE": 155,
-    "tecNFTOKEN_BUY_SELL_MISMATCH": 156,
-    "tecNFTOKEN_OFFER_TYPE_MISMATCH": 157,
-    "tecCANT_ACCEPT_OWN_NFTOKEN_OFFER": 158,
-    "tecINSUFFICIENT_FUNDS": 159,
-    "tecOBJECT_NOT_FOUND": 160,
-    "tecINSUFFICIENT_PAYMENT": 161,
-    "tecUNFUNDED_AMM": 162,
-    "tecAMM_BALANCE": 163,
-    "tecAMM_FAILED": 164,
-    "tecAMM_INVALID_TOKENS": 165,
-    "tecAMM_EMPTY": 166,
-    "tecAMM_NOT_EMPTY": 167,
-    "tecAMM_ACCOUNT": 168,
-    "tecINCOMPLETE": 169,
-    "tecXCHAIN_BAD_TRANSFER_ISSUE": 170,
-    "tecXCHAIN_NO_CLAIM_ID": 171,
-    "tecXCHAIN_BAD_CLAIM_ID": 172,
-    "tecXCHAIN_CLAIM_NO_QUORUM": 173,
-    "tecXCHAIN_PROOF_UNKNOWN_KEY": 174,
-    "tecXCHAIN_CREATE_ACCOUNT_NONXRP_ISSUE": 175,
-    "tecXCHAIN_WRONG_CHAIN": 176,
-    "tecXCHAIN_REWARD_MISMATCH": 177,
-    "tecXCHAIN_NO_SIGNERS_LIST": 178,
-    "tecXCHAIN_SENDING_ACCOUNT_MISMATCH": 179,
-    "tecXCHAIN_INSUFF_CREATE_AMOUNT": 180,
-    "tecXCHAIN_ACCOUNT_CREATE_PAST": 181,
-    "tecXCHAIN_ACCOUNT_CREATE_TOO_MANY": 182,
-    "tecXCHAIN_PAYMENT_FAILED": 183,
-    "tecXCHAIN_SELF_COMMIT": 184,
-    "tecXCHAIN_BAD_PUBLIC_KEY_ACCOUNT_PAIR": 185,
-    "tecXCHAIN_CREATE_ACCOUNT_DISABLED": 186,
-    "tecEMPTY_DID": 187,
-    "tecINVALID_UPDATE_TIME": 188,
-    "tecTOKEN_PAIR_NOT_FOUND": 189,
-    "tecARRAY_EMPTY": 190,
-    "tecARRAY_TOO_LARGE": 191,
-    "tecBAD_CREDENTIALS": 193
+    "terQUEUED": -89,
+    "terRETRY": -99,
+    "tesSUCCESS": 0
   },
   "TRANSACTION_TYPES": {
     "AMMBid": 39,
@@ -3094,8 +3084,8 @@
     "CheckCash": 17,
     "CheckCreate": 16,
     "Clawback": 30,
-    "CredentialAccept": 59,
     "CredentialCreate": 58,
+    "CredentialAccept": 59,
     "CredentialDelete": 60,
     "DIDDelete": 50,
     "DIDSet": 49,
@@ -3115,6 +3105,7 @@
     "NFTokenCancelOffer": 28,
     "NFTokenCreateOffer": 27,
     "NFTokenMint": 25,
+    "NFTokenModify": 61,
     "OfferCancel": 8,
     "OfferCreate": 7,
     "OracleDelete": 52,
@@ -3123,6 +3114,8 @@
     "PaymentChannelClaim": 15,
     "PaymentChannelCreate": 13,
     "PaymentChannelFund": 14,
+    "PermissionedDomainSet": 62,
+    "PermissionedDomainDelete": 63,
     "SetFee": 101,
     "SetRegularKey": 5,
     "SignerListSet": 12,
@@ -3135,17 +3128,37 @@
     "XChainClaim": 43,
     "XChainCommit": 42,
     "XChainCreateBridge": 48,
-    "DIDSet": 49,
-    "DIDDelete": 50,
-    "OracleSet": 51,
-    "OracleDelete": 52,
-    "CredentialCreate": 58,
-    "CredentialAccept": 59,
-    "CredentialDelete": 60,
-    "PermissionedDomainSet": 61,
-    "PermissionedDomainDelete": 62,
-    "EnableAmendment": 100,
-    "SetFee": 101,
-    "UNLModify": 102
+    "XChainCreateClaimID": 41,
+    "XChainModifyBridge": 47
+  },
+  "TYPES": {
+    "AccountID": 8,
+    "Amount": 6,
+    "Blob": 7,
+    "Currency": 26,
+    "Done": -1,
+    "Hash128": 4,
+    "Hash160": 17,
+    "Hash192": 21,
+    "Hash256": 5,
+    "Issue": 24,
+    "LedgerEntry": 10002,
+    "Metadata": 10004,
+    "NotPresent": 0,
+    "PathSet": 18,
+    "STArray": 15,
+    "STObject": 14,
+    "Transaction": 10001,
+    "UInt16": 1,
+    "UInt32": 2,
+    "UInt384": 22,
+    "UInt512": 23,
+    "UInt64": 3,
+    "UInt8": 16,
+    "UInt96": 20,
+    "Unknown": -2,
+    "Validation": 10003,
+    "Vector256": 19,
+    "XChainBridge": 25
   }
 }
