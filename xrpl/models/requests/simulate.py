@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional
+from typing import Any, Dict, Optional, Type
 
 from typing_extensions import Self
 
@@ -22,7 +22,7 @@ class Simulate(Request):
 
     tx_blob: Optional[str] = None
 
-    tx_json: Optional[Transaction] = None
+    transaction: Optional[Transaction] = None
 
     binary: Optional[bool] = None
 
@@ -30,6 +30,42 @@ class Simulate(Request):
 
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
-        if (self.tx_blob is None) == (self.tx_json is None):
-            errors["tx"] = "Must have exactly one of `tx_blob` and `tx_json` fields."
+        if (self.tx_blob is None) == (self.transaction is None):
+            errors["tx"] = (
+                "Must have exactly one of `tx_blob` and `transaction` fields."
+            )
         return errors
+
+    @classmethod
+    def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
+        """
+        Construct a new Simulate from a dictionary of parameters.
+
+        Args:
+            value: The value to construct the Simulate from.
+
+        Returns:
+            A new Simulate object, constructed using the given parameters.
+        """
+        if "tx_json" in value:
+            fixed_value = {
+                **value,
+                "transaction": Transaction.from_xrpl(value["tx_json"]),
+            }
+            del fixed_value["tx_json"]
+        else:
+            fixed_value = value
+        return super().from_dict(fixed_value)
+
+    def to_dict(self: Self) -> Dict[str, Any]:
+        """
+        Returns the dictionary representation of a Simulate.
+
+        Returns:
+            The dictionary representation of a Simulate.
+        """
+        return_dict = super().to_dict()
+        if self.transaction is not None:
+            del return_dict["transaction"]
+            return_dict["tx_json"] = self.transaction.to_xrpl()
+        return return_dict

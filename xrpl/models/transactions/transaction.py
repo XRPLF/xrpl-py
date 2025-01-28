@@ -362,7 +362,7 @@ class Transaction(BaseModel):
                     )
                 value = {**value}
                 del value["transaction_type"]
-            return super(Transaction, cls).from_dict(value)
+            return super().from_dict(value)
 
     def has_flag(self: Self, flag: int) -> bool:
         """
