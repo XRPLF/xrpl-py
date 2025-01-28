@@ -12,8 +12,12 @@ class TestSimulate(IntegrationTestCase):
         )
 
         self.assertEqual(response.type, "response")
-        self.assertIn("meta", response.result, "Key 'meta' not found in simulate response.")
-        self.assertIsInstance(response.result["meta"], dict, "'meta' should be a dictionary.")
+        self.assertIn(
+            "meta", response.result, "Key 'meta' not found in simulate response."
+        )
+        self.assertIsInstance(
+            response.result["meta"], dict, "'meta' should be a dictionary."
+        )
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
         self.assertEqual(response.result["engine_result_code"], 0)
         self.assertFalse(response.result["applied"])
