@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for the `simulate` RPC
 
+### Fixed
+- `Sign` `SignFor`, and `SignAndSubmit` now work with Websocket clients
+
 ## [4.0.0] - 2024-12-23
 
 ### Added
