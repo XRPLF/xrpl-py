@@ -1,16 +1,18 @@
-"""Model for NFTokenModify transaction type and related flags."""
+"""Model for NFTokenModify transaction type."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
-from typing_extensions import Self
+from typing_extensions import Final, Self
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+
+_MAX_URI_LENGTH: Final[int] = 512
 
 
 @require_kwargs_on_init
@@ -61,5 +63,7 @@ class NFTokenModify(Transaction):
 
     def _get_uri_error(self: Self) -> Optional[str]:
         if not self.uri:
-            return "NFTokenModify: URI must not be empty string"
+            return "URI must not be empty string"
+        elif len(self.uri) > _MAX_URI_LENGTH:
+            return f"Must not be longer than {_MAX_URI_LENGTH} characters"
         return None
