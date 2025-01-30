@@ -6,6 +6,7 @@ WebSocket API only.
 
 `See unsubscribe <https://xrpl.org/unsubscribe.html>`_
 """
+
 from dataclasses import dataclass, field
 from typing import List, Optional
 

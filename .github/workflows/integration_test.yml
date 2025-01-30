@@ -1,8 +1,8 @@
 name: Integration test
 
 env:
-  POETRY_VERSION: 1.4.2
-  RIPPLED_DOCKER_IMAGE: rippleci/rippled:2.2.0-b3
+  POETRY_VERSION: 1.8.3
+  RIPPLED_DOCKER_IMAGE: rippleci/rippled:2.3.0
 
 on:
   push:
@@ -17,22 +17,22 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Load cached .local
         id: cache-poetry
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /home/runner/.local
           key: dotlocal-${{ env.POETRY_VERSION }}
 
       - name: Run docker in background
         run: |
-          docker run --detach --rm --name rippled-service -p 5005:5005 -p 6006:6006 --volume "${{ github.workspace }}/.ci-config/":"/opt/ripple/etc/" --health-cmd="wget localhost:6006 || exit 1" --health-interval=5s --health-retries=10 --health-timeout=2s --env GITHUB_ACTIONS=true --env CI=true ${{ env.RIPPLED_DOCKER_IMAGE }} /opt/ripple/bin/rippled -a --conf /opt/ripple/etc/rippled.cfg
+          docker run --detach --rm -p 5005:5005 -p 6006:6006 --volume "${{ github.workspace }}/.ci-config/":"/etc/opt/ripple/" --name rippled-service --health-cmd="rippled server_nfo || exit 1" --health-interval=5s --health-retries=10 --health-timeout=2s --env GITHUB_ACTIONS=true --env CI=true --entrypoint bash ${{ env.RIPPLED_DOCKER_IMAGE }} -c "rippled -a"
 
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'
@@ -41,7 +41,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install Python + Retrieve Poetry dependencies from cache
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: "poetry"

@@ -28,7 +28,7 @@ class GenericRequest(Request):
     :meta hide-value:
     """
 
-    def __init__(self: Self, **kwargs: Any) -> None:
+    def __init__(self: Self, **kwargs: Any) -> None:  # noqa: ANN401
         """
         Initializes a GenericRequest.
 
@@ -65,7 +65,11 @@ class GenericRequest(Request):
 
         elif "method" in value:  # JSON RPC formatting
             if "params" in value:  # actual JSON RPC formatting
-                value = {"method": value["method"], **value["params"]}
+                value = {
+                    "api_version": value["api_version"],
+                    "method": value["method"],
+                    **value["params"],
+                }
             # else is the internal request formatting
 
         else:

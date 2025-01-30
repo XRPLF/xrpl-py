@@ -15,10 +15,14 @@ from xrpl.asyncio.transaction import (
 )
 from xrpl.asyncio.transaction import submit as submit_transaction_alias_async
 from xrpl.asyncio.transaction import submit_and_wait
-from xrpl.asyncio.transaction.main import sign_and_submit
+from xrpl.asyncio.transaction.main import (
+    _calculate_fee_per_transaction_type,
+    sign_and_submit,
+)
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.core.binarycodec.main import encode
+from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.exceptions import XRPLException
 from xrpl.models.requests import ServerState, Tx
 from xrpl.models.transactions import AccountDelete, AccountSet, EscrowFinish, Payment
@@ -74,7 +78,7 @@ class TestTransaction(IntegrationTestCase):
         )
 
         # AND we expect the result Account to be the same as the original payment Acct
-        self.assertEqual(payment.result["Account"], ACCOUNT)
+        self.assertEqual(payment.result["tx_json"]["Account"], ACCOUNT)
         # AND we expect the response to be successful (200)
         self.assertTrue(payment.is_successful())
 
@@ -189,7 +193,7 @@ class TestTransaction(IntegrationTestCase):
         escrow_finish_autofilled = await autofill(escrow_finish, client)
 
         # AND calculating the expected fee with the formula
-        # 10 drops × (33 + (Fulfillment size in bytes ÷ 16))
+        # BaseFee × (33 + (Fulfillment size in bytes ÷ 16))
         net_fee = int(await get_fee(client))
         fulfillment_in_bytes = FULFILLMENT.encode("ascii")
         expected_fee = net_fee * (33 + len(fulfillment_in_bytes) / 16)
@@ -212,9 +216,43 @@ class TestTransaction(IntegrationTestCase):
         # AFTER autofilling the transaction fee
         payment_autofilled = await autofill(payment, client)
 
-        # THEN We expect the fee to be the default network fee (usually 10 drops)
+        # THEN We expect the fee to be the default network fee (The transaction cost of
+        # a reference transaction, in drops of XRP)
         expected_fee = await get_fee(client)
         self.assertEqual(payment_autofilled.fee, expected_fee)
+
+    @test_async_and_sync(
+        globals(),
+        ["xrpl.transaction.autofill"],
+    )
+    async def test_networkid_non_reserved_networks(self, client):
+        tx = AccountSet(
+            account="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+            fee=FEE,
+            domain="www.example.com",
+        )
+        transaction = await autofill(tx, client)
+
+        # Autofill should populate the tx networkID and build_version from 1.11.0 or
+        # later. NetworkID field is populated only for networks where network_id > 1024
+        self.assertEqual(client.network_id, 63456)
+        self.assertEqual(transaction.network_id, 63456)
+
+    @test_async_and_sync(globals(), ["xrpl.transaction.autofill"], use_testnet=True)
+    async def test_networkid_reserved_networks(self, client):
+        tx = AccountSet(
+            account="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+            fee=FEE,
+            domain="www.example.com",
+        )
+        # The network_id is less than 1024 for the testnet.
+        # Hence network_id field is not set
+        transaction = await autofill(tx, client)
+
+        # Although the client network_id property is set,
+        # the corresponding field in transaction is not populated
+        self.assertIsNone(transaction.network_id)
+        self.assertEqual(client.network_id, 1)
 
 
 class TestSubmitAndWait(IntegrationTestCase):
@@ -235,7 +273,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["Fee"], await get_fee(client))
+        self.assertEqual(response.result["tx_json"]["Fee"], await get_fee(client))
 
     @test_async_and_sync(
         globals(),
@@ -255,7 +293,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["Fee"], await get_fee(client))
+        self.assertEqual(response.result["tx_json"]["Fee"], await get_fee(client))
 
     @test_async_and_sync(
         globals(),
@@ -279,7 +317,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["Fee"], await get_fee(client))
+        self.assertEqual(response.result["tx_json"]["Fee"], await get_fee(client))
 
     @test_async_and_sync(
         globals(),
@@ -304,7 +342,7 @@ class TestSubmitAndWait(IntegrationTestCase):
         self.assertTrue(response.result["validated"])
         self.assertEqual(response.result["meta"]["TransactionResult"], "tesSUCCESS")
         self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["Fee"], await get_fee(client))
+        self.assertEqual(response.result["tx_json"]["Fee"], await get_fee(client))
 
     @test_async_and_sync(
         globals(),
@@ -398,3 +436,43 @@ class TestSubmitAndWait(IntegrationTestCase):
         payment_transaction = Payment.from_dict(payment_dict)
         response = await sign_and_submit(payment_transaction, client, WALLET)
         self.assertTrue(response.is_successful())
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction._calculate_fee_per_transaction_type",
+        ],
+    )
+    async def test_basic_calculate_fee_per_transaction_type(self, client):
+        fee = await _calculate_fee_per_transaction_type(
+            Payment(
+                account="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                amount=IssuedCurrencyAmount(
+                    currency="USD",
+                    issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                    value="0.0001",
+                ),
+                destination="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                send_max=IssuedCurrencyAmount(
+                    currency="BTC",
+                    issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                    value="0.0000002831214446",
+                ),
+            ),
+            client,
+        )
+
+        # The expected fee is read from the below-specified config file
+        expected_fee = ""
+        with open(".ci-config/rippled.cfg", "r", encoding="utf-8") as file:
+            lines = file.readlines()  # Read all lines into a list
+
+            for value in lines:
+                kv_pairs = value.split()
+                # This step assumes that no non-`voting` section in the config file
+                # uses the reference_fee key-value pair.
+                if "reference_fee" in kv_pairs:
+                    expected_fee = kv_pairs[2]
+                    break
+
+        self.assertEqual(fee, expected_fee)

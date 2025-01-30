@@ -1,4 +1,5 @@
 """Example of how we can multisign a transaction"""
+
 from xrpl.clients import JsonRpcClient
 from xrpl.models import AccountSet, SignerEntry, SignerListSet
 from xrpl.transaction import autofill, multisign, sign, submit_and_wait
@@ -57,11 +58,10 @@ print(multisigned_tx_response)
 if multisigned_tx_response.result["validated"]:
     print("The multisigned transaction was accepted by the ledger:")
     print(multisigned_tx_response)
-    if multisigned_tx_response.result["Signers"]:
-        print(
-            "The transaction had "
-            f"{len(multisigned_tx_response.result['Signers'])} signatures"
-        )
+    signers_in_response = multisigned_tx_response.result["tx_json"].get("Signers")
+
+    if signers_in_response:
+        print("The transaction had " f"{len(signers_in_response)} signatures")
 else:
     print(
         "The multisigned transaction was rejected by rippled."

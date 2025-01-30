@@ -4,6 +4,7 @@ Creates or modifies a trust line linking two accounts.
 
 `See TrustSet <https://xrpl.org/trustset.html>`_
 """
+
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional

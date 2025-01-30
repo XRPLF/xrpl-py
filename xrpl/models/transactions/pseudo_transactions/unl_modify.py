@@ -66,8 +66,8 @@ class UNLModify(PseudoTransaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.unl_modify_disabling not in {0, 1}:
-            errors[
-                "unl_modify_disabling"
-            ] = "`unl_modify_disabling` is not equal to 0 or 1."
+            errors["unl_modify_disabling"] = (
+                "`unl_modify_disabling` is not equal to 0 or 1."
+            )
 
         return errors

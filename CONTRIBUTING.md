@@ -90,17 +90,17 @@ poetry run poe test_unit
 To run integration tests, you'll need a standalone rippled node running with WS port `6006` and JSON RPC port `5005`. You can run a docker container for this:
 
 ```bash
-docker run -p 5005:5005 -p 6006:6006 --interactive -t --volume $PWD/.ci-config:/opt/ripple/etc/ --platform linux/amd64 rippleci/rippled:2.2.0-b3 /opt/ripple/bin/rippled -a --conf /opt/ripple/etc/rippled.cfg
+docker run -dit -p 5005:5005 -p 6006:6006 --volume $PWD/.ci-config/:/etc/opt/ripple/ --entrypoint bash rippleci/rippled:develop -c 'rippled -a'
 ```
 
 Breaking down the command:
 * `docker run -p 5005:5005 -p 6006:6006` starts a Docker container with an open port for admin JsonRPC and WebSocket requests.
-* `--interactive` allows you to interact with the container.
+* `-it` allows you to interact with the container.
+* `-d` runs the docker container in detached mode. The container will run in the background and developer gets back control of the terminal
 * `-t` starts a terminal in the container for you to send commands to.
-* `--volume $PWD/.ci-config:/config/` identifies the `rippled.cfg` and `validators.txt` to import. It must be an absolute path, so we use `$PWD` instead of `./`.
-* `xrpllabsofficial/xrpld:1.12.0` is an image that is regularly updated with the latest `rippled` releases and can be found here: https://github.com/WietseWind/docker-rippled
+* `--volume $PWD/.ci-config:/etc/opt/ripple/` mounts the directories as indicated. It must be an absolute path, so we use `$PWD` instead of `./`. `rippled` software searches the location `/etc/opt/ripple/` (default behavior) for the config files. Hence there is no need to explicitly specify the config-file path.
+* `rippleci/rippled:develop` is an image that is regularly updated with the latest build of the `develop` branch of `rippled`.
 * `-a` starts `rippled` in standalone mode
-* `--start` signals to start `rippled` with the specified amendments in `rippled.cfg` enabled immediately instead of voting for 2 weeks on them.
 
 Then to actually run the tests, run the command:
 
@@ -202,7 +202,18 @@ This should almost always be done using the [`xrpl-codec-gen`](https://github.co
 - Merge your changes.
 
 ### Release
+1. Please increment the version in `pyproject.toml` and update the `CHANGELOG.md` file appropriately. We follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+2. Please select a commit that is suitable for release and create a tag. The following commands can be helpful:
+`git tag -s -a <tag-title> -m "Optional Message describing the tag"`
+`git tag` -- This command displays all the tags in the repository.
+`git push <remote_name, e.g. upstream> tag <tag_title>`
+3. A [Github Workflow](.github/workflows/publish_to_pypi.yml) completes the rest of the Release steps (building the project, generating a .whl and tarball, publishing on the PyPI platform). The workflow uses OpenID Connect's temporary keys to obtain the necessary PyPI authorization.
+As a prerequisite, the PyPI `xrpl-py` project needs to authorize Github Actions as a "Trusted Publisher". This page contains helpful resources: https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/#configuring-trusted-publishing
+4. Send an email to [xrpl-announce](https://groups.google.com/g/xrpl-announce).
+5. Post an announcement in the [XRPL Discord #python channel](https://discord.com/channels/886050993802985492/886053080913821717) with a link to the changes and highlighting key changes.
 
+
+**Note: If maintainers prefer to manually release the xrpl-py software distribution, the below steps are relevant.**
 1. Create a branch off main that properly increments the version in `pyproject.toml` and updates the `CHANGELOG` appropriately. We follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 2. Merge this branch into `main`.
 3. Locally build and download the package.

@@ -15,7 +15,7 @@ See the `project README <https://github.com/XRPLF/xrpl-py/blob/main/README.md>`_
 
 Install
 --------------
-First, ensure that you have `Python 3.7 <https://www.python.org/downloads/>`_ or later.
+First, ensure that you have `Python 3.8 <https://www.python.org/downloads/>`_ or later.
 
 Then, download the package via ``pip``:
 

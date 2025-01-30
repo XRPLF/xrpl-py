@@ -1,4 +1,5 @@
 """Example of how we can see a transaction that was validated on the ledger"""
+
 from xrpl.clients import JsonRpcClient
 from xrpl.models import Ledger, Tx
 

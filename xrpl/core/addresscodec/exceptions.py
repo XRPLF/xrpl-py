@@ -1,4 +1,5 @@
 """General XRPL Address Codec Exceptions."""
+
 from xrpl.constants import XRPLException
 
 
