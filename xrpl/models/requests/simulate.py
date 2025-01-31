@@ -46,14 +46,15 @@ class Simulate(Request):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
+        # Can't have both `tx_blob` and `transaction`
+        # Can't have neither `tx_blob` nor `transaction`
         if (self.tx_blob is None) == (self.transaction is None):
             errors["tx"] = (
                 "Must have exactly one of `tx_blob` and `transaction` fields."
             )
 
-        if self.transaction is not None:
-            if self.transaction.is_signed():
-                errors["transaction"] = "Cannot simulate a signed transaction."
+        if self.transaction is not None and self.transaction.is_signed():
+            errors["transaction"] = "Cannot simulate a signed transaction."
 
         return errors
 
@@ -79,7 +80,7 @@ class Simulate(Request):
                     "transaction": Transaction.from_xrpl(value["tx_json"]),
                 }
             except XRPLModelException as e:
-                raise XRPLModelException(f"Invalid tx_json format: {str(e)}")
+                raise XRPLModelException(f"Invalid tx_json format: {str(e)}") from e
             del fixed_value["tx_json"]
         else:
             fixed_value = value
