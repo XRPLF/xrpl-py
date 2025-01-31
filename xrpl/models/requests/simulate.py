@@ -7,7 +7,6 @@ from typing import Any, Dict, Optional, Type
 
 from typing_extensions import Self
 
-from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.transactions.transaction import Transaction
@@ -55,12 +54,6 @@ class Simulate(Request):
         if self.transaction is not None:
             if self.transaction.is_signed():
                 errors["transaction"] = "Cannot simulate a signed transaction."
-        elif self.tx_blob is not None:
-            try:
-                if Transaction.from_blob(self.tx_blob).is_signed():
-                    errors["tx_blob"] = "Cannot simulate a signed transaction."
-            except (XRPLModelException, XRPLBinaryCodecException):
-                errors["tx_blob"] = "Invalid transaction blob."
 
         return errors
 
@@ -74,12 +67,19 @@ class Simulate(Request):
 
         Returns:
             A new Simulate object, constructed using the given parameters.
+
+        Raises:
+            XRPLModelException: If the `tx_json` value provided is not a valid
+                transaction.
         """
         if "tx_json" in value:
-            fixed_value = {
-                **value,
-                "transaction": Transaction.from_xrpl(value["tx_json"]),
-            }
+            try:
+                fixed_value = {
+                    **value,
+                    "transaction": Transaction.from_xrpl(value["tx_json"]),
+                }
+            except XRPLModelException as e:
+                raise XRPLModelException(f"Invalid tx_json format: {str(e)}")
             del fixed_value["tx_json"]
         else:
             fixed_value = value

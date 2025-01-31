@@ -38,23 +38,6 @@ class TestSimulate(unittest.TestCase):
             "{'transaction': 'Cannot simulate a signed transaction.'}",
         )
 
-    def test_simulate_with_invalid_tx_blob(self):
-        with self.assertRaises(XRPLModelException) as e:
-            Simulate(tx_blob="12000022800000002400000001201B001FBD60")
-        self.assertEqual(
-            e.exception.args[0],
-            "{'tx_blob': 'Invalid transaction blob.'}",
-        )
-
-    def test_simulate_with_signed_tx_blob(self):
-        signed_tx = sign(_TRANSACTION, _WALLET)
-        with self.assertRaises(XRPLModelException) as e:
-            Simulate(tx_blob=signed_tx.blob())
-        self.assertEqual(
-            e.exception.args[0],
-            "{'tx_blob': 'Cannot simulate a signed transaction.'}",
-        )
-
     def test_simulate_with_valid_tx_blob(self):
         tx_blob = _TRANSACTION.blob()
         simulate = Simulate(tx_blob=tx_blob)
@@ -69,5 +52,14 @@ class TestSimulate(unittest.TestCase):
         self.assertIsNone(simulate.tx_blob)
         self.assertEqual(simulate.transaction, _TRANSACTION)
         self.assertIsNone(simulate.binary)
+        self.assertEqual(simulate.method, "simulate")
+        self.assertTrue(simulate.is_valid())
+
+    def test_simulate_with_binary(self):
+        tx_blob = _TRANSACTION.blob()
+        simulate = Simulate(tx_blob=tx_blob, binary=True)
+        self.assertEqual(simulate.tx_blob, tx_blob)
+        self.assertIsNone(simulate.transaction)
+        self.assertTrue(simulate.binary)
         self.assertEqual(simulate.method, "simulate")
         self.assertTrue(simulate.is_valid())
