@@ -208,10 +208,7 @@ async def simulate(
     final_tx = Transaction.from_dict(transaction_json)
 
     # send the `simulate` request
-    transaction_blob = encode(final_tx.to_xrpl())
-    response = await client._request_impl(
-        Simulate(tx_blob=transaction_blob, binary=binary)
-    )
+    response = await client._request_impl(Simulate(transaction=final_tx, binary=binary))
     if response.is_successful():
         return response
 

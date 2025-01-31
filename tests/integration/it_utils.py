@@ -218,6 +218,7 @@ def test_async_and_sync(
     websockets_only=False,
     num_retries=1,
     use_testnet=False,
+    async_only=False,
 ):
     def decorator(test_function):
         lines = _get_non_decorator_code(test_function)
@@ -235,15 +236,18 @@ def test_async_and_sync(
         first_line = lines[0]
         sync_code += first_line.replace("    async def ", "").replace(":", "")
 
-        sync_modules_to_import = {}
-        if modules is not None:
-            for module_str in modules:
-                function = module_str.split(".")[-1]
-                location = module_str[: -1 * len(function) - 1]
-                module = getattr(importlib.import_module(location), function)
-                sync_modules_to_import[function] = module
+        if not async_only:
+            sync_modules_to_import = {}
+            if modules is not None:
+                for module_str in modules:
+                    function = module_str.split(".")[-1]
+                    location = module_str[: -1 * len(function) - 1]
+                    module = getattr(importlib.import_module(location), function)
+                    sync_modules_to_import[function] = module
 
-        all_modules = {**original_globals, **globals(), **sync_modules_to_import}
+            all_modules = {**original_globals, **globals(), **sync_modules_to_import}
+        else:
+            all_modules = {**original_globals, **globals()}
         # NOTE: passing `globals()` into `exec` is really bad practice and not safe at
         # all, but in this case it's fine because it's only running test code
 
@@ -290,14 +294,16 @@ def test_async_and_sync(
                     asyncio.run(
                         _run_async_test(self, _get_client(True, True, use_testnet), 1)
                     )
-                with self.subTest(version="sync", client="json"):
-                    _run_sync_test(self, _get_client(False, True, use_testnet), 2)
+                if not async_only:
+                    with self.subTest(version="sync", client="json"):
+                        _run_sync_test(self, _get_client(False, True, use_testnet), 2)
             with self.subTest(version="async", client="websocket"):
                 asyncio.run(
                     _run_async_test(self, _get_client(True, False, use_testnet), 3)
                 )
-            with self.subTest(version="sync", client="websocket"):
-                _run_sync_test(self, _get_client(False, False, use_testnet), 4)
+            if not async_only:
+                with self.subTest(version="sync", client="websocket"):
+                    _run_sync_test(self, _get_client(False, False, use_testnet), 4)
 
         return modified_test
 
