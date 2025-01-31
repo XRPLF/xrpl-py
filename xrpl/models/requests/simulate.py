@@ -7,6 +7,8 @@ from typing import Any, Dict, Optional, Type
 
 from typing_extensions import Self
 
+from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
@@ -20,20 +22,46 @@ class Simulate(Request):
     network.
     """
 
+    """
+    The transaction to simulate, in
+    `binary format <https://xrpl.org/docs/references/protocol/binary-format>`_. If you
+    include this field, do not also include `transaction`.
+    """
     tx_blob: Optional[str] = None
 
+    """
+    The transaction to simulate, in JSON format. If you include this field, do not also
+    include `tx_blob`.
+    """
     transaction: Optional[Transaction] = None
 
+    """
+    The default value is `false`, which returns data and metadata in JSON format. If
+    `true`, returns data and metadata in binary format, serialized to a hexadecimal
+    string.
+    """
     binary: Optional[bool] = None
 
     method: RequestMethod = field(default=RequestMethod.SIMULATE, init=False)
 
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
+
         if (self.tx_blob is None) == (self.transaction is None):
             errors["tx"] = (
                 "Must have exactly one of `tx_blob` and `transaction` fields."
             )
+
+        if self.transaction is not None:
+            if self.transaction.is_signed():
+                errors["transaction"] = "Cannot simulate a signed transaction."
+        elif self.tx_blob is not None:
+            try:
+                if Transaction.from_blob(self.tx_blob).is_signed():
+                    errors["tx_blob"] = "Cannot simulate a signed transaction."
+            except (XRPLModelException, XRPLBinaryCodecException):
+                errors["tx_blob"] = "Invalid transaction blob."
+
         return errors
 
     @classmethod
