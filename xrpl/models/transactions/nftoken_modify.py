@@ -65,8 +65,8 @@ class NFTokenModify(Transaction):
         if not self.uri:
             return "URI must not be empty string"
         elif len(self.uri) > _MAX_URI_LENGTH:
-            return f"Must not be longer than {_MAX_URI_LENGTH} characters"
+            return f"URI must not be longer than {_MAX_URI_LENGTH} characters"
 
         if not HEX_REGEX.fullmatch(self.uri):
-            return "Must be encoded in hex"
+            return "URI must be encoded in hex"
         return None

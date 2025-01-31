@@ -52,7 +52,7 @@ class TestNFTokenModify(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'uri': 'Must not be longer than 512 characters'}",
+            "{'uri': 'URI must not be longer than 512 characters'}",
         )
 
     def test_uri_not_hex(self):
@@ -67,7 +67,7 @@ class TestNFTokenModify(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'uri': 'Must be encoded in hex'}",
+            "{'uri': 'URI must be encoded in hex'}",
         )
 
     def test_valid(self):
