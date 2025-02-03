@@ -54,3 +54,23 @@ class TestPermissionedDomainSet(TestCase):
             err.exception.args[0],
             "{'PermissionedDomainSet': 'AcceptedCredentials list cannot be empty.'}",
         )
+
+    def test_accepted_credentials_contains_duplicates(self):
+        with self.assertRaises(XRPLModelException) as err:
+            PermissionedDomainSet(
+                account=_ACCOUNT_1,
+                accepted_credentials=[
+                    Credential(
+                        credential_type=str_to_hex("Passport"), issuer=_ACCOUNT_1
+                    ),
+                    Credential(
+                        credential_type=str_to_hex("Passport"), issuer=_ACCOUNT_1
+                    ),
+                ],
+            )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'PermissionedDomainSet': 'AcceptedCredentials list cannot contain"
+            + " duplicate credentials.'}",
+        )

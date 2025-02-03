@@ -45,10 +45,9 @@ class PermissionedDomainSet(Transaction):
                 "AcceptedCredentials list cannot have more than "
                 + f"{_MAX_ACCEPTED_CREDENTIALS_LENGTH} elements."
             )
-
-        if len(self.accepted_credentials) != len(set(self.accepted_credentials)):
-            errors[
-                "PermissionedDomainSet"
-            ] += "AcceptedCredentials list cannot contain duplicate credentials."
+        elif len(self.accepted_credentials) != len(set(self.accepted_credentials)):
+            errors["PermissionedDomainSet"] = (
+                "AcceptedCredentials list cannot contain duplicate credentials."
+            )
 
         return errors
