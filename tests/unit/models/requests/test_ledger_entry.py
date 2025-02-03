@@ -176,10 +176,10 @@ class TestLedgerEntry(TestCase):
                 oracle=Oracle(oracle_document_id=1),
             )
 
-    def test_fetch_permissioned_domain_ledger_index(self):
+    def test_get_permissioned_domain_ledger_index(self):
         self.assertTrue(LedgerEntry(permissioned_domain="LEDGEROBJECTHASH"))
 
-    def test_fetch_permissioned_domain_ledger_object_params(self):
+    def test_get_permissioned_domain_ledger_object_params(self):
         self.assertTrue(
             LedgerEntry(
                 permissioned_domain=PermissionedDomain(account="rAccount", seq=1234)
