@@ -17,36 +17,38 @@ _MAX_ACCEPTED_CREDENTIALS_LENGTH = 10
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class PermissionedDomainSet(Transaction):
-    """Represents a PermissionedDomainSet transaction"""
+    """This transaction creates or modifies a PermissionedDomain object."""
 
     domain_id: Optional[str] = None
+    """The domain to modify. Must be included if modifying an existing domain."""
 
     accepted_credentials: List[Credential] = REQUIRED  # type: ignore
+    """The credentials that are accepted by the domain. Ownership of one of these
+    credentials automatically makes you a member of the domain. An empty array means
+    deleting the field."""
 
     transaction_type: TransactionType = field(
         default=TransactionType.PERMISSIONED_DOMAIN_SET,
         init=False,
     )
+    """The transaction type (PermissionedDomainSet)."""
 
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        def _validate_credentials_length(
-            credentials: List[Credential], field_name: str
-        ) -> None:
-            if len(credentials) == 0:
-                errors["PermissionedDomainSet"] = f"{field_name} list cannot be empty."
-            elif len(credentials) > _MAX_ACCEPTED_CREDENTIALS_LENGTH:
-                errors["PermissionedDomainSet"] = (
-                    f"{field_name} list cannot have more than "
-                    + f"{_MAX_ACCEPTED_CREDENTIALS_LENGTH} elements."
-                )
+        if len(self.accepted_credentials) == 0:
+            errors["PermissionedDomainSet"] = (
+                "AcceptedCredentials list cannot be empty."
+            )
+        elif len(self.accepted_credentials) > _MAX_ACCEPTED_CREDENTIALS_LENGTH:
+            errors["PermissionedDomainSet"] = (
+                "AcceptedCredentials list cannot have more than "
+                + f"{_MAX_ACCEPTED_CREDENTIALS_LENGTH} elements."
+            )
 
-            if len(credentials) != len(set(credentials)):
-                errors["PermissionedDomainSet"] = (
-                    f"{field_name} list cannot contain duplicate credentials."
-                )
-
-        _validate_credentials_length(self.accepted_credentials, "AcceptedCredentials")
+        if len(self.accepted_credentials) != len(set(self.accepted_credentials)):
+            errors[
+                "PermissionedDomainSet"
+            ] += "AcceptedCredentials list cannot contain duplicate credentials."
 
         return errors
