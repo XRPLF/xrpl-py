@@ -3,9 +3,9 @@ Represents a VaultWithdraw transaction on the XRP Ledger.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional, Union
+from typing import Optional
 
-from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -20,7 +20,7 @@ class VaultWithdraw(Transaction):
     """
 
     vault_id: str = REQUIRED  # type: ignore
-    amount: Union[str, IssuedCurrencyAmount] = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED  # type: ignore
     destination: Optional[str] = None
 
     transaction_type: TransactionType = field(

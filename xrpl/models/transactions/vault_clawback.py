@@ -3,8 +3,9 @@ Represents a VaultClawback transaction on the XRP Ledger.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional, Union
+from typing import Optional
 
+from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -20,7 +21,7 @@ class VaultClawback(Transaction):
 
     vault_id: str = REQUIRED  # type: ignore
     holder: str = REQUIRED  # type: ignore
-    amount: Optional[int] = None
+    amount: Optional[Amount] = None
 
     transaction_type: TransactionType = field(
         default=TransactionType.VAULT_CLAWBACK,

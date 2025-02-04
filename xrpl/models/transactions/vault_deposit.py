@@ -3,9 +3,8 @@ Represents a VaultDeposit transaction on the XRP Ledger.
 """
 
 from dataclasses import dataclass, field
-from typing import Union
 
-from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -20,7 +19,7 @@ class VaultDeposit(Transaction):
     """
 
     vault_id: str = REQUIRED  # type: ignore
-    amount: Union[str, IssuedCurrencyAmount] = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED  # type: ignore
 
     transaction_type: TransactionType = field(
         default=TransactionType.VAULT_DEPOSIT,

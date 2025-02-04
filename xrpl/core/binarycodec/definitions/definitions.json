@@ -1251,6 +1251,16 @@
       }
     ],
     [
+      "DomainID",
+      {
+         "isSerialized" : true,
+         "isSigningField" : true,
+         "isVLEncoded" : false,
+         "nth" : 34,
+         "type" : "Hash256"
+      }
+   ],
+    [
       "VaultID",
       {
         "isSerialized": true,
@@ -2028,6 +2038,16 @@
         "isSerialized": true,
         "isSigningField": true,
         "type": "AccountID"
+      }
+    ],
+    [
+      "Number",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 1,
+        "type": "Number"
       }
     ],
     [
