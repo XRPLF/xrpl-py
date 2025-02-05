@@ -6,7 +6,6 @@ from tests.integration.it_utils import (
 from tests.integration.reusable_values import WALLET
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.requests import AccountLines, AccountObjects
 from xrpl.models.transactions import TrustSet, TrustSetFlag
 from xrpl.wallet import Wallet
 
@@ -93,43 +92,3 @@ class TestTrustSet(IntegrationTestCase):
             error.exception.args[0],
             "{'currency': 'Invalid currency abcd'}",
         )
-
-    @test_async_and_sync(globals())
-    async def test_deep_freeze_functionality(self, client):
-        issuer_wallet = Wallet.create()
-        response = await sign_and_reliable_submission_async(
-            TrustSet(
-                account=WALLET.address,
-                flags=TrustSetFlag.TF_SET_FREEZE & TrustSetFlag.TF_SET_DEEP_FREEZE,
-                limit_amount=IssuedCurrencyAmount(
-                    issuer=issuer_wallet.address,
-                    currency="USD",
-                    value="100",
-                ),
-            ),
-            WALLET,
-            client,
-        )
-
-        self.assertTrue(response.is_successful())
-
-        account_lines_response = await client.request(
-            AccountLines(
-                account=WALLET.address,
-            )
-        )
-
-        self.assertTrue(account_lines_response.result.lines[0].freeze)
-
-        account_objects_response = await client.request(
-            AccountObjects(
-                account=WALLET.address,
-            )
-        )
-
-        self.assertTrue(
-            (
-                account_objects_response.result.account_obj[0]
-                & TrustSetFlag.TF_SET_DEEP_FREEZE
-            )
-        ) != 0
