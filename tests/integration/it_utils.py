@@ -315,6 +315,7 @@ def _get_non_decorator_code(function):
 
 def create_amm_pool(
     client: SyncClient = JSON_RPC_CLIENT,
+    issuer_account_enable_trustline_clawback: bool = False,
 ) -> Dict[str, Any]:
     issuer_wallet = Wallet.create()
     fund_wallet(issuer_wallet)
@@ -331,6 +332,16 @@ def create_amm_pool(
         issuer_wallet,
     )
 
+    # The below flag is required for AMMClawback tests
+    if issuer_account_enable_trustline_clawback:
+        sign_and_reliable_submission(
+            AccountSet(
+                account=issuer_wallet.classic_address,
+                set_flag=AccountSetAsfFlag.ASF_ALLOW_TRUSTLINE_CLAWBACK,
+            ),
+            issuer_wallet,
+        )
+
     sign_and_reliable_submission(
         TrustSet(
             account=lp_wallet.classic_address,
@@ -382,11 +393,13 @@ def create_amm_pool(
         "asset": asset,
         "asset2": asset2,
         "issuer_wallet": issuer_wallet,
+        "lp_wallet": lp_wallet,
     }
 
 
 async def create_amm_pool_async(
     client: AsyncClient = ASYNC_JSON_RPC_CLIENT,
+    issuer_account_enable_trustline_clawback: bool = False,
 ) -> Dict[str, Any]:
     issuer_wallet = Wallet.create()
     await fund_wallet_async(issuer_wallet)
@@ -403,6 +416,16 @@ async def create_amm_pool_async(
         issuer_wallet,
     )
 
+    # The below flag is required for AMMClawback tests
+    if issuer_account_enable_trustline_clawback:
+        await sign_and_reliable_submission_async(
+            AccountSet(
+                account=issuer_wallet.classic_address,
+                set_flag=AccountSetAsfFlag.ASF_ALLOW_TRUSTLINE_CLAWBACK,
+            ),
+            issuer_wallet,
+        )
+
     await sign_and_reliable_submission_async(
         TrustSet(
             account=lp_wallet.classic_address,
@@ -454,6 +477,7 @@ async def create_amm_pool_async(
         "asset": asset,
         "asset2": asset2,
         "issuer_wallet": issuer_wallet,
+        "lp_wallet": lp_wallet,
     }
 
 
