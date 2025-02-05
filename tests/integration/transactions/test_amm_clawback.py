@@ -1,25 +1,15 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     create_amm_pool_async,
-    fund_wallet_async,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
-from tests.integration.reusable_values import WALLET
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.currencies.issued_currency import IssuedCurrency
 from xrpl.models.currencies.xrp import XRP
-from xrpl.models.requests.amm_info import AMMInfo
-from xrpl.models.response import ResponseStatus
-from xrpl.models.transactions import (
-    AccountSet,
-    AccountSetAsfFlag,
-    AMMCreate,
-    AMMDeposit,
-)
+from xrpl.models.transactions import AMMDeposit
 from xrpl.models.transactions.amm_clawback import AMMClawback
 from xrpl.models.transactions.amm_deposit import AMMDepositFlag
-from xrpl.wallet import Wallet
 
 
 class TestAMMClawback(IntegrationTestCase):
