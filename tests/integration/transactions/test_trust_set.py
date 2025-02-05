@@ -92,3 +92,49 @@ class TestTrustSet(IntegrationTestCase):
             error.exception.args[0],
             "{'currency': 'Invalid currency abcd'}",
         )
+
+    @test_async_and_sync(globals())
+    async def test_deep_freeze_functionality(self, client):
+        issuer_wallet = Wallet.create()
+        response = await sign_and_reliable_submission_async(
+            TrustSet(
+                account=WALLET.address,
+                flags=TrustSetFlag.TF_SET_NO_RIPPLE,
+                limit_amount=IssuedCurrencyAmount(
+                    issuer=issuer_wallet.address,
+                    currency="USD",
+                    value="100",
+                ),
+            ),
+            WALLET,
+            client,
+        )
+        self.assertTrue(response.is_successful())
+
+        response = await sign_and_reliable_submission_async(
+            TrustSet(
+                account=WALLET.address,
+                flags=TrustSetFlag.TF_SET_FREEZE,
+                limit_amount=IssuedCurrencyAmount(
+                    issuer=issuer_wallet.address,
+                    currency="USD",
+                    value="100",
+                ),
+            ),
+            WALLET,
+            client,
+        )
+
+        response = await sign_and_reliable_submission_async(
+            TrustSet(
+                account=WALLET.address,
+                flags=TrustSetFlag.TF_SET_DEEP_FREEZE,
+                limit_amount=IssuedCurrencyAmount(
+                    issuer=issuer_wallet.address,
+                    currency="USD",
+                    value="100",
+                ),
+            ),
+            WALLET,
+            client,
+        )
