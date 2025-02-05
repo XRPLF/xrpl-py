@@ -8,7 +8,9 @@ class TestSimulate(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
         response = await client.request(
-            Simulate(transaction=AccountSet(account=WALLET.classic_address))
+            Simulate(
+                transaction=AccountSet(account=WALLET.classic_address, network_id=63456)
+            )
         )
 
         self.assertEqual(response.type, "response")
