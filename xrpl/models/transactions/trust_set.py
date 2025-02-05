@@ -48,7 +48,11 @@ class TrustSetFlag(int, Enum):
     """Unfreeze the trust line."""
 
     TF_SET_DEEP_FREEZE = 0x00400000
-    """Deep freeze the trust line."""
+    """
+    Deep freeze the trust line.
+    Allowed only if the trustline is already regularly frozen,
+    or if tfSetFreeze is set in the same transaction.
+    """
 
     TF_CLEAR_DEEP_FREEZE = 0x00800000
     """Clear the deep freeze on the trust line."""
