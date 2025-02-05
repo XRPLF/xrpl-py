@@ -6,6 +6,7 @@ from tests.integration.it_utils import (
 from tests.integration.reusable_values import WALLET
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.exceptions import XRPLModelException
+from xrpl.models.requests import AccountLines, AccountObjects
 from xrpl.models.transactions import TrustSet, TrustSetFlag
 from xrpl.wallet import Wallet
 
@@ -99,7 +100,7 @@ class TestTrustSet(IntegrationTestCase):
         response = await sign_and_reliable_submission_async(
             TrustSet(
                 account=WALLET.address,
-                flags=TrustSetFlag.TF_SET_NO_RIPPLE,
+                flags=TrustSetFlag.TF_SET_FREEZE & TrustSetFlag.TF_SET_DEEP_FREEZE,
                 limit_amount=IssuedCurrencyAmount(
                     issuer=issuer_wallet.address,
                     currency="USD",
@@ -109,32 +110,26 @@ class TestTrustSet(IntegrationTestCase):
             WALLET,
             client,
         )
+
         self.assertTrue(response.is_successful())
 
-        response = await sign_and_reliable_submission_async(
-            TrustSet(
+        account_lines_response = await client.request(
+            AccountLines(
                 account=WALLET.address,
-                flags=TrustSetFlag.TF_SET_FREEZE,
-                limit_amount=IssuedCurrencyAmount(
-                    issuer=issuer_wallet.address,
-                    currency="USD",
-                    value="100",
-                ),
-            ),
-            WALLET,
-            client,
+            )
         )
 
-        response = await sign_and_reliable_submission_async(
-            TrustSet(
+        self.assertTrue(account_lines_response.result.lines[0].freeze)
+
+        account_objects_response = await client.request(
+            AccountObjects(
                 account=WALLET.address,
-                flags=TrustSetFlag.TF_SET_DEEP_FREEZE,
-                limit_amount=IssuedCurrencyAmount(
-                    issuer=issuer_wallet.address,
-                    currency="USD",
-                    value="100",
-                ),
-            ),
-            WALLET,
-            client,
+            )
         )
+
+        self.assertTrue(
+            (
+                account_objects_response.result.account_obj[0]
+                & TrustSetFlag.TF_SET_DEEP_FREEZE
+            )
+        ) != 0
