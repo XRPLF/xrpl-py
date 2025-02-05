@@ -15,7 +15,8 @@ _VALID_ASSET = IssuedCurrency(currency="ETH", issuer=_ISSUER_ACCOUNT)
 _HOLDER_ACCOUNT = "rNZdsTBP5tH1M6GHC6bTreHAp6ouP8iZSh"
 
 
-class TestAMMBid(TestCase):
+-class TestAMMBid(TestCase):
++class TestAMMClawback(TestCase):
     def test_identical_issuer_holder_wallets(self):
         with self.assertRaises(XRPLModelException) as error:
             AMMClawback(
