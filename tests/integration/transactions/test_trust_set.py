@@ -100,7 +100,7 @@ class TestTrustSet(IntegrationTestCase):
         response = await sign_and_reliable_submission_async(
             TrustSet(
                 account=WALLET.address,
-                flags=TrustSetFlag.TF_SET_FREEZE & TrustSetFlag.TF_SET_DEEP_FREEZE,
+                flags=TrustSetFlag.TF_SET_FREEZE | TrustSetFlag.TF_SET_DEEP_FREEZE,
                 limit_amount=IssuedCurrencyAmount(
                     issuer=issuer_wallet.address,
                     currency="USD",
@@ -130,7 +130,7 @@ class TestTrustSet(IntegrationTestCase):
         self.assertTrue(
             (
                 account_objects_response.result.account_obj[0]
-                & TrustSetFlag.TF_SET_DEEP_FREEZE
+                | TrustSetFlag.TF_SET_DEEP_FREEZE
             )
             != 0
         )
