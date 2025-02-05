@@ -276,6 +276,8 @@ class TestBetterTransactionFlags(TestCase):
                 TF_SET_AUTH=True,
                 TF_SET_FREEZE=True,
                 TF_SET_NO_RIPPLE=True,
+                TF_SET_DEEP_FREEZE=True,
+                TF_CLEAR_DEEP_FREEZE=True,
             ),
         )
         self.assertTrue(actual.has_flag(flag=0x00010000))
