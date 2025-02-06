@@ -77,12 +77,77 @@ def _translate(inp: str) -> str:
     return result
 
 
-########################################################################
-#  Serialized type processing
-########################################################################
+# start
 print("{")
-print('  "TYPES": {')
-print('    "Done": -1,')
+
+########################################################################
+#  SField processing
+########################################################################
+print('  "FIELDS": [')
+
+# The ones that are harder to parse directly from SField.cpp
+print(
+    """    [
+      "Generic",
+      {
+        "isSerialized": false,
+        "isSigningField": false,
+        "isVLEncoded": false,
+        "nth": 0,
+        "type": "Unknown"
+      }
+    ],
+    [
+      "Invalid",
+      {
+        "isSerialized": false,
+        "isSigningField": false,
+        "isVLEncoded": false,
+        "nth": -1,
+        "type": "Unknown"
+      }
+    ],
+    [
+      "ObjectEndMarker",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 1,
+        "type": "STObject"
+      }
+    ],
+    [
+      "ArrayEndMarker",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 1,
+        "type": "STArray"
+      }
+    ],
+    [
+      "taker_gets_funded",
+      {
+        "isSerialized": false,
+        "isSigningField": false,
+        "isVLEncoded": false,
+        "nth": 258,
+        "type": "Amount"
+      }
+    ],
+    [
+      "taker_pays_funded",
+      {
+        "isSerialized": false,
+        "isSigningField": false,
+        "isVLEncoded": false,
+        "nth": 259,
+        "type": "Amount"
+      }
+    ],"""
+)
 
 type_hits = re.findall(
     r"^ *STYPE\(STI_([^ ]*?) *, *([0-9-]+) *\) *\\?$", sfield_h, re.MULTILINE
@@ -91,134 +156,7 @@ if len(type_hits) == 0:
     type_hits = re.findall(
         r"^ *STI_([^ ]*?) *= *([0-9-]+) *,?$", sfield_h, re.MULTILINE
     )
-for x in range(len(type_hits)):
-    print(
-        '    "'
-        + _translate(type_hits[x][0])
-        + '": '
-        + type_hits[x][1]
-        + ("," if x < len(type_hits) - 1 else "")
-    )
-
-print("  },")
-
-########################################################################
-#  Ledger entry type processing
-########################################################################
-print('  "LEDGER_ENTRY_TYPES": {')
-print('    "Any": -3,')
-print('    "Child": -2,')
-print('    "Invalid": -1,')
-
-
-def _unhex(x: str) -> str:
-    if (x + "")[0:2] == "0x":
-        return str(int(x, 16))
-    return x
-
-
-lt_hits = re.findall(
-    r"^ *LEDGER_ENTRY[A-Z_]*\(lt[A-Z_]+ *, *([x0-9a-f]+) *, *([^,]+), *([^,]+), \({$",
-    ledger_entries_file,
-    re.MULTILINE,
-)
-for x in range(len(lt_hits)):
-    print(
-        '    "'
-        + lt_hits[x][1]
-        + '": '
-        + _unhex(lt_hits[x][0])
-        + ("," if x < len(lt_hits) - 1 else "")
-    )
-print("  },")
-
-########################################################################
-#  SField processing
-########################################################################
-print('  "FIELDS": [')
-# The ones that are harder to parse directly from SField.cpp
-print(
-    """    [
-      "Generic",
-      {
-        "nth": 0,
-        "isVLEncoded": false,
-        "isSerialized": false,
-        "isSigningField": false,
-        "type": "Unknown"
-      }
-    ],
-    [
-      "Invalid",
-      {
-        "nth": -1,
-        "isVLEncoded": false,
-        "isSerialized": false,
-        "isSigningField": false,
-        "type": "Unknown"
-      }
-    ],
-    [
-      "ObjectEndMarker",
-      {
-        "nth": 1,
-        "isVLEncoded": false,
-        "isSerialized": true,
-        "isSigningField": true,
-        "type": "STObject"
-      }
-    ],
-    [
-      "ArrayEndMarker",
-      {
-        "nth": 1,
-        "isVLEncoded": false,
-        "isSerialized": true,
-        "isSigningField": true,
-        "type": "STArray"
-      }
-    ],
-    [
-      "hash",
-      {
-        "nth": 257,
-        "isVLEncoded": false,
-        "isSerialized": false,
-        "isSigningField": false,
-        "type": "Hash256"
-      }
-    ],
-    [
-      "index",
-      {
-        "nth": 258,
-        "isVLEncoded": false,
-        "isSerialized": false,
-        "isSigningField": false,
-        "type": "Hash256"
-      }
-    ],
-    [
-      "taker_gets_funded",
-      {
-        "nth": 258,
-        "isVLEncoded": false,
-        "isSerialized": false,
-        "isSigningField": false,
-        "type": "Amount"
-      }
-    ],
-    [
-      "taker_pays_funded",
-      {
-        "nth": 259,
-        "isVLEncoded": false,
-        "isSerialized": false,
-        "isSigningField": false,
-        "type": "Amount"
-      }
-    ],"""
-)
+type_map = {x[0]: x[1] for x in type_hits}
 
 
 def _is_vl_encoded(t: str) -> str:
@@ -227,8 +165,10 @@ def _is_vl_encoded(t: str) -> str:
     return "false"
 
 
-def _is_serialized(t: str) -> str:
+def _is_serialized(t: str, name: str) -> str:
     if t == "LEDGERENTRY" or t == "TRANSACTION" or t == "VALIDATION" or t == "METADATA":
+        return "false"
+    if name == "hash" or name == "index":
         return "false"
     return "true"
 
@@ -248,23 +188,61 @@ sfield_hits = re.findall(
     sfield_macro_file,
     re.MULTILINE,
 )
+sfield_hits += [
+    ("hash", "UINT256", "257", "", "notSigning"),
+    ("index", "UINT256", "258", "", "notSigning"),
+]
+sfield_hits.sort(key=lambda x: int(type_map[x[1]]) * 2**16 + int(x[2]))
 for x in range(len(sfield_hits)):
     print("    [")
     print('      "' + sfield_hits[x][0] + '",')
     print("      {")
-    print('        "nth": ' + sfield_hits[x][2] + ",")
-    print('        "isVLEncoded": ' + _is_vl_encoded(sfield_hits[x][1]) + ",")
-    print('        "isSerialized": ' + _is_serialized(sfield_hits[x][1]) + ",")
+    print(
+        '        "isSerialized": '
+        + _is_serialized(sfield_hits[x][1], sfield_hits[x][0])
+        + ","
+    )
     print(
         '        "isSigningField": '
         + _is_signing_field(sfield_hits[x][1], sfield_hits[x][4])
         + ","
     )
+    print('        "isVLEncoded": ' + _is_vl_encoded(sfield_hits[x][1]) + ",")
+    print('        "nth": ' + sfield_hits[x][2] + ",")
     print('        "type": "' + _translate(sfield_hits[x][1]) + '"')
     print("      }")
     print("    ]" + ("," if x < len(sfield_hits) - 1 else ""))
 
 print("  ],")
+
+########################################################################
+#  Ledger entry type processing
+########################################################################
+print('  "LEDGER_ENTRY_TYPES": {')
+
+
+def _unhex(x: str) -> str:
+    if (x + "")[0:2] == "0x":
+        return str(int(x, 16))
+    return x
+
+
+lt_hits = re.findall(
+    r"^ *LEDGER_ENTRY[A-Z_]*\(lt[A-Z_]+ *, *([x0-9a-f]+) *, *([^,]+), *([^,]+), \({$",
+    ledger_entries_file,
+    re.MULTILINE,
+)
+lt_hits.append(("-1", "Invalid"))
+lt_hits.sort(key=lambda x: x[1])
+for x in range(len(lt_hits)):
+    print(
+        '    "'
+        + lt_hits[x][1]
+        + '": '
+        + _unhex(lt_hits[x][0])
+        + ("," if x < len(lt_hits) - 1 else "")
+    )
+print("  },")
 
 ########################################################################
 #  TER code processing
@@ -277,6 +255,7 @@ ter_code_hits = re.findall(
     ter_h,
     re.MULTILINE,
 )
+ter_codes = []
 upto = -1
 last = ""
 
@@ -286,19 +265,28 @@ for x in range(len(ter_code_hits)):
 
     current = ter_code_hits[x][1]
     if current != last and last != "":
-        print("")
         pass
     last = current
+    ter_codes.append((ter_code_hits[x][0], upto))
+
+    upto += 1
+
+ter_codes.sort(key=lambda x: x[0])
+current_type = ""
+for x in range(len(ter_codes)):
+    if current_type == "":
+        current_type = ter_codes[x][0][:3]
+    elif current_type != ter_codes[x][0][:3]:
+        print("")
+        current_type = ter_codes[x][0][:3]
 
     print(
         '    "'
-        + ter_code_hits[x][0]
+        + ter_codes[x][0]
         + '": '
-        + str(upto)
-        + ("," if x < len(ter_code_hits) - 1 else "")
+        + str(ter_codes[x][1])
+        + ("," if x < len(ter_codes) - 1 else "")
     )
-
-    upto += 1
 
 print("  },")
 
@@ -306,13 +294,14 @@ print("  },")
 #  Transaction type processing
 ########################################################################
 print('  "TRANSACTION_TYPES": {')
-print('    "Invalid": -1,')
 
 tx_hits = re.findall(
     r"^ *TRANSACTION\(tt[A-Z_]+ *,* ([0-9]+) *, *([A-Za-z]+).*$",
     transactions_file,
     re.MULTILINE,
 )
+tx_hits.append(("-1", "Invalid"))
+tx_hits.sort(key=lambda x: x[1])
 for x in range(len(tx_hits)):
     print(
         '    "'
@@ -320,6 +309,24 @@ for x in range(len(tx_hits)):
         + '": '
         + tx_hits[x][0]
         + ("," if x < len(tx_hits) - 1 else "")
+    )
+
+print("  },")
+
+########################################################################
+#  Serialized type processing
+########################################################################
+print('  "TYPES": {')
+
+type_hits.append(("DONE", "-1"))
+type_hits.sort(key=lambda x: _translate(x[0]))
+for x in range(len(type_hits)):
+    print(
+        '    "'
+        + _translate(type_hits[x][0])
+        + '": '
+        + type_hits[x][1]
+        + ("," if x < len(type_hits) - 1 else "")
     )
 
 print("  }")
