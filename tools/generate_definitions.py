@@ -7,14 +7,7 @@ import sys
 import httpx
 
 CAPITALIZATION_EXCEPTIONS = {
-    "NFTOKEN": "NFToken",
-    "URITOKEN": "URIToken",
-    "URI": "URI",
-    "UNL": "UNL",
     "XCHAIN": "XChain",
-    "DID": "DID",
-    "ID": "ID",
-    "AMM": "AMM",
 }
 
 if len(sys.argv) != 2 and len(sys.argv) != 3:
@@ -66,22 +59,21 @@ def _translate(inp: str) -> str:
             return inp.replace("UINT", "Hash")
         else:
             return inp.replace("UINT", "UInt")
-    if inp == "OBJECT" or inp == "ARRAY":
-        return "ST" + inp[0:1].upper() + inp[1:].lower()
-    if inp == "ACCOUNT":
-        return "AccountID"
-    if inp == "LEDGERENTRY":
-        return "LedgerEntry"
-    if inp == "NOTPRESENT":
-        return "NotPresent"
-    if inp == "PATHSET":
-        return "PathSet"
-    if inp == "VL":
-        return "Blob"
-    if inp == "DIR_NODE":
-        return "DirectoryNode"
-    if inp == "PAYCHAN":
-        return "PayChannel"
+
+    non_standard_renames = {
+        "OBJECT": "STObject",
+        "ARRAY": "STArray",
+        "AMM": "AMM",
+        "ACCOUNT": "AccountID",
+        "LEDGERENTRY": "LedgerEntry",
+        "NOTPRESENT": "NotPresent",
+        "PATHSET": "PathSet",
+        "VL": "Blob",
+        "DIR_NODE": "DirectoryNode",
+        "PAYCHAN": "PayChannel",
+    }
+    if inp in non_standard_renames:
+        return non_standard_renames[inp]
 
     parts = inp.split("_")
     result = ""
@@ -96,6 +88,7 @@ def _translate(inp: str) -> str:
 output = ""
 
 
+# add a new line of content to the output
 def _add_line(line: str) -> None:
     global output
     output += line + "\n"
@@ -173,6 +166,9 @@ _add_line(
     ],"""
 )
 
+# Parse STypes
+# Example line:
+# STYPE(STI_UINT32, 2)    \
 type_hits = re.findall(
     r"^ *STYPE\(STI_([^ ]*?) *, *([0-9-]+) *\) *\\?$", sfield_h, re.MULTILINE
 )
@@ -180,6 +176,7 @@ if len(type_hits) == 0:
     type_hits = re.findall(
         r"^ *STI_([^ ]*?) *= *([0-9-]+) *,?$", sfield_h, re.MULTILINE
     )
+# name-to-value map - needed for SField processing
 type_map = {x[0]: x[1] for x in type_hits}
 
 
@@ -206,6 +203,9 @@ def _is_signing_field(t: str, not_signing_field: str) -> str:
 
 
 # Parse SField.cpp for all the SFields and their serialization info
+# Example lines:
+# TYPED_SFIELD(sfFee, AMOUNT, 8)
+# UNTYPED_SFIELD(sfSigners,  ARRAY, 3, SField::sMD_Default, SField::notSigning)
 sfield_hits = re.findall(
     r"^ *[A-Z]*TYPED_SFIELD *\( *sf([^,\n]*),[ \n]*([^, \n]+)[ \n]*,[ \n]*"
     r"([0-9]+)(,.*?(notSigning))?",
@@ -251,6 +251,9 @@ def _unhex(x: str) -> str:
     return x
 
 
+# Parse ledger entries
+# Example line:
+# LEDGER_ENTRY(ltNFTOKEN_OFFER, 0x0037, NFTokenOffer, nft_offer, ({
 lt_hits = re.findall(
     r"^ *LEDGER_ENTRY[A-Z_]*\(lt[A-Z_]+ *, *([x0-9a-f]+) *, *([^,]+), *([^,]+), \({$",
     ledger_entries_file,
@@ -274,6 +277,7 @@ _add_line("  },")
 _add_line('  "TRANSACTION_RESULTS": {')
 ter_h = str(ter_h).replace("[[maybe_unused]]", "")
 
+# Parse TER codes
 ter_code_hits = re.findall(
     r"^ *((tel|tem|tef|ter|tes|tec)[A-Z_]+)( *= *([0-9-]+))? *,? *(\/\/[^\n]*)?$",
     ter_h,
@@ -282,16 +286,18 @@ ter_code_hits = re.findall(
 ter_codes = []
 upto = -1
 
+# Get the exact values of the TER codes and sort them
 for x in range(len(ter_code_hits)):
     if ter_code_hits[x][3] != "":
         upto = int(ter_code_hits[x][3])
     ter_codes.append((ter_code_hits[x][0], upto))
 
     upto += 1
-
 ter_codes.sort(key=lambda x: x[0])
+
 current_type = ""
 for x in range(len(ter_codes)):
+    # print newline between the different code types
     if current_type == "":
         current_type = ter_codes[x][0][:3]
     elif current_type != ter_codes[x][0][:3]:
@@ -313,6 +319,9 @@ _add_line("  },")
 ########################################################################
 _add_line('  "TRANSACTION_TYPES": {')
 
+# Parse transaction types
+# Example line:
+# TRANSACTION(ttCHECK_CREATE, 16, CheckCreate, ({
 tx_hits = re.findall(
     r"^ *TRANSACTION\(tt[A-Z_]+ *,* ([0-9]+) *, *([A-Za-z]+).*$",
     transactions_file,
@@ -320,6 +329,7 @@ tx_hits = re.findall(
 )
 tx_hits.append(("-1", "Invalid"))
 tx_hits.sort(key=lambda x: x[1])
+
 for x in range(len(tx_hits)):
     _add_line(
         '    "'
