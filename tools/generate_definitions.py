@@ -3,6 +3,8 @@
 import re
 import sys
 
+import httpx
+
 CAPITALIZATION_EXCEPTIONS = {
     "NFTOKEN": "NFToken",
     "URITOKEN": "URIToken",
@@ -16,6 +18,9 @@ CAPITALIZATION_EXCEPTIONS = {
 
 if len(sys.argv) != 2:
     print("Usage: python " + sys.argv[0] + " path/to/rippled")
+    print(
+        "Usage: python " + sys.argv[0] + " github.com/user/rippled/tree/feature-branch"
+    )
     sys.exit(1)
 
 ########################################################################
@@ -23,24 +28,32 @@ if len(sys.argv) != 2:
 ########################################################################
 
 
-def _read_file(filename: str) -> str:
-    with open(filename, "r") as f:
+def _read_file_from_github(repo: str, filename: str) -> str:
+    url = repo.replace("github.com", "raw.githubusercontent.com")
+    url = url.replace("tree", "refs/heads")
+    url += filename
+    if not url.startswith("http"):
+        url = "https://" + url
+    response = httpx.get(url)
+    return response.text
+
+
+def _read_file(folder: str, filename: str) -> str:
+    with open(folder + filename, "r") as f:
         return f.read()
 
 
-sfield_h_fn = sys.argv[1] + "/include/xrpl/protocol/SField.h"
-sfield_macro_fn = sys.argv[1] + "/include/xrpl/protocol/detail/sfields.macro"
-ledger_entries_macro_fn = (
-    sys.argv[1] + "/include/xrpl/protocol/detail/ledger_entries.macro"
-)
-ter_h_fn = sys.argv[1] + "/include/xrpl/protocol/TER.h"
-transactions_macro_fn = sys.argv[1] + "/include/xrpl/protocol/detail/transactions.macro"
+func = _read_file_from_github if "github.com" in sys.argv[1] else _read_file
 
-sfield_h = _read_file(sfield_h_fn)
-sfield_macro_file = _read_file(sfield_macro_fn)
-ledger_entries_file = _read_file(ledger_entries_macro_fn)
-ter_h = _read_file(ter_h_fn)
-transactions_file = _read_file(transactions_macro_fn)
+sfield_h = func(sys.argv[1], "/include/xrpl/protocol/SField.h")
+sfield_macro_file = func(sys.argv[1], "/include/xrpl/protocol/detail/sfields.macro")
+ledger_entries_file = func(
+    sys.argv[1], "/include/xrpl/protocol/detail/ledger_entries.macro"
+)
+ter_h = func(sys.argv[1], "/include/xrpl/protocol/TER.h")
+transactions_file = func(
+    sys.argv[1], "/include/xrpl/protocol/detail/transactions.macro"
+)
 
 
 # Translate from rippled string format to what the binary codecs expect
@@ -257,16 +270,10 @@ ter_code_hits = re.findall(
 )
 ter_codes = []
 upto = -1
-last = ""
 
 for x in range(len(ter_code_hits)):
     if ter_code_hits[x][3] != "":
         upto = int(ter_code_hits[x][3])
-
-    current = ter_code_hits[x][1]
-    if current != last and last != "":
-        pass
-    last = current
     ter_codes.append((ter_code_hits[x][0], upto))
 
     upto += 1
