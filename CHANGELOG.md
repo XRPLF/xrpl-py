@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Added
+- decode_ledger_data utility method is useful for parsing serialized ledger-headers
+
 ## [4.0.0] - 2024-12-23
 
 ### Added
@@ -97,6 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0] - 2023-07-05
 ### BREAKING CHANGE
 - The default signing algorithm in the `Wallet` was changed from secp256k1 to ed25519
+
 ### Added:
 - Wallet support for regular key compatibility
 - Added new ways of wallet generation: `from_seed`, `from_secret`, `from_entropy`, `from_secret_numbers`

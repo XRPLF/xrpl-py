@@ -9,6 +9,20 @@ with open(absolute_path) as data_driven_tests:
     # top level keys: ['types', 'fields_tests', 'whole_objects', 'values_tests']
 
 
+def get_ledger_data_codec_test():
+    """
+    Fetch the (serialized, de-serialized) pairs of ledger_data from the
+    codec-fixtures.json file
+    """
+
+    with open(
+        "tests/unit/core/binarycodec/fixtures/data/codec-fixtures.json"
+    ) as codec_tests:
+        ledger_data = json.load(codec_tests)["ledgerData"]
+
+        return ledger_data
+
+
 def get_field_tests():
     """
     Constructs and returns a list of FieldTest objects after parsing JSON data

@@ -3,9 +3,44 @@ Encodes and decodes field IDs.
 `Field IDs <https://xrpl.org/serialization.html#field-ids>`_
 """
 
+from typing import Any, Dict
+
+from xrpl.core.binarycodec.binary_wrappers import BinaryParser
 from xrpl.core.binarycodec.definitions import definitions
 from xrpl.core.binarycodec.definitions.field_header import FieldHeader
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
+from xrpl.core.binarycodec.types.hash256 import Hash256
+from xrpl.core.binarycodec.types.uint64 import UInt64
+
+
+def decode_ledger_header(serialized_str: str) -> Dict[str, Any]:
+    """
+    Decodes a serialized ledger header.
+    Note: The file located at xrpl/core/binarycodec/definitions/definitions.json file
+    is used to parse the serialized data. If developers need custom definitions,
+    please update that file.
+
+    Args:
+        serialized_str: A serialized ledger header, represented as a hexa-decimal string
+
+    Returns:
+        A Dict object describing a ledger header
+    """
+    parser = BinaryParser(serialized_str)
+
+    return {
+        "ledger_index": parser.read_uint32(),
+        # Uint64 types are represented as hex-strings for preserving precision
+        # For ease of use, explicitly type-cast this value into base-10
+        "total_coins": str(int(parser.read_type(UInt64).to_hex(), base=16)),
+        "parent_hash": parser.read_type(Hash256).to_hex(),
+        "transaction_hash": parser.read_type(Hash256).to_hex(),
+        "account_hash": parser.read_type(Hash256).to_hex(),
+        "parent_close_time": parser.read_uint32(),
+        "close_time": parser.read_uint32(),
+        "close_time_resolution": parser.read_uint8(),
+        "close_flags": parser.read_uint8(),
+    }
 
 
 def encode(field_name: str) -> bytes:

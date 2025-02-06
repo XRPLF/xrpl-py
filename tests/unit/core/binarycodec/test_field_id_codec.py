@@ -2,6 +2,7 @@ from unittest import TestCase
 
 import xrpl.core.binarycodec.field_id_codec as field_id_codec
 from tests.unit.core.binarycodec.fixtures import data_driven_fixtures
+from xrpl.core.binarycodec.field_id_codec import decode_ledger_header
 
 
 class TestFieldIDCodec(TestCase):
@@ -21,3 +22,11 @@ class TestFieldIDCodec(TestCase):
     def test_decode(self):
         for test in self.field_tests:
             self.assertEqual(test.name, field_id_codec.decode(test.expected_hex))
+
+
+class TestDecodeLedgerHeader(TestCase):
+    def test_decode_ledger_header_valid(self):
+        for test in data_driven_fixtures.get_ledger_data_codec_test():
+            self.assertEqual(
+                test["json"], decode_ledger_header(test["serialized_data"])
+            )
