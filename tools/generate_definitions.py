@@ -1,5 +1,6 @@
 """Script to generate the definitions.json file from rippled source code."""
 
+import os
 import re
 import sys
 
@@ -16,10 +17,12 @@ CAPITALIZATION_EXCEPTIONS = {
     "AMM": "AMM",
 }
 
-if len(sys.argv) != 2:
-    print("Usage: python " + sys.argv[0] + " path/to/rippled")
+if len(sys.argv) != 2 and len(sys.argv) != 3:
+    print("Usage: python " + sys.argv[0] + " path/to/rippled [path/to/pipe/to]")
     print(
-        "Usage: python " + sys.argv[0] + " github.com/user/rippled/tree/feature-branch"
+        "Usage: python "
+        + sys.argv[0]
+        + " github.com/user/rippled/tree/feature-branch [path/to/pipe/to]"
     )
     sys.exit(1)
 
@@ -90,16 +93,24 @@ def _translate(inp: str) -> str:
     return result
 
 
+output = ""
+
+
+def _add_line(line: str) -> None:
+    global output
+    output += line + "\n"
+
+
 # start
-print("{")
+_add_line("{")
 
 ########################################################################
 #  SField processing
 ########################################################################
-print('  "FIELDS": [')
+_add_line('  "FIELDS": [')
 
 # The ones that are harder to parse directly from SField.cpp
-print(
+_add_line(
     """    [
       "Generic",
       {
@@ -207,31 +218,31 @@ sfield_hits += [
 ]
 sfield_hits.sort(key=lambda x: int(type_map[x[1]]) * 2**16 + int(x[2]))
 for x in range(len(sfield_hits)):
-    print("    [")
-    print('      "' + sfield_hits[x][0] + '",')
-    print("      {")
-    print(
+    _add_line("    [")
+    _add_line('      "' + sfield_hits[x][0] + '",')
+    _add_line("      {")
+    _add_line(
         '        "isSerialized": '
         + _is_serialized(sfield_hits[x][1], sfield_hits[x][0])
         + ","
     )
-    print(
+    _add_line(
         '        "isSigningField": '
         + _is_signing_field(sfield_hits[x][1], sfield_hits[x][4])
         + ","
     )
-    print('        "isVLEncoded": ' + _is_vl_encoded(sfield_hits[x][1]) + ",")
-    print('        "nth": ' + sfield_hits[x][2] + ",")
-    print('        "type": "' + _translate(sfield_hits[x][1]) + '"')
-    print("      }")
-    print("    ]" + ("," if x < len(sfield_hits) - 1 else ""))
+    _add_line('        "isVLEncoded": ' + _is_vl_encoded(sfield_hits[x][1]) + ",")
+    _add_line('        "nth": ' + sfield_hits[x][2] + ",")
+    _add_line('        "type": "' + _translate(sfield_hits[x][1]) + '"')
+    _add_line("      }")
+    _add_line("    ]" + ("," if x < len(sfield_hits) - 1 else ""))
 
-print("  ],")
+_add_line("  ],")
 
 ########################################################################
 #  Ledger entry type processing
 ########################################################################
-print('  "LEDGER_ENTRY_TYPES": {')
+_add_line('  "LEDGER_ENTRY_TYPES": {')
 
 
 def _unhex(x: str) -> str:
@@ -248,19 +259,19 @@ lt_hits = re.findall(
 lt_hits.append(("-1", "Invalid"))
 lt_hits.sort(key=lambda x: x[1])
 for x in range(len(lt_hits)):
-    print(
+    _add_line(
         '    "'
         + lt_hits[x][1]
         + '": '
         + _unhex(lt_hits[x][0])
         + ("," if x < len(lt_hits) - 1 else "")
     )
-print("  },")
+_add_line("  },")
 
 ########################################################################
 #  TER code processing
 ########################################################################
-print('  "TRANSACTION_RESULTS": {')
+_add_line('  "TRANSACTION_RESULTS": {')
 ter_h = str(ter_h).replace("[[maybe_unused]]", "")
 
 ter_code_hits = re.findall(
@@ -284,10 +295,10 @@ for x in range(len(ter_codes)):
     if current_type == "":
         current_type = ter_codes[x][0][:3]
     elif current_type != ter_codes[x][0][:3]:
-        print("")
+        _add_line("")
         current_type = ter_codes[x][0][:3]
 
-    print(
+    _add_line(
         '    "'
         + ter_codes[x][0]
         + '": '
@@ -295,12 +306,12 @@ for x in range(len(ter_codes)):
         + ("," if x < len(ter_codes) - 1 else "")
     )
 
-print("  },")
+_add_line("  },")
 
 ########################################################################
 #  Transaction type processing
 ########################################################################
-print('  "TRANSACTION_TYPES": {')
+_add_line('  "TRANSACTION_TYPES": {')
 
 tx_hits = re.findall(
     r"^ *TRANSACTION\(tt[A-Z_]+ *,* ([0-9]+) *, *([A-Za-z]+).*$",
@@ -310,7 +321,7 @@ tx_hits = re.findall(
 tx_hits.append(("-1", "Invalid"))
 tx_hits.sort(key=lambda x: x[1])
 for x in range(len(tx_hits)):
-    print(
+    _add_line(
         '    "'
         + tx_hits[x][1]
         + '": '
@@ -318,17 +329,17 @@ for x in range(len(tx_hits)):
         + ("," if x < len(tx_hits) - 1 else "")
     )
 
-print("  },")
+_add_line("  },")
 
 ########################################################################
 #  Serialized type processing
 ########################################################################
-print('  "TYPES": {')
+_add_line('  "TYPES": {')
 
 type_hits.append(("DONE", "-1"))
 type_hits.sort(key=lambda x: _translate(x[0]))
 for x in range(len(type_hits)):
-    print(
+    _add_line(
         '    "'
         + _translate(type_hits[x][0])
         + '": '
@@ -336,5 +347,18 @@ for x in range(len(type_hits)):
         + ("," if x < len(type_hits) - 1 else "")
     )
 
-print("  }")
-print("}")
+_add_line("  }")
+_add_line("}")
+
+
+if len(sys.argv) == 3:
+    output_file = sys.argv[2]
+else:
+    output_file = os.path.join(
+        os.path.dirname(__file__),
+        "../xrpl/core/binarycodec/definitions/definitions.json",
+    )
+
+with open(output_file, "w") as f:
+    f.write(output)
+print("File written successfully to " + output_file)
