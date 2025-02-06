@@ -3,16 +3,22 @@ from tests.integration.it_utils import (
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
-from tests.integration.reusable_values import CREDENTIAL_ACCEPT_RESPONSE, WALLET
+from tests.integration.reusable_values import (  # CREDENTIAL_ACCEPT_RESPONSE,
+    DESTINATION,
+    WALLET,
+)
 from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
 from xrpl.models.requests.ledger_data import LedgerData
 from xrpl.models.requests.ledger_entry import LedgerEntry, PermissionedDomain
 from xrpl.models.response import ResponseStatus
+from xrpl.models.transactions.credential_accept import CredentialAccept
+from xrpl.models.transactions.credential_create import CredentialCreate
 from xrpl.models.transactions.permissioned_domain_delete import PermissionedDomainDelete
 from xrpl.models.transactions.permissioned_domain_set import (
     Credential,
     PermissionedDomainSet,
 )
+from xrpl.utils import str_to_hex
 
 
 class TestPermissionedDomain(IntegrationTestCase):
@@ -23,16 +29,38 @@ class TestPermissionedDomain(IntegrationTestCase):
         # also the "Owner" of the PermissionedDomain, but these roles need not be
         # fulfilled by the same account
 
-        # Step-1: Create a PermissionedDomain object
+        # Step-1a: Create a Credential object
+        cred_type: str = str_to_hex("IdentityDocument")
+        await sign_and_reliable_submission_async(
+            CredentialCreate(
+                account=WALLET.address,
+                subject=DESTINATION.address,
+                credential_type=cred_type,
+            ),
+            WALLET,
+        )
+
+        credential_accept_txn_response = await sign_and_reliable_submission_async(
+            CredentialAccept(
+                issuer=WALLET.address,
+                credential_type=cred_type,
+                account=DESTINATION.address,
+            ),
+            DESTINATION,
+        )
+
+        # Step-1b: Create a PermissionedDomain object
         response = await sign_and_reliable_submission_async(
             PermissionedDomainSet(
                 account=WALLET.address,
                 accepted_credentials=[
                     Credential(
-                        credential_type=CREDENTIAL_ACCEPT_RESPONSE.result["tx_json"][
-                            "CredentialType"
+                        credential_type=credential_accept_txn_response.result[
+                            "tx_json"
+                        ]["CredentialType"],
+                        issuer=credential_accept_txn_response.result["tx_json"][
+                            "Issuer"
                         ],
-                        issuer=CREDENTIAL_ACCEPT_RESPONSE.result["tx_json"]["Issuer"],
                     )
                 ],
             ),
