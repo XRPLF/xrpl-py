@@ -63,7 +63,7 @@ class AMMClawback(Transaction):
     Specifies the other asset in the AMM's pool. In JSON, this is an object with
     currency and issuer fields (omit issuer for XRP).
     """
-    
+
     amount: Optional[IssuedCurrencyAmount] = None
     """
     The maximum amount to claw back from the AMM account. The currency and issuer
