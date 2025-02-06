@@ -101,6 +101,9 @@ class AMMClawback(Transaction):
             self.amount.issuer != self.asset.issuer
             or self.amount.currency != self.asset.currency
         ):
-            errors += "Amount issuer/currency subfield does not match Asset field. "
+            errors += (
+                "Amount.issuer and Amount.currency must match corresponding Asset "
+                + "fields."
+            )
 
         return errors if errors else None

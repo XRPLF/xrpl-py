@@ -58,8 +58,8 @@ class TestAMMClawback(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'AMMClawback': 'Amount issuer/currency subfield does not match Asset "
-            + "field. '}",
+            "{'AMMClawback': 'Amount.issuer and Amount.currency must match "
+            + "corresponding Asset fields.'}",
         )
 
     def test_valid_txn(self):
