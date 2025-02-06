@@ -5,13 +5,25 @@ import re
 import sys
 from typing import Dict, List, Tuple
 
+import httpx
+
 from xrpl.models.base_model import _key_to_json
 from xrpl.models.transactions.types.pseudo_transaction_type import PseudoTransactionType
 from xrpl.models.transactions.types.transaction_type import TransactionType
 
 
-def _read_file(filename: str) -> str:
-    with open(filename) as f:
+def _read_file_from_github(repo: str, filename: str) -> str:
+    url = repo.replace("github.com", "raw.githubusercontent.com")
+    url = url.replace("tree", "refs/heads")
+    url += "/" + filename
+    if not url.startswith("http"):
+        url = "https://" + url
+    response = httpx.get(url)
+    return response.text
+
+
+def _read_file(folder: str, filename: str) -> str:
+    with open(os.path.join(folder, filename), "r") as f:
         return f.read()
 
 
@@ -25,22 +37,21 @@ def _format_tx_format(raw_tx_format: str) -> List[Tuple[str, ...]]:
 def _parse_rippled_source(
     folder: str,
 ) -> Tuple[Dict[str, List[str]], Dict[str, List[Tuple[str, ...]]]]:
+    func = _read_file_from_github if "github.com" in sys.argv[1] else _read_file
     # Get SFields
-    sfield_cpp = _read_file(
-        os.path.join(folder, "include/xrpl/protocol/detail/sfields.macro")
-    )
+    sfield_cpp = func(folder, "include/xrpl/protocol/detail/sfields.macro")
     sfield_hits = re.findall(
-        r"^ *[A-Z]*TYPED_SFIELD *\( *sf([^,\n]*),[ \n]*([^, \n]+)[ \n]*,[ \n]*([0-9]+)"
-        + r"(,.*?(notSigning))?",
+        (
+            r"^ *[A-Z]*TYPED_SFIELD *\( *sf([^,\n]*),[ \n]*([^, \n]+)[ \n]*,[ \n]*"
+            r"([0-9]+)(,.*?(notSigning))?"
+        ),
         sfield_cpp,
         re.MULTILINE,
     )
     sfields = {hit[0]: hit[1:] for hit in sfield_hits}
 
     # Get TxFormats
-    tx_formats_cpp = _read_file(
-        os.path.join(folder, "include/xrpl/protocol/detail/transactions.macro")
-    )
+    tx_formats_cpp = func(folder, "include/xrpl/protocol/detail/transactions.macro")
     tx_formats_hits = re.findall(
         r"^ *TRANSACTION\(tt[A-Z_]+ *,* [0-9]+ *, *([A-Za-z]+)[ \n]*,[ \n]*\({[ \n]*"
         + r"(({sf[A-Za-z0-9]+, soe(OPTIONAL|REQUIRED|DEFAULT)"
@@ -134,7 +145,7 @@ def _main(
         param_lines.sort(key=lambda x: "REQUIRED" not in x)
         params = "\n".join(param_lines)
         model = f"""@require_kwargs_on_init
-@dataclass(frozen=True,  **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class {tx}(Transaction):
     \"\"\"Represents a {tx} transaction.\"\"\"
 
