@@ -51,14 +51,6 @@ class AMMClawback(Transaction):
     holder: str = REQUIRED  # type: ignore
     """The account holding the asset to be clawed back."""
 
-    amount: Optional[IssuedCurrencyAmount] = None
-    """
-    The maximum amount to claw back from the AMM account. The currency and issuer
-    subfields should match the Asset subfields. If this field isn't specified, or the
-    value subfield exceeds the holder's available tokens in the AMM, all of the
-    holder's tokens are clawed back.
-    """
-
     asset: IssuedCurrency = REQUIRED  # type: ignore
     """
     Specifies the asset that the issuer wants to claw back from the AMM pool. In JSON,
@@ -70,6 +62,14 @@ class AMMClawback(Transaction):
     """
     Specifies the other asset in the AMM's pool. In JSON, this is an object with
     currency and issuer fields (omit issuer for XRP).
+    """
+    
+    amount: Optional[IssuedCurrencyAmount] = None
+    """
+    The maximum amount to claw back from the AMM account. The currency and issuer
+    subfields should match the Asset subfields. If this field isn't specified, or the
+    value subfield exceeds the holder's available tokens in the AMM, all of the
+    holder's tokens are clawed back.
     """
 
     transaction_type: TransactionType = field(
