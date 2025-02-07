@@ -15,9 +15,7 @@ from xrpl.models.transactions.amm_deposit import AMMDepositFlag
 class TestAMMClawback(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_positive_workflow(self, client):
-        amm_pool = await create_amm_pool_async(
-            client, issuer_account_enable_trustline_clawback=True
-        )
+        amm_pool = await create_amm_pool_async(client, enable_amm_clawback=True)
 
         # Asset-1 is XRP, Asset-2 is an IssuedCurrency titled "USD"
         # The Issuer of Asset-2 is the issuer_wallet
