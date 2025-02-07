@@ -6,10 +6,6 @@ import sys
 
 import httpx
 
-CAPITALIZATION_EXCEPTIONS = {
-    "XCHAIN": "XChain",
-}
-
 if len(sys.argv) != 2 and len(sys.argv) != 3:
     print("Usage: python " + sys.argv[0] + " path/to/rippled [path/to/pipe/to]")
     print(
@@ -71,6 +67,7 @@ def _translate(inp: str) -> str:
         "VL": "Blob",
         "DIR_NODE": "DirectoryNode",
         "PAYCHAN": "PayChannel",
+        "XCHAIN_BRIDGE": "XChainBridge",
     }
     if inp in non_standard_renames:
         return non_standard_renames[inp]
@@ -78,10 +75,7 @@ def _translate(inp: str) -> str:
     parts = inp.split("_")
     result = ""
     for part in parts:
-        if part in CAPITALIZATION_EXCEPTIONS:
-            result += CAPITALIZATION_EXCEPTIONS[part]
-        else:
-            result += part[0:1].upper() + part[1:].lower()
+        result += part[0:1].upper() + part[1:].lower()
     return result
 
 
