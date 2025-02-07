@@ -315,7 +315,7 @@ def _get_non_decorator_code(function):
 
 def create_amm_pool(
     client: SyncClient = JSON_RPC_CLIENT,
-    issuer_account_enable_trustline_clawback: bool = False,
+    enable_amm_clawback: bool = False,
 ) -> Dict[str, Any]:
     issuer_wallet = Wallet.create()
     fund_wallet(issuer_wallet)
@@ -333,7 +333,7 @@ def create_amm_pool(
     )
 
     # The below flag is required for AMMClawback tests
-    if issuer_account_enable_trustline_clawback:
+    if enable_amm_clawback:
         sign_and_reliable_submission(
             AccountSet(
                 account=issuer_wallet.classic_address,
@@ -399,7 +399,7 @@ def create_amm_pool(
 
 async def create_amm_pool_async(
     client: AsyncClient = ASYNC_JSON_RPC_CLIENT,
-    issuer_account_enable_trustline_clawback: bool = False,
+    enable_amm_clawback: bool = False,
 ) -> Dict[str, Any]:
     issuer_wallet = Wallet.create()
     await fund_wallet_async(issuer_wallet)
@@ -417,7 +417,7 @@ async def create_amm_pool_async(
     )
 
     # The below flag is required for AMMClawback tests
-    if issuer_account_enable_trustline_clawback:
+    if enable_amm_clawback:
         await sign_and_reliable_submission_async(
             AccountSet(
                 account=issuer_wallet.classic_address,
