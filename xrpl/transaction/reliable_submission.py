@@ -1,6 +1,5 @@
 """High-level reliable submission methods with XRPL transactions."""
 
-import asyncio
 from typing import Optional
 
 from xrpl.asyncio.transaction import submit_and_wait as async_submit_and_wait
@@ -10,7 +9,7 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.wallet.main import Wallet
 
 
-def submit_and_wait(
+async def submit_and_wait(
     transaction: Transaction,
     client: SyncClient,
     wallet: Optional[Wallet] = None,
@@ -44,8 +43,7 @@ def submit_and_wait(
     Returns:
         The response from the ledger.
     """
-    return asyncio.run(
-        async_submit_and_wait(
+    return await async_submit_and_wait(
             transaction,
             client,
             wallet,
@@ -53,4 +51,3 @@ def submit_and_wait(
             autofill=autofill,
             fail_hard=fail_hard,
         )
-    )

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
-
 from typing_extensions import Self
 
 from xrpl.asyncio.clients.client import Client
@@ -18,7 +16,7 @@ class SyncClient(Client):
     :meta private:
     """
 
-    def request(self: Self, request: Request) -> Response:
+    async def request(self: Self, request: Request) -> Response:
         """
         Makes a request with this client and returns the response.
 
@@ -28,4 +26,4 @@ class SyncClient(Client):
         Returns:
             The Response for the given Request.
         """
-        return asyncio.run(self._request_impl(request))
+        return await self._request_impl(request)
