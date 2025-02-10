@@ -9,11 +9,11 @@ from xrpl.transaction.batch_signers import (
     sign_multiaccount_batch,
 )
 from xrpl.transaction.main import (
-    _calculate_fee_per_transaction_type,
     autofill,
     autofill_and_sign,
     sign,
     sign_and_submit,
+    simulate,
     submit,
 )
 from xrpl.transaction.multisign import multisign
@@ -22,14 +22,14 @@ from xrpl.transaction.reliable_submission import submit_and_wait
 __all__ = [
     "autofill",
     "autofill_and_sign",
+    "combine_batch_signers",
+    "multisign",
     "sign",
     "sign_and_submit",
+    "sign_multiaccount_batch",
+    "simulate",
     "submit",
     "submit_and_wait",
     "transaction_json_to_binary_codec_form",
-    "multisign",
-    "sign_multiaccount_batch",
-    "combine_batch_signers",
     "XRPLReliableSubmissionException",
-    "_calculate_fee_per_transaction_type",
 ]

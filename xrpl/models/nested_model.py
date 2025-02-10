@@ -59,8 +59,8 @@ class NestedModel(BaseModel):
             XRPLModelException: If the dictionary provided is invalid.
         """
         if _get_nested_name(cls) not in value:
-            return super(NestedModel, cls).from_dict(value)
-        return super(NestedModel, cls).from_dict(value[_get_nested_name(cls)])
+            return super().from_dict(value)
+        return super().from_dict(value[_get_nested_name(cls)])
 
     def to_dict(self: Self) -> Dict[str, Any]:
         """
