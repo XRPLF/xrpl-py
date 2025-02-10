@@ -9,16 +9,15 @@ from tests.integration.reusable_values import WALLET
 from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.asyncio.transaction import (
     XRPLReliableSubmissionException,
+    _calculate_fee_per_transaction_type,
     autofill,
     autofill_and_sign,
     sign,
+    sign_and_submit,
+    simulate,
 )
 from xrpl.asyncio.transaction import submit as submit_transaction_alias_async
 from xrpl.asyncio.transaction import submit_and_wait
-from xrpl.asyncio.transaction.main import (
-    _calculate_fee_per_transaction_type,
-    sign_and_submit,
-)
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.core.binarycodec.main import encode
@@ -254,6 +253,79 @@ class TestTransaction(IntegrationTestCase):
         self.assertIsNone(transaction.network_id)
         self.assertEqual(client.network_id, 1)
 
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.sign_and_submit",
+        ],
+    )
+    async def test_sign_and_submit(self, client):
+        payment_dict = {
+            "account": ACCOUNT,
+            "fee": "10",
+            "amount": "100",
+            "destination": DESTINATION,
+        }
+        payment_transaction = Payment.from_dict(payment_dict)
+        response = await sign_and_submit(payment_transaction, client, WALLET)
+        self.assertTrue(response.is_successful())
+
+    @test_async_and_sync(globals(), async_only=True)
+    async def test_basic_calculate_fee_per_transaction_type(self, client):
+        fee = await _calculate_fee_per_transaction_type(
+            Payment(
+                account="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                amount=IssuedCurrencyAmount(
+                    currency="USD",
+                    issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                    value="0.0001",
+                ),
+                destination="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                send_max=IssuedCurrencyAmount(
+                    currency="BTC",
+                    issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
+                    value="0.0000002831214446",
+                ),
+            ),
+            client,
+        )
+
+        # The expected fee is read from the below-specified config file
+        expected_fee = ""
+        with open(".ci-config/rippled.cfg", "r", encoding="utf-8") as file:
+            lines = file.readlines()  # Read all lines into a list
+
+            for value in lines:
+                kv_pairs = value.split()
+                # This step assumes that no non-`voting` section in the config file
+                # uses the reference_fee key-value pair.
+                if "reference_fee" in kv_pairs:
+                    expected_fee = kv_pairs[2]
+                    break
+
+        self.assertEqual(fee, expected_fee)
+
+    @test_async_and_sync(
+        globals(),
+        [
+            "xrpl.transaction.simulate",
+        ],
+    )
+    async def test_simulate(self, client):
+        response = await simulate(AccountSet(account=WALLET.address), client)
+
+        self.assertTrue(response.is_successful())
+        self.assertEqual(response.type, "response")
+        self.assertIn(
+            "meta", response.result, "Key 'meta' not found in simulate response."
+        )
+        self.assertIsInstance(
+            response.result["meta"], dict, "'meta' should be a dictionary."
+        )
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+        self.assertEqual(response.result["engine_result_code"], 0)
+        self.assertFalse(response.result["applied"])
+
 
 class TestSubmitAndWait(IntegrationTestCase):
     @test_async_and_sync(
@@ -419,60 +491,3 @@ class TestSubmitAndWait(IntegrationTestCase):
         signed_payment_transaction = sign(payment_transaction, WALLET)
         with self.assertRaises(XRPLReliableSubmissionException):
             await submit_and_wait(signed_payment_transaction, client)
-
-    @test_async_and_sync(
-        globals(),
-        [
-            "xrpl.transaction.sign_and_submit",
-        ],
-    )
-    async def test_sign_and_submit(self, client):
-        payment_dict = {
-            "account": ACCOUNT,
-            "fee": "10",
-            "amount": "100",
-            "destination": DESTINATION,
-        }
-        payment_transaction = Payment.from_dict(payment_dict)
-        response = await sign_and_submit(payment_transaction, client, WALLET)
-        self.assertTrue(response.is_successful())
-
-    @test_async_and_sync(
-        globals(),
-        [
-            "xrpl.transaction._calculate_fee_per_transaction_type",
-        ],
-    )
-    async def test_basic_calculate_fee_per_transaction_type(self, client):
-        fee = await _calculate_fee_per_transaction_type(
-            Payment(
-                account="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
-                amount=IssuedCurrencyAmount(
-                    currency="USD",
-                    issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
-                    value="0.0001",
-                ),
-                destination="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
-                send_max=IssuedCurrencyAmount(
-                    currency="BTC",
-                    issuer="rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
-                    value="0.0000002831214446",
-                ),
-            ),
-            client,
-        )
-
-        # The expected fee is read from the below-specified config file
-        expected_fee = ""
-        with open(".ci-config/rippled.cfg", "r", encoding="utf-8") as file:
-            lines = file.readlines()  # Read all lines into a list
-
-            for value in lines:
-                kv_pairs = value.split()
-                # This step assumes that no non-`voting` section in the config file
-                # uses the reference_fee key-value pair.
-                if "reference_fee" in kv_pairs:
-                    expected_fee = kv_pairs[2]
-                    break
-
-        self.assertEqual(fee, expected_fee)
