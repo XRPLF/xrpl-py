@@ -88,7 +88,7 @@ class Wallet:
                     + wallet_algorithm
                     + "\nError message: "
                     + str(e)
-                ) from e
+                )
 
         self.seed = seed
 
@@ -215,8 +215,8 @@ class Wallet:
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
                 the master address of the account. The default is `None`.
             algorithm: The digital signature algorithm to generate an address for.
-                The default is ED25519. Docs:
-                https://xrpl.org/docs/concepts/accounts/cryptographic-keys#ed25519-key-derivation
+                The default is `ED25519 
+                <https://xrpl.org/docs/concepts/accounts/cryptographic-keys#ed25519-key-derivation>`
                 Note: If you're upgrading from a previous version that used SECP256K1 as
                 the default, ensure your code explicitly specifies the algorithm if
                 SECP256K1 is required.
