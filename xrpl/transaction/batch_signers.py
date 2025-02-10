@@ -35,7 +35,7 @@ def sign_multiaccount_batch(
 
     fields_to_sign: Dict[str, Any] = {
         "flags": transaction.flags,
-        "transaction_ids": transaction.transaction_ids,
+        "transaction_ids": [tx.get_hash() for tx in transaction.raw_transactions],
     }
     if multisign:
         signer = Signer(
@@ -112,10 +112,10 @@ def _validate_batch_equivalence(transactions: List[Batch]) -> None:
     for tx in transactions:
         if (
             tx.flags != example_tx.flags
-            or tx.transaction_ids != example_tx.transaction_ids
+            or tx.raw_transactions != example_tx.raw_transactions
         ):
             raise XRPLException(
-                "Flags and TransactionIDs are not the same for all provided "
+                "Flags and RawTransactions are not the same for all provided "
                 "transactions."
             )
 

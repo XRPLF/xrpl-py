@@ -1,7 +1,7 @@
 """High-level transaction methods with XRPL transactions."""
 
 import math
-from typing import Any, Dict, List, Optional, Tuple, cast
+from typing import Any, Dict, List, Optional, cast
 
 from typing_extensions import Final, TypeVar
 
@@ -297,15 +297,8 @@ async def autofill(
         ledger_sequence = await get_latest_validated_ledger_sequence(client)
         transaction_json["last_ledger_sequence"] = ledger_sequence + _LEDGER_OFFSET
     if transaction.transaction_type == TransactionType.BATCH:
-        inner_txs, transaction_ids = await _autofill_batch(client, transaction_json)
+        inner_txs = await _autofill_batch(client, transaction_json)
         transaction_json["raw_transactions"] = inner_txs
-        if "transaction_ids" in transaction_json:
-            if transaction_json["transaction_ids"] != transaction_ids:
-                raise XRPLException(
-                    "Batch `TransactionIDs` don't match what `autofill` generated."
-                )
-        else:
-            transaction_json["transaction_ids"] = transaction_ids
     return cast(T, Transaction.from_dict(transaction_json))
 
 
@@ -530,11 +523,10 @@ async def _fetch_owner_reserve_fee(client: Client) -> int:
 
 async def _autofill_batch(
     client: Client, transaction_dict: Dict[str, Any]
-) -> Tuple[List[Dict[str, Any]], List[str]]:
+) -> List[Dict[str, Any]]:
     transaction = Batch.from_dict(transaction_dict)
     assert transaction.sequence is not None
     account_sequences: Dict[str, int] = {transaction.account: transaction.sequence + 1}
-    transaction_ids: List[str] = []
     inner_txs: List[Dict[str, Any]] = []
 
     for raw_txn in transaction.raw_transactions:
@@ -598,6 +590,5 @@ async def _autofill_batch(
             )
 
         inner_txs.append(raw_txn_dict)
-        transaction_ids.append(Transaction.from_dict(raw_txn_dict).get_hash())
 
-    return inner_txs, transaction_ids
+    return inner_txs
