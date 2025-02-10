@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Added
+- Support for the `simulate` RPC ([XLS-69](https://github.com/XRPLF/XRPL-Standards/tree/master/XLS-0069d-simulate))
+
+### Fixed
+- `Sign`, `SignFor`, and `SignAndSubmit` methods now properly handle WebSocket clients
+
 ## [4.0.0] - 2024-12-23
 
 ### Added
@@ -43,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `nfts_by_issuer` clio-only API definition
 - Included `ctid` field in the `tx` request.
 - `from_xrpl` method accepts input dictionary keys exclusively in the proper XRPL format.
+- Support for  DynamicNFT amendment (XLS-46)
 
 ### Fixed
 - Added support for `XChainModifyBridge` flag maps (fixing an issue with `NFTokenCreateOffer` flag names)

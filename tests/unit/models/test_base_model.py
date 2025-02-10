@@ -124,7 +124,7 @@ class TestFromDict(TestCase):
 
     def test_from_dict_recursive_transaction(self):
         transaction = CheckCreate.from_dict(check_create_dict)
-        sign_dict = {"secret": secret, "transaction": transaction.to_dict()}
+        sign_dict = {"secret": secret, "tx_json": transaction.to_xrpl()}
         sign = Sign.from_dict(sign_dict)
 
         expected_dict = {
@@ -136,12 +136,11 @@ class TestFromDict(TestCase):
             "offline": False,
             "api_version": _DEFAULT_API_VERSION,
         }
-        del expected_dict["transaction"]
         self.assertEqual(expected_dict, sign.to_dict())
 
     def test_from_dict_recursive_transaction_tx_json(self):
         transaction = CheckCreate.from_dict(check_create_dict)
-        sign_dict = {"secret": secret, "tx_json": transaction.to_dict()}
+        sign_dict = {"secret": secret, "tx_json": transaction.to_xrpl()}
         sign = Sign.from_dict(sign_dict)
 
         expected_dict = {

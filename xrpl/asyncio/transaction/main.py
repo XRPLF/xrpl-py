@@ -13,10 +13,15 @@ from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_address
 from xrpl.core.binarycodec import encode, encode_for_multisigning, encode_for_signing
 from xrpl.core.keypairs.main import sign as keypairs_sign
-from xrpl.models.requests import ServerState, SubmitOnly
-from xrpl.models.response import Response
-from xrpl.models.transactions import EscrowFinish
-from xrpl.models.transactions.transaction import Signer, Transaction
+from xrpl.models import (
+    EscrowFinish,
+    Response,
+    ServerState,
+    Signer,
+    Simulate,
+    SubmitOnly,
+    Transaction,
+)
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )
@@ -152,9 +157,9 @@ async def submit(
     Submits a transaction to the ledger.
 
     Args:
-        transaction: the Transaction to be submitted.
-        client: the network client with which to submit the transaction.
-        fail_hard: an optional boolean. If True, and the transaction fails for
+        transaction: The Transaction to be submitted.
+        client: The network client with which to submit the transaction.
+        fail_hard: An optional boolean. If True, and the transaction fails for
             the initial server, do not retry or relay the transaction to other
             servers. Defaults to False.
 
@@ -168,6 +173,42 @@ async def submit(
     response = await client._request_impl(
         SubmitOnly(tx_blob=transaction_blob, fail_hard=fail_hard)
     )
+    if response.is_successful():
+        return response
+
+    raise XRPLRequestFailureException(response.result)
+
+
+async def simulate(
+    transaction: Transaction,
+    client: Client,
+    *,
+    binary: bool = False,
+) -> Response:
+    """
+    Simulates a transaction without actually submitting it to the network.
+
+    Args:
+        transaction: The transaction to simulate.
+        client: The network client with which to submit the transaction.
+        binary: Whether the return data should be encoded in the XRPL's binary format.
+            Defaults to False.
+
+    Raises:
+        XRPLRequestFailureException: If the transaction fails in the simulated scenario.
+
+    Returns:
+        The response from the ledger.
+    """
+    # autofill the network ID
+    transaction_json = transaction.to_dict()
+    await get_network_id_and_build_version(client)
+    if "network_id" not in transaction_json and _tx_needs_networkID(client):
+        transaction_json["network_id"] = client.network_id
+    final_tx = Transaction.from_dict(transaction_json)
+
+    # send the `simulate` request
+    response = await client._request_impl(Simulate(transaction=final_tx, binary=binary))
     if response.is_successful():
         return response
 

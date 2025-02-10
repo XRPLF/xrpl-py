@@ -67,6 +67,7 @@ from xrpl.models.transactions.nftoken_mint import (
     NFTokenMintFlag,
     NFTokenMintFlagInterface,
 )
+from xrpl.models.transactions.nftoken_modify import NFTokenModify
 from xrpl.models.transactions.offer_cancel import OfferCancel
 from xrpl.models.transactions.offer_create import (
     OfferCreate,
@@ -161,6 +162,7 @@ __all__ = [
     "NFTokenMint",
     "NFTokenMintFlag",
     "NFTokenMintFlagInterface",
+    "NFTokenModify",
     "OfferCancel",
     "OfferCreate",
     "OfferCreateFlag",
