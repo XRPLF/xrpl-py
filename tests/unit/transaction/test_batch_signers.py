@@ -73,9 +73,9 @@ class TestSignMultiAccountBatch(TestCase):
                     "8F3AFC006E3FE"
                 ),
                 txn_signature=(
-                    "30450221008E595499C334127A23190F61FB9ADD8B8C501D543E379"
-                    "45B11FABB66B097A6130220138C908E8C4929B47E994A46D611FAC1"
-                    "7AB295CFB8D9E0828B32F2947B97394B"
+                    "3045022100EAE8F20550F414DE2EC5501544D17500EFAE6B4B66C36B05BBF59CA"
+                    "FDA2C72A502201C9D5C8BEEB6AAC63DC6FB9FEF3E5F008638D36B488E6D98D084"
+                    "AC5813E9342A"
                 ),
             )
         ]
@@ -93,9 +93,8 @@ class TestSignMultiAccountBatch(TestCase):
                     "6A6E9E62BA638"
                 ),
                 txn_signature=(
-                    "E3337EE8C746523B5F96BEBE1190164B8B384EE2DC99F327D95ABC1"
-                    "4E27F3AE16CC00DA7D61FC535DBFF0ADA3AF06394F8A703EE952A14"
-                    "1BD871B75166C5CD0A"
+                    "640D96D68C061EF61C5D72460E2254CA74D1CCE75FFC9FF327FC1072419AF474D2"
+                    "5A8A01E17AE0BCE71D96B5C5CB87D890D86058A909FB8918DAA046B67EA30C"
                 ),
             )
         ]
