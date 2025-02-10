@@ -8,7 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 
 ### Added
+- Support for the `simulate` RPC ([XLS-69](https://github.com/XRPLF/XRPL-Standards/tree/master/XLS-0069d-simulate))
+
+### Fixed
+- `Sign`, `SignFor`, and `SignAndSubmit` methods now properly handle WebSocket clients
+
+## [4.0.0] - 2024-12-23
+
+### Added
+- Support for the Multi-Purpose Tokens (MPT) amendment (XLS-33)
 - Add `include_deleted` to ledger_entry request
+- Add support for XLS-70d (Credentials)
 
 ### BREAKING CHANGE:
 - Remove Python 3.7 support to fix dependency installation and use 3.8 as new default.
@@ -28,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Allow empty strings for the purpose of removing fields in DIDSet transaction
+- Use `NetworkID` in faucet processing to produce a non-ambiguous URL for faucet hosts.
 
 ### Removed
 - Remove deprecated `full`, `accounts`, and `type` parameters from ledger request model
@@ -39,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `nfts_by_issuer` clio-only API definition
 - Included `ctid` field in the `tx` request.
 - `from_xrpl` method accepts input dictionary keys exclusively in the proper XRPL format.
+- Support for  DynamicNFT amendment (XLS-46)
 
 ### Fixed
 - Added support for `XChainModifyBridge` flag maps (fixing an issue with `NFTokenCreateOffer` flag names)

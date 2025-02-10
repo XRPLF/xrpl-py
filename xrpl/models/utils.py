@@ -1,9 +1,72 @@
 """Helper util functions for the models module."""
 
+import re
 from dataclasses import dataclass, is_dataclass
-from typing import Any, Dict, List, Type, TypeVar, cast
+from typing import Any, Dict, List, Optional, Pattern, Type, TypeVar, cast
+
+from typing_extensions import Final
 
 from xrpl.models.exceptions import XRPLModelException
+
+HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
+
+MAX_CREDENTIAL_ARRAY_LENGTH = 8
+
+# Credentials are represented in hex. Whilst they are allowed a maximum length of 64
+# bytes, every byte requires 2 hex characters for representation
+_MAX_CREDENTIAL_LENGTH: Final[int] = 128
+
+
+def get_credential_type_error(credential_type: str) -> Optional[str]:
+    """
+    Utility function for validating the CredentialType field in all
+    transactions related to Credential.
+
+    Args:
+        credential_type: A hex-encoded value to identify the type of credential from
+            the issuer.
+
+    Returns:
+        Errors, if any, during validation of credential_type field
+    """
+    errors = []
+    # credential_type is a required field in this transaction
+    if len(credential_type) == 0:
+        errors.append("cannot be an empty string.")
+    elif len(credential_type) > _MAX_CREDENTIAL_LENGTH:
+        errors.append(f"Length cannot exceed {_MAX_CREDENTIAL_LENGTH}.")
+    if not HEX_REGEX.fullmatch(credential_type):
+        errors.append("credential_type field must be encoded in hex.")
+    return " ".join(errors) if len(errors) > 0 else None
+
+
+def validate_credential_ids(credential_list: Optional[List[str]]) -> Dict[str, str]:
+    """
+    Args:
+        credential_list: An optional list of input credentials
+
+    Returns:
+        Errors pertaining to credential_ids field
+    """
+    errors: Dict[str, str] = {}
+    if credential_list is None:
+        return errors
+
+    if len(credential_list) == 0:
+        errors["credential_ids"] = "CredentialIDs list cannot be empty."
+    elif len(credential_list) > MAX_CREDENTIAL_ARRAY_LENGTH:
+        errors["credential_ids"] = (
+            f"CredentialIDs list cannot exceed {MAX_CREDENTIAL_ARRAY_LENGTH}"
+            + " elements."
+        )
+
+    if len(credential_list) != len(set(credential_list)):
+        errors["credential_ids_duplicates"] = (
+            "CredentialIDs list cannot contain duplicate values."
+        )
+
+    return errors
+
 
 # Code source for requiring kwargs:
 # https://gist.github.com/mikeholler/4be180627d3f8fceb55704b729464adb

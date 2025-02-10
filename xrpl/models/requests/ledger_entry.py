@@ -28,6 +28,7 @@ class LedgerEntryType(str, Enum):
     AMENDMENTS = "amendments"
     AMM = "amm"
     CHECK = "check"
+    CREDENTIAL = "credential"
     DEPOSIT_PREAUTH = "deposit_preauth"
     DIRECTORY = "directory"
     DID = "did"
@@ -40,7 +41,27 @@ class LedgerEntryType(str, Enum):
     SIGNER_LIST = "signer_list"
     STATE = "state"
     TICKET = "ticket"
+    MPT_ISSUANCE = "mpt_issuance"
+    MPTOKEN = "mptoken"
     NFT_OFFER = "nft_offer"
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+class Credential(BaseModel):
+    """Specify the Credential to retrieve. If a string, must be the ledger entry ID of
+    the entry, as hexadecimal. If an object, requires subject, issuer, and
+    credential_type sub-fields.
+    """
+
+    subject: str = REQUIRED  # type: ignore
+    """The account that is the subject of the credential."""
+
+    issuer: str = REQUIRED  # type: ignore
+    """The account that issued the credential."""
+
+    credential_type: str = REQUIRED  # type: ignore
+    """The type of the credential, as issued."""
 
 
 @require_kwargs_on_init
@@ -106,6 +127,29 @@ class Escrow(BaseModel):
     """
 
     seq: int = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+class MPToken(BaseModel):
+    """
+    Required fields for requesting a MPToken Ledger Entry, if not querying by
+    object ID.
+    """
+
+    mpt_issuance_id: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+    account: str = REQUIRED  # type: ignore
     """
     This field is required.
 
@@ -245,10 +289,13 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     index: Optional[str] = None
     account_root: Optional[str] = None
     check: Optional[str] = None
+    credential: Optional[Union[str, Credential]] = None
     deposit_preauth: Optional[Union[str, DepositPreauth]] = None
     did: Optional[str] = None
     directory: Optional[Union[str, Directory]] = None
     escrow: Optional[Union[str, Escrow]] = None
+    mpt_issuance: Optional[str] = None
+    mptoken: Optional[Union[MPToken, str]] = None
     offer: Optional[Union[str, Offer]] = None
     oracle: Optional[Oracle] = None
     payment_channel: Optional[str] = None
@@ -275,11 +322,14 @@ class LedgerEntry(Request, LookupByLedgerRequest):
                 self.index,
                 self.account_root,
                 self.check,
+                self.credential,
                 self.deposit_preauth,
                 self.did,
                 self.directory,
                 self.escrow,
                 self.offer,
+                self.mpt_issuance,
+                self.mptoken,
                 self.oracle,
                 self.payment_channel,
                 self.ripple_state,

@@ -20,6 +20,7 @@ from xrpl.core.binarycodec.definitions import (
 )
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
+from xrpl.core.binarycodec.types.uint64 import SPECIAL_FIELDS
 
 _OBJECT_END_MARKER_BYTE: Final[bytes] = bytes([0xE1])
 _OBJECT_END_MARKER: Final[str] = "ObjectEndMarker"
@@ -58,9 +59,9 @@ def _handle_xaddress(field: str, xaddress: str) -> Dict[str, Union[str, int]]:
     return {field: classic_address}
 
 
+# all of these fields have enum values that are used for serialization
+# converts the string name to the corresponding enum code
 def _str_to_enum(field: str, value: str) -> Union[str, int]:
-    # all of these fields have enum values that are used for serialization
-    # converts the string name to the corresponding enum code
     if field == "TransactionType":
         return get_transaction_type_code(value)
     if field == "TransactionResult":
@@ -70,8 +71,8 @@ def _str_to_enum(field: str, value: str) -> Union[str, int]:
     return value
 
 
+# reverse of the above function
 def _enum_to_str(field: str, value: int) -> Union[str, int]:
-    # reverse of the above function
     if field == "TransactionType":
         return get_transaction_type_name(value)
     if field == "TransactionResult":
@@ -188,9 +189,12 @@ class STObject(SerializedType):
 
         for field in sorted_keys:
             try:
-                associated_value = field.associated_type.from_value(
-                    xaddress_decoded[field.name]
+                args = (
+                    (xaddress_decoded[field.name], field.name)
+                    if field.name in SPECIAL_FIELDS
+                    else (xaddress_decoded[field.name],)
                 )
+                associated_value = field.associated_type.from_value(*args)
             except XRPLBinaryCodecException as e:
                 # mildly hacky way to get more context in the error
                 # provides the field name and not just the type it's expecting
