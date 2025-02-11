@@ -112,6 +112,7 @@ class TestTrustSet(IntegrationTestCase):
         )
 
         self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         account_lines_response = await client.request(
             AccountLines(
