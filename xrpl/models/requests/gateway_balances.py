@@ -23,7 +23,7 @@ class GatewayBalances(Request, LookupByLedgerRequest):
     `See gateway_balances <https://xrpl.org/gateway_balances.html>`_
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     This field is required.
 

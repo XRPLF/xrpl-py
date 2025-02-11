@@ -54,13 +54,13 @@ class Credential(BaseModel):
     credential_type sub-fields.
     """
 
-    subject: str = REQUIRED  # type: ignore
+    subject: str = REQUIRED
     """The account that is the subject of the credential."""
 
-    issuer: str = REQUIRED  # type: ignore
+    issuer: str = REQUIRED
     """The account that issued the credential."""
 
-    credential_type: str = REQUIRED  # type: ignore
+    credential_type: str = REQUIRED
     """The type of the credential, as issued."""
 
 
@@ -72,14 +72,14 @@ class DepositPreauth(BaseModel):
     object ID.
     """
 
-    owner: str = REQUIRED  # type: ignore
+    owner: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    authorized: str = REQUIRED  # type: ignore
+    authorized: str = REQUIRED
     """
     This field is required.
 
@@ -95,14 +95,14 @@ class Directory(BaseModel):
     object ID.
     """
 
-    owner: str = REQUIRED  # type: ignore
+    owner: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    dir_root: str = REQUIRED  # type: ignore
+    dir_root: str = REQUIRED
     """
     This field is required.
 
@@ -119,14 +119,14 @@ class Escrow(BaseModel):
     object ID.
     """
 
-    owner: str = REQUIRED  # type: ignore
+    owner: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    seq: int = REQUIRED  # type: ignore
+    seq: int = REQUIRED
     """
     This field is required.
 
@@ -142,14 +142,14 @@ class MPToken(BaseModel):
     object ID.
     """
 
-    mpt_issuance_id: str = REQUIRED  # type: ignore
+    mpt_issuance_id: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     This field is required.
 
@@ -165,14 +165,14 @@ class Offer(BaseModel):
     object ID.
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    seq: int = REQUIRED  # type: ignore
+    seq: int = REQUIRED
     """
     This field is required.
 
@@ -188,14 +188,14 @@ class Oracle(BaseModel):
     object ID.
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    oracle_document_id: Union[str, int] = REQUIRED  # type: ignore
+    oracle_document_id: Union[str, int] = REQUIRED
     """
     This field is required.
 
@@ -208,14 +208,14 @@ class Oracle(BaseModel):
 class RippleState(BaseModel):
     """Required fields for requesting a RippleState if not querying by object ID."""
 
-    accounts: List[str] = REQUIRED  # type: ignore
+    accounts: List[str] = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    currency: str = REQUIRED  # type: ignore
+    currency: str = REQUIRED
     """
     This field is required.
 
@@ -228,14 +228,14 @@ class RippleState(BaseModel):
 class Ticket(BaseModel):
     """Required fields for requesting a Ticket if not querying by object ID."""
 
-    owner: str = REQUIRED  # type: ignore
+    owner: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    ticket_sequence: int = REQUIRED  # type: ignore
+    ticket_sequence: int = REQUIRED
     """
     This field is required.
 
@@ -248,7 +248,7 @@ class Ticket(BaseModel):
 class XChainClaimID(XChainBridge):
     """Required fields for requesting an XChainClaimID if not querying by object ID."""
 
-    xchain_claim_id: Union[int, str] = REQUIRED  # type: ignore
+    xchain_claim_id: Union[int, str] = REQUIRED
     """
     The `XChainClaimID` associated with a cross-chain transfer, which was created in an
     `XChainCreateClaimID` transaction. This field is required.
@@ -265,7 +265,7 @@ class XChainCreateAccountClaimID(XChainBridge):
     object ID.
     """
 
-    xchain_create_account_claim_id: Union[int, str] = REQUIRED  # type: ignore
+    xchain_create_account_claim_id: Union[int, str] = REQUIRED
     """
     The `XChainCreateAccountClaimID` associated with a cross-chain account create. This
     field is required.

@@ -27,7 +27,7 @@ class TransactionEntry(Request, LookupByLedgerRequest):
     """
 
     method: RequestMethod = field(default=RequestMethod.TRANSACTION_ENTRY, init=False)
-    tx_hash: str = REQUIRED  # type: ignore
+    tx_hash: str = REQUIRED
     """
     This field is required.
 
