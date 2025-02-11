@@ -32,7 +32,6 @@ class PermissionedDomainDelete(Transaction):
         errors = super()._get_errors()
 
         if len(self.domain_id) != 64:
-            print(self.domain_id)
             errors["PermissionedDomainDelete"] = "domain_id must be 64 characters long."
         elif not _DOMAIN_ID_REGEX.fullmatch(self.domain_id):
             errors["PermissionedDomainDelete"] = (
