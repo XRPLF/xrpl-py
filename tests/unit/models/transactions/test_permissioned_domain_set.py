@@ -6,9 +6,6 @@ from xrpl.models.transactions.permissioned_domain_set import PermissionedDomainS
 from xrpl.utils import str_to_hex
 
 _ACCOUNT_1 = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
-_ACCOUNT_SUBJECT = "rNdY9XDnQ4Dr1EgefwU3CBRuAjt3sAutGg"
-_VALID_CREDENTIAL_TYPE = str_to_hex("Passport")
-_VALID_URI = str_to_hex("www.my-id.com/username")
 
 
 class TestPermissionedDomainSet(TestCase):

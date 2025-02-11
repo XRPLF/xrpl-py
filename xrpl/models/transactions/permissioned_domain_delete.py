@@ -1,11 +1,17 @@
 """Model for PermissionedDomainDelete transaction type."""
 
+import re
 from dataclasses import dataclass, field
+from typing import Dict, Final, Pattern
+
+from typing_extensions import Self
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+
+_DOMAIN_ID_REGEX: Final[Pattern[str]] = re.compile("[A-F0-9]{64}")
 
 
 @require_kwargs_on_init
@@ -21,3 +27,16 @@ class PermissionedDomainDelete(Transaction):
         init=False,
     )
     """The transaction type (PermissionedDomainDelete)."""
+
+    def _get_errors(self: Self) -> Dict[str, str]:
+        errors = super()._get_errors()
+
+        if len(self.domain_id) != 64:
+            print(self.domain_id)
+            errors["PermissionedDomainDelete"] = "domain_id must be 64 characters long."
+        elif not _DOMAIN_ID_REGEX.fullmatch(self.domain_id):
+            errors["PermissionedDomainDelete"] = (
+                "domain_id does not conform to hex format."
+            )
+
+        return errors
