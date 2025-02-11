@@ -378,32 +378,32 @@ files = [
 toml = ["tomli"]
 
 [[package]]
-name = "darglint"
-version = "1.8.1"
-description = "A utility for ensuring Google-style docstrings stay up to date with the source code."
-optional = false
-python-versions = ">=3.6,<4.0"
-files = [
-    {file = "darglint-1.8.1-py3-none-any.whl", hash = "sha256:5ae11c259c17b0701618a20c3da343a3eb98b3bc4b5a83d31cdd94f5ebdced8d"},
-    {file = "darglint-1.8.1.tar.gz", hash = "sha256:080d5106df149b199822e7ee7deb9c012b49891538f14a11be681044f0bb20da"},
-]
-
-[[package]]
 name = "deprecated"
-version = "1.2.15"
+version = "1.2.18"
 description = "Python @deprecated decorator to deprecate old python classes, functions or methods."
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
 files = [
-    {file = "Deprecated-1.2.15-py2.py3-none-any.whl", hash = "sha256:353bc4a8ac4bfc96800ddab349d89c25dec1079f65fd53acdcc1e0b975b21320"},
-    {file = "deprecated-1.2.15.tar.gz", hash = "sha256:683e561a90de76239796e6b6feac66b99030d2dd3fcf61ef996330f14bbb9b0d"},
+    {file = "Deprecated-1.2.18-py2.py3-none-any.whl", hash = "sha256:bd5011788200372a32418f888e326a09ff80d0214bd961147cfed01b5c018eec"},
+    {file = "deprecated-1.2.18.tar.gz", hash = "sha256:422b6f6d859da6f2ef57857761bfb392480502a64c3028ca9bbe86085d72115d"},
 ]
 
 [package.dependencies]
 wrapt = ">=1.10,<2"
 
 [package.extras]
-dev = ["PyTest", "PyTest-Cov", "bump2version (<1)", "jinja2 (>=3.0.3,<3.1.0)", "setuptools", "sphinx (<2)", "tox"]
+dev = ["PyTest", "PyTest-Cov", "bump2version (<1)", "setuptools", "tox"]
+
+[[package]]
+name = "docstring-parser-fork"
+version = "0.0.9"
+description = "Parse Python docstrings in reST, Google and Numpydoc format"
+optional = false
+python-versions = "<4.0,>=3.7"
+files = [
+    {file = "docstring_parser_fork-0.0.9-py3-none-any.whl", hash = "sha256:0be85ad00cb25bf5beeb673e46e777facf0f47552fa3a7570d120ef7e3374401"},
+    {file = "docstring_parser_fork-0.0.9.tar.gz", hash = "sha256:95b23cc5092af85080c716a6da68360f5ae4fcffa75f4a3aca5e539783cbcc3d"},
+]
 
 [[package]]
 name = "docutils"
@@ -942,6 +942,44 @@ files = [
     {file = "pycryptodome-3.21.0-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:8acd7d34af70ee63f9a849f957558e49a98f8f1634f86a59d2be62bb8e93f71c"},
     {file = "pycryptodome-3.21.0.tar.gz", hash = "sha256:f7787e0d469bdae763b876174cf2e6c0f7be79808af26b1da96f1a64bcf47297"},
 ]
+
+[[package]]
+name = "pydoclint"
+version = "0.5.11"
+description = "A Python docstring linter that checks arguments, returns, yields, and raises sections"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pydoclint-0.5.11-py2.py3-none-any.whl", hash = "sha256:7ea595c80a3f959defeed08752877b7b85bb4a8197df71dd79863258214b48b4"},
+    {file = "pydoclint-0.5.11.tar.gz", hash = "sha256:abd3e428b1b8a318cafabcbe6355d4ccf27733267b9f2645e0fb967503f5ba8b"},
+]
+
+[package.dependencies]
+click = ">=8.1.0"
+docstring_parser_fork = ">=0.0.9"
+tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
+
+[package.extras]
+flake8 = ["flake8 (>=4)"]
+
+[[package]]
+name = "pydoclint"
+version = "0.5.13"
+description = "A Python docstring linter that checks arguments, returns, yields, and raises sections"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "pydoclint-0.5.13-py2.py3-none-any.whl", hash = "sha256:ccdc587ee3de15adce1b962ff93bdf8740cfa9a2117607be28f24723e108956d"},
+    {file = "pydoclint-0.5.13.tar.gz", hash = "sha256:5774acaeeb488ace1a9488bc10175025c2006379c237eb062e2ede9a206c121a"},
+]
+
+[package.dependencies]
+click = ">=8.1.0"
+docstring_parser_fork = ">=0.0.9"
+tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
+
+[package.extras]
+flake8 = ["flake8 (>=4)"]
 
 [[package]]
 name = "pydocstyle"
@@ -1529,4 +1567,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "6b2338dda53ffd9ba9c96e975584987377cca35a12d49e0fa61e0679396d800c"
+content-hash = "1f062dc4f6974d191c273d23dfbeab80b5b2fde0f04e7ab692fb7ae94e57d2ee"

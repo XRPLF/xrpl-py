@@ -11,6 +11,7 @@ from xrpl.models.transactions.account_set import (
     AccountSetFlagInterface,
 )
 from xrpl.models.transactions.amm_bid import AMMBid, AuthAccount
+from xrpl.models.transactions.amm_clawback import AMMClawback
 from xrpl.models.transactions.amm_create import AMMCreate
 from xrpl.models.transactions.amm_delete import AMMDelete
 from xrpl.models.transactions.amm_deposit import (
@@ -67,6 +68,7 @@ from xrpl.models.transactions.nftoken_mint import (
     NFTokenMintFlag,
     NFTokenMintFlagInterface,
 )
+from xrpl.models.transactions.nftoken_modify import NFTokenModify
 from xrpl.models.transactions.offer_cancel import OfferCancel
 from xrpl.models.transactions.offer_create import (
     OfferCreate,
@@ -120,6 +122,7 @@ __all__ = [
     "AccountSetFlag",
     "AccountSetFlagInterface",
     "AMMBid",
+    "AMMClawback",
     "AMMCreate",
     "AMMDelete",
     "AMMDeposit",
@@ -163,6 +166,7 @@ __all__ = [
     "NFTokenMint",
     "NFTokenMintFlag",
     "NFTokenMintFlagInterface",
+    "NFTokenModify",
     "OfferCancel",
     "OfferCreate",
     "OfferCreateFlag",
