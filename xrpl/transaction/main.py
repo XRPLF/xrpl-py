@@ -133,27 +133,31 @@ def autofill(
     )
 
 
-def _calculate_fee_per_transaction_type(
+def simulate(
     transaction: Transaction,
     client: SyncClient,
-    signers_count: Optional[int] = None,
-) -> str:
+    *,
+    binary: bool = False,
+) -> Response:
     """
-    Calculate the total fee in drops for a transaction based on:
-    - the network fee
-    - the transaction condition
-
-    https://xrpl.org/transaction-cost.html#special-transaction-costs
+    Simulates a transaction without actually submitting it to the network.
 
     Args:
-        transaction: the Transaction to be submitted.
-        client: the network client with which to submit the transaction.
-        signers_count: the expected number of signers for this transaction.
-            Only used for multisigned transactions.
+        transaction: The transaction to simulate.
+        client: The network client with which to submit the transaction.
+        binary: Whether the return data should be encoded in the XRPL's binary format.
+            Defaults to False.
+
+    Raises:
+        XRPLRequestFailureException: If the transaction fails in the simulated scenario.
 
     Returns:
-        The expected Transaction fee in drops
+        The response from the ledger.
     """
     return asyncio.run(
-        main._calculate_fee_per_transaction_type(transaction, client, signers_count)
+        main.simulate(
+            transaction,
+            client,
+            binary=binary,
+        )
     )
