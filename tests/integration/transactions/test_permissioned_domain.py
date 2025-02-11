@@ -94,7 +94,7 @@ class TestPermissionedDomain(IntegrationTestCase):
         )
         self.assertEqual(ledger_entry_response.status, ResponseStatus.SUCCESS)
 
-        # Aliter: Use the account and sequence-number to retrieve a PermissionedDomain
+        # Alternatively: Use the account and sequence-number to retrieve a PermissionedDomain
         ledger_entry_response = await client.request(
             LedgerEntry(
                 permissioned_domain=PermissionedDomain(
