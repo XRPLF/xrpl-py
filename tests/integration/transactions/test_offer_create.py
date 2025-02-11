@@ -45,6 +45,7 @@ class TestOfferCreate(IntegrationTestCase):
             client,
         )
         self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         offer = await sign_and_reliable_submission_async(
             OfferCreate(
