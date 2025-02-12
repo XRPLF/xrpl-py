@@ -39,7 +39,6 @@ ABBREVIATIONS: Final[Dict[str, str]] = {
     "amm": "AMM",
     "did": "DID",
     "id": "ID",
-    "ids": "IDs",
     "lp": "LP",
     "mptoken": "MPToken",
     "nftoken": "NFToken",
