@@ -67,7 +67,6 @@ def _translate(inp: str) -> str:
     non_standard_renames = {
         "OBJECT": "STObject",
         "ARRAY": "STArray",
-        "AMM": "AMM",
         "ACCOUNT": "AccountID",
         "LEDGERENTRY": "LedgerEntry",
         "NOTPRESENT": "NotPresent",
