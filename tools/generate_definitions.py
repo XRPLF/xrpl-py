@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+from pathlib import Path
 
 import httpx
 
@@ -21,31 +22,38 @@ if len(sys.argv) != 2 and len(sys.argv) != 3:
 
 
 def _read_file_from_github(repo: str, filename: str) -> str:
+    if "tree" not in repo:
+        repo += "/tree/HEAD"
     url = repo.replace("github.com", "raw.githubusercontent.com")
-    url = url.replace("tree", "refs/heads")
-    url += filename
+    url = url.replace("tree/", "")
+    url += "/" + filename
     if not url.startswith("http"):
         url = "https://" + url
-    response = httpx.get(url)
-    return response.text
+    try:
+        response = httpx.get(url)
+        response.raise_for_status()
+        return response.text
+    except httpx.HTTPError as e:
+        print(f"Error reading {url}: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 def _read_file(folder: str, filename: str) -> str:
-    with open(folder + filename, "r") as f:
-        return f.read()
+    file_path = Path(folder) / filename
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    return file_path.read_text()
 
 
 func = _read_file_from_github if "github.com" in sys.argv[1] else _read_file
 
-sfield_h = func(sys.argv[1], "/include/xrpl/protocol/SField.h")
-sfield_macro_file = func(sys.argv[1], "/include/xrpl/protocol/detail/sfields.macro")
+sfield_h = func(sys.argv[1], "include/xrpl/protocol/SField.h")
+sfield_macro_file = func(sys.argv[1], "include/xrpl/protocol/detail/sfields.macro")
 ledger_entries_file = func(
-    sys.argv[1], "/include/xrpl/protocol/detail/ledger_entries.macro"
+    sys.argv[1], "include/xrpl/protocol/detail/ledger_entries.macro"
 )
-ter_h = func(sys.argv[1], "/include/xrpl/protocol/TER.h")
-transactions_file = func(
-    sys.argv[1], "/include/xrpl/protocol/detail/transactions.macro"
-)
+ter_h = func(sys.argv[1], "include/xrpl/protocol/TER.h")
+transactions_file = func(sys.argv[1], "include/xrpl/protocol/detail/transactions.macro")
 
 
 # Translate from rippled string format to what the binary codecs expect
@@ -240,7 +248,7 @@ _add_line('  "LEDGER_ENTRY_TYPES": {')
 
 
 def _unhex(x: str) -> str:
-    if (x + "")[0:2] == "0x":
+    if x[0:2] == "0x":
         return str(int(x, 16))
     return x
 
