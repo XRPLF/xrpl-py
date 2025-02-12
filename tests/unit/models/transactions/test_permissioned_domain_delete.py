@@ -28,8 +28,7 @@ class TestPermissionedDomainDelete(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'PermissionedDomainDelete': 'domain_id must be "
-            + str(DOMAIN_ID_LENGTH)
-            + " characters long.'}",
+            f"{DOMAIN_ID_LENGTH} characters long.'}}",
         )
 
     def test_domain_id_too_long(self):
@@ -43,8 +42,7 @@ class TestPermissionedDomainDelete(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'PermissionedDomainDelete': 'domain_id must be "
-            + str(DOMAIN_ID_LENGTH)
-            + " characters long.'}",
+            f"{DOMAIN_ID_LENGTH} characters long.'}}",
         )
 
     def test_domain_id_not_hex(self):
