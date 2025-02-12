@@ -8,7 +8,7 @@ from pathlib import Path
 import httpx
 
 if len(sys.argv) != 2 and len(sys.argv) != 3:
-    print("Usage: python " + sys.argv[0] + " path/to/rippled [path/to/pipe/to]")
+    print("Usage: python " + sys.argv[0] + " path/to/rippled [path/to/output/file]")
     print(
         "Usage: python "
         + sys.argv[0]
