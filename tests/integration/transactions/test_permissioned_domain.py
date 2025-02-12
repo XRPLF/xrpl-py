@@ -128,3 +128,12 @@ class TestPermissionedDomain(IntegrationTestCase):
 
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Verify the PermissionedDomain object was deleted
+        account_objects_response = await client.request(
+            AccountObjects(
+                account=WALLET.address,
+                type=AccountObjectType.PERMISSIONED_DOMAIN
+            )
+        )
+        self.assertEqual(len(account_objects_response.result["account_objects"]), 0)
