@@ -46,6 +46,8 @@ class TransactionType(str, Enum):
     PAYMENT_CHANNEL_CLAIM = "PaymentChannelClaim"
     PAYMENT_CHANNEL_CREATE = "PaymentChannelCreate"
     PAYMENT_CHANNEL_FUND = "PaymentChannelFund"
+    PERMISSIONED_DOMAIN_SET = "PermissionedDomainSet"
+    PERMISSIONED_DOMAIN_DELETE = "PermissionedDomainDelete"
     SET_REGULAR_KEY = "SetRegularKey"
     SIGNER_LIST_SET = "SignerListSet"
     TICKET_CREATE = "TicketCreate"

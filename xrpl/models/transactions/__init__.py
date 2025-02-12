@@ -85,6 +85,8 @@ from xrpl.models.transactions.payment_channel_claim import (
 )
 from xrpl.models.transactions.payment_channel_create import PaymentChannelCreate
 from xrpl.models.transactions.payment_channel_fund import PaymentChannelFund
+from xrpl.models.transactions.permissioned_domain_delete import PermissionedDomainDelete
+from xrpl.models.transactions.permissioned_domain_set import PermissionedDomainSet
 from xrpl.models.transactions.set_regular_key import SetRegularKey
 from xrpl.models.transactions.signer_list_set import SignerEntry, SignerListSet
 from xrpl.models.transactions.ticket_create import TicketCreate
@@ -179,6 +181,8 @@ __all__ = [
     "PaymentChannelFund",
     "PaymentFlag",
     "PaymentFlagInterface",
+    "PermissionedDomainDelete",
+    "PermissionedDomainSet",
     "SetRegularKey",
     "Signer",
     "SignerEntry",
