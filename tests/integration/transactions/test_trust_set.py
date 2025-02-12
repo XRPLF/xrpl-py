@@ -131,7 +131,7 @@ class TestTrustSet(IntegrationTestCase):
         self.assertTrue(
             (
                 account_objects_response.result.account_obj[0]
-                | TrustSetFlag.TF_SET_DEEP_FREEZE
+                & TrustSetFlag.TF_SET_DEEP_FREEZE
             )
             != 0
         )
