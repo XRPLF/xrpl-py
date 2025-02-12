@@ -94,7 +94,8 @@ class TestPermissionedDomain(IntegrationTestCase):
         )
         self.assertEqual(ledger_entry_response.status, ResponseStatus.SUCCESS)
 
-        # Alternatively: Use the account and sequence-number to retrieve a PermissionedDomain
+        # Alternatively: Use the account and sequence-number to retrieve a
+        # PermissionedDomain
         ledger_entry_response = await client.request(
             LedgerEntry(
                 permissioned_domain=PermissionedDomain(
@@ -132,8 +133,7 @@ class TestPermissionedDomain(IntegrationTestCase):
         # Verify the PermissionedDomain object was deleted
         account_objects_response = await client.request(
             AccountObjects(
-                account=WALLET.address,
-                type=AccountObjectType.PERMISSIONED_DOMAIN
+                account=WALLET.address, type=AccountObjectType.PERMISSIONED_DOMAIN
             )
         )
         self.assertEqual(len(account_objects_response.result["account_objects"]), 0)
