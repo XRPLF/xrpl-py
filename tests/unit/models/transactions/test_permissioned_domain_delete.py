@@ -1,7 +1,10 @@
 from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.transactions.permissioned_domain_delete import PermissionedDomainDelete
+from xrpl.models.transactions.permissioned_domain_delete import (
+    DOMAIN_ID_LENGTH,
+    PermissionedDomainDelete,
+)
 
 _ACCOUNT_1 = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 
@@ -24,7 +27,9 @@ class TestPermissionedDomainDelete(TestCase):
 
         self.assertEqual(
             err.exception.args[0],
-            "{'PermissionedDomainDelete': 'domain_id must be 64 characters long.'}",
+            "{'PermissionedDomainDelete': 'domain_id must be "
+            + str(DOMAIN_ID_LENGTH)
+            + " characters long.'}",
         )
 
     def test_domain_id_too_long(self):
@@ -37,7 +42,9 @@ class TestPermissionedDomainDelete(TestCase):
 
         self.assertEqual(
             err.exception.args[0],
-            "{'PermissionedDomainDelete': 'domain_id must be 64 characters long.'}",
+            "{'PermissionedDomainDelete': 'domain_id must be "
+            + str(DOMAIN_ID_LENGTH)
+            + " characters long.'}",
         )
 
     def test_domain_id_not_hex(self):

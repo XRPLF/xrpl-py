@@ -12,6 +12,7 @@ from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 _DOMAIN_ID_REGEX: Final[Pattern[str]] = re.compile("[A-F0-9]{64}")
+DOMAIN_ID_LENGTH: Final[int] = 64
 
 
 @require_kwargs_on_init
@@ -31,8 +32,10 @@ class PermissionedDomainDelete(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        if len(self.domain_id) != 64:
-            errors["PermissionedDomainDelete"] = "domain_id must be 64 characters long."
+        if len(self.domain_id) != DOMAIN_ID_LENGTH:
+            errors["PermissionedDomainDelete"] = (
+                f"domain_id must be {DOMAIN_ID_LENGTH} characters long."
+            )
         elif not _DOMAIN_ID_REGEX.fullmatch(self.domain_id):
             errors["PermissionedDomainDelete"] = (
                 "domain_id does not conform to hex format."
