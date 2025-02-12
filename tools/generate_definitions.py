@@ -12,7 +12,7 @@ if len(sys.argv) != 2 and len(sys.argv) != 3:
     print(
         "Usage: python "
         + sys.argv[0]
-        + " github.com/user/rippled/tree/feature-branch [path/to/pipe/to]"
+        + " github.com/user/rippled/tree/feature-branch [path/to/output/file]"
     )
     sys.exit(1)
 
