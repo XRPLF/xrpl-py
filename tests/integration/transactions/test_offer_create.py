@@ -64,6 +64,6 @@ class TestOfferCreate(IntegrationTestCase):
         )
 
         self.assertEqual(
-            offer.error.exception.args[0],
+            offer.result["engine_result"],
             "tecFROZEN",
         )
