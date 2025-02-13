@@ -10,6 +10,9 @@ from xrpl.models.requests import AccountLines, AccountObjects
 from xrpl.models.transactions import TrustSet, TrustSetFlag
 from xrpl.wallet import Wallet
 
+LSF_LOW_DEEP_FREEZE = 0x02000000
+LSF_HIGH_DEEP_FREEZE = 0x04000000
+
 
 class TestTrustSet(IntegrationTestCase):
     @test_async_and_sync(globals())
@@ -131,7 +134,7 @@ class TestTrustSet(IntegrationTestCase):
         self.assertTrue(
             (
                 account_objects_response.result.account_obj[0]
-                & TrustSetFlag.TF_SET_DEEP_FREEZE
+                & (LSF_LOW_DEEP_FREEZE | LSF_HIGH_DEEP_FREEZE)
             )
             != 0
         )
