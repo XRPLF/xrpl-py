@@ -1,5 +1,6 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
+    fund_wallet_async,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
@@ -18,6 +19,7 @@ class TestTrustSet(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
         issuer_wallet = Wallet.create()
+        await fund_wallet_async(issuer_wallet)
         response = await sign_and_reliable_submission_async(
             TrustSet(
                 account=WALLET.address,
@@ -32,10 +34,12 @@ class TestTrustSet(IntegrationTestCase):
             client,
         )
         self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
     @test_async_and_sync(globals())
     async def test_special_chars_curr_codes(self, client):
         issuer_wallet = Wallet.create()
+        await fund_wallet_async(issuer_wallet)
         response = await sign_and_reliable_submission_async(
             TrustSet(
                 account=WALLET.address,
@@ -50,6 +54,7 @@ class TestTrustSet(IntegrationTestCase):
             client,
         )
         self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         response = await sign_and_reliable_submission_async(
             TrustSet(
@@ -65,6 +70,7 @@ class TestTrustSet(IntegrationTestCase):
             client,
         )
         self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         response = await sign_and_reliable_submission_async(
             TrustSet(
@@ -80,6 +86,7 @@ class TestTrustSet(IntegrationTestCase):
             client,
         )
         self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         # currency codes must have exactly 3 characters
         with self.assertRaises(XRPLModelException) as error:
@@ -100,6 +107,7 @@ class TestTrustSet(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_deep_freeze_functionality(self, client):
         issuer_wallet = Wallet.create()
+        await fund_wallet_async(issuer_wallet)
         response = await sign_and_reliable_submission_async(
             TrustSet(
                 account=WALLET.address,
@@ -115,6 +123,7 @@ class TestTrustSet(IntegrationTestCase):
         )
 
         self.assertTrue(response.is_successful())
+
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         account_lines_response = await client.request(

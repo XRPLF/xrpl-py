@@ -1,5 +1,6 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
+    fund_wallet_async,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
@@ -31,6 +32,7 @@ class TestOfferCreate(IntegrationTestCase):
     async def test_deep_freeze_trustline_fails(self, client):
 
         issuer_wallet = Wallet.create()
+        await fund_wallet_async(issuer_wallet)
         response = await sign_and_reliable_submission_async(
             TrustSet(
                 account=WALLET.address,
