@@ -18,13 +18,16 @@ from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.currencies.issued_currency import IssuedCurrency
 from xrpl.models.currencies.xrp import XRP
+from xrpl.models.requests import Ledger
 from xrpl.models.transactions.account_set import AccountSet, AccountSetAsfFlag
 from xrpl.models.transactions.amm_create import AMMCreate
+from xrpl.models.transactions.oracle_set import OracleSet
 from xrpl.models.transactions.trust_set import TrustSet, TrustSetFlag
 from xrpl.transaction import sign_and_submit  # noqa: F401 - needed for sync tests
 from xrpl.transaction import (  # noqa: F401 - needed for sync tests
     submit as submit_transaction_alias,
 )
+from xrpl.utils import ripple_time_to_posix
 from xrpl.wallet import Wallet
 
 JSON_RPC_URL = "http://127.0.0.1:5005"
@@ -151,7 +154,32 @@ def sign_and_reliable_submission(
     client: SyncClient = JSON_RPC_CLIENT,
     check_fee: bool = True,
 ) -> Response:
-    response = submit_transaction(transaction, wallet, client, check_fee=check_fee)
+    modified_transaction = transaction
+
+    # OracleSet transaction needs to set a field within a lower-bound
+    # of the last ledger close time. This is a workaround to ensure that such
+    # transactions do not fail with tecINVALID_UPDATE_TIME error
+    if isinstance(transaction, OracleSet):
+        transaction_json = transaction.to_dict()
+
+        # Fetch the last ledger close time
+        last_validated_ledger = client.request(Ledger(ledger_index="validated"))
+
+        # Use the last validated ledger close time as the last_update_time
+        # The local system clock is not synchronized with standalone rippled node.
+        # Empirical observations display a difference of ~1200 seconds between the two.
+        # Note: The cause of this discrepancy is the LEDGER_ACCEPT_TIME parameter set
+        # to 0.1 seconds. Further investigation is required toward future updates to
+        # this parameter.
+        transaction_json["last_update_time"] = ripple_time_to_posix(
+            last_validated_ledger.result["ledger"]["close_time"]
+        )
+
+        modified_transaction = Transaction.from_dict(transaction_json)
+
+    response = submit_transaction(
+        modified_transaction, wallet, client, check_fee=check_fee
+    )
     client.request(LEDGER_ACCEPT_REQUEST)
     return response
 
@@ -163,8 +191,30 @@ async def sign_and_reliable_submission_async(
     client: AsyncClient = ASYNC_JSON_RPC_CLIENT,
     check_fee: bool = True,
 ) -> Response:
+    modified_transaction = transaction
+
+    # OracleSet transaction needs to set a field within a lower-bound
+    # of the last ledger close time. This is a workaround to ensure that such
+    # transactions do not fail with tecINVALID_UPDATE_TIME error
+    if isinstance(transaction, OracleSet):
+        transaction_json = transaction.to_dict()
+
+        # Fetch the last ledger close time
+        last_validated_ledger = await client.request(Ledger(ledger_index="validated"))
+
+        # Use the last validated ledger close time as the last_update_time
+        # The local system clock is not synchronized with standalone rippled node.
+        # Empirical observations display a difference of ~1200 seconds between the two.
+        # Note: The cause of this discrepancy is the LEDGER_ACCEPT_TIME parameter set
+        # to 0.1 seconds. Further investigation is required toward future updates to
+        # this parameter.
+        transaction_json["last_update_time"] = ripple_time_to_posix(
+            last_validated_ledger.result["ledger"]["close_time"]
+        )
+        modified_transaction = Transaction.from_dict(transaction_json)
+
     response = await submit_transaction_async(
-        transaction, wallet, client, check_fee=check_fee
+        modified_transaction, wallet, client, check_fee=check_fee
     )
     await client.request(LEDGER_ACCEPT_REQUEST)
     return response
