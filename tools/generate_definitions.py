@@ -173,10 +173,6 @@ _add_line(
 type_hits = re.findall(
     r"^ *STYPE\(STI_([^ ]*?) *, *([0-9-]+) *\) *\\?$", sfield_h, re.MULTILINE
 )
-if len(type_hits) == 0:
-    type_hits = re.findall(
-        r"^ *STI_([^ ]*?) *= *([0-9-]+) *,?$", sfield_h, re.MULTILINE
-    )
 # name-to-value map - needed for SField processing
 type_map = {x[0]: x[1] for x in type_hits}
 
@@ -256,7 +252,8 @@ def _unhex(x: str) -> str:
 # Example line:
 # LEDGER_ENTRY(ltNFTOKEN_OFFER, 0x0037, NFTokenOffer, nft_offer, ({
 lt_hits = re.findall(
-    r"^ *LEDGER_ENTRY[A-Z_]*\(lt[A-Z_]+ *, *([x0-9a-f]+) *, *([^,]+), *([^,]+), \({$",
+    r"^ *LEDGER_ENTRY[A-Z_]*\(lt[A-Z_]+ *, *([xX0-9a-fA-F]+) *, *([^,]+), *([^,]+), "
+    r"\({$",
     ledger_entries_file,
     re.MULTILINE,
 )
