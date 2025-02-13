@@ -108,9 +108,14 @@ class TestTrustSet(IntegrationTestCase):
     async def test_deep_freeze_functionality(self, client):
         issuer_wallet = Wallet.create()
         await fund_wallet_async(issuer_wallet)
+
+        # fresh wallet to test the specific trustline
+        dest_wallet = Wallet.create()
+        await fund_wallet_async(dest_wallet)
+
         response = await sign_and_reliable_submission_async(
             TrustSet(
-                account=WALLET.address,
+                account=dest_wallet.address,
                 flags=TrustSetFlag.TF_SET_FREEZE | TrustSetFlag.TF_SET_DEEP_FREEZE,
                 limit_amount=IssuedCurrencyAmount(
                     issuer=issuer_wallet.address,
@@ -118,7 +123,7 @@ class TestTrustSet(IntegrationTestCase):
                     value="100",
                 ),
             ),
-            WALLET,
+            dest_wallet,
             client,
         )
 
@@ -128,21 +133,21 @@ class TestTrustSet(IntegrationTestCase):
 
         account_lines_response = await client.request(
             AccountLines(
-                account=WALLET.address,
+                account=dest_wallet.address,
             )
         )
 
-        self.assertTrue(account_lines_response.result.lines[0].freeze)
+        self.assertTrue(account_lines_response.result["lines"][0]["deep_freeze"])
 
         account_objects_response = await client.request(
             AccountObjects(
-                account=WALLET.address,
+                account=dest_wallet.address,
             )
         )
 
         self.assertTrue(
             (
-                account_objects_response.result.account_obj[0]
+                account_objects_response.result["account_objects"][0]["Flags"]
                 & (LSF_LOW_DEEP_FREEZE | LSF_HIGH_DEEP_FREEZE)
             )
             != 0
