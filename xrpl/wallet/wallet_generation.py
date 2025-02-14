@@ -1,6 +1,5 @@
 """Handles wallet generation from a faucet."""
 
-import asyncio
 from typing import Optional
 
 from xrpl.asyncio.wallet import generate_faucet_wallet as async_generate_faucet_wallet
@@ -8,7 +7,7 @@ from xrpl.clients.sync_client import SyncClient
 from xrpl.wallet.main import Wallet
 
 
-def generate_faucet_wallet(
+async def generate_faucet_wallet(
     client: SyncClient,
     wallet: Optional[Wallet] = None,
     debug: bool = False,
@@ -38,6 +37,4 @@ def generate_faucet_wallet(
 
     .. # noqa: DAR402 exception raised in private method
     """
-    return asyncio.run(
-        async_generate_faucet_wallet(client, wallet, debug, faucet_host, usage_context)
-    )
+    return await async_generate_faucet_wallet(client, wallet, debug, faucet_host, usage_context)
