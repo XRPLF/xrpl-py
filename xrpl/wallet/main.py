@@ -69,10 +69,9 @@ class Wallet:
         else:
             wallet_algorithm = algorithm
 
-        """
-        The core value that is used to derive all other information about
-        this wallet. MUST be kept secret!
-        """
+        # `seed` is the core value that is used to derive all other information about
+        # this wallet. MUST be kept secret!
+
         # Validate the seed before initialization of Wallet object
         if seed is not None:
             try:
@@ -205,7 +204,7 @@ class Wallet:
         secret_numbers: List[str] | str,
         *,
         master_address: Optional[str] = None,
-        algorithm: CryptoAlgorithm = CryptoAlgorithm.SECP256K1,
+        algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
     ) -> Self:
         """
         Generates a new Wallet from secret numbers.
@@ -216,9 +215,11 @@ class Wallet:
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
                 the master address of the account. The default is `None`.
             algorithm: The digital signature algorithm to generate an address for.
-                The default is `SECP256K1
-                <https://xrpl.org/cryptographic-keys.html#secp256k1-key-derivation>`_
-                (XUMM standard as of December 2022).
+                The default is `ED25519
+                <https://xrpl.org/docs/concepts/accounts/cryptographic-keys#ed25519-key-derivation>`
+                Note: If you're upgrading from a previous version that used SECP256K1 as
+                the default, ensure your code explicitly specifies the algorithm if
+                SECP256K1 is required.
 
         Returns:
             The wallet that is generated from the given secret numbers.
