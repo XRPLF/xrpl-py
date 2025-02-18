@@ -253,6 +253,13 @@ class Transaction(BaseModel):
     network_id: Optional[int] = None
     """The network id of the transaction."""
 
+    on_behalf_of: Optional[str] = None
+    """The account that the transaction is being sent on behalf of."""
+
+    delegating_seq: Optional[int] = None
+
+    delegating_ticket_seq: Optional[int] = None
+
     def _get_errors(self: Self) -> Dict[str, str]:
         # import must be here to avoid circular dependencies
         from xrpl.wallet.main import Wallet

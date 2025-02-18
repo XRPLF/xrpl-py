@@ -671,6 +671,36 @@
       }
     ],
     [
+      "PermissionValue",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 52,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "DelegatingSeq",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 53,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "DelegatingTicketSeq",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 54,
+        "type": "UInt32"
+      }
+    ],
+    [
       "IndexNext",
       {
         "isSerialized": true,
@@ -1951,6 +1981,16 @@
       }
     ],
     [
+      "OnBehalfOf",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": true,
+        "nth": 12,
+        "type": "AccountID"
+      }
+    ],
+    [
       "HookAccount",
       {
         "isSerialized": true,
@@ -2157,6 +2197,16 @@
         "isSigningField": true,
         "isVLEncoded": false,
         "nth": 14,
+        "type": "STObject"
+      }
+    ],
+    [
+      "Permission",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 15,
         "type": "STObject"
       }
     ],
@@ -2550,6 +2600,15 @@
       }
     ],
     [
+      "Permissions", {
+        "nth": 29,
+        "isVLEncoded": false,
+        "isSerialized": true,
+        "isSigningField": true,
+        "type": "STArray"
+      }
+    ],
+    [
       "CloseResolution",
       {
         "isSerialized": true,
@@ -2862,6 +2921,7 @@
   ],
   "LEDGER_ENTRY_TYPES": {
     "AMM": 121,
+    "AccountPermission": 131,
     "AccountRoot": 97,
     "Amendments": 102,
     "Bridge": 105,
@@ -3080,6 +3140,7 @@
     "AMMVote": 38,
     "AMMWithdraw": 37,
     "AccountDelete": 21,
+    "AccountPermissionSet": 64,
     "AccountSet": 3,
     "CheckCancel": 18,
     "CheckCash": 17,
