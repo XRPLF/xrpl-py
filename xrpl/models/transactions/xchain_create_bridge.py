@@ -26,14 +26,14 @@ class XChainCreateBridge(Transaction):
     the bridge.
     """
 
-    xchain_bridge: XChainBridge = REQUIRED  # type: ignore
+    xchain_bridge: XChainBridge = REQUIRED
     """
     The bridge (door accounts and assets) to create. This field is required.
 
     :meta hide-value:
     """
 
-    signature_reward: str = REQUIRED  # type: ignore
+    signature_reward: str = REQUIRED
     """
     The total amount to pay the witness servers for their signatures. This
     amount will be split among the signers. This field is required.
