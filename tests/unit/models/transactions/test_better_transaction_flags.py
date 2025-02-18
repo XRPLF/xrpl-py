@@ -268,6 +268,8 @@ class TestBetterTransactionFlags(TestCase):
             issuer="rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
             value="1",
         )
+
+        # Note: sets all flags, even invalid combinations since tx is not submitted
         actual = models.TrustSet(
             account=ACCOUNT,
             limit_amount=amnt,
@@ -277,6 +279,8 @@ class TestBetterTransactionFlags(TestCase):
                 TF_SET_AUTH=True,
                 TF_SET_FREEZE=True,
                 TF_SET_NO_RIPPLE=True,
+                TF_SET_DEEP_FREEZE=True,
+                TF_CLEAR_DEEP_FREEZE=True,
             ),
         )
         self.assertTrue(actual.has_flag(flag=0x00010000))
