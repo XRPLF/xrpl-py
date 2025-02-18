@@ -2,14 +2,15 @@ import time
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
+    fund_wallet_async,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
-from tests.integration.reusable_values import WALLET
 from xrpl.models import AccountObjects, AccountObjectType, OracleDelete, OracleSet
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions.oracle_set import PriceData
 from xrpl.utils import str_to_hex
+from xrpl.wallet import Wallet
 
 _PROVIDER = str_to_hex("chainlink")
 _ASSET_CLASS = str_to_hex("currency")
@@ -18,11 +19,16 @@ _ASSET_CLASS = str_to_hex("currency")
 class TestDeleteOracle(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic(self, client):
+        # Use a fresh wallet for OracleSet transactions. Re-using the WALLET and
+        # DESTINATION variables could cause conflicts with other integration tests.
+        oracle_owner_wallet = Wallet.create()
+        await fund_wallet_async(oracle_owner_wallet)
+
         oracle_id = self.value
 
         # Create PriceOracle, to be deleted later
         tx = OracleSet(
-            account=WALLET.address,
+            account=oracle_owner_wallet.address,
             # unlike the integration tests for OracleSet transaction, we do not have to
             # dynamically change the oracle_document_id for these integration tests.
             # This is because the Oracle LedgerObject is deleted by the end of the test.
@@ -39,21 +45,27 @@ class TestDeleteOracle(IntegrationTestCase):
                 ),
             ],
         )
-        response = await sign_and_reliable_submission_async(tx, WALLET, client)
+        response = await sign_and_reliable_submission_async(
+            tx, oracle_owner_wallet, client
+        )
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         # Create PriceOracle to delete
         tx = OracleDelete(
-            account=WALLET.address,
+            account=oracle_owner_wallet.address,
             oracle_document_id=oracle_id,
         )
-        response = await sign_and_reliable_submission_async(tx, WALLET, client)
+        response = await sign_and_reliable_submission_async(
+            tx, oracle_owner_wallet, client
+        )
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         # confirm that the PriceOracle was actually deleted
         account_objects_response = await client.request(
-            AccountObjects(account=WALLET.address, type=AccountObjectType.ORACLE)
+            AccountObjects(
+                account=oracle_owner_wallet.address, type=AccountObjectType.ORACLE
+            )
         )
         self.assertEqual(len(account_objects_response.result["account_objects"]), 0)
