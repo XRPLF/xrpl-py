@@ -318,10 +318,10 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     ticket: Optional[Union[str, Ticket]] = None
     bridge_account: Optional[str] = None
     bridge: Optional[XChainBridge] = None
-    xchain_claim_id: Optional[Union[str, XChainClaimID]] = None
-    xchain_create_account_claim_id: Optional[Union[str, XChainCreateAccountClaimID]] = (
-        None
-    )
+    xchain_claim_id: Optional[Union[int, str, XChainClaimID]] = None
+    xchain_create_account_claim_id: Optional[
+        Union[int, str, XChainCreateAccountClaimID]
+    ] = None
 
     binary: bool = False
     nft_page: Optional[str] = None
