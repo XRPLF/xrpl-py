@@ -32,6 +32,7 @@ class AccountObjectType(str, Enum):
     OFFER = "offer"
     ORACLE = "oracle"
     PAYMENT_CHANNEL = "payment_channel"
+    PERMISSIONED_DOMAIN = "permissioned_domain"
     SIGNER_LIST = "signer_list"
     STATE = "state"
     TICKET = "ticket"

@@ -58,7 +58,7 @@ class SubmitMultisigned(Request):
         fixed_value = {**value}
         if "TransactionType" in fixed_value["tx_json"]:  # xrpl format
             fixed_value["tx_json"] = Transaction.from_xrpl(fixed_value["tx_json"])
-        return super(SubmitMultisigned, cls).from_dict(fixed_value)
+        return super().from_dict(fixed_value)
 
     def to_dict(self: Self) -> Dict[str, Any]:
         """

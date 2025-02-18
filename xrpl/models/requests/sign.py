@@ -79,7 +79,10 @@ class Sign(Request):
             A new Sign object, constructed using the given parameters.
         """
         if "tx_json" in value:
-            fixed_value = {**value, "transaction": value["tx_json"]}
+            fixed_value = {
+                **value,
+                "transaction": Transaction.from_xrpl(value["tx_json"]),
+            }
             del fixed_value["tx_json"]
         else:
             fixed_value = value

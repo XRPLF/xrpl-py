@@ -88,11 +88,14 @@ class SignAndSubmit(Submit):
             A new SignAndSubmit object, constructed using the given parameters.
         """
         if "tx_json" in value:
-            fixed_value = {**value, "transaction": value["tx_json"]}
+            fixed_value = {
+                **value,
+                "transaction": Transaction.from_xrpl(value["tx_json"]),
+            }
             del fixed_value["tx_json"]
         else:
             fixed_value = value
-        return super(SignAndSubmit, cls).from_dict(fixed_value)
+        return super().from_dict(fixed_value)
 
     def to_dict(self: Self) -> Dict[str, Any]:
         """

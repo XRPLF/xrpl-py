@@ -47,6 +47,16 @@ class TrustSetFlag(int, Enum):
     TF_CLEAR_FREEZE = 0x00200000
     """Unfreeze the trust line."""
 
+    TF_SET_DEEP_FREEZE = 0x00400000
+    """
+    Deep freeze the trust line.
+    Allowed only if the trustline is already regularly frozen,
+    or if tfSetFreeze is set in the same transaction.
+    """
+
+    TF_CLEAR_DEEP_FREEZE = 0x00800000
+    """Clear the deep freeze on the trust line."""
+
 
 class TrustSetFlagInterface(FlagInterface):
     """
@@ -59,6 +69,8 @@ class TrustSetFlagInterface(FlagInterface):
     TF_CLEAR_NO_RIPPLE: bool
     TF_SET_FREEZE: bool
     TF_CLEAR_FREEZE: bool
+    TF_SET_DEEP_FREEZE: bool
+    TF_CLEAR_DEEP_FREEZE: bool
 
 
 @require_kwargs_on_init
