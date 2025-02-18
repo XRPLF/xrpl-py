@@ -1,4 +1,0 @@
-[darglint]
-# Disable darglint checks for private functions.
-ignore_regex=^_(.*)
-ignore=DAR402
