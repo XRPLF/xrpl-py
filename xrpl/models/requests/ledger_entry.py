@@ -25,6 +25,7 @@ class LedgerEntryType(str, Enum):
     """Identifiers for on-ledger objects."""
 
     ACCOUNT = "account"
+    ACCOUNT_PERMISSION = "account_permission"
     AMENDMENTS = "amendments"
     AMM = "amm"
     BRIDGE = "bridge"
@@ -46,6 +47,15 @@ class LedgerEntryType(str, Enum):
     MPT_ISSUANCE = "mpt_issuance"
     MPTOKEN = "mptoken"
     NFT_OFFER = "nft_offer"
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+class AccountPermission(BaseModel):
+    """Specify the AccountPermission to retrieve."""
+
+    account: str = REQUIRED  # type: ignore
+    authorize: str = REQUIRED  # type: ignore
 
 
 @require_kwargs_on_init
@@ -301,6 +311,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
 
     method: RequestMethod = field(default=RequestMethod.LEDGER_ENTRY, init=False)
     index: Optional[str] = None
+    account_permission: Optional[Union[str, AccountPermission]] = None
     account_root: Optional[str] = None
     check: Optional[str] = None
     credential: Optional[Union[str, Credential]] = None
@@ -335,6 +346,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
             param
             for param in [
                 self.index,
+                self.account_permission,
                 self.account_root,
                 self.check,
                 self.credential,
