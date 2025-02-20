@@ -18,6 +18,9 @@ _WALLET = Wallet.create()
 _FIRST_SIGNER = Wallet.create()
 _SECOND_SIGNER = Wallet.create()
 EXAMPLE_DOMAIN = str_to_hex("example.com")
+_DELEGATE_ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
+_DELEGATING_SEQ = 12345
+_DELEGATING_TICKET_SEQ = 67890
 
 
 class TestTransaction(TestCase):
@@ -223,3 +226,65 @@ class TestTransaction(TestCase):
 
         payment_txn = Payment.from_xrpl(payment_tx_json)
         self.assertEqual(delivered_amount, payment_txn.to_dict()["amount"])
+
+    # Validation pertaining to AccountPermissionSet amendment
+    def test_valid_delegation_with_seq(self):
+        """Test valid transaction with on_behalf_of and delegating_seq."""
+        tx = Transaction(
+            account=_ACCOUNT,
+            fee=_FEE,
+            sequence=_SEQUENCE,
+            transaction_type=TransactionType.PAYMENT,
+            on_behalf_of=_DELEGATE_ACCOUNT,
+            delegating_seq=_DELEGATING_SEQ,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_valid_delegation_with_ticket_seq(self):
+        """Test valid transaction with on_behalf_of and delegating_ticket_seq."""
+        tx = Transaction(
+            account=_ACCOUNT,
+            fee=_FEE,
+            sequence=_SEQUENCE,
+            transaction_type=TransactionType.PAYMENT,
+            on_behalf_of=_DELEGATE_ACCOUNT,
+            delegating_ticket_seq=_DELEGATING_TICKET_SEQ,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_throws_when_both_delegation_seq_types(self):
+        """Test that using both delegating_seq and delegating_ticket_seq raises an
+        error.
+        """
+        with self.assertRaises(XRPLModelException) as context:
+            Transaction(
+                account=_ACCOUNT,
+                fee=_FEE,
+                sequence=_SEQUENCE,
+                transaction_type=TransactionType.PAYMENT,
+                delegating_seq=_DELEGATING_SEQ,
+                delegating_ticket_seq=_DELEGATING_TICKET_SEQ,
+            )
+        self.assertEqual(
+            str(context.exception),
+            "{'Transaction': 'Cannot use both delegating_seq and delegating_ticket_seq'"
+            + "}",
+        )
+
+    def test_throws_when_on_behalf_of_without_seq(self):
+        """Test that using on_behalf_of without a delegation sequence raises an
+        error.
+        """
+        with self.assertRaises(XRPLModelException) as context:
+            Transaction(
+                account=_ACCOUNT,
+                fee=_FEE,
+                sequence=_SEQUENCE,
+                transaction_type=TransactionType.PAYMENT,
+                on_behalf_of=_DELEGATE_ACCOUNT,
+            )
+        self.assertEqual(
+            str(context.exception),
+            "{'Transaction': 'Must provide delegating_seq or delegating_ticket_seq when"
+            + " using on_behalf_of'}",
+        )

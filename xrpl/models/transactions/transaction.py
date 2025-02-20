@@ -265,6 +265,18 @@ class Transaction(BaseModel):
         from xrpl.wallet.main import Wallet
 
         errors = super()._get_errors()
+        if self.delegating_seq is not None and self.delegating_ticket_seq is not None:
+            errors["Transaction"] = (
+                "Cannot use both delegating_seq and delegating_ticket_seq"
+            )
+        if self.on_behalf_of is not None and (
+            self.delegating_seq is None and self.delegating_ticket_seq is None
+        ):
+            errors["Transaction"] = (
+                "Must provide delegating_seq or delegating_ticket_seq when using"
+                + " on_behalf_of"
+            )
+
         if self.ticket_sequence is not None and (
             (self.sequence is not None and self.sequence != 0)
             or self.account_txn_id is not None
