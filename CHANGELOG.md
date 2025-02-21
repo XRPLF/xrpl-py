@@ -32,9 +32,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove Python 3.7 support to fix dependency installation and use 3.8 as new default.
 - Ensure consistent use of ED25519 as the default cryptographic algorithm in `Wallet.from_secret_numbers` method, aligning with changes made in v2.0.0
 
+### Added
+- Support for the `Batch` amendment (XLS-56d).
+
 ### Fixed
 
 - Grab the FeeSettings values from the latest validated ledger. Remove hard-coded reference to 10 drops as the reference transaction cost.
+- Handle autofilling better when multisigning transactions.
+- Better typing for transaction-related helper functions.
+- Better handling of `TicketSequence`.
 
 ## [3.0.0] - 2024-07-16
 
