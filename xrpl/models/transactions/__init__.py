@@ -4,6 +4,7 @@ Model objects for specific `types of Transactions
 """
 
 from xrpl.models.transactions.account_delete import AccountDelete
+from xrpl.models.transactions.account_permission_set import AccountPermissionSet
 from xrpl.models.transactions.account_set import (
     AccountSet,
     AccountSetAsfFlag,
@@ -117,6 +118,7 @@ from xrpl.models.transactions.xchain_modify_bridge import (
 
 __all__ = [
     "AccountDelete",
+    "AccountPermissionSet",
     "AccountSet",
     "AccountSetAsfFlag",
     "AccountSetFlag",

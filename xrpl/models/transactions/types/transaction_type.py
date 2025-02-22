@@ -13,6 +13,7 @@ class TransactionType(str, Enum):
     AMM_CLAWBACK = "AMMClawback"
     AMM_DELETE = "AMMDelete"
     AMM_DEPOSIT = "AMMDeposit"
+    ACCOUNT_PERMISSION_SET = "AccountPermissionSet"
     AMM_VOTE = "AMMVote"
     AMM_WITHDRAW = "AMMWithdraw"
     CHECK_CANCEL = "CheckCancel"
