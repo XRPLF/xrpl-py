@@ -10,7 +10,9 @@ from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.account_id import AccountID
 from xrpl.core.binarycodec.types.currency import Currency
+from xrpl.core.binarycodec.types.hash192 import Hash192
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
+from xrpl.models.amounts.mpt_amount import MPTAmount
 from xrpl.models.currencies import XRP as XRPModel
 from xrpl.models.currencies import IssuedCurrency as IssuedCurrencyModel
 
@@ -52,6 +54,13 @@ class Issue(SerializedType):
             issuer_bytes = bytes(AccountID.from_value(value["issuer"]))
             return cls(currency_bytes + issuer_bytes)
 
+        if MPTAmount.is_dict_of_model(value):
+            mpt_issuance_id_bytes = bytearray()
+            Hash192.from_value(value["mpt_issuance_id"]).to_byte_sink(
+                mpt_issuance_id_bytes
+            )
+            return cls(bytes(mpt_issuance_id_bytes))
+
         raise XRPLBinaryCodecException(
             "Invalid type to construct an Issue: expected str or dict,"
             f" received {value.__class__.__name__}."
@@ -69,10 +78,16 @@ class Issue(SerializedType):
         Args:
             parser: The parser to construct the Issue object from.
             length_hint: The number of bytes to consume from the parser.
+                For an MPT amount, pass 24 (the fixed length for Hash192).
 
         Returns:
             The Issue object constructed from a parser.
         """
+        if length_hint is not None and length_hint == 24:
+            mpt_bytes = parser.read(24)
+            return cls(mpt_bytes)
+
+        # Otherwise, follow the regular path
         currency = Currency.from_parser(parser)
         if currency.to_json() == "XRP":
             return cls(bytes(currency))
@@ -87,7 +102,11 @@ class Issue(SerializedType):
         Returns:
             The JSON representation of an Issue.
         """
-        parser = BinaryParser(str(self))
+        # If the buffer is exactly 24 bytes, treat it as an MPT amount.
+        if len(self.buffer) == 24:
+            return {"mpt_issuance_id": self.to_hex().upper()}
+
+        parser = BinaryParser(self.to_hex())
         currency: Union[str, Dict[Any, Any]] = Currency.from_parser(parser).to_json()
         if currency == "XRP":
             return {"currency": currency}
