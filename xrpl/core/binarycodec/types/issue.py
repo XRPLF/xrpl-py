@@ -10,7 +10,7 @@ from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.account_id import AccountID
 from xrpl.core.binarycodec.types.currency import Currency
-from xrpl.core.binarycodec.types.hash192 import Hash192
+from xrpl.core.binarycodec.types.hash192 import HASH192_BYTES, Hash192
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
 from xrpl.models.amounts.mpt_amount import MPTAmount
 from xrpl.models.currencies import XRP as XRPModel
@@ -55,15 +55,12 @@ class Issue(SerializedType):
             return cls(currency_bytes + issuer_bytes)
 
         if MPTAmount.is_dict_of_model(value):
-            mpt_issuance_id_bytes = bytearray()
-            Hash192.from_value(value["mpt_issuance_id"]).to_byte_sink(
-                mpt_issuance_id_bytes
-            )
+            mpt_issuance_id_bytes = bytes(Hash192.from_value(value["mpt_issuance_id"]))
             return cls(bytes(mpt_issuance_id_bytes))
 
         raise XRPLBinaryCodecException(
-            "Invalid type to construct an Issue: expected str or dict,"
-            f" received {value.__class__.__name__}."
+            "Invalid type to construct an Issue: expected XRP, IssuedCurrency or "
+            f"MPTAmount as a str or dict, received {value.__class__.__name__}."
         )
 
     @classmethod
@@ -83,11 +80,11 @@ class Issue(SerializedType):
         Returns:
             The Issue object constructed from a parser.
         """
-        if length_hint is not None and length_hint == 24:
-            mpt_bytes = parser.read(24)
+        # Check if it's an MPTAmount by checking mpt_issuance_id byte size
+        if length_hint == HASH192_BYTES:
+            mpt_bytes = parser.read(HASH192_BYTES)
             return cls(mpt_bytes)
 
-        # Otherwise, follow the regular path
         currency = Currency.from_parser(parser)
         if currency.to_json() == "XRP":
             return cls(bytes(currency))
