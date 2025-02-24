@@ -13,6 +13,7 @@ from xrpl.core.binarycodec.types.hash import Hash
 
 HASH192_BYTES = 24
 
+
 class Hash192(Hash):
     """
     Codec for serializing and deserializing a hash field with a width
