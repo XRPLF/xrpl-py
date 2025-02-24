@@ -100,7 +100,7 @@ class Issue(SerializedType):
             The JSON representation of an Issue.
         """
         # If the buffer is exactly 24 bytes, treat it as an MPT amount.
-        if len(self.buffer) == 24:
+        if len(self.buffer) == HASH192_BYTES:
             return {"mpt_issuance_id": self.to_hex().upper()}
 
         parser = BinaryParser(self.to_hex())
