@@ -16,6 +16,32 @@ class TestIssue(TestCase):
         expected = {"currency": "USD", "issuer": "rG1QQv2nh2gr7RCZ1P8YYcBUKCCN633jCn"}
         self.assertEqual(issue_obj.to_json(), expected)
 
+    def test_from_value_non_standard_currency(self):
+        # Test non-standard currency codes.
+        test_input = {
+            "currency": "0123456789ABCDEF0123456789ABCDEF01234567",
+            "issuer": "rG1QQv2nh2gr7RCZ1P8YYcBUKCCN633jCn",
+        }
+        issue_obj = Issue.from_value(test_input)
+        expected = {
+            "currency": "0123456789ABCDEF0123456789ABCDEF01234567",
+            "issuer": "rG1QQv2nh2gr7RCZ1P8YYcBUKCCN633jCn",
+        }
+        self.assertEqual(issue_obj.to_json(), expected)
+
+    def test_from_value_mpt(self):
+        # Test Issue creation for an MPT amount.
+        # Use a valid 48-character hex string (24 bytes) for mpt_issuance_id.
+        test_input = {
+            "value": "100",  # MPT amounts must be an integer string (no decimal point)
+            "mpt_issuance_id": "BAADF00DBAADF00DBAADF00DBAADF00DBAADF00DBAADF00D",
+        }
+        issue_obj = Issue.from_value(test_input)
+        expected = {
+            "mpt_issuance_id": "BAADF00DBAADF00DBAADF00DBAADF00DBAADF00DBAADF00D"
+        }
+        self.assertEqual(issue_obj.to_json(), expected)
+
     def test_from_parser_xrp(self):
         # Test round-trip: serialize an XRP Issue and then parse it back.
         test_input = {"currency": "XRP"}
@@ -34,18 +60,20 @@ class TestIssue(TestCase):
         expected = {"currency": "EUR", "issuer": "rLUEXYuLiQptky37CqLcm9USQpPiz5rkpD"}
         self.assertEqual(issue_from_parser.to_json(), expected)
 
-    def test_from_value_mpt(self):
-        # Test Issue creation for an MPT amount.
-        # Use a valid 48-character hex string (24 bytes) for mpt_issuance_id.
+    def test_from_parser_non_standard_currency(self):
+        # Test round-trip conversion for non-standard currency codes.
         test_input = {
-            "value": "100",  # MPT amounts must be an integer string (no decimal point)
-            "mpt_issuance_id": "BAADF00DBAADF00DBAADF00DBAADF00DBAADF00DBAADF00D",
+            "currency": "0123456789ABCDEF0123456789ABCDEF01234567",
+            "issuer": "rLUEXYuLiQptky37CqLcm9USQpPiz5rkpD",
         }
         issue_obj = Issue.from_value(test_input)
+        parser = BinaryParser(issue_obj.to_hex())
+        issue_from_parser = Issue.from_parser(parser)
         expected = {
-            "mpt_issuance_id": "BAADF00DBAADF00DBAADF00DBAADF00DBAADF00DBAADF00D"
+            "currency": "0123456789ABCDEF0123456789ABCDEF01234567",
+            "issuer": "rLUEXYuLiQptky37CqLcm9USQpPiz5rkpD",
         }
-        self.assertEqual(issue_obj.to_json(), expected)
+        self.assertEqual(issue_from_parser.to_json(), expected)
 
     def test_from_parser_mpt(self):
         # Test round-trip: serialize an MPT Issue and then parse it back.
