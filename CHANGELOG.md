@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Fixed
+- add `MPTAmount` support in `Issue` (rippled internal type)
+
 ### Added
 - Improved validation for models to also check param types
 
