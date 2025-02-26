@@ -326,7 +326,7 @@ class TestSetOracle(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'last_update_time': 'LastUpdateTime"
-            + " must be greater than or equal to Ripple-Epoch 946684800.0 seconds'}",
+            + " must be greater than or equal to ripple epoch - 946684800 seconds'}",
         )
 
     # Validity depends on the time of the Last Closed Ledger. This test verifies the
