@@ -88,10 +88,26 @@ class TestBaseModel(TestCase):
         transaction_dict = {
             "account": 1,
             "amount": 10,
-            "destination": 1,
+            "destination": 2,
         }
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as e:
             Payment(**transaction_dict)
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "account": "account is <class 'int'>, expected <class 'str'>",
+                    "amount": (
+                        "amount is <class 'int'>, expected typing.Union[xrpl."
+                        "models.amounts.issued_currency_amount.IssuedCurrencyAmount, "
+                        "xrpl.models.amounts.mpt_amount.MPTAmount, str]"
+                    ),
+                    "destination": (
+                        "destination is <class 'int'>, expected " "<class 'str'>"
+                    ),
+                }
+            ),
+        )
 
     def test_bad_type_flags(self):
         transaction_dict = {
@@ -100,8 +116,23 @@ class TestBaseModel(TestCase):
             "destination": destination,
             "flags": "1234",  # should be an int
         }
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as e:
             Payment(**transaction_dict)
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "flags": (
+                        "flags is <class 'str'>, expected "
+                        "typing.Union[typing.Dict[str, bool], int, typing.List[int]]"
+                    ),
+                    "destination": (
+                        "An XRP payment transaction cannot have the same "
+                        "sender and destination."
+                    ),
+                }
+            ),
+        )
 
     def test_bad_type_enum(self):
         path_find_dict = {
@@ -110,8 +141,19 @@ class TestBaseModel(TestCase):
             "destination_account": "rJjusz1VauNA9XaHxJoiwHe38bmQFz1sUV",
             "destination_amount": "100",
         }
-        with self.assertRaises(XRPLModelException):
+        with self.assertRaises(XRPLModelException) as e:
             PathFind(**path_find_dict)
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "subcommand": (
+                        "subcommand is blah, expected member of "
+                        "<enum 'PathFindSubcommand'> enum"
+                    )
+                }
+            ),
+        )
 
 
 class TestFromDict(TestCase):
