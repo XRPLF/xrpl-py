@@ -317,12 +317,12 @@ class TestWalletMain(TestCase):
     def test_from_secret_numbers_string_using_default_algorithm(self):
         wallet = Wallet.from_secret_numbers(constants["secret_numbers"]["string"])
 
-        _test_wallet_values(self, wallet, "secret_numbers", "secp256k1")
+        _test_wallet_values(self, wallet, "secret_numbers", "ed25519")
 
     def test_from_secret_numbers_array_using_default_algorithm(self):
         wallet = Wallet.from_secret_numbers(constants["secret_numbers"]["array"])
 
-        _test_wallet_values(self, wallet, "secret_numbers", "secp256k1")
+        _test_wallet_values(self, wallet, "secret_numbers", "ed25519")
 
     def test_from_secret_numbers_string_using_algorithm_ecdsa_secp256k1(self):
         wallet = Wallet.from_secret_numbers(
