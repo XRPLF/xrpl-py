@@ -17,7 +17,6 @@ class TestIssue(TestCase):
         self.assertEqual(issue_obj.to_json(), expected)
 
     def test_from_value_non_standard_currency(self):
-        # Test non-standard currency codes.
         test_input = {
             "currency": "0123456789ABCDEF0123456789ABCDEF01234567",
             "issuer": "rG1QQv2nh2gr7RCZ1P8YYcBUKCCN633jCn",
