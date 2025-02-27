@@ -28,6 +28,7 @@ from xrpl.models.transactions import (
     SignerListSet,
     TrustSet,
     TrustSetFlag,
+    XChainAddAccountCreateAttestation,
     XChainClaim,
 )
 from xrpl.models.transactions.transaction import Transaction
@@ -83,15 +84,86 @@ class TestBaseModel(TestCase):
             ),
         )
 
+    def test_bad_type(self):
+        transaction_dict = {
+            "account": 1,
+            "amount": 10,
+            "destination": 2,
+        }
+        with self.assertRaises(XRPLModelException) as e:
+            Payment(**transaction_dict)
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "account": "account is <class 'int'>, expected <class 'str'>",
+                    "amount": (
+                        "amount is <class 'int'>, expected typing.Union[xrpl."
+                        "models.amounts.issued_currency_amount.IssuedCurrencyAmount, "
+                        "xrpl.models.amounts.mpt_amount.MPTAmount, str]"
+                    ),
+                    "destination": (
+                        "destination is <class 'int'>, expected " "<class 'str'>"
+                    ),
+                }
+            ),
+        )
+
+    def test_bad_type_flags(self):
+        transaction_dict = {
+            "account": account,
+            "amount": value,
+            "destination": destination,
+            "flags": "1234",  # should be an int
+        }
+        with self.assertRaises(XRPLModelException) as e:
+            Payment(**transaction_dict)
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "flags": (
+                        "flags is <class 'str'>, expected "
+                        "typing.Union[typing.Dict[str, bool], int, typing.List[int]]"
+                    ),
+                    "destination": (
+                        "An XRP payment transaction cannot have the same "
+                        "sender and destination."
+                    ),
+                }
+            ),
+        )
+
+    def test_bad_type_enum(self):
+        path_find_dict = {
+            "subcommand": "blah",  # this is invalid
+            "source_account": "raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
+            "destination_account": "rJjusz1VauNA9XaHxJoiwHe38bmQFz1sUV",
+            "destination_amount": "100",
+        }
+        with self.assertRaises(XRPLModelException) as e:
+            PathFind(**path_find_dict)
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "subcommand": (
+                        "subcommand is blah, expected member of "
+                        "<enum 'PathFindSubcommand'> enum"
+                    )
+                }
+            ),
+        )
+
 
 class TestFromDict(TestCase):
     maxDiff = 2000
 
-    def test_from_dict_basic(self):
+    def test_basic(self):
         amount = IssuedCurrencyAmount.from_dict(amount_dict)
         self.assertEqual(amount, IssuedCurrencyAmount(**amount_dict))
 
-    def test_from_dict_recursive_amount(self):
+    def test_recursive_amount(self):
         check_create = CheckCreate.from_dict(check_create_dict)
 
         expected_dict = {
@@ -102,7 +174,7 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(expected_dict, check_create.to_dict())
 
-    def test_from_dict_recursive_currency(self):
+    def test_recursive_currency(self):
         xrp = {"currency": "XRP"}
         issued_currency = {
             "currency": currency,
@@ -122,26 +194,9 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(expected_dict, book_offers.to_dict())
 
-    def test_from_dict_recursive_transaction(self):
+    def test_recursive_transaction(self):
         transaction = CheckCreate.from_dict(check_create_dict)
-        sign_dict = {"secret": secret, "transaction": transaction.to_dict()}
-        sign = Sign.from_dict(sign_dict)
-
-        expected_dict = {
-            **sign_dict,
-            "tx_json": transaction.to_xrpl(),
-            "method": "sign",
-            "fee_mult_max": 10,
-            "fee_div_max": 1,
-            "offline": False,
-            "api_version": _DEFAULT_API_VERSION,
-        }
-        del expected_dict["transaction"]
-        self.assertEqual(expected_dict, sign.to_dict())
-
-    def test_from_dict_recursive_transaction_tx_json(self):
-        transaction = CheckCreate.from_dict(check_create_dict)
-        sign_dict = {"secret": secret, "tx_json": transaction.to_dict()}
+        sign_dict = {"secret": secret, "tx_json": transaction.to_xrpl()}
         sign = Sign.from_dict(sign_dict)
 
         expected_dict = {
@@ -155,7 +210,23 @@ class TestFromDict(TestCase):
         }
         self.assertEqual(expected_dict, sign.to_dict())
 
-    def test_from_dict_signer(self):
+    def test_recursive_transaction_tx_json(self):
+        transaction = CheckCreate.from_dict(check_create_dict)
+        sign_dict = {"secret": secret, "tx_json": transaction.to_xrpl()}
+        sign = Sign.from_dict(sign_dict)
+
+        expected_dict = {
+            **sign_dict,
+            "tx_json": transaction.to_xrpl(),
+            "method": "sign",
+            "fee_mult_max": 10,
+            "fee_div_max": 1,
+            "offline": False,
+            "api_version": _DEFAULT_API_VERSION,
+        }
+        self.assertEqual(expected_dict, sign.to_dict())
+
+    def test_signer(self):
         dictionary = {
             "account": "rpqBNcDpWaqZC2Rksayf8UyG66Fyv2JTQy",
             "fee": "10",
@@ -186,7 +257,7 @@ class TestFromDict(TestCase):
         actual = SignerListSet.from_dict(dictionary)
         self.assertEqual(actual, expected)
 
-    def test_from_dict_trust_set(self):
+    def test_trust_set(self):
         dictionary = {
             "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
             "fee": "10",
@@ -210,7 +281,7 @@ class TestFromDict(TestCase):
         actual = TrustSet.from_dict(dictionary)
         self.assertEqual(actual, expected)
 
-    def test_from_dict_list_of_lists(self):
+    def test_list_of_lists(self):
         path_step_dict = {"account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr"}
         path_find_dict = {
             "subcommand": PathFindSubcommand.CREATE,
@@ -230,7 +301,7 @@ class TestFromDict(TestCase):
         actual = PathFind.from_dict(path_find_dict)
         self.assertEqual(actual, expected)
 
-    def test_from_dict_any(self):
+    def test_any(self):
         account_channels_dict = {
             "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
             "marker": "something",
@@ -239,7 +310,7 @@ class TestFromDict(TestCase):
         actual = AccountChannels.from_dict(account_channels_dict)
         self.assertEqual(actual, expected)
 
-    def test_from_dict_bad_str(self):
+    def test_bad_str(self):
         dictionary = {
             "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
             "fee": 10,  # this should be a str instead ("10")
@@ -254,7 +325,7 @@ class TestFromDict(TestCase):
         with self.assertRaises(XRPLModelException):
             TrustSet.from_dict(dictionary)
 
-    def test_from_dict_explicit_none(self):
+    def test_explicit_none(self):
         dictionary = {
             "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
             "fee": "10",
@@ -277,7 +348,7 @@ class TestFromDict(TestCase):
         actual = TrustSet.from_dict(dictionary)
         self.assertEqual(actual, expected)
 
-    def test_from_dict_with_str_enum_value(self):
+    def test_with_str_enum_value(self):
         dictionary = {
             "method": "account_channels",
             "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
@@ -290,7 +361,7 @@ class TestFromDict(TestCase):
         actual = AccountChannels.from_dict(dictionary)
         self.assertEqual(actual, expected)
 
-    def test_from_dict_bad_list(self):
+    def test_bad_list(self):
         dictionary = {
             "account": "rpqBNcDpWaqZC2Rksayf8UyG66Fyv2JTQy",
             "fee": "10",
@@ -307,7 +378,7 @@ class TestFromDict(TestCase):
         with self.assertRaises(XRPLModelException):
             SignerListSet.from_dict(dictionary)
 
-    def test_from_dict_multisign(self):
+    def test_multisign(self):
         txn_sig1 = (
             "F80E201FE295AA08678F8542D8FC18EA18D582A0BD19BE77B9A24479418ADBCF4CAD28E7BD"
             "96137F88DE7736827C7AC6204FBA8DDADB7394E6D704CD1F4CD609"
@@ -379,7 +450,7 @@ class TestFromDict(TestCase):
         actual = Request.from_dict(request)
         self.assertEqual(actual, expected)
 
-    def test_from_dict_submit(self):
+    def test_submit(self):
         blob = "SOISUSF9SD0839W8U98J98SF"
         id_val = "submit_786514"
         request = {
@@ -392,49 +463,83 @@ class TestFromDict(TestCase):
         actual = Request.from_dict(request)
         self.assertEqual(actual, expected)
 
-    # Note: BaseModel.from_xrpl and its overridden methods accept only camelCase or
-    # PascalCase inputs (i.e. snake_case is not accepted)
-    def test_request_input_from_xrpl_accepts_camel_case(self):
-        request = {
-            "method": "submit",
-            "tx_json": {
-                "Account": "rnD6t3JF9RTG4VgNLoc4i44bsQLgJUSi6h",
-                "transaction_type": "TrustSet",
-                "Fee": "10",
-                "Sequence": 17896798,
-                "Flags": 131072,
-                "signing_pub_key": "",
-                "limit_amount": {
-                    "currency": "USD",
-                    "issuer": "rH5gvkKxGHrFAMAACeu9CB3FMu7pQ9jfZm",
-                    "value": "10",
-                },
-            },
-            "fail_hard": False,
-        }
-
-        with self.assertRaises(XRPLModelException):
-            Request.from_xrpl(request)
-
-    def test_transaction_input_from_xrpl_accepts_only_camel_case(self):
-        # verify that Transaction.from_xrpl method does not accept snake_case JSON keys
-        tx_snake_case_keys = {
-            "Account": "rnoGkgSpt6AX1nQxZ2qVGx7Fgw6JEcoQas",
-            "transaction_type": "TrustSet",
-            "Fee": "10",
-            "Sequence": 17892983,
-            "Flags": 131072,
-            "signing_pub_key": "",
+    def test_nonexistent_field(self):
+        tx = {
+            "account": "rH6ZiHU1PGamME2LvVTxrgvfjQpppWKGmr",
+            "bad_field": "random",
+            "flags": 131072,
             "limit_amount": {
                 "currency": "USD",
-                "issuer": "rBPvTKisx7UCGLDtiUZ6mDssXNREuVuL8Y",
-                "value": "10",
+                "issuer": "raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
+                "value": "100",
             },
         }
-
         with self.assertRaises(XRPLModelException):
-            Transaction.from_xrpl(tx_snake_case_keys)
+            TrustSet.from_dict(tx)
 
+    def test_bad_literal(self):
+        tx = {
+            "account": issuer,
+            "xchain_bridge": {
+                "locking_chain_door": issuer,
+                "locking_chain_issue": {"currency": "XRP"},
+                "issuing_chain_door": issuer,
+                "issuing_chain_issue": {"currency": "XRP"},
+            },
+            "public_key": "0342E083EA762D91D621714C394",
+            "signature": "3044022053B26DAAC9C886192C95",
+            "other_chain_source": issuer,
+            "amount": amount_dict,
+            "attestation_reward_account": issuer,
+            "attestation_signer_account": issuer,
+            "was_locking_chain_send": 2,  # supposed to be 0 or 1
+            "xchain_account_create_count": 12,
+            "destination": issuer,
+            "signature_reward": "200",
+        }
+        with self.assertRaises(XRPLModelException):
+            XChainAddAccountCreateAttestation.from_dict(tx)
+
+    def test_good_literal(self):
+        tx = {
+            "account": issuer,
+            "xchain_bridge": {
+                "locking_chain_door": issuer,
+                "locking_chain_issue": {"currency": "XRP"},
+                "issuing_chain_door": issuer,
+                "issuing_chain_issue": {"currency": "XRP"},
+            },
+            "public_key": "0342E083EA762D91D621714C394",
+            "signature": "3044022053B26DAAC9C886192C95",
+            "other_chain_source": issuer,
+            "amount": "100",
+            "attestation_reward_account": issuer,
+            "attestation_signer_account": issuer,
+            "was_locking_chain_send": 1,
+            "xchain_account_create_count": 12,
+            "destination": issuer,
+            "signature_reward": "200",
+        }
+        expected_dict = {
+            **tx,
+            "xchain_bridge": XChainBridge.from_dict(tx["xchain_bridge"]),
+        }
+        expected = XChainAddAccountCreateAttestation(
+            **expected_dict,
+        )
+        self.assertEqual(XChainAddAccountCreateAttestation.from_dict(tx), expected)
+
+    def test_enum(self):
+        path_find_dict = {
+            "subcommand": "create",
+            "source_account": "raoV5dkC66XvGWjSzUhCUuuGM3YFTitMxT",
+            "destination_account": "rJjusz1VauNA9XaHxJoiwHe38bmQFz1sUV",
+            "destination_amount": "100",
+        }
+        self.assertEqual(PathFind.from_dict(path_find_dict), PathFind(**path_find_dict))
+
+
+class TestFromXrpl(TestCase):
     def test_from_xrpl(self):
         dirname = os.path.dirname(__file__)
         full_filename = "x-codec-fixtures.json"
@@ -444,12 +549,16 @@ class TestFromDict(TestCase):
             for test in fixtures_json["transactions"]:
                 x_json = test["xjson"]
                 r_json = test["rjson"]
-                with self.subTest(json=x_json):
+                with self.subTest(json=x_json, use_json=False):
                     tx = Transaction.from_xrpl(x_json)
                     translated_tx = tx.to_xrpl()
                     self.assertEqual(x_json, translated_tx)
-                with self.subTest(json=r_json):
+                with self.subTest(json=r_json, use_json=False):
                     tx = Transaction.from_xrpl(r_json)
+                    translated_tx = tx.to_xrpl()
+                    self.assertEqual(r_json, translated_tx)
+                with self.subTest(json=r_json, use_json=True):
+                    tx = Transaction.from_xrpl(json.dumps(r_json))
                     translated_tx = tx.to_xrpl()
                     self.assertEqual(r_json, translated_tx)
 
@@ -749,3 +858,46 @@ class TestFromDict(TestCase):
         )
         self.assertEqual(tx_obj.to_xrpl(), tx_json)
         self.assertEqual(Transaction.from_xrpl(tx_json), tx_obj)
+
+    def test_request_input_from_xrpl_accepts_camel_case(self):
+        # Note: BaseModel.from_xrpl and its overridden methods accept only camelCase or
+        # PascalCase inputs (i.e. snake_case is not accepted)
+        request = {
+            "method": "submit",
+            "tx_json": {
+                "Account": "rnD6t3JF9RTG4VgNLoc4i44bsQLgJUSi6h",
+                "transaction_type": "TrustSet",
+                "Fee": "10",
+                "Sequence": 17896798,
+                "Flags": 131072,
+                "signing_pub_key": "",
+                "limit_amount": {
+                    "currency": "USD",
+                    "issuer": "rH5gvkKxGHrFAMAACeu9CB3FMu7pQ9jfZm",
+                    "value": "10",
+                },
+            },
+            "fail_hard": False,
+        }
+
+        with self.assertRaises(XRPLModelException):
+            Request.from_xrpl(request)
+
+    def test_transaction_input_from_xrpl_accepts_only_camel_case(self):
+        # verify that Transaction.from_xrpl method does not accept snake_case JSON keys
+        tx_snake_case_keys = {
+            "Account": "rnoGkgSpt6AX1nQxZ2qVGx7Fgw6JEcoQas",
+            "transaction_type": "TrustSet",
+            "Fee": "10",
+            "Sequence": 17892983,
+            "Flags": 131072,
+            "signing_pub_key": "",
+            "limit_amount": {
+                "currency": "USD",
+                "issuer": "rBPvTKisx7UCGLDtiUZ6mDssXNREuVuL8Y",
+                "value": "10",
+            },
+        }
+
+        with self.assertRaises(XRPLModelException):
+            Transaction.from_xrpl(tx_snake_case_keys)

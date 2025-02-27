@@ -2,14 +2,15 @@ import time
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
+    fund_wallet_async,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
-from tests.integration.reusable_values import WALLET
 from xrpl.models import AccountObjects, AccountObjectType, OracleSet
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions.oracle_set import PriceData
 from xrpl.utils import str_to_hex
+from xrpl.wallet import Wallet
 
 _PROVIDER = str_to_hex("provider")
 _ASSET_CLASS = str_to_hex("currency")
@@ -20,8 +21,10 @@ _MAX_ASSET_PRICE = int(18446744073709551615)
 class TestSetOracle(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_all_fields(self, client):
+        oracle_owner_wallet = Wallet.create()
+        await fund_wallet_async(oracle_owner_wallet)
         tx = OracleSet(
-            account=WALLET.address,
+            account=oracle_owner_wallet.address,
             # if oracle_document_id is not modified, the (sync, async) +
             # (json, websocket) combination of integration tests will update the same
             # oracle object using identical "LastUpdateTime". Updates to an oracle must
@@ -48,13 +51,17 @@ class TestSetOracle(IntegrationTestCase):
                 ),
             ],
         )
-        response = await sign_and_reliable_submission_async(tx, WALLET, client)
+        response = await sign_and_reliable_submission_async(
+            tx, oracle_owner_wallet, client
+        )
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         # confirm that the PriceOracle was actually created
         account_objects_response = await client.request(
-            AccountObjects(account=WALLET.address, type=AccountObjectType.ORACLE)
+            AccountObjects(
+                account=oracle_owner_wallet.address, type=AccountObjectType.ORACLE
+            )
         )
 
         # subsequent integration tests (sync/async + json/websocket) add one
