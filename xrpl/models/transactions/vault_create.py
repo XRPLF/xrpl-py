@@ -7,6 +7,7 @@ from enum import Enum
 from typing import Optional
 
 from xrpl.models.amounts import Amount
+from xrpl.models.currencies import Currency
 from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -34,7 +35,8 @@ class VaultCreate(Transaction):
     """
 
     data: Optional[str] = None
-    asset: Amount = REQUIRED  # type: ignore
+    # Keshava: TODO: Include MPT Issue in Asset field
+    asset: Currency = REQUIRED  # type: ignore
     asset_maximum: Optional[str] = None
     mptoken_metadata: Optional[str] = None
     permissioned_domain_id: Optional[str] = None
