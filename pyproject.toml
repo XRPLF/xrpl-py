@@ -48,7 +48,7 @@ pydoclint = [
     { version = "^0.5.13", python = ">=3.9" }
 ]
 sphinx-rtd-theme = "^3.0.2"
-aiounittest = "^1.4.0"
+aiounittest = "^1.4.3"
 coverage = "^7.2.7"
 Sphinx = "^7.1.2"
 poethepoet = "^0.30.0"

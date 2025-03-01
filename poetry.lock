@@ -2,13 +2,13 @@
 
 [[package]]
 name = "aiounittest"
-version = "1.4.2"
+version = "1.4.3"
 description = "Test asyncio code more easily."
 optional = false
 python-versions = "*"
 files = [
-    {file = "aiounittest-1.4.2-py3-none-any.whl", hash = "sha256:11634918fbbf09b954d97c74d857835750d025d1cafb675391d0099b8d83665a"},
-    {file = "aiounittest-1.4.2.tar.gz", hash = "sha256:1478ec8013c70046569cdc76d541083ca7da362e6513cf29c7ecb51330229bdb"},
+    {file = "aiounittest-1.4.3-py3-none-any.whl", hash = "sha256:c7055da1c1f9f36d7b2a1ea457a35c8206fdde3ad2fe594b52c5d773ff3b9953"},
+    {file = "aiounittest-1.4.3.tar.gz", hash = "sha256:dfe3af30aa0e08fa6c3a3621f78b0b2e5658fe56c370db709f002407a1027dbf"},
 ]
 
 [package.dependencies]
@@ -1567,4 +1567,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "1f062dc4f6974d191c273d23dfbeab80b5b2fde0f04e7ab692fb7ae94e57d2ee"
+content-hash = "41c95caf8ad93aa91771a036bed8551431ee629caa5b9b63e9a103d798d1a9ad"
