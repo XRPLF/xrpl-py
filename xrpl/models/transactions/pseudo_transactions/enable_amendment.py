@@ -66,7 +66,7 @@ class EnableAmendment(PseudoTransaction):
     * A proposed amendment has been enabled.
     """
 
-    amendment: str = REQUIRED  # type: ignore
+    amendment: str = REQUIRED
     """
     A unique identifier for the amendment. This is not intended to be a
     human-readable name. See `Amendments <https://xrpl.org/amendments.html>`_ for a
@@ -75,7 +75,7 @@ class EnableAmendment(PseudoTransaction):
     :meta hide-value:
     """
 
-    ledger_sequence: int = REQUIRED  # type: ignore
+    ledger_sequence: int = REQUIRED
     """
     The ledger index where this pseudo-transaction appears. This distinguishes the
     pseudo-transaction from other occurrences of the same change.
