@@ -34,7 +34,7 @@ types-Deprecated = "^1.2.9"
 pycryptodome = "^3.16.0"
 
 [tool.poetry.dev-dependencies]
-flake8 = "^7.0.0"
+flake8 = "^7.1.2"
 black = "24.8.0"
 flake8-black = "^0.3.6"
 flake8-docstrings = "^1.7.0"
