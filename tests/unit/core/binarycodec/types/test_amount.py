@@ -171,6 +171,16 @@ class TestAmount(TestSerializedType):
             amount_object = amount.Amount.from_value(json)
             self.assertEqual(amount_object.to_hex(), serialized)
 
+    def test_fractional_MPT_invalid_representation(self):
+        self.assertRaises(
+            XRPLBinaryCodecException,
+            amount.Amount.from_value,
+            {
+                "mpt_issuance_id": "0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
+                "value": 1.1,
+            },
+        )
+
     def test_to_json_issued_currency(self):
         for json, serialized in IOU_CASES:
             parser = BinaryParser(serialized)
