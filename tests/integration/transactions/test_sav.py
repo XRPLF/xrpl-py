@@ -61,9 +61,7 @@ class TestSingleAssetVault(IntegrationTestCase):
         tx = VaultCreate(
             account=vault_owner.address,
             asset=IssuedCurrency(currency="USD", issuer=issuer_wallet.address),
-            # TODO: This throws a Number::normalize 1 exception in rippled, why ??
-            # Possible errors in serialization of Number type
-            # asset_maximum="1000",
+            asset_maximum="1000",
         )
         response = await sign_and_reliable_submission_async(tx, vault_owner, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)

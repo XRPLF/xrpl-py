@@ -1,11 +1,180 @@
-import struct
-from typing import Optional, Type
+import re
+from typing import Optional, Pattern, Tuple, Type
 
 from typing_extensions import Self
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
+
+# Note: Much of the ideas and constants in this file are borrowed from the rippled
+# implementation of the `Number` and `STNumber` class. Please refer to the cpp code.
+
+# Limits of representation after normalization of mantissa and exponent
+_MIN_MANTISSA = 1000000000000000
+_MAX_MANTISSA = 9999999999999999
+
+_MIN_EXPONENT = -32768
+_MAX_EXPONENT = 32768
+
+
+def normalize(mantissa: int, exponent: int) -> Tuple[int, int]:
+    """Normalize the mantissa and exponent of a number.
+
+    Args:
+        mantissa: The mantissa of the input number
+        exponent: The exponent of the input number
+
+    Returns:
+        A tuple containing the normalized mantissa and exponent
+    """
+    is_negative = mantissa < 0
+    m = abs(mantissa)
+
+    while m < _MIN_MANTISSA and exponent > _MIN_EXPONENT:
+        exponent -= 1
+        m *= 10
+
+    # Note: This code rounds the normalized mantissa "towards_zero". If your use case
+    # needs other rounding modes -- to_nearest, up (or) down, let us know with an
+    # appropriate bug report
+    while m > _MAX_MANTISSA:
+        if exponent >= _MAX_EXPONENT:
+            raise XRPLBinaryCodecException("Mantissa and exponent are too large.")
+
+        exponent += 1
+        m //= 10
+
+    if is_negative:
+        m = -m
+
+    return (m, exponent)
+
+
+def add32(value: int) -> bytes:
+    """Add a 32-bit integer to a bytes object.
+
+    Args:
+        value: The integer to add
+
+    Returns:
+        A bytes object containing the serialized integer
+    """
+    serialized_bytes = bytes()
+    serialized_bytes += (value >> 24 & 0xFF).to_bytes(1)
+    serialized_bytes += (value >> 16 & 0xFF).to_bytes(1)
+    serialized_bytes += (value >> 8 & 0xFF).to_bytes(1)
+    serialized_bytes += (value & 0xFF).to_bytes(1)
+
+    return serialized_bytes
+
+
+def add64(value: int) -> bytes:
+    """Add a 64-bit integer to a bytes object.
+
+    Args:
+        value: The integer to add
+
+    Returns:
+        A bytes object containing the serialized integer
+    """
+    serialized_bytes = bytes()
+    serialized_bytes += (value >> 56 & 0xFF).to_bytes(1)
+    serialized_bytes += (value >> 48 & 0xFF).to_bytes(1)
+    serialized_bytes += (value >> 40 & 0xFF).to_bytes(1)
+    serialized_bytes += (value >> 32 & 0xFF).to_bytes(1)
+    serialized_bytes += (value >> 24 & 0xFF).to_bytes(1)
+    serialized_bytes += (value >> 16 & 0xFF).to_bytes(1)
+    serialized_bytes += (value >> 8 & 0xFF).to_bytes(1)
+    serialized_bytes += (value & 0xFF).to_bytes(1)
+
+    return serialized_bytes
+
+
+class NumberParts:
+    """Class representing the parts of a number: mantissa, exponent and sign."""
+
+    def __init__(self: Self, mantissa: int, exponent: int, is_negative: bool) -> None:
+        """Initialize a NumberParts instance.
+
+        Args:
+            mantissa: The mantissa (significant digits) of the number
+            exponent: The exponent indicating the position of the decimal point
+            is_negative: Boolean indicating if the number is negative
+        """
+        self.mantissa = mantissa
+        self.exponent = exponent
+        self.is_negative = is_negative
+
+
+def extractNumberPartsFromString(value: str) -> NumberParts:
+    """Extract the mantissa, exponent and sign from a string.
+
+    Args:
+        value: The string to extract the number parts from
+
+    Returns:
+        A NumberParts instance containing the mantissa, exponent and sign
+    """
+    VALID_NUMBER_REGEX: Pattern[str] = re.compile(
+        r"^"  # the beginning of the string
+        + r"([-+]?)"  # (optional) + or - character
+        + r"(0|[1-9][0-9]*)"  # mantissa: a number (no leading zeroes, unless 0)
+        + r"(\.([0-9]+))?"  # (optional) decimal point and fractional part
+        + r"([eE]([+-]?)([0-9]+))?"  # (optional) E/e, optional + or -, any number
+        + r"$"  # the end of the string
+    )
+
+    matches = re.fullmatch(VALID_NUMBER_REGEX, value)
+
+    if not matches:
+        raise XRPLBinaryCodecException("Unable to parse number from the input string")
+
+    # Match fields:
+    #   0 = whole input
+    #   1 = sign
+    #   2 = integer portion
+    #   3 = whole fraction (with '.')
+    #   4 = fraction (without '.')
+    #   5 = whole exponent (with 'e')
+    #   6 = exponent sign
+    #   7 = exponent number
+
+    is_negative: bool = matches.group(1) == "-"
+
+    # integer only
+    if matches.group(3) is None and matches.group(5) is None:
+        mantissa = int(matches.group(2))
+        exponent = 0
+
+    # integer and fraction
+    if matches.group(3) is not None and matches.group(5) is None:
+        mantissa = int(matches.group(2) + matches.group(4))
+        exponent = -len(matches.group(4))
+
+    # integer and exponent
+    if matches.group(3) is None and matches.group(5) is not None:
+        mantissa = int(matches.group(2))
+        exponent = int(matches.group(7))
+
+        if matches.group(6) == "-":
+            exponent = -exponent
+
+    # integer, fraction and exponent
+    if matches.group(3) is not None and matches.group(5) is not None:
+        mantissa = int(matches.group(2) + matches.group(4))
+        implied_exponent = -len(matches.group(4))
+        explicit_exponent = int(matches.group(7))
+
+        if matches.group(6) == "-":
+            explicit_exponent = -explicit_exponent
+
+        exponent = implied_exponent + explicit_exponent
+
+    if is_negative:
+        mantissa = -mantissa
+
+    return NumberParts(mantissa, exponent, is_negative)
 
 
 class Number(SerializedType):
@@ -23,16 +192,31 @@ class Number(SerializedType):
     ) -> Self:
         # Number type consists of two cpp std::uint_64t (mantissa) and
         # std::uint_32t (exponent) types which are 8 bytes and 4 bytes respectively
+
+        # Note: Normalization is not required here. It is assumed that the serialized
+        # format was obtained through correct procedure.
         return cls(parser.read(12))
 
     @classmethod
     def from_value(cls: Type[Self], value: str) -> Self:
-        return cls(struct.pack(">d", float(value)))
+        number_parts: NumberParts = extractNumberPartsFromString(value)
+        normalized_mantissa, normalized_exponent = normalize(
+            number_parts.mantissa, number_parts.exponent
+        )
+
+        serialized_mantissa = add64(normalized_mantissa)
+        serialized_exponent = add32(normalized_exponent)
+
+        assert len(serialized_mantissa) == 8
+        assert len(serialized_exponent) == 4
+
+        return cls(serialized_mantissa + serialized_exponent)
 
     def to_json(self: Self) -> str:
-        unpack_elems = struct.unpack(">d", self.buffer)
-        if len(unpack_elems) != 1:
-            raise XRPLBinaryCodecException(
-                "Deserialization of Number type did not produce exactly one element"
-            )
-        return str(unpack_elems[0])
+        mantissa = int.from_bytes(self.buffer[:8], byteorder="big", signed=True)
+        exponent = int.from_bytes(self.buffer[8:], byteorder="big", signed=True)
+
+        if exponent == 0:
+            return str(mantissa)
+
+        return f"{mantissa}e{exponent}"
