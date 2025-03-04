@@ -97,6 +97,37 @@ MPT_CASES = [
         },
         "607FFFFFFFFFFFFFFF0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
     ],
+    # test case involving fractional values
+    [
+        {
+            "value": "123.545",
+            "mpt_issuance_id": "0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
+        },
+        "607FFFFFFFFFFFFFFF0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
+    ],
+    # The below cases are non-str type inputs.
+    # TODO: The serialized values are incorrect and need to be updated
+    [
+        {
+            "value": 12,
+            "mpt_issuance_id": "0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
+        },
+        "607FFFFFFFFFFFFFFF0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
+    ],
+    [
+        {
+            "value": 0,
+            "mpt_issuance_id": "0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
+        },
+        "607FFFFFFFFFFFFFFF0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
+    ],
+    [
+        {
+            "value": -34,
+            "mpt_issuance_id": "0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
+        },
+        "607FFFFFFFFFFFFFFF0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
+    ],
 ]
 
 
