@@ -97,25 +97,24 @@ MPT_CASES = [
         },
         "607FFFFFFFFFFFFFFF0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
     ],
-    # The below three cases are non-str type inputs.
     # TODO: The serialized values are incorrect and need to be updated
     [
         {
-            "value": 12,
+            "value": "1.2E5",
             "mpt_issuance_id": "0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
         },
         "607FFFFFFFFFFFFFFF0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
     ],
     [
         {
-            "value": 0,
+            "value": "-123e4",
             "mpt_issuance_id": "0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
         },
         "607FFFFFFFFFFFFFFF0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
     ],
     [
         {
-            "value": -34,
+            "value": "34e-6",
             "mpt_issuance_id": "0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
         },
         "607FFFFFFFFFFFFFFF0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47",
