@@ -24,7 +24,7 @@ class MPTAmount(BaseModel):
     :meta hide-value:
     """
 
-    value: Union[str, int, float] = REQUIRED  # type: ignore
+    value: Union[str, int] = REQUIRED  # type: ignore
     """
     This field is required.
 
