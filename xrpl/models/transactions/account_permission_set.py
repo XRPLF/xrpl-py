@@ -34,8 +34,7 @@ class Permission(NestedModel):
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class AccountPermissionSet(Transaction):
-    """This transaction represents a set of permissions that an account has delegated
-    to another account.
+    """AccountPermissionSet allows an account to delegate a set of permissions to another account.
     """
 
     authorize: str = REQUIRED  # type: ignore
