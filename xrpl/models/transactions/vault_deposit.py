@@ -15,11 +15,14 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class VaultDeposit(Transaction):
     """
-    Represents a VaultDeposit transaction on the XRP Ledger.
+    The VaultDeposit transaction adds Liqudity in exchange for vault shares.
     """
 
     vault_id: str = REQUIRED  # type: ignore
+    """The ID of the vault to which the assets are deposited."""
+
     amount: Amount = REQUIRED  # type: ignore
+    """Asset amount to deposit."""
 
     transaction_type: TransactionType = field(
         default=TransactionType.VAULT_DEPOSIT,

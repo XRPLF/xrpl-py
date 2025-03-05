@@ -31,15 +31,24 @@ class VaultCreateFlagInterface(FlagInterface):
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class VaultCreate(Transaction):
     """
-    Represents a VaultCreate transaction on the XRP Ledger.
+    The VaultCreate transaction creates a new Vault object.
     """
 
     data: Optional[str] = None
+    """Arbitrary Vault metadata, limited to 256 bytes."""
+
     # Keshava: TODO: Include MPT Issue in Asset field
     asset: Currency = REQUIRED  # type: ignore
+    """The asset (XRP, IOU or MPT) of the Vault."""
+
     asset_maximum: Optional[str] = None
+    """The maximum asset amount that can be held in a vault."""
+
     mptoken_metadata: Optional[str] = None
+    """Arbitrary metadata about the share MPT, in hex format, limited to 1024 bytes."""
+
     permissioned_domain_id: Optional[str] = None
+    """The PermissionedDomain object ID associated with the shares of this Vault."""
 
     transaction_type: TransactionType = field(
         default=TransactionType.VAULT_CREATE,

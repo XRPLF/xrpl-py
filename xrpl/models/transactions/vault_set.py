@@ -15,13 +15,22 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class VaultSet(Transaction):
     """
-    Represents a VaultSet transaction on the XRP Ledger.
+    The VaultSet updates an existing Vault ledger object.
     """
 
     vault_id: str = REQUIRED  # type: ignore
+    """The ID of the Vault to be modified. Must be included when updating the Vault."""
+
     domain_id: Optional[str] = None
+    """The PermissionedDomain object ID associated with the shares of this Vault."""
+
     data: Optional[str] = None
+    """Arbitrary Vault metadata, limited to 256 bytes."""
+
     asset_maximum: Optional[str] = None
+    """The maximum asset amount that can be held in a vault. The value cannot be lower 
+    than the current AssetTotal unless the value is 0.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.VAULT_SET,

@@ -16,12 +16,26 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class VaultClawback(Transaction):
     """
-    Represents a VaultClawback transaction on the XRP Ledger.
+    The VaultClawback transaction performs a Clawback from the Vault, exchanging the
+    shares of an account. Conceptually, the transaction performs VaultWithdraw on
+    behalf of the Holder, sending the funds to the Issuer account of the asset.
+
+    In case there are insufficient funds for the entire Amount the transaction will
+    perform a partial Clawback, up to the Vault.AssetAvailable.
+
+    The Clawback transaction must respect any future fees or penalties.
     """
 
     vault_id: str = REQUIRED  # type: ignore
+    """The ID of the vault from which assets are withdrawn."""
+
     holder: str = REQUIRED  # type: ignore
+    """The account ID from which to clawback the assets."""
+
     amount: Optional[Amount] = None
+    """The asset amount to clawback. When Amount is 0 clawback all funds, up to the 
+    total shares the Holder owns.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.VAULT_CLAWBACK,

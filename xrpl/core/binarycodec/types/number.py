@@ -1,3 +1,9 @@
+"""Codec for the Number type.
+
+Note: Much of the ideas and constants in this file are borrowed from the rippled
+implementation of the `Number` and `STNumber` class. Please refer to the cpp code.
+"""
+
 import re
 from typing import Optional, Pattern, Tuple, Type
 
@@ -6,9 +12,6 @@ from typing_extensions import Self
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
-
-# Note: Much of the ideas and constants in this file are borrowed from the rippled
-# implementation of the `Number` and `STNumber` class. Please refer to the cpp code.
 
 # Limits of representation after normalization of mantissa and exponent
 _MIN_MANTISSA = 1000000000000000

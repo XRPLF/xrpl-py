@@ -16,12 +16,17 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class VaultWithdraw(Transaction):
     """
-    Represents a VaultWithdraw transaction on the XRP Ledger.
+    The VaultWithdraw transaction withdraws assets in exchange for the vault's shares.
     """
 
     vault_id: str = REQUIRED  # type: ignore
+    """The ID of the vault from which assets are withdrawn."""
+
     amount: Amount = REQUIRED  # type: ignore
+    """The exact amount of Vault asset to withdraw."""
+
     destination: Optional[str] = None
+    """An account to receive the assets. It must be able to receive the asset."""
 
     transaction_type: TransactionType = field(
         default=TransactionType.VAULT_WITHDRAW,
