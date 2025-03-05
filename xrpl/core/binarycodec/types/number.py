@@ -20,6 +20,8 @@ _MAX_MANTISSA = 9999999999999999
 _MIN_EXPONENT = -32768
 _MAX_EXPONENT = 32768
 
+_DEFAULT_VALUE_EXPONENT = -2147483648
+
 
 def normalize(mantissa: int, exponent: int) -> Tuple[int, int]:
     """Normalize the mantissa and exponent of a number.
@@ -146,33 +148,20 @@ def extractNumberPartsFromString(value: str) -> NumberParts:
     is_negative: bool = matches.group(1) == "-"
 
     # integer only
-    if matches.group(3) is None and matches.group(5) is None:
+    if matches.group(3) is None:
         mantissa = int(matches.group(2))
         exponent = 0
-
-    # integer and fraction
-    if matches.group(3) is not None and matches.group(5) is None:
+    else:
+        # handle the fraction input
         mantissa = int(matches.group(2) + matches.group(4))
         exponent = -len(matches.group(4))
 
-    # integer and exponent
-    if matches.group(3) is None and matches.group(5) is not None:
-        mantissa = int(matches.group(2))
-        exponent = int(matches.group(7))
-
+    # exponent is specified in the input
+    if matches.group(5) is not None:
         if matches.group(6) == "-":
-            exponent = -exponent
-
-    # integer, fraction and exponent
-    if matches.group(3) is not None and matches.group(5) is not None:
-        mantissa = int(matches.group(2) + matches.group(4))
-        implied_exponent = -len(matches.group(4))
-        explicit_exponent = int(matches.group(7))
-
-        if matches.group(6) == "-":
-            explicit_exponent = -explicit_exponent
-
-        exponent = implied_exponent + explicit_exponent
+            exponent -= int(matches.group(7))
+        else:
+            exponent += int(matches.group(7))
 
     if is_negative:
         mantissa = -mantissa
@@ -199,9 +188,6 @@ class Number(SerializedType):
         parser: BinaryParser,
         length_hint: Optional[int] = None,  # noqa: ANN401
     ) -> Self:
-        # Number type consists of two cpp std::uint_64t (mantissa) and
-        # std::uint_32t (exponent) types which are 8 bytes and 4 bytes respectively
-
         # Note: Normalization is not required here. It is assumed that the serialized
         # format was obtained through correct procedure.
         return cls(parser.read(12))
@@ -210,16 +196,16 @@ class Number(SerializedType):
     def from_value(cls: Type[Self], value: str) -> Self:
         number_parts: NumberParts = extractNumberPartsFromString(value)
 
-        # `0` value is represented as a mantissa of 0 and an exponent of -2147483648
-        # This is an artifact of the rippled implementation. To ensure compatibility of
-        # the codec, we mirror this behavior.
+        # `0` value is represented as a mantissa with 0 and an exponent of
+        # _DEFAULT_VALUE_EXPONENT. This is an artifact of the rippled implementation.
+        # To ensure compatibility of the codec, we mirror this behavior.
         if (
             number_parts.mantissa == 0
             and number_parts.exponent == 0
             and not number_parts.is_negative
         ):
             normalized_mantissa = 0
-            normalized_exponent = -2147483648
+            normalized_exponent = _DEFAULT_VALUE_EXPONENT
         else:
             normalized_mantissa, normalized_exponent = normalize(
                 number_parts.mantissa, number_parts.exponent
@@ -228,6 +214,8 @@ class Number(SerializedType):
         serialized_mantissa = add64(normalized_mantissa)
         serialized_exponent = add32(normalized_exponent)
 
+        # Number type consists of two cpp std::uint_64t (mantissa) and
+        # std::uint_32t (exponent) types which are 8 bytes and 4 bytes respectively
         assert len(serialized_mantissa) == 8
         assert len(serialized_exponent) == 4
 
@@ -240,8 +228,9 @@ class Number(SerializedType):
         if exponent == 0:
             return str(mantissa)
 
-        # `0` value is represented as a mantissa of 0 and an exponent of -2147483648
-        if mantissa == 0 and exponent == -2147483648:
+        # `0` value is represented as a mantissa with 0 and an
+        # exponent of _DEFAULT_VALUE_EXPONENT
+        if mantissa == 0 and exponent == _DEFAULT_VALUE_EXPONENT:
             return "0"
 
         return f"{mantissa}e{exponent}"
