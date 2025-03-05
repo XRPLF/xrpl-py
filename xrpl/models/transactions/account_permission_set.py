@@ -39,6 +39,7 @@ class AccountPermissionSet(Transaction):
 
     authorize: str = REQUIRED  # type: ignore
     """The authorized account."""
+
     permissions: List[Permission] = REQUIRED  # type: ignore
     """The transaction permissions that the account has been granted."""
 
