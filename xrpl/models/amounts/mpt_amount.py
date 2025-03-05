@@ -39,3 +39,16 @@ class MPTAmount(BaseModel):
             The dictionary representation of an MPTAmount.
         """
         return {**super().to_dict(), "value": str(self.value)}
+
+
+class MPTIssue:
+    """
+    This class represents an MPT issue. It is similar to the Issue class, but
+    it is used with MPT amounts.
+    """
+
+    mpt_id: str = REQUIRED  # type: ignore
+    """
+    MPTID is a 192-bit concatenation of a 32-bit account sequence and a 160-bit
+    account id.
+    """

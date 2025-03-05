@@ -4,9 +4,9 @@ Represents a VaultCreate transaction on the XRP Ledger.
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
+from typing import Optional, Union
 
-from xrpl.models.amounts import Amount
+from xrpl.models.amounts.mpt_amount import MPTIssue
 from xrpl.models.currencies import Currency
 from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
@@ -37,8 +37,7 @@ class VaultCreate(Transaction):
     data: Optional[str] = None
     """Arbitrary Vault metadata, limited to 256 bytes."""
 
-    # Keshava: TODO: Include MPT Issue in Asset field
-    asset: Currency = REQUIRED  # type: ignore
+    asset: Union[Currency, MPTIssue] = REQUIRED  # type: ignore
     """The asset (XRP, IOU or MPT) of the Vault."""
 
     asset_maximum: Optional[str] = None
