@@ -33,4 +33,10 @@ class TestNumber(unittest.TestCase):
         self.assertEqual(serialized_number.to_json(), "4000000000000000e19")
 
     def extreme_limits(self):
-        pass
+        lowest_mantissa = "-9223372036854776"
+        serialized_number = Number.from_value(lowest_mantissa + "e3")
+        self.assertEqual(serialized_number.hex(), "FFDF3B645A1CAC0800000003")
+
+        highest_mantissa = "9223372036854776"
+        serialized_number = Number.from_value(highest_mantissa + "e3")
+        self.assertEqual(serialized_number.hex(), "0020C49BA5E353F700000003")

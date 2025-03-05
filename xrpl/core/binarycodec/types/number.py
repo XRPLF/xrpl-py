@@ -187,6 +187,12 @@ class Number(SerializedType):
         """Construct a Number from given bytes."""
         super().__init__(buffer)
 
+    def display_serialized_hex(self: Self) -> str:
+        """Display the serialized hex representation of the number. Utility function
+        for debugging.
+        """
+        return self.buffer.hex().upper()
+
     @classmethod
     def from_parser(  # noqa: D102
         cls: Type[Self],
@@ -203,9 +209,21 @@ class Number(SerializedType):
     @classmethod
     def from_value(cls: Type[Self], value: str) -> Self:
         number_parts: NumberParts = extractNumberPartsFromString(value)
-        normalized_mantissa, normalized_exponent = normalize(
-            number_parts.mantissa, number_parts.exponent
-        )
+
+        # `0` value is represented as a mantissa of 0 and an exponent of -2147483648
+        # This is an artifact of the rippled implementation. To ensure compatibility of
+        # the codec, we mirror this behavior.
+        if (
+            number_parts.mantissa == 0
+            and number_parts.exponent == 0
+            and not number_parts.is_negative
+        ):
+            normalized_mantissa = 0
+            normalized_exponent = -2147483648
+        else:
+            normalized_mantissa, normalized_exponent = normalize(
+                number_parts.mantissa, number_parts.exponent
+            )
 
         serialized_mantissa = add64(normalized_mantissa)
         serialized_exponent = add32(normalized_exponent)
@@ -221,5 +239,9 @@ class Number(SerializedType):
 
         if exponent == 0:
             return str(mantissa)
+
+        # `0` value is represented as a mantissa of 0 and an exponent of -2147483648
+        if mantissa == 0 and exponent == -2147483648:
+            return "0"
 
         return f"{mantissa}e{exponent}"
