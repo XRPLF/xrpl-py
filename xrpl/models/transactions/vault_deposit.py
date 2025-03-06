@@ -1,6 +1,4 @@
-"""
-Represents a VaultDeposit transaction on the XRP Ledger.
-"""
+"""Represents a VaultDeposit transaction on the XRP Ledger."""
 
 from dataclasses import dataclass, field
 
@@ -14,9 +12,7 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class VaultDeposit(Transaction):
-    """
-    The VaultDeposit transaction adds Liqudity in exchange for vault shares.
-    """
+    """The VaultDeposit transaction adds Liqudity in exchange for vault shares."""
 
     vault_id: str = REQUIRED  # type: ignore
     """The ID of the vault to which the assets are deposited."""

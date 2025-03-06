@@ -1,6 +1,4 @@
-"""
-Represents a VaultWithdraw transaction on the XRP Ledger.
-"""
+"""Represents a VaultWithdraw transaction on the XRP Ledger."""
 
 from dataclasses import dataclass, field
 from typing import Optional
@@ -15,8 +13,8 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class VaultWithdraw(Transaction):
-    """
-    The VaultWithdraw transaction withdraws assets in exchange for the vault's shares.
+    """The VaultWithdraw transaction withdraws assets in exchange for the vault's
+    shares.
     """
 
     vault_id: str = REQUIRED  # type: ignore

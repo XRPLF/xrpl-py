@@ -49,6 +49,6 @@ class MPTIssue:
 
     mpt_issuance_id: str = REQUIRED  # type: ignore
     """
-    mpt_issuance_id is a 192-bit concatenation of a 32-bit account sequence and a 
+    mpt_issuance_id is a 192-bit concatenation of a 32-bit account sequence and a
     160-bit account id.
     """

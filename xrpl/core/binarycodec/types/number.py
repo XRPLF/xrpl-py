@@ -194,6 +194,14 @@ class Number(SerializedType):
 
     @classmethod
     def from_value(cls: Type[Self], value: str) -> Self:
+        """Construct a Number from a string.
+
+        Args:
+            value: The string to construct the Number from
+
+        Returns:
+            A Number instance
+        """
         number_parts: NumberParts = extractNumberPartsFromString(value)
 
         # `0` value is represented as a mantissa with 0 and an exponent of

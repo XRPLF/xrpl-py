@@ -1,6 +1,4 @@
-"""
-Represents a VaultClawback transaction on the XRP Ledger.
-"""
+"""Represents a VaultClawback transaction on the XRP Ledger."""
 
 from dataclasses import dataclass, field
 from typing import Optional
@@ -33,7 +31,7 @@ class VaultClawback(Transaction):
     """The account ID from which to clawback the assets."""
 
     amount: Optional[Amount] = None
-    """The asset amount to clawback. When Amount is 0 clawback all funds, up to the 
+    """The asset amount to clawback. When Amount is 0 clawback all funds, up to the
     total shares the Holder owns.
     """
 
