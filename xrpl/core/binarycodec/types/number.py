@@ -222,6 +222,15 @@ class Number(SerializedType):
         return cls(serialized_mantissa + serialized_exponent)
 
     def to_json(self: Self) -> str:
+        """Convert the Number to a JSON string.
+
+        Note: This method is faithful to rippled's `Number::to_string()` method.
+        This ensures API compatibility between rippled and xrpl-py regarding the JSON
+        representation of Number objects.
+
+        Returns:
+            A JSON string representing the Number
+        """
         mantissa = int.from_bytes(self.buffer[:8], byteorder="big", signed=True)
         exponent = int.from_bytes(self.buffer[8:], byteorder="big", signed=True)
 
@@ -233,4 +242,34 @@ class Number(SerializedType):
         if mantissa == 0 and exponent == _DEFAULT_VALUE_EXPONENT:
             return "0"
 
-        return f"{mantissa}e{exponent}"
+        # Use scientific notation for very small or large numbers
+        if exponent < -25 or exponent > -5:
+            return f"{mantissa}e{exponent}"
+
+        is_negative = mantissa < 0
+        mantissa = abs(mantissa)
+
+        # The below padding values are influenced by the exponent range of [-25, -5]
+        # in the above if-condition. Values outside of this range use the scientific
+        # notation and do not go through the below logic.
+        PAD_PREFIX = 27
+        PAD_SUFFIX = 23
+
+        raw_value: str = "0" * PAD_PREFIX + str(mantissa) + "0" * PAD_SUFFIX
+
+        # Note: The rationale for choosing 43 is that the highest mantissa has 16
+        # digits in decimal representation and the PAD_PREFIX has 27 characters.
+        # 27 + 16 sums upto 43 characters.
+        OFFSET = exponent + 43
+        assert OFFSET > 0, "Exponent is below acceptable limit"
+
+        generate_mantissa: str = raw_value[:OFFSET].lstrip("0")
+
+        if generate_mantissa == "":
+            generate_mantissa = "0"
+
+        generate_exponent: str = raw_value[OFFSET:].rstrip("0")
+        if generate_exponent != "":
+            generate_exponent = "." + generate_exponent
+
+        return f"{'-' if is_negative else ''}{generate_mantissa}{generate_exponent}"
