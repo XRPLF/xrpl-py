@@ -47,8 +47,8 @@ class MPTIssue:
     it is used with MPT amounts.
     """
 
-    mpt_id: str = REQUIRED  # type: ignore
+    mpt_issuance_id: str = REQUIRED  # type: ignore
     """
-    MPTID is a 192-bit concatenation of a 32-bit account sequence and a 160-bit
-    account id.
+    mpt_issuance_id is a 192-bit concatenation of a 32-bit account sequence and a 
+    160-bit account id.
     """
