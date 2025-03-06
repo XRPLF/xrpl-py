@@ -125,7 +125,9 @@ def verify_mpt_value(mpt_value: str) -> None:
     """
     # Contains no decimal point
     if not _contains_decimal(mpt_value):
-        raise XRPLBinaryCodecException(f"{mpt_value} is an invalid MPT amount.")
+        raise XRPLBinaryCodecException(
+            f"{mpt_value} contains fraction value. Please use str type to represent it."
+        )
 
     decimal = None
     try:
