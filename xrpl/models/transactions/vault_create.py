@@ -34,11 +34,11 @@ class VaultCreate(Transaction):
     The VaultCreate transaction creates a new Vault object.
     """
 
-    data: Optional[str] = None
-    """Arbitrary Vault metadata, limited to 256 bytes."""
-
     asset: Union[Currency, MPTIssue] = REQUIRED  # type: ignore
     """The asset (XRP, IOU or MPT) of the Vault."""
+
+    data: Optional[str] = None
+    """Arbitrary Vault metadata, limited to 256 bytes."""
 
     asset_maximum: Optional[str] = None
     """The maximum asset amount that can be held in a vault."""
