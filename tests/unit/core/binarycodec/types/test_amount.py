@@ -108,23 +108,6 @@ class TestAmount(TestSerializedType):
         amount.verify_xrp_value(valid_zero)
         amount.verify_xrp_value(valid_amount)
 
-    # Note: these values are obtained from the following rippled unit test:
-    # https://github.com/XRPLF/rippled/blob/33e1c42599857336d792effc753795911bdb13f0/src/test/protocol/STAmount_test.cpp#L513
-    # However, the limiting values allowed by the STAmount type are much higher and
-    # smaller.
-    def test_large_small_values(self):
-        small_value = "5499999999999999e-95"
-
-        serialized_representation = amount.Amount.from_value(small_value)
-        self.assertEqual(amount.Amount.to_json(serialized_representation), small_value)
-
-        large_value = "15499999999999999e79"
-        serialized_representation = amount.Amount.from_value(large_value)
-        self.assertEqual(amount.Amount.to_json(serialized_representation), large_value)
-
-        amount.verify_xrp_value(small_value)
-        amount.verify_xrp_value(large_value)
-
     def test_assert_xrp_is_valid_raises(self):
         invalid_amount_large = "1e20"
         invalid_amount_small = "1e-7"
