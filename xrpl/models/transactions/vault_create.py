@@ -46,8 +46,18 @@ class VaultCreate(Transaction):
     mptoken_metadata: Optional[str] = None
     """Arbitrary metadata about the share MPT, in hex format, limited to 1024 bytes."""
 
-    permissioned_domain_id: Optional[str] = None
+    domain_id: Optional[str] = None
     """The PermissionedDomain object ID associated with the shares of this Vault."""
+
+    withdrawal_policy: Optional[int] = None
+    """Indicates the withdrawal strategy used by the Vault.
+    
+    The below withdrawal policy is supported:
+
+    Strategy Name	           Value	      Description
+    strFirstComeFirstServe	   1	          Requests are processed on a first-come-first-
+                                                serve basis.
+    """
 
     transaction_type: TransactionType = field(
         default=TransactionType.VAULT_CREATE,

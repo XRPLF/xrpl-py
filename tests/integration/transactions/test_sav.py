@@ -62,6 +62,7 @@ class TestSingleAssetVault(IntegrationTestCase):
             account=vault_owner.address,
             asset=IssuedCurrency(currency="USD", issuer=issuer_wallet.address),
             asset_maximum="1000",
+            withdrawal_policy=1,
         )
         response = await sign_and_reliable_submission_async(tx, vault_owner, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)

@@ -2700,6 +2700,16 @@
       }
     ],
     [
+      "WithdrawalPolicy",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 20,
+        "type": "UInt8"
+      }
+    ],
+    [
       "TakerPaysCurrency",
       {
         "isSerialized": true,
