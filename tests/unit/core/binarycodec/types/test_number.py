@@ -35,8 +35,12 @@ class TestNumber(unittest.TestCase):
     def test_extreme_limits(self):
         lowest_mantissa = "-9223372036854776"
         serialized_number = Number.from_value(lowest_mantissa + "e3")
-        self.assertEqual(serialized_number.hex(), "FFDF3B645A1CAC0800000003")
+        self.assertEqual(
+            serialized_number.display_serialized_hex(), "FFDF3B645A1CAC0800000003"
+        )
 
         highest_mantissa = "9223372036854776"
         serialized_number = Number.from_value(highest_mantissa + "e3")
-        self.assertEqual(serialized_number.hex(), "0020C49BA5E353F700000003")
+        self.assertEqual(
+            serialized_number.display_serialized_hex(), "0020C49BA5E353F800000003"
+        )
