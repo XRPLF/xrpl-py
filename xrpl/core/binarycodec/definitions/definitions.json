@@ -1261,6 +1261,16 @@
       }
     ],
     [
+      "VaultID",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 35,
+        "type": "Hash256"
+      }
+    ],
+    [
       "hash",
       {
         "isSerialized": false,
@@ -2031,6 +2041,56 @@
       }
     ],
     [
+      "Number",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 1,
+        "type": "Number"
+      }
+    ],
+    [
+      "AssetAvailable",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 2,
+        "type": "Number"
+      }
+    ],
+    [
+      "AssetMaximum",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 3,
+        "type": "Number"
+      }
+    ],
+    [
+      "AssetTotal",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 4,
+        "type": "Number"
+      }
+    ],
+    [
+      "LossUnrealized",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 5,
+        "type": "Number"
+      }
+    ],
+    [
       "TransactionMetaData",
       {
         "isSerialized": true,
@@ -2640,6 +2700,16 @@
       }
     ],
     [
+      "WithdrawalPolicy",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 20,
+        "type": "UInt8"
+      }
+    ],
+    [
       "TakerPaysCurrency",
       {
         "isSerialized": true,
@@ -2886,6 +2956,7 @@
     "RippleState": 114,
     "SignerList": 83,
     "Ticket": 84,
+    "Vault" : 131,
     "XChainOwnedClaimID": 113,
     "XChainOwnedCreateAccountClaimID": 116
   },
@@ -3123,6 +3194,12 @@
     "TicketCreate": 10,
     "TrustSet": 20,
     "UNLModify": 102,
+    "VaultCreate": 64,
+    "VaultClawback": 69,
+    "VaultDeposit": 67,
+    "VaultDelete": 66,
+    "VaultSet": 65,
+    "VaultWithdraw": 68,
     "XChainAccountCreateCommit": 44,
     "XChainAddAccountCreateAttestation": 46,
     "XChainAddClaimAttestation": 45,
@@ -3146,6 +3223,7 @@
     "LedgerEntry": 10002,
     "Metadata": 10004,
     "NotPresent": 0,
+    "Number": 9,
     "PathSet": 18,
     "STArray": 15,
     "STObject": 14,
