@@ -479,6 +479,9 @@ async def _calculate_fee_per_transaction_type(
             # BaseFee × (33 + (Fulfillment size in bytes / 16))
             base_fee = math.ceil(net_fee * (33 + (len(fulfillment_bytes) / 16)))
 
+    if transaction.transaction_type == TransactionType.ESCROW_CANCEL:
+        base_fee += 1000
+
     # AccountDelete Transaction
     if transaction.transaction_type in (
         TransactionType.ACCOUNT_DELETE,
