@@ -11,7 +11,6 @@ class TestEscrowCreate(TestCase):
         cancel_after = 3
         destination = "destination"
         destination_tag = 1
-        fee = "0.00001"
         finish_after = 2
         finish_function = "abcdef"
         condition = "abcdef"
@@ -21,7 +20,6 @@ class TestEscrowCreate(TestCase):
             amount=amount,
             destination=destination,
             destination_tag=destination_tag,
-            fee=fee,
             cancel_after=cancel_after,
             finish_after=finish_after,
             finish_function=finish_function,
@@ -35,7 +33,6 @@ class TestEscrowCreate(TestCase):
         cancel_after = 1
         finish_after = 2
         destination = "destination"
-        fee = "0.00001"
 
         with self.assertRaises(XRPLModelException):
             EscrowCreate(
@@ -43,7 +40,6 @@ class TestEscrowCreate(TestCase):
                 amount=amount,
                 cancel_after=cancel_after,
                 destination=destination,
-                fee=fee,
                 finish_after=finish_after,
             )
 
@@ -53,8 +49,6 @@ class TestEscrowCreate(TestCase):
         cancel_after = 1
         destination = "destination"
         destination_tag = 1
-        fee = "0.00001"
-        sequence = 19048
 
         with self.assertRaises(XRPLModelException):
             EscrowCreate(
@@ -62,7 +56,5 @@ class TestEscrowCreate(TestCase):
                 amount=amount,
                 destination=destination,
                 destination_tag=destination_tag,
-                fee=fee,
                 cancel_after=cancel_after,
-                sequence=sequence,
             )
