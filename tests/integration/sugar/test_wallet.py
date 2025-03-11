@@ -6,11 +6,9 @@ from tests.integration.it_utils import submit_transaction_async
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.wallet import generate_faucet_wallet
 from xrpl.clients import JsonRpcClient, WebsocketClient
-from xrpl.core.addresscodec.main import classic_address_to_xaddress
 from xrpl.models.requests import AccountInfo
 from xrpl.models.transactions import Payment
 from xrpl.wallet import generate_faucet_wallet as sync_generate_faucet_wallet
-from xrpl.wallet.main import Wallet
 
 
 def sync_generate_faucet_wallet_and_fund_again(
@@ -156,8 +154,3 @@ class TestWallet(IntegrationTestCase):
             "wss://s.devnet.rippletest.net:51233"
         ) as client:
             await generate_faucet_wallet_and_fund_again(self, client)
-
-    def test_wallet_get_xaddress(self):
-        wallet = Wallet.create()
-        expected = classic_address_to_xaddress(wallet.address, None, False)
-        self.assertEqual(wallet.get_xaddress(), expected)
