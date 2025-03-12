@@ -15,6 +15,15 @@ authors = [
   { name = "Caleb Kniffen", email = "ckniffen@ripple.com" },
   { name = "Omar Khan", email = "okhan@ripple.com" },
   { name = "Justin Reynolds", email = "justinr1234@gmail.com" },
+  { name = "Chenna Keshava B S", email = "ckeshavabs@ripple.com" },
+]
+maintainers = [
+  { name = "Ashray Chowdhry", email = "achowdhry@ripple.com" },
+  { name = "Chenna Keshava B S", email = "ckeshavabs@ripple.com" },
+  { name = "Justin Reynolds", email = "justinr1234@gmail.com" },
+  { name = "Mayukha Vadari", email = "mvadari@ripple.com" },
+  { name = "Omar Khan", email = "okhan@ripple.com" },
+  { name = "Phu Pham", email = "ppham@ripple.com" },
 ]
 keywords = ["xrp", "xrpl", "cryptocurrency"]
 requires-python = ">=3.8.1"
