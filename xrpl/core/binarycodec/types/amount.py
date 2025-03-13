@@ -126,7 +126,7 @@ def verify_mpt_value(mpt_value: str) -> None:
     # Contains no decimal point
     if not _contains_decimal(mpt_value):
         raise XRPLBinaryCodecException(
-            f"{mpt_value} contains fraction value. Please use str type to represent it."
+            f"{mpt_value} is a decimal value. Please use string type to represent it."
         )
 
     decimal = None
