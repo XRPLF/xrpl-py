@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Union
+from typing import Dict
 
 from typing_extensions import Self
 
@@ -24,7 +24,7 @@ class MPTAmount(BaseModel):
     :meta hide-value:
     """
 
-    value: Union[str, int, float] = REQUIRED  # type: ignore
+    value: str = REQUIRED  # type: ignore
     """
     This field is required.
 
