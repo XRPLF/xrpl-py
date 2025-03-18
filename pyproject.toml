@@ -34,7 +34,7 @@ types-Deprecated = "^1.2.9"
 pycryptodome = "^3.16.0"
 
 [tool.poetry.dev-dependencies]
-flake8 = "^7.0.0"
+flake8 = "^7.1.2"
 black = "24.8.0"
 flake8-black = "^0.3.6"
 flake8-docstrings = "^1.7.0"
@@ -48,7 +48,7 @@ pydoclint = [
     { version = "^0.5.13", python = ">=3.9" }
 ]
 sphinx-rtd-theme = "^3.0.2"
-aiounittest = "^1.4.0"
+aiounittest = "^1.4.3"
 coverage = "^7.2.7"
 Sphinx = "^7.1.2"
 poethepoet = "^0.30.0"
