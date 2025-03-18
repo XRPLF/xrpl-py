@@ -11,6 +11,8 @@ from typing_extensions import Self
 
 from xrpl.core.binarycodec.types.hash import Hash
 
+HASH192_BYTES = 24
+
 
 class Hash192(Hash):
     """

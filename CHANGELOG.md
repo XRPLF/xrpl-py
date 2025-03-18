@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Fixed
+- add `MPTAmount` support in `Issue` (rippled internal type)
+
+### Added
+- Improved validation for models to also check param types
+
 ## [4.1.0] - 2025-2-13
 
 ### Added
@@ -30,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### BREAKING CHANGE:
 
 - Remove Python 3.7 support to fix dependency installation and use 3.8 as new default.
+- Ensure consistent use of ED25519 as the default cryptographic algorithm in `Wallet.from_secret_numbers` method, aligning with changes made in v2.0.0
 
 ### Added
 - Support for the `Batch` amendment (XLS-56d).
