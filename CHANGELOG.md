@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - add `MPTAmount` support in `Issue` (rippled internal type)
+- Added support for `amm_info` to `Request.from_dict`
+- Improved erroring for `amm_info`
 
 ### Added
 - Improved validation for models to also check param types
