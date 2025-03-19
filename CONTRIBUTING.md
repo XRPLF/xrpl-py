@@ -193,6 +193,8 @@ To update the models as well:
 poetry run poe generate https://github.com/XRPLF/rippled/tree/develop
 ```
 
+Verify that the changes make sense by inspection before submitting, as there may be updates required for the `xrpl-codec-gen` tool depending on the latest amendments we're updating to match.
+
 ## Release process
 
 ### Editing the Code
