@@ -1,26 +1,40 @@
-[tool.poetry]
+[project]
 name = "xrpl-py"
 version = "4.1.0"
 description = "A complete Python library for interacting with the XRP ledger"
+license = "ISC"
 readme = "README.md"
-repository = "https://github.com/XRPLF/xrpl-py"
 authors = [
-  "Mayukha Vadari <mvadari@ripple.com>",
-  "Greg Weisbrod <gweisbrod@ripple.com>",
-  "Amie Corso <acorso@ripple.com>",
-  "Ted Kalaw <tkalaw@ripple.com>",
-  "Florent Uzio <fuzio@ripple.com>",
-  "Mayur Bhandary <mbhandary@ripple.com>",
-  "Nathan Nichols <nnichols@ripple.com>",
-  "Caleb Kniffen <ckniffen@ripple.com>",
-  "Omar Khan <okhan@ripple.com>",
-  "Justin Reynolds <justinr1234@gmail.com>",
+  { name = "Mayukha Vadari", email = "mvadari@ripple.com" },
+  { name = "Greg Weisbrod", email = "gweisbrod@ripple.com" },
+  { name = "Amie Corso", email = "acorso@ripple.com" },
+  { name = "Ted Kalaw", email = "tkalaw@ripple.com" },
+  { name = "Florent Uzio", email = "fuzio@ripple.com" },
+  { name = "Mayur Bhandary", email = "mbhandary@ripple.com" },
+  { name = "Nathan Nichols", email = "nnichols@ripple.com" },
+  { name = "Caleb Kniffen", email = "ckniffen@ripple.com" },
+  { name = "Omar Khan", email = "okhan@ripple.com" },
+  { name = "Justin Reynolds", email = "justinr1234@gmail.com" },
+]
+maintainers = [
+  { name = "Ashray Chowdhry", email = "achowdhry@ripple.com" },
+  { name = "Chenna Keshava B S", email = "ckeshavabs@ripple.com" },
+  { name = "Justin Reynolds", email = "justinr1234@gmail.com" },
+  { name = "Mayukha Vadari", email = "mvadari@ripple.com" },
+  { name = "Omar Khan", email = "okhan@ripple.com" },
+  { name = "Phu Pham", email = "ppham@ripple.com" },
 ]
 keywords = ["xrp", "xrpl", "cryptocurrency"]
-license = "ISC"
+requires-python = ">=3.8.1"
+dynamic = [ "dependencies" ]
+
+[project.urls]
+repository = "https://github.com/XRPLF/xrpl-py"
 documentation = "https://xrpl-py.readthedocs.io"
-include = ["LICENSE"]
-packages = [{ include = "xrpl" }]
+"Bug Tracker" = "https://github.com/XRPLF/xrpl-py/issues"
+
+[tool.poetry]
+packages = [{ include = "xrpl" }, { include = "LICENSE" }]
 
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4.0"
@@ -33,7 +47,7 @@ Deprecated = "^1.2.13"
 types-Deprecated = "^1.2.9"
 pycryptodome = "^3.16.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 flake8 = "^7.1.2"
 black = "24.8.0"
 flake8-black = "^0.3.6"
@@ -52,8 +66,6 @@ aiounittest = "^1.4.3"
 coverage = "^7.2.7"
 Sphinx = "^7.1.2"
 poethepoet = "^0.30.0"
-
-[tool.poetry.group.dev.dependencies]
 packaging = "^24.1"
 
 [tool.isort]
