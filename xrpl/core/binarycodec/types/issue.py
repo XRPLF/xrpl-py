@@ -80,7 +80,7 @@ class Issue(SerializedType):
         Returns:
             The Issue object constructed from a parser.
         """
-        # Check if it's an MPTAmount by checking mpt_issuance_id byte size
+        # Check if it's an MPTIssue by checking mpt_issuance_id byte size
         if length_hint == HASH192_BYTES:
             mpt_bytes = parser.read(HASH192_BYTES)
             return cls(mpt_bytes)
