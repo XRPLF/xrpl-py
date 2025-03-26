@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "xrpl-py"
-version = "4.1.0"
-description = "A complete Python library for interacting with the XRP ledger"
+version = "4.2.0b0"
+description = "A complete Python library for interacting with the XRP ledger (Smart Escrow beta)"
 readme = "README.md"
 repository = "https://github.com/XRPLF/xrpl-py"
 authors = [
