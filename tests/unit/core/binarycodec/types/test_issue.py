@@ -74,8 +74,7 @@ class TestIssue(TestCase):
         self.assertEqual(issue_from_parser.to_json(), expected)
 
     def test_from_parser_mpt(self):
-        # Test round-t
-        # rip: serialize an MPT Issue and then parse it back.
+        # Test round-trip: serialize an MPT Issue and then parse it back.
         test_input = {
             "mpt_issuance_id": "BAADF00DBAADF00DBAADF00DBAADF00DBAADF00DBAADF00D",
         }
