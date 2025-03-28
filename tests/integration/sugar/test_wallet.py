@@ -1,7 +1,11 @@
 import asyncio
 from threading import Thread
 
-from tests.integration.integration_test_case import IntegrationTestCase
+try:
+    from unittest import IsolatedAsyncioTestCase
+except ImportError:
+    from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase  # type: ignore
+
 from tests.integration.it_utils import submit_transaction_async
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
 from xrpl.asyncio.wallet import generate_faucet_wallet
@@ -63,7 +67,7 @@ async def generate_faucet_wallet_and_fund_again(
     self.assertTrue(new_balance > balance)
 
 
-class TestWallet(IntegrationTestCase):
+class TestWallet(IsolatedAsyncioTestCase):
     async def test_run_faucet_tests(self):
         # run all the tests that start with `_test_` in parallel
         def run_test(test_name):
