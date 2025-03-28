@@ -13,11 +13,19 @@ from xrpl.asyncio.clients.client import get_network_id_and_build_version
 from xrpl.constants import XRPLException
 from xrpl.wallet.main import Wallet
 
-_TEST_FAUCET_URL: Final[str] = "https://faucet.altnet.rippletest.net/accounts"
-_DEV_FAUCET_URL: Final[str] = "https://faucet.devnet.rippletest.net/accounts"
+_TESTNET_FAUCET_URL: Final[str] = "https://faucet.altnet.rippletest.net/accounts"
+_DEVNET_FAUCET_URL: Final[str] = "https://faucet.devnet.rippletest.net/accounts"
+_WASM_DEVNET_FAUCET_URL: Final[str] = (
+    "https://wasmfaucet.devnet.rippletest.net/accounts"
+)
+
 
 _TIMEOUT_SECONDS: Final[int] = 40
-_NETWORK_ID_URL_MAP: Dict[int, str] = {1: _TEST_FAUCET_URL, 2: _DEV_FAUCET_URL}
+_NETWORK_ID_URL_MAP: Dict[int, str] = {
+    1: _TESTNET_FAUCET_URL,
+    2: _DEVNET_FAUCET_URL,
+    2002: _WASM_DEVNET_FAUCET_URL,
+}
 
 
 class XRPLFaucetException(XRPLException):
@@ -35,7 +43,7 @@ async def generate_faucet_wallet(
     user_agent: Optional[str] = "xrpl-py",
 ) -> Wallet:
     """
-    Generates a random wallet and funds it using the XRPL Testnet Faucet.
+    Generates a random wallet and funds it using an XRPL Testnet Faucet.
 
     Args:
         client: the network client used to make network calls.
