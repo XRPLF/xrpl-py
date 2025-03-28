@@ -3,6 +3,7 @@
 import asyncio
 import importlib
 import inspect
+from threading import Timer as ThreadingTimer
 from time import sleep
 from typing import Any, Dict, cast
 
@@ -13,7 +14,7 @@ from xrpl.asyncio.transaction import sign_and_submit as sign_and_submit_async
 from xrpl.clients import Client, JsonRpcClient, WebsocketClient
 from xrpl.clients.sync_client import SyncClient
 from xrpl.constants import CryptoAlgorithm
-from xrpl.models import GenericRequest, Payment, Response, Transaction
+from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.currencies.issued_currency import IssuedCurrency
 from xrpl.models.currencies.xrp import XRP
@@ -66,6 +67,40 @@ FUNDING_AMOUNT = "2000000000"
 
 LEDGER_ACCEPT_REQUEST = GenericRequest(method="ledger_accept")
 LEDGER_ACCEPT_TIME = 0.1
+
+
+class AsyncTestTimer:
+    def __init__(
+        self,
+        client: AsyncClient,
+        delay: float = LEDGER_ACCEPT_TIME,
+        request: Request = LEDGER_ACCEPT_REQUEST,
+    ):
+        self._client = client
+        self._delay = delay
+        self._request = request
+        self._task = asyncio.ensure_future(self._job())
+
+    async def _job(self):
+        await asyncio.sleep(self._delay)
+        await self._client.request(self._request)
+
+    def cancel(self):
+        self._task.cancel()
+
+
+class SyncTestTimer:
+    def __init__(
+        self,
+        client: SyncClient,
+        delay: float = LEDGER_ACCEPT_TIME,
+        request: Request = LEDGER_ACCEPT_REQUEST,
+    ):
+        self._timer = ThreadingTimer(delay, client.request, (request,))
+        self._timer.start()
+
+    def cancel(self):
+        self._timer.cancel()
 
 
 def fund_wallet(wallet: Wallet) -> None:
@@ -197,8 +232,7 @@ def accept_ledger(
         delay: float for how many seconds to wait before accepting ledger.
     """
     client = _choose_client(use_json_client)
-    sleep(delay)
-    client.request(LEDGER_ACCEPT_REQUEST)
+    SyncTestTimer(client, delay)
 
 
 async def accept_ledger_async(
@@ -213,8 +247,7 @@ async def accept_ledger_async(
         delay: float for how many seconds to wait before accepting ledger.
     """
     client = _choose_client_async(use_json_client)
-    await asyncio.sleep(delay)
-    await client.request(LEDGER_ACCEPT_REQUEST)
+    AsyncTestTimer(client, delay)
 
 
 def _choose_client(use_json_client: bool) -> SyncClient:
