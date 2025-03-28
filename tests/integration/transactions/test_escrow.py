@@ -90,7 +90,7 @@ class TestEscrow(IntegrationTestCase):
         sequence = response.result["tx_json"]["Sequence"]
         # TODO: check account_objects
 
-        for _ in range(4):
+        for _ in range(6):
             await accept_ledger_async()
 
         escrow_finish = EscrowFinish(
