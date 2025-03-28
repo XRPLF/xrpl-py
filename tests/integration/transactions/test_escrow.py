@@ -57,7 +57,7 @@ class TestEscrow(IntegrationTestCase):
         # TODO: check account_objects
 
         for _ in range(4):
-            await accept_ledger_async()
+            await accept_ledger_async(delay=0.5)
 
         escrow_cancel = EscrowCancel(
             account=ACCOUNT,
@@ -91,7 +91,7 @@ class TestEscrow(IntegrationTestCase):
         # TODO: check account_objects
 
         for _ in range(6):
-            await accept_ledger_async()
+            await accept_ledger_async(delay=0.5)
 
         escrow_finish = EscrowFinish(
             account=ACCOUNT,
