@@ -228,7 +228,7 @@ async def _request_funding(
         json_body = {"destination": address, "userAgent": user_agent}
         if usage_context is not None:
             json_body["usageContext"] = usage_context
-        response = await http_client.post(url=url, json=json_body)
+        response = await http_client.post(url=url, json=json_body, timeout=10)
     if not response.status_code == httpx.codes.OK:
         response.raise_for_status()
 
