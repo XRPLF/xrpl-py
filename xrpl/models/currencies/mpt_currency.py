@@ -50,7 +50,7 @@ class MPTCurrency(BaseModel):
 
     def to_amount(self: Self, value: Union[str, int]) -> xrpl.models.amounts.MPTAmount:
         """
-        Converts an MPTCurrency to an MPTCurrencyAmount.
+        Converts an MPTCurrency to an MPTAmount.
 
         Args:
             value: The amount of MPTs in the MPTAmount.
