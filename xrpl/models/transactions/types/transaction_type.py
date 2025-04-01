@@ -29,7 +29,6 @@ class TransactionType(str, Enum):
     ESCROW_CANCEL = "EscrowCancel"
     ESCROW_CREATE = "EscrowCreate"
     ESCROW_FINISH = "EscrowFinish"
-    LEDGER_STATE_FIX = "LedgerStateFix"
     MPTOKEN_AUTHORIZE = "MPTokenAuthorize"
     MPTOKEN_ISSUANCE_CREATE = "MPTokenIssuanceCreate"
     MPTOKEN_ISSUANCE_DESTROY = "MPTokenIssuanceDestroy"
