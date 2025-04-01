@@ -46,9 +46,6 @@ class TestBatch(IntegrationTestCase):
         )
         autofilled = await autofill(batch, client, 2)
         signed = sign_multiaccount_batch(DESTINATION, autofilled)
-        from pprint import pprint
-
-        pprint(signed.to_xrpl())
         response = await sign_and_reliable_submission_async(signed, WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")

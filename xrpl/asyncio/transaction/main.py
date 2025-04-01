@@ -120,9 +120,6 @@ def sign(
     serialized_bytes = bytes.fromhex(serialized_for_signing)
     signature = keypairs_sign(serialized_bytes, wallet.private_key)
     transaction_json["TxnSignature"] = signature
-    from pprint import pprint
-
-    pprint(transaction_json)
     return cast(T, Transaction.from_xrpl(transaction_json))
 
 
