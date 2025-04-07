@@ -28,10 +28,11 @@ def fetch_rippled_amendments():
     if response.status_code == 200:
         features_contents = response.text
         feature_hits = re.findall(
-            r"^ *XRPL_FEATURE *\(([a-zA-Z0-9_]+), * Supported::yes, VoteBehavior::Default[Yes|No]",
-            features_contents,
-            re.MULTILINE,
-        )
+            feature_hits = re.findall(
+                r"^ *XRPL_FEATURE *\(([a-zA-Z0-9_]+), * Supported::yes, VoteBehavior::Default(Yes|No)",
+                features_contents,
+                re.MULTILINE,
+            )
 
         fix_hits = re.findall(
             r"^ *XRPL_FIX *\(([a-zA-Z0-9_]+), * Supported::yes,",
