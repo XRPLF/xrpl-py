@@ -23,30 +23,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-
       - name: Load cached .local
         id: cache-poetry
         uses: actions/cache@v4
         with:
           path: /home/runner/.local
           key: dotlocal-${{ env.POETRY_VERSION }}
-
-      - name: Fetch latest rippled amendments
-        if: ${{ github.event_name == 'pull_request' }}
-        run: |
-          poetry run python tools/fetch_rippled_amendments.py
-
-      - name: Add and commit rippled.cfg
-        uses: EndBug/add-and-commit@v9
-        with:
-          message: 'Update rippled.cfg with latest amendments'
-          committer_name: GitHub Actions
-          committer_email: actions@github.com
-          add: .ci-config/rippled.cfg
-
-      - name: Run docker in background
-        run: |
-          docker run --detach --rm -p 5005:5005 -p 6006:6006 --volume "${{ github.workspace }}/.ci-config/":"/etc/opt/ripple/" --name rippled-service --health-cmd="rippled server_info || exit 1" --health-interval=5s --health-retries=10 --health-timeout=2s --env GITHUB_ACTIONS=true --env CI=true --entrypoint bash ${{ env.RIPPLED_DOCKER_IMAGE }} -c "rippled -a"
 
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'
@@ -66,6 +48,23 @@ jobs:
 
       - name: Install poetry dependencies
         run: poetry install
+
+      - name: Fetch latest rippled amendments
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          poetry run python tools/fetch_rippled_amendments.py
+
+      - name: Add and commit rippled.cfg
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: 'Update rippled.cfg with latest amendments'
+          committer_name: GitHub Actions
+          committer_email: actions@github.com
+          add: .ci-config/rippled.cfg
+
+      - name: Run docker in background
+        run: |
+          docker run --detach --rm -p 5005:5005 -p 6006:6006 --volume "${{ github.workspace }}/.ci-config/":"/etc/opt/ripple/" --name rippled-service --health-cmd="rippled server_info || exit 1" --health-interval=5s --health-retries=10 --health-timeout=2s --env GITHUB_ACTIONS=true --env CI=true --entrypoint bash ${{ env.RIPPLED_DOCKER_IMAGE }} -c "rippled -a"
 
       - name: Integration test
         run: |
