@@ -22,6 +22,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Load cached .local
         id: cache-poetry
@@ -55,9 +58,12 @@ jobs:
           poetry run python tools/fetch_rippled_amendments.py
 
       - name: Add and commit rippled.cfg
+        if: ${{ github.event_name == 'pull_request' }}
         uses: EndBug/add-and-commit@v9
         with:
           message: 'Update rippled.cfg with latest amendments'
+          author_name: GitHub Actions
+          author_email: actions@github.com
           committer_name: GitHub Actions
           committer_email: actions@github.com
           add: .ci-config/rippled.cfg
