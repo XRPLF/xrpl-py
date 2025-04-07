@@ -61,7 +61,7 @@ finish_tx = EscrowFinish(
 
 submit_and_wait(finish_tx, client, wallet)
 
-# If escrow went through successfully, 1000000 exchanged
+# If escrow went through successfully, 50 XRP exchanged
 print("Balances of wallets after Escrow was sent:")
 print(get_balance(wallet.address, client))
 print(get_balance(destination, client))
