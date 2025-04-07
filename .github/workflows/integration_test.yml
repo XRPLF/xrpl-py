@@ -23,12 +23,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+
       - name: Load cached .local
         id: cache-poetry
         uses: actions/cache@v4
         with:
           path: /home/runner/.local
           key: dotlocal-${{ env.POETRY_VERSION }}
+
+      - name: Fetch latest rippled amendments
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          poetry run python tools/fetch_rippled_amendments.py
+
+      - name: Add and commit rippled.cfg
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: 'Update rippled.cfg with latest amendments'
+          committer_name: GitHub Actions
+          committer_email: actions@github.com
+          add: .ci-config/rippled.cfg
 
       - name: Run docker in background
         run: |
