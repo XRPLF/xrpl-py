@@ -44,7 +44,7 @@ def fetch_rippled_amendments():
         return all_supported_amendments
     else:
         print(f"Failed to fetch file. Status code: {response.status_code}")
-
+        return []
 
 if __name__ == "__main__":
     if FEATURES_SECTION in config:
