@@ -6,6 +6,7 @@ adds them to the `rippled.cfg` file.
 import configparser
 import os
 import re
+import sys
 
 import requests
 
@@ -21,36 +22,37 @@ config.read(CONFIG_FILE)
 
 
 def fetch_rippled_amendments():
-    # Send a GET request
-    response = requests.get(RIPPLED_FEATURES_FILE, timeout=30)  # 30 second timeout
-
-    # Check for successful request
+    response = requests.get(RIPPLED_FEATURES_FILE, timeout=30)
     if response.status_code == 200:
         features_contents = response.text
         feature_hits = re.findall(
-            feature_hits = re.findall(
-                r"^ *XRPL_FEATURE *\(([a-zA-Z0-9_]+), * Supported::yes, VoteBehavior::Default(Yes|No)",
-                features_contents,
-                re.MULTILINE,
-            )
-
-        fix_hits = re.findall(
-            r"^ *XRPL_FIX *\(([a-zA-Z0-9_]+), * Supported::yes,",
+            r"^ *XRPL_FEATURE *\(([a-zA-Z0-9_]+), * Supported::yes, VoteBehavior::Default(?:Yes|No)",
             features_contents,
             re.MULTILINE,
         )
 
-        all_supported_amendments = feature_hits + ["fix" + f for f in fix_hits]
+        fix_hits = re.findall(
+            r"^ *XRPL_FIX *\(([a-zA-Z0-9_]+), * Supported::yes, VoteBehavior::Default(?:Yes|No)",
+            features_contents,
+            re.MULTILINE,
+        )
+
+        print(fix_hits)
+
+        all_supported_amendments = feature_hits + ["fix" + f for f in fix_hits if f]
         return all_supported_amendments
     else:
         print(f"Failed to fetch file. Status code: {response.status_code}")
-        return []
+
 
 if __name__ == "__main__":
     if FEATURES_SECTION in config:
         amendments_to_add = []
         existing_amendments = [v for v in config[FEATURES_SECTION] if v]
         new_rippled_amendments = fetch_rippled_amendments()
+        if new_rippled_amendments is None:
+            print("ERROR: Failed to fetch rippled amendments.")
+            sys.exit(1)
 
         for v in new_rippled_amendments:
             if v not in existing_amendments:
