@@ -1,7 +1,7 @@
 """High-level transaction methods with XRPL transactions."""
 
 import math
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, Union, cast
 
 from typing_extensions import Final, TypeVar
 
@@ -559,7 +559,7 @@ async def _autofill_batch(
             raise XRPLException("Inner Batch transactions must not be signed.")
 
         # validate fields that are supposed to be empty/zeroed
-        def _validate_field(field_name: str, expected_value: str | None) -> None:
+        def _validate_field(field_name: str, expected_value: Union[str, None]) -> None:
             if field_name not in raw_txn_dict:
                 raw_txn_dict[field_name] = expected_value
             elif raw_txn_dict[field_name] != expected_value:
