@@ -11,6 +11,7 @@ from xrpl.models.transactions.account_set import (
     AccountSetFlagInterface,
 )
 from xrpl.models.transactions.amm_bid import AMMBid, AuthAccount
+from xrpl.models.transactions.amm_clawback import AMMClawback
 from xrpl.models.transactions.amm_create import AMMCreate
 from xrpl.models.transactions.amm_delete import AMMDelete
 from xrpl.models.transactions.amm_deposit import (
@@ -28,6 +29,9 @@ from xrpl.models.transactions.check_cancel import CheckCancel
 from xrpl.models.transactions.check_cash import CheckCash
 from xrpl.models.transactions.check_create import CheckCreate
 from xrpl.models.transactions.clawback import Clawback
+from xrpl.models.transactions.credential_accept import CredentialAccept
+from xrpl.models.transactions.credential_create import CredentialCreate
+from xrpl.models.transactions.credential_delete import CredentialDelete
 from xrpl.models.transactions.deposit_preauth import DepositPreauth
 from xrpl.models.transactions.did_delete import DIDDelete
 from xrpl.models.transactions.did_set import DIDSet
@@ -35,6 +39,22 @@ from xrpl.models.transactions.escrow_cancel import EscrowCancel
 from xrpl.models.transactions.escrow_create import EscrowCreate
 from xrpl.models.transactions.escrow_finish import EscrowFinish
 from xrpl.models.transactions.metadata import TransactionMetadata
+from xrpl.models.transactions.mptoken_authorize import (
+    MPTokenAuthorize,
+    MPTokenAuthorizeFlag,
+    MPTokenAuthorizeFlagInterface,
+)
+from xrpl.models.transactions.mptoken_issuance_create import (
+    MPTokenIssuanceCreate,
+    MPTokenIssuanceCreateFlag,
+    MPTokenIssuanceCreateFlagInterface,
+)
+from xrpl.models.transactions.mptoken_issuance_destroy import MPTokenIssuanceDestroy
+from xrpl.models.transactions.mptoken_issuance_set import (
+    MPTokenIssuanceSet,
+    MPTokenIssuanceSetFlag,
+    MPTokenIssuanceSetFlagInterface,
+)
 from xrpl.models.transactions.nftoken_accept_offer import NFTokenAcceptOffer
 from xrpl.models.transactions.nftoken_burn import NFTokenBurn
 from xrpl.models.transactions.nftoken_cancel_offer import NFTokenCancelOffer
@@ -48,6 +68,7 @@ from xrpl.models.transactions.nftoken_mint import (
     NFTokenMintFlag,
     NFTokenMintFlagInterface,
 )
+from xrpl.models.transactions.nftoken_modify import NFTokenModify
 from xrpl.models.transactions.offer_cancel import OfferCancel
 from xrpl.models.transactions.offer_create import (
     OfferCreate,
@@ -64,6 +85,8 @@ from xrpl.models.transactions.payment_channel_claim import (
 )
 from xrpl.models.transactions.payment_channel_create import PaymentChannelCreate
 from xrpl.models.transactions.payment_channel_fund import PaymentChannelFund
+from xrpl.models.transactions.permissioned_domain_delete import PermissionedDomainDelete
+from xrpl.models.transactions.permissioned_domain_set import PermissionedDomainSet
 from xrpl.models.transactions.set_regular_key import SetRegularKey
 from xrpl.models.transactions.signer_list_set import SignerEntry, SignerListSet
 from xrpl.models.transactions.ticket_create import TicketCreate
@@ -99,6 +122,7 @@ __all__ = [
     "AccountSetFlag",
     "AccountSetFlagInterface",
     "AMMBid",
+    "AMMClawback",
     "AMMCreate",
     "AMMDelete",
     "AMMDeposit",
@@ -113,6 +137,9 @@ __all__ = [
     "CheckCash",
     "CheckCreate",
     "Clawback",
+    "CredentialAccept",
+    "CredentialCreate",
+    "CredentialDelete",
     "DepositPreauth",
     "DIDDelete",
     "DIDSet",
@@ -120,6 +147,16 @@ __all__ = [
     "EscrowCreate",
     "EscrowFinish",
     "Memo",
+    "MPTokenAuthorize",
+    "MPTokenAuthorizeFlag",
+    "MPTokenAuthorizeFlagInterface",
+    "MPTokenIssuanceCreate",
+    "MPTokenIssuanceCreateFlag",
+    "MPTokenIssuanceCreateFlagInterface",
+    "MPTokenIssuanceDestroy",
+    "MPTokenIssuanceSet",
+    "MPTokenIssuanceSetFlag",
+    "MPTokenIssuanceSetFlagInterface",
     "NFTokenAcceptOffer",
     "NFTokenBurn",
     "NFTokenCancelOffer",
@@ -129,6 +166,7 @@ __all__ = [
     "NFTokenMint",
     "NFTokenMintFlag",
     "NFTokenMintFlagInterface",
+    "NFTokenModify",
     "OfferCancel",
     "OfferCreate",
     "OfferCreateFlag",
@@ -143,6 +181,8 @@ __all__ = [
     "PaymentChannelFund",
     "PaymentFlag",
     "PaymentFlagInterface",
+    "PermissionedDomainDelete",
+    "PermissionedDomainSet",
     "SetRegularKey",
     "Signer",
     "SignerEntry",

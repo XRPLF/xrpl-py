@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  POETRY_VERSION: 1.8.3
+  POETRY_VERSION: 2.1.1
 
 jobs:
   lint-and-type-check:
@@ -49,7 +49,7 @@ jobs:
 
       - name: Lint
         run: |
-          poetry run flake8 xrpl tests snippets --darglint-ignore-regex="^_(.*)"
+          poetry run poe lint
 
       - name: Type-check
         run: |

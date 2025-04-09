@@ -16,7 +16,12 @@ class SerializedType(ABC):
     """The base class for all binary codec field types."""
 
     def __init__(self: Self, buffer: bytes = bytes()) -> None:
-        """Construct a new SerializedType."""
+        """
+        Construct a new SerializedType.
+
+        Args:
+            buffer: The buffer containing the data for the SerializedType.
+        """
         self.buffer = buffer
 
     @classmethod
@@ -25,13 +30,15 @@ class SerializedType(ABC):
         cls: Type[Self],
         parser: BinaryParser,
         # length_hint is Any so that subclasses can choose whether or not to require it.
-        length_hint: Any,
+        length_hint: Any,  # noqa: ANN401
     ) -> Self:
         pass
 
     @classmethod
     @abstractmethod
-    def from_value(cls: Type[Self], value: Any) -> Self:  # noqa: D102
+    def from_value(cls: Type[Self], value: Any) -> Self:  # noqa: D102, ANN401
+        # Note: Its difficult to specify a concrete type for value parameter because
+        # child-classes accept a variety of types.
         pass
 
     def to_byte_sink(self: Self, bytesink: bytearray) -> None:
@@ -54,7 +61,7 @@ class SerializedType(ABC):
         """
         return self.buffer
 
-    def to_json(self: Self) -> Any:
+    def to_json(self: Self) -> Any:  # noqa: ANN401
         """
         Returns the JSON representation of a SerializedType.
 
@@ -84,5 +91,10 @@ class SerializedType(ABC):
         return self.buffer.hex().upper()
 
     def __len__(self: Self) -> int:
-        """Get the length of a SerializedType's bytes."""
+        """
+        Get the length of a SerializedType's bytes.
+
+        Returns:
+            The number of bytes.
+        """
         return len(self.buffer)

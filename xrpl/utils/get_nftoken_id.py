@@ -1,4 +1,5 @@
 """Utils to get an NFTokenID from metadata"""
+
 from typing import Callable, List, TypeVar, Union
 
 from xrpl.models.transactions.metadata import (

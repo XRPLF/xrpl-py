@@ -88,11 +88,14 @@ class SignAndSubmit(Submit):
             A new SignAndSubmit object, constructed using the given parameters.
         """
         if "tx_json" in value:
-            fixed_value = {**value, "transaction": value["tx_json"]}
+            fixed_value = {
+                **value,
+                "transaction": Transaction.from_xrpl(value["tx_json"]),
+            }
             del fixed_value["tx_json"]
         else:
             fixed_value = value
-        return super(SignAndSubmit, cls).from_dict(fixed_value)
+        return super().from_dict(fixed_value)
 
     def to_dict(self: Self) -> Dict[str, Any]:
         """
@@ -109,9 +112,9 @@ class SignAndSubmit(Submit):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if not self._has_only_one_seed():
-            errors[
-                "SignAndSubmit"
-            ] = "Must have only one of `secret`, `seed`, `seed_hex`, and `passphrase`."
+            errors["SignAndSubmit"] = (
+                "Must have only one of `secret`, `seed`, `seed_hex`, and `passphrase`."
+            )
 
         if self.secret is not None and self.key_type is not None:
             errors["key_type"] = "Must omit `key_type` if `secret` is provided."

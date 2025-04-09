@@ -40,11 +40,14 @@ ABBREVIATIONS: Final[Dict[str, str]] = {
     "did": "DID",
     "id": "ID",
     "lp": "LP",
+    "mptoken": "MPToken",
     "nftoken": "NFToken",
     "unl": "UNL",
     "uri": "URI",
     "xchain": "XChain",
 }
+# Define keys that should be excluded from key to json conversion
+EXCLUDED_KEYS = {"mpt_issuance_id"}
 
 
 def _key_to_json(field: str) -> str:
@@ -59,6 +62,9 @@ def _key_to_json(field: str) -> str:
     Raises:
         XRPLModelException: If the input is invalid
     """
+    if field in EXCLUDED_KEYS:
+        return field
+
     if not re.fullmatch(pattern=_PASCAL_OR_CAMEL_CASE, string=field):
         raise XRPLModelException(f"Key {field} is not in the proper XRPL format.")
 
@@ -85,7 +91,7 @@ class BaseModel(ABC):
     """The base class for all model types."""
 
     @classmethod
-    def is_dict_of_model(cls: Type[Self], dictionary: Any) -> bool:
+    def is_dict_of_model(cls: Type[Self], dictionary: Any) -> bool:  # noqa: ANN401
         """
         Checks whether the provided ``dictionary`` is a dictionary representation
         of this class.
@@ -95,7 +101,8 @@ class BaseModel(ABC):
         a subclass of this class.
 
         Args:
-            dictionary: The dictionary to check.
+            dictionary: The dictionary to check. Note: The input `dictionary` can be of
+                non-dict type. For instance, a `str` representation of JSON.
 
         Returns:
             True if dictionary is a ``dict`` representation of an instance of this
@@ -148,9 +155,9 @@ class BaseModel(ABC):
     def _from_dict_single_param(
         cls: Type[Self],
         param: str,
-        param_type: Type[Any],
+        param_type: Type[Any],  # noqa: ANN401
         param_value: Union[int, str, bool, BaseModel, Enum, List[Any], Dict[str, Any]],
-    ) -> Any:
+    ) -> Any:  # noqa: ANN401
         """Recursively handles each individual param in `from_dict`."""
         param_type_origin = get_origin(param_type)
         # returns `list` if a List, `Union` if a Union, None otherwise
@@ -291,6 +298,67 @@ class BaseModel(ABC):
         """
         return len(self._get_errors()) == 0
 
+    def _check_type(
+        self: Self, attr: str, value: Any, expected_type: Type[Any]  # noqa: ANN401
+    ) -> Dict[str, str]:
+        """
+        Returns error dictionary if the type of `value` does not match the
+        `expected_type`.
+        """
+        expected_type_origin = get_origin(expected_type)
+        if expected_type_origin is Union:
+            if any(
+                len(self._check_type(attr, value, expected_type_option)) == 0
+                for expected_type_option in get_args(expected_type)
+            ):
+                return {}
+            return {attr: f"{attr} is {type(value)}, expected {expected_type}"}
+
+        # unsure what the problem with mypy is here
+        if expected_type is Any:  # type: ignore[comparison-overlap]
+            return {}
+
+        if expected_type_origin is list:
+            # expected a List, received a List
+            if not isinstance(value, list):
+                return {attr: f"{attr} is {type(value)}, expected {expected_type}"}
+            result = {}
+            for i in range(len(value)):
+                result.update(
+                    self._check_type(
+                        f"{attr}[{i}]", value[i], get_args(expected_type)[0]
+                    )
+                )
+            return result
+
+        if expected_type_origin is dict:
+            return (
+                {}
+                if isinstance(value, dict)
+                else {attr: f"{attr} is {type(value)}, expected {expected_type}"}
+            )
+
+        if isinstance(expected_type, type) and issubclass(expected_type, Enum):
+            return (
+                {}
+                if value in list(expected_type)
+                else {
+                    attr: f"{attr} is {value}, expected member of {expected_type} enum"
+                }
+            )
+
+        if expected_type_origin is Literal:
+            arg = get_args(expected_type)
+            return {} if value in arg else {attr: f"{attr} is {value}, expected {arg}"}
+
+        if issubclass(expected_type, BaseModel) and isinstance(value, dict):
+            return {}
+
+        if not isinstance(value, expected_type):
+            return {attr: f"{attr} is {type(value)}, expected {expected_type}"}
+
+        return {}
+
     def _get_errors(self: Self) -> Dict[str, str]:
         """
         Extended in subclasses to define custom validation logic.
@@ -298,11 +366,14 @@ class BaseModel(ABC):
         Returns:
             Dictionary of any errors found on self.
         """
-        return {
-            attr: f"{attr} is not set"
-            for attr, value in self.__dict__.items()
-            if value is REQUIRED
-        }
+        class_types = get_type_hints(self.__class__)
+        result: Dict[str, str] = {}
+        for attr, value in self.__dict__.items():
+            if value is REQUIRED:
+                result[attr] = f"{attr} is not set"
+            else:
+                result.update(self._check_type(attr, value, class_types[attr]))
+        return result
 
     def to_dict(self: Self) -> Dict[str, Any]:
         """
@@ -321,7 +392,7 @@ class BaseModel(ABC):
             if getattr(self, key) is not None
         }
 
-    def _to_dict_elem(self: Self, elem: Any) -> Any:
+    def _to_dict_elem(self: Self, elem: Any) -> Any:  # noqa: ANN401
         if isinstance(elem, BaseModel):
             return elem.to_dict()
         if isinstance(elem, Enum):
@@ -339,6 +410,6 @@ class BaseModel(ABC):
         return isinstance(other, BaseModel) and self.to_dict() == other.to_dict()
 
     def __repr__(self: Self) -> str:
-        """Returns a string representation of a BaseModel object"""
+        """Returns a string representation of a BaseModel object."""
         repr_items = [f"{key}={repr(value)}" for key, value in self.to_dict().items()]
         return f"{type(self).__name__}({repr_items})"

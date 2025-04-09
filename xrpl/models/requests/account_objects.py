@@ -6,6 +6,7 @@ AccountLinesRequest instead.
 
 `See account_objects <https://xrpl.org/account_objects.html>`_
 """
+
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Optional
@@ -21,13 +22,17 @@ class AccountObjectType(str, Enum):
     AMM = "amm"
     BRIDGE = "bridge"
     CHECK = "check"
+    CREDENTIAL = "credential"
     DEPOSIT_PREAUTH = "deposit_preauth"
     DID = "did"
     ESCROW = "escrow"
+    MPT_ISSUANCE = "mpt_issuance"
+    MPTOKEN = "mptoken"
     NFT_OFFER = "nft_offer"
     OFFER = "offer"
     ORACLE = "oracle"
     PAYMENT_CHANNEL = "payment_channel"
+    PERMISSIONED_DOMAIN = "permissioned_domain"
     SIGNER_LIST = "signer_list"
     STATE = "state"
     TICKET = "ticket"

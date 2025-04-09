@@ -10,6 +10,7 @@ from typing_extensions import Final, Self
 
 from xrpl.core.binarycodec import decode, encode
 from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.models.amounts.mpt_amount import MPTAmount
 from xrpl.models.base_model import ABBREVIATIONS, BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.flags import check_false_flag_definition, interface_to_flag_list
@@ -65,6 +66,8 @@ def _value_to_tx_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     if isinstance(value, list) and all(PathStep.is_dict_of_model(v) for v in value):
         return value
     if IssuedCurrencyAmount.is_dict_of_model(value):
+        return value
+    if MPTAmount.is_dict_of_model(value):
         return value
     if isinstance(value, dict):
         return transaction_json_to_binary_codec_form(value)
@@ -251,9 +254,6 @@ class Transaction(BaseModel):
     """The network id of the transaction."""
 
     def _get_errors(self: Self) -> Dict[str, str]:
-        # import must be here to avoid circular dependencies
-        from xrpl.wallet.main import Wallet
-
         errors = super()._get_errors()
         if self.ticket_sequence is not None and (
             (self.sequence is not None and self.sequence != 0)
@@ -263,9 +263,6 @@ class Transaction(BaseModel):
                 "Transaction"
             ] = """If ticket_sequence is provided,
             account_txn_id must be None and sequence must be None or 0"""
-
-        if isinstance(self.account, Wallet):
-            errors["account"] = "Must pass in `wallet.address`, not `wallet`."
 
         return errors
 
@@ -359,7 +356,7 @@ class Transaction(BaseModel):
                     )
                 value = {**value}
                 del value["transaction_type"]
-            return super(Transaction, cls).from_dict(value)
+            return super().from_dict(value)
 
     def has_flag(self: Self, flag: int) -> bool:
         """
@@ -371,6 +368,9 @@ class Transaction(BaseModel):
 
         Returns:
             Whether the transaction has the given flag value set.
+
+        Raises:
+            XRPLModelException: if `self.flags` is invalid.
         """
         if isinstance(self.flags, int):
             return self.flags & flag != 0
@@ -379,8 +379,10 @@ class Transaction(BaseModel):
                 tx_type=self.transaction_type,
                 tx_flags=self.flags,
             )
-        else:  # is List[int]
+        elif isinstance(self.flags, list):
             return flag in self.flags
+        else:
+            raise XRPLModelException("self.flags is not an int, dict, or list")
 
     def is_signed(self: Self) -> bool:
         """
