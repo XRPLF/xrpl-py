@@ -104,8 +104,6 @@ def combine_batch_signers(transactions: List[Union[Batch, str]]) -> str:
 
     return encode(_get_batch_with_all_signers(batch_txs).to_xrpl())
 
-    return ""
-
 
 def _validate_batch_equivalence(transactions: List[Batch]) -> None:
     example_tx = transactions[0]

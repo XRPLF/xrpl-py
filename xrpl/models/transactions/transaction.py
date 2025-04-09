@@ -30,7 +30,7 @@ _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
 
 
 def transaction_json_to_binary_codec_form(
-    dictionary: Dict[str, XRPL_VALUE_TYPE]
+    dictionary: Dict[str, XRPL_VALUE_TYPE],
 ) -> Dict[str, XRPL_VALUE_TYPE]:
     """
     Returns a new dictionary in which the keys have been formatted as CamelCase and
@@ -172,8 +172,8 @@ class TransactionFlag(int, Enum):
 
 class TransactionFlagInterface(FlagInterface):
     """
-    Transactions of the Transaction type support additional values in the Flags field.
-    This TypedDict represents those options.
+    Transactions support additional values in the Flags field. This TypedDict
+    represents those options.
     """
 
     TF_INNER_BATCH_TXN: bool

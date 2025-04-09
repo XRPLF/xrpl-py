@@ -559,7 +559,7 @@ async def _autofill_batch(
             raise XRPLException("Inner Batch transactions must not be signed.")
 
         # validate fields that are supposed to be empty/zeroed
-        def _validate_field(field_name: str, expected_value: str) -> None:
+        def _validate_field(field_name: str, expected_value: str | None) -> None:
             if field_name not in raw_txn_dict:
                 raw_txn_dict[field_name] = expected_value
             elif raw_txn_dict[field_name] != expected_value:
@@ -570,7 +570,7 @@ async def _autofill_batch(
 
         _validate_field("fee", "0")
         _validate_field("signing_pub_key", "")
-        # _validate_field("txn_signature", "")
+        _validate_field("txn_signature", None)
 
         if raw_txn.txn_signature is not None:
             raise XRPLException(

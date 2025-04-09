@@ -364,7 +364,7 @@ class TestTransaction(IntegrationTestCase):
             self.assertIsNone(raw_tx.last_ledger_sequence)
             self.assertEqual(raw_tx.fee, "0")
             self.assertEqual(raw_tx.signing_pub_key, "")
-            self.assertEqual(raw_tx.txn_signature, "")
+            self.assertEqual(raw_tx.txn_signature, None)
 
 
 class TestSubmitAndWait(IntegrationTestCase):
