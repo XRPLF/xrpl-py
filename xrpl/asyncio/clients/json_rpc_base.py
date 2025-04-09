@@ -82,4 +82,4 @@ class JsonRpcBase(Client):
                         "error": response.status_code,
                         "error_message": response.text,
                     }
-                )
+                ) from None
