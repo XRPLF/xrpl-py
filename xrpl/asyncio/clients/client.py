@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Dict
 
 from typing_extensions import Final, Self
 
@@ -24,14 +24,24 @@ class Client(ABC):
     :meta private:
     """
 
-    def __init__(self: Self, url: str) -> None:
+    def __init__(
+        self: Self,
+        url: str,
+        headers: Optional[Dict[str, str]] = None,
+    ) -> None:
         """
         Initializes a client.
 
         Arguments:
-            url: The url to which this client will connect
+            url: The URL to which this client will connect.
+            headers: Optional dictionary of default headers to include with each request.
+                These can be used to authenticate with private XRPL nodes or pass
+                custom metadata, such as:
+                - {"Authorization": "Bearer <token>"}
+                - {"X-Dhali-Payment": "<claim_token>"}
         """
         self.url = url
+        self.headers = headers or {}
         self.network_id: Optional[int] = None
         self.build_version: Optional[str] = None
 
@@ -66,7 +76,6 @@ async def get_network_id_and_build_version(client: Client) -> None:
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
     """
-    # the required values are already present, no need for further processing
     if client.network_id and client.build_version:
         return
 
