@@ -27,6 +27,7 @@ class Client(ABC):
     def __init__(
         self: Self,
         url: str,
+        *,
         headers: Optional[Dict[str, str]] = None,
     ) -> None:
         """
@@ -38,7 +39,6 @@ class Client(ABC):
                 These can be used to authenticate with private XRPL nodes or pass
                 custom metadata, such as:
                 - {"Authorization": "Bearer <token>"}
-                - {"X-Dhali-Payment": "<claim_token>"}
         """
         self.url = url
         self.headers = headers or {}
