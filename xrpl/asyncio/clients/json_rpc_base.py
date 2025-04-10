@@ -35,9 +35,8 @@ class JsonRpcBase(Client):
             url: The URL of the XRPL node to connect to.
             headers: Optional default headers for all requests (e.g. API key or Dhali payment-claim).
         """
-        super().__init__(url)
+        super().__init__(url, headers=headers)
         self.headers = headers or {}
-
     async def _request_impl(
         self: Self,
         request: Request,
