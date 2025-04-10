@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for  `PermissionedDomains` (XLS-80)
 - Support `AMMClawback` amendment (XLS-73d)
 - Support for the `simulate` RPC ([XLS-69](https://github.com/XRPLF/XRPL-Standards/tree/master/XLS-0069d-simulate))
+- Support for custom HTTP headers in `JsonRpcBase` via the `headers` parameter. This enables connections to XRPL nodes that require API key authentication or Dhali payment-claim headers. Headers can be set at initialization and/or per request. ([#763](https://github.com/XRPLF/xrpl-py/pull/763))
 
 ### Fixed
 - `Sign`, `SignFor`, and `SignAndSubmit` methods now properly handle WebSocket clients
