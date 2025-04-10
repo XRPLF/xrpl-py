@@ -11,7 +11,7 @@ from typing_extensions import Self
 from xrpl.models.flags import FlagInterface
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Signer, Transaction
+from xrpl.models.transactions.transaction import Signer, Transaction, TransactionFlag
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
@@ -69,6 +69,33 @@ class Batch(Transaction):
         default=TransactionType.BATCH,
         init=False,
     )
+
+    def __post_init__(self: Self) -> None:
+        """Called by dataclasses immediately after __init__."""
+        new_raw_transactions = []
+        for tx in self.raw_transactions:
+            if tx.has_flag(TransactionFlag.TF_INNER_BATCH_TXN):
+                new_raw_transactions.append(tx)
+            else:
+                tx_dict = tx.to_dict()
+                tx_dict["flags"] += TransactionFlag.TF_INNER_BATCH_TXN
+                new_raw_transactions.append(Transaction.from_dict(tx_dict))
+        # This is done before dataclass locks in the frozen fields
+        # This way of editing is a bit hacky, but it's the recommended method for
+        # updating frozen fields in dataclasses
+        # https://docs.python.org/3/library/dataclasses.html#frozen-instances
+        object.__setattr__(self, "raw_transactions", new_raw_transactions)
+        super().__post_init__()
+
+    def _get_errors(self: Self) -> Dict[str, str]:
+        errors = super()._get_errors()
+        for i in range(len(self.raw_transactions)):
+            tx = self.raw_transactions[i]
+            if not tx.has_flag(TransactionFlag.TF_INNER_BATCH_TXN):
+                errors[f"raw_transactions[{i}]"] = (
+                    "RawTransaction must have tfInnerBatchTxn flag set."
+                )
+        return errors
 
     @classmethod
     def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
