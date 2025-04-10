@@ -51,7 +51,7 @@ class JsonRpcBase(Client):
         Arguments:
             request: An object representing information about a rippled request.
             timeout: The duration within which we expect to hear a response from the
-                rippled validator.
+                rippled server.
             headers: Optional additional headers to include for this request.
 
         Returns:
