@@ -25,6 +25,7 @@ class JsonRpcBase(Client):
     def __init__(
         self: Self,
         url: str,
+        *,
         headers: Optional[Dict[str, str]] = None,
     ) -> None:
         """
