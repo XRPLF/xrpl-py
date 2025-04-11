@@ -36,7 +36,6 @@ class JsonRpcBase(Client):
             headers: Optional default headers for all requests (e.g. API key or Dhali payment-claim).
         """
         super().__init__(url, headers=headers)
-        self.headers = headers or {}
     async def _request_impl(
         self: Self,
         request: Request,
