@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 
 ### Fixed
-- add `MPTAmount` support in `Issue` (rippled internal type)
+- add `MPTCurrency` support in `Issue` (rippled internal type)
 - Fixed the implementation error in get_latest_open_ledger_sequence method. The change uses the "current" ledger for extracting sequence number.
 
 ### Added
