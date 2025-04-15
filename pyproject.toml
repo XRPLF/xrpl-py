@@ -101,6 +101,3 @@ sequence = [
   { cmd = "coverage run -m unittest discover" },
   { cmd = "coverage report --fail-under=90" },
 ]
-
-[tool.flake8]
-exclude = ["xrpl/openapi-codegen"]
