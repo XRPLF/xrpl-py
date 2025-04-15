@@ -33,6 +33,13 @@ async def get_latest_open_ledger_sequence(client: Client) -> int:
     """
     Returns the sequence number of the latest open ledger.
 
+    Note: While specifying ledgers in the Ledger RPC call, the appropriate ledger_index
+    is "current", not "open". However, this method signature is retained as-is for
+    backwards compatibility.
+
+    Read this document for more info:
+    https://xrpl.org/docs/references/http-websocket-apis/public-api-methods/ledger-methods/ledger#request-format
+
     Args:
         client: The network client to use to send the request.
 
@@ -42,9 +49,22 @@ async def get_latest_open_ledger_sequence(client: Client) -> int:
     Raises:
         XRPLRequestFailureException: if the rippled API call fails.
     """
-    response = await client._request_impl(Ledger(ledger_index="open"))
+    response = await client._request_impl(Ledger(ledger_index="current"))
+
     if response.is_successful():
-        return cast(int, response.result["ledger_index"])
+        # validate that the `current` ledger is retrieved
+        if response.result["ledger"]["closed"] is True:
+            raise XRPLException("`closed` key found while requesting current ledger")
+        if response.result["validated"] is True:
+            raise XRPLException("`validated` key found while requesting current ledger")
+        if "ledger_index" in response.result:
+            raise XRPLException("`ledger_index` key is not relevant in current ledger")
+        if "ledger_current_index" not in response.result:
+            raise XRPLException(
+                "`ledger_current_index` key must be present in current ledger"
+            )
+
+        return cast(int, response.result["ledger_current_index"])
 
     raise XRPLRequestFailureException(response.result)
 
