@@ -20,12 +20,12 @@ client = JsonRpcClient("https://s.altnet.rippletest.net:51234")
 
 # Creating two wallets to send money between
 wallet = generate_faucet_wallet(client, debug=True)
-destination = "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
+destination = generate_faucet_wallet(client, debug=True)
 
 # Both balances should be zero since nothing has been sent yet
 print("Balances of wallets before Escrow tx was created:")
 print(get_balance(wallet.address, client))
-print(get_balance(destination, client))
+print(get_balance(destination.address, client))
 
 # Create a finish time (8 seconds from last ledger close)
 finish_after = datetime_to_ripple_time(datetime.now()) + 8
@@ -33,7 +33,7 @@ finish_after = datetime_to_ripple_time(datetime.now()) + 8
 # Create an EscrowCreate transaction, then sign, autofill, and send it
 create_tx = EscrowCreate(
     account=wallet.address,
-    destination=destination,
+    destination=destination.address,
     amount=xrp_to_drops(50),
     finish_after=finish_after,
 )
@@ -64,4 +64,4 @@ submit_and_wait(finish_tx, client, wallet)
 # If escrow went through successfully, 50 XRP exchanged
 print("Balances of wallets after Escrow was sent:")
 print(get_balance(wallet.address, client))
-print(get_balance(destination, client))
+print(get_balance(destination.address, client))
