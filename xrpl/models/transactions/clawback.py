@@ -7,7 +7,13 @@ from typing import Dict, Optional, Union
 
 from typing_extensions import Self
 
-from xrpl.models.amounts import IssuedCurrencyAmount, MPTAmount, is_xrp
+from xrpl.models.amounts import (
+    IssuedCurrencyAmount,
+    MPTAmount,
+    is_issued_currency,
+    is_mpt,
+    is_xrp,
+)
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
