@@ -17,13 +17,13 @@ client = JsonRpcClient("https://s.altnet.rippletest.net:51234")
 
 # Creating two wallets to send money between
 wallet = generate_faucet_wallet(client, debug=True)
-destination = generate_faucet_wallet(client, debug=True)
+destination = "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
 regular_key_wallet = Wallet.create()
 
 # Both balances should be zero since nothing has been sent yet
 print("Balances before payment:")
 print(get_balance(wallet.address, client))
-print(get_balance(destination.address, client))
+print(get_balance(destination, client))
 
 # Assign key pair (regular_key_wallet) to wallet using SetRegularKey transaction
 tx = SetRegularKey(account=wallet.address, regular_key=regular_key_wallet.address)
@@ -37,7 +37,7 @@ print(set_regular_key_response)
 # wallet can send payment to destination and have regular_key_wallet sign it
 payment = Payment(
     account=wallet.address,
-    destination=destination.address,
+    destination=destination,
     amount=xrp_to_drops(50),
 )
 
@@ -49,4 +49,4 @@ print(payment_response)
 # Balance after sending 50 XRP from wallet1 to wallet2
 print("Balances after payment:")
 print(get_balance(wallet.address, client))
-print(get_balance(destination.address, client))
+print(get_balance(destination, client))
