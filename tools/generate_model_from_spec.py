@@ -46,10 +46,15 @@ def _get_format(schema: Dict[str, Any]) -> str:
     raise ValueError(f"Unknown schema format: {str(schema)}")
 
 
+def _generate_error_line(field_name: str, error_msg: str) -> str:
+    return f'errors["{field_name}"] = "{error_msg}"'
+
+
 with open("../rippled-api-spec/shared/transactions/account_set.yaml", "r") as file:
     spec = yaml.safe_load(file)
 
 output_str = ""
+validations = []
 
 schemas = spec["components"]["schemas"]
 for schema_name, schema in schemas.items():
@@ -63,6 +68,7 @@ for schema_name, schema in schemas.items():
 
     description = schema.get("description", "").strip()
 
+    # TODO: consider using a jinja template to make this neater
     output_str += f"""\"\"\"
 {description}
 \"\"\"
@@ -82,16 +88,50 @@ class {class_name}{"(" + ", ".join(inherited) + ")" if inherited else ""}:
     """
 
     required_fields = schema.get("required", [])
-    for property_name, property in schema.get("properties", {}).items():
-        python_name = _to_snake_case(property_name)
+    for prop_name, property in schema.get("properties", {}).items():
+        python_name = _to_snake_case(prop_name)
         type = _get_format(property)
-        description = property.get("description", "").strip().replace("\n", "\n    ")
-        default = "REQUIRED" if property_name in required_fields else "None"
+        property_description = (
+            property.get("description", "").strip().replace("\n", "\n    ")
+        )
+        default = "REQUIRED" if prop_name in required_fields else "None"
+        for validation_field in ["maxLength", "minLength", "maximum", "minimum"]:
+            if validation_field in property:
+                validations.append(
+                    [validation_field, python_name, property[validation_field]]
+                )
+
         output_str += f"""
     {python_name}: {type} = {default}
     """
-        if description != "":
-            output_str += f'"""\n    {description}\n    """\n'
+        if property_description != "":
+            output_str += f'"""\n    {property_description}\n    """\n'
+
+    if len(validations) > 0:
+        output_str += """
+    def _get_errors(self: Self) -> Dict[str, str]:
+        errors = super()._get_errors()
+"""
+        for validation in validations:
+            val_type, prop_name, value = validation
+            if val_type == "maxLength":
+                output_str += f"""
+        if len(self.{prop_name}) > {value}:
+            {_generate_error_line(prop_name, f"Length cannot be more than {value}.")}"""
+            elif val_type == "minLength":
+                output_str += f"""
+        if len(self.{prop_name}) < {value}:
+            {_generate_error_line(prop_name, f"Length cannot be less than {value}.")}"""
+            if val_type == "maximum":
+                output_str += f"""
+        if self.{prop_name} > {value}:
+            {_generate_error_line(prop_name, f"Value cannot be more than {value}.")}"""
+            elif val_type == "minimum":
+                output_str += f"""
+        if self.{prop_name} < {value}:
+            {_generate_error_line(prop_name, f"Value cannot be less than {value}.")}"""
+
+        output_str += "\n\n        return errors"
 
     pprint(schema)
 
