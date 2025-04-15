@@ -79,6 +79,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.coverage.run]
 branch = true
 source = ["xrpl"]
+omit = ["xrpl/openapi-codegen/*"]
 
 [tool.coverage.report]
 show_missing = true
@@ -100,3 +101,6 @@ sequence = [
   { cmd = "coverage run -m unittest discover" },
   { cmd = "coverage report --fail-under=90" },
 ]
+
+[tool.flake8]
+exclude = ["xrpl/openapi-codegen"]
