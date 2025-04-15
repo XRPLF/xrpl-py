@@ -22,6 +22,7 @@ from xrpl.models import (
     SubmitOnly,
     Transaction,
 )
+from xrpl.models.transactions.escrow_create import EscrowCreate
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )
@@ -478,6 +479,11 @@ async def _calculate_fee_per_transaction_type(
             fulfillment_bytes = escrow_finish.fulfillment.encode("ascii")
             # BaseFee × (33 + (Fulfillment size in bytes / 16))
             base_fee = math.ceil(net_fee * (33 + (len(fulfillment_bytes) / 16)))
+
+    if transaction.transaction_type == TransactionType.ESCROW_CREATE:
+        escrow_create = cast(EscrowCreate, transaction)
+        if escrow_create.finish_function is not None:
+            base_fee += 1000
 
     # AccountDelete Transaction
     if transaction.transaction_type in (
