@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from hashlib import sha512
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union, cast
 
 from typing_extensions import Final, Self
 
@@ -25,7 +25,7 @@ _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
 
 
 def transaction_json_to_binary_codec_form(
-    dictionary: Dict[str, XRPL_VALUE_TYPE]
+    dictionary: Dict[str, XRPL_VALUE_TYPE],
 ) -> Dict[str, XRPL_VALUE_TYPE]:
     """
     Returns a new dictionary in which the keys have been formatted as CamelCase and
@@ -343,7 +343,7 @@ class Transaction(BaseModel):
                     "Transaction does not include transaction_type."
                 )
             correct_type = cls.get_transaction_type(value["transaction_type"])
-            return correct_type.from_dict(value)  # type: ignore
+            return cast(Self, correct_type.from_dict(value))
         else:
             if "transaction_type" in value:
                 if value["transaction_type"] != cls.__name__:
