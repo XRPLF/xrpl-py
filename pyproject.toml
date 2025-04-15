@@ -67,6 +67,7 @@ coverage = "^7.2.7"
 Sphinx = "^7.1.2"
 poethepoet = "^0.30.0"
 packaging = "^24.1"
+pyyaml = "^6.0.2"
 
 [tool.isort]
 # Make sure that isort's settings line up with black
