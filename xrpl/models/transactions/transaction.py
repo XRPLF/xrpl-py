@@ -254,9 +254,6 @@ class Transaction(BaseModel):
     """The network id of the transaction."""
 
     def _get_errors(self: Self) -> Dict[str, str]:
-        # import must be here to avoid circular dependencies
-        from xrpl.wallet.main import Wallet
-
         errors = super()._get_errors()
         if self.ticket_sequence is not None and (
             (self.sequence is not None and self.sequence != 0)
@@ -266,9 +263,6 @@ class Transaction(BaseModel):
                 "Transaction"
             ] = """If ticket_sequence is provided,
             account_txn_id must be None and sequence must be None or 0"""
-
-        if isinstance(self.account, Wallet):
-            errors["account"] = "Must pass in `wallet.address`, not `wallet`."
 
         return errors
 
@@ -362,7 +356,7 @@ class Transaction(BaseModel):
                     )
                 value = {**value}
                 del value["transaction_type"]
-            return super(Transaction, cls).from_dict(value)
+            return super().from_dict(value)
 
     def has_flag(self: Self, flag: int) -> bool:
         """
@@ -374,6 +368,9 @@ class Transaction(BaseModel):
 
         Returns:
             Whether the transaction has the given flag value set.
+
+        Raises:
+            XRPLModelException: if `self.flags` is invalid.
         """
         if isinstance(self.flags, int):
             return self.flags & flag != 0
@@ -382,8 +379,10 @@ class Transaction(BaseModel):
                 tx_type=self.transaction_type,
                 tx_flags=self.flags,
             )
-        else:  # is List[int]
+        elif isinstance(self.flags, list):
             return flag in self.flags
+        else:
+            raise XRPLModelException("self.flags is not an int, dict, or list")
 
     def is_signed(self: Self) -> bool:
         """

@@ -2,7 +2,13 @@ from unittest import TestCase
 
 from xrpl.models import XRP, LedgerEntry, XChainBridge
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.requests.ledger_entry import Credential, MPToken, Oracle, RippleState
+from xrpl.models.requests.ledger_entry import (
+    Credential,
+    MPToken,
+    Oracle,
+    PermissionedDomain,
+    RippleState,
+)
 
 
 class TestLedgerEntry(TestCase):
@@ -169,6 +175,16 @@ class TestLedgerEntry(TestCase):
             LedgerEntry(
                 oracle=Oracle(oracle_document_id=1),
             )
+
+    def test_get_permissioned_domain_ledger_index(self):
+        self.assertTrue(LedgerEntry(permissioned_domain="LEDGEROBJECTHASH"))
+
+    def test_get_permissioned_domain_ledger_object_params(self):
+        self.assertTrue(
+            LedgerEntry(
+                permissioned_domain=PermissionedDomain(account="rAccount", seq=1234)
+            )
+        )
 
     def test_get_mpt_issuance(self):
         req = LedgerEntry(

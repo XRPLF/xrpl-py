@@ -27,5 +27,10 @@
       "source.organizeImports": "always"
     }
   },
-  "isort.args": ["--profile", "black"]
+  "isort.args": [
+    "--profile",
+    "black"
+  ],
+  "python.testing.pytestEnabled": false,
+  "python.testing.unittestEnabled": true
 }
