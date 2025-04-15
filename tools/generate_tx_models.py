@@ -130,7 +130,7 @@ def _main(
         param_lines.sort(key=lambda x: "REQUIRED" not in x)
         params = "\n".join(param_lines)
         model = f"""@require_kwargs_on_init
-@dataclass(frozen=True,  **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class {tx}(Transaction):
     \"\"\"Represents a {tx} transaction.\"\"\"
 
