@@ -44,17 +44,15 @@ class Clawback(Transaction):
         # Amount transaction errors
         if is_xrp(self.amount):
             errors["amount"] = "`amount` cannot be XRP."
-
-        elif isinstance(self.amount, IssuedCurrencyAmount):
+        elif is_issued_currency(self.amount):
             if self.holder is not None:
                 errors["amount"] = "Cannot have Holder for currency."
             if self.account == self.amount.issuer:
                 errors["amount"] = "Holder's address is wrong."
-
-        elif isinstance(self.amount, MPTAmount):
+        elif is_mpt(self.amount):
             if self.holder is None:
                 errors["amount"] = "Missing Holder."
-            if self.account == self.holder:
+            elif self.account == self.holder:
                 errors["amount"] = "Invalid Holder account."
 
         else:

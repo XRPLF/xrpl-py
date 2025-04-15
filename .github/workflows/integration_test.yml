@@ -1,7 +1,7 @@
 name: Integration test
 
 env:
-  POETRY_VERSION: 1.8.3
+  POETRY_VERSION: 2.1.1
   RIPPLED_DOCKER_IMAGE: rippleci/rippled:develop
 
 on:
