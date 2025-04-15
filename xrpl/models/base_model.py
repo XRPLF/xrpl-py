@@ -34,14 +34,17 @@ _CAMEL_TO_SNAKE_CASE_REGEX: Final[Pattern[str]] = re.compile(
     f"(?:{_CAMEL_CASE_LEADING_LOWER}|{_CAMEL_CASE_ABBREVIATION}|{_CAMEL_CASE_TYPICAL})"
 )
 # This is used to make exceptions when converting dictionary keys to xrpl JSON
-# keys. We snake case keys, but some keys are abbreviations.
+# keys. xrpl-py uses snake case keys, but some keys are abbreviations.
 ABBREVIATIONS: Final[Dict[str, str]] = {
     "amm": "AMM",
     "did": "DID",
     "id": "ID",
     "lp": "LP",
     "mptoken": "MPToken",
+    "nft": "NFT",
     "nftoken": "NFToken",
+    "nfts": "NFTs",
+    "noripple": "NoRipple",
     "unl": "UNL",
     "uri": "URI",
     "xchain": "XChain",
