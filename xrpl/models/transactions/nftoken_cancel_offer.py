@@ -27,7 +27,7 @@ class NFTokenCancelOffer(Transaction):
     the NFTokenOffer has already expired.
     """
 
-    nftoken_offers: List[str] = REQUIRED  # type: ignore
+    nftoken_offers: List[str] = REQUIRED
     """
     An array of identifiers of NFTokenOffer objects that should be cancelled
     by this transaction.

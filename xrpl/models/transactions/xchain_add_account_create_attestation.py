@@ -25,21 +25,21 @@ class XChainAddAccountCreateAttestation(Transaction):
     on the other chain.
     """
 
-    xchain_bridge: XChainBridge = REQUIRED  # type: ignore
+    xchain_bridge: XChainBridge = REQUIRED
     """
     The bridge associated with the attestation. This field is required.
 
     :meta hide-value:
     """
 
-    public_key: str = REQUIRED  # type: ignore
+    public_key: str = REQUIRED
     """
     The public key used to verify the signature. This field is required.
 
     :meta hide-value:
     """
 
-    signature: str = REQUIRED  # type: ignore
+    signature: str = REQUIRED
     """
     The signature attesting to the event on the other chain. This field is
     required.
@@ -47,7 +47,7 @@ class XChainAddAccountCreateAttestation(Transaction):
     :meta hide-value:
     """
 
-    other_chain_source: str = REQUIRED  # type: ignore
+    other_chain_source: str = REQUIRED
     """
     The account on the source chain that submitted the
     ``XChainAccountCreateCommit`` transaction that triggered the event
@@ -56,7 +56,7 @@ class XChainAddAccountCreateAttestation(Transaction):
     :meta hide-value:
     """
 
-    amount: Amount = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED
     """
     The amount committed by the ``XChainAccountCreateCommit`` transaction on
     the source chain. This field is required.
@@ -64,7 +64,7 @@ class XChainAddAccountCreateAttestation(Transaction):
     :meta hide-value:
     """
 
-    attestation_reward_account: str = REQUIRED  # type: ignore
+    attestation_reward_account: str = REQUIRED
     """
     The account that should receive this signer's share of the
     ``SignatureReward``. This field is required.
@@ -72,7 +72,7 @@ class XChainAddAccountCreateAttestation(Transaction):
     :meta hide-value:
     """
 
-    attestation_signer_account: str = REQUIRED  # type: ignore
+    attestation_signer_account: str = REQUIRED
     """
     The account on the door account's signer list that is signing the
     transaction. This field is required.
@@ -80,7 +80,7 @@ class XChainAddAccountCreateAttestation(Transaction):
     :meta hide-value:
     """
 
-    was_locking_chain_send: Union[Literal[0], Literal[1]] = REQUIRED  # type: ignore
+    was_locking_chain_send: Union[Literal[0], Literal[1]] = REQUIRED
     """
     A boolean representing the chain where the event occurred. This field is
     required.
@@ -88,7 +88,7 @@ class XChainAddAccountCreateAttestation(Transaction):
     :meta hide-value:
     """
 
-    xchain_account_create_count: Union[str, int] = REQUIRED  # type: ignore
+    xchain_account_create_count: Union[str, int] = REQUIRED
     """
     The counter that represents the order that the claims must be processed in.
     This field is required.
@@ -96,7 +96,7 @@ class XChainAddAccountCreateAttestation(Transaction):
     :meta hide-value:
     """
 
-    destination: str = REQUIRED  # type: ignore
+    destination: str = REQUIRED
     """
     The destination account for the funds on the destination chain. This field
     is required.
@@ -104,7 +104,7 @@ class XChainAddAccountCreateAttestation(Transaction):
     :meta hide-value:
     """
 
-    signature_reward: Amount = REQUIRED  # type: ignore
+    signature_reward: Amount = REQUIRED
     """
     The signature reward paid in the ``XChainAccountCreateCommit`` transaction.
     This field is required.

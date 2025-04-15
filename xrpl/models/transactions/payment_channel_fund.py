@@ -20,7 +20,7 @@ class PaymentChannelFund(Transaction):
     of the channel can use this transaction.
     """
 
-    channel: str = REQUIRED  # type: ignore
+    channel: str = REQUIRED
     """
     The unique ID of the payment channel, as a 64-character hexadecimal
     string. This field is required.
@@ -28,7 +28,7 @@ class PaymentChannelFund(Transaction):
     :meta hide-value:
     """
 
-    amount: str = REQUIRED  # type: ignore
+    amount: str = REQUIRED
     """
     The amount of XRP, in drops, to add to the channel. This field is
     required.
