@@ -131,7 +131,7 @@ class {class_name}{"(" + ", ".join(inherited) + ")" if inherited else ""}:
         if self.{prop_name} < {value}:
             {_generate_error_line(prop_name, f"Value cannot be less than {value}.")}"""
 
-        output_str += "\n\n        return errors"
+        output_str += "\n\n        return errors\n"
 
     pprint(schema)
 
