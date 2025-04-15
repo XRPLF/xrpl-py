@@ -20,6 +20,10 @@ def _get_inherited_classes(allof: List[Dict[str, Any]]) -> List[str]:
             if ref.startswith("../base.yaml#/components/schemas/"):
                 # TODO: add map from spec type to xrpl-py type
                 ref = ref[len("../base.yaml#/components/schemas/") :]
+            if ref == "BaseTransaction":
+                ref = "Transaction"
+            elif ref == "BaseRequest":
+                ref = "Request"
             inherited.append(ref)
         else:
             raise ValueError("WTFFFFFFFFFFFF " + str(item))
@@ -74,12 +78,18 @@ for schema_name, schema in schemas.items():
 \"\"\"
 
 from dataclasses import dataclass, field
-# TODO: add imports
+
+from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.types.transaction_type import TransactionType
+from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+# TODO: add remaining imports
 
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class {class_name}{"(" + ", ".join(inherited) + ")" if inherited else ""}:
+    \"\"\"
     {description}
+    \"\"\"
 
     transaction_type: TransactionType = field(
         default=TransactionType.{_key_to_json(class_name).upper()},
