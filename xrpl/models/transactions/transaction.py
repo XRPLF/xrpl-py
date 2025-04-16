@@ -200,7 +200,7 @@ class Transaction(BaseModel):
     details.
     """
 
-    flags: Union[Dict[str, bool], int, List[int]] = 0
+    flags: Optional[Union[Dict[str, bool], int, List[int]]] = None
     """
     A List of flags, or a bitwise map of flags, modifying this transaction's
     behavior. See `Flags Field
