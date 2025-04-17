@@ -1,6 +1,6 @@
 """Helper functions for signing multi-account Batch transactions."""
 
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, List, Union, cast
 
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec.codec import decode_classic_address
@@ -12,7 +12,7 @@ from xrpl.wallet import Wallet
 
 
 def sign_multiaccount_batch(
-    wallet: Wallet, transaction: Batch, multisign: Optional[bool] = False
+    wallet: Wallet, transaction: Batch, multisign: bool = False
 ) -> Batch:
     """
     Sign a multi-account Batch transaction.
