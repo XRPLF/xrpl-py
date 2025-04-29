@@ -63,6 +63,8 @@ class EscrowFinish(Transaction):
     """Credentials associated with sender of this transaction. The credentials included
     must not be expired."""
 
+    computation_allowance: Optional[int] = None
+
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.condition and not self.fulfillment:

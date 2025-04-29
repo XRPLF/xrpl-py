@@ -38,6 +38,7 @@ _LEDGER_OFFSET: Final[int] = 20
 # More context: https://github.com/XRPLF/rippled/pull/4370
 _RESTRICTED_NETWORKS = 1024
 _REQUIRED_NETWORKID_VERSION = "1.11.0"
+_MICRO_DROPS_PER_DROP = 1_000_000
 
 
 async def sign_and_submit(
@@ -479,6 +480,11 @@ async def _calculate_fee_per_transaction_type(
             fulfillment_bytes = escrow_finish.fulfillment.encode("ascii")
             # BaseFee × (33 + (Fulfillment size in bytes / 16))
             base_fee = math.ceil(net_fee * (33 + (len(fulfillment_bytes) / 16)))
+        if escrow_finish.computation_allowance is not None:
+            gas_price = await _fetch_gas_price(client)
+            base_fee += math.ceil(
+                gas_price * escrow_finish.computation_allowance / _MICRO_DROPS_PER_DROP
+            )
 
     if transaction.transaction_type == TransactionType.ESCROW_CREATE:
         escrow_create = cast(EscrowCreate, transaction)
@@ -503,4 +509,10 @@ async def _calculate_fee_per_transaction_type(
 async def _fetch_owner_reserve_fee(client: Client) -> int:
     server_state = await client._request_impl(ServerState())
     fee = server_state.result["state"]["validated_ledger"]["reserve_inc"]
+    return int(fee)
+
+
+async def _fetch_gas_price(client: Client) -> int:
+    server_state = await client._request_impl(ServerState())
+    fee = server_state.result["state"]["validated_ledger"]["gas_price"]
     return int(fee)
