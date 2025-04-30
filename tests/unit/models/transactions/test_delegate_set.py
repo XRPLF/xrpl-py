@@ -74,5 +74,6 @@ class TestAccountPermissionSet(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'account_addresses': 'Field `authorize` and `account` must be different.'}",
+            "{'account_addresses': 'Field `authorize` and `account` must be different."
+            + "'}",
         )

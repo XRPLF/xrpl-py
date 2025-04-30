@@ -16,7 +16,7 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 PERMISSION_MAX_LENGTH = 10
 
 """
-This is a utility map of granular permission-names to their UINT32 integer values. This 
+This is a utility map of granular permission-names to their UINT32 integer values. This
 can be used to specify the inputs for `Permission` inner-object (defined below).
 """
 GRANULAR_PERMISSIONS = {
