@@ -124,7 +124,7 @@ class TestBaseModel(TestCase):
                 {
                     "flags": (
                         "flags is <class 'str'>, expected "
-                        "typing.Union[typing.Dict[str, bool], int, typing.List[int]]"
+                        "typing.Union[typing.Dict[str, bool], int, typing.List[int], NoneType]"
                     ),
                     "destination": (
                         "An XRP payment transaction cannot have the same "
@@ -169,7 +169,6 @@ class TestFromDict(TestCase):
         expected_dict = {
             **check_create_dict,
             "transaction_type": "CheckCreate",
-            "flags": 0,
             "signing_pub_key": "",
         }
         self.assertEqual(expected_dict, check_create.to_dict())
@@ -701,7 +700,6 @@ class TestFromXrpl(TestCase):
             "Account": "rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
             "TransactionType": "Payment",
             "Sequence": 290,
-            "Flags": 0,
             "SigningPubKey": "",
             "Amount": {
                 "currency": "USD",
@@ -745,7 +743,6 @@ class TestFromXrpl(TestCase):
             "Account": "rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp",
             "TransactionType": "SignerListSet",
             "Sequence": 290,
-            "Flags": 0,
             "SigningPubKey": "",
             "SignerQuorum": 1,
             "SignerEntries": [
@@ -824,7 +821,6 @@ class TestFromXrpl(TestCase):
             ],
             "TransactionType": "AMMBid",
             "SigningPubKey": "",
-            "Flags": 0,
         }
         self.assertEqual(tx.to_xrpl(), expected)
 
@@ -840,7 +836,6 @@ class TestFromXrpl(TestCase):
             },
             "Destination": destination,
             "TransactionType": "XChainClaim",
-            "Flags": 0,
             "SigningPubKey": "",
             "XChainClaimID": 1,
         }

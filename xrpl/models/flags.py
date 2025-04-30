@@ -1,7 +1,7 @@
 """All transaction flags and utils to build a list of ints from a FlagInterface"""
 
 from enum import Enum
-from typing import Dict, List, Type, Union
+from typing import Dict, List, Optional, Type, Union
 
 from typing_extensions import TypedDict
 
@@ -74,7 +74,7 @@ def interface_to_flag_list(
 
 def check_false_flag_definition(
     tx_type: Union[TransactionType, PseudoTransactionType],
-    tx_flags: Union[Dict[str, bool], List[int]],
+    tx_flags: Optional[Union[Dict[str, bool], List[int]]],
 ) -> None:
     """Check the flags were set correctly if not defined as integer.
 
@@ -88,6 +88,8 @@ def check_false_flag_definition(
         XRPLModelException: Flags were not set correctly.
     """
     try:
+        if tx_flags is None:
+            return
         if isinstance(tx_flags, dict):
             interface_flags: Dict[str, bool] = tx_flags
             assert all(

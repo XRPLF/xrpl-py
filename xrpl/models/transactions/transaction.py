@@ -25,7 +25,7 @@ _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
 
 
 def transaction_json_to_binary_codec_form(
-    dictionary: Dict[str, XRPL_VALUE_TYPE]
+    dictionary: Dict[str, XRPL_VALUE_TYPE],
 ) -> Dict[str, XRPL_VALUE_TYPE]:
     """
     Returns a new dictionary in which the keys have been formatted as CamelCase and
@@ -200,7 +200,7 @@ class Transaction(BaseModel):
     details.
     """
 
-    flags: Union[Dict[str, bool], int, List[int]] = 0
+    flags: Optional[Union[Dict[str, bool], int, List[int]]] = None
     """
     A List of flags, or a bitwise map of flags, modifying this transaction's
     behavior. See `Flags Field
@@ -275,18 +275,24 @@ class Transaction(BaseModel):
         """
         # we need to override this because transaction_type is using ``field``
         # which will not include the value in the objects __dict__
-        return {
+        prepared_dict = {
             **super().to_dict(),
             "transaction_type": self.transaction_type.value,
             "flags": self._flags_to_int(),
         }
 
+        if self.flags is None:
+            del prepared_dict["flags"]
+        return prepared_dict
+
     def _iter_to_int(
         self: Self,
-        lst: List[int],
+        lst: List[int] | None,
     ) -> int:
         """Calculate flag as int."""
         accumulator = 0
+        if lst is None:
+            return accumulator
         for flag in lst:
             accumulator |= flag
         return accumulator
@@ -372,6 +378,8 @@ class Transaction(BaseModel):
         Raises:
             XRPLModelException: if `self.flags` is invalid.
         """
+        if self.flags is None:
+            return False
         if isinstance(self.flags, int):
             return self.flags & flag != 0
         elif isinstance(self.flags, dict):
