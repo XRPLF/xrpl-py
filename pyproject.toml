@@ -40,7 +40,7 @@ packages = [{ include = "xrpl" }, { include = "LICENSE" }]
 python = ">=3.8.1,<4.0"
 base58 = "^2.1.0"
 ECPy = "^1.2.5"
-typing-extensions = "^4.2.0"
+typing-extensions = "^4.13.2"
 httpx = ">=0.18.1,<0.29.0"
 websockets = ">=11"
 Deprecated = "^1.2.13"
