@@ -269,9 +269,13 @@ class Transaction(BaseModel):
 
         if self.account == self.delegate:
             if "Transaction" in errors:
-                errors["Transaction"] += " Account and delegate addresses cannot be the same"
+                errors[
+                    "Transaction"
+                ] += "Account and delegate addresses cannot be the same"
             else:
-                errors["Transaction"] = "Account and delegate addresses cannot be the same"
+                errors["Transaction"] = (
+                    "Account and delegate addresses cannot be the same"
+                )
         return errors
 
     def to_dict(self: Self) -> Dict[str, Any]:
