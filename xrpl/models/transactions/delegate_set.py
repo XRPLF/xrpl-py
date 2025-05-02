@@ -91,9 +91,9 @@ class DelegateSet(Transaction):
                 f"Length of `permissions` list is greater than {PERMISSION_MAX_LENGTH}."
             )
 
-        permission_unique_values = set()
-        for permission in self.permissions:
-            if permission.permission_value in permission_unique_values:
-                return "Duplicate permission value in `permissions` list."
-            permission_unique_values.add(permission.permission_value)
+        # Note: The explicit type-cast into list() is necessary to avoid a
+        # false-positive due to type mismatch.
+        if self.permissions != list(set(self.permissions)):
+            return "Duplicate permission value in `permissions` list."
+
         return None
