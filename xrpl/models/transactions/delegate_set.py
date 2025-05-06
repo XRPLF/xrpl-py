@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from enum import Enum
+from typing import Dict, List, Optional, Union
 
 from typing_extensions import Self
 
@@ -15,24 +16,103 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 PERMISSION_MAX_LENGTH = 10
 
-"""
-This is a utility map of granular permission-names to their UINT32 integer values. This
-can be used to specify the inputs for `Permission` inner-object (defined below).
-"""
-GRANULAR_PERMISSIONS = {
-    "TrustlineAuthorize": 65537,
-    "TrustlineFreeze": 65538,
-    "TrustlineUnfreeze": 65539,
-    "AccountDomainSet": 65540,
-    "AccountEmailHashSet": 65541,
-    "AccountMessageKeySet": 65542,
-    "AccountTransferRateSet": 65543,
-    "AccountTickSizeSet": 65544,
-    "PaymentMint": 65545,
-    "PaymentBurn": 65546,
-    "MPTokenIssuanceLock": 65547,
-    "MPTokenIssuanceUnlock": 65548,
-}
+
+class DelegatableTransaction(str, Enum):
+    """Transaction type that are delegatable using DelegateSet transaction."""
+
+    AMM_BID = "AMMBid"
+    AMM_CREATE = "AMMCreate"
+    AMM_CLAWBACK = "AMMClawback"
+    AMM_DELETE = "AMMDelete"
+    AMM_DEPOSIT = "AMMDeposit"
+    AMM_VOTE = "AMMVote"
+    AMM_WITHDRAW = "AMMWithdraw"
+    CHECK_CANCEL = "CheckCancel"
+    CHECK_CASH = "CheckCash"
+    CHECK_CREATE = "CheckCreate"
+    CLAWBACK = "Clawback"
+    CREDENTIAL_ACCEPT = "CredentialAccept"
+    CREDENTIAL_CREATE = "CredentialCreate"
+    CREDENTIAL_DELETE = "CredentialDelete"
+    DEPOSIT_PREAUTH = "DepositPreauth"
+    DID_DELETE = "DIDDelete"
+    DID_SET = "DIDSet"
+    ESCROW_CANCEL = "EscrowCancel"
+    ESCROW_CREATE = "EscrowCreate"
+    ESCROW_FINISH = "EscrowFinish"
+    MPTOKEN_AUTHORIZE = "MPTokenAuthorize"
+    MPTOKEN_ISSUANCE_CREATE = "MPTokenIssuanceCreate"
+    MPTOKEN_ISSUANCE_DESTROY = "MPTokenIssuanceDestroy"
+    MPTOKEN_ISSUANCE_SET = "MPTokenIssuanceSet"
+    NFTOKEN_ACCEPT_OFFER = "NFTokenAcceptOffer"
+    NFTOKEN_BURN = "NFTokenBurn"
+    NFTOKEN_CANCEL_OFFER = "NFTokenCancelOffer"
+    NFTOKEN_CREATE_OFFER = "NFTokenCreateOffer"
+    NFTOKEN_MINT = "NFTokenMint"
+    NFTOKEN_MODIFY = "NFTokenModify"
+    OFFER_CANCEL = "OfferCancel"
+    OFFER_CREATE = "OfferCreate"
+    ORACLE_SET = "OracleSet"
+    ORACLE_DELETE = "OracleDelete"
+    PAYMENT = "Payment"
+    PAYMENT_CHANNEL_CLAIM = "PaymentChannelClaim"
+    PAYMENT_CHANNEL_CREATE = "PaymentChannelCreate"
+    PAYMENT_CHANNEL_FUND = "PaymentChannelFund"
+    PERMISSIONED_DOMAIN_SET = "PermissionedDomainSet"
+    PERMISSIONED_DOMAIN_DELETE = "PermissionedDomainDelete"
+    TICKET_CREATE = "TicketCreate"
+    TRUST_SET = "TrustSet"
+    XCHAIN_ACCOUNT_CREATE_COMMIT = "XChainAccountCreateCommit"
+    XCHAIN_ADD_ACCOUNT_CREATE_ATTESTATION = "XChainAddAccountCreateAttestation"
+    XCHAIN_ADD_CLAIM_ATTESTATION = "XChainAddClaimAttestation"
+    XCHAIN_CLAIM = "XChainClaim"
+    XCHAIN_COMMIT = "XChainCommit"
+    XCHAIN_CREATE_BRIDGE = "XChainCreateBridge"
+    XCHAIN_CREATE_CLAIM_ID = "XChainCreateClaimID"
+    XCHAIN_MODIFY_BRIDGE = "XChainModifyBridge"
+
+
+class GranularPermission(str, Enum):
+    """
+    These permissions would support control over some smaller portion of a transaction,
+    rather than being able to do all of the functionality that the transaction allows.
+    """
+
+    TRUSTLINE_AUTHORIZE = "TrustlineAuthorize"
+    """Authorize a trustline."""
+
+    TRUSTLINE_FREEZE = "TrustlineFreeze"
+    """Freeze a trustline."""
+
+    TRUSTLINE_UNFREEZE = "TrustlineUnfreeze"
+    """Unfreeze a trustline."""
+
+    ACCOUNT_DOMAIN_SET = "AccountDomainSet"
+    """Modify the domain of an account."""
+
+    ACCOUNT_EMAIL_HASH_SET = "AccountEmailHashSet"
+    """Modify the EmailHash of an account."""
+
+    ACCOUNT_MESSAGE_KEY_SET = "AccountMessageKeySet"
+    """Modify the MessageKey of an account."""
+
+    ACCOUNT_TRANSFER_RATE_SET = "AccountTransferRateSet"
+    """Modify the transfer rate of an account."""
+
+    ACCOUNT_TICK_SIZE_SET = "AccountTickSizeSet"
+    """Modify the tick size of an account."""
+
+    PAYMENT_MINT = "PaymentMint"
+    """Send a payment for a currency where the sending account is the issuer."""
+
+    PAYMENT_BURN = "PaymentBurn"
+    """Send a payment for a currency where the destination account is the issuer."""
+
+    MPTOKEN_ISSUANCE_LOCK = "MPTokenIssuanceLock"
+    """Use the MPTIssuanceSet transaction to lock (freeze) a holder."""
+
+    MPTOKEN_ISSUANCE_UNLOCK = "MPTokenIssuanceUnlock"
+    """Use the MPTIssuanceSet transaction to unlock (unfreeze) a holder."""
 
 
 @require_kwargs_on_init
@@ -42,9 +122,11 @@ class Permission(NestedModel):
     transaction.
     """
 
-    permission_value: int = REQUIRED  # type: ignore
+    permission_value: Union[
+        DelegatableTransaction, GranularPermission
+    ] = REQUIRED  # type: ignore
     """
-    Integer representation of the transaction-level or granular permission.
+    Transaction level or granular permission.
 
     :meta hide-value:
     """
@@ -61,7 +143,7 @@ class DelegateSet(Transaction):
     """The authorized account."""
 
     permissions: List[Permission] = REQUIRED  # type: ignore
-    """The transaction permissions that the account has been granted."""
+    """The transaction permissions that the authorized account has been granted."""
 
     transaction_type: TransactionType = field(
         default=TransactionType.DELEGATE_SET,
@@ -91,9 +173,7 @@ class DelegateSet(Transaction):
                 f"Length of `permissions` list is greater than {PERMISSION_MAX_LENGTH}."
             )
 
-        # Note: The explicit type-cast into list() is necessary to avoid a
-        # false-positive due to type mismatch.
-        if self.permissions != list(set(self.permissions)):
+        if len(self.permissions) != len(set(self.permissions)):
             return "Duplicate permission value in `permissions` list."
 
         return None

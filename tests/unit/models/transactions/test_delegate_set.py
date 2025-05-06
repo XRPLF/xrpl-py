@@ -3,13 +3,27 @@ from unittest import TestCase
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import DelegateSet
 from xrpl.models.transactions.delegate_set import (
-    GRANULAR_PERMISSIONS,
     PERMISSION_MAX_LENGTH,
+    DelegatableTransaction,
+    GranularPermission,
     Permission,
 )
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _DELEGATED_ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
+_MORE_THAN_10_PERMISSIONS = [
+    GranularPermission.PAYMENT_MINT,
+    GranularPermission.ACCOUNT_MESSAGE_KEY_SET,
+    GranularPermission.ACCOUNT_TICK_SIZE_SET,
+    GranularPermission.ACCOUNT_DOMAIN_SET,
+    DelegatableTransaction.PAYMENT,
+    DelegatableTransaction.AMM_CLAWBACK,
+    DelegatableTransaction.AMM_BID,
+    DelegatableTransaction.ORACLE_DELETE,
+    DelegatableTransaction.MPTOKEN_AUTHORIZE,
+    DelegatableTransaction.MPTOKEN_ISSUANCE_DESTROY,
+    DelegatableTransaction.CREDENTIAL_ACCEPT,
+]
 
 
 class TestAccountPermissionSet(TestCase):
@@ -17,7 +31,10 @@ class TestAccountPermissionSet(TestCase):
         tx = DelegateSet(
             account=_ACCOUNT,
             authorize=_DELEGATED_ACCOUNT,
-            permissions=[Permission(permission_value=1)],
+            permissions=[
+                Permission(permission_value=GranularPermission.TRUSTLINE_AUTHORIZE),
+                Permission(permission_value=DelegatableTransaction.PAYMENT),
+            ],
         )
         self.assertTrue(tx.is_valid())
 
@@ -25,9 +42,7 @@ class TestAccountPermissionSet(TestCase):
         tx = DelegateSet(
             account=_ACCOUNT,
             authorize=_DELEGATED_ACCOUNT,
-            permissions=[
-                Permission(permission_value=GRANULAR_PERMISSIONS["PaymentMint"])
-            ],
+            permissions=[Permission(permission_value=GranularPermission.PAYMENT_MINT)],
         )
         self.assertTrue(tx.is_valid())
 
@@ -37,8 +52,8 @@ class TestAccountPermissionSet(TestCase):
                 account=_ACCOUNT,
                 authorize=_DELEGATED_ACCOUNT,
                 permissions=[
-                    Permission(permission_value=i)
-                    for i in range(PERMISSION_MAX_LENGTH + 1)
+                    Permission(permission_value=_MORE_THAN_10_PERMISSIONS[i])
+                    for i in range(len(_MORE_THAN_10_PERMISSIONS))
                 ],
             )
         self.assertEqual(
@@ -54,8 +69,8 @@ class TestAccountPermissionSet(TestCase):
                 account=_ACCOUNT,
                 authorize=_DELEGATED_ACCOUNT,
                 permissions=[
-                    Permission(permission_value=1),
-                    Permission(permission_value=1),
+                    Permission(permission_value=DelegatableTransaction.ORACLE_DELETE),
+                    Permission(permission_value=DelegatableTransaction.ORACLE_DELETE),
                 ],
             )
         self.assertEqual(
@@ -69,7 +84,9 @@ class TestAccountPermissionSet(TestCase):
                 account=_ACCOUNT,
                 authorize=_ACCOUNT,
                 permissions=[
-                    Permission(permission_value=1),
+                    Permission(
+                        permission_value=GranularPermission.MPTOKEN_ISSUANCE_LOCK
+                    ),
                 ],
             )
         self.assertEqual(
