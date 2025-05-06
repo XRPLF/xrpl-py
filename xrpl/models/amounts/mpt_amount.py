@@ -18,14 +18,14 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class MPTAmount(BaseModel):
     """Specifies an MPT amount."""
 
-    mpt_issuance_id: str = REQUIRED  # type: ignore
+    mpt_issuance_id: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    value: str = REQUIRED  # type: ignore
+    value: str = REQUIRED
     """
     This field is required.
 
