@@ -90,10 +90,19 @@ precision = 2
 test_unit = "coverage run -m unittest discover tests/unit"
 test_integration = "coverage run -m unittest discover tests/integration"
 lint = "poetry run flake8 xrpl tests snippets"
+definitions = "poetry run python3 tools/generate_definitions.py"
 
 [tool.poe.tasks.test]
 cmd = "python3 -m unittest ${FILE_PATHS}"
 args = [{ name = "FILE_PATHS", positional = true, multiple = true }]
+
+[tool.poe.tasks.generate]
+help = "Generate the models and definitions for a new amendment"
+sequence = [
+  { cmd = "python3 tools/generate_definitions.py ${FILE_OR_GITHUB_PATH}" },
+  { cmd = "python3 tools/generate_tx_models.py ${FILE_OR_GITHUB_PATH}" },
+]
+args = [{ name = "FILE_OR_GITHUB_PATH", positional = true, required = true }]
 
 [tool.poe.tasks.test_coverage]
 sequence = [
