@@ -48,4 +48,4 @@ jobs:
         run: poetry install
 
       - name: Run Snippets
-        run: (for i in snippets/*.py; do echo "Running $i" && poetry run python $i || exit 1; done)
+        run: (for i in snippets/*.py; do echo "Running $i" && poetry run python $i && sleep 5 || exit 1; done)

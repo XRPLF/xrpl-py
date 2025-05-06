@@ -32,7 +32,6 @@ class TestIssue(TestCase):
         # Test Issue creation for an MPT amount.
         # Use a valid 48-character hex string (24 bytes) for mpt_issuance_id.
         test_input = {
-            "value": "100",  # MPT amounts must be an integer string (no decimal point)
             "mpt_issuance_id": "BAADF00DBAADF00DBAADF00DBAADF00DBAADF00DBAADF00D",
         }
         issue_obj = Issue.from_value(test_input)
@@ -77,7 +76,6 @@ class TestIssue(TestCase):
     def test_from_parser_mpt(self):
         # Test round-trip: serialize an MPT Issue and then parse it back.
         test_input = {
-            "value": "100",
             "mpt_issuance_id": "BAADF00DBAADF00DBAADF00DBAADF00DBAADF00DBAADF00D",
         }
         issue_obj = Issue.from_value(test_input)

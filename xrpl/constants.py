@@ -42,6 +42,8 @@ Matches hex-encoded currencies in the format allowed by XRPL.
 :meta private:
 """
 
+HEX_MPTID_REGEX: Final[Pattern[str]] = re.compile(r"^[0-9A-Fa-f]{48}$")
+
 # Constants for validating amounts.
 MIN_IOU_EXPONENT: Final[int] = -96
 """
