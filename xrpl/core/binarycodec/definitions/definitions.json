@@ -953,20 +953,20 @@
     [
       "IssuerNode",
       {
-        "nth": 27,
-        "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 27,
         "type": "UInt64"
       }
     ],
     [
       "SubjectNode",
       {
-        "nth": 28,
-        "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 28,
         "type": "UInt64"
       }
     ],
@@ -1293,10 +1293,10 @@
     [
       "DomainID",
       {
-        "nth": 34,
-        "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 34,
         "type": "Hash256"
       }
     ],
@@ -1883,10 +1883,10 @@
     [
       "CredentialType",
       {
-        "nth": 31,
-        "isVLEncoded": true,
         "isSerialized": true,
         "isSigningField": true,
+        "isVLEncoded": true,
+        "nth": 31,
         "type": "Blob"
       }
     ],
@@ -2083,11 +2083,21 @@
     [
       "Subject",
       {
-        "nth": 24,
-        "isVLEncoded": true,
         "isSerialized": true,
         "isSigningField": true,
+        "isVLEncoded": true,
+        "nth": 24,
         "type": "AccountID"
+      }
+    ],
+    [
+      "Number",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 1,
+        "type": "Number"
       }
     ],
     [
@@ -2383,10 +2393,10 @@
     [
       "Credential",
       {
-        "nth": 33,
-        "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 33,
         "type": "STObject"
       }
     ],
@@ -2583,30 +2593,30 @@
     [
       "AuthorizeCredentials",
       {
-        "nth": 26,
-        "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 26,
         "type": "STArray"
       }
     ],
     [
       "UnauthorizeCredentials",
       {
-        "nth": 27,
-        "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 27,
         "type": "STArray"
       }
     ],
     [
       "AcceptedCredentials",
       {
-        "nth": 28,
-        "isVLEncoded": false,
         "isSerialized": true,
         "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 28,
         "type": "STArray"
       }
     ],
@@ -2793,10 +2803,10 @@
     [
       "CredentialIDs",
       {
-        "nth": 5,
-        "isVLEncoded": true,
         "isSerialized": true,
         "isSigningField": true,
+        "isVLEncoded": true,
+        "nth": 5,
         "type": "Vector256"
       }
     ],
@@ -2927,6 +2937,7 @@
     "Amendments": 102,
     "Bridge": 105,
     "Check": 67,
+    "Credential": 129,
     "DID": 73,
     "DepositPreauth": 112,
     "DirectoryNode": 100,
@@ -2941,7 +2952,6 @@
     "NegativeUNL": 78,
     "Offer": 111,
     "Oracle": 128,
-    "Credential": 129,
     "PayChannel": 120,
     "PermissionedDomain": 130,
     "RippleState": 114,
@@ -2971,6 +2981,7 @@
     "tecFAILED_PROCESSING": 105,
     "tecFROZEN": 137,
     "tecHAS_OBLIGATIONS": 151,
+    "tecHOOK_REJECTED": 153,
     "tecINCOMPLETE": 169,
     "tecINSUFFICIENT_FUNDS": 159,
     "tecINSUFFICIENT_PAYMENT": 161,
@@ -3149,8 +3160,8 @@
     "CheckCash": 17,
     "CheckCreate": 16,
     "Clawback": 30,
-    "CredentialCreate": 58,
     "CredentialAccept": 59,
+    "CredentialCreate": 58,
     "CredentialDelete": 60,
     "DIDDelete": 50,
     "DIDSet": 49,
@@ -3179,8 +3190,8 @@
     "PaymentChannelClaim": 15,
     "PaymentChannelCreate": 13,
     "PaymentChannelFund": 14,
-    "PermissionedDomainSet": 62,
     "PermissionedDomainDelete": 63,
+    "PermissionedDomainSet": 62,
     "SetFee": 101,
     "SetRegularKey": 5,
     "SignerListSet": 12,
@@ -3210,6 +3221,7 @@
     "LedgerEntry": 10002,
     "Metadata": 10004,
     "NotPresent": 0,
+    "Number": 9,
     "PathSet": 18,
     "STArray": 15,
     "STObject": 14,
