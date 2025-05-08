@@ -9,12 +9,14 @@ from xrpl.core.binarycodec.main import (
     encode,
     encode_for_multisigning,
     encode_for_signing,
+    encode_for_signing_batch,
     encode_for_signing_claim,
 )
 
 __all__ = [
     "decode",
     "encode",
+    "encode_for_signing_batch",
     "encode_for_multisigning",
     "encode_for_signing",
     "encode_for_signing_claim",
