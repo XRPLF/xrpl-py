@@ -13,6 +13,8 @@ from xrpl.core.binarycodec.definitions import (
     get_field_instance,
     get_ledger_entry_type_code,
     get_ledger_entry_type_name,
+    get_permission_value_type_code,
+    get_permission_value_type_name,
     get_transaction_result_code,
     get_transaction_result_name,
     get_transaction_type_code,
@@ -31,21 +33,6 @@ _SOURCE_TAG: Final[str] = "SourceTag"
 _DEST_TAG: Final[str] = "DestinationTag"
 
 _UNL_MODIFY_TX: Final[str] = "0066"
-
-_GRANULAR_PERMISSIONS = {
-    "TrustlineAuthorize": 65537,
-    "TrustlineFreeze": 65538,
-    "TrustlineUnfreeze": 65539,
-    "AccountDomainSet": 65540,
-    "AccountEmailHashSet": 65541,
-    "AccountMessageKeySet": 65542,
-    "AccountTransferRateSet": 65543,
-    "AccountTickSizeSet": 65544,
-    "PaymentMint": 65545,
-    "PaymentBurn": 65546,
-    "MPTokenIssuanceLock": 65547,
-    "MPTokenIssuanceUnlock": 65548,
-}
 
 
 def _handle_xaddress(field: str, xaddress: str) -> Dict[str, Union[str, int]]:
@@ -84,10 +71,7 @@ def _str_to_enum(field: str, value: str) -> Union[str, int]:
     if field == "LedgerEntryType":
         return get_ledger_entry_type_code(value)
     if field == "PermissionValue":
-        if value in _GRANULAR_PERMISSIONS:
-            return _GRANULAR_PERMISSIONS[value]
-
-        return get_transaction_type_code(value) + 1
+        return get_permission_value_type_code(value)
     return value
 
 
@@ -100,11 +84,7 @@ def _enum_to_str(field: str, value: int) -> Union[str, int]:
     if field == "LedgerEntryType":
         return get_ledger_entry_type_name(value)
     if field == "PermissionValue":
-        if value in _GRANULAR_PERMISSIONS.values():
-            for k, v in _GRANULAR_PERMISSIONS.items():
-                if v == value:
-                    return k
-        return get_transaction_type_name(value - 1)
+        return get_permission_value_type_name(value)
     return value
 
 

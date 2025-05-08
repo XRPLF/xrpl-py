@@ -9,6 +9,21 @@ from xrpl.core.binarycodec.definitions.field_info import FieldInfo
 from xrpl.core.binarycodec.definitions.field_instance import FieldInstance
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 
+_GRANULAR_PERMISSIONS = {
+    "TrustlineAuthorize": 65537,
+    "TrustlineFreeze": 65538,
+    "TrustlineUnfreeze": 65539,
+    "AccountDomainSet": 65540,
+    "AccountEmailHashSet": 65541,
+    "AccountMessageKeySet": 65542,
+    "AccountTransferRateSet": 65543,
+    "AccountTickSizeSet": 65544,
+    "PaymentMint": 65545,
+    "PaymentBurn": 65546,
+    "MPTokenIssuanceLock": 65547,
+    "MPTokenIssuanceUnlock": 65548,
+}
+
 
 def load_definitions(filename: str = "definitions.json") -> Dict[str, Any]:
     """
@@ -57,6 +72,9 @@ _TRANSACTION_RESULTS_CODE_TO_STR_MAP = {
 }
 _LEDGER_ENTRY_TYPES_CODE_TO_STR_MAP = {
     value: key for (key, value) in _DEFINITIONS["LEDGER_ENTRY_TYPES"].items()
+}
+_GRANULAR_PERMISSIONS_CODE_TO_STR_MAP = {
+    value: key for (key, value) in _GRANULAR_PERMISSIONS.items()
 }
 
 _TYPE_ORDINAL_MAP = _DEFINITIONS["TYPES"]
@@ -258,3 +276,35 @@ def get_ledger_entry_type_name(ledger_entry_type: int) -> str:
         The string name of the ledger entry type.
     """
     return cast(str, _LEDGER_ENTRY_TYPES_CODE_TO_STR_MAP[ledger_entry_type])
+
+
+def get_permission_value_type_code(permission_value: str) -> int:
+    """
+    Return an integer representing the given permission value string.
+
+    Args:
+        permission_value: The name of the permission value to get the integer value for.
+
+    Returns:
+        An integer representing the given permission value string.
+    """
+    if permission_value in _GRANULAR_PERMISSIONS:
+        return _GRANULAR_PERMISSIONS[permission_value]
+
+    return get_transaction_type_code(permission_value) + 1
+
+
+def get_permission_value_type_name(permission_value: int) -> str:
+    """
+    Return string representing the given permission value from the integer.
+
+    Args:
+        permission_value: The integer permission value.
+
+    Returns:
+        The string name of the permission value.
+    """
+    if permission_value in _GRANULAR_PERMISSIONS_CODE_TO_STR_MAP:
+        return _GRANULAR_PERMISSIONS_CODE_TO_STR_MAP[permission_value]
+
+    return get_transaction_type_name(permission_value - 1)
