@@ -30,6 +30,7 @@ class LedgerEntryType(str, Enum):
     BRIDGE = "bridge"
     CHECK = "check"
     CREDENTIAL = "credential"
+    DELEGATE = "delegate"
     DEPOSIT_PREAUTH = "deposit_preauth"
     DIRECTORY = "directory"
     DID = "did"
