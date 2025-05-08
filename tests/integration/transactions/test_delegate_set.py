@@ -7,7 +7,7 @@ from tests.integration.it_utils import (
 from xrpl.models.requests import LedgerEntry
 from xrpl.models.requests.ledger_entry import Delegate
 from xrpl.models.response import ResponseStatus
-from xrpl.models.transactions import DelegateSet, Payment
+from xrpl.models.transactions import DelegatableTransaction, DelegateSet, Payment
 from xrpl.models.transactions.delegate_set import Permission
 from xrpl.utils import xrp_to_drops
 from xrpl.wallet.main import Wallet
@@ -55,7 +55,7 @@ class TestDelegateSet(IntegrationTestCase):
             # Authorize bob account to execute Payment transactions on
             # behalf of alice's account.
             # Note: Payment transaction has a TransactionType of 0
-            permissions=[Permission(permission_value=(1 + 0))],
+            permissions=[Permission(permission_value=DelegatableTransaction.PAYMENT)],
         )
         response = await sign_and_reliable_submission_async(
             delegate_set, alice, client, check_fee=False
@@ -95,7 +95,7 @@ class TestDelegateSet(IntegrationTestCase):
             # Authorize bob's account to execute Payment transactions on
             # behalf of alice's account.
             # Note: Payment transaction has a TransactionType of 0
-            permissions=[Permission(permission_value=(1 + 0))],
+            permissions=[Permission(permission_value=DelegatableTransaction.PAYMENT)],
         )
         response = await sign_and_reliable_submission_async(
             delegate_set, alice, client, check_fee=False

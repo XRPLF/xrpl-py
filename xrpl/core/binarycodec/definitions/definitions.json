@@ -2591,11 +2591,12 @@
       }
     ],
     [
-      "Permissions", {
-        "nth": 29,
-        "isVLEncoded": false,
+      "Permissions",
+      {
         "isSerialized": true,
         "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 29,
         "type": "STArray"
       }
     ],
@@ -2918,8 +2919,8 @@
     "Check": 67,
     "Credential": 129,
     "DID": 73,
-    "DepositPreauth": 112,
     "Delegate": 131,
+    "DepositPreauth": 112,
     "DirectoryNode": 100,
     "Escrow": 117,
     "FeeSettings": 115,
@@ -3145,9 +3146,9 @@
     "CredentialAccept": 59,
     "CredentialCreate": 58,
     "CredentialDelete": 60,
-    "DelegateSet": 64,
     "DIDDelete": 50,
     "DIDSet": 49,
+    "DelegateSet": 64,
     "DepositPreauth": 19,
     "EnableAmendment": 100,
     "EscrowCancel": 4,
