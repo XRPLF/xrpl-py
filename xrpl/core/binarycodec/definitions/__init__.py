@@ -6,6 +6,8 @@ from xrpl.core.binarycodec.definitions.definitions import (
     get_field_name_from_header,
     get_ledger_entry_type_code,
     get_ledger_entry_type_name,
+    get_permission_value_type_code,
+    get_permission_value_type_name,
     get_transaction_result_code,
     get_transaction_result_name,
     get_transaction_type_code,
@@ -30,4 +32,6 @@ __all__ = [
     "get_transaction_result_name",
     "get_transaction_type_code",
     "get_transaction_type_name",
+    "get_permission_value_type_code",
+    "get_permission_value_type_name",
 ]

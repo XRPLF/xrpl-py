@@ -22,6 +22,7 @@ class TransactionType(str, Enum):
     CREDENTIAL_ACCEPT = "CredentialAccept"
     CREDENTIAL_CREATE = "CredentialCreate"
     CREDENTIAL_DELETE = "CredentialDelete"
+    DELEGATE_SET = "DelegateSet"
     DEPOSIT_PREAUTH = "DepositPreauth"
     DID_DELETE = "DIDDelete"
     DID_SET = "DIDSet"

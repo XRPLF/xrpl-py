@@ -6,6 +6,7 @@ from xrpl.models.transactions import Payment, PaymentFlag
 from xrpl.wallet import Wallet
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
+_DELEGATE_ACCOUNT = "rJ73aumLPTQQmy5wnGhvrogqf5DDhjuzc9"
 _FEE = "0.00001"
 _SEQUENCE = 19048
 _XRP_AMOUNT = "10000"
@@ -188,4 +189,28 @@ class TestPayment(TestCase):
             "destination": _DESTINATION,
         }
         tx = Payment(**transaction_dict)
+        self.assertTrue(tx.is_valid())
+
+    def test_duplicate_account_and_delegate_account(self):
+        with self.assertRaises(XRPLModelException) as err:
+            Payment(
+                account=_ACCOUNT,
+                amount=_XRP_AMOUNT,
+                destination=_DESTINATION,
+                delegate=_ACCOUNT,
+            )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'Transaction': 'Account and delegate addresses cannot be the same'}",
+        )
+
+    def test_payment_with_delegate_account(self):
+        tx = Payment(
+            account=_ACCOUNT,
+            amount=_XRP_AMOUNT,
+            destination=_DESTINATION,
+            delegate=_DELEGATE_ACCOUNT,
+        )
+
         self.assertTrue(tx.is_valid())
