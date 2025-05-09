@@ -189,3 +189,59 @@ class TestPayment(TestCase):
         }
         tx = Payment(**transaction_dict)
         self.assertTrue(tx.is_valid())
+
+    def test_simple_payment_with_zero_flag(self):
+        payment_tx_json = {
+            "Account": _ACCOUNT,
+            "Destination": _DESTINATION,
+            "TransactionType": "Payment",
+            "Amount": _XRP_AMOUNT,
+            "Fee": _FEE,
+            "Flags": 0,
+            "Sequence": _SEQUENCE,
+        }
+        payment_txn = Payment.from_xrpl(payment_tx_json)
+        payment = payment_txn.to_xrpl()
+
+        self.assertTrue("Flags" in payment)
+
+    def test_simple_payment_with_zero_flag_direct(self):
+        payment_txn = Payment(
+            account=_ACCOUNT,
+            destination=_DESTINATION,
+            amount=_XRP_AMOUNT,
+            fee=_FEE,
+            flags=0,
+            sequence=_SEQUENCE,
+        )
+        payment = payment_txn.to_xrpl()
+
+        self.assertTrue("Flags" in payment)
+
+    def test_simple_payment_with_no_flag_direct(self):
+        payment_txn = Payment(
+            account=_ACCOUNT,
+            destination=_DESTINATION,
+            amount=_XRP_AMOUNT,
+            fee=_FEE,
+            sequence=_SEQUENCE,
+        )
+        payment = payment_txn.to_xrpl()
+
+        self.assertFalse("Flags" in payment)
+
+    def test_simple_payment_with_nonzero_flag(self):
+        payment_tx_json = {
+            "Account": _ACCOUNT,
+            "Destination": _DESTINATION,
+            "TransactionType": "Payment",
+            "Amount": _XRP_AMOUNT,
+            "Fee": _FEE,
+            "Flags": 2147483648,
+            "Sequence": _SEQUENCE,
+        }
+
+        payment_txn = Payment.from_xrpl(payment_tx_json)
+        payment = payment_txn.to_xrpl()
+
+        self.assertTrue("Flags" in payment)
