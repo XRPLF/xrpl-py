@@ -101,7 +101,7 @@ class EnableAmendment(PseudoTransaction):
         init=False,
     )
 
-    flags: Union[Dict[str, bool], int, List[int]] = 0
+    flags: Optional[Union[Dict[str, bool], int, List[int]]] = None
     """
     The Flags value of the EnableAmendment pseudo-transaction indicates the status
     of the amendment at the time of the ledger including the pseudo-transaction.
