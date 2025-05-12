@@ -101,30 +101,7 @@ class TestDelegateSet(IntegrationTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tecNO_PERMISSION")
 
-    @test_async_and_sync(globals())
-    async def test_fetch_delegate_ledger_entry(self, client):
-        # Note: Using WALLET, DESTINATION accounts could pollute the test results
-        alice = Wallet.create()
-        await fund_wallet_async(alice)
-        bob = Wallet.create()
-        await fund_wallet_async(bob)
-
-        delegate_set = DelegateSet(
-            account=alice.address,
-            authorize=bob.address,
-            # Authorize bob's account to execute Payment transactions
-            # and authorize a trustline on behalf of alice's account.
-            permissions=[
-                Permission(permission_value=TransactionType.PAYMENT),
-                Permission(permission_value=GranularPermission.TRUSTLINE_AUTHORIZE),
-            ],
-        )
-        response = await sign_and_reliable_submission_async(
-            delegate_set, alice, client, check_fee=False
-        )
-        self.assertEqual(response.status, ResponseStatus.SUCCESS)
-        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-
+        # test ledger entry
         ledger_entry_response = await client.request(
             LedgerEntry(
                 delegate=Delegate(
