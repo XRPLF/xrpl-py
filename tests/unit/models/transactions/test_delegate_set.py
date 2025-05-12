@@ -3,7 +3,7 @@ from unittest import TestCase
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import DelegateSet
 from xrpl.models.transactions.delegate_set import (
-    PERMISSION_MAX_LENGTH,
+    PERMISSIONS_MAX_LENGTH,
     GranularPermission,
     Permission,
 )
@@ -26,7 +26,7 @@ _MORE_THAN_10_PERMISSIONS = [
 ]
 
 
-class TestAccountPermissionSet(TestCase):
+class TestDelegateSet(TestCase):
     def test_delegate_set(self):
         tx = DelegateSet(
             account=_ACCOUNT,
@@ -59,7 +59,7 @@ class TestAccountPermissionSet(TestCase):
         self.assertEqual(
             error.exception.args[0],
             "{'permissions': 'Length of `permissions` list is greater than "
-            + str(PERMISSION_MAX_LENGTH)
+            + str(PERMISSIONS_MAX_LENGTH)
             + ".'}",
         )
 

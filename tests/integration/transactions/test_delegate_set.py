@@ -18,8 +18,6 @@ from xrpl.models.transactions.types import TransactionType
 from xrpl.utils import xrp_to_drops
 from xrpl.wallet.main import Wallet
 
-EMAIL_HASH = "10000000002000000000300000000012"
-
 
 class TestDelegateSet(IntegrationTestCase):
     @test_async_and_sync(globals())
@@ -93,7 +91,9 @@ class TestDelegateSet(IntegrationTestCase):
 
         # Use the bob's account to execute a transaction on behalf of alice
         account_set = AccountSet(
-            account=alice.address, delegate=bob.address, email_hash=EMAIL_HASH
+            account=alice.address,
+            delegate=bob.address,
+            email_hash="10000000002000000000300000000012",
         )
         response = await sign_and_reliable_submission_async(
             account_set, bob, client, check_fee=False

@@ -14,7 +14,7 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
-PERMISSION_MAX_LENGTH = 10
+PERMISSIONS_MAX_LENGTH = 10
 
 NON_DELEGATABLE_TRANSACTIONS = {
     TransactionType.ACCOUNT_SET.value,
@@ -119,9 +119,10 @@ class DelegateSet(Transaction):
         return None
 
     def _get_permissions_error(self: Self) -> Optional[str]:
-        if len(self.permissions) > PERMISSION_MAX_LENGTH:
+        if len(self.permissions) > PERMISSIONS_MAX_LENGTH:
             return (
-                f"Length of `permissions` list is greater than {PERMISSION_MAX_LENGTH}."
+                f"Length of `permissions` list is greater than "
+                f"{PERMISSIONS_MAX_LENGTH}."
             )
 
         entered_permissions = [

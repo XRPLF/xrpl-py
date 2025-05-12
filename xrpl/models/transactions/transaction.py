@@ -268,14 +268,9 @@ class Transaction(BaseModel):
             account_txn_id must be None and sequence must be None or 0"""
 
         if self.account == self.delegate:
-            if "Transaction" in errors:
-                errors[
-                    "Transaction"
-                ] += "Account and delegate addresses cannot be the same"
-            else:
-                errors["Transaction"] = (
-                    "Account and delegate addresses cannot be the same"
-                )
+            error_msg = "Account and delegate addresses cannot be the same"
+            errors["Transaction"] = errors.get("Transaction", "") + error_msg
+
         return errors
 
     def to_dict(self: Self) -> Dict[str, Any]:
