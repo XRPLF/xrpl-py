@@ -36,3 +36,9 @@ class XRPLWebsocketException(XRPLException):
     """
 
     pass
+
+
+class XRPLAuthenticationException(XRPLRequestFailureException):
+    """Raised when authentication with the XRPL node fails (401 or 403)."""
+
+    pass
