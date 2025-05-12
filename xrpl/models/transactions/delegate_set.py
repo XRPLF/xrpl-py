@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 from typing_extensions import Self
 
@@ -16,60 +16,13 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 PERMISSION_MAX_LENGTH = 10
 
-
-class DelegatableTransaction(str, Enum):
-    """Transaction type that are delegatable using DelegateSet transaction."""
-
-    AMM_BID = "AMMBid"
-    AMM_CREATE = "AMMCreate"
-    AMM_CLAWBACK = "AMMClawback"
-    AMM_DELETE = "AMMDelete"
-    AMM_DEPOSIT = "AMMDeposit"
-    AMM_VOTE = "AMMVote"
-    AMM_WITHDRAW = "AMMWithdraw"
-    CHECK_CANCEL = "CheckCancel"
-    CHECK_CASH = "CheckCash"
-    CHECK_CREATE = "CheckCreate"
-    CLAWBACK = "Clawback"
-    CREDENTIAL_ACCEPT = "CredentialAccept"
-    CREDENTIAL_CREATE = "CredentialCreate"
-    CREDENTIAL_DELETE = "CredentialDelete"
-    DEPOSIT_PREAUTH = "DepositPreauth"
-    DID_DELETE = "DIDDelete"
-    DID_SET = "DIDSet"
-    ESCROW_CANCEL = "EscrowCancel"
-    ESCROW_CREATE = "EscrowCreate"
-    ESCROW_FINISH = "EscrowFinish"
-    MPTOKEN_AUTHORIZE = "MPTokenAuthorize"
-    MPTOKEN_ISSUANCE_CREATE = "MPTokenIssuanceCreate"
-    MPTOKEN_ISSUANCE_DESTROY = "MPTokenIssuanceDestroy"
-    MPTOKEN_ISSUANCE_SET = "MPTokenIssuanceSet"
-    NFTOKEN_ACCEPT_OFFER = "NFTokenAcceptOffer"
-    NFTOKEN_BURN = "NFTokenBurn"
-    NFTOKEN_CANCEL_OFFER = "NFTokenCancelOffer"
-    NFTOKEN_CREATE_OFFER = "NFTokenCreateOffer"
-    NFTOKEN_MINT = "NFTokenMint"
-    NFTOKEN_MODIFY = "NFTokenModify"
-    OFFER_CANCEL = "OfferCancel"
-    OFFER_CREATE = "OfferCreate"
-    ORACLE_SET = "OracleSet"
-    ORACLE_DELETE = "OracleDelete"
-    PAYMENT = "Payment"
-    PAYMENT_CHANNEL_CLAIM = "PaymentChannelClaim"
-    PAYMENT_CHANNEL_CREATE = "PaymentChannelCreate"
-    PAYMENT_CHANNEL_FUND = "PaymentChannelFund"
-    PERMISSIONED_DOMAIN_SET = "PermissionedDomainSet"
-    PERMISSIONED_DOMAIN_DELETE = "PermissionedDomainDelete"
-    TICKET_CREATE = "TicketCreate"
-    TRUST_SET = "TrustSet"
-    XCHAIN_ACCOUNT_CREATE_COMMIT = "XChainAccountCreateCommit"
-    XCHAIN_ADD_ACCOUNT_CREATE_ATTESTATION = "XChainAddAccountCreateAttestation"
-    XCHAIN_ADD_CLAIM_ATTESTATION = "XChainAddClaimAttestation"
-    XCHAIN_CLAIM = "XChainClaim"
-    XCHAIN_COMMIT = "XChainCommit"
-    XCHAIN_CREATE_BRIDGE = "XChainCreateBridge"
-    XCHAIN_CREATE_CLAIM_ID = "XChainCreateClaimID"
-    XCHAIN_MODIFY_BRIDGE = "XChainModifyBridge"
+NON_DELEGATABLE_TRANSACTIONS = {
+    TransactionType.ACCOUNT_SET.value,
+    TransactionType.SET_REGULAR_KEY.value,
+    TransactionType.SIGNER_LIST_SET.value,
+    TransactionType.DELEGATE_SET.value,
+    TransactionType.ACCOUNT_DELETE.value,
+}
 
 
 class GranularPermission(str, Enum):
@@ -122,9 +75,7 @@ class Permission(NestedModel):
     transaction.
     """
 
-    permission_value: Union[
-        DelegatableTransaction, GranularPermission
-    ] = REQUIRED  # type: ignore
+    permission_value: str = REQUIRED  # type: ignore
     """
     Transaction level or granular permission.
 
@@ -173,7 +124,16 @@ class DelegateSet(Transaction):
                 f"Length of `permissions` list is greater than {PERMISSION_MAX_LENGTH}."
             )
 
-        if len(self.permissions) != len(set(self.permissions)):
+        entered_permissions = [
+            permission.permission_value for permission in self.permissions
+        ]
+        if len(entered_permissions) != len(set(entered_permissions)):
             return "Duplicate permission value in `permissions` list."
+
+        if set(entered_permissions) & NON_DELEGATABLE_TRANSACTIONS:
+            return (
+                f"Non delegatable transactions found in `permissions` list: "
+                f"{set(entered_permissions) & NON_DELEGATABLE_TRANSACTIONS}."
+            )
 
         return None

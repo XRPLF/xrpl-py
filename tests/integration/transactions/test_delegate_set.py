@@ -9,12 +9,12 @@ from xrpl.models.requests.ledger_entry import Delegate
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import (
     AccountSet,
-    DelegatableTransaction,
     DelegateSet,
     GranularPermission,
     Payment,
 )
 from xrpl.models.transactions.delegate_set import Permission
+from xrpl.models.transactions.types import TransactionType
 from xrpl.utils import xrp_to_drops
 from xrpl.wallet.main import Wallet
 
@@ -63,7 +63,7 @@ class TestDelegateSet(IntegrationTestCase):
             # Authorize bob account to execute Payment transactions and
             # modify the domain of an account behalf of alice's account.
             permissions=[
-                Permission(permission_value=DelegatableTransaction.PAYMENT),
+                Permission(permission_value=TransactionType.PAYMENT),
                 Permission(permission_value=GranularPermission.ACCOUNT_DOMAIN_SET),
             ],
         )
@@ -115,7 +115,7 @@ class TestDelegateSet(IntegrationTestCase):
             # Authorize bob's account to execute Payment transactions
             # and authorize a trustline on behalf of alice's account.
             permissions=[
-                Permission(permission_value=DelegatableTransaction.PAYMENT),
+                Permission(permission_value=TransactionType.PAYMENT),
                 Permission(permission_value=GranularPermission.TRUSTLINE_AUTHORIZE),
             ],
         )
@@ -156,7 +156,7 @@ class TestDelegateSet(IntegrationTestCase):
             # Authorize bob's account to execute Payment transactions
             # and authorize a trustline on behalf of alice's account.
             permissions=[
-                Permission(permission_value=DelegatableTransaction.PAYMENT),
+                Permission(permission_value=TransactionType.PAYMENT),
                 Permission(permission_value=GranularPermission.TRUSTLINE_AUTHORIZE),
             ],
         )
@@ -195,7 +195,7 @@ class TestDelegateSet(IntegrationTestCase):
             ledger_index = ledger_data_response.result["ledger_index"]
 
         self.assertEqual(len(granted_permission), 2)
-        self.assertTrue(DelegatableTransaction.PAYMENT.value in granted_permission)
+        self.assertTrue(TransactionType.PAYMENT.value in granted_permission)
         self.assertTrue(
             GranularPermission.TRUSTLINE_AUTHORIZE.value in granted_permission
         )
