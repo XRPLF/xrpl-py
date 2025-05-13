@@ -34,7 +34,7 @@ class TestPseudoTransactions(TestCase):
         )
         actual = PseudoTransaction.from_xrpl(amendment_dict)
         self.assertEqual(actual, expected)
-        full_dict = {**amendment_dict, "Flags": 0, "TxnSignature": ""}
+        full_dict = {**amendment_dict, "TxnSignature": ""}
         self.assertEqual(actual.to_xrpl(), full_dict)
 
     def test_from_xrpl_set_fee_pre_amendment(self):
@@ -61,7 +61,7 @@ class TestPseudoTransactions(TestCase):
         )
         actual = Transaction.from_xrpl(set_fee_dict)
         self.assertEqual(actual, expected)
-        full_dict = {**set_fee_dict, "Flags": 0, "TxnSignature": ""}
+        full_dict = {**set_fee_dict, "TxnSignature": ""}
         self.assertEqual(actual.to_xrpl(), full_dict)
 
     def test_from_xrpl_set_fee_post_amendment(self):
@@ -85,7 +85,7 @@ class TestPseudoTransactions(TestCase):
         )
         actual = Transaction.from_xrpl(set_fee_dict)
         self.assertEqual(actual, expected)
-        full_dict = {**set_fee_dict, "Flags": 0, "TxnSignature": ""}
+        full_dict = {**set_fee_dict, "TxnSignature": ""}
         self.assertEqual(actual.to_xrpl(), full_dict)
 
     def test_from_xrpl_unl_modify(self):
@@ -108,5 +108,5 @@ class TestPseudoTransactions(TestCase):
         )
         actual = PseudoTransaction.from_xrpl(unl_modify_dict)
         self.assertEqual(actual, expected)
-        full_dict = {**unl_modify_dict, "Flags": 0, "TxnSignature": ""}
+        full_dict = {**unl_modify_dict, "TxnSignature": ""}
         self.assertEqual(actual.to_xrpl(), full_dict)

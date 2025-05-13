@@ -200,7 +200,7 @@ class Transaction(BaseModel):
     details.
     """
 
-    flags: Union[Dict[str, bool], int, List[int]] = 0
+    flags: Optional[Union[Dict[str, bool], int, List[int]]] = None
     """
     A List of flags, or a bitwise map of flags, modifying this transaction's
     behavior. See `Flags Field
@@ -275,11 +275,14 @@ class Transaction(BaseModel):
         """
         # we need to override this because transaction_type is using ``field``
         # which will not include the value in the objects __dict__
-        return {
+        prepared_dict = {
             **super().to_dict(),
             "transaction_type": self.transaction_type.value,
-            "flags": self._flags_to_int(),
         }
+        flags = self._flags_to_int()
+        if flags is not None:
+            prepared_dict["flags"] = flags
+        return prepared_dict
 
     def _iter_to_int(
         self: Self,
@@ -291,7 +294,9 @@ class Transaction(BaseModel):
             accumulator |= flag
         return accumulator
 
-    def _flags_to_int(self: Self) -> int:
+    def _flags_to_int(self: Self) -> int | None:
+        if self.flags is None:
+            return None
         if isinstance(self.flags, int):
             return self.flags
         check_false_flag_definition(tx_type=self.transaction_type, tx_flags=self.flags)
@@ -372,6 +377,8 @@ class Transaction(BaseModel):
         Raises:
             XRPLModelException: if `self.flags` is invalid.
         """
+        if self.flags is None:
+            return False
         if isinstance(self.flags, int):
             return self.flags & flag != 0
         elif isinstance(self.flags, dict):
@@ -488,7 +495,6 @@ class Transaction(BaseModel):
                                 amount and deliver_max fields
         """
         processed_value = cls._process_xrpl_json(value)
-
         # handle the deliver_max alias in Payment transactions
         if (
             "transaction_type" in processed_value
