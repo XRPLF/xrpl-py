@@ -109,6 +109,6 @@ class TestDelegateSet(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'permissions': \"Non delegatable transactions found in `permissions` "
+            "{'permissions': \"Non-delegatable transactions found in `permissions` "
             "list: {<TransactionType.ACCOUNT_DELETE: 'AccountDelete'>}.\"}",
         )

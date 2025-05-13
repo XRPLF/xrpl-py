@@ -133,7 +133,7 @@ class DelegateSet(Transaction):
 
         if set(entered_permissions) & NON_DELEGATABLE_TRANSACTIONS:
             return (
-                f"Non delegatable transactions found in `permissions` list: "
+                f"Non-delegatable transactions found in `permissions` list: "
                 f"{set(entered_permissions) & NON_DELEGATABLE_TRANSACTIONS}."
             )
 
