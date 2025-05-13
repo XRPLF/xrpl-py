@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict
+from typing import Dict, List, Optional, Union
 
 from typing_extensions import Self
 
@@ -55,7 +55,7 @@ class UNLModify(PseudoTransaction):
         init=False,
     )
 
-    flags: int = 0
+    flags: Optional[Union[Dict[str, bool], int, List[int]]] = None
     """
     The Flags value of the EnableAmendment pseudo-transaction indicates the status
     of the amendment at the time of the ledger including the pseudo-transaction.
