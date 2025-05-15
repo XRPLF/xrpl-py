@@ -223,3 +223,16 @@ class TestTransaction(TestCase):
 
         payment_txn = Payment.from_xrpl(payment_tx_json)
         self.assertEqual(delivered_amount, payment_txn.to_dict()["amount"])
+
+    def test_duplicate_account_and_delegate_account(self):
+        with self.assertRaises(XRPLModelException) as err:
+            Transaction(
+                account=_ACCOUNT,
+                delegate=_ACCOUNT,
+                transaction_type=TransactionType.PAYMENT,
+            )
+
+        self.assertEqual(
+            err.exception.args[0],
+            "{'delegate': 'Account and delegate addresses cannot be the same'}",
+        )

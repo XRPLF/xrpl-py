@@ -76,9 +76,7 @@ class Permission(NestedModel):
     """
 
     permission_value: Union[
-        TransactionType,
-        GranularPermission,
-        str,
+        TransactionType, GranularPermission
     ] = REQUIRED  # type: ignore
     """
     Transaction level or granular permission.
@@ -130,8 +128,7 @@ class DelegateSet(Transaction):
             )
 
         entered_permissions = [
-            self._normalize(permission.permission_value)
-            for permission in self.permissions
+            permission.permission_value for permission in self.permissions
         ]
         if len(entered_permissions) != len(set(entered_permissions)):
             return "Duplicate permission value in `permissions` list."
@@ -143,7 +140,3 @@ class DelegateSet(Transaction):
             )
 
         return None
-
-    @staticmethod
-    def _normalize(value: Union[TransactionType, GranularPermission, str]) -> str:
-        return value.value if isinstance(value, Enum) else str(value)

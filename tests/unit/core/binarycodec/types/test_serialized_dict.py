@@ -17,21 +17,24 @@ class TestSTObject(TestCase):
 
     def test_from_value(self):
         for test in _FIXTURES_JSON:
-            expected_json = test["json"]
-            buffer = test["buffer"]
-            transaction = STObject.from_value(expected_json)
-            self.assertEqual(buffer, str(transaction).upper())
+            with self.subTest(name=test["description"], input=test["json"]):
+                expected_json = test["json"]
+                buffer = test["buffer"]
+                transaction = STObject.from_value(expected_json)
+                self.assertEqual(buffer, str(transaction).upper())
 
     def test_from_value_to_json(self):
         for test in _FIXTURES_JSON:
-            expected_json = test["json"]
-            transaction = STObject.from_value(expected_json)
-            self.assertEqual(transaction.to_json(), expected_json)
+            with self.subTest(name=test["description"], input=test["json"]):
+                expected_json = test["json"]
+                transaction = STObject.from_value(expected_json)
+                self.assertEqual(transaction.to_json(), expected_json)
 
     def test_from_parser_to_json(self):
         for test in _FIXTURES_JSON:
-            expected_json = test["json"]
-            buffer = test["buffer"]
-            parser = BinaryParser(buffer)
-            transaction = STObject.from_parser(parser)
-            self.assertEqual(transaction.to_json(), expected_json)
+            with self.subTest(name=test["description"], input=test["json"]):
+                expected_json = test["json"]
+                buffer = test["buffer"]
+                parser = BinaryParser(buffer)
+                transaction = STObject.from_parser(parser)
+                self.assertEqual(transaction.to_json(), expected_json)

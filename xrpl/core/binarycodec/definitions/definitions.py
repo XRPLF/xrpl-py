@@ -75,7 +75,7 @@ _GRANULAR_PERMISSIONS = {
 }
 _DELEGATABLE_PERMISSIONS_STR_TO_CODE_MAP: Dict[str, int] = {
     **{key: value + 1 for (key, value) in _DEFINITIONS["TRANSACTION_TYPES"].items()},
-    **{key: value for (key, value) in _GRANULAR_PERMISSIONS.items()},
+    **_GRANULAR_PERMISSIONS,
 }
 _DELEGATABLE_PERMISSIONS_CODE_TO_STR_MAP: Dict[int, str] = {
     **{value + 1: key for (key, value) in _DEFINITIONS["TRANSACTION_TYPES"].items()},

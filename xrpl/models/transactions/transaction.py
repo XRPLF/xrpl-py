@@ -268,8 +268,7 @@ class Transaction(BaseModel):
             account_txn_id must be None and sequence must be None or 0"""
 
         if self.account == self.delegate:
-            error_msg = "Account and delegate addresses cannot be the same"
-            errors["Transaction"] = errors.get("Transaction", "") + error_msg
+            errors["delegate"] = "Account and delegate addresses cannot be the same"
 
         return errors
 
