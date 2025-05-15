@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Dict, Optional
+
+from typing_extensions import Self
 
 from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
@@ -34,3 +36,11 @@ class AMMInfo(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.AMM_INFO, init=False)
+
+    def _get_errors(self: Self) -> Dict[str, str]:
+        errors = super()._get_errors()
+        if (self.asset is None) != (self.asset2 is None):
+            errors["assets"] = "Must have both `asset` and `asset2` fields."
+        if (self.asset is None) == (self.amm_account is None):
+            errors["params"] = "Must not have both `asset` and `amm_account` fields."
+        return errors
