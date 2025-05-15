@@ -27,17 +27,17 @@ class AMMVote(Transaction):
     of the votes.
     """
 
-    asset: Currency = REQUIRED  # type: ignore
+    asset: Currency = REQUIRED
     """
     The definition for one of the assets in the AMM's pool. This field is required.
     """
 
-    asset2: Currency = REQUIRED  # type: ignore
+    asset2: Currency = REQUIRED
     """
     The definition for the other asset in the AMM's pool. This field is required.
     """
 
-    trading_fee: int = REQUIRED  # type: ignore
+    trading_fee: int = REQUIRED
     """
     The proposed fee to vote for, in units of 1/100,000; a value of 1 is equivalent
     to 0.001%.
