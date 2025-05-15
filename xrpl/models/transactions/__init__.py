@@ -32,6 +32,7 @@ from xrpl.models.transactions.clawback import Clawback
 from xrpl.models.transactions.credential_accept import CredentialAccept
 from xrpl.models.transactions.credential_create import CredentialCreate
 from xrpl.models.transactions.credential_delete import CredentialDelete
+from xrpl.models.transactions.delegate_set import DelegateSet, GranularPermission
 from xrpl.models.transactions.deposit_preauth import DepositPreauth
 from xrpl.models.transactions.did_delete import DIDDelete
 from xrpl.models.transactions.did_set import DIDSet
@@ -141,11 +142,13 @@ __all__ = [
     "CredentialCreate",
     "CredentialDelete",
     "DepositPreauth",
+    "DelegateSet",
     "DIDDelete",
     "DIDSet",
     "EscrowCancel",
     "EscrowCreate",
     "EscrowFinish",
+    "GranularPermission",
     "Memo",
     "MPTokenAuthorize",
     "MPTokenAuthorizeFlag",
