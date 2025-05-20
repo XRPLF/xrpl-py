@@ -59,6 +59,32 @@ _LEDGER_ENTRY_TYPES_CODE_TO_STR_MAP = {
     value: key for (key, value) in _DEFINITIONS["LEDGER_ENTRY_TYPES"].items()
 }
 
+_GRANULAR_PERMISSIONS = {
+    "TrustlineAuthorize": 65537,
+    "TrustlineFreeze": 65538,
+    "TrustlineUnfreeze": 65539,
+    "AccountDomainSet": 65540,
+    "AccountEmailHashSet": 65541,
+    "AccountMessageKeySet": 65542,
+    "AccountTransferRateSet": 65543,
+    "AccountTickSizeSet": 65544,
+    "PaymentMint": 65545,
+    "PaymentBurn": 65546,
+    "MPTokenIssuanceLock": 65547,
+    "MPTokenIssuanceUnlock": 65548,
+}
+
+_tx_delegations = {
+    key: value + 1 for (key, value) in _DEFINITIONS["TRANSACTION_TYPES"].items()
+}
+_DELEGATABLE_PERMISSIONS_STR_TO_CODE_MAP: Dict[str, int] = {
+    **_tx_delegations,
+    **_GRANULAR_PERMISSIONS,
+}
+_DELEGATABLE_PERMISSIONS_CODE_TO_STR_MAP: Dict[int, str] = {
+    **{value: key for (key, value) in _DELEGATABLE_PERMISSIONS_STR_TO_CODE_MAP.items()},
+}
+
 _TYPE_ORDINAL_MAP = _DEFINITIONS["TYPES"]
 
 _FIELD_INFO_MAP = {}
@@ -258,3 +284,29 @@ def get_ledger_entry_type_name(ledger_entry_type: int) -> str:
         The string name of the ledger entry type.
     """
     return cast(str, _LEDGER_ENTRY_TYPES_CODE_TO_STR_MAP[ledger_entry_type])
+
+
+def get_permission_value_type_code(permission_value: str) -> int:
+    """
+    Return an integer representing the given permission value string.
+
+    Args:
+        permission_value: The name of the permission value to get the integer value for.
+
+    Returns:
+        An integer representing the given permission value string.
+    """
+    return _DELEGATABLE_PERMISSIONS_STR_TO_CODE_MAP[permission_value]
+
+
+def get_permission_value_type_name(permission_value: int) -> str:
+    """
+    Return string representing the given permission value from the integer.
+
+    Args:
+        permission_value: The integer permission value.
+
+    Returns:
+        The string name of the permission value.
+    """
+    return _DELEGATABLE_PERMISSIONS_CODE_TO_STR_MAP[permission_value]

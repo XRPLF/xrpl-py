@@ -276,6 +276,9 @@ class Transaction(BaseModel):
     network_id: Optional[int] = None
     """The network id of the transaction."""
 
+    delegate: Optional[str] = None
+    """The delegate account that is sending the transaction."""
+
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.ticket_sequence is not None and (
@@ -286,6 +289,9 @@ class Transaction(BaseModel):
                 "Transaction"
             ] = """If ticket_sequence is provided,
             account_txn_id must be None and sequence must be None or 0"""
+
+        if self.account == self.delegate:
+            errors["delegate"] = "Account and delegate addresses cannot be the same"
 
         return errors
 

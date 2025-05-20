@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Improved validation for models to also check param types
+- Support for `Account Permission` and `Account Permission Delegation` (XLS-74d, XLS-75d)
 
 ## [4.1.0] - 2025-2-13
 
