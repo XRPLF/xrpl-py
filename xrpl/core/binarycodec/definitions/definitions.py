@@ -73,13 +73,16 @@ _GRANULAR_PERMISSIONS = {
     "MPTokenIssuanceLock": 65547,
     "MPTokenIssuanceUnlock": 65548,
 }
+
+_tx_delegations = {
+    key: value + 1 for (key, value) in _DEFINITIONS["TRANSACTION_TYPES"].items()
+}
 _DELEGATABLE_PERMISSIONS_STR_TO_CODE_MAP: Dict[str, int] = {
-    **{key: value + 1 for (key, value) in _DEFINITIONS["TRANSACTION_TYPES"].items()},
+    **_tx_delegations,
     **_GRANULAR_PERMISSIONS,
 }
 _DELEGATABLE_PERMISSIONS_CODE_TO_STR_MAP: Dict[int, str] = {
-    **{value + 1: key for (key, value) in _DEFINITIONS["TRANSACTION_TYPES"].items()},
-    **{value: key for (key, value) in _GRANULAR_PERMISSIONS.items()},
+    **{value: key for (key, value) in _DELEGATABLE_PERMISSIONS_STR_TO_CODE_MAP.items()},
 }
 
 _TYPE_ORDINAL_MAP = _DEFINITIONS["TYPES"]

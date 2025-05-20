@@ -236,3 +236,18 @@ class TestTransaction(TestCase):
             err.exception.args[0],
             "{'delegate': 'Account and delegate addresses cannot be the same'}",
         )
+
+    def test_payment_with_delegate_account(self):
+        payment_tx_json = {
+            "Account": "rGWTUVmm1fB5QUjMYn8KfnyrFNgDiD9H9e",
+            "Destination": "rw71Qs1UYQrSQ9hSgRohqNNQcyjCCfffkQ",
+            "Delegate": "rJ73aumLPTQQmy5wnGhvrogqf5DDhjuzc9",
+            "TransactionType": "Payment",
+            "Amount": "1000000",
+            "Fee": "15",
+            "Flags": 0,
+            "Sequence": 144,
+            "LastLedgerSequence": 6220218,
+        }
+        payment_txn = Payment.from_xrpl(payment_tx_json)
+        self.assertTrue(payment_txn.is_valid())

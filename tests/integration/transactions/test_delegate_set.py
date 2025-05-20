@@ -4,7 +4,7 @@ from tests.integration.it_utils import (
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
-from xrpl.models.requests import LedgerData, LedgerEntry, LedgerEntryType
+from xrpl.models.requests import AccountObjects, AccountObjectType, LedgerEntry
 from xrpl.models.requests.ledger_entry import Delegate
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import (
@@ -120,7 +120,7 @@ class TestDelegateSet(IntegrationTestCase):
         self.assertEqual(len(ledger_entry_response.result["node"]["Permissions"]), 2)
 
     @test_async_and_sync(globals())
-    async def test_fetch_delegate_ledger_data(self, client):
+    async def test_fetch_delegate_account_objects(self, client):
         # Note: Using WALLET, DESTINATION accounts could pollute the test results
         alice = Wallet.create()
         await fund_wallet_async(alice)
@@ -144,32 +144,16 @@ class TestDelegateSet(IntegrationTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-        ledger_index = "validated"
-        marker = None
-        granted_permission = set()
-        while True:
-            ledger_data_response = await client.request(
-                LedgerData(
-                    type=LedgerEntryType.DELEGATE,
-                    ledger_index=ledger_index,
-                    marker=marker,
-                )
-            )
-            for entry in ledger_data_response.result["state"]:
-                if (
-                    entry["Account"] == alice.address
-                    and entry["Authorize"] == bob.address
-                ):
-                    granted_permission.add(
-                        entry["Permissions"][0]["Permission"]["PermissionValue"]
-                    )
-                    granted_permission.add(
-                        entry["Permissions"][1]["Permission"]["PermissionValue"]
-                    )
-            if "marker" not in ledger_data_response.result:
-                break
-            marker = ledger_data_response.result["marker"]
-            ledger_index = ledger_data_response.result["ledger_index"]
+        account_objects_response = await client.request(
+            AccountObjects(account=alice.address, type=AccountObjectType.DELEGATE)
+        )
+
+        granted_permission = {
+            obj["Permission"]["PermissionValue"]
+            for obj in account_objects_response.result["account_objects"][0][
+                "Permissions"
+            ]
+        }
 
         self.assertEqual(len(granted_permission), 2)
         self.assertTrue(TransactionType.PAYMENT.value in granted_permission)
