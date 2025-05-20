@@ -671,6 +671,46 @@
       }
     ],
     [
+      "ExtensionComputeLimit",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 52,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "ExtensionSizeLimit",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 53,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "GasPrice",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 54,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "ComputationAllowance",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 55,
+        "type": "UInt32"
+      }
+    ],
+    [
       "IndexNext",
       {
         "isSerialized": true,
@@ -1851,6 +1891,26 @@
       }
     ],
     [
+      "FinishFunction",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": true,
+        "nth": 32,
+        "type": "Blob"
+      }
+    ],
+    [
+      "FinishFunction",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": true,
+        "nth": 32,
+        "type": "Blob"
+      }
+    ],
+    [
       "Account",
       {
         "isSerialized": true,
@@ -2963,6 +3023,7 @@
     "tecUNFUNDED_AMM": 162,
     "tecUNFUNDED_OFFER": 103,
     "tecUNFUNDED_PAYMENT": 104,
+    "tecWASM_REJECTED": 194,
     "tecXCHAIN_ACCOUNT_CREATE_PAST": 181,
     "tecXCHAIN_ACCOUNT_CREATE_TOO_MANY": 182,
     "tecXCHAIN_BAD_CLAIM_ID": 172,
@@ -2980,7 +3041,6 @@
     "tecXCHAIN_SELF_COMMIT": 184,
     "tecXCHAIN_SENDING_ACCOUNT_MISMATCH": 179,
     "tecXCHAIN_WRONG_CHAIN": 176,
-
     "tefALREADY": -198,
     "tefBAD_ADD_AUTH": -197,
     "tefBAD_AUTH": -196,
@@ -3000,10 +3060,11 @@
     "tefNOT_MULTI_SIGNING": -184,
     "tefNO_AUTH_REQUIRED": -191,
     "tefNO_TICKET": -180,
+    "tefNO_WASM": -177,
     "tefPAST_SEQ": -190,
     "tefTOO_BIG": -181,
+    "tefWASM_FIELD_NOT_INCLUDED": -176,
     "tefWRONG_PRIOR": -189,
-
     "telBAD_DOMAIN": -398,
     "telBAD_PATH_COUNT": -397,
     "telBAD_PUBLIC_KEY": -396,
@@ -3021,7 +3082,6 @@
     "telNO_DST_PARTIAL": -393,
     "telREQUIRES_NETWORK_ID": -385,
     "telWRONG_NETWORK": -386,
-
     "temARRAY_EMPTY": -253,
     "temARRAY_TOO_LARGE": -252,
     "temBAD_AMM_TOKENS": -261,
@@ -3071,7 +3131,6 @@
     "temXCHAIN_BRIDGE_BAD_REWARD_AMOUNT": -255,
     "temXCHAIN_BRIDGE_NONDOOR_OWNER": -257,
     "temXCHAIN_EQUAL_DOOR_ACCOUNTS": -260,
-
     "terFUNDS_SPENT": -98,
     "terINSUF_FEE_B": -97,
     "terLAST": -91,
@@ -3085,7 +3144,6 @@
     "terPRE_TICKET": -88,
     "terQUEUED": -89,
     "terRETRY": -99,
-
     "tesSUCCESS": 0
   },
   "TRANSACTION_TYPES": {
