@@ -13,6 +13,8 @@ from xrpl.core.binarycodec.definitions import (
     get_field_instance,
     get_ledger_entry_type_code,
     get_ledger_entry_type_name,
+    get_permission_value_type_code,
+    get_permission_value_type_name,
     get_transaction_result_code,
     get_transaction_result_name,
     get_transaction_type_code,
@@ -68,6 +70,8 @@ def _str_to_enum(field: str, value: str) -> Union[str, int]:
         return get_transaction_result_code(value)
     if field == "LedgerEntryType":
         return get_ledger_entry_type_code(value)
+    if field == "PermissionValue":
+        return get_permission_value_type_code(value)
     return value
 
 
@@ -79,6 +83,8 @@ def _enum_to_str(field: str, value: int) -> Union[str, int]:
         return get_transaction_result_name(value)
     if field == "LedgerEntryType":
         return get_ledger_entry_type_name(value)
+    if field == "PermissionValue":
+        return get_permission_value_type_name(value)
     return value
 
 
