@@ -117,7 +117,6 @@ def _main(
     existing_library_txs = {m.value for m in TransactionType} | {
         m.value for m in PseudoTransactionType
     }
-    print(sorted(existing_library_txs))
     for tx in tx_formats:
         if tx not in existing_library_txs:
             txs_to_add.append((tx, _key_to_json(tx)))
