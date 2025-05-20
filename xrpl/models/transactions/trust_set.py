@@ -10,9 +10,8 @@ from enum import Enum
 from typing import Optional
 
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
@@ -58,7 +57,7 @@ class TrustSetFlag(int, Enum):
     """Clear the deep freeze on the trust line."""
 
 
-class TrustSetFlagInterface(FlagInterface):
+class TrustSetFlagInterface(TransactionFlagInterface):
     """
     Transactions of the TrustSet type support additional values in the Flags field.
     This TypedDict represents those options.

@@ -8,8 +8,7 @@ from typing import Dict, Optional
 
 from typing_extensions import Final, Self
 
-from xrpl.models.flags import FlagInterface
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
@@ -149,7 +148,7 @@ class AccountSetFlag(int, Enum):
     """
 
 
-class AccountSetFlagInterface(FlagInterface):
+class AccountSetFlagInterface(TransactionFlagInterface):
     """
     Transactions of the AccountSet type support additional values in the Flags field.
     This TypedDict represents those options.

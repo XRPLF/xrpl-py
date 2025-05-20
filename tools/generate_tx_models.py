@@ -199,6 +199,8 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: poetry run python generate_tx_models.py path/to/rippled")
     folder = sys.argv[1]
     sfields, tx_formats = _parse_rippled_source(folder)
     _main(sfields, tx_formats)

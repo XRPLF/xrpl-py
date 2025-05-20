@@ -1271,6 +1271,16 @@
       }
     ],
     [
+      "ParentBatchID",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 35,
+        "type": "Hash256"
+      }
+    ],
+    [
       "hash",
       {
         "isSerialized": false,
@@ -2371,6 +2381,26 @@
       }
     ],
     [
+      "RawTransaction",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 34,
+        "type": "STObject"
+      }
+    ],
+    [
+      "BatchSigner",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 35,
+        "type": "STObject"
+      }
+    ],
+    [
       "Signers",
       {
         "isSerialized": true,
@@ -2597,6 +2627,26 @@
         "isSigningField": true,
         "isVLEncoded": false,
         "nth": 29,
+        "type": "STArray"
+      }
+    ],
+    [
+      "RawTransactions",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 30,
+        "type": "STArray"
+      }
+    ],
+    [
+      "BatchSigners",
+      {
+        "isSerialized": true,
+        "isSigningField": false,
+        "isVLEncoded": false,
+        "nth": 31,
         "type": "STArray"
       }
     ],
@@ -3021,7 +3071,6 @@
     "tecXCHAIN_SELF_COMMIT": 184,
     "tecXCHAIN_SENDING_ACCOUNT_MISMATCH": 179,
     "tecXCHAIN_WRONG_CHAIN": 176,
-
     "tefALREADY": -198,
     "tefBAD_ADD_AUTH": -197,
     "tefBAD_AUTH": -196,
@@ -3044,7 +3093,6 @@
     "tefPAST_SEQ": -190,
     "tefTOO_BIG": -181,
     "tefWRONG_PRIOR": -189,
-
     "telBAD_DOMAIN": -398,
     "telBAD_PATH_COUNT": -397,
     "telBAD_PUBLIC_KEY": -396,
@@ -3062,7 +3110,6 @@
     "telNO_DST_PARTIAL": -393,
     "telREQUIRES_NETWORK_ID": -385,
     "telWRONG_NETWORK": -386,
-
     "temARRAY_EMPTY": -253,
     "temARRAY_TOO_LARGE": -252,
     "temBAD_AMM_TOKENS": -261,
@@ -3100,6 +3147,7 @@
     "temINVALID_ACCOUNT_ID": -268,
     "temINVALID_COUNT": -266,
     "temINVALID_FLAG": -276,
+    "temINVALID_INNER_BATCH": -250,
     "temMALFORMED": -299,
     "temREDUNDANT": -275,
     "temRIPPLE_EMPTY": -274,
@@ -3112,7 +3160,6 @@
     "temXCHAIN_BRIDGE_BAD_REWARD_AMOUNT": -255,
     "temXCHAIN_BRIDGE_NONDOOR_OWNER": -257,
     "temXCHAIN_EQUAL_DOOR_ACCOUNTS": -260,
-
     "terFUNDS_SPENT": -98,
     "terINSUF_FEE_B": -97,
     "terLAST": -91,
@@ -3126,7 +3173,6 @@
     "terPRE_TICKET": -88,
     "terQUEUED": -89,
     "terRETRY": -99,
-
     "tesSUCCESS": 0
   },
   "TRANSACTION_TYPES": {
@@ -3139,6 +3185,7 @@
     "AMMWithdraw": 37,
     "AccountDelete": 21,
     "AccountSet": 3,
+    "Batch": 65,
     "CheckCancel": 18,
     "CheckCash": 17,
     "CheckCreate": 16,

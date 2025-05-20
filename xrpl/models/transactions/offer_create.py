@@ -5,9 +5,8 @@ from enum import Enum
 from typing import Optional
 
 from xrpl.models.amounts import Amount
-from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
@@ -55,7 +54,7 @@ class OfferCreateFlag(int, Enum):
     """
 
 
-class OfferCreateFlagInterface(FlagInterface):
+class OfferCreateFlagInterface(TransactionFlagInterface):
     """
     Transactions of the OfferCreate type support additional values in the Flags field.
     This TypedDict represents those options.

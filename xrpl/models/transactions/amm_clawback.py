@@ -11,9 +11,8 @@ from typing_extensions import Self
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.currencies import Currency
 from xrpl.models.currencies.issued_currency import IssuedCurrency
-from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
@@ -29,7 +28,7 @@ class AMMClawbackFlag(int, Enum):
     TF_CLAW_TWO_ASSETS = 0x00000001
 
 
-class AMMClawbackFlagInterface(FlagInterface):
+class AMMClawbackFlagInterface(TransactionFlagInterface):
     """
     Claw back the specified amount of Asset, and a corresponding amount of Asset2 based
     on the AMM pool's asset proportion; both assets must be issued by the issuer in the

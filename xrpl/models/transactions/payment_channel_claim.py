@@ -6,9 +6,8 @@ from typing import Dict, List, Optional
 
 from typing_extensions import Self
 
-from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import (
     KW_ONLY_DATACLASS,
@@ -48,7 +47,7 @@ class PaymentChannelClaimFlag(int, Enum):
     """
 
 
-class PaymentChannelClaimFlagInterface(FlagInterface):
+class PaymentChannelClaimFlagInterface(TransactionFlagInterface):
     """
     Transactions of the PaymentChannelClaim type support additional values in the Flags
     field. This TypedDict represents those options.

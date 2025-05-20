@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 from hashlib import sha512
 from typing import Any, Dict, List, Optional, Type, Union
 
@@ -13,7 +14,11 @@ from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.amounts.mpt_amount import MPTAmount
 from xrpl.models.base_model import ABBREVIATIONS, BaseModel
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.flags import check_false_flag_definition, interface_to_flag_list
+from xrpl.models.flags import (
+    FlagInterface,
+    check_false_flag_definition,
+    interface_to_flag_list,
+)
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
@@ -154,6 +159,24 @@ class Signer(NestedModel):
 
     :meta hide-value:
     """
+
+
+class TransactionFlag(int, Enum):
+    """
+    Transactions of the Transaction type support additional values in the Flags field.
+    This enum represents those options.
+    """
+
+    TF_INNER_BATCH_TXN = 0x40000000
+
+
+class TransactionFlagInterface(FlagInterface):
+    """
+    Transactions support additional values in the Flags field. This TypedDict
+    represents those options.
+    """
+
+    TF_INNER_BATCH_TXN: bool
 
 
 @require_kwargs_on_init
@@ -426,7 +449,11 @@ class Transaction(BaseModel):
         Raises:
             XRPLModelException: if the Transaction is unsigned.
         """
-        if self.txn_signature is None and self.signers is None:
+        if (
+            self.txn_signature is None
+            and self.signers is None
+            and not self.has_flag(TransactionFlag.TF_INNER_BATCH_TXN)
+        ):
             raise XRPLModelException(
                 "Cannot get the hash from an unsigned Transaction."
             )
