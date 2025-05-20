@@ -10,9 +10,8 @@ from typing_extensions import Self
 
 from xrpl.models.amounts import Amount, IssuedCurrencyAmount
 from xrpl.models.currencies import Currency
-from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
@@ -31,7 +30,7 @@ class AMMDepositFlag(int, Enum):
     TF_TWO_ASSET_IF_EMPTY = 0x00800000
 
 
-class AMMDepositFlagInterface(FlagInterface):
+class AMMDepositFlagInterface(TransactionFlagInterface):
     """
     Transactions of the AMMDeposit type support additional values in the Flags field.
     This TypedDict represents those options.

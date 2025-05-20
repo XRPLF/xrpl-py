@@ -8,10 +8,14 @@ from typing import Any, Dict, List, Optional, Type
 
 from typing_extensions import Self
 
-from xrpl.models.flags import FlagInterface
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Signer, Transaction, TransactionFlag
+from xrpl.models.transactions.transaction import (
+    Signer,
+    Transaction,
+    TransactionFlag,
+    TransactionFlagInterface,
+)
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
@@ -31,7 +35,7 @@ class BatchFlag(int, Enum):
     TF_INDEPENDENT = 0x00080000
 
 
-class BatchFlagInterface(FlagInterface):
+class BatchFlagInterface(TransactionFlagInterface):
     """
     Transactions of the Batch type support additional values in the Flags field.
     This TypedDict represents those options.
@@ -78,7 +82,9 @@ class Batch(Transaction):
                 new_raw_transactions.append(tx)
             else:
                 tx_dict = tx.to_dict()
-                if isinstance(tx_dict["flags"], int):
+                if "flags" not in tx_dict:
+                    tx_dict["flags"] = TransactionFlag.TF_INNER_BATCH_TXN
+                elif isinstance(tx_dict["flags"], int):
                     tx_dict["flags"] += TransactionFlag.TF_INNER_BATCH_TXN
                 elif isinstance(tx_dict["flags"], dict):
                     tx_dict["flags"]["TF_INNER_BATCH_TXN"] = True

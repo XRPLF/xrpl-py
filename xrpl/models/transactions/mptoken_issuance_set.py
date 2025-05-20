@@ -8,9 +8,8 @@ from typing import Dict, Optional
 
 from typing_extensions import Self
 
-from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
@@ -35,7 +34,7 @@ class MPTokenIssuanceSetFlag(int, Enum):
     """
 
 
-class MPTokenIssuanceSetFlagInterface(FlagInterface):
+class MPTokenIssuanceSetFlagInterface(TransactionFlagInterface):
     """
     Transactions of the MPTokenIssuanceSet type support additional values in the
     Flags field.

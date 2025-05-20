@@ -9,9 +9,8 @@ from typing import Dict, Optional
 from typing_extensions import Self
 
 from xrpl.models.amounts import Amount, get_amount_value
-from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
@@ -26,7 +25,7 @@ class NFTokenCreateOfferFlag(int, Enum):
     """
 
 
-class NFTokenCreateOfferFlagInterface(FlagInterface):
+class NFTokenCreateOfferFlagInterface(TransactionFlagInterface):
     """Transaction Flags for an NFTokenCreateOffer Transaction."""
 
     TF_SELL_NFTOKEN: bool
