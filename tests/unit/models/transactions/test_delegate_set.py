@@ -95,7 +95,7 @@ class TestDelegateSet(TestCase):
             + "'}",
         )
 
-    def test_non_delegatable_transactions(self):
+    def test_non_delegable_transactions(self):
         with self.assertRaises(XRPLModelException) as error:
             DelegateSet(
                 account=_ACCOUNT,
@@ -109,6 +109,6 @@ class TestDelegateSet(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'permissions': \"Non-delegatable transactions found in `permissions` "
+            "{'permissions': \"Non-delegable transactions found in `permissions` "
             "list: {<TransactionType.ACCOUNT_DELETE: 'AccountDelete'>}.\"}",
         )
