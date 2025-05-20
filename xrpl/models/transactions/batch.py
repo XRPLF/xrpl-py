@@ -78,7 +78,14 @@ class Batch(Transaction):
                 new_raw_transactions.append(tx)
             else:
                 tx_dict = tx.to_dict()
-                tx_dict["flags"] += TransactionFlag.TF_INNER_BATCH_TXN
+                if isinstance(tx_dict["flags"], int):
+                    tx_dict["flags"] += TransactionFlag.TF_INNER_BATCH_TXN
+                elif isinstance(tx_dict["flags"], dict):
+                    tx_dict["flags"]["TF_INNER_BATCH_TXN"] = True
+                elif isinstance(self.flags, list):
+                    tx_dict["flags"].append(TransactionFlag.TF_INNER_BATCH_TXN)
+                else:  # None
+                    tx_dict["flags"] = TransactionFlag.TF_INNER_BATCH_TXN
                 new_raw_transactions.append(Transaction.from_dict(tx_dict))
         # This is done before dataclass locks in the frozen fields
         # This way of editing is a bit hacky, but it's the recommended method for
