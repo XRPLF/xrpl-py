@@ -21,6 +21,7 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class StreamParameter(str, Enum):
     """Represents possible values of the streams query param for subscribe."""
 
+    BOOK_CHANGES = "book_changes"
     CONSENSUS = "consensus"
     LEDGER = "ledger"
     MANIFESTS = "manifests"
