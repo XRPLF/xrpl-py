@@ -360,7 +360,7 @@ class TestTransaction(IntegrationTestCase):
             raw_tx = transaction.raw_transactions[i]
             self.assertTrue(raw_tx.has_flag(TransactionFlag.TF_INNER_BATCH_TXN))
             self.assertEqual(raw_tx.sequence, sequence + i)
-            self.assertIsNone(raw_tx.network_id)
+            self.assertEqual(raw_tx.network_id, 63456)
             self.assertIsNone(raw_tx.last_ledger_sequence)
             self.assertEqual(raw_tx.fee, "0")
             self.assertEqual(raw_tx.signing_pub_key, "")
