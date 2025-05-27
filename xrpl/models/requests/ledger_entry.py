@@ -75,14 +75,14 @@ class Delegate(BaseModel):
     object ID.
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     The account that wants to authorize another account.
 
     :meta hide-value:
     """
 
-    authorize: str = REQUIRED  # type: ignore
+    authorize: str = REQUIRED
     """
     The authorized account.
 
