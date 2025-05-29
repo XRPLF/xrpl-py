@@ -221,7 +221,7 @@ async def sign_and_reliable_submission_async(
 
 
 def accept_ledger(
-    use_json_client: bool = True, delay: float = LEDGER_ACCEPT_TIME
+    use_json_client: bool = True, delay: float = LEDGER_ACCEPT_TIME, wait: bool = False
 ) -> None:
     """
     Allows integration tests for sync clients to send a `ledger_accept` request
@@ -233,11 +233,12 @@ def accept_ledger(
     """
     client = _choose_client(use_json_client)
     timer = SyncTestTimer(client, delay)
-    timer._timer.join()  # Wait for the timer to finish
+    if wait:
+        timer._timer.join()  # Wait for the timer to finish
 
 
 async def accept_ledger_async(
-    use_json_client: bool = True, delay: float = LEDGER_ACCEPT_TIME
+    use_json_client: bool = True, delay: float = LEDGER_ACCEPT_TIME, wait: bool = False
 ) -> None:
     """
     Allows integration tests for async clients to send a `ledger_accept` request
@@ -249,7 +250,8 @@ async def accept_ledger_async(
     """
     client = _choose_client_async(use_json_client)
     timer = AsyncTestTimer(client, delay)
-    await timer._job()
+    if wait:
+        await timer._job()
 
 
 def _choose_client(use_json_client: bool) -> SyncClient:
