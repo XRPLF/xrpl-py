@@ -232,7 +232,8 @@ def accept_ledger(
         delay: float for how many seconds to wait before accepting ledger.
     """
     client = _choose_client(use_json_client)
-    SyncTestTimer(client, delay)
+    timer = SyncTestTimer(client, delay)
+    timer._timer.join()  # Wait for the timer to finish
 
 
 async def accept_ledger_async(
@@ -247,7 +248,8 @@ async def accept_ledger_async(
         delay: float for how many seconds to wait before accepting ledger.
     """
     client = _choose_client_async(use_json_client)
-    AsyncTestTimer(client, delay)
+    timer = AsyncTestTimer(client, delay)
+    await timer._job()
 
 
 def _choose_client(use_json_client: bool) -> SyncClient:
