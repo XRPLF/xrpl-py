@@ -16,20 +16,11 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class VaultCreateFlag(int, Enum):
     """Flags for the VaultCreate transaction."""
 
-    TF_FREEZE = 0x0001
-    """
-    Indicates that the vault should be frozen.
-    """
-    TF_UNFREEZE = 0x0002
-    """
-    Indicates that the vault should be unfrozen.
-    """
-
-    TF_VAULT_PRIVATE = 0x0003
+    TF_VAULT_PRIVATE = 0x0001
     """
     Indicates that the vault is private. It can only be set during Vault creation.
     """
-    TF_VAULT_SHARE_NON_TRANSFERABLE = 0x0004
+    TF_VAULT_SHARE_NON_TRANSFERABLE = 0x0002
     """
     Indicates the vault share is non-transferable. It can only be set during Vault
     creation.
@@ -39,14 +30,6 @@ class VaultCreateFlag(int, Enum):
 class VaultCreateFlagInterface(FlagInterface):
     """Interface for the VaultCreate transaction flags."""
 
-    TF_FREEZE: bool
-    """
-    Indicates that the vault should be frozen.
-    """
-    TF_UNFREEZE: bool
-    """
-    Indicates that the vault should be unfrozen.
-    """
     TF_VAULT_PRIVATE: bool
     """
     Indicates that the vault is private. It can only be set during Vault creation.
@@ -69,7 +52,7 @@ class VaultCreate(Transaction):
     data: Optional[str] = None
     """Arbitrary Vault metadata, limited to 256 bytes."""
 
-    asset_maximum: Optional[str] = None
+    assets_maximum: Optional[str] = None
     """The maximum asset amount that can be held in a vault."""
 
     mptoken_metadata: Optional[str] = None

@@ -23,7 +23,7 @@ class VaultSet(Transaction):
     data: Optional[str] = None
     """Arbitrary Vault metadata, limited to 256 bytes."""
 
-    asset_maximum: Optional[str] = None
+    assets_maximum: Optional[str] = None
     """The maximum asset amount that can be held in a vault. The value cannot be lower
     than the current AssetTotal unless the value is 0.
     """

@@ -41,7 +41,7 @@ class LedgerEntryType(str, Enum):
     PAYMENT_CHANNEL = "payment_channel"
     PERMISSIONED_DOMAIN = "permissioned_domain"
     SIGNER_LIST = "signer_list"
-    SINGLE_ASSET_VAULT = "vault_id"
+    SINGLE_ASSET_VAULT = "vault"
     STATE = "state"
     TICKET = "ticket"
     MPT_ISSUANCE = "mpt_issuance"
@@ -260,6 +260,28 @@ class Ticket(BaseModel):
 
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
+class Vault(BaseModel):
+    """Required fields for requesting a Vault ledger-object if not querying by
+    object ID.
+    """
+
+    owner: str = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+    seq: int = REQUIRED  # type: ignore
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class XChainClaimID(XChainBridge):
     """Required fields for requesting an XChainClaimID if not querying by object ID."""
 
@@ -316,8 +338,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     payment_channel: Optional[str] = None
     permissioned_domain: Optional[Union[str, PermissionedDomain]] = None
     ripple_state: Optional[RippleState] = None
-    # Single Asset Vault ledger-object can be retrieved by its index only
-    vault_id: Optional[str] = None
+    vault: Optional[Union[str, Vault]] = None
     ticket: Optional[Union[str, Ticket]] = None
     bridge_account: Optional[str] = None
     bridge: Optional[XChainBridge] = None
@@ -352,7 +373,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
                 self.payment_channel,
                 self.permissioned_domain,
                 self.ripple_state,
-                self.vault_id,
+                self.vault,
                 self.ticket,
                 self.xchain_claim_id,
                 self.xchain_create_account_claim_id,
