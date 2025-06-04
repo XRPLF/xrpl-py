@@ -1271,6 +1271,16 @@
       }
     ],
     [
+      "VaultID",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 35,
+        "type": "Hash256"
+      }
+    ],
+    [
       "hash",
       {
         "isSerialized": false,
@@ -2061,6 +2071,46 @@
       }
     ],
     [
+      "AssetsAvailable",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 2,
+        "type": "Number"
+      }
+    ],
+    [
+      "AssetsMaximum",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 3,
+        "type": "Number"
+      }
+    ],
+    [
+      "AssetsTotal",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 4,
+        "type": "Number"
+      }
+    ],
+    [
+      "LossUnrealized",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 5,
+        "type": "Number"
+      }
+    ],
+    [
       "TransactionMetaData",
       {
         "isSerialized": true,
@@ -2691,6 +2741,16 @@
       }
     ],
     [
+      "WithdrawalPolicy",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 20,
+        "type": "UInt8"
+      }
+    ],
+    [
       "TakerPaysCurrency",
       {
         "isSerialized": true,
@@ -2797,6 +2857,16 @@
         "isSigningField": true,
         "isVLEncoded": false,
         "nth": 1,
+        "type": "Hash192"
+      }
+    ],
+    [
+      "ShareMPTID",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 2,
         "type": "Hash192"
       }
     ],
@@ -2938,6 +3008,7 @@
     "RippleState": 114,
     "SignerList": 83,
     "Ticket": 84,
+    "Vault" : 132,
     "XChainOwnedClaimID": 113,
     "XChainOwnedCreateAccountClaimID": 116
   },
@@ -3004,6 +3075,9 @@
     "tecUNFUNDED_AMM": 162,
     "tecUNFUNDED_OFFER": 103,
     "tecUNFUNDED_PAYMENT": 104,
+    "tecWRONG_ASSET": 194,
+    "tecLIMIT_EXCEEDED": 195,
+    "tecPSEUDO_ACCOUNT": 196,
     "tecXCHAIN_ACCOUNT_CREATE_PAST": 181,
     "tecXCHAIN_ACCOUNT_CREATE_TOO_MANY": 182,
     "tecXCHAIN_BAD_CLAIM_ID": 172,
@@ -3118,6 +3192,7 @@
     "terLAST": -91,
     "terNO_ACCOUNT": -96,
     "terNO_AMM": -87,
+    "tedADDRESS_COLLISION": -86,
     "terNO_AUTH": -95,
     "terNO_LINE": -94,
     "terNO_RIPPLE": -90,
@@ -3182,6 +3257,12 @@
     "TicketCreate": 10,
     "TrustSet": 20,
     "UNLModify": 102,
+    "VaultCreate": 65,
+    "VaultClawback": 70,
+    "VaultDeposit": 68,
+    "VaultDelete": 67,
+    "VaultSet": 66,
+    "VaultWithdraw": 69,
     "XChainAccountCreateCommit": 44,
     "XChainAddAccountCreateAttestation": 46,
     "XChainAddClaimAttestation": 45,
