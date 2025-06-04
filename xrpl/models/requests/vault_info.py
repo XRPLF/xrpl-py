@@ -24,8 +24,8 @@ class VaultInfo(Request, LookupByLedgerRequest):
     details.
     """
 
-    vault_id: Optional[str] = None  # type: ignore
-    owner: Optional[str] = None  # type: ignore
-    seq: Optional[int] = None  # type: ignore
+    vault_id: Optional[str] = None
+    owner: Optional[str] = None
+    seq: Optional[int] = None
 
     method: RequestMethod = field(default=RequestMethod.VAULT_INFO, init=False)
