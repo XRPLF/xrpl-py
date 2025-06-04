@@ -50,6 +50,7 @@ class MPTAmount(BaseModel):
         """
         return MPTCurrency(mpt_issuance_id=self.mpt_issuance_id)
 
+
 class MPTIssue:
     """
     This class represents an MPT issue. It is similar to the Issue class, but
