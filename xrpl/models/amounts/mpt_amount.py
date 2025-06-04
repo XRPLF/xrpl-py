@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Union
+from typing import Dict
 
 from typing_extensions import Self
 
 from xrpl.models.base_model import BaseModel
+from xrpl.models.currencies.mpt_currency import MPTCurrency
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
@@ -24,7 +25,7 @@ class MPTAmount(BaseModel):
     :meta hide-value:
     """
 
-    value: Union[str, int, float] = REQUIRED  # type: ignore
+    value: str = REQUIRED  # type: ignore
     """
     This field is required.
 
@@ -40,6 +41,14 @@ class MPTAmount(BaseModel):
         """
         return {**super().to_dict(), "value": str(self.value)}
 
+    def to_currency(self: Self) -> MPTCurrency:
+        """
+        Build an MPTCurrency from this MPTAmount.
+
+        Returns:
+            The MPTCurrency for this MPTAmount.
+        """
+        return MPTCurrency(mpt_issuance_id=self.mpt_issuance_id)
 
 class MPTIssue:
     """

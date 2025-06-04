@@ -24,6 +24,7 @@ class AccountObjectType(str, Enum):
     CHECK = "check"
     CREDENTIAL = "credential"
     DEPOSIT_PREAUTH = "deposit_preauth"
+    DELEGATE = "delegate"
     DID = "did"
     ESCROW = "escrow"
     MPT_ISSUANCE = "mpt_issuance"

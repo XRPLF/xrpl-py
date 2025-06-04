@@ -30,6 +30,7 @@ class LedgerEntryType(str, Enum):
     BRIDGE = "bridge"
     CHECK = "check"
     CREDENTIAL = "credential"
+    DELEGATE = "delegate"
     DEPOSIT_PREAUTH = "deposit_preauth"
     DIRECTORY = "directory"
     DID = "did"
@@ -65,6 +66,29 @@ class Credential(BaseModel):
 
     credential_type: str = REQUIRED  # type: ignore
     """The type of the credential, as issued."""
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+class Delegate(BaseModel):
+    """
+    Required fields for requesting a Delegate ledger object if not querying by
+    object ID.
+    """
+
+    account: str = REQUIRED  # type: ignore
+    """
+    The account that wants to authorize another account.
+
+    :meta hide-value:
+    """
+
+    authorize: str = REQUIRED  # type: ignore
+    """
+    The authorized account.
+
+    :meta hide-value:
+    """
 
 
 @require_kwargs_on_init
@@ -327,6 +351,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     account_root: Optional[str] = None
     check: Optional[str] = None
     credential: Optional[Union[str, Credential]] = None
+    delegate: Optional[Union[str, Delegate]] = None
     deposit_preauth: Optional[Union[str, DepositPreauth]] = None
     did: Optional[str] = None
     directory: Optional[Union[str, Directory]] = None
@@ -362,6 +387,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
                 self.account_root,
                 self.check,
                 self.credential,
+                self.delegate,
                 self.deposit_preauth,
                 self.did,
                 self.directory,
