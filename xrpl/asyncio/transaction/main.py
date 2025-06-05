@@ -262,8 +262,9 @@ async def autofill(
 ) -> T:
     """
     Autofills fields in a transaction. This will set all autofill-able fields according
-    to the current state of the server this Client is connected to. It also converts all
-    X-Addresses to classic addresses.
+    to the current state of the server this Client is connected to. For Batch
+    transactions, it will also handle autofilling inner transactions. It also converts
+    all X-Addresses to classic addresses.
 
     Args:
         transaction: the transaction to be signed.
@@ -555,7 +556,7 @@ async def _autofill_batch(
                 raw_txn_dict[field_name] = expected_value
             elif raw_txn_dict[field_name] != expected_value:
                 raise XRPLException(
-                    f"Must have a `{field_name}` of ${repr(expected_value)} in an "
+                    f"Must have a `{field_name}` of {repr(expected_value)} in an "
                     "inner Batch transaction."
                 )
 
@@ -571,9 +572,8 @@ async def _autofill_batch(
             raise XRPLException(
                 "Must not have a `signers` field in an inner Batch transaction."
             )
-        if raw_txn.network_id is None:
-            if _tx_needs_networkID(client):
-                raw_txn_dict["network_id"] = client.network_id
+        if raw_txn.network_id is None and _tx_needs_networkID(client):
+            raw_txn_dict["network_id"] = client.network_id
         if raw_txn.last_ledger_sequence is not None:
             raise XRPLException(
                 "Must not have a `last_ledger_sequence` field in an inner Batch "

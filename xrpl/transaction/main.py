@@ -115,9 +115,10 @@ def autofill(
     transaction: T, client: SyncClient, signers_count: Optional[int] = None
 ) -> T:
     """
-    Autofills fields in a transaction. This will set `sequence`, `fee`, and
-    `last_ledger_sequence` according to the current state of the server this Client is
-    connected to. It also converts all X-Addresses to classic addresses.
+    Autofills fields in a transaction. This will set all autofill-able fields according
+    to the current state of the server this Client is connected to. For Batch
+    transactions, it will also handle autofilling inner transactions. It also converts
+    all X-Addresses to classic addresses.
 
     Args:
         transaction: the transaction to be signed.

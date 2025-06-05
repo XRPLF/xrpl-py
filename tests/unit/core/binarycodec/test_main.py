@@ -413,18 +413,16 @@ class TestMainSigning(TestCase):
         actual = encode_for_signing_batch(json)
         self.assertEqual(
             actual,
-            "".join(
-                [
-                    # hash prefix
-                    "42434800",
-                    # flags
-                    "00000001",
-                    # transaction_ids length
-                    "00000002",
-                    # transaction_ids
-                    "ABE4871E9083DF66727045D49DEEDD3A6F166EB7F8D1E92FE868F02E76B2C5CA",
-                    "795AAC88B59E95C3497609749127E69F12958BC016C600C770AEEB1474C840B4",
-                ]
+            (
+                # hash prefix
+                "42434800",
+                # flags
+                "00000001",
+                # transaction_ids length
+                "00000002",
+                # transaction_ids
+                "ABE4871E9083DF66727045D49DEEDD3A6F166EB7F8D1E92FE868F02E76B2C5CA",
+                "795AAC88B59E95C3497609749127E69F12958BC016C600C770AEEB1474C840B4",
             ),
         )
 
