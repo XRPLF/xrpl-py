@@ -3,7 +3,6 @@ name: Snippets
 on:
   push:
     branches: [main]
-  pull_request:
   workflow_dispatch:
 
 env:
@@ -14,6 +13,7 @@ jobs:
     name: Snippet test
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 1
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
 
