@@ -473,7 +473,8 @@ async def _calculate_fee_per_transaction_type(
         transaction: the Transaction to be submitted.
         client: the network client with which to submit the transaction.
         signers_count: the expected number of signers for this transaction.
-            Only used for multisigned transactions.
+            Only used for multisigned transactions and multi-account/multi-signed Batch
+            transactions.
 
     Returns:
         The expected Transaction fee in drops
@@ -510,11 +511,8 @@ async def _calculate_fee_per_transaction_type(
                 for raw_txn in batch.raw_transactions
             ]
         )
-        if batch.batch_signers is not None:
-            for signer in batch.batch_signers:
-                base_fee += len(signer.signers) if signer.signers is not None else 1
 
-    # Multi-signed Transaction
+    # Multi-signed/Multi-Account Batch Transactions
     # BaseFee × (1 + Number of Signatures Provided)
     if signers_count is not None and signers_count > 0:
         base_fee += net_fee * (1 + signers_count)
