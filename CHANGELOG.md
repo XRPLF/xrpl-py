@@ -10,16 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Improved validation for models to also check param types
 - Support for `Account Permission` and `Account Permission Delegation` (XLS-74d, XLS-75d)
-- Support for the `Batch` amendment (XLS-56d).
+- Support for the `Batch` amendment (XLS-56d)
 
 ### Fixed
 - Add `MPTCurrency` support in `Issue` (rippled internal type)
-- Fixed the implementation error in get_latest_open_ledger_sequence method. The change uses the "current" ledger for extracting sequence number.
+- Fixed the implementation error in get_latest_open_ledger_sequence method. The change uses the "current" ledger for extracting sequence number
 - Increase default maximum payload size for websocket client
-- Fixed the default behavior of flags field when preparing transactions. By default, flags are not part of the transaction if not explicitly provided.
-- Handle autofilling better when multisigning transactions.
-- Improve typing for transaction-related helper functions.
-- Improve handling of `TicketSequence`.
+- Fixed the default behavior of flags field when preparing transactions. By default, flags are not part of the transaction if not explicitly provided
+- Handle autofilling better when multisigning transactions
+- Improve typing for transaction-related helper functions
+- Improve handling of `TicketSequence`
 
 ## [4.1.0] - 2025-2-13
 
