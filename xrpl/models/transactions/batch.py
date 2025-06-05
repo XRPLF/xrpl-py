@@ -108,6 +108,8 @@ class Batch(Transaction):
                 errors[f"raw_transactions[{i}]"] = (
                     "RawTransaction must have tfInnerBatchTxn flag set."
                 )
+        if len(self.raw_transactions) < 2:
+            errors["raw_transactions"] = "Batch must contain at least 2 transactions."
         return errors
 
     @classmethod
