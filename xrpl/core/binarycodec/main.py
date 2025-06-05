@@ -3,7 +3,7 @@ Codec for encoding objects into the XRP Ledger's canonical binary format and
 decoding them.
 """
 
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, List, Optional, TypedDict, cast
 
 from typing_extensions import Final
 
@@ -71,7 +71,17 @@ def encode_for_signing_claim(json: Dict[str, Any]) -> str:
     return buffer.hex().upper()
 
 
-def encode_for_signing_batch(json: Dict[str, Any]) -> str:
+class BatchSigningDict(TypedDict):
+    """
+    A TypedDict for the JSON representation of a Batch transaction that is
+    intended to be signed.
+    """
+
+    flags: int
+    transaction_ids: List[str]
+
+
+def encode_for_signing_batch(json: BatchSigningDict) -> str:
     """
     Encode a Batch transaction's data to be signed.
 

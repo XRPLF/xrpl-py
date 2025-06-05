@@ -1,10 +1,11 @@
 """Helper functions for signing multi-account Batch transactions."""
 
-from typing import Any, Dict, List, Union, cast
+from typing import List, Union, cast
 
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec.codec import decode_classic_address
 from xrpl.core.binarycodec import encode, encode_for_signing_batch
+from xrpl.core.binarycodec.main import BatchSigningDict
 from xrpl.core.keypairs import sign
 from xrpl.models.transactions import Batch, Signer, Transaction
 from xrpl.models.transactions.batch import BatchSigner
@@ -33,8 +34,8 @@ def sign_multiaccount_batch(
     if wallet.address not in involved_accounts:
         raise XRPLException("Must be signing for an address included in the Batch.")
 
-    fields_to_sign: Dict[str, Any] = {
-        "flags": transaction.flags,
+    fields_to_sign: BatchSigningDict = {
+        "flags": transaction._flags_to_int() or 0,
         "transaction_ids": [tx.get_hash() for tx in transaction.raw_transactions],
     }
     if multisign:
