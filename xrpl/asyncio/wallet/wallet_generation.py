@@ -216,30 +216,13 @@ async def _request_funding(
     usage_context: Optional[str] = None,
     user_agent: Optional[str] = None,
 ) -> None:
-    max_backoff_time = 600  # 10 minutes
-    backoff = 5  # Initial backoff in seconds
-
-    async def make_request() -> httpx.Response:
-        async with httpx.AsyncClient() as http_client:
-            json_body = {"destination": address, "userAgent": user_agent}
-            if usage_context is not None:
-                json_body["usageContext"] = usage_context
-            return await http_client.post(url=url, json=json_body)
-
-    while True:
-        response = await make_request()
-        if response.status_code == httpx.codes.OK:
-            return
-
-        if response.status_code >= 500:
-            if backoff > max_backoff_time:
-                break
-            await asyncio.sleep(backoff)
-            backoff *= 2
-        else:
-            response.raise_for_status()
-
-    response.raise_for_status()
+    async with httpx.AsyncClient() as http_client:
+        json_body = {"destination": address, "userAgent": user_agent}
+        if usage_context is not None:
+            json_body["usageContext"] = usage_context
+        response = await http_client.post(url=url, json=json_body)
+    if not response.status_code == httpx.codes.OK:
+        response.raise_for_status()
 
 
 async def _try_to_get_next_seq(address: str, client: Client) -> Optional[int]:
