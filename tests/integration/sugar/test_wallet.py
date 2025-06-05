@@ -29,7 +29,7 @@ async def generate_faucet_wallet_with_retry(*args, **kwargs):
         try:
             return await generate_faucet_wallet(*args, **kwargs)
         except httpx.HTTPStatusError as e:
-            if e.response.status_code != 503 or e.response.status_code != 429:
+            if e.response.status_code not in (503, 429):
                 raise
             elapsed = time.monotonic() - start_time
             if elapsed > MAX_RETRY_DURATION:
@@ -46,7 +46,7 @@ def sync_generate_faucet_wallet_with_retry(*args, **kwargs):
         try:
             return sync_generate_faucet_wallet(*args, **kwargs)
         except httpx.HTTPStatusError as e:
-            if e.response.status_code != 503 or e.response.status_code != 429:
+            if e.response.status_code not in (503, 429):
                 raise
             elapsed = time.monotonic() - start_time
             if elapsed > MAX_RETRY_DURATION:
