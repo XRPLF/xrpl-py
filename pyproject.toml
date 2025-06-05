@@ -45,7 +45,7 @@ httpx = ">=0.18.1,<0.29.0"
 websockets = ">=11"
 Deprecated = "^1.2.13"
 types-Deprecated = "^1.2.9"
-pycryptodome = "^3.16.0"
+pycryptodome = "^3.23.0"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^7.1.2"

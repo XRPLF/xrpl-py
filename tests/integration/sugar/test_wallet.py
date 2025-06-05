@@ -1,10 +1,13 @@
 import asyncio
+import time
 from threading import Thread
 
 try:
     from unittest import IsolatedAsyncioTestCase
 except ImportError:
     from aiounittest import AsyncTestCase as IsolatedAsyncioTestCase  # type: ignore
+
+import httpx
 
 from tests.integration.it_utils import submit_transaction_async
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
@@ -14,11 +17,50 @@ from xrpl.models.requests import AccountInfo
 from xrpl.models.transactions import Payment
 from xrpl.wallet import generate_faucet_wallet as sync_generate_faucet_wallet
 
+# Add retry logic for wallet funding to handle newly introduced faucet rate limiting.
+MAX_RETRY_DURATION = 600  # 10 minutes
+INITIAL_BACKOFF = 1  # 1 second
+MAX_BACKOFF = 30  # max wait between retries
+
+
+async def generate_faucet_wallet_with_retry(*args, **kwargs):
+    start_time = time.monotonic()
+    backoff = INITIAL_BACKOFF
+
+    while True:
+        try:
+            return await generate_faucet_wallet(*args, **kwargs)
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code not in (503, 429):
+                raise
+            elapsed = time.monotonic() - start_time
+            if elapsed > MAX_RETRY_DURATION:
+                raise TimeoutError("Faucet funding failed after 10 minutes.") from e
+            await asyncio.sleep(backoff)
+            backoff = min(backoff * 2, MAX_BACKOFF)
+
+
+def sync_generate_faucet_wallet_with_retry(*args, **kwargs):
+    start_time = time.monotonic()
+    backoff = INITIAL_BACKOFF
+
+    while True:
+        try:
+            return sync_generate_faucet_wallet(*args, **kwargs)
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code not in (503, 429):
+                raise
+            elapsed = time.monotonic() - start_time
+            if elapsed > MAX_RETRY_DURATION:
+                raise TimeoutError("Faucet funding failed after 10 minutes.") from e
+            time.sleep(backoff)
+            backoff = min(backoff * 2, MAX_BACKOFF)
+
 
 def sync_generate_faucet_wallet_and_fund_again(
     self, client, faucet_host=None, usage_context="integration_test"
 ):
-    wallet = sync_generate_faucet_wallet(
+    wallet = sync_generate_faucet_wallet_with_retry(
         client, faucet_host=faucet_host, usage_context=usage_context
     )
     result = client.request(
@@ -29,7 +71,7 @@ def sync_generate_faucet_wallet_and_fund_again(
     balance = int(result.result["account_data"]["Balance"])
     self.assertTrue(balance > 0)
 
-    new_wallet = sync_generate_faucet_wallet(
+    new_wallet = sync_generate_faucet_wallet_with_retry(
         client, wallet, faucet_host=faucet_host, usage_context="integration_test"
     )
     new_result = client.request(
@@ -44,7 +86,7 @@ def sync_generate_faucet_wallet_and_fund_again(
 async def generate_faucet_wallet_and_fund_again(
     self, client, faucet_host=None, usage_context="integration_test"
 ):
-    wallet = await generate_faucet_wallet(
+    wallet = await generate_faucet_wallet_with_retry(
         client, faucet_host=faucet_host, usage_context=usage_context
     )
     result = await client.request(
@@ -55,7 +97,7 @@ async def generate_faucet_wallet_and_fund_again(
     balance = int(result.result["account_data"]["Balance"])
     self.assertTrue(balance > 0)
 
-    new_wallet = await generate_faucet_wallet(
+    new_wallet = await generate_faucet_wallet_with_retry(
         client, wallet, faucet_host=faucet_host, usage_context=usage_context
     )
     new_result = await client.request(
