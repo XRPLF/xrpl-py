@@ -511,7 +511,8 @@ async def _calculate_fee_per_transaction_type(
             ]
         )
         if batch.batch_signers is not None:
-            base_fee += base_fee * len(batch.batch_signers)
+            for signer in batch.batch_signers:
+                base_fee += len(signer.signers) if signer.signers is not None else 1
 
     # Multi-signed Transaction
     # BaseFee × (1 + Number of Signatures Provided)
