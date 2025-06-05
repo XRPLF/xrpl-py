@@ -504,7 +504,12 @@ async def _calculate_fee_per_transaction_type(
 
     elif transaction.transaction_type == TransactionType.BATCH:
         batch = cast(Batch, transaction)
-        base_fee = base_fee * (2 + len(batch.raw_transactions))
+        base_fee = base_fee * 2 + sum(
+            [
+                int(await _calculate_fee_per_transaction_type(raw_txn, client))
+                for raw_txn in batch.raw_transactions
+            ]
+        )
         if batch.batch_signers is not None:
             base_fee += base_fee * len(batch.batch_signers)
 

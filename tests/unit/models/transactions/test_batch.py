@@ -39,3 +39,22 @@ class TestBatch(TestCase):
                 flags=BatchFlag.TF_ALL_OR_NOTHING,
                 raw_transactions=[payment],
             )
+
+    def test_bad_flag_type(self):
+        payment = Payment(
+            account=_ACCOUNT,
+            amount="1",
+            destination=_DESTINATION,
+        )
+        payment2 = Payment(
+            account=_ACCOUNT,
+            amount="1",
+            destination=_DESTINATION,
+            flags="not_a_flag",
+        )
+        with self.assertRaises(XRPLModelException):
+            Batch(
+                account=_ACCOUNT,
+                flags=BatchFlag.TF_ALL_OR_NOTHING,
+                raw_transactions=[payment, payment2],
+            )

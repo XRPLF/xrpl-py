@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, Type
 
 from typing_extensions import Self
 
+from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import (
@@ -78,6 +79,8 @@ class Batch(Transaction):
         """Called by dataclasses immediately after __init__."""
         new_raw_transactions = []
         for tx in self.raw_transactions:
+            # Ensure that every inner transaction has the tfInnerBatchTxn flag set.
+            # If it does not, set it.
             if tx.has_flag(TransactionFlag.TF_INNER_BATCH_TXN):
                 new_raw_transactions.append(tx)
             else:
@@ -90,8 +93,12 @@ class Batch(Transaction):
                     tx_dict["flags"]["TF_INNER_BATCH_TXN"] = True
                 elif isinstance(self.flags, list):
                     tx_dict["flags"].append(TransactionFlag.TF_INNER_BATCH_TXN)
-                else:  # None
+                elif tx_dict["flags"] is None:
                     tx_dict["flags"] = TransactionFlag.TF_INNER_BATCH_TXN
+                else:
+                    raise XRPLModelException(
+                        "Invalid `flags` type for raw transaction in Batch."
+                    )
                 new_raw_transactions.append(Transaction.from_dict(tx_dict))
         # This is done before dataclass locks in the frozen fields
         # This way of editing is a bit hacky, but it's the recommended method for
