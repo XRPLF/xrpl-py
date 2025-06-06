@@ -108,6 +108,12 @@ Then to actually run the tests, run the command:
 poetry run poe test_integration
 ```
 
+#### Faucet Tests
+
+```bash
+poetry run poe test_faucet
+```
+
 #### Code Coverage
 
 To run both unit and integration tests and see code coverage:

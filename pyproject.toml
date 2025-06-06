@@ -89,6 +89,7 @@ precision = 2
 [tool.poe.tasks]
 test_unit = "coverage run -m unittest discover tests/unit"
 test_integration = "coverage run -m unittest discover tests/integration"
+test_faucet = "coverage run -m unittest discover tests/faucet"
 lint = "poetry run flake8 xrpl tests snippets"
 definitions = "poetry run python3 tools/generate_definitions.py"
 
