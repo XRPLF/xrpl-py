@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from hashlib import sha512
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union, cast
 
 from typing_extensions import Final, Self
 
@@ -135,7 +135,7 @@ class Signer(NestedModel):
     field.
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     The address of the Signer. This can be a funded account in the XRP
     Ledger or an unfunded address.
@@ -144,7 +144,7 @@ class Signer(NestedModel):
     :meta hide-value:
     """
 
-    txn_signature: str = REQUIRED  # type: ignore
+    txn_signature: str = REQUIRED
     """
     The signature that this Signer provided for this transaction.
     This field is required.
@@ -152,7 +152,7 @@ class Signer(NestedModel):
     :meta hide-value:
     """
 
-    signing_pub_key: str = REQUIRED  # type: ignore
+    signing_pub_key: str = REQUIRED
     """
     The public key that should be used to verify this Signer's signature.
     This field is required.
@@ -188,16 +188,14 @@ class Transaction(BaseModel):
     transaction types <https://xrpl.org/transaction-common-fields.html>`_.
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     The address of the sender of the transaction. Required.
 
     :meta hide-value:
     """
 
-    transaction_type: Union[
-        TransactionType, PseudoTransactionType
-    ] = REQUIRED  # type: ignore
+    transaction_type: Union[TransactionType, PseudoTransactionType] = REQUIRED
 
     fee: Optional[str] = None  # auto-fillable
     """
@@ -379,7 +377,7 @@ class Transaction(BaseModel):
                     "Transaction does not include transaction_type."
                 )
             correct_type = cls.get_transaction_type(value["transaction_type"])
-            return correct_type.from_dict(value)  # type: ignore
+            return cast(Self, correct_type.from_dict(value))
         else:
             if "transaction_type" in value:
                 if value["transaction_type"] != cls.__name__:

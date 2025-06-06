@@ -36,14 +36,14 @@ class IssuedCurrency(BaseModel):
     See https://xrpl.org/currency-formats.html#specifying-currency-amounts
     """
 
-    currency: str = REQUIRED  # type: ignore
+    currency: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    issuer: str = REQUIRED  # type: ignore
+    issuer: str = REQUIRED
     """
     This field is required.
 
