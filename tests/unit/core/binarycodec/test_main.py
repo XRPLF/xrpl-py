@@ -11,6 +11,7 @@ from xrpl.core.binarycodec.main import (
     encode,
     encode_for_multisigning,
     encode_for_signing,
+    encode_for_signing_batch,
     encode_for_signing_claim,
 )
 
@@ -400,6 +401,30 @@ class TestMainSigning(TestCase):
             "4F5FB100000000000003E8"
         )
         self.assertEqual(encode_for_signing_claim(json), expected)
+
+    def test_batch(self):
+        flags = 1
+        transaction_ids = [
+            "ABE4871E9083DF66727045D49DEEDD3A6F166EB7F8D1E92FE868F02E76B2C5CA",
+            "795AAC88B59E95C3497609749127E69F12958BC016C600C770AEEB1474C840B4",
+        ]
+
+        json = {"flags": flags, "transaction_ids": transaction_ids}
+        actual = encode_for_signing_batch(json)
+        self.assertEqual(
+            actual,
+            (
+                # hash prefix
+                "42434800"
+                # flags
+                "00000001"
+                # transaction_ids length
+                "00000002"
+                # transaction_ids
+                "ABE4871E9083DF66727045D49DEEDD3A6F166EB7F8D1E92FE868F02E76B2C5CA"
+                "795AAC88B59E95C3497609749127E69F12958BC016C600C770AEEB1474C840B4"
+            ),
+        )
 
     def test_multisig(self):
         signing_account = "rJZdUusLDtY9NEsGea7ijqhVrXv98rYBYN"

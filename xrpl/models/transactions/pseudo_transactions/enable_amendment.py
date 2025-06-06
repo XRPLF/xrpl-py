@@ -4,11 +4,11 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Union
 
-from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.pseudo_transactions.pseudo_transaction import (
     PseudoTransaction,
 )
+from xrpl.models.transactions.transaction import TransactionFlagInterface
 from xrpl.models.transactions.types import PseudoTransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
@@ -38,7 +38,7 @@ class EnableAmendmentFlag(int, Enum):
     """
 
 
-class EnableAmendmentFlagInterface(FlagInterface):
+class EnableAmendmentFlagInterface(TransactionFlagInterface):
     """
     The Flags value of the EnableAmendment pseudo-transaction indicates the status of
     the amendment at the time of the ledger including the pseudo-transaction.

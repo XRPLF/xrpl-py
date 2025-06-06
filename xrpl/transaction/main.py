@@ -3,11 +3,15 @@
 import asyncio
 from typing import Optional
 
+from typing_extensions import TypeVar
+
 from xrpl.asyncio.transaction import main
 from xrpl.clients.sync_client import SyncClient
 from xrpl.models.response import Response
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.wallet.main import Wallet
+
+T = TypeVar("T", bound=Transaction, default=Transaction)
 
 
 def sign_and_submit(
@@ -78,11 +82,11 @@ sign = main.sign
 
 
 def autofill_and_sign(
-    transaction: Transaction,
+    transaction: T,
     client: SyncClient,
     wallet: Wallet,
     check_fee: bool = True,
-) -> Transaction:
+) -> T:
     """
     Signs a transaction locally, without trusting external rippled nodes. Autofills
     relevant fields.
@@ -108,12 +112,13 @@ def autofill_and_sign(
 
 
 def autofill(
-    transaction: Transaction, client: SyncClient, signers_count: Optional[int] = None
-) -> Transaction:
+    transaction: T, client: SyncClient, signers_count: Optional[int] = None
+) -> T:
     """
-    Autofills fields in a transaction. This will set `sequence`, `fee`, and
-    `last_ledger_sequence` according to the current state of the server this Client is
-    connected to. It also converts all X-Addresses to classic addresses.
+    Autofills fields in a transaction. This will set all autofill-able fields according
+    to the current state of the server this Client is connected to. For Batch
+    transactions, it will also handle autofilling inner transactions. It also converts
+    all X-Addresses to classic addresses.
 
     Args:
         transaction: the transaction to be signed.
