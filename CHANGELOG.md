@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improve typing for transaction-related helper functions
 - Improve handling of `TicketSequence`
 - Fix issue with failing on a higher than expected fee
+- Improve multi-sign fee calculations
 
 ## [4.1.0] - 2025-2-13
 

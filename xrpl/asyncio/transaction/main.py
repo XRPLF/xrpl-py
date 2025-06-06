@@ -519,10 +519,7 @@ async def _calculate_fee_per_transaction_type(
     # Multi-signed/Multi-Account Batch Transactions
     # BaseFee × (1 + Number of Signatures Provided)
     if signers_count is not None and signers_count > 0:
-        if transaction.transaction_type == TransactionType.BATCH:
-            base_fee += net_fee * signers_count
-        else:
-            base_fee += net_fee * (1 + signers_count)
+        base_fee += net_fee * signers_count
     # Round Up base_fee and return it as a String
     return str(math.ceil(base_fee))
 
