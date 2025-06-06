@@ -88,7 +88,7 @@ class Batch(Transaction):
                 if "flags" not in tx_dict:
                     tx_dict["flags"] = TransactionFlag.TF_INNER_BATCH_TXN
                 elif isinstance(tx_dict["flags"], int):
-                    tx_dict["flags"] += TransactionFlag.TF_INNER_BATCH_TXN
+                    tx_dict["flags"] |= TransactionFlag.TF_INNER_BATCH_TXN
                 elif isinstance(tx_dict["flags"], dict):
                     tx_dict["flags"]["TF_INNER_BATCH_TXN"] = True
                 elif isinstance(self.flags, list):
