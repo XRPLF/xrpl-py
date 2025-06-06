@@ -44,7 +44,7 @@ class TestBatch(IntegrationTestCase):
             flags=BatchFlag.TF_ALL_OR_NOTHING,
             raw_transactions=[payment, payment2],
         )
-        autofilled = await autofill(batch, client, 2)
+        autofilled = await autofill(batch, client, 1)
         signed = sign_multiaccount_batch(DESTINATION, autofilled)
         response = await sign_and_reliable_submission_async(signed, WALLET, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
