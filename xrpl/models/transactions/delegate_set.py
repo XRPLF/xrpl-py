@@ -16,12 +16,13 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 PERMISSIONS_MAX_LENGTH = 10
 
-NON_DELEGATABLE_TRANSACTIONS = {
-    TransactionType.ACCOUNT_SET.value,
-    TransactionType.SET_REGULAR_KEY.value,
-    TransactionType.SIGNER_LIST_SET.value,
-    TransactionType.DELEGATE_SET.value,
-    TransactionType.ACCOUNT_DELETE.value,
+NON_DELEGABLE_TRANSACTIONS = {
+    TransactionType.ACCOUNT_SET,
+    TransactionType.SET_REGULAR_KEY,
+    TransactionType.SIGNER_LIST_SET,
+    TransactionType.DELEGATE_SET,
+    TransactionType.ACCOUNT_DELETE,
+    TransactionType.BATCH,
 }
 
 
@@ -133,10 +134,10 @@ class DelegateSet(Transaction):
         if len(entered_permissions) != len(set(entered_permissions)):
             return "Duplicate permission value in `permissions` list."
 
-        if set(entered_permissions) & NON_DELEGATABLE_TRANSACTIONS:
+        if set(entered_permissions) & NON_DELEGABLE_TRANSACTIONS:
             return (
-                f"Non-delegatable transactions found in `permissions` list: "
-                f"{set(entered_permissions) & NON_DELEGATABLE_TRANSACTIONS}."
+                f"Non-delegable transactions found in `permissions` list: "
+                f"{set(entered_permissions) & NON_DELEGABLE_TRANSACTIONS}."
             )
 
         return None

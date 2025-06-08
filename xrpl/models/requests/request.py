@@ -12,7 +12,7 @@ from typing import Any, Dict, Optional, Type, Union, cast
 from typing_extensions import Final, Self
 
 import xrpl.models.requests  # bare import to get around circular dependency
-from xrpl.models.base_model import BaseModel
+from xrpl.models.base_model import ABBREVIATIONS, BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
@@ -132,6 +132,8 @@ class Request(BaseModel):
         Raises:
             XRPLModelException: If the dictionary provided is invalid.
         """
+        # TODO: add support for "command" parameter and proper JSON RPC format
+        # This is already done in `GenericRequest`, for reference
         if cls.__name__ == "Request":
             if "method" not in value:
                 raise XRPLModelException("Request does not include method.")
@@ -169,22 +171,12 @@ class Request(BaseModel):
             The request class with the given name. If the request doesn't exist, then
             it will return a `GenericRequest`.
         """
-        # special case for NoRippleCheck and NFT methods
-        if method == RequestMethod.NO_RIPPLE_CHECK:
-            return xrpl.models.requests.NoRippleCheck
-        if method == RequestMethod.ACCOUNT_NFTS:
-            return xrpl.models.requests.AccountNFTs
-        if method == RequestMethod.NFT_BUY_OFFERS:
-            return xrpl.models.requests.NFTBuyOffers
-        if method == RequestMethod.NFT_SELL_OFFERS:
-            return xrpl.models.requests.NFTSellOffers
-        if method == RequestMethod.NFT_INFO:
-            return xrpl.models.requests.NFTInfo
-        if method == RequestMethod.NFT_HISTORY:
-            return xrpl.models.requests.NFTHistory
-        if method == RequestMethod.NFTS_BY_ISSUER:
-            return xrpl.models.requests.NFTsByIssuer
-        parsed_name = "".join([word.capitalize() for word in method.split("_")])
+        parsed_name = "".join(
+            [
+                ABBREVIATIONS[word] if word in ABBREVIATIONS else word.capitalize()
+                for word in method.split("_")
+            ]
+        )
         if parsed_name in xrpl.models.requests.__all__:
             return cast(Type[Request], getattr(xrpl.models.requests, parsed_name))
         return xrpl.models.requests.GenericRequest

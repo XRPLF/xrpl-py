@@ -6,9 +6,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 
-from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
@@ -31,7 +30,7 @@ class MPTokenAuthorizeFlag(int, Enum):
     """
 
 
-class MPTokenAuthorizeFlagInterface(FlagInterface):
+class MPTokenAuthorizeFlagInterface(TransactionFlagInterface):
     """
     Transactions of the MPTokenAuthorize type support additional values in the
     Flags field.

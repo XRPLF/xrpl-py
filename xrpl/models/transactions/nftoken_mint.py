@@ -8,9 +8,8 @@ from typing import Dict, Optional
 
 from typing_extensions import Final, Self
 
-from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
@@ -52,7 +51,7 @@ class NFTokenMintFlag(int, Enum):
     """
 
 
-class NFTokenMintFlagInterface(FlagInterface):
+class NFTokenMintFlagInterface(TransactionFlagInterface):
     """Transaction Flags for an NFTokenMint Transaction."""
 
     TF_BURNABLE: bool
