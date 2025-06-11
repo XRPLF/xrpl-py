@@ -128,7 +128,7 @@ class BaseModel(ABC):
         for param in value:
             if param not in class_types:
                 # Do not fail parsing if we encounter an unknown arg
-                logging.warn(
+                logging.debug(
                     f"{param} not a valid parameter for {cls.__name__}"
                 )
                 continue

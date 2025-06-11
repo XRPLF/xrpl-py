@@ -1,8 +1,14 @@
 """Helper util functions for the models module."""
+import re
 from dataclasses import dataclass, is_dataclass
-from typing import Any, Dict, List, Type, TypeVar, cast
+from typing import Any, Dict, List, Optional, Pattern, Type, TypeVar, cast
+
+from typing_extensions import Final
 
 from xrpl.models.exceptions import XRPLModelException
+
+HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
+
 
 # Code source for requiring kwargs:
 # https://gist.github.com/mikeholler/4be180627d3f8fceb55704b729464adb
