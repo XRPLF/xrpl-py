@@ -2568,6 +2568,7 @@
     "AccountDelete": 21,
     "SetHook": 22,
     "NFTokenMint": 25,
+    "NFTokenModify": 61,
     "NFTokenBurn": 26,
     "NFTokenCreateOffer": 27,
     "NFTokenCancelOffer": 28,
