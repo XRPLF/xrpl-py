@@ -65,9 +65,9 @@ class VaultCreate(Transaction):
     """Indicates the withdrawal strategy used by the Vault. The below withdrawal policy
     is supported:
 
-    Strategy Name	           Value	      Description
-    strFirstComeFirstServe	   1	          Requests are processed on a first-come-first-
-                                                serve basis.
+    Strategy Name	                      Value	          Description
+    vaultStrategyFirstComeFirstServe	   1	          Requests are processed on a first-
+                                                            come-first-serve basis.
     """
 
     transaction_type: TransactionType = field(
