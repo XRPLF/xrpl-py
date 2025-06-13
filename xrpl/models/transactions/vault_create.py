@@ -16,11 +16,11 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class VaultCreateFlag(int, Enum):
     """Flags for the VaultCreate transaction."""
 
-    TF_VAULT_PRIVATE = 0x0001
+    TF_VAULT_PRIVATE = 0x00010000
     """
     Indicates that the vault is private. It can only be set during Vault creation.
     """
-    TF_VAULT_SHARE_NON_TRANSFERABLE = 0x0002
+    TF_VAULT_SHARE_NON_TRANSFERABLE = 0x00020000
     """
     Indicates the vault share is non-transferable. It can only be set during Vault
     creation.

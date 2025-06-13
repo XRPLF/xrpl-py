@@ -8,6 +8,7 @@ from xrpl.models.currencies import XRP
 from xrpl.models.requests import AccountObjects, VaultInfo
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import VaultCreate
+from xrpl.models.transactions.vault_create import VaultCreateFlag
 from xrpl.wallet import Wallet
 
 
@@ -19,10 +20,13 @@ class TestVaultInfo(IntegrationTestCase):
         await fund_wallet_async(VAULT_OWNER)
 
         # Create a vault
+        # Additionally validate the usage of flags in the VaultCreate transaction
         tx = VaultCreate(
             account=VAULT_OWNER.address,
             asset=XRP(),
             withdrawal_policy=1,
+            flags=VaultCreateFlag.TF_VAULT_PRIVATE
+            | VaultCreateFlag.TF_VAULT_SHARE_NON_TRANSFERABLE,
         )
         response = await sign_and_reliable_submission_async(tx, VAULT_OWNER, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
