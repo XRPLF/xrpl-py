@@ -51,6 +51,7 @@ from xrpl.models.requests.subscribe import StreamParameter, Subscribe, Subscribe
 from xrpl.models.requests.transaction_entry import TransactionEntry
 from xrpl.models.requests.tx import Tx
 from xrpl.models.requests.unsubscribe import Unsubscribe
+from xrpl.models.requests.vault_info import VaultInfo
 
 __all__ = [
     "AccountChannels",
@@ -110,4 +111,5 @@ __all__ = [
     "TransactionEntry",
     "Tx",
     "Unsubscribe",
+    "VaultInfo",
 ]
