@@ -941,6 +941,16 @@
       }
     ],
     [
+      "LockedAmount",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 29,
+        "type": "UInt64"
+      }
+    ],
+    [
       "EmailHash",
       {
         "isSerialized": true,
@@ -1277,6 +1287,16 @@
         "isSigningField": true,
         "isVLEncoded": false,
         "nth": 35,
+        "type": "Hash256"
+      }
+    ],
+    [
+      "ParentBatchID",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 36,
         "type": "Hash256"
       }
     ],
@@ -2421,6 +2441,36 @@
       }
     ],
     [
+      "RawTransaction",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 34,
+        "type": "STObject"
+      }
+    ],
+    [
+      "BatchSigner",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 35,
+        "type": "STObject"
+      }
+    ],
+    [
+      "Book",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 36,
+        "type": "STObject"
+      }
+    ],
+    [
       "Signers",
       {
         "isSerialized": true,
@@ -2517,6 +2567,16 @@
         "isSigningField": true,
         "isVLEncoded": false,
         "nth": 12,
+        "type": "STArray"
+      }
+    ],
+    [
+      "AdditionalBooks",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 13,
         "type": "STArray"
       }
     ],
@@ -2647,6 +2707,26 @@
         "isSigningField": true,
         "isVLEncoded": false,
         "nth": 29,
+        "type": "STArray"
+      }
+    ],
+    [
+      "RawTransactions",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 30,
+        "type": "STArray"
+      }
+    ],
+    [
+      "BatchSigners",
+      {
+        "isSerialized": true,
+        "isSigningField": false,
+        "isVLEncoded": false,
+        "nth": 31,
         "type": "STArray"
       }
     ],
@@ -3045,6 +3125,7 @@
     "tecINVALID_UPDATE_TIME": 188,
     "tecINVARIANT_FAILED": 147,
     "tecKILLED": 150,
+    "tecLIMIT_EXCEEDED": 195,
     "tecLOCKED": 192,
     "tecMAX_SEQUENCE_REACHED": 154,
     "tecNEED_MASTER_KEY": 142,
@@ -3052,6 +3133,7 @@
     "tecNFTOKEN_OFFER_TYPE_MISMATCH": 157,
     "tecNO_ALTERNATIVE_KEY": 130,
     "tecNO_AUTH": 134,
+    "tecNO_DELEGATE_PERMISSION": 198,
     "tecNO_DST": 124,
     "tecNO_DST_INSUF_XRP": 125,
     "tecNO_ENTRY": 140,
@@ -3068,6 +3150,8 @@
     "tecOWNERS": 132,
     "tecPATH_DRY": 128,
     "tecPATH_PARTIAL": 101,
+    "tecPRECISION_LOSS": 197,
+    "tecPSEUDO_ACCOUNT": 196,
     "tecTOKEN_PAIR_NOT_FOUND": 189,
     "tecTOO_SOON": 152,
     "tecUNFUNDED": 129,
@@ -3174,6 +3258,7 @@
     "temINVALID_ACCOUNT_ID": -268,
     "temINVALID_COUNT": -266,
     "temINVALID_FLAG": -276,
+    "temINVALID_INNER_BATCH": -250,
     "temMALFORMED": -299,
     "temREDUNDANT": -275,
     "temRIPPLE_EMPTY": -274,
@@ -3187,6 +3272,7 @@
     "temXCHAIN_BRIDGE_NONDOOR_OWNER": -257,
     "temXCHAIN_EQUAL_DOOR_ACCOUNTS": -260,
 
+    "terADDRESS_COLLISION": -86,
     "terFUNDS_SPENT": -98,
     "terINSUF_FEE_B": -97,
     "terLAST": -91,
@@ -3214,6 +3300,7 @@
     "AMMWithdraw": 37,
     "AccountDelete": 21,
     "AccountSet": 3,
+    "Batch": 71,
     "CheckCancel": 18,
     "CheckCash": 17,
     "CheckCreate": 16,
@@ -3261,6 +3348,10 @@
     "VaultClawback": 70,
     "VaultDeposit": 68,
     "VaultDelete": 67,
+    "VaultClawback": 70,
+    "VaultCreate": 65,
+    "VaultDelete": 67,
+    "VaultDeposit": 68,
     "VaultSet": 66,
     "VaultWithdraw": 69,
     "XChainAccountCreateCommit": 44,

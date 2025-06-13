@@ -42,8 +42,9 @@ class TestDelegateSet(IntegrationTestCase):
         )
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
 
-        # The lack of AccountPermissionSet transaction will result in a tecNO_PERMISSION
-        self.assertEqual(response.result["engine_result"], "tecNO_PERMISSION")
+        # Sending a transaction without a delegate permission results in
+        # tecNO_DELEGATE_PERMISSION
+        self.assertEqual(response.result["engine_result"], "tecNO_DELEGATE_PERMISSION")
 
     @test_async_and_sync(globals())
     async def test_delegate_set_workflow(self, client):
@@ -99,7 +100,7 @@ class TestDelegateSet(IntegrationTestCase):
             account_set, bob, client, check_fee=False
         )
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
-        self.assertEqual(response.result["engine_result"], "tecNO_PERMISSION")
+        self.assertEqual(response.result["engine_result"], "tecNO_DELEGATE_PERMISSION")
 
         # test ledger entry
         ledger_entry_response = await client.request(

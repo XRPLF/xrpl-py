@@ -15,6 +15,7 @@ class TransactionType(str, Enum):
     AMM_DEPOSIT = "AMMDeposit"
     AMM_VOTE = "AMMVote"
     AMM_WITHDRAW = "AMMWithdraw"
+    BATCH = "Batch"
     CHECK_CANCEL = "CheckCancel"
     CHECK_CASH = "CheckCash"
     CHECK_CREATE = "CheckCreate"

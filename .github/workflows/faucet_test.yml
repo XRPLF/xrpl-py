@@ -1,4 +1,4 @@
-name: Snippets
+name: Faucet tests
 
 on:
   push:
@@ -9,8 +9,8 @@ env:
   POETRY_VERSION: 2.1.1
 
 jobs:
-  snippet-test:
-    name: Snippet test
+  faucet-test:
+    name: Faucet test
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
@@ -47,5 +47,6 @@ jobs:
       - name: Install poetry dependencies
         run: poetry install
 
-      - name: Run Snippets
-        run: (for i in snippets/*.py; do echo "Running $i" && poetry run python $i && sleep 15 || exit 1; done)
+      - name: Run Faucet tests
+        run: poetry run poe test_faucet
+      
