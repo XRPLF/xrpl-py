@@ -22,14 +22,14 @@ class XChainCommit(Transaction):
     chain so that they can be returned on the locking chain.
     """
 
-    xchain_bridge: XChainBridge = REQUIRED  # type: ignore
+    xchain_bridge: XChainBridge = REQUIRED
     """
     The bridge to use to transfer funds. This field is required.
 
     :meta hide-value:
     """
 
-    xchain_claim_id: Union[int, str] = REQUIRED  # type: ignore
+    xchain_claim_id: Union[int, str] = REQUIRED
     """
     The unique integer ID for a cross-chain transfer. This must be acquired on
     the destination chain (via a ``XChainCreateClaimID`` transaction) and
@@ -40,7 +40,7 @@ class XChainCommit(Transaction):
     :meta hide-value:
     """
 
-    amount: Amount = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED
     """
     The asset to commit, and the quantity. This must match the door account's
     ``LockingChainIssue`` (if on the locking chain) or the door account's

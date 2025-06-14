@@ -25,7 +25,7 @@ class AccountLines(Request, LookupByLedgerRequest):
     `See account_lines <https://xrpl.org/account_lines.html>`_
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     This field is required.
 

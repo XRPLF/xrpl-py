@@ -23,14 +23,14 @@ class DepositAuthorized(Request, LookupByLedgerRequest):
     authorization to deliver money to your account.
     """
 
-    source_account: str = REQUIRED  # type: ignore
+    source_account: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    destination_account: str = REQUIRED  # type: ignore
+    destination_account: str = REQUIRED
     """
     This field is required.
 

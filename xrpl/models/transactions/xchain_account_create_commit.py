@@ -24,14 +24,14 @@ class XChainAccountCreateCommit(Transaction):
     chain.
     """
 
-    xchain_bridge: XChainBridge = REQUIRED  # type: ignore
+    xchain_bridge: XChainBridge = REQUIRED
     """
     The bridge to create accounts for. This field is required.
 
     :meta hide-value:
     """
 
-    signature_reward: str = REQUIRED  # type: ignore
+    signature_reward: str = REQUIRED
     """
     The amount, in XRP, to be used to reward the witness servers for providing
     signatures. This must match the amount on the ``Bridge`` ledger object. This
@@ -40,14 +40,14 @@ class XChainAccountCreateCommit(Transaction):
     :meta hide-value:
     """
 
-    destination: str = REQUIRED  # type: ignore
+    destination: str = REQUIRED
     """
     The destination account on the destination chain. This field is required.
 
     :meta hide-value:
     """
 
-    amount: str = REQUIRED  # type: ignore
+    amount: str = REQUIRED
     """
     The amount, in XRP, to use for account creation. This must be greater than
     or equal to the ``MinAccountCreateAmount`` specified in the ``Bridge``

@@ -28,12 +28,12 @@ class AMMDelete(Transaction):
     deleted by the last such transaction.
     """
 
-    asset: Currency = REQUIRED  # type: ignore
+    asset: Currency = REQUIRED
     """
     The definition for one of the assets in the AMM's pool. This field is required.
     """
 
-    asset2: Currency = REQUIRED  # type: ignore
+    asset2: Currency = REQUIRED
     """
     The definition for the other asset in the AMM's pool. This field is required.
     """
