@@ -43,6 +43,13 @@ class VaultCreateFlagInterface(FlagInterface):
     """
 
 
+class WithdrawalPolicy(int, Enum):
+    """Withdrawal policy for the Vault."""
+
+    VAULT_STRATEGY_FIRST_COME_FIRST_SERVE = 1
+    """Requests are processed on a first-come-first-serve basis."""
+
+
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class VaultCreate(Transaction):
@@ -63,7 +70,7 @@ class VaultCreate(Transaction):
     domain_id: Optional[str] = None
     """The PermissionedDomain object ID associated with the shares of this Vault."""
 
-    withdrawal_policy: Optional[int] = None
+    withdrawal_policy: Optional[Union[int, WithdrawalPolicy]] = None
     """Indicates the withdrawal strategy used by the Vault. The below withdrawal policy
     is supported:
 

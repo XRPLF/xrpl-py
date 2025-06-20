@@ -22,6 +22,7 @@ from xrpl.models.currencies import IssuedCurrency
 from xrpl.models.requests import AccountObjects, LedgerEntry
 from xrpl.models.requests.account_objects import AccountObjectType
 from xrpl.models.response import ResponseStatus
+from xrpl.models.transactions.vault_create import WithdrawalPolicy
 from xrpl.utils import str_to_hex
 from xrpl.wallet import Wallet
 
@@ -88,7 +89,7 @@ class TestSingleAssetVault(IntegrationTestCase):
             account=vault_owner.address,
             asset=IssuedCurrency(currency="USD", issuer=issuer_wallet.address),
             assets_maximum="1000",
-            withdrawal_policy=1,
+            withdrawal_policy=WithdrawalPolicy.VAULT_STRATEGY_FIRST_COME_FIRST_SERVE,
         )
         response = await sign_and_reliable_submission_async(tx, vault_owner, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
