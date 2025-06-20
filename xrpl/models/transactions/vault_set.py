@@ -1,7 +1,9 @@
 """Represents a VaultSet transaction on the XRP Ledger."""
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Dict, Optional
+
+from typing_extensions import Self
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -32,3 +34,13 @@ class VaultSet(Transaction):
         default=TransactionType.VAULT_SET,
         init=False,
     )
+
+    def _get_errors(self: Self) -> Dict[str, str]:
+        errors = super()._get_errors()
+
+        if self.data is not None and len(self.data) > 256:
+            errors["data"] = "Data must be less than 256 bytes."
+        if self.domain_id is not None and len(self.domain_id) != 32:
+            errors["domain_id"] = "Invalid domain ID."
+
+        return errors

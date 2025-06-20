@@ -1,7 +1,9 @@
 """Represents a VaultWithdraw transaction on the XRP Ledger."""
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Dict, Optional
+
+from typing_extensions import Self
 
 from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
@@ -30,3 +32,11 @@ class VaultWithdraw(Transaction):
         default=TransactionType.VAULT_WITHDRAW,
         init=False,
     )
+
+    def _get_errors(self: Self) -> Dict[str, str]:
+        errors = super()._get_errors()
+
+        if len(self.vault_id) != 64:
+            errors["vault_id"] = "Invalid vault ID."
+
+        return errors

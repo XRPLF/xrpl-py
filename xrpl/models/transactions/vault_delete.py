@@ -1,6 +1,9 @@
 """Represents a VaultDelete transaction on the XRP Ledger."""
 
 from dataclasses import dataclass, field
+from typing import Dict
+
+from typing_extensions import Self
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
@@ -20,3 +23,11 @@ class VaultDelete(Transaction):
         default=TransactionType.VAULT_DELETE,
         init=False,
     )
+
+    def _get_errors(self: Self) -> Dict[str, str]:
+        errors = super()._get_errors()
+
+        if len(self.vault_id) != 64:
+            errors["vault_id"] = "Invalid vault ID."
+
+        return errors

@@ -2,7 +2,9 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional, Union
+from typing import Dict, Optional, Union
+
+from typing_extensions import Self
 
 from xrpl.models.amounts.mpt_amount import MPTIssue
 from xrpl.models.currencies import Currency
@@ -74,3 +76,15 @@ class VaultCreate(Transaction):
         default=TransactionType.VAULT_CREATE,
         init=False,
     )
+
+    def _get_errors(self: Self) -> Dict[str, str]:
+        errors = super()._get_errors()
+
+        if self.data is not None and len(self.data) > 256:
+            errors["data"] = "Data must be less than 256 bytes."
+        if self.mptoken_metadata is not None and len(self.mptoken_metadata) > 1024:
+            errors["mptoken_metadata"] = "Metadata must be less than 1024 bytes."
+        if self.domain_id is not None and len(self.domain_id) != 32:
+            errors["domain_id"] = "Invalid domain ID."
+
+        return errors
