@@ -240,7 +240,7 @@ class Number(SerializedType):
             A JSON string representing the Number
         """
         mantissa = int.from_bytes(self.buffer[:8], byteorder="big", signed=True)
-        exponent = int.from_bytes(self.buffer[8:], byteorder="big", signed=True)
+        exponent = int.from_bytes(self.buffer[8:12], byteorder="big", signed=True)
 
         if exponent == 0:
             return str(mantissa)
