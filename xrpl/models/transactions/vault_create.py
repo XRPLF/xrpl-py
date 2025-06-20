@@ -84,7 +84,7 @@ class VaultCreate(Transaction):
             errors["data"] = "Data must be less than 256 bytes."
         if self.mptoken_metadata is not None and len(self.mptoken_metadata) > 1024:
             errors["mptoken_metadata"] = "Metadata must be less than 1024 bytes."
-        if self.domain_id is not None and len(self.domain_id) != 32:
+        if self.domain_id is not None and len(self.domain_id) != 64:
             errors["domain_id"] = "Invalid domain ID."
 
         return errors

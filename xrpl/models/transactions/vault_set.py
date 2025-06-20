@@ -40,7 +40,7 @@ class VaultSet(Transaction):
 
         if self.data is not None and len(self.data) > 256:
             errors["data"] = "Data must be less than 256 bytes."
-        if self.domain_id is not None and len(self.domain_id) != 32:
+        if self.domain_id is not None and len(self.domain_id) != 64:
             errors["domain_id"] = "Invalid domain ID."
 
         return errors
