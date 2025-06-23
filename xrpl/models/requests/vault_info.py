@@ -5,7 +5,9 @@ All information retrieved is relative to a particular version of the ledger.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional, Self
+from typing import Optional
+
+from typing_extensions import Self
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
