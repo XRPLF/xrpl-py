@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions.vault_set import VaultSet
+from xrpl.utils import str_to_hex
 
 _ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _VAULT_ID = "DB303FC1C7611B22C09E773B51044F6BEA02EF917DF59A2E2860871E167066A5"
@@ -13,6 +14,7 @@ class TestVaultSet(TestCase):
             account=_ACCOUNT,
             vault_id=_VAULT_ID,
             assets_maximum="1000",
+            data=str_to_hex("A" * 256),
         )
         self.assertTrue(tx.is_valid())
 
@@ -21,11 +23,16 @@ class TestVaultSet(TestCase):
             VaultSet(
                 account=_ACCOUNT,
                 vault_id=_VAULT_ID,
-                data="A" * 257,
+                data=str_to_hex("A" * 257),
             )
         self.assertEqual(
             e.exception.args[0],
-            str({"data": "Data must be less than 256 bytes."}),
+            str(
+                {
+                    "data": "Data must be less than 256 bytes "
+                    "(alternatively, 512 hex characters)."
+                }
+            ),
         )
 
     def test_invalid_domain_id_field(self):
@@ -37,5 +44,10 @@ class TestVaultSet(TestCase):
             )
         self.assertEqual(
             e.exception.args[0],
-            str({"domain_id": "Invalid domain ID."}),
+            str(
+                {
+                    "domain_id": "Invalid domain ID: Length must be 32 characters "
+                    "(64 hex characters)."
+                }
+            ),
         )

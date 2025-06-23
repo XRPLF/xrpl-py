@@ -38,9 +38,13 @@ class VaultSet(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        if self.data is not None and len(self.data) > 256:
-            errors["data"] = "Data must be less than 256 bytes."
-        if self.domain_id is not None and len(self.domain_id) != 64:
-            errors["domain_id"] = "Invalid domain ID."
+        if self.data is not None and len(self.data) > (256 * 2):
+            errors["data"] = (
+                "Data must be less than 256 bytes (alternatively, 512 hex characters)."
+            )
+        if self.domain_id is not None and len(self.domain_id) != 32 * 2:
+            errors["domain_id"] = (
+                "Invalid domain ID: Length must be 32 characters (64 hex characters)."
+            )
 
         return errors
