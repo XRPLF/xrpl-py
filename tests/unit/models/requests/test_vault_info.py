@@ -12,14 +12,21 @@ class TestVaultInfo(TestCase):
         )
         self.assertTrue(request.is_valid())
 
-    def test_specify_invalid_combination_of_input_fields_1(self):
+    def test_vault_info_requires_parameters(self):
         with self.assertRaises(ValueError):
             VaultInfo()
 
-    def test_specify_invalid_combination_of_input_fields_2(self):
+    def test_vault_info_rejects_conflicting_parameters(self):
         with self.assertRaises(ValueError):
             VaultInfo(
                 vault_id=VAULT_ID,
                 owner="rN6zcSynkRnf8zcgTVrRL8K7r4ovE7J4Zj",
                 seq=1234567890,
             )
+
+    def test_valid_vault_info_with_owner_and_seq(self):
+        request = VaultInfo(
+            owner="rN6zcSynkRnf8zcgTVrRL8K7r4ovE7J4Zj",
+            seq=1234567890,
+        )
+        self.assertTrue(request.is_valid())
