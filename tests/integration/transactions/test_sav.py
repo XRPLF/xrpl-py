@@ -165,3 +165,22 @@ class TestSingleAssetVault(IntegrationTestCase):
         response = await sign_and_reliable_submission_async(tx, vault_owner, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+    @test_async_and_sync(globals())
+    async def test_encoding_non_hex_data_field(self, client):
+
+        vault_owner = Wallet.create()
+        await fund_wallet_async(vault_owner)
+
+        issuer_wallet = Wallet.create()
+        await fund_wallet_async(issuer_wallet)
+        tx = VaultCreate(
+            account=vault_owner.address,
+            asset=IssuedCurrency(currency="USD", issuer=issuer_wallet.address),
+            assets_maximum="1000",
+            withdrawal_policy=WithdrawalPolicy.VAULT_STRATEGY_FIRST_COME_FIRST_SERVE,
+            data="z",
+        )
+        response = await sign_and_reliable_submission_async(tx, vault_owner, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
