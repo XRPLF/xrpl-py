@@ -173,7 +173,7 @@ class NFTokenMint(Transaction):
     def _get_amount_error(self: Self) -> Optional[str]:
         if self.amount is None:
             return None
-        if self.amount is not None and get_amount_value(self.amount) <= 0:
+        if get_amount_value(self.amount) <= 0:
             return "Must be greater than 0"
         return None
 
