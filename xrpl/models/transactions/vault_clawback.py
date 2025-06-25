@@ -1,9 +1,10 @@
 """Represents a VaultClawback transaction on the XRP Ledger."""
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 
-from xrpl.models.amounts import Amount
+from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
+from xrpl.models.amounts.mpt_amount import MPTAmount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -30,7 +31,7 @@ class VaultClawback(Transaction):
     holder: str = REQUIRED  # type: ignore
     """The account ID from which to clawback the assets."""
 
-    amount: Optional[Amount] = None
+    amount: Optional[Union[IssuedCurrencyAmount, MPTAmount]] = None
     """The asset amount to clawback. When Amount is 0 clawback all funds, up to the
     total shares the Holder owns.
     """
