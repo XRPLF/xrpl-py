@@ -75,6 +75,7 @@ class TestNFTokenMint(TestCase):
                 fee=_FEE,
                 sequence=_SEQUENCE,
                 nftoken_taxon=0,
+                amount=_XRP_AMOUNT,
                 destination=_ACCOUNT,
             )
 
