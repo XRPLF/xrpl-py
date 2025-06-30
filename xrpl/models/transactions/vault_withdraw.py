@@ -9,6 +9,7 @@ from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
+from xrpl.models.transactions.vault_delete import _MAX_VAULT_ID_LENGTH
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
@@ -36,7 +37,9 @@ class VaultWithdraw(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        if len(self.vault_id) != 64:
-            errors["vault_id"] = "Invalid vault ID."
+        if len(self.vault_id) != _MAX_VAULT_ID_LENGTH:
+            errors["vault_id"] = (
+                "Invalid vault ID: Length must be 32 characters (64 hex characters)."
+            )
 
         return errors

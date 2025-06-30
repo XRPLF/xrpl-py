@@ -23,5 +23,10 @@ class TestVaultDelete(TestCase):
             )
         self.assertEqual(
             e.exception.args[0],
-            str({"vault_id": "Invalid vault ID."}),
+            str(
+                {
+                    "vault_id": "Invalid vault ID: Length must be 32 characters "
+                    "(64 hex characters)."
+                }
+            ),
         )

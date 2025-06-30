@@ -18,6 +18,22 @@ class TestVaultSet(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
+    def test_invalid_vault_id_field_length(self):
+        with self.assertRaises(XRPLModelException) as e:
+            VaultSet(
+                account=_ACCOUNT,
+                vault_id=_VAULT_ID[:-1],
+            )
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "vault_id": "Invalid vault ID: Length must be 32 characters "
+                    "(64 hex characters)."
+                }
+            ),
+        )
+
     def test_long_data_field(self):
         with self.assertRaises(XRPLModelException) as e:
             VaultSet(

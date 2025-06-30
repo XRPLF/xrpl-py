@@ -14,6 +14,10 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
+_MAX_DATA_LENGTH = 256 * 2
+_MAX_MPTOKEN_METADATA_LENGTH = 1024 * 2
+_MAX_DOMAIN_ID_LENGTH = 32 * 2
+
 
 class VaultCreateFlag(int, Enum):
     """Flags for the VaultCreate transaction."""
@@ -87,18 +91,18 @@ class VaultCreate(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        if self.data is not None and len(self.data) > (256 * 2):
+        if self.data is not None and len(self.data) > _MAX_DATA_LENGTH:
             errors["data"] = (
                 "Data must be less than 256 bytes (alternatively, 512 hex characters)."
             )
         if self.mptoken_metadata is not None and len(self.mptoken_metadata) > (
-            1024 * 2
+            _MAX_MPTOKEN_METADATA_LENGTH
         ):
             errors["mptoken_metadata"] = (
                 "Metadata must be less than 1024 bytes "
                 "(alternatively, 2048 hex characters)."
             )
-        if self.domain_id is not None and len(self.domain_id) != 32 * 2:
+        if self.domain_id is not None and len(self.domain_id) != _MAX_DOMAIN_ID_LENGTH:
             errors["domain_id"] = (
                 "Invalid domain ID: Length must be 32 characters (64 hex characters)."
             )
