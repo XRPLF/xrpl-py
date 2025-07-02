@@ -16,7 +16,7 @@ from xrpl.models.amounts.amount import (
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.amounts.mpt_amount import MPTAmount
 
-ClawbackAmount = Union[IssuedCurrencyAmount | MPTAmount]
+ClawbackAmount = Union[IssuedCurrencyAmount, MPTAmount]
 
 __all__ = [
     "Amount",
