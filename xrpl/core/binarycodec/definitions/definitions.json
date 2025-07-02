@@ -3088,7 +3088,7 @@
     "RippleState": 114,
     "SignerList": 83,
     "Ticket": 84,
-    "Vault" : 132,
+    "Vault": 132,
     "XChainOwnedClaimID": 113,
     "XChainOwnedCreateAccountClaimID": 116
   },
