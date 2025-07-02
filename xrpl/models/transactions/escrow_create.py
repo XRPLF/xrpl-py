@@ -7,7 +7,7 @@ from typing import Dict, Optional
 
 from typing_extensions import Self
 
-from xrpl.models.amounts import Amount
+from xrpl.models.amounts import Amount, get_amount_value, is_issued_currency, is_mpt
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -24,8 +24,9 @@ class EscrowCreate(Transaction):
 
     amount: Amount = REQUIRED  # type: ignore
     """
-    Amount of XRP, in drops, to deduct from the sender's balance and set
-    aside in escrow. This field is required.
+    The amount to deduct from the sender's balance and set aside in escrow.
+    Can represent XRP in drops, an IOU token, or MPT.
+    This field is required and must be positive.
 
     :meta hide-value:
     """
@@ -49,7 +50,7 @@ class EscrowCreate(Transaction):
     """
     The time, in seconds since the Ripple Epoch, when this escrow expires.
     This value is immutable; the funds can only be returned the sender after
-    this time.
+    this time. Required when creating an Escrow with IOU or MPT.
     """
 
     finish_after: Optional[int] = None
@@ -81,6 +82,16 @@ class EscrowCreate(Transaction):
         ):
             errors["EscrowCreate"] = (
                 "The finish_after time must be before the cancel_after time."
+            )
+
+        if get_amount_value(self.amount) <= 0:
+            errors["amount"] = "amount must be positive."
+
+        if (
+            is_issued_currency(self.amount) or is_mpt(self.amount)
+        ) and self.cancel_after is None:
+            errors["cancel_after"] = (
+                "cancel_after is required when creating an Escrow with IOU or MPT."
             )
 
         return errors
