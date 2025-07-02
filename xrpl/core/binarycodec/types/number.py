@@ -133,7 +133,9 @@ def extractNumberPartsFromString(value: str) -> NumberParts:
     matches = re.fullmatch(VALID_NUMBER_REGEX, value)
 
     if not matches:
-        raise XRPLBinaryCodecException("Unable to parse number from the input string")
+        raise XRPLBinaryCodecException(
+            f"Unable to parse number from the input string: {value}"
+        )
 
     # Match fields:
     #   0 = whole input

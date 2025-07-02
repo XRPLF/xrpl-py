@@ -6,7 +6,6 @@ from typing import Dict, Optional, Union
 
 from typing_extensions import Self
 
-from xrpl.models.amounts.mpt_amount import MPTIssue
 from xrpl.models.currencies import Currency
 from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
@@ -59,7 +58,7 @@ class WithdrawalPolicy(int, Enum):
 class VaultCreate(Transaction):
     """The VaultCreate transaction creates a new Vault object."""
 
-    asset: Union[Currency, MPTIssue] = REQUIRED  # type: ignore
+    asset: Currency = REQUIRED  # type: ignore
     """The asset (XRP, IOU or MPT) of the Vault."""
 
     data: Optional[str] = None

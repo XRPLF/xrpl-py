@@ -49,16 +49,3 @@ class MPTAmount(BaseModel):
             The MPTCurrency for this MPTAmount.
         """
         return MPTCurrency(mpt_issuance_id=self.mpt_issuance_id)
-
-
-class MPTIssue:
-    """
-    This class represents an MPT issue. It is similar to the Issue class, but
-    it is used with MPT amounts.
-    """
-
-    mpt_issuance_id: str = REQUIRED  # type: ignore
-    """
-    mpt_issuance_id is a 192-bit concatenation of a 32-bit account sequence and a
-    160-bit account id.
-    """
