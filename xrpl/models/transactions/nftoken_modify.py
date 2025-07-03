@@ -23,7 +23,7 @@ class NFTokenModify(Transaction):
     if its tfMutable is set to true.
     """
 
-    nftoken_id: str = REQUIRED  # type: ignore
+    nftoken_id: str = REQUIRED
     """
     Identifies the TokenID of the NFToken object that the
     offer references. This field is required.

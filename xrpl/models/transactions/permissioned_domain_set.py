@@ -22,7 +22,7 @@ class PermissionedDomainSet(Transaction):
     domain_id: Optional[str] = None
     """The domain to modify. Must be included if modifying an existing domain."""
 
-    accepted_credentials: List[Credential] = REQUIRED  # type: ignore
+    accepted_credentials: List[Credential] = REQUIRED
     """The credentials that are accepted by the domain. Ownership of one of these
     credentials automatically makes you a member of the domain. An empty array means
     deleting the field."""

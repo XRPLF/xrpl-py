@@ -127,8 +127,8 @@ class Credential(NestedModel):
     UnauthorizeCredentials array.
     """
 
-    issuer: str = REQUIRED  # type: ignore
+    issuer: str = REQUIRED
     """The issuer of the credential."""
 
-    credential_type: str = REQUIRED  # type: ignore
+    credential_type: str = REQUIRED
     """A hex-encoded value to identify the type of credential from the issuer."""
