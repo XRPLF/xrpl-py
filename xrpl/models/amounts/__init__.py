@@ -4,8 +4,6 @@ of that currency, and the counterparty (issuer) on the trustline
 that holds the value. For XRP, there is no counterparty.
 """
 
-from typing import Union
-
 from xrpl.models.amounts.amount import (
     Amount,
     get_amount_value,
@@ -13,10 +11,9 @@ from xrpl.models.amounts.amount import (
     is_mpt,
     is_xrp,
 )
+from xrpl.models.amounts.clawback_amount import ClawbackAmount
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.amounts.mpt_amount import MPTAmount
-
-ClawbackAmount = Union[IssuedCurrencyAmount, MPTAmount]
 
 __all__ = [
     "Amount",

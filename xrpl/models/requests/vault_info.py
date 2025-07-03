@@ -31,6 +31,7 @@ class VaultInfo(Request, LookupByLedgerRequest):
 
     owner: Optional[str] = None
     """The account address of the Vault Owner."""
+
     seq: Optional[int] = None
     """The transaction sequence number that created the vault."""
 

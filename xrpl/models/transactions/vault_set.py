@@ -9,8 +9,8 @@ from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.transactions.vault_create import (
-    _MAX_DATA_LENGTH,
-    _MAX_DOMAIN_ID_LENGTH,
+    VAULT_MAX_DATA_LENGTH,
+    VAULT_MAX_DOMAIN_ID_LENGTH,
 )
 from xrpl.models.transactions.vault_delete import _MAX_VAULT_ID_LENGTH
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
@@ -43,11 +43,14 @@ class VaultSet(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        if self.data is not None and len(self.data) > _MAX_DATA_LENGTH:
+        if self.data is not None and len(self.data) > VAULT_MAX_DATA_LENGTH:
             errors["data"] = (
                 "Data must be less than 256 bytes (alternatively, 512 hex characters)."
             )
-        if self.domain_id is not None and len(self.domain_id) != _MAX_DOMAIN_ID_LENGTH:
+        if (
+            self.domain_id is not None
+            and len(self.domain_id) != VAULT_MAX_DOMAIN_ID_LENGTH
+        ):
             errors["domain_id"] = (
                 "Invalid domain ID: Length must be 32 characters (64 hex characters)."
             )
