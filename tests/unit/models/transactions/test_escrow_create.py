@@ -34,7 +34,7 @@ class TestEscrowCreate(TestCase):
             "'The finish_after time must be before the cancel_after time.'}",
         )
 
-    def test_amount_not_postive(self):
+    def test_amount_not_positive(self):
         with self.assertRaises(XRPLModelException) as error:
             EscrowCreate(
                 account=_SOURCE,
