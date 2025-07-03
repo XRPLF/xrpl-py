@@ -77,12 +77,12 @@ _GRANULAR_PERMISSIONS = {
 _tx_delegations = {
     key: value + 1 for (key, value) in _DEFINITIONS["TRANSACTION_TYPES"].items()
 }
-_DELEGATABLE_PERMISSIONS_STR_TO_CODE_MAP: Dict[str, int] = {
+_DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP: Dict[str, int] = {
     **_tx_delegations,
     **_GRANULAR_PERMISSIONS,
 }
-_DELEGATABLE_PERMISSIONS_CODE_TO_STR_MAP: Dict[int, str] = {
-    **{value: key for (key, value) in _DELEGATABLE_PERMISSIONS_STR_TO_CODE_MAP.items()},
+_DELEGABLE_PERMISSIONS_CODE_TO_STR_MAP: Dict[int, str] = {
+    **{value: key for (key, value) in _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP.items()},
 }
 
 _TYPE_ORDINAL_MAP = _DEFINITIONS["TYPES"]
@@ -296,7 +296,7 @@ def get_permission_value_type_code(permission_value: str) -> int:
     Returns:
         An integer representing the given permission value string.
     """
-    return _DELEGATABLE_PERMISSIONS_STR_TO_CODE_MAP[permission_value]
+    return _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP[permission_value]
 
 
 def get_permission_value_type_name(permission_value: int) -> str:
@@ -309,4 +309,4 @@ def get_permission_value_type_name(permission_value: int) -> str:
     Returns:
         The string name of the permission value.
     """
-    return _DELEGATABLE_PERMISSIONS_CODE_TO_STR_MAP[permission_value]
+    return _DELEGABLE_PERMISSIONS_CODE_TO_STR_MAP[permission_value]

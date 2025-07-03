@@ -25,6 +25,7 @@ from xrpl.models.transactions.amm_withdraw import (
     AMMWithdrawFlag,
     AMMWithdrawFlagInterface,
 )
+from xrpl.models.transactions.batch import Batch, BatchFlag, BatchFlagInterface
 from xrpl.models.transactions.check_cancel import CheckCancel
 from xrpl.models.transactions.check_cash import CheckCash
 from xrpl.models.transactions.check_create import CheckCreate
@@ -91,7 +92,13 @@ from xrpl.models.transactions.permissioned_domain_set import PermissionedDomainS
 from xrpl.models.transactions.set_regular_key import SetRegularKey
 from xrpl.models.transactions.signer_list_set import SignerEntry, SignerListSet
 from xrpl.models.transactions.ticket_create import TicketCreate
-from xrpl.models.transactions.transaction import Memo, Signer, Transaction
+from xrpl.models.transactions.transaction import (
+    Memo,
+    Signer,
+    Transaction,
+    TransactionFlag,
+    TransactionFlagInterface,
+)
 from xrpl.models.transactions.trust_set import (
     TrustSet,
     TrustSetFlag,
@@ -134,6 +141,9 @@ __all__ = [
     "AMMWithdrawFlag",
     "AMMWithdrawFlagInterface",
     "AuthAccount",
+    "Batch",
+    "BatchFlag",
+    "BatchFlagInterface",
     "CheckCancel",
     "CheckCash",
     "CheckCreate",
@@ -192,6 +202,8 @@ __all__ = [
     "SignerListSet",
     "TicketCreate",
     "Transaction",
+    "TransactionFlag",
+    "TransactionFlagInterface",
     "TransactionMetadata",
     "TrustSet",
     "TrustSetFlag",

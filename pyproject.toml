@@ -1,6 +1,6 @@
 [project]
 name = "xrpl-py"
-version = "4.1.0"
+version = "4.2.0"
 description = "A complete Python library for interacting with the XRP ledger"
 license = "ISC"
 readme = "README.md"
@@ -89,6 +89,7 @@ precision = 2
 [tool.poe.tasks]
 test_unit = "coverage run -m unittest discover tests/unit"
 test_integration = "coverage run -m unittest discover tests/integration"
+test_faucet = "coverage run -m unittest discover tests/faucet"
 lint = "poetry run flake8 xrpl tests snippets"
 definitions = "poetry run python3 tools/generate_definitions.py"
 

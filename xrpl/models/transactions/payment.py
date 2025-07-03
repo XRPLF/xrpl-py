@@ -9,10 +9,9 @@ from typing import Dict, List, Optional
 from typing_extensions import Self
 
 from xrpl.models.amounts import Amount, is_xrp
-from xrpl.models.flags import FlagInterface
 from xrpl.models.path import Path
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Transaction
+from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import (
     KW_ONLY_DATACLASS,
@@ -51,7 +50,7 @@ class PaymentFlag(int, Enum):
     """
 
 
-class PaymentFlagInterface(FlagInterface):
+class PaymentFlagInterface(TransactionFlagInterface):
     """
     Transactions of the Payment type support additional values in the Flags field.
     This TypedDict represents those options.
