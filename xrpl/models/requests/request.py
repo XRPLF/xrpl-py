@@ -90,6 +90,9 @@ class RequestMethod(str, Enum):
     # price oracle methods
     GET_AGGREGATE_PRICE = "get_aggregate_price"
 
+    # vault methods
+    VAULT_INFO = "vault_info"
+
     # generic unknown/unsupported request
     # (there is no XRPL analog, this model is specific to xrpl-py)
     GENERIC_REQUEST = "zzgeneric_request"

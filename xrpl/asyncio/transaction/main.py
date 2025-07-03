@@ -516,6 +516,7 @@ async def _calculate_fee_per_transaction_type(
     elif transaction.transaction_type in (
         TransactionType.ACCOUNT_DELETE,
         TransactionType.AMM_CREATE,
+        TransactionType.VAULT_CREATE,
     ):
         base_fee = await _fetch_owner_reserve_fee(client)
 
