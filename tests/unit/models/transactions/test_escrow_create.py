@@ -51,22 +51,6 @@ class TestEscrowCreate(TestCase):
             "{'amount': 'amount must be positive.'}",
         )
 
-    def test_cancel_after_missing_on_mpt(self):
-        with self.assertRaises(XRPLModelException) as error:
-            EscrowCreate(
-                account=_SOURCE,
-                destination=_DESTINATION,
-                amount=MPTAmount(
-                    mpt_issuance_id="rHxTJLqdVUxjJuZEZvajXYYQJ7q8p4DhHy",
-                    value="10.20",
-                ),
-            )
-        self.assertEqual(
-            error.exception.args[0],
-            "{'cancel_after': "
-            "'cancel_after is required when creating an Escrow with IOU or MPT.'}",
-        )
-
     def test_valid_escrow_create(self):
         tx = EscrowCreate(
             account=_SOURCE,

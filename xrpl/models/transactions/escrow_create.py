@@ -49,8 +49,8 @@ class EscrowCreate(Transaction):
     cancel_after: Optional[int] = None
     """
     The time, in seconds since the Ripple Epoch, when this escrow expires.
-    This value is immutable; the funds can only be returned the sender after
-    this time. Required when creating an Escrow with IOU or MPT.
+    This value is immutable; the funds can only be returned to the sender after
+    this time.
     """
 
     finish_after: Optional[int] = None
@@ -86,12 +86,5 @@ class EscrowCreate(Transaction):
 
         if get_amount_value(self.amount) <= 0:
             errors["amount"] = "amount must be positive."
-
-        if (
-            is_issued_currency(self.amount) or is_mpt(self.amount)
-        ) and self.cancel_after is None:
-            errors["cancel_after"] = (
-                "cancel_after is required when creating an Escrow with IOU or MPT."
-            )
 
         return errors
