@@ -7,7 +7,7 @@ from typing import Dict, Optional
 
 from typing_extensions import Self
 
-from xrpl.models.amounts import Amount, get_amount_value, is_issued_currency, is_mpt
+from xrpl.models.amounts import Amount, get_amount_value
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
