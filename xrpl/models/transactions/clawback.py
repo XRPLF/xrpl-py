@@ -3,17 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Union
+from typing import Dict, Optional
 
 from typing_extensions import Self
 
-from xrpl.models.amounts import (
-    IssuedCurrencyAmount,
-    MPTAmount,
-    is_issued_currency,
-    is_mpt,
-    is_xrp,
-)
+from xrpl.models.amounts import ClawbackAmount, is_issued_currency, is_mpt, is_xrp
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -25,7 +19,7 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class Clawback(Transaction):
     """The clawback transaction claws back issued funds from token holders."""
 
-    amount: Union[IssuedCurrencyAmount, MPTAmount] = REQUIRED
+    amount: ClawbackAmount = REQUIRED
     """
     The amount of currency to claw back. The issuer field is used for the token holder's
     address, from whom the tokens will be clawed back.
