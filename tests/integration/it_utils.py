@@ -5,7 +5,7 @@ import importlib
 import inspect
 from threading import Timer as ThreadingTimer
 from time import sleep
-from typing import Any, Dict, List, cast
+from typing import Any, Dict, List, Optional, cast
 
 import xrpl  # noqa: F401 - needed for sync tests
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
@@ -554,7 +554,7 @@ def create_mpt_token_and_authorize_source(
     issuer: Wallet,
     source: Wallet,
     client: SyncClient = JSON_RPC_CLIENT,
-    flags: List[int] = [],
+    flags: Optional[List[int]] = None,
 ) -> str:
 
     mp_token_issuance = MPTokenIssuanceCreate(
@@ -574,6 +574,12 @@ def create_mpt_token_and_authorize_source(
         if obj.get("Issuer") == issuer.classic_address and obj.get("Sequence") == seq:
             mpt_issuance_id = obj["mpt_issuance_id"]
             break
+
+    if not mpt_issuance_id:
+        raise ValueError(
+            f"MPT issuance ID not found for issuer "
+            f"{issuer.classic_address} and sequence {seq}"
+        )
 
     authorize_tx = MPTokenAuthorize(
         account=source.classic_address,
