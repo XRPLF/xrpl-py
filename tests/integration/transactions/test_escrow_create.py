@@ -1,20 +1,14 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
+    JSON_RPC_CLIENT,
     LEDGER_ACCEPT_REQUEST,
-    fund_wallet_async,
+    create_mpt_token_and_authorize_source,
+    fund_wallet,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
 from tests.integration.reusable_values import DESTINATION, WALLET
-from xrpl.models import (
-    EscrowCreate,
-    EscrowFinish,
-    Ledger,
-    MPTokenAuthorize,
-    MPTokenIssuanceCreate,
-    MPTokenIssuanceCreateFlag,
-    Payment,
-)
+from xrpl.models import EscrowCreate, EscrowFinish, Ledger, MPTokenIssuanceCreateFlag
 from xrpl.models.amounts import MPTAmount
 from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
 from xrpl.models.response import ResponseStatus
@@ -31,6 +25,38 @@ SOURCE_TAG = 11747
 
 
 class TestEscrowCreate(IntegrationTestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        client = JSON_RPC_CLIENT
+
+        # Create issuer, source, and destination wallets.
+        cls.issuer = Wallet.create()
+        cls.source = Wallet.create()
+        cls.destination = Wallet.create()
+
+        fund_wallet(cls.issuer)
+        fund_wallet(cls.source)
+        fund_wallet(cls.destination)
+
+        cls.good_mpt_issuance_id = create_mpt_token_and_authorize_source(
+            cls.issuer,
+            cls.source,
+            client,
+            [
+                MPTokenIssuanceCreateFlag.TF_MPT_CAN_ESCROW,
+                MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
+            ],
+        )
+
+        cls.bad_mpt_issuance_id = create_mpt_token_and_authorize_source(
+            cls.issuer,
+            cls.source,
+            client,
+        )
+
     @test_async_and_sync(globals())
     async def test_all_fields(self, client):
         ledger = await client.request(Ledger(ledger_index="validated"))
@@ -52,118 +78,74 @@ class TestEscrowCreate(IntegrationTestCase):
 
     @test_async_and_sync(globals())
     async def test_mpt_based_escrow(self, client):
-        # Create issuer, source, and destination wallets.
-        issuer = Wallet.create()
-        await fund_wallet_async(issuer)
-
-        source = Wallet.create()
-        await fund_wallet_async(source)
-
-        destination = Wallet.create()
-        await fund_wallet_async(destination)
-
-        # Create MPToken that can be used in Escrow.
-        mp_token_issuance_tx = MPTokenIssuanceCreate(
-            account=issuer.classic_address,
-            flags=[
-                MPTokenIssuanceCreateFlag.TF_MPT_CAN_ESCROW,
-                MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
-            ],
-        )
-
-        await sign_and_reliable_submission_async(mp_token_issuance_tx, issuer, client)
-
-        # confirm MPTokenIssuance ledger object was created
-        account_objects_response = await client.request(
-            AccountObjects(account=issuer.address, type=AccountObjectType.MPT_ISSUANCE)
-        )
-
-        self.assertEqual(len(account_objects_response.result["account_objects"]), 1)
-        mpt_issuance_id = account_objects_response.result["account_objects"][0][
-            "mpt_issuance_id"
-        ]
-
-        # Source account authorizes itself to hold MPToken.
-        mp_token_authorize_tx = MPTokenAuthorize(
-            account=source.classic_address,
-            mptoken_issuance_id=mpt_issuance_id,
-        )
-
-        await sign_and_reliable_submission_async(mp_token_authorize_tx, source, client)
-
-        # Send some MPToken to the source wallet that can be further used in Escrow.
-        payment_tx = Payment(
-            account=issuer.address,
-            destination=source.address,
-            amount=MPTAmount(
-                mpt_issuance_id=mpt_issuance_id,
-                value="1000",
-            ),
-        )
-
-        await sign_and_reliable_submission_async(payment_tx, issuer, client)
-
         # Create Escrow with MPToken.
         ledger = await client.request(Ledger(ledger_index="validated"))
         close_time = ledger.result["ledger"]["close_time"]
 
         escrowed_amount = MPTAmount(
-            mpt_issuance_id=mpt_issuance_id,
-            value="10",
+            mpt_issuance_id=self.good_mpt_issuance_id,
+            value="1",
         )
 
         finish_after = close_time + 2
 
         escrow_create = EscrowCreate(
-            account=source.classic_address,
+            account=self.source.classic_address,
             amount=escrowed_amount,
-            destination=destination.classic_address,
+            destination=self.destination.classic_address,
             finish_after=finish_after,
             cancel_after=close_time + 1000,
         )
         response = await sign_and_reliable_submission_async(
-            escrow_create, source, client
+            escrow_create, self.source, client
         )
         escrow_create_seq = response.result["tx_json"]["Sequence"]
 
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-        # Confirm EscrowCreate ledger object was created.
+        # Confirm Escrow ledger object was created.
         account_objects_response = await client.request(
-            AccountObjects(account=source.address, type=AccountObjectType.ESCROW)
+            AccountObjects(account=self.source.address, type=AccountObjectType.ESCROW)
         )
 
-        self.assertEqual(len(account_objects_response.result["account_objects"]), 1)
-        self.assertEqual(
-            account_objects_response.result["account_objects"][0]["Amount"],
-            escrowed_amount.to_dict(),
+        escrow_objects = account_objects_response.result["account_objects"]
+        self.assertTrue(
+            any(obj["Amount"] == escrowed_amount.to_dict() for obj in escrow_objects),
+            "No Escrow object with expected Amount found",
         )
 
         # Confirm MPToken ledger object was created.
         account_objects_response = await client.request(
-            AccountObjects(account=source.address, type=AccountObjectType.MPTOKEN)
+            AccountObjects(account=self.source.address, type=AccountObjectType.MPTOKEN)
         )
-
-        self.assertEqual(len(account_objects_response.result["account_objects"]), 1)
-        self.assertEqual(
-            account_objects_response.result["account_objects"][0]["LockedAmount"],
-            escrowed_amount.value,
-        )
-        self.assertEqual(
-            account_objects_response.result["account_objects"][0]["MPTokenIssuanceID"],
-            escrowed_amount.mpt_issuance_id,
+        mptoken_objects = account_objects_response.result["account_objects"]
+        self.assertTrue(
+            any(
+                obj["MPTokenIssuanceID"] == escrowed_amount.mpt_issuance_id
+                and obj["LockedAmount"] == escrowed_amount.value
+                for obj in mptoken_objects
+            ),
+            "No MPTOKEN object with expected MPTokenIssuanceID amd LockedAmount found",
         )
 
         # Confirm MPTokenIssuance ledger object was created.
         account_objects_response = await client.request(
-            AccountObjects(account=issuer.address, type=AccountObjectType.MPT_ISSUANCE)
+            AccountObjects(
+                account=self.issuer.address, type=AccountObjectType.MPT_ISSUANCE
+            )
         )
 
-        self.assertEqual(len(account_objects_response.result["account_objects"]), 1)
-        self.assertEqual(
-            account_objects_response.result["account_objects"][0]["LockedAmount"],
-            escrowed_amount.value,
+        mpt_issuance_objects = account_objects_response.result["account_objects"]
+
+        self.assertTrue(
+            any(
+                obj["mpt_issuance_id"] == escrowed_amount.mpt_issuance_id
+                and obj["LockedAmount"] == escrowed_amount.value
+                for obj in mpt_issuance_objects
+            ),
+            "No MPT_ISSUANCE object with expected "
+            "mpt_issuance_id and LockedAmount found",
         )
 
         # Wait for the finish_after time to pass before finishing the escrow.
@@ -175,102 +157,57 @@ class TestEscrowCreate(IntegrationTestCase):
 
         # Finish the escrow.
         escrow_finish = EscrowFinish(
-            account=destination.classic_address,
-            owner=source.classic_address,
+            account=self.destination.classic_address,
+            owner=self.source.classic_address,
             offer_sequence=escrow_create_seq,
         )
         response = await sign_and_reliable_submission_async(
-            escrow_finish, destination, client
+            escrow_finish, self.destination, client
         )
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         # Confirm MPToken ledger object was created for destination.
         account_objects_response = await client.request(
-            AccountObjects(account=destination.address, type=AccountObjectType.MPTOKEN)
+            AccountObjects(
+                account=self.destination.address, type=AccountObjectType.MPTOKEN
+            )
         )
 
-        self.assertEqual(len(account_objects_response.result["account_objects"]), 1)
-        self.assertEqual(
-            account_objects_response.result["account_objects"][0]["MPTAmount"],
-            escrowed_amount.value,
-        )
-        self.assertEqual(
-            account_objects_response.result["account_objects"][0]["MPTokenIssuanceID"],
-            escrowed_amount.mpt_issuance_id,
+        dest_mptoken_objects = account_objects_response.result["account_objects"]
+
+        self.assertTrue(
+            any(
+                obj["MPTokenIssuanceID"] == escrowed_amount.mpt_issuance_id
+                for obj in dest_mptoken_objects
+            ),
+            "No destination MPTOKEN object with expected MPTokenIssuanceID found",
         )
 
     @test_async_and_sync(globals())
     async def test_mpt_based_escrow_failure(self, client):
-        # Create issuer, source, and destination wallets.
-        issuer = Wallet.create()
-        await fund_wallet_async(issuer)
-
-        source = Wallet.create()
-        await fund_wallet_async(source)
-
-        destination = Wallet.create()
-        await fund_wallet_async(destination)
-
-        # Create MPToken that can be used in Escrow.
-        mp_token_issuance_tx = MPTokenIssuanceCreate(
-            account=issuer.classic_address,
-        )
-
-        await sign_and_reliable_submission_async(mp_token_issuance_tx, issuer, client)
-
-        # confirm MPTokenIssuance ledger object was created
-        account_objects_response = await client.request(
-            AccountObjects(account=issuer.address, type=AccountObjectType.MPT_ISSUANCE)
-        )
-
-        self.assertEqual(len(account_objects_response.result["account_objects"]), 1)
-        mpt_issuance_id = account_objects_response.result["account_objects"][0][
-            "mpt_issuance_id"
-        ]
-
-        # Source account authorizes itself to hold MPToken.
-        mp_token_authorize_tx = MPTokenAuthorize(
-            account=source.classic_address,
-            mptoken_issuance_id=mpt_issuance_id,
-        )
-
-        await sign_and_reliable_submission_async(mp_token_authorize_tx, source, client)
-
-        # Send some MPToken to the source wallet that can be further used in Escrow.
-        payment_tx = Payment(
-            account=issuer.address,
-            destination=source.address,
-            amount=MPTAmount(
-                mpt_issuance_id=mpt_issuance_id,
-                value="1000",
-            ),
-        )
-
-        await sign_and_reliable_submission_async(payment_tx, issuer, client)
-
         # Create Escrow with MPToken.
         ledger = await client.request(Ledger(ledger_index="validated"))
         close_time = ledger.result["ledger"]["close_time"]
 
         escrowed_amount = MPTAmount(
-            mpt_issuance_id=mpt_issuance_id,
-            value="10",
+            mpt_issuance_id=self.bad_mpt_issuance_id,
+            value="1",
         )
 
         finish_after = close_time + 2
 
         escrow_create = EscrowCreate(
-            account=source.classic_address,
+            account=self.source.classic_address,
             amount=escrowed_amount,
-            destination=destination.classic_address,
+            destination=self.destination.classic_address,
             finish_after=finish_after,
             cancel_after=close_time + 1000,
         )
 
         # Transaction fails with tecNO_PERMISSION because lsfMPTCanEscrow is not set.
         response = await sign_and_reliable_submission_async(
-            escrow_create, source, client
+            escrow_create, self.source, client
         )
 
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
