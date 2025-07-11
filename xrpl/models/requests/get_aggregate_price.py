@@ -26,13 +26,13 @@ class GetAggregatePrice(Request):
 
     method: RequestMethod = field(default=RequestMethod.GET_AGGREGATE_PRICE, init=False)
 
-    base_asset: str = REQUIRED  # type: ignore
+    base_asset: str = REQUIRED
     """The currency code of the asset to be priced"""
 
-    quote_asset: str = REQUIRED  # type: ignore
+    quote_asset: str = REQUIRED
     """The currency code of the asset to quote the price of the base asset"""
 
-    oracles: List[Oracle] = REQUIRED  # type: ignore
+    oracles: List[Oracle] = REQUIRED
     """The oracle identifier"""
 
     trim: Optional[int] = None

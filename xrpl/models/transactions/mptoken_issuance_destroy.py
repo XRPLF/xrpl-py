@@ -21,7 +21,7 @@ class MPTokenIssuanceDestroy(Transaction):
     This operation must fail if there are any holders who have non-zero balances.
     """
 
-    mptoken_issuance_id: str = REQUIRED  # type: ignore
+    mptoken_issuance_id: str = REQUIRED
     """Identifies the MPTokenIssuance object to be removed by the transaction."""
 
     transaction_type: TransactionType = field(

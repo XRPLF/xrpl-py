@@ -59,7 +59,7 @@ class SignAndSubmit(Submit):
     `See submit <https://xrpl.org/submit.html>`_
     """
 
-    transaction: Transaction = REQUIRED  # type: ignore
+    transaction: Transaction = REQUIRED
     """
     This field is required.
 
