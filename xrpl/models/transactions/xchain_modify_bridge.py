@@ -43,7 +43,7 @@ class XChainModifyBridge(Transaction):
     parameters of the bridge.
     """
 
-    xchain_bridge: XChainBridge = REQUIRED  # type: ignore
+    xchain_bridge: XChainBridge = REQUIRED
     """
     The bridge to modify. This field is required.
 

@@ -71,7 +71,7 @@ class PaymentChannelClaim(Transaction):
     depending on the transaction sender's role in the specified channel.
     """
 
-    channel: str = REQUIRED  # type: ignore
+    channel: str = REQUIRED
     """
     The unique ID of the payment channel, as a 64-character hexadecimal
     string. This field is required.
