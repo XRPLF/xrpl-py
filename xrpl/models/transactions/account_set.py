@@ -106,6 +106,12 @@ class AccountSetAsfFlag(int, Enum):
     ASF_ALLOW_TRUSTLINE_CLAWBACK = 16
     """Allow trustline clawback feature"""
 
+    ASF_ALLOW_TRUSTLINE_LOCKING = 17
+    """
+    If this account is an Issuer of IOU tokens, this flag allows such tokens to be
+    used in Escrow.
+    """
+
 
 class AccountSetFlag(int, Enum):
     """

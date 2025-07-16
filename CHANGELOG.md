@@ -8,12 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 
 ### Added
+- Support for `Token Escrow` (XLS-85d)
 - Support for `NFTokenMintOffer` (XLS-52)
 
 ## [4.2.0] - 2025-6-09
 
 ### Added
 - Improved validation for models to also check param types
+- Support for `Single Asset Vault` (XLS-65d)
 - Support for `Account Permission` and `Account Permission Delegation` (XLS-74d, XLS-75d)
 - Support for the `Batch` amendment (XLS-56d)
 

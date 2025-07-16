@@ -104,6 +104,12 @@ from xrpl.models.transactions.trust_set import (
     TrustSetFlag,
     TrustSetFlagInterface,
 )
+from xrpl.models.transactions.vault_clawback import VaultClawback
+from xrpl.models.transactions.vault_create import VaultCreate
+from xrpl.models.transactions.vault_delete import VaultDelete
+from xrpl.models.transactions.vault_deposit import VaultDeposit
+from xrpl.models.transactions.vault_set import VaultSet
+from xrpl.models.transactions.vault_withdraw import VaultWithdraw
 from xrpl.models.transactions.xchain_account_create_commit import (
     XChainAccountCreateCommit,
 )
@@ -208,6 +214,12 @@ __all__ = [
     "TrustSet",
     "TrustSetFlag",
     "TrustSetFlagInterface",
+    "VaultClawback",
+    "VaultCreate",
+    "VaultDelete",
+    "VaultDeposit",
+    "VaultSet",
+    "VaultWithdraw",
     "XChainAccountCreateCommit",
     "XChainAddAccountCreateAttestation",
     "XChainAddClaimAttestation",
