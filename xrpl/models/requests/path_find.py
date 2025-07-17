@@ -112,3 +112,4 @@ class PathFind(Request):
     method: RequestMethod = field(default=RequestMethod.PATH_FIND, init=False)
     send_max: Optional[Amount] = None
     paths: Optional[List[Path]] = None
+    domain: Optional[str] = None

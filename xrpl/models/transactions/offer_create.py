@@ -2,13 +2,19 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
+from typing import Dict, Optional
+
+from typing_extensions import Self
 
 from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+from xrpl.models.utils import (
+    KW_ONLY_DATACLASS,
+    require_kwargs_on_init,
+    validate_domain_id,
+)
 
 
 class OfferCreateFlag(int, Enum):
@@ -53,6 +59,12 @@ class OfferCreateFlag(int, Enum):
     `TakerPays amount` in exchange.
     """
 
+    TF_HYBRID = 0x00100000
+    """
+    Indicates the offer is hybrid. This flag cannot be set if the offer doesn't have a
+    `DomainID`.
+    """
+
 
 class OfferCreateFlagInterface(TransactionFlagInterface):
     """
@@ -66,6 +78,7 @@ class OfferCreateFlagInterface(TransactionFlagInterface):
     TF_IMMEDIATE_OR_CANCEL: bool
     TF_FILL_OR_KILL: bool
     TF_SELL: bool
+    TF_HYBRID: bool
 
 
 @require_kwargs_on_init
@@ -107,7 +120,25 @@ class OfferCreate(Transaction):
     when placing this Offer.
     """
 
+    domain_id: Optional[str] = None
+    """
+    The domain that the offer must be a part of.
+    """
+
     transaction_type: TransactionType = field(
         default=TransactionType.OFFER_CREATE,
         init=False,
     )
+
+    def _get_errors(self: Self) -> Dict[str, str]:
+        errors = super()._get_errors()
+        # Check for hybrid flag set without domain_id
+        if self.has_flag(OfferCreateFlag.TF_HYBRID) and self.domain_id is None:
+            errors["domain_id"] = (
+                "Hybrid offer (tfHybrid flag) requires domain_id to be set."
+            )
+        if self.domain_id is not None:
+            err = validate_domain_id(self.domain_id)
+            if err:
+                errors["domain_id"] = err
+        return errors

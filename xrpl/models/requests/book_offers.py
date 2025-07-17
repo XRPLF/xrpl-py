@@ -37,3 +37,4 @@ class BookOffers(Request, LookupByLedgerRequest):
     method: RequestMethod = field(default=RequestMethod.BOOK_OFFERS, init=False)
     limit: Optional[int] = None
     taker: Optional[str] = None
+    domain: Optional[str] = None

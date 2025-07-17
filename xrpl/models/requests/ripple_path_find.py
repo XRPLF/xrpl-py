@@ -63,3 +63,4 @@ class RipplePathFind(Request, LookupByLedgerRequest):
     method: RequestMethod = field(default=RequestMethod.RIPPLE_PATH_FIND, init=False)
     send_max: Optional[Amount] = None
     source_currencies: Optional[List[Currency]] = None
+    domain: Optional[str] = None
