@@ -87,7 +87,7 @@ class TestOfferCreate(TestCase):
             "{'domain_id': 'domain_id must only contain hexadecimal characters.'}",
         )
 
-    def test_offer_create_invalid_domain_id_length(self):
+    def test_offer_create_with_domain_id_too_short(self):
         """
         A domain_id must be a 64-character hex string.
         If domain_id is too short/long, XRPLModelException is raised.
@@ -98,6 +98,19 @@ class TestOfferCreate(TestCase):
                 taker_gets=_TAKER_GETS,
                 taker_pays=_TAKER_PAYS,
                 domain_id="12345",  # Invalid: too short
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'domain_id': 'domain_id length must be 64 characters.'}",
+        )
+
+    def test_offer_create_with_domain_id_too_long(self):
+        with self.assertRaises(XRPLModelException) as error:
+            OfferCreate(
+                account=_ACCOUNT,
+                taker_gets=_TAKER_GETS,
+                taker_pays=_TAKER_PAYS,
+                domain_id="A" * 65,  # Invalid: too long
             )
         self.assertEqual(
             error.exception.args[0],
