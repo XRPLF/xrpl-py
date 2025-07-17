@@ -38,7 +38,7 @@ print(set_regular_key_response)
 payment = Payment(
     account=wallet.address,
     destination=destination,
-    amount=xrp_to_drops(50),
+    amount=xrp_to_drops(1),
 )
 
 payment_response = submit_and_wait(payment, client, regular_key_wallet)
@@ -46,7 +46,7 @@ payment_response = submit_and_wait(payment, client, regular_key_wallet)
 print("Response for tx signed using Regular Key:")
 print(payment_response)
 
-# Balance after sending 50 XRP from wallet1 to wallet2
+# Balance after sending 1 XRP from wallet1 to wallet2
 print("Balances after payment:")
 print(get_balance(wallet.address, client))
 print(get_balance(destination, client))

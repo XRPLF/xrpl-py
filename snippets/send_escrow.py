@@ -34,7 +34,7 @@ finish_after = datetime_to_ripple_time(datetime.now()) + 8
 create_tx = EscrowCreate(
     account=wallet.address,
     destination=destination,
-    amount=xrp_to_drops(50),
+    amount=xrp_to_drops(1),
     finish_after=finish_after,
 )
 
@@ -61,7 +61,7 @@ finish_tx = EscrowFinish(
 
 submit_and_wait(finish_tx, client, wallet)
 
-# If escrow went through successfully, 50 XRP exchanged
+# If escrow went through successfully, 1 XRP exchanged
 print("Balances of wallets after Escrow was sent:")
 print(get_balance(wallet.address, client))
 print(get_balance(destination, client))

@@ -27,7 +27,7 @@ print(get_balance(destination, client))
 # Create a Payment transaction
 payment_tx = Payment(
     account=wallet.address,
-    amount=xrp_to_drops(50),
+    amount=xrp_to_drops(1),
     destination=destination,
 )
 
@@ -42,7 +42,7 @@ tx_response = client.request(Tx(transaction=payment_response.result["hash"]))
 # Check validated field on the transaction
 print("Validated:", tx_response.result["validated"])
 
-# Check balances after 50 XRP was sent from wallet to destination
+# Check balances after 1 XRP was sent from wallet to destination
 print("Balances of wallets after Payment tx:")
 print(get_balance(wallet.address, client))
 print(get_balance(destination, client))
