@@ -10,7 +10,11 @@ from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+from xrpl.models.utils import (
+    KW_ONLY_DATACLASS,
+    require_kwargs_on_init,
+    validate_domain_id,
+)
 
 
 class OfferCreateFlag(int, Enum):
@@ -133,4 +137,8 @@ class OfferCreate(Transaction):
             errors["domain_id"] = (
                 "Hybrid offer (tfHybrid flag) requires domain_id to be set."
             )
+        if self.domain_id is not None:
+            err = validate_domain_id(self.domain_id)
+            if err:
+                errors["domain_id"] = err
         return errors
