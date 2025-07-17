@@ -38,7 +38,7 @@ print(set_regular_key_response)
 payment = Payment(
     account=wallet.address,
     destination=destination,
-    amount=xrp_to_drops(50),
+    amount=xrp_to_drops(1),
 )
 
 payment_response = submit_and_wait(payment, client, regular_key_wallet)

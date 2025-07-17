@@ -34,7 +34,7 @@ finish_after = datetime_to_ripple_time(datetime.now()) + 8
 create_tx = EscrowCreate(
     account=wallet.address,
     destination=destination,
-    amount=xrp_to_drops(50),
+    amount=xrp_to_drops(1),
     finish_after=finish_after,
 )
 

@@ -27,7 +27,7 @@ print(get_balance(destination, client))
 # Create a Payment transaction
 payment_tx = Payment(
     account=wallet.address,
-    amount=xrp_to_drops(50),
+    amount=xrp_to_drops(1),
     destination=destination,
 )
 
