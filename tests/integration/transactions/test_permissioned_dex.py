@@ -6,6 +6,7 @@ from tests.integration.it_utils import (
 )
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.requests import AccountObjects, BookOffers
+from xrpl.models.requests.ledger_entry import LedgerEntry, Offer
 from xrpl.models.transactions import (
     AccountSet,
     CredentialAccept,
@@ -181,13 +182,12 @@ class TestPermissionedDEX(IntegrationTestCase):
 
         # 13. (Optional) Validate the ledger_entry for the specific offer
         offer_ledger_entry = await client.request(
-            {
-                "command": "ledger_entry",
-                "offer": {
-                    "account": wallet1.address,
-                    "seq": offer_seq,
-                },
-            }
+            LedgerEntry(
+                offer=Offer(
+                    account=wallet1.address,
+                    seq=offer_seq,
+                )
+            )
         )
         self.assertEqual(offer_ledger_entry.result["node"]["DomainID"], domain_id)
         self.assertEqual(offer_ledger_entry.result["node"]["Account"], wallet1.address)
