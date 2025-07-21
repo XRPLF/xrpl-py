@@ -24,6 +24,9 @@ from xrpl.wallet import Wallet
 class TestPermissionedDEX(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_permissioned_dex_full_flow(self, client):
+        """Full E2E integration test for Permissioned DEX: setup, credential, offer,
+        cross, cleanup."""
+
         # 1. Create issuer (domain owner), wallet1, wallet2
         issuer = Wallet.create()
         await fund_wallet_async(issuer)
