@@ -54,14 +54,20 @@ class TestPermissionedDEX(IntegrationTestCase):
             subject=wallet1.address,
             credential_type=credential_type_hex,
         )
-        await sign_and_reliable_submission_async(credential_create_1, issuer, client)
+        cred_resp_1 = await sign_and_reliable_submission_async(
+            credential_create_1, issuer, client
+        )
+        self.assertTrue(cred_resp_1.is_successful())
 
         credential_create_2 = CredentialCreate(
             account=issuer.address,
             subject=wallet2.address,
             credential_type=credential_type_hex,
         )
-        await sign_and_reliable_submission_async(credential_create_2, issuer, client)
+        cred_resp_2 = await sign_and_reliable_submission_async(
+            credential_create_2, issuer, client
+        )
+        self.assertTrue(cred_resp_2.is_successful())
 
         # 4. Create PermissionedDomain
         pdomain_set = PermissionedDomainSet(
@@ -70,7 +76,10 @@ class TestPermissionedDEX(IntegrationTestCase):
                 Credential(issuer=issuer.address, credential_type=credential_type_hex)
             ],
         )
-        await sign_and_reliable_submission_async(pdomain_set, issuer, client)
+        pdomain_resp = await sign_and_reliable_submission_async(
+            pdomain_set, issuer, client
+        )
+        self.assertTrue(pdomain_resp.is_successful())
 
         # 5. Assert PermissionedDomain object exists via AccountObjects
         response = await client.request(
@@ -89,14 +98,20 @@ class TestPermissionedDEX(IntegrationTestCase):
             issuer=issuer.address,
             credential_type=credential_type_hex,
         )
-        await sign_and_reliable_submission_async(cred_accept_1, wallet1, client)
+        cred_accept_resp_1 = await sign_and_reliable_submission_async(
+            cred_accept_1, wallet1, client
+        )
+        self.assertTrue(cred_accept_resp_1.is_successful())
 
         cred_accept_2 = CredentialAccept(
             account=wallet2.address,
             issuer=issuer.address,
             credential_type=credential_type_hex,
         )
-        await sign_and_reliable_submission_async(cred_accept_2, wallet2, client)
+        cred_accept_resp_2 = await sign_and_reliable_submission_async(
+            cred_accept_2, wallet2, client
+        )
+        self.assertTrue(cred_accept_resp_2.is_successful())
 
         # 7. wallet1: TrustSet for USD
         trust1 = TrustSet(
