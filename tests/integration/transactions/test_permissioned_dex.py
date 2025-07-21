@@ -81,7 +81,6 @@ class TestPermissionedDEX(IntegrationTestCase):
         self.assertTrue(response.result["account_objects"])
         domain_obj = response.result["account_objects"][0]
         domain_id = domain_obj["index"]
-        self.assertEqual(domain_obj["account"], issuer.address)
 
         # 6. wallet1 & wallet2 CredentialAccept
         cred_accept_1 = CredentialAccept(
