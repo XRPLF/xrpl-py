@@ -5,7 +5,7 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.requests import AccountObjects
+from xrpl.models.requests import AccountObjects, BookOffers
 from xrpl.models.transactions import (
     AccountSet,
     CredentialAccept,
@@ -24,9 +24,10 @@ from xrpl.wallet import Wallet
 class TestPermissionedDEX(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_permissioned_dex_full_flow(self, client):
-        """Full E2E integration test for Permissioned DEX: setup, credential, offer,
-        cross, cleanup."""
-
+        """
+        Full E2E integration test for Permissioned DEX: domain setup, credential
+        issuance, trustlines, offer, cross, and ledger/RPC validation.
+        """
         # 1. Create issuer (domain owner), wallet1, wallet2
         issuer = Wallet.create()
         await fund_wallet_async(issuer)
@@ -70,7 +71,19 @@ class TestPermissionedDEX(IntegrationTestCase):
         )
         await sign_and_reliable_submission_async(pdomain_set, issuer, client)
 
-        # 5. wallet1 & wallet2 CredentialAccept
+        # 5. Assert PermissionedDomain object exists via AccountObjects
+        response = await client.request(
+            AccountObjects(
+                account=issuer.address,
+                type="permissioned_domain",
+            )
+        )
+        self.assertTrue(response.result["account_objects"])
+        domain_obj = response.result["account_objects"][0]
+        domain_id = domain_obj["index"]
+        self.assertEqual(domain_obj["Account"], issuer.address)
+
+        # 6. wallet1 & wallet2 CredentialAccept
         cred_accept_1 = CredentialAccept(
             account=wallet1.address,
             issuer=issuer.address,
@@ -84,15 +97,6 @@ class TestPermissionedDEX(IntegrationTestCase):
             credential_type=credential_type_hex,
         )
         await sign_and_reliable_submission_async(cred_accept_2, wallet2, client)
-
-        # 6. Fetch PermissionedDomain ledger object and extract domain_id
-        response = await client.request(
-            AccountObjects(
-                account=issuer.address,
-                type="permissioned_domain",
-            )
-        )
-        domain_id = response.result["account_objects"][0]["index"]
 
         # 7. wallet1: TrustSet for USD
         trust1 = TrustSet(
@@ -149,8 +153,9 @@ class TestPermissionedDEX(IntegrationTestCase):
             offer_create, wallet1, client
         )
         self.assertTrue(offer_resp.is_successful())
+        offer_seq = offer_resp.result["tx_json"]["Sequence"]
 
-        # 11. Fetch and validate offer (ledger_entry)
+        # 11. Fetch and validate offer via AccountObjects
         offers1 = await client.request(
             AccountObjects(account=wallet1.address, type="offer")
         )
@@ -161,7 +166,34 @@ class TestPermissionedDEX(IntegrationTestCase):
             )
         )
 
-        # 12. wallet2: OfferCreate, crosses previous offer
+        # 12. Validate the offer appears in the domain-specific orderbook
+        book_offers_resp = await client.request(
+            BookOffers(
+                taker=wallet2.address,
+                taker_pays={"currency": "USD", "issuer": issuer.address},
+                taker_gets={"currency": "XRP"},
+                domain=domain_id,
+            )
+        )
+        offers = book_offers_resp.result["offers"]
+        self.assertEqual(len(offers), 1)
+        self.assertEqual(offers[0]["DomainID"], domain_id)
+        self.assertEqual(offers[0]["Account"], wallet1.address)
+
+        # 13. (Optional) Validate the ledger_entry for the specific offer
+        offer_ledger_entry = await client.request(
+            {
+                "command": "ledger_entry",
+                "offer": {
+                    "account": wallet1.address,
+                    "seq": offer_seq,
+                },
+            }
+        )
+        self.assertEqual(offer_ledger_entry.result["node"]["DomainID"], domain_id)
+        self.assertEqual(offer_ledger_entry.result["node"]["Account"], wallet1.address)
+
+        # 14. wallet2: OfferCreate, crosses previous offer
         offer_cross = OfferCreate(
             account=wallet2.address,
             taker_pays="1000",
@@ -177,7 +209,18 @@ class TestPermissionedDEX(IntegrationTestCase):
         )
         self.assertTrue(offer_cross_resp.is_successful())
 
-        # 13. Validate both wallets have no open offers (after crossing)
+        # 15. Confirm orderbook is now empty for the domain
+        book_offers_resp_after = await client.request(
+            BookOffers(
+                taker=wallet2.address,
+                taker_pays={"currency": "USD", "issuer": issuer.address},
+                taker_gets={"currency": "XRP"},
+                domain=domain_id,
+            )
+        )
+        self.assertEqual(len(book_offers_resp_after.result["offers"]), 0)
+
+        # 16. Validate both wallets have no open offers (after crossing)
         offers1_after = await client.request(
             AccountObjects(account=wallet1.address, type="offer")
         )
