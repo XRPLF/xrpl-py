@@ -1,5 +1,6 @@
 """Represents a VaultCreate transaction on the XRP Ledger."""
 
+import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Optional, Union
@@ -16,6 +17,8 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 VAULT_MAX_DATA_LENGTH = 256 * 2
 VAULT_MAX_DOMAIN_ID_LENGTH = 1024 * 2
 _VAULT_MAX_MPTOKEN_METADATA_LENGTH = 32 * 2
+
+logger = logging.getLogger(__name__)
 
 
 class VaultCreateFlag(int, Enum):
@@ -68,7 +71,15 @@ class VaultCreate(Transaction):
     """The maximum asset amount that can be held in a vault."""
 
     mptoken_metadata: Optional[str] = None
-    """Arbitrary metadata about the share MPT, in hex format, limited to 1024 bytes."""
+    """
+    Arbitrary metadata about the share MPT, in hex format, limited to 1024 bytes.
+
+    The decoded value must be a UTF-8 encoded JSON object that adheres to the
+    XLS-89d MPTokenMetadata standard.
+
+    While adherence to the XLS-89d format is not mandatory, non-compliant metadata
+    may not be discoverable by ecosystem tools such as explorers and indexers.
+    """
 
     domain_id: Optional[str] = None
     """The PermissionedDomain object ID associated with the shares of this Vault."""
@@ -108,5 +119,7 @@ class VaultCreate(Transaction):
             errors["domain_id"] = (
                 "Invalid domain ID: Length must be 32 characters (64 hex characters)."
             )
+
+        logger.warning("Hi")
 
         return errors
