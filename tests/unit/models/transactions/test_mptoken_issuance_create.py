@@ -81,5 +81,8 @@ class TestMPTokenIssuanceCreate(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'mptoken_metadata': 'Field must be in hex format.'}",
+            (
+                "{'mptoken_metadata': 'Metadata must be less than 1024 bytes "
+                "(alternatively, 2048 hex characters).'}"
+            ),
         )

@@ -10,7 +10,12 @@ from typing_extensions import Final, Self
 
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init, validate_mptoken_metadata
+from xrpl.models.utils import (
+    HEX_REGEX,
+    MAX_MPTOKEN_METADATA_LENGTH,
+    require_kwargs_on_init,
+    validate_mptoken_metadata,
+)
 
 _MAX_TRANSFER_FEE: Final[int] = 50000
 
@@ -112,6 +117,15 @@ class MPTokenIssuanceCreate(Transaction):
                 errors["transfer_fee"] = "Field must be between 0 and " + str(
                     _MAX_TRANSFER_FEE
                 )
+
+        if self.mptoken_metadata is not None and (
+            len(self.mptoken_metadata) > (MAX_MPTOKEN_METADATA_LENGTH)
+            or not HEX_REGEX.fullmatch(self.mptoken_metadata)
+        ):
+            errors["mptoken_metadata"] = (
+                "Metadata must be less than 1024 bytes "
+                "(alternatively, 2048 hex characters)."
+            )
 
         if self.mptoken_metadata is not None:
             result = validate_mptoken_metadata(self.mptoken_metadata)

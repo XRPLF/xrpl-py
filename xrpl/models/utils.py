@@ -8,7 +8,6 @@ from typing import Any, Dict, List, Optional, Pattern, Tuple, Type, TypeVar, cas
 from typing_extensions import Final
 
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.utils import hex_to_str
 
 HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
 
@@ -127,6 +126,8 @@ def validate_mptoken_metadata(input_hex: str) -> Tuple[bool, List[str]]:
         Tuple[bool, List[str]]: A boolean indicating validity and a list of validation
         error messages.
     """
+    from xrpl.utils.str_conversions import hex_to_str
+
     validation_messages: List[str] = []
 
     if (

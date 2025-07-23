@@ -1,6 +1,5 @@
 """Represents a VaultCreate transaction on the XRP Ledger."""
 
-import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Optional, Union
@@ -12,13 +11,15 @@ from xrpl.models.flags import FlagInterface
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+from xrpl.models.utils import (
+    HEX_REGEX,
+    KW_ONLY_DATACLASS,
+    MAX_MPTOKEN_METADATA_LENGTH,
+    require_kwargs_on_init,
+)
 
 VAULT_MAX_DATA_LENGTH = 256 * 2
-VAULT_MAX_DOMAIN_ID_LENGTH = 1024 * 2
-_VAULT_MAX_MPTOKEN_METADATA_LENGTH = 32 * 2
-
-logger = logging.getLogger(__name__)
+VAULT_MAX_DOMAIN_ID_LENGTH = 32 * 2
 
 
 class VaultCreateFlag(int, Enum):
@@ -105,8 +106,9 @@ class VaultCreate(Transaction):
             errors["data"] = (
                 "Data must be less than 256 bytes (alternatively, 512 hex characters)."
             )
-        if self.mptoken_metadata is not None and len(self.mptoken_metadata) > (
-            _VAULT_MAX_MPTOKEN_METADATA_LENGTH
+        if self.mptoken_metadata is not None and (
+            len(self.mptoken_metadata) > (MAX_MPTOKEN_METADATA_LENGTH)
+            or not HEX_REGEX.fullmatch(self.mptoken_metadata)
         ):
             errors["mptoken_metadata"] = (
                 "Metadata must be less than 1024 bytes "
@@ -119,7 +121,5 @@ class VaultCreate(Transaction):
             errors["domain_id"] = (
                 "Invalid domain ID: Length must be 32 characters (64 hex characters)."
             )
-
-        logger.warning("Hi")
 
         return errors
