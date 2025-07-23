@@ -122,7 +122,7 @@ class MPTokenIssuanceCreate(Transaction):
 
         if self.mptoken_metadata is not None and (
             len(self.mptoken_metadata) == 0
-            or len(self.mptoken_metadata) > (MAX_MPTOKEN_METADATA_LENGTH)
+            or len(self.mptoken_metadata) > MAX_MPTOKEN_METADATA_LENGTH
             or not HEX_REGEX.fullmatch(self.mptoken_metadata)
         ):
             errors["mptoken_metadata"] = (

@@ -108,7 +108,6 @@ class TestVaultCreate(TestCase):
 
             self.assertTrue(len(caught_warnings) > 0, "Expected warning not emitted")
 
-            # Check if the warning message contains your warning header
             warning_messages = [str(w.message) for w in caught_warnings]
 
             found = any(

@@ -128,8 +128,7 @@ def validate_mptoken_metadata(input_hex: str) -> List[str]:
         input_hex (str): Hex encoded MPTokenMetadata.
 
     Returns:
-        Tuple[bool, List[str]]: A boolean indicating validity and a list of validation
-        error messages.
+        List[str]: A list of validation error messages.
     """
     from xrpl.utils.str_conversions import hex_to_str
 
