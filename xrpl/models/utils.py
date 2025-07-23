@@ -3,7 +3,7 @@
 import json
 import re
 from dataclasses import dataclass, is_dataclass
-from typing import Any, Dict, List, Optional, Pattern, Tuple, Type, TypeVar, cast
+from typing import Any, Dict, List, Optional, Pattern, Type, TypeVar, cast
 
 from typing_extensions import Final
 
@@ -18,6 +18,10 @@ MAX_CREDENTIAL_ARRAY_LENGTH = 8
 _MAX_CREDENTIAL_LENGTH: Final[int] = 128
 
 MAX_MPTOKEN_METADATA_LENGTH = 1024 * 2
+
+MAX_MPT_META_TOP_LEVEL_FIELD_COUNT = 9
+
+MPT_META_URL_FIELD_COUNT = 3
 
 TICKER_REGEX = re.compile(r"^[A-Z0-9]{1,6}$")
 
@@ -112,10 +116,11 @@ def _is_valid_mpt_url_structure(input_data: Any) -> bool:  # noqa: ANN401
         and isinstance(input_data.get("url"), str)
         and isinstance(input_data.get("type"), str)
         and isinstance(input_data.get("title"), str)
+        and len(input_data.keys()) == MPT_META_URL_FIELD_COUNT
     )
 
 
-def validate_mptoken_metadata(input_hex: str) -> Tuple[bool, List[str]]:
+def validate_mptoken_metadata(input_hex: str) -> List[str]:
     """
     Validates if MPTokenMetadata adheres to XLS-89d standard.
 
@@ -130,17 +135,18 @@ def validate_mptoken_metadata(input_hex: str) -> Tuple[bool, List[str]]:
 
     validation_messages: List[str] = []
 
-    if (
-        bool(HEX_REGEX.fullmatch(input_hex)) is False
-        or len(input_hex) > MAX_MPTOKEN_METADATA_LENGTH
-    ):
+    if bool(HEX_REGEX.fullmatch(input_hex)) is False:
+        validation_messages.append("MPTokenMetadata must be in hex format.")
+        return validation_messages
+
+    if len(input_hex) == 0 or len(input_hex) > MAX_MPTOKEN_METADATA_LENGTH:
         validation_messages.append(
             (
-                "MPTokenMetadata must be in hex format and max "
-                f"{MAX_MPTOKEN_METADATA_LENGTH / 2} bytes."
+                "MPTokenMetadata must be non-empty and max "
+                f"{int(MAX_MPTOKEN_METADATA_LENGTH / 2)} bytes."
             )
         )
-        return False, validation_messages
+        return validation_messages
 
     try:
         decoded_str = hex_to_str(input_hex)
@@ -149,48 +155,62 @@ def validate_mptoken_metadata(input_hex: str) -> Tuple[bool, List[str]]:
         validation_messages.append(
             f"MPTokenMetadata is not properly formatted as JSON - {str(e)}"
         )
-        return False, validation_messages
+        return validation_messages
 
     if not isinstance(json_metadata, Dict):
         validation_messages.append(
             "MPTokenMetadata is not properly formatted as per XLS-89d."
         )
-        return False, validation_messages
+        return validation_messages
 
     # Structure validation
+
+    field_count = len(json_metadata.keys())
+    if field_count > MAX_MPT_META_TOP_LEVEL_FIELD_COUNT:
+        validation_messages.append(
+            (
+                "MPTokenMetadata must not contain more than "
+                f"{MAX_MPT_META_TOP_LEVEL_FIELD_COUNT} top-level fields "
+                f"(found {field_count})."
+            )
+        )
+        return validation_messages
+
     for field in MPT_META_REQUIRED_FIELDS:
         if not isinstance(json_metadata.get(field), str):
             validation_messages.append(f"{field} is required and must be string.")
 
     if len(validation_messages) > 0:
-        return False, validation_messages
+        return validation_messages
 
     if "desc" in json_metadata and not isinstance(json_metadata["desc"], str):
         validation_messages.append("desc must be a string.")
-        return False, validation_messages
+        return validation_messages
 
     if "asset_subclass" in json_metadata and not isinstance(
         json_metadata["asset_subclass"], str
     ):
         validation_messages.append("asset_subclass must be a string.")
-        return False, validation_messages
+        return validation_messages
 
     additional_info = json_metadata.get("additional_info")
     if additional_info is not None and not (
         isinstance(additional_info, str) or isinstance(additional_info, dict)
     ):
         validation_messages.append("additional_info must be a string or JSON object.")
-        return False, validation_messages
+        return validation_messages
 
     if "urls" in json_metadata:
         urls = json_metadata["urls"]
-        if not isinstance(urls, list) or not all(
-            _is_valid_mpt_url_structure(u) for u in urls
-        ):
+        if not isinstance(urls, list):
+            validation_messages.append("urls must be an array as per XLS-89d.")
+            return validation_messages
+
+        if not all(_is_valid_mpt_url_structure(u) for u in urls):
             validation_messages.append(
-                "urls field is not properly structured as per the XLS-89d standard."
+                "One or more urls are not structured per XLS-89d."
             )
-            return False, validation_messages
+            return validation_messages
 
     # Content validation
     ticker = json_metadata["ticker"]
@@ -233,7 +253,7 @@ def validate_mptoken_metadata(input_hex: str) -> Tuple[bool, List[str]]:
                 validation_messages.append("url should be a valid https url.")
                 break
 
-    return len(validation_messages) == 0, validation_messages
+    return validation_messages
 
 
 # Code source for requiring kwargs:

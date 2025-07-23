@@ -86,5 +86,4 @@ class TestMPTokenMetadataValidation(TestCase):
             result = validate_mptoken_metadata(str_to_hex(metadata_str))
 
             with self.subTest(test_name=test_name):
-                self.assertEqual(len(expected_messages) == 0, result[0])
-                self.assertEqual(expected_messages, result[1])
+                self.assertEqual(expected_messages, result)
