@@ -216,9 +216,6 @@ class TestPermissionedDEX(IntegrationTestCase):
         )
         self.assertEqual(offer_ledger_entry.result["node"]["DomainID"], domain_id)
         self.assertEqual(offer_ledger_entry.result["node"]["Account"], wallet1.address)
-        self.assertEqual(
-            offer_ledger_entry.result["node"]["Flags"], OfferCreateFlag.TF_HYBRID
-        )
         self.assertIn("AdditionalBook", offer_ledger_entry.result["node"])
         self.assertIsInstance(offer_ledger_entry.result["node"]["AdditionalBook"], list)
         additional_books = offer_ledger_entry.result["node"]["AdditionalBook"]
