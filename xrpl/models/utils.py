@@ -161,7 +161,9 @@ def validate_mptoken_metadata(input_hex: str) -> Tuple[bool, List[str]]:
     for field in MPT_META_REQUIRED_FIELDS:
         if not isinstance(json_metadata.get(field), str):
             validation_messages.append(f"{field} is required and must be string.")
-            return False, validation_messages
+
+    if len(validation_messages) > 0:
+        return False, validation_messages
 
     if "desc" in json_metadata and not isinstance(json_metadata["desc"], str):
         validation_messages.append("desc must be a string.")

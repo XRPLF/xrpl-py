@@ -107,11 +107,12 @@ class VaultCreate(Transaction):
                 "Data must be less than 256 bytes (alternatively, 512 hex characters)."
             )
         if self.mptoken_metadata is not None and (
-            len(self.mptoken_metadata) > (MAX_MPTOKEN_METADATA_LENGTH)
+            len(self.mptoken_metadata) == 0
+            or len(self.mptoken_metadata) > (MAX_MPTOKEN_METADATA_LENGTH)
             or not HEX_REGEX.fullmatch(self.mptoken_metadata)
         ):
             errors["mptoken_metadata"] = (
-                "Metadata must be less than 1024 bytes "
+                "Metadata must be valid non-empty hex string less than 1024 bytes "
                 "(alternatively, 2048 hex characters)."
             )
         if (

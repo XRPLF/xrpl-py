@@ -69,7 +69,10 @@ class TestMPTokenIssuanceCreate(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'mptoken_metadata': 'Field must not be empty string.'}",
+            (
+                "{'mptoken_metadata': 'Metadata must be valid non-empty hex string "
+                "less than 1024 bytes (alternatively, 2048 hex characters).'}"
+            ),
         )
 
     def test_mptoken_metadata_not_hex(self):
@@ -82,7 +85,7 @@ class TestMPTokenIssuanceCreate(TestCase):
         self.assertEqual(
             error.exception.args[0],
             (
-                "{'mptoken_metadata': 'Metadata must be less than 1024 bytes "
-                "(alternatively, 2048 hex characters).'}"
+                "{'mptoken_metadata': 'Metadata must be valid non-empty hex string "
+                "less than 1024 bytes (alternatively, 2048 hex characters).'}"
             ),
         )

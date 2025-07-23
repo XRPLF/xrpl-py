@@ -55,8 +55,10 @@ class TestVaultCreate(TestCase):
             e.exception.args[0],
             str(
                 {
-                    "mptoken_metadata": "Metadata must be less than 1024 bytes "
-                    "(alternatively, 2048 hex characters)."
+                    "mptoken_metadata": (
+                        "Metadata must be valid non-empty hex string less than 1024 "
+                        "bytes (alternatively, 2048 hex characters)."
+                    )
                 }
             ),
         )
