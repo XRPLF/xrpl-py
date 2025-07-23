@@ -1,5 +1,6 @@
 """Represents a VaultCreate transaction on the XRP Ledger."""
 
+import warnings
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Optional, Union
@@ -15,7 +16,9 @@ from xrpl.models.utils import (
     HEX_REGEX,
     KW_ONLY_DATACLASS,
     MAX_MPTOKEN_METADATA_LENGTH,
+    MPT_META_WARNING_HEADER,
     require_kwargs_on_init,
+    validate_mptoken_metadata,
 )
 
 VAULT_MAX_DATA_LENGTH = 256 * 2
@@ -122,5 +125,15 @@ class VaultCreate(Transaction):
             errors["domain_id"] = (
                 "Invalid domain ID: Length must be 32 characters (64 hex characters)."
             )
+
+        if self.mptoken_metadata is not None:
+            validation_messages = validate_mptoken_metadata(self.mptoken_metadata)
+
+            if len(validation_messages) > 0:
+                message = "\n".join(
+                    [MPT_META_WARNING_HEADER]
+                    + [f"- {msg}" for msg in validation_messages]
+                )
+                warnings.warn(message)
 
         return errors

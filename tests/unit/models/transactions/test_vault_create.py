@@ -1,3 +1,5 @@
+import json
+import warnings
 from unittest import TestCase
 
 from xrpl.models.currencies import IssuedCurrency
@@ -81,3 +83,36 @@ class TestVaultCreate(TestCase):
                 }
             ),
         )
+
+    def test_tx_emits_warning_for_invalid_metadata(self):
+        invalid_metadata = {
+            "ticker": "TBILL",
+            "name": "T-Bill Yield Token",
+            "invalid_field": "should cause warning",
+        }
+
+        tx = VaultCreate(
+            account=_ACCOUNT,
+            asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+            assets_maximum="1000",
+            withdrawal_policy=1,
+            mptoken_metadata=str_to_hex(json.dumps(invalid_metadata)),
+        )
+
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            warnings.simplefilter("always")
+
+            valid = tx.is_valid()
+
+            self.assertTrue(valid)
+
+            self.assertTrue(len(caught_warnings) > 0, "Expected warning not emitted")
+
+            # Check if the warning message contains your warning header
+            warning_messages = [str(w.message) for w in caught_warnings]
+
+            found = any(
+                "- icon is required and must be string." in msg
+                for msg in warning_messages
+            )
+            self.assertTrue(found, "- icon is required and must be string.")

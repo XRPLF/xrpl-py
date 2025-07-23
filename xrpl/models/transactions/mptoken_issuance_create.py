@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Optional
@@ -13,6 +14,7 @@ from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import (
     HEX_REGEX,
     MAX_MPTOKEN_METADATA_LENGTH,
+    MPT_META_WARNING_HEADER,
     require_kwargs_on_init,
     validate_mptoken_metadata,
 )
@@ -129,7 +131,13 @@ class MPTokenIssuanceCreate(Transaction):
             )
 
         if self.mptoken_metadata is not None:
-            result = validate_mptoken_metadata(self.mptoken_metadata)
-            print(result)
+            validation_messages = validate_mptoken_metadata(self.mptoken_metadata)
+
+            if len(validation_messages) > 0:
+                message = "\n".join(
+                    [MPT_META_WARNING_HEADER]
+                    + [f"- {msg}" for msg in validation_messages]
+                )
+                warnings.warn(message)
 
         return errors
