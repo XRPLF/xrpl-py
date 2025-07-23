@@ -262,8 +262,7 @@ class TestPayment(TestCase):
                 account=_ACCOUNT,
                 amount=_XRP_AMOUNT,
                 destination=_DESTINATION,
-                domain_id="zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
-                "zzzzzzz",  # invalid (not hex)
+                domain_id="z" * 64,  # invalid (not hex)
             )
         self.assertEqual(
             error.exception.args[0],

@@ -37,7 +37,7 @@ class TestPermissionedDEX(IntegrationTestCase):
         wallet2 = Wallet.create()
         await fund_wallet_async(wallet2)
 
-        # 2. Set DefaultRipple on issuer
+        # 2. Set DefaultRipple on issuer - required for the crossing of Offers
         account_set = AccountSet(
             account=issuer.address,
             set_flag=AccountSetAsfFlag.ASF_DEFAULT_RIPPLE,
@@ -46,6 +46,7 @@ class TestPermissionedDEX(IntegrationTestCase):
             account_set, issuer, client
         )
         self.assertTrue(acctset_resp.is_successful())
+        self.assertEqual(acctset_resp.result["engine_result"], "tesSUCCESS")
 
         # 3. Create Credential for wallet1 and wallet2
         credential_type_hex = "50617373706f7274"  # "Passport" in hex
@@ -58,6 +59,7 @@ class TestPermissionedDEX(IntegrationTestCase):
             credential_create_1, issuer, client
         )
         self.assertTrue(cred_resp_1.is_successful())
+        self.assertEqual(cred_resp_1.result["engine_result"], "tesSUCCESS")
 
         credential_create_2 = CredentialCreate(
             account=issuer.address,
@@ -68,6 +70,7 @@ class TestPermissionedDEX(IntegrationTestCase):
             credential_create_2, issuer, client
         )
         self.assertTrue(cred_resp_2.is_successful())
+        self.assertEqual(cred_resp_2.result["engine_result"], "tesSUCCESS")
 
         # 4. Create PermissionedDomain
         pdomain_set = PermissionedDomainSet(
@@ -80,6 +83,7 @@ class TestPermissionedDEX(IntegrationTestCase):
             pdomain_set, issuer, client
         )
         self.assertTrue(pdomain_resp.is_successful())
+        self.assertEqual(pdomain_resp.result["engine_result"], "tesSUCCESS")
 
         # 5. Assert PermissionedDomain object exists via AccountObjects
         response = await client.request(
@@ -102,6 +106,7 @@ class TestPermissionedDEX(IntegrationTestCase):
             cred_accept_1, wallet1, client
         )
         self.assertTrue(cred_accept_resp_1.is_successful())
+        self.assertEqual(cred_accept_resp_1.result["engine_result"], "tesSUCCESS")
 
         cred_accept_2 = CredentialAccept(
             account=wallet2.address,
@@ -112,6 +117,7 @@ class TestPermissionedDEX(IntegrationTestCase):
             cred_accept_2, wallet2, client
         )
         self.assertTrue(cred_accept_resp_2.is_successful())
+        self.assertEqual(cred_accept_resp_2.result["engine_result"], "tesSUCCESS")
 
         # 7. wallet1: TrustSet for USD
         trust1 = TrustSet(
@@ -124,6 +130,7 @@ class TestPermissionedDEX(IntegrationTestCase):
         )
         resp1 = await sign_and_reliable_submission_async(trust1, wallet1, client)
         self.assertTrue(resp1.is_successful())
+        self.assertEqual(resp1.result["engine_result"], "tesSUCCESS")
 
         # 8. wallet2: TrustSet for USD
         trust2 = TrustSet(
@@ -136,6 +143,7 @@ class TestPermissionedDEX(IntegrationTestCase):
         )
         resp2 = await sign_and_reliable_submission_async(trust2, wallet2, client)
         self.assertTrue(resp2.is_successful())
+        self.assertEqual(resp2.result["engine_result"], "tesSUCCESS")
 
         # 9. Fund wallets with USD
         fund_wallets = [wallet1, wallet2]
@@ -151,6 +159,7 @@ class TestPermissionedDEX(IntegrationTestCase):
             )
             pay_resp = await sign_and_reliable_submission_async(pay, issuer, client)
             self.assertTrue(pay_resp.is_successful())
+            self.assertEqual(pay_resp.result["engine_result"], "tesSUCCESS")
 
         # 10. wallet1: Permissioned OfferCreate (hybrid example)
         offer_create = OfferCreate(
@@ -168,6 +177,7 @@ class TestPermissionedDEX(IntegrationTestCase):
             offer_create, wallet1, client
         )
         self.assertTrue(offer_resp.is_successful())
+        self.assertEqual(offer_resp.result["engine_result"], "tesSUCCESS")
         offer_seq = offer_resp.result["tx_json"]["Sequence"]
 
         # 11. Fetch and validate offer via AccountObjects
@@ -222,6 +232,7 @@ class TestPermissionedDEX(IntegrationTestCase):
             offer_cross, wallet2, client
         )
         self.assertTrue(offer_cross_resp.is_successful())
+        self.assertEqual(offer_cross_resp.result["engine_result"], "tesSUCCESS")
 
         # 15. Confirm orderbook is now empty for the domain
         book_offers_resp_after = await client.request(
