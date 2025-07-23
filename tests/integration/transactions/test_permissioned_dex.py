@@ -216,9 +216,11 @@ class TestPermissionedDEX(IntegrationTestCase):
         )
         self.assertEqual(offer_ledger_entry.result["node"]["DomainID"], domain_id)
         self.assertEqual(offer_ledger_entry.result["node"]["Account"], wallet1.address)
-        self.assertIn("AdditionalBook", offer_ledger_entry.result["node"])
-        self.assertIsInstance(offer_ledger_entry.result["node"]["AdditionalBook"], list)
-        additional_books = offer_ledger_entry.result["node"]["AdditionalBook"]
+        self.assertIn("AdditionalBooks", offer_ledger_entry.result["node"])
+        self.assertIsInstance(
+            offer_ledger_entry.result["node"]["AdditionalBooks"], list
+        )
+        additional_books = offer_ledger_entry.result["node"]["AdditionalBooks"]
         self.assertEqual(len(additional_books), 1)
         self.assertIn("Book", additional_books[0])
         self.assertIn("BookDirectory", additional_books[0]["Book"])
