@@ -224,6 +224,7 @@ class TestPermissionedDEX(IntegrationTestCase):
         self.assertEqual(len(additional_books), 1)
         self.assertIn("Book", additional_books[0])
         self.assertIn("BookDirectory", additional_books[0]["Book"])
+        self.assertIn("BookNode", additional_books[0]["Book"])
 
         # 14. wallet2: OfferCreate, crosses previous offer
         offer_cross = OfferCreate(
