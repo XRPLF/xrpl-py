@@ -24,10 +24,10 @@ class VaultClawback(Transaction):
     The Clawback transaction must respect any future fees or penalties.
     """
 
-    vault_id: str = REQUIRED  # type: ignore
+    vault_id: str = REQUIRED
     """The ID of the vault from which assets are withdrawn."""
 
-    holder: str = REQUIRED  # type: ignore
+    holder: str = REQUIRED
     """The account ID from which to clawback the assets."""
 
     amount: Optional[ClawbackAmount] = None

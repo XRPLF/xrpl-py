@@ -19,7 +19,7 @@ class NFTBuyOffers(Request, LookupByLedgerRequest):
     """
 
     method: RequestMethod = field(default=RequestMethod.NFT_BUY_OFFERS, init=False)
-    nft_id: str = REQUIRED  # type: ignore
+    nft_id: str = REQUIRED
     """
     The unique identifier of an NFToken.
     The request returns buy offers for this NFToken. This value is required.

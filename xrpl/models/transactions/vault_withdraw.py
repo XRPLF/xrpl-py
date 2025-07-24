@@ -20,10 +20,10 @@ class VaultWithdraw(Transaction):
     shares.
     """
 
-    vault_id: str = REQUIRED  # type: ignore
+    vault_id: str = REQUIRED
     """The ID of the vault from which assets are withdrawn."""
 
-    amount: Amount = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED
     """The exact amount of Vault asset to withdraw."""
 
     destination: Optional[str] = None
