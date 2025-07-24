@@ -138,6 +138,6 @@ class MPTokenIssuanceCreate(Transaction):
                     [MPT_META_WARNING_HEADER]
                     + [f"- {msg}" for msg in validation_messages]
                 )
-                warnings.warn(message)
+                warnings.warn(message, stacklevel=5)
 
         return errors
