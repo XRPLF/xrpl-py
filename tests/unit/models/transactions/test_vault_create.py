@@ -84,7 +84,7 @@ class TestVaultCreate(TestCase):
             ),
         )
 
-    def test_tx_emits_warning_for_invalid_metadata(self):
+    def test_tx_emits_warning_for_missing_icon_metadata(self):
         invalid_metadata = {
             "ticker": "TBILL",
             "name": "T-Bill Yield Token",
