@@ -17,6 +17,7 @@ from xrpl.models.utils import (
     KW_ONLY_DATACLASS,
     require_kwargs_on_init,
     validate_credential_ids,
+    validate_domain_id,
 )
 
 
@@ -127,6 +128,12 @@ class Payment(Transaction):
     is considered a success.
     """
 
+    domain_id: Optional[str] = None
+    """
+    The domain the sender intends to use. Both the sender and destination must be part
+    of this domain.
+    """
+
     transaction_type: TransactionType = field(
         default=TransactionType.PAYMENT,
         init=False,
@@ -177,5 +184,10 @@ class Payment(Transaction):
                 errors["send_max"] = (
                     "A currency conversion requires a `send_max` value."
                 )
+
+        if self.domain_id is not None:
+            err = validate_domain_id(self.domain_id)
+            if err:
+                errors["domain_id"] = err
 
         return errors
