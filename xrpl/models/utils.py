@@ -17,6 +17,8 @@ MAX_CREDENTIAL_ARRAY_LENGTH = 8
 # bytes, every byte requires 2 hex characters for representation
 _MAX_CREDENTIAL_LENGTH: Final[int] = 128
 
+_MAX_DOMAIN_ID_LENGTH = 64
+
 MAX_MPTOKEN_METADATA_LENGTH = 1024 * 2
 
 MAX_MPT_META_TOP_LEVEL_FIELD_COUNT = 9
@@ -108,6 +110,26 @@ def validate_credential_ids(credential_list: Optional[List[str]]) -> Dict[str, s
         )
 
     return errors
+
+
+def validate_domain_id(domain_id: str) -> str:
+    """
+    Validates the DomainID string for correct hexadecimal format and length.
+
+    Args:
+        domain_id: The DomainID to validate. Expected to be a 64-character hexadecimal
+            string representing a Hash256 value on XRPL.
+
+    Returns:
+        An error message if the domain_id is invalid; otherwise, an empty string.
+        Possible error cases include incorrect length or presence of non-hexadecimal
+        characters.
+    """
+    if not isinstance(domain_id, str) or len(domain_id) != _MAX_DOMAIN_ID_LENGTH:
+        return "domain_id length must be 64 characters."
+    if not HEX_REGEX.fullmatch(domain_id):
+        return "domain_id must only contain hexadecimal characters."
+    return ""
 
 
 def _is_valid_mpt_url_structure(input_data: Any) -> bool:  # noqa: ANN401

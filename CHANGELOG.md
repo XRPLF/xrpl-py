@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for `Token Escrow` (XLS-85d)
 - Support for `NFTokenMintOffer` (XLS-52)
+- Support for `Permissioned DEX` (XLS-81)
 - Add warning messages to `MPTokenIssuanceCreate` and `VaultCreate` transaction as per [XLS-89d](https://github.com/XRPLF/XRPL-Standards/tree/master/XLS-0089d-multi-purpose-token-metadata-schema).
 
 

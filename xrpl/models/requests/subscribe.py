@@ -59,6 +59,7 @@ class SubscribeBook(BaseModel):
 
     snapshot: bool = False
     both: bool = False
+    domain: Optional[str] = None
 
 
 @require_kwargs_on_init
