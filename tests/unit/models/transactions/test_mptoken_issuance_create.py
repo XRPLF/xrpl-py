@@ -114,15 +114,10 @@ class TestMPTokenIssuanceCreate(TestCase):
 
         with warnings.catch_warnings(record=True) as caught_warnings:
             warnings.simplefilter("always")
-
             valid = tx.is_valid()
-
             self.assertTrue(valid)
-
             self.assertTrue(len(caught_warnings) > 0, "Expected warning not emitted")
-
             warning_messages = [str(w.message) for w in caught_warnings]
-
             found = any(
                 "- icon is required and must be string." in msg
                 for msg in warning_messages
