@@ -82,7 +82,7 @@ class TrustSet(Transaction):
     `See TrustSet <https://xrpl.org/trustset.html>`_
     """
 
-    limit_amount: IssuedCurrencyAmount = REQUIRED  # type: ignore
+    limit_amount: IssuedCurrencyAmount = REQUIRED
     """
     This field is required.
 
