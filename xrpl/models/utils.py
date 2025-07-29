@@ -215,9 +215,7 @@ def validate_mptoken_metadata(input_hex: str) -> List[str]:
         return validation_messages
 
     additional_info = json_metadata.get("additional_info")
-    if additional_info is not None and not (
-        isinstance(additional_info, str) or isinstance(additional_info, dict)
-    ):
+    if additional_info is not None and not isinstance(additional_info, (str, dict)):
         validation_messages.append("additional_info must be a string or JSON object.")
         return validation_messages
 
@@ -253,14 +251,14 @@ def validate_mptoken_metadata(input_hex: str) -> List[str]:
         )
 
     asset_subclass = json_metadata.get("asset_subclass")
-    if asset_subclass is not None:
-        if asset_subclass.lower() not in MPT_META_ASSET_SUB_CLASSES:
-            validation_messages.append(
-                (
-                    "asset_subclass should be one of "
-                    f"{', '.join(MPT_META_ASSET_SUB_CLASSES)}."
-                )
-            )
+    if (
+        asset_subclass is not None
+        and asset_subclass.lower() not in MPT_META_ASSET_SUB_CLASSES
+    ):
+        validation_messages.append(
+            "asset_subclass should be one of "
+            f"{', '.join(MPT_META_ASSET_SUB_CLASSES)}."
+        )
 
     if asset_class == "rwa" and asset_subclass is None:
         validation_messages.append(
