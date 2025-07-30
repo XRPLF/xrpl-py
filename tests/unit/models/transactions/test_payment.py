@@ -245,3 +245,52 @@ class TestPayment(TestCase):
         payment = payment_txn.to_xrpl()
 
         self.assertTrue("Flags" in payment)
+
+    def test_payment_with_valid_domain_id(self):
+        tx = Payment(
+            account=_ACCOUNT,
+            amount=_XRP_AMOUNT,
+            destination=_DESTINATION,
+            domain_id="ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF123456789"
+            "0",
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_payment_with_invalid_domain_id(self):
+        with self.assertRaises(XRPLModelException) as error:
+            Payment(
+                account=_ACCOUNT,
+                amount=_XRP_AMOUNT,
+                destination=_DESTINATION,
+                domain_id="z" * 64,  # invalid (not hex)
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'domain_id': 'domain_id must only contain hexadecimal characters.'}",
+        )
+
+    def test_payment_with_domain_id_too_short(self):
+        with self.assertRaises(XRPLModelException) as error:
+            Payment(
+                account=_ACCOUNT,
+                amount=_XRP_AMOUNT,
+                destination=_DESTINATION,
+                domain_id="ABCDEF1234567890",  # only 16 chars, too short
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'domain_id': 'domain_id length must be 64 characters.'}",
+        )
+
+    def test_payment_with_domain_id_too_long(self):
+        with self.assertRaises(XRPLModelException) as error:
+            Payment(
+                account=_ACCOUNT,
+                amount=_XRP_AMOUNT,
+                destination=_DESTINATION,
+                domain_id="A" * 65,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'domain_id': 'domain_id length must be 64 characters.'}",
+        )

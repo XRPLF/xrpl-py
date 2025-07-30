@@ -30,6 +30,7 @@ class AccountObjectType(str, Enum):
     MPT_ISSUANCE = "mpt_issuance"
     MPTOKEN = "mptoken"
     NFT_OFFER = "nft_offer"
+    NFT_PAGE = "nft_page"
     OFFER = "offer"
     ORACLE = "oracle"
     PAYMENT_CHANNEL = "payment_channel"

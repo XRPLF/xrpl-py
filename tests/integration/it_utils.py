@@ -5,7 +5,7 @@ import importlib
 import inspect
 from threading import Timer as ThreadingTimer
 from time import sleep
-from typing import Any, Dict, cast
+from typing import Any, Dict, List, Optional, cast
 
 import xrpl  # noqa: F401 - needed for sync tests
 from xrpl.asyncio.clients import AsyncJsonRpcClient, AsyncWebsocketClient
@@ -15,10 +15,13 @@ from xrpl.clients import Client, JsonRpcClient, WebsocketClient
 from xrpl.clients.sync_client import SyncClient
 from xrpl.constants import CryptoAlgorithm
 from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
+from xrpl.models.amounts import MPTAmount
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.currencies.issued_currency import IssuedCurrency
 from xrpl.models.currencies.xrp import XRP
 from xrpl.models.requests import Ledger
+from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
+from xrpl.models.transactions import MPTokenAuthorize, MPTokenIssuanceCreate
 from xrpl.models.transactions.account_set import AccountSet, AccountSetAsfFlag
 from xrpl.models.transactions.amm_create import AMMCreate
 from xrpl.models.transactions.oracle_set import OracleSet
@@ -549,3 +552,54 @@ def compare_amm_values(val, val2, round_buffer):
             f"with round_buffer {round_buffer}"
         )
     return True
+
+
+def create_mpt_token_and_authorize_source(
+    issuer: Wallet,
+    source: Wallet,
+    client: SyncClient = JSON_RPC_CLIENT,
+    flags: Optional[List[int]] = None,
+) -> str:
+
+    mp_token_issuance = MPTokenIssuanceCreate(
+        account=issuer.classic_address,
+        flags=flags,
+    )
+
+    tx_resp = sign_and_reliable_submission(mp_token_issuance, issuer, client=client)
+    seq = tx_resp.result["tx_json"]["Sequence"]
+
+    response = client.request(
+        AccountObjects(account=issuer.address, type=AccountObjectType.MPT_ISSUANCE)
+    )
+
+    mpt_issuance_id = ""
+    for obj in response.result["account_objects"]:
+        if obj.get("Issuer") == issuer.classic_address and obj.get("Sequence") == seq:
+            mpt_issuance_id = obj["mpt_issuance_id"]
+            break
+
+    if not mpt_issuance_id:
+        raise ValueError(
+            f"MPT issuance ID not found for issuer "
+            f"{issuer.classic_address} and sequence {seq}"
+        )
+
+    authorize_tx = MPTokenAuthorize(
+        account=source.classic_address,
+        mptoken_issuance_id=mpt_issuance_id,
+    )
+    sign_and_reliable_submission(authorize_tx, source, client=client)
+
+    # Send some MPToken to the source wallet that can be used further.
+    payment_tx = Payment(
+        account=issuer.address,
+        destination=source.address,
+        amount=MPTAmount(
+            mpt_issuance_id=mpt_issuance_id,
+            value="100000",
+        ),
+    )
+    sign_and_reliable_submission(payment_tx, issuer, client=client)
+
+    return mpt_issuance_id
