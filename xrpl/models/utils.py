@@ -1,5 +1,6 @@
 """Helper util functions for the models module."""
 
+import json
 import re
 from dataclasses import dataclass, is_dataclass
 from typing import Any, Dict, List, Optional, Pattern, Type, TypeVar, cast
@@ -17,6 +18,47 @@ MAX_CREDENTIAL_ARRAY_LENGTH = 8
 _MAX_CREDENTIAL_LENGTH: Final[int] = 128
 
 _MAX_DOMAIN_ID_LENGTH = 64
+
+MAX_MPTOKEN_METADATA_LENGTH = 1024 * 2
+
+MAX_MPT_META_TOP_LEVEL_FIELD_COUNT = 9
+
+MPT_META_URL_FIELD_COUNT = 3
+
+TICKER_REGEX = re.compile(r"^[A-Z0-9]{1,6}$")
+
+MPT_META_REQUIRED_FIELDS = [
+    "ticker",
+    "name",
+    "icon",
+    "asset_class",
+    "issuer_name",
+]
+
+MPT_META_ASSET_CLASSES = [
+    "rwa",
+    "memes",
+    "wrapped",
+    "gaming",
+    "defi",
+    "other",
+]
+
+MPT_META_ASSET_SUB_CLASSES = [
+    "stablecoin",
+    "commodity",
+    "real_estate",
+    "private_credit",
+    "equity",
+    "treasury",
+    "other",
+]
+
+MPT_META_WARNING_HEADER = (
+    "MPTokenMetadata is not properly formatted as JSON as per the XLS-89d standard. "
+    "While adherence to this standard is not mandatory, such non-compliant MPToken's "
+    "might not be discoverable by Explorers and Indexers in the XRPL ecosystem."
+)
 
 
 def get_credential_type_error(credential_type: str) -> Optional[str]:
@@ -88,6 +130,149 @@ def validate_domain_id(domain_id: str) -> str:
     if not HEX_REGEX.fullmatch(domain_id):
         return "domain_id must only contain hexadecimal characters."
     return ""
+
+
+def _is_valid_mpt_url_structure(input_data: Any) -> bool:  # noqa: ANN401
+    return (
+        isinstance(input_data, Dict)
+        and isinstance(input_data.get("url"), str)
+        and isinstance(input_data.get("type"), str)
+        and isinstance(input_data.get("title"), str)
+        and len(input_data.keys()) == MPT_META_URL_FIELD_COUNT
+    )
+
+
+def validate_mptoken_metadata(input_hex: str) -> List[str]:
+    """
+    Validates if MPTokenMetadata adheres to XLS-89d standard.
+
+    Args:
+        input_hex (str): Hex encoded MPTokenMetadata.
+
+    Returns:
+        List[str]: A list of validation error messages.
+    """
+    from xrpl.utils.str_conversions import hex_to_str
+
+    validation_messages: List[str] = []
+
+    if bool(HEX_REGEX.fullmatch(input_hex)) is False:
+        validation_messages.append("MPTokenMetadata must be in hex format.")
+        return validation_messages
+
+    if len(input_hex) == 0 or len(input_hex) > MAX_MPTOKEN_METADATA_LENGTH:
+        validation_messages.append(
+            (
+                "MPTokenMetadata must be non-empty and max "
+                f"{int(MAX_MPTOKEN_METADATA_LENGTH / 2)} bytes."
+            )
+        )
+        return validation_messages
+
+    try:
+        decoded_str = hex_to_str(input_hex)
+        json_metadata = json.loads(decoded_str)
+    except (json.JSONDecodeError, UnicodeDecodeError) as e:
+        validation_messages.append(
+            f"MPTokenMetadata is not properly formatted as JSON - {str(e)}"
+        )
+        return validation_messages
+
+    if not isinstance(json_metadata, Dict):
+        validation_messages.append(
+            "MPTokenMetadata is not properly formatted as per XLS-89d."
+        )
+        return validation_messages
+
+    # Structure validation
+
+    field_count = len(json_metadata.keys())
+    if field_count > MAX_MPT_META_TOP_LEVEL_FIELD_COUNT:
+        validation_messages.append(
+            (
+                "MPTokenMetadata must not contain more than "
+                f"{MAX_MPT_META_TOP_LEVEL_FIELD_COUNT} top-level fields "
+                f"(found {field_count})."
+            )
+        )
+        return validation_messages
+
+    for field in MPT_META_REQUIRED_FIELDS:
+        if not isinstance(json_metadata.get(field), str):
+            validation_messages.append(f"{field} is required and must be string.")
+
+    if len(validation_messages) > 0:
+        return validation_messages
+
+    if "desc" in json_metadata and not isinstance(json_metadata["desc"], str):
+        validation_messages.append("desc must be a string.")
+        return validation_messages
+
+    if "asset_subclass" in json_metadata and not isinstance(
+        json_metadata["asset_subclass"], str
+    ):
+        validation_messages.append("asset_subclass must be a string.")
+        return validation_messages
+
+    additional_info = json_metadata.get("additional_info")
+    if additional_info is not None and not isinstance(additional_info, (str, dict)):
+        validation_messages.append("additional_info must be a string or JSON object.")
+        return validation_messages
+
+    if "urls" in json_metadata:
+        urls = json_metadata["urls"]
+        if not isinstance(urls, list):
+            validation_messages.append("urls must be an array as per XLS-89d.")
+            return validation_messages
+
+        if not all(_is_valid_mpt_url_structure(u) for u in urls):
+            validation_messages.append(
+                "One or more urls are not structured per XLS-89d."
+            )
+            return validation_messages
+
+    # Content validation
+    ticker = json_metadata["ticker"]
+    if not TICKER_REGEX.match(ticker):
+        validation_messages.append(
+            (
+                "ticker should have uppercase letters (A-Z) and digits (0-9) only. "
+                "Max 6 characters recommended."
+            )
+        )
+
+    if not json_metadata["icon"].startswith("https://"):
+        validation_messages.append("icon should be a valid https url.")
+
+    asset_class = json_metadata["asset_class"].lower()
+    if asset_class not in MPT_META_ASSET_CLASSES:
+        validation_messages.append(
+            f"asset_class should be one of {', '.join(MPT_META_ASSET_CLASSES)}."
+        )
+
+    asset_subclass = json_metadata.get("asset_subclass")
+    if (
+        asset_subclass is not None
+        and asset_subclass.lower() not in MPT_META_ASSET_SUB_CLASSES
+    ):
+        validation_messages.append(
+            "asset_subclass should be one of "
+            f"{', '.join(MPT_META_ASSET_SUB_CLASSES)}."
+        )
+
+    if asset_class == "rwa" and asset_subclass is None:
+        validation_messages.append(
+            "asset_subclass is required when asset_class is rwa."
+        )
+
+    if "urls" in json_metadata:
+        urls = json_metadata["urls"]
+        for url in urls:
+            if not url["url"].startswith("https://"):
+                validation_messages.append("url should be a valid https url.")
+                break
+
+    return validation_messages
 
 
 # Code source for requiring kwargs:
