@@ -21,7 +21,7 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class VaultSet(Transaction):
     """The VaultSet updates an existing Vault ledger object."""
 
-    vault_id: str = REQUIRED  # type: ignore
+    vault_id: str = REQUIRED
     """The ID of the Vault to be modified. Must be included when updating the Vault."""
 
     domain_id: Optional[str] = None

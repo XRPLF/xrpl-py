@@ -50,7 +50,7 @@ class Sign(Request):
     """
 
     method: RequestMethod = field(default=RequestMethod.SIGN, init=False)
-    transaction: Transaction = REQUIRED  # type: ignore
+    transaction: Transaction = REQUIRED
     """
     This field is required.
 
