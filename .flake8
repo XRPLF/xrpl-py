@@ -7,6 +7,9 @@ docstring-convention=google
 # E203 and W503 don't interact well with black
 ignore = D205,D212,D415,E203,W503
 
+exclude = 
+    xrpl/openapi-codegen/*
+
 # This is the line length that black uses
 # https://black.readthedocs.io/en/stable/the_black_code_style.html#line-length
 max-line-length = 88
