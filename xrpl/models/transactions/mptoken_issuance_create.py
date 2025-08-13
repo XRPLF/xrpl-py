@@ -2,16 +2,22 @@
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Optional
 
 from typing_extensions import Final, Self
 
-from xrpl.constants import HEX_REGEX
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
+from xrpl.models.utils import (
+    HEX_REGEX,
+    MAX_MPTOKEN_METADATA_LENGTH,
+    MPT_META_WARNING_HEADER,
+    require_kwargs_on_init,
+    validate_mptoken_metadata,
+)
 
 _MAX_TRANSFER_FEE: Final[int] = 50000
 
@@ -86,7 +92,14 @@ class MPTokenIssuanceCreate(Transaction):
 
     mptoken_metadata: Optional[str] = None
     """
-    Arbitrary metadata about this issuance, in hex format.
+    Optional arbitrary metadata about this issuance, encoded as a hex string and
+    limited to 1024 bytes.
+
+    The decoded value must be a UTF-8 encoded JSON object that adheres to the
+    XLS-89d MPTokenMetadata standard.
+
+    While adherence to the XLS-89d format is not mandatory, non-compliant metadata
+    may not be discoverable by ecosystem tools such as explorers and indexers.
     """
 
     transaction_type: TransactionType = field(
@@ -107,10 +120,24 @@ class MPTokenIssuanceCreate(Transaction):
                     _MAX_TRANSFER_FEE
                 )
 
+        if self.mptoken_metadata is not None and (
+            len(self.mptoken_metadata) == 0
+            or len(self.mptoken_metadata) > MAX_MPTOKEN_METADATA_LENGTH
+            or not HEX_REGEX.fullmatch(self.mptoken_metadata)
+        ):
+            errors["mptoken_metadata"] = (
+                "Metadata must be valid non-empty hex string less than 1024 bytes "
+                "(alternatively, 2048 hex characters)."
+            )
+
         if self.mptoken_metadata is not None:
-            if len(self.mptoken_metadata) == 0:
-                errors["mptoken_metadata"] = "Field must not be empty string."
-            elif bool(HEX_REGEX.fullmatch(self.mptoken_metadata)) is False:
-                errors["mptoken_metadata"] = "Field must be in hex format."
+            validation_messages = validate_mptoken_metadata(self.mptoken_metadata)
+
+            if len(validation_messages) > 0:
+                message = "\n".join(
+                    [MPT_META_WARNING_HEADER]
+                    + [f"- {msg}" for msg in validation_messages]
+                )
+                warnings.warn(message, stacklevel=5)
 
         return errors

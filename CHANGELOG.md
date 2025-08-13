@@ -7,10 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Fixed
+- Removed snippets files from the xrpl-py code repository. Updated the README file to point to the correct location on XRPL.org.
+
+## [[4.3.0]] - 2025-07-29
+
 ### Added
 - Support for `Token Escrow` (XLS-85d)
 - Support for `NFTokenMintOffer` (XLS-52)
 - Support for `Permissioned DEX` (XLS-81)
+- Add warning messages to `MPTokenIssuanceCreate` and `VaultCreate` transaction as per [XLS-89d](https://github.com/XRPLF/XRPL-Standards/tree/master/XLS-0089d-multi-purpose-token-metadata-schema).
+
 
 ## [4.2.0] - 2025-6-09
 
