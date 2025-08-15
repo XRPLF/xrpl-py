@@ -187,7 +187,7 @@ class BaseModel(ABC):
 
         # no more collections (no params expect a Dict)
 
-        if param_type is Any:  # type: ignore
+        if param_type is Any:
             # param_type is Any (e.g. will accept anything)
             return param_value
 
@@ -318,7 +318,7 @@ class BaseModel(ABC):
             return {attr: f"{attr} is {type(value)}, expected {expected_type}"}
 
         # unsure what the problem with mypy is here
-        if expected_type is Any:  # type: ignore[comparison-overlap]
+        if expected_type is Any:
             return {}
 
         if expected_type_origin is list:
