@@ -92,7 +92,7 @@ class OfferCreate(Transaction):
     Offers can be partially fulfilled.
     """
 
-    taker_gets: Amount = REQUIRED  # type: ignore
+    taker_gets: Amount = REQUIRED
     """
     The amount and type of currency being provided by the sender of this
     transaction. This field is required.
@@ -100,7 +100,7 @@ class OfferCreate(Transaction):
     :meta hide-value:
     """
 
-    taker_pays: Amount = REQUIRED  # type: ignore
+    taker_pays: Amount = REQUIRED
     """
     The amount and type of currency the sender of this transaction wants in
     exchange for the full ``taker_gets`` amount. This field is required.

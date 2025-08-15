@@ -47,17 +47,17 @@ class AMMClawback(Transaction):
     pool.
     """
 
-    holder: str = REQUIRED  # type: ignore
+    holder: str = REQUIRED
     """The account holding the asset to be clawed back."""
 
-    asset: IssuedCurrency = REQUIRED  # type: ignore
+    asset: IssuedCurrency = REQUIRED
     """
     Specifies the asset that the issuer wants to claw back from the AMM pool. In JSON,
     this is an object with currency and issuer fields. The issuer field must match with
     Account.
     """
 
-    asset2: Currency = REQUIRED  # type: ignore
+    asset2: Currency = REQUIRED
     """
     Specifies the other asset in the AMM's pool. In JSON, this is an object with
     currency and issuer fields (omit issuer for XRP).

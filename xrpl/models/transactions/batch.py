@@ -53,7 +53,7 @@ class BatchFlagInterface(TransactionFlagInterface):
 class BatchSigner(NestedModel):
     """Represents a Batch signer."""
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
 
     signing_pub_key: Optional[str] = None
 
@@ -67,7 +67,7 @@ class BatchSigner(NestedModel):
 class Batch(Transaction):
     """Represents a Batch transaction."""
 
-    raw_transactions: List[Transaction] = REQUIRED  # type: ignore
+    raw_transactions: List[Transaction] = REQUIRED
     batch_signers: Optional[List[BatchSigner]] = None
 
     transaction_type: TransactionType = field(

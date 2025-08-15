@@ -8,7 +8,8 @@ from random import randrange
 from typing import TYPE_CHECKING, Any, Dict, Optional, cast
 
 from typing_extensions import Final, Self
-from websockets import client as websocket_client
+from websockets.asyncio import client as websocket_client
+from websockets.protocol import State
 
 from xrpl.asyncio.clients.client import Client
 from xrpl.asyncio.clients.exceptions import XRPLWebsocketException
@@ -65,7 +66,7 @@ class WebsocketBase(Client):
             url: The URL of the rippled node to submit requests to.
         """
         self._open_requests: _REQUESTS_TYPE = {}
-        self._websocket: Optional[websocket_client.WebSocketClientProtocol] = None
+        self._websocket: Optional[websocket_client.ClientConnection] = None
         self._handler_task: Optional[_HANDLER_TYPE] = None
         # unfortunately, we cannot create the Queue here because it needs to be
         # tied to a currently-running event loop. the sync websocket client
@@ -85,7 +86,7 @@ class WebsocketBase(Client):
             self._handler_task is not None
             and self._messages is not None
             and self._websocket is not None
-            and self._websocket.open
+            and self._websocket.state == State.OPEN
         )
 
     async def _do_open(self: Self) -> None:
@@ -119,7 +120,7 @@ class WebsocketBase(Client):
         self._messages = None
 
         # close the connection
-        await cast(websocket_client.WebSocketClientProtocol, self._websocket).close()
+        await cast(websocket_client.ClientConnection, self._websocket).close()
 
     async def _handler(self: Self) -> None:
         """
@@ -131,9 +132,7 @@ class WebsocketBase(Client):
 
         As long as a given client remains open, this handler will be running as a Task.
         """
-        async for response in cast(
-            websocket_client.WebSocketClientProtocol, self._websocket
-        ):
+        async for response in cast(websocket_client.ClientConnection, self._websocket):
             response_dict = json.loads(response)
 
             # if this response corresponds to request, fulfill the Future
@@ -175,7 +174,7 @@ class WebsocketBase(Client):
         Arguments:
             request: The request to send.
         """
-        await cast(websocket_client.WebSocketClientProtocol, self._websocket).send(
+        await cast(websocket_client.ClientConnection, self._websocket).send(
             json.dumps(
                 request_to_websocket(request),
             ),

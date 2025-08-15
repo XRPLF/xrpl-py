@@ -7,8 +7,7 @@ from typing import Dict, Optional
 
 from typing_extensions import Self
 
-from xrpl.models.amounts import ClawbackAmount, is_issued_currency, is_xrp
-from xrpl.models.amounts.amount import is_mpt
+from xrpl.models.amounts import ClawbackAmount, is_issued_currency, is_mpt, is_xrp
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -20,7 +19,7 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class Clawback(Transaction):
     """The clawback transaction claws back issued funds from token holders."""
 
-    amount: ClawbackAmount = REQUIRED  # type: ignore
+    amount: ClawbackAmount = REQUIRED
     """
     The amount of currency to claw back. The issuer field is used for the token holder's
     address, from whom the tokens will be clawed back.
@@ -44,7 +43,7 @@ class Clawback(Transaction):
 
         # Amount transaction errors
         if is_xrp(self.amount):
-            errors["amount"] = "``amount`` cannot be XRP."
+            errors["amount"] = "`amount` cannot be XRP."
         elif is_issued_currency(self.amount):
             if self.holder is not None:
                 errors["amount"] = "Cannot have Holder for currency."
@@ -55,5 +54,8 @@ class Clawback(Transaction):
                 errors["amount"] = "Missing Holder."
             elif self.account == self.holder:
                 errors["amount"] = "Invalid Holder account."
+
+        else:
+            errors["amount"] = "`amount` must be IssuedCurrencyAmount or MPTAmount."
 
         return errors
