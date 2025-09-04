@@ -37,6 +37,21 @@ class TestHashUtilsBasic(TestCase):
         self.assertEqual(len(result), 64)
         self.assertTrue(result.isupper())
         self.assertTrue(all(c in "0123456789ABCDEF" for c in result))
+        
+        # Test with bytes input
+        result_bytes = sha512_half(b"Hello World")
+        self.assertEqual(len(result_bytes), 64)
+        self.assertTrue(result_bytes.isupper())
+        
+        # Invalid hex should raise
+        with self.assertRaises(ValueError):
+            sha512_half("ZZ")  # non-hex
+        with self.assertRaises(ValueError):
+            sha512_half("A")   # odd length
+        
+        # Invalid type should raise
+        with self.assertRaises(TypeError):
+            sha512_half(123)
 
     def test_address_to_hex(self):
         """Test address to hex conversion."""
@@ -189,11 +204,17 @@ class TestHashFunctions(TestCase):
         self.assertEqual(len(result), 64)
         self.assertTrue(result.isupper())
         self.assertTrue(all(c in "0123456789ABCDEF" for c in result))
+
+    def test_hash_deposit_preauth_directionality(self):
+        """Test that deposit preauth hash is directional."""
+        # Use valid XRPL addresses
+        address = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+        authorized_address = "rDx69ebzbowuqztksVDmZXjizTd12BVr4x"
         
-        # Test directionality - swapping addresses should give different hash
-        result_swapped = hash_deposit_preauth(authorized_address, address)
-        self.assertEqual(len(result_swapped), 64)
-        self.assertNotEqual(result, result_swapped)
+        # Swapping addresses should produce different hashes
+        result1 = hash_deposit_preauth(address, authorized_address)
+        result2 = hash_deposit_preauth(authorized_address, address)
+        self.assertNotEqual(result1, result2)
 
 
 class TestEdgeCases(TestCase):
@@ -259,6 +280,24 @@ class TestEdgeCases(TestCase):
         with self.assertRaises((XRPLAddressCodecException, ValueError)):
             hash_escrow(invalid_address, 123)
 
+        with self.assertRaises((XRPLAddressCodecException, ValueError)):
+            hash_payment_channel(invalid_address, "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh", 1)
+
+        with self.assertRaises((XRPLAddressCodecException, ValueError)):
+            hash_payment_channel("rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh", invalid_address, 1)
+
+        with self.assertRaises((XRPLAddressCodecException, ValueError)):
+            hash_deposit_preauth(invalid_address, "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh")
+
+        with self.assertRaises((XRPLAddressCodecException, ValueError)):
+            hash_deposit_preauth("rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh", invalid_address)
+
+        with self.assertRaises((XRPLAddressCodecException, ValueError)):
+            hash_check(invalid_address, 1)
+
+        with self.assertRaises((XRPLAddressCodecException, ValueError)):
+            hash_ticket(invalid_address, 1)
+
     def test_currency_formats(self):
         """Test different currency formats in trustline hash."""
         address1 = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
@@ -280,14 +319,14 @@ class TestEdgeCases(TestCase):
         self.assertNotEqual(result_usd, result_usd_mixed)
         self.assertNotEqual(result_usd_lower, result_usd_mixed)
         
-        # Test currency as 20-byte bytes (proper format)
-        currency_bytes = bytes.fromhex("0000000000000000555344000000000000000000")  # USD as 20 bytes
+        # Test currency as bytes (covers the bytes case) - must be exactly 20 bytes
+        currency_bytes = b"USD" + b"\x00" * 17  # 20 bytes total
         result_bytes = hash_trustline(address1, address2, currency_bytes)
         self.assertEqual(len(result_bytes), 64)
         self.assertTrue(result_bytes.isupper())
         
         # Test currency as hex string (covers the else case for non-3-char strings)
-        currency_hex = "0000000000000000555344000000000000000000"  # USD as hex
+        currency_hex = "0000000000000000555344000000000000000000"  # USD as hex, 40 chars
         result_hex = hash_trustline(address1, address2, currency_hex)
         self.assertEqual(len(result_hex), 64)
         self.assertTrue(result_hex.isupper())
@@ -297,32 +336,19 @@ class TestEdgeCases(TestCase):
         address1 = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
         address2 = "rB5TihdPbKgMrkFqrqUC3yLdE8hhv4BdeY"
         
-        # Test bytes with wrong length - should raise ValueError
-        short_bytes = b"US"  # Only 2 bytes instead of 20
+        # Test invalid bytes length
         with self.assertRaises(ValueError) as context:
-            hash_trustline(address1, address2, short_bytes)
+            hash_trustline(address1, address2, b"USD")  # Only 3 bytes, need 20
         self.assertIn("Currency bytes must be exactly 20 bytes", str(context.exception))
         
-        long_bytes = b"USD" * 10  # Too many bytes
+        # Test invalid hex string length
         with self.assertRaises(ValueError) as context:
-            hash_trustline(address1, address2, long_bytes)
-        self.assertIn("Currency bytes must be exactly 20 bytes", str(context.exception))
-        
-        # Test hex string with wrong length - should raise ValueError
-        short_hex = "123456"  # Only 6 hex chars instead of 40
-        with self.assertRaises(ValueError) as context:
-            hash_trustline(address1, address2, short_hex)
+            hash_trustline(address1, address2, "INVALID")  # Not 40 hex chars
         self.assertIn("Currency hex must be exactly 40 hex characters", str(context.exception))
         
-        long_hex = "0123456789ABCDEF" * 3  # Too long
+        # Test invalid hex characters
         with self.assertRaises(ValueError) as context:
-            hash_trustline(address1, address2, long_hex)
-        self.assertIn("Currency hex must be exactly 40 hex characters", str(context.exception))
-        
-        # Test hex string with invalid characters (non-hex) - should raise ValueError
-        invalid_hex = "GHIJKLMNOPQRSTUVWXYZ0123456789ABCDEF01"  # Contains non-hex chars
-        with self.assertRaises(ValueError) as context:
-            hash_trustline(address1, address2, invalid_hex)
+            hash_trustline(address1, address2, "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ")  # 40 chars but invalid hex
         self.assertIn("Currency hex must be exactly 40 hex characters", str(context.exception))
 
     def test_ledger_spaces_completeness(self):

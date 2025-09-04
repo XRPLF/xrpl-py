@@ -41,17 +41,31 @@ LEDGER_SPACES = {
     "depositPreauth": "p",
 }
 
+# Precompute hex (4 chars) once at import time
+LEDGER_SPACES_HEX = {k: format(ord(v), "x").zfill(4) for k, v in LEDGER_SPACES.items()}
 
-def sha512_half(data: str) -> str:
+
+def sha512_half(data: Union[str, bytes, bytearray, memoryview]) -> str:
     """Compute the SHA-512 hash and then take the first half of the result.
 
     Args:
-        data: The input data in hexadecimal format.
+        data: The input data in hexadecimal format (str) or bytes-like object.
 
     Returns:
         The first half of the SHA-512 hash in uppercase hexadecimal.
+    
+    Raises:
+        TypeError: If data is not str or bytes-like.
+        ValueError: If hex string is malformed.
     """
-    hash_obj = hashlib.sha512(bytes.fromhex(data))
+    if isinstance(data, (bytes, bytearray, memoryview)):
+        buf = bytes(data)
+    elif isinstance(data, str):
+        buf = bytes.fromhex(data)
+    else:
+        raise TypeError("data must be hex str or bytes-like")
+    
+    hash_obj = hashlib.sha512(buf)
     return hash_obj.hexdigest()[:64].upper()
 
 
@@ -68,7 +82,7 @@ def _u32_hex(n: int) -> str:
         ValueError: If n is outside the valid 32-bit unsigned range.
     """
     if n < 0 or n > 0xFFFFFFFF:
-        raise ValueError("u32 sequence out of range (0..=2^32-1)")
+        raise ValueError("u32 sequence out of range (0..=2^32-1)")  # noqa: TRY003
     return format(n, "x").zfill(SEQ_HEX_LEN)
 
 
@@ -99,7 +113,7 @@ def ledger_space_hex(name: str) -> str:
     Raises:
         KeyError: If the ledger space name is not recognized.
     """
-    return format(ord(LEDGER_SPACES[name]), "x").zfill(4)
+    return LEDGER_SPACES_HEX[name]
 
 
 def hash_account_root(address: str) -> str:
@@ -214,7 +228,7 @@ def hash_trustline(address1: str, address2: str, currency: Union[str, bytes]) ->
     addr2_hex = address_to_hex(address2)
     
     # Ensure consistent ordering (lower address first)
-    if int(addr1_hex, 16) > int(addr2_hex, 16):
+    if addr1_hex > addr2_hex:
         addr1_hex, addr2_hex = addr2_hex, addr1_hex
     
     # Handle currency formatting (must be 20 bytes)
