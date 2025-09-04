@@ -14,11 +14,10 @@ import hashlib
 from typing import Union
 
 from xrpl.core import addresscodec
-from xrpl.utils.str_conversions import str_to_hex
 
 # Constants
-HEX = 16
 BYTE_LENGTH = 4  # 4 bytes for sequence numbers
+SEQ_HEX_LEN = BYTE_LENGTH * 2  # 8 hex chars
 
 # Ledger space dictionary mapping ledger object types to their namespace identifiers
 LEDGER_SPACES = {
@@ -38,7 +37,6 @@ LEDGER_SPACES = {
     "signerList": "S",
     "paychan": "x",
     "check": "C",
-    "uriToken": "U",
     "depositPreauth": "p",
 }
 
@@ -56,6 +54,23 @@ def sha512_half(data: str) -> str:
     return hash_obj.hexdigest()[:64].upper()
 
 
+def _u32_hex(n: int) -> str:
+    """Convert a 32-bit unsigned integer to 8-character hex string.
+    
+    Args:
+        n: Integer to convert (must be in range [0, 2^32 - 1]).
+        
+    Returns:
+        8-character lowercase hex string with zero padding.
+        
+    Raises:
+        ValueError: If n is outside the valid 32-bit unsigned range.
+    """
+    if n < 0 or n > 0xFFFFFFFF:
+        raise ValueError("Sequence must be in range [0, 2^32 - 1].")
+    return format(n, "x").zfill(SEQ_HEX_LEN)
+
+
 def address_to_hex(address: str) -> str:
     """Convert an XRPL address to its hexadecimal representation.
 
@@ -66,7 +81,7 @@ def address_to_hex(address: str) -> str:
         The hexadecimal representation of the address.
 
     Raises:
-        XRPLAddressCodecException: If the address is invalid.
+        XRPLAddressCodecException or ValueError: If the address is invalid.
     """
     return addresscodec.decode_classic_address(address).hex().upper()
 
@@ -111,7 +126,7 @@ def hash_offer(address: str, sequence: int) -> str:
     return sha512_half(
         ledger_space_hex("offer")
         + address_to_hex(address)
-        + format(sequence, "x").zfill(8)  # 4 bytes = 8 hex characters
+        + _u32_hex(sequence)
     )
 
 
@@ -128,7 +143,7 @@ def hash_check(address: str, sequence: int) -> str:
     return sha512_half(
         ledger_space_hex("check")
         + address_to_hex(address)
-        + format(sequence, "x").zfill(8)  # 4 bytes = 8 hex characters
+        + _u32_hex(sequence)
     )
 
 
@@ -145,7 +160,7 @@ def hash_escrow(address: str, sequence: int) -> str:
     return sha512_half(
         ledger_space_hex("escrow")
         + address_to_hex(address)
-        + format(sequence, "x").zfill(8)  # 4 bytes = 8 hex characters
+        + _u32_hex(sequence)
     )
 
 
@@ -164,7 +179,7 @@ def hash_payment_channel(address: str, dst_address: str, sequence: int) -> str:
         ledger_space_hex("paychan")
         + address_to_hex(address)
         + address_to_hex(dst_address)
-        + format(sequence, "x").zfill(8)  # 4 bytes = 8 hex characters
+        + _u32_hex(sequence)
     )
 
 
@@ -178,7 +193,7 @@ def hash_signer_list_id(address: str) -> str:
         The computed hash of the signer list in uppercase hexadecimal.
     """
     return sha512_half(
-        ledger_space_hex("signerList") + address_to_hex(address) + "00000000"
+        ledger_space_hex("signerList") + address_to_hex(address) + _u32_hex(0)
     )
 
 
@@ -230,24 +245,7 @@ def hash_ticket(address: str, ticket_id: int) -> str:
     return sha512_half(
         ledger_space_hex("ticket")
         + address_to_hex(address)
-        + format(ticket_id, "x").zfill(8)  # 4 bytes = 8 hex characters
-    )
-
-
-def hash_uri_token(issuer: str, uri: str) -> str:
-    """Compute the hash of a URIToken ledger entry.
-
-    This is primarily used in Xahau networks but included for compatibility.
-
-    Args:
-        issuer: The address of the issuer.
-        uri: The URI associated with the token.
-
-    Returns:
-        The computed hash of the URI token in uppercase hexadecimal.
-    """
-    return sha512_half(
-        ledger_space_hex("uriToken") + address_to_hex(issuer) + str_to_hex(uri)
+        + _u32_hex(ticket_id)
     )
 
 

@@ -14,7 +14,6 @@ from xrpl.utils.hash_utils import (
     hash_signer_list_id,
     hash_ticket,
     hash_trustline,
-    hash_uri_token,
 )
 from xrpl.utils.parse_nftoken_id import parse_nftoken_id
 from xrpl.utils.str_conversions import hex_to_str, str_to_hex
@@ -61,5 +60,4 @@ __all__ = [
     "hash_signer_list_id",
     "hash_ticket",
     "hash_trustline",
-    "hash_uri_token",
 ]

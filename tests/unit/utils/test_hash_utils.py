@@ -17,7 +17,6 @@ from xrpl.utils.hash_utils import (
     hash_signer_list_id,
     hash_ticket,
     hash_trustline,
-    hash_uri_token,
     ledger_space_hex,
     sha512_half,
 )
@@ -186,17 +185,6 @@ class TestHashFunctions(TestCase):
         self.assertTrue(result.isupper())
         self.assertTrue(all(c in "0123456789ABCDEF" for c in result))
 
-    def test_hash_uri_token(self):
-        """Test URI token hash calculation."""
-        # Use a valid XRPL address
-        issuer = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
-        uri = "https://example.com/token"
-        result = hash_uri_token(issuer, uri)
-        # Should return a 64-character uppercase hex string
-        self.assertEqual(len(result), 64)
-        self.assertTrue(result.isupper())
-        self.assertTrue(all(c in "0123456789ABCDEF" for c in result))
-
 
 class TestEdgeCases(TestCase):
     """Test edge cases and error conditions."""
@@ -224,6 +212,30 @@ class TestEdgeCases(TestCase):
         self.assertEqual(len(result), 64)
         self.assertTrue(result.isupper())
 
+    def test_invalid_sequence_numbers(self):
+        """Test hash functions with invalid sequence numbers."""
+        address = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+        
+        # Test negative sequence number
+        with self.assertRaises(ValueError) as context:
+            hash_offer(address, -1)
+        self.assertIn("Sequence must be in range [0, 2^32 - 1]", str(context.exception))
+        
+        # Test sequence number too large (> 2^32 - 1)
+        with self.assertRaises(ValueError) as context:
+            hash_offer(address, 2**32)
+        self.assertIn("Sequence must be in range [0, 2^32 - 1]", str(context.exception))
+        
+        # Test with other hash functions that use sequences
+        with self.assertRaises(ValueError):
+            hash_escrow(address, -1)
+            
+        with self.assertRaises(ValueError):
+            hash_check(address, 2**32)
+            
+        with self.assertRaises(ValueError):
+            hash_ticket(address, -5)
+
     def test_invalid_address_in_hash_functions(self):
         """Test hash functions with invalid addresses."""
         invalid_address = "invalid_address"
@@ -236,16 +248,6 @@ class TestEdgeCases(TestCase):
 
         with self.assertRaises((XRPLAddressCodecException, ValueError)):
             hash_escrow(invalid_address, 123)
-
-    def test_empty_uri(self):
-        """Test URI token hash with empty URI."""
-        # Use a valid XRPL address
-        issuer = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
-        uri = ""
-        result = hash_uri_token(issuer, uri)
-        # Should still return a valid hash
-        self.assertEqual(len(result), 64)
-        self.assertTrue(result.isupper())
 
     def test_currency_formats(self):
         """Test different currency formats in trustline hash."""
@@ -260,6 +262,13 @@ class TestEdgeCases(TestCase):
         result_eur = hash_trustline(address1, address2, "EUR")
         self.assertEqual(len(result_eur), 64)
         self.assertNotEqual(result_usd, result_eur)
+        
+        # Test case-sensitivity for 3-character currencies (should be different)
+        result_usd_lower = hash_trustline(address1, address2, "usd")
+        result_usd_mixed = hash_trustline(address1, address2, "UsD")
+        self.assertNotEqual(result_usd, result_usd_lower)
+        self.assertNotEqual(result_usd, result_usd_mixed)
+        self.assertNotEqual(result_usd_lower, result_usd_mixed)
         
         # Test currency as bytes (covers the bytes case)
         currency_bytes = b"USD"
@@ -279,7 +288,7 @@ class TestEdgeCases(TestCase):
             "account", "dirNode", "generatorMap", "rippleState", "offer",
             "ownerDir", "bookDir", "contract", "skipList", "escrow",
             "amendment", "feeSettings", "ticket", "signerList", "paychan",
-            "check", "uriToken", "depositPreauth"
+            "check", "depositPreauth"
         ]
         
         for space in expected_spaces:
