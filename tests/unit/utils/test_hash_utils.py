@@ -27,9 +27,12 @@ class TestHashUtilsBasic(TestCase):
 
     def test_sha512_half(self):
         """Test SHA512 half hash function."""
-        # Test with known input/output
+        # Test with known input/output for "Hello World"
         test_data = "48656C6C6F20576F726C64"  # "Hello World" in hex
         result = sha512_half(test_data)
+        # Known SHA-512 half result for "Hello World"
+        expected = "2C74FD17EDAFD80E8447B0D46741EE243B7EB74DD2149A0AB1B9246FB30382F2"
+        self.assertEqual(result, expected)
         # Should be 64 characters (32 bytes) uppercase hex
         self.assertEqual(len(result), 64)
         self.assertTrue(result.isupper())
@@ -149,8 +152,10 @@ class TestHashFunctions(TestCase):
         address1 = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
         address2 = "rB5TihdPbKgMrkFqrqUC3yLdE8hhv4BdeY"
         currency = "USD"
-        self.assertEqual(hash_trustline(address1, address2, currency),
-                        hash_ripple_state(address1, address2, currency))
+        self.assertEqual(
+            hash_trustline(address1, address2, currency),
+            hash_ripple_state(address1, address2, currency),
+        )
 
     def test_hash_check(self):
         """Test check hash calculation."""
@@ -184,6 +189,11 @@ class TestHashFunctions(TestCase):
         self.assertEqual(len(result), 64)
         self.assertTrue(result.isupper())
         self.assertTrue(all(c in "0123456789ABCDEF" for c in result))
+        
+        # Test directionality - swapping addresses should give different hash
+        result_swapped = hash_deposit_preauth(authorized_address, address)
+        self.assertEqual(len(result_swapped), 64)
+        self.assertNotEqual(result, result_swapped)
 
 
 class TestEdgeCases(TestCase):
@@ -219,12 +229,12 @@ class TestEdgeCases(TestCase):
         # Test negative sequence number
         with self.assertRaises(ValueError) as context:
             hash_offer(address, -1)
-        self.assertIn("Sequence must be in range [0, 2^32 - 1]", str(context.exception))
+        self.assertIn("u32 sequence out of range", str(context.exception))
         
         # Test sequence number too large (> 2^32 - 1)
         with self.assertRaises(ValueError) as context:
             hash_offer(address, 2**32)
-        self.assertIn("Sequence must be in range [0, 2^32 - 1]", str(context.exception))
+        self.assertIn("u32 sequence out of range", str(context.exception))
         
         # Test with other hash functions that use sequences
         with self.assertRaises(ValueError):
@@ -270,8 +280,8 @@ class TestEdgeCases(TestCase):
         self.assertNotEqual(result_usd, result_usd_mixed)
         self.assertNotEqual(result_usd_lower, result_usd_mixed)
         
-        # Test currency as bytes (covers the bytes case)
-        currency_bytes = b"USD"
+        # Test currency as 20-byte bytes (proper format)
+        currency_bytes = bytes.fromhex("0000000000000000555344000000000000000000")  # USD as 20 bytes
         result_bytes = hash_trustline(address1, address2, currency_bytes)
         self.assertEqual(len(result_bytes), 64)
         self.assertTrue(result_bytes.isupper())
@@ -281,6 +291,39 @@ class TestEdgeCases(TestCase):
         result_hex = hash_trustline(address1, address2, currency_hex)
         self.assertEqual(len(result_hex), 64)
         self.assertTrue(result_hex.isupper())
+
+    def test_invalid_currency_formats(self):
+        """Test invalid currency formats in trustline hash."""
+        address1 = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+        address2 = "rB5TihdPbKgMrkFqrqUC3yLdE8hhv4BdeY"
+        
+        # Test bytes with wrong length - should raise ValueError
+        short_bytes = b"US"  # Only 2 bytes instead of 20
+        with self.assertRaises(ValueError) as context:
+            hash_trustline(address1, address2, short_bytes)
+        self.assertIn("Currency bytes must be exactly 20 bytes", str(context.exception))
+        
+        long_bytes = b"USD" * 10  # Too many bytes
+        with self.assertRaises(ValueError) as context:
+            hash_trustline(address1, address2, long_bytes)
+        self.assertIn("Currency bytes must be exactly 20 bytes", str(context.exception))
+        
+        # Test hex string with wrong length - should raise ValueError
+        short_hex = "123456"  # Only 6 hex chars instead of 40
+        with self.assertRaises(ValueError) as context:
+            hash_trustline(address1, address2, short_hex)
+        self.assertIn("Currency hex must be exactly 40 hex characters", str(context.exception))
+        
+        long_hex = "0123456789ABCDEF" * 3  # Too long
+        with self.assertRaises(ValueError) as context:
+            hash_trustline(address1, address2, long_hex)
+        self.assertIn("Currency hex must be exactly 40 hex characters", str(context.exception))
+        
+        # Test hex string with invalid characters (non-hex) - should raise ValueError
+        invalid_hex = "GHIJKLMNOPQRSTUVWXYZ0123456789ABCDEF01"  # Contains non-hex chars
+        with self.assertRaises(ValueError) as context:
+            hash_trustline(address1, address2, invalid_hex)
+        self.assertIn("Currency hex must be exactly 40 hex characters", str(context.exception))
 
     def test_ledger_spaces_completeness(self):
         """Test that all expected ledger spaces are defined."""

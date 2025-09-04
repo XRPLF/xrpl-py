@@ -11,6 +11,7 @@ Example:
 """
 
 import hashlib
+import re
 from typing import Union
 
 from xrpl.core import addresscodec
@@ -67,7 +68,7 @@ def _u32_hex(n: int) -> str:
         ValueError: If n is outside the valid 32-bit unsigned range.
     """
     if n < 0 or n > 0xFFFFFFFF:
-        raise ValueError("Sequence must be in range [0, 2^32 - 1].")
+        raise ValueError("u32 sequence out of range (0..=2^32-1)")
     return format(n, "x").zfill(SEQ_HEX_LEN)
 
 
@@ -216,16 +217,18 @@ def hash_trustline(address1: str, address2: str, currency: Union[str, bytes]) ->
     if int(addr1_hex, 16) > int(addr2_hex, 16):
         addr1_hex, addr2_hex = addr2_hex, addr1_hex
     
-    # Handle currency formatting
+    # Handle currency formatting (must be 20 bytes)
     if isinstance(currency, str) and len(currency) == 3:
-        # Standard 3-character currency code
-        currency_hex = "00" * 12 + currency.encode('ascii').hex().upper() + "00" * 5
+        currency_hex = ("00" * 12) + currency.encode("ascii").hex().upper() + ("00" * 5)
+    elif isinstance(currency, bytes):
+        if len(currency) != 20:
+            raise ValueError("Currency bytes must be exactly 20 bytes.")
+        currency_hex = currency.hex().upper()
     else:
-        # Assume it's already a hex string or bytes
-        if isinstance(currency, bytes):
-            currency_hex = currency.hex().upper()
-        else:
-            currency_hex = str(currency).upper()
+        hex_str = str(currency)
+        if not re.fullmatch(r"[0-9A-Fa-f]{40}", hex_str):
+            raise ValueError("Currency hex must be exactly 40 hex characters.")
+        currency_hex = hex_str.upper()
     
     return sha512_half(
         ledger_space_hex("rippleState") + addr1_hex + addr2_hex + currency_hex
