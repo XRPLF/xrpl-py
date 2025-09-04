@@ -17,6 +17,7 @@ class TransactionType(str, Enum):
     CHECK_CANCEL = "CheckCancel"
     CHECK_CASH = "CheckCash"
     CHECK_CREATE = "CheckCreate"
+    CREDENTIAL_CREATE = "CredentialCreate"
     CLAWBACK = "Clawback"
     DEPOSIT_PREAUTH = "DepositPreauth"
     DID_DELETE = "DIDDelete"

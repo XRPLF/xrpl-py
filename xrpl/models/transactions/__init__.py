@@ -27,6 +27,7 @@ from xrpl.models.transactions.amm_withdraw import (
 from xrpl.models.transactions.check_cancel import CheckCancel
 from xrpl.models.transactions.check_cash import CheckCash
 from xrpl.models.transactions.check_create import CheckCreate
+from xrpl.models.transactions.credential_create import CredentialCreate
 from xrpl.models.transactions.clawback import Clawback
 from xrpl.models.transactions.deposit_preauth import DepositPreauth
 from xrpl.models.transactions.did_delete import DIDDelete
@@ -113,6 +114,7 @@ __all__ = [
     "CheckCancel",
     "CheckCash",
     "CheckCreate",
+    "CredentialCreate",
     "Clawback",
     "DepositPreauth",
     "DIDDelete",

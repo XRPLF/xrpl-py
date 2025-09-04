@@ -2563,6 +2563,7 @@
     "CheckCreate": 16,
     "CheckCash": 17,
     "CheckCancel": 18,
+    "CredentialCreate": 70,
     "DepositPreauth": 19,
     "TrustSet": 20,
     "AccountDelete": 21,
