@@ -66,7 +66,7 @@ def sha512_half(data: Union[str, bytes, bytearray, memoryview]) -> str:
         raise TypeError("data must be hex str or bytes-like")
     
     hash_obj = hashlib.sha512(buf)
-    return hash_obj.hexdigest()[:64].upper()
+    return hash_obj.digest()[:32].hex().upper()
 
 
 def _u32_hex(n: int) -> str:
@@ -83,7 +83,7 @@ def _u32_hex(n: int) -> str:
     """
     if n < 0 or n > 0xFFFFFFFF:
         raise ValueError("u32 sequence out of range (0..=2^32-1)")  # noqa: TRY003
-    return format(n, "x").zfill(SEQ_HEX_LEN)
+    return f"{n:0{SEQ_HEX_LEN}X}"
 
 
 def address_to_hex(address: str) -> str:
@@ -233,15 +233,16 @@ def hash_trustline(address1: str, address2: str, currency: Union[str, bytes]) ->
     
     # Handle currency formatting (must be 20 bytes)
     if isinstance(currency, str) and len(currency) == 3:
-        currency_hex = ("00" * 12) + currency.encode("ascii").hex().upper() + ("00" * 5)
+        # Canonicalize 3-char currency to uppercase
+        currency_hex = ("00" * 12) + currency.upper().encode("ascii").hex().upper() + ("00" * 5)
     elif isinstance(currency, bytes):
         if len(currency) != 20:
-            raise ValueError("Currency bytes must be exactly 20 bytes.")
+            raise ValueError("Currency bytes must be exactly 20 bytes.")  # noqa: TRY003
         currency_hex = currency.hex().upper()
     else:
         hex_str = str(currency)
         if not re.fullmatch(r"[0-9A-Fa-f]{40}", hex_str):
-            raise ValueError("Currency hex must be exactly 40 hex characters.")
+            raise ValueError("Currency hex must be exactly 40 hex characters.")  # noqa: TRY003
         currency_hex = hex_str.upper()
     
     return sha512_half(
@@ -249,12 +250,12 @@ def hash_trustline(address1: str, address2: str, currency: Union[str, bytes]) ->
     )
 
 
-def hash_ticket(address: str, ticket_id: int) -> str:
+def hash_ticket(address: str, ticket_sequence: int) -> str:
     """Compute the hash of a Ticket ledger entry.
 
     Args:
         address: The address associated with the ticket.
-        ticket_id: The ticket identifier.
+        ticket_sequence: The TicketSequence (32-bit) used to derive the Ticket index.
 
     Returns:
         The computed hash of the ticket in uppercase hexadecimal.
@@ -262,7 +263,7 @@ def hash_ticket(address: str, ticket_id: int) -> str:
     return sha512_half(
         ledger_space_hex("ticket")
         + address_to_hex(address)
-        + _u32_hex(ticket_id)
+        + _u32_hex(ticket_sequence)
     )
 
 

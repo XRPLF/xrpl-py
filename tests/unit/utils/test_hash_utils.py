@@ -187,8 +187,8 @@ class TestHashFunctions(TestCase):
         """Test ticket hash calculation."""
         # Use a valid XRPL address
         address = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
-        ticket_id = 25
-        result = hash_ticket(address, ticket_id)
+        ticket_sequence = 25
+        result = hash_ticket(address, ticket_sequence)
         # Should return a 64-character uppercase hex string
         self.assertEqual(len(result), 64)
         self.assertTrue(result.isupper())
@@ -312,12 +312,12 @@ class TestEdgeCases(TestCase):
         self.assertEqual(len(result_eur), 64)
         self.assertNotEqual(result_usd, result_eur)
         
-        # Test case-sensitivity for 3-character currencies (should be different)
+        # Test case-insensitivity for 3-character currencies (should be same after canonicalization)
         result_usd_lower = hash_trustline(address1, address2, "usd")
         result_usd_mixed = hash_trustline(address1, address2, "UsD")
-        self.assertNotEqual(result_usd, result_usd_lower)
-        self.assertNotEqual(result_usd, result_usd_mixed)
-        self.assertNotEqual(result_usd_lower, result_usd_mixed)
+        self.assertEqual(result_usd, result_usd_lower)
+        self.assertEqual(result_usd, result_usd_mixed)
+        self.assertEqual(result_usd_lower, result_usd_mixed)
         
         # Test currency as bytes (covers the bytes case) - must be exactly 20 bytes
         currency_bytes = b"USD" + b"\x00" * 17  # 20 bytes total
