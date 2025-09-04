@@ -2554,6 +2554,7 @@
     "OfferCreate": 7,
     "OfferCancel": 8,
     "Contract": 9,
+    "CredentialCreate": 70,
     "TicketCreate": 10,
     "TicketCancel": 11,
     "SignerListSet": 12,
