@@ -14,7 +14,7 @@ class TestLoanSet(TestCase):
             LoanSet(
                 account=_SOURCE,
                 loan_broker_id=_ISSUER,
-                principal_requested=100000000,
+                principal_requested="100000000",
                 start_date=int(datetime.datetime.now().timestamp()),
                 payment_interval=65,
                 grace_period=70,
@@ -30,7 +30,7 @@ class TestLoanSet(TestCase):
             LoanSet(
                 account=_SOURCE,
                 loan_broker_id=_ISSUER,
-                principal_requested=100000000,
+                principal_requested="100000000",
                 start_date=int(datetime.datetime.now().timestamp()),
                 payment_interval=59,
             )
@@ -44,7 +44,7 @@ class TestLoanSet(TestCase):
         tx = LoanSet(
             account=_SOURCE,
             loan_broker_id=_ISSUER,
-            principal_requested=100000000,
+            principal_requested="100000000",
             start_date=int(datetime.datetime.now().timestamp()),
         )
         self.assertTrue(tx.is_valid())

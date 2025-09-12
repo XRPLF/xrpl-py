@@ -8,7 +8,7 @@ from typing import Dict, List, Optional
 
 from typing_extensions import Self
 
-from xrpl.models.nested_model import NestedModel
+from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
@@ -17,7 +17,7 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
-class CounterpartySignature(NestedModel):
+class CounterpartySignature(BaseModel):
     """
     An inner object that contains the signature of the Lender over the transaction.
     The fields contained in this object are:
@@ -125,7 +125,7 @@ class LoanSet(Transaction):
     between 0 and 100000 inclusive. (0 - 100%)
     """
 
-    principal_requested: int = REQUIRED  # type: ignore
+    principal_requested: str = REQUIRED  # type: ignore
     """
     The principal amount requested by the Borrower.
     """

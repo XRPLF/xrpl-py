@@ -27,6 +27,7 @@ class AccountObjectType(str, Enum):
     DELEGATE = "delegate"
     DID = "did"
     ESCROW = "escrow"
+    LOAN_BROKER = "loan_broker"
     MPT_ISSUANCE = "mpt_issuance"
     MPTOKEN = "mptoken"
     NFT_OFFER = "nft_offer"

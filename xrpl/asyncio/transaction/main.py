@@ -16,6 +16,7 @@ from xrpl.core.keypairs.main import sign as keypairs_sign
 from xrpl.models import (
     Batch,
     EscrowFinish,
+    LoanSet,
     Response,
     ServerState,
     Simulate,
@@ -516,6 +517,25 @@ async def _calculate_fee_per_transaction_type(
                 for raw_txn in batch.raw_transactions
             ]
         )
+    elif transaction.transaction_type == TransactionType.LOAN_SET:
+        # Compute the additional cost of each signature in the
+        # CounterpartySignature, whether a single signature or a multisignature
+        loan_set = cast(LoanSet, transaction)
+        if loan_set.counterparty_signature is not None:
+            signer_count = (
+                len(loan_set.counterparty_signature.signers)
+                if loan_set.counterparty_signature.signers is not None
+                else 1
+            )
+            base_fee += net_fee * signer_count
+        else:
+            # Note: Due to lack of information, the client-library assumes that
+            # there is only one signer. However, the LoanIssuer and Borrower need to
+            # communicate the number of CounterpartySignature.signers
+            # (or the appropriate transaction-fee)
+            # with each other off-chain. This helps with efficient fee-calculation for
+            # the LoanSet transaction.
+            base_fee += net_fee
 
     # Multi-signed/Multi-Account Batch Transactions
     # BaseFee × (1 + Number of Signatures Provided)
