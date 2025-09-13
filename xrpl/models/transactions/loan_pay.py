@@ -21,7 +21,7 @@ class LoanPay(Transaction):
     This field is required.
     """
 
-    amount: int = REQUIRED  # type: ignore
+    amount: str = REQUIRED  # type: ignore
     """
     The amount of funds to pay.
     This field is required.

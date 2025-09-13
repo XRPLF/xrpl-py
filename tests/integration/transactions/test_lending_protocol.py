@@ -14,6 +14,9 @@ from xrpl.models import (
     AccountSet,
     AccountSetAsfFlag,
     LoanBrokerSet,
+    LoanDelete,
+    LoanManage,
+    LoanPay,
     LoanSet,
     Transaction,
     VaultCreate,
@@ -22,6 +25,7 @@ from xrpl.models import (
 from xrpl.models.currencies.xrp import XRP
 from xrpl.models.requests.account_objects import AccountObjectType
 from xrpl.models.response import ResponseStatus
+from xrpl.models.transactions.loan_manage import LoanManageFlag
 from xrpl.models.transactions.loan_set import CounterpartySignature
 from xrpl.models.transactions.vault_create import WithdrawalPolicy
 from xrpl.wallet import Wallet
@@ -138,3 +142,41 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
 
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # fetch the Loan object
+        response = await client.request(
+            AccountObjects(account=borrower_wallet.address, type=AccountObjectType.LOAN)
+        )
+        self.assertEqual(len(response.result["account_objects"]), 1)
+        LOAN_ID = response.result["account_objects"][0]["index"]
+
+        # Delete the Loan object
+        tx = LoanDelete(
+            account=loan_issuer.address,
+            loan_id=LOAN_ID,
+        )
+        response = await sign_and_reliable_submission_async(tx, loan_issuer, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        # Loan cannot be deleted until all the remaining payments are completed
+        self.assertEqual(response.result["engine_result"], "tecHAS_OBLIGATIONS")
+
+        # Test the LoanManage transaction
+        tx = LoanManage(
+            account=loan_issuer.address,
+            loan_id=LOAN_ID,
+            flags=LoanManageFlag.TF_LOAN_IMPAIR,
+        )
+        response = await sign_and_reliable_submission_async(tx, loan_issuer, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Test the LoanPay transaction
+        tx = LoanPay(
+            account=borrower_wallet.address,
+            loan_id=LOAN_ID,
+            amount="100",
+        )
+        response = await sign_and_reliable_submission_async(tx, borrower_wallet, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        # The borrower cannot pay the loan before the start date
+        self.assertEqual(response.result["engine_result"], "tecTOO_SOON")
