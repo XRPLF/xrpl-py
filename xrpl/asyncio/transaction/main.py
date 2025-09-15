@@ -41,6 +41,10 @@ _RESTRICTED_NETWORKS = 1024
 _REQUIRED_NETWORKID_VERSION = "1.11.0"
 _MICRO_DROPS_PER_DROP = 1_000_000
 
+
+_WASM_FIXED_UPLOAD_COST = 100
+_WASM_DROPS_PER_BYTE = 5
+
 T = TypeVar("T", bound=Transaction, default=Transaction)
 
 
@@ -492,6 +496,15 @@ async def _calculate_fee_per_transaction_type(
     )  # Latest data is found in FeeSettings ledger-object's BaseFee field.
 
     base_fee = net_fee
+
+    if transaction.transaction_type == TransactionType.ESCROW_CREATE:
+        escrow_create = cast(EscrowCreate, transaction)
+        if escrow_create.finish_function is not None:
+            base_fee += _WASM_FIXED_UPLOAD_COST
+            base_fee += (
+                _WASM_DROPS_PER_BYTE
+                * len(escrow_create.finish_function.encode("utf-8"))
+            ) // 2
 
     # EscrowFinish Transaction with Fulfillment
     # https://xrpl.org/escrowfinish.html#escrowfinish-fields
