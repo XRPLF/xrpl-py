@@ -8,26 +8,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[Unreleased]]
 
 ### Fixed
+
 - Removed snippets files from the xrpl-py code repository. Updated the README file to point to the correct location on XRPL.org.
 
 ## [[4.3.0]] - 2025-07-29
 
 ### Added
+
 - Support for `Token Escrow` (XLS-85d)
 - Support for `NFTokenMintOffer` (XLS-52)
 - Support for `Permissioned DEX` (XLS-81)
 - Add warning messages to `MPTokenIssuanceCreate` and `VaultCreate` transaction as per [XLS-89d](https://github.com/XRPLF/XRPL-Standards/tree/master/XLS-0089d-multi-purpose-token-metadata-schema).
 
-
 ## [4.2.0] - 2025-6-09
 
 ### Added
+
 - Improved validation for models to also check param types
 - Support for `Single Asset Vault` (XLS-65d)
 - Support for `Account Permission` and `Account Permission Delegation` (XLS-74d, XLS-75d)
 - Support for the `Batch` amendment (XLS-56d)
 
 ### Fixed
+
 - Add `MPTCurrency` support in `Issue` (rippled internal type)
 - Fix the implementation error in get_latest_open_ledger_sequence method. The change uses the "current" ledger for extracting sequence number
 - Increase default maximum payload size for websocket client
@@ -45,11 +48,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Support for `Deep Freeze` (XLS-77d)
-- Support for  `PermissionedDomains` (XLS-80)
+- Support for `PermissionedDomains` (XLS-80)
 - Support `AMMClawback` amendment (XLS-73d)
 - Support for the `simulate` RPC ([XLS-69](https://github.com/XRPLF/XRPL-Standards/tree/master/XLS-0069d-simulate))
 
 ### Fixed
+
 - `Sign`, `SignFor`, and `SignAndSubmit` methods now properly handle WebSocket clients
 
 ## [4.0.0] - 2024-12-23
@@ -96,7 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `nfts_by_issuer` clio-only API definition
 - Included `ctid` field in the `tx` request.
 - `from_xrpl` method accepts input dictionary keys exclusively in the proper XRPL format.
-- Support for  DynamicNFT amendment (XLS-46)
+- Support for DynamicNFT amendment (XLS-46)
 
 ### Fixed
 

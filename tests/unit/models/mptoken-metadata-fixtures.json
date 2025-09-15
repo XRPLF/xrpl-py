@@ -60,9 +60,7 @@
         "cusip": "912796RX0"
       }
     },
-    "validationMessages": [
-      "ticker is required and must be string."
-    ]
+    "validationMessages": ["ticker is required and must be string."]
   },
   {
     "testName": "ticker has lowercase letters",
@@ -88,9 +86,7 @@
       "asset_subclass": "treasury",
       "issuer_name": "Issuer"
     },
-    "validationMessages": [
-      "icon should be a valid https url."
-    ]
+    "validationMessages": ["icon should be a valid https url."]
   },
   {
     "testName": "invalid asset_class",
@@ -150,9 +146,7 @@
         }
       ]
     },
-    "validationMessages": [
-      "url should be a valid https url."
-    ]
+    "validationMessages": ["url should be a valid https url."]
   },
   {
     "testName": "additional_info is invalid type - array",
@@ -162,14 +156,9 @@
       "icon": "https://example.com/icon.png",
       "asset_class": "defi",
       "issuer_name": "Issuer",
-      "additional_info": [
-        "not",
-        "valid"
-      ]
+      "additional_info": ["not", "valid"]
     },
-    "validationMessages": [
-      "additional_info must be a string or JSON object."
-    ]
+    "validationMessages": ["additional_info must be a string or JSON object."]
   },
   {
     "testName": "additional_info is invalid type - number",
@@ -181,9 +170,7 @@
       "issuer_name": "Issuer",
       "additional_info": 123
     },
-    "validationMessages": [
-      "additional_info must be a string or JSON object."
-    ]
+    "validationMessages": ["additional_info must be a string or JSON object."]
   },
   {
     "testName": "multiple warnings",
@@ -300,9 +287,7 @@
         "cusip": "912796RX0"
       }
     },
-    "validationMessages": [
-      "One or more urls are not structured per XLS-89d."
-    ]
+    "validationMessages": ["One or more urls are not structured per XLS-89d."]
   },
   {
     "testName": "invalid url structure",
@@ -323,9 +308,7 @@
         "cusip": "912796RX0"
       }
     },
-    "validationMessages": [
-      "urls must be an array as per XLS-89d."
-    ]
+    "validationMessages": ["urls must be an array as per XLS-89d."]
   },
   {
     "testName": "invalid url inner structure",
@@ -337,10 +320,7 @@
       "asset_class": "rwa",
       "asset_subclass": "treasury",
       "issuer_name": "Example Yield Co.",
-      "urls": [
-        1,
-        2
-      ],
+      "urls": [1, 2],
       "additional_info": {
         "interest_rate": "5.00%",
         "interest_type": "variable",
@@ -349,9 +329,7 @@
         "cusip": "912796RX0"
       }
     },
-    "validationMessages": [
-      "One or more urls are not structured per XLS-89d."
-    ]
+    "validationMessages": ["One or more urls are not structured per XLS-89d."]
   },
   {
     "testName": "exceeds 1024 bytes",

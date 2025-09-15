@@ -49,4 +49,3 @@ jobs:
 
       - name: Run Faucet tests
         run: poetry run poe test_faucet
-      

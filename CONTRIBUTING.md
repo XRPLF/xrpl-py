@@ -94,13 +94,14 @@ docker run -dit -p 5005:5005 -p 6006:6006 --volume $PWD/.ci-config/:/etc/opt/rip
 ```
 
 Breaking down the command:
-* `docker run -p 5005:5005 -p 6006:6006` starts a Docker container with an open port for admin JsonRPC and WebSocket requests.
-* `-it` allows you to interact with the container.
-* `-d` runs the docker container in detached mode. The container will run in the background and developer gets back control of the terminal
-* `-t` starts a terminal in the container for you to send commands to.
-* `--volume $PWD/.ci-config:/etc/opt/ripple/` mounts the directories as indicated. It must be an absolute path, so we use `$PWD` instead of `./`. `rippled` software searches the location `/etc/opt/ripple/` (default behavior) for the config files. Hence there is no need to explicitly specify the config-file path.
-* `rippleci/rippled:develop` is an image that is regularly updated with the latest build of the `develop` branch of `rippled`.
-* `-a` starts `rippled` in standalone mode
+
+- `docker run -p 5005:5005 -p 6006:6006` starts a Docker container with an open port for admin JsonRPC and WebSocket requests.
+- `-it` allows you to interact with the container.
+- `-d` runs the docker container in detached mode. The container will run in the background and developer gets back control of the terminal
+- `-t` starts a terminal in the container for you to send commands to.
+- `--volume $PWD/.ci-config:/etc/opt/ripple/` mounts the directories as indicated. It must be an absolute path, so we use `$PWD` instead of `./`. `rippled` software searches the location `/etc/opt/ripple/` (default behavior) for the config files. Hence there is no need to explicitly specify the config-file path.
+- `rippleci/rippled:develop` is an image that is regularly updated with the latest build of the `develop` branch of `rippled`.
+- `-a` starts `rippled` in standalone mode
 
 Then to actually run the tests, run the command:
 
@@ -166,6 +167,7 @@ open index.html
 You can view docs builds for xrpl-py versions on the ReadTheDocs website here: https://readthedocs.org/projects/xrpl-py/builds/
 
 In order to test how a change in docs configuration looks like on ReadTheDocs before merging:
+
 1. Publish a branch with your docs configuration changes
 2. Active and hide the branch by scrolling down on this page: https://readthedocs.org/projects/xrpl-py/versions/
 3. View the page / build results here: https://readthedocs.org/projects/xrpl-py/builds/
@@ -188,6 +190,7 @@ Examples can be found in subfolders of [tests/integrations](https://github.com/X
 ## Updating `definitions.json` and models
 
 To update just the `definitions.json` file:
+
 ```bash
 poetry run poe definitions https://github.com/XRPLF/rippled/tree/develop
 ```
@@ -195,6 +198,7 @@ poetry run poe definitions https://github.com/XRPLF/rippled/tree/develop
 Any Github branch link or local path to rippled will work here.
 
 To update the models as well:
+
 ```bash
 poetry run poe generate https://github.com/XRPLF/rippled/tree/develop
 ```
@@ -213,18 +217,19 @@ Verify that the changes make sense by inspection before submitting, as there may
 - Merge your changes.
 
 ### Release
+
 1. Please increment the version in `pyproject.toml` and update the `CHANGELOG.md` file appropriately. We follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 2. Please select a commit that is suitable for release and create a tag. The following commands can be helpful:
-`git tag -s -a <tag-title> -m "Optional Message describing the tag"`
-`git tag` -- This command displays all the tags in the repository.
-`git push <remote_name, e.g. upstream> tag <tag_title>`
+   `git tag -s -a <tag-title> -m "Optional Message describing the tag"`
+   `git tag` -- This command displays all the tags in the repository.
+   `git push <remote_name, e.g. upstream> tag <tag_title>`
 3. A [Github Workflow](.github/workflows/publish_to_pypi.yml) completes the rest of the Release steps (building the project, generating a .whl and tarball, publishing on the PyPI platform). The workflow uses OpenID Connect's temporary keys to obtain the necessary PyPI authorization.
-As a prerequisite, the PyPI `xrpl-py` project needs to authorize Github Actions as a "Trusted Publisher". This page contains helpful resources: https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/#configuring-trusted-publishing
+   As a prerequisite, the PyPI `xrpl-py` project needs to authorize Github Actions as a "Trusted Publisher". This page contains helpful resources: https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/#configuring-trusted-publishing
 4. Send an email to [xrpl-announce](https://groups.google.com/g/xrpl-announce).
 5. Post an announcement in the [XRPL Discord #python channel](https://discord.com/channels/886050993802985492/886053080913821717) with a link to the changes and highlighting key changes.
 
-
 **Note: If maintainers prefer to manually release the xrpl-py software distribution, the below steps are relevant.**
+
 1. Create a branch off main that properly increments the version in `pyproject.toml` and updates the `CHANGELOG` appropriately. We follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 2. Merge this branch into `main`.
 3. Locally build and download the package.
