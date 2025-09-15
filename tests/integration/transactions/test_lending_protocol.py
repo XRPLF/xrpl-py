@@ -2,6 +2,7 @@ import datetime
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
+    LEDGER_ACCEPT_REQUEST,
     fund_wallet_async,
     sign_and_reliable_submission_async,
     test_async_and_sync,
@@ -142,6 +143,9 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
 
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Wait for the validation of the latest ledger
+        await client.request(LEDGER_ACCEPT_REQUEST)
 
         # fetch the Loan object
         response = await client.request(

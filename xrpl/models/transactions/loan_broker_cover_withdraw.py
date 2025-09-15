@@ -15,7 +15,7 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class LoanBrokerCoverWithdraw(Transaction):
-    """This transaction withdraws First Loss Capital from a Loan Broker"""
+    """This transaction withdraws First-Loss Capital from a Loan Broker"""
 
     loan_broker_id: str = REQUIRED  # type: ignore
     """
@@ -24,7 +24,7 @@ class LoanBrokerCoverWithdraw(Transaction):
 
     amount: Amount = REQUIRED  # type: ignore
     """
-    The Fist-Loss Capital amount to withdraw.
+    The First-Loss Capital amount to withdraw.
     """
 
     destination: Optional[str] = None

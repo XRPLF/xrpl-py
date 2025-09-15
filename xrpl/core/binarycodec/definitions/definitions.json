@@ -3395,6 +3395,8 @@
     "FeeSettings": 115,
     "Invalid": -1,
     "LedgerHashes": 104,
+    "Loan": 137,
+    "LoanBroker": 136,
     "MPToken": 127,
     "MPTokenIssuance": 126,
     "NFTokenOffer": 55,

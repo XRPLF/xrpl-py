@@ -10,7 +10,11 @@ from typing_extensions import Self
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
+from xrpl.models.transactions.transaction import (
+    Signer,
+    Transaction,
+    TransactionFlagInterface,
+)
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
@@ -25,7 +29,7 @@ class CounterpartySignature(BaseModel):
 
     signing_pub_key: Optional[str] = None
     txn_signature: Optional[str] = None
-    signers: Optional[List[str]] = None
+    signers: Optional[List[Signer]] = None
 
 
 class LoanSetFlag(int, Enum):

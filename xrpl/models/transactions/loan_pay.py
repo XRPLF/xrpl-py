@@ -4,6 +4,7 @@
 
 from dataclasses import dataclass, field
 
+from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -21,7 +22,7 @@ class LoanPay(Transaction):
     This field is required.
     """
 
-    amount: str = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED  # type: ignore
     """
     The amount of funds to pay.
     This field is required.
