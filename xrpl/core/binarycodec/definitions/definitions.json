@@ -2191,6 +2191,16 @@
       }
     ],
     [
+      "WasmReturnCode",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 1,
+        "type": "Int32"
+      }
+    ],
+    [
       "TransactionMetaData",
       {
         "isSerialized": true,
@@ -3309,6 +3319,7 @@
     "temBAD_TICK_SIZE": -269,
     "temBAD_TRANSFER_FEE": -251,
     "temBAD_TRANSFER_RATE": -280,
+    "temBAD_WASM": -249,
     "temBAD_WEIGHT": -270,
     "temCANNOT_PREAUTH_SELF": -267,
     "temDISABLED": -273,
@@ -3339,7 +3350,6 @@
     "terLAST": -91,
     "terNO_ACCOUNT": -96,
     "terNO_AMM": -87,
-    "tedADDRESS_COLLISION": -86,
     "terNO_AUTH": -95,
     "terNO_LINE": -94,
     "terNO_RIPPLE": -90,
@@ -3405,10 +3415,10 @@
     "TicketCreate": 10,
     "TrustSet": 20,
     "UNLModify": 102,
-    "VaultCreate": 65,
     "VaultClawback": 70,
-    "VaultDeposit": 68,
+    "VaultCreate": 65,
     "VaultDelete": 67,
+    "VaultDeposit": 68,
     "VaultSet": 66,
     "VaultWithdraw": 69,
     "XChainAccountCreateCommit": 44,
@@ -3430,6 +3440,8 @@
     "Hash160": 17,
     "Hash192": 21,
     "Hash256": 5,
+    "Int32": 10,
+    "Int64": 11,
     "Issue": 24,
     "LedgerEntry": 10002,
     "Metadata": 10004,
