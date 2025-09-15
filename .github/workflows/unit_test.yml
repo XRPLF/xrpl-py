@@ -53,7 +53,7 @@ jobs:
 
       - name: Type-check
         run: |
-          poetry run mypy --strict --implicit-reexport xrpl snippets
+          poetry run mypy --strict --implicit-reexport xrpl
 
   unit-test:
     name: Unit test

@@ -30,7 +30,6 @@ If you run into any bugs or other problems with the library, please report them 
    :maxdepth: 1
    :caption: Table of Contents
 
-   source/snippets
    source/xrpl.account
    source/xrpl.ledger
    source/xrpl.transaction
