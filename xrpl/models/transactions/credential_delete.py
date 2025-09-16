@@ -20,7 +20,7 @@ from xrpl.models.utils import (
 class CredentialDelete(Transaction):
     """This transaction deletes a Credential object."""
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """The transaction submitter."""
 
     subject: Optional[str] = None
@@ -30,7 +30,7 @@ class CredentialDelete(Transaction):
     issuer: Optional[str] = None
     """The issuer of the credential. If omitted, Account is assumed to be the issuer."""
 
-    credential_type: str = REQUIRED  # type: ignore
+    credential_type: str = REQUIRED
     """A hex-encoded value to identify the type of credential from the issuer."""
 
     transaction_type: TransactionType = field(

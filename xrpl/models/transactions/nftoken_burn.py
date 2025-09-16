@@ -23,7 +23,7 @@ class NFTokenBurn(Transaction):
     is reduced by one.
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     Identifies the AccountID that submitted this transaction. The account must
     be the present owner of the token or, if the lsfBurnable flag is set
@@ -33,7 +33,7 @@ class NFTokenBurn(Transaction):
     :meta hide-value:
     """
 
-    nftoken_id: str = REQUIRED  # type: ignore
+    nftoken_id: str = REQUIRED
     """
     Identifies the NFToken to be burned. This field is required.
 

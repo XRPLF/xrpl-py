@@ -23,7 +23,7 @@ class AccountOffers(Request, LookupByLedgerRequest):
     `See account_offers <https://xrpl.org/account_offers.html>`_
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     This field is required.
 

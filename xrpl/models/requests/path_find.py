@@ -81,28 +81,28 @@ class PathFind(Request):
     a symptom of heavy server load.)
     """
 
-    subcommand: PathFindSubcommand = REQUIRED  # type: ignore
+    subcommand: PathFindSubcommand = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    source_account: str = REQUIRED  # type: ignore
+    source_account: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    destination_account: str = REQUIRED  # type: ignore
+    destination_account: str = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    destination_amount: Amount = REQUIRED  # type: ignore
+    destination_amount: Amount = REQUIRED
     """
     This field is required.
 

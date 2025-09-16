@@ -53,7 +53,7 @@ class SubmitOnly(Submit):
     """
 
     # submit-only mode
-    tx_blob: str = REQUIRED  # type: ignore
+    tx_blob: str = REQUIRED
     """
     This field is required.
 

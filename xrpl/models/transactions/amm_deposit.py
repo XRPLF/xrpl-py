@@ -56,12 +56,12 @@ class AMMDeposit(Transaction):
     to hold the LP Tokens.
     """
 
-    asset: Currency = REQUIRED  # type: ignore
+    asset: Currency = REQUIRED
     """
     The definition for one of the assets in the AMM's pool. This field is required.
     """
 
-    asset2: Currency = REQUIRED  # type: ignore
+    asset2: Currency = REQUIRED
     """
     The definition for the other asset in the AMM's pool. This field is required.
     """
