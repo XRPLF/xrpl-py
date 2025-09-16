@@ -16,12 +16,12 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class LoanBrokerCoverDeposit(Transaction):
     """This transaction deposits First-Loss Capital into a Loan Broker"""
 
-    loan_broker_id: str = REQUIRED  # type: ignore
+    loan_broker_id: str = REQUIRED
     """
     The Loan Broker ID to deposit First-Loss Capital.
     """
 
-    amount: Amount = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED
     """
     The First-Loss Capital amount to deposit.
     """

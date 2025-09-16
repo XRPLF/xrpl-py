@@ -16,7 +16,7 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class LoanBrokerSet(Transaction):
     """This transaction creates and updates a Loan Broker"""
 
-    vault_id: str = REQUIRED  # type: ignore
+    vault_id: str = REQUIRED
     """
     The Vault ID that the Lending Protocol will use to access liquidity.
     This field is required.

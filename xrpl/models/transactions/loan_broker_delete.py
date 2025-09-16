@@ -15,7 +15,7 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class LoanBrokerDelete(Transaction):
     """This transaction deletes a Loan Broker"""
 
-    loan_broker_id: str = REQUIRED  # type: ignore
+    loan_broker_id: str = REQUIRED
     """
     The Loan Broker ID that the transaction is deleting.
     This field is required.

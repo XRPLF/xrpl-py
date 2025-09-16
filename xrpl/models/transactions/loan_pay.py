@@ -16,13 +16,13 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class LoanPay(Transaction):
     """The Borrower submits a LoanPay transaction to make a Payment on the Loan."""
 
-    loan_id: str = REQUIRED  # type: ignore
+    loan_id: str = REQUIRED
     """
     The ID of the Loan object to be paid to.
     This field is required.
     """
 
-    amount: Amount = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED
     """
     The amount of funds to pay.
     This field is required.

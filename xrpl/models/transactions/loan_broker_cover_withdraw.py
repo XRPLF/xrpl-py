@@ -17,12 +17,12 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class LoanBrokerCoverWithdraw(Transaction):
     """This transaction withdraws First-Loss Capital from a Loan Broker"""
 
-    loan_broker_id: str = REQUIRED  # type: ignore
+    loan_broker_id: str = REQUIRED
     """
     The Loan Broker ID from which to withdraw First-Loss Capital.
     """
 
-    amount: Amount = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED
     """
     The First-Loss Capital amount to withdraw.
     """

@@ -60,7 +60,7 @@ class LoanSetFlagInterface(TransactionFlagInterface):
 class LoanSet(Transaction):
     """This transaction creates a Loan"""
 
-    loan_broker_id: str = REQUIRED  # type: ignore
+    loan_broker_id: str = REQUIRED
     """
     The Loan Broker ID associated with the loan.
     """
@@ -129,12 +129,12 @@ class LoanSet(Transaction):
     between 0 and 100000 inclusive. (0 - 100%)
     """
 
-    principal_requested: str = REQUIRED  # type: ignore
+    principal_requested: str = REQUIRED
     """
     The principal amount requested by the Borrower.
     """
 
-    start_date: int = REQUIRED  # type: ignore
+    start_date: int = REQUIRED
     payment_total: Optional[int] = None
     """
     The total number of payments to be made against the Loan.

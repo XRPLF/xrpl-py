@@ -51,7 +51,7 @@ class LoanManageFlagInterface(TransactionFlagInterface):
 class LoanManage(Transaction):
     """The transaction updates an existing Loan object."""
 
-    loan_id: str = REQUIRED  # type: ignore
+    loan_id: str = REQUIRED
     """
     The ID of the Loan object to be updated.
     This field is required.
