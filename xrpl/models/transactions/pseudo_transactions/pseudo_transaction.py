@@ -28,4 +28,4 @@ class PseudoTransaction(Transaction):
     signing_pub_key: str = field(default="", init=False)
     txn_signature: str = field(default="", init=False)
     source_tag: None = field(default=None, init=False)
-    transaction_type: PseudoTransactionType = REQUIRED  # type: ignore
+    transaction_type: PseudoTransactionType = REQUIRED

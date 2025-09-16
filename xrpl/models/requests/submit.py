@@ -23,7 +23,7 @@ twice since it has the same sequence number as the old transaction.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Type
+from typing import Any, Dict, Type, cast
 
 from typing_extensions import Self
 
@@ -79,6 +79,6 @@ class Submit(Request):
 
         if cls.__name__ == "Submit":
             if "tx_blob" in value:
-                return SubmitOnly.from_dict(value)  # type: ignore
-            return SignAndSubmit.from_dict(value)  # type: ignore
+                return cast(Self, SubmitOnly.from_dict(value))
+            return cast(Self, SignAndSubmit.from_dict(value))
         return super(Submit, cls).from_dict(value)

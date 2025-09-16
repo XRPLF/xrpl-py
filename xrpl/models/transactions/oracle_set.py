@@ -40,10 +40,10 @@ class OracleSet(Transaction):
     Publish a registry of available price oracles with their unique OracleDocumentID .
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """This account must match the account in the Owner field of the Oracle object."""
 
-    oracle_document_id: int = REQUIRED  # type: ignore
+    oracle_document_id: int = REQUIRED
     """A unique identifier of the price oracle for the Account."""
 
     provider: Optional[str] = None
@@ -76,12 +76,12 @@ class OracleSet(Transaction):
     required when creating a new Oracle ledger entry, but is optional for updates.
     """
 
-    last_update_time: int = REQUIRED  # type: ignore
+    last_update_time: int = REQUIRED
     """LastUpdateTime is the specific point in time when the data was last updated.
     The LastUpdateTime is represented as Unix Time - the number of seconds since
     January 1, 1970 (00:00 UTC)."""
 
-    price_data_series: List[PriceData] = REQUIRED  # type: ignore
+    price_data_series: List[PriceData] = REQUIRED
     """An array of up to 10 PriceData objects, each representing the price information
     for a token pair. More than five PriceData objects require two owner reserves."""
 
@@ -157,12 +157,12 @@ class OracleSet(Transaction):
 class PriceData(NestedModel):
     """Represents one PriceData element. It is used in OracleSet transaction"""
 
-    base_asset: str = REQUIRED  # type: ignore
+    base_asset: str = REQUIRED
     """The primary asset in a trading pair. Any valid identifier, such as a stock
     symbol, bond CUSIP, or currency code is allowed. For example, in the BTC/USD pair,
     BTC is the base asset; in 912810RR9/BTC, 912810RR9 is the base asset."""
 
-    quote_asset: str = REQUIRED  # type: ignore
+    quote_asset: str = REQUIRED
     """The quote asset in a trading pair. The quote asset denotes the price of one unit
     of the base asset. For example, in the BTC/USD pair, BTC is the base asset; in
     912810RR9/BTC, 912810RR9 is the base asset."""

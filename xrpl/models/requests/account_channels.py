@@ -30,7 +30,7 @@ class AccountChannels(Request, LookupByLedgerRequest):
     """
 
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_CHANNELS, init=False)
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     This field is required.
 
