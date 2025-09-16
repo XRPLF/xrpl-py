@@ -33,7 +33,7 @@ class MPTCurrency(BaseModel):
     See https://xrpl.org/currency-formats.html#specifying-currency-amounts
     """
 
-    mpt_issuance_id: str = REQUIRED  # type: ignore
+    mpt_issuance_id: str = REQUIRED
     """
     This field is required.
 

@@ -23,17 +23,17 @@ _MAX_URI_LENGTH = 256
 class CredentialCreate(Transaction):
     """This transaction creates a Credential object. It must be sent by the issuer."""
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     The issuer of the credential.
     """
 
-    subject: str = REQUIRED  # type: ignore
+    subject: str = REQUIRED
     """
     The subject of the credential.
     """
 
-    credential_type: str = REQUIRED  # type: ignore
+    credential_type: str = REQUIRED
     """
     A hex-encoded value to identify the type of credential from the issuer.
     """

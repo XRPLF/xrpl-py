@@ -952,9 +952,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0007"
-            ],
+            "binary": ["0007"],
             "json": "OfferCreate",
             "field_header": "12"
           }
@@ -962,9 +960,7 @@
         [
           "Flags",
           {
-            "binary": [
-              "00000000"
-            ],
+            "binary": ["00000000"],
             "json": 0,
             "field_header": "22"
           }
@@ -972,9 +968,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "000017B4"
-            ],
+            "binary": ["000017B4"],
             "json": 6068,
             "field_header": "24"
           }
@@ -982,9 +976,7 @@
         [
           "Expiration",
           {
-            "binary": [
-              "535A8CF1"
-            ],
+            "binary": ["535A8CF1"],
             "json": 1398443249,
             "field_header": "2A"
           }
@@ -992,9 +984,7 @@
         [
           "TakerPays",
           {
-            "binary": [
-              "4000000006084340"
-            ],
+            "binary": ["4000000006084340"],
             "json": "101204800",
             "field_header": "64"
           }
@@ -1018,9 +1008,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "400000000000000C"
-            ],
+            "binary": ["400000000000000C"],
             "json": "12",
             "field_header": "68"
           }
@@ -1028,9 +1016,7 @@
         [
           "Account",
           {
-            "binary": [
-              "AD6E583D47F90F29FD8B23225E6F905602B0292E"
-            ],
+            "binary": ["AD6E583D47F90F29FD8B23225E6F905602B0292E"],
             "vl_length": "14",
             "json": "rGFpans8aW7XZNEcNky6RHKyEdLvXPMnUn",
             "field_header": "81"
@@ -1058,9 +1044,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0007"
-            ],
+            "binary": ["0007"],
             "json": "OfferCreate",
             "field_header": "12"
           }
@@ -1068,9 +1052,7 @@
         [
           "Flags",
           {
-            "binary": [
-              "00000000"
-            ],
+            "binary": ["00000000"],
             "json": 0,
             "field_header": "22"
           }
@@ -1078,9 +1060,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "00005124"
-            ],
+            "binary": ["00005124"],
             "json": 20772,
             "field_header": "24"
           }
@@ -1088,9 +1068,7 @@
         [
           "LastLedgerSequence",
           {
-            "binary": [
-              "005EE8EC"
-            ],
+            "binary": ["005EE8EC"],
             "json": 6220012,
             "field_header": "201B"
           }
@@ -1098,9 +1076,7 @@
         [
           "TakerPays",
           {
-            "binary": [
-              "4000000000140251"
-            ],
+            "binary": ["4000000000140251"],
             "json": "1311313",
             "field_header": "64"
           }
@@ -1124,9 +1100,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "400000000000000C"
-            ],
+            "binary": ["400000000000000C"],
             "json": "12",
             "field_header": "68"
           }
@@ -1134,9 +1108,7 @@
         [
           "Account",
           {
-            "binary": [
-              "D0B32295596E50017E246FE85FC5982A1BD89CE4"
-            ],
+            "binary": ["D0B32295596E50017E246FE85FC5982A1BD89CE4"],
             "vl_length": "14",
             "json": "rLpW9Reyn9YqZ8mxbq8nviXSp4TnHafVJQ",
             "field_header": "81"
@@ -1173,9 +1145,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0007"
-            ],
+            "binary": ["0007"],
             "json": "OfferCreate",
             "field_header": "12"
           }
@@ -1183,9 +1153,7 @@
         [
           "Flags",
           {
-            "binary": [
-              "00080000"
-            ],
+            "binary": ["00080000"],
             "json": 524288,
             "field_header": "22"
           }
@@ -1193,9 +1161,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "000003EB"
-            ],
+            "binary": ["000003EB"],
             "json": 1003,
             "field_header": "24"
           }
@@ -1203,9 +1169,7 @@
         [
           "OfferSequence",
           {
-            "binary": [
-              "000003EA"
-            ],
+            "binary": ["000003EA"],
             "json": 1002,
             "field_header": "2019"
           }
@@ -1213,9 +1177,7 @@
         [
           "LastLedgerSequence",
           {
-            "binary": [
-              "005EE967"
-            ],
+            "binary": ["005EE967"],
             "json": 6220135,
             "field_header": "201B"
           }
@@ -1223,9 +1185,7 @@
         [
           "TakerPays",
           {
-            "binary": [
-              "400000000D4D5FFA"
-            ],
+            "binary": ["400000000D4D5FFA"],
             "json": "223174650",
             "field_header": "64"
           }
@@ -1249,9 +1209,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "400000000000000F"
-            ],
+            "binary": ["400000000000000F"],
             "json": "15",
             "field_header": "68"
           }
@@ -1259,9 +1217,7 @@
         [
           "Account",
           {
-            "binary": [
-              "F990B9E746546554A7B50A5E013BCB57095C6BB8"
-            ],
+            "binary": ["F990B9E746546554A7B50A5E013BCB57095C6BB8"],
             "vl_length": "14",
             "json": "rPk2dXr27rMw9G5Ej9ad2Tt7RJzGy8ycBp",
             "field_header": "81"
@@ -1312,9 +1268,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0007"
-            ],
+            "binary": ["0007"],
             "json": "OfferCreate",
             "field_header": "12"
           }
@@ -1322,9 +1276,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "00080917"
-            ],
+            "binary": ["00080917"],
             "json": 526615,
             "field_header": "24"
           }
@@ -1332,9 +1284,7 @@
         [
           "OfferSequence",
           {
-            "binary": [
-              "000808DA"
-            ],
+            "binary": ["000808DA"],
             "json": 526554,
             "field_header": "2019"
           }
@@ -1358,9 +1308,7 @@
         [
           "TakerGets",
           {
-            "binary": [
-              "400000003C3945C2"
-            ],
+            "binary": ["400000003C3945C2"],
             "json": "1010386370",
             "field_header": "65"
           }
@@ -1368,9 +1316,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "4000000000000032"
-            ],
+            "binary": ["4000000000000032"],
             "json": "50",
             "field_header": "68"
           }
@@ -1378,9 +1324,7 @@
         [
           "Account",
           {
-            "binary": [
-              "F4141D8B4EF33BC3EE224088CA418DFCD2847193"
-            ],
+            "binary": ["F4141D8B4EF33BC3EE224088CA418DFCD2847193"],
             "vl_length": "14",
             "json": "rPEZyTnSyQyXBCwMVYyaafSVPL8oMtfG6a",
             "field_header": "81"
@@ -1420,9 +1364,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0000"
-            ],
+            "binary": ["0000"],
             "json": "Payment",
             "field_header": "12"
           }
@@ -1430,9 +1372,7 @@
         [
           "Flags",
           {
-            "binary": [
-              "00000000"
-            ],
+            "binary": ["00000000"],
             "json": 0,
             "field_header": "22"
           }
@@ -1440,9 +1380,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "00000006"
-            ],
+            "binary": ["00000006"],
             "json": 6,
             "field_header": "24"
           }
@@ -1450,9 +1388,7 @@
         [
           "DestinationTag",
           {
-            "binary": [
-              "2BDF3878"
-            ],
+            "binary": ["2BDF3878"],
             "json": 736049272,
             "field_header": "2E"
           }
@@ -1476,9 +1412,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "400000000000000C"
-            ],
+            "binary": ["400000000000000C"],
             "json": "12",
             "field_header": "68"
           }
@@ -1502,9 +1436,7 @@
         [
           "Account",
           {
-            "binary": [
-              "B53847FA45E828BF9A52E38F7FB39E363493CE8B"
-            ],
+            "binary": ["B53847FA45E828BF9A52E38F7FB39E363493CE8B"],
             "vl_length": "14",
             "json": "rHXUjUtk5eiPFYpg27izxHeZ1t4x835Ecn",
             "field_header": "81"
@@ -1513,9 +1445,7 @@
         [
           "Destination",
           {
-            "binary": [
-              "EE39E6D05CFD6A90DAB700A1D70149ECEE29DFEC"
-            ],
+            "binary": ["EE39E6D05CFD6A90DAB700A1D70149ECEE29DFEC"],
             "vl_length": "14",
             "json": "r45dBj4S3VvMMYXxr9vHX4Z4Ma6ifPMCkK",
             "field_header": "83"
@@ -1524,11 +1454,7 @@
         [
           "Paths",
           {
-            "binary": [
-              "01",
-              "41C8BE2C0A6AA17471B9F6D0AF92AAB1C94D5A25",
-              "00"
-            ],
+            "binary": ["01", "41C8BE2C0A6AA17471B9F6D0AF92AAB1C94D5A25", "00"],
             "json": [
               [
                 {
@@ -1565,9 +1491,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0000"
-            ],
+            "binary": ["0000"],
             "json": "Payment",
             "field_header": "12"
           }
@@ -1575,9 +1499,7 @@
         [
           "Flags",
           {
-            "binary": [
-              "80000000"
-            ],
+            "binary": ["80000000"],
             "json": 2147483648,
             "field_header": "22"
           }
@@ -1585,9 +1507,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "000054C7"
-            ],
+            "binary": ["000054C7"],
             "json": 21703,
             "field_header": "24"
           }
@@ -1611,9 +1531,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "400000000000000A"
-            ],
+            "binary": ["400000000000000A"],
             "json": "10",
             "field_header": "68"
           }
@@ -1637,9 +1555,7 @@
         [
           "Account",
           {
-            "binary": [
-              "F7B414E9D25EE050553D8A0BB27202F4249AD328"
-            ],
+            "binary": ["F7B414E9D25EE050553D8A0BB27202F4249AD328"],
             "vl_length": "14",
             "json": "rP2jdgJhtY1pwDJQEMLfCixesg4cw8HcrW",
             "field_header": "81"
@@ -1648,9 +1564,7 @@
         [
           "Destination",
           {
-            "binary": [
-              "B83EB506BBE5BCF3E89C638FDB185B1DEAC96584"
-            ],
+            "binary": ["B83EB506BBE5BCF3E89C638FDB185B1DEAC96584"],
             "vl_length": "14",
             "json": "rHoUTGMxWKbrTTF8tpAjysjpu8PWrbt1Wx",
             "field_header": "83"
@@ -1673,9 +1587,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0000"
-            ],
+            "binary": ["0000"],
             "json": "Payment",
             "field_header": "12"
           }
@@ -1683,9 +1595,7 @@
         [
           "Flags",
           {
-            "binary": [
-              "00000000"
-            ],
+            "binary": ["00000000"],
             "json": 0,
             "field_header": "22"
           }
@@ -1693,9 +1603,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "00000002"
-            ],
+            "binary": ["00000002"],
             "json": 2,
             "field_header": "24"
           }
@@ -1703,9 +1611,7 @@
         [
           "Amount",
           {
-            "binary": [
-              "40000000017D7840"
-            ],
+            "binary": ["40000000017D7840"],
             "json": "25000000",
             "field_header": "61"
           }
@@ -1713,9 +1619,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "400000000000000A"
-            ],
+            "binary": ["400000000000000A"],
             "json": "10",
             "field_header": "68"
           }
@@ -1723,9 +1627,7 @@
         [
           "Account",
           {
-            "binary": [
-              "5CCB151F6E9D603F394AE778ACF10D3BECE874F6"
-            ],
+            "binary": ["5CCB151F6E9D603F394AE778ACF10D3BECE874F6"],
             "vl_length": "14",
             "json": "r9TeThyi5xiuUUrFjtPKZiHcDxs7K9H6Rb",
             "field_header": "81"
@@ -1734,9 +1636,7 @@
         [
           "Destination",
           {
-            "binary": [
-              "E851BBBE79E328E43D68F43445368133DF5FBA5A"
-            ],
+            "binary": ["E851BBBE79E328E43D68F43445368133DF5FBA5A"],
             "vl_length": "14",
             "json": "r4BPgS7DHebQiU31xWELvZawwSG2fSPJ7C",
             "field_header": "83"
@@ -1760,9 +1660,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0000"
-            ],
+            "binary": ["0000"],
             "json": "Payment",
             "field_header": "12"
           }
@@ -1770,9 +1668,7 @@
         [
           "Flags",
           {
-            "binary": [
-              "00000000"
-            ],
+            "binary": ["00000000"],
             "json": 0,
             "field_header": "22"
           }
@@ -1780,9 +1676,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "00000090"
-            ],
+            "binary": ["00000090"],
             "json": 144,
             "field_header": "24"
           }
@@ -1790,9 +1684,7 @@
         [
           "LastLedgerSequence",
           {
-            "binary": [
-              "005EE9BA"
-            ],
+            "binary": ["005EE9BA"],
             "json": 6220218,
             "field_header": "201B"
           }
@@ -1800,9 +1692,7 @@
         [
           "Amount",
           {
-            "binary": [
-              "4000000000030D40"
-            ],
+            "binary": ["4000000000030D40"],
             "json": "200000",
             "field_header": "61"
           }
@@ -1810,9 +1700,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "400000000000000F"
-            ],
+            "binary": ["400000000000000F"],
             "json": "15",
             "field_header": "68"
           }
@@ -1820,9 +1708,7 @@
         [
           "Account",
           {
-            "binary": [
-              "AA1BD19D9E87BE8069FDBF6843653C43837C03C6"
-            ],
+            "binary": ["AA1BD19D9E87BE8069FDBF6843653C43837C03C6"],
             "vl_length": "14",
             "json": "rGWTUVmm1fB5QUjMYn8KfnyrFNgDiD9H9e",
             "field_header": "81"
@@ -1831,9 +1717,7 @@
         [
           "Destination",
           {
-            "binary": [
-              "67FE6EC28E0464DD24FB2D62A492AAC697CFAD02"
-            ],
+            "binary": ["67FE6EC28E0464DD24FB2D62A492AAC697CFAD02"],
             "vl_length": "14",
             "json": "rw71Qs1UYQrSQ9hSgRohqNNQcyjCCfffkQ",
             "field_header": "83"
@@ -1857,9 +1741,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0000"
-            ],
+            "binary": ["0000"],
             "json": "Payment",
             "field_header": "12"
           }
@@ -1867,9 +1749,7 @@
         [
           "Flags",
           {
-            "binary": [
-              "00000000"
-            ],
+            "binary": ["00000000"],
             "json": 0,
             "field_header": "22"
           }
@@ -1877,9 +1757,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "00000001"
-            ],
+            "binary": ["00000001"],
             "json": 1,
             "field_header": "24"
           }
@@ -1887,9 +1765,7 @@
         [
           "DestinationTag",
           {
-            "binary": [
-              "F72D50CA"
-            ],
+            "binary": ["F72D50CA"],
             "json": 4146942154,
             "field_header": "2E"
           }
@@ -1897,9 +1773,7 @@
         [
           "Amount",
           {
-            "binary": [
-              "40000000017D7840"
-            ],
+            "binary": ["40000000017D7840"],
             "json": "25000000",
             "field_header": "61"
           }
@@ -1907,9 +1781,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "400000000000000C"
-            ],
+            "binary": ["400000000000000C"],
             "json": "12",
             "field_header": "68"
           }
@@ -1917,9 +1789,7 @@
         [
           "Account",
           {
-            "binary": [
-              "E851BBBE79E328E43D68F43445368133DF5FBA5A"
-            ],
+            "binary": ["E851BBBE79E328E43D68F43445368133DF5FBA5A"],
             "vl_length": "14",
             "json": "r4BPgS7DHebQiU31xWELvZawwSG2fSPJ7C",
             "field_header": "81"
@@ -1928,9 +1798,7 @@
         [
           "Destination",
           {
-            "binary": [
-              "76DAC5E814CD4AA74142C3AB45E69A900E637AA2"
-            ],
+            "binary": ["76DAC5E814CD4AA74142C3AB45E69A900E637AA2"],
             "vl_length": "14",
             "json": "rBqSFEFg2B6GBMobtxnU1eLA1zbNC9NDGM",
             "field_header": "83"
@@ -1953,9 +1821,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0000"
-            ],
+            "binary": ["0000"],
             "json": "Payment",
             "field_header": "12"
           }
@@ -1963,9 +1829,7 @@
         [
           "SourceTag",
           {
-            "binary": [
-              "000A34F8"
-            ],
+            "binary": ["000A34F8"],
             "json": 668920,
             "field_header": "23"
           }
@@ -1973,9 +1837,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "0000888A"
-            ],
+            "binary": ["0000888A"],
             "json": 34954,
             "field_header": "24"
           }
@@ -1983,9 +1845,7 @@
         [
           "Amount",
           {
-            "binary": [
-              "400000000007A120"
-            ],
+            "binary": ["400000000007A120"],
             "json": "500000",
             "field_header": "61"
           }
@@ -1993,9 +1853,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "4000000000000014"
-            ],
+            "binary": ["4000000000000014"],
             "json": "20",
             "field_header": "68"
           }
@@ -2003,9 +1861,7 @@
         [
           "Account",
           {
-            "binary": [
-              "08F41F116A1F60D60296B16907F0A041BF106197"
-            ],
+            "binary": ["08F41F116A1F60D60296B16907F0A041BF106197"],
             "vl_length": "14",
             "json": "rFLiPGytDEwC5heoqFcFAZoqPPmKBzX1o",
             "field_header": "81"
@@ -2014,9 +1870,7 @@
         [
           "Destination",
           {
-            "binary": [
-              "6E2F0455C46CF5DF61A1E58419A89D45459045EA"
-            ],
+            "binary": ["6E2F0455C46CF5DF61A1E58419A89D45459045EA"],
             "vl_length": "14",
             "json": "rBsbetvMYuMkEeHZYizPMkpveCVH8EVQYd",
             "field_header": "83"
@@ -2054,9 +1908,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0000"
-            ],
+            "binary": ["0000"],
             "json": "Payment",
             "field_header": "12"
           }
@@ -2064,9 +1916,7 @@
         [
           "Flags",
           {
-            "binary": [
-              "00000000"
-            ],
+            "binary": ["00000000"],
             "json": 0,
             "field_header": "22"
           }
@@ -2074,9 +1924,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "0000000A"
-            ],
+            "binary": ["0000000A"],
             "json": 10,
             "field_header": "24"
           }
@@ -2084,9 +1932,7 @@
         [
           "DestinationTag",
           {
-            "binary": [
-              "53A52E1C"
-            ],
+            "binary": ["53A52E1C"],
             "json": 1403334172,
             "field_header": "2E"
           }
@@ -2120,9 +1966,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "400000000000006A"
-            ],
+            "binary": ["400000000000006A"],
             "json": "106",
             "field_header": "68"
           }
@@ -2130,9 +1974,7 @@
         [
           "SendMax",
           {
-            "binary": [
-              "40000000C2BFCDF0"
-            ],
+            "binary": ["40000000C2BFCDF0"],
             "json": "3267350000",
             "field_header": "69"
           }
@@ -2140,9 +1982,7 @@
         [
           "Account",
           {
-            "binary": [
-              "52E0F910686FB449A23BC78C3D4CE564C988C6C0"
-            ],
+            "binary": ["52E0F910686FB449A23BC78C3D4CE564C988C6C0"],
             "vl_length": "14",
             "json": "r3ZDv3hLmTKwkgAqcXtX2yaMfnhRD3Grjc",
             "field_header": "81"
@@ -2151,9 +1991,7 @@
         [
           "Destination",
           {
-            "binary": [
-              "DD39C650A96EDA48334E70CC4A85B8B2E8502CD3"
-            ],
+            "binary": ["DD39C650A96EDA48334E70CC4A85B8B2E8502CD3"],
             "vl_length": "14",
             "json": "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
             "field_header": "83"
@@ -2196,9 +2034,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0008"
-            ],
+            "binary": ["0008"],
             "json": "OfferCancel",
             "field_header": "12"
           }
@@ -2206,9 +2042,7 @@
         [
           "Flags",
           {
-            "binary": [
-              "00000000"
-            ],
+            "binary": ["00000000"],
             "json": 0,
             "field_header": "22"
           }
@@ -2216,9 +2050,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "00005121"
-            ],
+            "binary": ["00005121"],
             "json": 20769,
             "field_header": "24"
           }
@@ -2226,9 +2058,7 @@
         [
           "OfferSequence",
           {
-            "binary": [
-              "0000511B"
-            ],
+            "binary": ["0000511B"],
             "json": 20763,
             "field_header": "2019"
           }
@@ -2236,9 +2066,7 @@
         [
           "LastLedgerSequence",
           {
-            "binary": [
-              "005EE8E9"
-            ],
+            "binary": ["005EE8E9"],
             "json": 6220009,
             "field_header": "201B"
           }
@@ -2246,9 +2074,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "400000000000000C"
-            ],
+            "binary": ["400000000000000C"],
             "json": "12",
             "field_header": "68"
           }
@@ -2256,9 +2082,7 @@
         [
           "Account",
           {
-            "binary": [
-              "D0B32295596E50017E246FE85FC5982A1BD89CE4"
-            ],
+            "binary": ["D0B32295596E50017E246FE85FC5982A1BD89CE4"],
             "vl_length": "14",
             "json": "rLpW9Reyn9YqZ8mxbq8nviXSp4TnHafVJQ",
             "field_header": "81"
@@ -2280,9 +2104,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0005"
-            ],
+            "binary": ["0005"],
             "json": "SetRegularKey",
             "field_header": "12"
           }
@@ -2290,9 +2112,7 @@
         [
           "Flags",
           {
-            "binary": [
-              "80000000"
-            ],
+            "binary": ["80000000"],
             "json": 2147483648,
             "field_header": "22"
           }
@@ -2300,9 +2120,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "00000003"
-            ],
+            "binary": ["00000003"],
             "json": 3,
             "field_header": "24"
           }
@@ -2310,9 +2128,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "400000000000000A"
-            ],
+            "binary": ["400000000000000A"],
             "json": "10",
             "field_header": "68"
           }
@@ -2320,9 +2136,7 @@
         [
           "Account",
           {
-            "binary": [
-              "48E143E2384A1B3C69A412789F2CA3FCE2F65F0B"
-            ],
+            "binary": ["48E143E2384A1B3C69A412789F2CA3FCE2F65F0B"],
             "vl_length": "14",
             "json": "rfeMWWbSaGqc6Yth2dTetLBeKeUTTfE2pG",
             "field_header": "81"
@@ -2331,9 +2145,7 @@
         [
           "RegularKey",
           {
-            "binary": [
-              "48E143E2384A1B3C69A412789F2CA3FCE2F65F0B"
-            ],
+            "binary": ["48E143E2384A1B3C69A412789F2CA3FCE2F65F0B"],
             "vl_length": "14",
             "json": "rfeMWWbSaGqc6Yth2dTetLBeKeUTTfE2pG",
             "field_header": "88"
@@ -2356,9 +2168,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0005"
-            ],
+            "binary": ["0005"],
             "json": "SetRegularKey",
             "field_header": "12"
           }
@@ -2366,9 +2176,7 @@
         [
           "Flags",
           {
-            "binary": [
-              "80000000"
-            ],
+            "binary": ["80000000"],
             "json": 2147483648,
             "field_header": "22"
           }
@@ -2376,9 +2184,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "000000EE"
-            ],
+            "binary": ["000000EE"],
             "json": 238,
             "field_header": "24"
           }
@@ -2386,9 +2192,7 @@
         [
           "LastLedgerSequence",
           {
-            "binary": [
-              "005EF94C"
-            ],
+            "binary": ["005EF94C"],
             "json": 6224204,
             "field_header": "201B"
           }
@@ -2396,9 +2200,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "400000000000000C"
-            ],
+            "binary": ["400000000000000C"],
             "json": "12",
             "field_header": "68"
           }
@@ -2406,9 +2208,7 @@
         [
           "Account",
           {
-            "binary": [
-              "CB3F392892D0772FF5AD155D8D70404B1DB2ACFE"
-            ],
+            "binary": ["CB3F392892D0772FF5AD155D8D70404B1DB2ACFE"],
             "vl_length": "14",
             "json": "rKXCummUHnenhYudNb9UoJ4mGBR75vFcgz",
             "field_header": "81"
@@ -2417,9 +2217,7 @@
         [
           "RegularKey",
           {
-            "binary": [
-              "F2F9A54D9CEBBE64342B52DE3450FFA0738C8D00"
-            ],
+            "binary": ["F2F9A54D9CEBBE64342B52DE3450FFA0738C8D00"],
             "vl_length": "14",
             "json": "rP9jbfTepHAHWB4q9YjNkLyaZT15uvexiZ",
             "field_header": "88"
@@ -2445,9 +2243,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0014"
-            ],
+            "binary": ["0014"],
             "json": "TrustSet",
             "field_header": "12"
           }
@@ -2455,9 +2251,7 @@
         [
           "Flags",
           {
-            "binary": [
-              "00020000"
-            ],
+            "binary": ["00020000"],
             "json": 131072,
             "field_header": "22"
           }
@@ -2465,9 +2259,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "0000002C"
-            ],
+            "binary": ["0000002C"],
             "json": 44,
             "field_header": "24"
           }
@@ -2491,9 +2283,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "400000000000000C"
-            ],
+            "binary": ["400000000000000C"],
             "json": "12",
             "field_header": "68"
           }
@@ -2501,9 +2291,7 @@
         [
           "Account",
           {
-            "binary": [
-              "BE6C30732AE33CF2AF3344CE8172A6B9300183E3"
-            ],
+            "binary": ["BE6C30732AE33CF2AF3344CE8172A6B9300183E3"],
             "vl_length": "14",
             "json": "rJMiz2rCMjZzEMijXNH1exNBryTQEjFd9S",
             "field_header": "81"
@@ -2530,9 +2318,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0014"
-            ],
+            "binary": ["0014"],
             "json": "TrustSet",
             "field_header": "12"
           }
@@ -2540,9 +2326,7 @@
         [
           "Flags",
           {
-            "binary": [
-              "80020000"
-            ],
+            "binary": ["80020000"],
             "json": 2147614720,
             "field_header": "22"
           }
@@ -2550,9 +2334,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "0000002B"
-            ],
+            "binary": ["0000002B"],
             "json": 43,
             "field_header": "24"
           }
@@ -2560,9 +2342,7 @@
         [
           "LastLedgerSequence",
           {
-            "binary": [
-              "005EEAAF"
-            ],
+            "binary": ["005EEAAF"],
             "json": 6220463,
             "field_header": "201B"
           }
@@ -2586,9 +2366,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "400000000000000C"
-            ],
+            "binary": ["400000000000000C"],
             "json": "12",
             "field_header": "68"
           }
@@ -2596,9 +2374,7 @@
         [
           "Account",
           {
-            "binary": [
-              "8353C031DF5AA061A23535E6ABCEEEA23F152B1E"
-            ],
+            "binary": ["8353C031DF5AA061A23535E6ABCEEEA23F152B1E"],
             "vl_length": "14",
             "json": "rUyPiNcSFFj6uMR2gEaD8jUerQ59G1qvwN",
             "field_header": "81"
@@ -2619,9 +2395,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0003"
-            ],
+            "binary": ["0003"],
             "json": "AccountSet",
             "field_header": "12"
           }
@@ -2629,9 +2403,7 @@
         [
           "Flags",
           {
-            "binary": [
-              "00000000"
-            ],
+            "binary": ["00000000"],
             "json": 0,
             "field_header": "22"
           }
@@ -2639,9 +2411,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "00002966"
-            ],
+            "binary": ["00002966"],
             "json": 10598,
             "field_header": "24"
           }
@@ -2649,9 +2419,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "400000000000000A"
-            ],
+            "binary": ["400000000000000A"],
             "json": "10",
             "field_header": "68"
           }
@@ -2659,9 +2427,7 @@
         [
           "Account",
           {
-            "binary": [
-              "0F3D0C7D2CFAB2EC8295451F0B3CA038E8E9CDCD"
-            ],
+            "binary": ["0F3D0C7D2CFAB2EC8295451F0B3CA038E8E9CDCD"],
             "vl_length": "14",
             "json": "rpP2GdsQwenNnFPefbXFgiTvEgJWQpq8Rw",
             "field_header": "81"
@@ -2683,9 +2449,7 @@
         [
           "TransactionType",
           {
-            "binary": [
-              "0003"
-            ],
+            "binary": ["0003"],
             "json": "AccountSet",
             "field_header": "12"
           }
@@ -2693,9 +2457,7 @@
         [
           "Flags",
           {
-            "binary": [
-              "00000000"
-            ],
+            "binary": ["00000000"],
             "json": 0,
             "field_header": "22"
           }
@@ -2703,9 +2465,7 @@
         [
           "Sequence",
           {
-            "binary": [
-              "00000122"
-            ],
+            "binary": ["00000122"],
             "json": 290,
             "field_header": "24"
           }
@@ -2713,9 +2473,7 @@
         [
           "LastLedgerSequence",
           {
-            "binary": [
-              "005EECD6"
-            ],
+            "binary": ["005EECD6"],
             "json": 6221014,
             "field_header": "201B"
           }
@@ -2723,9 +2481,7 @@
         [
           "Fee",
           {
-            "binary": [
-              "400000000000000F"
-            ],
+            "binary": ["400000000000000F"],
             "json": "15",
             "field_header": "68"
           }
@@ -2733,9 +2489,7 @@
         [
           "Account",
           {
-            "binary": [
-              "ABBD4A3AF95FDFD6D072F11421D8F107CAEA1852"
-            ],
+            "binary": ["ABBD4A3AF95FDFD6D072F11421D8F107CAEA1852"],
             "vl_length": "14",
             "json": "rGCnJuD31Kx4QGZJ2dX7xoje6T4Zr5s9EB",
             "field_header": "81"
@@ -4056,7 +3810,7 @@
     },
     {
       "test_json": {
-        "mpt_issuance_id":"00002403C84A0A28E0190E208E982C352BBD5006600555CF",
+        "mpt_issuance_id": "00002403C84A0A28E0190E208E982C352BBD5006600555CF",
         "value": "9223372036854775807"
       },
       "type_id": 6,
@@ -4067,7 +3821,7 @@
     },
     {
       "test_json": {
-        "mpt_issuance_id":"00002403C84A0A28E0190E208E982C352BBD5006600555CF",
+        "mpt_issuance_id": "00002403C84A0A28E0190E208E982C352BBD5006600555CF",
         "value": "0"
       },
       "type_id": 6,
@@ -4078,7 +3832,7 @@
     },
     {
       "test_json": {
-        "mpt_issuance_id":"00002403C84A0A28E0190E208E982C352BBD5006600555CF",
+        "mpt_issuance_id": "00002403C84A0A28E0190E208E982C352BBD5006600555CF",
         "value": "-0"
       },
       "type_id": 6,
@@ -4089,7 +3843,7 @@
     },
     {
       "test_json": {
-        "mpt_issuance_id":"00002403C84A0A28E0190E208E982C352BBD5006600555CF",
+        "mpt_issuance_id": "00002403C84A0A28E0190E208E982C352BBD5006600555CF",
         "value": "100"
       },
       "type_id": 6,
@@ -4100,7 +3854,7 @@
     },
     {
       "test_json": {
-        "mpt_issuance_id":"00002403C84A0A28E0190E208E982C352BBD5006600555CF",
+        "mpt_issuance_id": "00002403C84A0A28E0190E208E982C352BBD5006600555CF",
         "value": "0xa"
       },
       "type_id": 6,
@@ -4111,7 +3865,7 @@
     },
     {
       "test_json": {
-        "mpt_issuance_id":"00002403C84A0A28E0190E208E982C352BBD5006600555CF",
+        "mpt_issuance_id": "00002403C84A0A28E0190E208E982C352BBD5006600555CF",
         "value": "0x7FFFFFFFFFFFFFFF"
       },
       "type_id": 6,

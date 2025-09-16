@@ -20,7 +20,7 @@ class NFTHistory(Request, LookupByLedgerRequest):
     """
 
     method: RequestMethod = field(default=RequestMethod.NFT_HISTORY, init=False)
-    nft_id: str = REQUIRED  # type: ignore
+    nft_id: str = REQUIRED
     """
     The unique identifier of an NFToken.
     The request returns past transactions of this NFToken. This value is required.

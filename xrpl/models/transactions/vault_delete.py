@@ -18,7 +18,7 @@ _MAX_VAULT_ID_LENGTH = 64
 class VaultDelete(Transaction):
     """The VaultDelete transaction deletes an existing vault object."""
 
-    vault_id: str = REQUIRED  # type: ignore
+    vault_id: str = REQUIRED
     """The ID of the vault to be deleted."""
 
     transaction_type: TransactionType = field(

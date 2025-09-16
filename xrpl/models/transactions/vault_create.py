@@ -65,7 +65,7 @@ class WithdrawalPolicy(int, Enum):
 class VaultCreate(Transaction):
     """The VaultCreate transaction creates a new Vault object."""
 
-    asset: Currency = REQUIRED  # type: ignore
+    asset: Currency = REQUIRED
     """The asset (XRP, IOU or MPT) of the Vault."""
 
     data: Optional[str] = None

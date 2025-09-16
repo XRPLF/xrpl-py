@@ -57,7 +57,7 @@ class AccountObjects(Request, LookupByLedgerRequest):
     `See account_objects <https://xrpl.org/account_objects.html>`_
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     This field is required.
 

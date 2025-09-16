@@ -14,10 +14,10 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 class VaultDeposit(Transaction):
     """The VaultDeposit transaction adds Liqudity in exchange for vault shares."""
 
-    vault_id: str = REQUIRED  # type: ignore
+    vault_id: str = REQUIRED
     """The ID of the vault to which the assets are deposited."""
 
-    amount: Amount = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED
     """Asset amount to deposit."""
 
     transaction_type: TransactionType = field(

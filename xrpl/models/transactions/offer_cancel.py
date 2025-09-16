@@ -17,7 +17,7 @@ class OfferCancel(Transaction):
     <https://xrpl.org/decentralized-exchange.html>`_.
     """
 
-    offer_sequence: int = REQUIRED  # type: ignore
+    offer_sequence: int = REQUIRED
     """
     The Sequence number (or Ticket number) of a previous OfferCreate
     transaction. If specified, cancel any Offer object in the ledger that was

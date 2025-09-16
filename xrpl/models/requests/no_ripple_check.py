@@ -33,7 +33,7 @@ class NoRippleCheck(Request, LookupByLedgerRequest):
     `See noripple_check <https://xrpl.org/noripple_check.html>`_
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     This field is required.
 
@@ -41,7 +41,7 @@ class NoRippleCheck(Request, LookupByLedgerRequest):
     """
 
     method: RequestMethod = field(default=RequestMethod.NO_RIPPLE_CHECK, init=False)
-    role: NoRippleCheckRole = REQUIRED  # type: ignore
+    role: NoRippleCheckRole = REQUIRED
     """
     This field is required.
 
