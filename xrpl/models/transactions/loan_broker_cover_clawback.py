@@ -3,11 +3,16 @@
 from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from typing_extensions import Self
 
-from xrpl.models.amounts import Amount, get_amount_value, is_xrp
+from xrpl.models.amounts import (
+    IssuedCurrencyAmount,
+    MPTAmount,
+    get_amount_value,
+    is_xrp,
+)
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
@@ -16,16 +21,16 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class LoanBrokerCoverClawback(Transaction):
-    """This transaction withdraws First Loss Capital from a Loan Broker"""
+    """This transaction claws back First-Loss Capital from a Loan Broker"""
 
     loan_broker_id: Optional[str] = None
     """
-    The Loan Broker ID from which to withdraw First-Loss Capital. Must be provided if
+    The Loan Broker ID from which to claw back First-Loss Capital. Must be provided if
     the Amount is an MPT, or Amount is an IOU and issuer is specified as the Account
     submitting the transaction.
     """
 
-    amount: Optional[Amount] = None
+    amount: Optional[Union[IssuedCurrencyAmount, MPTAmount]] = None
     """
     The First-Loss Capital amount to clawback. If the amount is 0 or not provided,
     clawback funds up to LoanBroker.DebtTotal * LoanBroker.CoverRateMinimum.

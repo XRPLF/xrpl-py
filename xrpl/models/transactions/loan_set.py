@@ -78,22 +78,22 @@ class LoanSet(Transaction):
     The signature of the counterparty over the transaction.
     """
 
-    loan_origination_fee: Optional[int] = None
+    loan_origination_fee: Optional[str] = None
     """
     A nominal funds amount paid to the LoanBroker.Owner when the Loan is created.
     """
 
-    loan_service_fee: Optional[int] = None
+    loan_service_fee: Optional[str] = None
     """
     A nominal amount paid to the LoanBroker.Owner with every Loan payment.
     """
 
-    late_payment_fee: Optional[int] = None
+    late_payment_fee: Optional[str] = None
     """
     A nominal funds amount paid to the LoanBroker.Owner when a payment is late.
     """
 
-    close_payment_fee: Optional[int] = None
+    close_payment_fee: Optional[str] = None
     """
     A nominal funds amount paid to the LoanBroker.Owner when an early full repayment is
     made.

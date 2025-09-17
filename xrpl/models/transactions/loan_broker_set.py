@@ -38,7 +38,7 @@ class LoanBrokerSet(Transaction):
     Valid values are between 0 and 10000 inclusive.
     """
 
-    debt_maximum: Optional[int] = None
+    debt_maximum: Optional[str] = None
     """
     The maximum amount the protocol can owe the Vault.
     The default value of 0 means there is no limit to the debt. Must not be negative.

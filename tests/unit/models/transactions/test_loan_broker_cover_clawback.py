@@ -22,7 +22,10 @@ class TestLoanBrokerCoverClawback(TestCase):
             LoanBrokerCoverClawback(account=_SOURCE, amount="10.20")
         self.assertEqual(
             error.exception.args[0],
-            "{'LoanBrokerCoverClawback:Amount': 'Amount cannot be XRP.'}",
+            "{'amount': \"amount is <class 'str'>, expected "
+            + "typing.Union[xrpl.models.amounts.issued_currency_amount"
+            + ".IssuedCurrencyAmount, xrpl.models.amounts.mpt_amount.MPTAmount, "
+            + "NoneType]\", 'LoanBrokerCoverClawback:Amount': 'Amount cannot be XRP.'}",
         )
 
     def test_invalid_negative_amount(self):
