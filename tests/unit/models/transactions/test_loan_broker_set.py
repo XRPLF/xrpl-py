@@ -14,7 +14,7 @@ class TestLoanBrokerSet(TestCase):
             LoanBrokerSet(
                 account=_SOURCE,
                 vault_id=_VAULT_ID,
-                data="A" * 257 * 2,
+                data="A" * 257,
             )
         self.assertEqual(
             error.exception.args[0],

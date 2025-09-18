@@ -155,6 +155,14 @@ class LoanSet(Transaction):
         init=False,
     )
 
+    MAX_DATA_LENGTH = 256
+    MAX_OVER_PAYMENT_FEE_RATE = 100_000
+    MAX_INTEREST_RATE = 100_000
+    MAX_LATE_INTEREST_RATE = 100_000
+    MAX_CLOSE_INTEREST_RATE = 100_000
+    MAX_OVER_PAYMENT_INTEREST_RATE = 100_000
+    MIN_PAYMENT_INTERVAL = 60
+
     def _get_errors(self: Self) -> Dict[str, str]:
         parent_class_errors = {
             key: value
@@ -164,7 +172,52 @@ class LoanSet(Transaction):
             if value is not None
         }
 
-        if self.payment_interval is not None and self.payment_interval < 60:
+        if self.data is not None and len(self.data) > self.MAX_DATA_LENGTH:
+            parent_class_errors["LoanSet:data"] = "Data must be less than 512 bytes."
+
+        if self.overpayment_fee is not None and (
+            self.overpayment_fee < 0
+            or self.overpayment_fee > self.MAX_OVER_PAYMENT_FEE_RATE
+        ):
+            parent_class_errors["LoanSet:overpayment_fee"] = (
+                "Overpayment fee must be between 0 and 100000 inclusive."
+            )
+
+        if self.interest_rate is not None and (
+            self.interest_rate < 0 or self.interest_rate > self.MAX_INTEREST_RATE
+        ):
+            parent_class_errors["LoanSet:interest_rate"] = (
+                "Interest rate must be between 0 and 100000 inclusive."
+            )
+
+        if self.late_interest_rate is not None and (
+            self.late_interest_rate < 0
+            or self.late_interest_rate > self.MAX_LATE_INTEREST_RATE
+        ):
+            parent_class_errors["LoanSet:late_interest_rate"] = (
+                "Late interest rate must be between 0 and 100000 inclusive."
+            )
+
+        if self.close_interest_rate is not None and (
+            self.close_interest_rate < 0
+            or self.close_interest_rate > self.MAX_CLOSE_INTEREST_RATE
+        ):
+            parent_class_errors["LoanSet:close_interest_rate"] = (
+                "Close interest rate must be between 0 and 100000 inclusive."
+            )
+
+        if self.overpayment_interest_rate is not None and (
+            self.overpayment_interest_rate < 0
+            or self.overpayment_interest_rate > self.MAX_OVER_PAYMENT_INTEREST_RATE
+        ):
+            parent_class_errors["LoanSet:overpayment_interest_rate"] = (
+                "Overpayment interest rate must be between 0 and 100000 inclusive."
+            )
+
+        if (
+            self.payment_interval is not None
+            and self.payment_interval < self.MIN_PAYMENT_INTERVAL
+        ):
             parent_class_errors["LoanSet:PaymentInterval"] = (
                 "Payment interval must be at least 60 seconds."
             )

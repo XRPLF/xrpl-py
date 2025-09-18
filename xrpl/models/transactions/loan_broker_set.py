@@ -63,7 +63,7 @@ class LoanBrokerSet(Transaction):
         init=False,
     )
 
-    MAX_DATA_PAYLOAD_LENGTH = 256 * 2
+    MAX_DATA_PAYLOAD_LENGTH = 256
     MAX_MANAGEMENT_FEE_RATE = 10_000
     MAX_COVER_RATE_MINIMUM = 100_000
     MAX_COVER_RATE_LIQUIDATION = 100_000
