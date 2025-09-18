@@ -182,6 +182,8 @@ async def submit(
     if response.is_successful():
         return response
 
+    print("input txn: ", transaction)
+    print(response.result)
     raise XRPLRequestFailureException(response.result)
 
 

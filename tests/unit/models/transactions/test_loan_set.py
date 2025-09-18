@@ -1,4 +1,3 @@
-import datetime
 from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException
@@ -15,7 +14,6 @@ class TestLoanSet(TestCase):
                 account=_SOURCE,
                 loan_broker_id=_ISSUER,
                 principal_requested="100000000",
-                start_date=int(datetime.datetime.now().timestamp()),
                 data="A" * 257 * 2,
             )
         self.assertEqual(
@@ -29,7 +27,6 @@ class TestLoanSet(TestCase):
                 account=_SOURCE,
                 loan_broker_id=_ISSUER,
                 principal_requested="100000000",
-                start_date=int(datetime.datetime.now().timestamp()),
                 data="Z",
             )
         self.assertEqual(
@@ -43,7 +40,6 @@ class TestLoanSet(TestCase):
                 account=_SOURCE,
                 loan_broker_id=_ISSUER,
                 principal_requested="100000000",
-                start_date=int(datetime.datetime.now().timestamp()),
                 overpayment_fee=-1,
             )
         self.assertEqual(
@@ -58,7 +54,6 @@ class TestLoanSet(TestCase):
                 account=_SOURCE,
                 loan_broker_id=_ISSUER,
                 principal_requested="100000000",
-                start_date=int(datetime.datetime.now().timestamp()),
                 interest_rate=-1,
             )
         self.assertEqual(
@@ -73,7 +68,6 @@ class TestLoanSet(TestCase):
                 account=_SOURCE,
                 loan_broker_id=_ISSUER,
                 principal_requested="100000000",
-                start_date=int(datetime.datetime.now().timestamp()),
                 interest_rate=100001,
             )
         self.assertEqual(
@@ -88,7 +82,6 @@ class TestLoanSet(TestCase):
                 account=_SOURCE,
                 loan_broker_id=_ISSUER,
                 principal_requested="100000000",
-                start_date=int(datetime.datetime.now().timestamp()),
                 late_interest_rate=-1,
             )
         self.assertEqual(
@@ -103,7 +96,6 @@ class TestLoanSet(TestCase):
                 account=_SOURCE,
                 loan_broker_id=_ISSUER,
                 principal_requested="100000000",
-                start_date=int(datetime.datetime.now().timestamp()),
                 late_interest_rate=100001,
             )
         self.assertEqual(
@@ -118,7 +110,6 @@ class TestLoanSet(TestCase):
                 account=_SOURCE,
                 loan_broker_id=_ISSUER,
                 principal_requested="100000000",
-                start_date=int(datetime.datetime.now().timestamp()),
                 close_interest_rate=-1,
             )
         self.assertEqual(
@@ -133,7 +124,6 @@ class TestLoanSet(TestCase):
                 account=_SOURCE,
                 loan_broker_id=_ISSUER,
                 principal_requested="100000000",
-                start_date=int(datetime.datetime.now().timestamp()),
                 close_interest_rate=100001,
             )
         self.assertEqual(
@@ -148,7 +138,6 @@ class TestLoanSet(TestCase):
                 account=_SOURCE,
                 loan_broker_id=_ISSUER,
                 principal_requested="100000000",
-                start_date=int(datetime.datetime.now().timestamp()),
                 overpayment_interest_rate=-1,
             )
         self.assertEqual(
@@ -163,7 +152,6 @@ class TestLoanSet(TestCase):
                 account=_SOURCE,
                 loan_broker_id=_ISSUER,
                 principal_requested="100000000",
-                start_date=int(datetime.datetime.now().timestamp()),
                 overpayment_interest_rate=100001,
             )
         self.assertEqual(
@@ -178,7 +166,6 @@ class TestLoanSet(TestCase):
                 account=_SOURCE,
                 loan_broker_id=_ISSUER,
                 principal_requested="100000000",
-                start_date=int(datetime.datetime.now().timestamp()),
                 overpayment_fee=100001,
             )
         self.assertEqual(
@@ -193,7 +180,6 @@ class TestLoanSet(TestCase):
                 account=_SOURCE,
                 loan_broker_id=_ISSUER,
                 principal_requested="100000000",
-                start_date=int(datetime.datetime.now().timestamp()),
                 payment_interval=65,
                 grace_period=70,
             )
@@ -209,7 +195,6 @@ class TestLoanSet(TestCase):
                 account=_SOURCE,
                 loan_broker_id=_ISSUER,
                 principal_requested="100000000",
-                start_date=int(datetime.datetime.now().timestamp()),
                 payment_interval=59,
             )
         self.assertEqual(
@@ -223,6 +208,5 @@ class TestLoanSet(TestCase):
             account=_SOURCE,
             loan_broker_id=_ISSUER,
             principal_requested="100000000",
-            start_date=int(datetime.datetime.now().timestamp()),
         )
         self.assertTrue(tx.is_valid())

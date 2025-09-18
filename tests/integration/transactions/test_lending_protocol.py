@@ -1,5 +1,3 @@
-import datetime
-
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     LEDGER_ACCEPT_REQUEST,
@@ -12,8 +10,6 @@ from xrpl.core.binarycodec import encode_for_signing
 from xrpl.core.keypairs.main import sign
 from xrpl.models import (
     AccountObjects,
-    AccountSet,
-    AccountSetAsfFlag,
     LoanBrokerSet,
     LoanDelete,
     LoanManage,
@@ -45,18 +41,6 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         await fund_wallet_async(depositor_wallet)
         borrower_wallet = Wallet.create()
         await fund_wallet_async(borrower_wallet)
-
-        # Step-0: Set up the relevant flags on the loan_issuer account -- This is
-        # a pre-requisite for a Vault to hold the Issued Currency Asset
-        response = await sign_and_reliable_submission_async(
-            AccountSet(
-                account=loan_issuer.classic_address,
-                set_flag=AccountSetAsfFlag.ASF_DEFAULT_RIPPLE,
-            ),
-            loan_issuer,
-        )
-        self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         # Step-1: Create a vault
         tx = VaultCreate(
@@ -114,7 +98,6 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
                 account=loan_issuer.address,
                 loan_broker_id=LOAN_BROKER_ID,
                 principal_requested="100",
-                start_date=int(datetime.datetime.now().timestamp()),
                 counterparty=borrower_wallet.address,
             ),
             client,
@@ -182,5 +165,4 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         )
         response = await sign_and_reliable_submission_async(tx, borrower_wallet, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
-        # The borrower cannot pay the loan before the start date
-        self.assertEqual(response.result["engine_result"], "tecTOO_SOON")
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")

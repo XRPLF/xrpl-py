@@ -135,7 +135,6 @@ class LoanSet(Transaction):
     The principal amount requested by the Borrower.
     """
 
-    start_date: int = REQUIRED
     payment_total: Optional[int] = None
     """
     The total number of payments to be made against the Loan.
