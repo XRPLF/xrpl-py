@@ -14,11 +14,23 @@ class TestLoanBrokerSet(TestCase):
             LoanBrokerSet(
                 account=_SOURCE,
                 vault_id=_VAULT_ID,
-                data="A" * 257,
+                data="A" * 257 * 2,
             )
         self.assertEqual(
             error.exception.args[0],
             "{'LoanBrokerSet:data': 'Data must be less than 256 bytes.'}",
+        )
+
+    def test_invalid_data_non_hex_string(self):
+        with self.assertRaises(XRPLModelException) as error:
+            LoanBrokerSet(
+                account=_SOURCE,
+                vault_id=_VAULT_ID,
+                data="Z",
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'LoanBrokerSet:data': 'Data must be a valid hex string.'}",
         )
 
     def test_invalid_management_fee_rate_too_low(self):

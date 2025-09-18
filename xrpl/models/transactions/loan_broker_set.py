@@ -7,6 +7,7 @@ from typing import Dict, Optional
 
 from typing_extensions import Self
 
+from xrpl.constants import HEX_REGEX
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -63,7 +64,7 @@ class LoanBrokerSet(Transaction):
         init=False,
     )
 
-    MAX_DATA_PAYLOAD_LENGTH = 256
+    MAX_DATA_PAYLOAD_LENGTH = 256 * 2
     MAX_MANAGEMENT_FEE_RATE = 10_000
     MAX_COVER_RATE_MINIMUM = 100_000
     MAX_COVER_RATE_LIQUIDATION = 100_000
@@ -74,6 +75,9 @@ class LoanBrokerSet(Transaction):
 
         if self.data is not None and len(self.data) > self.MAX_DATA_PAYLOAD_LENGTH:
             errors["LoanBrokerSet:data"] = "Data must be less than 256 bytes."
+
+        if self.data is not None and not HEX_REGEX.fullmatch(self.data):
+            errors["LoanBrokerSet:data"] = "Data must be a valid hex string."
 
         if self.management_fee_rate is not None and (
             self.management_fee_rate < 0

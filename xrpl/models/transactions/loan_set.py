@@ -8,6 +8,7 @@ from typing import Dict, List, Optional
 
 from typing_extensions import Self
 
+from xrpl.constants import HEX_REGEX
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import (
@@ -155,7 +156,7 @@ class LoanSet(Transaction):
         init=False,
     )
 
-    MAX_DATA_LENGTH = 256
+    MAX_DATA_LENGTH = 256 * 2
     MAX_OVER_PAYMENT_FEE_RATE = 100_000
     MAX_INTEREST_RATE = 100_000
     MAX_LATE_INTEREST_RATE = 100_000
@@ -173,7 +174,10 @@ class LoanSet(Transaction):
         }
 
         if self.data is not None and len(self.data) > self.MAX_DATA_LENGTH:
-            parent_class_errors["LoanSet:data"] = "Data must be less than 512 bytes."
+            parent_class_errors["LoanSet:data"] = "Data must be less than 256 bytes."
+
+        if self.data is not None and not HEX_REGEX.fullmatch(self.data):
+            parent_class_errors["LoanSet:data"] = "Data must be a valid hex string."
 
         if self.overpayment_fee is not None and (
             self.overpayment_fee < 0

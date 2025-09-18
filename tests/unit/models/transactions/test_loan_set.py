@@ -16,11 +16,25 @@ class TestLoanSet(TestCase):
                 loan_broker_id=_ISSUER,
                 principal_requested="100000000",
                 start_date=int(datetime.datetime.now().timestamp()),
-                data="A" * 257,
+                data="A" * 257 * 2,
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'LoanSet:data': 'Data must be less than 512 bytes.'}",
+            "{'LoanSet:data': 'Data must be less than 256 bytes.'}",
+        )
+
+    def test_invalid_data_non_hex_string(self):
+        with self.assertRaises(XRPLModelException) as error:
+            LoanSet(
+                account=_SOURCE,
+                loan_broker_id=_ISSUER,
+                principal_requested="100000000",
+                start_date=int(datetime.datetime.now().timestamp()),
+                data="Z",
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'LoanSet:data': 'Data must be a valid hex string.'}",
         )
 
     def test_invalid_overpayment_fee_too_low(self):
