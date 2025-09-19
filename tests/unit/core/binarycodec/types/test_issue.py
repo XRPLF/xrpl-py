@@ -40,6 +40,30 @@ class TestIssue(TestCase):
         }
         self.assertEqual(issue_obj.to_json(), expected)
 
+    def test_short_mpt_issuance_id(self):
+        # A valid mpt_issuance_id is 192 bits long (or 48 characters in hex).
+        test_input = {
+            "mpt_issuance_id": "A" * 47,
+        }
+        self.assertRaises(XRPLBinaryCodecException, Issue.from_value, test_input)
+
+    def test_binary_representation_of_mpt_issuance_id(self):
+        # The issuer_account is represented by `A` and Sequence number
+        # (of the MPTokenIssuanceCreate transaction) is represented by `B`.
+        mpt_issuance_id_in_hex = "A" * 40 + "B" * 8
+        test_input = {
+            "mpt_issuance_id": mpt_issuance_id_in_hex,
+        }
+        issue_obj = Issue.from_value(test_input)
+        self.assertEqual(
+            issue_obj.to_hex(),
+            mpt_issuance_id_in_hex[:40]
+            # the below line is the hex representation of the
+            # black-hole-account-id (ACCOUNT_ONE)
+            + "0000000000000000000000000000000000000001" + mpt_issuance_id_in_hex[40:],
+        )
+        self.assertEqual(issue_obj.to_json(), test_input)
+
     def test_from_parser_xrp(self):
         # Test round-trip: serialize an XRP Issue and then parse it back.
         test_input = {"currency": "XRP"}
@@ -79,10 +103,9 @@ class TestIssue(TestCase):
             "mpt_issuance_id": "BAADF00DBAADF00DBAADF00DBAADF00DBAADF00DBAADF00D",
         }
         issue_obj = Issue.from_value(test_input)
-        # Use the hex representation and pass the fixed length_hint (24 bytes for
-        # Hash192)
+        # Use the hex representation
         parser = BinaryParser(issue_obj.to_hex())
-        issue_from_parser = Issue.from_parser(parser, length_hint=24)
+        issue_from_parser = Issue.from_parser(parser)
         expected = {
             "mpt_issuance_id": "BAADF00DBAADF00DBAADF00DBAADF00DBAADF00DBAADF00D"
         }
