@@ -118,11 +118,6 @@ class Issue(SerializedType):
 
         return cls(bytes(currency_or_account) + bytes(issuer_account_id))
 
-    @classmethod
-    def _print_buffer(self: Self, buffer: bytes) -> None:
-        print("DEBUG: Inside Issue._print_buffer(), buffer: ", buffer.hex().upper())
-        print("DEBUG: Inside Issue._print_buffer(), buffer length: ", len(buffer))
-
     def to_json(self: Self) -> Union[str, Dict[Any, Any]]:
         """
         Returns the JSON representation of an issued currency.
