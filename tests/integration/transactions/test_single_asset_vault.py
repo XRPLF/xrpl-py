@@ -19,15 +19,53 @@ from xrpl.models import (
 )
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.currencies import IssuedCurrency
-from xrpl.models.requests import AccountObjects, LedgerEntry
+from xrpl.models.currencies.mpt_currency import MPTCurrency
+from xrpl.models.requests import AccountObjects, LedgerEntry, Tx
 from xrpl.models.requests.account_objects import AccountObjectType
 from xrpl.models.response import ResponseStatus
+from xrpl.models.transactions.mptoken_issuance_create import MPTokenIssuanceCreate
 from xrpl.models.transactions.vault_create import WithdrawalPolicy
 from xrpl.utils import str_to_hex
 from xrpl.wallet import Wallet
 
 
 class TestSingleAssetVault(IntegrationTestCase):
+    @test_async_and_sync(globals())
+    async def test_vault_with_mptoken(self, client):
+        vault_owner = Wallet.create()
+        await fund_wallet_async(vault_owner)
+
+        # Create a MPToken
+        tx = MPTokenIssuanceCreate(
+            account=vault_owner.address,
+        )
+        response = await sign_and_reliable_submission_async(tx, vault_owner, client)
+        self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # fetch the mpt_issuance_id
+        response = await client.request(
+            Tx(transaction=response.result["tx_json"]["hash"])
+        )
+        MPT_ISSUANCE_ID = response.result["meta"]["mpt_issuance_id"]
+
+        # Use LedgerEntry RPC to determine the existence of the MPTokenIssuance
+        # ledger object
+        response = await client.request(LedgerEntry(mpt_issuance=MPT_ISSUANCE_ID))
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["node"]["LedgerEntryType"], "MPTokenIssuance")
+        self.assertEqual(MPT_ISSUANCE_ID, response.result["node"]["mpt_issuance_id"])
+        self.assertEqual(response.result["node"]["Issuer"], vault_owner.address)
+
+        # create a vault
+        tx = VaultCreate(
+            account=vault_owner.address,
+            asset=MPTCurrency(mpt_issuance_id=MPT_ISSUANCE_ID),
+        )
+        response = await sign_and_reliable_submission_async(tx, vault_owner, client)
+        self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
     @test_async_and_sync(globals())
     async def test_sav_lifecycle(self, client):
 
