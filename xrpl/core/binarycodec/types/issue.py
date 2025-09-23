@@ -72,11 +72,14 @@ class Issue(SerializedType):
                     f"received {len(value['mpt_issuance_id'])} characters."
                 )
             mpt_issuance_id_bytes = bytes(Hash192.from_value(value["mpt_issuance_id"]))
+
+            sequence_in_hex = mpt_issuance_id_bytes[:4]
+            issuer_account_in_hex = mpt_issuance_id_bytes[4:]
             return cls(
                 bytes(
-                    mpt_issuance_id_bytes[:20]
+                    bytes(issuer_account_in_hex)
                     + bytes(cls.BLACK_HOLED_ACCOUNT_ID)
-                    + bytes(mpt_issuance_id_bytes[20:])
+                    + bytes(sequence_in_hex)
                 )
             )
 
@@ -132,8 +135,8 @@ class Issue(SerializedType):
         if len(self.buffer) == 20 + 20 + 4:
             serialized_mpt_in_hex = self.to_hex().upper()
             return {
-                "mpt_issuance_id": serialized_mpt_in_hex[:40]
-                + serialized_mpt_in_hex[80:]
+                "mpt_issuance_id": serialized_mpt_in_hex[80:]
+                + serialized_mpt_in_hex[:40]
             }
 
         parser = BinaryParser(self.to_hex())
