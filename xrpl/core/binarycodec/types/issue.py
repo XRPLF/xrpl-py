@@ -64,6 +64,10 @@ class Issue(SerializedType):
         # - 160 bits black hole account (20 bytes)
         # - 32 bits sequence (4 bytes)
         # Please look at STIssue.cpp inside rippled implementation for more details.
+        # P.S: sequence number is stored in little-endian format, however it it
+        # interpreted in big-endian format. Read Indexes.cpp:makeMptID method for more
+        # details.
+        # https://github.com/XRPLF/rippled/blob/develop/src/libxrpl/protocol/Indexes.cpp#L173
 
         if MPTCurrencyModel.is_dict_of_model(value):
             if len(value["mpt_issuance_id"]) != 48:
@@ -73,13 +77,20 @@ class Issue(SerializedType):
                 )
             mpt_issuance_id_bytes = bytes(Hash192.from_value(value["mpt_issuance_id"]))
 
-            sequence_in_hex = mpt_issuance_id_bytes[:4]
+            # rippled accepts sequence number in big-endian format only.
+            sequence_in_hex = mpt_issuance_id_bytes[:4].hex().upper()
+            sequenceBE = (
+                sequence_in_hex[6:8]
+                + sequence_in_hex[4:6]
+                + sequence_in_hex[2:4]
+                + sequence_in_hex[0:2]
+            )
             issuer_account_in_hex = mpt_issuance_id_bytes[4:]
             return cls(
                 bytes(
                     bytes(issuer_account_in_hex)
                     + bytes(cls.BLACK_HOLED_ACCOUNT_ID)
-                    + bytes(sequence_in_hex)
+                    + bytearray.fromhex(sequenceBE)
                 )
             )
 
@@ -135,7 +146,15 @@ class Issue(SerializedType):
         if len(self.buffer) == 20 + 20 + 4:
             serialized_mpt_in_hex = self.to_hex().upper()
             return {
-                "mpt_issuance_id": serialized_mpt_in_hex[80:]
+                # Although the sequence bytes are stored in big-endian format, the JSON
+                # representation is in little-endian format. This is required for
+                # compatibility with c++ rippled implementation.
+                "mpt_issuance_id": (
+                    serialized_mpt_in_hex[86:88]
+                    + serialized_mpt_in_hex[84:86]
+                    + serialized_mpt_in_hex[82:84]
+                    + serialized_mpt_in_hex[80:82]
+                )
                 + serialized_mpt_in_hex[:40]
             }
 

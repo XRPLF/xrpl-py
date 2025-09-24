@@ -56,7 +56,8 @@ class TestSingleAssetVault(IntegrationTestCase):
         )
         MPT_ISSUANCE_ID = response.result["meta"]["mpt_issuance_id"]
 
-        # Create a holder wallet to validate VaultDeposit+VaultWithdraw+VaultClawback transactions
+        # Create a holder wallet to validate VaultDeposit+VaultWithdraw+VaultClawback
+        # transactions
         holder_wallet = Wallet.create()
         await fund_wallet_async(holder_wallet)
 
