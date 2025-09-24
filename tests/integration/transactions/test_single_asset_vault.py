@@ -18,16 +18,135 @@ from xrpl.models import (
     VaultWithdraw,
 )
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
+from xrpl.models.amounts.mpt_amount import MPTAmount
 from xrpl.models.currencies import IssuedCurrency
-from xrpl.models.requests import AccountObjects, LedgerEntry
+from xrpl.models.currencies.mpt_currency import MPTCurrency
+from xrpl.models.requests import AccountObjects, LedgerEntry, Tx
 from xrpl.models.requests.account_objects import AccountObjectType
 from xrpl.models.response import ResponseStatus
+from xrpl.models.transactions.mptoken_authorize import MPTokenAuthorize
+from xrpl.models.transactions.mptoken_issuance_create import (
+    MPTokenIssuanceCreate,
+    MPTokenIssuanceCreateFlag,
+)
 from xrpl.models.transactions.vault_create import WithdrawalPolicy
 from xrpl.utils import str_to_hex
 from xrpl.wallet import Wallet
 
 
 class TestSingleAssetVault(IntegrationTestCase):
+    @test_async_and_sync(globals())
+    async def test_vault_with_mptoken(self, client):
+        vault_owner = Wallet.create()
+        await fund_wallet_async(vault_owner)
+
+        # Create a MPToken
+        tx = MPTokenIssuanceCreate(
+            account=vault_owner.address,
+            flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER
+            + MPTokenIssuanceCreateFlag.TF_MPT_CAN_CLAWBACK,
+        )
+        response = await sign_and_reliable_submission_async(tx, vault_owner, client)
+        self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # fetch the mpt_issuance_id
+        response = await client.request(
+            Tx(transaction=response.result["tx_json"]["hash"])
+        )
+        MPT_ISSUANCE_ID = response.result["meta"]["mpt_issuance_id"]
+
+        # Create a holder wallet to validate VaultDeposit+VaultWithdraw+VaultClawback
+        # transactions
+        holder_wallet = Wallet.create()
+        await fund_wallet_async(holder_wallet)
+
+        # holder provides authorization to hold the MPToken
+        tx = MPTokenAuthorize(
+            account=holder_wallet.address,
+            mptoken_issuance_id=MPT_ISSUANCE_ID,
+        )
+        response = await sign_and_reliable_submission_async(tx, holder_wallet, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # transfer some MPToken to the holder wallet
+        tx = Payment(
+            account=vault_owner.address,
+            amount=MPTAmount(mpt_issuance_id=MPT_ISSUANCE_ID, value="100"),
+            destination=holder_wallet.address,
+        )
+        response = await sign_and_reliable_submission_async(tx, vault_owner, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Step-1: Create a vault
+        tx = VaultCreate(
+            account=vault_owner.address,
+            asset=MPTCurrency(mpt_issuance_id=MPT_ISSUANCE_ID),
+        )
+        response = await sign_and_reliable_submission_async(tx, vault_owner, client)
+        self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Step-1.b: Verify the existence of the vault with account_objects RPC call
+        account_objects_response = await client.request(
+            AccountObjects(account=vault_owner.address, type=AccountObjectType.VAULT)
+        )
+        self.assertEqual(len(account_objects_response.result["account_objects"]), 1)
+
+        VAULT_ID = account_objects_response.result["account_objects"][0]["index"]
+
+        # Step-2: Update the characteristics of the vault with VaultSet transaction
+        tx = VaultSet(
+            account=vault_owner.address,
+            vault_id=VAULT_ID,
+            data=str_to_hex("auxilliary data pertaining to the vault"),
+        )
+        response = await sign_and_reliable_submission_async(tx, vault_owner, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Step-3: Execute a VaultDeposit transaction
+        tx = VaultDeposit(
+            account=holder_wallet.address,
+            vault_id=VAULT_ID,
+            amount=MPTAmount(mpt_issuance_id=MPT_ISSUANCE_ID, value="10"),
+        )
+        response = await sign_and_reliable_submission_async(tx, holder_wallet, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Step-4: Execute a VaultWithdraw transaction
+        tx = VaultWithdraw(
+            account=holder_wallet.address,
+            vault_id=VAULT_ID,
+            amount=MPTAmount(mpt_issuance_id=MPT_ISSUANCE_ID, value="5"),
+        )
+        response = await sign_and_reliable_submission_async(tx, holder_wallet, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Step-5: Execute a VaultClawback transaction
+        tx = VaultClawback(
+            account=vault_owner.address,
+            holder=holder_wallet.address,
+            vault_id=VAULT_ID,
+            amount=MPTAmount(mpt_issuance_id=MPT_ISSUANCE_ID, value="100"),
+        )
+        response = await sign_and_reliable_submission_async(tx, vault_owner, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Step-6: Delete the Vault with VaultDelete transaction
+        tx = VaultDelete(
+            account=vault_owner.address,
+            vault_id=VAULT_ID,
+        )
+        response = await sign_and_reliable_submission_async(tx, vault_owner, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
     @test_async_and_sync(globals())
     async def test_sav_lifecycle(self, client):
 

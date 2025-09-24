@@ -32,11 +32,11 @@ class TestIssue(TestCase):
         # Test Issue creation for an MPT amount.
         # Use a valid 48-character hex string (24 bytes) for mpt_issuance_id.
         test_input = {
-            "mpt_issuance_id": "BAADF00DBAADF00DBAADF00DBAADF00DBAADF00DBAADF00D",
+            "mpt_issuance_id": "00001266F19FE2057AE426F72E923CAB3EC8E5BDB3341D9E",
         }
         issue_obj = Issue.from_value(test_input)
         expected = {
-            "mpt_issuance_id": "BAADF00DBAADF00DBAADF00DBAADF00DBAADF00DBAADF00D"
+            "mpt_issuance_id": "00001266F19FE2057AE426F72E923CAB3EC8E5BDB3341D9E"
         }
         self.assertEqual(issue_obj.to_json(), expected)
 
@@ -48,19 +48,22 @@ class TestIssue(TestCase):
         self.assertRaises(XRPLBinaryCodecException, Issue.from_value, test_input)
 
     def test_binary_representation_of_mpt_issuance_id(self):
-        # The issuer_account is represented by `A` and Sequence number
-        # (of the MPTokenIssuanceCreate transaction) is represented by `B`.
-        mpt_issuance_id_in_hex = "A" * 40 + "B" * 8
+        # The Sequence number (of the MPTokenIssuanceCreate transaction) is represented
+        # by `B` and issuer_account is represented by `A`.
+        mpt_issuance_id_in_hex = "B" * 8 + "A" * 40
         test_input = {
             "mpt_issuance_id": mpt_issuance_id_in_hex,
         }
         issue_obj = Issue.from_value(test_input)
         self.assertEqual(
             issue_obj.to_hex(),
-            mpt_issuance_id_in_hex[:40]
+            # issuer_account's hex representation
+            mpt_issuance_id_in_hex[8:48]
             # the below line is the hex representation of the
             # black-hole-account-id (ACCOUNT_ONE)
-            + "0000000000000000000000000000000000000001" + mpt_issuance_id_in_hex[40:],
+            + "0000000000000000000000000000000000000001"
+            # sequence number's hex representation
+            + mpt_issuance_id_in_hex[:8],
         )
         self.assertEqual(issue_obj.to_json(), test_input)
 
@@ -100,14 +103,14 @@ class TestIssue(TestCase):
     def test_from_parser_mpt(self):
         # Test round-trip: serialize an MPT Issue and then parse it back.
         test_input = {
-            "mpt_issuance_id": "BAADF00DBAADF00DBAADF00DBAADF00DBAADF00DBAADF00D",
+            "mpt_issuance_id": "00001266F19FE2057AE426F72E923CAB3EC8E5BDB3341D9E",
         }
         issue_obj = Issue.from_value(test_input)
         # Use the hex representation
         parser = BinaryParser(issue_obj.to_hex())
         issue_from_parser = Issue.from_parser(parser)
         expected = {
-            "mpt_issuance_id": "BAADF00DBAADF00DBAADF00DBAADF00DBAADF00DBAADF00D"
+            "mpt_issuance_id": "00001266F19FE2057AE426F72E923CAB3EC8E5BDB3341D9E"
         }
         self.assertEqual(issue_from_parser.to_json(), expected)
 

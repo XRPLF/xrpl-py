@@ -64,6 +64,10 @@ class Issue(SerializedType):
         # - 160 bits black hole account (20 bytes)
         # - 32 bits sequence (4 bytes)
         # Please look at STIssue.cpp inside rippled implementation for more details.
+        # P.S: sequence number is stored in little-endian format, however it it
+        # interpreted in big-endian format. Read Indexes.cpp:makeMptID method for more
+        # details.
+        # https://github.com/XRPLF/rippled/blob/develop/src/libxrpl/protocol/Indexes.cpp#L173
 
         if MPTCurrencyModel.is_dict_of_model(value):
             if len(value["mpt_issuance_id"]) != 48:
@@ -72,11 +76,21 @@ class Issue(SerializedType):
                     f"received {len(value['mpt_issuance_id'])} characters."
                 )
             mpt_issuance_id_bytes = bytes(Hash192.from_value(value["mpt_issuance_id"]))
+
+            # rippled accepts sequence number in big-endian format only.
+            sequence_in_hex = mpt_issuance_id_bytes[:4].hex().upper()
+            sequenceBE = (
+                sequence_in_hex[6:8]
+                + sequence_in_hex[4:6]
+                + sequence_in_hex[2:4]
+                + sequence_in_hex[0:2]
+            )
+            issuer_account_in_hex = mpt_issuance_id_bytes[4:]
             return cls(
                 bytes(
-                    mpt_issuance_id_bytes[:20]
+                    bytes(issuer_account_in_hex)
                     + bytes(cls.BLACK_HOLED_ACCOUNT_ID)
-                    + bytes(mpt_issuance_id_bytes[20:])
+                    + bytearray.fromhex(sequenceBE)
                 )
             )
 
@@ -118,11 +132,6 @@ class Issue(SerializedType):
 
         return cls(bytes(currency_or_account) + bytes(issuer_account_id))
 
-    @classmethod
-    def _print_buffer(self: Self, buffer: bytes) -> None:
-        print("DEBUG: Inside Issue._print_buffer(), buffer: ", buffer.hex().upper())
-        print("DEBUG: Inside Issue._print_buffer(), buffer length: ", len(buffer))
-
     def to_json(self: Self) -> Union[str, Dict[Any, Any]]:
         """
         Returns the JSON representation of an issued currency.
@@ -136,9 +145,21 @@ class Issue(SerializedType):
         # byte is represented by 2 characters in hex.
         if len(self.buffer) == 20 + 20 + 4:
             serialized_mpt_in_hex = self.to_hex().upper()
+            if serialized_mpt_in_hex[40:80] != self.BLACK_HOLED_ACCOUNT_ID.to_hex():
+                raise XRPLBinaryCodecException(
+                    "Invalid MPT Issue encoding: black-hole AccountID mismatch."
+                )
             return {
-                "mpt_issuance_id": serialized_mpt_in_hex[:40]
-                + serialized_mpt_in_hex[80:]
+                # Although the sequence bytes are stored in big-endian format, the JSON
+                # representation is in little-endian format. This is required for
+                # compatibility with c++ rippled implementation.
+                "mpt_issuance_id": (
+                    serialized_mpt_in_hex[86:88]
+                    + serialized_mpt_in_hex[84:86]
+                    + serialized_mpt_in_hex[82:84]
+                    + serialized_mpt_in_hex[80:82]
+                )
+                + serialized_mpt_in_hex[:40]
             }
 
         parser = BinaryParser(self.to_hex())
