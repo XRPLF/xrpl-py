@@ -286,8 +286,9 @@ def _choose_client_async(use_json_client: bool) -> AsyncClient:
 def _get_client(
     is_async: bool, is_json: bool, is_testnet: bool, is_devnet: bool
 ) -> Client:
+    if is_testnet and is_devnet:
+        raise ValueError("use_testnet and use_devnet are mutually exclusive")
     return _CLIENTS[(is_async, is_json, is_testnet, is_devnet)]
-
 
 def test_async_and_sync(
     original_globals,
