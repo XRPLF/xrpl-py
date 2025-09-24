@@ -145,6 +145,10 @@ class Issue(SerializedType):
         # byte is represented by 2 characters in hex.
         if len(self.buffer) == 20 + 20 + 4:
             serialized_mpt_in_hex = self.to_hex().upper()
+            if serialized_mpt_in_hex[40:80] != self.BLACK_HOLED_ACCOUNT_ID.to_hex():
+                raise XRPLBinaryCodecException(
+                    "Invalid MPT Issue encoding: black-hole AccountID mismatch."
+                )
             return {
                 # Although the sequence bytes are stored in big-endian format, the JSON
                 # representation is in little-endian format. This is required for

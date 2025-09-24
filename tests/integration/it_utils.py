@@ -275,12 +275,14 @@ async def accept_ledger_async(
     AsyncTestTimer(client, delay)
 
 
+# The _choose_client(_async)? methods are only used to send LEDGER_ACCEPT_REQUEST.
+# Hence, they are not applicable for devnet/testnet clients.
 def _choose_client(use_json_client: bool) -> SyncClient:
-    return cast(SyncClient, _CLIENTS[(False, use_json_client, False)])
+    return cast(SyncClient, _CLIENTS[(False, use_json_client, False, False)])
 
 
 def _choose_client_async(use_json_client: bool) -> AsyncClient:
-    return cast(AsyncClient, _CLIENTS[(True, use_json_client, False)])
+    return cast(AsyncClient, _CLIENTS[(True, use_json_client, False, False)])
 
 
 def _get_client(
@@ -289,6 +291,7 @@ def _get_client(
     if is_testnet and is_devnet:
         raise ValueError("use_testnet and use_devnet are mutually exclusive")
     return _CLIENTS[(is_async, is_json, is_testnet, is_devnet)]
+
 
 def test_async_and_sync(
     original_globals,
