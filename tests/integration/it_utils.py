@@ -39,6 +39,9 @@ WEBSOCKET_URL = "ws://127.0.0.1:6006"
 JSON_TESTNET_URL = "https://s.altnet.rippletest.net:51234"
 WEBSOCKET_TESTNET_URL = "wss://s.altnet.rippletest.net:51233"
 
+JSON_DEVNET_URL = "https://s.devnet.rippletest.net:51234/"
+WEBSOCKET_DEVNET_URL = "wss://s.devnet.rippletest.net:51233/"
+
 JSON_RPC_CLIENT = JsonRpcClient(JSON_RPC_URL)
 ASYNC_JSON_RPC_CLIENT = AsyncJsonRpcClient(JSON_RPC_URL)
 
@@ -51,16 +54,27 @@ ASYNC_JSON_RPC_TESTNET_CLIENT = AsyncJsonRpcClient(JSON_TESTNET_URL)
 WEBSOCKET_TESTNET_CLIENT = WebsocketClient(WEBSOCKET_TESTNET_URL)
 ASYNC_WEBSOCKET_TESTNET_CLIENT = AsyncWebsocketClient(WEBSOCKET_TESTNET_URL)
 
-# (is_async, is_json, is_testnet) -> client
+JSON_RPC_DEVNET_CLIENT = JsonRpcClient(JSON_DEVNET_URL)
+ASYNC_JSON_RPC_DEVNET_CLIENT = AsyncJsonRpcClient(JSON_DEVNET_URL)
+
+WEBSOCKET_DEVNET_CLIENT = WebsocketClient(WEBSOCKET_DEVNET_URL)
+ASYNC_WEBSOCKET_DEVNET_CLIENT = AsyncWebsocketClient(WEBSOCKET_DEVNET_URL)
+
+# (is_async, is_json, is_testnet, use_devnet) -> client
 _CLIENTS = {
-    (True, True, True): ASYNC_JSON_RPC_TESTNET_CLIENT,
-    (True, True, False): ASYNC_JSON_RPC_CLIENT,
-    (True, False, True): ASYNC_WEBSOCKET_TESTNET_CLIENT,
-    (True, False, False): ASYNC_WEBSOCKET_CLIENT,
-    (False, True, True): JSON_RPC_TESTNET_CLIENT,
-    (False, True, False): JSON_RPC_CLIENT,
-    (False, False, True): WEBSOCKET_TESTNET_CLIENT,
-    (False, False, False): WEBSOCKET_CLIENT,
+    (True, True, True, False): ASYNC_JSON_RPC_TESTNET_CLIENT,
+    (True, True, False, False): ASYNC_JSON_RPC_CLIENT,
+    (True, False, True, False): ASYNC_WEBSOCKET_TESTNET_CLIENT,
+    (True, False, False, False): ASYNC_WEBSOCKET_CLIENT,
+    (False, True, True, False): JSON_RPC_TESTNET_CLIENT,
+    (False, True, False, False): JSON_RPC_CLIENT,
+    (False, False, True, False): WEBSOCKET_TESTNET_CLIENT,
+    (False, False, False, False): WEBSOCKET_CLIENT,
+    # Both use_testnet and use_devnet cannot be specified at the same time
+    (True, True, False, True): ASYNC_JSON_RPC_DEVNET_CLIENT,
+    (True, False, False, True): ASYNC_WEBSOCKET_DEVNET_CLIENT,
+    (False, True, False, True): JSON_RPC_DEVNET_CLIENT,
+    (False, False, False, True): WEBSOCKET_DEVNET_CLIENT,
 }
 
 MASTER_ACCOUNT = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
@@ -156,6 +170,7 @@ def sign_and_reliable_submission(
     wallet: Wallet,
     client: SyncClient = JSON_RPC_CLIENT,
     check_fee: bool = True,
+    use_devnet=False,
 ) -> Response:
     modified_transaction = transaction
 
@@ -183,7 +198,10 @@ def sign_and_reliable_submission(
     response = submit_transaction(
         modified_transaction, wallet, client, check_fee=check_fee
     )
-    client.request(LEDGER_ACCEPT_REQUEST)
+
+    # On devnet, wait for the transaction to be validated
+    if not use_devnet:
+        client.request(LEDGER_ACCEPT_REQUEST)
     return response
 
 
@@ -193,6 +211,7 @@ async def sign_and_reliable_submission_async(
     wallet: Wallet,
     client: AsyncClient = ASYNC_JSON_RPC_CLIENT,
     check_fee: bool = True,
+    use_devnet=False,
 ) -> Response:
     modified_transaction = transaction
 
@@ -219,7 +238,10 @@ async def sign_and_reliable_submission_async(
     response = await submit_transaction_async(
         modified_transaction, wallet, client, check_fee=check_fee
     )
-    await client.request(LEDGER_ACCEPT_REQUEST)
+
+    # On devnet, wait for the transaction to be validated
+    if not use_devnet:
+        await client.request(LEDGER_ACCEPT_REQUEST)
     return response
 
 
@@ -253,16 +275,22 @@ async def accept_ledger_async(
     AsyncTestTimer(client, delay)
 
 
+# The _choose_client(_async)? methods are only used to send LEDGER_ACCEPT_REQUEST.
+# Hence, they are not applicable for devnet/testnet clients.
 def _choose_client(use_json_client: bool) -> SyncClient:
-    return cast(SyncClient, _CLIENTS[(False, use_json_client, False)])
+    return cast(SyncClient, _CLIENTS[(False, use_json_client, False, False)])
 
 
 def _choose_client_async(use_json_client: bool) -> AsyncClient:
-    return cast(AsyncClient, _CLIENTS[(True, use_json_client, False)])
+    return cast(AsyncClient, _CLIENTS[(True, use_json_client, False, False)])
 
 
-def _get_client(is_async: bool, is_json: bool, is_testnet: bool) -> Client:
-    return _CLIENTS[(is_async, is_json, is_testnet)]
+def _get_client(
+    is_async: bool, is_json: bool, is_testnet: bool, is_devnet: bool
+) -> Client:
+    if is_testnet and is_devnet:
+        raise ValueError("use_testnet and use_devnet are mutually exclusive")
+    return _CLIENTS[(is_async, is_json, is_testnet, is_devnet)]
 
 
 def test_async_and_sync(
@@ -271,6 +299,7 @@ def test_async_and_sync(
     websockets_only=False,
     num_retries=1,
     use_testnet=False,
+    use_devnet=False,
     async_only=False,
 ):
     def decorator(test_function):
@@ -345,18 +374,26 @@ def test_async_and_sync(
             if not websockets_only:
                 with self.subTest(version="async", client="json"):
                     asyncio.run(
-                        _run_async_test(self, _get_client(True, True, use_testnet), 1)
+                        _run_async_test(
+                            self, _get_client(True, True, use_testnet, use_devnet), 1
+                        )
                     )
                 if not async_only:
                     with self.subTest(version="sync", client="json"):
-                        _run_sync_test(self, _get_client(False, True, use_testnet), 2)
+                        _run_sync_test(
+                            self, _get_client(False, True, use_testnet, use_devnet), 2
+                        )
             with self.subTest(version="async", client="websocket"):
                 asyncio.run(
-                    _run_async_test(self, _get_client(True, False, use_testnet), 3)
+                    _run_async_test(
+                        self, _get_client(True, False, use_testnet, use_devnet), 3
+                    )
                 )
             if not async_only:
                 with self.subTest(version="sync", client="websocket"):
-                    _run_sync_test(self, _get_client(False, False, use_testnet), 4)
+                    _run_sync_test(
+                        self, _get_client(False, False, use_testnet, use_devnet), 4
+                    )
 
         return modified_test
 
