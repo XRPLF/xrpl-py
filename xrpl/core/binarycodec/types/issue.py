@@ -10,8 +10,9 @@ from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.account_id import AccountID
 from xrpl.core.binarycodec.types.currency import Currency
-from xrpl.core.binarycodec.types.hash192 import HASH192_BYTES, Hash192
+from xrpl.core.binarycodec.types.hash192 import Hash192
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
+from xrpl.core.binarycodec.types.uint32 import UInt32
 from xrpl.models.currencies import XRP as XRPModel
 from xrpl.models.currencies import IssuedCurrency as IssuedCurrencyModel
 from xrpl.models.currencies import MPTCurrency as MPTCurrencyModel
@@ -19,6 +20,10 @@ from xrpl.models.currencies import MPTCurrency as MPTCurrencyModel
 
 class Issue(SerializedType):
     """Codec for serializing and deserializing issued currency fields."""
+
+    BLACK_HOLED_ACCOUNT_ID = AccountID.from_value(
+        "0000000000000000000000000000000000000001"
+    )
 
     def __init__(self: Self, buffer: bytes) -> None:
         """
@@ -54,9 +59,42 @@ class Issue(SerializedType):
             issuer_bytes = bytes(AccountID.from_value(value["issuer"]))
             return cls(currency_bytes + issuer_bytes)
 
+        # MPT is serialized as:
+        # - 160 bits MPT issuer account (20 bytes)
+        # - 160 bits black hole account (20 bytes)
+        # - 32 bits sequence (4 bytes)
+        # Please look at STIssue.cpp inside rippled implementation for more details.
+        # P.S: sequence number is stored in little-endian format, however it it
+        # interpreted in big-endian format. Read Indexes.cpp:makeMptID method for more
+        # details.
+        # https://github.com/XRPLF/rippled/blob/develop/src/libxrpl/protocol/Indexes.cpp#L173
+
         if MPTCurrencyModel.is_dict_of_model(value):
+            if len(value["mpt_issuance_id"]) != 48:
+                raise XRPLBinaryCodecException(
+                    "Invalid mpt_issuance_id length: expected 48 characters, "
+                    f"received {len(value['mpt_issuance_id'])} characters."
+                )
             mpt_issuance_id_bytes = bytes(Hash192.from_value(value["mpt_issuance_id"]))
-            return cls(bytes(mpt_issuance_id_bytes))
+
+            # rippled accepts sequence number in big-endian format only.
+            # sequence_in_hex = mpt_issuance_id_bytes[:4].hex().upper()
+            sequenceBE = (
+                int.from_bytes(
+                    mpt_issuance_id_bytes[:4], byteorder="little", signed=False
+                )
+                .to_bytes(4, byteorder="big", signed=False)
+                .hex()
+                .upper()
+            )
+            issuer_account_in_hex = mpt_issuance_id_bytes[4:]
+            return cls(
+                bytes(
+                    bytes(issuer_account_in_hex)
+                    + bytes(cls.BLACK_HOLED_ACCOUNT_ID)
+                    + bytearray.fromhex(sequenceBE)
+                )
+            )
 
         raise XRPLBinaryCodecException(
             "Invalid type to construct an Issue: expected XRP, IssuedCurrency or "
@@ -80,17 +118,21 @@ class Issue(SerializedType):
         Returns:
             The Issue object constructed from a parser.
         """
-        # Check if it's an MPTIssue by checking mpt_issuance_id byte size
-        if length_hint == HASH192_BYTES:
-            mpt_bytes = parser.read(HASH192_BYTES)
-            return cls(mpt_bytes)
+        currency_or_account = Currency.from_parser(parser)
+        if currency_or_account.to_json() == "XRP":
+            return cls(bytes(currency_or_account))
 
-        currency = Currency.from_parser(parser)
-        if currency.to_json() == "XRP":
-            return cls(bytes(currency))
+        # check if this is an instance of MPTIssuanceID
+        issuer_account_id = AccountID.from_parser(parser)
+        if issuer_account_id.to_json() == cls.BLACK_HOLED_ACCOUNT_ID.to_json():
+            sequence = UInt32.from_parser(parser)
+            return cls(
+                bytes(currency_or_account)
+                + bytes(cls.BLACK_HOLED_ACCOUNT_ID)
+                + bytes(sequence)
+            )
 
-        issuer = parser.read(20)  # the length in bytes of an account ID
-        return cls(bytes(currency) + issuer)
+        return cls(bytes(currency_or_account) + bytes(issuer_account_id))
 
     def to_json(self: Self) -> Union[str, Dict[Any, Any]]:
         """
@@ -99,9 +141,35 @@ class Issue(SerializedType):
         Returns:
             The JSON representation of an Issue.
         """
-        # If the buffer is exactly 24 bytes, treat it as an MPT amount.
-        if len(self.buffer) == HASH192_BYTES:
-            return {"mpt_issuance_id": self.to_hex().upper()}
+        # If the buffer's length is 44 bytes (issuer-account + black-hole-account-id +
+        # sequence), treat it as a MPTCurrency.
+        # Note: hexadecimal representation of the buffer's length is doubled because 1
+        # byte is represented by 2 characters in hex.
+        if len(self.buffer) == 20 + 20 + 4:
+            serialized_mpt_in_hex = self.to_hex().upper()
+            if serialized_mpt_in_hex[40:80] != self.BLACK_HOLED_ACCOUNT_ID.to_hex():
+                raise XRPLBinaryCodecException(
+                    "Invalid MPT Issue encoding: black-hole AccountID mismatch."
+                )
+            # Although the sequence bytes are stored in big-endian format, the JSON
+            # representation is in little-endian format. This is required for
+            # compatibility with c++ rippled implementation.
+            sequence_hex_big_endian = (
+                int.from_bytes(
+                    bytes.fromhex(serialized_mpt_in_hex[80:]),
+                    byteorder="little",
+                    signed=False,
+                )
+                .to_bytes(4, byteorder="big", signed=False)
+                .hex()
+                .upper()
+            )
+
+            return {
+                "mpt_issuance_id": (
+                    sequence_hex_big_endian + serialized_mpt_in_hex[:40]
+                )
+            }
 
         parser = BinaryParser(self.to_hex())
         currency: Union[str, Dict[Any, Any]] = Currency.from_parser(parser).to_json()
