@@ -29,7 +29,7 @@ class TestIssue(TestCase):
         self.assertEqual(issue_obj.to_json(), expected)
 
     def test_from_value_mpt(self):
-        # Test Issue creation for an MPT amount.
+        # Test Issue creation for an MPT currency.
         # Use a valid 48-character hex string (24 bytes) for mpt_issuance_id.
         test_input = {
             "mpt_issuance_id": "00001266F19FE2057AE426F72E923CAB3EC8E5BDB3341D9E",
