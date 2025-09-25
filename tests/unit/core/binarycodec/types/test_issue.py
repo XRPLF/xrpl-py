@@ -48,9 +48,7 @@ class TestIssue(TestCase):
         self.assertRaises(XRPLBinaryCodecException, Issue.from_value, test_input)
 
     def test_binary_representation_of_mpt_issuance_id(self):
-        # The Sequence number (of the MPTokenIssuanceCreate transaction) is represented
-        # by `B` and issuer_account is represented by `A`.
-        mpt_issuance_id_in_hex = "B" * 8 + "A" * 40
+        mpt_issuance_id_in_hex = "00001266F19FE2057AE426F72E923CAB3EC8E5BDB3341D9E"
         test_input = {
             "mpt_issuance_id": mpt_issuance_id_in_hex,
         }
@@ -63,7 +61,10 @@ class TestIssue(TestCase):
             # black-hole-account-id (ACCOUNT_ONE)
             + "0000000000000000000000000000000000000001"
             # sequence number's hex representation
-            + mpt_issuance_id_in_hex[:8],
+            + mpt_issuance_id_in_hex[6:8]
+            + mpt_issuance_id_in_hex[4:6]
+            + mpt_issuance_id_in_hex[2:4]
+            + mpt_issuance_id_in_hex[0:2],
         )
         self.assertEqual(issue_obj.to_json(), test_input)
 
