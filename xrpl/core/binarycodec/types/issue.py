@@ -78,12 +78,14 @@ class Issue(SerializedType):
             mpt_issuance_id_bytes = bytes(Hash192.from_value(value["mpt_issuance_id"]))
 
             # rippled accepts sequence number in big-endian format only.
-            sequence_in_hex = mpt_issuance_id_bytes[:4].hex().upper()
+            # sequence_in_hex = mpt_issuance_id_bytes[:4].hex().upper()
             sequenceBE = (
-                sequence_in_hex[6:8]
-                + sequence_in_hex[4:6]
-                + sequence_in_hex[2:4]
-                + sequence_in_hex[0:2]
+                int.from_bytes(
+                    mpt_issuance_id_bytes[:4], byteorder="little", signed=False
+                )
+                .to_bytes(4, byteorder="big", signed=False)
+                .hex()
+                .upper()
             )
             issuer_account_in_hex = mpt_issuance_id_bytes[4:]
             return cls(
@@ -149,17 +151,24 @@ class Issue(SerializedType):
                 raise XRPLBinaryCodecException(
                     "Invalid MPT Issue encoding: black-hole AccountID mismatch."
                 )
-            return {
-                # Although the sequence bytes are stored in big-endian format, the JSON
-                # representation is in little-endian format. This is required for
-                # compatibility with c++ rippled implementation.
-                "mpt_issuance_id": (
-                    serialized_mpt_in_hex[86:88]
-                    + serialized_mpt_in_hex[84:86]
-                    + serialized_mpt_in_hex[82:84]
-                    + serialized_mpt_in_hex[80:82]
+            # Although the sequence bytes are stored in big-endian format, the JSON
+            # representation is in little-endian format. This is required for
+            # compatibility with c++ rippled implementation.
+            sequence_hex_big_endian = (
+                int.from_bytes(
+                    bytes.fromhex(serialized_mpt_in_hex[80:]),
+                    byteorder="little",
+                    signed=False,
                 )
-                + serialized_mpt_in_hex[:40]
+                .to_bytes(4, byteorder="big", signed=False)
+                .hex()
+                .upper()
+            )
+
+            return {
+                "mpt_issuance_id": (
+                    sequence_hex_big_endian + serialized_mpt_in_hex[:40]
+                )
             }
 
         parser = BinaryParser(self.to_hex())

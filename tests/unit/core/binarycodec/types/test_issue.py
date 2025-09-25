@@ -53,6 +53,17 @@ class TestIssue(TestCase):
             "mpt_issuance_id": mpt_issuance_id_in_hex,
         }
         issue_obj = Issue.from_value(test_input)
+        sequenceBE = (
+            int.from_bytes(
+                bytes.fromhex(mpt_issuance_id_in_hex[:8]),
+                byteorder="little",
+                signed=False,
+            )
+            .to_bytes(4, byteorder="big", signed=False)
+            .hex()
+            .upper()
+        )
+
         self.assertEqual(
             issue_obj.to_hex(),
             # issuer_account's hex representation
@@ -61,10 +72,7 @@ class TestIssue(TestCase):
             # black-hole-account-id (ACCOUNT_ONE)
             + "0000000000000000000000000000000000000001"
             # sequence number's hex representation
-            + mpt_issuance_id_in_hex[6:8]
-            + mpt_issuance_id_in_hex[4:6]
-            + mpt_issuance_id_in_hex[2:4]
-            + mpt_issuance_id_in_hex[0:2],
+            + sequenceBE,
         )
         self.assertEqual(issue_obj.to_json(), test_input)
 
@@ -112,6 +120,32 @@ class TestIssue(TestCase):
         issue_from_parser = Issue.from_parser(parser)
         expected = {
             "mpt_issuance_id": "00001266F19FE2057AE426F72E923CAB3EC8E5BDB3341D9E"
+        }
+        self.assertEqual(issue_from_parser.to_json(), expected)
+
+    def test_from_raw_hex_mpt(self):
+        issuer_account_in_hex = "F19FE2057AE426F72E923CAB3EC8E5BDB3341D9E"
+        sequence_little_endian_in_hex = "00001266"
+        serialized_mpt_currency = (
+            issuer_account_in_hex
+            + "0000000000000000000000000000000000000001"
+            + sequence_little_endian_in_hex
+        )
+
+        issue_from_parser = Issue.from_parser(BinaryParser(serialized_mpt_currency))
+        sequence_in_hex = (
+            int.from_bytes(
+                bytes.fromhex(sequence_little_endian_in_hex),
+                byteorder="little",
+                signed=False,
+            )
+            .to_bytes(4, byteorder="big", signed=False)
+            .hex()
+            .upper()
+        )
+
+        expected = {
+            "mpt_issuance_id": sequence_in_hex + issuer_account_in_hex,
         }
         self.assertEqual(issue_from_parser.to_json(), expected)
 

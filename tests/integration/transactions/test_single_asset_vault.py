@@ -89,6 +89,8 @@ class TestSingleAssetVault(IntegrationTestCase):
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
+        print(response.result)
+
         # Step-1.b: Verify the existence of the vault with account_objects RPC call
         account_objects_response = await client.request(
             AccountObjects(account=vault_owner.address, type=AccountObjectType.VAULT)
