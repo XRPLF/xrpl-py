@@ -170,7 +170,7 @@ def sign_and_reliable_submission(
     wallet: Wallet,
     client: SyncClient = JSON_RPC_CLIENT,
     check_fee: bool = True,
-    use_devnet=False,
+    is_devnet_or_testnet=False,
 ) -> Response:
     modified_transaction = transaction
 
@@ -199,8 +199,8 @@ def sign_and_reliable_submission(
         modified_transaction, wallet, client, check_fee=check_fee
     )
 
-    # On devnet, wait for the transaction to be validated
-    if not use_devnet:
+    # On devnet or testnet, wait for the transaction to be validated
+    if not is_devnet_or_testnet:
         client.request(LEDGER_ACCEPT_REQUEST)
     return response
 
@@ -211,7 +211,7 @@ async def sign_and_reliable_submission_async(
     wallet: Wallet,
     client: AsyncClient = ASYNC_JSON_RPC_CLIENT,
     check_fee: bool = True,
-    use_devnet=False,
+    is_devnet_or_testnet=False,
 ) -> Response:
     modified_transaction = transaction
 
@@ -239,8 +239,8 @@ async def sign_and_reliable_submission_async(
         modified_transaction, wallet, client, check_fee=check_fee
     )
 
-    # On devnet, wait for the transaction to be validated
-    if not use_devnet:
+    # On devnet or testnet, wait for the transaction to be validated
+    if not is_devnet_or_testnet:
         await client.request(LEDGER_ACCEPT_REQUEST)
     return response
 
