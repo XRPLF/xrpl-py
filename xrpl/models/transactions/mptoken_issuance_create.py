@@ -9,7 +9,8 @@ from typing import Dict, Optional
 
 from typing_extensions import Final, Self
 
-from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
+from xrpl.models.flags import FlagInterface
+from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import (
     HEX_REGEX,
@@ -37,7 +38,7 @@ class MPTokenIssuanceCreateFlag(int, Enum):
     TF_MPT_CAN_CLAWBACK = 0x00000040
 
 
-class MPTokenIssuanceCreateFlagInterface(TransactionFlagInterface):
+class MPTokenIssuanceCreateFlagInterface(FlagInterface):
     """
     Transactions of the MPTokenIssuanceCreate type support additional values in the
     Flags field.
