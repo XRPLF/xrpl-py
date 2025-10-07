@@ -1,5 +1,6 @@
 name: Publish xrpl-py 🐍 distribution 📦 to PyPI
 on:
+  workflow_dispatch:
   push:
     tags:
       - "*"
@@ -58,6 +59,9 @@ jobs:
     needs: build # Explicit dependency on build job
     runs-on: ubuntu-latest
     timeout-minutes: 10 # Adjust based on typical publishing time
+    environment:
+      name: official-release
+      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
     permissions:
       # More information about Trusted Publishing and OpenID Connect: https://blog.pypi.org/posts/2023-04-20-introducing-trusted-publishers/
       id-token: write # IMPORTANT: mandatory for trusted publishing
