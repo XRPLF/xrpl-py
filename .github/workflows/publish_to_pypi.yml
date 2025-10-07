@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           # Use the lowest supported version of Python for CI/CD
-          python-version: "3.8"
+          python-version: "3.9"
       - name: Load cached .local
         id: cache-poetry
         uses: actions/cache@v3
@@ -29,34 +29,15 @@ jobs:
           path: /home/runner/.local
           key: dotlocal-${{ env.POETRY_VERSION }}-${{ hashFiles('poetry.lock') }}
       - name: Install poetry
-        if: steps.cache-poetry.outputs.cache-hit != 'true'
         env:
           PIP_INDEX_URL: https://pypi.org/simple
+          PIP_NO_CACHE_DIR: "1"
         run: |
-          set -o pipefail
-          if ! curl -sSL "https://install.python-poetry.org/" | python - --version "${{ env.POETRY_VERSION }}"; then
-            echo "::error::Poetry installer failed. Dumping installer logs (if any)."
-            for log in poetry-installer-error-*.log; do
-              if [ -f "${log}" ]; then
-                echo "::group::${log}"
-                cat "${log}"
-                echo "::endgroup::"
-              fi
-            done
-            exit 1
-          fi
-          echo "${HOME}/.local/bin" >> $GITHUB_PATH
-          if ! poetry --version; then
-            echo "::error::Poetry executable not available after installation."
-            for log in poetry-installer-error-*.log; do
-              if [ -f "${log}" ]; then
-                echo "::group::${log}"
-                cat "${log}"
-                echo "::endgroup::"
-              fi
-            done
-            exit 1
-          fi
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install "dulwich>=0.22.6,<0.23.0"
+          python -m pip install "https://github.com/python-poetry/poetry/releases/download/${POETRY_VERSION}/poetry-${POETRY_VERSION}-py3-none-any.whl"
+          poetry --version
       - name: Build a binary wheel and a source tarball
         run: poetry build
       - name: Store the distribution packages
