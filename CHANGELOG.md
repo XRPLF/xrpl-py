@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Added
+- Ledger object hashing utilities for XRPL ledger objects.
+- New functions: `hash_account_root`, `hash_offer` (alias: `hash_offer_id`), `hash_escrow`, `hash_payment_channel`, `hash_trustline` (alias: `hash_ripple_state`), `hash_signer_list_id`, `hash_check`, `hash_ticket`, `hash_deposit_preauth`.
+- Comprehensive unit tests for all hash utilities.
+- Useful for Batch transactions that require the ledger entry hash prior to creation.
+
 ### Fixed
 
 - Removed snippets files from the xrpl-py code repository. Updated the README file to point to the correct location on XRPL.org.
