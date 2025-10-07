@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   push:
 
+
 jobs:
   build:
     name: Build distribution 📦
@@ -20,12 +21,19 @@ jobs:
         uses: actions/setup-python@v5
         with:
           # Use the lowest supported version of Python for CI/CD
-          python-version: "3.8"
+          python-version: "3.8.1"
+      - name: Load cached .local
+        id: cache-poetry
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/.local
+          key: dotlocal-${{ env.POETRY_VERSION }}-${{ hashFiles('poetry.lock') }}
       - name: Install poetry
+        if: steps.cache-poetry.outputs.cache-hit != 'true'
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install "https://github.com/python-poetry/poetry/releases/download/${POETRY_VERSION}/poetry-${POETRY_VERSION}-py3-none-any.whl"
-          poetry --version
+          curl -sSL "https://install.python-poetry.org/" | python - --version "${{ env.POETRY_VERSION }}"
+          echo "${HOME}/.local/bin" >> $GITHUB_PATH
+          poetry --version || exit 1  # Verify installation
       - name: Build a binary wheel and a source tarball
         run: poetry build
       - name: Store the distribution packages
