@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           # Use the lowest supported version of Python for CI/CD
-          python-version: "3.8.19"
+          python-version: "3.9"
       - name: Load cached .local
         id: cache-poetry
         uses: actions/cache@v3
@@ -29,11 +29,15 @@ jobs:
           path: /home/runner/.local
           key: dotlocal-${{ env.POETRY_VERSION }}-${{ hashFiles('poetry.lock') }}
       - name: Install poetry
-        if: steps.cache-poetry.outputs.cache-hit != 'true'
+        env:
+          PIP_INDEX_URL: https://pypi.org/simple
+          PIP_NO_CACHE_DIR: "1"
         run: |
-          curl -sSL "https://install.python-poetry.org/" | python - --version "${{ env.POETRY_VERSION }}"
-          echo "${HOME}/.local/bin" >> $GITHUB_PATH
-          poetry --version || exit 1  # Verify installation
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install "dulwich>=0.22.6,<0.23.0"
+          python -m pip install "https://github.com/python-poetry/poetry/releases/download/${POETRY_VERSION}/poetry-${POETRY_VERSION}-py3-none-any.whl"
+          poetry --version
       - name: Build a binary wheel and a source tarball
         run: poetry build
       - name: Store the distribution packages
@@ -105,7 +109,7 @@ jobs:
           name: python-package-provenance
           path: provenance/
       - name: Sign the dists with Sigstore
-        uses: sigstore/gh-action-sigstore-python@v2.1.1
+        uses: sigstore/gh-action-sigstore-python@v3.0.1
         with:
           inputs: >-
             ./dist/*.tar.gz
