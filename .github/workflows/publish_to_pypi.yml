@@ -31,9 +31,30 @@ jobs:
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'
         run: |
-          curl -sSL "https://install.python-poetry.org/" | python - --version "${{ env.POETRY_VERSION }}"
+          set -o pipefail
+          if ! curl -sSL "https://install.python-poetry.org/" | python - --version "${{ env.POETRY_VERSION }}"; then
+            echo "::error::Poetry installer failed. Dumping installer logs (if any)."
+            for log in poetry-installer-error-*.log; do
+              if [ -f "${log}" ]; then
+                echo "::group::${log}"
+                cat "${log}"
+                echo "::endgroup::"
+              fi
+            done
+            exit 1
+          fi
           echo "${HOME}/.local/bin" >> $GITHUB_PATH
-          poetry --version || exit 1  # Verify installation
+          if ! poetry --version; then
+            echo "::error::Poetry executable not available after installation."
+            for log in poetry-installer-error-*.log; do
+              if [ -f "${log}" ]; then
+                echo "::group::${log}"
+                cat "${log}"
+                echo "::endgroup::"
+              fi
+            done
+            exit 1
+          fi
       - name: Build a binary wheel and a source tarball
         run: poetry build
       - name: Store the distribution packages
