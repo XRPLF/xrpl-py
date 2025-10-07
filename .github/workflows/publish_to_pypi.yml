@@ -30,6 +30,8 @@ jobs:
           key: dotlocal-${{ env.POETRY_VERSION }}-${{ hashFiles('poetry.lock') }}
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'
+        env:
+          PIP_INDEX_URL: https://pypi.org/simple
         run: |
           set -o pipefail
           if ! curl -sSL "https://install.python-poetry.org/" | python - --version "${{ env.POETRY_VERSION }}"; then
