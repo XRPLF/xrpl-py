@@ -44,14 +44,14 @@ class Response(BaseModel):
     Represents fields common to all response types.
     """
 
-    status: ResponseStatus = REQUIRED  # type: ignore
+    status: ResponseStatus = REQUIRED
     """
     This field is required.
 
     :meta hide-value:
     """
 
-    result: Dict[str, Any] = REQUIRED  # type: ignore
+    result: Dict[str, Any] = REQUIRED
     """
     This field is required.
 

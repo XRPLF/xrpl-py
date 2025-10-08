@@ -17,7 +17,7 @@ class AccountNFTs(Request, LookupByLedgerRequest):
     """
 
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_NFTS, init=False)
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """
     The unique identifier of an account, typically the account's address. The
     request returns NFTs owned by this account. This value is required.

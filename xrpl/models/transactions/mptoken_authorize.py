@@ -48,7 +48,7 @@ class MPTokenAuthorize(Transaction):
     or lock/unlock an individual's MPToken.
     """
 
-    mptoken_issuance_id: str = REQUIRED  # type: ignore
+    mptoken_issuance_id: str = REQUIRED
     """Identifies the MPTokenIssuance"""
 
     holder: Optional[str] = None

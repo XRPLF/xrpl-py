@@ -25,7 +25,7 @@ class IssuedCurrencyAmount(IssuedCurrency):
     See https://xrpl.org/currency-formats.html#issued-currency-amounts.
     """
 
-    value: Union[str, int, float] = REQUIRED  # type: ignore
+    value: Union[str, int, float] = REQUIRED
     """
     This field is required.
 

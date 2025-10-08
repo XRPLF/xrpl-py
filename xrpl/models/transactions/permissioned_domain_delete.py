@@ -20,7 +20,7 @@ DOMAIN_ID_LENGTH: Final[int] = 64
 class PermissionedDomainDelete(Transaction):
     """This transaction deletes a PermissionedDomain object."""
 
-    domain_id: str = REQUIRED  # type: ignore
+    domain_id: str = REQUIRED
     """The domain to delete."""
 
     transaction_type: TransactionType = field(

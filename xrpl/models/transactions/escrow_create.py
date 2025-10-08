@@ -22,7 +22,7 @@ class EscrowCreate(Transaction):
     transaction, which locks up XRP until a specific time or condition is met.
     """
 
-    amount: Amount = REQUIRED  # type: ignore
+    amount: Amount = REQUIRED
     """
     The amount to deduct from the sender's balance and set aside in escrow.
     Can represent XRP in drops, an IOU token, or MPT.
@@ -31,7 +31,7 @@ class EscrowCreate(Transaction):
     :meta hide-value:
     """
 
-    destination: str = REQUIRED  # type: ignore
+    destination: str = REQUIRED
     """
     The address that should receive the escrowed XRP when the time or
     condition is met. This field is required.

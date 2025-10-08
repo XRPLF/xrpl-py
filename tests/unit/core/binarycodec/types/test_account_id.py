@@ -22,3 +22,25 @@ class TestAccountID(TestCase):
     def test_raises_invalid_value_type(self):
         invalid_value = 30
         self.assertRaises(XRPLBinaryCodecException, AccountID.from_value, invalid_value)
+
+    def test_special_account_ACCOUNT_ONE(self):
+        self.assertEqual(
+            AccountID.from_value("0000000000000000000000000000000000000001").to_json(),
+            "rrrrrrrrrrrrrrrrrrrrBZbvji",
+        )
+
+        self.assertEqual(
+            AccountID.from_value("rrrrrrrrrrrrrrrrrrrrBZbvji").to_hex(),
+            AccountID.from_value("0000000000000000000000000000000000000001").to_hex(),
+        )
+
+    def test_special_account_ACCOUNT_ZERO(self):
+        self.assertEqual(
+            AccountID.from_value("0000000000000000000000000000000000000000").to_json(),
+            "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
+        )
+
+        self.assertEqual(
+            AccountID.from_value("rrrrrrrrrrrrrrrrrrrrrhoLvTp").to_hex(),
+            AccountID.from_value("0000000000000000000000000000000000000000").to_hex(),
+        )

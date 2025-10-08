@@ -76,9 +76,7 @@ class Permission(NestedModel):
     transaction.
     """
 
-    permission_value: Union[
-        TransactionType, GranularPermission
-    ] = REQUIRED  # type: ignore
+    permission_value: Union[TransactionType, GranularPermission] = REQUIRED
     """
     Transaction level or granular permission.
 
@@ -93,10 +91,10 @@ class DelegateSet(Transaction):
     account.
     """
 
-    authorize: str = REQUIRED  # type: ignore
+    authorize: str = REQUIRED
     """The authorized account."""
 
-    permissions: List[Permission] = REQUIRED  # type: ignore
+    permissions: List[Permission] = REQUIRED
     """The transaction permissions that the authorized account has been granted."""
 
     transaction_type: TransactionType = field(
