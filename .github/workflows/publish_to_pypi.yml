@@ -47,24 +47,27 @@ jobs:
       - name: Install toml-cli
         run: |
           set -euo pipefail
-          python3 -m pip install --user --upgrade toml-cli
-          echo "${HOME}/.local/bin" >> "${GITHUB_PATH}"
+          python3 -m venv /tmp/tomlcli
+          /tmp/tomlcli/bin/pip install --upgrade pip
+          /tmp/tomlcli/bin/pip install toml-cli
+          echo "/tmp/tomlcli/bin" >> "${GITHUB_PATH}"
 
       - name: Extract project version
         id: project_version
         run: |
           set -euo pipefail
 
-          if ! VERSION="$(toml get --raw pyproject.toml project.version 2>/tmp/toml_err)"; then
+          rm -f /tmp/toml_err
+          if ! VERSION="$(toml get project.version --toml-path pyproject.toml 2>/tmp/toml_err)"; then
             cat /tmp/toml_err >&2 || true
             echo "Unable to retrieve version from pyproject.toml using toml-cli" >&2
             exit 1
           fi
+          rm -f /tmp/toml_err
           if [[ -z "${VERSION}" ]]; then
             echo "Version value is empty in pyproject.toml" >&2
             exit 1
           fi
-          rm -f /tmp/toml_err
           echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
           echo "Detected project version: ${VERSION}"
 
