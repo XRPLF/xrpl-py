@@ -1,8 +1,6 @@
 name: Publish xrpl-py 🐍 distribution 📦 to PyPI
 on:
   workflow_dispatch:
-  push:
-
 
 jobs:
   build:
@@ -16,7 +14,59 @@ jobs:
       POETRY_VERSION: 2.1.1
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate inputs
+        run: |
+          set -euo pipefail
+          RELEASE_BRANCH="$(git branch --show-current || true)"
+          if [[ -z "$RELEASE_BRANCH" ]]; then
+            RELEASE_BRANCH="${{ github.ref_name }}"
+          fi
+
+          if [[ -z "$RELEASE_BRANCH" ]]; then
+            echo "❌ Unable to determine branch name." >&2
+            exit 1
+          fi
+
+          if [[ ! "${RELEASE_BRANCH,,}" =~ ^release[-/] ]]; then
+            echo "❌ Release branch '$RELEASE_BRANCH' must start with 'release-' or 'release/'." >&2
+            exit 1
+          fi
+
+          if grep -R --exclude-dir=.git --exclude-dir=.github "artifactory.ops.ripple.com" .; then
+            echo "❌ Internal Artifactory URL found"
+            exit 1
+          else
+            echo "✅ No Internal Artifactory URL found"
+          fi
+
+      - name: Install toml-cli
+        run: |
+          set -euo pipefail
+          python3 -m pip install --user --upgrade toml-cli
+          echo "${HOME}/.local/bin" >> "${GITHUB_PATH}"
+
+      - name: Extract project version
+        id: project_version
+        run: |
+          set -euo pipefail
+
+          if ! VERSION="$(toml get --raw pyproject.toml project.version 2>/tmp/toml_err)"; then
+            cat /tmp/toml_err >&2 || true
+            echo "Unable to retrieve version from pyproject.toml using toml-cli" >&2
+            exit 1
+          fi
+          if [[ -z "${VERSION}" ]]; then
+            echo "Version value is empty in pyproject.toml" >&2
+            exit 1
+          fi
+          rm -f /tmp/toml_err
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "Detected project version: ${VERSION}"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
