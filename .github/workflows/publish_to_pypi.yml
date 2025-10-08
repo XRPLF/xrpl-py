@@ -4,15 +4,11 @@ on:
   push:
 
 jobs:
-  build:
-    name: Build distribution 📦
+  input-validate:
+    name: Validate release inputs
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-      attestations: write
-    env:
-      POETRY_VERSION: 2.1.1
+    outputs:
+      package_version: ${{ steps.package_version.outputs.version }}
 
     steps:
       - name: Checkout code
@@ -52,8 +48,8 @@ jobs:
           /tmp/tomlcli/bin/pip install toml-cli
           echo "/tmp/tomlcli/bin" >> "${GITHUB_PATH}"
 
-      - name: Extract project version
-        id: project_version
+      - name: Extract package version
+        id: package_version
         run: |
           set -euo pipefail
 
@@ -69,8 +65,44 @@ jobs:
             exit 1
           fi
           echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
-          echo "Detected project version: ${VERSION}"
+          echo "Detected package version: ${VERSION}"
 
+  faucet-tests:
+    name: Run faucet tests matrix
+    needs:
+      - input-validate
+    uses: ./.github/workflows/faucet_test.yml
+    secrets: inherit
+
+  integration-tests:
+    name: Run integration tests matrix
+    needs:
+      - input-validate
+    uses: ./.github/workflows/integration_test.yml
+    secrets: inherit
+
+  build:
+    name: Build distribution 📦
+    needs:
+      - input-validate
+      - faucet-tests
+      - integration-tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    env:
+      POETRY_VERSION: 2.1.1
+      PACKAGE_VERSION: ${{ needs.input-validate.outputs.package_version }}
+    outputs:
+      package_version: ${{ needs.input-validate.outputs.package_version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -119,6 +151,8 @@ jobs:
     environment:
       name: official-release
       url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    env:
+      PACKAGE_VERSION: ${{ needs.build.outputs.package_version }}
     permissions:
       # More information about Trusted Publishing and OpenID Connect: https://blog.pypi.org/posts/2023-04-20-introducing-trusted-publishers/
       id-token: write # IMPORTANT: mandatory for trusted publishing
@@ -143,6 +177,7 @@ jobs:
       Sign the Python 🐍 distribution 📦 with Sigstore
       and upload them to GitHub Release
     needs:
+      - build
       - publish-to-pypi
     runs-on: ubuntu-latest
     timeout-minutes: 15 # Adjust based on typical signing and release time
@@ -150,6 +185,8 @@ jobs:
     permissions:
       contents: write # IMPORTANT: mandatory for making GitHub Releases
       id-token: write # IMPORTANT: mandatory for sigstore
+    env:
+      PACKAGE_VERSION: ${{ needs.build.outputs.package_version }}
 
     steps:
       - name: Download all the dists
