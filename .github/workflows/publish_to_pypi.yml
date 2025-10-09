@@ -1,7 +1,8 @@
 name: Publish xrpl-py 🐍 distribution 📦 to PyPI
 on:
-  workflow_dispatch:
   push:
+    tags:
+      - "*"
 
 
 jobs:
