@@ -170,7 +170,7 @@ jobs:
           set -euo pipefail
           curl -X POST \
             -H "X-Api-Key: ${{ secrets.OWASP_TOKEN }}" \
-            -F "project=7c40c8ea-ea0f-4a5f-9b9f-368e53232397" \
+            -F "project=576d4400-bc73-4dcb-93bc-313cf2652595" \
             -F "bom=@sbom.json" \
             https://owasp-dt-api.prod.ripplex.io/api/v1/bom
       - name: Upload SBOM artifact
