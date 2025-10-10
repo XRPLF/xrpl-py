@@ -151,9 +151,11 @@ jobs:
       - name: Generate CycloneDX SBOM
         run: |
           set -euo pipefail
-          cyclonedx-py -h
-          cyclonedx-py poetry -o sbom.json
-          cat sbom.json
+          cyclonedx-py poetry > sbom.json
+          if [[ ! -s sbom.json ]]; then
+            echo "Generated SBOM is empty" >&2
+            exit 1
+          fi
       - name: Scan SBOM for vulnerabilities using Trivy
         uses: aquasecurity/trivy-action@0.28.0
         with:
