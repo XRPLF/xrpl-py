@@ -179,7 +179,12 @@ jobs:
           name: sbom
           path: sbom.json
       - name: Print scan report
-        run: cat vuln-report.txt
+        run: |
+          set -euo pipefail
+          cat vuln-report.txt
+          if ! grep -qE "CRITICAL|HIGH" vuln-report.txt; then
+            echo "✅ No CRITICAL or HIGH vulnerabilities detected for xrpl-py." 
+          fi
       - name: Upload vulnerability report artifact
         id: upload_vuln
         uses: actions/upload-artifact@v4
