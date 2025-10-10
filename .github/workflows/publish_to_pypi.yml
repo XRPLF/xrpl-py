@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   push:
 
+
 jobs:
   input-validate:
     name: Validate release inputs
@@ -284,7 +285,7 @@ jobs:
           name: python-package-provenance
           path: provenance/
       - name: Sign the dists with Sigstore
-        uses: sigstore/gh-action-sigstore-python@v2.1.1
+        uses: sigstore/gh-action-sigstore-python@v3.0.1
         with:
           inputs: >-
             ./dist/*.tar.gz
