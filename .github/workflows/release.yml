@@ -191,10 +191,12 @@ jobs:
           name: sbom
           path: sbom.json
       - name: Show scan report
+        id: show_scan_report
         run: |
           set -euo pipefail
           if ! grep -qE "CRITICAL|HIGH" vuln-report.txt; then
             printf '\n%s\n' "✅ No CRITICAL or HIGH vulnerabilities detected for xrpl-py." >> vuln-report.txt
+            echo "found_vulnerability=true" >> "$GITHUB_OUTPUT"
           fi
           cat vuln-report.txt
       - name: Upload vulnerability report artifact
@@ -208,20 +210,8 @@ jobs:
         run: |
           set -euo pipefail
           echo "art_url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ steps.upload_vuln.outputs.artifact-id }}" >> "$GITHUB_OUTPUT"
-      - name: Check vulnerabilities in report
-        id: check_vulns
-        shell: bash
-        env:
-          REPORT_PATH: vuln-report.txt
-        run: |
-          set -euo pipefail
-          if grep -qE "CRITICAL|HIGH" "$REPORT_PATH"; then
-            echo "found=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "found=false" >> "$GITHUB_OUTPUT"
-          fi
       - name: Create GitHub Issue for vulnerabilities
-        if: steps.check_vulns.outputs.found == 'true'
+        if: steps.show_scan_report.outputs.found_vulnerability == 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
