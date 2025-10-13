@@ -52,6 +52,9 @@ jobs:
 
       - name: Extract package version
         id: package_version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
 
@@ -64,6 +67,13 @@ jobs:
           rm -f /tmp/toml_err
           if [[ -z "${VERSION}" ]]; then
             echo "Version value is empty in pyproject.toml" >&2
+            exit 1
+          fi
+          # Ensure no existing remote git tag matches this version (protect against re-releases)
+          if gh api -X GET "repos/$REPO/git/ref/tags/${VERSION}" >/dev/null 2>&1 || \
+             gh api -X GET "repos/$REPO/git/ref/tags/v${VERSION}" >/dev/null 2>&1; then
+            echo "❌ A remote git tag matching the version already exists: '${VERSION}' or 'v${VERSION}'." >&2
+            echo "Please bump the version in pyproject.toml or remove the existing git tag before releasing." >&2
             exit 1
           fi
           echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
@@ -433,9 +443,7 @@ jobs:
           attestations: true
 
   github-release:
-    name: >-
-      Sign the Python 🐍 distribution 📦 with Sigstore
-      and upload them to GitHub Release
+    name: Github Release
     needs:
       - pre-release
       - ask_for_dev_team_review
@@ -489,3 +497,40 @@ jobs:
           dist/**
           provenance/**
           --repo '${{ github.repository }}'
+          
+      - name: Notify Slack success (single-line)
+        if: success()
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          REPO:        ${{ github.repository }}
+          PACKAGE_NAME: ${{ env.PACKAGE_NAME }}
+          PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
+          TAG:         ${{ steps.create_tag.outputs.tag_name }}
+        run: |
+          set -euo pipefail
+
+          # Build release URL from tag (URL-encoded to handle '@' etc.)
+          enc_tag="$(printf '%s' "$TAG" | jq -sRr @uri)"
+          RELEASE_URL="https://github.com/$REPO/releases/tag/$enc_tag"
+
+          text="${PACKAGE_NAME} ${PACKAGE_VERSION} has been succesfully released and published to npm.js. Release URL: ${RELEASE_URL}"
+          text="${text//\\n/ }"
+
+          curl -sS -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer $SLACK_TOKEN" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -d "$(jq -n --arg channel "#xrpl-js" --arg text "$text" '{channel:$channel, text:$text}')"
+
+      - name: Notify Slack if tests fail
+        if: failure()
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+        run: |
+          MESSAGE="❌ Release failed for ${{ env.PACKAGE_NAME }}@${{ env.PACKAGE_VERSION }}. Check the logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          curl -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer $SLACK_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+                  --arg channel "#xrpl-js" \
+                  --arg text "$MESSAGE" \
+                  '{channel: $channel, text: $text}')"
