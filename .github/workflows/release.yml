@@ -427,6 +427,12 @@ jobs:
       # More information about Trusted Publishing and OpenID Connect: https://blog.pypi.org/posts/2023-04-20-introducing-trusted-publishers/
       id-token: write # IMPORTANT: mandatory for trusted publishing
     steps:
+      - name: Prevent second attempt
+        run: |
+          if (( ${GITHUB_RUN_ATTEMPT:-1} > 1 )); then
+            echo "❌ Workflow rerun (attempt ${GITHUB_RUN_ATTEMPT}). Second attempts are not allowed."
+            exit 1
+          fi
       - name: Download all the dists
         uses: actions/download-artifact@v4
         with:

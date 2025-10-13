@@ -1,6 +1,6 @@
 [project]
 name = "xrpl-py-cheng"
-version = "4.4.1"
+version = "4.4.0"
 description = "A complete Python library for interacting with the XRP ledger"
 license = "ISC"
 readme = "README.md"
@@ -24,7 +24,7 @@ maintainers = [
   { name = "Omar Khan", email = "okhan@ripple.com" },
   { name = "Phu Pham", email = "ppham@ripple.com" },
 ]
-keywords = ["xrp", "xrpl", "cryptocurrency"]
+keywords = ["xrp", "xrpl", "cryptocurrency-test"]
 requires-python = ">=3.8.1"
 dynamic = [ "dependencies" ]
 
