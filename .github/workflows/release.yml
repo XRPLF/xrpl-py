@@ -196,6 +196,8 @@ jobs:
           set -euo pipefail
           if ! grep -qE "CRITICAL|HIGH" vuln-report.txt; then
             printf '\n%s\n' "✅ No CRITICAL or HIGH vulnerabilities detected for xrpl-py." >> vuln-report.txt
+            echo "found_vulnerability=false" >> "$GITHUB_OUTPUT"
+          else
             echo "found_vulnerability=true" >> "$GITHUB_OUTPUT"
           fi
           cat vuln-report.txt
