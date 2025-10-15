@@ -459,7 +459,7 @@ jobs:
       PACKAGE_VERSION: ${{ needs.input-validate.outputs.package_version }}
       SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
       EXECUTOR: ${{ github.triggering_actor || github.actor }}
-      RELEASE_BRANCH: ${{ env.RELEASE_BRANCH }}
+      RELEASE_BRANCH: "${{ github.ref_name }}"
       RUN_URL:         https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       SEC_REVIEWERS:   ${{ needs.ask_for_dev_team_review.outputs.reviewers_sec }}
     steps:
