@@ -486,7 +486,7 @@ jobs:
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: >-
+        run: |
           set -euo pipefail
           PRERELEASE="false"
           LATEST="true"
@@ -500,7 +500,7 @@ jobs:
             --generate-notes \
             --prerelease "$PRERELEASE" \
             --latest "$LATEST" ||
-          (echo "::error::Failed to create release" && exit 1)
+            (echo "::error::Failed to create release" && exit 1)
       - name: Upload artifact signatures to GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
