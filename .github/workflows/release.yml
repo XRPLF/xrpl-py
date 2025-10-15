@@ -451,6 +451,7 @@ jobs:
   github-release:
     name: Github Release (${{ needs.pre-release.outputs.package_version }})
     needs:
+      - input-validate
       - pre-release
       - ask_for_dev_team_review
       - first_review
@@ -490,7 +491,7 @@ jobs:
           set -euo pipefail
           PRERELEASE="false"
           LATEST="true"
-          if [ "${IS_BETA_RELEASE}" = "true" ]; then
+          if [ "${IS_BETA_RELEASE:-false}" = "true" ]; then
             PRERELEASE="true"
             LATEST="false"
           fi
