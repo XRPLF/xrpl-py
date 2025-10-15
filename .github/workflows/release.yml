@@ -192,7 +192,8 @@ jobs:
           set -euo pipefail
           curl -X POST \
             -H "X-Api-Key: ${{ secrets.OWASP_TOKEN }}" \
-            -F "project=576d4400-bc73-4dcb-93bc-313cf2652595" \
+            -F "autoCreate=true" \
+            -F "projectName=xrpl-py" \
             -F "projectVersion=${{ env.PACKAGE_VERSION }}" \
             -F "bom=@sbom.json" \
             https://owasp-dt-api.prod.ripplex.io/api/v1/bom
@@ -595,13 +596,14 @@ jobs:
           REPO:        ${{ github.repository }}
           PACKAGE_NAME: ${{ env.PACKAGE_NAME }}
           PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
-          TAG:         ${{ steps.create_tag.outputs.tag_name }}
+          TAG:         ${{ env.PACKAGE_VERSION }}
         run: |
           set -euo pipefail
 
           # Build release URL from tag (URL-encoded to handle '@' etc.)
+          TAG="${TAG:-${PACKAGE_VERSION}}"
           enc_tag="$(printf '%s' "$TAG" | jq -sRr @uri)"
-          RELEASE_URL="https://github.com/$REPO/releases/tag/$TAG"
+          RELEASE_URL="https://github.com/$REPO/releases/tag/$enc_tag"
 
           text="${PACKAGE_NAME} ${PACKAGE_VERSION} has been succesfully released and published to pypi. Release URL: ${RELEASE_URL}"
           text="${text//\\n/ }"
