@@ -91,14 +91,14 @@ jobs:
           fi
 
   faucet-tests:
-    name: Run faucet tests matrix
+    name: Run faucet tests matrix (${{ needs.input-validate.outputs.package_version }})
     needs:
       - input-validate
     uses: ./.github/workflows/faucet_test.yml
     secrets: inherit
 
   integration-tests:
-    name: Run integration tests matrix
+    name: Run integration tests matrix (${{ needs.input-validate.outputs.package_version }})
     needs:
       - input-validate
     uses: ./.github/workflows/integration_test.yml
@@ -410,7 +410,7 @@ jobs:
 
   publish-to-pypi:
     name: >-
-      Publish Python 🐍 distribution 📦 to PyPI
+      Publish Python 🐍 distribution 📦 to PyPI (${{ needs.pre-release.outputs.package_version }})
     needs:
       - pre-release
       - ask_for_dev_team_review
@@ -449,7 +449,7 @@ jobs:
           attestations: true
 
   github-release:
-    name: Github Release
+    name: Github Release (${{ needs.pre-release.outputs.package_version }})
     needs:
       - pre-release
       - ask_for_dev_team_review
@@ -464,6 +464,7 @@ jobs:
       id-token: write # IMPORTANT: mandatory for sigstore
     env:
       PACKAGE_VERSION: ${{ needs.pre-release.outputs.package_version }}
+      IS_BETA_RELEASE: ${{ needs.input-validate.outputs.is_beta_release }}
 
     steps:
       - name: Download all the dists
@@ -486,10 +487,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: >-
-          gh release create
-          '${{ env.PACKAGE_VERSION }}'
-          --repo '${{ github.repository }}'
-          --generate-notes ||
+          set -euo pipefail
+          PRERELEASE="false"
+          LATEST="true"
+          if [ "${IS_BETA_RELEASE}" = "true" ]; then
+            PRERELEASE="true"
+            LATEST="false"
+          fi
+          gh release create \
+            "${{ env.PACKAGE_VERSION }}" \
+            --repo "${{ github.repository }}" \
+            --generate-notes \
+            --prerelease "$PRERELEASE" \
+            --latest "$LATEST" ||
           (echo "::error::Failed to create release" && exit 1)
       - name: Upload artifact signatures to GitHub Release
         env:
