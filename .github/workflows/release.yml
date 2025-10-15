@@ -489,18 +489,17 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          PRERELEASE="false"
-          LATEST="true"
+          ARGS=(
+            "$PACKAGE_VERSION"
+            --repo "$GITHUB_REPOSITORY"
+            --generate-notes
+          )
           if [ "${IS_BETA_RELEASE:-false}" = "true" ]; then
-            PRERELEASE="true"
-            LATEST="false"
+            ARGS+=(--prerelease --latest false)
+          else
+            ARGS+=(--latest true)
           fi
-          gh release create \
-            "${{ env.PACKAGE_VERSION }}" \
-            --repo "${{ github.repository }}" \
-            --generate-notes \
-            --prerelease "$PRERELEASE" \
-            --latest "$LATEST" || {
+          gh release create "${ARGS[@]}" || {
               echo "::error::Failed to create release"
               exit 1
             }
