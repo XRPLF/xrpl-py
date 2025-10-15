@@ -499,8 +499,10 @@ jobs:
             --repo "${{ github.repository }}" \
             --generate-notes \
             --prerelease "$PRERELEASE" \
-            --latest "$LATEST" ||
-            (echo "::error::Failed to create release" && exit 1)
+            --latest "$LATEST" || {
+              echo "::error::Failed to create release"
+              exit 1
+            }
       - name: Upload artifact signatures to GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
