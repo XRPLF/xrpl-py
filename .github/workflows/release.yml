@@ -260,6 +260,9 @@ jobs:
       - pre-release
     permissions:
       pull-requests: write
+    outputs:
+      reviewers_dev: ${{ steps.get_reviewers.outputs.reviewers_dev }}
+      reviewers_sec: ${{ steps.get_reviewers.outputs.reviewers_sec }}
     env:
       PACKAGE_VERSION: ${{ needs.input-validate.outputs.package_version }}
       IS_BETA_RELEASE: ${{ needs.input-validate.outputs.is_beta_release }}
@@ -315,6 +318,60 @@ jobs:
           echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
+      - name: Get reviewers
+        id: get_reviewers
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ENV_DEV_NAME: first-review
+          ENV_SEC_NAME: official-release
+          PACKAGE_NAME: ${{ env.PACKAGE_NAME }}
+          PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
+          NPMJS_DIST_TAG: ${{ github.event.inputs.npmjs_dist_tag }}
+          PR_URL: ${{ steps.ensure_pr.outputs.pr_url }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+        run: |
+          set -euo pipefail
+
+          fetch_reviewers() {
+            local env_name="$1"
+            local env_json reviewers
+            env_json="$(curl -sSf \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$REPO/environments/$env_name")" || true
+
+            reviewers="$(printf '%s' "$env_json" | jq -r '
+              (.protection_rules // [])
+              | map(select(.type=="required_reviewers") | .reviewers // [])
+              | add // []
+              | map(
+                  if .type=="User" then (.reviewer.login)
+                  elif .type=="Team" then (.reviewer.slug)
+                  else (.reviewer.login // .reviewer.slug // "unknown")
+                  end
+                )
+              | unique
+              | join(", ")
+            ')"
+            if [ -z "$reviewers" ] || [ "$reviewers" = "null" ]; then
+              reviewers="(no required reviewers configured)"
+            fi
+            printf '%s' "$reviewers"
+          }
+
+          # Get reviewer lists
+          REVIEWERS_DEV="$(fetch_reviewers "$ENV_DEV_NAME")"
+          REVIEWERS_SEC="$(fetch_reviewers "$ENV_SEC_NAME")"
+
+          # Output messages
+          echo "reviewers_dev=$REVIEWERS_DEV" >> "$GITHUB_OUTPUT"
+          echo "reviewers_sec=$REVIEWERS_SEC" >> "$GITHUB_OUTPUT"
+
       - name: Release summary for review
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -343,24 +400,34 @@ jobs:
             echo "⚠️ Vulnerability report artifact not found"
           fi
 
-      - name: Notify dev reviewers on Slack
+      - name: Send Dev review message to Slack
+        if: always()
+        shell: bash
         env:
-          REPO: ${{ github.repository }}
-          PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
+          SLACK_TOKEN:    ${{ secrets.SLACK_TOKEN }}
+          CHANNEL:        "#test-alert"
+          EXECUTOR:       ${{ github.triggering_actor || github.actor }}
           RELEASE_BRANCH: ${{ env.RELEASE_BRANCH }}
-          PR_URL: ${{ steps.ensure_pr.outputs.pr_url }}
-          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
+          RUN_URL:        https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          DEV_REVIEWERS:  ${{ steps.get_reviewers.outputs.reviewers_dev }}
+          PR_URL:         ${{ steps.ensure_pr.outputs.pr_url }}
         run: |
           set -euo pipefail
-          MSG="${{ github.actor }} prepared xrpl-py ${PACKAGE_VERSION} from ${RELEASE_BRANCH}. Please review the release artifacts (${RUN_URL})"
-          if [[ "${IS_BETA_RELEASE}" != "true" && -n "${PR_URL:-}" ]]; then
-            MSG="$MSG and review the release PR (${PR_URL})"
+
+          MSG="${EXECUTOR} is releasing xrpl-py ${PACKAGE_VERSION} from ${RELEASE_BRANCH}. A member from the dev team (${DEV_REVIEWERS}) needs to take the following actions: \n1) Review the release artifacts and approve/reject the release. (${RUN_URL})"
+
+          if [ -n "${PR_URL:-}" ]; then
+            MSG="${MSG} \n2) Review the package update PR and provide two approvals. DO NOT MERGE — ${EXECUTOR} will verify the package on npm and merge the approved PR. (${PR_URL})"
           fi
+          MSG=$(printf '%b' "$MSG")
+          # Post once
           curl -sS -X POST https://slack.com/api/chat.postMessage \
             -H "Authorization: Bearer $SLACK_TOKEN" \
             -H "Content-Type: application/json; charset=utf-8" \
-            -d "$(jq -n --arg channel "#test-alert" --arg text "$MSG" '{channel:$channel, text:$text}')" \
+            -d "$(jq -n --arg channel "$CHANNEL" --arg text "$MSG" '{channel:$channel, text:$text}')" \
             | jq -er '.ok' >/dev/null
+
 
   first_review:
     name: First approval (dev team)
@@ -531,7 +598,7 @@ jobs:
           enc_tag="$(printf '%s' "$TAG" | jq -sRr @uri)"
           RELEASE_URL="https://github.com/$REPO/releases/tag/$enc_tag"
 
-          text="${PACKAGE_NAME} ${PACKAGE_VERSION} has been succesfully released and published to npm.js. Release URL: ${RELEASE_URL}"
+          text="${PACKAGE_NAME} ${PACKAGE_VERSION} has been succesfully released and published to pypi. Release URL: ${RELEASE_URL}"
           text="${text//\\n/ }"
 
           curl -sS -X POST https://slack.com/api/chat.postMessage \

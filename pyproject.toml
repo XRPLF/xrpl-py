@@ -1,6 +1,6 @@
 [project]
 name = "xrpl-py-cheng"
-version = "4.4.0b31"
+version = "4.4.5"
 description = "A complete Python library for interacting with the XRP ledger"
 license = "ISC"
 readme = "README.md"
