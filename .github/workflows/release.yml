@@ -495,9 +495,9 @@ jobs:
             --generate-notes
           )
           if [ "${IS_BETA_RELEASE:-false}" = "true" ]; then
-            ARGS+=(--prerelease --latest false)
+            ARGS+=(--prerelease)
           else
-            ARGS+=(--latest true)
+            ARGS+=(--latest)
           fi
           gh release create "${ARGS[@]}" || {
               echo "::error::Failed to create release"
