@@ -105,7 +105,7 @@ jobs:
     secrets: inherit
 
   pre-release:
-    name: Pre-release distribution 📦
+    name: Pre-release distribution 📦 (${{ needs.input-validate.outputs.package_version }})
     needs:
       - input-validate
       - faucet-tests
