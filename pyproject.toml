@@ -24,7 +24,7 @@ maintainers = [
   { name = "Omar Khan", email = "okhan@ripple.com" },
   { name = "Phu Pham", email = "ppham@ripple.com" },
 ]
-keywords = ["xrp", "xrpl", "cryptocurrency-test"]
+keywords = ["xrp", "xrpl", "cryptocurrency"]
 requires-python = ">=3.8.1"
 dynamic = [ "dependencies" ]
 
