@@ -2,8 +2,7 @@
 
 This guide document describe how to cut and ship a new `xrpl-py` version using the
 `Publish xrpl-py 🐍 distribution 📦 to PyPI` GitHub Actions workflow (see
-`.github/workflows/release.yml`). It mirrors the automation and reviews that run
-when the workflow is manually dispatched.
+`.github/workflows/release.yml`). 
 
 ## 0. Configurations required for this pipeline
 
