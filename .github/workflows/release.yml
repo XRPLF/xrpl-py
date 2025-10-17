@@ -615,7 +615,7 @@ jobs:
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
         run: |
-          MESSAGE="❌ Release failed for ${{ env.PACKAGE_NAME }}@${{ env.PACKAGE_VERSION }}. Check the logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          MESSAGE="❌ Release failed for xrpl-py ${{ env.PACKAGE_VERSION }}. Check the logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           curl -X POST https://slack.com/api/chat.postMessage \
             -H "Authorization: Bearer $SLACK_TOKEN" \
             -H "Content-Type: application/json" \
