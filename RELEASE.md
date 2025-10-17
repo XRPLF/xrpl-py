@@ -1,13 +1,13 @@
 # xrpl-py Release Playbook
 
-This guide document describe how to cut and ship a new `xrpl-py` version using the
+This guide document describes how to cut and ship a new `xrpl-py` version using the
 `Publish xrpl-py 🐍 distribution 📦 to PyPI` GitHub Actions workflow (see
 `.github/workflows/release.yml`). 
 
 ## 0. Configurations required for this pipeline
 
 - Protected environments `first-review` and `official-release`.
-- Access to the shared Slack workspace (notifications go to `#xrpl-py`).
+- Access to the shared Slack workspace (notifications go to `#xrpl-py` and `#ripplex-security`).
 - Reviewers from dev team and infosec team to approve GitHub environment gates and review pull requests.
 - PyPI Trusted Publisher to trust the workflow and the protected environment.
 
@@ -30,7 +30,7 @@ and standard releases by reading version under [project] section from pyproject.
 
 ## 1. Prepare the Release Branch
 
-1. Create release branch using name pattern `release-x.y.z` (or `release/x.y.z`).
+1. Create release branch using name with prefix `release-` (or `release/`).
 2. Bump `project.version` inside `pyproject.toml` and update `CHANGELOG.md`
    (or other release notes).
 
