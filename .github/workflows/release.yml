@@ -591,7 +591,6 @@ jobs:
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           REPO:        ${{ github.repository }}
-          PACKAGE_NAME: ${{ env.PACKAGE_NAME }}
           PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
           TAG:         ${{ env.PACKAGE_VERSION }}
         run: |
@@ -602,7 +601,7 @@ jobs:
           enc_tag="$(printf '%s' "$TAG" | jq -sRr @uri)"
           RELEASE_URL="https://github.com/$REPO/releases/tag/$TAG"
 
-          text="${PACKAGE_NAME} ${PACKAGE_VERSION} has been succesfully released and published to pypi. Release URL: ${RELEASE_URL}"
+          text="xrpl-py ${PACKAGE_VERSION} has been succesfully released and published to pypi. Release URL: ${RELEASE_URL}"
           text="${text//\\n/ }"
 
           curl -sS -X POST https://slack.com/api/chat.postMessage \
