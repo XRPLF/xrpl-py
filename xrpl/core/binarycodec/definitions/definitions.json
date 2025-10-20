@@ -2141,16 +2141,6 @@
       }
     ],
     [
-      "DummyInt32",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 1,
-        "type": "Int32"
-      }
-    ],
-    [
       "TransactionMetaData",
       {
         "isSerialized": true,
@@ -3296,6 +3286,7 @@
     "terLAST": -91,
     "terNO_ACCOUNT": -96,
     "terNO_AMM": -87,
+    "tedADDRESS_COLLISION": -86,
     "terNO_AUTH": -95,
     "terNO_LINE": -94,
     "terNO_RIPPLE": -90,
@@ -3368,6 +3359,7 @@
     "VaultSet": 66,
     "VaultWithdraw": 69,
     "XChainAccountCreateCommit": 44,
+    "XChainAddAccountCreateAttestation": 46,
     "XChainAddClaimAttestation": 45,
     "XChainClaim": 43,
     "XChainCommit": 42,
@@ -3385,8 +3377,6 @@
     "Hash160": 17,
     "Hash192": 21,
     "Hash256": 5,
-    "Int32": 10,
-    "Int64": 11,
     "Issue": 24,
     "LedgerEntry": 10002,
     "Metadata": 10004,
