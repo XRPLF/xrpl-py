@@ -3,7 +3,11 @@ import warnings
 from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.transactions import MPTokenIssuanceCreate, MPTokenIssuanceCreateFlag
+from xrpl.models.transactions import (
+    MPTokenIssuanceCreate,
+    MPTokenIssuanceCreateFlag,
+    MPTokenIssuanceCreateMutableFlag,
+)
 from xrpl.utils import str_to_hex
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
@@ -123,3 +127,33 @@ class TestMPTokenIssuanceCreate(TestCase):
                 for msg in warning_messages
             )
             self.assertTrue(found, "- icon is required and must be string.")
+
+    # DynamicMPT tests
+    def test_tx_with_mutable_flags(self):
+        tx = MPTokenIssuanceCreate(
+            account=_ACCOUNT,
+            flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
+            transfer_fee=100,
+            mutable_flags=MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_METADATA
+            | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_TRANSFER_FEE,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_tx_mutable_flags_zero_fails(self):
+        with self.assertRaises(XRPLModelException) as error:
+            MPTokenIssuanceCreate(
+                account=_ACCOUNT,
+                mutable_flags=0,
+            )
+        self.assertIn("mutable_flags cannot be 0", error.exception.args[0])
+
+    def test_tx_mutable_flags_invalid_bits_fails(self):
+        # Test reserved bit (0x00000001)
+        with self.assertRaises(XRPLModelException) as error:
+            MPTokenIssuanceCreate(
+                account=_ACCOUNT,
+                mutable_flags=0x00000001,
+            )
+        self.assertIn(
+            "mutable_flags contains invalid or reserved bits", error.exception.args[0]
+        )
