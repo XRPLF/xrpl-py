@@ -90,6 +90,12 @@ class SetFee(PseudoTransaction):
     :meta hide-value:
     """
 
+    extension_compute_limit: Optional[int] = None
+
+    extension_size_limit: Optional[int] = None
+
+    gas_price: Optional[int] = None
+
     transaction_type: PseudoTransactionType = field(
         default=PseudoTransactionType.SET_FEE,
         init=False,
