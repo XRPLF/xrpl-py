@@ -78,7 +78,6 @@ class Issue(SerializedType):
             mpt_issuance_id_bytes = bytes(Hash192.from_value(value["mpt_issuance_id"]))
 
             # rippled accepts sequence number in big-endian format only.
-            # sequence_in_hex = mpt_issuance_id_bytes[:4].hex().upper()
             sequenceBE = (
                 int.from_bytes(
                     mpt_issuance_id_bytes[:4], byteorder="little", signed=False
