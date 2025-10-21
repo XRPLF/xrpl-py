@@ -210,6 +210,24 @@ class MPTokenIssuanceSet(Transaction):
             if self.mutable_flags == 0:
                 errors["mutable_flags"] = "mutable_flags cannot be 0"
 
+            # Validate only known bits are used
+            valid_mask = (
+                MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK.value
+                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_LOCK.value
+                | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_REQUIRE_AUTH.value
+                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_REQUIRE_AUTH.value
+                | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_ESCROW.value
+                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_ESCROW.value
+                | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_TRADE.value
+                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_TRADE.value
+                | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_TRANSFER.value
+                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_TRANSFER.value
+                | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_CLAWBACK.value
+                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_CLAWBACK.value
+            )
+            if self.mutable_flags & ~valid_mask:
+                errors["mutable_flags"] = "mutable_flags contains invalid bits"
+
             # Check for conflicting set/clear flags
             flag_pairs = [
                 (

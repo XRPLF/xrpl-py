@@ -139,14 +139,6 @@ class TestMPTokenIssuanceCreate(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-    def test_tx_mutable_flags_zero_fails(self):
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceCreate(
-                account=_ACCOUNT,
-                mutable_flags=0,
-            )
-        self.assertIn("mutable_flags cannot be 0", error.exception.args[0])
-
     def test_tx_mutable_flags_invalid_bits_fails(self):
         # Test reserved bit (0x00000001)
         with self.assertRaises(XRPLModelException) as error:
@@ -157,3 +149,11 @@ class TestMPTokenIssuanceCreate(TestCase):
         self.assertIn(
             "mutable_flags contains invalid or reserved bits", error.exception.args[0]
         )
+
+    def test_tx_mutable_flags_zero_fails(self):
+        with self.assertRaises(XRPLModelException) as error:
+            MPTokenIssuanceCreate(
+                account=_ACCOUNT,
+                mutable_flags=0,
+            )
+        self.assertIn("mutable_flags cannot be 0", error.exception.args[0])
