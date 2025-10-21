@@ -681,6 +681,16 @@
       }
     ],
     [
+      "MutableFlags",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 53,
+        "type": "UInt32"
+      }
+    ],
+    [
       "IndexNext",
       {
         "isSerialized": true,
@@ -3342,10 +3352,10 @@
     "TicketCreate": 10,
     "TrustSet": 20,
     "UNLModify": 102,
-    "VaultCreate": 65,
     "VaultClawback": 70,
-    "VaultDeposit": 68,
+    "VaultCreate": 65,
     "VaultDelete": 67,
+    "VaultDeposit": 68,
     "VaultSet": 66,
     "VaultWithdraw": 69,
     "XChainAccountCreateCommit": 44,

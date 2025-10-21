@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Added
+
+- Support for `Dynamic Multi-Purpose Tokens` (XLS-94d)
+
 ### Fixed
 
 - Removed snippets files from the xrpl-py code repository. Updated the README file to point to the correct location on XRPL.org.
