@@ -9,7 +9,7 @@ jobs:
     name: Build distribution 📦
     runs-on: ubuntu-latest
     env:
-      POETRY_VERSION: 2.1.1
+      POETRY_VERSION: 2.2.1
 
     steps:
       - uses: actions/checkout@v4
