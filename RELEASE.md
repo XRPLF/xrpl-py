@@ -14,7 +14,7 @@ This guide document describes how to cut and ship a new `xrpl-py` version using 
 ### Beta vs. Stable Releases
 
 The workflow automatically differentiates between beta/pre-release versions
-and standard releases by reading version under [project] section from pyproject.toml:
+and standard releases by reading version under the [project] section from `pyproject.toml`:
 
 - **Beta release**:  
   - Skips creating the release PR from the release branch back to `main`.  
@@ -63,8 +63,8 @@ The high-level pipeline is:
   Slack ping. Approvers must visit the workflow run and approve the
   `first-review` environment gate. 
 - **Security review**: After the Dev gate is cleared, the workflow pauses at
-  `official-release`. Security reviewers receive a Slack ping and must review the vulnerabilities approve
-  that environment gate.
+  `official-release`. Security reviewers receive a Slack ping and must review the vulnerability reports and
++  approve that environment gate.
 
 ## 4. Verify Publication & Finish Up
 
