@@ -45,7 +45,7 @@ jobs:
           set -euo pipefail
           python3 -m venv /tmp/tomlcli
           /tmp/tomlcli/bin/pip install --upgrade pip
-          /tmp/tomlcli/bin/pip install toml-cli
+          /tmp/tomlcli/bin/pip install 'toml-cli==0.8.2'
           echo "/tmp/tomlcli/bin" >> "${GITHUB_PATH}"
 
       - name: Extract package version
@@ -77,7 +77,7 @@ jobs:
           echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
           echo "Detected package version: ${VERSION}"
 
-      - name: Detect release kind
+      - name: Determine release type
         id: detect_release_kind
         run: |
           set -euo pipefail
@@ -145,16 +145,6 @@ jobs:
         with:
           path: /home/runner/.local
           key: dotlocal-${{ env.POETRY_VERSION }}-${{ hashFiles('poetry.lock') }}
-      # - name: Install poetry
-      #   env:
-      #     PIP_INDEX_URL: https://pypi.org/simple
-      #     PIP_NO_CACHE_DIR: "1"
-      #   run: |
-      #     set -euo pipefail
-      #     python -m pip install --upgrade pip
-      #     python -m pip install "dulwich>=0.22.6,<0.23.0"
-      #     python -m pip install "https://github.com/python-poetry/poetry/releases/download/${POETRY_VERSION}/poetry-${POETRY_VERSION}-py3-none-any.whl"
-      #     poetry --version
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'
         run: |
