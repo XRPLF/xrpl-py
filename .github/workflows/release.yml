@@ -128,6 +128,7 @@ jobs:
       PACKAGE_VERSION: ${{ needs.input-validate.outputs.package_version }}
     outputs:
       package_version: ${{ needs.input-validate.outputs.package_version }}
+      vuln_art_url: ${{ steps.vuln_art.outputs.art_url }}
 
     steps:
       - name: Checkout code
@@ -467,14 +468,16 @@ jobs:
       RELEASE_BRANCH: "${{ github.ref_name }}"
       RUN_URL:         https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       SEC_REVIEWERS:   ${{ needs.ask_for_dev_team_review.outputs.reviewers_sec }}
+      VULN_ART_URL:    ${{ needs.pre-release.outputs.vuln_art_url }}
     steps:
       - name: Notify security reviewers on Slack
         env:
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
+          VULN_ART_URL: ${{ env.VULN_ART_URL }}
         run: |
           set -euo pipefail
-          MSG="${EXECUTOR} is releasing xrpl-py ${PACKAGE_VERSION} from ${RELEASE_BRANCH}. A member from the infosec team (${SEC_REVIEWERS}) needs to take the following action:\n Review the vulnerabilities and approve/reject the release. (${RUN_URL})"
+          MSG="${EXECUTOR} is releasing xrpl-py ${PACKAGE_VERSION} from ${RELEASE_BRANCH}. A member from the infosec team (${SEC_REVIEWERS}) needs to take the following action:\n Review the vulnerabilities ${VULN_ART_URL} and approve/reject the release. (${RUN_URL})"
           MSG=$(printf '%b' "$MSG")
           curl -sS -X POST https://slack.com/api/chat.postMessage \
             -H "Authorization: Bearer $SLACK_TOKEN" \
