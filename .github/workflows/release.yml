@@ -172,6 +172,10 @@ jobs:
         with:
           name: python-package-provenance
           path: ${{ steps.provenance.outputs.bundle-path }}
+      - name: swith to python3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
       - name: Install CycloneDX Python tool
         run: |
           set -euo pipefail
