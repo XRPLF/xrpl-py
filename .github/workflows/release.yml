@@ -102,12 +102,20 @@ jobs:
     uses: ./.github/workflows/integration_test.yml
     secrets: inherit
 
+  unit-tests:
+    name: Run unit tests matrix (${{ needs.input-validate.outputs.package_version }})
+    needs:
+      - input-validate
+    uses: ./.github/workflows/unit_test.yml
+    secrets: inherit
+
   pre-release:
     name: Pre-release distribution 📦 (${{ needs.input-validate.outputs.package_version }})
     needs:
       - input-validate
       - faucet-tests
       - integration-tests
+      - unit-tests
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -116,6 +124,7 @@ jobs:
       issues: write
     env:
       POETRY_VERSION: 2.1.1
+      CYCLONEDX_BOM_VERSION: 3.14.0
       PACKAGE_VERSION: ${{ needs.input-validate.outputs.package_version }}
     outputs:
       package_version: ${{ needs.input-validate.outputs.package_version }}
@@ -136,16 +145,21 @@ jobs:
         with:
           path: /home/runner/.local
           key: dotlocal-${{ env.POETRY_VERSION }}-${{ hashFiles('poetry.lock') }}
+      # - name: Install poetry
+      #   env:
+      #     PIP_INDEX_URL: https://pypi.org/simple
+      #     PIP_NO_CACHE_DIR: "1"
+      #   run: |
+      #     set -euo pipefail
+      #     python -m pip install --upgrade pip
+      #     python -m pip install "dulwich>=0.22.6,<0.23.0"
+      #     python -m pip install "https://github.com/python-poetry/poetry/releases/download/${POETRY_VERSION}/poetry-${POETRY_VERSION}-py3-none-any.whl"
+      #     poetry --version
       - name: Install poetry
-        env:
-          PIP_INDEX_URL: https://pypi.org/simple
-          PIP_NO_CACHE_DIR: "1"
+        if: steps.cache-poetry.outputs.cache-hit != 'true'
         run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install "dulwich>=0.22.6,<0.23.0"
-          python -m pip install "https://github.com/python-poetry/poetry/releases/download/${POETRY_VERSION}/poetry-${POETRY_VERSION}-py3-none-any.whl"
-          poetry --version
+          curl -sSL https://install.python-poetry.org/ | python - --version ${{ env.POETRY_VERSION }}
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Build a binary wheel and a source tarball
         run: poetry build
       - name: Store the distribution packages
@@ -167,7 +181,7 @@ jobs:
       - name: Install CycloneDX Python tool
         run: |
           set -euo pipefail
-          python -m pip install --upgrade cyclonedx-bom
+          python -m pip install --upgrade "cyclonedx-bom==${CYCLONEDX_BOM_VERSION}"
       - name: Generate CycloneDX SBOM
         run: |
           set -euo pipefail
@@ -257,6 +271,7 @@ jobs:
       - input-validate
       - faucet-tests
       - integration-tests
+      - unit-tests
       - pre-release
     permissions:
       pull-requests: write
@@ -434,6 +449,7 @@ jobs:
       - input-validate
       - faucet-tests
       - integration-tests
+      - unit-tests
       - pre-release
       - ask_for_dev_team_review
     environment:
@@ -450,6 +466,7 @@ jobs:
       - input-validate
       - faucet-tests
       - integration-tests
+      - unit-tests
       - pre-release
       - ask_for_dev_team_review
       - first_review
@@ -486,6 +503,7 @@ jobs:
       - ask_for_dev_team_review
       - first_review
       - ask_for_sec_team_review
+      - unit-tests
     runs-on: ubuntu-latest
     timeout-minutes: 10 # Adjust based on typical publishing time
     environment:
@@ -527,6 +545,7 @@ jobs:
       - first_review
       - ask_for_sec_team_review
       - publish-to-pypi
+      - unit-tests
     runs-on: ubuntu-latest
     timeout-minutes: 15 # Adjust based on typical signing and release time
 
