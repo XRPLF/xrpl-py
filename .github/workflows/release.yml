@@ -139,7 +139,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           # Use the lowest supported version of Python for CI/CD
-          python-version: "3.9"
+          python-version: "3.8"
       - name: Load cached .local
         id: cache-poetry
         uses: actions/cache@v4
