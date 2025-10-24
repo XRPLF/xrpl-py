@@ -124,7 +124,7 @@ jobs:
       issues: write
     env:
       POETRY_VERSION: 2.1.1
-      CYCLONEDX_BOM_VERSION: 3.14.0
+      CYCLONEDX_BOM_VERSION: 7.2.0
       PACKAGE_VERSION: ${{ needs.input-validate.outputs.package_version }}
     outputs:
       package_version: ${{ needs.input-validate.outputs.package_version }}
