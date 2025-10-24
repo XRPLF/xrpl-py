@@ -573,37 +573,18 @@ jobs:
           inputs: >-
             ./dist/*.tar.gz
             ./dist/*.whl
-      - name: Create GitHub Release
+      - name: Create GitHub Release and upload assets
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          ARGS=(
-            "$PACKAGE_VERSION"
-            --repo "$GITHUB_REPOSITORY"
-            --generate-notes
-          )
-          if [ "${IS_BETA_RELEASE:-false}" = "true" ]; then
-            ARGS+=(--prerelease)
-          else
-            ARGS+=(--latest)
-          fi
-          gh release create "${ARGS[@]}" || {
-              echo "::error::Failed to create release"
-              exit 1
-            }
-      - name: Upload artifact signatures to GitHub Release
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          # Upload to GitHub Release using the `gh` CLI.
-          # `dist/` contains the built packages, and the
-          # sigstore-produced signatures and certificates.
-        run: >-
-          gh release upload
-          '${{ env.PACKAGE_VERSION }}'
-          dist/**
-          provenance/**
-          --repo '${{ github.repository }}'
+        with:
+          tag_name: ${{ env.PACKAGE_VERSION }}
+          generate_release_notes: true
+          prerelease: ${{ env.IS_BETA_RELEASE == 'true' }}
+          make_latest: ${{ env.IS_BETA_RELEASE != 'true' }}
+          files: |
+            dist/**
+            provenance/**
           
       - name: Notify Slack success (single-line)
         if: success()
