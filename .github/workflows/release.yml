@@ -477,7 +477,7 @@ jobs:
           VULN_ART_URL: ${{ env.VULN_ART_URL }}
         run: |
           set -euo pipefail
-          MSG="${EXECUTOR} is releasing xrpl-py ${PACKAGE_VERSION} from ${RELEASE_BRANCH}. A member from the infosec team (${SEC_REVIEWERS}) needs to take the following action:\n Review the vulnerabilities ${VULN_ART_URL} and approve/reject the release. (${RUN_URL})"
+          MSG="${EXECUTOR} is releasing xrpl-py ${PACKAGE_VERSION} from ${RELEASE_BRANCH}. A member from the infosec team (${SEC_REVIEWERS}) needs to take the following action:\nReview the vulnerabilities ${VULN_ART_URL} and approve/reject the release. (${RUN_URL})"
           MSG=$(printf '%b' "$MSG")
           curl -sS -X POST https://slack.com/api/chat.postMessage \
             -H "Authorization: Bearer $SLACK_TOKEN" \
