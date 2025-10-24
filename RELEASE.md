@@ -79,6 +79,8 @@ The high-level pipeline is:
    after you verify PyPI.
 5. Create any follow-up housekeeping PRs (e.g., bumping `dev` version or
    updating docs) if needed.
+6. Send an email to [xrpl-announce](https://groups.google.com/g/xrpl-announce).
+7. Post an announcement in the [XRPL Discord #python channel](https://discord.com/channels/886050993802985492/886053080913821717) with a link to the changes and highlighting key changes.
 
 ## 5. Troubleshooting
 
@@ -90,3 +92,29 @@ The high-level pipeline is:
 This document should cover the normal release cadence for `xrpl-py`. If the
 automation needs adjustments, update both `.github/workflows/release.yml` and
 this guide so they stay in sync.
+
+
+## Manual Release process(Just in case Github action is not available for unforseeable reason)
+
+### Editing the Code
+
+- Your changes should have passed unit and/or integration tests.
+- Your changes should have passed the linter.
+- Your code should pass all the unit and integration tests on Github (which check all versions of Python).
+- Open a PR against `main` and ensure that all CI passes.
+- Get a full code review from one of the maintainers.
+- Merge your changes.
+
+### Release
+
+1. Create a branch off main that properly increments the version in `pyproject.toml` and updates the `CHANGELOG` appropriately. We follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+2. Locally build and install the package.
+   1. Run `poetry build` to build the package locally.
+   2. Locally download the package by running `pip install path/to/local/xrpl-py/dist/.whl`.
+   3. Make sure that this local installation works as intended, and that the changes are reflected properly.
+3. Run `poetry publish --dry-run` and make sure everything looks good.
+4. Reach out to platform team to for a pypi publishing token.
+5. Publish the update by running `poetry publish` with pypi publishing token.
+6. Create a new Github release/tag off of this branch.
+7. Send an email to [xrpl-announce](https://groups.google.com/g/xrpl-announce).
+8. Post an announcement in the [XRPL Discord #python channel](https://discord.com/channels/886050993802985492/886053080913821717) with a link to the changes and highlighting key changes.
