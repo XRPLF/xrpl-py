@@ -599,7 +599,7 @@ jobs:
           # Build release URL from tag (URL-encoded to handle '@' etc.)
           TAG="${TAG:-${PACKAGE_VERSION}}"
           enc_tag="$(printf '%s' "$TAG" | jq -sRr @uri)"
-          RELEASE_URL="https://github.com/$REPO/releases/tag/$TAG"
+          RELEASE_URL="https://github.com/$REPO/releases/tag/v$TAG"
 
           text="xrpl-py ${PACKAGE_VERSION} has been successfully released and published to pypi. Release URL: ${RELEASE_URL}"
           text="${text//\\n/ }"
