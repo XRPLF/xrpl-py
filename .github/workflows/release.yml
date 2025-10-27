@@ -578,7 +578,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          tag_name: ${{ env.PACKAGE_VERSION }}
+          tag_name: v${{ env.PACKAGE_VERSION }}
           generate_release_notes: true
           prerelease: ${{ env.IS_BETA_RELEASE == 'true' }}
           make_latest: ${{ env.IS_BETA_RELEASE != 'true' }}
@@ -601,7 +601,7 @@ jobs:
           enc_tag="$(printf '%s' "$TAG" | jq -sRr @uri)"
           RELEASE_URL="https://github.com/$REPO/releases/tag/$TAG"
 
-          text="xrpl-py ${PACKAGE_VERSION} has been succesfully released and published to pypi. Release URL: ${RELEASE_URL}"
+          text="xrpl-py ${PACKAGE_VERSION} has been successfully released and published to pypi. Release URL: ${RELEASE_URL}"
           text="${text//\\n/ }"
 
           curl -sS -X POST https://slack.com/api/chat.postMessage \
