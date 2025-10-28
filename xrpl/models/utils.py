@@ -142,6 +142,51 @@ def _is_valid_mpt_url_structure(input_data: Any) -> bool:  # noqa: ANN401
     )
 
 
+# def _validateMPTokenMetadata(input_hex: str) -> List[str]:
+#     """
+#     Validates MPTokenMetadata adheres to XLS-89 standard.
+
+#     @param input - Hex encoded MPTokenMetadata.
+#     @returns Validation messages if MPTokenMetadata does not adheres to XLS-89 standard.
+#     @category Utilities
+#     """
+#     messages = []
+
+#     if not is_hex(input_hex):
+#         messages.append("MPTokenMetadata must be in hex format.")
+#         return messages
+
+#     if len(input_hex) // 2 > MAX_MPT_META_BYTE_LENGTH:
+#         messages.append(
+#             f"MPTokenMetadata must be max {MAX_MPT_META_BYTE_LENGTH} bytes."
+#         )
+#         return messages
+
+#     try:
+#         json_metadata = json.loads(hex_to_string(input_hex))
+#     except Exception as e:
+#         messages.append(f"MPTokenMetadata is not properly formatted as JSON - {e}")
+#         return messages
+
+#     if not isinstance(json_metadata, dict):
+#         messages.append(
+#             "MPTokenMetadata is not properly formatted JSON object as per XLS-89."
+#         )
+#         return messages
+
+#     if len(json_metadata.keys()) > len(MPT_META_ALL_FIELDS):
+#         messages.append(
+#             f"MPTokenMetadata must not contain more than {len(MPT_META_ALL_FIELDS)} top-level fields "
+#             f"(found {len(json_metadata.keys())})."
+#         )
+
+#     # NOTE: In TypeScript, complex per-field validation exists.
+#     # This Python version only performs structural validation.
+#     # You can add additional checks similar to the TS version if needed.
+
+#     return messages
+
+
 def validate_mptoken_metadata(input_hex: str) -> List[str]:
     """
     Validates if MPTokenMetadata adheres to XLS-89d standard.

@@ -10,6 +10,10 @@ from xrpl.models.utils import (
     _is_kw_only_attr_defined_in_dataclass,
     validate_mptoken_metadata,
 )
+from xrpl.utils.mptoken_metadata import (
+    _decode_mptoken_metadata,
+    _encode_mptoken_metadata,
+)
 from xrpl.utils.str_conversions import str_to_hex
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
@@ -73,6 +77,22 @@ class TestUtils(TestCase):
 
 class TestMPTokenMetadataValidation(TestCase):
     def test_mptoken_metadata_validation_messages(self):
+        orig_inp = {
+            "name": None,
+            "ticker": "T-Bill Yield Token",
+            "us": [
+                {
+                    "uri": "https://example.com",
+                    "category": "website",
+                    "title": "Homepage",
+                    "footer": "footer",
+                }
+            ],
+        }
+        encoded = _encode_mptoken_metadata(orig_inp)
+        decoded = _decode_mptoken_metadata(encoded)
+        print(orig_inp)
+        print(decoded)
         test_file = os.path.join(
             os.path.dirname(__file__), "mptoken-metadata-fixtures.json"
         )
