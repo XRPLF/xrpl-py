@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  workflow_call:
 
 env:
   POETRY_VERSION: 2.1.1
