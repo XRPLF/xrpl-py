@@ -189,7 +189,7 @@ jobs:
             exit 1
           fi
       - name: Scan SBOM for vulnerabilities using Trivy
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           scan-type: sbom
           scan-ref: sbom.json
@@ -598,7 +598,6 @@ jobs:
 
           # Build release URL from tag (URL-encoded to handle '@' etc.)
           TAG="${TAG:-${PACKAGE_VERSION}}"
-          enc_tag="$(printf '%s' "$TAG" | jq -sRr @uri)"
           RELEASE_URL="https://github.com/$REPO/releases/tag/v$TAG"
 
           text="xrpl-py ${PACKAGE_VERSION} has been successfully released and published to pypi. Release URL: ${RELEASE_URL}"

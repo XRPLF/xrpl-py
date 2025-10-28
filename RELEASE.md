@@ -18,8 +18,8 @@ and standard releases by reading version under the [project] section from `pypro
 
 - **Beta release**:  
   - Skips creating the release PR from the release branch back to `main`.  
-  - The GitHub Release is created with `--prerelease`.  
-  - The `latest` tag on GitHub remains unchanged (beta builds do not become the
+  - The GitHub Release is created with the `--prerelease` flag.  
+  - The `latest` tag on GitHub remains unchanged (beta/prerelease builds do not become the
     default download).
 
 - **Stable release**:  
