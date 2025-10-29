@@ -1,17 +1,36 @@
-"""TODO"""
+"""Utility functions for encoding, decoding and validating MPTokenMetadata."""
 
 import json
 import re
 from typing import Any, Dict, List
 
-from xrpl.models.transactions.mptoken_issuance_create import MPTokenMetadata
-from xrpl.models.utils import (
-    HEX_REGEX,
-    MAX_MPTOKEN_METADATA_LENGTH,
-    MPT_META_ASSET_CLASSES,
-    MPT_META_ASSET_SUB_CLASSES,
-)
+from typing_extensions import Final, Pattern
+
+from xrpl.models.mptoken_metadata import MPTokenMetadata
 from xrpl.utils.str_conversions import hex_to_str, str_to_hex
+
+HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
+
+MAX_MPTOKEN_METADATA_LENGTH = 1024 * 2
+
+MPT_META_ASSET_CLASSES = [
+    "rwa",
+    "memes",
+    "wrapped",
+    "gaming",
+    "defi",
+    "other",
+]
+
+MPT_META_ASSET_SUB_CLASSES = [
+    "stablecoin",
+    "commodity",
+    "real_estate",
+    "private_credit",
+    "equity",
+    "treasury",
+    "other",
+]
 
 MPT_META_WARNING_HEADER = (
     "MPTokenMetadata is not properly formatted as JSON as per the XLS-89d standard. "
@@ -101,7 +120,8 @@ def _validate_asset_subclass(obj: Dict[str, Any]) -> List[str]:
         return []
     if not isinstance(value, str) or value not in MPT_META_ASSET_SUB_CLASSES:
         return [
-            f"asset_subclass/as: should be one of {', '.join(MPT_META_ASSET_SUB_CLASSES)}."
+            "asset_subclass/as: should be one of "
+            f"{', '.join(MPT_META_ASSET_SUB_CLASSES)}."
         ]
     return []
 
@@ -120,7 +140,8 @@ def _validate_uris(obj: Dict[str, Any]) -> List[str]:
             MPT_META_URI_FIELDS
         ):
             messages.append(
-                "uris/us: should be an array of objects each with uri/u, category/c, and title/t properties."
+                "uris/us: should be an array of objects each with uri/u, "
+                "category/c, and title/t properties."
             )
             continue
         uri = uri_obj.get("uri") if "uri" in uri_obj else uri_obj.get("u")
@@ -134,7 +155,8 @@ def _validate_uris(obj: Dict[str, Any]) -> List[str]:
             or not isinstance(title, str)
         ):
             messages.append(
-                "uris/us: should be an array of objects each with uri/u, category/c, and title/t properties."
+                "uris/us: should be an array of objects each with uri/u, "
+                "category/c, and title/t properties."
             )
     return messages
 
@@ -142,7 +164,8 @@ def _validate_uris(obj: Dict[str, Any]) -> List[str]:
 def _validate_additional_info(obj: Dict[str, Any]) -> List[str]:
     if "additional_info" in obj and "ai" in obj:
         return [
-            "additional_info/ai: both long and compact forms present. expected only one."
+            "additional_info/ai: both long and compact forms present. "
+            "expected only one."
         ]
     if "additional_info" not in obj and "ai" not in obj:
         return []
@@ -195,7 +218,7 @@ def _expand_keys(
     return output
 
 
-def _decode_mptoken_metadata(input_hex: str) -> MPTokenMetadata:
+def decode_mptoken_metadata(input_hex: str) -> MPTokenMetadata:
     """
     Decodes hex encoded MPTokenMetadata to a JSON object with long field names.
     Converts compact field names back to their long form equivalents.
@@ -255,7 +278,7 @@ def _shorten_keys(
     return output
 
 
-def _encode_mptoken_metadata(mptoken_metadata: MPTokenMetadata) -> str:
+def encode_mptoken_metadata(mptoken_metadata: MPTokenMetadata) -> str:
     """
     Encodes MPTokenMetadata object to a hex string.
     Shortens long field names to their compact form along the way.
@@ -296,7 +319,6 @@ def validate_mptoken_metadata(input_hex: str) -> List[str]:
     Returns:
         List[str]: A list of validation error messages.
     """
-
     validation_messages: List[str] = []
 
     if bool(HEX_REGEX.fullmatch(input_hex)) is False:
