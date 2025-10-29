@@ -681,6 +681,66 @@
       }
     ],
     [
+      "MutableFlags",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 53,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "ExtensionComputeLimit",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 54,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "ExtensionSizeLimit",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 55,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "GasPrice",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 56,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "ComputationAllowance",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 57,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "GasUsed",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 58,
+        "type": "UInt32"
+      }
+    ],
+    [
       "IndexNext",
       {
         "isSerialized": true,
@@ -1891,6 +1951,16 @@
       }
     ],
     [
+      "FinishFunction",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": true,
+        "nth": 32,
+        "type": "Blob"
+      }
+    ],
+    [
       "Account",
       {
         "isSerialized": true,
@@ -2128,6 +2198,16 @@
         "isVLEncoded": false,
         "nth": 5,
         "type": "Number"
+      }
+    ],
+    [
+      "WasmReturnCode",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 1,
+        "type": "Int32"
       }
     ],
     [
@@ -3159,6 +3239,7 @@
     "tecUNFUNDED_AMM": 162,
     "tecUNFUNDED_OFFER": 103,
     "tecUNFUNDED_PAYMENT": 104,
+    "tecWASM_REJECTED": 199,
     "tecWRONG_ASSET": 194,
     "tecXCHAIN_ACCOUNT_CREATE_PAST": 181,
     "tecXCHAIN_ACCOUNT_CREATE_TOO_MANY": 182,
@@ -3197,8 +3278,10 @@
     "tefNOT_MULTI_SIGNING": -184,
     "tefNO_AUTH_REQUIRED": -191,
     "tefNO_TICKET": -180,
+    "tefNO_WASM": -177,
     "tefPAST_SEQ": -190,
     "tefTOO_BIG": -181,
+    "tefWASM_FIELD_NOT_INCLUDED": -176,
     "tefWRONG_PRIOR": -189,
 
     "telBAD_DOMAIN": -398,
@@ -3246,6 +3329,7 @@
     "temBAD_TICK_SIZE": -269,
     "temBAD_TRANSFER_FEE": -251,
     "temBAD_TRANSFER_RATE": -280,
+    "temBAD_WASM": -249,
     "temBAD_WEIGHT": -270,
     "temCANNOT_PREAUTH_SELF": -267,
     "temDISABLED": -273,
@@ -3276,7 +3360,6 @@
     "terLAST": -91,
     "terNO_ACCOUNT": -96,
     "terNO_AMM": -87,
-    "tedADDRESS_COLLISION": -86,
     "terNO_AUTH": -95,
     "terNO_LINE": -94,
     "terNO_RIPPLE": -90,
@@ -3342,10 +3425,10 @@
     "TicketCreate": 10,
     "TrustSet": 20,
     "UNLModify": 102,
-    "VaultCreate": 65,
     "VaultClawback": 70,
-    "VaultDeposit": 68,
+    "VaultCreate": 65,
     "VaultDelete": 67,
+    "VaultDeposit": 68,
     "VaultSet": 66,
     "VaultWithdraw": 69,
     "XChainAccountCreateCommit": 44,
@@ -3367,6 +3450,8 @@
     "Hash160": 17,
     "Hash192": 21,
     "Hash256": 5,
+    "Int32": 10,
+    "Int64": 11,
     "Issue": 24,
     "LedgerEntry": 10002,
     "Metadata": 10004,
