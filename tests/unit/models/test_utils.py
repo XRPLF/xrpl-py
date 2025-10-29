@@ -7,7 +7,11 @@ from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests import AccountInfo
 from xrpl.models.transactions import Payment, PaymentFlag
 from xrpl.models.utils import _is_kw_only_attr_defined_in_dataclass
-from xrpl.utils.mptoken_metadata import validate_mptoken_metadata
+from xrpl.utils.mptoken_metadata import (
+    decode_mptoken_metadata,
+    encode_mptoken_metadata,
+    validate_mptoken_metadata,
+)
 from xrpl.utils.str_conversions import str_to_hex
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
@@ -71,24 +75,8 @@ class TestUtils(TestCase):
 
 class TestMPTokenMetadataValidation(TestCase):
     def test_mptoken_metadata_validation_messages(self):
-        # orig_inp = {
-        #     "name": None,
-        #     "ticker": "T-Bill Yield Token",
-        #     "us": [
-        #         {
-        #             "uri": "https://example.com",
-        #             "category": "website",
-        #             "title": "Homepage",
-        #             "footer": "footer",
-        #         }
-        #     ],
-        # }
-        # encoded = _encode_mptoken_metadata(orig_inp)
-        # decoded = _decode_mptoken_metadata(encoded)
-        # print(orig_inp)
-        # print(decoded)
         test_file = os.path.join(
-            os.path.dirname(__file__), "mptoken-metadata-fixtures.json"
+            os.path.dirname(__file__), "mptoken-metadata-validation-fixtures.json"
         )
 
         with open(test_file, "r", encoding="utf-8") as f:
@@ -108,3 +96,26 @@ class TestMPTokenMetadataValidation(TestCase):
 
             with self.subTest(test_name=test_name):
                 self.assertEqual(expected_messages, result)
+
+
+class TestMPTokenMetadataEncodingDecoding(TestCase):
+    def test_mptoken_metadata_encoding_decoding(self):
+        test_file = os.path.join(
+            os.path.dirname(__file__), "mptoken-metadata-encode-decode-fixtures.json"
+        )
+
+        with open(test_file, "r", encoding="utf-8") as f:
+            test_cases = json.load(f)
+
+        for test_case in test_cases:
+            test_name = test_case["testName"]
+            mpt_metadata = test_case["mptMetadata"]
+            expected_long_form = test_case["expectedLongForm"]
+            expected_hex = test_case["hex"]
+
+            encoded_metadata = encode_mptoken_metadata(mpt_metadata)
+            decoded_metadata = decode_mptoken_metadata(encoded_metadata)
+
+            with self.subTest(test_name=test_name):
+                self.assertEqual(expected_long_form, decoded_metadata)
+                self.assertEqual(expected_hex, encoded_metadata)

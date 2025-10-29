@@ -11,11 +11,11 @@ from typing_extensions import Final, Self
 
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import HEX_REGEX, require_kwargs_on_init
-from xrpl.utils.mptoken_metadata import (
+from xrpl.models.utils import (
+    HEX_REGEX,
     MAX_MPTOKEN_METADATA_LENGTH,
     MPT_META_WARNING_HEADER,
-    validate_mptoken_metadata,
+    require_kwargs_on_init,
 )
 
 _MAX_TRANSFER_FEE: Final[int] = 50000
@@ -130,6 +130,9 @@ class MPTokenIssuanceCreate(Transaction):
             )
 
         if self.mptoken_metadata is not None:
+            # Lazy import to avoid circular dependency
+            from xrpl.utils.mptoken_metadata import validate_mptoken_metadata
+
             validation_messages = validate_mptoken_metadata(self.mptoken_metadata)
 
             if len(validation_messages) > 0:

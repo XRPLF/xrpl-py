@@ -18,7 +18,6 @@ from xrpl.models.utils import (
     MAX_MPTOKEN_METADATA_LENGTH,
     MPT_META_WARNING_HEADER,
     require_kwargs_on_init,
-    validate_mptoken_metadata,
 )
 
 VAULT_MAX_DATA_LENGTH = 256 * 2
@@ -127,6 +126,9 @@ class VaultCreate(Transaction):
             )
 
         if self.mptoken_metadata is not None:
+            # Lazy import to avoid circular dependency
+            from xrpl.utils.mptoken_metadata import validate_mptoken_metadata
+
             validation_messages = validate_mptoken_metadata(self.mptoken_metadata)
 
             if len(validation_messages) > 0:

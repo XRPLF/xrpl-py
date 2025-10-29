@@ -4,39 +4,9 @@ import json
 import re
 from typing import Any, Dict, List
 
-from typing_extensions import Final, Pattern
-
 from xrpl.models.mptoken_metadata import MPTokenMetadata
+from xrpl.models.utils import HEX_REGEX, MAX_MPTOKEN_METADATA_LENGTH
 from xrpl.utils.str_conversions import hex_to_str, str_to_hex
-
-HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
-
-MAX_MPTOKEN_METADATA_LENGTH = 1024 * 2
-
-MPT_META_ASSET_CLASSES = [
-    "rwa",
-    "memes",
-    "wrapped",
-    "gaming",
-    "defi",
-    "other",
-]
-
-MPT_META_ASSET_SUB_CLASSES = [
-    "stablecoin",
-    "commodity",
-    "real_estate",
-    "private_credit",
-    "equity",
-    "treasury",
-    "other",
-]
-
-MPT_META_WARNING_HEADER = (
-    "MPTokenMetadata is not properly formatted as JSON as per the XLS-89d standard. "
-    "While adherence to this standard is not mandatory, such non-compliant MPToken's "
-    "might not be discoverable by Explorers and Indexers in the XRPL ecosystem."
-)
 
 
 def _validate_ticker(obj: Dict[str, Any]) -> List[str]:
@@ -70,6 +40,15 @@ def _validate_icon(obj: Dict[str, Any]) -> List[str]:
 
 
 def _validate_asset_class(obj: Dict[str, Any]) -> List[str]:
+    MPT_META_ASSET_CLASSES = [
+        "rwa",
+        "memes",
+        "wrapped",
+        "gaming",
+        "defi",
+        "other",
+    ]
+
     if "asset_class" in obj and "ac" in obj:
         return [
             "asset_class/ac: both long and compact forms present. expected only one."
@@ -106,6 +85,16 @@ def _validate_desc(obj: Dict[str, Any]) -> List[str]:
 
 
 def _validate_asset_subclass(obj: Dict[str, Any]) -> List[str]:
+    MPT_META_ASSET_SUB_CLASSES = [
+        "stablecoin",
+        "commodity",
+        "real_estate",
+        "private_credit",
+        "equity",
+        "treasury",
+        "other",
+    ]
+
     if "asset_subclass" in obj and "as" in obj:
         return [
             "asset_subclass/as: both long and compact forms present. expected only one."
@@ -170,7 +159,7 @@ def _validate_additional_info(obj: Dict[str, Any]) -> List[str]:
     if "additional_info" not in obj and "ai" not in obj:
         return []
     value = obj.get("additional_info") if "additional_info" in obj else obj.get("ai")
-    if not isinstance(value, str) or isinstance(value, Dict):
+    if not (isinstance(value, str) or isinstance(value, Dict)):
         return ["additional_info/ai: should be a string or JSON object."]
     return []
 
@@ -306,7 +295,11 @@ def encode_mptoken_metadata(mptoken_metadata: MPTokenMetadata) -> str:
             if isinstance(u, dict)
         ]
 
-    return str_to_hex(json.dumps(input_dict, ensure_ascii=False, sort_keys=True))
+    return str_to_hex(
+        json.dumps(
+            input_dict, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        )
+    ).upper()
 
 
 def validate_mptoken_metadata(input_hex: str) -> List[str]:
@@ -325,10 +318,10 @@ def validate_mptoken_metadata(input_hex: str) -> List[str]:
         validation_messages.append("MPTokenMetadata must be in hex format.")
         return validation_messages
 
-    if len(input_hex) == 0 or len(input_hex) > MAX_MPTOKEN_METADATA_LENGTH:
+    if len(input_hex) > MAX_MPTOKEN_METADATA_LENGTH:
         validation_messages.append(
             (
-                "MPTokenMetadata must be non-empty and max "
+                "MPTokenMetadata must be max "
                 f"{int(MAX_MPTOKEN_METADATA_LENGTH / 2)} bytes."
             )
         )

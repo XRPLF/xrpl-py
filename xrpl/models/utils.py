@@ -12,6 +12,14 @@ HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
 
 MAX_CREDENTIAL_ARRAY_LENGTH = 8
 
+MAX_MPTOKEN_METADATA_LENGTH = 1024 * 2
+
+MPT_META_WARNING_HEADER = (
+    "MPTokenMetadata is not properly formatted as JSON as per the XLS-89d standard. "
+    "While adherence to this standard is not mandatory, such non-compliant MPToken's "
+    "might not be discoverable by Explorers and Indexers in the XRPL ecosystem."
+)
+
 # Credentials are represented in hex. Whilst they are allowed a maximum length of 64
 # bytes, every byte requires 2 hex characters for representation
 _MAX_CREDENTIAL_LENGTH: Final[int] = 128
