@@ -171,7 +171,9 @@ _add_line(
 # Example line:
 # STYPE(STI_UINT32, 2)    \
 type_hits = re.findall(
-    r"^ *STYPE\(STI_([^ ]*?) *, *([0-9-]+) *\) *\\?$", sfield_h, re.MULTILINE
+    r"^ *STYPE\(STI_([^ ]*?)[ \n]*,[ \n]*([0-9-]+)[ \n]*\)[ \n]*\\?$",
+    sfield_h,
+    re.MULTILINE,
 )
 # name-to-value map - needed for SField processing
 type_map = {x[0]: x[1] for x in type_hits}
@@ -204,7 +206,7 @@ def _is_signing_field(t: str, not_signing_field: str) -> str:
 # TYPED_SFIELD(sfFee, AMOUNT, 8)
 # UNTYPED_SFIELD(sfSigners,  ARRAY, 3, SField::sMD_Default, SField::notSigning)
 sfield_hits = re.findall(
-    r"^ *[A-Z]*TYPED_SFIELD *\( *sf([^,\n]*),[ \n]*([^, \n]+)[ \n]*,[ \n]*"
+    r"^ *[A-Z]*TYPED_SFIELD[ \n]*\([ \n]*sf([^,\n]*),[ \n]*([^, \n]+)[ \n]*,[ \n]*"
     r"([0-9]+)(,.*?(notSigning))?",
     sfield_macro_file,
     re.MULTILINE,
@@ -252,7 +254,8 @@ def _unhex(x: str) -> str:
 # Example line:
 # LEDGER_ENTRY(ltNFTOKEN_OFFER, 0x0037, NFTokenOffer, nft_offer, ({
 lt_hits = re.findall(
-    r"^ *LEDGER_ENTRY[A-Z_]*\(lt[A-Z_]+ *, *([xX0-9a-fA-F]+) *, *([^,]+), *([^,]+), "
+    r"^ *LEDGER_ENTRY[A-Z_]*\(lt[A-Z_]+[ \n]*,[ \n]*([xX0-9a-fA-F]+)[ \n]*,[ \n]*"
+    r"([^,]+),[ \n]*([^,]+), "
     r"\({$",
     ledger_entries_file,
     re.MULTILINE,
@@ -277,7 +280,8 @@ ter_h = str(ter_h).replace("[[maybe_unused]]", "")
 
 # Parse TER codes
 ter_code_hits = re.findall(
-    r"^ *((tel|tem|tef|ter|tes|tec)[A-Z_]+)( *= *([0-9-]+))? *,? *(\/\/[^\n]*)?$",
+    r"^ *((tel|tem|tef|ter|tes|tec)[A-Z_]+)([ \n]*=[ \n]*([0-9-]+))?[ \n]*,?[ \n]*"
+    r"(\/\/[^\n]*)?$",
     ter_h,
     re.MULTILINE,
 )
