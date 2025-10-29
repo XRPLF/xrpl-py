@@ -325,7 +325,7 @@ _add_line('  "TRANSACTION_TYPES": {')
 # Example line:
 # TRANSACTION(ttCHECK_CREATE, 16, CheckCreate, ({
 tx_hits = re.findall(
-    r"^ *TRANSACTION\(tt[A-Z_]+[ \n]*,* ([0-9]+)[ \n]*,[ \n]*([A-Za-z]+).*$",
+    r"^ *TRANSACTION\(tt[A-Z_]+[ \n]*,[ \n]*([0-9]+)[ \n]*,[ \n]*([A-Za-z]+).*$",
     transactions_file,
     re.MULTILINE,
 )
