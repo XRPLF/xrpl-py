@@ -12,6 +12,12 @@ HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
 
 MAX_CREDENTIAL_ARRAY_LENGTH = 8
 
+# Credentials are represented in hex. Whilst they are allowed a maximum length of 64
+# bytes, every byte requires 2 hex characters for representation
+_MAX_CREDENTIAL_LENGTH: Final[int] = 128
+
+_MAX_DOMAIN_ID_LENGTH = 64
+
 MAX_MPTOKEN_METADATA_LENGTH = 1024 * 2
 
 MPT_META_WARNING_HEADER = (
@@ -19,12 +25,6 @@ MPT_META_WARNING_HEADER = (
     "While adherence to this standard is not mandatory, such non-compliant MPToken's "
     "might not be discoverable by Explorers and Indexers in the XRPL ecosystem."
 )
-
-# Credentials are represented in hex. Whilst they are allowed a maximum length of 64
-# bytes, every byte requires 2 hex characters for representation
-_MAX_CREDENTIAL_LENGTH: Final[int] = 128
-
-_MAX_DOMAIN_ID_LENGTH = 64
 
 
 def get_credential_type_error(credential_type: str) -> Optional[str]:
