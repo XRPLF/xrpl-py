@@ -133,6 +133,15 @@ def _validate_uris(obj: Dict[str, Any]) -> List[str]:
                 "category/c, and title/t properties."
             )
             continue
+
+        for uri_field in MPT_META_URI_FIELDS:
+            if uri_field["long"] in uri_obj and uri_field["compact"] in uri_obj:
+                messages.append(
+                    f"uris/us: should not have both {uri_field['long']} "
+                    f"and {uri_field['compact']} fields."
+                )
+                break
+
         uri = uri_obj.get("uri") if "uri" in uri_obj else uri_obj.get("u")
         category = (
             uri_obj.get("category") if "category" in uri_obj else uri_obj.get("c")
@@ -208,14 +217,27 @@ def _expand_keys(
 
 
 def decode_mptoken_metadata(input_hex: str) -> MPTokenMetadata:
-    """
-    Decodes hex encoded MPTokenMetadata to a JSON object with long field names.
-    Converts compact field names back to their long form equivalents.
+    """Decodes hex-encoded MPTokenMetadata into a JSON object.
 
-    @param input - Hex encoded MPTokenMetadata.
-    @returns Decoded MPTokenMetadata object with long field names.
-    @throws Error if input is not valid hex or cannot be parsed as JSON.
-    @category Utilities
+    This process performs the reverse of encoding:
+    1. Converts the hex string to its JSON string representation.
+    2. Parses the JSON string into a dictionary object.
+    3. Converts compact field names within the object to their corresponding
+       long-form equivalents.
+
+    Args:
+        input_hex: The hex encoded MPTokenMetadata string.
+
+    Returns:
+        The decoded MPTokenMetadata dictionary object with long field names.
+
+    Raises:
+        Error: If the input string is not valid hex or cannot be parsed as a
+               JSON object after decoding.
+
+    Notes:
+        This utility is the counterpart to the encoding function and handles
+        field name expansion.
     """
     if bool(HEX_REGEX.fullmatch(input_hex)) is False:
         raise ValueError("MPTokenMetadata must be in hex format.")
@@ -268,13 +290,25 @@ def _shorten_keys(
 
 
 def encode_mptoken_metadata(mptoken_metadata: MPTokenMetadata) -> str:
-    """
-    Encodes MPTokenMetadata object to a hex string.
-    Shortens long field names to their compact form along the way.
+    """Encodes MPTokenMetadata object to a hex string.
 
-    @param mptokenMetadata - MPTokenMetadata to encode.
-    @returns Hex encoded MPTokenMetadata.
-    @throws Error if input is not a JSON object.
+    The encoding process involves:
+    1. Shortening long field names to their compact form equivalents.
+    2. Sorting the fields alphabetically for deterministic encoding.
+    3. Stringify the resulting object.
+    4. Converting the string to its hex representation.
+
+    Args:
+        mptokenMetadata: The MPTokenMetadata dictionary to encode.
+
+    Returns:
+        The hex encoded MPTokenMetadata string.
+
+    Raises:
+        Error: If the input is not a valid JSON-like dictionary object.
+
+    Notes:
+        This utility ensures deterministic encoding by sorting fields.
     """
     if not isinstance(mptoken_metadata, Dict):
         raise TypeError("MPTokenMetadata must be JSON object.")
@@ -342,8 +376,6 @@ def validate_mptoken_metadata(input_hex: str) -> List[str]:
         )
         return validation_messages
 
-    # Structure validation
-
     field_count = len(json_metadata.keys())
     if field_count > len(MPT_META_ALL_FIELDS):
         validation_messages.append(
@@ -357,7 +389,6 @@ def validate_mptoken_metadata(input_hex: str) -> List[str]:
 
     obj = json_metadata
 
-    # Run per-field validators in same order as TS
     for prop in MPT_META_ALL_FIELDS:
         validate_fn = prop.get("validate")
         if callable(validate_fn):

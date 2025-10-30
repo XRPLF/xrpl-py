@@ -104,7 +104,10 @@ class TestMPTokenIssuanceCreate(TestCase):
         invalid_metadata = {
             "ticker": "TBILL",
             "name": "T-Bill Yield Token",
-            "invalid_field": "should cause warning",
+            "icon": "https://example.org/tbill-icon.png",
+            "asset_class": "rwa",
+            "asset_subclass": None,
+            "issuer_name": "Example Yield Co.",
         }
 
         tx = MPTokenIssuanceCreate(
@@ -119,7 +122,9 @@ class TestMPTokenIssuanceCreate(TestCase):
             self.assertTrue(len(caught_warnings) > 0, "Expected warning not emitted")
             warning_messages = [str(w.message) for w in caught_warnings]
             found = any(
-                "- icon is required and must be string." in msg
+                "- asset_subclass/as: required when asset_class is rwa." in msg
                 for msg in warning_messages
             )
-            self.assertTrue(found, "- icon is required and must be string.")
+            self.assertTrue(
+                found, "- asset_subclass/as: required when asset_class is rwa."
+            )

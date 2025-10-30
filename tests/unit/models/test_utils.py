@@ -4,6 +4,7 @@ from unittest import TestCase
 
 from xrpl.models.currencies import IssuedCurrency
 from xrpl.models.exceptions import XRPLModelException
+from xrpl.models.mptoken_metadata import MPTokenMetadata, MPTokenMetadataUri
 from xrpl.models.requests import AccountInfo
 from xrpl.models.transactions import Payment, PaymentFlag
 from xrpl.models.utils import _is_kw_only_attr_defined_in_dataclass
