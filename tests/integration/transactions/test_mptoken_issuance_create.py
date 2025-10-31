@@ -6,6 +6,7 @@ from tests.integration.it_utils import (
 from tests.integration.reusable_values import WALLET
 from xrpl.models.mptoken_metadata import MPTokenMetadata, MPTokenMetadataUri
 from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
+from xrpl.models.requests.tx import Tx
 from xrpl.models.transactions import MPTokenIssuanceCreate
 from xrpl.utils.mptoken_metadata import decode_mptoken_metadata, encode_mptoken_metadata
 
@@ -46,25 +47,25 @@ class TestMPTokenIssuanceCreate(IntegrationTestCase):
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
+        tx_hash = response.result["tx_json"]["hash"]
+        tx_res = await client.request(Tx(transaction=tx_hash))
+        mpt_issuance_id = tx_res.result["meta"]["mpt_issuance_id"]
+
         # confirm MPTokenIssuance ledger object was created
         account_objects_response = await client.request(
             AccountObjects(account=WALLET.address, type=AccountObjectType.MPT_ISSUANCE)
         )
-
-        # subsequent integration tests (sync/async + json/websocket) add one
-        # MPTokenIssuance object to the account
-        self.assertTrue(len(account_objects_response.result["account_objects"]) > 0)
-
-        mptoken_obj = next(
+        mptoken_issuance_obj = next(
             (
                 obj
                 for obj in account_objects_response.result["account_objects"]
-                if obj["MPTokenMetadata"] == encoded_metadata
+                if obj["mpt_issuance_id"] == mpt_issuance_id
             ),
             None,
         )
-        self.assertIsNotNone(mptoken_obj)
+
+        self.assertIsNotNone(mptoken_issuance_obj)
         self.assertEqual(
-            decode_mptoken_metadata(mptoken_obj["MPTokenMetadata"]),
+            decode_mptoken_metadata(mptoken_issuance_obj["MPTokenMetadata"]),
             metadata,
         )
