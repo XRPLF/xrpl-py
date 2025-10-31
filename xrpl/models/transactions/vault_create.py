@@ -18,7 +18,6 @@ from xrpl.models.utils import (
     MAX_MPTOKEN_METADATA_LENGTH,
     MPT_META_WARNING_HEADER,
     require_kwargs_on_init,
-    validate_mptoken_metadata,
 )
 
 VAULT_MAX_DATA_LENGTH = 256 * 2
@@ -76,10 +75,9 @@ class VaultCreate(Transaction):
 
     mptoken_metadata: Optional[str] = None
     """
-    Arbitrary metadata about the share MPT, in hex format, limited to 1024 bytes.
-
-    The decoded value must be a UTF-8 encoded JSON object that adheres to the
-    XLS-89d MPTokenMetadata standard.
+    Arbitrary metadata about this issuance, in hex format, limited to 1024 bytes.
+    Use `encode_mptoken_metadata` to convert from a JSON object to this format.
+    Use `decode_mptoken_metadata` to convert from this format to a JSON object.
 
     While adherence to the XLS-89d format is not mandatory, non-compliant metadata
     may not be discoverable by ecosystem tools such as explorers and indexers.
@@ -127,6 +125,9 @@ class VaultCreate(Transaction):
             )
 
         if self.mptoken_metadata is not None:
+            # Lazy import to avoid circular dependency
+            from xrpl.utils.mptoken_metadata import validate_mptoken_metadata
+
             validation_messages = validate_mptoken_metadata(self.mptoken_metadata)
 
             if len(validation_messages) > 0:
