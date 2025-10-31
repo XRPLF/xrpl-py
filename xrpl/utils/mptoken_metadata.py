@@ -125,7 +125,7 @@ def _validate_uris(obj: Dict[str, Any]) -> List[str]:
         return ["uris/us: should be a non-empty array."]
     messages: List[str] = []
     for uri_obj in value:
-        if not isinstance(uri_obj, Dict) or len(list(uri_obj.keys())) != len(
+        if not isinstance(uri_obj, dict) or len(list(uri_obj.keys())) != len(
             MPT_META_URI_FIELDS
         ):
             messages.append(
@@ -168,7 +168,7 @@ def _validate_additional_info(obj: Dict[str, Any]) -> List[str]:
     if "additional_info" not in obj and "ai" not in obj:
         return []
     value = obj.get("additional_info") if "additional_info" in obj else obj.get("ai")
-    if not (isinstance(value, str) or isinstance(value, Dict)):
+    if not isinstance(value, (str, dict)):
         return ["additional_info/ai: should be a string or JSON object."]
     return []
 
@@ -310,7 +310,7 @@ def encode_mptoken_metadata(mptoken_metadata: MPTokenMetadata) -> str:
     Notes:
         This utility ensures deterministic encoding by sorting fields.
     """
-    if not isinstance(mptoken_metadata, Dict):
+    if not isinstance(mptoken_metadata, dict):
         raise TypeError("MPTokenMetadata must be JSON object.")
 
     input_dict = _shorten_keys(dict(mptoken_metadata), MPT_META_ALL_FIELDS)
@@ -370,7 +370,7 @@ def validate_mptoken_metadata(input_hex: str) -> List[str]:
         )
         return validation_messages
 
-    if not isinstance(json_metadata, Dict):
+    if not isinstance(json_metadata, dict):
         validation_messages.append(
             "MPTokenMetadata is not properly formatted JSON object as per XLS-89."
         )
