@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Added
+
+- Add `encode_mptoken_metadata` and `decode_mptoken_metadata` helper functions to encode and decode MPTokenMetadata as per XLS-89 standard.
+
 ### Fixed
 
 - Removed snippets files from the xrpl-py code repository. Updated the README file to point to the correct location on XRPL.org.
+- [Breaking change] Fix `MPTokenMetadata` type to adhere to the XLS-89 standard. Since XLS-89 is still in a forming state and undergoing changes, this breaking change is being released as a bug fix via patch version bump.
+- [Breaking change] Fix `validate_mptoken_metadata` to correctly validate MPTokenMetadata as per XLS-89 standard. Since XLS-89 is still in a forming state and undergoing changes, this breaking change is being released as a bug fix via patch version bump.
 
 ## [[4.3.0]] - 2025-07-29
 
