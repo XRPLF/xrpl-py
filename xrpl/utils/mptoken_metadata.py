@@ -244,13 +244,13 @@ def decode_mptoken_metadata(input_hex: str) -> MPTokenMetadata:
 
     try:
         json_metadata = json.loads(hex_to_str(input_hex))
-    except Exception as e:
+    except (json.JSONDecodeError, UnicodeDecodeError, ValueError) as e:
         raise ValueError(
-            f"MPTokenMetadata is not properly formatted as JSON - {e}"
+            f"MPTokenMetadata is not properly formatted as JSON - {str(e)}"
         ) from e
 
     if not isinstance(json_metadata, dict):
-        raise ValueError("MPTokenMetadata must be a JSON object.")
+        raise TypeError("MPTokenMetadata must be a JSON object.")
 
     output = _expand_keys(json_metadata, MPT_META_ALL_FIELDS)
 
