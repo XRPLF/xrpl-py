@@ -1,13 +1,13 @@
-"""Models for MPTokenMetadata as per the XLS-89 standard."""
+"""MPTokenMetadata and MPTokenMetadataUri objects as per the XLS-89 standard."""
 
 from typing import Any, Dict, List, Optional, TypedDict, Union
 
 
 class MPTokenMetadataUri(TypedDict, total=False):
     """
-    :class:`.MPTokenMetadataUri` object as per the XLS-89 standard.
+    MPTokenMetadataUri object as per the XLS-89 standard.
 
-    Used within the ``uris`` array of the :class:`.MPTokenMetadata` object.
+    Used within the `uris` array of MPTokenMetadata object.
     """
 
     uri: str
@@ -49,11 +49,11 @@ class MPTokenMetadataUri(TypedDict, total=False):
 
 class MPTokenMetadata(TypedDict, total=False):
     """
-    :class:`.MPTokenMetadata` object as per the XLS-89 standard.
+    MPTokenMetadata object as per the XLS-89 standard.
 
-    Use :func:`encodeMPTokenMetadata` to convert this object to a compact hex
+    Use `encode_mptoken_metadata` to convert this object to a compact hex
     string for on-ledger storage.
-    Use :func:`decodeMPTokenMetadata` to convert from a hex string to this format.
+    Use `decode_mptoken_metadata` to convert from a hex string to this format.
     """
 
     ticker: str

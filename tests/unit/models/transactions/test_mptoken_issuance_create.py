@@ -5,6 +5,7 @@ from unittest import TestCase
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import MPTokenIssuanceCreate, MPTokenIssuanceCreateFlag
 from xrpl.utils import str_to_hex
+from xrpl.utils.mptoken_metadata import encode_mptoken_metadata
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 
@@ -26,7 +27,7 @@ class TestMPTokenIssuanceCreate(TestCase):
             transfer_fee=1,
             flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK
             | MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
-            mptoken_metadata=str_to_hex(json.dumps(mptoken_metadata)),
+            mptoken_metadata=encode_mptoken_metadata(mptoken_metadata),
         )
         self.assertTrue(tx.is_valid())
 

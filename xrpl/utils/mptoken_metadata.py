@@ -299,7 +299,7 @@ def encode_mptoken_metadata(mptoken_metadata: MPTokenMetadata) -> str:
     4. Converting the string to its hex representation.
 
     Args:
-        mptokenMetadata: The MPTokenMetadata dictionary to encode.
+        mptoken_metadata: The MPTokenMetadata object to encode.
 
     Returns:
         The hex encoded MPTokenMetadata string.
@@ -344,7 +344,7 @@ def validate_mptoken_metadata(input_hex: str) -> List[str]:
         input_hex (str): Hex encoded MPTokenMetadata.
 
     Returns:
-        List[str]: A list of validation error messages.
+        List[str]: A list messages indicating deviations from the standard.
     """
     validation_messages: List[str] = []
 
