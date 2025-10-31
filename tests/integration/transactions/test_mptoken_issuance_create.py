@@ -29,11 +29,12 @@ class TestMPTokenIssuanceCreate(IntegrationTestCase):
             ],
         )
 
+        encoded_metadata = encode_mptoken_metadata(metadata)
         tx = MPTokenIssuanceCreate(
             account=WALLET.classic_address,
             maximum_amount="9223372036854775807",  # "7fffffffffffffff"
             asset_scale=2,
-            mptoken_metadata=encode_mptoken_metadata(metadata),
+            mptoken_metadata=encoded_metadata,
         )
 
         response = await sign_and_reliable_submission_async(
@@ -54,9 +55,16 @@ class TestMPTokenIssuanceCreate(IntegrationTestCase):
         # MPTokenIssuance object to the account
         self.assertTrue(len(account_objects_response.result["account_objects"]) > 0)
 
-        self.assertEqual(
-            decode_mptoken_metadata(
-                account_objects_response.result["account_objects"][0]["MPTokenMetadata"]
+        mptoken_obj = next(
+            (
+                obj
+                for obj in account_objects_response.result["account_objects"]
+                if obj["MPTokenMetadata"] == encoded_metadata
             ),
+            None,
+        )
+        self.assertIsNotNone(mptoken_obj)
+        self.assertEqual(
+            decode_mptoken_metadata(mptoken_obj["MPTokenMetadata"]),
             metadata,
         )
