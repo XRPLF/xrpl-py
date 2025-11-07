@@ -19,7 +19,7 @@ from xrpl.models.amounts import MPTAmount
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.currencies.issued_currency import IssuedCurrency
 from xrpl.models.currencies.xrp import XRP
-from xrpl.models.requests import Ledger
+from xrpl.models.requests import Feature, Ledger
 from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
 from xrpl.models.transactions import MPTokenAuthorize, MPTokenIssuanceCreate
 from xrpl.models.transactions.account_set import AccountSet, AccountSetAsfFlag
@@ -636,3 +636,61 @@ def create_mpt_token_and_authorize_source(
     sign_and_reliable_submission(payment_tx, issuer, client=client)
 
     return mpt_issuance_id
+
+
+async def is_amendment_enabled_async(
+    client: AsyncClient,
+    amendment_name: str,
+) -> bool:
+    """
+    Check if a specific amendment is enabled on the XRPL server.
+
+    Args:
+        client: The async client to use for the request.
+        amendment_name: The name of the amendment to check.
+
+    Returns:
+        True if the amendment is enabled, False otherwise.
+    """
+    try:
+        response = await client.request(Feature())
+        if response.is_successful() and "features" in response.result:
+            features = response.result["features"]
+            for feature_id, feature_data in features.items():
+                if (
+                    isinstance(feature_data, dict)
+                    and feature_data.get("name") == amendment_name
+                ):
+                    return feature_data.get("enabled", False)
+        return False
+    except Exception:
+        return False
+
+
+def is_amendment_enabled(
+    client: SyncClient,
+    amendment_name: str,
+) -> bool:
+    """
+    Check if a specific amendment is enabled on the XRPL server.
+
+    Args:
+        client: The sync client to use for the request.
+        amendment_name: The name of the amendment to check.
+
+    Returns:
+        True if the amendment is enabled, False otherwise.
+    """
+    try:
+        response = client.request(Feature())
+        if response.is_successful() and "features" in response.result:
+            features = response.result["features"]
+            for feature_id, feature_data in features.items():
+                if (
+                    isinstance(feature_data, dict)
+                    and feature_data.get("name") == amendment_name
+                ):
+                    return feature_data.get("enabled", False)
+        return False
+    except Exception:
+        return False

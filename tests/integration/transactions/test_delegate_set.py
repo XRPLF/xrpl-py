@@ -1,6 +1,7 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     fund_wallet_async,
+    is_amendment_enabled_async,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
@@ -22,6 +23,14 @@ from xrpl.wallet.main import Wallet
 class TestDelegateSet(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_delegation_with_no_permission(self, client):
+        # Check if PermissionDelegation amendment is enabled
+        is_enabled = await is_amendment_enabled_async(client, "PermissionDelegation")
+        if not is_enabled:
+            self.skipTest(
+                "Skipping DelegateSet test: PermissionDelegation amendment "
+                "is not enabled on the server"
+            )
+
         # Note: Using WALLET, DESTINATION accounts could pollute the test results
         alice = Wallet.create()
         await fund_wallet_async(alice)
@@ -48,6 +57,14 @@ class TestDelegateSet(IntegrationTestCase):
 
     @test_async_and_sync(globals())
     async def test_delegate_set_workflow(self, client):
+        # Check if PermissionDelegation amendment is enabled
+        is_enabled = await is_amendment_enabled_async(client, "PermissionDelegation")
+        if not is_enabled:
+            self.skipTest(
+                "Skipping DelegateSet test: PermissionDelegation amendment "
+                "is not enabled on the server"
+            )
+
         # Note: Using WALLET, DESTINATION accounts could pollute the test results
         alice = Wallet.create()
         await fund_wallet_async(alice)
@@ -122,6 +139,14 @@ class TestDelegateSet(IntegrationTestCase):
 
     @test_async_and_sync(globals())
     async def test_fetch_delegate_account_objects(self, client):
+        # Check if PermissionDelegation amendment is enabled
+        is_enabled = await is_amendment_enabled_async(client, "PermissionDelegation")
+        if not is_enabled:
+            self.skipTest(
+                "Skipping DelegateSet test: PermissionDelegation amendment "
+                "is not enabled on the server"
+            )
+
         # Note: Using WALLET, DESTINATION accounts could pollute the test results
         alice = Wallet.create()
         await fund_wallet_async(alice)
