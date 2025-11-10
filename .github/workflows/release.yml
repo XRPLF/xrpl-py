@@ -1,6 +1,11 @@
 name: Publish xrpl-py 🐍 distribution 📦 to PyPI
 on:
   workflow_dispatch:
+    inputs:
+      release_branch:
+        description: "Release branch to package (e.g., release/1.0.0)"
+        required: true
+        type: string
 
 jobs:
   input-validate:
@@ -9,37 +14,14 @@ jobs:
     outputs:
       package_version: ${{ steps.package_version.outputs.version }}
       is_beta_release: ${{ steps.detect_release_kind.outputs.is_beta_release }}
+      release_branch: ${{ steps.validate_inputs.outputs.release_branch }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Validate inputs
-        run: |
-          set -euo pipefail
-          RELEASE_BRANCH="$(git branch --show-current || true)"
-          if [[ -z "$RELEASE_BRANCH" ]]; then
-            RELEASE_BRANCH="${{ github.ref_name }}"
-          fi
-
-          if [[ -z "$RELEASE_BRANCH" ]]; then
-            echo "❌ Unable to determine branch name." >&2
-            exit 1
-          fi
-
-          if [[ ! "${RELEASE_BRANCH,,}" =~ ^release[-/] ]]; then
-            echo "❌ Release branch '$RELEASE_BRANCH' must start with 'release-' or 'release/'." >&2
-            exit 1
-          fi
-
-          if grep -R --exclude-dir=.git --exclude-dir=.github "artifactory.ops.ripple.com" .; then
-            echo "❌ Internal Artifactory URL found"
-            exit 1
-          else
-            echo "✅ No Internal Artifactory URL found"
-          fi
-
+          ref: ${{ inputs.release_branch }}
       - name: Install toml-cli
         run: |
           set -euo pipefail
@@ -87,6 +69,38 @@ jobs:
           else
             echo "is_beta_release=false" >> "$GITHUB_OUTPUT"
           fi
+      - name: Validate inputs
+        id: validate_inputs
+        env:
+          TRIGGER_BRANCH: ${{ github.ref_name }}
+          RELEASE_BRANCH_INPUT: ${{ inputs.release_branch }}
+          IS_BETA_RELEASE: ${{ steps.detect_release_kind.outputs.is_beta_release }}
+        run: |
+          set -euo pipefail
+          if [[ "${TRIGGER_BRANCH}" != "main" ]]; then
+            echo "❌ This workflow must be dispatched from the main branch (current: ${TRIGGER_BRANCH})." >&2
+            exit 1
+          fi
+
+          RELEASE_BRANCH="${RELEASE_BRANCH_INPUT}"
+
+          if [[ -z "$RELEASE_BRANCH" ]]; then
+            echo "❌ Unable to determine branch name." >&2
+            exit 1
+          fi
+
+          if [[ "${IS_BETA_RELEASE}" != "true" ]] && [[ ! "${RELEASE_BRANCH,,}" =~ ^release[-/] ]]; then
+            echo "❌ Release branch '$RELEASE_BRANCH' must start with 'release-' or 'release/' for stable releases." >&2
+            exit 1
+          fi
+
+          if grep -R --exclude-dir=.git --exclude-dir=.github "artifactory.ops.ripple.com" .; then
+            echo "❌ Internal Artifactory URL found"
+            exit 1
+          else
+            echo "✅ No Internal Artifactory URL found"
+          fi
+          echo "release_branch=${RELEASE_BRANCH}" >> "$GITHUB_OUTPUT"
 
   faucet-tests:
     name: Run faucet tests matrix (${{ needs.input-validate.outputs.package_version }})
@@ -241,7 +255,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           PKG_VER: ${{ env.PACKAGE_VERSION }}
-          REL_BRANCH: ${{ github.ref_name }}
+          REL_BRANCH: ${{ needs.input-validate.outputs.release_branch }}
           VULN_ART_URL: ${{ steps.vuln_art.outputs.art_url }}
           LABELS: security
         run: |
@@ -279,21 +293,24 @@ jobs:
     env:
       PACKAGE_VERSION: ${{ needs.input-validate.outputs.package_version }}
       IS_BETA_RELEASE: ${{ needs.input-validate.outputs.is_beta_release }}
-      RELEASE_BRANCH: ${{ github.ref_name }}
+      RELEASE_BRANCH: ${{ needs.input-validate.outputs.release_branch }}
       SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+      ENV_DEV_NAME: ${{ needs.input-validate.outputs.is_beta_release == 'true' && 'beta-release' || 'first-review' }}
+      ENV_SEC_NAME: ${{ needs.input-validate.outputs.is_beta_release == 'true' && 'beta-release' || 'official-release' }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ env.RELEASE_BRANCH }}
 
       - name: Ensure PR from release branch to main
         id: ensure_pr
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
-          RELEASE_BRANCH: ${{ github.ref_name }}
+          RELEASE_BRANCH: ${{ env.RELEASE_BRANCH }}
           VERSION: ${{ env.PACKAGE_VERSION }}
         run: |
           set -euo pipefail
@@ -339,8 +356,6 @@ jobs:
           REPO: ${{ github.repository }}
           RUN_ID: ${{ github.run_id }}
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          ENV_DEV_NAME: first-review
-          ENV_SEC_NAME: official-release
           PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
           PR_URL: ${{ steps.ensure_pr.outputs.pr_url }}
           GITHUB_ACTOR: ${{ github.actor }}
@@ -450,6 +465,11 @@ jobs:
       - unit-tests
       - pre-release
       - ask_for_dev_team_review
+    if: ${{ always()
+        && needs.ask_for_dev_team_review.result == 'success'
+        && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
+        && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
+        && (needs['unit-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true') }}
     environment:
       name: first-review
       url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -468,11 +488,16 @@ jobs:
       - pre-release
       - ask_for_dev_team_review
       - first_review
+    if: ${{ always()
+        && needs.ask_for_dev_team_review.result == 'success'
+        && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
+        && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
+        && (needs['unit-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true') }}
     env:
       PACKAGE_VERSION: ${{ needs.input-validate.outputs.package_version }}
       SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
       EXECUTOR: ${{ github.triggering_actor || github.actor }}
-      RELEASE_BRANCH: "${{ github.ref_name }}"
+      RELEASE_BRANCH: ${{ needs.input-validate.outputs.release_branch }}
       RUN_URL:         https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       SEC_REVIEWERS:   ${{ needs.ask_for_dev_team_review.outputs.reviewers_sec }}
       VULN_ART_URL:    ${{ needs.pre-release.outputs.vuln_art_url }}
@@ -499,15 +524,23 @@ jobs:
     name: >-
       Publish Python 🐍 distribution 📦 to PyPI (${{ needs.pre-release.outputs.package_version }})
     needs:
+      - input-validate
+      - faucet-tests
+      - integration-tests
       - pre-release
       - ask_for_dev_team_review
       - first_review
       - ask_for_sec_team_review
       - unit-tests
+    if: ${{ always()
+        && needs.ask_for_dev_team_review.result == 'success'
+        && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
+        && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
+        && (needs['unit-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10 # Adjust based on typical publishing time
     environment:
-      name: official-release
+      name: ${{ needs.input-validate.outputs.is_beta_release == 'true' && 'beta-release' || 'official-release' }}
       url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
     env:
       PACKAGE_VERSION: ${{ needs.pre-release.outputs.package_version }}
@@ -539,6 +572,8 @@ jobs:
   github-release:
     name: Github Release (${{ needs.pre-release.outputs.package_version }})
     needs:
+      - faucet-tests
+      - integration-tests
       - input-validate
       - pre-release
       - ask_for_dev_team_review
@@ -546,6 +581,11 @@ jobs:
       - ask_for_sec_team_review
       - publish-to-pypi
       - unit-tests
+    if: ${{ always()
+        && needs.ask_for_dev_team_review.result == 'success'
+        && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
+        && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
+        && (needs['unit-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15 # Adjust based on typical signing and release time
 
@@ -609,7 +649,18 @@ jobs:
             -d "$(jq -n --arg channel "#xrpl-py" --arg text "$text" '{channel:$channel, text:$text}')"
 
       - name: Notify Slack if tests fail
-        if: failure()
+        if: >-
+          ${{ always() && (
+            needs.input-validate.result == 'failure' ||
+            (needs['faucet-tests'].result == 'failure' && needs.input-validate.outputs.is_beta_release != 'true') ||
+            (needs['integration-tests'].result == 'failure' && needs.input-validate.outputs.is_beta_release != 'true') ||
+            (needs['unit-tests'].result == 'failure' && needs.input-validate.outputs.is_beta_release != 'true') ||
+            needs.pre-release.result == 'failure' ||
+            needs.ask_for_dev_team_review.result == 'failure' ||
+            needs.first_review.result == 'failure' ||
+            needs.ask_for_sec_team_review.result == 'failure' ||
+            needs['publish-to-pypi'].result == 'failure'
+          ) }}
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
         run: |
