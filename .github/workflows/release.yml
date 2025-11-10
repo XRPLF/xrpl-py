@@ -130,6 +130,11 @@ jobs:
       - faucet-tests
       - integration-tests
       - unit-tests
+    if: ${{ always()
+        && needs.input-validate.result == 'success'
+        && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
+        && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
+        && (needs['unit-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true') }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
