@@ -14,7 +14,7 @@ jobs:
     outputs:
       package_version: ${{ steps.package_version.outputs.version }}
       is_beta_release: ${{ steps.detect_release_kind.outputs.is_beta_release }}
-      release_branch: ${{ steps.validate_inputs.outputs.release_branch }}
+      # release_branch output no longer needed; reference github.event.inputs.release_branch directly
 
     steps:
       - name: Checkout code
@@ -73,7 +73,6 @@ jobs:
         id: validate_inputs
         env:
           TRIGGER_BRANCH: ${{ github.ref_name }}
-          RELEASE_BRANCH_INPUT: ${{ inputs.release_branch }}
           IS_BETA_RELEASE: ${{ steps.detect_release_kind.outputs.is_beta_release }}
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -84,7 +83,7 @@ jobs:
           #   exit 1
           # fi
 
-          RELEASE_BRANCH="${RELEASE_BRANCH_INPUT}"
+          RELEASE_BRANCH="${{ github.event.inputs.release_branch }}"
 
           if [[ -z "$RELEASE_BRANCH" ]]; then
             echo "❌ Unable to determine branch name." >&2
@@ -283,7 +282,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           PKG_VER: ${{ env.PACKAGE_VERSION }}
-          REL_BRANCH: ${{ needs.input-validate.outputs.release_branch }}
+          REL_BRANCH: ${{ github.event.inputs.release_branch }}
           VULN_ART_URL: ${{ steps.vuln_art.outputs.art_url }}
           LABELS: security
         run: |
@@ -327,7 +326,7 @@ jobs:
     env:
       PACKAGE_VERSION: ${{ needs.input-validate.outputs.package_version }}
       IS_BETA_RELEASE: ${{ needs.input-validate.outputs.is_beta_release }}
-      RELEASE_BRANCH: ${{ needs.input-validate.outputs.release_branch }}
+      RELEASE_BRANCH: ${{ github.event.inputs.release_branch }}
       SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
       ENV_DEV_NAME: ${{ needs.input-validate.outputs.is_beta_release == 'true' && 'beta-release' || 'first-review' }}
       ENV_SEC_NAME: ${{ needs.input-validate.outputs.is_beta_release == 'true' && 'beta-release' || 'official-release' }}
@@ -481,7 +480,7 @@ jobs:
       PACKAGE_VERSION: ${{ needs.input-validate.outputs.package_version }}
       SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
       EXECUTOR: ${{ github.triggering_actor || github.actor }}
-      RELEASE_BRANCH: ${{ needs.input-validate.outputs.release_branch }}
+      RELEASE_BRANCH: ${{ github.event.inputs.release_branch }}
       RUN_URL:         https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       SEC_REVIEWERS:   ${{ needs.ask_for_dev_team_review.outputs.reviewers_sec }}
       VULN_ART_URL:    ${{ needs.pre-release.outputs.vuln_art_url }}
