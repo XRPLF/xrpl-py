@@ -292,6 +292,7 @@ jobs:
       - pre-release
     if: ${{ always()
         && needs.input-validate.result == 'success'
+        && needs.pre-release.result == 'success'
         && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
         && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
         && (needs['unit-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true') }}
@@ -423,6 +424,7 @@ jobs:
       - pre-release
       - ask_for_dev_team_review
     if: ${{ always()
+        && needs.pre-release.result == 'success'
         && needs.ask_for_dev_team_review.result == 'success'
         && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
         && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
@@ -446,7 +448,9 @@ jobs:
       - ask_for_dev_team_review
       - first_review
     if: ${{ always()
+        && needs.pre-release.result == 'success'
         && needs.ask_for_dev_team_review.result == 'success'
+        && needs.first_review.result == 'success'
         && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
         && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
         && (needs['unit-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true') }}
@@ -490,7 +494,10 @@ jobs:
       - ask_for_sec_team_review
       - unit-tests
     if: ${{ always()
+        && needs.pre-release.result == 'success'
         && needs.ask_for_dev_team_review.result == 'success'
+        && needs.first_review.result == 'success'
+        && needs.ask_for_sec_team_review.result == 'success'
         && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
         && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
         && (needs['unit-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true') }}
@@ -539,7 +546,11 @@ jobs:
       - publish-to-pypi
       - unit-tests
     if: ${{ always()
+        && needs.pre-release.result == 'success'
         && needs.ask_for_dev_team_review.result == 'success'
+        && needs.first_review.result == 'success'
+        && needs.ask_for_sec_team_review.result == 'success'
+        && needs['publish-to-pypi'].result == 'success'
         && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
         && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
         && (needs['unit-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true') }}
