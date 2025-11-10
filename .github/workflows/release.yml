@@ -75,6 +75,8 @@ jobs:
           TRIGGER_BRANCH: ${{ github.ref_name }}
           RELEASE_BRANCH_INPUT: ${{ inputs.release_branch }}
           IS_BETA_RELEASE: ${{ steps.detect_release_kind.outputs.is_beta_release }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           # if [[ "${TRIGGER_BRANCH}" != "main" ]]; then
@@ -92,6 +94,26 @@ jobs:
           if [[ "${IS_BETA_RELEASE}" != "true" ]] && [[ ! "${RELEASE_BRANCH,,}" =~ ^release[-/] ]]; then
             echo "❌ Release branch '$RELEASE_BRANCH' must start with 'release-' or 'release/' for stable releases." >&2
             exit 1
+          fi
+
+          if [[ "${IS_BETA_RELEASE}" != "true" ]]; then
+            OWNER="${REPO%%/*}"
+            echo "🔎 Validating that a release PR exists for ${RELEASE_BRANCH} → main…"
+            PRS_JSON="$(gh api -H 'Accept: application/vnd.github+json' \
+              --method GET \
+              -f state=open \
+              -f base=main \
+              -f head="${OWNER}:${RELEASE_BRANCH}" \
+              "/repos/$REPO/pulls")"
+            PR_NUMBER="$(printf '%s' "$PRS_JSON" | jq -r '.[0].number // empty')"
+            PR_URL="$(printf '%s' "$PRS_JSON" | jq -r '.[0].html_url // empty')"
+            if [ -z "$PR_NUMBER" ]; then
+              echo "❌ No open PR found from ${RELEASE_BRANCH} to main. Please create the release PR before running this workflow." >&2
+              exit 1
+            fi
+            echo "ℹ️ Found release PR: #$PR_NUMBER ($PR_URL)"
+          else
+            echo "ℹ️ Beta release detected; skipping PR existence check."
           fi
 
           if grep -R --exclude-dir=.git --exclude-dir=.github "artifactory.ops.ripple.com" .; then
