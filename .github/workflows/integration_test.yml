@@ -54,11 +54,11 @@ jobs:
       - name: Install poetry dependencies
         run: poetry install
 
-      # - name: Integration test
-      #   run: |
-      #     poetry run poe test_integration
-      #     poetry run coverage report --fail-under=70
+      - name: Integration test
+        run: |
+          poetry run poe test_integration
+          poetry run coverage report --fail-under=70
 
-      # - name: Stop docker container
-      #   if: always()
-      #   run: docker stop rippled-service
+      - name: Stop docker container
+        if: always()
+        run: docker stop rippled-service
