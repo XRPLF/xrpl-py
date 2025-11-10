@@ -290,6 +290,11 @@ jobs:
       - integration-tests
       - unit-tests
       - pre-release
+    if: ${{ always()
+        && needs.input-validate.result == 'success'
+        && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
+        && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
+        && (needs['unit-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true') }}
     permissions:
       pull-requests: write
     outputs:
