@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed snippets files from the xrpl-py code repository. Updated the README file to point to the correct location on XRPL.org.
 - [Breaking change] Fix `MPTokenMetadata` type to adhere to the XLS-89 standard. Since XLS-89 is still in a forming state and undergoing changes, this breaking change is being released as a bug fix via patch version bump. If you are using `MPTokenMetadata` in your code, please verify that it adheres to the updated type definition.
 - [Breaking change] Fix `validate_mptoken_metadata` to correctly validate MPTokenMetadata as per XLS-89 standard. Since XLS-89 is still in a forming state and undergoing changes, this breaking change is being released as a bug fix via patch version bump. If you are using `validateMPTokenMetadata` in your code, expect it to change as per the XLS-89 standard.
+- Fixed the binary-codec issues pertaining to the serialization of the `MPTCurrency` rippled type. (Reference PR: https://github.com/XRPLF/xrpl-py/pull/870)
 
 ## [[4.3.0]] - 2025-07-29
 
