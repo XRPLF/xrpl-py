@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+## [[4.3.1]] - 2025-11-12
+
 ### Added
 
 - Add `encode_mptoken_metadata` and `decode_mptoken_metadata` helper functions to encode and decode MPTokenMetadata as per XLS-89 standard.
