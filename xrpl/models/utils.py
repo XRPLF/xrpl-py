@@ -121,7 +121,9 @@ def _is_kw_only_attr_defined_in_dataclass() -> bool:
         return True
     return sys.version_info.minor < 10
     """
-    return "kw_only" in dataclass.__kwdefaults__
+    return (
+        dataclass.__kwdefaults__ is not None and "kw_only" in dataclass.__kwdefaults__
+    )
 
 
 # Python 3.10 and higer versions of Python enable a new KW_ONLY parameter in dataclass
