@@ -34,6 +34,8 @@ documentation = "https://xrpl-py.readthedocs.io"
 "Bug Tracker" = "https://github.com/XRPLF/xrpl-py/issues"
 
 [tool.poetry]
+name = "xrpl-py"
+description = "A complete Python library for interacting with the XRP ledger"
 packages = [{ include = "xrpl" }, { include = "LICENSE" }]
 
 [tool.poetry.dependencies]
