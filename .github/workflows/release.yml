@@ -76,6 +76,7 @@ jobs:
           IS_BETA_RELEASE: ${{ steps.detect_release_kind.outputs.is_beta_release }}
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
+          RELEASE_BRANCH: ${{ github.event.inputs.release_branch }}
         run: |
           set -euo pipefail
           # if [[ "${TRIGGER_BRANCH}" != "main" ]]; then
@@ -83,7 +84,7 @@ jobs:
           #   exit 1
           # fi
 
-          RELEASE_BRANCH="${{ github.event.inputs.release_branch }}"
+          RELEASE_BRANCH="${RELEASE_BRANCH}"
 
           if [[ -z "$RELEASE_BRANCH" ]]; then
             echo "❌ Unable to determine branch name." >&2
@@ -272,9 +273,13 @@ jobs:
           path: vuln-report.txt
       - name: Build vuln artifact URL
         id: vuln_art
+        env:
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          ARTIFACT_ID: ${{ steps.upload_vuln.outputs.artifact-id }}
         run: |
           set -euo pipefail
-          echo "art_url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ steps.upload_vuln.outputs.artifact-id }}" >> "$GITHUB_OUTPUT"
+          echo "art_url=https://github.com/${REPO}/actions/runs/${RUN_ID}/artifacts/${ARTIFACT_ID}" >> "$GITHUB_OUTPUT"
       - name: Create GitHub Issue for vulnerabilities
         if: steps.show_scan_report.outputs.found_vulnerability == 'true'
         shell: bash
@@ -653,8 +658,11 @@ jobs:
           ) }}
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
         run: |
-          MESSAGE="❌ Release failed for xrpl-py ${{ env.PACKAGE_VERSION }}. Check the logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          MESSAGE="❌ Release failed for xrpl-py ${PACKAGE_VERSION}. Check the logs: https://github.com/${REPO}/actions/runs/${RUN_ID}"
           curl -X POST https://slack.com/api/chat.postMessage \
             -H "Authorization: Bearer $SLACK_TOKEN" \
             -H "Content-Type: application/json" \
