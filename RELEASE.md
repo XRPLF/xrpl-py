@@ -2,11 +2,11 @@
 
 This guide document describes how to cut and ship a new `xrpl-py` version using the
 `Publish xrpl-py 🐍 distribution 📦 to PyPI` GitHub Actions workflow (see
-`.github/workflows/release.yml`). 
+`.github/workflows/release.yml`).
 
 ## 0. Configurations required for this pipeline
 
-- Protected environments `first-review` and `official-release`.
+- Protected environments `first-review` `beta-release` and `official-release`.
 - Access to the shared Slack workspace (notifications go to `#xrpl-py` and `#ripplex-security`).
 - Reviewers from dev team and infosec team to approve GitHub environment gates and review pull requests.
 - PyPI Trusted Publisher to trust the workflow and the protected environment.
@@ -16,23 +16,27 @@ This guide document describes how to cut and ship a new `xrpl-py` version using 
 The workflow automatically differentiates between beta/pre-release versions
 and standard releases by reading version under the [project] section from `pyproject.toml`:
 
-- **Beta release**:  
-  - Skips creating the release PR from the release branch back to `main`.  
-  - The GitHub Release is created with the `--prerelease` flag.  
+- **Beta release**:
+  - The GitHub Release is created with the `--prerelease` flag.
   - The `latest` tag on GitHub remains unchanged (beta/prerelease builds do not become the
     default download).
 
-- **Stable release**:  
-  - A PR from the release branch to `main` is created (or reused) so the Dev
-    team can review and merge after PyPI verification.  
+- **Stable release**:
+  - A PR from the release branch to `main` is must exist before triggering the pipeline.
   - The GitHub Release is created with `--latest`, updating the repository’s
     default published release.
 
 ## 1. Prepare the Release Branch
 
+- **Stable release**:
 1. Create release branch using name with prefix `release-` (or `release/`).
 2. Bump `project.version` inside `pyproject.toml` and update `CHANGELOG.md`
    (or other release notes).
+3. Raise a PR from release branch to main branch.
+
+- **Beta release**:
+  - There is no restriction for branch name.
+  - A PR to main is not mandotary.
 
 The workflow will fail immediately if the version already exists, if the branch
 name does not match the required prefix.
@@ -41,6 +45,7 @@ name does not match the required prefix.
 
 1. Navigate to **Actions → Publish xrpl-py 🐍 distribution 📦 to PyPI**.
 2. Select the release branch and click **Run workflow**.
+3. Provide name of release branch.
 
 ### What the workflow does
 
@@ -53,7 +58,7 @@ The high-level pipeline is:
 | `pre-release` | Builds the wheel and sdist with Poetry 2.1.1, uploads build artifacts, generates a CycloneDX SBOM, scans it with Trivy, uploads results to OWASP Dependency-Track, and stores both SBOM and vulnerability reports as Actions artifacts. If any CRITICAL/HIGH findings exist, the job opens a GitHub issue linking to the report. |
 | `ask_for_dev_team_review` | Creates or reuses a PR from the release branch to `main` (skipped for beta releases), gathers required reviewers from environment protection rules, prints a summary, and posts a Slack message requesting review/approval. |
 | `first_review` | Waits for the Dev environment (`first-review`) approval. |
-| `ask_for_sec_team_review` | Notifies security reviewers on Slack and waits for the `official-release` environment approval. |
+| `ask_for_sec_team_review` | For stable release, Notifies security reviewers from infosec on Slack and waits for the `official-release` environment approval. For beta release, Notifies security reviewers(Security Champions from dev team) on Slack and waits for the `beta-release` environment approval. |
 | `publish-to-pypi` | Downloads the built artifacts from previous step, enforces single-run (no retries), and publishes to PyPI via trusted publishing once approvals are in place. |
 | `github-release` | Signs artifacts with the Sigstore action, creates or updates the GitHub Release (`--prerelease` for beta versions, `--latest` for stable releases), uploads signatures/provenance, and posts a Slack success message. |
 
@@ -61,10 +66,12 @@ The high-level pipeline is:
 
 - **Dev review**: When `ask_for_dev_team_review` finishes, reviewers receive a
   Slack ping. Approvers must visit the workflow run and approve the
-  `first-review` environment gate. 
-- **Security review**: After the Dev gate is cleared, the workflow pauses at
-  `official-release`. Security reviewers receive a Slack ping and must review the vulnerability reports and
-+  approve that environment gate.
+  `first-review` environment gate.
+- **Security review**: After the Dev gate is cleared, the `ask_for_sec_team_review`
+  job pings security reviewers with links to the SBOM/vulnerability artifacts.
+  They must review those reports and then approve the `official-release`
+  environment gate that blocks the subsequent `publish-to-pypi` job (or the
+  `beta-release` gate for prereleases).
 
 ## 4. Verify Publication & Finish Up
 
