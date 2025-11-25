@@ -88,7 +88,13 @@ class TestVaultCreate(TestCase):
         invalid_metadata = {
             "ticker": "TBILL",
             "name": "T-Bill Yield Token",
-            "invalid_field": "should cause warning",
+            "icon": "https://example.org/tbill-icon.png",
+            "uris": [
+                {
+                    "title": "Product Page",
+                    "category": "website",
+                }
+            ],
         }
 
         tx = VaultCreate(
@@ -106,7 +112,12 @@ class TestVaultCreate(TestCase):
             self.assertTrue(len(caught_warnings) > 0, "Expected warning not emitted")
             warning_messages = [str(w.message) for w in caught_warnings]
             found = any(
-                "- icon is required and must be string." in msg
+                "- uris/us: should be an array of objects each with "
+                "uri/u, category/c, and title/t properties." in msg
                 for msg in warning_messages
             )
-            self.assertTrue(found, "- icon is required and must be string.")
+            self.assertTrue(
+                found,
+                "- uris/us: should be an array of objects each "
+                "with uri/u, category/c, and title/t properties.",
+            )
