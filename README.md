@@ -295,7 +295,7 @@ async def submit_sample_transaction():
         fee="10",
     )
     # sign and submit the transaction
-    tx_response = await submit_and_wait(my_tx_payment_signed, async_client, test_wallet)
+    tx_response = await submit_and_wait(my_tx_payment, async_client, test_wallet)
 
 asyncio.run(submit_sample_transaction())
 ```
