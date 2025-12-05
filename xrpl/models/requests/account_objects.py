@@ -9,7 +9,7 @@ AccountLinesRequest instead.
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
@@ -63,7 +63,7 @@ class AccountObjects(Request, LookupByLedgerRequest):
     """
 
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_OBJECTS, init=False)
-    type: Optional[AccountObjectType] = None
+    type: Optional[Union[AccountObjectType, str]] = None
     deletion_blockers_only: bool = False
     limit: Optional[int] = None
     # marker data shape is actually undefined in the spec, up to the
