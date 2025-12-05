@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Optional, Union
 
+from xrpl.models.requests.ledger_entry import LedgerEntryType
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
@@ -63,7 +64,7 @@ class AccountObjects(Request, LookupByLedgerRequest):
     """
 
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_OBJECTS, init=False)
-    type: Optional[Union[AccountObjectType, str]] = None
+    type: Optional[Union[AccountObjectType, LedgerEntryType]] = None
     deletion_blockers_only: bool = False
     limit: Optional[int] = None
     # marker data shape is actually undefined in the spec, up to the
