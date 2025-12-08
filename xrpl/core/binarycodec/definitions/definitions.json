@@ -691,152 +691,12 @@
       }
     ],
     [
-      "StartDate",
+      "MutableFlags",
       {
         "isSerialized": true,
         "isSigningField": true,
         "isVLEncoded": false,
-        "nth": 54,
-        "type": "UInt32"
-      }
-    ],
-    [
-      "PaymentInterval",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 55,
-        "type": "UInt32"
-      }
-    ],
-    [
-      "GracePeriod",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 56,
-        "type": "UInt32"
-      }
-    ],
-    [
-      "PreviousPaymentDate",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 57,
-        "type": "UInt32"
-      }
-    ],
-    [
-      "NextPaymentDueDate",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 58,
-        "type": "UInt32"
-      }
-    ],
-    [
-      "PaymentRemaining",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 59,
-        "type": "UInt32"
-      }
-    ],
-    [
-      "PaymentTotal",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 60,
-        "type": "UInt32"
-      }
-    ],
-    [
-      "LoanSequence",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 61,
-        "type": "UInt32"
-      }
-    ],
-    [
-      "CoverRateMinimum",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 62,
-        "type": "UInt32"
-      }
-    ],
-    [
-      "CoverRateLiquidation",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 63,
-        "type": "UInt32"
-      }
-    ],
-    [
-      "OverpaymentFee",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 64,
-        "type": "UInt32"
-      }
-    ],
-    [
-      "InterestRate",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 65,
-        "type": "UInt32"
-      }
-    ],
-    [
-      "LateInterestRate",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 66,
-        "type": "UInt32"
-      }
-    ],
-    [
-      "CloseInterestRate",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 67,
-        "type": "UInt32"
-      }
-    ],
-    [
-      "OverpaymentInterestRate",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 68,
+        "nth": 53,
         "type": "UInt32"
       }
     ],
@@ -2351,92 +2211,13 @@
       }
     ],
     [
-      "DebtTotal",
+      "DummyInt32",
       {
         "isSerialized": true,
         "isSigningField": true,
         "isVLEncoded": false,
-        "nth": 6,
-        "type": "Number"
-      }
-    ],
-    [
-      "DebtMaximum",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 7,
-        "type": "Number"
-      }
-    ],
-    [
-      "CoverAvailable",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 8,
-        "type": "Number"
-      }
-    ],
-    [
-      "LoanOriginationFee",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 9,
-        "type": "Number"
-      }
-    ],
-    [
-      "LoanServiceFee",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 10,
-        "type": "Number"
-      }
-    ],
-    [
-      "LatePaymentFee",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 11,
-        "type": "Number"
-      }
-    ],
-    [
-      "ClosePaymentFee",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 12,
-        "type": "Number"
-      }
-    ],    [
-      "PrincipalOutstanding",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 13,
-        "type": "Number"
-      }
-    ],
-    [
-      "PrincipalRequested",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 14,
-        "type": "Number"
+        "nth": 1,
+        "type": "Int32"
       }
     ],
     [
@@ -3597,7 +3378,6 @@
     "terLAST": -91,
     "terNO_ACCOUNT": -96,
     "terNO_AMM": -87,
-    "tedADDRESS_COLLISION": -86,
     "terNO_AUTH": -95,
     "terNO_LINE": -94,
     "terNO_RIPPLE": -90,
@@ -3672,10 +3452,10 @@
     "TicketCreate": 10,
     "TrustSet": 20,
     "UNLModify": 102,
-    "VaultCreate": 65,
     "VaultClawback": 70,
-    "VaultDeposit": 68,
+    "VaultCreate": 65,
     "VaultDelete": 67,
+    "VaultDeposit": 68,
     "VaultSet": 66,
     "VaultWithdraw": 69,
     "XChainAccountCreateCommit": 44,
@@ -3697,6 +3477,8 @@
     "Hash160": 17,
     "Hash192": 21,
     "Hash256": 5,
+    "Int32": 10,
+    "Int64": 11,
     "Issue": 24,
     "LedgerEntry": 10002,
     "Metadata": 10004,
