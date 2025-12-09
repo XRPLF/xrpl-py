@@ -105,7 +105,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         # Step-5: The Loan Broker and Borrower create a Loan object with a LoanSet
-        # transaction and the requested principal (excluding fees) is transered to
+        # transaction and the requested principal (excluding fees) is transferred to
         # the Borrower.
 
         loan_issuer_signed_txn = await autofill_and_sign(
@@ -262,7 +262,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         # Step-5.A: The Loan Broker and Borrower create a Loan object with a LoanSet
-        # transaction and the requested principal (excluding fees) is transered to
+        # transaction and the requested principal (excluding fees) is transferred to
         # the Borrower.
 
         loan_issuer_signed_txn = await autofill_and_sign(
@@ -376,7 +376,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         # LoanBroker, i.e. loan_issuer account) create a Loan object with a LoanSet
         # transaction and the requested principal (excluding fees) is transferred to
         # the Borrower.
-        borrower_wallet: str = loan_issuer
+        borrower_wallet: Wallet = loan_issuer
 
         loan_issuer_signed_txn = await autofill_and_sign(
             LoanSet(
@@ -548,7 +548,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         # Step-5: The Loan Broker and Borrower create a Loan object with a LoanSet
-        # transaction and the requested principal (excluding fees) is transered to
+        # transaction and the requested principal (excluding fees) is transferred to
         # the Borrower.
         loan_issuer_signed_txn = await autofill_and_sign(
             LoanSet(
@@ -751,7 +751,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         # Step-5: The Loan Broker and Borrower create a Loan object with a LoanSet
-        # transaction and the requested principal (excluding fees) is transered to
+        # transaction and the requested principal (excluding fees) is transferred to
         # the Borrower.
         loan_issuer_signed_txn = await autofill_and_sign(
             LoanSet(

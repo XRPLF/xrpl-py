@@ -1,7 +1,5 @@
 """Model for LoanPay transaction type."""
 
-# from __future__ import annotations  # Requires Python 3.7+
-
 from dataclasses import dataclass, field
 
 from xrpl.models.amounts import Amount

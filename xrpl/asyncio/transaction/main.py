@@ -184,8 +184,6 @@ async def submit(
     if response.is_successful():
         return response
 
-    print("input txn: ", transaction)
-    print(response.result)
     raise XRPLRequestFailureException(response.result)
 
 
@@ -574,7 +572,6 @@ async def _calculate_fee_per_transaction_type(
                 loan_broker_object_info = await client._request_impl(
                     LedgerEntry(index=loan_set.loan_broker_id)
                 )
-                print("Loan broker object info: ", loan_broker_object_info.result)
                 counterparty_account = loan_broker_object_info.result["node"]["Owner"]
             counterparty_signers_count = await _fetch_counterparty_signers_count(
                 client, counterparty_account

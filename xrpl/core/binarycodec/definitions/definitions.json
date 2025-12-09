@@ -837,7 +837,6 @@
         "isSigningField": true,
         "isVLEncoded": false,
         "nth": 68,
-        "nth": 53,
         "type": "UInt32"
       }
     ],

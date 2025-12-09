@@ -24,8 +24,13 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class CounterpartySignature(BaseModel):
     """
-    An inner object that contains the signature of the Lender over the transaction.
-    The fields contained in this object are:
+    Signature payload supplied by the counterparty.
+    Fields:
+    - signing_pub_key: hex-encoded public key of the counterparty (required if
+    txn_signature is set).
+    - txn_signature: hex-encoded signature over the canonical LoanSet transaction
+    (required if signing_pub_key is set).
+    - signers: optional multisign array reusing the standard Signer objects.
     """
 
     signing_pub_key: Optional[str] = None
@@ -108,13 +113,13 @@ class LoanSet(Transaction):
 
     interest_rate: Optional[int] = None
     """
-    Annualized interest rate of the Loan in in 1/10th basis points. Valid values are
+    Annualized interest rate of the Loan in 1/10th basis points. Valid values are
     between 0 and 100000 inclusive. (0 - 100%)
     """
 
     late_interest_rate: Optional[int] = None
     """
-    A premium added to the interest rate for late payments in in 1/10th basis points.
+    A premium added to the interest rate for late payments in 1/10th basis points.
     Valid values are between 0 and 100000 inclusive. (0 - 100%)
     """
 
