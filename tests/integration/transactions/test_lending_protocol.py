@@ -318,6 +318,119 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
     @test_async_and_sync(
         globals(), ["xrpl.transaction.autofill_and_sign", "xrpl.transaction.submit"]
     )
+    async def test_loan_set_txn_counterparty_is_loan_broker_owner(self, client):
+        loan_issuer = Wallet.create()
+        await fund_wallet_async(loan_issuer)
+
+        depositor_wallet = Wallet.create()
+        await fund_wallet_async(depositor_wallet)
+
+        # Step-1: Create a vault
+        tx = VaultCreate(
+            account=loan_issuer.address,
+            asset=XRP(),
+            assets_maximum="1000",
+            withdrawal_policy=WithdrawalPolicy.VAULT_STRATEGY_FIRST_COME_FIRST_SERVE,
+        )
+        response = await sign_and_reliable_submission_async(tx, loan_issuer, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        account_objects_response = await client.request(
+            AccountObjects(account=loan_issuer.address, type=AccountObjectType.VAULT)
+        )
+        self.assertEqual(len(account_objects_response.result["account_objects"]), 1)
+        VAULT_ID = account_objects_response.result["account_objects"][0]["index"]
+
+        # Step-2: Create a loan broker
+        tx = LoanBrokerSet(
+            account=loan_issuer.address,
+            vault_id=VAULT_ID,
+        )
+        response = await sign_and_reliable_submission_async(tx, loan_issuer, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Step-2.1: Verify that the LoanBroker was successfully created
+        response = await client.request(
+            AccountObjects(
+                account=loan_issuer.address, type=AccountObjectType.LOAN_BROKER
+            )
+        )
+        self.assertEqual(len(response.result["account_objects"]), 1)
+        LOAN_BROKER_ID = response.result["account_objects"][0]["index"]
+
+        # Step-3: Deposit funds into the vault
+        tx = VaultDeposit(
+            account=depositor_wallet.address,
+            vault_id=VAULT_ID,
+            amount="100",
+        )
+        response = await sign_and_reliable_submission_async(
+            tx, depositor_wallet, client
+        )
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Step-5.A: The Loan Broker and Borrower (Borrower is the Owner of the
+        # LoanBroker, i.e. loan_issuer account) create a Loan object with a LoanSet
+        # transaction and the requested principal (excluding fees) is transferred to
+        # the Borrower.
+        borrower_wallet: str = loan_issuer
+
+        loan_issuer_signed_txn = await autofill_and_sign(
+            LoanSet(
+                account=loan_issuer.address,
+                loan_broker_id=LOAN_BROKER_ID,
+                principal_requested="100",
+            ),
+            client,
+            loan_issuer,
+        )
+
+        # The loan_issuer is involved in both sides of this transaction.
+        self.assertEqual(
+            loan_issuer_signed_txn.fee,
+            str(200 + 200),
+            # Usual transaction reference fee and additional fee for the counterparty
+            # signature. Note: Multi-signing is not enabled on the loan_issuer account.
+        )
+
+        # Step-5.B: borrower agrees to the terms of the loan
+        borrower_txn_signature = sign(
+            encode_for_signing(loan_issuer_signed_txn.to_xrpl()),
+            borrower_wallet.private_key,
+        )
+
+        loan_issuer_and_borrower_signature = loan_issuer_signed_txn.to_dict()
+        loan_issuer_and_borrower_signature["counterparty_signature"] = (
+            CounterpartySignature(
+                signing_pub_key=borrower_wallet.public_key,
+                txn_signature=borrower_txn_signature,
+            )
+        )
+
+        response = await submit(
+            Transaction.from_dict(loan_issuer_and_borrower_signature),
+            client,
+            fail_hard=True,
+        )
+
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Wait for the validation of the latest ledger
+        await client.request(LEDGER_ACCEPT_REQUEST)
+
+        # fetch the Loan object
+        response = await client.request(
+            AccountObjects(account=borrower_wallet.address, type=AccountObjectType.LOAN)
+        )
+        self.assertEqual(len(response.result["account_objects"]), 1)
+
+    @test_async_and_sync(
+        globals(), ["xrpl.transaction.autofill_and_sign", "xrpl.transaction.submit"]
+    )
     async def test_lending_protocol_lifecycle_with_iou_asset(self, client):
         loan_issuer = Wallet.create()
         await fund_wallet_async(loan_issuer)

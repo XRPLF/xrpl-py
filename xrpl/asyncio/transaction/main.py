@@ -25,6 +25,7 @@ from xrpl.models import (
     TransactionFlag,
 )
 from xrpl.models.requests.account_info import AccountInfo
+from xrpl.models.requests.ledger_entry import LedgerEntry
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )
@@ -563,8 +564,20 @@ async def _calculate_fee_per_transaction_type(
             )
             base_fee += net_fee * signer_count
         else:
+            counterparty_account: str
+            if loan_set.counterparty is not None:
+                counterparty_account = loan_set.counterparty
+            else:
+                # The sfCounterparty field is optional if the counterparty is the
+                # LoanBroker owner. Deduce the counterparty account from the LoanBroker
+                # ID.
+                loan_broker_object_info = await client._request_impl(
+                    LedgerEntry(index=loan_set.loan_broker_id)
+                )
+                print("Loan broker object info: ", loan_broker_object_info.result)
+                counterparty_account = loan_broker_object_info.result["node"]["Owner"]
             counterparty_signers_count = await _fetch_counterparty_signers_count(
-                client, loan_set.counterparty
+                client, counterparty_account
             )
 
             if counterparty_signers_count > 1:
