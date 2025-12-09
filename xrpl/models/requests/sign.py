@@ -66,6 +66,7 @@ class Sign(Request):
     build_path: Optional[bool] = None  # note: None does have meaning here
     fee_mult_max: int = 10
     fee_div_max: int = 1
+    signature_target: Optional[str] = None
 
     @classmethod
     def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:
