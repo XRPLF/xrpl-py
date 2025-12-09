@@ -24,6 +24,7 @@ from xrpl.models import (
     Transaction,
     TransactionFlag,
 )
+from xrpl.models.requests.account_info import AccountInfo
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )
@@ -464,6 +465,36 @@ async def _check_fee(
         )
 
 
+async def _fetch_counterparty_signers_count(
+    client: Client, counterparty_account: str
+) -> int:
+    """
+    Fetches the number of signers of the counterparty account. Documentation for the
+    AccountInfo RPC response format:
+    https://xrpl.org/docs/references/http-websocket-apis/public-api-methods/account-methods/account_info#response-format
+
+    Args:
+        client: the network client with which to submit the transaction.
+        counterparty_account: the account of the counterparty.
+
+    Returns:
+        The number of signers of the counterparty account (or) 1 if no signer_list is
+        configured for the account.
+    """
+    account_info_response = await client._request_impl(
+        AccountInfo(account=counterparty_account, signer_lists=True)
+    )
+
+    # If the SignerList of the counterparty is not set (or) mis-configured, presume
+    # there is only one signer.
+    if (
+        "signer_lists" not in account_info_response.result
+        or len(account_info_response.result["signer_lists"]) != 1
+    ):
+        return 1
+    return len(account_info_response.result["signer_lists"][0]["SignerEntries"])
+
+
 async def _calculate_fee_per_transaction_type(
     transaction: Transaction,
     client: Client,
@@ -521,7 +552,8 @@ async def _calculate_fee_per_transaction_type(
         )
     elif transaction.transaction_type == TransactionType.LOAN_SET:
         # Compute the additional cost of each signature in the
-        # CounterpartySignature, whether a single signature or a multisignature
+        # CounterpartySignature field. The  transaction fees depend on the number of
+        # signatures specified in the field.
         loan_set = cast(LoanSet, transaction)
         if loan_set.counterparty_signature is not None:
             signer_count = (
@@ -531,13 +563,23 @@ async def _calculate_fee_per_transaction_type(
             )
             base_fee += net_fee * signer_count
         else:
-            # Note: Due to lack of information, the client-library assumes that
-            # there is only one signer. However, the LoanIssuer and Borrower need to
-            # communicate the number of CounterpartySignature.signers
-            # (or the appropriate transaction-fee)
-            # with each other off-chain. This helps with efficient fee-calculation for
-            # the LoanSet transaction.
-            base_fee += net_fee
+            counterparty_signers_count = await _fetch_counterparty_signers_count(
+                client, loan_set.counterparty
+            )
+
+            if counterparty_signers_count > 1:
+                print(
+                    (
+                        f"Warning: You are using autofill feature for the LoanSet "
+                        f"transaction: {transaction.to_dict()}. The transaction fee "
+                        "estimation is based on the number of signers in the "
+                        "CounterpartySignature field. It might be possible to optimize "
+                        "the fee further by considering the minimum quorum of signers."
+                        "\nIf you prefer optimized transaction fee, please fill the fee"
+                        " field manually."
+                    )
+                )
+            base_fee += net_fee * counterparty_signers_count
 
     # Multi-signed/Multi-Account Batch Transactions
     # BaseFee × (1 + Number of Signatures Provided)
