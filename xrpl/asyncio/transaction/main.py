@@ -554,42 +554,34 @@ async def _calculate_fee_per_transaction_type(
         # CounterpartySignature field. The  transaction fees depend on the number of
         # signatures specified in the field.
         loan_set = cast(LoanSet, transaction)
-        if loan_set.counterparty_signature is not None:
-            signer_count = (
-                len(loan_set.counterparty_signature.signers)
-                if loan_set.counterparty_signature.signers is not None
-                else 1
-            )
-            base_fee += net_fee * signer_count
+        counterparty_account: str
+        if loan_set.counterparty is not None:
+            counterparty_account = loan_set.counterparty
         else:
-            counterparty_account: str
-            if loan_set.counterparty is not None:
-                counterparty_account = loan_set.counterparty
-            else:
-                # The sfCounterparty field is optional if the counterparty is the
-                # LoanBroker owner. Deduce the counterparty account from the LoanBroker
-                # ID.
-                loan_broker_object_info = await client._request_impl(
-                    LedgerEntry(index=loan_set.loan_broker_id)
-                )
-                counterparty_account = loan_broker_object_info.result["node"]["Owner"]
-            counterparty_signers_count = await _fetch_counterparty_signers_count(
-                client, counterparty_account
+            # The sfCounterparty field is optional if the counterparty is the
+            # LoanBroker owner. Deduce the counterparty account from the LoanBroker
+            # ID.
+            loan_broker_object_info = await client._request_impl(
+                LedgerEntry(index=loan_set.loan_broker_id)
             )
+            counterparty_account = loan_broker_object_info.result["node"]["Owner"]
+        counterparty_signers_count = await _fetch_counterparty_signers_count(
+            client, counterparty_account
+        )
 
-            if counterparty_signers_count > 1:
-                print(
-                    (
-                        f"Warning: You are using autofill feature for the LoanSet "
-                        f"transaction: {transaction.to_dict()}. The transaction fee "
-                        "estimation is based on the number of signers in the "
-                        "CounterpartySignature field. It might be possible to optimize "
-                        "the fee further by considering the minimum quorum of signers."
-                        "\nIf you prefer optimized transaction fee, please fill the fee"
-                        " field manually."
-                    )
+        if counterparty_signers_count > 1:
+            print(
+                (
+                    f"Warning: You are using autofill feature for the LoanSet "
+                    f"transaction: {transaction.to_dict()}. The transaction fee "
+                    "estimation is based on the number of signers in the "
+                    "CounterpartySignature field. It might be possible to optimize "
+                    "the fee further by considering the minimum quorum of signers."
+                    "\nIf you prefer optimized transaction fee, please fill the fee"
+                    " field manually."
                 )
-            base_fee += net_fee * counterparty_signers_count
+            )
+        base_fee += net_fee * counterparty_signers_count
 
     # Multi-signed/Multi-Account Batch Transactions
     # BaseFee × (1 + Number of Signatures Provided)
