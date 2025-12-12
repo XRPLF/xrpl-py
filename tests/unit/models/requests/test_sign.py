@@ -67,6 +67,14 @@ class TestSign(TestCase):
         )
         self.assertTrue(request.is_valid())
 
+    def test_valid_signature_target(self):
+        request = Sign(
+            transaction=_TRANSACTION,
+            signature_target="CounterpartySignature",
+            secret=_SECRET,
+        )
+        self.assertTrue(request.is_valid())
+
     def test_valid_seed(self):
         request = Sign(
             transaction=_TRANSACTION, seed=_SEED, key_type=CryptoAlgorithm.SECP256K1
