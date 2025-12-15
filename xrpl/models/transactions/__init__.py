@@ -40,6 +40,15 @@ from xrpl.models.transactions.did_set import DIDSet
 from xrpl.models.transactions.escrow_cancel import EscrowCancel
 from xrpl.models.transactions.escrow_create import EscrowCreate
 from xrpl.models.transactions.escrow_finish import EscrowFinish
+from xrpl.models.transactions.loan_broker_cover_clawback import LoanBrokerCoverClawback
+from xrpl.models.transactions.loan_broker_cover_deposit import LoanBrokerCoverDeposit
+from xrpl.models.transactions.loan_broker_cover_withdraw import LoanBrokerCoverWithdraw
+from xrpl.models.transactions.loan_broker_delete import LoanBrokerDelete
+from xrpl.models.transactions.loan_broker_set import LoanBrokerSet
+from xrpl.models.transactions.loan_delete import LoanDelete
+from xrpl.models.transactions.loan_manage import LoanManage
+from xrpl.models.transactions.loan_pay import LoanPay
+from xrpl.models.transactions.loan_set import LoanSet
 from xrpl.models.transactions.metadata import TransactionMetadata
 from xrpl.models.transactions.mptoken_authorize import (
     MPTokenAuthorize,
@@ -165,6 +174,15 @@ __all__ = [
     "EscrowCreate",
     "EscrowFinish",
     "GranularPermission",
+    "LoanBrokerCoverClawback",
+    "LoanBrokerCoverDeposit",
+    "LoanBrokerCoverWithdraw",
+    "LoanBrokerDelete",
+    "LoanBrokerSet",
+    "LoanDelete",
+    "LoanManage",
+    "LoanPay",
+    "LoanSet",
     "Memo",
     "MPTokenAuthorize",
     "MPTokenAuthorizeFlag",
