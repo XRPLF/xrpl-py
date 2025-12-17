@@ -205,44 +205,6 @@ poetry run poe generate https://github.com/XRPLF/rippled/tree/develop
 
 Verify that the changes make sense by inspection before submitting, as there may be updates required for the `xrpl-codec-gen` tool depending on the latest amendments we're updating to match.
 
-## Release process
-
-### Editing the Code
-
-- Your changes should have unit and/or integration tests.
-- Your changes should pass the linter.
-- Your code should pass all the unit and integration tests on Github (which check all versions of Python).
-- Open a PR against `main` and ensure that all CI passes.
-- Get a full code review from one of the maintainers.
-- Merge your changes.
-
-### Release
-
-1. Please increment the version in `pyproject.toml` and update the `CHANGELOG.md` file appropriately. We follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-2. Please select a commit that is suitable for release and create a tag. The following commands can be helpful:
-   `git tag -s -a <tag-title> -m "Optional Message describing the tag"`
-   `git tag` -- This command displays all the tags in the repository.
-   `git push <remote_name, e.g. upstream> tag <tag_title>`
-3. A [Github Workflow](.github/workflows/publish_to_pypi.yml) completes the rest of the Release steps (building the project, generating a .whl and tarball, publishing on the PyPI platform). The workflow uses OpenID Connect's temporary keys to obtain the necessary PyPI authorization.
-   As a prerequisite, the PyPI `xrpl-py` project needs to authorize Github Actions as a "Trusted Publisher". This page contains helpful resources: https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/#configuring-trusted-publishing
-4. Send an email to [xrpl-announce](https://groups.google.com/g/xrpl-announce).
-5. Post an announcement in the [XRPL Discord #python channel](https://discord.com/channels/886050993802985492/886053080913821717) with a link to the changes and highlighting key changes.
-
-**Note: If maintainers prefer to manually release the xrpl-py software distribution, the below steps are relevant.**
-
-1. Create a branch off main that properly increments the version in `pyproject.toml` and updates the `CHANGELOG` appropriately. We follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-2. Merge this branch into `main`.
-3. Locally build and download the package.
-   1. Pull main locally.
-   2. Run `poetry build` to build the package locally.
-   3. Locally download the package by running `pip install path/to/local/xrpl-py/dist/.whl`.
-   4. Make sure that this local installation works as intended, and that the changes are reflected properly.
-4. Run `poetry publish --dry-run` and make sure everything looks good.
-5. Publish the update by running `poetry publish`.
-   - This will require entering PyPI login info.
-6. Create a new Github release/tag off of this branch.
-7. Send an email to [xrpl-announce](https://groups.google.com/g/xrpl-announce).
-8. Post an announcement in the [XRPL Discord #python channel](https://discord.com/channels/886050993802985492/886053080913821717) with a link to the changes and highlighting key changes.
 
 ## Mailing Lists
 
