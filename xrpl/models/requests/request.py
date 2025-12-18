@@ -5,6 +5,7 @@ Represents fields common to all request types.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, Optional, Type, Union, cast
@@ -161,6 +162,22 @@ class Request(BaseModel):
             del value["method"]
 
         return super(Request, cls).from_dict(value)
+
+    @classmethod
+    def from_xrpl(cls: Type[Self], value: Union[str, Dict[str, Any]]) -> Self:
+        """
+        Construct a new Request from a dictionary of parameters. Alias of `from_dict`.
+
+        Args:
+            value: The value to construct the Request from.
+
+        Returns:
+            A new Request object, constructed using the given parameters.
+
+        Raises:
+            XRPLModelException: If the dictionary provided is invalid.
+        """
+        return cls.from_dict(value if isinstance(value, dict) else json.loads(value))
 
     @classmethod
     def get_method(cls: Type[Self], method: str) -> Type[Request]:
