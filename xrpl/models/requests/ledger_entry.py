@@ -118,24 +118,24 @@ class DepositPreauth(BaseModel):
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Directory(BaseModel):
     """
-    Required fields for requesting a DirectoryNode if not querying by
-    object ID.
+    The input requires either dir_root or owner as a sub-field, plus optionally a
+    sub_index sub-field.
     """
 
-    owner: str = REQUIRED
+    owner: Optional[str] = None
     """
-    This field is required.
-
-    :meta hide-value:
+    (Optional) Unique address of the account associated with this directory.
     """
 
-    dir_root: str = REQUIRED
+    dir_root: Optional[str] = None
     """
-    This field is required.
+    (Optional) Unique index identifying the directory to retrieve, as a hex string.
+    """
 
-    :meta hide-value:
-    """
     sub_index: Optional[int] = None
+    """
+    (Optional) If provided, jumps to a later "page" of the DirectoryNode.
+    """
 
 
 @require_kwargs_on_init
