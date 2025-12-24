@@ -696,6 +696,16 @@
         "isSerialized": true,
         "isSigningField": true,
         "isVLEncoded": false,
+        "nth": 53,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "StartDate",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
         "nth": 54,
         "type": "UInt32"
       }
@@ -837,6 +847,56 @@
         "isSigningField": true,
         "isVLEncoded": false,
         "nth": 68,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "ExtensionComputeLimit",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 69,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "ExtensionSizeLimit",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 70,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "GasPrice",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 71,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "ComputationAllowance",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 72,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "GasUsed",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 73,
         "type": "UInt32"
       }
     ],
@@ -2091,6 +2151,16 @@
       }
     ],
     [
+      "FinishFunction",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": true,
+        "nth": 32,
+        "type": "Blob"
+      }
+    ],
+    [
       "Account",
       {
         "isSerialized": true,
@@ -2351,7 +2421,7 @@
       }
     ],
     [
-      "DummyInt32",
+      "DebtTotal",
       {
         "isSerialized": true,
         "isSigningField": true,
@@ -2419,7 +2489,8 @@
         "nth": 12,
         "type": "Number"
       }
-    ],    [
+    ],
+    [
       "PrincipalOutstanding",
       {
         "isSerialized": true,
@@ -2437,6 +2508,56 @@
         "isVLEncoded": false,
         "nth": 14,
         "type": "Number"
+      }
+    ],
+    [
+      "TotalValueOutstanding",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 15,
+        "type": "Number"
+      }
+    ],
+    [
+      "PeriodicPayment",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 16,
+        "type": "Number"
+      }
+    ],
+    [
+      "ManagementFeeOutstanding",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 17,
+        "type": "Number"
+      }
+    ],
+    [
+      "LoanScale",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 1,
+        "type": "Int32"
+      }
+    ],
+    [
+      "WasmReturnCode",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 2,
+        "type": "Int32"
       }
     ],
     [
@@ -3480,6 +3601,7 @@
     "tecUNFUNDED_AMM": 162,
     "tecUNFUNDED_OFFER": 103,
     "tecUNFUNDED_PAYMENT": 104,
+    "tecWASM_REJECTED": 199,
     "tecWRONG_ASSET": 194,
     "tecXCHAIN_ACCOUNT_CREATE_PAST": 181,
     "tecXCHAIN_ACCOUNT_CREATE_TOO_MANY": 182,
@@ -3518,8 +3640,10 @@
     "tefNOT_MULTI_SIGNING": -184,
     "tefNO_AUTH_REQUIRED": -191,
     "tefNO_TICKET": -180,
+    "tefNO_WASM": -177,
     "tefPAST_SEQ": -190,
     "tefTOO_BIG": -181,
+    "tefWASM_FIELD_NOT_INCLUDED": -176,
     "tefWRONG_PRIOR": -189,
 
     "telBAD_DOMAIN": -398,
@@ -3567,6 +3691,7 @@
     "temBAD_TICK_SIZE": -269,
     "temBAD_TRANSFER_FEE": -251,
     "temBAD_TRANSFER_RATE": -280,
+    "temBAD_WASM": -249,
     "temBAD_WEIGHT": -270,
     "temCANNOT_PREAUTH_SELF": -267,
     "temDISABLED": -273,
@@ -3598,6 +3723,7 @@
     "terNO_ACCOUNT": -96,
     "terNO_AMM": -87,
     "terNO_AUTH": -95,
+    "terNO_DELEGATE_PERMISSION": -85,
     "terNO_LINE": -94,
     "terNO_RIPPLE": -90,
     "terOWNERS": -93,
@@ -3636,15 +3762,15 @@
     "EscrowFinish": 2,
     "Invalid": -1,
     "LedgerStateFix": 53,
-    "LoanBrokerSet": 74,
-    "LoanBrokerDelete": 75,
+    "LoanBrokerCoverClawback": 78,
     "LoanBrokerCoverDeposit": 76,
     "LoanBrokerCoverWithdraw": 77,
-    "LoanBrokerCoverClawback": 78,
-    "LoanSet": 80,
+    "LoanBrokerDelete": 75,
+    "LoanBrokerSet": 74,
     "LoanDelete": 81,
     "LoanManage": 82,
     "LoanPay": 84,
+    "LoanSet": 80,
     "MPTokenAuthorize": 57,
     "MPTokenIssuanceCreate": 54,
     "MPTokenIssuanceDestroy": 55,

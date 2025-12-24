@@ -9,6 +9,7 @@ from xrpl.core.binarycodec.types.hash128 import Hash128
 from xrpl.core.binarycodec.types.hash160 import Hash160
 from xrpl.core.binarycodec.types.hash192 import Hash192
 from xrpl.core.binarycodec.types.hash256 import Hash256
+from xrpl.core.binarycodec.types.int32 import Int32
 from xrpl.core.binarycodec.types.issue import Issue
 from xrpl.core.binarycodec.types.number import Number
 from xrpl.core.binarycodec.types.path_set import PathSet
@@ -32,6 +33,7 @@ __all__ = [
     "Hash160",
     "Hash192",
     "Hash256",
+    "Int32",
     "Issue",
     "Number",
     "PathSet",
