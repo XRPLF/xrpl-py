@@ -5,6 +5,7 @@ from unittest import TestCase
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import MPTokenIssuanceCreate, MPTokenIssuanceCreateFlag
 from xrpl.utils import str_to_hex
+from xrpl.utils.mptoken_metadata import encode_mptoken_metadata
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 
@@ -26,7 +27,7 @@ class TestMPTokenIssuanceCreate(TestCase):
             transfer_fee=1,
             flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK
             | MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
-            mptoken_metadata=str_to_hex(json.dumps(mptoken_metadata)),
+            mptoken_metadata=encode_mptoken_metadata(mptoken_metadata),
         )
         self.assertTrue(tx.is_valid())
 
@@ -104,7 +105,10 @@ class TestMPTokenIssuanceCreate(TestCase):
         invalid_metadata = {
             "ticker": "TBILL",
             "name": "T-Bill Yield Token",
-            "invalid_field": "should cause warning",
+            "icon": "https://example.org/tbill-icon.png",
+            "asset_class": "rwa",
+            "asset_subclass": None,
+            "issuer_name": "Example Yield Co.",
         }
 
         tx = MPTokenIssuanceCreate(
@@ -119,7 +123,9 @@ class TestMPTokenIssuanceCreate(TestCase):
             self.assertTrue(len(caught_warnings) > 0, "Expected warning not emitted")
             warning_messages = [str(w.message) for w in caught_warnings]
             found = any(
-                "- icon is required and must be string." in msg
+                "- asset_subclass/as: required when asset_class is rwa." in msg
                 for msg in warning_messages
             )
-            self.assertTrue(found, "- icon is required and must be string.")
+            self.assertTrue(
+                found, "- asset_subclass/as: required when asset_class is rwa."
+            )
