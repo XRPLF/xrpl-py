@@ -29,6 +29,18 @@ class TestRequest(TestCase):
         }
         self.assertDictEqual(obj.to_dict(), expected)
 
+    def test_from_xrpl(self):
+        req = {"method": "account_tx", "account": "rN6zcSynkRnf8zcgTVrRL8K7r4ovE7J4Zj"}
+        obj = Request.from_xrpl(req)
+        self.assertEqual(obj.__class__.__name__, "AccountTx")
+        expected = {
+            **req,
+            "binary": False,
+            "forward": False,
+            "api_version": _DEFAULT_API_VERSION,
+        }
+        self.assertDictEqual(obj.to_dict(), expected)
+
     def test_from_dict_no_method(self):
         req = {"account": "rN6zcSynkRnf8zcgTVrRL8K7r4ovE7J4Zj"}
         with self.assertRaises(XRPLModelException):
