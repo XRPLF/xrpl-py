@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
-## Fixed
+### Fixed
 
 - Fix `Request.from_xrpl` by aliasing it to `Request.from_dict`
 
