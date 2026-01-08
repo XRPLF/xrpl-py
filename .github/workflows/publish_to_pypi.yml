@@ -4,10 +4,15 @@ on:
     tags:
       - "*"
 
+
 jobs:
   build:
     name: Build distribution 📦
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     env:
       POETRY_VERSION: 2.1.1
 
@@ -17,7 +22,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           # Use the lowest supported version of Python for CI/CD
-          python-version: "3.8"
+          python-version: "3.9"
       - name: Load cached .local
         id: cache-poetry
         uses: actions/cache@v3
@@ -25,11 +30,15 @@ jobs:
           path: /home/runner/.local
           key: dotlocal-${{ env.POETRY_VERSION }}-${{ hashFiles('poetry.lock') }}
       - name: Install poetry
-        if: steps.cache-poetry.outputs.cache-hit != 'true'
+        env:
+          PIP_INDEX_URL: https://pypi.org/simple
+          PIP_NO_CACHE_DIR: "1"
         run: |
-          curl -sSL "https://install.python-poetry.org/" | python - --version "${{ env.POETRY_VERSION }}"
-          echo "${HOME}/.local/bin" >> $GITHUB_PATH
-          poetry --version || exit 1  # Verify installation
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install "dulwich>=0.22.6,<0.23.0"
+          python -m pip install "https://github.com/python-poetry/poetry/releases/download/${POETRY_VERSION}/poetry-${POETRY_VERSION}-py3-none-any.whl"
+          poetry --version
       - name: Build a binary wheel and a source tarball
         run: poetry build
       - name: Store the distribution packages
@@ -37,12 +46,26 @@ jobs:
         with:
           name: python-package-distributions
           path: dist/
+      - name: Generate build provenance attestation
+        id: provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: "dist/*"
+      - name: Store provenance attestation
+        if: steps.provenance.outputs.bundle-path != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-provenance
+          path: ${{ steps.provenance.outputs.bundle-path }}
   publish-to-pypi:
     name: >-
       Publish Python 🐍 distribution 📦 to PyPI
     needs: build # Explicit dependency on build job
     runs-on: ubuntu-latest
     timeout-minutes: 10 # Adjust based on typical publishing time
+    environment:
+      name: official-release
+      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
     permissions:
       # More information about Trusted Publishing and OpenID Connect: https://blog.pypi.org/posts/2023-04-20-introducing-trusted-publishers/
       id-token: write # IMPORTANT: mandatory for trusted publishing
@@ -60,6 +83,7 @@ jobs:
         with:
           verbose: true
           verify-metadata: true
+          attestations: true
 
   github-release:
     name: >-
@@ -80,8 +104,13 @@ jobs:
         with:
           name: python-package-distributions
           path: dist/
+      - name: Download provenance attestations
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-provenance
+          path: provenance/
       - name: Sign the dists with Sigstore
-        uses: sigstore/gh-action-sigstore-python@v2.1.1
+        uses: sigstore/gh-action-sigstore-python@v3.0.1
         with:
           inputs: >-
             ./dist/*.tar.gz
@@ -103,5 +132,7 @@ jobs:
           # sigstore-produced signatures and certificates.
         run: >-
           gh release upload
-          '${{ github.ref_name }}' dist/**
+          '${{ github.ref_name }}'
+          dist/**
+          provenance/**
           --repo '${{ github.repository }}'
