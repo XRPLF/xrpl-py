@@ -13,3 +13,24 @@ class TestAccountObjects(IntegrationTestCase):
             )
         )
         self.assertTrue(response.is_successful())
+
+    @test_async_and_sync(globals())
+    async def test_type_filter(self, client):
+        response = await client.request(
+            AccountObjects(
+                account=WALLET.address,
+                type="Escrow",
+            )
+        )
+        self.assertTrue(response.is_successful())
+        self.assertIsNotNone(response.result["account_objects"])
+
+        # test case-insensitive type filter
+        response = await client.request(
+            AccountObjects(
+                account=WALLET.address,
+                type="mPtOkeNisSuance",
+            )
+        )
+        self.assertTrue(response.is_successful())
+        self.assertIsNotNone(response.result["account_objects"])
