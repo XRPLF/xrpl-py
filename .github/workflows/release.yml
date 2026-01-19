@@ -79,10 +79,10 @@ jobs:
           RELEASE_BRANCH: ${{ github.event.inputs.release_branch }}
         run: |
           set -euo pipefail
-          # if [[ "${TRIGGER_BRANCH}" != "main" ]]; then
-          #   echo "❌ This workflow must be dispatched from the main branch (current: ${TRIGGER_BRANCH})." >&2
-          #   exit 1
-          # fi
+          if [[ "${TRIGGER_BRANCH}" != "main" ]]; then
+            echo "❌ This workflow must be dispatched from the main branch (current: ${TRIGGER_BRANCH})." >&2
+            exit 1
+          fi
 
           RELEASE_BRANCH="${RELEASE_BRANCH}"
 
@@ -94,26 +94,6 @@ jobs:
           if [[ "${IS_BETA_RELEASE}" != "true" ]] && [[ ! "${RELEASE_BRANCH,,}" =~ ^release[-/] ]]; then
             echo "❌ Release branch '$RELEASE_BRANCH' must start with 'release-' or 'release/' for stable releases." >&2
             exit 1
-          fi
-
-          if [[ "${IS_BETA_RELEASE}" != "true" ]]; then
-            OWNER="${REPO%%/*}"
-            echo "🔎 Validating that a release PR exists for ${RELEASE_BRANCH} → main…"
-            PRS_JSON="$(gh api -H 'Accept: application/vnd.github+json' \
-              --method GET \
-              -f state=open \
-              -f base=main \
-              -f head="${OWNER}:${RELEASE_BRANCH}" \
-              "/repos/$REPO/pulls")"
-            PR_NUMBER="$(printf '%s' "$PRS_JSON" | jq -r '.[0].number // empty')"
-            PR_URL="$(printf '%s' "$PRS_JSON" | jq -r '.[0].html_url // empty')"
-            if [ -z "$PR_NUMBER" ]; then
-              echo "❌ No open PR found from ${RELEASE_BRANCH} to main. Please create the release PR before running this workflow." >&2
-              exit 1
-            fi
-            echo "ℹ️ Found release PR: #$PR_NUMBER ($PR_URL)"
-          else
-            echo "ℹ️ Beta release detected; skipping PR existence check."
           fi
 
           if grep -R --exclude-dir=.git --exclude-dir=.github "artifactory.ops.ripple.com" .; then
@@ -128,7 +108,10 @@ jobs:
     name: Run faucet tests matrix (${{ needs.input-validate.outputs.package_version }})
     needs:
       - input-validate
+    if: ${{ needs.input-validate.outputs.is_beta_release != 'true' }}
     uses: ./.github/workflows/faucet_test.yml
+    with:
+      git_ref: ${{ github.event.inputs.release_branch }}
     secrets: inherit
 
   integration-tests:
@@ -136,6 +119,8 @@ jobs:
     needs:
       - input-validate
     uses: ./.github/workflows/integration_test.yml
+    with:
+      git_ref: ${{ github.event.inputs.release_branch }}
     secrets: inherit
 
   unit-tests:
@@ -143,6 +128,8 @@ jobs:
     needs:
       - input-validate
     uses: ./.github/workflows/unit_test.yml
+    with:
+      git_ref: ${{ github.event.inputs.release_branch }}
     secrets: inherit
 
   pre-release:
@@ -163,6 +150,7 @@ jobs:
       id-token: write
       attestations: write
       issues: write
+      pull-requests: write
     env:
       POETRY_VERSION: 2.1.1
       CYCLONEDX_BOM_VERSION: 7.2.0
@@ -177,6 +165,44 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.release_branch }}
+      - name: Create PR from release branch to main (skips for rc/beta)
+        id: ensure_pr
+        if: ${{ needs.input-validate.outputs.is_beta_release != 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RELEASE_BRANCH: ${{ github.event.inputs.release_branch }}
+          VERSION: ${{ needs.input-validate.outputs.package_version }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+
+          echo "🔎 Checking if a PR already exists for $RELEASE_BRANCH → main…"
+          OWNER="${REPO%%/*}"
+          PRS_JSON="$(gh api -H 'Accept: application/vnd.github+json' \
+            "/repos/$REPO/pulls?state=open&base=main&head=${OWNER}:${RELEASE_BRANCH}")"
+          PR_NUMBER="$(printf '%s' "$PRS_JSON" | jq -r '.[0].number // empty')"
+          PR_URL="$(printf '%s' "$PRS_JSON" | jq -r '.[0].html_url // empty')"
+          if [ -n "${PR_NUMBER:-}" ]; then
+            echo "ℹ️ Found existing PR: #$PR_NUMBER ($PR_URL)"
+            echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+            echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "📝 Creating PR for release $VERSION from $RELEASE_BRANCH → main (as draft)"
+          CREATE_JSON="$(jq -n \
+            --arg title "Release $VERSION: $RELEASE_BRANCH → main" \
+            --arg head  "$RELEASE_BRANCH" \
+            --arg base  "main" \
+            --arg body  "Automated PR for release **$VERSION** from **$RELEASE_BRANCH** → **main**. Workflow Run: https://github.com/$REPO/actions/runs/$RUN_ID" \
+            '{title:$title, head:$head, base:$base, body:$body, draft:true}')"
+          RESP="$(gh api -H 'Accept: application/vnd.github+json' \
+            --method POST /repos/$REPO/pulls --input <(printf '%s' "$CREATE_JSON"))"
+          PR_NUMBER="$(printf '%s' "$RESP" | jq -r '.number')"
+          PR_URL="$(printf '%s' "$RESP" | jq -r '.html_url')"
+          echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
       - name: Load cached .local
         id: cache-poetry
         uses: actions/cache@v4
@@ -537,6 +563,7 @@ jobs:
       PACKAGE_VERSION: ${{ needs.pre-release.outputs.package_version }}
     permissions:
       # More information about Trusted Publishing and OpenID Connect: https://blog.pypi.org/posts/2023-04-20-introducing-trusted-publishers/
+      contents: read
       id-token: write # IMPORTANT: mandatory for trusted publishing
     steps:
       - name: Prevent second attempt
@@ -545,6 +572,11 @@ jobs:
             echo "❌ Workflow rerun (attempt ${GITHUB_RUN_ATTEMPT}). Second attempts are not allowed."
             exit 1
           fi
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.release_branch }}
       - name: Download all the dists
         uses: actions/download-artifact@v4
         with:
@@ -592,6 +624,11 @@ jobs:
       IS_BETA_RELEASE: ${{ needs.input-validate.outputs.is_beta_release }}
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.release_branch }}
       - name: Download all the dists
         uses: actions/download-artifact@v4
         with:

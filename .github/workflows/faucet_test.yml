@@ -5,6 +5,12 @@ on:
     branches: [main]
   workflow_dispatch:
   workflow_call:
+    inputs:
+      git_ref:
+        description: "Git ref (branch, tag, or SHA) to test"
+        required: false
+        type: string
+        default: ""
 
 env:
   POETRY_VERSION: 2.1.1
@@ -21,6 +27,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref != '' && inputs.git_ref || github.ref }}
 
       - name: Load cached .local
         id: cache-poetry
