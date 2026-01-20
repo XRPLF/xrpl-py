@@ -22,14 +22,14 @@ and standard releases by reading version under the [project] section from `pypro
     default download).
 
 - **Stable release**:
-  - A PR from the release branch to `main` is must exist before triggering the pipeline.
+  - A PR from the release branch to `main` will be raised automatically by the pipeline.
   - The GitHub Release is created with `--latest`, updating the repository’s
     default published release.
 
 ## 1. Prepare the Release Branch
 
 - **Stable release**:
-1. Create release branch using name with prefix `release-` (or `release/`).
+1. Create release branch using name with prefix `release-` or `release/`.
 2. Bump `project.version` inside `pyproject.toml` and update `CHANGELOG.md`
    (or other release notes).
 3. Raise a PR from release branch to main branch.
@@ -38,13 +38,13 @@ and standard releases by reading version under the [project] section from `pypro
   - There is no restriction for branch name.
   - A PR to main is not mandotary.
 
-The workflow will fail immediately if the version already exists, if the branch
+The workflow will fail immediately if the version already exists, or if the branch
 name does not match the required prefix.
 
 ## 2. Run the Release Workflow
 
 1. Navigate to **Actions → Publish xrpl-py 🐍 distribution 📦 to PyPI**.
-2. Select the release branch and click **Run workflow**.
+2. Fill in the release branch name and click **Run workflow**.
 3. Provide name of release branch.
 
 ### What the workflow does
@@ -54,7 +54,7 @@ The high-level pipeline is:
 | Stage | Purpose (key steps) |
 | --- | --- |
 | `input-validate` | Checks branch naming, ensures the version in `pyproject.toml` does not already exist as a tag, Detects whether the release is a beta (`a`, `b`, or `rc`). |
-| `faucet-tests`, `integration-tests` | Re-usable workflows that run faucet, unit, and integration test matrices against supported Python versions. |
+| `faucet-tests`, `integration-tests` | Re-usable workflows that run faucet, unit, and integration test matrices against supported Python versions. Faucet-tests will be skipped for beta releases |
 | `pre-release` | Builds the wheel and sdist with Poetry 2.1.1, uploads build artifacts, generates a CycloneDX SBOM, scans it with Trivy, uploads results to OWASP Dependency-Track, and stores both SBOM and vulnerability reports as Actions artifacts. If any CRITICAL/HIGH findings exist, the job opens a GitHub issue linking to the report. |
 | `ask_for_dev_team_review` | Creates or reuses a PR from the release branch to `main` (skipped for beta releases), gathers required reviewers from environment protection rules, prints a summary, and posts a Slack message requesting review/approval. |
 | `first_review` | Waits for the Dev environment (`first-review`) approval. |
