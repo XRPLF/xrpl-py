@@ -2,7 +2,7 @@
 
 import json
 import os
-from typing import Any, Dict, cast
+from typing import Any, Dict, Optional, Union, cast
 
 from xrpl.core.binarycodec.definitions.field_header import FieldHeader
 from xrpl.core.binarycodec.definitions.field_info import FieldInfo
@@ -29,37 +29,55 @@ def load_definitions(filename: str = "definitions.json") -> Dict[str, Any]:
     absolute_path = os.path.join(dirname, filename)
     with open(absolute_path) as definitions_file:
         definitions = json.load(definitions_file)
-        return {
-            "TYPES": definitions["TYPES"],
-            # type_name str: type_sort_key int
-            "FIELDS": {
-                k: v for (k, v) in definitions["FIELDS"]
-            },  # convert list of tuples to dict
-            # "field_name" str: {
-            #   "nth": field_sort_key int,
-            #   "isVLEncoded": bool,
-            #   "isSerialized": bool,
-            #   "isSigningField": bool,
-            #   "type": string
-            # }
-            "LEDGER_ENTRY_TYPES": definitions["LEDGER_ENTRY_TYPES"],
-            "TRANSACTION_RESULTS": definitions["TRANSACTION_RESULTS"],
-            "TRANSACTION_TYPES": definitions["TRANSACTION_TYPES"],
-        }
+        return _parse_definitions(definitions)
 
 
-_DEFINITIONS = load_definitions()
-_TRANSACTION_TYPE_CODE_TO_STR_MAP = {
-    value: key for (key, value) in _DEFINITIONS["TRANSACTION_TYPES"].items()
-}
-_TRANSACTION_RESULTS_CODE_TO_STR_MAP = {
-    value: key for (key, value) in _DEFINITIONS["TRANSACTION_RESULTS"].items()
-}
-_LEDGER_ENTRY_TYPES_CODE_TO_STR_MAP = {
-    value: key for (key, value) in _DEFINITIONS["LEDGER_ENTRY_TYPES"].items()
-}
+def load_definitions_from_path(path: str) -> Dict[str, Any]:
+    """
+    Loads JSON from an absolute file path and converts it to a preferred format.
 
-_GRANULAR_PERMISSIONS = {
+    Args:
+        path: The absolute path to the definitions file.
+
+    Returns:
+        A dictionary containing the mappings provided in the definitions file.
+    """
+    with open(path) as definitions_file:
+        definitions = json.load(definitions_file)
+        return _parse_definitions(definitions)
+
+
+def _parse_definitions(definitions: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Parses raw definitions JSON into the internal format.
+
+    Args:
+        definitions: The raw definitions dict (as loaded from JSON).
+
+    Returns:
+        A dictionary containing the mappings in the preferred format.
+    """
+    return {
+        "TYPES": definitions["TYPES"],
+        # type_name str: type_sort_key int
+        "FIELDS": {
+            k: v for (k, v) in definitions["FIELDS"]
+        },  # convert list of tuples to dict
+        # "field_name" str: {
+        #   "nth": field_sort_key int,
+        #   "isVLEncoded": bool,
+        #   "isSerialized": bool,
+        #   "isSigningField": bool,
+        #   "type": string
+        # }
+        "LEDGER_ENTRY_TYPES": definitions.get("LEDGER_ENTRY_TYPES", {}),
+        "TRANSACTION_RESULTS": definitions.get("TRANSACTION_RESULTS", {}),
+        "TRANSACTION_TYPES": definitions.get("TRANSACTION_TYPES", {}),
+    }
+
+
+# Granular permissions that are not derived from transaction types
+_GRANULAR_PERMISSIONS: Dict[str, int] = {
     "TrustlineAuthorize": 65537,
     "TrustlineFreeze": 65538,
     "TrustlineUnfreeze": 65539,
@@ -74,40 +92,131 @@ _GRANULAR_PERMISSIONS = {
     "MPTokenIssuanceUnlock": 65548,
 }
 
-_tx_delegations = {
-    key: value + 1 for (key, value) in _DEFINITIONS["TRANSACTION_TYPES"].items()
-}
-_DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP: Dict[str, int] = {
-    **_tx_delegations,
-    **_GRANULAR_PERMISSIONS,
-}
-_DELEGABLE_PERMISSIONS_CODE_TO_STR_MAP: Dict[int, str] = {
-    **{value: key for (key, value) in _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP.items()},
-}
-
-_TYPE_ORDINAL_MAP = _DEFINITIONS["TYPES"]
-
-_FIELD_INFO_MAP = {}
+# Module-level state - populated by _initialize_definitions()
+_DEFINITIONS: Dict[str, Any] = {}
+_TRANSACTION_TYPE_CODE_TO_STR_MAP: Dict[int, str] = {}
+_TRANSACTION_RESULTS_CODE_TO_STR_MAP: Dict[int, str] = {}
+_LEDGER_ENTRY_TYPES_CODE_TO_STR_MAP: Dict[int, str] = {}
+_DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP: Dict[str, int] = {}
+_DELEGABLE_PERMISSIONS_CODE_TO_STR_MAP: Dict[int, str] = {}
+_TYPE_ORDINAL_MAP: Dict[str, int] = {}
+_FIELD_INFO_MAP: Dict[str, FieldInfo] = {}
 _FIELD_HEADER_NAME_MAP: Dict[FieldHeader, str] = {}
 
-# Populate _FIELD_INFO_MAP and _FIELD_HEADER_NAME_MAP
-try:
-    for field in _DEFINITIONS["FIELDS"]:
-        field_entry = _DEFINITIONS["FIELDS"][field]
-        field_info = FieldInfo(
-            field_entry["nth"],
-            field_entry["isVLEncoded"],
-            field_entry["isSerialized"],
-            field_entry["isSigningField"],
-            field_entry["type"],
-        )
-        header = FieldHeader(_TYPE_ORDINAL_MAP[field_entry["type"]], field_entry["nth"])
-        _FIELD_INFO_MAP[field] = field_info
-        _FIELD_HEADER_NAME_MAP[header] = field
-except KeyError as e:
-    raise XRPLBinaryCodecException(
-        f"Malformed definitions.json file. (Original exception: KeyError: {e})"
+
+def _initialize_definitions(
+    definitions: Dict[str, Any],
+    granular_permissions: Optional[Dict[str, int]] = None,
+) -> None:
+    """
+    Initialize (or reinitialize) all module-level definition maps.
+
+    This function populates all the internal lookup tables used by the
+    binary codec. It can be called multiple times to switch definitions
+    at runtime (e.g., for different networks or testing).
+
+    Args:
+        definitions: A definitions dict in the format returned by load_definitions().
+        granular_permissions: Optional custom granular permissions to merge with
+            transaction-type-derived permissions. Defaults to _GRANULAR_PERMISSIONS.
+
+    Raises:
+        XRPLBinaryCodecException: If the definitions are malformed.
+    """
+    global _TYPE_ORDINAL_MAP
+
+    if granular_permissions is None:
+        granular_permissions = _GRANULAR_PERMISSIONS
+
+    _DEFINITIONS.clear()
+    _DEFINITIONS.update(definitions)
+
+    # Rebuild reverse lookup maps
+    _TRANSACTION_TYPE_CODE_TO_STR_MAP.clear()
+    _TRANSACTION_TYPE_CODE_TO_STR_MAP.update(
+        {value: key for key, value in _DEFINITIONS["TRANSACTION_TYPES"].items()}
     )
+
+    _TRANSACTION_RESULTS_CODE_TO_STR_MAP.clear()
+    _TRANSACTION_RESULTS_CODE_TO_STR_MAP.update(
+        {value: key for key, value in _DEFINITIONS["TRANSACTION_RESULTS"].items()}
+    )
+
+    _LEDGER_ENTRY_TYPES_CODE_TO_STR_MAP.clear()
+    _LEDGER_ENTRY_TYPES_CODE_TO_STR_MAP.update(
+        {value: key for key, value in _DEFINITIONS["LEDGER_ENTRY_TYPES"].items()}
+    )
+
+    # Build delegable permissions (tx types + 1, plus granular)
+    tx_delegations = {
+        key: value + 1 for key, value in _DEFINITIONS["TRANSACTION_TYPES"].items()
+    }
+    _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP.clear()
+    _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP.update(tx_delegations)
+    _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP.update(granular_permissions)
+
+    _DELEGABLE_PERMISSIONS_CODE_TO_STR_MAP.clear()
+    _DELEGABLE_PERMISSIONS_CODE_TO_STR_MAP.update(
+        {value: key for key, value in _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP.items()}
+    )
+
+    _TYPE_ORDINAL_MAP = _DEFINITIONS["TYPES"]
+
+    # Rebuild field maps
+    _FIELD_INFO_MAP.clear()
+    _FIELD_HEADER_NAME_MAP.clear()
+
+    try:
+        for field in _DEFINITIONS["FIELDS"]:
+            field_entry = _DEFINITIONS["FIELDS"][field]
+            field_info = FieldInfo(
+                field_entry["nth"],
+                field_entry["isVLEncoded"],
+                field_entry["isSerialized"],
+                field_entry["isSigningField"],
+                field_entry["type"],
+            )
+            header = FieldHeader(
+                _TYPE_ORDINAL_MAP[field_entry["type"]], field_entry["nth"]
+            )
+            _FIELD_INFO_MAP[field] = field_info
+            _FIELD_HEADER_NAME_MAP[header] = field
+    except KeyError as e:
+        raise XRPLBinaryCodecException(
+            f"Malformed definitions file. (Original exception: KeyError: {e})"
+        )
+
+
+def update_definitions(
+    source: Union[str, Dict[str, Any]],
+    granular_permissions: Optional[Dict[str, int]] = None,
+) -> None:
+    """
+    Update the definitions used by the binary codec.
+
+    This allows switching to custom definitions at runtime, e.g., for
+    different networks (Xahau, sidechains) or testing.
+
+    Args:
+        source: Either a file path (str) to a definitions JSON file,
+            or a pre-parsed definitions dict.
+        granular_permissions: Optional custom granular permissions.
+
+    Example:
+        >>> from xrpl.core.binarycodec.definitions import definitions
+        >>> definitions.update_definitions("/path/to/xahau_definitions.json")
+        >>> # Now all encode/decode operations use Xahau definitions
+    """
+    if isinstance(source, str):
+        defs = load_definitions_from_path(source)
+    else:
+        defs = source
+
+    _initialize_definitions(defs, granular_permissions)
+
+
+# Initialize with default definitions on module load
+_initialize_definitions(load_definitions())
 
 
 def get_field_type_name(field_name: str) -> str:
