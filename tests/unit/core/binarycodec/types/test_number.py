@@ -4,7 +4,6 @@ from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.number import (
     _MAX_EXPONENT,
     _MAX_MANTISSA,
-    _MIN_EXPONENT,
     _MIN_MANTISSA,
     Number,
 )
@@ -52,6 +51,19 @@ class TestNumber(unittest.TestCase):
         _number = "9999999999999999e80"
         self.assertEqual(Number.from_value(_number).to_json(), _number)
 
+        # large value with trailing zeros
+        self.assertEqual(Number.from_value("9900000000000000000000").to_json(), "99e20")
+        # small value with leading zeros
+        self.assertEqual(
+            Number.from_value("0.0000000000000000000099").to_json(), "99e-22"
+        )
+
+        # test the instances where scientific notation is used
+        self.assertEqual(Number.from_value("-100000000000").to_json(), "-1e11")
+        self.assertEqual(Number.from_value("-10000000000").to_json(), "-10000000000")
+        self.assertEqual(Number.from_value("0.00000000001").to_json(), "1e-11")
+        self.assertEqual(Number.from_value("0.0001").to_json(), "0.0001")
+
     def test_serialized_repr(self):
         lowest_mantissa = "-9223372036854776"
         # Note: The value undergoes normalization before being stored in serialized
@@ -82,10 +94,18 @@ class TestNumber(unittest.TestCase):
         with self.assertRaises(XRPLBinaryCodecException):
             Number.from_mantissa_exponent(_MAX_MANTISSA + 1, _MAX_EXPONENT)
 
+        with self.assertRaises(XRPLBinaryCodecException):
+            print(Number.from_value("1e40000").to_json())
+
     def test_underflow(self):
         self.assertEqual(
             Number.from_mantissa_exponent(
                 _mantissa=_MIN_MANTISSA, _exponent=-32769
             ).to_json(),
+            Number.from_value("0").to_json(),
+        )
+
+        self.assertEqual(
+            Number.from_value("1e-40000").to_json(),
             Number.from_value("0").to_json(),
         )

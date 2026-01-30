@@ -14,7 +14,7 @@ from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
 
-_DEBUG = True
+_DEBUG = False
 
 # Limits of representation after normalization of mantissa and exponent
 # This minimum and maximum correspond to the "MantissaRange::large" values. This is the
@@ -85,6 +85,9 @@ def normalize(mantissa: int, exponent: int) -> Tuple[int, int]:
         # digit in this step
         m = m // 10
         exponent += 1
+
+    if exponent > _MAX_EXPONENT:
+        raise XRPLBinaryCodecException("Overflow: Mantissa and exponent are too large.")
 
     if is_negative:
         m = -m
