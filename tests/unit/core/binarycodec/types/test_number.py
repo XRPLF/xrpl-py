@@ -45,6 +45,13 @@ class TestNumber(unittest.TestCase):
         serialized_number = Number.from_value("-1.234e34")
         self.assertEqual(serialized_number.to_json(), "-1234e31")
 
+        # test the round-trip of a large value
+        _number = "99999999999999984e79"
+        self.assertEqual(Number.from_value(_number).to_json(), _number)
+
+        _number = "9999999999999999e80"
+        self.assertEqual(Number.from_value(_number).to_json(), _number)
+
     def test_serialized_repr(self):
         lowest_mantissa = "-9223372036854776"
         # Note: The value undergoes normalization before being stored in serialized
