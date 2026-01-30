@@ -75,7 +75,8 @@ def normalize(mantissa: int, exponent: int) -> Tuple[int, int]:
             print(
                 "Mantissa "
                 + str(m)
-                + " is larger than _MAX_REP. Reducing the mantissa while increasing the exponent...\n"
+                + " is larger than _MAX_REP. Mantissa will be reduced whilst the"
+                + " exponent is increased by an order of magnitude.\n"
             )
         if exponent > _MAX_EXPONENT:
             raise XRPLBinaryCodecException(
@@ -294,6 +295,15 @@ class Number(SerializedType):
 
     @classmethod
     def from_mantissa_exponent(cls: Type[Self], _mantissa: int, _exponent: int) -> Self:
+        """Construct a Number from mantissa and exponent values. Note: This method is
+        only used in unit tests.
+
+        Args:
+            value: The string to construct the Number from
+
+        Returns:
+            A Number instance
+        """
         normalized_mantissa, normalized_exponent = normalize(_mantissa, _exponent)
         serialized_mantissa = add64(normalized_mantissa)
         serialized_exponent = add32(normalized_exponent)
