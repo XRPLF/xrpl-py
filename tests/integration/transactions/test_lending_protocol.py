@@ -502,7 +502,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         tx = VaultCreate(
             account=loan_issuer.address,
             asset=IssuedCurrency(currency="USD", issuer=loan_issuer.address),
-            assets_maximum="1000",
+            assets_maximum="10000",
             withdrawal_policy=WithdrawalPolicy.VAULT_STRATEGY_FIRST_COME_FIRST_SERVE,
         )
         response = await sign_and_reliable_submission_async(tx, loan_issuer, client)
@@ -519,6 +519,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         tx = LoanBrokerSet(
             account=loan_issuer.address,
             vault_id=VAULT_ID,
+            debt_maximum="10000",
         )
         response = await sign_and_reliable_submission_async(tx, loan_issuer, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
