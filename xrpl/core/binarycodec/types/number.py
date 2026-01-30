@@ -130,7 +130,7 @@ def get64(buffer: bytes) -> int:
     """Obtain a 64-bit integer from a bytes object.
 
     Args:
-        value: The bytes buffer containing the serialized representation of the Number
+        buffer: The bytes buffer containing the serialized representation of the Number
         data type
 
     Returns:
@@ -143,7 +143,7 @@ def get32(buffer: bytes) -> int:
     """Obtain a 32-bit integer from a bytes object.
 
     Args:
-        value: The bytes buffer containing the serialized representation of the Number
+        buffer: The bytes buffer containing the serialized representation of the Number
         data type
 
     Returns:
