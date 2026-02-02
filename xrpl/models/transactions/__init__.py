@@ -30,6 +30,11 @@ from xrpl.models.transactions.check_cancel import CheckCancel
 from xrpl.models.transactions.check_cash import CheckCash
 from xrpl.models.transactions.check_create import CheckCreate
 from xrpl.models.transactions.clawback import Clawback
+from xrpl.models.transactions.confidential_clawback import ConfidentialClawback
+from xrpl.models.transactions.confidential_convert import ConfidentialConvert
+from xrpl.models.transactions.confidential_convert_back import ConfidentialConvertBack
+from xrpl.models.transactions.confidential_merge_inbox import ConfidentialMergeInbox
+from xrpl.models.transactions.confidential_send import ConfidentialSend
 from xrpl.models.transactions.credential_accept import CredentialAccept
 from xrpl.models.transactions.credential_create import CredentialCreate
 from xrpl.models.transactions.credential_delete import CredentialDelete
@@ -163,6 +168,11 @@ __all__ = [
     "CheckCash",
     "CheckCreate",
     "Clawback",
+    "ConfidentialClawback",
+    "ConfidentialConvert",
+    "ConfidentialConvertBack",
+    "ConfidentialMergeInbox",
+    "ConfidentialSend",
     "CredentialAccept",
     "CredentialCreate",
     "CredentialDelete",
