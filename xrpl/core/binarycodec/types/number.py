@@ -111,7 +111,13 @@ def add32(value: int) -> bytes:
     Returns:
         A bytes object containing the serialized integer
     """
-    return value.to_bytes(4, byteorder="big", signed=True)
+    serialized_bytes = bytes()
+    serialized_bytes += (value >> 24 & 0xFF).to_bytes(1, "big")
+    serialized_bytes += (value >> 16 & 0xFF).to_bytes(1, "big")
+    serialized_bytes += (value >> 8 & 0xFF).to_bytes(1, "big")
+    serialized_bytes += (value & 0xFF).to_bytes(1, "big")
+
+    return serialized_bytes
 
 
 def add64(value: int) -> bytes:
@@ -123,7 +129,17 @@ def add64(value: int) -> bytes:
     Returns:
         A bytes object containing the serialized integer
     """
-    return value.to_bytes(8, byteorder="big", signed=True)
+    serialized_bytes = bytes()
+    serialized_bytes += (value >> 56 & 0xFF).to_bytes(1, "big")
+    serialized_bytes += (value >> 48 & 0xFF).to_bytes(1, "big")
+    serialized_bytes += (value >> 40 & 0xFF).to_bytes(1, "big")
+    serialized_bytes += (value >> 32 & 0xFF).to_bytes(1, "big")
+    serialized_bytes += (value >> 24 & 0xFF).to_bytes(1, "big")
+    serialized_bytes += (value >> 16 & 0xFF).to_bytes(1, "big")
+    serialized_bytes += (value >> 8 & 0xFF).to_bytes(1, "big")
+    serialized_bytes += (value & 0xFF).to_bytes(1, "big")
+
+    return serialized_bytes
 
 
 def get64(buffer: bytes) -> int:
