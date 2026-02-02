@@ -396,7 +396,6 @@ jobs:
               -H "Authorization: Bearer $GH_TOKEN" \
               -H "Accept: application/vnd.github+json" \
               "https://api.github.com/repos/$REPO/environments/$env_name")" || true
-          echo "DEBUG: env_json for $env_name: $env_json"
 
             reviewers="$(printf '%s' "$env_json" | jq -r '
               (.protection_rules // [])
