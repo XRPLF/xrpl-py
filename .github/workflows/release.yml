@@ -365,7 +365,7 @@ jobs:
       IS_BETA_RELEASE: ${{ needs.input-validate.outputs.is_beta_release }}
       RELEASE_BRANCH: ${{ github.event.inputs.release_branch }}
       SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-      ENV_DEV_NAME: ${{ needs.input-validate.outputs.is_beta_release == 'true' && 'beta-release' || 'first-review' }}
+      ENV_DEV_NAME: first-review
       ENV_SEC_NAME: ${{ needs.input-validate.outputs.is_beta_release == 'true' && 'beta-release' || 'official-release' }}
 
     steps:
