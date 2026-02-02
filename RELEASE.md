@@ -32,7 +32,7 @@ and standard releases by reading version under the [project] section from `pypro
 1. Create release branch using name with prefix `release-` or `release/`.
 2. Bump `project.version` inside `pyproject.toml` and update `CHANGELOG.md`
    (or other release notes).
-3. Raise a PR from release branch to main branch.
+3. Commit and push the release branch.
 
 - **Beta release**:
   - There is no restriction for branch name.
