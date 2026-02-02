@@ -210,6 +210,9 @@ jobs:
           path: /home/runner/.local
           key: dotlocal-${{ env.POETRY_VERSION }}
 
+      - name: Ensure Poetry on PATH
+        run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'
         run: |
@@ -284,7 +287,8 @@ jobs:
         id: show_scan_report
         run: |
           set -euo pipefail
-          if ! grep -qE "CRITICAL|HIGH" vuln-report.txt; then
+          SUMMARY_LINE="$(grep -E '^Total:' vuln-report.txt || true)"
+          if printf '%s' "$SUMMARY_LINE" | grep -Eq '^Total:\s*0\s*\(HIGH:\s*0,\s*CRITICAL:\s*0\)$'; then
             printf '\n%s\n' "✅ No CRITICAL or HIGH vulnerabilities detected for xrpl-py." >> vuln-report.txt
             echo "found_vulnerability=false" >> "$GITHUB_OUTPUT"
           else
