@@ -417,6 +417,8 @@ jobs:
           # Get reviewer lists
           REVIEWERS_DEV="$(fetch_reviewers "$ENV_DEV_NAME")"
           REVIEWERS_SEC="$(fetch_reviewers "$ENV_SEC_NAME")"
+          echo "DEBUG: ENV_DEV_NAME=$ENV_DEV_NAME -> $REVIEWERS_DEV"
+          echo "DEBUG: ENV_SEC_NAME=$ENV_SEC_NAME -> $REVIEWERS_SEC"
 
           # Output messages
           echo "reviewers_dev=$REVIEWERS_DEV" >> "$GITHUB_OUTPUT"
