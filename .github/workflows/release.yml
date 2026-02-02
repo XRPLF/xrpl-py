@@ -533,8 +533,8 @@ jobs:
             -H "Authorization: Bearer $SLACK_TOKEN" \
             -H "Content-Type: application/json; charset=utf-8" \
             -d "$(jq -n --arg channel "#test-alert" --arg text "$MSG" '{channel:$channel, text:$text}')" \
-            # -d "$(jq -n --arg channel "#ripplex-security" --arg text "$MSG" '{channel:$channel, text:$text}')" \
             | jq -er '.ok' >/dev/null
+          # ripplex-security
 
       - name: Awaiting security approval
         run: echo "Waiting for security team review"
