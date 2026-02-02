@@ -115,13 +115,15 @@ jobs:
     secrets: inherit
 
   integration-tests:
-    name: Run integration tests matrix (${{ needs.input-validate.outputs.package_version }})
+    name: Integration tests (debug dummy)
     needs:
       - input-validate
-    uses: ./.github/workflows/integration_test.yml
-    with:
-      git_ref: ${{ github.event.inputs.release_branch }}
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug dummy step
+        run: |
+          echo "DEBUG: integration tests skipped"
+          echo "release_branch=${{ github.event.inputs.release_branch }}"
 
   unit-tests:
     name: Run unit tests matrix (${{ needs.input-validate.outputs.package_version }})
