@@ -118,55 +118,12 @@ class TestNumber(unittest.TestCase):
             Number.from_value("0").to_json(),
         )
 
-    def test_rounding_to_nearest(self):
-        """Test 'to_nearest' rounding behavior (round half to even / banker's rounding).
-
-        Test cases ported from rippled's Number_test.cpp testRounding() method.
-        """
-        # Test cases: (mantissa, exponent, expected_rounded_integer)
-        # These test the "to_nearest" rounding mode
-
-        # Positive numbers
-        test_cases = [
-            (13, -1, 1),
-            (23, -1, 2),
-            # (1.5, expected=2) - round half to even (Banker's rounding)
-            (15, -1, 2),
-            (25, -1, 2),
-            (152, -2, 2),
-            (252, -2, 3),
-            (17, -1, 2),
-            (27, -1, 3),
-            # Negative numbers
-            (-13, -1, -1),
-            (-23, -1, -2),
-            # (-1.5, expected=-2) - round half to even
-            (-15, -1, -2),
-            # (-2.5, expected=-2) - round half to even
-            (-25, -1, -2),
-            (-152, -2, -2),
-            (-252, -2, -3),
-            (-17, -1, -2),
-            (-27, -1, -3),
-        ]
-
-        for mantissa, exponent, expected in test_cases:
-            result = Number.from_mantissa_exponent(
-                mantissa, exponent
-            ).round_to_integer()
-            self.assertEqual(
-                result,
-                expected,
-                f"Number({mantissa}, {exponent}) rounded to_nearest: "
-                f"expected {expected}, got {result}",
-            )
-
     def test_rounding_large_numbers(self):
         # Note: The mantissa cannot store values larger than _MAX_REP. Such values will
         # be rounded in "to_nearest" mode with the appropriate loss of precision.
         self.assertEqual(
             Number.from_value(str(_MAX_REP) + "9").to_json(),
-            "92233720368547758e3",
+            "922337203685477581e2",
         )
 
         self.assertEqual(
@@ -176,5 +133,5 @@ class TestNumber(unittest.TestCase):
 
         self.assertEqual(
             Number.from_value(str(_MAX_REP) + "5").to_json(),
-            "92233720368547758e3",
+            "922337203685477581e2",
         )

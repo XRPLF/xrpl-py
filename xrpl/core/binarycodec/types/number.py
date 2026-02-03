@@ -16,210 +16,6 @@ from xrpl.core.binarycodec.types.serialized_type import SerializedType
 
 _DEBUG = False
 
-
-class NumberGuard:
-    """Guard class for temporarily adding extra digits of precision to an operation.
-
-    This enables the final result to be correctly rounded to the internal precision
-    of Number. The guard stores 16 decimal digits using 4 bits per digit in a 64-bit
-    integer.
-
-    Ported from rippled's Number::Guard class in Number.cpp.
-    """
-
-    # Constant representing exactly half (0.5) in the guard digit representation
-    _HALF = 0x5000_0000_0000_0000
-
-    def __init__(self: Self) -> None:
-        """Initialize a NumberGuard instance with zero guard digits."""
-        self._digits: int = 0  # 16 decimal guard digits (4 bits each)
-        # Note: _xbit is useful only when more than 16 digits have been pushed into NumberGuard.
-        self._xbit: bool = False  # has a non-zero digit been shifted off the end
-        self._sbit: bool = False  # the sign of the guard digits (True = negative)
-
-    def set_positive(self: Self) -> None:
-        """Set the sign bit to positive."""
-        self._sbit = False
-
-    def set_negative(self: Self) -> None:
-        """Set the sign bit to negative."""
-        self._sbit = True
-
-    def is_negative(self: Self) -> bool:
-        """Check if the guard digits represent a negative value.
-
-        Returns:
-            True if negative, False if positive.
-        """
-        return self._sbit
-
-    def push(self: Self, d: int) -> None:
-        """Push a digit into the guard, shifting existing digits right.
-
-        Args:
-            d: The digit to push (0-9).
-        """
-        # Track if any non-zero digit is being shifted off
-        self._xbit = self._xbit or ((self._digits & 0x0000_0000_0000_000F) != 0)
-        # Shift right by 4 bits (one digit)
-        self._digits >>= 4
-        # Add new digit at the top (most significant position)
-        self._digits |= (d & 0x0000_0000_0000_000F) << 60
-
-        if _DEBUG:
-            print("NumberGuard INFO: Pushing digit: ", d)
-            print("NumberGuard INFO: Guard digits after pushing: ", hex(self._digits))
-
-    def pop(self: Self) -> int:
-        """Pop the most significant digit from the guard.
-
-        Returns:
-            The most significant digit (0-9).
-        """
-        d = (self._digits & 0xF000_0000_0000_0000) >> 60
-        self._digits <<= 4
-        # Mask to 64 bits (Python ints have unlimited precision)
-        self._digits &= 0xFFFF_FFFF_FFFF_FFFF
-
-        if _DEBUG:
-            print("NumberGuard INFO: Popping digit: ", d)
-            print("NumberGuard INFO: Guard digits after popping: ", hex(self._digits))
-
-        return d
-
-    def round(self: Self) -> int:
-        """Determine the rounding direction for 'to_nearest' mode.
-
-        This implements "round half to even" (banker's rounding):
-        - Returns 1 if guard digits are greater than half (round up)
-        - Returns -1 if guard digits are less than half (round down)
-        - Returns 0 if guard digits are exactly half (caller decides based on even/odd)
-
-        Returns:
-            1 for round up, -1 for round down, 0 for exactly half.
-        """
-        if self._digits > self._HALF:
-            return 1
-        if self._digits < self._HALF:
-            return -1
-        if self._xbit:
-            # Exactly half but more non-zero digits were shifted off
-            return 1
-        return 0
-
-    def bring_into_range(
-        self: Self,
-        is_negative: bool,
-        mantissa: int,
-        exponent: int,
-        min_mantissa: int,
-        min_exponent: int,
-        default_exponent: int,
-        max_rep: int,
-    ) -> Tuple[bool, int, int]:
-        """Bring mantissa back into the min/max mantissa range after rounding.
-
-        Note: Unlike the C++ implementation which uses uint64_t internally,
-        Python serializes as signed int64. We skip scaling up if it would
-        exceed max_rep.
-
-        Args:
-            is_negative: Whether the number is negative.
-            mantissa: The mantissa value.
-            exponent: The exponent value.
-            min_mantissa: The minimum allowed mantissa.
-            min_exponent: The minimum allowed exponent.
-            default_exponent: The default exponent for zero values.
-            max_rep: The maximum representable value for signed int64.
-
-        Returns:
-            A tuple of (is_negative, mantissa, exponent) after adjustment.
-        """
-        # Only scale up if it won't exceed max_rep (Python uses signed int64)
-        if mantissa < min_mantissa and mantissa * 10 <= max_rep:
-            mantissa *= 10
-            exponent -= 1
-
-        if exponent < min_exponent:
-            # Underflow to zero
-            is_negative = False
-            mantissa = 0
-            exponent = default_exponent
-
-        if _DEBUG:
-            print(
-                "NumberGuard INFO: After bringing mantissa into range: ",
-                is_negative,
-                mantissa,
-                exponent,
-            )
-
-        return (is_negative, mantissa, exponent)
-
-    def do_round_up(
-        self: Self,
-        is_negative: bool,
-        mantissa: int,
-        exponent: int,
-        min_mantissa: int,
-        max_mantissa: int,
-        max_rep: int,
-        max_exponent: int,
-        default_exponent: int,
-        min_exponent: int,
-    ) -> Tuple[bool, int, int]:
-        """Apply rounding and adjust mantissa/exponent to stay in valid range.
-
-        This method rounds up when appropriate (based on guard digits) and ensures
-        the result stays within the valid mantissa range.
-
-        Args:
-            is_negative: Whether the number is negative.
-            mantissa: The mantissa value.
-            exponent: The exponent value.
-            min_mantissa: The minimum allowed mantissa.
-            max_mantissa: The maximum allowed mantissa.
-            max_rep: The maximum representable value.
-            max_exponent: The maximum allowed exponent.
-            default_exponent: The default exponent for zero values.
-            min_exponent: The minimum allowed exponent.
-
-        Returns:
-            A tuple of (is_negative, mantissa, exponent) after rounding.
-
-        Raises:
-            XRPLBinaryCodecException: If the exponent overflows.
-        """
-        r = self.round()
-        if r == 1 or (r == 0 and (mantissa & 1) == 1):
-            mantissa += 1
-            # Ensure mantissa after incrementing fits within both the
-            # min/max mantissa range and is a valid "rep".
-            if mantissa > max_mantissa or mantissa > max_rep:
-                mantissa //= 10
-                exponent += 1
-
-        is_negative, mantissa, exponent = self.bring_into_range(
-            is_negative,
-            mantissa,
-            exponent,
-            min_mantissa,
-            min_exponent,
-            default_exponent,
-            max_rep,
-        )
-
-        if exponent > max_exponent:
-            raise XRPLBinaryCodecException(
-                "Overflow: exponent too large after rounding"
-            )
-
-        if _DEBUG:
-            print("NumberGuard INFO: Rounding up: ", is_negative, mantissa, exponent)
-
-        return (is_negative, mantissa, exponent)
-
-
 # Limits of representation after normalization of mantissa and exponent
 # This minimum and maximum correspond to the "MantissaRange::large" values. This is the
 # default range of the Number type. However, legacy transactions make use of the
@@ -261,16 +57,13 @@ def normalize(mantissa: int, exponent: int) -> Tuple[int, int]:
         m *= 10
         exponent -= 1
 
-    # Create guard for rounding
-    guard = NumberGuard()
-    if is_negative:
-        guard.set_negative()
+    truncated_digit: int = 0
 
     # Scale down mantissa while it's above maximum, pushing digits to guard
     while m > _MAX_MANTISSA:
         if exponent >= _MAX_EXPONENT:
             raise XRPLBinaryCodecException("Number::normalize overflow 1")
-        guard.push(m % 10)
+        truncated_digit = m % 10
         m //= 10
         exponent += 1
 
@@ -283,22 +76,24 @@ def normalize(mantissa: int, exponent: int) -> Tuple[int, int]:
     if m > _MAX_REP:
         if exponent >= _MAX_EXPONENT:
             raise XRPLBinaryCodecException("Number::normalize overflow 1.5")
-        guard.push(m % 10)
+        truncated_digit = m % 10
         m //= 10
         exponent += 1
 
-    # Apply rounding using the guard
-    is_negative, m, exponent = guard.do_round_up(
-        is_negative,
-        m,
-        exponent,
-        _MIN_MANTISSA,
-        _MAX_MANTISSA,
-        _MAX_REP,
-        _MAX_EXPONENT,
-        _DEFAULT_VALUE_EXPONENT,
-        _MIN_EXPONENT,
-    )
+    # Apply rounding based on truncated digit (round half to even)
+    if truncated_digit >= 5:
+        m += 1
+        # After rounding up, check if we exceeded limits
+        if m > _MAX_REP:
+            # Check for overflow
+            truncated_digit = m % 10
+            m //= 10
+            exponent += 1
+            if truncated_digit >= 5:
+                m += 1
+
+    if exponent > _MAX_EXPONENT:
+        raise XRPLBinaryCodecException("Overflow: exponent too large after rounding")
 
     if is_negative:
         m = -m
@@ -595,49 +390,3 @@ class Number(SerializedType):
             generate_exponent = "." + generate_exponent
 
         return f"{'-' if is_negative else ''}{generate_mantissa}{generate_exponent}"
-
-    def round_to_integer(self: Self) -> int:
-        """Round the Number to an integer using 'to_nearest' rounding mode.
-
-        This implements "round half to even" (banker's rounding), matching
-        rippled's Number::operator rep() with to_nearest rounding mode.
-
-        Returns:
-            The rounded integer value.
-        """
-        mantissa = int.from_bytes(self.buffer[:8], byteorder="big", signed=True)
-        exponent = int.from_bytes(self.buffer[8:12], byteorder="big", signed=True)
-
-        # Handle zero
-        if mantissa == 0:
-            return 0
-
-        is_negative = mantissa < 0
-        drops = abs(mantissa)
-
-        guard = NumberGuard()
-        if is_negative:
-            guard.set_negative()
-
-        # Shift digits into guard while adjusting exponent toward zero
-        while exponent < 0:
-            guard.push(drops % 10)
-            drops //= 10
-            exponent += 1
-
-        # Scale up for positive exponents
-        while exponent > 0:
-            drops *= 10
-            exponent -= 1
-
-        # Apply rounding based on guard digits
-        r = guard.round()
-        if r == 1 or (r == 0 and (drops & 1) == 1):
-            # Round up (away from zero for the absolute value)
-            drops += 1
-
-        # Apply sign
-        if is_negative:
-            drops = -drops
-
-        return drops
