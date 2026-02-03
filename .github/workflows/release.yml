@@ -143,7 +143,7 @@ jobs:
         && needs.input-validate.result == 'success'
         && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
         && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
-        && (needs['unit-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true') }}
+        && needs['unit-tests'].result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -352,7 +352,7 @@ jobs:
         && needs.pre-release.result == 'success'
         && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
         && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
-        && (needs['unit-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true') }}
+        && needs['unit-tests'].result == 'success' }}
     permissions:
       pull-requests: write
     outputs:
@@ -485,7 +485,7 @@ jobs:
         && needs.ask_for_dev_team_review.result == 'success'
         && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
         && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
-        && (needs['unit-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true') }}
+        && needs['unit-tests'].result == 'success' }}
     environment:
       name: first-review
       url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -510,7 +510,7 @@ jobs:
         && needs.first_review.result == 'success'
         && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
         && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
-        && (needs['unit-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true') }}
+        && needs['unit-tests'].result == 'success' }}
     env:
       PACKAGE_VERSION: ${{ needs.input-validate.outputs.package_version }}
       SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
@@ -557,7 +557,7 @@ jobs:
         && needs.ask_for_sec_team_review.result == 'success'
         && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
         && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
-        && (needs['unit-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true') }}
+        && needs['unit-tests'].result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10 # Adjust based on typical publishing time
     environment:
@@ -616,7 +616,7 @@ jobs:
         && needs['publish-to-pypi'].result == 'success'
         && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
         && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
-        && (needs['unit-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true') }}
+        && needs['unit-tests'].result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15 # Adjust based on typical signing and release time
 
@@ -691,7 +691,7 @@ jobs:
             needs.input-validate.result == 'failure' ||
             (needs['faucet-tests'].result == 'failure' && needs.input-validate.outputs.is_beta_release != 'true') ||
             (needs['integration-tests'].result == 'failure' && needs.input-validate.outputs.is_beta_release != 'true') ||
-            (needs['unit-tests'].result == 'failure' && needs.input-validate.outputs.is_beta_release != 'true') ||
+            needs['unit-tests'].result == 'failure' ||
             needs.pre-release.result == 'failure' ||
             needs.ask_for_dev_team_review.result == 'failure' ||
             needs.first_review.result == 'failure' ||
