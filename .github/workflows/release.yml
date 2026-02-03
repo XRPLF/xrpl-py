@@ -685,34 +685,34 @@ jobs:
             -H "Content-Type: application/json; charset=utf-8" \
             -d "$(jq -n --arg channel "#xrpl-py" --arg text "$text" '{channel:$channel, text:$text}')"
 
-notify-failure:
-  name: Notify Slack if release fails
-  runs-on: ubuntu-latest
-  needs:
-    - input-validate
-    - faucet-tests
-    - integration-tests
-    - unit-tests
-    - pre-release
-    - ask_for_dev_team_review
-    - first_review
-    - ask_for_sec_team_review
-    - publish-to-pypi
-    - github-release
-  if: ${{ failure() }}
-  env:
-    SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-    PACKAGE_VERSION: ${{ needs.input-validate.outputs.package_version }}
-    REPO: ${{ github.repository }}
-    RUN_ID: ${{ github.run_id }}
-  steps:
-    - name: Notify Slack if release fails
-      run: |
-        MESSAGE="❌ Release failed for xrpl-py ${PACKAGE_VERSION}. Check the logs: https://github.com/${REPO}/actions/runs/${RUN_ID}"
-        curl -X POST https://slack.com/api/chat.postMessage \
-          -H "Authorization: Bearer $SLACK_TOKEN" \
-          -H "Content-Type: application/json" \
-          -d "$(jq -n \
-                --arg channel "#xrpl-py" \
-                --arg text "$MESSAGE" \
-                '{channel: $channel, text: $text}')"
+  notify-failure:
+    name: Notify Slack if release fails
+    runs-on: ubuntu-latest
+    needs:
+      - input-validate
+      - faucet-tests
+      - integration-tests
+      - unit-tests
+      - pre-release
+      - ask_for_dev_team_review
+      - first_review
+      - ask_for_sec_team_review
+      - publish-to-pypi
+      - github-release
+    if: ${{ failure() }}
+    env:
+      SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+      PACKAGE_VERSION: ${{ needs.input-validate.outputs.package_version }}
+      REPO: ${{ github.repository }}
+      RUN_ID: ${{ github.run_id }}
+    steps:
+      - name: Notify Slack if release fails
+        run: |
+          MESSAGE="❌ Release failed for xrpl-py ${PACKAGE_VERSION}. Check the logs: https://github.com/${REPO}/actions/runs/${RUN_ID}"
+          curl -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer $SLACK_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+                  --arg channel "#xrpl-py" \
+                  --arg text "$MESSAGE" \
+                  '{channel: $channel, text: $text}')"
