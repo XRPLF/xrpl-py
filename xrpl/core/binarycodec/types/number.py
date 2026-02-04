@@ -147,32 +147,6 @@ def add64(value: int) -> bytes:
     return serialized_bytes
 
 
-def get64(buffer: bytes) -> int:
-    """Obtain a 64-bit integer from a bytes object.
-
-    Args:
-        buffer: The bytes buffer containing the serialized representation of the Number
-        data type
-
-    Returns:
-        A transformed int object
-    """
-    return int.from_bytes(buffer, byteorder="big", signed=True)
-
-
-def get32(buffer: bytes) -> int:
-    """Obtain a 32-bit integer from a bytes object.
-
-    Args:
-        buffer: The bytes buffer containing the serialized representation of the Number
-        data type
-
-    Returns:
-        A transformed int object
-    """
-    return int.from_bytes(buffer, byteorder="big", signed=True)
-
-
 class NumberParts:
     """Class representing the parts of a number: mantissa, exponent and sign."""
 
