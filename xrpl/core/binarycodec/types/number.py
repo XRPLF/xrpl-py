@@ -349,6 +349,13 @@ class Number(SerializedType):
         mantissa = int.from_bytes(self.buffer[:8], byteorder="big", signed=True)
         exponent = int.from_bytes(self.buffer[8:12], byteorder="big", signed=True)
 
+        # Restore mantissa if it was shrunk during serialization.
+        # If the mantissa > _MAX_REP, it is shrunk by a factor of 10 and the exponent
+        # is incremented. This if-condition handles that special case.
+        if mantissa != 0 and abs(mantissa) < _MIN_MANTISSA:
+            mantissa *= 10
+            exponent -= 1
+
         if exponent == 0:
             return str(mantissa)
 

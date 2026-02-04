@@ -66,10 +66,10 @@ class TestNumber(unittest.TestCase):
         self.assertEqual(Number.from_value("0.0001").to_json(), "0.0001")
 
         self.assertEqual(
-            Number.from_value("9323372036854775800").to_json(), "93233720368547758e2"
+            Number.from_value("9323372036854775800").to_json(), "9323372036854775800"
         )
         self.assertEqual(
-            Number.from_value("9223372036854775900").to_json(), "92233720368547759e2"
+            Number.from_value("9223372036854775900").to_json(), "9223372036854775900"
         )
 
     def test_serialized_repr(self):
