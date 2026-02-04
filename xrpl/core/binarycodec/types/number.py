@@ -294,7 +294,8 @@ class Number(SerializedType):
         only used in unit tests.
 
         Args:
-            value: The string to construct the Number from
+            _mantissa: The mantissa of the number
+            _exponent: The exponent of the number
 
         Returns:
             A Number instance
