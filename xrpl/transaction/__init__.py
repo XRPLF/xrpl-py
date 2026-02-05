@@ -8,6 +8,11 @@ from xrpl.transaction.batch_signers import (
     combine_batch_signers,
     sign_multiaccount_batch,
 )
+from xrpl.transaction.counterparty_signer import (
+    combine_loanset_counterparty_signers,
+    compute_signature,
+    sign_loan_set_by_counterparty,
+)
 from xrpl.transaction.main import (
     autofill,
     autofill_and_sign,
@@ -23,9 +28,12 @@ __all__ = [
     "autofill",
     "autofill_and_sign",
     "combine_batch_signers",
+    "combine_loanset_counterparty_signers",
+    "compute_signature",
     "multisign",
     "sign",
     "sign_and_submit",
+    "sign_loan_set_by_counterparty",
     "sign_multiaccount_batch",
     "simulate",
     "submit",
