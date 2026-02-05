@@ -7,8 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Added
+
+- Added `sign_loan_set_by_counterparty` helper function to sign LoanSet transactions as the counterparty (supports both single-sign and multi-sign modes)
+- Added `combine_loanset_counterparty_signers` helper function to combine multiple counterparty signatures for multi-sign LoanSet transactions
+- Added `compute_signature` helper function to compute transaction signatures with optional multi-sign support
+
 ### Fixed
 
+- Updates `Number` codec with mantissa range normalization ([10^18, 10^19 - 1]) and appropriate overflow/underflow checks
 - Fix `Request.from_xrpl` by aliasing it to `Request.from_dict`
 
 ## [[4.4.0]] - 2025-12-16
