@@ -8,7 +8,15 @@ on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      git_ref:
+        description: "Git ref (branch, tag, or SHA) to test"
+        required: false
+        type: string
+        default: ""
 
 jobs:
   integration-test:
@@ -22,6 +30,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref != '' && inputs.git_ref || github.ref }}
 
       - name: Load cached .local
         id: cache-poetry
