@@ -2351,7 +2351,7 @@
       }
     ],
     [
-      "DummyInt32",
+      "DebtTotal",
       {
         "isSerialized": true,
         "isSigningField": true,
@@ -2436,6 +2436,36 @@
         "isSigningField": true,
         "isVLEncoded": false,
         "nth": 14,
+        "type": "Number"
+      }
+    ],
+    [
+      "TotalValueOutstanding",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 15,
+        "type": "Number"
+      }
+    ],
+    [
+      "PeriodicPayment",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 16,
+        "type": "Number"
+      }
+    ],
+    [
+      "ManagementFeeOutstanding",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 17,
         "type": "Number"
       }
     ],
