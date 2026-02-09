@@ -9,10 +9,18 @@ _TAKER_GETS = {
     "issuer": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
     "value": "100",
 }
+_TAKER_GETS_MPT = {
+    "mpt_issuance_id": "000004C463C52827307480341125DA0577DEFC38405B0E3E",
+    "value": "100",
+}
 _TAKER_PAYS = {
     "currency": "EUR",
     "issuer": "rJ4EpEPTDR88GpXvix3Y1djATCsDn41ixp",
     "value": "90",
+}
+_TAKER_PAYS_MPT = {
+    "mpt_issuance_id": "000004C463C52827307480341125DA0577DEFC38405BABCD",
+    "value": "30",
 }
 
 
@@ -22,6 +30,30 @@ class TestOfferCreate(TestCase):
             account=_ACCOUNT,
             taker_gets=_TAKER_GETS,
             taker_pays=_TAKER_PAYS,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_offer_create_valid_taker_pays_mpt(self):
+        tx = OfferCreate(
+            account=_ACCOUNT,
+            taker_gets=_TAKER_GETS,
+            taker_pays=_TAKER_PAYS_MPT,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_offer_create_valid_taker_gets_mpt(self):
+        tx = OfferCreate(
+            account=_ACCOUNT,
+            taker_gets=_TAKER_GETS_MPT,
+            taker_pays=_TAKER_PAYS,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_offer_create_valid_mpt_on_both_sides(self):
+        tx = OfferCreate(
+            account=_ACCOUNT,
+            taker_gets=_TAKER_GETS_MPT,
+            taker_pays=_TAKER_PAYS_MPT,
         )
         self.assertTrue(tx.is_valid())
 

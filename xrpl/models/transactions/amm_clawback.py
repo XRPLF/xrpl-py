@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from typing_extensions import Self
 
-from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.currencies import Currency
+from xrpl.models.amounts import Amount
+from xrpl.models.currencies import Currency, MPTCurrency
 from xrpl.models.currencies.issued_currency import IssuedCurrency
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
@@ -50,7 +50,7 @@ class AMMClawback(Transaction):
     holder: str = REQUIRED
     """The account holding the asset to be clawed back."""
 
-    asset: IssuedCurrency = REQUIRED
+    asset: Union[IssuedCurrency, MPTCurrency] = REQUIRED
     """
     Specifies the asset that the issuer wants to claw back from the AMM pool. In JSON,
     this is an object with currency and issuer fields. The issuer field must match with
@@ -63,7 +63,7 @@ class AMMClawback(Transaction):
     currency and issuer fields (omit issuer for XRP).
     """
 
-    amount: Optional[IssuedCurrencyAmount] = None
+    amount: Optional[Amount] = None
     """
     The maximum amount to claw back from the AMM account. The currency and issuer
     subfields should match the Asset subfields. If this field isn't specified, or the

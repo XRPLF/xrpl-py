@@ -30,3 +30,7 @@ class TestCheckCreate(IntegrationTestCase):
         )
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+    @test_async_and_sync(globals())
+    async def test_use_MPT_with_Check(self, client):
+        pass

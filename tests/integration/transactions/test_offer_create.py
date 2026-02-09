@@ -29,6 +29,10 @@ class TestOfferCreate(IntegrationTestCase):
         self.assertTrue(offer.is_successful())
 
     @test_async_and_sync(globals())
+    async def test_offer_create_with_MPT(self, client):
+        pass
+
+    @test_async_and_sync(globals())
     async def test_deep_freeze_trustline_fails(self, client):
 
         issuer_wallet = Wallet.create()
