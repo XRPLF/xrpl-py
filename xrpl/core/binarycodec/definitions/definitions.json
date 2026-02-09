@@ -3090,6 +3090,16 @@
       }
     ],
     [
+      "LoanScale",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 1,
+        "type": "Int32"
+      }
+    ],
+    [
       "Method",
       {
         "isSerialized": true,
