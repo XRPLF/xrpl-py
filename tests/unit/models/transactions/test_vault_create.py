@@ -18,6 +18,7 @@ class TestVaultCreate(TestCase):
             assets_maximum="1000",
             withdrawal_policy=1,
             data=str_to_hex("A" * 256),
+            scale=4,
         )
         self.assertTrue(tx.is_valid())
 
