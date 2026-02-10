@@ -1,8 +1,6 @@
 from unittest import TestCase
 
-from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import LoanBrokerCoverWithdraw
-from xrpl.utils import str_to_hex
 
 _ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _LOAN_BROKER_ID = "DB303FC1C7611B22C09E773B51044F6BEA02EF917DF59A2E2860871E167066A5"

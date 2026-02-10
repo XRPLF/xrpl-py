@@ -87,11 +87,11 @@ class VaultCreate(Transaction):
     """The PermissionedDomain object ID associated with the shares of this Vault."""
 
     scale: Optional[int] = None
-    """(Trust line tokens only) Specifies decimal precision for share calculations. 
-    Assets are multiplied by 10^Scale to convert fractional amounts into whole number 
-    shares. For example, with a Scale of 6, depositing 20.3 units creates 20,300,000 
-    shares (20.3 × 10^Scale). For trust line tokens this can be configured at vault 
-    creation, and valid values are between 0-18, with the default being 6. For XRP and 
+    """(Trust line tokens only) Specifies decimal precision for share calculations.
+    Assets are multiplied by 10^Scale to convert fractional amounts into whole number
+    shares. For example, with a Scale of 6, depositing 20.3 units creates 20,300,000
+    shares (20.3 × 10^Scale). For trust line tokens this can be configured at vault
+    creation, and valid values are between 0-18, with the default being 6. For XRP and
     MPTs, this is fixed at 0."""
 
     withdrawal_policy: Optional[Union[int, WithdrawalPolicy]] = None
