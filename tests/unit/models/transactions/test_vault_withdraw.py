@@ -17,6 +17,15 @@ class TestVaultWithdraw(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
+    def test_valid_with_destination_tag(self):
+        tx = VaultWithdraw(
+            account=_ACCOUNT,
+            vault_id=_VAULT_ID,
+            amount=IssuedCurrencyAmount(currency="USD", issuer=_ACCOUNT, value="100"),
+            destination_tag=3000,
+        )
+        self.assertTrue(tx.is_valid())
+
     def test_invalid_vault_id_field(self):
         with self.assertRaises(XRPLModelException) as e:
             VaultWithdraw(
