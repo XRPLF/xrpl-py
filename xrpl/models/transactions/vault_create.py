@@ -132,6 +132,16 @@ class VaultCreate(Transaction):
                 "Invalid domain ID: Length must be 32 characters (64 hex characters)."
             )
 
+        if self.scale is not None:
+            if self.scale > 18:
+                errors["VaultCreate"] = (
+                    "Scale field is higher than the allowed limit (18)"
+                )
+            elif self.scale < 0:
+                errors["VaultCreate"] = (
+                    "Scale field is lower than the allowed limit (0)"
+                )
+
         if self.mptoken_metadata is not None:
             # Lazy import to avoid circular dependency
             from xrpl.utils.mptoken_metadata import validate_mptoken_metadata

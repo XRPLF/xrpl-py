@@ -17,7 +17,7 @@ from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 class LoanPayFlag(int, Enum):
     """
-    Enum for LoanPAY Transaction Flags.
+    Enum for LoanPay Transaction Flags.
 
     Transactions of the LoanPay type support additional values in the flags field
     """
@@ -40,13 +40,13 @@ class LoanPayFlag(int, Enum):
 
 class LoanPayFlagInterface(TransactionFlagInterface):
     """
-    Transactions of the LoanManage type support additional values in the Flags field.
+    Transactions of the LoanPay type support additional values in the Flags field.
     This TypedDict represents those options.
     """
 
-    TF_LOAN_DEFAULT: bool
-    TF_LOAN_IMPAIR: bool
-    TF_LOAN_UNIMPAIR: bool
+    TF_LOAN_OVERPAYMENT: bool
+    TF_LOAN_FULL_PAYMENT: bool
+    TF_LOAN_LATE_PAYMENT: bool
 
 
 @require_kwargs_on_init
@@ -79,9 +79,7 @@ class LoanPay(Transaction):
         if self.flags is not None and isinstance(self.flags, int):
             # Check for unrecognized flags (bits set outside valid mask)
             if self.flags & ~self._VALID_FLAGS_MASK:
-                errors[
-                    "LoanPay:Flags"
-                ] = "Unrecognised flag in the LoanPay transaction"
+                errors["LoanPay:Flags"] = "Unrecognised flag in the LoanPay transaction"
             # Check that at most one flag is enabled
             elif bin(self.flags & self._VALID_FLAGS_MASK).count("1") > 1:
                 errors["LoanPay:Flags"] = (

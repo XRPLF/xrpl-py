@@ -36,7 +36,7 @@ class TestLoanPay(TestCase):
             "{'LoanPay:Flags': 'Unrecognised flag in the LoanPay " + "transaction'}",
         )
 
-    def test_valid_loan_set(self):
+    def test_valid_loan_pay(self):
         tx = LoanPay(
             account=_SOURCE,
             loan_id=_LOAN_ID,

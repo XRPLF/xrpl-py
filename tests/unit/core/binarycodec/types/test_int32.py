@@ -4,7 +4,7 @@ from xrpl.core.binarycodec import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.int32 import Int32
 
 
-class TestUInt(TestCase):
+class TestInt32(TestCase):
     def test_compare_INT32(self):
         value1 = Int32.from_value(124)
         value2 = Int32.from_value(123)
