@@ -61,6 +61,8 @@ class TransactionType(str, Enum):
     PERMISSIONED_DOMAIN_DELETE = "PermissionedDomainDelete"
     SET_REGULAR_KEY = "SetRegularKey"
     SIGNER_LIST_SET = "SignerListSet"
+    SPONSORSHIP_SET = "SponsorshipSet"
+    SPONSORSHIP_TRANSFER = "SponsorshipTransfer"
     TICKET_CREATE = "TicketCreate"
     TRUST_SET = "TrustSet"
     VAULT_CREATE = "VaultCreate"

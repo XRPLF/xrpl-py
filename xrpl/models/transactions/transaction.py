@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from hashlib import sha512
-from typing import Any, Dict, List, Optional, Type, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, Union, cast
 
 from typing_extensions import Final, Self
 
@@ -22,6 +22,7 @@ from xrpl.models.flags import (
 from xrpl.models.nested_model import NestedModel
 from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
+from xrpl.models.transactions.sponsor_signature import SponsorSignature
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
 from xrpl.models.types import XRPL_VALUE_TYPE
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
@@ -277,6 +278,27 @@ class Transaction(BaseModel):
     delegate: Optional[str] = None
     """The delegate account that is sending the transaction."""
 
+    sponsor: Optional[str] = None
+    """
+    The account sponsoring this transaction's fee and/or reserve. When present,
+    this account pays the transaction fee instead of the sending account.
+    See XLS-0068 Sponsored Fees and Reserves for details.
+    """
+
+    sponsor_flags: Optional[int] = None
+    """
+    Flags indicating the type of sponsorship for this transaction.
+    Uses tfSponsorFee (0x00000001) for fee sponsorship and
+    tfSponsorReserve (0x00000002) for reserve sponsorship.
+    Only valid when Sponsor field is present.
+    """
+
+    sponsor_signature: Optional[SponsorSignature] = None
+    """
+    Signing information for the sponsor. Contains the sponsor's signature
+    authorizing the sponsorship. Only valid when Sponsor field is present.
+    """
+
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.ticket_sequence is not None and (
@@ -290,6 +312,32 @@ class Transaction(BaseModel):
 
         if self.account == self.delegate:
             errors["delegate"] = "Account and delegate addresses cannot be the same"
+
+        # Validate sponsorship fields
+        # SponsorSignature requires Sponsor field
+        if self.sponsor_signature is not None and self.sponsor is None:
+            errors["sponsor_signature"] = (
+                "SponsorSignature can only be present when Sponsor field is set."
+            )
+
+        # SponsorFlags requires Sponsor field
+        if self.sponsor_flags is not None and self.sponsor is None:
+            errors["sponsor_flags"] = (
+                "SponsorFlags can only be present when Sponsor field is set."
+            )
+
+        # Validate SponsorFlags values (only tfSponsorFee and tfSponsorReserve are valid)
+        if self.sponsor_flags is not None:
+            TF_SPONSOR_FEE = 0x00000001
+            TF_SPONSOR_RESERVE = 0x00000002
+            valid_flags = TF_SPONSOR_FEE | TF_SPONSOR_RESERVE
+
+            if self.sponsor_flags & ~valid_flags:
+                errors["sponsor_flags_invalid"] = (
+                    "SponsorFlags contains invalid flags. "
+                    "Only tfSponsorFee (0x00000001) and tfSponsorReserve (0x00000002) "
+                    "are valid."
+                )
 
         return errors
 

@@ -68,6 +68,12 @@ class GranularPermission(str, Enum):
     MPTOKEN_ISSUANCE_UNLOCK = "MPTokenIssuanceUnlock"
     """Use the MPTIssuanceSet transaction to unlock (unfreeze) a holder."""
 
+    SPONSOR_FEE = "SponsorFee"
+    """Delegate the ability to sponsor transaction fees on behalf of this account."""
+
+    SPONSOR_RESERVE = "SponsorReserve"
+    """Delegate the ability to sponsor reserve requirements on behalf of this account."""
+
 
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)

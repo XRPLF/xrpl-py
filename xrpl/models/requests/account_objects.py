@@ -38,6 +38,7 @@ class AccountObjectType(str, Enum):
     PAYMENT_CHANNEL = "payment_channel"
     PERMISSIONED_DOMAIN = "permissioned_domain"
     SIGNER_LIST = "signer_list"
+    SPONSORSHIP = "sponsorship"
     STATE = "state"
     TICKET = "ticket"
     VAULT = "vault"
