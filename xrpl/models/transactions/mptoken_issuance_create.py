@@ -34,6 +34,11 @@ class MPTokenIssuanceCreateFlag(int, Enum):
     TF_MPT_CAN_TRADE = 0x00000010
     TF_MPT_CAN_TRANSFER = 0x00000020
     TF_MPT_CAN_CLAWBACK = 0x00000040
+    TF_MPT_CAN_PRIVACY = 0x00000080
+    """
+    If set, indicates that the MPT can support confidential transactions.
+    This flag must be set to enable confidential MPT functionality.
+    """
 
 
 class MPTokenIssuanceCreateFlagInterface(TransactionFlagInterface):
@@ -49,6 +54,7 @@ class MPTokenIssuanceCreateFlagInterface(TransactionFlagInterface):
     TF_MPT_CAN_TRADE: bool
     TF_MPT_CAN_TRANSFER: bool
     TF_MPT_CAN_CLAWBACK: bool
+    TF_MPT_CAN_PRIVACY: bool
 
 
 @require_kwargs_on_init
@@ -97,6 +103,14 @@ class MPTokenIssuanceCreate(Transaction):
 
     While adherence to the XLS-89d format is not mandatory, non-compliant metadata
     may not be discoverable by ecosystem tools such as explorers and indexers.
+    """
+
+    mutable_flags: Optional[int] = None
+    """
+    Specifies which flags can be mutated after issuance creation.
+    This field requires the DynamicMPT amendment to be enabled.
+    Common values:
+    - 0x00040000 (262144): lsmfMPTCannotMutatePrivacy - Privacy flag cannot be changed
     """
 
     transaction_type: TransactionType = field(

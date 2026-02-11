@@ -13,9 +13,9 @@ from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 # Length constants for validation (in hex characters)
-HOLDER_ELGAMAL_PUBLIC_KEY_LENGTH = 64 * 2  # 64 bytes = 128 hex chars
+HOLDER_ELGAMAL_PUBLIC_KEY_LENGTH = 64 * 2  # 64 bytes = 128 hex chars (32 x + 32 y)
 BLINDING_FACTOR_LENGTH = 32 * 2  # 32 bytes = 64 hex chars
-SCHNORR_PROOF_LENGTH = 65 * 2  # 65 bytes = 130 hex chars
+SCHNORR_PROOF_LENGTH = 65 * 2  # 65 bytes = 130 hex chars (33 R + 32 s)
 EQUALITY_PROOF_LENGTH = 98 * 2  # 98 bytes = 196 hex chars (plaintext-ciphertext)
 
 
