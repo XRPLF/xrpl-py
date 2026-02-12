@@ -1,5 +1,5 @@
 """Class for serializing and deserializing a signed 32-bit integer.
-See `UInt Fields <https://xrpl.org/serialization.html#int-fields>`_
+See `Int Fields <https://xrpl.org/serialization.html#int-fields>`_
 """
 
 from __future__ import annotations
