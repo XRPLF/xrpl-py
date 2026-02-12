@@ -1,5 +1,5 @@
-"""Class for serializing and deserializing a 32-bit Int.
-See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
+"""Class for serializing and deserializing a signed 32-bit integer.
+See `UInt Fields <https://xrpl.org/serialization.html#int-fields>`_
 """
 
 from __future__ import annotations
@@ -17,8 +17,8 @@ _WIDTH: Final[int] = 4  # 32 / 8
 
 class Int32(Int):
     """
-    Class for serializing and deserializing a 32-bit Int.
-    See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
+    Class for serializing and deserializing a signed 32-bit integer.
+    See `Int Fields <https://xrpl.org/serialization.html#int-fields>`_
     """
 
     def __init__(self: Self, buffer: bytes = bytes(_WIDTH)) -> None:

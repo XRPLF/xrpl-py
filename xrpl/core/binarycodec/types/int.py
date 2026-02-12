@@ -1,5 +1,5 @@
 """Base class for serializing and deserializing signed integers.
-See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
+See `Int Fields <https://xrpl.org/serialization.html#int-fields>`_
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ _WIDTH: Final[int] = 4  # 32 / 8
 
 class Int(UInt):
     """Base class for serializing and deserializing unsigned integers.
-    See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
+    See `Int Fields <https://xrpl.org/serialization.html#int-fields>`_
     """
 
     @property
