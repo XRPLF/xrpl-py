@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+## [[4.5.0]]
+
 ### Added
 
 - Added `sign_loan_set_by_counterparty` helper function to sign LoanSet transactions as the counterparty (supports both single-sign and multi-sign modes)
