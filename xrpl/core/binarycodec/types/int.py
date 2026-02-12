@@ -4,7 +4,7 @@ See `Int Fields <https://xrpl.org/serialization.html#int-fields>`_
 
 from __future__ import annotations
 
-from typing_extensions import Final, Self
+from typing_extensions import Self
 
 from xrpl.core.binarycodec.types.uint import UInt
 
