@@ -10,7 +10,7 @@ from xrpl.core.binarycodec.types.uint import UInt
 
 
 class Int(UInt):
-    """Base class for serializing and deserializing unsigned integers.
+    """Base class for serializing and deserializing signed integers.
     See `Int Fields <https://xrpl.org/serialization.html#int-fields>`_
     """
 
