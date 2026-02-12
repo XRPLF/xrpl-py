@@ -33,7 +33,7 @@ class Int32(Int):
         Construct a new Int32 type from a BinaryParser.
 
         Args:
-            parser: A BinaryParser to construct a Int32 from.
+            parser: A BinaryParser to construct an Int32 from.
 
         Returns:
             The Int32 constructed from parser.
@@ -46,20 +46,14 @@ class Int32(Int):
         Construct a new Int32 type from a number.
 
         Args:
-            value: The number to construct a Int32 from.
+            value: The number to construct an Int32 from.
 
         Returns:
             The Int32 constructed from value.
 
         Raises:
-            XRPLBinaryCodecException: If a Int32 could not be constructed from value.
+            XRPLBinaryCodecException: If an Int32 could not be constructed from value.
         """
-        if not isinstance(value, (str, int)):
-            raise XRPLBinaryCodecException(
-                "Invalid type to construct a Int32: expected str or int,"
-                f" received {value.__class__.__name__}."
-            )
-
         if isinstance(value, int):
             value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=True)
             return cls(value_bytes)
@@ -67,10 +61,18 @@ class Int32(Int):
         if isinstance(value, str):
             try:
                 int_value = int(value)
-            except ValueError:
+            except ValueError as err:
                 raise XRPLBinaryCodecException(
                     f"Cannot construct Int32 from given value: {value!r}"
-                )
-            return cls(int_value.to_bytes(_WIDTH, byteorder="big", signed=True))
+                ) from err
+            try:
+                return cls(int_value.to_bytes(_WIDTH, byteorder="big", signed=True))
+            except OverflowError as err:
+                raise XRPLBinaryCodecException(
+                    f"Cannot construct Int32 from given value: {value!r}"
+                ) from err
 
-        raise XRPLBinaryCodecException("Cannot construct Int32 from given value")
+        raise XRPLBinaryCodecException(
+            "Invalid type to construct an Int32: expected str or int,"
+            f" received {value.__class__.__name__}."
+        )
