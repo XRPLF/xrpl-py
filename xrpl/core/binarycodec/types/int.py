@@ -8,8 +8,6 @@ from typing_extensions import Final, Self
 
 from xrpl.core.binarycodec.types.uint import UInt
 
-_WIDTH: Final[int] = 4  # 32 / 8
-
 
 class Int(UInt):
     """Base class for serializing and deserializing unsigned integers.
