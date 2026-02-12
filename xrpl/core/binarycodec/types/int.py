@@ -4,15 +4,13 @@ See `Int Fields <https://xrpl.org/serialization.html#int-fields>`_
 
 from __future__ import annotations
 
-from typing_extensions import Final, Self
+from typing_extensions import Self
 
 from xrpl.core.binarycodec.types.uint import UInt
 
-_WIDTH: Final[int] = 4  # 32 / 8
-
 
 class Int(UInt):
-    """Base class for serializing and deserializing unsigned integers.
+    """Base class for serializing and deserializing signed integers.
     See `Int Fields <https://xrpl.org/serialization.html#int-fields>`_
     """
 
