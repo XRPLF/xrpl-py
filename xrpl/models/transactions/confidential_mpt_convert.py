@@ -1,4 +1,4 @@
-"""Model for ConfidentialConvert transaction type."""
+"""Model for ConfidentialMPTConvert transaction type."""
 
 from __future__ import annotations
 
@@ -22,9 +22,9 @@ EQUALITY_PROOF_LENGTH = 98 * 2  # 98 bytes = 196 hex chars (plaintext-ciphertext
 @require_kwargs_on_init
 @dataclass(frozen=True)
 # pylint: disable=too-many-instance-attributes
-class ConfidentialConvert(Transaction):
+class ConfidentialMPTConvert(Transaction):
     """
-    Represents a ConfidentialConvert transaction.
+    Represents a ConfidentialMPTConvert transaction.
 
     Converts a holder's own visible (public) MPT balance into confidential form.
     The converted amount is credited to the holder's confidential inbox balance

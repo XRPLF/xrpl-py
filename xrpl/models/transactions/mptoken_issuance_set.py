@@ -65,11 +65,15 @@ class MPTokenIssuanceSet(Transaction):
     """
 
     issuer_elgamal_public_key: Optional[str] = None
-    """The 33-byte EC-ElGamal public key used for the issuer's mirror balances."""
+    """
+    The EC-ElGamal public key used for the issuer's mirror balances.
+    Can be 33 bytes (66 hex chars, compressed) or 64 bytes (128 hex chars, uncompressed).
+    """
 
     auditor_elgamal_public_key: Optional[str] = None
     """
-    The 33-byte EC-ElGamal public key used for regulatory oversight (if applicable).
+    The EC-ElGamal public key used for regulatory oversight (if applicable).
+    Can be 33 bytes (66 hex chars, compressed) or 64 bytes (128 hex chars, uncompressed).
     """
 
     transaction_type: TransactionType = field(
@@ -97,15 +101,21 @@ class MPTokenIssuanceSet(Transaction):
         )
 
         if has_issuer_key and self.issuer_elgamal_public_key is not None:
-            if len(self.issuer_elgamal_public_key) != ELGAMAL_PUBLIC_KEY_LENGTH:
+            key_len = len(self.issuer_elgamal_public_key)
+            # Accept compressed (33 bytes = 66 hex) or uncompressed (64 bytes = 128 hex)
+            if key_len not in [66, 128]:
                 errors["issuer_elgamal_public_key"] = (
-                    "issuer_elgamal_public_key must be 33 bytes (66 hex characters)"
+                    "issuer_elgamal_public_key must be 33 bytes (66 hex characters, "
+                    "compressed) or 64 bytes (128 hex characters, uncompressed)"
                 )
 
         if has_auditor_key and self.auditor_elgamal_public_key is not None:
-            if len(self.auditor_elgamal_public_key) != ELGAMAL_PUBLIC_KEY_LENGTH:
+            key_len = len(self.auditor_elgamal_public_key)
+            # Accept compressed (33 bytes = 66 hex) or uncompressed (64 bytes = 128 hex)
+            if key_len not in [66, 128]:
                 errors["auditor_elgamal_public_key"] = (
-                    "auditor_elgamal_public_key must be 33 bytes (66 hex characters)"
+                    "auditor_elgamal_public_key must be 33 bytes (66 hex characters, "
+                    "compressed) or 64 bytes (128 hex characters, uncompressed)"
                 )
 
         if has_auditor_key and not has_issuer_key:

@@ -1,4 +1,4 @@
-"""Model for ConfidentialConvertBack transaction type."""
+"""Model for ConfidentialMPTConvertBack transaction type."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from typing import Dict, Optional
 from typing_extensions import Self
 
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.confidential_convert import BLINDING_FACTOR_LENGTH
+from xrpl.models.transactions.confidential_mpt_convert import BLINDING_FACTOR_LENGTH
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
@@ -17,9 +17,9 @@ from xrpl.models.utils import require_kwargs_on_init
 @require_kwargs_on_init
 @dataclass(frozen=True)
 # pylint: disable=too-many-instance-attributes
-class ConfidentialConvertBack(Transaction):
+class ConfidentialMPTConvertBack(Transaction):
     """
-    Represents a ConfidentialConvertBack transaction.
+    Represents a ConfidentialMPTConvertBack transaction.
 
     Convert confidential into public MPT value.
     - For a holder: restore public balance from CB_S.
@@ -48,13 +48,16 @@ class ConfidentialConvertBack(Transaction):
     to verify the ciphertexts match the plaintext MPTAmount.
     """
 
-    pedersen_commitment: str = REQUIRED  # type: ignore
-    """A cryptographic commitment to the user's confidential spending balance."""
+    balance_commitment: str = REQUIRED  # type: ignore
+    """
+    Pedersen commitment to the holder's CURRENT confidential spending balance
+    (64 bytes uncompressed).
+    """
 
     zk_proof: str = REQUIRED  # type: ignore
     """
-    A bundle containing the Pedersen Linkage Proof (linking the ElGamal balance
-    to the commitment) and the Range Proof.
+    Balance linkage proof (195 bytes) proving the link between the current
+    ConfidentialBalanceSpending and the balance commitment.
     """
 
     auditor_encrypted_amount: Optional[str] = None

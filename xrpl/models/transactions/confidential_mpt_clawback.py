@@ -1,4 +1,4 @@
-"""Model for ConfidentialClawback transaction type."""
+"""Model for ConfidentialMPTClawback transaction type."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from typing import Dict
 from typing_extensions import Self
 
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.confidential_convert import EQUALITY_PROOF_LENGTH
+from xrpl.models.transactions.confidential_mpt_convert import EQUALITY_PROOF_LENGTH
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
@@ -16,9 +16,9 @@ from xrpl.models.utils import require_kwargs_on_init
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class ConfidentialClawback(Transaction):
+class ConfidentialMPTClawback(Transaction):
     """
-    Represents a ConfidentialClawback transaction.
+    Represents a ConfidentialMPTClawback transaction.
 
     Clawback involves the issuer forcibly reclaiming funds from a holder's
     account. This action is fundamentally incompatible with standard confidential

@@ -1,4 +1,4 @@
-"""Model for ConfidentialMergeInbox transaction type."""
+"""Model for ConfidentialMPTMergeInbox transaction type."""
 
 from __future__ import annotations
 
@@ -15,9 +15,9 @@ from xrpl.models.utils import require_kwargs_on_init
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
-class ConfidentialMergeInbox(Transaction):
+class ConfidentialMPTMergeInbox(Transaction):
     """
-    Represents a ConfidentialMergeInbox transaction.
+    Represents a ConfidentialMPTMergeInbox transaction.
 
     Moves all funds from the inbox balance into the spending balance, then
     resets the inbox to a canonical encrypted zero (EncZero). This ensures that

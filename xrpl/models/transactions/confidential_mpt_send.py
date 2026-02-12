@@ -1,4 +1,4 @@
-"""Model for ConfidentialSend transaction type."""
+"""Model for ConfidentialMPTSend transaction type."""
 
 from __future__ import annotations
 
@@ -16,9 +16,9 @@ from xrpl.models.utils import require_kwargs_on_init
 @require_kwargs_on_init
 @dataclass(frozen=True)
 # pylint: disable=too-many-instance-attributes
-class ConfidentialSend(Transaction):
+class ConfidentialMPTSend(Transaction):
     """
-    Represents a ConfidentialSend transaction.
+    Represents a ConfidentialMPTSend transaction.
 
     Performs a confidential transfer of MPT value between accounts while keeping
     the transfer amount hidden. The transferred amount is credited to the
@@ -48,8 +48,11 @@ class ConfidentialSend(Transaction):
     zk_proof: str = REQUIRED  # type: ignore
     """ZKP bundle establishing equality, linkage, and range sufficiency."""
 
-    pedersen_commitment: str = REQUIRED  # type: ignore
-    """A cryptographic commitment to the user's confidential spending balance."""
+    amount_commitment: str = REQUIRED  # type: ignore
+    """Pedersen commitment to the amount being sent (64 bytes)."""
+
+    balance_commitment: str = REQUIRED  # type: ignore
+    """Pedersen commitment to the sender's remaining spending balance (64 bytes)."""
 
     auditor_encrypted_amount: Optional[str] = None
     """
