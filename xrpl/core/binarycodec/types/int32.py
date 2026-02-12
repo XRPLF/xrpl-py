@@ -1,71 +1,78 @@
-"""Class for serializing and deserializing a signed 32-bit integer."""
+"""Class for serializing and deserializing a signed 32-bit integer.
+See `Int Fields <https://xrpl.org/serialization.html#int-fields>`_
+"""
 
 from __future__ import annotations
 
-from typing import Optional, Type
+from typing import Optional, Type, Union
 
 from typing_extensions import Final, Self
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
-from xrpl.core.binarycodec.types.serialized_type import SerializedType
+from xrpl.core.binarycodec.types.int import Int
 
 _WIDTH: Final[int] = 4  # 32 / 8
 
 
-class Int32(SerializedType):
-    """Class for serializing and deserializing a signed 32-bit integer."""
+class Int32(Int):
+    """
+    Class for serializing and deserializing a signed 32-bit integer.
+    See `Int Fields <https://xrpl.org/serialization.html#int-fields>`_
+    """
 
     def __init__(self: Self, buffer: bytes = bytes(_WIDTH)) -> None:
         """Construct a new Int32 type from a ``bytes`` value."""
         super().__init__(buffer)
 
-    @property
-    def value(self: Self) -> int:
-        """Get the value of the Int32 represented by `self.buffer`."""
-        return int.from_bytes(self.buffer, byteorder="big", signed=True)
-
     @classmethod
     def from_parser(
         cls: Type[Self], parser: BinaryParser, _length_hint: Optional[int] = None
     ) -> Self:
-        """Construct a new Int32 type from a BinaryParser."""
+        """
+        Construct a new Int32 type from a BinaryParser.
+
+        Args:
+            parser: A BinaryParser to construct an Int32 from.
+
+        Returns:
+            The Int32 constructed from parser.
+        """
         return cls(parser.read(_WIDTH))
 
     @classmethod
-    def from_value(cls: Type[Self], value: int) -> Self:
-        """Construct a new Int32 type from an integer."""
-        if not isinstance(value, int):
-            raise XRPLBinaryCodecException(
-                f"Invalid type to construct Int32: expected int, "
-                f"received {value.__class__.__name__}."
-            )
-        return cls(value.to_bytes(_WIDTH, byteorder="big", signed=True))
+    def from_value(cls: Type[Self], value: Union[str, int]) -> Self:
+        """
+        Construct a new Int32 type from a number.
 
-    def to_json(self: Self) -> int:
-        """Convert the Int32 to JSON (returns the integer value)."""
-        return self.value
+        Args:
+            value: The number to construct an Int32 from.
 
-    def __eq__(self: Self, other: object) -> bool:
-        """Determine whether two Int32 objects are equal."""
-        if isinstance(other, int):
-            return self.value == other
-        if isinstance(other, Int32):
-            return self.value == other.value
-        return NotImplemented
+        Returns:
+            The Int32 constructed from value.
 
-    def __lt__(self: Self, other: object) -> bool:
-        """Determine whether this Int32 is less than another."""
-        if isinstance(other, int):
-            return self.value < other
-        if isinstance(other, Int32):
-            return self.value < other.value
-        return NotImplemented
+        Raises:
+            XRPLBinaryCodecException: If an Int32 could not be constructed from value.
+        """
+        if isinstance(value, int):
+            value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=True)
+            return cls(value_bytes)
 
-    def __gt__(self: Self, other: object) -> bool:
-        """Determine whether this Int32 is greater than another."""
-        if isinstance(other, int):
-            return self.value > other
-        if isinstance(other, Int32):
-            return self.value > other.value
-        return NotImplemented
+        if isinstance(value, str):
+            try:
+                int_value = int(value)
+            except ValueError as err:
+                raise XRPLBinaryCodecException(
+                    f"Cannot construct Int32 from given value: {value!r}"
+                ) from err
+            try:
+                return cls(int_value.to_bytes(_WIDTH, byteorder="big", signed=True))
+            except OverflowError as err:
+                raise XRPLBinaryCodecException(
+                    f"Cannot construct Int32 from given value: {value!r}"
+                ) from err
+
+        raise XRPLBinaryCodecException(
+            "Invalid type to construct an Int32: expected str or int,"
+            f" received {value.__class__.__name__}."
+        )
