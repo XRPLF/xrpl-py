@@ -29,6 +29,13 @@ class VaultWithdraw(Transaction):
     destination: Optional[str] = None
     """An account to receive the assets. It must be able to receive the asset."""
 
+    destination_tag: Optional[int] = None
+    """
+    An arbitrary `destination tag
+    <https://xrpl.org/source-and-destination-tags.html>`_ that
+    identifies the reason for the Payment, or a hosted recipient to pay.
+    """
+
     transaction_type: TransactionType = field(
         default=TransactionType.VAULT_WITHDRAW,
         init=False,

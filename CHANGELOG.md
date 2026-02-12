@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Updates `Number` codec with mantissa range normalization ([10^18, 10^19 - 1]) and appropriate overflow/underflow checks
+- Introduce the binary-codec for the new rippled type titled "Int32". This type is used to represent the LoanScale field relating to the Lending Protocol.
 - Fix `Request.from_xrpl` by aliasing it to `Request.from_dict`
 
 ## [[4.4.0]] - 2025-12-16
