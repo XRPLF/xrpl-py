@@ -57,15 +57,20 @@ class Int32(Int):
         if not isinstance(value, (str, int)):
             raise XRPLBinaryCodecException(
                 "Invalid type to construct a Int32: expected str or int,"
-                " received {value.__class__.__name__}."
+                f" received {value.__class__.__name__}."
             )
 
         if isinstance(value, int):
             value_bytes = (value).to_bytes(_WIDTH, byteorder="big", signed=True)
             return cls(value_bytes)
 
-        if isinstance(value, str) and value.isdigit():
-            value_bytes = (int(value)).to_bytes(_WIDTH, byteorder="big", signed=True)
-            return cls(value_bytes)
+        if isinstance(value, str):
+            try:
+                int_value = int(value)
+            except ValueError:
+                raise XRPLBinaryCodecException(
+                    f"Cannot construct Int32 from given value: {value!r}"
+                )
+            return cls(int_value.to_bytes(_WIDTH, byteorder="big", signed=True))
 
         raise XRPLBinaryCodecException("Cannot construct Int32 from given value")
