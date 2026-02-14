@@ -16,6 +16,11 @@ max-line-length = 88
 # TODO: remove this rule
 allow-init-docstring=True
 
+# Exclude confidential MPT code (beta feature, will be linted separately)
+exclude =
+  xrpl/core/confidential/*,
+  xrpl/confidential-py-cmpt/*
+
 per-file-ignores =
   # For tests, disable type annotation and docstring linting.
   tests/*: ANN D DOC
