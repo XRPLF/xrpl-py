@@ -22,25 +22,22 @@ If you want to use confidential MPT features:
 
 ```bash
 # 1. Install xrpl-py with confidential support
-pip install xrpl-py[confidential]
+poetry install --extras confidential
 
 # 2. Build the C extension (one-time)
-python -m xrpl.core.confidential.setup
+poetry run python -m xrpl.core.confidential.setup
 ```
-
-That's it! The setup script will build the C extension for your platform.
 
 ### Alternative: Manual Build
 
 You can also build manually:
 
 ```bash
-# Using Poetry task
+# Using Poetry task (recommended)
 poetry run poe build_mpt_crypto
 
-# Or directly
-cd xrpl/core/confidential
-python build_mpt_crypto.py
+# Or directly with Poetry
+poetry run python xrpl/core/confidential/build_mpt_crypto.py
 ```
 
 ### Requirements
@@ -48,7 +45,7 @@ python build_mpt_crypto.py
 - **macOS**: Xcode Command Line Tools (`xcode-select --install`), OpenSSL (`brew install openssl`)
 - **Linux**: build-essential, libssl-dev (`sudo apt-get install build-essential libssl-dev`)
 - **Windows**: Not yet supported (VLA compatibility issues with MSVC)
-- **All platforms**: Python 3.9+ with cffi package (`pip install cffi`)
+- **All platforms**: Python 3.9+ with cffi package (installed via `poetry install --extras confidential`)
 
 ## Usage
 
@@ -87,6 +84,7 @@ The `transaction_builders` module provides high-level functions for all confiden
 - **`prepare_confidential_merge_inbox()`** - Merge inbox to spending balance
 - **`prepare_confidential_send()`** - Transfer confidential tokens between holders
 - **`prepare_confidential_convert_back()`** - Convert confidential tokens back to public
+- **`prepare_confidential_clawback()`** - Clawback confidential tokens (issuer only)
 
 Each function handles all the complexity of:
 
@@ -118,7 +116,7 @@ decrypted_amount = crypto.decrypt(privkey, c1, c2)
 commitment = crypto.create_pedersen_commitment(amount=1000, blinding_factor=blinding)
 
 # Generate proofs
-schnorr_proof = crypto.create_schnorr_pok(privkey, pubkey, context_id)
+schnorr_proof = crypto.generate_pok(privkey, pubkey, context_id)
 link_proof = crypto.create_elgamal_pedersen_link_proof(c1, c2, pubkey, commitment, ...)
 ```
 
@@ -126,21 +124,45 @@ link_proof = crypto.create_elgamal_pedersen_link_proof(c1, c2, pubkey, commitmen
 
 ```
 xrpl/core/confidential/
-├── __init__.py                  # MPTCrypto class (C bindings wrapper)
-├── build_mpt_crypto.py          # Build script for C extension
-├── context.py                   # Context hash computation functions
+├── __init__.py                  # Public API exports
+├── main.py                      # MPTCrypto wrapper class
+├── crypto_bindings.py           # Low-level C library bindings (CFFI)
+├── keypair.py                   # Keypair generation and Schnorr PoK
+├── encryption.py                # ElGamal encryption/decryption
+├── commitments.py               # Pedersen commitments and Bulletproofs
+├── link_proofs.py               # ElGamal-Pedersen link proofs
+├── plaintext_proofs.py          # Equality and same plaintext proofs
 ├── transaction_builders.py      # High-level transaction preparation
+├── context.py                   # Context hash computation
+├── utils.py                     # Utility functions
 ├── test_utils.py                # Test utilities
+├── setup.py                     # Setup script
+├── build_mpt_crypto.py          # C extension build script
+├── tests/                       # Unit tests
+│   ├── test_encryption.py
+│   └── test_proofs.py
+├── examples/                    # Example scripts
+│   └── submit_confidential_tx.py
+├── include/                     # C header files
+│   ├── secp256k1.h
+│   └── secp256k1_mpt.h
+├── libs/                        # Pre-compiled native libraries
+│   ├── darwin/
+│   └── linux/
 └── README.md                    # This file
 ```
 
 ## Architecture
 
-The C bindings use `cffi` to interface with the `mpt-crypto` C library:
+The module uses a layered architecture:
 
-1. **`build_mpt_crypto.py`** - Compiles the C library and generates Python bindings
-2. **`_mpt_crypto.so`** - Compiled C extension (generated, not in git)
-3. **`__init__.py`** - Python wrapper providing a clean API
+1. **Native C Libraries** (`libs/`) - Pre-compiled `libmpt-crypto.a` and `libsecp256k1.a`
+2. **CFFI Build** (`build_mpt_crypto.py`) - Compiles C extension linking native libraries
+3. **C Extension** (`_mpt_crypto.so`) - Generated platform-specific binary (not in git)
+4. **Low-level Bindings** (`crypto_bindings.py`) - Imports CFFI `ffi` and `lib` objects
+5. **Functional Modules** (`keypair.py`, `encryption.py`, etc.) - Pure functions taking `ctx` parameter
+6. **Wrapper Class** (`main.py`) - `MPTCrypto` class that manages context and delegates to functional modules
+7. **Public API** (`__init__.py`) - Exports `MPTCrypto` and transaction builders
 
 The compiled `.so` file is platform and Python-version specific, so it must be rebuilt when:
 
@@ -155,7 +177,7 @@ The compiled `.so` file is platform and Python-version specific, so it must be r
 The C extension hasn't been built yet. Run the setup script:
 
 ```bash
-python -m xrpl.core.confidential.setup
+poetry run python -m xrpl.core.confidential.setup
 ```
 
 ### Build fails with "Pre-compiled libraries not found"
@@ -171,7 +193,7 @@ Your platform may not have pre-compiled libraries yet. Currently supported:
 Install cffi:
 
 ```bash
-pip install cffi
+poetry install --extras confidential
 ```
 
 ### Wrong Python version
@@ -179,7 +201,7 @@ pip install cffi
 The `.so` file was built for a different Python version. Rebuild:
 
 ```bash
-python -m xrpl.core.confidential.setup
+poetry run python -m xrpl.core.confidential.setup
 ```
 
 ## Pre-compiled Libraries
@@ -279,9 +301,3 @@ poetry run poe build_mpt_crypto
 See the `examples/` directory for complete working examples:
 
 - `submit_confidential_tx.py` - Complete workflow demonstrating all confidential MPT transaction types
-
-## See Also
-
-- [Confidential MPT Specification](https://github.com/XRPLF/XRPL-Standards/discussions/)
-- [mpt-crypto C Library](https://github.com/ripple/mpt-crypto)
-- [XRPL Documentation](https://xrpl.org/)
