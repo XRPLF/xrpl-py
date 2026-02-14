@@ -1,1 +1,16 @@
 include binary_codec/definitions/definitions.json
+
+# Include pre-compiled libraries for confidential MPT
+recursive-include xrpl/core/confidential/libs *.a *.lib
+recursive-include xrpl/core/confidential/include *.h
+
+# Include README and documentation
+include README.md
+include LICENSE
+
+# Exclude C extension build artifacts (these are platform-specific and built during install)
+exclude xrpl/core/confidential/_mpt_crypto.c
+exclude xrpl/core/confidential/_mpt_crypto.o
+global-exclude *.so
+global-exclude *.pyd
+global-exclude *.dylib
