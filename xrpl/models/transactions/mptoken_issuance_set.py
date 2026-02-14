@@ -67,13 +67,15 @@ class MPTokenIssuanceSet(Transaction):
     issuer_elgamal_public_key: Optional[str] = None
     """
     The EC-ElGamal public key used for the issuer's mirror balances.
-    Can be 33 bytes (66 hex chars, compressed) or 64 bytes (128 hex chars, uncompressed).
+    Can be 33 bytes (66 hex chars, compressed) or 64 bytes (128 hex chars,
+    uncompressed).
     """
 
     auditor_elgamal_public_key: Optional[str] = None
     """
     The EC-ElGamal public key used for regulatory oversight (if applicable).
-    Can be 33 bytes (66 hex chars, compressed) or 64 bytes (128 hex chars, uncompressed).
+    Can be 33 bytes (66 hex chars, compressed) or 64 bytes (128 hex chars,
+    uncompressed).
     """
 
     transaction_type: TransactionType = field(
