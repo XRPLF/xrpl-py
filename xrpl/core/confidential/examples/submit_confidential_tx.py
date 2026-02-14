@@ -42,7 +42,7 @@ from xrpl.wallet import Wallet
 # Import confidential MPT utilities
 try:
     from xrpl.core.confidential import MPTCrypto
-    from xrpl.core.confidential.test_utils import (
+    from xrpl.core.confidential.examples.utils import (
         check_tx_success,
         fund_account,
         get_mpt_issuance_id,
