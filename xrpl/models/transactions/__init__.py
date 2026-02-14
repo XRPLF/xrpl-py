@@ -56,7 +56,7 @@ from xrpl.models.transactions.loan_broker_delete import LoanBrokerDelete
 from xrpl.models.transactions.loan_broker_set import LoanBrokerSet
 from xrpl.models.transactions.loan_delete import LoanDelete
 from xrpl.models.transactions.loan_manage import LoanManage
-from xrpl.models.transactions.loan_pay import LoanPay
+from xrpl.models.transactions.loan_pay import LoanPay, LoanPayFlag, LoanPayFlagInterface
 from xrpl.models.transactions.loan_set import LoanSet
 from xrpl.models.transactions.metadata import TransactionMetadata
 from xrpl.models.transactions.mptoken_authorize import (
@@ -196,6 +196,8 @@ __all__ = [
     "LoanDelete",
     "LoanManage",
     "LoanPay",
+    "LoanPayFlag",
+    "LoanPayFlagInterface",
     "LoanSet",
     "Memo",
     "MPTokenAuthorize",

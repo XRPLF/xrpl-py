@@ -2661,16 +2661,6 @@
       }
     ],
     [
-      "LoanScale",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 1,
-        "type": "Int32"
-      }
-    ],
-    [
       "TransactionMetaData",
       {
         "isSerialized": true,
@@ -3288,6 +3278,16 @@
         "isVLEncoded": false,
         "nth": 1,
         "type": "UInt8"
+      }
+    ],
+    [
+      "LoanScale",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 1,
+        "type": "Int32"
       }
     ],
     [
