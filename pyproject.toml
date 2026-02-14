@@ -92,6 +92,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.coverage.run]
 branch = true
 source = ["xrpl"]
+omit = ["xrpl/core/confidential/*", "xrpl/confidential-py-cmpt/*"]
 
 [tool.coverage.report]
 show_missing = true

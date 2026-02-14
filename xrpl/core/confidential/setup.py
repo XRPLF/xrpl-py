@@ -23,19 +23,19 @@ def main():
     print("Setting up Confidential MPT Support")
     print("=" * 80)
     print()
-    
+
     # Get the directory of this script
     script_dir = os.path.dirname(os.path.abspath(__file__))
     build_script = os.path.join(script_dir, "build_mpt_crypto.py")
-    
+
     # Check if build script exists
     if not os.path.exists(build_script):
         print(f"ERROR: Build script not found: {build_script}")
         sys.exit(1)
-    
+
     print(f"Building C extension from: {build_script}")
     print()
-    
+
     # Run the build script
     try:
         result = subprocess.run(
@@ -44,7 +44,7 @@ def main():
             check=True,
             capture_output=False,
         )
-        
+
         print()
         print("=" * 80)
         print("✓ Confidential MPT setup completed successfully!")
@@ -53,9 +53,9 @@ def main():
         print("You can now use confidential MPT features:")
         print("  from xrpl.core.confidential import MPTCrypto")
         print()
-        
+
         return 0
-        
+
     except subprocess.CalledProcessError as e:
         print()
         print("=" * 80)
@@ -70,7 +70,7 @@ def main():
         print("  - Missing cffi package (install with: pip install cffi)")
         print()
         return 1
-    
+
     except Exception as e:
         print(f"ERROR: Unexpected error: {e}")
         return 1
@@ -78,4 +78,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-

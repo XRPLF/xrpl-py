@@ -69,4 +69,3 @@ __all__ = [
     "SECP256K1_EC_COMPRESSED",
     "SECP256K1_EC_UNCOMPRESSED",
 ]
-

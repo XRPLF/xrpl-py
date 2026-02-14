@@ -138,4 +138,3 @@ def verify_bulletproof(
     )
 
     return result == 1
-

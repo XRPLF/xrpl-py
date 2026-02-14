@@ -139,9 +139,10 @@ def decrypt(ctx, privkey: str, c1: str, c2: str) -> int:
 
     # Decrypt
     amount = ffi.new("uint64_t *")
-    result = lib.secp256k1_elgamal_decrypt(ctx, amount, c1_parsed, c2_parsed, privkey_bytes)
+    result = lib.secp256k1_elgamal_decrypt(
+        ctx, amount, c1_parsed, c2_parsed, privkey_bytes
+    )
     if result != 1:
         raise RuntimeError("Failed to decrypt")
 
     return amount[0]
-
