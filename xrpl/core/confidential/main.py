@@ -403,6 +403,55 @@ class MPTCrypto:
 
         return bytes(proof_out[0 : proof_len[0]]).hex().upper()
 
+    def verify_bulletproof(
+        self, proof: str, commitment: str, pk_base_uncompressed: str
+    ) -> bool:
+        """
+        Verify a Bulletproof range proof.
+
+        Args:
+            proof: Variable-length hex string (Bulletproof, typically ~600-700 bytes)
+            commitment: 128-char hex string (64-byte Pedersen commitment, X + Y)
+            pk_base_uncompressed: 128-char hex string (64-byte public key, H generator)
+
+        Returns:
+            True if proof is valid, False otherwise
+        """
+        # Convert hex strings to bytes
+        proof_bytes = bytes.fromhex(proof)
+        commitment_bytes = bytes.fromhex(commitment)
+        pk_base_bytes = bytes.fromhex(pk_base_uncompressed)
+
+        if len(commitment_bytes) != PUBKEY_UNCOMPRESSED_SIZE:
+            raise ValueError(f"commitment must be {PUBKEY_UNCOMPRESSED_SIZE} bytes")
+        if len(pk_base_bytes) != PUBKEY_UNCOMPRESSED_SIZE:
+            raise ValueError(f"pk_base must be {PUBKEY_UNCOMPRESSED_SIZE} bytes")
+
+        # Parse commitment
+        commitment_with_prefix = b"\x04" + commitment_bytes
+        commitment_pk = ffi.new("secp256k1_pubkey *")
+        result = lib.secp256k1_ec_pubkey_parse(
+            self.ctx, commitment_pk, commitment_with_prefix, 65
+        )
+        if result != 1:
+            raise RuntimeError("Failed to parse commitment")
+
+        # Parse pk_base
+        pk_base_with_prefix = b"\x04" + pk_base_bytes
+        pk_base_pk = ffi.new("secp256k1_pubkey *")
+        result = lib.secp256k1_ec_pubkey_parse(
+            self.ctx, pk_base_pk, pk_base_with_prefix, 65
+        )
+        if result != 1:
+            raise RuntimeError("Failed to parse pk_base")
+
+        # Verify bulletproof
+        result = lib.secp256k1_bulletproof_verify(
+            self.ctx, proof_bytes, len(proof_bytes), commitment_pk, pk_base_pk
+        )
+
+        return result == 1
+
     def create_elgamal_pedersen_link_proof(  # noqa: PLR0913
         self,
         c1: str,
@@ -490,6 +539,85 @@ class MPTCrypto:
             raise RuntimeError("Failed to create ElGamal-Pedersen link proof")
 
         return bytes(proof[0:195]).hex().upper()
+
+    def verify_elgamal_pedersen_link_proof(
+        self,
+        proof: str,
+        c1: str,
+        c2: str,
+        pk_uncompressed: str,
+        pedersen_commitment: str,
+        context_id: str,
+    ) -> bool:
+        """
+        Verify an ElGamal-Pedersen link proof.
+
+        Args:
+            proof: 390-char hex string (195-byte proof)
+            c1: 66-char hex string (33-byte compressed point)
+            c2: 66-char hex string (33-byte compressed point)
+            pk_uncompressed: 128-char hex string (64-byte public key, X || Y)
+            pedersen_commitment: 128-char hex string (64-byte commitment, X + Y)
+            context_id: 64-char hex string (32-byte context ID)
+
+        Returns:
+            True if proof is valid, False otherwise
+        """
+        # Convert hex strings to bytes
+        proof_bytes = bytes.fromhex(proof)
+        c1_bytes = bytes.fromhex(c1)
+        c2_bytes = bytes.fromhex(c2)
+        pk_bytes = bytes.fromhex(pk_uncompressed)
+        pcm_bytes = bytes.fromhex(pedersen_commitment)
+        context_id_bytes = bytes.fromhex(context_id)
+
+        if len(proof_bytes) != 195:
+            raise ValueError("proof must be 195 bytes")
+        if len(c1_bytes) != PUBKEY_COMPRESSED_SIZE:
+            raise ValueError(f"c1 must be {PUBKEY_COMPRESSED_SIZE} bytes")
+        if len(c2_bytes) != PUBKEY_COMPRESSED_SIZE:
+            raise ValueError(f"c2 must be {PUBKEY_COMPRESSED_SIZE} bytes")
+        if len(pk_bytes) != PUBKEY_UNCOMPRESSED_SIZE:
+            raise ValueError(f"pk must be {PUBKEY_UNCOMPRESSED_SIZE} bytes")
+        if len(pcm_bytes) != PUBKEY_UNCOMPRESSED_SIZE:
+            raise ValueError(
+                f"pedersen_commitment must be {PUBKEY_UNCOMPRESSED_SIZE} bytes"
+            )
+        if len(context_id_bytes) != CONTEXT_ID_SIZE:
+            raise ValueError(f"context_id must be {CONTEXT_ID_SIZE} bytes")
+
+        # Parse c1, c2
+        c1_pk = ffi.new("secp256k1_pubkey *")
+        c2_pk = ffi.new("secp256k1_pubkey *")
+        result = lib.secp256k1_ec_pubkey_parse(self.ctx, c1_pk, c1_bytes, 33)
+        if result != 1:
+            raise RuntimeError("Failed to parse c1")
+        result = lib.secp256k1_ec_pubkey_parse(self.ctx, c2_pk, c2_bytes, 33)
+        if result != 1:
+            raise RuntimeError("Failed to parse c2")
+
+        # Parse pk
+        pk_with_prefix = b"\x04" + pk_bytes
+        pk_pubkey = ffi.new("secp256k1_pubkey *")
+        result = lib.secp256k1_ec_pubkey_parse(self.ctx, pk_pubkey, pk_with_prefix, 65)
+        if result != 1:
+            raise RuntimeError("Failed to parse pk")
+
+        # Parse pedersen commitment
+        pcm_with_prefix = b"\x04" + pcm_bytes
+        pcm_pubkey = ffi.new("secp256k1_pubkey *")
+        result = lib.secp256k1_ec_pubkey_parse(
+            self.ctx, pcm_pubkey, pcm_with_prefix, 65
+        )
+        if result != 1:
+            raise RuntimeError("Failed to parse pedersen_commitment")
+
+        # Verify proof
+        result = lib.secp256k1_elgamal_pedersen_link_verify(
+            self.ctx, proof_bytes, c1_pk, c2_pk, pk_pubkey, pcm_pubkey, context_id_bytes
+        )
+
+        return result == 1
 
     def create_balance_link_proof(  # noqa: PLR0913
         self,
@@ -639,13 +767,14 @@ class MPTCrypto:
         lib.secp256k1_ec_pubkey_parse(self.ctx, pk, pk_with_prefix, 65)
 
         # Generate equality proof
+        # The C library expects (c1, c2, pk_recipient) order
         proof = ffi.new("unsigned char[98]")
         result = lib.secp256k1_equality_plaintext_prove(
             self.ctx,
             proof,
-            pk,
-            c2_pk,
             c1_pk,
+            c2_pk,
+            pk,
             amount,
             blinding_bytes,
             context_id_bytes,
@@ -654,6 +783,72 @@ class MPTCrypto:
             raise RuntimeError("Failed to create equality proof")
 
         return bytes(proof[0:98]).hex().upper()
+
+    def verify_equality_plaintext_proof(
+        self,
+        proof: str,
+        pk_uncompressed: str,
+        c2: str,
+        c1: str,
+        amount: int,
+        context_id: str,
+    ) -> bool:
+        """
+        Verify an equality plaintext proof (for ConfidentialMPTClawback).
+
+        Args:
+            proof: 196-char hex string (98-byte proof)
+            pk_uncompressed: 128-char hex string (64-byte public key, X || Y)
+            c2: 66-char hex string (33-byte compressed point)
+            c1: 66-char hex string (33-byte compressed point)
+            amount: The amount being clawed back
+            context_id: 64-char hex string (32-byte context ID)
+
+        Returns:
+            True if proof is valid, False otherwise
+        """
+        # Convert hex strings to bytes
+        proof_bytes = bytes.fromhex(proof)
+        pk_bytes = bytes.fromhex(pk_uncompressed)
+        c2_bytes = bytes.fromhex(c2)
+        c1_bytes = bytes.fromhex(c1)
+        context_id_bytes = bytes.fromhex(context_id)
+
+        if len(proof_bytes) != 98:
+            raise ValueError("proof must be 98 bytes")
+        if len(pk_bytes) != PUBKEY_UNCOMPRESSED_SIZE:
+            raise ValueError(f"pk must be {PUBKEY_UNCOMPRESSED_SIZE} bytes")
+        if len(c2_bytes) != PUBKEY_COMPRESSED_SIZE:
+            raise ValueError(f"c2 must be {PUBKEY_COMPRESSED_SIZE} bytes")
+        if len(c1_bytes) != PUBKEY_COMPRESSED_SIZE:
+            raise ValueError(f"c1 must be {PUBKEY_COMPRESSED_SIZE} bytes")
+        if len(context_id_bytes) != CONTEXT_ID_SIZE:
+            raise ValueError(f"context_id must be {CONTEXT_ID_SIZE} bytes")
+
+        # Parse pk
+        pk_with_prefix = b"\x04" + pk_bytes
+        pk_pubkey = ffi.new("secp256k1_pubkey *")
+        result = lib.secp256k1_ec_pubkey_parse(self.ctx, pk_pubkey, pk_with_prefix, 65)
+        if result != 1:
+            raise RuntimeError("Failed to parse pk")
+
+        # Parse c2, c1
+        c2_pk = ffi.new("secp256k1_pubkey *")
+        c1_pk = ffi.new("secp256k1_pubkey *")
+        result = lib.secp256k1_ec_pubkey_parse(self.ctx, c2_pk, c2_bytes, 33)
+        if result != 1:
+            raise RuntimeError("Failed to parse c2")
+        result = lib.secp256k1_ec_pubkey_parse(self.ctx, c1_pk, c1_bytes, 33)
+        if result != 1:
+            raise RuntimeError("Failed to parse c1")
+
+        # Verify proof
+        # The C library expects (c1, c2, pk), so pass them in that order
+        result = lib.secp256k1_equality_plaintext_verify(
+            self.ctx, proof_bytes, c1_pk, c2_pk, pk_pubkey, amount, context_id_bytes
+        )
+
+        return result == 1
 
     def create_same_plaintext_proof_multi(  # noqa: PLR0914
         self,
@@ -739,3 +934,88 @@ class MPTCrypto:
             raise RuntimeError("Failed to create same plaintext proof")
 
         return bytes(proof_out[0 : proof_len[0]]).hex().upper()
+
+    def verify_same_plaintext_proof_multi(  # noqa: PLR0914
+        self,
+        proof: str,
+        ciphertexts: list,  # List of (c1, c2, pk) tuples (hex strings, no blinding)
+        context_id: str,
+    ) -> bool:
+        """
+        Verify a proof that multiple ciphertexts encrypt the same amount.
+
+        Args:
+            proof: Variable-length hex string (proof size depends on number of ciphertexts)
+            ciphertexts: List of (c1, c2, pk) tuples where:
+                - c1: 66-char hex string (33-byte compressed point)
+                - c2: 66-char hex string (33-byte compressed point)
+                - pk: 128-char hex string (64-byte public key, X || Y)
+            context_id: 64-char hex string (32-byte context ID)
+
+        Returns:
+            True if proof is valid, False otherwise
+        """
+        # Convert hex strings to bytes
+        proof_bytes = bytes.fromhex(proof)
+        context_id_bytes = bytes.fromhex(context_id)
+
+        if len(context_id_bytes) != CONTEXT_ID_SIZE:
+            raise ValueError(f"context_id must be {CONTEXT_ID_SIZE} bytes")
+
+        n = len(ciphertexts)
+        if n < 2:
+            raise ValueError("Need at least 2 ciphertexts")
+
+        # Allocate arrays
+        R_array = ffi.new(f"secp256k1_pubkey[{n}]")  # noqa: N806
+        S_array = ffi.new(f"secp256k1_pubkey[{n}]")  # noqa: N806
+        Pk_array = ffi.new(f"secp256k1_pubkey[{n}]")  # noqa: N806
+
+        # Parse all ciphertexts
+        for i, (c1_hex, c2_hex, pk_hex) in enumerate(ciphertexts):
+            c1_bytes = bytes.fromhex(c1_hex)
+            c2_bytes = bytes.fromhex(c2_hex)
+            pk_bytes = bytes.fromhex(pk_hex)
+
+            if len(c1_bytes) != PUBKEY_COMPRESSED_SIZE:
+                raise ValueError(f"c1[{i}] must be {PUBKEY_COMPRESSED_SIZE} bytes")
+            if len(c2_bytes) != PUBKEY_COMPRESSED_SIZE:
+                raise ValueError(f"c2[{i}] must be {PUBKEY_COMPRESSED_SIZE} bytes")
+            if len(pk_bytes) != PUBKEY_UNCOMPRESSED_SIZE:
+                raise ValueError(f"pk[{i}] must be {PUBKEY_UNCOMPRESSED_SIZE} bytes")
+
+            # Parse c1 (R)
+            result = lib.secp256k1_ec_pubkey_parse(
+                self.ctx, R_array + i, c1_bytes, PUBKEY_COMPRESSED_SIZE
+            )
+            if result != 1:
+                raise RuntimeError(f"Failed to parse c1[{i}]")
+
+            # Parse c2 (S)
+            result = lib.secp256k1_ec_pubkey_parse(
+                self.ctx, S_array + i, c2_bytes, PUBKEY_COMPRESSED_SIZE
+            )
+            if result != 1:
+                raise RuntimeError(f"Failed to parse c2[{i}]")
+
+            # Parse pk
+            pk_with_prefix = b"\x04" + pk_bytes
+            result = lib.secp256k1_ec_pubkey_parse(
+                self.ctx, Pk_array + i, pk_with_prefix, 65
+            )
+            if result != 1:
+                raise RuntimeError(f"Failed to parse pk[{i}]")
+
+        # Verify proof
+        result = lib.secp256k1_mpt_verify_same_plaintext_multi(
+            self.ctx,
+            proof_bytes,
+            len(proof_bytes),
+            n,
+            R_array,
+            S_array,
+            Pk_array,
+            context_id_bytes,
+        )
+
+        return result == 1
