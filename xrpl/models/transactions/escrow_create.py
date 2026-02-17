@@ -68,6 +68,10 @@ class EscrowCreate(Transaction):
     fulfilled.
     """
 
+    finish_function: Optional[str] = None
+
+    data: Optional[str] = None
+
     transaction_type: TransactionType = field(
         default=TransactionType.ESCROW_CREATE,
         init=False,
@@ -82,6 +86,15 @@ class EscrowCreate(Transaction):
         ):
             errors["EscrowCreate"] = (
                 "The finish_after time must be before the cancel_after time."
+            )
+        if (
+            self.finish_after is None
+            and self.condition is None
+            and self.finish_function is None
+        ):
+            errors["EscrowCreate"] = (
+                "At least one of finish_after, condition, or finish_function must be "
+                "set."
             )
 
         if get_amount_value(self.amount) <= 0:

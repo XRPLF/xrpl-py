@@ -9,14 +9,34 @@ _DESTINATION = "rJXXwHs6YYZmomBnJoYQdxwXSwJq56tJBn"
 
 
 class TestEscrowCreate(TestCase):
+    def test_all_fields_valid(self):
+        account = _SOURCE
+        amount = "1000"
+        cancel_after = 3
+        destination = _DESTINATION
+        destination_tag = 1
+        finish_after = 2
+        finish_function = "abcdef"
+        condition = "abcdef"
+
+        escrow_create = EscrowCreate(
+            account=account,
+            amount=amount,
+            destination=destination,
+            destination_tag=destination_tag,
+            cancel_after=cancel_after,
+            finish_after=finish_after,
+            finish_function=finish_function,
+            condition=condition,
+        )
+        self.assertTrue(escrow_create.is_valid())
+
     def test_final_after_less_than_cancel_after(self):
         account = _SOURCE
         amount = "10.890"
         cancel_after = 1
         finish_after = 2
         destination = _DESTINATION
-        fee = "0.00001"
-        sequence = 19048
 
         with self.assertRaises(XRPLModelException) as error:
             EscrowCreate(
@@ -24,14 +44,34 @@ class TestEscrowCreate(TestCase):
                 amount=amount,
                 cancel_after=cancel_after,
                 destination=destination,
-                fee=fee,
                 finish_after=finish_after,
-                sequence=sequence,
             )
         self.assertEqual(
             error.exception.args[0],
             "{'EscrowCreate': "
             "'The finish_after time must be before the cancel_after time.'}",
+        )
+
+    def test_no_finish(self):
+        account = _SOURCE
+        amount = "1000"
+        cancel_after = 1
+        destination = _DESTINATION
+        destination_tag = 1
+
+        with self.assertRaises(XRPLModelException) as error:
+            EscrowCreate(
+                account=account,
+                amount=amount,
+                destination=destination,
+                destination_tag=destination_tag,
+                cancel_after=cancel_after,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'EscrowCreate': "
+            "'At least one of finish_after, condition, or finish_function must be set.'"
+            "}",
         )
 
     def test_amount_not_positive(self):
@@ -44,7 +84,7 @@ class TestEscrowCreate(TestCase):
                     currency="USD",
                     value="0.00",
                 ),
-                cancel_after=10,
+                finish_after=10,
             )
         self.assertEqual(
             error.exception.args[0],
@@ -59,6 +99,6 @@ class TestEscrowCreate(TestCase):
                 mpt_issuance_id="rHxTJLqdVUxjJuZEZvajXYYQJ7q8p4DhHy",
                 value="10.20",
             ),
-            cancel_after=10,
+            finish_after=10,
         )
         self.assertTrue(tx.is_valid())

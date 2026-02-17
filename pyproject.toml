@@ -1,7 +1,7 @@
 [project]
 name = "xrpl-py"
-version = "4.4.0"
-description = "A complete Python library for interacting with the XRP ledger"
+version = "4.5.0b0"
+description = "A complete Python library for interacting with the XRP ledger (Smart Escrow beta)"
 license = "ISC"
 readme = "README.md"
 authors = [
