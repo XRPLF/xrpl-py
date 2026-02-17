@@ -79,9 +79,8 @@ jobs:
           RELEASE_BRANCH: ${{ github.event.inputs.release_branch }}
         run: |
           set -euo pipefail
-          # For stable releases, require main branch. For beta releases, allow any branch.
-          if [[ "${IS_BETA_RELEASE}" != "true" ]] && [[ "${TRIGGER_BRANCH}" != "main" ]]; then
-            echo "❌ Stable releases must be dispatched from the main branch (current: ${TRIGGER_BRANCH})." >&2
+          if [[ "${TRIGGER_BRANCH}" != "main" ]]; then
+            echo "❌ This workflow must be dispatched from the main branch (current: ${TRIGGER_BRANCH})." >&2
             exit 1
           fi
 
