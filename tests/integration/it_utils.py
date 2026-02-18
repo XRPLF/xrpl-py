@@ -18,10 +18,15 @@ from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
 from xrpl.models.amounts import MPTAmount
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
 from xrpl.models.currencies.issued_currency import IssuedCurrency
+from xrpl.models.currencies.mpt_currency import MPTCurrency
 from xrpl.models.currencies.xrp import XRP
 from xrpl.models.requests import Ledger
 from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
-from xrpl.models.transactions import MPTokenAuthorize, MPTokenIssuanceCreate
+from xrpl.models.transactions import (
+    MPTokenAuthorize,
+    MPTokenIssuanceCreate,
+    MPTokenIssuanceCreateFlag,
+)
 from xrpl.models.transactions.account_set import AccountSet, AccountSetAsfFlag
 from xrpl.models.transactions.amm_create import AMMCreate
 from xrpl.models.transactions.oracle_set import OracleSet
@@ -636,3 +641,191 @@ def create_mpt_token_and_authorize_source(
     sign_and_reliable_submission(payment_tx, issuer, client=client)
 
     return mpt_issuance_id
+
+
+async def create_mpt_token_and_authorize_source_async(
+    issuer: Wallet,
+    source: Wallet,
+    client: AsyncClient = ASYNC_JSON_RPC_CLIENT,
+    flags: Optional[List[int]] = None,
+) -> str:
+
+    mp_token_issuance = MPTokenIssuanceCreate(
+        account=issuer.classic_address,
+        flags=flags,
+    )
+
+    tx_resp = await sign_and_reliable_submission_async(
+        mp_token_issuance, issuer, client=client
+    )
+    seq = tx_resp.result["tx_json"]["Sequence"]
+
+    response = await client.request(
+        AccountObjects(account=issuer.address, type=AccountObjectType.MPT_ISSUANCE)
+    )
+
+    mpt_issuance_id = ""
+    for obj in response.result["account_objects"]:
+        if obj.get("Issuer") == issuer.classic_address and obj.get("Sequence") == seq:
+            mpt_issuance_id = obj["mpt_issuance_id"]
+            print("MPT Issuance details: ", obj)
+            break
+
+    if not mpt_issuance_id:
+        raise ValueError(
+            f"MPT issuance ID not found for issuer "
+            f"{issuer.classic_address} and sequence {seq}"
+        )
+
+    authorize_tx = MPTokenAuthorize(
+        account=source.classic_address,
+        mptoken_issuance_id=mpt_issuance_id,
+    )
+    await sign_and_reliable_submission_async(authorize_tx, source, client=client)
+
+    # Send some MPToken to the source wallet that can be used further.
+    payment_tx = Payment(
+        account=issuer.address,
+        destination=source.address,
+        amount=MPTAmount(
+            mpt_issuance_id=mpt_issuance_id,
+            value="100000",
+        ),
+    )
+    await sign_and_reliable_submission_async(payment_tx, issuer, client=client)
+
+    return mpt_issuance_id
+
+
+def create_amm_pool_with_mpt(
+    client: SyncClient = JSON_RPC_CLIENT,
+) -> Dict[str, Any]:
+    issuer_wallet_1 = Wallet.create()
+    fund_wallet(issuer_wallet_1)
+    issuer_wallet_2 = Wallet.create()
+    fund_wallet(issuer_wallet_2)
+    lp_wallet = Wallet.create()
+    fund_wallet(lp_wallet)
+
+    # Create MPT tokens and authorize LP wallet for both
+    mpt_issuance_id_1 = create_mpt_token_and_authorize_source(
+        issuer=issuer_wallet_1,
+        source=lp_wallet,
+        client=client,
+        flags=[
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRADE,
+        ],
+    )
+    mpt_issuance_id_2 = create_mpt_token_and_authorize_source(
+        issuer=issuer_wallet_2,
+        source=lp_wallet,
+        client=client,
+        flags=[
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRADE,
+        ],
+    )
+
+    # Create the AMM pool with both MPT amounts
+    response = sign_and_reliable_submission(
+        AMMCreate(
+            account=lp_wallet.classic_address,
+            amount=MPTAmount(
+                mpt_issuance_id=mpt_issuance_id_1,
+                value="250",
+            ),
+            amount2=MPTAmount(
+                mpt_issuance_id=mpt_issuance_id_2,
+                value="250",
+            ),
+            trading_fee=12,
+        ),
+        lp_wallet,
+        client,
+    )
+    if (
+        not response.is_successful()
+        or response.result.get("engine_result") != "tesSUCCESS"
+    ):
+        raise ValueError(
+            f"AMMCreate transaction failed: {response.result.get('engine_result')}"
+        )
+
+    asset = MPTCurrency(mpt_issuance_id=mpt_issuance_id_1)
+    asset2 = MPTCurrency(mpt_issuance_id=mpt_issuance_id_2)
+
+    return {
+        "asset": asset,
+        "asset2": asset2,
+        "issuer_wallet_1": issuer_wallet_1,
+        "issuer_wallet_2": issuer_wallet_2,
+        "lp_wallet": lp_wallet,
+    }
+
+
+async def create_amm_pool_with_mpt_async(
+    client: AsyncClient = ASYNC_JSON_RPC_CLIENT,
+) -> Dict[str, Any]:
+    issuer_wallet_1 = Wallet.create()
+    await fund_wallet_async(issuer_wallet_1)
+    issuer_wallet_2 = Wallet.create()
+    await fund_wallet_async(issuer_wallet_2)
+    lp_wallet = Wallet.create()
+    await fund_wallet_async(lp_wallet)
+
+    # Create MPT tokens and authorize LP wallet for both
+    mpt_issuance_id_1 = await create_mpt_token_and_authorize_source_async(
+        issuer=issuer_wallet_1,
+        source=lp_wallet,
+        client=client,
+        flags=[
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRADE,
+        ],
+    )
+    mpt_issuance_id_2 = await create_mpt_token_and_authorize_source_async(
+        issuer=issuer_wallet_2,
+        source=lp_wallet,
+        client=client,
+        flags=[
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRADE,
+        ],
+    )
+
+    # Create the AMM pool with both MPT amounts
+    response = await sign_and_reliable_submission_async(
+        AMMCreate(
+            account=lp_wallet.classic_address,
+            amount=MPTAmount(
+                mpt_issuance_id=mpt_issuance_id_1,
+                value="250",
+            ),
+            amount2=MPTAmount(
+                mpt_issuance_id=mpt_issuance_id_2,
+                value="250",
+            ),
+            trading_fee=12,
+        ),
+        lp_wallet,
+        client,
+    )
+    if (
+        not response.is_successful()
+        or response.result.get("engine_result") != "tesSUCCESS"
+    ):
+        raise ValueError(
+            f"AMMCreate transaction failed: {response.result.get('engine_result')}"
+        )
+
+    asset = MPTCurrency(mpt_issuance_id=mpt_issuance_id_1)
+    asset2 = MPTCurrency(mpt_issuance_id=mpt_issuance_id_2)
+
+    return {
+        "asset": asset,
+        "asset2": asset2,
+        "issuer_wallet_1": issuer_wallet_1,
+        "issuer_wallet_2": issuer_wallet_2,
+        "lp_wallet": lp_wallet,
+    }
