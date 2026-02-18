@@ -1,6 +1,5 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
-    create_amm_pool_with_mpt,
     create_amm_pool_with_mpt_async,
     test_async_and_sync,
 )

@@ -1,10 +1,7 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
-    create_mpt_token_and_authorize_source,
     create_mpt_token_and_authorize_source_async,
-    fund_wallet,
     fund_wallet_async,
-    sign_and_reliable_submission,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )

@@ -11,7 +11,7 @@ from xrpl.models.transactions.amm_deposit import AMMDeposit, AMMDepositFlag
 from xrpl.models.transactions.amm_withdraw import AMMWithdraw, AMMWithdrawFlag
 
 
-class TestAMMCreateWithMPT(IntegrationTestCase):
+class TestAMMLifecycleWithMPT(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_mpt_amm_pool(self, client):
         amm_pool = await create_amm_pool_with_mpt_async(client)

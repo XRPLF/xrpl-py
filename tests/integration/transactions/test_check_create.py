@@ -10,12 +10,7 @@ from xrpl.models.amounts import MPTAmount
 from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
 from xrpl.models.requests.ledger_entry import LedgerEntry
 from xrpl.models.response import ResponseStatus
-from xrpl.models.transactions import (
-    CheckCreate,
-    MPTokenAuthorize,
-    MPTokenIssuanceCreate,
-    MPTokenIssuanceCreateFlag,
-)
+from xrpl.models.transactions import CheckCreate, MPTokenIssuanceCreateFlag
 from xrpl.wallet import Wallet
 
 ACCOUNT = WALLET.address

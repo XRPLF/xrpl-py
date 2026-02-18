@@ -69,9 +69,7 @@ class TestOfferCreate(IntegrationTestCase):
 
         # Validate the offer using ledger_entry
         ledger_entry_response = await client.request(
-            LedgerEntry(
-                offer=Offer(account=source.classic_address, seq=offer_seq)
-            )
+            LedgerEntry(offer=Offer(account=source.classic_address, seq=offer_seq))
         )
         offer_node = ledger_entry_response.result["node"]
         self.assertEqual(offer_node["LedgerEntryType"], "Offer")

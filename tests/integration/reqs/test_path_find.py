@@ -1,15 +1,17 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
-    create_mpt_token_and_authorize_source,
     create_mpt_token_and_authorize_source_async,
-    fund_wallet,
     fund_wallet_async,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
 from xrpl.models.amounts import MPTAmount
 from xrpl.models.requests.path_find import PathFind, PathFindSubcommand
-from xrpl.models.transactions import MPTokenAuthorize, MPTokenIssuanceCreateFlag, OfferCreate
+from xrpl.models.transactions import (
+    MPTokenAuthorize,
+    MPTokenIssuanceCreateFlag,
+    OfferCreate,
+)
 from xrpl.wallet import Wallet
 
 
@@ -74,7 +76,7 @@ class TestPathFind(IntegrationTestCase):
             response.result["destination_amount"],
             {"mpt_issuance_id": mpt_issuance_id, "value": "100"},
         )
-        self.assertTrue(len(response.result["alternatives"]) > 0)
+        self.assertGreater(len(response.result["alternatives"]), 0)
 
         # Close the path_find subscription
         close_response = await client.request(

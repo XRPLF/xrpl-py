@@ -73,10 +73,7 @@ class TestBookOffers(IntegrationTestCase):
         offers = response.result["offers"]
         self.assertGreaterEqual(len(offers), 1)
 
-        matching = [
-            o for o in offers
-            if o["Account"] == source.classic_address
-        ]
+        matching = [o for o in offers if o["Account"] == source.classic_address]
         self.assertEqual(len(matching), 1)
         self.assertEqual(
             matching[0]["TakerGets"],
