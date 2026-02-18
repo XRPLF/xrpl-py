@@ -8,9 +8,8 @@ from typing import Dict, Optional, Union
 
 from typing_extensions import Self
 
-from xrpl.models.amounts import Amount
-from xrpl.models.currencies import Currency, MPTCurrency
-from xrpl.models.currencies.issued_currency import IssuedCurrency
+from xrpl.models.amounts import Amount, IssuedCurrencyAmount
+from xrpl.models.currencies import Currency, IssuedCurrency, MPTCurrency
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
@@ -91,18 +90,27 @@ class AMMClawback(Transaction):
         if self.account == self.holder:
             errors += "Issuer and holder wallets must be distinct."
 
-        if self.account != self.asset.issuer:
-            errors += (
-                "Asset.issuer and AMMClawback transaction sender must be identical."
-            )
+        # If the asset is an MPT, the library will only have MPTIssuanceID.
+        # Further transaction validation will require a network call to read the
+        # blockchain state, which will introduce non-deterministic latency.
+        # Hence skipping any such validation.
+        if isinstance(self.asset, IssuedCurrency):
+            if self.account != self.asset.issuer:
+                errors += (
+                    "Asset.issuer and AMMClawback transaction sender must be identical."
+                )
 
-        if self.amount is not None and (
-            self.amount.issuer != self.asset.issuer
-            or self.amount.currency != self.asset.currency
-        ):
-            errors += (
-                "Amount.issuer and Amount.currency must match corresponding Asset "
-                + "fields."
-            )
+            if (
+                self.amount is not None
+                and isinstance(self.amount, IssuedCurrencyAmount)
+                and (
+                    self.amount.issuer != self.asset.issuer
+                    or self.amount.currency != self.asset.currency
+                )
+            ):
+                errors += (
+                    "Amount.issuer and Amount.currency must match corresponding Asset "
+                    + "fields."
+                )
 
         return errors if errors else None

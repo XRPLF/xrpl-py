@@ -696,9 +696,7 @@ async def create_mpt_token_and_authorize_source_async(
     return mpt_issuance_id
 
 
-def create_amm_pool_with_mpt(
-    client: SyncClient = JSON_RPC_CLIENT,
-) -> Dict[str, Any]:
+def create_amm_pool_with_mpt(client: SyncClient = JSON_RPC_CLIENT) -> Dict[str, Any]:
     issuer_wallet_1 = Wallet.create()
     fund_wallet(issuer_wallet_1)
     issuer_wallet_2 = Wallet.create()
@@ -714,6 +712,7 @@ def create_amm_pool_with_mpt(
         flags=[
             MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
             MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRADE,
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_CLAWBACK,
         ],
     )
     mpt_issuance_id_2 = create_mpt_token_and_authorize_source(
@@ -723,6 +722,7 @@ def create_amm_pool_with_mpt(
         flags=[
             MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
             MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRADE,
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_CLAWBACK,
         ],
     )
 
@@ -781,6 +781,7 @@ async def create_amm_pool_with_mpt_async(
         flags=[
             MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
             MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRADE,
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_CLAWBACK,
         ],
     )
     mpt_issuance_id_2 = await create_mpt_token_and_authorize_source_async(
@@ -790,6 +791,7 @@ async def create_amm_pool_with_mpt_async(
         flags=[
             MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
             MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRADE,
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_CLAWBACK,
         ],
     )
 

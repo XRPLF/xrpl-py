@@ -1,14 +1,12 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
-    create_amm_pool_with_mpt,
     create_amm_pool_with_mpt_async,
-    sign_and_reliable_submission,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
 from xrpl.models.amounts import MPTAmount
 from xrpl.models.requests.amm_info import AMMInfo
-from xrpl.models.transactions.amm_delete import AMMDelete
+from xrpl.models.transactions.amm_clawback import AMMClawback
 from xrpl.models.transactions.amm_deposit import AMMDeposit, AMMDepositFlag
 from xrpl.models.transactions.amm_withdraw import AMMWithdraw, AMMWithdrawFlag
 
@@ -26,8 +24,6 @@ class TestAMMCreateWithMPT(IntegrationTestCase):
                 asset2=asset2,
             )
         )
-
-        print(amm_info)
 
         amm = amm_info.result["amm"]
 
@@ -180,3 +176,57 @@ class TestAMMCreateWithMPT(IntegrationTestCase):
         # Verify the AMM no longer exists
         amm_info = await client.request(AMMInfo(asset=asset, asset2=asset2))
         self.assertEqual(amm_info.result["error"], "actNotFound")
+
+    @test_async_and_sync(globals())
+    async def test_mpt_amm_clawback(self, client):
+        amm_pool = await create_amm_pool_with_mpt_async(
+            client,
+        )
+        asset = amm_pool["asset"]
+        asset2 = amm_pool["asset2"]
+        issuer_wallet = amm_pool["issuer_wallet_1"]
+        holder_wallet = amm_pool["lp_wallet"]
+
+        # Holder deposits more of asset into the AMM
+        await sign_and_reliable_submission_async(
+            AMMDeposit(
+                account=holder_wallet.classic_address,
+                asset=asset,
+                asset2=asset2,
+                amount=MPTAmount(
+                    mpt_issuance_id=asset.mpt_issuance_id,
+                    value="10",
+                ),
+                flags=AMMDepositFlag.TF_SINGLE_ASSET,
+            ),
+            holder_wallet,
+            client,
+        )
+
+        pre_amm_info = await client.request(AMMInfo(asset=asset, asset2=asset2))
+        pre_amm = pre_amm_info.result["amm"]
+        before_amount = int(pre_amm["amount"]["value"])
+
+        # Issuer claws back holder's share of asset from the AMM
+        response = await sign_and_reliable_submission_async(
+            AMMClawback(
+                account=issuer_wallet.classic_address,
+                holder=holder_wallet.classic_address,
+                asset=asset,
+                asset2=asset2,
+                amount=MPTAmount(
+                    mpt_issuance_id=asset.mpt_issuance_id,
+                    value="10",
+                ),
+            ),
+            issuer_wallet,
+            client,
+        )
+
+        self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Pool's balance of the clawed-back asset should decrease
+        post_amm_info = await client.request(AMMInfo(asset=asset, asset2=asset2))
+        post_amm = post_amm_info.result["amm"]
+        self.assertLess(int(post_amm["amount"]["value"]), before_amount)
