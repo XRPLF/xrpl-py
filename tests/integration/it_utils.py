@@ -13,7 +13,7 @@ from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.asyncio.transaction import sign_and_submit as sign_and_submit_async
 from xrpl.clients import Client, JsonRpcClient, WebsocketClient
 from xrpl.clients.sync_client import SyncClient
-from xrpl.constants import CryptoAlgorithm
+from xrpl.constants import CryptoAlgorithm, XRPLException
 from xrpl.models import GenericRequest, Payment, Request, Response, Transaction
 from xrpl.models.amounts import MPTAmount
 from xrpl.models.amounts.issued_currency_amount import IssuedCurrencyAmount
@@ -658,6 +658,11 @@ async def create_mpt_token_and_authorize_source_async(
     tx_resp = await sign_and_reliable_submission_async(
         mp_token_issuance, issuer, client=client
     )
+    if tx_resp.result["engine_result"] != "tesSUCCESS":
+        raise XRPLException(
+            f"Unable to execute MPTokenIssuanceCreate Transaction: {tx_resp}"
+        )
+
     seq = tx_resp.result["tx_json"]["Sequence"]
 
     response = await client.request(
@@ -680,7 +685,13 @@ async def create_mpt_token_and_authorize_source_async(
         account=source.classic_address,
         mptoken_issuance_id=mpt_issuance_id,
     )
-    await sign_and_reliable_submission_async(authorize_tx, source, client=client)
+    response = await sign_and_reliable_submission_async(
+        authorize_tx, source, client=client
+    )
+    if response.result["engine_result"] != "tesSUCCESS":
+        raise XRPLException(
+            f"Unable to execute MPTokenAuthorize Transaction: {response}"
+        )
 
     # Send some MPToken to the source wallet that can be used further.
     payment_tx = Payment(
@@ -691,7 +702,11 @@ async def create_mpt_token_and_authorize_source_async(
             value="100000",
         ),
     )
-    await sign_and_reliable_submission_async(payment_tx, issuer, client=client)
+    response = await sign_and_reliable_submission_async(
+        payment_tx, issuer, client=client
+    )
+    if response.result["engine_result"] != "tesSUCCESS":
+        raise XRPLException(f"Unable to execute Payment Transaction: {response}")
 
     return mpt_issuance_id
 
