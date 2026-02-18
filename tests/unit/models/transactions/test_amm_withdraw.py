@@ -1,7 +1,8 @@
 from unittest import TestCase
 
-from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.models.amounts import IssuedCurrencyAmount, MPTAmount
 from xrpl.models.currencies import XRP, IssuedCurrency
+from xrpl.models.currencies.mpt_currency import MPTCurrency
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMWithdraw
 from xrpl.models.transactions.amm_withdraw import AMMWithdrawFlag
@@ -9,6 +10,8 @@ from xrpl.models.transactions.amm_withdraw import AMMWithdrawFlag
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _ASSET = XRP()
 _ASSET2 = IssuedCurrency(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW")
+_MPT_ISSUANCE_ID_1 = "00000001A407AF5856CECE4281FED12B7B179B49A4AEF506"
+_MPT_ISSUANCE_ID_2 = "00000002A407AF5856CECE4281FED12B7B179B49A4AEF506"
 _AMOUNT = "1000"
 _LPTOKEN_CURRENCY = "B3813FCAB4EE68B3D0D735D6849465A9113EE048"
 _LPTOKEN_ISSUER = "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg"
@@ -101,6 +104,20 @@ class TestAMMWithdraw(TestCase):
             asset=_ASSET,
             asset2=_ASSET2,
             flags=AMMWithdrawFlag.TF_WITHDRAW_ALL,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_tx_valid_single_asset_mpt_withdraw(self):
+        tx = AMMWithdraw(
+            account=_ACCOUNT,
+            sequence=1337,
+            asset=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_1),
+            asset2=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_2),
+            amount=MPTAmount(
+                mpt_issuance_id=_MPT_ISSUANCE_ID_1,
+                value="50",
+            ),
+            flags=AMMWithdrawFlag.TF_SINGLE_ASSET,
         )
         self.assertTrue(tx.is_valid())
 
