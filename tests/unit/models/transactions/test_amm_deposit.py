@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from xrpl.constants import MPT_ISSUANCE_ID_LENGTH
 from xrpl.models.amounts import IssuedCurrencyAmount, MPTAmount
 from xrpl.models.currencies import XRP, IssuedCurrency
 from xrpl.models.currencies.mpt_currency import MPTCurrency
@@ -99,6 +100,63 @@ class TestAMMDeposit(TestCase):
             flags=AMMDepositFlag.TF_SINGLE_ASSET,
         )
         self.assertTrue(tx.is_valid())
+
+    def test_mpt_deposit_non_hex_characters(self):
+        bad_id = "Z" * MPT_ISSUANCE_ID_LENGTH
+        with self.assertRaises(XRPLModelException) as error:
+            AMMDeposit(
+                account=_ACCOUNT,
+                sequence=1337,
+                asset=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_1),
+                asset2=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_2),
+                amount=MPTAmount(
+                    mpt_issuance_id=bad_id,
+                    value="100",
+                ),
+                flags=AMMDepositFlag.TF_SINGLE_ASSET,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            f"{{'mpt_issuance_id': 'Invalid mpt_issuance_id {bad_id}'}}",
+        )
+
+    def test_mpt_deposit_id_too_short(self):
+        bad_id = "A" * (MPT_ISSUANCE_ID_LENGTH - 1)
+        with self.assertRaises(XRPLModelException) as error:
+            AMMDeposit(
+                account=_ACCOUNT,
+                sequence=1337,
+                asset=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_1),
+                asset2=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_2),
+                amount=MPTAmount(
+                    mpt_issuance_id=bad_id,
+                    value="100",
+                ),
+                flags=AMMDepositFlag.TF_SINGLE_ASSET,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            f"{{'mpt_issuance_id': 'Invalid mpt_issuance_id {bad_id}'}}",
+        )
+
+    def test_mpt_deposit_id_too_long(self):
+        bad_id = "A" * (MPT_ISSUANCE_ID_LENGTH + 1)
+        with self.assertRaises(XRPLModelException) as error:
+            AMMDeposit(
+                account=_ACCOUNT,
+                sequence=1337,
+                asset=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_1),
+                asset2=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_2),
+                amount=MPTAmount(
+                    mpt_issuance_id=bad_id,
+                    value="100",
+                ),
+                flags=AMMDepositFlag.TF_SINGLE_ASSET,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            f"{{'mpt_issuance_id': 'Invalid mpt_issuance_id {bad_id}'}}",
+        )
 
     def test_undefined_amount_undefined_lptokenout_invalid_combo(self):
         with self.assertRaises(XRPLModelException) as error:

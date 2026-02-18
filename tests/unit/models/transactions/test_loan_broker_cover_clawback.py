@@ -47,7 +47,7 @@ class TestLoanBrokerCoverClawback(TestCase):
         tx = LoanBrokerCoverClawback(
             account=_SOURCE,
             amount=MPTAmount(
-                mpt_issuance_id=_ISSUER,
+                mpt_issuance_id="00000001A407AF5856CECE4281FED12B7B179B49A4AEF506",
                 value="10.20",
             ),
             loan_broker_id=_ISSUER,

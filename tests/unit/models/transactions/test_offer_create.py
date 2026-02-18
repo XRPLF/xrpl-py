@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+from xrpl.constants import MPT_ISSUANCE_ID_LENGTH
+from xrpl.models.amounts import MPTAmount
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions.offer_create import OfferCreate, OfferCreateFlag
 
@@ -147,4 +149,52 @@ class TestOfferCreate(TestCase):
         self.assertEqual(
             error.exception.args[0],
             "{'domain_id': 'domain_id length must be 64 characters.'}",
+        )
+
+    def test_mpt_taker_gets_non_hex_characters(self):
+        bad_id = "Z" * MPT_ISSUANCE_ID_LENGTH
+        with self.assertRaises(XRPLModelException) as error:
+            OfferCreate(
+                account=_ACCOUNT,
+                taker_gets=MPTAmount(
+                    mpt_issuance_id=bad_id,
+                    value="100",
+                ),
+                taker_pays=_TAKER_PAYS,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            f"{{'mpt_issuance_id': 'Invalid mpt_issuance_id {bad_id}'}}",
+        )
+
+    def test_mpt_taker_gets_id_too_short(self):
+        bad_id = "A" * (MPT_ISSUANCE_ID_LENGTH - 1)
+        with self.assertRaises(XRPLModelException) as error:
+            OfferCreate(
+                account=_ACCOUNT,
+                taker_gets=MPTAmount(
+                    mpt_issuance_id=bad_id,
+                    value="100",
+                ),
+                taker_pays=_TAKER_PAYS,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            f"{{'mpt_issuance_id': 'Invalid mpt_issuance_id {bad_id}'}}",
+        )
+
+    def test_mpt_taker_gets_id_too_long(self):
+        bad_id = "A" * (MPT_ISSUANCE_ID_LENGTH + 1)
+        with self.assertRaises(XRPLModelException) as error:
+            OfferCreate(
+                account=_ACCOUNT,
+                taker_gets=MPTAmount(
+                    mpt_issuance_id=bad_id,
+                    value="100",
+                ),
+                taker_pays=_TAKER_PAYS,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            f"{{'mpt_issuance_id': 'Invalid mpt_issuance_id {bad_id}'}}",
         )
