@@ -18,6 +18,7 @@ class TestVaultCreate(TestCase):
             assets_maximum="1000",
             withdrawal_policy=1,
             data=str_to_hex("A" * 256),
+            scale=4,
         )
         self.assertTrue(tx.is_valid())
 
@@ -121,3 +122,33 @@ class TestVaultCreate(TestCase):
                 "- uris/us: should be an array of objects each "
                 "with uri/u, category/c, and title/t properties.",
             )
+
+    def test_scale_field_too_large(self):
+        with self.assertRaises(XRPLModelException) as error:
+            VaultCreate(
+                account=_ACCOUNT,
+                asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                assets_maximum="1000",
+                withdrawal_policy=1,
+                data=str_to_hex("A" * 256),
+                scale=18 + 1,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'VaultCreate': 'Scale field is higher than the allowed limit (18)'}",
+        )
+
+    def test_scale_field_too_small(self):
+        with self.assertRaises(XRPLModelException) as error:
+            VaultCreate(
+                account=_ACCOUNT,
+                asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                assets_maximum="1000",
+                withdrawal_policy=1,
+                data=str_to_hex("A" * 256),
+                scale=-1,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'VaultCreate': 'Scale field is lower than the allowed limit (0)'}",
+        )
