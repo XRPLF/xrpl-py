@@ -668,7 +668,6 @@ async def create_mpt_token_and_authorize_source_async(
     for obj in response.result["account_objects"]:
         if obj.get("Issuer") == issuer.classic_address and obj.get("Sequence") == seq:
             mpt_issuance_id = obj["mpt_issuance_id"]
-            print("MPT Issuance details: ", obj)
             break
 
     if not mpt_issuance_id:

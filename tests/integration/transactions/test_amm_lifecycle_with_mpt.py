@@ -8,7 +8,9 @@ from tests.integration.it_utils import (
 )
 from xrpl.models.amounts import MPTAmount
 from xrpl.models.requests.amm_info import AMMInfo
+from xrpl.models.transactions.amm_delete import AMMDelete
 from xrpl.models.transactions.amm_deposit import AMMDeposit, AMMDepositFlag
+from xrpl.models.transactions.amm_withdraw import AMMWithdraw, AMMWithdrawFlag
 
 
 class TestAMMCreateWithMPT(IntegrationTestCase):
@@ -102,3 +104,79 @@ class TestAMMCreateWithMPT(IntegrationTestCase):
             float(post_amm["lp_token"]["value"]),
             before_lp_token_value,
         )
+
+    @test_async_and_sync(globals())
+    async def test_mpt_amm_withdraw_single_asset(self, client):
+        amm_pool = await create_amm_pool_with_mpt_async(client)
+        asset = amm_pool["asset"]
+        asset2 = amm_pool["asset2"]
+        lp_wallet = amm_pool["lp_wallet"]
+
+        pre_amm_info = await client.request(AMMInfo(asset=asset, asset2=asset2))
+        pre_amm = pre_amm_info.result["amm"]
+        before_amount = int(pre_amm["amount"]["value"])
+        before_amount2 = int(pre_amm["amount2"]["value"])
+        before_lp_token_value = float(pre_amm["lp_token"]["value"])
+
+        withdraw_value = "50"
+        response = await sign_and_reliable_submission_async(
+            AMMWithdraw(
+                account=lp_wallet.classic_address,
+                asset=asset,
+                asset2=asset2,
+                amount=MPTAmount(
+                    mpt_issuance_id=asset.mpt_issuance_id,
+                    value=withdraw_value,
+                ),
+                flags=AMMWithdrawFlag.TF_SINGLE_ASSET,
+            ),
+            lp_wallet,
+            client,
+        )
+
+        self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        post_amm_info = await client.request(AMMInfo(asset=asset, asset2=asset2))
+        post_amm = post_amm_info.result["amm"]
+
+        # The withdrawn asset's pool balance should decrease by the withdraw amount
+        self.assertEqual(
+            int(post_amm["amount"]["value"]),
+            before_amount - int(withdraw_value),
+        )
+        # The other asset's pool balance should remain unchanged
+        self.assertEqual(int(post_amm["amount2"]["value"]), before_amount2)
+        # LP token supply should decrease after the withdrawal
+        self.assertLess(
+            float(post_amm["lp_token"]["value"]),
+            before_lp_token_value,
+        )
+
+    @test_async_and_sync(globals())
+    async def test_mpt_amm_delete(self, client):
+        amm_pool = await create_amm_pool_with_mpt_async(client)
+        asset = amm_pool["asset"]
+        asset2 = amm_pool["asset2"]
+        lp_wallet = amm_pool["lp_wallet"]
+
+        # Withdraw all assets to empty the pool
+        # Note: Withdrawal of all the assets (i.e outstanding LPTokens = 0) in the AMM
+        # pool will delete the AMM.
+        response = await sign_and_reliable_submission_async(
+            AMMWithdraw(
+                account=lp_wallet.classic_address,
+                asset=asset,
+                asset2=asset2,
+                flags=AMMWithdrawFlag.TF_WITHDRAW_ALL,
+            ),
+            lp_wallet,
+            client,
+        )
+
+        self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Verify the AMM no longer exists
+        amm_info = await client.request(AMMInfo(asset=asset, asset2=asset2))
+        self.assertEqual(amm_info.result["error"], "actNotFound")
