@@ -81,6 +81,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.coverage.run]
 branch = true
 source = ["xrpl"]
+omit = ["xrpl/openapi-codegen/*"]
 
 [tool.coverage.report]
 show_missing = true
