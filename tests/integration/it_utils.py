@@ -605,6 +605,10 @@ def create_mpt_token_and_authorize_source(
     )
 
     tx_resp = sign_and_reliable_submission(mp_token_issuance, issuer, client=client)
+    if tx_resp.result["engine_result"] != "tesSUCCESS":
+        raise XRPLException(
+            f"Unable to execute MPTokenIssuanceCreate Transaction: {tx_resp}"
+        )
     seq = tx_resp.result["tx_json"]["Sequence"]
 
     response = client.request(
@@ -627,7 +631,11 @@ def create_mpt_token_and_authorize_source(
         account=source.classic_address,
         mptoken_issuance_id=mpt_issuance_id,
     )
-    sign_and_reliable_submission(authorize_tx, source, client=client)
+    response = sign_and_reliable_submission(authorize_tx, source, client=client)
+    if response.result["engine_result"] != "tesSUCCESS":
+        raise XRPLException(
+            f"Unable to execute MPTokenAuthorize Transaction: {response}"
+        )
 
     # Send some MPToken to the source wallet that can be used further.
     payment_tx = Payment(
@@ -638,7 +646,9 @@ def create_mpt_token_and_authorize_source(
             value="100000",
         ),
     )
-    sign_and_reliable_submission(payment_tx, issuer, client=client)
+    response = sign_and_reliable_submission(payment_tx, issuer, client=client)
+    if response.result["engine_result"] != "tesSUCCESS":
+        raise XRPLException(f"Unable to execute Payment Transaction: {response}")
 
     return mpt_issuance_id
 
