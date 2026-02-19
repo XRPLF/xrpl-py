@@ -3310,6 +3310,26 @@
       }
     ],
     [
+      "TakerPaysMPT",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 3,
+        "type": "Hash192"
+      }
+    ],
+    [
+      "TakerGetsMPT",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 4,
+        "type": "Hash192"
+      }
+    ],
+    [
       "LockingChainIssue",
       {
         "isSerialized": true,

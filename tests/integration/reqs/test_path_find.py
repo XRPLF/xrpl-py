@@ -5,9 +5,8 @@ from tests.integration.it_utils import (
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
-from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.models.amounts import MPTAmount
-from xrpl.models.requests import RipplePathFind
+from xrpl.models.requests.path_find import PathFind, PathFindSubcommand
 from xrpl.models.transactions import (
     MPTokenAuthorize,
     MPTokenIssuanceCreateFlag,
@@ -16,20 +15,9 @@ from xrpl.models.transactions import (
 from xrpl.wallet import Wallet
 
 
-class TestRipplePathFind(IntegrationTestCase):
-    @test_async_and_sync(globals())
-    async def test_basic_functionality(self, client):
-        response = await client.request(
-            RipplePathFind(
-                source_account=WALLET.address,
-                destination_account=DESTINATION.address,
-                destination_amount="100",
-            ),
-        )
-        self.assertTrue(response.is_successful())
-
-    @test_async_and_sync(globals())
-    async def test_ripple_path_find_with_mpt(self, client):
+class TestPathFind(IntegrationTestCase):
+    @test_async_and_sync(globals(), websockets_only=True)
+    async def test_path_find_with_mpt(self, client):
         issuer = Wallet.create()
         await fund_wallet_async(issuer)
         source = Wallet.create()
@@ -71,15 +59,17 @@ class TestRipplePathFind(IntegrationTestCase):
             client,
         )
 
+        # Create the path_find request
         response = await client.request(
-            RipplePathFind(
+            PathFind(
+                subcommand=PathFindSubcommand.CREATE,
                 source_account=source.classic_address,
                 destination_account=destination.classic_address,
                 destination_amount=MPTAmount(
                     mpt_issuance_id=mpt_issuance_id,
                     value="100",
                 ),
-            ),
+            )
         )
         self.assertTrue(response.is_successful())
         self.assertEqual(
@@ -87,3 +77,17 @@ class TestRipplePathFind(IntegrationTestCase):
             {"mpt_issuance_id": mpt_issuance_id, "value": "100"},
         )
         self.assertGreater(len(response.result["alternatives"]), 0)
+
+        # Close the path_find subscription
+        close_response = await client.request(
+            PathFind(
+                subcommand=PathFindSubcommand.CLOSE,
+                source_account=source.classic_address,
+                destination_account=destination.classic_address,
+                destination_amount=MPTAmount(
+                    mpt_issuance_id=mpt_issuance_id,
+                    value="100",
+                ),
+            )
+        )
+        self.assertTrue(close_response.is_successful())

@@ -56,7 +56,7 @@ class TestEscrowCreate(TestCase):
             account=_SOURCE,
             destination=_DESTINATION,
             amount=MPTAmount(
-                mpt_issuance_id="rHxTJLqdVUxjJuZEZvajXYYQJ7q8p4DhHy",
+                mpt_issuance_id="00000001A407AF5856CECE4281FED12B7B179B49A4AEF506",
                 value="10.20",
             ),
             cancel_after=10,

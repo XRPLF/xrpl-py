@@ -1,7 +1,9 @@
 from unittest import TestCase
 
-from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.constants import MPT_ISSUANCE_ID_LENGTH
+from xrpl.models.amounts import IssuedCurrencyAmount, MPTAmount
 from xrpl.models.currencies import XRP, IssuedCurrency
+from xrpl.models.currencies.mpt_currency import MPTCurrency
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMDeposit
 from xrpl.models.transactions.amm_deposit import AMMDepositFlag
@@ -9,6 +11,8 @@ from xrpl.models.transactions.amm_deposit import AMMDepositFlag
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _ASSET = XRP()
 _ASSET2 = IssuedCurrency(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW")
+_MPT_ISSUANCE_ID_1 = "00000001A407AF5856CECE4281FED12B7B179B49A4AEF506"
+_MPT_ISSUANCE_ID_2 = "00000002A407AF5856CECE4281FED12B7B179B49A4AEF506"
 _AMOUNT = "1000"
 _LPTOKEN_CURRENCY = "B3813FCAB4EE68B3D0D735D6849465A9113EE048"
 _LPTOKEN_ISSUER = "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg"
@@ -82,6 +86,77 @@ class TestAMMDeposit(TestCase):
             flags=AMMDepositFlag.TF_LIMIT_LP_TOKEN,
         )
         self.assertTrue(tx.is_valid())
+
+    def test_tx_valid_single_asset_mpt_deposit(self):
+        tx = AMMDeposit(
+            account=_ACCOUNT,
+            sequence=1337,
+            asset=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_1),
+            asset2=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_2),
+            amount=MPTAmount(
+                mpt_issuance_id=_MPT_ISSUANCE_ID_1,
+                value="100",
+            ),
+            flags=AMMDepositFlag.TF_SINGLE_ASSET,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_mpt_deposit_non_hex_characters(self):
+        bad_id = "Z" * MPT_ISSUANCE_ID_LENGTH
+        with self.assertRaises(XRPLModelException) as error:
+            AMMDeposit(
+                account=_ACCOUNT,
+                sequence=1337,
+                asset=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_1),
+                asset2=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_2),
+                amount=MPTAmount(
+                    mpt_issuance_id=bad_id,
+                    value="100",
+                ),
+                flags=AMMDepositFlag.TF_SINGLE_ASSET,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            f"{{'mpt_issuance_id': 'Invalid mpt_issuance_id {bad_id}'}}",
+        )
+
+    def test_mpt_deposit_id_too_short(self):
+        bad_id = "A" * (MPT_ISSUANCE_ID_LENGTH - 1)
+        with self.assertRaises(XRPLModelException) as error:
+            AMMDeposit(
+                account=_ACCOUNT,
+                sequence=1337,
+                asset=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_1),
+                asset2=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_2),
+                amount=MPTAmount(
+                    mpt_issuance_id=bad_id,
+                    value="100",
+                ),
+                flags=AMMDepositFlag.TF_SINGLE_ASSET,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            f"{{'mpt_issuance_id': 'Invalid mpt_issuance_id {bad_id}'}}",
+        )
+
+    def test_mpt_deposit_id_too_long(self):
+        bad_id = "A" * (MPT_ISSUANCE_ID_LENGTH + 1)
+        with self.assertRaises(XRPLModelException) as error:
+            AMMDeposit(
+                account=_ACCOUNT,
+                sequence=1337,
+                asset=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_1),
+                asset2=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_2),
+                amount=MPTAmount(
+                    mpt_issuance_id=bad_id,
+                    value="100",
+                ),
+                flags=AMMDepositFlag.TF_SINGLE_ASSET,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            f"{{'mpt_issuance_id': 'Invalid mpt_issuance_id {bad_id}'}}",
+        )
 
     def test_undefined_amount_undefined_lptokenout_invalid_combo(self):
         with self.assertRaises(XRPLModelException) as error:

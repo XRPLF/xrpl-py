@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[4.5.0]]
 
 ### Added
+- Support for XLS-82d MPT-DEX
+- The `ledger_entry` RPC can now accept `AMM` input along with the two asset definitions.
+- The `MPTCurrency` model has been updated to validate the semantic correctness of `MPTIssuanceID` values. This is performed using regular-expression matching and does not involve any read-operations on the XRPL blockchain.
+
+
+## [[4.5.0]]
+
+### Added
 
 - Added `sign_loan_set_by_counterparty` helper function to sign LoanSet transactions as the counterparty (supports both single-sign and multi-sign modes)
 - Added `combine_loanset_counterparty_signers` helper function to combine multiple counterparty signatures for multi-sign LoanSet transactions

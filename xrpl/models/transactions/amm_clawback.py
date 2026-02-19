@@ -4,13 +4,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from typing_extensions import Self
 
-from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.currencies import Currency
-from xrpl.models.currencies.issued_currency import IssuedCurrency
+from xrpl.models.amounts import Amount, IssuedCurrencyAmount
+from xrpl.models.currencies import Currency, IssuedCurrency, MPTCurrency
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
@@ -50,7 +49,7 @@ class AMMClawback(Transaction):
     holder: str = REQUIRED
     """The account holding the asset to be clawed back."""
 
-    asset: IssuedCurrency = REQUIRED
+    asset: Union[IssuedCurrency, MPTCurrency] = REQUIRED
     """
     Specifies the asset that the issuer wants to claw back from the AMM pool. In JSON,
     this is an object with currency and issuer fields. The issuer field must match with
@@ -63,7 +62,7 @@ class AMMClawback(Transaction):
     currency and issuer fields (omit issuer for XRP).
     """
 
-    amount: Optional[IssuedCurrencyAmount] = None
+    amount: Optional[Amount] = None
     """
     The maximum amount to claw back from the AMM account. The currency and issuer
     subfields should match the Asset subfields. If this field isn't specified, or the
@@ -91,18 +90,27 @@ class AMMClawback(Transaction):
         if self.account == self.holder:
             errors += "Issuer and holder wallets must be distinct."
 
-        if self.account != self.asset.issuer:
-            errors += (
-                "Asset.issuer and AMMClawback transaction sender must be identical."
-            )
+        # If the asset is an MPT, the library will only have MPTIssuanceID.
+        # Further transaction validation will require a network call to read the
+        # blockchain state, which will introduce non-deterministic latency.
+        # Hence skipping any such validation.
+        if isinstance(self.asset, IssuedCurrency):
+            if self.account != self.asset.issuer:
+                errors += (
+                    "Asset.issuer and AMMClawback transaction sender must be identical."
+                )
 
-        if self.amount is not None and (
-            self.amount.issuer != self.asset.issuer
-            or self.amount.currency != self.asset.currency
-        ):
-            errors += (
-                "Amount.issuer and Amount.currency must match corresponding Asset "
-                + "fields."
-            )
+            if (
+                self.amount is not None
+                and isinstance(self.amount, IssuedCurrencyAmount)
+                and (
+                    self.amount.issuer != self.asset.issuer
+                    or self.amount.currency != self.asset.currency
+                )
+            ):
+                errors += (
+                    "Amount.issuer and Amount.currency must match corresponding Asset "
+                    + "fields."
+                )
 
         return errors if errors else None
