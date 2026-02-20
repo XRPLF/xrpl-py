@@ -138,23 +138,50 @@ ffibuilder.cdef(
         const unsigned char* blinding_factor_rho
     );
 
-    // Bulletproof (Range Proof)
-    int secp256k1_bulletproof_prove(
+    // Bulletproof (Range Proof) - Aggregated API
+    int secp256k1_bulletproof_create_commitment(
+        const secp256k1_context* ctx,
+        secp256k1_pubkey* commitment_C,
+        uint64_t value,
+        const unsigned char* blinding_factor,
+        const secp256k1_pubkey* pk_base
+    );
+
+    int secp256k1_bulletproof_prove_agg(
         const secp256k1_context* ctx,
         unsigned char* proof_out,
         size_t* proof_len,
-        uint64_t value,
-        const unsigned char* blinding_factor,
+        const uint64_t* values,
+        const unsigned char* blindings_flat,
+        size_t m,
         const secp256k1_pubkey* pk_base,
-        unsigned int proof_type
+        const unsigned char* context_id
     );
 
-    int secp256k1_bulletproof_verify(
+    int secp256k1_bulletproof_verify_agg(
         const secp256k1_context* ctx,
+        const secp256k1_pubkey* G_vec,
+        const secp256k1_pubkey* H_vec,
         const unsigned char* proof,
         size_t proof_len,
-        const secp256k1_pubkey* commitment_C,
-        const secp256k1_pubkey* pk_base
+        const secp256k1_pubkey* commitment_C_vec,
+        size_t m,
+        const secp256k1_pubkey* pk_base,
+        const unsigned char* context_id
+    );
+
+    // Generator helpers
+    int secp256k1_mpt_get_h_generator(
+        const secp256k1_context* ctx,
+        secp256k1_pubkey* h
+    );
+
+    int secp256k1_mpt_get_generator_vector(
+        const secp256k1_context* ctx,
+        secp256k1_pubkey* vec,
+        size_t n,
+        const unsigned char* label,
+        size_t label_len
     );
 
     // ElGamal-Pedersen Link Proof
@@ -216,11 +243,9 @@ ffibuilder.cdef(
 """
 )
 
-# Set the source code to compile
 script_dir = os.path.dirname(os.path.abspath(__file__))
-
-# Determine platform-specific library directory
 system = platform.system().lower()
+
 if system == "darwin":
     lib_subdir = "darwin"
 elif system == "linux":
@@ -230,30 +255,24 @@ elif system == "windows" or system.startswith("win"):
 else:
     raise RuntimeError(f"Unsupported platform: {system}")
 
-# Use pre-compiled libraries from the libs directory
 libs_dir = os.path.join(script_dir, "libs", lib_subdir)
 include_dir = os.path.join(script_dir, "include")
 
-# Check if libraries exist
 if not os.path.exists(libs_dir):
     raise RuntimeError(
         f"Pre-compiled libraries not found for platform '{lib_subdir}'. "
-        f"Expected directory: {libs_dir}\n"
-        f"Please ensure the pre-compiled libraries are included in the repository."
+        f"Expected directory: {libs_dir}"
     )
 
-# Platform-specific library and include directories
 library_dirs = [libs_dir]
 include_dirs = [include_dir]
 
-# On macOS, add Homebrew OpenSSL paths
 if system == "darwin":
-    # Try common Homebrew OpenSSL locations
     homebrew_openssl_paths = [
-        "/opt/homebrew/opt/openssl/lib",  # Apple Silicon
-        "/usr/local/opt/openssl/lib",  # Intel
-        "/opt/homebrew/opt/openssl@3/lib",  # Apple Silicon OpenSSL 3
-        "/usr/local/opt/openssl@3/lib",  # Intel OpenSSL 3
+        "/opt/homebrew/opt/openssl/lib",
+        "/usr/local/opt/openssl/lib",
+        "/opt/homebrew/opt/openssl@3/lib",
+        "/usr/local/opt/openssl@3/lib",
     ]
     homebrew_openssl_include_paths = [
         "/opt/homebrew/opt/openssl/include",
@@ -272,15 +291,32 @@ if system == "darwin":
             include_dirs.append(path)
             break
 
+extra_compile_args = []
+extra_link_args = []
+libraries = ["mpt-crypto", "secp256k1", "crypto"]
+
+if system == "darwin":
+    extra_link_args = ["-Wl,-all_load"]
+elif system == "linux":
+    extra_compile_args = ["-fPIC"]
+elif system == "windows" or system.startswith("win"):
+    libraries.extend(["zlib", "Advapi32", "User32", "Crypt32", "Ws2_32"])
+    extra_link_args = [
+        "/WHOLEARCHIVE:mpt-crypto.lib",
+        "/WHOLEARCHIVE:secp256k1.lib",
+    ]
+
 ffibuilder.set_source(
     "_mpt_crypto",
     """
     #include <secp256k1.h>
     #include <secp256k1_mpt.h>
     """,
-    libraries=["mpt-crypto", "secp256k1", "crypto"],
+    libraries=libraries,
     library_dirs=library_dirs,
     include_dirs=include_dirs,
+    extra_compile_args=extra_compile_args,
+    extra_link_args=extra_link_args,
 )
 
 if __name__ == "__main__":

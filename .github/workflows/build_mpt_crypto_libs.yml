@@ -1,0 +1,423 @@
+name: Build MPT Crypto Libraries
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - confidential-mpt
+    paths:
+      - ".github/workflows/build_mpt_crypto_libs.yml"
+
+jobs:
+  build_linux:
+    name: Build for Linux (x86_64)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential libssl-dev ninja-build
+          pip install conan
+
+      - name: Setup Conan profile
+        run: |
+          conan profile detect --force
+          conan remote add --index 0 xrplf https://conan.ripplex.io
+
+      - name: Clone mpt-crypto
+        run: |
+          git clone https://github.com/XRPLF/mpt-crypto.git /tmp/mpt-crypto
+
+      - name: Copy header files
+        run: |
+          mkdir -p xrpl/core/confidential/include
+          cp /tmp/mpt-crypto/include/secp256k1_mpt.h xrpl/core/confidential/include/
+
+      - name: Build mpt-crypto
+        run: |
+          cd /tmp/mpt-crypto
+          mkdir -p build && cd build
+          conan install .. --build="*" -o "&:tests=False" -o "&:fPIC=True"
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -G Ninja \
+                   -DCMAKE_TOOLCHAIN_FILE=build/generators/conan_toolchain.cmake \
+                   -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+                   -DENABLE_TESTS=OFF
+          ninja
+
+      - name: Copy libraries
+        run: |
+          rm -rf xrpl/core/confidential/libs/linux
+          mkdir -p xrpl/core/confidential/libs/linux
+
+          MPT_LIB=$(find /tmp/mpt-crypto/build -name "libmpt-crypto.a" | head -n 1)
+          SECP_LIB=$(find ~/.conan2/p -path "*/p/lib/libsecp256k1.a" 2>/dev/null | head -n 1)
+          if [ -z "$SECP_LIB" ]; then
+            SECP_LIB=$(find /tmp/mpt-crypto/build -name "libsecp256k1.a" 2>/dev/null | head -n 1)
+          fi
+
+          if [ -n "$MPT_LIB" ] && [ -f "$MPT_LIB" ]; then
+            cp "$MPT_LIB" xrpl/core/confidential/libs/linux/
+          else
+            echo "Error: libmpt-crypto.a not found!"
+            exit 1
+          fi
+
+          if [ -n "$SECP_LIB" ] && [ -f "$SECP_LIB" ]; then
+            cp "$SECP_LIB" xrpl/core/confidential/libs/linux/
+          else
+            echo "Error: libsecp256k1.a not found!"
+            exit 1
+          fi
+
+      - name: Upload libraries and headers
+        uses: actions/upload-artifact@v4
+        with:
+          name: mpt-crypto-linux-x86_64
+          path: |
+            xrpl/core/confidential/libs/linux/*.a
+            xrpl/core/confidential/include/*.h
+
+  build_macos:
+    name: Build for macOS (universal)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          brew install cmake openssl ninja
+          pip install conan
+
+      - name: Setup Conan profile
+        run: |
+          conan profile detect --force
+          conan remote add --index 0 xrplf https://conan.ripplex.io
+
+      - name: Clone mpt-crypto
+        run: |
+          git clone https://github.com/XRPLF/mpt-crypto.git /tmp/mpt-crypto
+
+      - name: Copy header files
+        run: |
+          mkdir -p xrpl/core/confidential/include
+          cp /tmp/mpt-crypto/include/secp256k1_mpt.h xrpl/core/confidential/include/
+
+      - name: Build mpt-crypto
+        run: |
+          cd /tmp/mpt-crypto
+          mkdir -p build && cd build
+          conan install .. --build="*" -o "&:tests=False" -s arch=armv8 -o "&:fPIC=True"
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -G Ninja \
+                   -DCMAKE_TOOLCHAIN_FILE=build/generators/conan_toolchain.cmake \
+                   -DCMAKE_OSX_ARCHITECTURES=arm64 \
+                   -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+                   -DENABLE_TESTS=OFF
+          ninja
+
+      - name: Copy libraries
+        run: |
+          rm -rf xrpl/core/confidential/libs/darwin
+          mkdir -p xrpl/core/confidential/libs/darwin
+
+          MPT_LIB=$(find /tmp/mpt-crypto/build -name "libmpt-crypto.a" | head -n 1)
+          SECP_LIB=$(find ~/.conan2 -name "libsecp256k1.a" 2>/dev/null | head -n 1)
+          if [ -z "$SECP_LIB" ]; then
+            SECP_LIB=$(find /tmp/mpt-crypto/build -name "libsecp256k1.a" 2>/dev/null | head -n 1)
+          fi
+
+          if [ -n "$MPT_LIB" ] && [ -f "$MPT_LIB" ]; then
+            cp "$MPT_LIB" xrpl/core/confidential/libs/darwin/
+          else
+            echo "Error: libmpt-crypto.a not found!"
+            exit 1
+          fi
+
+          if [ -n "$SECP_LIB" ] && [ -f "$SECP_LIB" ]; then
+            cp "$SECP_LIB" xrpl/core/confidential/libs/darwin/
+          else
+            echo "Error: libsecp256k1.a not found!"
+            exit 1
+          fi
+
+      - name: Upload libraries
+        uses: actions/upload-artifact@v4
+        with:
+          name: mpt-crypto-darwin-universal
+          path: |
+            xrpl/core/confidential/libs/darwin/*.a
+
+  build_windows:
+    name: Build for Windows (x86_64) with MSVC
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install conan
+
+      - name: Setup Conan profile
+        run: |
+          conan profile detect --force
+          conan remote add --index 0 xrplf https://conan.ripplex.io
+
+      - name: Clone mpt-crypto
+        run: |
+          git clone https://github.com/XRPLF/mpt-crypto.git C:\mpt-crypto
+
+      - name: Copy header files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path xrpl/core/confidential/include
+          Copy-Item C:\mpt-crypto\include\secp256k1_mpt.h -Destination xrpl/core/confidential/include/
+
+      - name: Setup MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build mpt-crypto with MSVC
+        shell: pwsh
+        run: |
+          Set-Location C:\mpt-crypto
+
+          $cmakeContent = Get-Content CMakeLists.txt -Raw
+          $cmakeContent = $cmakeContent -replace 'add_library\(mpt-crypto', 'add_library(mpt-crypto STATIC'
+          Set-Content CMakeLists.txt $cmakeContent
+
+          New-Item -ItemType Directory -Force -Path build
+          Set-Location build
+          conan install .. --build="secp256k1/*" -o "&:tests=False"
+          cmake .. -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_TOOLCHAIN_FILE="C:\mpt-crypto\build\generators\conan_toolchain.cmake" `
+            -DBUILD_SHARED_LIBS=OFF `
+            -DENABLE_TESTS=OFF
+          cmake --build . --config Release
+
+      - name: Copy libraries
+        shell: pwsh
+        run: |
+          Remove-Item -Path xrpl/core/confidential/libs/win32 -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path xrpl/core/confidential/libs/win32
+
+          $mptCryptoLib = Get-ChildItem -Path C:\mpt-crypto\build\Release -Filter mpt-crypto.lib -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $mptCryptoLib) {
+            $mptCryptoLib = Get-ChildItem -Path C:\mpt-crypto\build -Recurse -Filter mpt-crypto.lib -ErrorAction SilentlyContinue | Select-Object -First 1
+          }
+          if ($mptCryptoLib) {
+            Copy-Item $mptCryptoLib.FullName -Destination xrpl/core/confidential/libs/win32/
+          } else {
+            Write-Error "Error: mpt-crypto.lib not found!"
+            exit 1
+          }
+
+          $secp256k1 = Get-ChildItem -Path $env:USERPROFILE\.conan2 -Recurse -Filter secp256k1.lib -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $secp256k1) {
+            $secp256k1 = Get-ChildItem -Path $env:USERPROFILE\.conan2 -Recurse -Filter *secp256k1*.lib -ErrorAction SilentlyContinue | Select-Object -First 1
+          }
+          if (-not $secp256k1) {
+            $secp256k1 = Get-ChildItem -Path C:\mpt-crypto\build -Recurse -Filter *secp256k1*.lib -ErrorAction SilentlyContinue | Select-Object -First 1
+          }
+          if ($secp256k1) {
+            Copy-Item $secp256k1.FullName -Destination "xrpl/core/confidential/libs/win32/secp256k1.lib"
+          } else {
+            Write-Error "Error: secp256k1.lib not found!"
+            exit 1
+          }
+
+          $cryptoLib = Get-ChildItem -Path $env:USERPROFILE\.conan2 -Recurse -Filter libcrypto.lib -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $cryptoLib) {
+            $cryptoLib = Get-ChildItem -Path $env:USERPROFILE\.conan2 -Recurse -Filter crypto.lib -ErrorAction SilentlyContinue | Select-Object -First 1
+          }
+          if ($cryptoLib) {
+            Copy-Item $cryptoLib.FullName -Destination "xrpl/core/confidential/libs/win32/crypto.lib"
+          } else {
+            Write-Error "Error: crypto.lib not found!"
+            exit 1
+          }
+
+          $zlibLib = Get-ChildItem -Path $env:USERPROFILE\.conan2 -Recurse -Filter zlib.lib -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $zlibLib) {
+            $zlibLib = Get-ChildItem -Path $env:USERPROFILE\.conan2 -Recurse -Filter *zlib*.lib -ErrorAction SilentlyContinue | Select-Object -First 1
+          }
+          if ($zlibLib) {
+            Copy-Item $zlibLib.FullName -Destination "xrpl/core/confidential/libs/win32/zlib.lib"
+          } else {
+            Write-Error "Error: zlib.lib not found!"
+            exit 1
+          }
+
+      - name: Upload libraries
+        uses: actions/upload-artifact@v4
+        with:
+          name: mpt-crypto-win32-x86_64
+          path: |
+            xrpl/core/confidential/libs/win32/*.lib
+
+  test_libraries:
+    name: Test libraries on ${{ matrix.os }}
+    needs: [build_linux, build_macos, build_windows]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, macos-14, windows-2022]
+        python-version: ["3.9", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Check Python architecture
+        shell: bash
+        run: |
+          python -c "import platform; print(f'Python architecture: {platform.machine()}')"
+          file $(which python) || true
+          uname -m
+
+      - name: Install system dependencies
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get update
+            sudo apt-get install -y libssl-dev
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            brew install openssl
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            choco install openssl --no-progress
+          fi
+
+      - name: Install Poetry
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+
+      - name: Install project dependencies
+        run: |
+          poetry install --no-root --extras confidential
+          # Install setuptools explicitly for Python 3.12+ (required by cffi)
+          poetry run pip install setuptools
+
+      - name: Download libraries for this platform
+        uses: actions/download-artifact@v4
+        with:
+          pattern: mpt-crypto-*
+          path: artifacts
+
+      - name: Copy libraries and headers to correct locations
+        shell: bash
+        run: |
+          mkdir -p xrpl/core/confidential/libs/linux
+          mkdir -p xrpl/core/confidential/libs/darwin
+          mkdir -p xrpl/core/confidential/libs/win32
+          mkdir -p xrpl/core/confidential/include
+
+          cp artifacts/mpt-crypto-linux-x86_64/libs/linux/*.a xrpl/core/confidential/libs/linux/ 2>/dev/null || true
+          cp artifacts/mpt-crypto-darwin-universal/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || true
+          cp artifacts/mpt-crypto-win32-x86_64/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || true
+
+          if [ -d "artifacts/mpt-crypto-linux-x86_64/include" ]; then
+            cp artifacts/mpt-crypto-linux-x86_64/include/*.h xrpl/core/confidential/include/
+          elif [ -d "artifacts/mpt-crypto-linux-x86_64/xrpl/core/confidential/include" ]; then
+            cp artifacts/mpt-crypto-linux-x86_64/xrpl/core/confidential/include/*.h xrpl/core/confidential/include/
+          elif [ -f "artifacts/mpt-crypto-linux-x86_64/secp256k1_mpt.h" ]; then
+            cp artifacts/mpt-crypto-linux-x86_64/*.h xrpl/core/confidential/include/
+          else
+            find artifacts/mpt-crypto-linux-x86_64 -name "secp256k1_mpt.h" -exec cp {} xrpl/core/confidential/include/ \;
+          fi
+
+      - name: Build C extension
+        shell: bash
+        run: |
+          cd xrpl/core/confidential
+
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            export ARCHFLAGS="-arch arm64"
+            export _PYTHON_HOST_PLATFORM="macosx-14.0-arm64"
+          fi
+
+          poetry run python build_mpt_crypto.py
+
+      - name: Test import
+        run: |
+          poetry run python -c "
+          from xrpl.core.confidential import MPT_CRYPTO_AVAILABLE
+          if not MPT_CRYPTO_AVAILABLE:
+              from xrpl.core.confidential.crypto_bindings import _import_error
+              raise RuntimeError(f'C extension not available: {_import_error}')
+          print('✓ MPT crypto extension loaded successfully')
+          "
+
+      - name: Test keypair generation
+        run: |
+          poetry run python -c "
+          from xrpl.core.confidential import MPTCrypto
+          crypto = MPTCrypto()
+          sk, pk = crypto.generate_keypair()
+          assert len(sk) == 64, f'Private key wrong length: {len(sk)}'
+          assert len(pk) == 128, f'Public key wrong length: {len(pk)}'
+          print(f'✓ Keypair generation works: sk={sk[:16]}... pk={pk[:32]}...')
+          "
+
+      - name: Test encryption/decryption
+        run: |
+          poetry run python -c "
+          from xrpl.core.confidential import MPTCrypto
+          crypto = MPTCrypto()
+          sk, pk = crypto.generate_keypair()
+
+          # Test various amounts
+          for amount in [0, 1, 100, 1000, 999999]:
+              c1, c2, bf = crypto.encrypt(pk, amount)
+              decrypted = crypto.decrypt(sk, c1, c2)
+              assert decrypted == amount, f'Decrypt failed: {decrypted} != {amount}'
+              print(f'✓ Encrypt/decrypt works for amount {amount}')
+
+          print('✓ All encryption/decryption tests passed')
+          "
+
+      - name: Test Pedersen commitment
+        run: |
+          poetry run python -c "
+          from xrpl.core.confidential import MPTCrypto
+          crypto = MPTCrypto()
+          commitment = crypto.create_pedersen_commitment(1000, 'A' * 64)
+          assert len(commitment) == 128, f'Commitment wrong length: {len(commitment)}'
+          print(f'✓ Pedersen commitment works: {commitment[:32]}...')
+          "
+
+      - name: Test proof generation
+        run: |
+          poetry run python -c "
+          from xrpl.core.confidential import MPTCrypto
+          crypto = MPTCrypto()
+          sk, pk, pok = crypto.generate_keypair_with_pok('0' * 64)
+          assert len(pok) == 130, f'PoK wrong length: {len(pok)}'
+          print(f'✓ Proof of knowledge generation works')
+          "
+
+      - name: Summary
+        if: success()
+        run: |
+          echo "✅ All tests passed on ${{ matrix.os }} with Python ${{ matrix.python-version }}"
