@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for XLS-82d MPT-DEX
 - The `ledger_entry` RPC can now accept `AMM` input along with the two asset definitions.
 - The `MPTCurrency` model has been updated to validate the semantic correctness of `MPTIssuanceID` values. This is performed using regular-expression matching and does not involve any read-operations on the XRPL blockchain.
+- The binary-codec of `PathSet` type is updated to accommodate `mpt_issuance_id`. Please refer to XLS-82d MPT-DEX amendment for context behind this change.
 
 
 ## [[4.5.0]]

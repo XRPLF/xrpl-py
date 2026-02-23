@@ -1,14 +1,23 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
+    create_mpt_token_and_authorize_source_async,
+    fund_wallet_async,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
 from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.models.amounts.mpt_amount import MPTAmount
 from xrpl.models.exceptions import XRPLModelException
+from xrpl.models.path import PathStep
 from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
 from xrpl.models.transactions import Payment
-from xrpl.models.transactions.mptoken_issuance_create import MPTokenIssuanceCreate
+from xrpl.models.transactions.amm_create import AMMCreate
+from xrpl.models.transactions.mptoken_authorize import MPTokenAuthorize
+from xrpl.models.transactions.mptoken_issuance_create import (
+    MPTokenIssuanceCreate,
+    MPTokenIssuanceCreateFlag,
+)
+from xrpl.wallet import Wallet
 
 
 class TestPayment(IntegrationTestCase):
@@ -179,3 +188,67 @@ class TestPayment(IntegrationTestCase):
             client,
         )
         self.assertTrue(response.is_successful())
+
+    @test_async_and_sync(globals())
+    async def test_payment_with_mpt_pathset(self, client):
+        issuer = Wallet.create()
+        await fund_wallet_async(issuer)
+        lp_wallet = Wallet.create()
+        await fund_wallet_async(lp_wallet)
+        destination = Wallet.create()
+        await fund_wallet_async(destination)
+
+        mpt_flags = [
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRADE,
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
+        ]
+
+        # Create MPT, authorize + fund LP wallet
+        mpt_id = await create_mpt_token_and_authorize_source_async(
+            issuer=issuer,
+            source=lp_wallet,
+            client=client,
+            flags=mpt_flags,
+        )
+
+        # Authorize destination to hold MPT
+        auth_dest = MPTokenAuthorize(
+            account=destination.classic_address,
+            mptoken_issuance_id=mpt_id,
+        )
+        response = await sign_and_reliable_submission_async(
+            auth_dest, destination, client
+        )
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Create AMM pool: XRP / MPT
+        amm_create = AMMCreate(
+            account=lp_wallet.classic_address,
+            amount="1000000",
+            amount2=MPTAmount(mpt_issuance_id=mpt_id, value="1000"),
+            trading_fee=12,
+        )
+        response = await sign_and_reliable_submission_async(
+            amm_create, lp_wallet, client
+        )
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Authorize sender to hold MPT
+        auth_sender = MPTokenAuthorize(
+            account=WALLET.classic_address,
+            mptoken_issuance_id=mpt_id,
+        )
+        response = await sign_and_reliable_submission_async(auth_sender, WALLET, client)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Cross-currency payment: XRP → MPT via XRP/MPT AMM pool
+        pay_tx = Payment(
+            account=WALLET.address,
+            destination=destination.address,
+            amount=MPTAmount(mpt_issuance_id=mpt_id, value="5"),
+            send_max="500000",
+            # Explicitly specify a Path with mpt_issuance_id intermediate Hop
+            paths=[[PathStep(mpt_issuance_id=mpt_id)]],
+        )
+        response = await sign_and_reliable_submission_async(pay_tx, WALLET, client)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
