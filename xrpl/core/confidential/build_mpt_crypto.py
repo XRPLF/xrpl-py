@@ -320,4 +320,16 @@ ffibuilder.set_source(
 )
 
 if __name__ == "__main__":
-    ffibuilder.compile(verbose=True)
+    # Change to the script directory to avoid setuptools package discovery issues
+    original_dir = os.getcwd()
+    os.chdir(script_dir)
+    try:
+        ffibuilder.compile(verbose=True)
+
+        # Clean up generated C source file (intermediate build artifact)
+        c_file = os.path.join(script_dir, "_mpt_crypto.c")
+        if os.path.exists(c_file):
+            os.remove(c_file)
+            print(f"Cleaned up intermediate file: {c_file}")
+    finally:
+        os.chdir(original_dir)

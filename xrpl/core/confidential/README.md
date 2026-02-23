@@ -4,48 +4,65 @@ This module provides Python bindings for confidential MPT operations using the m
 
 ## Overview
 
-The confidential MPT feature uses pre-compiled C libraries that are **already included** in the repository:
+The confidential MPT feature uses C libraries built from the [mpt-crypto](https://github.com/XRPLF/mpt-crypto) repository:
 
-- **Pre-compiled static libraries**: `libmpt-crypto.a`, `libsecp256k1.a` in `libs/darwin/` (macOS) and `libs/linux/` (Linux)
-- **C header files**: `secp256k1.h`, `secp256k1_mpt.h` in `include/`
+- **Static libraries**: `libmpt-crypto.a`, `libsecp256k1.a` (built by CI, included in wheels)
+- **C header files**: `secp256k1.h` (in git), `secp256k1_mpt.h` (downloaded during build)
 - **Python bindings**: Built using CFFI
 
 This approach uses the same cryptographic library that `rippled` uses internally, ensuring perfect compatibility.
 
 ## Installation
 
-Confidential MPT is an **optional feature**. Regular xrpl-py users don't need to set it up.
+Confidential MPT is an **optional feature**. There are different setup paths for end users vs. contributors.
 
-### Quick Setup
+### For End Users (Recommended)
 
-If you want to use confidential MPT features:
+Install xrpl-py with pre-built binaries from PyPI:
 
 ```bash
-# 1. Install xrpl-py with confidential support
-poetry install --extras confidential
-
-# 2. Build the C extension (one-time)
-poetry run python -m xrpl.core.confidential.setup
+pip install xrpl-py[confidential]
 ```
 
-### Alternative: Manual Build
+The wheel includes all necessary compiled binaries. No build step required!
 
-You can also build manually:
+### For Contributors/Developers
+
+If you're developing xrpl-py locally, you need to set up the MPT crypto binaries:
+
+#### Option 1: Download from CI (Recommended)
 
 ```bash
-# Using Poetry task (recommended)
-poetry run poe build_mpt_crypto
+# Download pre-built binaries from the latest CI run
+./xrpl/core/confidential/setup_mpt_crypto.sh download
 
-# Or directly with Poetry
+# Build the Python extension
 poetry run python xrpl/core/confidential/build_mpt_crypto.py
 ```
 
-### Requirements
+**Requirements**: GitHub CLI (`gh`) installed and authenticated
 
-- **macOS**: Xcode Command Line Tools (`xcode-select --install`), OpenSSL (`brew install openssl`)
-- **Linux**: build-essential, libssl-dev (`sudo apt-get install build-essential libssl-dev`)
-- **Windows**: Not yet supported (VLA compatibility issues with MSVC)
-- **All platforms**: Python 3.9+ with cffi package (installed via `poetry install --extras confidential`)
+#### Option 2: Build Locally
+
+```bash
+# Build binaries from source
+./xrpl/core/confidential/setup_mpt_crypto.sh build
+
+# Build the Python extension
+poetry run python xrpl/core/confidential/build_mpt_crypto.py
+```
+
+**Requirements**:
+
+- **macOS**: Xcode Command Line Tools, OpenSSL (`brew install openssl`), CMake, Conan
+- **Linux**: build-essential, libssl-dev, CMake, Conan
+- **Windows**: Use Option 1 (download from CI)
+
+#### Install Dependencies
+
+```bash
+poetry install --extras confidential
+```
 
 ## Usage
 
@@ -135,20 +152,21 @@ xrpl/core/confidential/
 ├── transaction_builders.py      # High-level transaction preparation
 ├── context.py                   # Context hash computation
 ├── utils.py                     # Utility functions
-├── test_utils.py                # Test utilities
 ├── setup.py                     # Setup script
 ├── build_mpt_crypto.py          # C extension build script
 ├── tests/                       # Unit tests
 │   ├── test_encryption.py
 │   └── test_proofs.py
 ├── examples/                    # Example scripts
-│   └── submit_confidential_tx.py
+│   ├── submit_confidential_tx.py
+│   └── utils.py
 ├── include/                     # C header files
-│   ├── secp256k1.h
-│   └── secp256k1_mpt.h
-├── libs/                        # Pre-compiled native libraries
-│   ├── darwin/
-│   └── linux/
+│   ├── secp256k1.h              # In git
+│   └── secp256k1_mpt.h          # Not in git (downloaded by setup)
+├── libs/                        # Not in git (created by setup script)
+│   ├── darwin/                  # macOS libraries
+│   ├── linux/                   # Linux libraries
+│   └── win32/                   # Windows libraries
 └── README.md                    # This file
 ```
 
@@ -204,62 +222,62 @@ The `.so` file was built for a different Python version. Rebuild:
 poetry run python -m xrpl.core.confidential.setup
 ```
 
-## Pre-compiled Libraries
+## Binary Distribution
 
-### Directory Structure
+### For End Users
+
+Pre-built binaries are included in PyPI wheels for all supported platforms:
+
+- **macOS**: Universal binary (x86_64 + ARM64)
+- **Linux**: x86_64
+- **Windows**: x86_64
+
+When you `pip install xrpl-py[confidential]`, you get a wheel with all binaries included.
+
+### For Contributors
+
+Binaries are **not stored in git** to keep the repository clean. Instead:
+
+1. **CI builds binaries** for all platforms via `.github/workflows/build_mpt_crypto_libs.yml`
+2. **Developers download** from CI artifacts or build locally using `xrpl/core/confidential/setup_mpt_crypto.sh`
+3. **Wheels include binaries** built by CI during the release process
+
+### Directory Structure (Local Development)
+
+After running the setup script, you'll have:
 
 ```
-libs/
-├── darwin/          # macOS (universal: x86_64 and arm64)
-│   ├── libmpt-crypto.a
-│   └── libsecp256k1.a
-└── linux/           # Linux (x86_64)
-    ├── libmpt-crypto.a
-    └── libsecp256k1.a
+xrpl/core/confidential/
+├── libs/                    # Not in git, created by setup script
+│   ├── darwin/              # macOS (universal: x86_64 and arm64)
+│   │   ├── libmpt-crypto.a
+│   │   └── libsecp256k1.a
+│   ├── linux/               # Linux (x86_64)
+│   │   ├── libmpt-crypto.a
+│   │   └── libsecp256k1.a
+│   └── win32/               # Windows (x86_64)
+│       ├── mpt-crypto.lib
+│       ├── secp256k1.lib
+│       ├── crypto.lib       # OpenSSL
+│       └── zlib.lib
+├── include/
+│   ├── secp256k1.h          # In git
+│   └── secp256k1_mpt.h      # Not in git, downloaded by setup script
+└── _mpt_crypto*.so          # Not in git, built by build_mpt_crypto.py
 ```
 
-### Building Libraries (For Maintainers)
+### Building Libraries (For CI/Maintainers)
 
-If you need to rebuild the libraries for your platform:
+The GitHub Actions workflow `.github/workflows/build_mpt_crypto_libs.yml` handles building libraries for all platforms. The process:
 
-**Prerequisites:**
+1. **Clone mpt-crypto** from GitHub
+2. **Install dependencies** via Conan (secp256k1, OpenSSL, zlib)
+3. **Build static libraries** with platform-specific flags:
+   - macOS/Linux: `-DCMAKE_POSITION_INDEPENDENT_CODE=ON` (required for Python extensions)
+   - Windows: `/WHOLEARCHIVE` linker flags for proper symbol resolution
+4. **Upload artifacts** for use by test jobs and wheel building
 
-- CMake 3.15+
-- C compiler (gcc, clang)
-- OpenSSL development libraries
-
-**Build Steps:**
-
-```bash
-# Clone the mpt-crypto repository
-git clone <mpt-crypto-repo-url>
-cd mpt-crypto
-
-# Build with -fPIC for shared library linking
-mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release \
-         -DSECP256K1_SOURCE_DIR=/path/to/secp256k1 \
-         -DBUILD_SHARED_LIBS=OFF \
-         -DBUILD_TESTS=OFF \
-         -DBUILD_UTILITY=OFF \
-         -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-make
-
-# Copy the libraries to xrpl-py
-cp libmpt-crypto.a /path/to/xrpl-py/xrpl/core/confidential/libs/<platform>/
-cp <secp256k1-build-dir>/lib/libsecp256k1.a /path/to/xrpl-py/xrpl/core/confidential/libs/<platform>/
-```
-
-**Important:** Libraries must be compiled with `-fPIC` (Position Independent Code) to be linkable into Python extensions.
-
-## Header Files
-
-The `include/` directory contains C header files required for building:
-
-- `secp256k1.h` - Main secp256k1 library header
-- `secp256k1_mpt.h` - MPT-specific extensions
-
-These headers must match the version of the pre-compiled libraries.
+See the workflow file for detailed build commands.
 
 ## Integration with Poetry
 
