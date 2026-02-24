@@ -152,8 +152,9 @@ jobs:
       issues: write
       pull-requests: write
     env:
+      # NOTE: Keep versions in sync with .github/workflows/vulnerability_scan.yml
       POETRY_VERSION: 2.1.1
-      CYCLONEDX_BOM_VERSION: 7.2.0
+      CYCLONEDX_BOM_VERSION: 7.2.2
       PACKAGE_VERSION: ${{ needs.input-validate.outputs.package_version }}
     outputs:
       package_version: ${{ needs.input-validate.outputs.package_version }}
@@ -533,7 +534,7 @@ jobs:
             -H "Authorization: Bearer $SLACK_TOKEN" \
             -H "Content-Type: application/json; charset=utf-8" \
             -d "$(jq -n --arg channel "#ripplex-security" --arg text "$MSG" '{channel:$channel, text:$text}')" \
-            | jq -er '.ok' >/dev/null 
+            | jq -er '.ok' >/dev/null
 
       - name: Awaiting security approval
         run: echo "Waiting for security team review"
