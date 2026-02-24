@@ -6,6 +6,7 @@ from xrpl.models.transactions import EscrowCreate
 
 _SOURCE = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _DESTINATION = "rJXXwHs6YYZmomBnJoYQdxwXSwJq56tJBn"
+_MPT_ISSUANCE_ID = "00000001A407AF5856CECE4281FED12B7B179B49A4AEF506"
 
 
 class TestEscrowCreate(TestCase):
@@ -56,7 +57,7 @@ class TestEscrowCreate(TestCase):
             account=_SOURCE,
             destination=_DESTINATION,
             amount=MPTAmount(
-                mpt_issuance_id="00000001A407AF5856CECE4281FED12B7B179B49A4AEF506",
+                mpt_issuance_id=_MPT_ISSUANCE_ID,
                 value="10.20",
             ),
             cancel_after=10,

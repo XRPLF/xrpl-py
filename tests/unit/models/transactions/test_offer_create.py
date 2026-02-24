@@ -6,13 +6,15 @@ from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions.offer_create import OfferCreate, OfferCreateFlag
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
+_MPT_ISSUANCE_ID_1 = "000004C463C52827307480341125DA0577DEFC38405B0E3E"
+_MPT_ISSUANCE_ID_2 = "000004C463C52827307480341125DA0577DEFC38405BABCD"
 _TAKER_GETS = {
     "currency": "USD",
     "issuer": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
     "value": "100",
 }
 _TAKER_GETS_MPT = {
-    "mpt_issuance_id": "000004C463C52827307480341125DA0577DEFC38405B0E3E",
+    "mpt_issuance_id": _MPT_ISSUANCE_ID_1,
     "value": "100",
 }
 _TAKER_PAYS = {
@@ -21,7 +23,7 @@ _TAKER_PAYS = {
     "value": "90",
 }
 _TAKER_PAYS_MPT = {
-    "mpt_issuance_id": "000004C463C52827307480341125DA0577DEFC38405BABCD",
+    "mpt_issuance_id": _MPT_ISSUANCE_ID_2,
     "value": "30",
 }
 
