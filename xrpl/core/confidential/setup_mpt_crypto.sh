@@ -96,12 +96,12 @@ download_from_ci() {
     # Download headers
     echo "Downloading secp256k1_mpt.h header..."
     curl -sSL -o "$INCLUDE_DIR/secp256k1_mpt.h" \
-        https://raw.githubusercontent.com/yinyiqian1/mpt-crypto/main/include/secp256k1_mpt.h
+        https://raw.githubusercontent.com/yinyiqian1/mpt-crypto/mpt-utility/include/secp256k1_mpt.h
 
     echo "Downloading mpt_utility.h header..."
     mkdir -p "$INCLUDE_DIR/utility"
     curl -sSL -o "$INCLUDE_DIR/utility/mpt_utility.h" \
-        https://raw.githubusercontent.com/yinyiqian1/mpt-crypto/main/include/utility/mpt_utility.h
+        https://raw.githubusercontent.com/yinyiqian1/mpt-crypto/mpt-utility/include/utility/mpt_utility.h
 
     echo ""
     echo "✅ Successfully downloaded MPT crypto binaries!"
@@ -135,8 +135,8 @@ build_locally() {
     cd "$TEMP_DIR"
     
     # Clone mpt-crypto
-    echo "Cloning mpt-crypto..."
-    git clone --depth 1 https://github.com/yinyiqian1/mpt-crypto.git
+    echo "Cloning mpt-crypto (mpt-utility branch)..."
+    git clone --depth 1 --branch mpt-utility https://github.com/yinyiqian1/mpt-crypto.git
     cd mpt-crypto
     
     # Build based on platform

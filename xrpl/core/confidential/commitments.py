@@ -14,39 +14,29 @@ PUBKEY_COMPRESSED_SIZE = 33
 
 def create_pedersen_commitment(ctx, amount: int, blinding_factor: str) -> str:
     """
-    Create a Pedersen commitment: PC = amount*G + blinding_factor*H
+    Create a Pedersen commitment using the utility layer: PC = amount*G + blinding_factor*H
 
     Args:
+        ctx: Ignored (kept for backward compatibility). Uses mpt_secp256k1_context().
         amount: The amount to commit to (uint64)
         blinding_factor: 64-char hex string (32-byte blinding factor)
 
     Returns:
-        128-char hex string (64-byte uncompressed commitment point, X || Y)
+        66-char hex string (33-byte compressed commitment point)
     """
     # Convert blinding factor from hex
     blinding_bytes = bytes.fromhex(blinding_factor)
     if len(blinding_bytes) != 32:
         raise ValueError("blinding_factor must be 32 bytes")
 
-    # Create commitment
-    commitment = ffi.new("secp256k1_pubkey *")
-    result = lib.secp256k1_mpt_pedersen_commit(ctx, commitment, amount, blinding_bytes)
-    if result != 1:
+    # Create commitment using utility layer
+    commitment = ffi.new("unsigned char[33]")
+    result = lib.mpt_get_pedersen_commitment(amount, blinding_bytes, commitment)
+    if result != 0:
         raise RuntimeError("Failed to create Pedersen commitment")
 
-    # Serialize commitment (uncompressed)
-    output = ffi.new("unsigned char[65]")
-    output_len = ffi.new("size_t *", 65)
-    from xrpl.core.confidential.crypto_bindings import SECP256K1_EC_UNCOMPRESSED
-
-    result = lib.secp256k1_ec_pubkey_serialize(
-        ctx, output, output_len, commitment, SECP256K1_EC_UNCOMPRESSED
-    )
-    if result != 1:
-        raise RuntimeError("Failed to serialize commitment")
-
-    # Return without 0x04 prefix
-    commitment_bytes = bytes(output[1:65])
+    # Return compressed commitment
+    commitment_bytes = bytes(commitment[0:33])
     return commitment_bytes.hex().upper()
 
 

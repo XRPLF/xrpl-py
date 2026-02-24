@@ -2,18 +2,16 @@
 Context hash computation for confidential MPT transactions.
 
 This module provides functions to compute transaction context hashes
-that match rippled's implementation. These are used with the C bindings
-approach (mpt_crypto_bindings) rather than the charm-crypto approach.
+that match rippled's implementation using the utility layer.
 
 The context hash is a 32-byte value computed as SHA512Half of transaction-specific
 data, used to bind zero-knowledge proofs to specific transactions.
 """
 
-import hashlib
-import struct
 from typing import Union
 
 from xrpl.core.addresscodec import decode_classic_address
+from xrpl.core.confidential.crypto_bindings import ffi, lib
 
 # Transaction type codes (from rippled)
 TX_TYPE_CONFIDENTIAL_CONVERT = 85
@@ -30,10 +28,7 @@ def compute_convert_context_hash(
     amount: int,
 ) -> bytes:
     """
-    Compute context hash for ConfidentialMPTConvert transaction.
-
-    Format: TX_TYPE (2) + Account (20) + Sequence (4) + IssuanceID (24) + Amount (8)
-    Total: 58 bytes → SHA512Half
+    Compute context hash for ConfidentialMPTConvert transaction using utility layer.
 
     Args:
         account: Account address (string) or account ID (20 bytes)
@@ -56,13 +51,30 @@ def compute_convert_context_hash(
         decode_classic_address(account) if isinstance(account, str) else account
     )
 
-    context_bytes = struct.pack(">H", TX_TYPE_CONFIDENTIAL_CONVERT)
-    context_bytes += account_id
-    context_bytes += struct.pack(">I", sequence)
-    context_bytes += mpt_issuance_id
-    context_bytes += struct.pack(">Q", amount)
+    if len(account_id) != 20:
+        raise ValueError("account_id must be 20 bytes")
+    if len(mpt_issuance_id) != 24:
+        raise ValueError("mpt_issuance_id must be 24 bytes")
 
-    return hashlib.sha512(context_bytes).digest()[:32]
+    # Create account_id struct
+    acc = ffi.new("account_id *")
+    for i in range(20):
+        acc.bytes[i] = account_id[i]
+
+    # Create mpt_issuance_id struct
+    issuance = ffi.new("mpt_issuance_id *")
+    for i in range(24):
+        issuance.bytes[i] = mpt_issuance_id[i]
+
+    # Call utility layer function
+    out_hash = ffi.new("uint8_t[32]")
+    result = lib.mpt_get_convert_context_hash(
+        acc[0], sequence, issuance[0], amount, out_hash
+    )
+    if result != 0:
+        raise RuntimeError("Failed to compute convert context hash")
+
+    return bytes(out_hash[0:32])
 
 
 def compute_convert_back_context_hash(
@@ -73,11 +85,7 @@ def compute_convert_back_context_hash(
     version: int,
 ) -> bytes:
     """
-    Compute context hash for ConfidentialMPTConvertBack transaction.
-
-    Format: TX_TYPE (2) + Account (20) + Sequence (4) + IssuanceID (24)
-            + Amount (8) + Version (4)
-    Total: 62 bytes → SHA512Half
+    Compute context hash for ConfidentialMPTConvertBack transaction using utility layer.
 
     Args:
         account: Account address (string) or account ID (20 bytes)
@@ -102,14 +110,30 @@ def compute_convert_back_context_hash(
         decode_classic_address(account) if isinstance(account, str) else account
     )
 
-    context_bytes = struct.pack(">H", TX_TYPE_CONFIDENTIAL_CONVERT_BACK)
-    context_bytes += account_id
-    context_bytes += struct.pack(">I", sequence)
-    context_bytes += mpt_issuance_id
-    context_bytes += struct.pack(">Q", amount)
-    context_bytes += struct.pack(">I", version)
+    if len(account_id) != 20:
+        raise ValueError("account_id must be 20 bytes")
+    if len(mpt_issuance_id) != 24:
+        raise ValueError("mpt_issuance_id must be 24 bytes")
 
-    return hashlib.sha512(context_bytes).digest()[:32]
+    # Create account_id struct
+    acc = ffi.new("account_id *")
+    for i in range(20):
+        acc.bytes[i] = account_id[i]
+
+    # Create mpt_issuance_id struct
+    issuance = ffi.new("mpt_issuance_id *")
+    for i in range(24):
+        issuance.bytes[i] = mpt_issuance_id[i]
+
+    # Call utility layer function
+    out_hash = ffi.new("uint8_t[32]")
+    result = lib.mpt_get_convert_back_context_hash(
+        acc[0], sequence, issuance[0], amount, version, out_hash
+    )
+    if result != 0:
+        raise RuntimeError("Failed to compute convert back context hash")
+
+    return bytes(out_hash[0:32])
 
 
 def compute_send_context_hash(
@@ -120,11 +144,7 @@ def compute_send_context_hash(
     version: int,
 ) -> bytes:
     """
-    Compute context hash for ConfidentialMPTSend transaction.
-
-    Format: TX_TYPE (2) + Account (20) + Sequence (4) + IssuanceID (24)
-            + Destination (20) + Version (4)
-    Total: 74 bytes → SHA512Half
+    Compute context hash for ConfidentialMPTSend transaction using utility layer.
 
     Note: Version is the sender's ConfidentialBalanceVersion, NOT the amount!
 
@@ -156,14 +176,37 @@ def compute_send_context_hash(
         else destination
     )
 
-    context_bytes = struct.pack(">H", TX_TYPE_CONFIDENTIAL_SEND)
-    context_bytes += account_id
-    context_bytes += struct.pack(">I", sequence)
-    context_bytes += mpt_issuance_id
-    context_bytes += dest_id
-    context_bytes += struct.pack(">I", version)
+    if len(account_id) != 20:
+        raise ValueError("account_id must be 20 bytes")
+    if len(dest_id) != 20:
+        raise ValueError("destination must be 20 bytes")
+    if len(mpt_issuance_id) != 24:
+        raise ValueError("mpt_issuance_id must be 24 bytes")
 
-    return hashlib.sha512(context_bytes).digest()[:32]
+    # Create account_id struct
+    acc = ffi.new("account_id *")
+    for i in range(20):
+        acc.bytes[i] = account_id[i]
+
+    # Create destination account_id struct
+    dest = ffi.new("account_id *")
+    for i in range(20):
+        dest.bytes[i] = dest_id[i]
+
+    # Create mpt_issuance_id struct
+    issuance = ffi.new("mpt_issuance_id *")
+    for i in range(24):
+        issuance.bytes[i] = mpt_issuance_id[i]
+
+    # Call utility layer function
+    out_hash = ffi.new("uint8_t[32]")
+    result = lib.mpt_get_send_context_hash(
+        acc[0], sequence, issuance[0], dest[0], version, out_hash
+    )
+    if result != 0:
+        raise RuntimeError("Failed to compute send context hash")
+
+    return bytes(out_hash[0:32])
 
 
 def compute_clawback_context_hash(
@@ -174,11 +217,7 @@ def compute_clawback_context_hash(
     holder: Union[str, bytes],
 ) -> bytes:
     """
-    Compute context hash for ConfidentialMPTClawback transaction.
-
-    Format: TX_TYPE (2) + Account (20) + Sequence (4) + IssuanceID (24)
-            + Amount (8) + Holder (20)
-    Total: 78 bytes → SHA512Half
+    Compute context hash for ConfidentialMPTClawback transaction using utility layer.
 
     Args:
         issuer: Issuer address (string) or account ID (20 bytes)
@@ -202,11 +241,34 @@ def compute_clawback_context_hash(
     issuer_id = decode_classic_address(issuer) if isinstance(issuer, str) else issuer
     holder_id = decode_classic_address(holder) if isinstance(holder, str) else holder
 
-    context_bytes = struct.pack(">H", TX_TYPE_CONFIDENTIAL_CLAWBACK)
-    context_bytes += issuer_id
-    context_bytes += struct.pack(">I", sequence)
-    context_bytes += mpt_issuance_id
-    context_bytes += struct.pack(">Q", amount)
-    context_bytes += holder_id
+    if len(issuer_id) != 20:
+        raise ValueError("issuer_id must be 20 bytes")
+    if len(holder_id) != 20:
+        raise ValueError("holder_id must be 20 bytes")
+    if len(mpt_issuance_id) != 24:
+        raise ValueError("mpt_issuance_id must be 24 bytes")
 
-    return hashlib.sha512(context_bytes).digest()[:32]
+    # Create issuer account_id struct
+    iss = ffi.new("account_id *")
+    for i in range(20):
+        iss.bytes[i] = issuer_id[i]
+
+    # Create holder account_id struct
+    hold = ffi.new("account_id *")
+    for i in range(20):
+        hold.bytes[i] = holder_id[i]
+
+    # Create mpt_issuance_id struct
+    issuance = ffi.new("mpt_issuance_id *")
+    for i in range(24):
+        issuance.bytes[i] = mpt_issuance_id[i]
+
+    # Call utility layer function
+    out_hash = ffi.new("uint8_t[32]")
+    result = lib.mpt_get_clawback_context_hash(
+        iss[0], sequence, issuance[0], amount, hold[0], out_hash
+    )
+    if result != 0:
+        raise RuntimeError("Failed to compute clawback context hash")
+
+    return bytes(out_hash[0:32])
