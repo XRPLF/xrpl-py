@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Changed
+
+- [Breaking change] Dropped support for Python 3.8 (EOL October 2024). The minimum supported Python version is now 3.9.
+
+### Fixed
+
+- Fixed urllib3 security vulnerabilities (CVE-2025-66418, CVE-2025-66471, CVE-2026-21441) by requiring urllib3 >= 2.6.3.
+
 ## [[4.5.0]]
 
 ### Added

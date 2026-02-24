@@ -224,7 +224,7 @@ jobs:
       - name: Install Python + Retrieve Poetry dependencies from cache
         uses: actions/setup-python@v5
         with:
-          python-version: "3.8"
+          python-version: "3.9"
           cache: "poetry"
       - name: Build a binary wheel and a source tarball
         run: poetry build
