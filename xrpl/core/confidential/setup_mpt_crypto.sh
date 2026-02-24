@@ -93,11 +93,16 @@ download_from_ci() {
         exit 1
     }
     
-    # Download secp256k1_mpt.h header
+    # Download headers
     echo "Downloading secp256k1_mpt.h header..."
     curl -sSL -o "$INCLUDE_DIR/secp256k1_mpt.h" \
         https://raw.githubusercontent.com/yinyiqian1/mpt-crypto/main/include/secp256k1_mpt.h
-    
+
+    echo "Downloading mpt_utility.h header..."
+    mkdir -p "$INCLUDE_DIR/utility"
+    curl -sSL -o "$INCLUDE_DIR/utility/mpt_utility.h" \
+        https://raw.githubusercontent.com/yinyiqian1/mpt-crypto/main/include/utility/mpt_utility.h
+
     echo ""
     echo "✅ Successfully downloaded MPT crypto binaries!"
     echo "   Location: $LIBS_DIR/$LIB_SUBDIR"

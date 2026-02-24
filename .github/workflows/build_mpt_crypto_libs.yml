@@ -37,8 +37,9 @@ jobs:
 
       - name: Copy header files
         run: |
-          mkdir -p xrpl/core/confidential/include
+          mkdir -p xrpl/core/confidential/include/utility
           cp /tmp/mpt-crypto/include/secp256k1_mpt.h xrpl/core/confidential/include/
+          cp /tmp/mpt-crypto/include/utility/mpt_utility.h xrpl/core/confidential/include/utility/
 
       - name: Build mpt-crypto
         run: |
@@ -112,8 +113,9 @@ jobs:
 
       - name: Copy header files
         run: |
-          mkdir -p xrpl/core/confidential/include
+          mkdir -p xrpl/core/confidential/include/utility
           cp /tmp/mpt-crypto/include/secp256k1_mpt.h xrpl/core/confidential/include/
+          cp /tmp/mpt-crypto/include/utility/mpt_utility.h xrpl/core/confidential/include/utility/
 
       - name: Build mpt-crypto
         run: |
@@ -187,8 +189,9 @@ jobs:
       - name: Copy header files
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path xrpl/core/confidential/include
+          New-Item -ItemType Directory -Force -Path xrpl/core/confidential/include/utility
           Copy-Item C:\mpt-crypto\include\secp256k1_mpt.h -Destination xrpl/core/confidential/include/
+          Copy-Item C:\mpt-crypto\include\utility\mpt_utility.h -Destination xrpl/core/confidential/include/utility/
 
       - name: Setup MSVC environment
         uses: ilammy/msvc-dev-cmd@v1

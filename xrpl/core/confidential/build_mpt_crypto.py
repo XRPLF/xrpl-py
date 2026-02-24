@@ -240,6 +240,151 @@ ffibuilder.cdef(
     #define SECP256K1_CONTEXT_VERIFY ...
     #define SECP256K1_EC_COMPRESSED ...
     #define SECP256K1_EC_UNCOMPRESSED ...
+
+    // ========================================================================
+    // MPT Utility Layer - High-level wrapper functions
+    // ========================================================================
+
+    // Structs
+    typedef struct {
+        uint8_t bytes[24];
+    } mpt_issuance_id;
+
+    typedef struct {
+        uint8_t bytes[20];
+    } account_id;
+
+    struct mpt_confidential_recipient {
+        uint8_t pubkey[33];
+        uint8_t encrypted_amount[66];
+    };
+
+    struct mpt_pedersen_proof_params {
+        uint8_t pedersen_commitment[33];
+        uint64_t amount;
+        uint8_t encrypted_amount[66];
+        uint8_t blinding_factor[32];
+    };
+
+    // Context functions
+    secp256k1_context* mpt_secp256k1_context();
+
+    // Context hash functions
+    int mpt_get_convert_context_hash(
+        account_id account,
+        uint32_t sequence,
+        mpt_issuance_id issuanceID,
+        uint64_t amount,
+        uint8_t out_hash[32]
+    );
+
+    int mpt_get_convert_back_context_hash(
+        account_id account,
+        uint32_t sequence,
+        mpt_issuance_id issuanceID,
+        uint64_t amount,
+        uint32_t version,
+        uint8_t out_hash[32]
+    );
+
+    int mpt_get_send_context_hash(
+        account_id account,
+        uint32_t sequence,
+        mpt_issuance_id issuanceID,
+        account_id destination,
+        uint32_t version,
+        uint8_t out_hash[32]
+    );
+
+    int mpt_get_clawback_context_hash(
+        account_id account,
+        uint32_t sequence,
+        mpt_issuance_id issuanceID,
+        uint64_t amount,
+        account_id holder,
+        uint8_t out_hash[32]
+    );
+
+    // Size calculation functions
+    size_t get_multi_ciphertext_equality_proof_size(size_t n_recipients);
+    size_t get_confidential_send_proof_size(size_t n_recipients);
+
+    // Key & Ciphertext Utilities
+    int mpt_generate_keypair(uint8_t* out_privkey, uint8_t* out_pubkey);
+    int mpt_generate_blinding_factor(uint8_t out_factor[32]);
+
+    int mpt_encrypt_amount(
+        uint64_t amount,
+        uint8_t const pubkey[33],
+        uint8_t const blinding_factor[32],
+        uint8_t out_ciphertext[66]
+    );
+
+    int mpt_decrypt_amount(
+        uint8_t const ciphertext[66],
+        uint8_t const privkey[32],
+        uint64_t* out_amount
+    );
+
+    // Proof Generation
+    int mpt_get_convert_proof(
+        uint8_t const pubkey[33],
+        uint8_t const privkey[32],
+        uint8_t const ctx_hash[32],
+        uint8_t out_proof[65]
+    );
+
+    int mpt_get_pedersen_commitment(
+        uint64_t amount,
+        uint8_t const blinding_factor[32],
+        uint8_t out_commitment[33]
+    );
+
+    int mpt_get_amount_linkage_proof(
+        uint8_t const pubkey[33],
+        uint8_t const blinding_factor[32],
+        uint8_t const context_hash[32],
+        struct mpt_pedersen_proof_params const* params,
+        uint8_t out[195]
+    );
+
+    int mpt_get_balance_linkage_proof(
+        uint8_t const priv[32],
+        uint8_t const pub[33],
+        uint8_t const context_hash[32],
+        struct mpt_pedersen_proof_params const* params,
+        uint8_t out[195]
+    );
+
+    int mpt_get_confidential_send_proof(
+        uint8_t const priv[32],
+        uint64_t amount,
+        struct mpt_confidential_recipient const* recipients,
+        size_t n_recipients,
+        uint8_t const tx_blinding_factor[32],
+        uint8_t const context_hash[32],
+        struct mpt_pedersen_proof_params const* amount_params,
+        struct mpt_pedersen_proof_params const* balance_params,
+        uint8_t* out_proof,
+        size_t* out_len
+    );
+
+    int mpt_get_convert_back_proof(
+        uint8_t const priv[32],
+        uint8_t const pub[33],
+        uint8_t const context_hash[32],
+        struct mpt_pedersen_proof_params const* params,
+        uint8_t out_proof[195]
+    );
+
+    int mpt_get_clawback_proof(
+        uint8_t const priv[32],
+        uint8_t const pub[33],
+        uint8_t const context_hash[32],
+        uint64_t const amount,
+        uint8_t const encrypted_amount[66],
+        uint8_t out_proof[98]
+    );
 """
 )
 
@@ -311,6 +456,7 @@ ffibuilder.set_source(
     """
     #include <secp256k1.h>
     #include <secp256k1_mpt.h>
+    #include <utility/mpt_utility.h>
     """,
     libraries=libraries,
     library_dirs=library_dirs,
