@@ -24,36 +24,49 @@ TX_TYPE_CONFIDENTIAL_CLAWBACK = 89
 def compute_convert_context_hash(
     account: Union[str, bytes],
     sequence: int,
-    mpt_issuance_id: bytes,
+    mpt_issuance_id: Union[str, bytes],
     amount: int,
-) -> bytes:
+) -> str:
     """
     Compute context hash for ConfidentialMPTConvert transaction using utility layer.
 
     Args:
-        account: Account address (string) or account ID (20 bytes)
+        account: Account address (classic address string) or account ID
+                 (20 bytes or 40-char hex string)
         sequence: Transaction sequence number
-        mpt_issuance_id: 24-byte MPT issuance ID
+        mpt_issuance_id: 24-byte MPT issuance ID (bytes or 48-char hex string)
         amount: Amount to convert (uint64)
 
     Returns:
-        32-byte context hash
+        64-char hex string (32-byte context hash)
 
     Example:
         >>> context = compute_convert_context_hash(
         ...     "rN7n7otQDd6FczFgLdlqtyMVrn3z1oqh3V",
         ...     100,
-        ...     bytes.fromhex("000004A2A67A324B17A366D8F0D768C32B23180D6A1E54B7"),
+        ...     "000004A2A67A324B17A366D8F0D768C32B23180D6A1E54B7",
         ...     1000
         ... )
     """
-    account_id = (
-        decode_classic_address(account) if isinstance(account, str) else account
-    )
+    # Convert account to bytes
+    if isinstance(account, str):
+        # Try to decode as classic address first, otherwise treat as hex
+        try:
+            account_id = decode_classic_address(account)
+        except (ValueError, KeyError):
+            account_id = bytes.fromhex(account)
+    else:
+        account_id = account
+
+    # Convert mpt_issuance_id to bytes
+    if isinstance(mpt_issuance_id, str):
+        issuance_id = bytes.fromhex(mpt_issuance_id)
+    else:
+        issuance_id = mpt_issuance_id
 
     if len(account_id) != 20:
         raise ValueError("account_id must be 20 bytes")
-    if len(mpt_issuance_id) != 24:
+    if len(issuance_id) != 24:
         raise ValueError("mpt_issuance_id must be 24 bytes")
 
     # Create account_id struct
@@ -64,7 +77,7 @@ def compute_convert_context_hash(
     # Create mpt_issuance_id struct
     issuance = ffi.new("mpt_issuance_id *")
     for i in range(24):
-        issuance.bytes[i] = mpt_issuance_id[i]
+        issuance.bytes[i] = issuance_id[i]
 
     # Call utility layer function
     out_hash = ffi.new("uint8_t[32]")
@@ -74,45 +87,58 @@ def compute_convert_context_hash(
     if result != 0:
         raise RuntimeError("Failed to compute convert context hash")
 
-    return bytes(out_hash[0:32])
+    return bytes(out_hash[0:32]).hex().upper()
 
 
 def compute_convert_back_context_hash(
     account: Union[str, bytes],
     sequence: int,
-    mpt_issuance_id: bytes,
+    mpt_issuance_id: Union[str, bytes],
     amount: int,
     version: int,
-) -> bytes:
+) -> str:
     """
     Compute context hash for ConfidentialMPTConvertBack transaction using utility layer.
 
     Args:
-        account: Account address (string) or account ID (20 bytes)
+        account: Account address (classic address string) or account ID
+                 (20 bytes or 40-char hex string)
         sequence: Transaction sequence number
-        mpt_issuance_id: 24-byte MPT issuance ID
+        mpt_issuance_id: 24-byte MPT issuance ID (bytes or 48-char hex string)
         amount: Amount to convert back (uint64)
         version: ConfidentialBalanceVersion from ledger
 
     Returns:
-        32-byte context hash
+        64-char hex string (32-byte context hash)
 
     Example:
         >>> context = compute_convert_back_context_hash(
         ...     "rN7n7otQDd6FczFgLdlqtyMVrn3z1oqh3V",
         ...     100,
-        ...     bytes.fromhex("000004A2A67A324B17A366D8F0D768C32B23180D6A1E54B7"),
+        ...     "000004A2A67A324B17A366D8F0D768C32B23180D6A1E54B7",
         ...     500,
         ...     1
         ... )
     """
-    account_id = (
-        decode_classic_address(account) if isinstance(account, str) else account
-    )
+    # Convert account to bytes
+    if isinstance(account, str):
+        # Try to decode as classic address first, otherwise treat as hex
+        try:
+            account_id = decode_classic_address(account)
+        except (ValueError, KeyError):
+            account_id = bytes.fromhex(account)
+    else:
+        account_id = account
+
+    # Convert mpt_issuance_id to bytes
+    if isinstance(mpt_issuance_id, str):
+        issuance_id = bytes.fromhex(mpt_issuance_id)
+    else:
+        issuance_id = mpt_issuance_id
 
     if len(account_id) != 20:
         raise ValueError("account_id must be 20 bytes")
-    if len(mpt_issuance_id) != 24:
+    if len(issuance_id) != 24:
         raise ValueError("mpt_issuance_id must be 24 bytes")
 
     # Create account_id struct
@@ -123,7 +149,7 @@ def compute_convert_back_context_hash(
     # Create mpt_issuance_id struct
     issuance = ffi.new("mpt_issuance_id *")
     for i in range(24):
-        issuance.bytes[i] = mpt_issuance_id[i]
+        issuance.bytes[i] = issuance_id[i]
 
     # Call utility layer function
     out_hash = ffi.new("uint8_t[32]")
@@ -133,54 +159,73 @@ def compute_convert_back_context_hash(
     if result != 0:
         raise RuntimeError("Failed to compute convert back context hash")
 
-    return bytes(out_hash[0:32])
+    return bytes(out_hash[0:32]).hex().upper()
 
 
 def compute_send_context_hash(
     account: Union[str, bytes],
     sequence: int,
-    mpt_issuance_id: bytes,
+    mpt_issuance_id: Union[str, bytes],
     destination: Union[str, bytes],
     version: int,
-) -> bytes:
+) -> str:
     """
     Compute context hash for ConfidentialMPTSend transaction using utility layer.
 
     Note: Version is the sender's ConfidentialBalanceVersion, NOT the amount!
 
     Args:
-        account: Sender address (string) or account ID (20 bytes)
+        account: Sender address (classic address string) or account ID
+                 (20 bytes or 40-char hex string)
         sequence: Transaction sequence number
-        mpt_issuance_id: 24-byte MPT issuance ID
-        destination: Receiver address (string) or account ID (20 bytes)
+        mpt_issuance_id: 24-byte MPT issuance ID (bytes or 48-char hex string)
+        destination: Receiver address (classic address string) or account ID
+                     (20 bytes or 40-char hex string)
         version: Sender's ConfidentialBalanceVersion from ledger
 
     Returns:
-        32-byte context hash
+        64-char hex string (32-byte context hash)
 
     Example:
         >>> context = compute_send_context_hash(
         ...     "rN7n7otQDd6FczFgLdlqtyMVrn3z1oqh3V",
         ...     100,
-        ...     bytes.fromhex("000004A2A67A324B17A366D8F0D768C32B23180D6A1E54B7"),
+        ...     "000004A2A67A324B17A366D8F0D768C32B23180D6A1E54B7",
         ...     "rPEPPER7kfTD9w2To4CQk6UCfuHM9c6GDY",
         ...     1
         ... )
     """
-    account_id = (
-        decode_classic_address(account) if isinstance(account, str) else account
-    )
-    dest_id = (
-        decode_classic_address(destination)
-        if isinstance(destination, str)
-        else destination
-    )
+    # Convert account to bytes
+    if isinstance(account, str):
+        # Try to decode as classic address first, otherwise treat as hex
+        try:
+            account_id = decode_classic_address(account)
+        except (ValueError, KeyError):
+            account_id = bytes.fromhex(account)
+    else:
+        account_id = account
+
+    # Convert destination to bytes
+    if isinstance(destination, str):
+        # Try to decode as classic address first, otherwise treat as hex
+        try:
+            dest_id = decode_classic_address(destination)
+        except (ValueError, KeyError):
+            dest_id = bytes.fromhex(destination)
+    else:
+        dest_id = destination
+
+    # Convert mpt_issuance_id to bytes
+    if isinstance(mpt_issuance_id, str):
+        issuance_id = bytes.fromhex(mpt_issuance_id)
+    else:
+        issuance_id = mpt_issuance_id
 
     if len(account_id) != 20:
         raise ValueError("account_id must be 20 bytes")
     if len(dest_id) != 20:
         raise ValueError("destination must be 20 bytes")
-    if len(mpt_issuance_id) != 24:
+    if len(issuance_id) != 24:
         raise ValueError("mpt_issuance_id must be 24 bytes")
 
     # Create account_id struct
@@ -196,7 +241,7 @@ def compute_send_context_hash(
     # Create mpt_issuance_id struct
     issuance = ffi.new("mpt_issuance_id *")
     for i in range(24):
-        issuance.bytes[i] = mpt_issuance_id[i]
+        issuance.bytes[i] = issuance_id[i]
 
     # Call utility layer function
     out_hash = ffi.new("uint8_t[32]")
@@ -206,46 +251,71 @@ def compute_send_context_hash(
     if result != 0:
         raise RuntimeError("Failed to compute send context hash")
 
-    return bytes(out_hash[0:32])
+    return bytes(out_hash[0:32]).hex().upper()
 
 
 def compute_clawback_context_hash(
     issuer: Union[str, bytes],
     sequence: int,
-    mpt_issuance_id: bytes,
+    mpt_issuance_id: Union[str, bytes],
     amount: int,
     holder: Union[str, bytes],
-) -> bytes:
+) -> str:
     """
     Compute context hash for ConfidentialMPTClawback transaction using utility layer.
 
     Args:
-        issuer: Issuer address (string) or account ID (20 bytes)
+        issuer: Issuer address (classic address string) or account ID
+                (20 bytes or 40-char hex string)
         sequence: Transaction sequence number
-        mpt_issuance_id: 24-byte MPT issuance ID
+        mpt_issuance_id: 24-byte MPT issuance ID (bytes or 48-char hex string)
         amount: Amount to claw back (uint64)
-        holder: Holder address (string) or account ID (20 bytes)
+        holder: Holder address (classic address string) or account ID
+                (20 bytes or 40-char hex string)
 
     Returns:
-        32-byte context hash
+        64-char hex string (32-byte context hash)
 
     Example:
         >>> context = compute_clawback_context_hash(
         ...     "rN7n7otQDd6FczFgLdlqtyMVrn3z1oqh3V",
         ...     100,
-        ...     bytes.fromhex("000004A2A67A324B17A366D8F0D768C32B23180D6A1E54B7"),
+        ...     "000004A2A67A324B17A366D8F0D768C32B23180D6A1E54B7",
         ...     500,
         ...     "rPEPPER7kfTD9w2To4CQk6UCfuHM9c6GDY"
         ... )
     """
-    issuer_id = decode_classic_address(issuer) if isinstance(issuer, str) else issuer
-    holder_id = decode_classic_address(holder) if isinstance(holder, str) else holder
+    # Convert issuer to bytes
+    if isinstance(issuer, str):
+        # Try to decode as classic address first, otherwise treat as hex
+        try:
+            issuer_id = decode_classic_address(issuer)
+        except (ValueError, KeyError):
+            issuer_id = bytes.fromhex(issuer)
+    else:
+        issuer_id = issuer
+
+    # Convert holder to bytes
+    if isinstance(holder, str):
+        # Try to decode as classic address first, otherwise treat as hex
+        try:
+            holder_id = decode_classic_address(holder)
+        except (ValueError, KeyError):
+            holder_id = bytes.fromhex(holder)
+    else:
+        holder_id = holder
+
+    # Convert mpt_issuance_id to bytes
+    if isinstance(mpt_issuance_id, str):
+        issuance_id = bytes.fromhex(mpt_issuance_id)
+    else:
+        issuance_id = mpt_issuance_id
 
     if len(issuer_id) != 20:
         raise ValueError("issuer_id must be 20 bytes")
     if len(holder_id) != 20:
         raise ValueError("holder_id must be 20 bytes")
-    if len(mpt_issuance_id) != 24:
+    if len(issuance_id) != 24:
         raise ValueError("mpt_issuance_id must be 24 bytes")
 
     # Create issuer account_id struct
@@ -261,7 +331,7 @@ def compute_clawback_context_hash(
     # Create mpt_issuance_id struct
     issuance = ffi.new("mpt_issuance_id *")
     for i in range(24):
-        issuance.bytes[i] = mpt_issuance_id[i]
+        issuance.bytes[i] = issuance_id[i]
 
     # Call utility layer function
     out_hash = ffi.new("uint8_t[32]")
@@ -271,4 +341,4 @@ def compute_clawback_context_hash(
     if result != 0:
         raise RuntimeError("Failed to compute clawback context hash")
 
-    return bytes(out_hash[0:32])
+    return bytes(out_hash[0:32]).hex().upper()

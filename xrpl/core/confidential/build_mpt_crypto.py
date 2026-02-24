@@ -61,7 +61,16 @@ ffibuilder.cdef(
         const secp256k1_pubkey* c2,
         const unsigned char* privkey
     );
-    
+
+    int secp256k1_elgamal_verify_encryption(
+        const secp256k1_context* ctx,
+        const secp256k1_pubkey* c1,
+        const secp256k1_pubkey* c2,
+        const secp256k1_pubkey* pubkey_Q,
+        uint64_t amount,
+        const unsigned char* blinding_factor
+    );
+
     // Proof of Knowledge of Secret Key
     int secp256k1_mpt_pok_sk_prove(
         const secp256k1_context* ctx,

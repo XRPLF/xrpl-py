@@ -474,19 +474,15 @@ def prepare_confidential_clawback(
     holder_address: str,
     mpt_issuance_id: str,
     amount: int,
-    holder_balance_blinding_factor: str,
+    issuer_confidential_private_key: str,
 ) -> ConfidentialMPTClawback:
     """
     Prepare a ConfidentialMPTClawback transaction.
 
-    **IMPORTANT**: This function requires the issuer to track blinding factors
-    for all encrypted balances. The issuer must have stored the blinding factor
-    that was used when the holder's balance was encrypted.
-
-    This is a significant infrastructure requirement:
-    - Blinding factors must be stored in a secure database
-    - Keyed by (holder_address, mpt_issuance_id)
-    - Must be kept synchronized with all balance updates
+    **IMPORTANT**: This function requires the issuer's confidential private key
+    to generate the equality proof. The proof demonstrates that the issuer knows
+    the private key corresponding to their confidential public key and that the
+    encrypted balance matches the plaintext amount being clawed back.
 
     Args:
         client: XRPL client for ledger queries
@@ -494,16 +490,15 @@ def prepare_confidential_clawback(
         holder_address: Address of the holder to claw back from
         mpt_issuance_id: 24-byte MPT issuance ID (hex string)
         amount: Amount to claw back (uint64)
-        holder_balance_blinding_factor: 64-char hex string of blinding factor
-            used to encrypt the holder's balance. The issuer MUST have tracked
-            this value.
+        issuer_confidential_private_key: 64-char hex string of the issuer's
+            confidential private key (32 bytes). This is the private key
+            corresponding to the issuer's ElGamal public key.
 
     Returns:
         ConfidentialMPTClawback transaction ready to sign and submit
 
     Raises:
-        ValueError: If holder has no confidential balance or if the blinding
-            factor is incorrect
+        ValueError: If holder has no confidential balance
     """
     # Get issuer's sequence number
     issuer_info = client.request(AccountInfo(account=issuer_wallet.address))
@@ -567,13 +562,14 @@ def prepare_confidential_clawback(
     context_id = context_id_bytes.hex().upper()
 
     # Create equality proof
-    # This proves the issuer knows the blinding factor for the holder's balance
+    # This proves the issuer knows their confidential private key and that
+    # the encrypted balance matches the plaintext amount
     equality_proof = crypto.create_equality_plaintext_proof(
         holder_pubkey,
         balance_c2,
         balance_c1,
         amount,
-        holder_balance_blinding_factor,
+        issuer_confidential_private_key,
         context_id,
     )
 

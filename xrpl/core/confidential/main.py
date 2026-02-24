@@ -190,12 +190,12 @@ class MPTCrypto:
         c2: str,
         c1: str,
         amount: int,
-        blinding_factor: str,
+        private_key: str,
         context_id: str,
     ) -> str:
         """Create an equality proof for ConfidentialMPTClawback."""
         return plaintext_proofs.create_equality_plaintext_proof(
-            self.ctx, pk_uncompressed, c2, c1, amount, blinding_factor, context_id
+            self.ctx, pk_uncompressed, c2, c1, amount, private_key, context_id
         )
 
     def verify_equality_plaintext_proof(

@@ -18,18 +18,14 @@ def create_equality_plaintext_proof(
     c2: str,
     c1: str,
     amount: int,
-    blinding_factor: str,
+    private_key: str,
     context_id: str,
 ) -> str:
     """
     Create an equality proof for ConfidentialMPTClawback using the utility layer.
 
-    Proves that the issuer knows the blinding factor r such that:
-    - C1 = r*G
-    - C2 = amount*G + r*PK
-
-    This allows the issuer to prove they know the exact encrypted balance
-    without revealing the blinding factor.
+    Proves that the issuer knows the private key corresponding to the public key
+    and that the encrypted amount matches the plaintext amount.
 
     Args:
         ctx: Ignored (kept for backward compatibility). Uses mpt_secp256k1_context().
@@ -37,7 +33,7 @@ def create_equality_plaintext_proof(
         c2: 66-char hex string (33-byte compressed C2 point)
         c1: 66-char hex string (33-byte compressed C1 point)
         amount: The plaintext amount
-        blinding_factor: 64-char hex string (32-byte blinding factor)
+        private_key: 64-char hex string (32-byte private key)
         context_id: 64-char hex string (32-byte transaction context ID)
 
     Returns:
@@ -47,15 +43,15 @@ def create_equality_plaintext_proof(
     pk_bytes = bytes.fromhex(pk_compressed)
     c2_bytes = bytes.fromhex(c2)
     c1_bytes = bytes.fromhex(c1)
-    blinding_bytes = bytes.fromhex(blinding_factor)
+    private_key_bytes = bytes.fromhex(private_key)
     context_id_bytes = bytes.fromhex(context_id)
 
     if len(c1_bytes) != 33 or len(c2_bytes) != 33:
         raise ValueError("c1 and c2 must be 33 bytes")
     if len(pk_bytes) != 33:
         raise ValueError("pk must be 33 bytes (compressed)")
-    if len(blinding_bytes) != 32:
-        raise ValueError("blinding_factor must be 32 bytes")
+    if len(private_key_bytes) != 32:
+        raise ValueError("private_key must be 32 bytes")
     if len(context_id_bytes) != 32:
         raise ValueError("context_id must be 32 bytes")
 
@@ -65,7 +61,7 @@ def create_equality_plaintext_proof(
     # Generate clawback proof using utility layer
     proof = ffi.new("uint8_t[]", 98)
     result = lib.mpt_get_clawback_proof(
-        blinding_bytes,
+        private_key_bytes,
         pk_bytes,
         context_id_bytes,
         amount,
@@ -140,9 +136,9 @@ def verify_equality_plaintext_proof(
         raise RuntimeError("Failed to parse c1")
 
     # Verify proof
-    # The C library expects (c1, c2, pk), so pass them in that order
+    # The C library expects (pk, c2, c1), as per the C++ reference test
     result = lib.secp256k1_equality_plaintext_verify(
-        ctx, proof_bytes, c1_pk, c2_pk, pk_pubkey, amount, context_id_bytes
+        ctx, proof_bytes, pk_pubkey, c2_pk, c1_pk, amount, context_id_bytes
     )
 
     return result == 1

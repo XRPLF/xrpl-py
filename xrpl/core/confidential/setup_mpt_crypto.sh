@@ -78,8 +78,8 @@ download_from_ci() {
         ARTIFACT_NAME="mpt-crypto-darwin-universal"
     fi
 
-    # Use XRPLF/xrpl-py repository
-    REPO="XRPLF/xrpl-py"
+    # Use pdp2121/xrpl-py repository
+    REPO="pdp2121/xrpl-py"
     echo "Using repository: $REPO"
 
     cd "$REPO_ROOT"
@@ -87,7 +87,7 @@ download_from_ci() {
         echo ""
         echo "ERROR: Failed to download artifacts."
         echo "Make sure there's a recent successful build of the workflow."
-        echo "Check: https://github.com/XRPLF/xrpl-py/actions/workflows/build_mpt_crypto_libs.yml"
+        echo "Check: https://github.com/pdp2121/xrpl-py/actions/workflows/build_mpt_crypto_libs.yml"
         echo ""
         echo "You can also build locally using: $0 build"
         exit 1
