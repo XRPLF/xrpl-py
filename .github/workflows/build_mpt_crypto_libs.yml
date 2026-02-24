@@ -33,7 +33,7 @@ jobs:
 
       - name: Clone mpt-crypto
         run: |
-          git clone https://github.com/XRPLF/mpt-crypto.git /tmp/mpt-crypto
+          git clone https://github.com/yinyiqian1/mpt-crypto.git /tmp/mpt-crypto
 
       - name: Copy header files
         run: |
@@ -108,7 +108,7 @@ jobs:
 
       - name: Clone mpt-crypto
         run: |
-          git clone https://github.com/XRPLF/mpt-crypto.git /tmp/mpt-crypto
+          git clone https://github.com/yinyiqian1/mpt-crypto.git /tmp/mpt-crypto
 
       - name: Copy header files
         run: |
@@ -182,7 +182,7 @@ jobs:
 
       - name: Clone mpt-crypto
         run: |
-          git clone https://github.com/XRPLF/mpt-crypto.git C:\mpt-crypto
+          git clone https://github.com/yinyiqian1/mpt-crypto.git C:\mpt-crypto
 
       - name: Copy header files
         shell: pwsh

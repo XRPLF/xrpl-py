@@ -96,7 +96,7 @@ download_from_ci() {
     # Download secp256k1_mpt.h header
     echo "Downloading secp256k1_mpt.h header..."
     curl -sSL -o "$INCLUDE_DIR/secp256k1_mpt.h" \
-        https://raw.githubusercontent.com/XRPLF/mpt-crypto/main/include/secp256k1_mpt.h
+        https://raw.githubusercontent.com/yinyiqian1/mpt-crypto/main/include/secp256k1_mpt.h
     
     echo ""
     echo "✅ Successfully downloaded MPT crypto binaries!"
@@ -131,7 +131,7 @@ build_locally() {
     
     # Clone mpt-crypto
     echo "Cloning mpt-crypto..."
-    git clone --depth 1 https://github.com/XRPLF/mpt-crypto.git
+    git clone --depth 1 https://github.com/yinyiqian1/mpt-crypto.git
     cd mpt-crypto
     
     # Build based on platform
