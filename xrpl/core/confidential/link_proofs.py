@@ -252,7 +252,7 @@ def create_balance_link_proof(  # noqa: PLR0913
         params.blinding_factor[i] = pedersen_blinding_bytes[i]
 
     # Generate balance link proof using utility layer
-    proof = ffi.new("unsigned char[195]")
+    proof = ffi.new("uint8_t[]", 195)
     result = lib.mpt_get_balance_linkage_proof(
         private_key_bytes,
         pk_bytes,

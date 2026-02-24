@@ -1,5 +1,4 @@
 name: Build MPT Crypto Libraries
-
 on:
   workflow_dispatch:
   push:
@@ -85,6 +84,7 @@ jobs:
           path: |
             xrpl/core/confidential/libs/linux/*.a
             xrpl/core/confidential/include/*.h
+            xrpl/core/confidential/include/utility/*.h
 
   build_macos:
     name: Build for macOS (universal)
@@ -155,12 +155,14 @@ jobs:
             exit 1
           fi
 
-      - name: Upload libraries
+      - name: Upload libraries and headers
         uses: actions/upload-artifact@v4
         with:
           name: mpt-crypto-darwin-universal
           path: |
             xrpl/core/confidential/libs/darwin/*.a
+            xrpl/core/confidential/include/*.h
+            xrpl/core/confidential/include/utility/*.h
 
   build_windows:
     name: Build for Windows (x86_64) with MSVC
@@ -192,6 +194,25 @@ jobs:
           New-Item -ItemType Directory -Force -Path xrpl/core/confidential/include/utility
           Copy-Item C:\mpt-crypto\include\secp256k1_mpt.h -Destination xrpl/core/confidential/include/
           Copy-Item C:\mpt-crypto\include\utility\mpt_utility.h -Destination xrpl/core/confidential/include/utility/
+
+      - name: Patch mpt_utility.cpp for Windows
+        shell: pwsh
+        run: |
+          $utilityFile = "C:\mpt-crypto\src\utility\mpt_utility.cpp"
+          $lines = Get-Content $utilityFile
+          $newLines = @()
+          foreach ($line in $lines) {
+            if ($line -match '#include <arpa/inet\.h>') {
+              $newLines += '#ifdef _WIN32'
+              $newLines += '#include <winsock2.h>'
+              $newLines += '#else'
+              $newLines += '#include <arpa/inet.h>'
+              $newLines += '#endif'
+            } else {
+              $newLines += $line
+            }
+          }
+          $newLines | Set-Content $utilityFile
 
       - name: Setup MSVC environment
         uses: ilammy/msvc-dev-cmd@v1
@@ -268,12 +289,14 @@ jobs:
             exit 1
           }
 
-      - name: Upload libraries
+      - name: Upload libraries and headers
         uses: actions/upload-artifact@v4
         with:
           name: mpt-crypto-win32-x86_64
           path: |
             xrpl/core/confidential/libs/win32/*.lib
+            xrpl/core/confidential/include/*.h
+            xrpl/core/confidential/include/utility/*.h
 
   test_libraries:
     name: Test libraries on ${{ matrix.os }}
@@ -335,11 +358,21 @@ jobs:
           mkdir -p xrpl/core/confidential/libs/darwin
           mkdir -p xrpl/core/confidential/libs/win32
           mkdir -p xrpl/core/confidential/include
+          mkdir -p xrpl/core/confidential/include/utility
 
-          cp artifacts/mpt-crypto-linux-x86_64/libs/linux/*.a xrpl/core/confidential/libs/linux/ 2>/dev/null || true
-          cp artifacts/mpt-crypto-darwin-universal/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || true
-          cp artifacts/mpt-crypto-win32-x86_64/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || true
+          # Copy libraries - try both direct path and nested path
+          cp artifacts/mpt-crypto-linux-x86_64/libs/linux/*.a xrpl/core/confidential/libs/linux/ 2>/dev/null || \
+            cp artifacts/mpt-crypto-linux-x86_64/xrpl/core/confidential/libs/linux/*.a xrpl/core/confidential/libs/linux/ 2>/dev/null || true
 
+          cp artifacts/mpt-crypto-darwin-universal/libs/darwin/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || \
+            cp artifacts/mpt-crypto-darwin-universal/xrpl/core/confidential/libs/darwin/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || \
+            cp artifacts/mpt-crypto-darwin-universal/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || true
+
+          cp artifacts/mpt-crypto-win32-x86_64/libs/win32/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || \
+            cp artifacts/mpt-crypto-win32-x86_64/xrpl/core/confidential/libs/win32/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || \
+            cp artifacts/mpt-crypto-win32-x86_64/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || true
+
+          # Copy main headers
           if [ -d "artifacts/mpt-crypto-linux-x86_64/include" ]; then
             cp artifacts/mpt-crypto-linux-x86_64/include/*.h xrpl/core/confidential/include/
           elif [ -d "artifacts/mpt-crypto-linux-x86_64/xrpl/core/confidential/include" ]; then
@@ -348,6 +381,13 @@ jobs:
             cp artifacts/mpt-crypto-linux-x86_64/*.h xrpl/core/confidential/include/
           else
             find artifacts/mpt-crypto-linux-x86_64 -name "secp256k1_mpt.h" -exec cp {} xrpl/core/confidential/include/ \;
+          fi
+
+          # Copy utility headers
+          if [ -d "artifacts/mpt-crypto-linux-x86_64/include/utility" ]; then
+            cp artifacts/mpt-crypto-linux-x86_64/include/utility/*.h xrpl/core/confidential/include/utility/
+          elif [ -d "artifacts/mpt-crypto-linux-x86_64/xrpl/core/confidential/include/utility" ]; then
+            cp artifacts/mpt-crypto-linux-x86_64/xrpl/core/confidential/include/utility/*.h xrpl/core/confidential/include/utility/
           fi
 
       - name: Build C extension
@@ -379,8 +419,9 @@ jobs:
           crypto = MPTCrypto()
           sk, pk = crypto.generate_keypair()
           assert len(sk) == 64, f'Private key wrong length: {len(sk)}'
-          assert len(pk) == 128, f'Public key wrong length: {len(pk)}'
-          print(f'✓ Keypair generation works: sk={sk[:16]}... pk={pk[:32]}...')
+          assert len(pk) == 66, f'Public key wrong length (expected 66 for compressed): {len(pk)}'
+          print(f'✓ Keypair generation works (utility layer): sk={sk[:16]}... pk={pk[:16]}...')
+          print(f'  Public key is compressed (33 bytes = 66 hex chars)')
           "
 
       - name: Test encryption/decryption
@@ -406,8 +447,9 @@ jobs:
           from xrpl.core.confidential import MPTCrypto
           crypto = MPTCrypto()
           commitment = crypto.create_pedersen_commitment(1000, 'A' * 64)
-          assert len(commitment) == 128, f'Commitment wrong length: {len(commitment)}'
-          print(f'✓ Pedersen commitment works: {commitment[:32]}...')
+          assert len(commitment) == 66, f'Commitment wrong length (expected 66 for compressed): {len(commitment)}'
+          print(f'✓ Pedersen commitment works (utility layer): {commitment[:32]}...')
+          print(f'  Commitment is compressed (33 bytes = 66 hex chars)')
           "
 
       - name: Test proof generation
@@ -416,8 +458,11 @@ jobs:
           from xrpl.core.confidential import MPTCrypto
           crypto = MPTCrypto()
           sk, pk, pok = crypto.generate_keypair_with_pok('0' * 64)
+          assert len(sk) == 64, f'Private key wrong length: {len(sk)}'
+          assert len(pk) == 66, f'Public key wrong length (expected 66 for compressed): {len(pk)}'
           assert len(pok) == 130, f'PoK wrong length: {len(pok)}'
-          print(f'✓ Proof of knowledge generation works')
+          print(f'✓ Proof of knowledge generation works (utility layer)')
+          print(f'  sk={sk[:16]}... pk={pk} pok={pok[:32]}...')
           "
 
       - name: Summary

@@ -52,7 +52,7 @@ def encrypt(
             raise ValueError("blinding_factor must be 32 bytes")
 
     # Encrypt using utility layer
-    ciphertext = ffi.new("unsigned char[66]")
+    ciphertext = ffi.new("uint8_t[]", 66)
     result = lib.mpt_encrypt_amount(amount, pubkey_bytes, blinding_bytes, ciphertext)
     if result != 0:
         raise RuntimeError("Failed to encrypt")

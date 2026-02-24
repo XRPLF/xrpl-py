@@ -63,7 +63,7 @@ def create_equality_plaintext_proof(
     encrypted_amount = c1_bytes + c2_bytes
 
     # Generate clawback proof using utility layer
-    proof = ffi.new("unsigned char[98]")
+    proof = ffi.new("uint8_t[]", 98)
     result = lib.mpt_get_clawback_proof(
         blinding_bytes,
         pk_bytes,

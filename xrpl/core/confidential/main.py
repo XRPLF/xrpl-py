@@ -29,7 +29,6 @@ from xrpl.core.confidential.encryption import (
 from xrpl.core.confidential.keypair import (
     CONTEXT_ID_SIZE,
     PRIVKEY_SIZE,
-    PUBKEY_UNCOMPRESSED_SIZE,
     SCHNORR_PROOF_SIZE,
 )
 from xrpl.core.confidential.link_proofs import ACCOUNT_ID_SIZE, MPT_ISSUANCE_ID_SIZE
@@ -38,7 +37,6 @@ from xrpl.core.confidential.link_proofs import ACCOUNT_ID_SIZE, MPT_ISSUANCE_ID_
 __all__ = [
     "MPTCrypto",
     "PRIVKEY_SIZE",
-    "PUBKEY_UNCOMPRESSED_SIZE",
     "PUBKEY_COMPRESSED_SIZE",
     "SCHNORR_PROOF_SIZE",
     "BLINDING_FACTOR_SIZE",

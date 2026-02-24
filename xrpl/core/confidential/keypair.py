@@ -29,8 +29,9 @@ def generate_keypair(ctx=None) -> Tuple[str, str]:
         - privkey: 64-char hex string (32 bytes)
         - pubkey_compressed: 66-char hex string (33 bytes, compressed format)
     """
-    privkey = ffi.new("unsigned char[32]")
-    pubkey = ffi.new("unsigned char[33]")
+    # Allocate as uint8_t[] to match the pointer type expected by mpt_generate_keypair
+    privkey = ffi.new("uint8_t[]", 32)
+    pubkey = ffi.new("uint8_t[]", 33)
 
     result = lib.mpt_generate_keypair(privkey, pubkey)
     if result != 0:
@@ -94,7 +95,7 @@ def generate_pok(ctx, privkey: str, pubkey_compressed: str, context_id: str) -> 
         raise ValueError("context_id must be 32 bytes")
 
     # Generate Schnorr proof using utility layer
-    proof = ffi.new("unsigned char[65]")
+    proof = ffi.new("uint8_t[]", 65)
     result = lib.mpt_get_convert_proof(
         pubkey_bytes, privkey_bytes, context_id_bytes, proof
     )

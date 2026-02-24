@@ -30,7 +30,7 @@ def create_pedersen_commitment(ctx, amount: int, blinding_factor: str) -> str:
         raise ValueError("blinding_factor must be 32 bytes")
 
     # Create commitment using utility layer
-    commitment = ffi.new("unsigned char[33]")
+    commitment = ffi.new("uint8_t[]", 33)
     result = lib.mpt_get_pedersen_commitment(amount, blinding_bytes, commitment)
     if result != 0:
         raise RuntimeError("Failed to create Pedersen commitment")
