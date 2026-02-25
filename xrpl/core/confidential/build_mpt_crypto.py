@@ -386,8 +386,9 @@ ffibuilder.cdef(
         uint8_t const priv[32],
         uint8_t const pub[33],
         uint8_t const context_hash[32],
+        uint64_t const amount,
         struct mpt_pedersen_proof_params const* params,
-        uint8_t out_proof[195]
+        uint8_t out_proof[883]
     );
 
     int mpt_get_clawback_proof(
@@ -606,8 +607,9 @@ ffibuilder.set_source(
         uint8_t const priv[32],
         uint8_t const pub[33],
         uint8_t const context_hash[32],
+        uint64_t const amount,
         struct mpt_pedersen_proof_params const* params,
-        uint8_t out_proof[195]
+        uint8_t out_proof[883]
     );
 
     int mpt_get_clawback_proof(

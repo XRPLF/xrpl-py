@@ -284,11 +284,12 @@ def prepare_confidential_send(
         sender_current_balance, balance_blinding
     )
 
-    # Create fresh encryption of sender's current balance for the balance linkage proof
-    # This is needed because the linkage proof requires knowledge of the blinding factor
-    balance_enc_c1, balance_enc_c2, _ = crypto.encrypt(
-        sender_pubkey, sender_current_balance, balance_blinding
-    )
+    # CRITICAL: Use the encrypted balance FROM THE LEDGER for the balance linkage proof
+    # DO NOT create a fresh encryption! The balance linkage proof must link the
+    # ledger's existing ciphertext (which has been homomorphically updated through
+    # previous transactions) to the new balance commitment.
+    # The ledger value was already retrieved above as sender_balance_hex
+    sender_balance_encrypted_ledger = sender_balance_hex  # 132 hex chars (66 bytes)
 
     # Generate complete ZKProof using utility layer
     # This includes: equality proof + linkage proofs + bulletproof
@@ -310,7 +311,7 @@ def prepare_confidential_send(
         sender_encrypted_amount=sender_amount_c1 + sender_amount_c2,
         balance_commitment=balance_commitment,
         balance_blinding=balance_blinding,
-        sender_balance_encrypted=balance_enc_c1 + balance_enc_c2,
+        sender_balance_encrypted=sender_balance_encrypted_ledger,  # FROM LEDGER!
     )
 
     # Construct transaction
