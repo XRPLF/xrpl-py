@@ -459,7 +459,9 @@ if system == "darwin" and not bundled_openssl:
 
 extra_compile_args = []
 extra_link_args = []
-libraries = ["mpt-crypto", "secp256k1", "crypto"]
+# Core libraries: mpt-crypto, secp256k1, crypto (OpenSSL)
+# Note: OpenSSL (crypto) depends on zlib for compression
+libraries = ["mpt-crypto", "secp256k1", "crypto", "z"]
 
 if system == "darwin":
     # macOS: Link C++ standard library and use -all_load to include all symbols
@@ -470,7 +472,9 @@ elif system == "linux":
     libraries.append("stdc++")
     extra_compile_args = ["-fPIC"]
 elif system == "windows" or system.startswith("win"):
-    libraries.extend(["zlib", "Advapi32", "User32", "Crypt32", "Ws2_32"])
+    # Windows uses different library names
+    libraries = ["mpt-crypto", "secp256k1", "crypto", "zlib"]
+    libraries.extend(["Advapi32", "User32", "Crypt32", "Ws2_32"])
     extra_link_args = [
         "/WHOLEARCHIVE:mpt-crypto.lib",
         "/WHOLEARCHIVE:secp256k1.lib",

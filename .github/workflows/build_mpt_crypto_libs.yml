@@ -1,5 +1,4 @@
 name: Build MPT Crypto Libraries
-# trigger build
 on:
   workflow_dispatch:
   push:
