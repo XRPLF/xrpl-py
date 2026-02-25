@@ -12,7 +12,7 @@ from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.account_id import AccountID
 from xrpl.core.binarycodec.types.currency import Currency
-from xrpl.core.binarycodec.types.hash192 import Hash192
+from xrpl.core.binarycodec.types.hash192 import HASH192_BYTES, Hash192
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
 
 # Constant for masking types of a PathStep
@@ -20,8 +20,6 @@ _TYPE_ACCOUNT: Final[int] = 0x01
 _TYPE_CURRENCY: Final[int] = 0x10
 _TYPE_ISSUER: Final[int] = 0x20
 _TYPE_MPT: Final[int] = 0x40
-
-_HASH192_BYTES: Final[int] = 24
 
 # Constants for separating Paths in a PathSet
 _PATHSET_END_BYTE: Final[int] = 0x00
@@ -121,7 +119,7 @@ class PathStep(SerializedType):
             currency = parser.read(Currency.LENGTH)
             buffer += currency
         elif data_type & _TYPE_MPT:
-            mpt_id = parser.read(_HASH192_BYTES)
+            mpt_id = parser.read(HASH192_BYTES)
             buffer += mpt_id
         if data_type & _TYPE_ISSUER:
             issuer = parser.read(AccountID.LENGTH)
@@ -147,7 +145,7 @@ class PathStep(SerializedType):
             currency = Currency.from_parser(parser).to_json()
             json["currency"] = currency
         elif data_type & _TYPE_MPT:
-            mpt_id = parser.read(_HASH192_BYTES).hex().upper()
+            mpt_id = parser.read(HASH192_BYTES).hex().upper()
             json["mpt_issuance_id"] = mpt_id
         if data_type & _TYPE_ISSUER:
             issuer = AccountID.from_parser(parser).to_json()
