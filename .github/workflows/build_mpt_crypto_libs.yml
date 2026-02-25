@@ -63,6 +63,7 @@ jobs:
           if [ -z "$SECP_LIB" ]; then
             SECP_LIB=$(find /tmp/mpt-crypto/build -name "libsecp256k1.a" 2>/dev/null | head -n 1)
           fi
+          CRYPTO_LIB=$(find ~/.conan2 -name "libcrypto.a" 2>/dev/null | head -n 1)
 
           if [ -n "$MPT_LIB" ] && [ -f "$MPT_LIB" ]; then
             cp "$MPT_LIB" xrpl/core/confidential/libs/linux/
@@ -77,6 +78,50 @@ jobs:
             echo "Error: libsecp256k1.a not found!"
             exit 1
           fi
+
+          if [ -n "$CRYPTO_LIB" ] && [ -f "$CRYPTO_LIB" ]; then
+            cp "$CRYPTO_LIB" xrpl/core/confidential/libs/linux/
+            echo "Bundled OpenSSL: $CRYPTO_LIB"
+          else
+            echo "Error: libcrypto.a not found in Conan cache!"
+            echo "Searching for any OpenSSL libraries..."
+            find ~/.conan2 -name "libcrypto*" 2>/dev/null || echo "No libcrypto files found"
+            exit 1
+          fi
+
+      - name: Verify bundled libraries
+        run: |
+          echo "=== Verifying bundled libraries ==="
+          LIBS_DIR="xrpl/core/confidential/libs/linux"
+
+          echo "Library files:"
+          ls -la "$LIBS_DIR/"
+
+          echo ""
+          echo "Library sizes:"
+          du -h "$LIBS_DIR/"*
+
+          echo ""
+          echo "Checking required libraries exist:"
+          REQUIRED_LIBS=("libmpt-crypto.a" "libsecp256k1.a" "libcrypto.a")
+          MISSING=0
+          for lib in "${REQUIRED_LIBS[@]}"; do
+            if [ -f "$LIBS_DIR/$lib" ]; then
+              echo "  ✓ $lib ($(du -h "$LIBS_DIR/$lib" | cut -f1))"
+            else
+              echo "  ✗ $lib MISSING"
+              MISSING=1
+            fi
+          done
+
+          if [ $MISSING -eq 1 ]; then
+            echo ""
+            echo "ERROR: Missing required libraries!"
+            exit 1
+          fi
+
+          echo ""
+          echo "=== All required libraries verified ==="
 
       - name: Upload libraries and headers
         uses: actions/upload-artifact@v4
@@ -141,6 +186,7 @@ jobs:
           if [ -z "$SECP_LIB" ]; then
             SECP_LIB=$(find /tmp/mpt-crypto/build -name "libsecp256k1.a" 2>/dev/null | head -n 1)
           fi
+          CRYPTO_LIB=$(find ~/.conan2 -name "libcrypto.a" 2>/dev/null | head -n 1)
 
           if [ -n "$MPT_LIB" ] && [ -f "$MPT_LIB" ]; then
             cp "$MPT_LIB" xrpl/core/confidential/libs/darwin/
@@ -155,6 +201,50 @@ jobs:
             echo "Error: libsecp256k1.a not found!"
             exit 1
           fi
+
+          if [ -n "$CRYPTO_LIB" ] && [ -f "$CRYPTO_LIB" ]; then
+            cp "$CRYPTO_LIB" xrpl/core/confidential/libs/darwin/
+            echo "Bundled OpenSSL: $CRYPTO_LIB"
+          else
+            echo "Error: libcrypto.a not found in Conan cache!"
+            echo "Searching for any OpenSSL libraries..."
+            find ~/.conan2 -name "libcrypto*" 2>/dev/null || echo "No libcrypto files found"
+            exit 1
+          fi
+
+      - name: Verify bundled libraries
+        run: |
+          echo "=== Verifying bundled libraries ==="
+          LIBS_DIR="xrpl/core/confidential/libs/darwin"
+
+          echo "Library files:"
+          ls -la "$LIBS_DIR/"
+
+          echo ""
+          echo "Library sizes:"
+          du -h "$LIBS_DIR/"*
+
+          echo ""
+          echo "Checking required libraries exist:"
+          REQUIRED_LIBS=("libmpt-crypto.a" "libsecp256k1.a" "libcrypto.a")
+          MISSING=0
+          for lib in "${REQUIRED_LIBS[@]}"; do
+            if [ -f "$LIBS_DIR/$lib" ]; then
+              echo "  ✓ $lib ($(du -h "$LIBS_DIR/$lib" | cut -f1))"
+            else
+              echo "  ✗ $lib MISSING"
+              MISSING=1
+            fi
+          done
+
+          if [ $MISSING -eq 1 ]; then
+            echo ""
+            echo "ERROR: Missing required libraries!"
+            exit 1
+          fi
+
+          echo ""
+          echo "=== All required libraries verified ==="
 
       - name: Upload libraries and headers
         uses: actions/upload-artifact@v4
@@ -289,6 +379,41 @@ jobs:
             Write-Error "Error: zlib.lib not found!"
             exit 1
           }
+
+      - name: Verify bundled libraries
+        shell: pwsh
+        run: |
+          Write-Host "=== Verifying bundled libraries ===" -ForegroundColor Cyan
+          $libsDir = "xrpl/core/confidential/libs/win32"
+
+          Write-Host ""
+          Write-Host "Library files:"
+          Get-ChildItem -Path $libsDir | Format-Table Name, Length
+
+          Write-Host ""
+          Write-Host "Checking required libraries exist:"
+          $requiredLibs = @("mpt-crypto.lib", "secp256k1.lib", "crypto.lib", "zlib.lib")
+          $missing = $false
+
+          foreach ($lib in $requiredLibs) {
+            $libPath = Join-Path $libsDir $lib
+            if (Test-Path $libPath) {
+              $size = (Get-Item $libPath).Length / 1KB
+              Write-Host "  ✓ $lib ($([math]::Round($size, 1)) KB)" -ForegroundColor Green
+            } else {
+              Write-Host "  ✗ $lib MISSING" -ForegroundColor Red
+              $missing = $true
+            }
+          }
+
+          if ($missing) {
+            Write-Host ""
+            Write-Error "ERROR: Missing required libraries!"
+            exit 1
+          }
+
+          Write-Host ""
+          Write-Host "=== All required libraries verified ===" -ForegroundColor Cyan
 
       - name: Upload libraries and headers
         uses: actions/upload-artifact@v4

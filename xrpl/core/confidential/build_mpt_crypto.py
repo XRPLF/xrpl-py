@@ -426,7 +426,14 @@ if not os.path.exists(libs_dir):
 library_dirs = [libs_dir]
 include_dirs = [include_dir]
 
-if system == "darwin":
+# Check if OpenSSL is bundled in libs_dir
+bundled_openssl = (
+    os.path.exists(os.path.join(libs_dir, "libcrypto.a"))
+    or os.path.exists(os.path.join(libs_dir, "crypto.lib"))
+)
+
+if system == "darwin" and not bundled_openssl:
+    # Only use Homebrew OpenSSL as fallback if not bundled
     homebrew_openssl_paths = [
         "/opt/homebrew/opt/openssl/lib",
         "/usr/local/opt/openssl/lib",

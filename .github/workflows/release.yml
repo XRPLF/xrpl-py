@@ -132,6 +132,16 @@ jobs:
       git_ref: ${{ github.event.inputs.release_branch }}
     secrets: inherit
 
+  build-wheels:
+    name: Build confidential MPT wheels
+    needs:
+      - input-validate
+      - unit-tests
+    uses: ./.github/workflows/build_wheels_confidential.yml
+    with:
+      git_ref: ${{ github.event.inputs.release_branch }}
+    secrets: inherit
+
   pre-release:
     name: Pre-release distribution 📦 (${{ needs.input-validate.outputs.package_version }})
     needs:
@@ -139,11 +149,13 @@ jobs:
       - faucet-tests
       - integration-tests
       - unit-tests
+      - build-wheels
     if: ${{ always()
       && needs.input-validate.result == 'success'
       && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
       && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
-      && needs['unit-tests'].result == 'success' }}
+      && needs['unit-tests'].result == 'success'
+      && needs['build-wheels'].result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -225,8 +237,24 @@ jobs:
         with:
           python-version: "3.8"
           cache: "poetry"
-      - name: Build a binary wheel and a source tarball
-        run: poetry build
+
+      - name: Build source tarball
+        run: poetry build -f sdist
+
+      - name: Download all wheel artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wheel-*
+          path: dist/
+          merge-multiple: true
+
+      - name: List distribution packages
+        run: |
+          echo "=== Distribution packages ==="
+          ls -la dist/
+          echo "=== Wheel count: $(ls dist/*.whl 2>/dev/null | wc -l) ==="
+          echo "=== Sdist count: $(ls dist/*.tar.gz 2>/dev/null | wc -l) ==="
+
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4
         with:

@@ -1,0 +1,123 @@
+name: Build Confidential MPT Wheels
+
+on:
+  workflow_call:
+    inputs:
+      git_ref:
+        description: "Git ref to checkout (branch, tag, or SHA)"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      git_ref:
+        description: "Git ref to checkout (branch, tag, or SHA)"
+        required: false
+        type: string
+        default: "confidential-mpt"
+
+jobs:
+  build-wheels:
+    name: Build wheel on ${{ matrix.os }} (Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, macos-14, windows-2022]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.git_ref || github.ref }}
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Download prebuilt mpt-crypto libraries
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: build_mpt_crypto_libs.yml
+          branch: confidential-mpt
+          name: mpt-crypto-${{ runner.os == 'Linux' && 'linux-x86_64' || runner.os == 'macOS' && 'darwin-universal' || 'win32-x86_64' }}
+          path: artifacts
+          if_no_artifact_found: warn
+
+      - name: Copy libraries and headers
+        shell: bash
+        run: |
+          mkdir -p xrpl/core/confidential/libs/{linux,darwin,win32}
+          mkdir -p xrpl/core/confidential/include/utility
+
+          # Copy platform-specific libraries
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            cp artifacts/xrpl/core/confidential/libs/linux/*.a xrpl/core/confidential/libs/linux/ 2>/dev/null || \
+              cp artifacts/libs/linux/*.a xrpl/core/confidential/libs/linux/ 2>/dev/null || \
+              cp artifacts/*.a xrpl/core/confidential/libs/linux/ 2>/dev/null || true
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            cp artifacts/xrpl/core/confidential/libs/darwin/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || \
+              cp artifacts/libs/darwin/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || \
+              cp artifacts/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || true
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            cp artifacts/xrpl/core/confidential/libs/win32/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || \
+              cp artifacts/libs/win32/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || \
+              cp artifacts/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || true
+          fi
+
+          # Copy headers
+          find artifacts -name "secp256k1_mpt.h" -exec cp {} xrpl/core/confidential/include/ \; 2>/dev/null || true
+          find artifacts -name "secp256k1.h" -exec cp {} xrpl/core/confidential/include/ \; 2>/dev/null || true
+          find artifacts -name "mpt_utility.h" -exec cp {} xrpl/core/confidential/include/utility/ \; 2>/dev/null || true
+
+          # List what we have
+          echo "=== Libraries copied ==="
+          ls -la xrpl/core/confidential/libs/*/ 2>/dev/null || echo "No libraries found"
+          echo "=== Headers copied ==="
+          ls -la xrpl/core/confidential/include/ 2>/dev/null || echo "No headers found"
+
+      - name: Install system dependencies
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get update && sudo apt-get install -y libssl-dev
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            brew install openssl
+          fi
+
+      - name: Install Poetry
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+
+      - name: Install build dependencies
+        run: |
+          poetry install --no-root --extras confidential
+          poetry run pip install setuptools cffi
+
+      - name: Build CFFI extension
+        shell: bash
+        run: |
+          cd xrpl/core/confidential
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            export ARCHFLAGS="-arch arm64"
+          fi
+          # Only build if libraries exist
+          if ls libs/*/*.a 2>/dev/null || ls libs/*/*.lib 2>/dev/null; then
+            poetry run python build_mpt_crypto.py
+            echo "CFFI extension built successfully"
+          else
+            echo "No native libraries found, skipping CFFI build (pure Python wheel)"
+          fi
+
+      - name: Build wheel
+        run: poetry build -f wheel
+
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: dist/*.whl
+
