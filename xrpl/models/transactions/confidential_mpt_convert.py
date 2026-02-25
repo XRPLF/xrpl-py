@@ -13,7 +13,7 @@ from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 # Length constants for validation (in hex characters)
-HOLDER_ELGAMAL_PUBLIC_KEY_LENGTH = 64 * 2  # 64 bytes = 128 hex chars (32 x + 32 y)
+HOLDER_ELGAMAL_PUBLIC_KEY_LENGTH = 33 * 2  # 33 bytes = 66 hex chars
 BLINDING_FACTOR_LENGTH = 32 * 2  # 32 bytes = 64 hex chars
 SCHNORR_PROOF_LENGTH = 65 * 2  # 65 bytes = 130 hex chars (33 R + 32 s)
 EQUALITY_PROOF_LENGTH = 98 * 2  # 98 bytes = 196 hex chars (plaintext-ciphertext)
@@ -106,7 +106,7 @@ class ConfidentialMPTConvert(Transaction):
             and len(self.holder_elgamal_public_key) != HOLDER_ELGAMAL_PUBLIC_KEY_LENGTH
         ):
             errors["holder_elgamal_public_key"] = (
-                "holder_elgamal_public_key must be 64 bytes (128 hex characters)"
+                "holder_elgamal_public_key must be 33 bytes (66 hex characters)"
             )
 
         if len(self.blinding_factor) != BLINDING_FACTOR_LENGTH:

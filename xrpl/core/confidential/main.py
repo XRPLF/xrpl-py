@@ -233,3 +233,238 @@ class MPTCrypto:
         return plaintext_proofs.verify_same_plaintext_proof_multi(
             self.ctx, proof, ciphertexts, context_id
         )
+
+    def create_confidential_send_proof(
+        self,
+        sender_privkey: str,
+        amount: int,
+        sender_current_balance: int,
+        recipients: list,
+        tx_blinding_factor: str,
+        context_hash: str,
+        amount_commitment: str,
+        amount_blinding: str,
+        sender_encrypted_amount: str,
+        balance_commitment: str,
+        balance_blinding: str,
+        sender_balance_encrypted: str,
+    ) -> str:
+        """
+        Generate complete proof for ConfidentialMPTSend using utility layer.
+
+        This generates the complete ZKProof including:
+        - Multi-ciphertext equality proof
+        - Pedersen linkage proofs (amount and balance)
+        - Double bulletproof (range proofs)
+
+        Args:
+            sender_privkey: 64-char hex string of sender's private key
+            amount: Amount being sent (uint64)
+            recipients: List of (pubkey, encrypted_amount) tuples as hex strings
+                       Each pubkey is 66 hex chars (33 bytes compressed)
+                       Each encrypted_amount is 132 hex chars (66 bytes)
+            tx_blinding_factor: 64-char hex string of ElGamal blinding factor
+            context_hash: 64-char hex string of transaction context hash
+            amount_commitment: 66-char hex string of Pedersen commitment to amount
+            amount_blinding: 64-char hex string of blinding factor for amount commitment
+            sender_encrypted_amount: 132-char hex string of sender's encrypted amount
+            balance_commitment: 66-char hex string of Pedersen commitment to balance
+            balance_blinding: 64-char hex string of blinding factor for balance commitment
+            sender_balance_encrypted: 132-char hex string of sender's current balance
+
+        Returns:
+            Hex string of complete ZKProof (approximately 1503 bytes = 3006 hex chars)
+        """
+        # Convert inputs from hex to bytes
+        priv_bytes = bytes.fromhex(sender_privkey)
+        tx_blinding_bytes = bytes.fromhex(tx_blinding_factor)
+        context_bytes = bytes.fromhex(context_hash)
+
+        # Build recipients array
+        n_recipients = len(recipients)
+        recipients_array = ffi.new(f"struct mpt_confidential_recipient[{n_recipients}]")
+        for i, (pubkey, encrypted_amount) in enumerate(recipients):
+            pubkey_bytes = bytes.fromhex(pubkey)
+            enc_amt_bytes = bytes.fromhex(encrypted_amount)
+            ffi.memmove(recipients_array[i].pubkey, pubkey_bytes, 33)
+            ffi.memmove(recipients_array[i].encrypted_amount, enc_amt_bytes, 66)
+
+        # Build amount_params
+        amount_params = ffi.new("struct mpt_pedersen_proof_params*")
+        ffi.memmove(
+            amount_params.pedersen_commitment, bytes.fromhex(amount_commitment), 33
+        )
+        amount_params.amount = amount
+        ffi.memmove(
+            amount_params.encrypted_amount, bytes.fromhex(sender_encrypted_amount), 66
+        )
+        ffi.memmove(amount_params.blinding_factor, bytes.fromhex(amount_blinding), 32)
+
+        # Build balance_params
+        # NOTE: sender_balance_encrypted should be a fresh encryption of the current balance
+        # using balance_blinding, NOT the balance from the ledger
+        balance_params = ffi.new("struct mpt_pedersen_proof_params*")
+        ffi.memmove(
+            balance_params.pedersen_commitment, bytes.fromhex(balance_commitment), 33
+        )
+        balance_params.amount = sender_current_balance
+        ffi.memmove(
+            balance_params.encrypted_amount,
+            bytes.fromhex(sender_balance_encrypted),
+            66,
+        )
+        ffi.memmove(
+            balance_params.blinding_factor, bytes.fromhex(balance_blinding), 32
+        )
+
+        # Get proof size
+        proof_size = lib.get_confidential_send_proof_size(n_recipients)
+
+        # Allocate proof buffer
+        proof_buffer = ffi.new(f"uint8_t[{proof_size}]")
+        out_len = ffi.new("size_t*")
+        out_len[0] = proof_size
+
+        # Generate proof
+        result = lib.mpt_get_confidential_send_proof(
+            priv_bytes,
+            amount,
+            recipients_array,
+            n_recipients,
+            tx_blinding_bytes,
+            context_bytes,
+            amount_params,
+            balance_params,
+            proof_buffer,
+            out_len,
+        )
+
+        if result != 0:
+            raise RuntimeError(
+                f"Failed to generate confidential send proof (error code: {result})"
+            )
+
+        # Return the proof
+        # Note: The utility layer currently returns an incomplete proof (missing bulletproof)
+        # This will be fixed in an upcoming mpt-crypto release
+        actual_len = out_len[0]
+        proof = bytes(ffi.buffer(proof_buffer, actual_len))
+        return proof.hex().upper()
+
+    def create_confidential_convert_back_proof(
+        self,
+        holder_privkey: str,
+        holder_pubkey: str,
+        amount: int,
+        current_balance: int,
+        context_hash: str,
+        balance_commitment: str,
+        balance_blinding: str,
+        holder_balance_encrypted: str,
+    ) -> str:
+        """
+        Generate ZK proof for ConfidentialMPTConvertBack transaction using utility layer.
+
+        Args:
+            holder_privkey: 64-char hex string of holder's private key
+            holder_pubkey: 66-char hex string of holder's compressed public key
+            amount: Amount being converted back (uint64)
+            current_balance: Holder's current confidential balance (uint64)
+            context_hash: 64-char hex string of transaction context hash
+            balance_commitment: 66-char hex string of Pedersen commitment to balance
+            balance_blinding: 64-char hex string of blinding factor for balance commitment
+            holder_balance_encrypted: 132-char hex string of holder's encrypted balance
+
+        Returns:
+            Hex string of ZKProof (883 bytes = 1766 hex chars)
+            Includes: Pedersen linkage proof (195 bytes) + Bulletproof (688 bytes)
+        """
+        # Convert inputs from hex to bytes
+        priv_bytes = bytes.fromhex(holder_privkey)
+        pub_bytes = bytes.fromhex(holder_pubkey)
+        context_bytes = bytes.fromhex(context_hash)
+
+        # Build balance_params
+        balance_params = ffi.new("struct mpt_pedersen_proof_params*")
+        ffi.memmove(
+            balance_params.pedersen_commitment, bytes.fromhex(balance_commitment), 33
+        )
+        balance_params.amount = current_balance
+        ffi.memmove(
+            balance_params.encrypted_amount,
+            bytes.fromhex(holder_balance_encrypted),
+            66,
+        )
+        ffi.memmove(
+            balance_params.blinding_factor, bytes.fromhex(balance_blinding), 32
+        )
+
+        # Allocate proof buffer (195 + 688 = 883 bytes)
+        proof_size = 195 + 688
+        proof_buffer = ffi.new(f"uint8_t[{proof_size}]")
+
+        # Generate proof
+        result = lib.mpt_get_convert_back_proof(
+            priv_bytes,
+            pub_bytes,
+            context_bytes,
+            amount,
+            balance_params,
+            proof_buffer,
+        )
+
+        if result != 0:
+            raise RuntimeError(
+                f"Failed to generate convert back proof (error code: {result})"
+            )
+
+        proof = bytes(ffi.buffer(proof_buffer, proof_size))
+        return proof.hex().upper()
+
+    def create_confidential_clawback_proof(
+        self,
+        issuer_privkey: str,
+        issuer_pubkey: str,
+        amount: int,
+        context_hash: str,
+        issuer_encrypted_balance: str,
+    ) -> str:
+        """
+        Generate ZK proof for ConfidentialMPTClawback transaction using utility layer.
+
+        Args:
+            issuer_privkey: 64-char hex string of issuer's private key
+            issuer_pubkey: 66-char hex string of issuer's compressed public key
+            amount: Amount being clawed back (uint64)
+            context_hash: 64-char hex string of transaction context hash
+            issuer_encrypted_balance: 132-char hex string of issuer's encrypted balance from ledger
+
+        Returns:
+            Hex string of ZKProof (98 bytes = 196 hex chars)
+        """
+        # Convert inputs from hex to bytes
+        priv_bytes = bytes.fromhex(issuer_privkey)
+        pub_bytes = bytes.fromhex(issuer_pubkey)
+        context_bytes = bytes.fromhex(context_hash)
+        encrypted_balance_bytes = bytes.fromhex(issuer_encrypted_balance)
+
+        # Allocate proof buffer (98 bytes for equality proof)
+        proof_buffer = ffi.new("uint8_t[98]")
+
+        # Generate proof
+        result = lib.mpt_get_clawback_proof(
+            priv_bytes,
+            pub_bytes,
+            context_bytes,
+            amount,
+            encrypted_balance_bytes,
+            proof_buffer,
+        )
+
+        if result != 0:
+            raise RuntimeError(
+                f"Failed to generate clawback proof (error code: {result})"
+            )
+
+        proof = bytes(ffi.buffer(proof_buffer, 98))
+        return proof.hex().upper()

@@ -193,6 +193,10 @@ ffibuilder.cdef(
         size_t label_len
     );
 
+    // Scalar arithmetic helpers
+    void secp256k1_mpt_scalar_add(unsigned char *res, const unsigned char *a, const unsigned char *b);
+    void secp256k1_mpt_scalar_negate(unsigned char *res, const unsigned char *in);
+
     // ElGamal-Pedersen Link Proof
     int secp256k1_elgamal_pedersen_link_prove(
         const secp256k1_context* ctx,

@@ -33,7 +33,6 @@ from xrpl.models.transactions import (
     MPTokenIssuanceCreate,
     MPTokenIssuanceCreateFlag,
     MPTokenIssuanceSet,
-    MPTokenIssuanceSetFlag,
     Payment,
 )
 from xrpl.transaction import sign_and_submit
@@ -55,7 +54,6 @@ try:
         prepare_confidential_merge_inbox,
         prepare_confidential_send,
     )
-    from xrpl.core.confidential.utils import reverse_coordinates
 except ImportError as e:
     print(f"ERROR: xrpl.core.confidential not available: {e}")
     print("Build with: poetry run poe build_mpt_crypto")
@@ -123,22 +121,15 @@ def main():
     crypto = MPTCrypto()
 
     # Generate keypairs with proof of knowledge
+    # Note: The new utility layer returns compressed public keys (66 hex chars = 33 bytes)
     issuer_sk, issuer_pk, issuer_pok = crypto.generate_keypair_with_pok()
     holder1_sk, holder1_pk, holder1_pok = crypto.generate_keypair_with_pok()
     holder2_sk, holder2_pk, holder2_pok = crypto.generate_keypair_with_pok()
 
-    print("Generated ElGamal keypairs")
+    print("Generated ElGamal keypairs (compressed format)")
     print(f"Issuer PK:  {issuer_pk[:32]}... ({len(issuer_pk)//2} bytes)")
     print(f"Holder1 PK: {holder1_pk[:32]}... ({len(holder1_pk)//2} bytes)")
     print(f"Holder2 PK: {holder2_pk[:32]}... ({len(holder2_pk)//2} bytes)")
-
-    # Reverse coordinates for rippled compatibility (for setting on ledger)
-    issuer_pk_bytes = bytes.fromhex(issuer_pk)
-    holder1_pk_bytes = bytes.fromhex(holder1_pk)
-    holder2_pk_bytes = bytes.fromhex(holder2_pk)
-    issuer_pk_hex = reverse_coordinates(issuer_pk_bytes).hex().upper()
-    holder1_pk_hex = reverse_coordinates(holder1_pk_bytes).hex().upper()
-    holder2_pk_hex = reverse_coordinates(holder2_pk_bytes).hex().upper()
 
     # Create MPT issuance with privacy support
     print_section("Step 3: Create MPT Issuance")
@@ -165,11 +156,12 @@ def main():
 
     # Set issuer's ElGamal public key
     print("\nSetting issuer's ElGamal public key...")
+    # Note: Using compressed public key directly (66 hex chars = 33 bytes)
+    # Note: When setting ElGamal key, flags should be 0 (not TF_MPT_UNLOCK)
     set_issuer_pk_tx = MPTokenIssuanceSet(
         account=issuer_wallet.address,
         mptoken_issuance_id=mpt_issuance_id,
-        flags=MPTokenIssuanceSetFlag.TF_MPT_UNLOCK,
-        issuer_elgamal_public_key=issuer_pk_hex,
+        issuer_elgamal_public_key=issuer_pk,
     )
 
     response = sign_and_submit(set_issuer_pk_tx, client, issuer_wallet)

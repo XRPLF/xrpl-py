@@ -56,8 +56,10 @@ class ConfidentialMPTConvertBack(Transaction):
 
     zk_proof: str = REQUIRED  # type: ignore
     """
-    Balance linkage proof (195 bytes) proving the link between the current
-    ConfidentialBalanceSpending and the balance commitment.
+    Complete proof (883 bytes) consisting of:
+    - Balance linkage proof (195 bytes): proves the link between the current
+      ConfidentialBalanceSpending and the balance commitment
+    - Bulletproof (688 bytes): proves the remaining balance is in valid range
     """
 
     auditor_encrypted_amount: Optional[str] = None

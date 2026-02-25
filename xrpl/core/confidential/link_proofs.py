@@ -85,7 +85,7 @@ def create_elgamal_pedersen_link_proof(  # noqa: PLR0913
         params.blinding_factor[i] = pedersen_blinding_bytes[i]
 
     # Generate link proof using utility layer
-    proof = ffi.new("unsigned char[195]")
+    proof = ffi.new("uint8_t[195]")
     result = lib.mpt_get_amount_linkage_proof(
         pk_bytes,
         amount_blinding_bytes,

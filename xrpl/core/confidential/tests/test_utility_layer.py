@@ -128,7 +128,7 @@ class TestConfidentialSend(unittest.TestCase):
     """Test confidential send transaction (mirrors test_mpt_confidential_send)."""
 
     def test_send_transaction(self):
-        """Test generating confidential send proof with multi-ciphertext equality and linkage proofs."""
+        """Test generating confidential send proof with bulletproof (using utility layer)."""
         # Setup mock account, issuance and transaction details
         sender_acc = create_mock_account_id(0x11)
         dest_acc = create_mock_account_id(0x22)
@@ -150,21 +150,63 @@ class TestConfidentialSend(unittest.TestCase):
         dest_c1, dest_c2, _ = encryption.encrypt(None, dest_pub, amount_to_send, shared_bf)
         issuer_c1, issuer_c2, _ = encryption.encrypt(None, issuer_pub, amount_to_send, shared_bf)
 
-        # This test verifies that encryption works correctly with the same blinding factor
-        # Full send proof generation requires additional utility layer functions
-        # that will be tested when those wrappers are implemented
+        # Generate Pedersen commitments for amount and balance
+        amount_bf = secrets.token_bytes(32).hex().upper()
+        amount_comm = commitments.create_pedersen_commitment(None, amount_to_send, amount_bf)
 
-        # For now, verify that all encryptions succeeded
-        self.assertEqual(len(sender_c1), 66)
-        self.assertEqual(len(dest_c1), 66)
-        self.assertEqual(len(issuer_c1), 66)
+        balance_bf = secrets.token_bytes(32).hex().upper()
+        balance_comm = commitments.create_pedersen_commitment(None, prev_balance, balance_bf)
+
+        # Generate context hash
+        tx_hash = context.compute_send_context_hash(
+            sender_acc,
+            seq,
+            issuance,
+            dest_acc,
+            version
+        )
+
+        # Encrypt previous balance for sender
+        prev_bal_bf = secrets.token_bytes(32).hex().upper()
+        prev_bal_c1, prev_bal_c2, _ = encryption.encrypt(None, sender_pub, prev_balance, prev_bal_bf)
+        prev_bal_ct = prev_bal_c1 + prev_bal_c2
+
+        # Generate complete proof using utility layer
+        from xrpl.core.confidential.main import MPTCrypto
+        crypto = MPTCrypto()
+
+        complete_proof = crypto.create_confidential_send_proof(
+            sender_privkey=sender_priv,
+            amount=amount_to_send,
+            recipients=[
+                {"pubkey": sender_pub, "encrypted_amount": sender_c1 + sender_c2},
+                {"pubkey": dest_pub, "encrypted_amount": dest_c1 + dest_c2},
+                {"pubkey": issuer_pub, "encrypted_amount": issuer_c1 + issuer_c2},
+            ],
+            shared_blinding_factor=shared_bf,
+            context_hash=tx_hash,
+            amount_commitment=amount_comm,
+            amount_blinding=amount_bf,
+            amount_encrypted=sender_c1 + sender_c2,
+            sender_current_balance=prev_balance,
+            balance_commitment=balance_comm,
+            balance_blinding=balance_bf,
+            sender_balance_encrypted=prev_bal_ct,
+        )
+
+        # Verify proof length (1503 bytes = 3006 hex chars)
+        # 359 (equality) + 195 (amount link) + 195 (balance link) + 754 (bulletproof)
+        self.assertEqual(len(complete_proof), 3006)
+
+        # The proof structure is verified by the utility layer itself
+        # Here we just verify that the proof was generated successfully
 
 
 class TestConfidentialConvertBack(unittest.TestCase):
     """Test confidential convert back transaction (mirrors test_mpt_convert_back)."""
 
     def test_convert_back_transaction(self):
-        """Test generating convert back proof (balance linkage proof)."""
+        """Test generating convert back proof with bulletproof (using utility layer)."""
         # Setup mock account, issuance and transaction details
         acc = create_mock_account_id(0x55)
         issuance = create_mock_issuance_id(0xEE)
@@ -179,6 +221,7 @@ class TestConfidentialConvertBack(unittest.TestCase):
         # Mock spending confidential balance (ElGamal ciphertext currently stored on-chain)
         bal_bf = secrets.token_bytes(32).hex().upper()
         bal_c1, bal_c2, _ = encryption.encrypt(None, pubkey, current_balance, bal_bf)
+        spending_bal_ct = bal_c1 + bal_c2
 
         # Generate context hash
         tx_hash = context.compute_convert_back_context_hash(
@@ -193,24 +236,25 @@ class TestConfidentialConvertBack(unittest.TestCase):
         pcm_bf = secrets.token_bytes(32).hex().upper()
         pcm_comm = commitments.create_pedersen_commitment(None, current_balance, pcm_bf)
 
-        # Generate balance linkage proof
-        # Note: Function signature expects c2, c1 (not c1, c2)
-        proof = link_proofs.create_balance_link_proof(
-            None,
-            pubkey,
-            bal_c2,
-            bal_c1,
-            pcm_comm,
-            current_balance,
-            privkey,
-            pcm_bf,
-            tx_hash
+        # Generate complete proof using utility layer (includes linkage proof + bulletproof)
+        from xrpl.core.confidential.main import MPTCrypto
+        crypto = MPTCrypto()
+
+        complete_proof = crypto.create_confidential_convert_back_proof(
+            holder_privkey=privkey,
+            holder_pubkey=pubkey,
+            amount=amount_to_convert_back,
+            current_balance=current_balance,
+            context_hash=tx_hash,
+            balance_commitment=pcm_comm,
+            balance_blinding=pcm_bf,
+            holder_balance_encrypted=spending_bal_ct,
         )
 
-        # Verify proof length (195 bytes = 390 hex chars)
-        self.assertEqual(len(proof), 390)
+        # Verify proof length (883 bytes = 1766 hex chars: 195 + 688)
+        self.assertEqual(len(complete_proof), 1766)
 
-        # Verify the proof using low-level secp256k1 functions
+        # Verify the linkage proof portion using low-level secp256k1 functions
         ctx = lib.mpt_secp256k1_context()
         self.assertNotEqual(ctx, ffi.NULL)
 
@@ -219,7 +263,7 @@ class TestConfidentialConvertBack(unittest.TestCase):
         c2_bytes = bytes.fromhex(bal_c2)
         pk_bytes = bytes.fromhex(pubkey)
         pcm_bytes = bytes.fromhex(pcm_comm)
-        proof_bytes = bytes.fromhex(proof)
+        linkage_proof_bytes = bytes.fromhex(complete_proof[:390])  # First 195 bytes
         tx_hash_bytes = bytes.fromhex(tx_hash)
 
         c1_pk = ffi.new("secp256k1_pubkey *")
@@ -236,7 +280,85 @@ class TestConfidentialConvertBack(unittest.TestCase):
         # Note: The order is pk, c2, c1 (not c1, c2, pk) as per the C++ reference
         self.assertEqual(
             lib.secp256k1_elgamal_pedersen_link_verify(
-                ctx, proof_bytes, pk, c2_pk, c1_pk, pcm_pk, tx_hash_bytes
+                ctx, linkage_proof_bytes, pk, c2_pk, c1_pk, pcm_pk, tx_hash_bytes
+            ),
+            1
+        )
+
+        # Verify bulletproof portion
+        # Compute remaining balance commitment: PC_rem = PC_balance - amount*G
+        remaining_balance = current_balance - amount_to_convert_back
+
+        # Convert amount to 32-byte big-endian scalar
+        amount_scalar = bytearray(32)
+        for i in range(8):
+            amount_scalar[31 - i] = (amount_to_convert_back >> (i * 8)) & 0xFF
+
+        # Calculate mG
+        mG = ffi.new("secp256k1_pubkey *")
+        self.assertEqual(lib.secp256k1_ec_pubkey_create(ctx, mG, bytes(amount_scalar)), 1)
+
+        # Negate to get -mG
+        self.assertEqual(lib.secp256k1_ec_pubkey_negate(ctx, mG), 1)
+
+        # Calculate pc_rem = pc_balance + (-mG)
+        summands = ffi.new("secp256k1_pubkey *[2]")
+        summands[0] = pcm_pk
+        summands[1] = mG
+        pc_rem = ffi.new("secp256k1_pubkey *")
+        self.assertEqual(lib.secp256k1_ec_pubkey_combine(ctx, pc_rem, summands, 2), 1)
+
+        # Serialize pc_rem
+        pc_rem_bytes = ffi.new("unsigned char[33]")
+        out_len = ffi.new("size_t *", 33)
+        self.assertEqual(
+            lib.secp256k1_ec_pubkey_serialize(ctx, pc_rem_bytes, out_len, pc_rem, lib.SECP256K1_EC_COMPRESSED),
+            1
+        )
+
+        # Verify bulletproof
+        bulletproof_bytes = bytes.fromhex(complete_proof[390:])  # Last 688 bytes
+
+        # Get generator vectors
+        n = 64  # For single bulletproof
+        g_vec = ffi.new("secp256k1_pubkey[64]")
+        h_vec = ffi.new("secp256k1_pubkey[64]")
+
+        self.assertEqual(
+            lib.secp256k1_mpt_get_generator_vector(ctx, g_vec, n, b"G", 1),
+            1
+        )
+        self.assertEqual(
+            lib.secp256k1_mpt_get_generator_vector(ctx, h_vec, n, b"H", 1),
+            1
+        )
+
+        # Get H generator
+        h_gen = ffi.new("secp256k1_pubkey *")
+        self.assertEqual(lib.secp256k1_mpt_get_h_generator(ctx, h_gen), 1)
+
+        # Parse remaining balance commitment
+        pc_rem_parsed = ffi.new("secp256k1_pubkey *")
+        self.assertEqual(
+            lib.secp256k1_ec_pubkey_parse(ctx, pc_rem_parsed, pc_rem_bytes, 33),
+            1
+        )
+
+        # Verify bulletproof
+        commitments_array = ffi.new("secp256k1_pubkey *[1]")
+        commitments_array[0] = pc_rem_parsed
+
+        self.assertEqual(
+            lib.secp256k1_bulletproof_verify_agg(
+                ctx,
+                g_vec,
+                h_vec,
+                bulletproof_bytes,
+                688,  # kMPT_SINGLE_BULLETPROOF_SIZE
+                commitments_array,
+                1,  # m = 1 (single commitment)
+                h_gen,
+                tx_hash_bytes
             ),
             1
         )

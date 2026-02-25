@@ -28,7 +28,6 @@ from .context import (
     compute_convert_context_hash,
     compute_send_context_hash,
 )
-from .utils import reverse_coordinates
 
 try:
     from xrpl.core.confidential import MPTCrypto
@@ -65,8 +64,8 @@ def prepare_confidential_convert(
         mpt_issuance_id: 24-byte MPT issuance ID (hex string)
         amount: Amount to convert (uint64)
         holder_privkey: Optional 64-char hex string of holder's private key
-        holder_pubkey: Optional 128-char hex string of holder's public key
-        issuer_pubkey: Optional 128-char hex string of issuer's public key
+        holder_pubkey: Optional 66-char hex string of holder's compressed public key
+        issuer_pubkey: Optional 66-char hex string of issuer's compressed public key
 
     Returns:
         ConfidentialMPTConvert transaction ready to sign and submit
@@ -93,31 +92,28 @@ def prepare_confidential_convert(
 
     # Compute context hash
     mpt_issuance_id_bytes = bytes.fromhex(mpt_issuance_id)
-    context_id_bytes = compute_convert_context_hash(
+    context_id = compute_convert_context_hash(
         wallet.classic_address, sequence, mpt_issuance_id_bytes, amount
     )
-    context_id = context_id_bytes.hex().upper()
 
     # Generate Schnorr proof of knowledge
+    # Note: generate_pok expects compressed public key (66 hex chars)
     schnorr_proof = crypto.generate_pok(holder_privkey, holder_pubkey, context_id)
 
     # Encrypt amount for holder
+    # Note: encrypt expects compressed public key (66 hex chars)
     holder_c1, holder_c2, blinding_factor = crypto.encrypt(holder_pubkey, amount)
 
     # Encrypt amount for issuer
     issuer_c1, issuer_c2, _ = crypto.encrypt(issuer_pubkey, amount, blinding_factor)
 
-    # Reverse coordinates for rippled compatibility
-    holder_pubkey_bytes = bytes.fromhex(holder_pubkey)
-    holder_pubkey_reversed = reverse_coordinates(holder_pubkey_bytes)
-    holder_pubkey_reversed_hex = holder_pubkey_reversed.hex().upper()
-
     # Construct transaction
+    # Note: holder_pubkey is already compressed (33 bytes = 66 hex chars)
     return ConfidentialMPTConvert(
         account=wallet.address,
         mptoken_issuance_id=mpt_issuance_id,
         mpt_amount=amount,
-        holder_elgamal_public_key=holder_pubkey_reversed_hex,
+        holder_elgamal_public_key=holder_pubkey,
         holder_encrypted_amount=holder_c1 + holder_c2,
         issuer_encrypted_amount=issuer_c1 + issuer_c2,
         blinding_factor=blinding_factor,
@@ -180,9 +176,9 @@ def prepare_confidential_send(
         mpt_issuance_id: 24-byte MPT issuance ID (hex string)
         amount: Amount to send (uint64)
         sender_privkey: 64-char hex string of sender's private key
-        sender_pubkey: 128-char hex string of sender's public key
-        receiver_pubkey: Optional 128-char hex string of receiver's public key
-        issuer_pubkey: Optional 128-char hex string of issuer's public key
+        sender_pubkey: 66-char hex string of sender's compressed public key
+        receiver_pubkey: Optional 66-char hex string of receiver's compressed public key
+        issuer_pubkey: Optional 66-char hex string of issuer's compressed public key
 
     Returns:
         ConfidentialMPTSend transaction ready to sign and submit
@@ -210,6 +206,14 @@ def prepare_confidential_send(
     )
     if not sender_balance_hex:
         raise ValueError("Sender has no confidential balance")
+
+    # Verify sender's public key matches ledger
+    ledger_sender_pubkey = sender_mptoken.result["node"].get("ElGamalPublicKey", "")
+    if ledger_sender_pubkey and ledger_sender_pubkey != sender_pubkey:
+        raise ValueError(
+            f"Sender public key mismatch: provided {sender_pubkey}, "
+            f"ledger has {ledger_sender_pubkey}"
+        )
 
     # Extract c1 and c2 as hex strings
     sender_balance_c1 = sender_balance_hex[:66]  # First 33 bytes = 66 hex chars
@@ -247,14 +251,13 @@ def prepare_confidential_send(
 
     # Compute context hash
     mpt_issuance_id_bytes = bytes.fromhex(mpt_issuance_id)
-    context_id_bytes = compute_send_context_hash(
+    context_id = compute_send_context_hash(
         sender_wallet.classic_address,
         sender_sequence,
         mpt_issuance_id_bytes,
         receiver_address,
         sender_version,
     )
-    context_id = context_id_bytes.hex().upper()
 
     # Generate blinding factors
     amount_blinding = secrets.token_bytes(32).hex().upper()
@@ -272,56 +275,43 @@ def prepare_confidential_send(
     )
 
     # Create Pedersen commitments
-    amount_commitment_raw = crypto.create_pedersen_commitment(amount, amount_blinding)
-    balance_commitment_raw = crypto.create_pedersen_commitment(
+    # Note: create_pedersen_commitment returns compressed commitment (66 hex chars)
+    amount_commitment = crypto.create_pedersen_commitment(amount, amount_blinding)
+
+    # Balance commitment is for the CURRENT balance (before the send)
+    # The verifier will compute PC_rem = PC_balance - PC_amount to get the remaining balance commitment
+    balance_commitment = crypto.create_pedersen_commitment(
         sender_current_balance, balance_blinding
     )
 
-    # Reverse coordinates for rippled compatibility
-    amount_commitment_bytes = bytes.fromhex(amount_commitment_raw)
-    balance_commitment_bytes = bytes.fromhex(balance_commitment_raw)
-    amount_commitment = reverse_coordinates(amount_commitment_bytes).hex().upper()
-    balance_commitment = reverse_coordinates(balance_commitment_bytes).hex().upper()
+    # Create fresh encryption of sender's current balance for the balance linkage proof
+    # This is needed because the linkage proof requires knowledge of the blinding factor
+    balance_enc_c1, balance_enc_c2, _ = crypto.encrypt(
+        sender_pubkey, sender_current_balance, balance_blinding
+    )
 
-    # Generate proofs
-    # 1. Same plaintext proof (3 ciphertexts encrypt same amount)
-    ciphertexts = [
-        (sender_amount_c1, sender_amount_c2, sender_pubkey, amount_blinding),
-        (receiver_amount_c1, receiver_amount_c2, receiver_pubkey, amount_blinding),
-        (issuer_amount_c1, issuer_amount_c2, issuer_pubkey, amount_blinding),
+    # Generate complete ZKProof using utility layer
+    # This includes: equality proof + linkage proofs + bulletproof
+    recipients = [
+        (sender_pubkey, sender_amount_c1 + sender_amount_c2),
+        (receiver_pubkey, receiver_amount_c1 + receiver_amount_c2),
+        (issuer_pubkey, issuer_amount_c1 + issuer_amount_c2),
     ]
-    same_plaintext_proof = crypto.create_same_plaintext_proof_multi(
-        amount, ciphertexts, context_id
-    )
 
-    # 2. Amount link proof (normal parameter order)
-    # Use non-reversed commitment for proof generation
-    amount_link_proof = crypto.create_elgamal_pedersen_link_proof(
-        sender_amount_c1,
-        sender_amount_c2,
-        sender_pubkey,
-        amount_commitment_raw,  # Use non-reversed commitment
-        amount,
-        amount_blinding,
-        amount_blinding,
-        context_id,
+    zk_proof = crypto.create_confidential_send_proof(
+        sender_privkey=sender_privkey,
+        amount=amount,
+        sender_current_balance=sender_current_balance,
+        recipients=recipients,
+        tx_blinding_factor=amount_blinding,
+        context_hash=context_id,
+        amount_commitment=amount_commitment,
+        amount_blinding=amount_blinding,
+        sender_encrypted_amount=sender_amount_c1 + sender_amount_c2,
+        balance_commitment=balance_commitment,
+        balance_blinding=balance_blinding,
+        sender_balance_encrypted=balance_enc_c1 + balance_enc_c2,
     )
-
-    # 3. Balance link proof
-    # Use non-reversed commitment for proof generation
-    balance_link_proof = crypto.create_balance_link_proof(
-        sender_pubkey,
-        sender_balance_c2,
-        sender_balance_c1,
-        balance_commitment_raw,
-        sender_current_balance,
-        sender_privkey,
-        balance_blinding,
-        context_id,
-    )
-
-    # Concatenate all proofs
-    zk_proof = same_plaintext_proof + amount_link_proof + balance_link_proof
 
     # Construct transaction
     return ConfidentialMPTSend(
@@ -364,8 +354,8 @@ def prepare_confidential_convert_back(
         mpt_issuance_id: 24-byte MPT issuance ID (hex string)
         amount: Amount to convert back (uint64)
         holder_privkey: 64-char hex string of holder's private key
-        holder_pubkey: 128-char hex string of holder's public key
-        issuer_pubkey: Optional 128-char hex string of issuer's public key
+        holder_pubkey: 66-char hex string of holder's compressed public key
+        issuer_pubkey: Optional 66-char hex string of issuer's compressed public key
 
     Returns:
         ConfidentialMPTConvertBack transaction ready to sign and submit
@@ -416,14 +406,13 @@ def prepare_confidential_convert_back(
 
     # Compute context hash
     mpt_issuance_id_bytes = bytes.fromhex(mpt_issuance_id)
-    context_id_bytes = compute_convert_back_context_hash(
+    context_id = compute_convert_back_context_hash(
         wallet.classic_address,
         sequence,
         mpt_issuance_id_bytes,
         amount,
         holder_version,
     )
-    context_id = context_id_bytes.hex().upper()
 
     # Generate blinding factors
     amount_blinding = secrets.token_bytes(32).hex().upper()
@@ -434,25 +423,22 @@ def prepare_confidential_convert_back(
     issuer_c1, issuer_c2, _ = crypto.encrypt(issuer_pubkey, amount, amount_blinding)
 
     # Create Pedersen commitment for current balance
-    balance_commitment_raw = crypto.create_pedersen_commitment(
+    # Note: create_pedersen_commitment returns compressed commitment (66 hex chars)
+    balance_commitment = crypto.create_pedersen_commitment(
         holder_current_balance, balance_blinding
     )
 
-    # Reverse coordinates for rippled compatibility
-    balance_commitment_bytes = bytes.fromhex(balance_commitment_raw)
-    balance_commitment = reverse_coordinates(balance_commitment_bytes).hex().upper()
-
-    # Generate balance link proof
-    # Use non-reversed commitment for proof generation
-    balance_link_proof = crypto.create_balance_link_proof(
-        holder_pubkey,
-        holder_balance_c2,
-        holder_balance_c1,
-        balance_commitment_raw,
-        holder_current_balance,
-        holder_privkey,
-        balance_blinding,
-        context_id,
+    # Generate balance link proof using utility layer
+    # Note: The proof now includes a bulletproof (883 bytes total)
+    balance_link_proof = crypto.create_confidential_convert_back_proof(
+        holder_privkey=holder_privkey,
+        holder_pubkey=holder_pubkey,
+        amount=amount,
+        current_balance=holder_current_balance,
+        context_hash=context_id,
+        balance_commitment=balance_commitment,
+        balance_blinding=balance_blinding,
+        holder_balance_encrypted=holder_balance_hex,
     )
 
     # Construct transaction
@@ -530,47 +516,44 @@ def prepare_confidential_clawback(
             f"Holder {holder_address} has no balance for MPT {mpt_issuance_id}"
         )
 
-    # Extract encrypted balance (C1 || C2)
-    confidential_balance = holder_balance_obj.get("ConfidentialBalance")
-    if not confidential_balance:
+    # Extract issuer's encrypted balance (IssuerEncryptedBalance field)
+    # This is the mirror balance that the issuer can decrypt
+    issuer_encrypted_balance = holder_balance_obj.get("IssuerEncryptedBalance")
+    if not issuer_encrypted_balance:
         raise ValueError(
-            f"Holder {holder_address} has no confidential balance for MPT "
+            f"Holder {holder_address} has no IssuerEncryptedBalance for MPT "
             f"{mpt_issuance_id}"
         )
 
-    # Parse encrypted balance as hex strings
-    balance_c1 = confidential_balance[:128]  # First 64 bytes = 128 hex chars
-    balance_c2 = confidential_balance[128:256]  # Next 64 bytes = 128 hex chars
-
-    # Get holder's public key
-    holder_info = client.request(AccountInfo(account=holder_address))
-    if holder_info.is_successful() is False:
-        raise ValueError(f"Failed to get holder account info: {holder_info.result}")
-    holder_pubkey = holder_info.result["account_data"].get("ConfidentialPublicKey")
-    if not holder_pubkey:
-        raise ValueError(f"Holder {holder_address} has no confidential public key")
+    # Get issuer's public key from MPT issuance
+    mpt_issuance = client.request(
+        LedgerEntry(
+            mpt_issuance=mpt_issuance_id,
+        )
+    )
+    issuer_pubkey = mpt_issuance.result["node"].get("IssuerElGamalPublicKey", "")
+    if not issuer_pubkey:
+        raise ValueError("Issuer ElGamal public key not found in MPT issuance")
 
     # Compute context hash
     mpt_issuance_id_bytes = bytes.fromhex(mpt_issuance_id)
-    context_id_bytes = compute_clawback_context_hash(
+    context_id = compute_clawback_context_hash(
         issuer=issuer_wallet.address,
         sequence=issuer_sequence,
         mpt_issuance_id=mpt_issuance_id_bytes,
         amount=amount,
         holder=holder_address,
     )
-    context_id = context_id_bytes.hex().upper()
 
-    # Create equality proof
+    # Create equality proof using utility layer
     # This proves the issuer knows their confidential private key and that
-    # the encrypted balance matches the plaintext amount
-    equality_proof = crypto.create_equality_plaintext_proof(
-        holder_pubkey,
-        balance_c2,
-        balance_c1,
-        amount,
-        issuer_confidential_private_key,
-        context_id,
+    # the IssuerEncryptedBalance matches the plaintext amount
+    equality_proof = crypto.create_confidential_clawback_proof(
+        issuer_privkey=issuer_confidential_private_key,
+        issuer_pubkey=issuer_pubkey,
+        amount=amount,
+        context_hash=context_id,
+        issuer_encrypted_balance=issuer_encrypted_balance,
     )
 
     return ConfidentialMPTClawback(
