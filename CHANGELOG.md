@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
-### Changed
+### BREAKING CHANGE
 
-- [Breaking change] Dropped support for Python 3.8 (EOL October 2024). The minimum supported Python version is now 3.9.
+- Dropped support for Python 3.8 (EOL October 2024). The minimum supported Python version is now 3.9.
 
 ## [[4.5.0]]
 
