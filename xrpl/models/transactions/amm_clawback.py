@@ -8,7 +8,7 @@ from typing import Dict, Optional, Union
 
 from typing_extensions import Self
 
-from xrpl.models.amounts import Amount, IssuedCurrencyAmount
+from xrpl.models.amounts import Amount, IssuedCurrencyAmount, MPTAmount
 from xrpl.models.currencies import Currency, IssuedCurrency, MPTCurrency
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
@@ -112,5 +112,18 @@ class AMMClawback(Transaction):
                     "Amount.issuer and Amount.currency must match corresponding Asset "
                     + "fields."
                 )
+
+        if isinstance(self.asset, MPTCurrency):
+            if self.amount is not None:
+                if not isinstance(self.amount, MPTAmount):
+                    errors += (
+                        "Mismatch between Asset and Amount Currency types. Asset "
+                        + "is MPTCurrency whereas Amount is not."
+                    )
+                elif self.amount.mpt_issuance_id != self.asset.mpt_issuance_id:
+                    errors += (
+                        "Mismatch in the Asset.mpt_issuance_id and "
+                        + "Amount.mpt_issuance_id fields"
+                    )
 
         return errors if errors else None

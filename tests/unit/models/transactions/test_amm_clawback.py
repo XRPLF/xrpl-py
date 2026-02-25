@@ -98,6 +98,45 @@ class TestAMMClawback(TestCase):
         )
         self.assertTrue(txn.is_valid())
 
+    def test_mpt_clawback_amount_type_mismatch(self):
+        """asset is MPTCurrency but amount is IssuedCurrencyAmount."""
+        with self.assertRaises(XRPLModelException) as error:
+            AMMClawback(
+                account=_ISSUER_ACCOUNT,
+                holder=_HOLDER_ACCOUNT,
+                asset=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_1),
+                asset2=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_2),
+                amount=IssuedCurrencyAmount(
+                    currency="ETH",
+                    issuer=_ISSUER_ACCOUNT,
+                    value="100",
+                ),
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'AMMClawback': 'Mismatch between Asset and Amount Currency types. "
+            + "Asset is MPTCurrency whereas Amount is not.'}",
+        )
+
+    def test_mpt_clawback_mismatched_issuance_id(self):
+        """asset and amount are both MPT but have different mpt_issuance_id."""
+        with self.assertRaises(XRPLModelException) as error:
+            AMMClawback(
+                account=_ISSUER_ACCOUNT,
+                holder=_HOLDER_ACCOUNT,
+                asset=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_1),
+                asset2=MPTCurrency(mpt_issuance_id=_MPT_ISSUANCE_ID_2),
+                amount=MPTAmount(
+                    mpt_issuance_id=_MPT_ISSUANCE_ID_2,
+                    value="10",
+                ),
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'AMMClawback': 'Mismatch in the Asset.mpt_issuance_id and "
+            + "Amount.mpt_issuance_id fields'}",
+        )
+
     def test_mpt_clawback_non_hex_characters(self):
         bad_id = "Z" * MPT_ISSUANCE_ID_LENGTH
         with self.assertRaises(XRPLModelException) as error:
