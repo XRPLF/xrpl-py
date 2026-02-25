@@ -87,21 +87,28 @@ poetry run poe test_unit
 
 #### Integration Tests
 
-To run integration tests, you'll need a standalone rippled node running with WS port `6006` and JSON RPC port `5005`. You can run a docker container for this:
+To run integration tests, you'll need a standalone `xrpld` node running with WS port `6006` and JSON RPC port `5005`. You can run a docker container for this:
 
 ```bash
-docker run -dit -p 5005:5005 -p 6006:6006 --volume $PWD/.ci-config/:/etc/opt/ripple/ --entrypoint bash rippleci/rippled:develop -c 'mkdir -p /var/lib/rippled/db/ && rippled -a'
+docker run \
+  --detach \
+  --publish 5005:5005 \
+  --publish 6006:6006 \
+  --volume "$PWD/.ci-config/:/etc/opt/xrpld/" \
+  --name xrpld-service \
+  rippleci/xrpld:develop --standalone
 ```
 
 Breaking down the command:
 
-- `docker run -p 5005:5005 -p 6006:6006` starts a Docker container with an open port for admin JsonRPC and WebSocket requests.
-- `-it` allows you to interact with the container.
-- `-d` runs the docker container in detached mode. The container will run in the background and developer gets back control of the terminal
-- `-t` starts a terminal in the container for you to send commands to.
-- `--volume $PWD/.ci-config:/etc/opt/ripple/` mounts the directories as indicated. It must be an absolute path, so we use `$PWD` instead of `./`. `rippled` software searches the location `/etc/opt/ripple/` (default behavior) for the config files. Hence there is no need to explicitly specify the config-file path.
-- `rippleci/rippled:develop` is an image that is regularly updated with the latest build of the `develop` branch of `rippled`.
-- `-a` starts `rippled` in standalone mode
+- `--detach` — run in background
+- `--publish 5005:5005 --publish 6006:6006` — expose JSON-RPC and WebSocket ports
+- `--volume "$PWD/.ci-config/:/etc/opt/xrpld/"` — mount local config into the container
+- `--name xrpld-service` — name the container
+- `rippleci/xrpld:develop` — latest `develop` branch build of xrpld
+- `--standalone` — start xrpld in standalone mode
+
+When you're done, stop and remove the container with `docker stop xrpld-service && docker rm xrpld-service`.
 
 Then to actually run the tests, run the command:
 

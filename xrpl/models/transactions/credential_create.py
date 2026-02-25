@@ -8,18 +8,12 @@ from typing_extensions import Self
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import (
-    HEX_REGEX,
-    KW_ONLY_DATACLASS,
-    get_credential_type_error,
-    require_kwargs_on_init,
-)
+from xrpl.models.utils import HEX_REGEX, get_credential_type_error
 
 _MAX_URI_LENGTH = 256
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class CredentialCreate(Transaction):
     """This transaction creates a Credential object. It must be sent by the issuer."""
 

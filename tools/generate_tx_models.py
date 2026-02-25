@@ -144,8 +144,7 @@ def _main(
         ]
         param_lines.sort(key=lambda x: "REQUIRED" not in x)
         params = "\n".join(param_lines)
-        model = f"""@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+        model = f"""@dataclass(frozen=True, kw_only=True)
 class {tx}(Transaction):
     \"\"\"Represents a {tx} transaction.\"\"\"
 
@@ -183,7 +182,6 @@ from dataclasses import dataclass, field
 {other_import_lines}
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 """
 
         imported_models = imported_models.replace("\n\n\n\n", "\n\n")

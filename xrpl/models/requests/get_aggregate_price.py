@@ -13,11 +13,9 @@ from typing_extensions import Self
 from xrpl.models.requests.ledger_entry import Oracle
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class GetAggregatePrice(Request):
     """
     The get_aggregate_price method retrieves the aggregate price of specified Oracle
