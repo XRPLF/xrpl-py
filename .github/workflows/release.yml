@@ -6,6 +6,16 @@ on:
         description: "Release branch to package (e.g., release/1.0.0)"
         required: true
         type: string
+      publish_to_testpypi:
+        description: "Publish to TestPyPI instead of PyPI (for testing)"
+        required: false
+        type: boolean
+        default: false
+      skip_reviews:
+        description: "Skip human review gates (for testing only - use with TestPyPI)"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   input-validate:
@@ -386,6 +396,7 @@ jobs:
       - unit-tests
       - pre-release
     if: ${{ always()
+      && github.event.inputs.skip_reviews != 'true'
       && needs.input-validate.result == 'success'
       && needs.pre-release.result == 'success'
       && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
@@ -518,6 +529,7 @@ jobs:
       - pre-release
       - ask_for_dev_team_review
     if: ${{ always()
+      && github.event.inputs.skip_reviews != 'true'
       && needs.pre-release.result == 'success'
       && needs.ask_for_dev_team_review.result == 'success'
       && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
@@ -542,6 +554,7 @@ jobs:
       - ask_for_dev_team_review
       - first_review
     if: ${{ always()
+      && github.event.inputs.skip_reviews != 'true'
       && needs.pre-release.result == 'success'
       && needs.ask_for_dev_team_review.result == 'success'
       && needs.first_review.result == 'success'
@@ -577,7 +590,7 @@ jobs:
 
   publish-to-pypi:
     name: >-
-      Publish Python 🐍 distribution 📦 to PyPI (${{ needs.pre-release.outputs.package_version }})
+      Publish Python 🐍 distribution 📦 to ${{ github.event.inputs.publish_to_testpypi == 'true' && 'TestPyPI' || 'PyPI' }} (${{ needs.pre-release.outputs.package_version }})
     needs:
       - input-validate
       - faucet-tests
@@ -589,17 +602,19 @@ jobs:
       - unit-tests
     if: ${{ always()
       && needs.pre-release.result == 'success'
-      && needs.ask_for_dev_team_review.result == 'success'
+      && (github.event.inputs.skip_reviews == 'true' || (
+      needs.ask_for_dev_team_review.result == 'success'
       && needs.first_review.result == 'success'
       && needs.ask_for_sec_team_review.result == 'success'
+      ))
       && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
       && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
       && needs['unit-tests'].result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10 # Adjust based on typical publishing time
-    environment:
-      name: ${{ needs.input-validate.outputs.is_beta_release == 'true' && 'beta-release' || 'official-release' }}
-      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    # Skip environment approval gate when skip_reviews is true
+    environment: ${{ github.event.inputs.skip_reviews != 'true' && (needs.input-validate.outputs.is_beta_release == 'true' && 'beta-release' || 'official-release') || '' }}
+
     env:
       PACKAGE_VERSION: ${{ needs.pre-release.outputs.package_version }}
     permissions:
@@ -632,6 +647,7 @@ jobs:
           verbose: true
           verify-metadata: true
           attestations: true
+          repository-url: ${{ github.event.inputs.publish_to_testpypi == 'true' && 'https://test.pypi.org/legacy/' || 'https://upload.pypi.org/legacy/' }}
 
   github-release:
     name: Github Release (${{ needs.pre-release.outputs.package_version }})
@@ -645,12 +661,16 @@ jobs:
       - ask_for_sec_team_review
       - publish-to-pypi
       - unit-tests
+    # Skip github-release entirely when publishing to TestPyPI
     if: ${{ always()
+      && github.event.inputs.publish_to_testpypi != 'true'
       && needs.pre-release.result == 'success'
-      && needs.ask_for_dev_team_review.result == 'success'
+      && needs['publish-to-pypi'].result == 'success'
+      && (github.event.inputs.skip_reviews == 'true' || (
+      needs.ask_for_dev_team_review.result == 'success'
       && needs.first_review.result == 'success'
       && needs.ask_for_sec_team_review.result == 'success'
-      && needs['publish-to-pypi'].result == 'success'
+      ))
       && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
       && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
       && needs['unit-tests'].result == 'success' }}
@@ -736,7 +756,8 @@ jobs:
       - ask_for_sec_team_review
       - publish-to-pypi
       - github-release
-    if: ${{ failure() }}
+    # Skip Slack notification when publishing to TestPyPI
+    if: ${{ failure() && github.event.inputs.publish_to_testpypi != 'true' }}
     env:
       SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
       PACKAGE_VERSION: ${{ needs.input-validate.outputs.package_version }}
