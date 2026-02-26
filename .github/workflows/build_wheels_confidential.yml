@@ -14,6 +14,12 @@ on:
         required: false
         type: string
         default: "confidential-mpt"
+  push:
+    branches:
+      - confidential-mpt
+    paths:
+      - ".github/workflows/build_wheels_confidential.yml"
+      - "xrpl/core/confidential/build_mpt_crypto.py"
 
 jobs:
   build-wheels:
@@ -120,4 +126,3 @@ jobs:
         with:
           name: wheel-${{ matrix.os }}-py${{ matrix.python-version }}
           path: dist/*.whl
-
