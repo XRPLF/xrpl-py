@@ -44,14 +44,19 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Download prebuilt mpt-crypto libraries
-        uses: dawidd6/action-download-artifact@v3
+        id: download-libs
+        continue-on-error: true
+        uses: actions/download-artifact@v4
         with:
-          workflow: build_mpt_crypto_libs.yml
-          # Use the same branch/ref that we're building from
-          branch: ${{ inputs.git_ref || github.ref_name }}
+          # Download from the same workflow run (artifacts uploaded by build_mpt_crypto_libs job)
           name: mpt-crypto-${{ runner.os == 'Linux' && 'linux-x86_64' || runner.os == 'macOS' && 'darwin-universal' || 'win32-x86_64' }}
           path: artifacts
-          if_no_artifact_found: warn
+
+      - name: Check library download status
+        if: steps.download-libs.outcome == 'failure'
+        run: |
+          echo "::warning::Failed to download mpt-crypto libraries. This is expected if running standalone without build_mpt_crypto_libs."
+          echo "Wheel will be built without native libraries (pure Python fallback)."
 
       - name: Copy libraries and headers
         shell: bash

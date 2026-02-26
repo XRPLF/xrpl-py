@@ -132,11 +132,21 @@ jobs:
       git_ref: ${{ github.event.inputs.release_branch }}
     secrets: inherit
 
+  build-mpt-crypto-libs:
+    name: Build MPT crypto libraries
+    needs:
+      - input-validate
+    uses: ./.github/workflows/build_mpt_crypto_libs.yml
+    with:
+      git_ref: ${{ github.event.inputs.release_branch }}
+    secrets: inherit
+
   build-wheels:
     name: Build confidential MPT wheels
     needs:
       - input-validate
       - unit-tests
+      - build-mpt-crypto-libs
     uses: ./.github/workflows/build_wheels_confidential.yml
     with:
       git_ref: ${{ github.event.inputs.release_branch }}

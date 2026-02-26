@@ -1,6 +1,17 @@
 name: Build MPT Crypto Libraries
 on:
+  workflow_call:
+    inputs:
+      git_ref:
+        description: "Git ref to checkout (branch, tag, or SHA)"
+        required: false
+        type: string
   workflow_dispatch:
+    inputs:
+      git_ref:
+        description: "Git ref to checkout (branch, tag, or SHA)"
+        required: false
+        type: string
   push:
     branches:
       - confidential-mpt
@@ -13,6 +24,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref || github.ref }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -136,6 +149,8 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref || github.ref }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -259,6 +274,8 @@ jobs:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref || github.ref }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -434,6 +451,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref || github.ref }}
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -529,4 +548,4 @@ jobs:
 
       - name: Run confidential MPT tests
         run: |
-          poetry run python -m unittest discover -s xrpl/core/confidential/tests -v
+          poetry run python -m unittest discover -s tests/unit/core/confidential -v
