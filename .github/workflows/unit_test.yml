@@ -77,50 +77,6 @@ jobs:
         with:
           ref: ${{ inputs.git_ref != '' && inputs.git_ref || github.ref }}
 
-      - name: Load cached .local
-        id: cache-poetry
-        uses: actions/cache@v4
-        with:
-          path: /home/runner/.local
-          key: dotlocal-${{ env.POETRY_VERSION }}
-
-      - name: Install poetry
-        if: steps.cache-poetry.outputs.cache-hit != 'true'
-        run: |
-          curl -sSL https://install.python-poetry.org/ | python - --version ${{ env.POETRY_VERSION }}
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Install Python + Retrieve Poetry dependencies from cache
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: "poetry"
-
-      - name: Display Python version
-        run: |
-          python -c "import sys; print(sys.version)"
-
-      - name: Install poetry dependencies
-        run: poetry install
-
-      - name: Unit test (excluding confidential)
-        run: |
-          poetry run coverage run -m unittest discover -s tests/unit -p "test_*.py" --ignore-patterns "test_utility_layer.py"
-          poetry run coverage report --fail-under=85
-
-  unit-test-confidential:
-    name: Unit test (confidential)
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.11", "3.12"]
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.git_ref != '' && inputs.git_ref || github.ref }}
-
       - name: Download mpt-crypto libraries
         uses: dawidd6/action-download-artifact@v6
         with:
@@ -130,7 +86,8 @@ jobs:
           search_artifacts: true
           if_no_artifact_found: warn
 
-      - name: Copy libraries and headers
+      - name: Setup confidential libraries
+        id: setup-confidential
         run: |
           mkdir -p xrpl/core/confidential/libs/linux
           mkdir -p xrpl/core/confidential/include/utility
@@ -149,10 +106,15 @@ jobs:
             cp artifacts/mpt-crypto-linux-x86_64/include/utility/*.h xrpl/core/confidential/include/utility/ 2>/dev/null || true
           fi
 
-          echo "=== Library files ==="
-          ls -la xrpl/core/confidential/libs/linux/ || echo "No libraries found"
-          echo "=== Header files ==="
-          ls -la xrpl/core/confidential/include/ || echo "No headers found"
+          # Check if libraries are available
+          if ls xrpl/core/confidential/libs/linux/*.a 1>/dev/null 2>&1; then
+            echo "confidential_available=true" >> $GITHUB_OUTPUT
+            echo "=== Library files ==="
+            ls -la xrpl/core/confidential/libs/linux/
+          else
+            echo "confidential_available=false" >> $GITHUB_OUTPUT
+            echo "Confidential libraries not available"
+          fi
 
       - name: Install system dependencies
         run: |
@@ -182,7 +144,7 @@ jobs:
         run: |
           python -c "import sys; print(sys.version)"
 
-      - name: Install poetry dependencies with confidential extras
+      - name: Install poetry dependencies
         run: |
           poetry install --extras confidential
           poetry run pip install setuptools
@@ -192,6 +154,7 @@ jobs:
           cd xrpl/core/confidential
           poetry run python build_mpt_crypto.py
 
-      - name: Run confidential unit tests
+      - name: Unit test
         run: |
-          poetry run python -m unittest discover -s tests/unit/core/confidential -v
+          poetry run poe test_unit
+          poetry run coverage report --fail-under=85

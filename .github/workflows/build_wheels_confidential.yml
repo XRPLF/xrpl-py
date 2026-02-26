@@ -102,7 +102,7 @@ jobs:
       - name: Install build dependencies
         run: |
           poetry install --no-root --extras confidential
-          poetry run pip install setuptools cffi
+          poetry run pip install setuptools
 
       - name: Build CFFI extension
         shell: bash
