@@ -88,16 +88,14 @@ build-backend = "poetry.core.masonry.api"
 [tool.coverage.run]
 branch = true
 source = ["xrpl"]
-omit = [
-  "xrpl/core/confidential/build_mpt_crypto.py",
-  "xrpl/core/confidential/examples/*",
-]
+omit = ["xrpl/core/confidential/*"]
 
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
 skip_empty = true
 precision = 2
+omit = ["xrpl/core/confidential/*"]
 
 [tool.poe.tasks]
 test_unit = "coverage run -m unittest discover tests/unit"
