@@ -361,7 +361,8 @@ jobs:
           set -euo pipefail
           echo "art_url=https://github.com/${REPO}/actions/runs/${RUN_ID}/artifacts/${ARTIFACT_ID}" >> "$GITHUB_OUTPUT"
       - name: Create GitHub Issue for vulnerabilities
-        if: steps.show_scan_report.outputs.found_vulnerability == 'true'
+        # Skip when publishing to TestPyPI
+        if: steps.show_scan_report.outputs.found_vulnerability == 'true' && github.event.inputs.publish_to_testpypi != 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
