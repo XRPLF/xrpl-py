@@ -18,6 +18,18 @@ BLINDING_FACTOR_LENGTH = 32 * 2  # 32 bytes = 64 hex chars
 SCHNORR_PROOF_LENGTH = 65 * 2  # 65 bytes = 130 hex chars (33 R + 32 s)
 EQUALITY_PROOF_LENGTH = 98 * 2  # 98 bytes = 196 hex chars (plaintext-ciphertext)
 
+# ElGamal ciphertext: two uncompressed EC points (C1, C2), each 64 bytes
+CIPHERTEXT_LENGTH = 128 * 2  # 128 bytes = 256 hex chars
+
+# Pedersen commitment: one uncompressed EC point (64 bytes)
+COMMITMENT_LENGTH = 64 * 2  # 64 bytes = 128 hex chars
+
+# ConfidentialMPTSend proof: equality + linkage + double bulletproof (~1503 bytes)
+SEND_PROOF_LENGTH = 1503 * 2  # 1503 bytes = 3006 hex chars
+
+# ConfidentialMPTConvertBack proof: balance linkage + bulletproof (883 bytes)
+CONVERT_BACK_PROOF_LENGTH = 883 * 2  # 883 bytes = 1766 hex chars
+
 
 @require_kwargs_on_init
 @dataclass(frozen=True)
@@ -117,6 +129,27 @@ class ConfidentialMPTConvert(Transaction):
         if self.zk_proof is not None and len(self.zk_proof) != SCHNORR_PROOF_LENGTH:
             errors["zk_proof"] = (
                 "zk_proof must be 65 bytes (130 hex characters) for Schnorr Proof"
+            )
+
+        if self.mpt_amount <= 0:
+            errors["mpt_amount"] = "mpt_amount cannot be zero or negative"
+
+        if len(self.holder_encrypted_amount) != CIPHERTEXT_LENGTH:
+            errors["holder_encrypted_amount"] = (
+                "holder_encrypted_amount must be 128 bytes (256 hex characters)"
+            )
+
+        if len(self.issuer_encrypted_amount) != CIPHERTEXT_LENGTH:
+            errors["issuer_encrypted_amount"] = (
+                "issuer_encrypted_amount must be 128 bytes (256 hex characters)"
+            )
+
+        if (
+            self.auditor_encrypted_amount is not None
+            and len(self.auditor_encrypted_amount) != CIPHERTEXT_LENGTH
+        ):
+            errors["auditor_encrypted_amount"] = (
+                "auditor_encrypted_amount must be 128 bytes (256 hex characters)"
             )
 
         return errors

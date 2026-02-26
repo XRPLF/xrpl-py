@@ -8,6 +8,11 @@ from typing import Dict, Optional
 from typing_extensions import Self
 
 from xrpl.models.required import REQUIRED
+from xrpl.models.transactions.confidential_mpt_convert import (
+    CIPHERTEXT_LENGTH,
+    COMMITMENT_LENGTH,
+    SEND_PROOF_LENGTH,
+)
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
@@ -68,8 +73,50 @@ class ConfidentialMPTSend(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
+        # Validate sender != destination (temMALFORMED)
         if hasattr(self, "account") and hasattr(self, "destination"):
             if self.account == self.destination:
                 errors["destination"] = "Sender cannot send to themselves"
+
+        # Validate ciphertext lengths (temBAD_CIPHERTEXT)
+        if len(self.sender_encrypted_amount) != CIPHERTEXT_LENGTH:
+            errors["sender_encrypted_amount"] = (
+                "sender_encrypted_amount must be 128 bytes (256 hex characters)"
+            )
+
+        if len(self.destination_encrypted_amount) != CIPHERTEXT_LENGTH:
+            errors["destination_encrypted_amount"] = (
+                "destination_encrypted_amount must be 128 bytes (256 hex characters)"
+            )
+
+        if len(self.issuer_encrypted_amount) != CIPHERTEXT_LENGTH:
+            errors["issuer_encrypted_amount"] = (
+                "issuer_encrypted_amount must be 128 bytes (256 hex characters)"
+            )
+
+        if (
+            self.auditor_encrypted_amount is not None
+            and len(self.auditor_encrypted_amount) != CIPHERTEXT_LENGTH
+        ):
+            errors["auditor_encrypted_amount"] = (
+                "auditor_encrypted_amount must be 128 bytes (256 hex characters)"
+            )
+
+        # Validate commitment lengths (64 bytes = 128 hex for uncompressed point)
+        if len(self.amount_commitment) != COMMITMENT_LENGTH:
+            errors["amount_commitment"] = (
+                "amount_commitment must be 64 bytes (128 hex characters)"
+            )
+
+        if len(self.balance_commitment) != COMMITMENT_LENGTH:
+            errors["balance_commitment"] = (
+                "balance_commitment must be 64 bytes (128 hex characters)"
+            )
+
+        # Validate zk_proof length (1503 bytes for Send proof)
+        if len(self.zk_proof) != SEND_PROOF_LENGTH:
+            errors["zk_proof"] = (
+                "zk_proof must be 1503 bytes (3006 hex characters) for Send proof"
+            )
 
         return errors

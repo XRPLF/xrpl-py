@@ -63,7 +63,7 @@ class ConfidentialMPTClawback(Transaction):
                 "zk_proof must be 98 bytes (196 hex characters) for Equality Proof"
             )
 
-        if hasattr(self, "mpt_amount") and self.mpt_amount == 0:
-            errors["mpt_amount"] = "mpt_amount cannot be zero"
+        if self.mpt_amount <= 0:
+            errors["mpt_amount"] = "mpt_amount cannot be zero ornegative"
 
         return errors

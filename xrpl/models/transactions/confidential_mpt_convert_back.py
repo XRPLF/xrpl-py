@@ -8,7 +8,12 @@ from typing import Dict, Optional
 from typing_extensions import Self
 
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.confidential_mpt_convert import BLINDING_FACTOR_LENGTH
+from xrpl.models.transactions.confidential_mpt_convert import (
+    BLINDING_FACTOR_LENGTH,
+    CIPHERTEXT_LENGTH,
+    COMMITMENT_LENGTH,
+    CONVERT_BACK_PROOF_LENGTH,
+)
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
@@ -76,14 +81,42 @@ class ConfidentialMPTConvertBack(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        # Validate blinding_factor length (should be 32 bytes = 64 hex chars)
         if len(self.blinding_factor) != BLINDING_FACTOR_LENGTH:
             errors["blinding_factor"] = (
                 "blinding_factor must be 32 bytes (64 hex characters)"
             )
 
-        # Validate MPTAmount is not zero
-        if hasattr(self, "mpt_amount") and self.mpt_amount == 0:
-            errors["mpt_amount"] = "mpt_amount cannot be zero"
+        if self.mpt_amount <= 0:
+            errors["mpt_amount"] = "mpt_amount cannot be zero or negative"
+
+        if len(self.holder_encrypted_amount) != CIPHERTEXT_LENGTH:
+            errors["holder_encrypted_amount"] = (
+                "holder_encrypted_amount must be 128 bytes (256 hex characters)"
+            )
+
+        if len(self.issuer_encrypted_amount) != CIPHERTEXT_LENGTH:
+            errors["issuer_encrypted_amount"] = (
+                "issuer_encrypted_amount must be 128 bytes (256 hex characters)"
+            )
+
+        if (
+            self.auditor_encrypted_amount is not None
+            and len(self.auditor_encrypted_amount) != CIPHERTEXT_LENGTH
+        ):
+            errors["auditor_encrypted_amount"] = (
+                "auditor_encrypted_amount must be 128 bytes (256 hex characters)"
+            )
+
+        # Validate balance_commitment length (64 bytes = 128 hex for uncompressed point)
+        if len(self.balance_commitment) != COMMITMENT_LENGTH:
+            errors["balance_commitment"] = (
+                "balance_commitment must be 64 bytes (128 hex characters)"
+            )
+
+        # Validate zk_proof length (883 bytes for ConvertBack proof)
+        if len(self.zk_proof) != CONVERT_BACK_PROOF_LENGTH:
+            errors["zk_proof"] = (
+                "zk_proof must be 883 bytes (1766 hex characters) for ConvertBack proof"
+            )
 
         return errors
