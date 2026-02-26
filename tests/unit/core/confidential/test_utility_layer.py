@@ -1,8 +1,9 @@
 """
 Test suite for MPT utility layer functions.
 
-This test suite mirrors the C++ tests in tools/mpt-crypto-mpt-utility/tests/test_mpt_utility.cpp
-to ensure the Python wrappers correctly call the utility layer functions.
+This test suite mirrors the C++ tests in
+tools/mpt-crypto-mpt-utility/tests/test_mpt_utility.cpp to ensure
+the Python wrappers correctly call the utility layer functions.
 """
 
 import secrets
@@ -24,28 +25,27 @@ def create_mock_account_id(fill_byte: int) -> str:
 
 
 def create_mock_issuance_id(fill_byte: int) -> str:
-    """Create a mock 24-byte MPT issuance ID filled with a specific byte as hex string."""
+    """Create a mock 24-byte MPT issuance ID as hex string."""
     return bytes([fill_byte] * 24).hex().upper()
 
 
 class TestEncryptionDecryption(unittest.TestCase):
-    """Test encryption and decryption using utility layer (mirrors test_encryption_decryption)."""
+    """Test encryption and decryption using utility layer."""
 
     def test_encrypt_decrypt_roundtrip(self):
         """Test encryption/decryption for various amounts."""
-        # Generate keypair
         privkey, pubkey = keypair.generate_keypair()
 
-        # Test amounts (note: large numbers not supported yet due to discrete log limitation)
+        # Large numbers not supported yet due to discrete log limitation
         test_amounts = [0, 1, 1000]
 
         for amount in test_amounts:
             with self.subTest(amount=amount):
-                # Generate blinding factor
                 blinding_factor = secrets.token_bytes(32).hex().upper()
 
-                # Encrypt
-                c1, c2, returned_bf = encryption.encrypt(None, pubkey, amount, blinding_factor)
+                c1, c2, returned_bf = encryption.encrypt(
+                    None, pubkey, amount, blinding_factor
+                )
 
                 # Verify blinding factor is what we provided
                 self.assertEqual(returned_bf, blinding_factor)
@@ -80,7 +80,7 @@ class TestConfidentialConvert(unittest.TestCase):
             acc,
             seq,
             issuance,
-            convert_amount
+            convert_amount,
         )
 
         # Generate convert proof (Schnorr proof of knowledge)
@@ -112,23 +112,24 @@ class TestConfidentialConvert(unittest.TestCase):
 
         # Verify encryption
         self.assertEqual(
-            lib.secp256k1_elgamal_verify_encryption(ctx, c1_pk, c2_pk, pk, convert_amount, bf_bytes),
-            1
+            lib.secp256k1_elgamal_verify_encryption(
+                ctx, c1_pk, c2_pk, pk, convert_amount, bf_bytes
+            ),
+            1,
         )
 
         # Verify Schnorr proof
         self.assertEqual(
             lib.secp256k1_mpt_pok_sk_verify(ctx, proof_bytes, pk, tx_hash_bytes),
-            1
+            1,
         )
 
 
 class TestConfidentialSend(unittest.TestCase):
-    """Test confidential send transaction (mirrors test_mpt_confidential_send)."""
+    """Test confidential send transaction."""
 
     def test_send_transaction(self):
-        """Test generating confidential send proof with bulletproof (using utility layer)."""
-        # Setup mock account, issuance and transaction details
+        """Test generating confidential send proof with bulletproof."""
         sender_acc = create_mock_account_id(0x11)
         dest_acc = create_mock_account_id(0x22)
         issuance = create_mock_issuance_id(0xBB)
@@ -137,24 +138,31 @@ class TestConfidentialSend(unittest.TestCase):
         prev_balance = 2000
         version = 1
 
-        # Generate keypairs for all parties
         sender_priv, sender_pub = keypair.generate_keypair()
         _, dest_pub = keypair.generate_keypair()
         _, issuer_pub = keypair.generate_keypair()
 
-        # Encrypt for all recipients using same shared blinding factor
         shared_bf = secrets.token_bytes(32).hex().upper()
 
-        sender_c1, sender_c2, _ = encryption.encrypt(None, sender_pub, amount_to_send, shared_bf)
-        dest_c1, dest_c2, _ = encryption.encrypt(None, dest_pub, amount_to_send, shared_bf)
-        issuer_c1, issuer_c2, _ = encryption.encrypt(None, issuer_pub, amount_to_send, shared_bf)
+        sender_c1, sender_c2, _ = encryption.encrypt(
+            None, sender_pub, amount_to_send, shared_bf
+        )
+        dest_c1, dest_c2, _ = encryption.encrypt(
+            None, dest_pub, amount_to_send, shared_bf
+        )
+        issuer_c1, issuer_c2, _ = encryption.encrypt(
+            None, issuer_pub, amount_to_send, shared_bf
+        )
 
-        # Generate Pedersen commitments for amount and balance
         amount_bf = secrets.token_bytes(32).hex().upper()
-        amount_comm = commitments.create_pedersen_commitment(None, amount_to_send, amount_bf)
+        amount_comm = commitments.create_pedersen_commitment(
+            None, amount_to_send, amount_bf
+        )
 
         balance_bf = secrets.token_bytes(32).hex().upper()
-        balance_comm = commitments.create_pedersen_commitment(None, prev_balance, balance_bf)
+        balance_comm = commitments.create_pedersen_commitment(
+            None, prev_balance, balance_bf
+        )
 
         # Generate context hash
         tx_hash = context.compute_send_context_hash(
@@ -162,16 +170,18 @@ class TestConfidentialSend(unittest.TestCase):
             seq,
             issuance,
             dest_acc,
-            version
+            version,
         )
 
-        # Encrypt previous balance for sender
         prev_bal_bf = secrets.token_bytes(32).hex().upper()
-        prev_bal_c1, prev_bal_c2, _ = encryption.encrypt(None, sender_pub, prev_balance, prev_bal_bf)
+        prev_bal_c1, prev_bal_c2, _ = encryption.encrypt(
+            None, sender_pub, prev_balance, prev_bal_bf
+        )
         prev_bal_ct = prev_bal_c1 + prev_bal_c2
 
         # Generate complete proof using utility layer
         from xrpl.core.confidential.main import MPTCrypto
+
         crypto = MPTCrypto()
 
         complete_proof = crypto.create_confidential_send_proof(
@@ -214,29 +224,25 @@ class TestConfidentialConvertBack(unittest.TestCase):
         amount_to_convert_back = 1000
         version = 2
 
-        # Generate keypair
         privkey, pubkey = keypair.generate_keypair()
 
-        # Mock spending confidential balance (ElGamal ciphertext currently stored on-chain)
+        # Mock spending confidential balance (ElGamal ciphertext on-chain)
         bal_bf = secrets.token_bytes(32).hex().upper()
         bal_c1, bal_c2, _ = encryption.encrypt(None, pubkey, current_balance, bal_bf)
         spending_bal_ct = bal_c1 + bal_c2
 
         # Generate context hash
         tx_hash = context.compute_convert_back_context_hash(
-            acc,
-            seq,
-            issuance,
-            amount_to_convert_back,
-            version
+            acc, seq, issuance, amount_to_convert_back, version
         )
 
         # Generate Pedersen commitment for current balance
         pcm_bf = secrets.token_bytes(32).hex().upper()
         pcm_comm = commitments.create_pedersen_commitment(None, current_balance, pcm_bf)
 
-        # Generate complete proof using utility layer (includes linkage proof + bulletproof)
+        # Generate complete proof (includes linkage proof + bulletproof)
         from xrpl.core.confidential.main import MPTCrypto
+
         crypto = MPTCrypto()
 
         complete_proof = crypto.create_confidential_convert_back_proof(
@@ -281,7 +287,7 @@ class TestConfidentialConvertBack(unittest.TestCase):
             lib.secp256k1_elgamal_pedersen_link_verify(
                 ctx, linkage_proof_bytes, pk, c2_pk, c1_pk, pcm_pk, tx_hash_bytes
             ),
-            1
+            1,
         )
 
         # Note: Bulletproof verification requires secp256k1_ec_pubkey_create,
@@ -307,11 +313,7 @@ class TestConfidentialClawback(unittest.TestCase):
 
         # Generate context hash
         tx_hash = context.compute_clawback_context_hash(
-            issuer_acc,
-            seq,
-            issuance,
-            claw_amount,
-            holder_acc
+            issuer_acc, seq, issuance, claw_amount, holder_acc
         )
 
         # Mock holder's "sfIssuerEncryptedBalance"
@@ -321,13 +323,7 @@ class TestConfidentialClawback(unittest.TestCase):
         # Generate clawback proof (equality plaintext proof)
         # Note: Pass private key, not blinding factor
         proof = plaintext_proofs.create_equality_plaintext_proof(
-            None,
-            issuer_pub,
-            c2,
-            c1,
-            claw_amount,
-            issuer_priv,
-            tx_hash
+            None, issuer_pub, c2, c1, claw_amount, issuer_priv, tx_hash
         )
 
         # Verify proof length (98 bytes = 196 hex chars)
@@ -358,7 +354,7 @@ class TestConfidentialClawback(unittest.TestCase):
             lib.secp256k1_equality_plaintext_verify(
                 ctx, proof_bytes, pk, c2_pk, c1_pk, claw_amount, tx_hash_bytes
             ),
-            1
+            1,
         )
 
 
