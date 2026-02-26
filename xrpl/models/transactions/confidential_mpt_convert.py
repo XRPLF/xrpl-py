@@ -18,11 +18,11 @@ BLINDING_FACTOR_LENGTH = 32 * 2  # 32 bytes = 64 hex chars
 SCHNORR_PROOF_LENGTH = 65 * 2  # 65 bytes = 130 hex chars (33 R + 32 s)
 EQUALITY_PROOF_LENGTH = 98 * 2  # 98 bytes = 196 hex chars (plaintext-ciphertext)
 
-# ElGamal ciphertext: two uncompressed EC points (C1, C2), each 64 bytes
-CIPHERTEXT_LENGTH = 128 * 2  # 128 bytes = 256 hex chars
+# ElGamal ciphertext: two compressed EC points (C1, C2), each 33 bytes
+CIPHERTEXT_LENGTH = 66 * 2  # 66 bytes = 132 hex chars
 
-# Pedersen commitment: one uncompressed EC point (64 bytes)
-COMMITMENT_LENGTH = 64 * 2  # 64 bytes = 128 hex chars
+# Pedersen commitment: one compressed EC point (33 bytes)
+COMMITMENT_LENGTH = 33 * 2  # 33 bytes = 66 hex chars
 
 # ConfidentialMPTSend proof: equality + linkage + double bulletproof (~1503 bytes)
 SEND_PROOF_LENGTH = 1503 * 2  # 1503 bytes = 3006 hex chars
@@ -136,12 +136,12 @@ class ConfidentialMPTConvert(Transaction):
 
         if len(self.holder_encrypted_amount) != CIPHERTEXT_LENGTH:
             errors["holder_encrypted_amount"] = (
-                "holder_encrypted_amount must be 128 bytes (256 hex characters)"
+                "holder_encrypted_amount must be 66 bytes (132 hex characters)"
             )
 
         if len(self.issuer_encrypted_amount) != CIPHERTEXT_LENGTH:
             errors["issuer_encrypted_amount"] = (
-                "issuer_encrypted_amount must be 128 bytes (256 hex characters)"
+                "issuer_encrypted_amount must be 66 bytes (132 hex characters)"
             )
 
         if (
@@ -149,7 +149,7 @@ class ConfidentialMPTConvert(Transaction):
             and len(self.auditor_encrypted_amount) != CIPHERTEXT_LENGTH
         ):
             errors["auditor_encrypted_amount"] = (
-                "auditor_encrypted_amount must be 128 bytes (256 hex characters)"
+                "auditor_encrypted_amount must be 66 bytes (132 hex characters)"
             )
 
         return errors

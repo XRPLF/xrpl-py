@@ -91,12 +91,12 @@ class ConfidentialMPTConvertBack(Transaction):
 
         if len(self.holder_encrypted_amount) != CIPHERTEXT_LENGTH:
             errors["holder_encrypted_amount"] = (
-                "holder_encrypted_amount must be 128 bytes (256 hex characters)"
+                "holder_encrypted_amount must be 66 bytes (132 hex characters)"
             )
 
         if len(self.issuer_encrypted_amount) != CIPHERTEXT_LENGTH:
             errors["issuer_encrypted_amount"] = (
-                "issuer_encrypted_amount must be 128 bytes (256 hex characters)"
+                "issuer_encrypted_amount must be 66 bytes (132 hex characters)"
             )
 
         if (
@@ -104,13 +104,13 @@ class ConfidentialMPTConvertBack(Transaction):
             and len(self.auditor_encrypted_amount) != CIPHERTEXT_LENGTH
         ):
             errors["auditor_encrypted_amount"] = (
-                "auditor_encrypted_amount must be 128 bytes (256 hex characters)"
+                "auditor_encrypted_amount must be 66 bytes (132 hex characters)"
             )
 
-        # Validate balance_commitment length (64 bytes = 128 hex for uncompressed point)
+        # Validate balance_commitment length (33 bytes = 66 hex for compressed point)
         if len(self.balance_commitment) != COMMITMENT_LENGTH:
             errors["balance_commitment"] = (
-                "balance_commitment must be 64 bytes (128 hex characters)"
+                "balance_commitment must be 33 bytes (66 hex characters)"
             )
 
         # Validate zk_proof length (883 bytes for ConvertBack proof)

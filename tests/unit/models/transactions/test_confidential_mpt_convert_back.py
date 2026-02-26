@@ -7,8 +7,8 @@ from xrpl.models.transactions.confidential_mpt_convert_back import (
 
 _ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _MPTOKEN_ISSUANCE_ID = "000000000000000000000000" + _ACCOUNT
-_VALID_CIPHERTEXT = "A" * 256
-_VALID_COMMITMENT = "B" * 128
+_VALID_CIPHERTEXT = "A" * 132  # 66 bytes (two compressed EC points)
+_VALID_COMMITMENT = "B" * 66  # 33 bytes (one compressed EC point)
 _VALID_BLINDING_FACTOR = "C" * 64
 _VALID_CONVERT_BACK_PROOF = "D" * 1766
 
@@ -108,7 +108,7 @@ class TestConfidentialMPTConvertBack(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'holder_encrypted_amount': "
-            "'holder_encrypted_amount must be 128 bytes (256 hex characters)'}",
+            "'holder_encrypted_amount must be 66 bytes (132 hex characters)'}",
         )
 
     def test_invalid_issuer_encrypted_amount_length(self):
@@ -126,7 +126,7 @@ class TestConfidentialMPTConvertBack(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'issuer_encrypted_amount': "
-            "'issuer_encrypted_amount must be 128 bytes (256 hex characters)'}",
+            "'issuer_encrypted_amount must be 66 bytes (132 hex characters)'}",
         )
 
     def test_invalid_auditor_encrypted_amount_length(self):
@@ -145,7 +145,7 @@ class TestConfidentialMPTConvertBack(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'auditor_encrypted_amount': "
-            "'auditor_encrypted_amount must be 128 bytes (256 hex characters)'}",
+            "'auditor_encrypted_amount must be 66 bytes (132 hex characters)'}",
         )
 
     def test_invalid_balance_commitment_length(self):
@@ -157,13 +157,13 @@ class TestConfidentialMPTConvertBack(TestCase):
                 holder_encrypted_amount=_VALID_CIPHERTEXT,
                 issuer_encrypted_amount=_VALID_CIPHERTEXT,
                 blinding_factor=_VALID_BLINDING_FACTOR,
-                balance_commitment="B" * 64,
+                balance_commitment="B" * 32,
                 zk_proof=_VALID_CONVERT_BACK_PROOF,
             )
         self.assertEqual(
             err.exception.args[0],
             "{'balance_commitment': "
-            "'balance_commitment must be 64 bytes (128 hex characters)'}",
+            "'balance_commitment must be 33 bytes (66 hex characters)'}",
         )
 
     def test_invalid_zk_proof_length(self):

@@ -81,17 +81,17 @@ class ConfidentialMPTSend(Transaction):
         # Validate ciphertext lengths (temBAD_CIPHERTEXT)
         if len(self.sender_encrypted_amount) != CIPHERTEXT_LENGTH:
             errors["sender_encrypted_amount"] = (
-                "sender_encrypted_amount must be 128 bytes (256 hex characters)"
+                "sender_encrypted_amount must be 66 bytes (132 hex characters)"
             )
 
         if len(self.destination_encrypted_amount) != CIPHERTEXT_LENGTH:
             errors["destination_encrypted_amount"] = (
-                "destination_encrypted_amount must be 128 bytes (256 hex characters)"
+                "destination_encrypted_amount must be 66 bytes (132 hex characters)"
             )
 
         if len(self.issuer_encrypted_amount) != CIPHERTEXT_LENGTH:
             errors["issuer_encrypted_amount"] = (
-                "issuer_encrypted_amount must be 128 bytes (256 hex characters)"
+                "issuer_encrypted_amount must be 66 bytes (132 hex characters)"
             )
 
         if (
@@ -99,18 +99,18 @@ class ConfidentialMPTSend(Transaction):
             and len(self.auditor_encrypted_amount) != CIPHERTEXT_LENGTH
         ):
             errors["auditor_encrypted_amount"] = (
-                "auditor_encrypted_amount must be 128 bytes (256 hex characters)"
+                "auditor_encrypted_amount must be 66 bytes (132 hex characters)"
             )
 
-        # Validate commitment lengths (64 bytes = 128 hex for uncompressed point)
+        # Validate commitment lengths (33 bytes = 66 hex for compressed point)
         if len(self.amount_commitment) != COMMITMENT_LENGTH:
             errors["amount_commitment"] = (
-                "amount_commitment must be 64 bytes (128 hex characters)"
+                "amount_commitment must be 33 bytes (66 hex characters)"
             )
 
         if len(self.balance_commitment) != COMMITMENT_LENGTH:
             errors["balance_commitment"] = (
-                "balance_commitment must be 64 bytes (128 hex characters)"
+                "balance_commitment must be 33 bytes (66 hex characters)"
             )
 
         # Validate zk_proof length (1503 bytes for Send proof)

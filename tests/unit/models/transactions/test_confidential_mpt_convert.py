@@ -5,7 +5,7 @@ from xrpl.models.transactions.confidential_mpt_convert import ConfidentialMPTCon
 
 _ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _MPTOKEN_ISSUANCE_ID = "000000000000000000000000" + _ACCOUNT
-_VALID_CIPHERTEXT = "A" * 256
+_VALID_CIPHERTEXT = "A" * 132  # 66 bytes (two compressed EC points)
 _VALID_BLINDING_FACTOR = "B" * 64
 _VALID_HOLDER_PUBLIC_KEY = "C" * 66
 _VALID_SCHNORR_PROOF = "D" * 130
@@ -79,7 +79,7 @@ class TestConfidentialMPTConvert(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'holder_encrypted_amount': "
-            "'holder_encrypted_amount must be 128 bytes (256 hex characters)'}",
+            "'holder_encrypted_amount must be 66 bytes (132 hex characters)'}",
         )
 
     def test_invalid_issuer_encrypted_amount_length(self):
@@ -95,7 +95,7 @@ class TestConfidentialMPTConvert(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'issuer_encrypted_amount': "
-            "'issuer_encrypted_amount must be 128 bytes (256 hex characters)'}",
+            "'issuer_encrypted_amount must be 66 bytes (132 hex characters)'}",
         )
 
     def test_invalid_auditor_encrypted_amount_length(self):
@@ -112,7 +112,7 @@ class TestConfidentialMPTConvert(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'auditor_encrypted_amount': "
-            "'auditor_encrypted_amount must be 128 bytes (256 hex characters)'}",
+            "'auditor_encrypted_amount must be 66 bytes (132 hex characters)'}",
         )
 
     def test_invalid_blinding_factor_length(self):

@@ -6,8 +6,8 @@ from xrpl.models.transactions.confidential_mpt_send import ConfidentialMPTSend
 _SENDER = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _DESTINATION = "rN7n3473SaZBCG4dFL83w7a1RXtXtbk2D9"
 _MPTOKEN_ISSUANCE_ID = "000000000000000000000000" + _SENDER
-_VALID_CIPHERTEXT = "A" * 256
-_VALID_COMMITMENT = "B" * 128
+_VALID_CIPHERTEXT = "A" * 132  # 66 bytes (two compressed EC points)
+_VALID_COMMITMENT = "B" * 66  # 33 bytes (one compressed EC point)
 _VALID_SEND_PROOF = "C" * 3006
 
 
@@ -75,7 +75,7 @@ class TestConfidentialMPTSend(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'sender_encrypted_amount': "
-            "'sender_encrypted_amount must be 128 bytes (256 hex characters)'}",
+            "'sender_encrypted_amount must be 66 bytes (132 hex characters)'}",
         )
 
     def test_invalid_destination_encrypted_amount_length(self):
@@ -94,7 +94,7 @@ class TestConfidentialMPTSend(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'destination_encrypted_amount': "
-            "'destination_encrypted_amount must be 128 bytes (256 hex characters)'}",
+            "'destination_encrypted_amount must be 66 bytes (132 hex characters)'}",
         )
 
     def test_invalid_issuer_encrypted_amount_length(self):
@@ -113,7 +113,7 @@ class TestConfidentialMPTSend(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'issuer_encrypted_amount': "
-            "'issuer_encrypted_amount must be 128 bytes (256 hex characters)'}",
+            "'issuer_encrypted_amount must be 66 bytes (132 hex characters)'}",
         )
 
     def test_invalid_auditor_encrypted_amount_length(self):
@@ -133,7 +133,7 @@ class TestConfidentialMPTSend(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'auditor_encrypted_amount': "
-            "'auditor_encrypted_amount must be 128 bytes (256 hex characters)'}",
+            "'auditor_encrypted_amount must be 66 bytes (132 hex characters)'}",
         )
 
     def test_invalid_amount_commitment_length(self):
@@ -146,13 +146,13 @@ class TestConfidentialMPTSend(TestCase):
                 destination_encrypted_amount=_VALID_CIPHERTEXT,
                 issuer_encrypted_amount=_VALID_CIPHERTEXT,
                 zk_proof=_VALID_SEND_PROOF,
-                amount_commitment="B" * 64,
+                amount_commitment="B" * 32,
                 balance_commitment=_VALID_COMMITMENT,
             )
         self.assertEqual(
             err.exception.args[0],
             "{'amount_commitment': "
-            "'amount_commitment must be 64 bytes (128 hex characters)'}",
+            "'amount_commitment must be 33 bytes (66 hex characters)'}",
         )
 
     def test_invalid_balance_commitment_length(self):
@@ -171,7 +171,7 @@ class TestConfidentialMPTSend(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'balance_commitment': "
-            "'balance_commitment must be 64 bytes (128 hex characters)'}",
+            "'balance_commitment must be 33 bytes (66 hex characters)'}",
         )
 
     def test_invalid_zk_proof_length(self):
