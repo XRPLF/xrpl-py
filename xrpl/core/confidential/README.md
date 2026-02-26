@@ -151,8 +151,6 @@ xrpl/core/confidential/
 ├── plaintext_proofs.py          # Equality and same plaintext proofs
 ├── transaction_builders.py      # High-level transaction preparation
 ├── context.py                   # Context hash computation
-├── utils.py                     # Utility functions
-├── setup.py                     # Setup script
 ├── build_mpt_crypto.py          # C extension build script
 ├── tests/                       # Unit tests
 │   ├── test_encryption.py
@@ -192,10 +190,10 @@ The compiled `.so` file is platform and Python-version specific, so it must be r
 
 ### Import Error: "Confidential MPT support is not available"
 
-The C extension hasn't been built yet. Run the setup script:
+The C extension hasn't been built yet. Build it:
 
 ```bash
-poetry run python -m xrpl.core.confidential.setup
+poetry run poe build_mpt_crypto
 ```
 
 ### Build fails with "Pre-compiled libraries not found"
@@ -219,7 +217,7 @@ poetry install --extras confidential
 The `.so` file was built for a different Python version. Rebuild:
 
 ```bash
-poetry run python -m xrpl.core.confidential.setup
+poetry run poe build_mpt_crypto
 ```
 
 ## Binary Distribution
