@@ -87,9 +87,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           RELEASE_BRANCH: ${{ github.event.inputs.release_branch }}
+          PUBLISH_TO_TESTPYPI: ${{ github.event.inputs.publish_to_testpypi }}
         run: |
           set -euo pipefail
-          if [[ "${TRIGGER_BRANCH}" != "main" ]]; then
+          # Skip branch check when publishing to TestPyPI
+          if [[ "${PUBLISH_TO_TESTPYPI}" != "true" ]] && [[ "${TRIGGER_BRANCH}" != "main" ]]; then
             echo "❌ This workflow must be dispatched from the main branch (current: ${TRIGGER_BRANCH})." >&2
             exit 1
           fi
