@@ -64,6 +64,6 @@ class ConfidentialMPTClawback(Transaction):
             )
 
         if self.mpt_amount <= 0:
-            errors["mpt_amount"] = "mpt_amount cannot be zero ornegative"
+            errors["mpt_amount"] = "mpt_amount cannot be zero or negative"
 
         return errors
