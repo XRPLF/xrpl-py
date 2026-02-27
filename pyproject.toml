@@ -1,6 +1,6 @@
 [project]
 name = "xrpl-py"
-version = "4.6.0b2"
+version = "4.6.0b3"
 description = "A complete Python library for interacting with the XRP ledger"
 license = { text = "ISC" }
 readme = "README.md"
@@ -131,3 +131,24 @@ sequence = [
   { cmd = "coverage run -m unittest discover" },
   { cmd = "coverage report --fail-under=90" },
 ]
+
+[tool.cibuildwheel]
+# Build for CPython 3.9-3.12
+build = "cp39-* cp310-* cp311-* cp312-*"
+# Skip 32-bit and musllinux
+skip = "*-win32 *-manylinux_i686 *-musllinux_*"
+
+[tool.cibuildwheel.linux]
+archs = ["x86_64"]
+before-all = "yum install -y openssl-devel || apt-get update && apt-get install -y libssl-dev || true"
+before-build = "pip install cffi setuptools && cd {project}/xrpl/core/confidential && python build_mpt_crypto.py || true"
+
+[tool.cibuildwheel.macos]
+archs = ["arm64"]
+before-all = "brew install openssl || true"
+before-build = "pip install cffi setuptools && cd {project}/xrpl/core/confidential && python build_mpt_crypto.py || true"
+environment = { ARCHFLAGS = "-arch arm64" }
+
+[tool.cibuildwheel.windows]
+archs = ["AMD64"]
+before-build = "pip install cffi setuptools && cd {project}/xrpl/core/confidential && python build_mpt_crypto.py || true"
