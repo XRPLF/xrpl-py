@@ -1,6 +1,6 @@
 [project]
 name = "xrpl-py"
-version = "4.6.0b3"
+version = "4.6.0b4"
 description = "A complete Python library for interacting with the XRP ledger"
 license = { text = "ISC" }
 readme = "README.md"
