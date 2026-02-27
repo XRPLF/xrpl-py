@@ -28,11 +28,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO: Restore full matrix after fixing wheel naming
-        # os: [ubuntu-22.04, macos-14, windows-2022]
-        # python-version: ["3.9", "3.10", "3.11", "3.12"]
-        os: [ubuntu-22.04]
-        python-version: ["3.11"]
+        # Build for macOS ARM64 only for now (for testing)
+        # TODO: Implement proper multi-platform wheel building with cibuildwheel
+        os: [macos-14]
+        python-version: ["3.9"]
 
     steps:
       - name: Checkout code
