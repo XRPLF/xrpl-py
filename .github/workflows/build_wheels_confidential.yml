@@ -23,12 +23,13 @@ on:
 
 jobs:
   build-wheels:
-    name: Build wheels on ${{ matrix.os }}
+    name: Build wheel on ${{ matrix.os }} (Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-22.04, macos-14, windows-2022]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - name: Checkout code
@@ -36,6 +37,11 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ inputs.git_ref || github.ref }}
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
 
       - name: Download prebuilt mpt-crypto libraries
         id: download-libs
@@ -83,48 +89,90 @@ jobs:
           echo "=== Headers copied ==="
           ls -la xrpl/core/confidential/include/ 2>/dev/null || echo "No headers found"
 
-      - name: Build wheels with cibuildwheel
-        uses: pypa/cibuildwheel@v2.22.0
-        env:
-          # Build for CPython 3.9-3.12
-          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-*"
-          # Skip 32-bit builds and musllinux
-          CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
-          # macOS: Build for ARM64 only (macos-14 runner is ARM64)
-          CIBW_ARCHS_MACOS: "arm64"
-          # Linux: Build for x86_64
-          CIBW_ARCHS_LINUX: "x86_64"
-          # Windows: Build for AMD64
-          CIBW_ARCHS_WINDOWS: "AMD64"
-          # Install system dependencies before building
-          CIBW_BEFORE_ALL_LINUX: "yum install -y openssl-devel || apt-get update && apt-get install -y libssl-dev || true"
-          CIBW_BEFORE_ALL_MACOS: "brew install openssl || true"
-          # Install build dependencies and build CFFI extension before wheel build
-          CIBW_BEFORE_BUILD: >
-            pip install cffi setuptools &&
-            cd {project}/xrpl/core/confidential &&
-            python build_mpt_crypto.py || echo "CFFI build skipped (no libraries)"
-          # Test that the wheel works
-          CIBW_TEST_COMMAND: >
-            python -c "from xrpl.core.confidential import MPTCrypto; print('CFFI extension loaded successfully')" ||
-            python -c "print('CFFI extension not available (expected if no native libs)')"
-          # Environment variables for build
-          CIBW_ENVIRONMENT_MACOS: "ARCHFLAGS='-arch arm64'"
-
-      - name: List built wheels
+      - name: Install system dependencies
         shell: bash
         run: |
-          echo "=== Built wheels ==="
-          ls -la wheelhouse/
-          echo ""
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get update && sudo apt-get install -y libssl-dev
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            brew install openssl
+          fi
+
+      - name: Install Poetry
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry wheel
+
+      - name: Install build dependencies
+        run: |
+          poetry install --no-root --extras confidential
+          poetry run pip install setuptools
+
+      - name: Build CFFI extension
+        shell: bash
+        run: |
+          cd xrpl/core/confidential
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            export ARCHFLAGS="-arch arm64"
+          fi
+          # Only build if libraries exist
+          if ls libs/*/*.a 2>/dev/null || ls libs/*/*.lib 2>/dev/null; then
+            poetry run python build_mpt_crypto.py
+            echo "CFFI extension built successfully"
+            echo "CFFI_BUILT=true" >> $GITHUB_ENV
+          else
+            echo "No native libraries found, skipping CFFI build (pure Python wheel)"
+            echo "CFFI_BUILT=false" >> $GITHUB_ENV
+          fi
+
+      - name: Build wheel with Poetry
+        run: poetry build -f wheel
+
+      - name: Retag wheel with platform tag
+        shell: bash
+        run: |
+          # Get Python version info
+          PY_VERSION=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
+
+          # Determine platform tag
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            PLATFORM="manylinux_2_17_x86_64.manylinux2014_x86_64"
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            PLATFORM="macosx_11_0_arm64"
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            PLATFORM="win_amd64"
+          fi
+
+          # Retag the wheel
+          cd dist
+          for whl in *.whl; do
+            echo "Original wheel: $whl"
+            # Extract wheel name parts
+            # Format: {distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.whl
+            BASENAME=$(echo "$whl" | sed 's/-py3-none-any\.whl$//')
+            NEW_NAME="${BASENAME}-${PY_VERSION}-${PY_VERSION}-${PLATFORM}.whl"
+
+            echo "Retagging to: $NEW_NAME"
+
+            # Use wheel tags command to properly retag
+            pip install wheel
+            python -m wheel tags --python-tag="${PY_VERSION}" --abi-tag="${PY_VERSION}" --platform-tag="${PLATFORM}" "$whl"
+
+            # List result
+            ls -la
+          done
+
+      - name: List wheel contents
+        shell: bash
+        run: |
           echo "=== Wheel contents ==="
-          for whl in wheelhouse/*.whl; do
+          for whl in dist/*.whl; do
             echo "Checking $whl:"
             unzip -l "$whl" | grep -E "\.so$|\.pyd$|\.dylib$|_mpt_crypto" || echo "No compiled extensions found"
           done
 
-      - name: Upload wheel artifacts
+      - name: Upload wheel artifact
         uses: actions/upload-artifact@v4
         with:
-          name: wheel-${{ matrix.os }}
-          path: wheelhouse/*.whl
+          name: wheel-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: dist/*.whl
