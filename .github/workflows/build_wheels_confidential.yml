@@ -145,21 +145,18 @@ jobs:
 
           # Retag the wheel
           cd dist
-          for whl in *.whl; do
+          for whl in *-py3-none-any.whl; do
             echo "Original wheel: $whl"
-            # Extract wheel name parts
-            # Format: {distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.whl
-            BASENAME=$(echo "$whl" | sed 's/-py3-none-any\.whl$//')
-            NEW_NAME="${BASENAME}-${PY_VERSION}-${PY_VERSION}-${PLATFORM}.whl"
 
-            echo "Retagging to: $NEW_NAME"
-
-            # Use wheel tags command to properly retag
-            pip install wheel
+            # Use wheel tags command to properly retag (creates new file)
             python -m wheel tags --python-tag="${PY_VERSION}" --abi-tag="${PY_VERSION}" --platform-tag="${PLATFORM}" "$whl"
 
-            # List result
-            ls -la
+            # Delete the original py3-none-any wheel to avoid conflicts
+            echo "Removing original: $whl"
+            rm "$whl"
+
+            echo "Remaining wheels:"
+            ls -la *.whl
           done
 
       - name: List wheel contents
