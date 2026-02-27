@@ -43,12 +43,29 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Determine artifact name
+        id: artifact-name
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            echo "name=mpt-crypto-linux-x86_64" >> "$GITHUB_OUTPUT"
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            ARCH=$(uname -m)
+            if [ "$ARCH" == "arm64" ]; then
+              echo "name=mpt-crypto-darwin-arm64" >> "$GITHUB_OUTPUT"
+            else
+              echo "name=mpt-crypto-darwin-x86_64" >> "$GITHUB_OUTPUT"
+            fi
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            echo "name=mpt-crypto-win32-x86_64" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Download prebuilt mpt-crypto libraries
         id: download-libs
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
-          name: mpt-crypto-${{ runner.os == 'Linux' && 'linux-x86_64' || runner.os == 'macOS' && 'darwin-universal' || 'win32-x86_64' }}
+          name: ${{ steps.artifact-name.outputs.name }}
           path: artifacts
 
       - name: Check library download status

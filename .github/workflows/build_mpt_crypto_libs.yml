@@ -144,8 +144,8 @@ jobs:
             xrpl/core/confidential/include/*.h
             xrpl/core/confidential/include/utility/*.h
 
-  build_macos:
-    name: Build for macOS (universal)
+  build_macos_arm64:
+    name: Build for macOS (ARM64)
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
@@ -228,7 +228,7 @@ jobs:
 
       - name: Verify bundled libraries
         run: |
-          echo "=== Verifying bundled libraries ==="
+          echo "=== Verifying bundled libraries (ARM64) ==="
           LIBS_DIR="xrpl/core/confidential/libs/darwin"
 
           echo "Library files:"
@@ -237,6 +237,12 @@ jobs:
           echo ""
           echo "Library sizes:"
           du -h "$LIBS_DIR/"*
+
+          echo ""
+          echo "Architecture verification:"
+          for lib in "$LIBS_DIR"/*.a; do
+            echo "  $(basename $lib): $(lipo -info $lib 2>/dev/null || file $lib)"
+          done
 
           echo ""
           echo "Checking required libraries exist:"
@@ -263,7 +269,138 @@ jobs:
       - name: Upload libraries and headers
         uses: actions/upload-artifact@v4
         with:
-          name: mpt-crypto-darwin-universal
+          name: mpt-crypto-darwin-arm64
+          path: |
+            xrpl/core/confidential/libs/darwin/*.a
+            xrpl/core/confidential/include/*.h
+            xrpl/core/confidential/include/utility/*.h
+
+  build_macos_intel:
+    name: Build for macOS (Intel x86_64)
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          brew install cmake openssl ninja
+          pip install conan
+
+      - name: Setup Conan profile
+        run: |
+          conan profile detect --force
+          conan remote add --index 0 xrplf https://conan.ripplex.io
+
+      - name: Clone mpt-crypto
+        run: |
+          git clone --branch mpt-utility https://github.com/yinyiqian1/mpt-crypto.git /tmp/mpt-crypto
+
+      - name: Copy header files
+        run: |
+          mkdir -p xrpl/core/confidential/include/utility
+          cp /tmp/mpt-crypto/include/secp256k1_mpt.h xrpl/core/confidential/include/
+          cp /tmp/mpt-crypto/include/utility/mpt_utility.h xrpl/core/confidential/include/utility/
+
+      - name: Build mpt-crypto
+        run: |
+          cd /tmp/mpt-crypto
+          mkdir -p build && cd build
+          conan install .. --build="*" -o "&:tests=False" -s arch=x86_64 -o "&:fPIC=True"
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -G Ninja \
+                   -DCMAKE_TOOLCHAIN_FILE=build/generators/conan_toolchain.cmake \
+                   -DCMAKE_OSX_ARCHITECTURES=x86_64 \
+                   -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+                   -DENABLE_TESTS=OFF
+          ninja
+
+      - name: Copy libraries
+        run: |
+          rm -rf xrpl/core/confidential/libs/darwin
+          mkdir -p xrpl/core/confidential/libs/darwin
+
+          MPT_LIB=$(find /tmp/mpt-crypto/build -name "libmpt-crypto.a" | head -n 1)
+          SECP_LIB=$(find ~/.conan2 -name "libsecp256k1.a" 2>/dev/null | head -n 1)
+          if [ -z "$SECP_LIB" ]; then
+            SECP_LIB=$(find /tmp/mpt-crypto/build -name "libsecp256k1.a" 2>/dev/null | head -n 1)
+          fi
+          CRYPTO_LIB=$(find ~/.conan2 -name "libcrypto.a" 2>/dev/null | head -n 1)
+
+          if [ -n "$MPT_LIB" ] && [ -f "$MPT_LIB" ]; then
+            cp "$MPT_LIB" xrpl/core/confidential/libs/darwin/
+          else
+            echo "Error: libmpt-crypto.a not found!"
+            exit 1
+          fi
+
+          if [ -n "$SECP_LIB" ] && [ -f "$SECP_LIB" ]; then
+            cp "$SECP_LIB" xrpl/core/confidential/libs/darwin/
+          else
+            echo "Error: libsecp256k1.a not found!"
+            exit 1
+          fi
+
+          if [ -n "$CRYPTO_LIB" ] && [ -f "$CRYPTO_LIB" ]; then
+            cp "$CRYPTO_LIB" xrpl/core/confidential/libs/darwin/
+            echo "Bundled OpenSSL: $CRYPTO_LIB"
+          else
+            echo "Error: libcrypto.a not found in Conan cache!"
+            echo "Searching for any OpenSSL libraries..."
+            find ~/.conan2 -name "libcrypto*" 2>/dev/null || echo "No libcrypto files found"
+            exit 1
+          fi
+
+      - name: Verify bundled libraries
+        run: |
+          echo "=== Verifying bundled libraries (Intel x86_64) ==="
+          LIBS_DIR="xrpl/core/confidential/libs/darwin"
+
+          echo "Library files:"
+          ls -la "$LIBS_DIR/"
+
+          echo ""
+          echo "Library sizes:"
+          du -h "$LIBS_DIR/"*
+
+          echo ""
+          echo "Architecture verification:"
+          for lib in "$LIBS_DIR"/*.a; do
+            echo "  $(basename $lib): $(lipo -info $lib 2>/dev/null || file $lib)"
+          done
+
+          echo ""
+          echo "Checking required libraries exist:"
+          REQUIRED_LIBS=("libmpt-crypto.a" "libsecp256k1.a" "libcrypto.a")
+          MISSING=0
+          for lib in "${REQUIRED_LIBS[@]}"; do
+            if [ -f "$LIBS_DIR/$lib" ]; then
+              echo "  ✓ $lib ($(du -h "$LIBS_DIR/$lib" | cut -f1))"
+            else
+              echo "  ✗ $lib MISSING"
+              MISSING=1
+            fi
+          done
+
+          if [ $MISSING -eq 1 ]; then
+            echo ""
+            echo "ERROR: Missing required libraries!"
+            exit 1
+          fi
+
+          echo ""
+          echo "=== All required libraries verified ==="
+
+      - name: Upload libraries and headers
+        uses: actions/upload-artifact@v4
+        with:
+          name: mpt-crypto-darwin-x86_64
           path: |
             xrpl/core/confidential/libs/darwin/*.a
             xrpl/core/confidential/include/*.h
@@ -442,11 +579,11 @@ jobs:
 
   test_libraries:
     name: Test libraries on ${{ matrix.os }}
-    needs: [build_linux, build_macos, build_windows]
+    needs: [build_linux, build_macos_arm64, build_macos_intel, build_windows]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-14, windows-2022]
+        os: [ubuntu-22.04, macos-14, macos-15-intel, windows-2022]
         python-version: ["3.9", "3.11", "3.12"]
 
     steps:
@@ -504,14 +641,24 @@ jobs:
           mkdir -p xrpl/core/confidential/include
           mkdir -p xrpl/core/confidential/include/utility
 
-          # Copy libraries - try both direct path and nested path
+          # Copy Linux libraries
           cp artifacts/mpt-crypto-linux-x86_64/libs/linux/*.a xrpl/core/confidential/libs/linux/ 2>/dev/null || \
             cp artifacts/mpt-crypto-linux-x86_64/xrpl/core/confidential/libs/linux/*.a xrpl/core/confidential/libs/linux/ 2>/dev/null || true
 
-          cp artifacts/mpt-crypto-darwin-universal/libs/darwin/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || \
-            cp artifacts/mpt-crypto-darwin-universal/xrpl/core/confidential/libs/darwin/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || \
-            cp artifacts/mpt-crypto-darwin-universal/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || true
+          # Copy macOS libraries - select based on architecture
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            ARCH=$(uname -m)
+            if [ "$ARCH" == "arm64" ]; then
+              DARWIN_ARTIFACT="mpt-crypto-darwin-arm64"
+            else
+              DARWIN_ARTIFACT="mpt-crypto-darwin-x86_64"
+            fi
+            cp artifacts/$DARWIN_ARTIFACT/libs/darwin/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || \
+              cp artifacts/$DARWIN_ARTIFACT/xrpl/core/confidential/libs/darwin/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || \
+              cp artifacts/$DARWIN_ARTIFACT/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || true
+          fi
 
+          # Copy Windows libraries
           cp artifacts/mpt-crypto-win32-x86_64/libs/win32/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || \
             cp artifacts/mpt-crypto-win32-x86_64/xrpl/core/confidential/libs/win32/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || \
             cp artifacts/mpt-crypto-win32-x86_64/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || true
@@ -540,8 +687,14 @@ jobs:
           cd xrpl/core/confidential
 
           if [ "$RUNNER_OS" == "macOS" ]; then
-            export ARCHFLAGS="-arch arm64"
-            export _PYTHON_HOST_PLATFORM="macosx-14.0-arm64"
+            ARCH=$(uname -m)
+            if [ "$ARCH" == "arm64" ]; then
+              export ARCHFLAGS="-arch arm64"
+              export _PYTHON_HOST_PLATFORM="macosx-14.0-arm64"
+            else
+              export ARCHFLAGS="-arch x86_64"
+              export _PYTHON_HOST_PLATFORM="macosx-10.9-x86_64"
+            fi
           fi
 
           poetry run python build_mpt_crypto.py
