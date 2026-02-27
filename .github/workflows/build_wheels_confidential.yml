@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-14, windows-2022]
+        os: [ubuntu-22.04, macos-13, macos-14, windows-2022]
         python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
@@ -113,7 +113,14 @@ jobs:
         run: |
           cd xrpl/core/confidential
           if [ "$RUNNER_OS" == "macOS" ]; then
-            export ARCHFLAGS="-arch arm64"
+            # Detect architecture and set ARCHFLAGS accordingly
+            ARCH=$(uname -m)
+            if [ "$ARCH" == "arm64" ]; then
+              export ARCHFLAGS="-arch arm64"
+            else
+              export ARCHFLAGS="-arch x86_64"
+            fi
+            echo "Building for macOS $ARCH"
           fi
           # Only build if libraries exist
           if ls libs/*/*.a 2>/dev/null || ls libs/*/*.lib 2>/dev/null; then
@@ -138,10 +145,18 @@ jobs:
           if [ "$RUNNER_OS" == "Linux" ]; then
             PLATFORM="manylinux_2_17_x86_64.manylinux2014_x86_64"
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            PLATFORM="macosx_11_0_arm64"
+            # Detect architecture for macOS
+            ARCH=$(uname -m)
+            if [ "$ARCH" == "arm64" ]; then
+              PLATFORM="macosx_11_0_arm64"
+            else
+              PLATFORM="macosx_10_9_x86_64"
+            fi
           elif [ "$RUNNER_OS" == "Windows" ]; then
             PLATFORM="win_amd64"
           fi
+
+          echo "Platform tag: $PLATFORM"
 
           # Retag the wheel
           cd dist
