@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Dropped support for Python 3.8 (EOL October 2024). The minimum supported Python version is now 3.9.
 
+### Fixed
+
+- Fixed correct mapping of `sfMutableFlags`, `sfStartDate`, and `sfPreviousPaymentDueDate` fields in the binary codec `definitions.json`.
+
 ## [[4.5.0]]
 
 ### Added
@@ -28,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[4.4.0]] - 2025-12-16
 
 ### Added
+
 - Support for the Lending Protocol (XLS-66d)
 
 ## [[4.3.1]] - 2025-11-12
