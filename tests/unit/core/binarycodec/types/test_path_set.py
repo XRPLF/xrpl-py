@@ -2,6 +2,8 @@ from unittest import TestCase
 
 from xrpl.core.binarycodec import XRPLBinaryCodecException
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
+from xrpl.core.binarycodec.types.account_id import AccountID
+from xrpl.core.binarycodec.types.currency import Currency
 from xrpl.core.binarycodec.types.path_set import PathSet
 
 buffer = (
@@ -108,3 +110,130 @@ class TestPathSet(TestCase):
     def test_raises_invalid_value_type(self):
         invalid_value = 1
         self.assertRaises(XRPLBinaryCodecException, PathSet.from_value, invalid_value)
+
+    # ── MPT PathSet serialization tests ──
+    #
+    # PathSet binary format reference (from rippled STPathSet.cpp):
+    #
+    # Each path step starts with a 1-byte type flag bitmask:
+    #   0x01 = account    (followed by 20-byte AccountID)
+    #   0x10 = currency   (followed by 20-byte Currency)
+    #   0x20 = issuer     (followed by 20-byte AccountID)
+    #   0x40 = MPT        (followed by 24-byte MPTID)
+    #
+    # Special marker bytes:
+    #   0xFF = path boundary (separates alternative paths within a PathSet)
+    #   0x00 = end of PathSet (terminates the entire PathSet)
+    #
+    # Currency (0x10) and MPT (0x40) are mutually exclusive within a
+    # single path step — a step cannot carry both flags.
+
+    def test_one_path_with_one_mpt_hop(self):
+        mpt_issuance_id = "00000001B5F762798A53D543A014CAF8B297CFF8F2F937E8"
+        path = [[{"mpt_issuance_id": mpt_issuance_id}]]
+
+        pathset = PathSet.from_value(path)
+        # "40"               → type byte: MPT flag (0x40)
+        # mpt_issuance_id    → raw 24-byte MPTID
+        # "00"               → end of PathSet
+        expected_hex = "40" + mpt_issuance_id + "00"
+        self.assertEqual(str(pathset).upper(), expected_hex)
+
+        # round-trip JSON equivalence
+        self.assertEqual(pathset.to_json(), path)
+
+        # deserialization via BinaryParser
+        parser = BinaryParser(expected_hex)
+        self.assertEqual(str(PathSet.from_parser(parser)), str(pathset))
+
+    def test_two_paths_with_mpt_hops(self):
+        mpt_id_1 = "00000001B5F762798A53D543A014CAF8B297CFF8F2F937E8"
+        mpt_id_2 = "000004C463C52827307480341125DA0577DEFC38405B0E3E"
+        path = [
+            [{"mpt_issuance_id": mpt_id_1}],
+            [{"mpt_issuance_id": mpt_id_2}],
+        ]
+
+        pathset = PathSet.from_value(path)
+        # "40" + mpt_id_1    → first path: one MPT hop
+        # "FF"               → path boundary separating alternative paths
+        # "40" + mpt_id_2    → second path: one MPT hop
+        # "00"               → end of PathSet
+        expected_hex = "40" + mpt_id_1 + "FF" + "40" + mpt_id_2 + "00"
+        self.assertEqual(str(pathset).upper(), expected_hex)
+
+        self.assertEqual(pathset.to_json(), path)
+
+        parser = BinaryParser(expected_hex)
+        self.assertEqual(str(PathSet.from_parser(parser)), str(pathset))
+
+    def test_path_with_mpt_and_currency_path_elements(self):
+        """One path with two distinct steps: an MPT hop followed by a Currency hop."""
+        mpt_issuance_id = "00000001B5F762798A53D543A014CAF8B297CFF8F2F937E8"
+        currency_code = "ABC"
+        path = [
+            [
+                {"mpt_issuance_id": mpt_issuance_id},
+                {"currency": currency_code},
+            ]
+        ]
+
+        pathset = PathSet.from_value(path)
+        currency_hex = str(Currency.from_value(currency_code)).upper()
+        # "40" + mpt_id      → first step: MPT hop (0x40 type flag)
+        # "10" + currency_hex → second step: Currency hop (0x10 type flag)
+        # "00"               → end of PathSet
+        expected_hex = "40" + mpt_issuance_id + "10" + currency_hex + "00"
+        self.assertEqual(str(pathset).upper(), expected_hex)
+
+        self.assertEqual(pathset.to_json(), path)
+
+        parser = BinaryParser(expected_hex)
+        self.assertEqual(str(PathSet.from_parser(parser)), str(pathset))
+
+    def test_path_with_mpt_and_issuer_path_elements(self):
+        """One path with two distinct steps: an MPT hop followed by an Issuer hop."""
+        mpt_issuance_id = "00000001B5F762798A53D543A014CAF8B297CFF8F2F937E8"
+        issuer_account = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+        path = [
+            [
+                {"mpt_issuance_id": mpt_issuance_id},
+                {"issuer": issuer_account},
+            ]
+        ]
+
+        pathset = PathSet.from_value(path)
+        issuer_hex = str(AccountID.from_value(issuer_account)).upper()
+        # "40" + mpt_id     → first step: MPT hop (0x40 type flag)
+        # "20" + issuer_hex  → second step: Issuer hop (0x20 type flag)
+        # "00"               → end of PathSet
+        expected_hex = "40" + mpt_issuance_id + "20" + issuer_hex + "00"
+        self.assertEqual(str(pathset).upper(), expected_hex)
+
+        self.assertEqual(pathset.to_json(), path)
+
+        parser = BinaryParser(expected_hex)
+        self.assertEqual(str(PathSet.from_parser(parser)), str(pathset))
+
+    def test_currency_and_mpt_mutually_exclusive_in_serialization(self):
+        """Providing both currency and mpt_issuance_id in a single step must raise."""
+        path = [
+            [
+                {
+                    "currency": "ABC",
+                    "mpt_issuance_id": "00000001B5F762798A53"
+                    "D543A014CAF8B297CFF8F2F937E8",
+                }
+            ]
+        ]
+        self.assertRaises(XRPLBinaryCodecException, PathSet.from_value, path)
+
+    def test_currency_and_mpt_mutually_exclusive_in_deserialization(self):
+        """A type byte with both Currency (0x10) and MPT (0x40) flags must raise."""
+        # "50" = 0x10 | 0x40 — an invalid combination
+        currency_hex = str(Currency.from_value("ABC")).upper()
+        mpt_hex = "00000001B5F762798A53D543A014CAF8B297CFF8F2F937E8"
+        invalid_hex = "50" + currency_hex + mpt_hex + "00"
+
+        parser = BinaryParser(invalid_hex)
+        self.assertRaises(XRPLBinaryCodecException, PathSet.from_parser, parser)
