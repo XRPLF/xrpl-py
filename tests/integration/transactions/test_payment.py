@@ -10,6 +10,7 @@ from xrpl.models.amounts.mpt_amount import MPTAmount
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.path import PathStep
 from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
+from xrpl.models.requests.tx import Tx
 from xrpl.models.transactions import Payment
 from xrpl.models.transactions.amm_create import AMMCreate
 from xrpl.models.transactions.mptoken_authorize import MPTokenAuthorize
@@ -17,6 +18,7 @@ from xrpl.models.transactions.mptoken_issuance_create import (
     MPTokenIssuanceCreate,
     MPTokenIssuanceCreateFlag,
 )
+from xrpl.models.transactions.payment import PaymentFlag
 from xrpl.wallet import Wallet
 
 
@@ -252,3 +254,130 @@ class TestPayment(IntegrationTestCase):
         )
         response = await sign_and_reliable_submission_async(pay_tx, WALLET, client)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+    @test_async_and_sync(globals())
+    async def test_mpt_payment_delivered_amount(self, client):
+        """Verify delivered_amount in metadata is an MPT
+        for direct MPT payments."""
+        issuer = Wallet.create()
+        await fund_wallet_async(issuer)
+        holder = Wallet.create()
+        await fund_wallet_async(holder)
+
+        mpt_flags = [
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRADE,
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
+        ]
+
+        mpt_issuance_id = await create_mpt_token_and_authorize_source_async(
+            issuer=issuer,
+            source=holder,
+            client=client,
+            flags=mpt_flags,
+        )
+
+        # Send MPT from holder to a new authorized recipient
+        recipient = Wallet.create()
+        await fund_wallet_async(recipient)
+        auth_tx = MPTokenAuthorize(
+            account=recipient.classic_address,
+            mptoken_issuance_id=mpt_issuance_id,
+        )
+        response = await sign_and_reliable_submission_async(auth_tx, recipient, client)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        payment_amount = "500"
+        payment = Payment(
+            account=holder.address,
+            amount=MPTAmount(
+                mpt_issuance_id=mpt_issuance_id,
+                value=payment_amount,
+            ),
+            destination=recipient.address,
+        )
+
+        response = await sign_and_reliable_submission_async(
+            payment,
+            holder,
+            client,
+        )
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Fetch full transaction to get metadata
+        tx_hash = response.result["tx_json"]["hash"]
+        tx_response = await client.request(Tx(transaction=tx_hash))
+        meta = tx_response.result["meta"]
+
+        self.assertIn("delivered_amount", meta)
+        delivered = meta["delivered_amount"]
+        self.assertEqual(delivered["mpt_issuance_id"], mpt_issuance_id)
+        self.assertEqual(delivered["value"], payment_amount)
+
+    @test_async_and_sync(globals())
+    async def test_mpt_partial_payment_delivered_amount(self, client):
+        """Verify delivered_amount < Amount for a partial
+        MPT payment."""
+        issuer = Wallet.create()
+        await fund_wallet_async(issuer)
+        holder = Wallet.create()
+        await fund_wallet_async(holder)
+
+        mpt_flags = [
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRADE,
+            MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
+        ]
+
+        # Fund holder with 500 MPT
+        mpt_issuance_id = await create_mpt_token_and_authorize_source_async(
+            issuer=issuer,
+            source=holder,
+            client=client,
+            flags=mpt_flags,
+        )
+
+        recipient = Wallet.create()
+        await fund_wallet_async(recipient)
+        auth_tx = MPTokenAuthorize(
+            account=recipient.classic_address,
+            mptoken_issuance_id=mpt_issuance_id,
+        )
+        response = await sign_and_reliable_submission_async(auth_tx, recipient, client)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Partial payment: request 1000 MPT but cap SendMax
+        # at 500 MPT (holder's entire balance)
+        requested_amount = "1000"
+        send_max_amount = "500"
+        payment = Payment(
+            account=holder.address,
+            destination=recipient.address,
+            amount=MPTAmount(
+                mpt_issuance_id=mpt_issuance_id,
+                value=requested_amount,
+            ),
+            send_max=MPTAmount(
+                mpt_issuance_id=mpt_issuance_id,
+                value=send_max_amount,
+            ),
+            flags=[PaymentFlag.TF_PARTIAL_PAYMENT],
+        )
+
+        response = await sign_and_reliable_submission_async(
+            payment,
+            holder,
+            client,
+        )
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Fetch full transaction to get metadata
+        tx_hash = response.result["tx_json"]["hash"]
+        tx_response = await client.request(Tx(transaction=tx_hash))
+        meta = tx_response.result["meta"]
+
+        self.assertIn("delivered_amount", meta)
+        delivered = meta["delivered_amount"]
+        self.assertEqual(delivered["mpt_issuance_id"], mpt_issuance_id)
+        # delivered_amount should be <= send_max (500),
+        # and less than the requested Amount (1000)
+        self.assertEqual(int(delivered["value"]), int(send_max_amount))
+        self.assertLess(int(delivered["value"]), int(requested_amount))
