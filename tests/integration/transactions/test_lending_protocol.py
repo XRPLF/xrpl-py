@@ -280,7 +280,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
             loan_issuer,
         )
 
-        # Note: The transaction reference fee is specified in the rippled.cfg file for
+        # Note: The transaction reference fee is specified in the xrpld.cfg file for
         # integration tests.
         self.assertEqual(
             loan_issuer_signed_txn.fee,

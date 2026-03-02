@@ -9,7 +9,6 @@ from typing import Optional
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
 
 
 class MPTokenAuthorizeFlag(int, Enum):
@@ -40,8 +39,7 @@ class MPTokenAuthorizeFlagInterface(TransactionFlagInterface):
     TF_MPT_UNAUTHORIZE: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class MPTokenAuthorize(Transaction):
     """
     The MPTokenAuthorize transaction is used to globally lock/unlock a MPTokenIssuance,

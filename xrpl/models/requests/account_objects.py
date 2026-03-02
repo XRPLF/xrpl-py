@@ -13,7 +13,6 @@ from typing import Any, Optional
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class AccountObjectType(str, Enum):
@@ -45,8 +44,7 @@ class AccountObjectType(str, Enum):
     XCHAIN_OWNED_CLAIM_ID = "xchain_owned_claim_id"
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class AccountObjects(Request, LookupByLedgerRequest):
     """
     This request returns the raw ledger format for all objects owned by an account.

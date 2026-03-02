@@ -17,11 +17,9 @@ from xrpl.models.transactions.transaction import (
     TransactionFlagInterface,
 )
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class CounterpartySignature(BaseModel):
     """
     Signature payload supplied by the counterparty.
@@ -61,8 +59,7 @@ class LoanSetFlagInterface(TransactionFlagInterface):
     TF_LOAN_OVER_PAYMENT: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class LoanSet(Transaction):
     """This transaction creates a Loan"""
 
