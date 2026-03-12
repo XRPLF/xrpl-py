@@ -303,6 +303,23 @@ class Transaction(BaseModel):
         if self.account == self.delegate:
             errors["delegate"] = "Account and delegate addresses cannot be the same"
 
+        # ── Sponsor cross-field checks ─────────────────────────────────────────
+        if self.sponsor is not None and self.sponsor == self.account:
+            errors["sponsor"] = "`sponsor` must differ from `account`."
+
+        if self.sponsor_flags is not None and self.sponsor is None:
+            errors["sponsor_flags"] = "`sponsor_flags` requires `sponsor` to be set."
+        elif self.sponsor_flags is not None and (self.sponsor_flags & ~0x3) != 0:
+            errors["sponsor_flags"] = (
+                "`sponsor_flags` may only use bits 0x1 (tfSponsorFee) "
+                "and 0x2 (tfSponsorReserve)."
+            )
+
+        if self.sponsor_signature is not None and self.sponsor is None:
+            errors["sponsor_signature"] = (
+                "`sponsor_signature` requires `sponsor` to be set."
+            )
+
         return errors
 
     def to_dict(self: Self) -> Dict[str, Any]:

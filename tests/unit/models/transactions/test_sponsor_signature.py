@@ -13,29 +13,8 @@ _TXN_SIGNATURE = (
     "F4BF7D5F1C6D3DA2F9D0E4EB7A4E6BF1C3A5D7E9"
 )
 
-# CK TODO: Update the tests to ensure that empty SponsorSignature objects fail with an appropriate error
-
 
 class TestSponsorSignature(TestCase):
-    def test_valid_empty(self):
-        """SponsorSignature with no fields (all optional)."""
-        sig = SponsorSignature()
-        self.assertTrue(sig.is_valid())
-
-    def test_valid_with_signing_pub_key(self):
-        """Single signature with signing_pub_key."""
-        sig = SponsorSignature(
-            signing_pub_key=_SIGNING_PUB_KEY,
-        )
-        self.assertTrue(sig.is_valid())
-
-    def test_valid_with_txn_signature(self):
-        """With txn_signature."""
-        sig = SponsorSignature(
-            txn_signature=_TXN_SIGNATURE,
-        )
-        self.assertTrue(sig.is_valid())
-
     def test_valid_with_single_signature(self):
         """Both signing_pub_key and txn_signature."""
         sig = SponsorSignature(
@@ -83,13 +62,71 @@ class TestSponsorSignature(TestCase):
         self.assertEqual(sig.txn_signature, _TXN_SIGNATURE)
         self.assertTrue(sig.is_valid())
 
-    def test_to_dict_empty(self):
-        """Verify empty SponsorSignature serializes correctly."""
-        sig = SponsorSignature()
-        result = sig.to_dict()
-        self.assertIsInstance(result, dict)
-
-    def test_from_dict_empty(self):
-        """Verify empty dict deserializes correctly."""
-        sig = SponsorSignature.from_dict({})
+    def test_valid_sponsor_signature_single_sig(self):
+        """SponsorSignature with both signing_pub_key and txn_signature is valid."""
+        sig = SponsorSignature(
+            signing_pub_key="ED000000",
+            txn_signature="DEADBEEF",
+        )
         self.assertTrue(sig.is_valid())
+
+    def test_valid_sponsor_signature_multi_sig(self):
+        """SponsorSignature with signers list is valid."""
+        sig = SponsorSignature(
+            signers=[
+                Signer(
+                    account=_ACCOUNT2,
+                    signing_pub_key="ED000000",
+                    txn_signature="DEADBEEF",
+                )
+            ]
+        )
+        self.assertTrue(sig.is_valid())
+
+    def test_invalid_sponsor_signature_empty(self):
+        """SponsorSignature with no fields set must be rejected."""
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorSignature()
+        self.assertIn(
+            "Must provide either (`signing_pub_key` + `txn_signature`) "
+            "for single-signature or `signers` for multi-signature.",
+            str(cm.exception),
+        )
+
+    def test_invalid_sponsor_signature_missing_txn_signature(self):
+        """signing_pub_key without txn_signature must be rejected."""
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorSignature(signing_pub_key="ED000000")
+        self.assertIn(
+            "`txn_signature` is required when `signing_pub_key` is set.",
+            str(cm.exception),
+        )
+
+    def test_invalid_sponsor_signature_missing_pub_key(self):
+        """txn_signature without signing_pub_key must be rejected."""
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorSignature(txn_signature="DEADBEEF")
+        self.assertIn(
+            "`signing_pub_key` is required when `txn_signature` is set.",
+            str(cm.exception),
+        )
+
+    def test_invalid_sponsor_signature_single_and_multi(self):
+        """Providing both single-sig fields and signers must be rejected."""
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorSignature(
+                signing_pub_key="ED000000",
+                txn_signature="DEADBEEF",
+                signers=[
+                    Signer(
+                        account=_ACCOUNT2,
+                        signing_pub_key="ED000000",
+                        txn_signature="DEADBEEF",
+                    )
+                ],
+            )
+        self.assertIn(
+            "Cannot set both single-signature fields "
+            "(`signing_pub_key`/`txn_signature`) and `signers`.",
+            str(cm.exception),
+        )

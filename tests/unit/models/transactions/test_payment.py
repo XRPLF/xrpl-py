@@ -308,3 +308,80 @@ class TestPayment(TestCase):
     def test_sponsor_created_account_flag_value(self):
         """Verify flag value is correct."""
         self.assertEqual(PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT, 0x00080000)
+
+    # ------------------------------------------------------------------ #
+    #  Issue 11 — TF_SPONSOR_CREATED_ACCOUNT mutual-exclusion validation  #
+    # ------------------------------------------------------------------ #
+
+    def test_invalid_sponsor_created_account_with_no_ripple_direct(self):
+        """TF_SPONSOR_CREATED_ACCOUNT and TF_NO_RIPPLE_DIRECT are mutually exclusive."""
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount="1000000",
+                flags=(
+                    PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT
+                    | PaymentFlag.TF_NO_RIPPLE_DIRECT
+                ),
+            )
+        self.assertIn(
+            "`TF_SPONSOR_CREATED_ACCOUNT` cannot be combined with "
+            "`TF_NO_RIPPLE_DIRECT`.",
+            str(cm.exception),
+        )
+
+    def test_invalid_sponsor_created_account_with_partial_payment(self):
+        """TF_SPONSOR_CREATED_ACCOUNT and TF_PARTIAL_PAYMENT are mutually exclusive."""
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount="1000000",
+                send_max="2000000",
+                flags=(
+                    PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT
+                    | PaymentFlag.TF_PARTIAL_PAYMENT
+                ),
+            )
+        self.assertIn(
+            "`TF_SPONSOR_CREATED_ACCOUNT` cannot be combined with "
+            "`TF_PARTIAL_PAYMENT`.",
+            str(cm.exception),
+        )
+
+    def test_invalid_sponsor_created_account_with_limit_quality(self):
+        """TF_SPONSOR_CREATED_ACCOUNT and TF_LIMIT_QUALITY are mutually exclusive."""
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount="1000000",
+                flags=(
+                    PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT
+                    | PaymentFlag.TF_LIMIT_QUALITY
+                ),
+            )
+        self.assertIn(
+            "`TF_SPONSOR_CREATED_ACCOUNT` cannot be combined with "
+            "`TF_LIMIT_QUALITY`.",
+            str(cm.exception),
+        )
+
+    def test_invalid_sponsor_created_account_with_multiple_incompatible_flags(self):
+        """TF_SPONSOR_CREATED_ACCOUNT combined with multiple incompatible flags."""
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount="1000000",
+                send_max="2000000",
+                flags=(
+                    PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT
+                    | PaymentFlag.TF_NO_RIPPLE_DIRECT
+                    | PaymentFlag.TF_PARTIAL_PAYMENT
+                ),
+            )
+        exception_str = str(cm.exception)
+        self.assertIn("`TF_NO_RIPPLE_DIRECT`", exception_str)
+        self.assertIn("`TF_PARTIAL_PAYMENT`", exception_str)

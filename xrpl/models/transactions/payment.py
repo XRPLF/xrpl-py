@@ -197,4 +197,22 @@ class Payment(Transaction):
             if err:
                 errors["domain_id"] = err
 
+        # TF_SPONSOR_CREATED_ACCOUNT is mutually exclusive with routing/quality flags.
+        # Guard against bad flags type (str etc.) — type errors are reported elsewhere.
+        if isinstance(self.flags, (int, dict, list)) and self.has_flag(
+            PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT
+        ):
+            incompatible = []
+            if self.has_flag(PaymentFlag.TF_NO_RIPPLE_DIRECT):
+                incompatible.append("`TF_NO_RIPPLE_DIRECT`")
+            if self.has_flag(PaymentFlag.TF_PARTIAL_PAYMENT):
+                incompatible.append("`TF_PARTIAL_PAYMENT`")
+            if self.has_flag(PaymentFlag.TF_LIMIT_QUALITY):
+                incompatible.append("`TF_LIMIT_QUALITY`")
+            if incompatible:
+                errors["flags"] = (
+                    "`TF_SPONSOR_CREATED_ACCOUNT` cannot be combined with "
+                    f"{', '.join(incompatible)}."
+                )
+
         return errors

@@ -72,6 +72,8 @@ _GRANULAR_PERMISSIONS = {
     "PaymentBurn": 65546,
     "MPTokenIssuanceLock": 65547,
     "MPTokenIssuanceUnlock": 65548,
+    "SponsorFee": 65549,
+    "SponsorReserve": 65550,
 }
 
 _tx_delegations = {

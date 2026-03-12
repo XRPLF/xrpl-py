@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
+from typing import Dict, Optional
+
+from typing_extensions import Self
 
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
@@ -58,3 +60,26 @@ class SponsorshipTransfer(Transaction):
         default=TransactionType.SPONSORSHIP_TRANSFER,
         init=False,
     )
+
+    def _get_errors(self: Self) -> Dict[str, str]:
+        errors = super()._get_errors()
+
+        end = self.has_flag(int(SponsorshipTransferFlag.TF_SPONSORSHIP_END))
+        create = self.has_flag(int(SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE))
+        reassign = self.has_flag(int(SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN))
+
+        # Exactly one of the three operation flags may be set at a time.
+        if sum([end, create, reassign]) > 1:
+            errors["flags"] = (
+                "Exactly one of `TF_SPONSORSHIP_END`, `TF_SPONSORSHIP_CREATE`, or "
+                "`TF_SPONSORSHIP_REASSIGN` may be set at a time."
+            )
+
+        # sponsee is not used for CREATE or REASSIGN operations.
+        if self.sponsee is not None and (create or reassign):
+            errors["sponsee"] = (
+                "`sponsee` cannot be set when `TF_SPONSORSHIP_CREATE` or "
+                "`TF_SPONSORSHIP_REASSIGN` is active."
+            )
+
+        return errors

@@ -230,6 +230,13 @@ class TestBetterTransactionFlags(TestCase):
     def test_payment_flags(self):
         dest = "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX"
         amnt = "10000000"
+        # TF_SPONSOR_CREATED_ACCOUNT is mutually exclusive with the routing/quality
+        # flags below, so it is tested separately in test_payment.py.
+        compatible_flags = [
+            models.PaymentFlag.TF_LIMIT_QUALITY,
+            models.PaymentFlag.TF_NO_RIPPLE_DIRECT,
+            models.PaymentFlag.TF_PARTIAL_PAYMENT,
+        ]
         actual = models.Payment(
             account=ACCOUNT,
             destination=dest,
@@ -238,17 +245,15 @@ class TestBetterTransactionFlags(TestCase):
                 TF_LIMIT_QUALITY=True,
                 TF_NO_RIPPLE_DIRECT=True,
                 TF_PARTIAL_PAYMENT=True,
-                TF_SPONSOR_CREATED_ACCOUNT=True,
             ),
         )
         self.assertTrue(actual.has_flag(flag=0x00010000))
         self.assertTrue(actual.is_valid())
-        flags = models.PaymentFlag
         expected = models.Payment(
             account=ACCOUNT,
             destination=dest,
             amount=amnt,
-            flags=[*flags],
+            flags=compatible_flags,
         )
         signed_actual = sign(
             transaction=actual,
