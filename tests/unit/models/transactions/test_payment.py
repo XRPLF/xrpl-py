@@ -294,3 +294,17 @@ class TestPayment(TestCase):
             error.exception.args[0],
             "{'domain_id': 'domain_id length must be 64 characters.'}",
         )
+
+    def test_sponsor_created_account_flag(self):
+        """Payment with tfSponsorCreatedAccount flag."""
+        tx = Payment(
+            account=_ACCOUNT,
+            destination=_DESTINATION,
+            amount="1000000",
+            flags=PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_sponsor_created_account_flag_value(self):
+        """Verify flag value is correct."""
+        self.assertEqual(PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT, 0x00080000)

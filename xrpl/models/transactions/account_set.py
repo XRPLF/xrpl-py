@@ -111,6 +111,10 @@ class AccountSetAsfFlag(int, Enum):
     If this account is an Issuer of IOU tokens, this flag allows such tokens to be
     used in Escrow.
     """
+    # CK TODO: Add integ tests to validate this new addition
+    ASF_DISALLOW_INCOMING_SPONSOR = 19
+    """Disallow other accounts from creating Sponsorship objects directed at this
+    account."""
 
 
 class AccountSetFlag(int, Enum):

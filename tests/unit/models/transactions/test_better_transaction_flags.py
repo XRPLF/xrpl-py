@@ -238,6 +238,7 @@ class TestBetterTransactionFlags(TestCase):
                 TF_LIMIT_QUALITY=True,
                 TF_NO_RIPPLE_DIRECT=True,
                 TF_PARTIAL_PAYMENT=True,
+                TF_SPONSOR_CREATED_ACCOUNT=True,
             ),
         )
         self.assertTrue(actual.has_flag(flag=0x00010000))

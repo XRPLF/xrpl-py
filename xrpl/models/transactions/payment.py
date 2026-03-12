@@ -50,6 +50,12 @@ class PaymentFlag(int, Enum):
     See `Limit <https://xrpl.org/payment.html#limit-quality>`_ Quality for details.
     """
 
+    TF_SPONSOR_CREATED_ACCOUNT = 0x00080000
+    """
+    Sponsor the creation of the destination account. The sending account
+    pays the account reserve for the new account.
+    """
+
 
 class PaymentFlagInterface(TransactionFlagInterface):
     """
@@ -62,6 +68,7 @@ class PaymentFlagInterface(TransactionFlagInterface):
     TF_NO_RIPPLE_DIRECT: bool
     TF_PARTIAL_PAYMENT: bool
     TF_LIMIT_QUALITY: bool
+    TF_SPONSOR_CREATED_ACCOUNT: bool
 
 
 @require_kwargs_on_init
