@@ -75,11 +75,10 @@ class SponsorshipTransfer(Transaction):
                 "`TF_SPONSORSHIP_REASSIGN` may be set at a time."
             )
 
-        # sponsee is not used for CREATE or REASSIGN operations.
-        if self.sponsee is not None and (create or reassign):
+        # sponsee is not used for CREATE operation.
+        if self.sponsee is not None and create:
             errors["sponsee"] = (
-                "`sponsee` cannot be set when `TF_SPONSORSHIP_CREATE` or "
-                "`TF_SPONSORSHIP_REASSIGN` is active."
+                "`sponsee` cannot be set when `TF_SPONSORSHIP_CREATE` is active."
             )
 
         return errors
