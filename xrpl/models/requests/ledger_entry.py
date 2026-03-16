@@ -291,7 +291,7 @@ class Ticket(BaseModel):
 class Sponsorship(BaseModel):
     """Required fields for requesting a Sponsorship if not querying by object ID."""
 
-    owner: str = REQUIRED
+    sponsor: str = REQUIRED
     """
     This field is required.
 
