@@ -66,7 +66,7 @@ class TestSponsorshipTransfer(TestCase):
         self.assertTrue(tx.is_valid())
 
     def test_valid_reassign_flag(self):
-        """Using TF_SPONSORSHIP_REASSIGN flag (no sponsee — forbidden with REASSIGN)."""
+        """Using TF_SPONSORSHIP_REASSIGN flag."""
         tx = SponsorshipTransfer(
             account=_ACCOUNT,
             object_id=_OBJECT_ID,
