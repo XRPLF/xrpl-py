@@ -283,9 +283,6 @@ class Ticket(BaseModel):
     """
 
 
-# CK TODO: Add integration tests that exercise all the new code paths in this file
-
-
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Sponsorship(BaseModel):
