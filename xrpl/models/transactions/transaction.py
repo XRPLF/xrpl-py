@@ -320,6 +320,15 @@ class Transaction(BaseModel):
                 "`sponsor_signature` requires `sponsor` to be set."
             )
 
+        # Pseudo-transactions and Batch cannot be sponsored (XLS-68 §8.3.4).
+        if self.sponsor is not None and (
+            isinstance(self.transaction_type, PseudoTransactionType)
+            or self.transaction_type == TransactionType.BATCH
+        ):
+            errors["sponsor"] = (
+                "Pseudo-transactions and Batch transactions " "cannot be sponsored."
+            )
+
         return errors
 
     def to_dict(self: Self) -> Dict[str, Any]:

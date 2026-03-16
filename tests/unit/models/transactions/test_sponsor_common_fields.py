@@ -2,7 +2,10 @@
 
 from unittest import TestCase
 
+from xrpl.models.exceptions import XRPLModelException
+from xrpl.models.transactions.batch import Batch
 from xrpl.models.transactions.payment import Payment
+from xrpl.models.transactions.pseudo_transactions import EnableAmendment
 from xrpl.models.transactions.sponsor_signature import SponsorSignature
 from xrpl.models.transactions.transaction import Signer
 
@@ -95,3 +98,34 @@ class TestSponsorCommonFields(TestCase):
         self.assertNotIn("sponsor", d)
         self.assertNotIn("sponsor_flags", d)
         self.assertNotIn("sponsor_signature", d)
+
+    # ── XLS-68 §8.3.4: transactions that cannot be sponsored ──
+
+    _UNSPONSORABLE_MSG = "cannot be sponsored"
+
+    def test_batch_with_sponsor_rejected(self):
+        """Batch transaction with sponsor is rejected."""
+        inner_tx = Payment(
+            account=_ACCOUNT,
+            destination=_DESTINATION,
+            amount="1000000",
+        )
+        with self.assertRaises(XRPLModelException) as cm:
+            Batch(
+                account=_ACCOUNT,
+                raw_transactions=[inner_tx],
+                sponsor=_SPONSOR,
+                sponsor_flags=1,
+            )
+        self.assertIn(self._UNSPONSORABLE_MSG, str(cm.exception))
+
+    def test_pseudo_transaction_with_sponsor_rejected(self):
+        """Pseudo-transaction with sponsor is rejected."""
+        with self.assertRaises(XRPLModelException) as cm:
+            EnableAmendment(
+                amendment="A" * 64,
+                ledger_sequence=1,
+                sponsor=_SPONSOR,
+                sponsor_flags=1,
+            )
+        self.assertIn(self._UNSPONSORABLE_MSG, str(cm.exception))
