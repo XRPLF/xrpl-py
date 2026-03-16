@@ -10,28 +10,23 @@ from tests.integration.it_utils import (
 from xrpl.asyncio.transaction import autofill, sign, submit
 from xrpl.core.binarycodec import encode_for_signing
 from xrpl.core.keypairs import sign as keypairs_sign
-from xrpl.models import (
-    AccountObjects,
-    AccountObjectType,
-    SponsorshipTransfer,
-)
+from xrpl.models import SponsorshipTransfer
 from xrpl.models.response import ResponseStatus
-from xrpl.models.transactions.sponsor_signature import SponsorSignature
 from xrpl.models.transactions.sponsorship_transfer import SponsorshipTransferFlag
 from xrpl.wallet import Wallet
 
 
 def _build_sponsor_signed_tx(transfer_tx, sponsee_wallet, sponsor_wallet):
-    """Sign a SponsorshipTransfer as the sponsee, then co-sign as the sponsor.
+    """Sign a SponsorshipTransfer as the sponsee, then co-sign.
 
     Returns a fully-signed SponsorshipTransfer ready to submit.
     """
     # Sign as the sponsee (primary signer) — sets SigningPubKey
     signed_tx = sign(transfer_tx, sponsee_wallet)
 
-    # Compute the sponsor's co-signature over the signed transaction.
+    # Compute the sponsor's co-signature over the signed tx.
     # SigningPubKey (isSigningField=true) is included in the hash;
-    # TxnSignature and SponsorSignature (isSigningField=false) are excluded.
+    # TxnSignature/SponsorSignature (isSigningField=false) excluded.
     tx_json = signed_tx.to_xrpl()
     sponsor_sig = keypairs_sign(
         bytes.fromhex(encode_for_signing(tx_json)),
@@ -49,7 +44,8 @@ def _build_sponsor_signed_tx(transfer_tx, sponsee_wallet, sponsor_wallet):
 class TestSponsorshipTransfer(IntegrationTestCase):
 
     @test_async_and_sync(
-        globals(), ["xrpl.transaction.autofill", "xrpl.transaction.submit"]
+        globals(),
+        ["xrpl.transaction.autofill", "xrpl.transaction.submit"],
     )
     async def test_basic_sponsorship_transfer(self, client):
         sponsor_wallet = Wallet.create()
@@ -59,8 +55,9 @@ class TestSponsorshipTransfer(IntegrationTestCase):
         await fund_wallet_async(sponsee_wallet)
         await fund_wallet_async(new_sponsor_wallet)
 
-        # Step 1: Create account-level sponsorship (sponsor -> sponsee).
-        # No object_id means this is an account sponsor, not an object sponsor.
+        # Step 1: Create account-level sponsorship.
+        # No object_id means this is an account sponsor,
+        # not an object sponsor.
         create_tx = SponsorshipTransfer(
             account=sponsee_wallet.address,
             flags=SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE,
@@ -76,10 +73,10 @@ class TestSponsorshipTransfer(IntegrationTestCase):
         self.assertEqual(create_response.status, ResponseStatus.SUCCESS)
         self.assertEqual(create_response.result["engine_result"], "tesSUCCESS")
 
-        # Step 2: Reassign the account sponsorship to a new sponsor.
+        # Step 2: Reassign the account sponsorship.
         reassign_tx = SponsorshipTransfer(
             account=sponsee_wallet.address,
-            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN,
+            flags=(SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN),
             sponsor_flags=2,
             sponsor=new_sponsor_wallet.address,
         )
@@ -90,13 +87,17 @@ class TestSponsorshipTransfer(IntegrationTestCase):
         reassign_response = await submit(final_reassign_tx, client)
         await client.request(LEDGER_ACCEPT_REQUEST)
         self.assertEqual(reassign_response.status, ResponseStatus.SUCCESS)
-        self.assertEqual(reassign_response.result["engine_result"], "tesSUCCESS")
+        self.assertEqual(
+            reassign_response.result["engine_result"],
+            "tesSUCCESS",
+        )
 
     @test_async_and_sync(
-        globals(), ["xrpl.transaction.autofill", "xrpl.transaction.submit"]
+        globals(),
+        ["xrpl.transaction.autofill", "xrpl.transaction.submit"],
     )
     async def test_sponsored_to_unsponsored(self, client):
-        """Sponsored -> Unsponsored: the sponsee ends their account sponsorship."""
+        """Sponsored -> Unsponsored: sponsee ends sponsorship."""
         sponsor_wallet = Wallet.create()
         sponsee_wallet = Wallet.create()
         await fund_wallet_async(sponsor_wallet)
@@ -118,8 +119,9 @@ class TestSponsorshipTransfer(IntegrationTestCase):
         self.assertEqual(create_response.status, ResponseStatus.SUCCESS)
         self.assertEqual(create_response.result["engine_result"], "tesSUCCESS")
 
-        # End the sponsorship. The sponsee submits with tfSponsorshipEnd.
-        # No sponsor, sponsor_flags, or sponsor_signature needed.
+        # End the sponsorship. The sponsee submits with
+        # tfSponsorshipEnd. No sponsor, sponsor_flags, or
+        # sponsor_signature needed.
         end_tx = SponsorshipTransfer(
             account=sponsee_wallet.address,
             flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,

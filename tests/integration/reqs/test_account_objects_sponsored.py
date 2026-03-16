@@ -38,7 +38,8 @@ class TestAccountObjectsSponsored(IntegrationTestCase):
             )
         )
         self.assertTrue(account_objects_response.is_successful())
-        # CK TODO: Make this test more robust by testing that all the returned objects are verifiably "sponsored"
+        # CK TODO: Make this test more robust by testing that all
+        # the returned objects are verifiably "sponsored"
 
     @test_async_and_sync(globals())
     async def test_sponsored_field_false(self, client):
@@ -54,7 +55,8 @@ class TestAccountObjectsSponsored(IntegrationTestCase):
             )
         )
         self.assertTrue(account_objects_response.is_successful())
-        # CK TODO: Make this test more robust by testing that all the returned objects are verifiably "not sponsored"
+        # CK TODO: Make this test more robust by testing that
+        # all returned objects are verifiably "not sponsored"
 
     @test_async_and_sync(globals())
     async def test_sponsored_field_none(self, client):

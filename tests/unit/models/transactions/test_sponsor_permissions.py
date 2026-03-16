@@ -2,14 +2,11 @@
 
 from unittest import TestCase
 
-from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions.delegate_set import (
     DelegateSet,
     GranularPermission,
     Permission,
 )
-from xrpl.models.transactions.sponsor_signature import SponsorSignature
-from xrpl.models.transactions.transaction import Signer
 
 _ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _ACCOUNT2 = "rPyfep3gcLzkH4MYxKxJhE7bgUJfUCJM83"

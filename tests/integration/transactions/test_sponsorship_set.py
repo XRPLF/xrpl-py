@@ -12,7 +12,8 @@ from xrpl.models.transactions.sponsorship_set import SponsorshipSetFlag
 from xrpl.wallet import Wallet
 
 
-# CK TODO: Write integration tests that include all potential fields of the SponsorshipSet transaction and associated flags
+# CK TODO: Write integration tests that include all potential fields
+# of the SponsorshipSet transaction and associated flags
 class TestSponsorshipSet(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_basic_sponsorship_set(self, client):

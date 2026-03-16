@@ -2,7 +2,7 @@
 
 from unittest import TestCase
 
-from xrpl.models.transactions.payment import Payment, PaymentFlag
+from xrpl.models.transactions.payment import Payment
 from xrpl.models.transactions.sponsor_signature import SponsorSignature
 from xrpl.models.transactions.transaction import Signer
 

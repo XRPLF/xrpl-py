@@ -141,7 +141,7 @@ class TestSponsorPermissionsWireValues(IntegrationTestCase):
 
     @test_async_and_sync(globals())
     async def test_delegate_set_sponsor_reserve_accepted(self, client):
-        """DelegateSet with SponsorReserve is accepted by rippled (wire value correct)."""
+        """DelegateSet with SponsorReserve is accepted."""
         alice = Wallet.create()
         await fund_wallet_async(alice)
         bob = Wallet.create()
@@ -182,9 +182,7 @@ class TestSponsorPermissionsWireValues(IntegrationTestCase):
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         ledger_response = await client.request(
-            LedgerEntry(
-                delegate=Delegate(account=alice.address, authorize=bob.address)
-            )
+            LedgerEntry(delegate=Delegate(account=alice.address, authorize=bob.address))
         )
         self.assertTrue(ledger_response.is_successful())
 

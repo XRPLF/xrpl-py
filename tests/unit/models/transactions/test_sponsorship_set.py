@@ -149,7 +149,7 @@ class TestSponsorshipSet(TestCase):
     )
 
     def test_invalid_fee_amount_iou(self):
-        """fee_amount as IssuedCurrencyAmount must be rejected with the correct message."""
+        """fee_amount as IssuedCurrencyAmount is rejected."""
         with self.assertRaises(XRPLModelException) as cm:
             SponsorshipSet(
                 account=_ACCOUNT,
@@ -286,7 +286,7 @@ class TestSponsorshipSet(TestCase):
         )
 
     def test_invalid_delete_with_set_fee_flag(self):
-        """TF_DELETE_OBJECT cannot be combined with TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE."""
+        """TF_DELETE_OBJECT can't combine with set fee flag."""
         with self.assertRaises(XRPLModelException) as cm:
             SponsorshipSet(
                 account=_ACCOUNT,
@@ -302,7 +302,7 @@ class TestSponsorshipSet(TestCase):
         )
 
     def test_invalid_delete_with_clear_reserve_flag(self):
-        """TF_DELETE_OBJECT cannot be combined with TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_RESERVE."""
+        """TF_DELETE_OBJECT can't combine with clear reserve flag."""
         with self.assertRaises(XRPLModelException) as cm:
             SponsorshipSet(
                 account=_ACCOUNT,

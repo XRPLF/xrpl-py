@@ -9,7 +9,6 @@ from typing import Dict, Optional
 from typing_extensions import Self
 
 from xrpl.models.amounts import Amount
-from xrpl.models.transactions.sponsor_signature import SponsorSignature
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
@@ -123,8 +122,10 @@ class SponsorshipSet(Transaction):
             )
         if set_res and clear_res:
             errors["flags"] = (
-                "`TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_RESERVE` and "
-                "`TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_RESERVE` are mutually exclusive."
+                "`TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_RESERVE`"
+                " and "
+                "`TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_RESERVE`"
+                " are mutually exclusive."
             )
         if delete_obj and (set_fee or clear_fee or set_res or clear_res):
             errors["flags"] = (

@@ -581,4 +581,6 @@ class Transaction(BaseModel):
 # Late import to avoid circular dependency (sponsor_signature imports Signer from this
 # module). This makes SponsorSignature available in the module namespace so that
 # get_type_hints() can resolve the forward reference in Transaction.sponsor_signature.
-from xrpl.models.transactions.sponsor_signature import SponsorSignature  # noqa: E402, F811
+from xrpl.models.transactions.sponsor_signature import (  # noqa: E402, F811
+    SponsorSignature,
+)

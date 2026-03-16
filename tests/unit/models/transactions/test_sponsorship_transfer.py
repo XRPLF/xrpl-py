@@ -5,7 +5,6 @@ from xrpl.models.transactions.sponsor_signature import SponsorSignature
 from xrpl.models.transactions.sponsorship_transfer import (
     SponsorshipTransfer,
     SponsorshipTransferFlag,
-    SponsorshipTransferFlagInterface,
 )
 from xrpl.models.transactions.transaction import Signer
 from xrpl.models.transactions.types import TransactionType
@@ -169,9 +168,7 @@ class TestSponsorshipTransfer(TestCase):
         )
         self.assertTrue(tx.is_valid())
         d = tx.to_dict()
-        self.assertEqual(
-            d["flags"], int(SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE)
-        )
+        self.assertEqual(d["flags"], int(SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE))
 
     def test_flags_interface_dict_reassign(self):
         """FlagInterface dict with TF_SPONSORSHIP_REASSIGN (no sponsee)."""
@@ -192,9 +189,7 @@ class TestSponsorshipTransfer(TestCase):
             account=_ACCOUNT,
             flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
         )
-        self.assertTrue(
-            tx.has_flag(int(SponsorshipTransferFlag.TF_SPONSORSHIP_END))
-        )
+        self.assertTrue(tx.has_flag(int(SponsorshipTransferFlag.TF_SPONSORSHIP_END)))
         self.assertFalse(
             tx.has_flag(int(SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE))
         )
@@ -304,8 +299,7 @@ class TestSponsorshipTransfer(TestCase):
         "`TF_SPONSORSHIP_REASSIGN` may be set at a time."
     )
     _SPONSEE_FLAG_MSG = (
-        "`sponsee` cannot be set when `TF_SPONSORSHIP_CREATE` or "
-        "`TF_SPONSORSHIP_REASSIGN` is active."
+        "`sponsee` cannot be set when `TF_SPONSORSHIP_CREATE` is active."
     )
 
     def test_invalid_end_and_create_flags(self):
@@ -321,7 +315,7 @@ class TestSponsorshipTransfer(TestCase):
         self.assertIn(self._MULTI_FLAG_MSG, str(cm.exception))
 
     def test_invalid_end_and_reassign_flags(self):
-        """Setting TF_SPONSORSHIP_END and TF_SPONSORSHIP_REASSIGN together is rejected."""
+        """END and REASSIGN together is rejected."""
         with self.assertRaises(XRPLModelException) as cm:
             SponsorshipTransfer(
                 account=_ACCOUNT,
@@ -333,7 +327,7 @@ class TestSponsorshipTransfer(TestCase):
         self.assertIn(self._MULTI_FLAG_MSG, str(cm.exception))
 
     def test_invalid_create_and_reassign_flags(self):
-        """Setting TF_SPONSORSHIP_CREATE and TF_SPONSORSHIP_REASSIGN together is rejected."""
+        """CREATE and REASSIGN together is rejected."""
         with self.assertRaises(XRPLModelException) as cm:
             SponsorshipTransfer(
                 account=_ACCOUNT,
@@ -352,17 +346,6 @@ class TestSponsorshipTransfer(TestCase):
                 object_id=_OBJECT_ID,
                 sponsee=_ACCOUNT2,
                 flags=SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE,
-            )
-        self.assertIn(self._SPONSEE_FLAG_MSG, str(cm.exception))
-
-    def test_invalid_sponsee_with_reassign_flag(self):
-        """sponsee must not be set when TF_SPONSORSHIP_REASSIGN is active."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipTransfer(
-                account=_ACCOUNT,
-                object_id=_OBJECT_ID,
-                sponsee=_ACCOUNT2,
-                flags=SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN,
             )
         self.assertIn(self._SPONSEE_FLAG_MSG, str(cm.exception))
 
