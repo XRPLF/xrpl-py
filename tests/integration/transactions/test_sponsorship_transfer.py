@@ -8,10 +8,12 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from xrpl.asyncio.transaction import autofill, sign, submit
-from xrpl.core.binarycodec import encode_for_signing
+from xrpl.core.addresscodec import decode_classic_address
+from xrpl.core.binarycodec import encode_for_multisigning, encode_for_signing
 from xrpl.core.keypairs import sign as keypairs_sign
 from xrpl.models import SponsorshipTransfer
 from xrpl.models.response import ResponseStatus
+from xrpl.models.transactions import SignerEntry, SignerListSet
 from xrpl.models.transactions.sponsorship_transfer import SponsorshipTransferFlag
 from xrpl.wallet import Wallet
 
@@ -131,3 +133,78 @@ class TestSponsorshipTransfer(IntegrationTestCase):
         )
         self.assertEqual(end_response.status, ResponseStatus.SUCCESS)
         self.assertEqual(end_response.result["engine_result"], "tesSUCCESS")
+
+    @test_async_and_sync(
+        globals(),
+        ["xrpl.transaction.autofill", "xrpl.transaction.submit"],
+    )
+    async def test_create_with_multisign_sponsor(self, client):
+        """Create sponsorship where the sponsor uses a SignerList."""
+        sponsor_wallet = Wallet.create()
+        sponsee_wallet = Wallet.create()
+        signer1 = Wallet.create()
+        signer2 = Wallet.create()
+        await fund_wallet_async(sponsor_wallet)
+        await fund_wallet_async(sponsee_wallet)
+
+        # Set up a SignerList on the sponsor account.
+        signer_list_tx = SignerListSet(
+            account=sponsor_wallet.address,
+            signer_quorum=2,
+            signer_entries=[
+                SignerEntry(
+                    account=signer1.address,
+                    signer_weight=1,
+                ),
+                SignerEntry(
+                    account=signer2.address,
+                    signer_weight=1,
+                ),
+            ],
+        )
+        list_response = await sign_and_reliable_submission_async(
+            signer_list_tx, sponsor_wallet, client
+        )
+        self.assertEqual(list_response.result["engine_result"], "tesSUCCESS")
+
+        # Build and autofill the SponsorshipTransfer.
+        create_tx = SponsorshipTransfer(
+            account=sponsee_wallet.address,
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE,
+            sponsor_flags=2,
+            sponsor=sponsor_wallet.address,
+        )
+        create_tx = await autofill(create_tx, client)
+
+        # Sign as the sponsee (primary signer).
+        signed_tx = sign(create_tx, sponsee_wallet)
+        tx_json = signed_tx.to_xrpl()
+
+        # Each signer signs via encode_for_multisigning.
+        signers = []
+        for signer_wallet in [signer1, signer2]:
+            sig = keypairs_sign(
+                bytes.fromhex(encode_for_multisigning(tx_json, signer_wallet.address)),
+                signer_wallet.private_key,
+            )
+            signers.append(
+                {
+                    "Signer": {
+                        "Account": signer_wallet.address,
+                        "SigningPubKey": signer_wallet.public_key,
+                        "TxnSignature": sig,
+                    }
+                }
+            )
+
+        # Sort signers by decoded account (XRPL requirement).
+        signers.sort(key=lambda s: decode_classic_address(s["Signer"]["Account"]))
+
+        # Attach multi-signed SponsorSignature.
+        tx_json["SponsorSignature"] = {"Signers": signers}
+        final_tx = SponsorshipTransfer.from_xrpl(tx_json)
+
+        create_response = await submit(final_tx, client)
+        await client.request(LEDGER_ACCEPT_REQUEST)
+        self.assertEqual(create_response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(create_response.result["engine_result"], "tesSUCCESS")
