@@ -69,21 +69,39 @@ download_from_ci() {
     # Create directories
     mkdir -p "$LIBS_DIR/$LIB_SUBDIR"
     mkdir -p "$INCLUDE_DIR"
+    mkdir -p "$INCLUDE_DIR/utility"
 
     # Download artifacts from latest successful workflow run
-    echo "Downloading artifacts for $PLATFORM..."
+    echo "Downloading artifacts for $PLATFORM ($ARCH)..."
 
-    ARTIFACT_NAME="mpt-crypto-${PLATFORM}-${ARCH}"
-    if [ "$PLATFORM" = "darwin" ]; then
-        ARTIFACT_NAME="mpt-crypto-darwin-universal"
-    fi
+    # Determine artifact name based on platform and architecture
+    case "$PLATFORM" in
+        darwin)
+            if [ "$ARCH" = "arm64" ]; then
+                ARTIFACT_NAME="mpt-crypto-darwin-arm64"
+            else
+                ARTIFACT_NAME="mpt-crypto-darwin-x86_64"
+            fi
+            ;;
+        linux)
+            ARTIFACT_NAME="mpt-crypto-linux-x86_64"
+            ;;
+        windows)
+            ARTIFACT_NAME="mpt-crypto-win32-x86_64"
+            ;;
+    esac
 
     # Use pdp2121/xrpl-py repository
     REPO="pdp2121/xrpl-py"
     echo "Using repository: $REPO"
+    echo "Artifact: $ARTIFACT_NAME"
+
+    # Download to temp directory first to handle nested structure
+    TEMP_DOWNLOAD=$(mktemp -d)
+    trap "rm -rf $TEMP_DOWNLOAD" EXIT
 
     cd "$REPO_ROOT"
-    gh run download --repo "$REPO" --name "$ARTIFACT_NAME" --dir "$LIBS_DIR/$LIB_SUBDIR" || {
+    gh run download --repo "$REPO" --name "$ARTIFACT_NAME" --dir "$TEMP_DOWNLOAD" || {
         echo ""
         echo "ERROR: Failed to download artifacts."
         echo "Make sure there's a recent successful build of the workflow."
@@ -92,20 +110,39 @@ download_from_ci() {
         echo "You can also build locally using: $0 build"
         exit 1
     }
-    
-    # Download headers
-    echo "Downloading secp256k1_mpt.h header..."
-    curl -sSL -o "$INCLUDE_DIR/secp256k1_mpt.h" \
-        https://raw.githubusercontent.com/yinyiqian1/mpt-crypto/mpt-utility/include/secp256k1_mpt.h
 
-    echo "Downloading mpt_utility.h header..."
-    mkdir -p "$INCLUDE_DIR/utility"
-    curl -sSL -o "$INCLUDE_DIR/utility/mpt_utility.h" \
-        https://raw.githubusercontent.com/yinyiqian1/mpt-crypto/mpt-utility/include/utility/mpt_utility.h
+    # Debug: Show what was downloaded
+    echo "Downloaded files:"
+    find "$TEMP_DOWNLOAD" -type f
+
+    # Copy libraries to correct location (handle nested paths from CI artifacts)
+    echo "Copying libraries..."
+    if [ "$PLATFORM" = "windows" ]; then
+        find "$TEMP_DOWNLOAD" -name "*.lib" -exec cp {} "$LIBS_DIR/$LIB_SUBDIR/" \;
+    else
+        find "$TEMP_DOWNLOAD" -name "*.a" -exec cp {} "$LIBS_DIR/$LIB_SUBDIR/" \;
+    fi
+
+    # Copy headers to correct location
+    echo "Copying headers..."
+    find "$TEMP_DOWNLOAD" -name "secp256k1_mpt.h" -exec cp {} "$INCLUDE_DIR/" \;
+    find "$TEMP_DOWNLOAD" -name "secp256k1.h" -exec cp {} "$INCLUDE_DIR/" \; 2>/dev/null || true
+    find "$TEMP_DOWNLOAD" -name "mpt_utility.h" -exec cp {} "$INCLUDE_DIR/utility/" \;
+
+    # Verify files were copied
+    echo ""
+    echo "Verifying installation..."
+    echo "Libraries in $LIBS_DIR/$LIB_SUBDIR:"
+    ls -la "$LIBS_DIR/$LIB_SUBDIR/"
+
+    echo ""
+    echo "Headers in $INCLUDE_DIR:"
+    ls -la "$INCLUDE_DIR/"
 
     echo ""
     echo "✅ Successfully downloaded MPT crypto binaries!"
-    echo "   Location: $LIBS_DIR/$LIB_SUBDIR"
+    echo "   Libraries: $LIBS_DIR/$LIB_SUBDIR"
+    echo "   Headers: $INCLUDE_DIR"
 }
 
 build_locally() {
