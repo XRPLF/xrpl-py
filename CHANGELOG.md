@@ -13,17 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added support for the XLS-68d Sponsored Fees amendment (`featureSponsor`):
-  - New transaction types: `SponsorshipSet` and `SponsorshipTransfer`
-  - New ledger object type: `Sponsorship` (type code 144)
-  - New inner object model: `SponsorSignature` for sponsor co-signing
-  - Common transaction sponsor fields: `Sponsor` (AccountID), `SponsorFlags` (UInt32), `SponsorSignature` (STObject) on all transaction types for co-signed sponsorship
-  - Payment `TF_SPONSOR_CREATED_ACCOUNT` (0x00080000) flag for sponsoring account creation
-  - Granular permissions: `SponsorFee` (65549) and `SponsorReserve` (65550) for delegated sponsorship authority
-  - New flags: `SponsorshipSetFlag` (5 flags) and `SponsorshipTransferFlag` (3 flags)
-  - New `AccountSetAsfFlag.ASF_DISALLOW_INCOMING_SPONSOR` (19)
-  - New `AccountObjectType.SPONSORSHIP` and `LedgerEntryType.SPONSORSHIP`
-  - 15 new binary codec field definitions for sponsorship-related fields
+- Added support for the XLS-68d Sponsored-Fees-Reserves amendment
 
 ### Fixed
 
