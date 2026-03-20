@@ -30,7 +30,7 @@ This module mirrors the API of :mod:`xrpl.transaction.batch_signers` and
 """
 
 from dataclasses import dataclass
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import (
@@ -258,7 +258,7 @@ def _validate_sponsor_transaction_equivalence(transactions: List[Transaction]) -
     if len(transactions) <= 1:
         return
 
-    def _strip_signers(tx: Transaction) -> dict:
+    def _strip_signers(tx: Transaction) -> Dict[str, object]:
         d = tx.to_xrpl()
         if "SponsorSignature" in d:
             d["SponsorSignature"] = {**d["SponsorSignature"], "Signers": None}
