@@ -6,8 +6,11 @@ from tests.integration.it_utils import (
 )
 from xrpl.models.amounts import MPTAmount
 from xrpl.models.requests.amm_info import AMMInfo
+from xrpl.models.transactions.amm_bid import AMMBid
 from xrpl.models.transactions.amm_clawback import AMMClawback
+from xrpl.models.transactions.amm_delete import AMMDelete
 from xrpl.models.transactions.amm_deposit import AMMDeposit, AMMDepositFlag
+from xrpl.models.transactions.amm_vote import AMMVote
 from xrpl.models.transactions.amm_withdraw import AMMWithdraw, AMMWithdrawFlag
 
 
@@ -230,3 +233,110 @@ class TestAMMLifecycleWithMPT(IntegrationTestCase):
         post_amm_info = await client.request(AMMInfo(asset=asset, asset2=asset2))
         post_amm = post_amm_info.result["amm"]
         self.assertLess(int(post_amm["amount"]["value"]), before_amount)
+
+    @test_async_and_sync(globals())
+    async def test_mpt_amm_bid(self, client):
+        amm_pool = await create_amm_pool_with_mpt_async(client)
+        asset = amm_pool["asset"]
+        asset2 = amm_pool["asset2"]
+        lp_wallet = amm_pool["lp_wallet"]
+
+        pre_amm_info = await client.request(AMMInfo(asset=asset, asset2=asset2))
+        pre_amm = pre_amm_info.result["amm"]
+        before_lp_token_value = float(pre_amm["lp_token"]["value"])
+
+        response = await sign_and_reliable_submission_async(
+            AMMBid(
+                account=lp_wallet.classic_address,
+                asset=asset,
+                asset2=asset2,
+            ),
+            lp_wallet,
+            client,
+        )
+
+        self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        post_amm_info = await client.request(AMMInfo(asset=asset, asset2=asset2))
+        post_amm = post_amm_info.result["amm"]
+
+        # Auction slot should be owned by the bidder
+        self.assertEqual(
+            post_amm["auction_slot"]["account"], lp_wallet.classic_address
+        )
+        # LP token supply should decrease (bid amount returned to the AMM)
+        self.assertLess(
+            float(post_amm["lp_token"]["value"]),
+            before_lp_token_value,
+        )
+
+    @test_async_and_sync(globals())
+    async def test_mpt_amm_vote(self, client):
+        amm_pool = await create_amm_pool_with_mpt_async(client)
+        asset = amm_pool["asset"]
+        asset2 = amm_pool["asset2"]
+        lp_wallet = amm_pool["lp_wallet"]
+
+        pre_amm_info = await client.request(AMMInfo(asset=asset, asset2=asset2))
+        pre_amm = pre_amm_info.result["amm"]
+        before_trading_fee = pre_amm["trading_fee"]
+
+        new_fee = 500
+        response = await sign_and_reliable_submission_async(
+            AMMVote(
+                account=lp_wallet.classic_address,
+                asset=asset,
+                asset2=asset2,
+                trading_fee=new_fee,
+            ),
+            lp_wallet,
+            client,
+        )
+
+        self.assertTrue(response.is_successful())
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        post_amm_info = await client.request(AMMInfo(asset=asset, asset2=asset2))
+        post_amm = post_amm_info.result["amm"]
+
+        # Trading fee should change after the vote
+        # Since lp_wallet is the sole LP, the fee should move toward the voted value
+        self.assertNotEqual(post_amm["trading_fee"], before_trading_fee)
+        self.assertEqual(post_amm["trading_fee"], new_fee)
+
+    @test_async_and_sync(globals())
+    async def test_mpt_amm_delete(self, client):
+        amm_pool = await create_amm_pool_with_mpt_async(client)
+        asset = amm_pool["asset"]
+        asset2 = amm_pool["asset2"]
+        lp_wallet = amm_pool["lp_wallet"]
+
+        # Withdraw all assets to delete the AMM
+        await sign_and_reliable_submission_async(
+            AMMWithdraw(
+                account=lp_wallet.classic_address,
+                asset=asset,
+                asset2=asset2,
+                flags=AMMWithdrawFlag.TF_WITHDRAW_ALL,
+            ),
+            lp_wallet,
+            client,
+        )
+
+        # AMM should no longer exist
+        amm_info = await client.request(AMMInfo(asset=asset, asset2=asset2))
+        self.assertEqual(amm_info.result["error"], "actNotFound")
+
+        # AMMDelete on an already-deleted AMM should fail with terNO_AMM
+        response = await sign_and_reliable_submission_async(
+            AMMDelete(
+                account=lp_wallet.classic_address,
+                asset=asset,
+                asset2=asset2,
+            ),
+            lp_wallet,
+            client,
+        )
+
+        self.assertEqual(response.result["engine_result"], "terNO_AMM")
