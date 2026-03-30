@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed correct mapping of `sfMutableFlags`, `sfStartDate`, and `sfPreviousPaymentDueDate` fields in the binary codec `definitions.json`.
+- Fixed `Amount` codec to correctly handle large integers with trailing zeros (precision is counted by significant digits, not total digits).
 
 ## [[4.5.0]]
 

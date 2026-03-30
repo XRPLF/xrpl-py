@@ -5,7 +5,7 @@ See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
 
 from __future__ import annotations
 
-from decimal import MAX_PREC, Context, Decimal, InvalidOperation, localcontext
+from decimal import Context, Decimal, InvalidOperation, localcontext
 from typing import Any, Dict, Optional, Type, Union
 
 from typing_extensions import Final, Self
@@ -151,13 +151,9 @@ def verify_mpt_value(mpt_value: str) -> None:
 
 def _calculate_precision(value: str) -> int:
     """Calculate the precision of given value as a string."""
-    decimal_value = Decimal(value, Context(prec=MAX_PREC))
-    if decimal_value == decimal_value.to_integral():
-        return len(
-            decimal_value.quantize(Decimal(1), context=Context(prec=MAX_PREC))
-            .as_tuple()
-            .digits
-        )
+    decimal_value = Decimal(value)
+    if decimal_value.is_zero():
+        return 0
     return len(decimal_value.normalize(Context()).as_tuple().digits)
 
 
