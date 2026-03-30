@@ -181,6 +181,11 @@ class TestAmount(TestSerializedType):
             # Negative - 17 significant digits
             "-99999999999999999e80",
             "-1.1111111111111111",
+            # More than 28 significant digits (exceeds default Decimal context)
+            "12345678901234567890123456789",
+            "-12345678901234567890123456789",
+            "1.2345678901234567890123456789",
+            "-1.2345678901234567890123456789",
         ]
         for case in invalid_cases:
             self.assertRaises(
