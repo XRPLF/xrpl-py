@@ -150,6 +150,50 @@ class TestAmount(TestSerializedType):
         for case in cases:
             amount.verify_iou_value(case)
 
+    def test_assert_iou_is_valid_large_integers(self):
+        """Test that large integers with trailing zeros are accepted (precision
+        is counted by significant digits, not total digits)."""
+        valid_cases = [
+            # Positive integers with trailing zeros
+            "9999999999999999e80",
+            "1e80",
+            "10000000000000000000000000000",
+            # Negative integers with trailing zeros
+            "-9999999999999999e80",
+            "-1e80",
+            "-10000000000000000000000000000",
+            # Positive decimals at max precision
+            "9999999999999999e-96",
+            "1.111111111111111e-81",
+            # Negative decimals at max precision
+            "-9999999999999999e-96",
+            "-1.111111111111111e-81",
+        ]
+        for case in valid_cases:
+            amount.verify_iou_value(case)
+
+    def test_assert_iou_is_valid_rejects_too_many_significant_digits(self):
+        """Test that values with more than 16 significant digits are rejected."""
+        invalid_cases = [
+            # Positive - 17 significant digits
+            "99999999999999999e80",
+            "1.1111111111111111",
+            # Negative - 17 significant digits
+            "-99999999999999999e80",
+            "-1.1111111111111111",
+            # More than 28 significant digits (exceeds default Decimal context)
+            "12345678901234567890123456789",
+            "-12345678901234567890123456789",
+            "1.2345678901234567890123456789",
+            "-1.2345678901234567890123456789",
+        ]
+        for case in invalid_cases:
+            self.assertRaises(
+                XRPLBinaryCodecException,
+                amount.verify_iou_value,
+                case,
+            )
+
     def test_raises_invalid_value_type(self):
         invalid_value = [1, 2, 3]
         self.assertRaises(
