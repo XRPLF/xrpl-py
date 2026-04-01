@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from hashlib import sha512
-from typing import Any, Dict, List, Optional, Type, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, Union, cast
 
 from typing_extensions import Final, Self
 
@@ -25,6 +25,9 @@ from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
 from xrpl.models.types import XRPL_VALUE_TYPE
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
+
+if TYPE_CHECKING:
+    from xrpl.models.transactions.sponsor_signature import SponsorSignature
 
 _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
 
@@ -277,6 +280,15 @@ class Transaction(BaseModel):
     delegate: Optional[str] = None
     """The delegate account that is sending the transaction."""
 
+    sponsor: Optional[str] = None
+    """The sponsoring account covering fees or reserves for this transaction."""
+
+    sponsor_flags: Optional[int] = None
+    """Sponsorship type flags (tfSponsorFee=0x00000001, tfSponsorReserve=0x00000002)."""
+
+    sponsor_signature: Optional[SponsorSignature] = None
+    """The sponsor's signing information for co-signed sponsorship."""
+
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.ticket_sequence is not None and (
@@ -290,6 +302,32 @@ class Transaction(BaseModel):
 
         if self.account == self.delegate:
             errors["delegate"] = "Account and delegate addresses cannot be the same"
+
+        # ── Sponsor cross-field checks ─────────────────────────────────────────
+        if self.sponsor is not None and self.sponsor == self.account:
+            errors["sponsor"] = "`sponsor` must differ from `account`."
+
+        if self.sponsor_flags is not None and self.sponsor is None:
+            errors["sponsor_flags"] = "`sponsor_flags` requires `sponsor` to be set."
+        elif self.sponsor_flags is not None and (self.sponsor_flags & ~0x3) != 0:
+            errors["sponsor_flags"] = (
+                "`sponsor_flags` may only use bits 0x1 (tfSponsorFee) "
+                "and 0x2 (tfSponsorReserve)."
+            )
+
+        if self.sponsor_signature is not None and self.sponsor is None:
+            errors["sponsor_signature"] = (
+                "`sponsor_signature` requires `sponsor` to be set."
+            )
+
+        # Pseudo-transactions and Batch cannot be sponsored (XLS-68 §8.3.4).
+        if self.sponsor is not None and (
+            isinstance(self.transaction_type, PseudoTransactionType)
+            or self.transaction_type == TransactionType.BATCH
+        ):
+            errors["sponsor"] = (
+                "Pseudo-transactions and Batch transactions " "cannot be sponsored."
+            )
 
         return errors
 
@@ -547,3 +585,11 @@ class Transaction(BaseModel):
             del processed_value["deliver_max"]
 
         return cls.from_dict(processed_value)
+
+
+# Late import to avoid circular dependency (sponsor_signature imports Signer from this
+# module). This makes SponsorSignature available in the module namespace so that
+# get_type_hints() can resolve the forward reference in Transaction.sponsor_signature.
+from xrpl.models.transactions.sponsor_signature import (  # noqa: E402, F811
+    SponsorSignature,
+)

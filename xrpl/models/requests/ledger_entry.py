@@ -43,6 +43,7 @@ class LedgerEntryType(str, Enum):
     PERMISSIONED_DOMAIN = "permissioned_domain"
     SIGNER_LIST = "signer_list"
     SINGLE_ASSET_VAULT = "vault"
+    SPONSORSHIP = "sponsorship"
     STATE = "state"
     TICKET = "ticket"
     MPT_ISSUANCE = "mpt_issuance"
@@ -284,6 +285,26 @@ class Ticket(BaseModel):
 
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
+class Sponsorship(BaseModel):
+    """Required fields for requesting a Sponsorship if not querying by object ID."""
+
+    sponsor: str = REQUIRED
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+    sponsee: str = REQUIRED
+    """
+    This field is required.
+
+    :meta hide-value:
+    """
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class Vault(BaseModel):
     """Required fields for requesting a Vault ledger-object if not querying by
     object ID.
@@ -363,6 +384,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     payment_channel: Optional[str] = None
     permissioned_domain: Optional[Union[str, PermissionedDomain]] = None
     ripple_state: Optional[RippleState] = None
+    sponsorship: Optional[Union[str, Sponsorship]] = None
     vault: Optional[Union[str, Vault]] = None
     ticket: Optional[Union[str, Ticket]] = None
     bridge_account: Optional[str] = None
@@ -399,6 +421,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
                 self.payment_channel,
                 self.permissioned_domain,
                 self.ripple_state,
+                self.sponsorship,
                 self.vault,
                 self.ticket,
                 self.xchain_claim_id,

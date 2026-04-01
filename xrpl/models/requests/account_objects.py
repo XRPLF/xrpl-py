@@ -38,6 +38,7 @@ class AccountObjectType(str, Enum):
     PAYMENT_CHANNEL = "payment_channel"
     PERMISSIONED_DOMAIN = "permissioned_domain"
     SIGNER_LIST = "signer_list"
+    SPONSORSHIP = "sponsorship"
     STATE = "state"
     TICKET = "ticket"
     VAULT = "vault"
@@ -65,6 +66,7 @@ class AccountObjects(Request, LookupByLedgerRequest):
     """
 
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_OBJECTS, init=False)
+    sponsored: Optional[bool] = None
     type: Optional[AccountObjectType] = None
     deletion_blockers_only: bool = False
     limit: Optional[int] = None

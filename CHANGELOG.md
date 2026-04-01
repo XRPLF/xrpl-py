@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Dropped support for Python 3.8 (EOL October 2024). The minimum supported Python version is now 3.9.
 
+### Added
+
+- Added support for the XLS-68d Sponsored-Fees-Reserves amendment
+
 ### Fixed
 
 - Fixed correct mapping of `sfMutableFlags`, `sfStartDate`, and `sfPreviousPaymentDueDate` fields in the binary codec `definitions.json`.

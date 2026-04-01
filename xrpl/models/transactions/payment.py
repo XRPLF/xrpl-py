@@ -50,6 +50,12 @@ class PaymentFlag(int, Enum):
     See `Limit <https://xrpl.org/payment.html#limit-quality>`_ Quality for details.
     """
 
+    TF_SPONSOR_CREATED_ACCOUNT = 0x00080000
+    """
+    Sponsor the creation of the destination account. The sending account
+    pays the account reserve for the new account.
+    """
+
 
 class PaymentFlagInterface(TransactionFlagInterface):
     """
@@ -62,6 +68,7 @@ class PaymentFlagInterface(TransactionFlagInterface):
     TF_NO_RIPPLE_DIRECT: bool
     TF_PARTIAL_PAYMENT: bool
     TF_LIMIT_QUALITY: bool
+    TF_SPONSOR_CREATED_ACCOUNT: bool
 
 
 @require_kwargs_on_init
@@ -189,5 +196,23 @@ class Payment(Transaction):
             err = validate_domain_id(self.domain_id)
             if err:
                 errors["domain_id"] = err
+
+        # TF_SPONSOR_CREATED_ACCOUNT is mutually exclusive with routing/quality flags.
+        # Guard against bad flags type (str etc.) — type errors are reported elsewhere.
+        if isinstance(self.flags, (int, dict, list)) and self.has_flag(
+            PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT
+        ):
+            incompatible = []
+            if self.has_flag(PaymentFlag.TF_NO_RIPPLE_DIRECT):
+                incompatible.append("`TF_NO_RIPPLE_DIRECT`")
+            if self.has_flag(PaymentFlag.TF_PARTIAL_PAYMENT):
+                incompatible.append("`TF_PARTIAL_PAYMENT`")
+            if self.has_flag(PaymentFlag.TF_LIMIT_QUALITY):
+                incompatible.append("`TF_LIMIT_QUALITY`")
+            if incompatible:
+                errors["flags"] = (
+                    "`TF_SPONSOR_CREATED_ACCOUNT` cannot be combined with "
+                    f"{', '.join(incompatible)}."
+                )
 
         return errors
