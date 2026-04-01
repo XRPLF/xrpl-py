@@ -28,11 +28,9 @@ from typing import Any, Dict, Type, cast
 from typing_extensions import Self
 
 from xrpl.models.requests.request import Request, RequestMethod
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class Submit(Request):
     """
     WARNING: This object should never be created. You should create an object of type

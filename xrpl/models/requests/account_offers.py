@@ -10,11 +10,9 @@ from typing import Any, Optional
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class AccountOffers(Request, LookupByLedgerRequest):
     """
     This request retrieves a list of offers made by a given account that are

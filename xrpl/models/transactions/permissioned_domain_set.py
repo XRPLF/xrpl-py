@@ -9,13 +9,11 @@ from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.deposit_preauth import Credential
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 _MAX_ACCEPTED_CREDENTIALS_LENGTH = 10
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class PermissionedDomainSet(Transaction):
     """This transaction creates or modifies a PermissionedDomain object."""
 

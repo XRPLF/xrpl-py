@@ -24,7 +24,6 @@ from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
 from xrpl.models.types import XRPL_VALUE_TYPE
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
 
@@ -81,8 +80,7 @@ def _value_to_tx_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     return value
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class Memo(NestedModel):
     """
     An arbitrary piece of data attached to a transaction. A transaction can
@@ -126,8 +124,7 @@ class Memo(NestedModel):
         return errors
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class Signer(NestedModel):
     """
     One Signer in a multi-signature. A multi-signed transaction can have an
@@ -179,8 +176,7 @@ class TransactionFlagInterface(FlagInterface):
     TF_INNER_BATCH_TXN: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class Transaction(BaseModel):
     """
     The base class for all `transaction types

@@ -12,14 +12,11 @@ from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import (
-    KW_ONLY_DATACLASS,
     MAX_CREDENTIAL_ARRAY_LENGTH,
-    require_kwargs_on_init,
 )
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class DepositPreauth(Transaction):
     """
     Represents a `DepositPreauth <https://xrpl.org/depositpreauth.html>`_
@@ -119,8 +116,7 @@ class DepositPreauth(Transaction):
         return errors
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class Credential(NestedModel):
     """
     An inner object representing individual element inside AuthorizeCredentials and

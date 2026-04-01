@@ -16,15 +16,13 @@ import xrpl.models.amounts  # not a direct import, to get around circular import
 from xrpl.constants import HEX_MPTID_REGEX
 from xrpl.models.base_model import BaseModel
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 def _is_valid_mptid(candidate: str) -> bool:
     return bool(HEX_MPTID_REGEX.fullmatch(candidate))
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class MPTCurrency(BaseModel):
     """
     Specifies an amount in an MPT, but without a value field.
