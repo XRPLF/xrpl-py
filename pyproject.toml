@@ -51,7 +51,7 @@ pycryptodome = "^3.23.0"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^7.1.2"
-black = "24.8.0"
+black = "25.1.0"
 flake8-black = "^0.3.7"
 flake8-docstrings = "^1.7.0"
 mypy = "^1"
