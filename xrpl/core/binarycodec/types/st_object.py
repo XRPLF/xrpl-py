@@ -48,7 +48,7 @@ def _handle_xaddress(field: str, xaddress: str) -> Dict[str, Union[str, int]]:
     Raises:
         XRPLBinaryCodecException: field-tag combo is invalid.
     """
-    (classic_address, tag, is_test_network) = xaddress_to_classic_address(xaddress)
+    classic_address, tag, is_test_network = xaddress_to_classic_address(xaddress)
     if field == _DESTINATION:
         tag_name = _DEST_TAG
     elif field == _ACCOUNT:

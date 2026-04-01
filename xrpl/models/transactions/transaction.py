@@ -279,9 +279,7 @@ class Transaction(BaseModel):
             (self.sequence is not None and self.sequence != 0)
             or self.account_txn_id is not None
         ):
-            errors[
-                "Transaction"
-            ] = """If ticket_sequence is provided,
+            errors["Transaction"] = """If ticket_sequence is provided,
             account_txn_id must be None and sequence must be None or 0"""
 
         if self.account == self.delegate:
