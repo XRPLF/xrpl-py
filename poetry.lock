@@ -283,7 +283,7 @@ description = "Cross-platform colored terminal text."
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 groups = ["dev"]
-markers = "platform_system == \"Windows\" or sys_platform == \"win32\""
+markers = "sys_platform == \"win32\" or platform_system == \"Windows\""
 files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
@@ -492,18 +492,18 @@ flake8 = ">=5.0"
 
 [[package]]
 name = "flake8-black"
-version = "0.3.7"
+version = "0.4.0"
 description = "flake8 plugin to call black as a code style validator"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 groups = ["dev"]
 files = [
-    {file = "flake8_black-0.3.7-py3-none-any.whl", hash = "sha256:366215fbe9ee3d5a7e72710da9be871f52392e568ebd2821a16cd5f3a046d291"},
-    {file = "flake8_black-0.3.7.tar.gz", hash = "sha256:a77f46d9b20414749d29a8b3c3abdc367b7b41ea977e55629467304c37c3b6ba"},
+    {file = "flake8_black-0.4.0-py3-none-any.whl", hash = "sha256:288762d0c9ea065782d87eeecbcc20c69079d17fe1d0f0445f0eb0b0ffb80c39"},
+    {file = "flake8_black-0.4.0.tar.gz", hash = "sha256:bf226868f695dee48d55ff6d7747e900709bfd6f605b7a378c70e711e3fc26cb"},
 ]
 
 [package.dependencies]
-black = ">=22.1.0,<25.9.0"
+black = ">=22.1.0"
 flake8 = ">=3"
 tomli = {version = "*", markers = "python_version < \"3.11\""}
 
@@ -1615,4 +1615,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<4.0"
-content-hash = "139da799a8cc9d2753373874f9c2a0660ae629ba45db8e097bf3eeefbb5e94ad"
+content-hash = "475dadc9cc15ca2d78e958b22522043d982da03519ef1d4ea83b13b038f16270"
