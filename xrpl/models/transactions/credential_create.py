@@ -8,10 +8,7 @@ from typing_extensions import Self
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import (
-    HEX_REGEX,
-    get_credential_type_error,
-)
+from xrpl.models.utils import HEX_REGEX, get_credential_type_error
 
 _MAX_URI_LENGTH = 256
 

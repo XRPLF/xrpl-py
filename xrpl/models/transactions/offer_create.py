@@ -10,9 +10,7 @@ from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import (
-    validate_domain_id,
-)
+from xrpl.models.utils import validate_domain_id
 
 
 class OfferCreateFlag(int, Enum):

@@ -8,9 +8,7 @@ from typing_extensions import Self
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import (
-    validate_credential_ids,
-)
+from xrpl.models.utils import validate_credential_ids
 
 
 @dataclass(frozen=True, kw_only=True)

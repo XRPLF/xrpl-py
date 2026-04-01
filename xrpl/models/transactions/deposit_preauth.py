@@ -11,9 +11,7 @@ from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import (
-    MAX_CREDENTIAL_ARRAY_LENGTH,
-)
+from xrpl.models.utils import MAX_CREDENTIAL_ARRAY_LENGTH
 
 
 @dataclass(frozen=True, kw_only=True)

@@ -13,10 +13,7 @@ from xrpl.models.path import Path
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import (
-    validate_credential_ids,
-    validate_domain_id,
-)
+from xrpl.models.utils import validate_credential_ids, validate_domain_id
 
 
 class PaymentFlag(int, Enum):
