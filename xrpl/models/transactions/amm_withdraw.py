@@ -13,7 +13,6 @@ from xrpl.models.currencies import Currency
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class AMMWithdrawFlag(int, Enum):
@@ -46,8 +45,7 @@ class AMMWithdrawFlagInterface(TransactionFlagInterface):
     TF_LIMIT_LP_TOKEN: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class AMMWithdraw(Transaction):
     """
     Withdraw assets from an Automated Market Maker (AMM) instance by returning the

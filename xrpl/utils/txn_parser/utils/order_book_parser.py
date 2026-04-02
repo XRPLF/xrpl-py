@@ -37,7 +37,7 @@ def _get_offer_status(
 
 
 def _derive_currency_amount(
-    currency_amount: Union[str, Dict[str, str]]
+    currency_amount: Union[str, Dict[str, str]],
 ) -> CurrencyAmount:
     if isinstance(currency_amount, str):
         return CurrencyAmount(currency="XRP", value=str(drops_to_xrp(currency_amount)))

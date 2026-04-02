@@ -12,7 +12,6 @@ from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class LoanPayFlag(int, Enum):
@@ -49,8 +48,7 @@ class LoanPayFlagInterface(TransactionFlagInterface):
     TF_LOAN_LATE_PAYMENT: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class LoanPay(Transaction):
     """The Borrower submits a LoanPay transaction to make a Payment on the Loan."""
 

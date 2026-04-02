@@ -13,11 +13,9 @@ from typing import Any, Optional
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class AccountChannels(Request, LookupByLedgerRequest):
     """
     This request returns information about an account's Payment Channels. This includes

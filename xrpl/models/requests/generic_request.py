@@ -9,11 +9,9 @@ from typing_extensions import Self
 
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests.request import Request, RequestMethod
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(init=False, frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(init=False, frozen=True, kw_only=True)
 class GenericRequest(Request):
     """
     A request object representing all unsupported requests.

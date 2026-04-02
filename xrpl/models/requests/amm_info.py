@@ -9,11 +9,9 @@ from typing_extensions import Self
 
 from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class AMMInfo(Request):
     """
     The `amm_info` method gets information about an Automated Market Maker

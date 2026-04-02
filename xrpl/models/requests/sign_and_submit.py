@@ -31,11 +31,9 @@ from xrpl.constants import CryptoAlgorithm
 from xrpl.models.requests.submit import Submit
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class SignAndSubmit(Submit):
     """
     The submit method applies a transaction and sends it to the network to be confirmed

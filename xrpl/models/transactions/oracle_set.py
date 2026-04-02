@@ -12,7 +12,6 @@ from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
 
 MAX_ORACLE_DATA_SERIES = 10
 MAX_ORACLE_PROVIDER = 256
@@ -26,8 +25,7 @@ EPOCH_OFFSET = int(
 )
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class OracleSet(Transaction):
     """Creates a new Oracle ledger entry or updates the fields of an existing one,
     using the Oracle ID.
@@ -152,8 +150,7 @@ class OracleSet(Transaction):
         return errors
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class PriceData(NestedModel):
     """Represents one PriceData element. It is used in OracleSet transaction"""
 

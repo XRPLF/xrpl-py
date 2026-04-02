@@ -14,7 +14,6 @@ from xrpl.models.currencies.issued_currency import IssuedCurrency
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class AMMClawbackFlag(int, Enum):
@@ -39,8 +38,7 @@ class AMMClawbackFlagInterface(TransactionFlagInterface):
     TF_CLAW_TWO_ASSETS: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class AMMClawback(Transaction):
     """
     Claw back tokens from a holder who has deposited your issued tokens into an AMM
