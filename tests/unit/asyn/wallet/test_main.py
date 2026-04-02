@@ -142,16 +142,6 @@ class TestWalletMain(TestCase):
         _test_wallet_values(self, wallet, "seed", "secp256k1")
         self.assertEqual(wallet.algorithm, "secp256k1")
 
-    def test_constructor_with_default_algorithm(self):
-        wallet = Wallet(
-            constants["seed"]["ed25519"]["public_key"],
-            constants["seed"]["ed25519"]["private_key"],
-            seed=constants["seed"]["seed"],
-        )
-
-        _test_wallet_values(self, wallet, "seed", "ed25519")
-        self.assertEqual(wallet.algorithm, "ed25519")
-
     def test_wallet_contructor_throws_with_invalid_seed(self):
         with self.assertRaises(XRPLAddressCodecException):
             Wallet(
@@ -171,17 +161,6 @@ class TestWalletMain(TestCase):
 
         _test_wallet_values(self, wallet, "regular_key_pair", "secp256k1")
         self.assertEqual(wallet.algorithm, "secp256k1")
-
-    def test_constructor_using_regular_key_pair_default_algorithm(self):
-        wallet = Wallet(
-            constants["regular_key_pair"]["ed25519"]["public_key"],
-            constants["regular_key_pair"]["ed25519"]["private_key"],
-            master_address=constants["regular_key_pair"]["master_address"],
-            seed=constants["regular_key_pair"]["seed"],
-        )
-
-        _test_wallet_values(self, wallet, "regular_key_pair", "ed25519")
-        self.assertEqual(wallet.algorithm, "ed25519")
 
     def test_create_using_default_algorithm(self):
         wallet = Wallet.create()
