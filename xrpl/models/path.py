@@ -22,6 +22,7 @@ class PathStep(BaseModel):
     account: Optional[str] = None
     currency: Optional[str] = None
     issuer: Optional[str] = None
+    mpt_issuance_id: Optional[str] = None
     type: Optional[int] = None
     type_hex: Optional[str] = None
 
@@ -33,6 +34,7 @@ class PathStep(BaseModel):
                 "account": self._get_account_error(),
                 "currency": self._get_currency_error(),
                 "issuer": self._get_issuer_error(),
+                "mpt_issuance_id": self._get_mpt_issuance_id_error(),
             }.items()
             if value is not None
         }
@@ -42,6 +44,8 @@ class PathStep(BaseModel):
             return None
         if self.currency is not None or self.issuer is not None:
             return "Cannot set account if currency or issuer are set"
+        if self.mpt_issuance_id is not None:
+            return "Cannot set account if mpt_issuance_id is specified"
         return None
 
     def _get_currency_error(self: Self) -> Optional[str]:
@@ -49,6 +53,8 @@ class PathStep(BaseModel):
             return None
         if self.account is not None:
             return "Cannot set currency if account is set"
+        if self.mpt_issuance_id is not None:
+            return "Cannot set both currency and mpt_issuance_id"
         if self.issuer is not None and self.currency.upper() == "XRP":
             return "Cannot set issuer if currency is XRP"
         return None
@@ -60,6 +66,15 @@ class PathStep(BaseModel):
             return "Cannot set issuer if account is set"
         if self.currency is not None and self.currency.upper() == "XRP":
             return "Cannot set issuer if currency is XRP"
+        return None
+
+    def _get_mpt_issuance_id_error(self: Self) -> Optional[str]:
+        if self.mpt_issuance_id is None:
+            return None
+        if self.currency is not None:
+            return "Cannot set both mpt_issuance_id and currency"
+        if self.account is not None:
+            return "Cannot set both mpt_issuance_id and account"
         return None
 
 

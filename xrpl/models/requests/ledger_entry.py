@@ -15,6 +15,7 @@ from typing import Dict, List, Optional, Union
 from typing_extensions import Self
 
 from xrpl.models.base_model import BaseModel
+from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
@@ -337,6 +338,29 @@ class XChainCreateAccountClaimID(XChainBridge):
 
 @require_kwargs_on_init
 @dataclass(frozen=True, **KW_ONLY_DATACLASS)
+class AMM(BaseModel):
+    """
+    Required fields for requesting an AMM ledger entry if not querying by
+    object ID.
+    """
+
+    asset: Currency = REQUIRED
+    """
+    One of the assets in the AMM's pool. This field is required.
+
+    :meta hide-value:
+    """
+
+    asset2: Currency = REQUIRED
+    """
+    The other asset in the AMM's pool. This field is required.
+
+    :meta hide-value:
+    """
+
+
+@require_kwargs_on_init
+@dataclass(frozen=True, **KW_ONLY_DATACLASS)
 class LedgerEntry(Request, LookupByLedgerRequest):
     """
     The ledger_entry method returns a single ledger
@@ -349,6 +373,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
     method: RequestMethod = field(default=RequestMethod.LEDGER_ENTRY, init=False)
     index: Optional[str] = None
     account_root: Optional[str] = None
+    amm: Optional[Union[str, AMM]] = None
     check: Optional[str] = None
     credential: Optional[Union[str, Credential]] = None
     delegate: Optional[Union[str, Delegate]] = None
@@ -385,6 +410,7 @@ class LedgerEntry(Request, LookupByLedgerRequest):
             for param in [
                 self.index,
                 self.account_root,
+                self.amm,
                 self.check,
                 self.credential,
                 self.delegate,

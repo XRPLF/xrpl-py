@@ -7,6 +7,7 @@ from typing import Dict
 
 from typing_extensions import Self
 
+from xrpl.constants import HEX_MPTID_REGEX
 from xrpl.models.base_model import BaseModel
 from xrpl.models.currencies.mpt_currency import MPTCurrency
 from xrpl.models.required import REQUIRED
@@ -31,6 +32,16 @@ class MPTAmount(BaseModel):
 
     :meta hide-value:
     """
+
+    def _get_errors(self: Self) -> Dict[str, str]:
+        errors = super()._get_errors()
+        if self.mpt_issuance_id is not REQUIRED and not HEX_MPTID_REGEX.fullmatch(
+            self.mpt_issuance_id
+        ):
+            errors["mpt_issuance_id"] = (
+                f"Invalid mpt_issuance_id {self.mpt_issuance_id}"
+            )
+        return errors
 
     def to_dict(self: Self) -> Dict[str, str]:
         """
