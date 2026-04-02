@@ -210,8 +210,7 @@ class Wallet:
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
                 the master address of the account. The default is `None`.
             algorithm: The digital signature algorithm to generate an address for.
-                The default is `ED25519
-                https://xrpl.org/docs/concepts/accounts/cryptographic-keys#ed25519-key-derivation`_
+            The default is `ED25519 <https://xrpl.org/docs/concepts/accounts/cryptographic-keys#ed25519-key-derivation>`_.
 
         Returns:
             The wallet that is generated from the given secret numbers.
