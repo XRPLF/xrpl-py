@@ -131,14 +131,26 @@ def _test_wallet_types(self, wallet, algorithm):
 
 
 class TestWalletMain(TestCase):
-    def test_constructor(self):
+    def test_constructor_with_secp256_algorithm(self):
         wallet = Wallet(
             constants["seed"]["secp256k1"]["public_key"],
             constants["seed"]["secp256k1"]["private_key"],
             seed=constants["seed"]["seed"],
+            algorithm="secp256k1",
         )
 
         _test_wallet_values(self, wallet, "seed", "secp256k1")
+        self.assertEqual(wallet.algorithm, "secp256k1")
+
+    def test_constructor_with_default_algorithm(self):
+        wallet = Wallet(
+            constants["seed"]["ed25519"]["public_key"],
+            constants["seed"]["ed25519"]["private_key"],
+            seed=constants["seed"]["seed"],
+        )
+
+        _test_wallet_values(self, wallet, "seed", "ed25519")
+        self.assertEqual(wallet.algorithm, "ed25519")
 
     def test_wallet_contructor_throws_with_invalid_seed(self):
         with self.assertRaises(XRPLAddressCodecException):
@@ -148,15 +160,28 @@ class TestWalletMain(TestCase):
                 seed="abc",
             )
 
-    def test_constructor_using_regular_key_pair(self):
+    def test_constructor_using_regular_key_pair_secp256_algorithm(self):
         wallet = Wallet(
             constants["regular_key_pair"]["secp256k1"]["public_key"],
             constants["regular_key_pair"]["secp256k1"]["private_key"],
             master_address=constants["regular_key_pair"]["master_address"],
             seed=constants["regular_key_pair"]["seed"],
+            algorithm="secp256k1",
         )
 
         _test_wallet_values(self, wallet, "regular_key_pair", "secp256k1")
+        self.assertEqual(wallet.algorithm, "secp256k1")
+
+    def test_constructor_using_regular_key_pair_default_algorithm(self):
+        wallet = Wallet(
+            constants["regular_key_pair"]["ed25519"]["public_key"],
+            constants["regular_key_pair"]["ed25519"]["private_key"],
+            master_address=constants["regular_key_pair"]["master_address"],
+            seed=constants["regular_key_pair"]["seed"],
+        )
+
+        _test_wallet_values(self, wallet, "regular_key_pair", "ed25519")
+        self.assertEqual(wallet.algorithm, "ed25519")
 
     def test_create_using_default_algorithm(self):
         wallet = Wallet.create()
@@ -317,12 +342,12 @@ class TestWalletMain(TestCase):
     def test_from_secret_numbers_string_using_default_algorithm(self):
         wallet = Wallet.from_secret_numbers(constants["secret_numbers"]["string"])
 
-        _test_wallet_values(self, wallet, "secret_numbers", "secp256k1")
+        _test_wallet_values(self, wallet, "secret_numbers", "ed25519")
 
     def test_from_secret_numbers_array_using_default_algorithm(self):
         wallet = Wallet.from_secret_numbers(constants["secret_numbers"]["array"])
 
-        _test_wallet_values(self, wallet, "secret_numbers", "secp256k1")
+        _test_wallet_values(self, wallet, "secret_numbers", "ed25519")
 
     def test_from_secret_numbers_string_using_algorithm_ecdsa_secp256k1(self):
         wallet = Wallet.from_secret_numbers(

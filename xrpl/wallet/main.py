@@ -47,7 +47,7 @@ class Wallet:
         *,
         master_address: Optional[str] = None,
         seed: Optional[str] = None,
-        algorithm: Optional[CryptoAlgorithm] = None,
+        algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
     ) -> None:
         """
         Generate a new Wallet.
@@ -58,16 +58,10 @@ class Wallet:
             master_address: Include if a Wallet uses a Regular Key Pair. This sets the
                 address that this wallet corresponds to. The default is `None`.
             seed: The seed used to derive the account keys. The default is `None`.
-            algorithm: The algorithm used to encode the keys. Inferred from the seed if
-                not included
+            algorithm: The algorithm used to encode the keys. By default ED25519
+            algorithm is used. If the public/private key-pairs were generated using
+            secp256k1, explicitly specify it in the algorithm parameter.
         """
-        if algorithm is None:
-            if seed is not None and seed.startswith("sEd"):
-                wallet_algorithm = CryptoAlgorithm.ED25519
-            else:
-                wallet_algorithm = CryptoAlgorithm.SECP256K1
-        else:
-            wallet_algorithm = algorithm
 
         """
         The core value that is used to derive all other information about
@@ -78,7 +72,7 @@ class Wallet:
             try:
                 # We do not use the outputs of the below function, we are interested in
                 # whether it throws an exception or not
-                addresscodec.decode_seed(seed, wallet_algorithm)
+                addresscodec.decode_seed(seed, algorithm)
             except Exception as e:
                 raise XRPLAddressCodecException(
                     "Attempted to initialize a Wallet with "
@@ -86,14 +80,14 @@ class Wallet:
                     + seed
                     + ". The cryptographic algorithm"
                     + " used is: "
-                    + wallet_algorithm
+                    + algorithm
                     + "\nError message: "
                     + str(e)
                 )
 
         self.seed = seed
 
-        self.algorithm = wallet_algorithm
+        self.algorithm = algorithm
         """
         The algorithm that is used to convert the seed into its public/private keypair.
         """
@@ -205,7 +199,7 @@ class Wallet:
         secret_numbers: List[str] | str,
         *,
         master_address: Optional[str] = None,
-        algorithm: CryptoAlgorithm = CryptoAlgorithm.SECP256K1,
+        algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
     ) -> Self:
         """
         Generates a new Wallet from secret numbers.
@@ -216,9 +210,8 @@ class Wallet:
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
                 the master address of the account. The default is `None`.
             algorithm: The digital signature algorithm to generate an address for.
-                The default is `SECP256K1
-                <https://xrpl.org/cryptographic-keys.html#secp256k1-key-derivation>`_
-                (XUMM standard as of December 2022).
+                The default is `ED25519
+                https://xrpl.org/docs/concepts/accounts/cryptographic-keys#ed25519-key-derivation`_
 
         Returns:
             The wallet that is generated from the given secret numbers.
