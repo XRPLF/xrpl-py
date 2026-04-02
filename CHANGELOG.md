@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### BREAKING CHANGE
 
 - Dropped support for Python 3.8 (EOL October 2024) and Python 3.9 (EOL October 2025). The minimum supported Python version is now 3.10.
-- Ensure consistent use of ED25519 as the default cryptographic algorithm in `Wallet.from_secret_numbers` method and `Wallet` class constructor. This change ensures consistency across the entire Wallet class, where ED25519 is used as the default Cryptographic signing algorithm.
+- Ensure consistent use of ED25519 as the default cryptographic algorithm in `Wallet.from_secret_numbers` method. This change ensures consistency across the entire Wallet class, where ED25519 is used as the default Cryptographic signing algorithm.
 
 ### Fixed
 
