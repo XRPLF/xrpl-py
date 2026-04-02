@@ -49,8 +49,7 @@ class Wallet:
         seed: Optional[str] = None,
         algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
     ) -> None:
-        """
-        Generate a new Wallet.
+        """Generate a new Wallet.
 
         Args:
             public_key: The public key for the account.
@@ -62,11 +61,8 @@ class Wallet:
             algorithm is used. If the public/private key-pairs were generated using
             secp256k1, explicitly specify it in the algorithm parameter.
         """
-
-        """
-        The core value that is used to derive all other information about
-        this wallet. MUST be kept secret!
-        """
+        # The core value that is used to derive all other information about
+        # this wallet. MUST be kept secret!
         # Validate the seed before initialization of Wallet object
         if seed is not None:
             try:
