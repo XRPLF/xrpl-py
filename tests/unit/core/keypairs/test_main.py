@@ -240,3 +240,14 @@ class TestMain(TestCase):
         public_key = "ED01FA53FA5A7E77798F882ECE20B1ABC00BB358A9E55A202D0D0676BD0CE37A63"
         malformed = "test message".encode("utf-8")  # UTF-8 bytes, not a valid signature
         self.assertFalse(keypairs.is_valid_message(b"test message", malformed, public_key))
+
+    def test_is_valid_message_invalid_hex_string_returns_false(self):
+        # Non-hex string must return False, not raise ValueError from bytes.fromhex()
+        public_key = "ED01FA53FA5A7E77798F882ECE20B1ABC00BB358A9E55A202D0D0676BD0CE37A63"
+        self.assertFalse(keypairs.is_valid_message(b"test message", "not-valid-hex", public_key))
+
+    def test_is_valid_message_secp256k1_malformed_sig_returns_false(self):
+        # Malformed signature bytes for secp256k1 must return False, not raise
+        public_key = "030D58EB48B4420B1F7B9DF55087E0E29FEF0E8468F9A6825B01CA2C361042D435"
+        malformed = "test message".encode("utf-8")  # UTF-8 bytes, not a valid signature
+        self.assertFalse(keypairs.is_valid_message(b"test message", malformed, public_key))
