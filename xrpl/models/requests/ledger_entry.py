@@ -114,23 +114,25 @@ class DepositPreauth(BaseModel):
 class Directory(BaseModel):
     """
     Required fields for requesting a DirectoryNode if not querying by
-    object ID.
+    object ID. Either ``owner`` or ``dir_root`` must be provided, but not
+    necessarily both.
     """
 
-    owner: str = REQUIRED
-    """
-    This field is required.
+    owner: Optional[str] = None
+    """The owner of the directory. Required if ``dir_root`` is not provided."""
 
-    :meta hide-value:
+    dir_root: Optional[str] = None
+    """
+    The root of the directory. Required if ``owner`` is not provided.
     """
 
-    dir_root: str = REQUIRED
-    """
-    This field is required.
-
-    :meta hide-value:
-    """
     sub_index: Optional[int] = None
+
+    def _get_errors(self: Self) -> Dict[str, str]:
+        errors = super()._get_errors()
+        if self.owner is None and self.dir_root is None:
+            errors["Directory"] = "Must provide either `owner` or `dir_root`."
+        return errors
 
 
 @dataclass(frozen=True, kw_only=True)
