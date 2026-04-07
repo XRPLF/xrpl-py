@@ -139,7 +139,10 @@ def is_valid_message(
         Whether the message is valid for the given signature and public key.
     """
     if isinstance(signature, str):
-        signature = bytes.fromhex(signature)
+        try:
+            signature = bytes.fromhex(signature)
+        except ValueError:
+            return False
     return _get_module_from_key(public_key).is_valid_message(
         message,
         signature,

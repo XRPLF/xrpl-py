@@ -91,7 +91,7 @@ class ED25519(CryptoImplementation):
         wrapped_public = ECPublicKey(public_key_point)
         try:
             return cast(bool, _SIGNER.verify(message, signature, wrapped_public))
-        except (OverflowError, ValueError):
+        except (AssertionError, OverflowError, ValueError):
             return False
 
     @classmethod
