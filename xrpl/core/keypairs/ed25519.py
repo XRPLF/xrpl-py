@@ -89,7 +89,10 @@ class ED25519(CryptoImplementation):
         raw_public = public_key[len(PREFIX) :]
         public_key_point = _CURVE.decode_point(bytes.fromhex(raw_public))
         wrapped_public = ECPublicKey(public_key_point)
-        return cast(bool, _SIGNER.verify(message, signature, wrapped_public))
+        try:
+            return cast(bool, _SIGNER.verify(message, signature, wrapped_public))
+        except (OverflowError, ValueError):
+            return False
 
     @classmethod
     def _public_key_to_str(cls: Type[Self], key: ECPublicKey) -> str:

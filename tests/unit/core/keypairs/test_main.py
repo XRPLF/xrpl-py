@@ -223,3 +223,20 @@ class TestMain(TestCase):
             "030D58EB48B4420B1F7B9DF55087E0E29FEF0E8468F9A6825B01CA2C361042D435",
         )
         self.assertFalse(output)
+
+    def test_is_valid_message_ed25519_hex_string_signature(self):
+        # Regression test for https://github.com/XRPLF/xrpl-py/issues/861
+        # sign() returns a hex string; is_valid_message should accept it directly
+        private_key = "EDB4C4E046826BD26190D09715FC31F4E6A728204EADD112905B08B14B7F15C4F3"
+        public_key = "ED01FA53FA5A7E77798F882ECE20B1ABC00BB358A9E55A202D0D0676BD0CE37A63"
+        message = b"test message"
+        signature = keypairs.sign(message, private_key)
+        # Pass the hex string directly — must not raise OverflowError
+        self.assertTrue(keypairs.is_valid_message(message, signature, public_key))
+
+    def test_is_valid_message_ed25519_malformed_sig_returns_false(self):
+        # Regression test for https://github.com/XRPLF/xrpl-py/issues/861
+        # Malformed signature bytes must return False, not raise OverflowError
+        public_key = "ED01FA53FA5A7E77798F882ECE20B1ABC00BB358A9E55A202D0D0676BD0CE37A63"
+        malformed = "test message".encode("utf-8")  # UTF-8 bytes, not a valid signature
+        self.assertFalse(keypairs.is_valid_message(b"test message", malformed, public_key))
