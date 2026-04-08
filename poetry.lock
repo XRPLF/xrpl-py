@@ -289,7 +289,7 @@ description = "Cross-platform colored terminal text."
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 groups = ["dev"]
-markers = "platform_system == \"Windows\" or sys_platform == \"win32\""
+markers = "sys_platform == \"win32\" or platform_system == \"Windows\""
 files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
@@ -964,19 +964,19 @@ files = [
 
 [[package]]
 name = "pydoclint"
-version = "0.5.19"
+version = "0.8.3"
 description = "A Python docstring linter that checks arguments, returns, yields, and raises sections"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "pydoclint-0.5.19-py2.py3-none-any.whl", hash = "sha256:e267f30241792f8cb1ca52582c66edeb8534215dcbd118bcc9cb7a645f67e015"},
-    {file = "pydoclint-0.5.19.tar.gz", hash = "sha256:3372394565d7ba72f1ebfb61201622c54e9893dd8be98cb0cd728404d0022e06"},
+    {file = "pydoclint-0.8.3-py3-none-any.whl", hash = "sha256:5fc9b82d0d515afce0908cb70e8ff695a68b19042785c248c4f227ad66b4a164"},
+    {file = "pydoclint-0.8.3.tar.gz", hash = "sha256:0c69c0ed92c6f6b5aec2a14371bbd9e0a77980da8e2fa0f708092aa06b3b20b3"},
 ]
 
 [package.dependencies]
 click = ">=8.1.0"
-docstring_parser_fork = ">=0.0.10"
+docstring_parser_fork = ">=0.0.12"
 tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
 
 [package.extras]
@@ -1635,4 +1635,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "dbece480e08ce992aaf165f2b4beaeb4c6d839fff2bc2013e61e5132a3fe7c23"
+content-hash = "b81595efda458479d1f8b5b3fb5d7dd481914a62358b5a34dc9e3d3c4bba74e0"
