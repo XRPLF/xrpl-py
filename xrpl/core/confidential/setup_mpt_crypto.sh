@@ -91,8 +91,8 @@ download_from_ci() {
             ;;
     esac
 
-    # Use pdp2121/xrpl-py repository
-    REPO="pdp2121/xrpl-py"
+    # Use XRPLF/xrpl-py repository
+    REPO="XRPLF/xrpl-py"
     echo "Using repository: $REPO"
     echo "Artifact: $ARTIFACT_NAME"
 
@@ -105,7 +105,7 @@ download_from_ci() {
         echo ""
         echo "ERROR: Failed to download artifacts."
         echo "Make sure there's a recent successful build of the workflow."
-        echo "Check: https://github.com/pdp2121/xrpl-py/actions/workflows/build_mpt_crypto_libs.yml"
+        echo "Check: https://github.com/XRPLF/xrpl-py/actions/workflows/build_mpt_crypto_libs.yml"
         echo ""
         echo "You can also build locally using: $0 build"
         exit 1
@@ -115,12 +115,16 @@ download_from_ci() {
     echo "Downloaded files:"
     find "$TEMP_DOWNLOAD" -type f
 
-    # Copy libraries to correct location (handle nested paths from CI artifacts)
-    echo "Copying libraries..."
+    # Copy shared library to correct location
+    echo "Copying shared library..."
     if [ "$PLATFORM" = "windows" ]; then
-        find "$TEMP_DOWNLOAD" -name "*.lib" -exec cp {} "$LIBS_DIR/$LIB_SUBDIR/" \;
+        find "$TEMP_DOWNLOAD" -name "*.dll" -exec cp {} "$LIBS_DIR/$LIB_SUBDIR/" \;
+        # Also copy import library if present
+        find "$TEMP_DOWNLOAD" -name "*.lib" -exec cp {} "$LIBS_DIR/$LIB_SUBDIR/" \; 2>/dev/null || true
+    elif [ "$PLATFORM" = "darwin" ]; then
+        find "$TEMP_DOWNLOAD" -name "*.dylib" -exec cp {} "$LIBS_DIR/$LIB_SUBDIR/" \;
     else
-        find "$TEMP_DOWNLOAD" -name "*.a" -exec cp {} "$LIBS_DIR/$LIB_SUBDIR/" \;
+        find "$TEMP_DOWNLOAD" -name "*.so" -exec cp {} "$LIBS_DIR/$LIB_SUBDIR/" \;
     fi
 
     # Copy headers to correct location
@@ -147,65 +151,113 @@ download_from_ci() {
 
 build_locally() {
     echo ""
-    echo "=== Building MPT crypto binaries locally ==="
+    echo "=== Building MPT crypto shared library locally ==="
     echo ""
-    echo "This will clone mpt-crypto and build it using the same process as CI."
+    echo "This will clone mpt-crypto and build it as a shared library"
+    echo "with secp256k1 and OpenSSL statically linked in."
     echo "This may take several minutes..."
     echo ""
-    
+
     # Check for required tools
     if ! command -v cmake &> /dev/null; then
         echo "ERROR: cmake is not installed. Please install it first."
         exit 1
     fi
-    
+
     if ! command -v conan &> /dev/null; then
         echo "ERROR: conan is not installed. Please install it first:"
-        echo "  pip install conan"
+        echo "  pip install 'conan>=2.0.0'"
         exit 1
     fi
-    
+
+    # Ensure Conan profile exists
+    conan profile detect --force
+    conan remote add --index 0 xrplf https://conan.ripplex.io 2>/dev/null || true
+
     # Create temp directory
     TEMP_DIR=$(mktemp -d)
     trap "rm -rf $TEMP_DIR" EXIT
-    
+
     cd "$TEMP_DIR"
-    
+
     # Clone mpt-crypto
     echo "Cloning mpt-crypto (mpt-utility branch)..."
-    git clone --depth 1 --branch mpt-utility https://github.com/yinyiqian1/mpt-crypto.git
+    git clone --depth 1 https://github.com/XRPLF/mpt-crypto.git
     cd mpt-crypto
-    
-    # Build based on platform
+
+    # Build as shared library with static deps (matching CI / Java approach)
     case "$PLATFORM" in
         darwin|linux)
-            echo "Building static libraries with -fPIC..."
-            conan install . --build=missing -s build_type=Release
-            cmake -S . -B build \
+            CONAN_ARCH_ARGS=""
+            CMAKE_ARCH_ARGS=""
+            if [ "$PLATFORM" = "darwin" ]; then
+                if [ "$ARCH" = "arm64" ]; then
+                    CONAN_ARCH_ARGS="-s arch=armv8"
+                    CMAKE_ARCH_ARGS="-DCMAKE_OSX_ARCHITECTURES=arm64"
+                else
+                    CONAN_ARCH_ARGS="-s arch=x86_64"
+                    CMAKE_ARCH_ARGS="-DCMAKE_OSX_ARCHITECTURES=x86_64"
+                fi
+            fi
+
+            echo "Installing dependencies via Conan..."
+            conan install . \
+                -of build \
+                -b missing \
+                -s build_type=Release \
+                -o "&:shared=True" \
+                -o "&:tests=False" \
+                -o "secp256k1/*:shared=False" \
+                -o "secp256k1/*:fPIC=True" \
+                -o "openssl/*:shared=False" \
+                -o "openssl/*:fPIC=True" \
+                $CONAN_ARCH_ARGS
+
+            TOOLCHAIN=$(find build -name "conan_toolchain.cmake" -print -quit)
+
+            # Use Ninja if available, otherwise fall back to Unix Makefiles
+            if command -v ninja &> /dev/null; then
+                CMAKE_GENERATOR="Ninja"
+            else
+                CMAKE_GENERATOR="Unix Makefiles"
+                echo "Note: Ninja not found, using Make instead."
+            fi
+
+            echo "Configuring CMake (generator: $CMAKE_GENERATOR)..."
+            cmake -B build -S . \
+                -G "$CMAKE_GENERATOR" \
+                -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN" \
                 -DCMAKE_BUILD_TYPE=Release \
-                -DBUILD_SHARED_LIBS=OFF \
-                -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+                $CMAKE_ARCH_ARGS
+
+            echo "Building..."
             cmake --build build --config Release
-            
-            # Copy libraries
+
+            # Copy shared library
             mkdir -p "$LIBS_DIR/$LIB_SUBDIR"
-            cp build/libmpt-crypto.a "$LIBS_DIR/$LIB_SUBDIR/"
-            find ~/.conan2 -name "libsecp256k1.a" -exec cp {} "$LIBS_DIR/$LIB_SUBDIR/" \;
+            if [ "$PLATFORM" = "darwin" ]; then
+                find build -name "libmpt-crypto.dylib" -exec cp {} "$LIBS_DIR/$LIB_SUBDIR/" \;
+            else
+                find build -name "libmpt-crypto.so" -exec cp {} "$LIBS_DIR/$LIB_SUBDIR/" \;
+            fi
             ;;
         windows)
-            echo "Building static libraries for Windows..."
-            echo "Note: Windows builds are complex. Consider downloading from CI instead."
+            echo "Building shared library for Windows..."
+            echo "Note: Windows local builds are complex. Consider downloading from CI instead."
             exit 1
             ;;
     esac
-    
-    # Copy header
+
+    # Copy headers
     mkdir -p "$INCLUDE_DIR"
+    mkdir -p "$INCLUDE_DIR/utility"
     cp include/secp256k1_mpt.h "$INCLUDE_DIR/"
-    
+    cp include/utility/mpt_utility.h "$INCLUDE_DIR/utility/"
+
     echo ""
-    echo "✅ Successfully built MPT crypto binaries!"
+    echo "✅ Successfully built MPT crypto shared library!"
     echo "   Location: $LIBS_DIR/$LIB_SUBDIR"
+    ls -lh "$LIBS_DIR/$LIB_SUBDIR/"
 }
 
 # Main script

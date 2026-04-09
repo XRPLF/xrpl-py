@@ -25,7 +25,6 @@ def compute_convert_context_hash(
     account: Union[str, bytes],
     sequence: int,
     mpt_issuance_id: Union[str, bytes],
-    amount: int,
 ) -> str:
     """
     Compute context hash for ConfidentialMPTConvert transaction using utility layer.
@@ -35,7 +34,6 @@ def compute_convert_context_hash(
                  (20 bytes or 40-char hex string)
         sequence: Transaction sequence number
         mpt_issuance_id: 24-byte MPT issuance ID (bytes or 48-char hex string)
-        amount: Amount to convert (uint64)
 
     Returns:
         64-char hex string (32-byte context hash)
@@ -45,12 +43,10 @@ def compute_convert_context_hash(
         ...     "rN7n7otQDd6FczFgLdlqtyMVrn3z1oqh3V",
         ...     100,
         ...     "000004A2A67A324B17A366D8F0D768C32B23180D6A1E54B7",
-        ...     1000
         ... )
     """
     # Convert account to bytes
     if isinstance(account, str):
-        # Try to decode as classic address first, otherwise treat as hex
         try:
             account_id = decode_classic_address(account)
         except (ValueError, KeyError):
@@ -81,9 +77,7 @@ def compute_convert_context_hash(
 
     # Call utility layer function
     out_hash = ffi.new("uint8_t[32]")
-    result = lib.mpt_get_convert_context_hash(
-        acc[0], sequence, issuance[0], amount, out_hash
-    )
+    result = lib.mpt_get_convert_context_hash(acc[0], issuance[0], sequence, out_hash)
     if result != 0:
         raise RuntimeError("Failed to compute convert context hash")
 
@@ -94,7 +88,6 @@ def compute_convert_back_context_hash(
     account: Union[str, bytes],
     sequence: int,
     mpt_issuance_id: Union[str, bytes],
-    amount: int,
     version: int,
 ) -> str:
     """
@@ -105,7 +98,6 @@ def compute_convert_back_context_hash(
                  (20 bytes or 40-char hex string)
         sequence: Transaction sequence number
         mpt_issuance_id: 24-byte MPT issuance ID (bytes or 48-char hex string)
-        amount: Amount to convert back (uint64)
         version: ConfidentialBalanceVersion from ledger
 
     Returns:
@@ -116,13 +108,11 @@ def compute_convert_back_context_hash(
         ...     "rN7n7otQDd6FczFgLdlqtyMVrn3z1oqh3V",
         ...     100,
         ...     "000004A2A67A324B17A366D8F0D768C32B23180D6A1E54B7",
-        ...     500,
         ...     1
         ... )
     """
     # Convert account to bytes
     if isinstance(account, str):
-        # Try to decode as classic address first, otherwise treat as hex
         try:
             account_id = decode_classic_address(account)
         except (ValueError, KeyError):
@@ -154,7 +144,7 @@ def compute_convert_back_context_hash(
     # Call utility layer function
     out_hash = ffi.new("uint8_t[32]")
     result = lib.mpt_get_convert_back_context_hash(
-        acc[0], sequence, issuance[0], amount, version, out_hash
+        acc[0], issuance[0], sequence, version, out_hash
     )
     if result != 0:
         raise RuntimeError("Failed to compute convert back context hash")
@@ -246,7 +236,7 @@ def compute_send_context_hash(
     # Call utility layer function
     out_hash = ffi.new("uint8_t[32]")
     result = lib.mpt_get_send_context_hash(
-        acc[0], sequence, issuance[0], dest[0], version, out_hash
+        acc[0], issuance[0], sequence, dest[0], version, out_hash
     )
     if result != 0:
         raise RuntimeError("Failed to compute send context hash")
@@ -258,7 +248,6 @@ def compute_clawback_context_hash(
     issuer: Union[str, bytes],
     sequence: int,
     mpt_issuance_id: Union[str, bytes],
-    amount: int,
     holder: Union[str, bytes],
 ) -> str:
     """
@@ -269,7 +258,6 @@ def compute_clawback_context_hash(
                 (20 bytes or 40-char hex string)
         sequence: Transaction sequence number
         mpt_issuance_id: 24-byte MPT issuance ID (bytes or 48-char hex string)
-        amount: Amount to claw back (uint64)
         holder: Holder address (classic address string) or account ID
                 (20 bytes or 40-char hex string)
 
@@ -281,7 +269,6 @@ def compute_clawback_context_hash(
         ...     "rN7n7otQDd6FczFgLdlqtyMVrn3z1oqh3V",
         ...     100,
         ...     "000004A2A67A324B17A366D8F0D768C32B23180D6A1E54B7",
-        ...     500,
         ...     "rPEPPER7kfTD9w2To4CQk6UCfuHM9c6GDY"
         ... )
     """
@@ -336,7 +323,7 @@ def compute_clawback_context_hash(
     # Call utility layer function
     out_hash = ffi.new("uint8_t[32]")
     result = lib.mpt_get_clawback_context_hash(
-        iss[0], sequence, issuance[0], amount, hold[0], out_hash
+        iss[0], issuance[0], sequence, hold[0], out_hash
     )
     if result != 0:
         raise RuntimeError("Failed to compute clawback context hash")

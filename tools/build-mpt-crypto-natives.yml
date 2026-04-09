@@ -1,0 +1,299 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Build mpt-crypto Native Libraries
+#
+# Builds the mpt-crypto C library as a self-contained shared library for each
+# supported platform. Dependencies (secp256k1, OpenSSL) are statically linked
+# so the resulting binaries can be loaded directly by JNA at runtime without
+# requiring any system-level installs.
+#
+# The output artifacts follow JNA's platform naming convention:
+#   darwin-aarch64/libmptcrypto.dylib   (macOS ARM64)
+#   darwin-x86-64/libmptcrypto.dylib    (macOS x86_64)
+#   linux-aarch64/libmptcrypto.so       (Linux ARM64)
+#   linux-x86-64/libmptcrypto.so        (Linux x86_64)
+#   win32-x86-64/mptcrypto.dll          (Windows x86_64)
+#
+# These artifacts are intended to be downloaded and placed into
+# xrpl4j-mpt-crypto/src/main/resources/ for JNA to discover at runtime.
+# ──────────────────────────────────────────────────────────────────────────────
+
+name: Build mpt-crypto Native Libraries
+
+on:
+  # TODO: Remove push trigger after initial testing — only workflow_dispatch should remain
+  push:
+    branches:
+      - rp/conf-mpt-jna-workflow-setup
+  workflow_dispatch:
+    inputs:
+      mpt_crypto_ref:
+        description: 'Git ref (branch, tag, or commit SHA) of XRPLF/mpt-crypto to build'
+        required: true
+        default: 'main'
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # ── macOS ARM64 (Apple Silicon) ──
+          - os: macos-14
+            platform: darwin-aarch64
+            lib_filename: libmptcrypto.dylib
+            cmake_lib_filename: libmpt-crypto.dylib
+
+          # ── macOS x86_64 (Intel) ──
+          - os: macos-15-intel
+            platform: darwin-x86-64
+            lib_filename: libmptcrypto.dylib
+            cmake_lib_filename: libmpt-crypto.dylib
+
+          # ── Linux ARM64 ──
+          - os: ubuntu-24.04-arm
+            platform: linux-aarch64
+            lib_filename: libmptcrypto.so
+            cmake_lib_filename: libmpt-crypto.so
+
+          # ── Linux x86_64 ──
+          - os: ubuntu-latest
+            platform: linux-x86-64
+            lib_filename: libmptcrypto.so
+            cmake_lib_filename: libmpt-crypto.so
+
+          # ── Windows x86_64 ──
+          - os: windows-latest
+            platform: win32-x86-64
+            lib_filename: mptcrypto.dll
+            cmake_lib_filename: mpt-crypto.dll
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      # ── Checkout mpt-crypto source at the requested ref ──
+      # actions/checkout doesn't support arbitrary commit SHAs for external repos
+      # (it only matches branches/tags). So we do a full clone + checkout instead.
+      # Falls back to f2243cf for push-triggered runs (TODO: remove fallback with push trigger)
+      - name: Clone mpt-crypto
+        shell: bash
+        env:
+          MPT_REF: ${{ inputs.mpt_crypto_ref || 'f2243cf' }}
+        run: |
+          git clone https://github.com/XRPLF/mpt-crypto.git .
+          git checkout "${MPT_REF}"
+          echo "==> Checked out mpt-crypto at:"
+          git log --oneline -1
+
+      # ── Set up build tools ──
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Conan and Ninja
+        run: pip install "conan>=2.0.0" ninja
+
+      # Windows needs the MSVC developer environment for cl.exe, link.exe, etc.
+      - name: Set up MSVC environment
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      # ── Configure Conan ──
+      # Use auto-detected profile so we don't need to hand-craft compiler
+      # settings for each platform. Then add the XRPLF remote where secp256k1
+      # packages are hosted.
+      - name: Configure Conan
+        shell: bash
+        run: |
+          conan profile detect --force
+          echo "==> Detected Conan profile:"
+          conan profile show
+          conan remote add --index 0 xrplf https://conan.ripplex.io || true
+
+      # ── Install dependencies via Conan ──
+      #
+      # Key flags:
+      #   -o "&:shared=True"             → Build mpt-crypto as a SHARED library
+      #   -o "&:tests=False"             → Skip building test executables
+      #   -o "secp256k1/*:shared=False"  → Static secp256k1, linked INTO the shared lib
+      #   -o "openssl/*:shared=False"    → Static OpenSSL, linked INTO the shared lib
+      #   -o "*/fPIC=True"               → Position Independent Code for static deps
+      #                                    (required when linking static libs into a .so/.dylib)
+      #   -b missing                     → Build deps from source if no pre-built binary
+      #
+      # On Windows, fPIC doesn't apply — Conan ignores it for MSVC targets.
+      - name: Install dependencies (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          conan install . \
+            -of build \
+            -b missing \
+            -s build_type=Release \
+            -o "&:shared=True" \
+            -o "&:tests=False" \
+            -o "secp256k1/*:shared=False" \
+            -o "secp256k1/*:fPIC=True" \
+            -o "openssl/*:shared=False" \
+            -o "openssl/*:fPIC=True"
+
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          conan install . \
+            -of build \
+            -b missing \
+            -s build_type=Release \
+            -o "&:shared=True" \
+            -o "&:tests=False" \
+            -o "secp256k1/*:shared=False" \
+            -o "openssl/*:shared=False"
+
+      # ── Configure CMake ──
+      #
+      # The Conan toolchain file (conan_toolchain.cmake) configures:
+      #   - CMAKE_BUILD_TYPE=Release (single-config generators)
+      #   - BUILD_SHARED_LIBS=ON (from shared=True)
+      #   - Find-package paths for secp256k1 and OpenSSL
+      #
+      # Windows uses the VS generator because Ninja doesn't support
+      # CMAKE_GENERATOR_PLATFORM which Conan's MSVC toolchain sets.
+      - name: Configure CMake (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          TOOLCHAIN=$(find build -name "conan_toolchain.cmake" -print -quit)
+          if [ -z "${TOOLCHAIN}" ]; then
+            echo "ERROR: Could not find conan_toolchain.cmake under build/"
+            find build -type f -name "*.cmake" | head -20
+            exit 1
+          fi
+          echo "==> Using toolchain: ${TOOLCHAIN}"
+
+          cmake -B build -S . \
+            -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}" \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Configure CMake (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          TOOLCHAIN=$(find build -name "conan_toolchain.cmake" -print -quit)
+          if [ -z "${TOOLCHAIN}" ]; then
+            echo "ERROR: Could not find conan_toolchain.cmake under build/"
+            find build -type f -name "*.cmake" | head -20
+            exit 1
+          fi
+          echo "==> Using toolchain: ${TOOLCHAIN}"
+
+          cmake -B build -S . \
+            -G "Visual Studio 17 2022" \
+            -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}" \
+            -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON
+
+      # ── Build ──
+      - name: Build shared library
+        shell: bash
+        run: cmake --build build --config Release
+
+      # ── Package ──
+      # CMake produces "mpt-crypto" (with hyphen) as the library name.
+      # We rename to "mptcrypto" (no hyphen) because JNA's Native.load("mptcrypto")
+      # expects this convention.
+      - name: Package library
+        shell: bash
+        run: |
+          mkdir -p output/${{ matrix.platform }}
+
+          BUILT_LIB=$(find build -maxdepth 2 \( \
+            -name "${{ matrix.cmake_lib_filename }}" \
+            \) -print -quit)
+
+          if [ -z "${BUILT_LIB}" ]; then
+            echo "ERROR: Could not find ${{ matrix.cmake_lib_filename }} in build/"
+            echo "Build directory contents:"
+            find build -type f \( -name "*.dylib" -o -name "*.so" -o -name "*.dll" \) 2>/dev/null
+            exit 1
+          fi
+
+          echo "==> Found: ${BUILT_LIB}"
+          cp "${BUILT_LIB}" "output/${{ matrix.platform }}/${{ matrix.lib_filename }}"
+          echo "==> Packaged: output/${{ matrix.platform }}/${{ matrix.lib_filename }}"
+
+      # ── Verify ──
+      # Confirm the library is self-contained: linked libraries should only be
+      # system libs (no secp256k1 or libcrypto as external shared deps).
+      - name: Verify library (macOS)
+        if: startsWith(matrix.platform, 'darwin')
+        run: |
+          echo "==> Linked libraries (should only show system libs):"
+          otool -L output/${{ matrix.platform }}/${{ matrix.lib_filename }}
+          echo ""
+          echo "==> Architecture:"
+          file output/${{ matrix.platform }}/${{ matrix.lib_filename }}
+
+      - name: Verify library (Linux)
+        if: startsWith(matrix.platform, 'linux')
+        run: |
+          echo "==> Linked libraries (should only show system libs):"
+          ldd output/${{ matrix.platform }}/${{ matrix.lib_filename }} || true
+          echo ""
+          echo "==> Architecture:"
+          file output/${{ matrix.platform }}/${{ matrix.lib_filename }}
+
+      - name: Verify library (Windows)
+        if: startsWith(matrix.platform, 'win32')
+        shell: bash
+        run: |
+          echo "==> File info:"
+          file output/${{ matrix.platform }}/${{ matrix.lib_filename }}
+
+      # ── Upload per-platform artifact ──
+      # Upload output/ (not output/<platform>/) so the platform subdirectory
+      # is preserved inside the artifact. This ensures merge-multiple in the
+      # bundle job doesn't overwrite files with the same name across platforms.
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mptcrypto-${{ matrix.platform }}
+          path: output/
+          if-no-files-found: error
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Bundle all platform artifacts into a single downloadable archive.
+  # The structure matches what JNA expects on the classpath:
+  #   darwin-aarch64/libmptcrypto.dylib
+  #   darwin-x86-64/libmptcrypto.dylib
+  #   linux-aarch64/libmptcrypto.so
+  #   linux-x86-64/libmptcrypto.so
+  #   win32-x86-64/mptcrypto.dll
+  # ──────────────────────────────────────────────────────────────────────────
+  bundle:
+    name: Bundle all native libraries
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all platform artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: mptcrypto-*
+          path: natives/
+          merge-multiple: true
+
+      - name: Display bundled structure
+        run: |
+          echo "==> Bundled native libraries:"
+          find natives/ -type f | sort
+          echo ""
+          echo "==> File sizes:"
+          find natives/ -type f -exec ls -lh {} \;
+
+      - name: Upload combined artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mptcrypto-all-platforms
+          path: natives/
+          if-no-files-found: error

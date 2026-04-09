@@ -64,7 +64,7 @@ def create_elgamal_pedersen_link_proof(  # noqa: PLR0913
         raise ValueError("context_id must be 32 bytes")
 
     # Create params struct
-    params = ffi.new("struct mpt_pedersen_proof_params *")
+    params = ffi.new("mpt_pedersen_proof_params *")
 
     # Copy pedersen commitment
     for i in range(33):
@@ -73,12 +73,12 @@ def create_elgamal_pedersen_link_proof(  # noqa: PLR0913
     # Set amount
     params.amount = amount
 
-    # Copy encrypted amount (c1 || c2)
+    # Copy ciphertext (c1 || c2)
     c1_bytes = bytes.fromhex(c1)
     c2_bytes = bytes.fromhex(c2)
-    encrypted_amount = c1_bytes + c2_bytes
+    ciphertext = c1_bytes + c2_bytes
     for i in range(66):
-        params.encrypted_amount[i] = encrypted_amount[i]
+        params.ciphertext[i] = ciphertext[i]
 
     # Copy blinding factor
     for i in range(32):
@@ -233,7 +233,7 @@ def create_balance_link_proof(  # noqa: PLR0913
         raise ValueError("context_id must be 32 bytes")
 
     # Create params struct
-    params = ffi.new("struct mpt_pedersen_proof_params *")
+    params = ffi.new("mpt_pedersen_proof_params *")
 
     # Copy pedersen commitment
     for i in range(33):
@@ -242,10 +242,10 @@ def create_balance_link_proof(  # noqa: PLR0913
     # Set amount
     params.amount = amount
 
-    # Copy encrypted amount (c1 || c2)
-    encrypted_amount = c1_bytes + c2_bytes
+    # Copy ciphertext (c1 || c2)
+    ciphertext = c1_bytes + c2_bytes
     for i in range(66):
-        params.encrypted_amount[i] = encrypted_amount[i]
+        params.ciphertext[i] = ciphertext[i]
 
     # Copy blinding factor
     for i in range(32):

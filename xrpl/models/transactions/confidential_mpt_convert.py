@@ -15,7 +15,7 @@ from xrpl.models.utils import require_kwargs_on_init
 # Length constants for validation (in hex characters)
 HOLDER_ELGAMAL_PUBLIC_KEY_LENGTH = 33 * 2  # 33 bytes = 66 hex chars
 BLINDING_FACTOR_LENGTH = 32 * 2  # 32 bytes = 64 hex chars
-SCHNORR_PROOF_LENGTH = 65 * 2  # 65 bytes = 130 hex chars (33 R + 32 s)
+SCHNORR_PROOF_LENGTH = 64 * 2  # 64 bytes = 128 hex chars (32 R + 32 s)
 EQUALITY_PROOF_LENGTH = 98 * 2  # 98 bytes = 196 hex chars (plaintext-ciphertext)
 
 # ElGamal ciphertext: two compressed EC points (C1, C2), each 33 bytes
@@ -128,7 +128,7 @@ class ConfidentialMPTConvert(Transaction):
 
         if self.zk_proof is not None and len(self.zk_proof) != SCHNORR_PROOF_LENGTH:
             errors["zk_proof"] = (
-                "zk_proof must be 65 bytes (130 hex characters) for Schnorr Proof"
+                "zk_proof must be 64 bytes (128 hex characters) for Schnorr Proof"
             )
 
         if self.mpt_amount <= 0:

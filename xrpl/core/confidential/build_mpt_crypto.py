@@ -108,7 +108,7 @@ ffibuilder.cdef(
         const unsigned char* randomness_r,
         const unsigned char* tx_context_id
     );
-    
+
     int secp256k1_equality_plaintext_verify(
         const secp256k1_context* ctx,
         const unsigned char* proof,
@@ -116,26 +116,6 @@ ffibuilder.cdef(
         const secp256k1_pubkey* c2,
         const secp256k1_pubkey* pk_recipient,
         uint64_t amount,
-        const unsigned char* tx_context_id
-    );
-    
-    // Same plaintext proof (two ciphertexts)
-    int secp256k1_mpt_prove_same_plaintext(
-        const secp256k1_context* ctx,
-        unsigned char* proof_out,
-        const secp256k1_pubkey* R1, const secp256k1_pubkey* S1, const secp256k1_pubkey* P1,
-        const secp256k1_pubkey* R2, const secp256k1_pubkey* S2, const secp256k1_pubkey* P2,
-        uint64_t amount_m,
-        const unsigned char* randomness_r1,
-        const unsigned char* randomness_r2,
-        const unsigned char* tx_context_id
-    );
-    
-    int secp256k1_mpt_verify_same_plaintext(
-        const secp256k1_context* ctx,
-        const unsigned char* proof,
-        const secp256k1_pubkey* R1, const secp256k1_pubkey* S1, const secp256k1_pubkey* P1,
-        const secp256k1_pubkey* R2, const secp256k1_pubkey* S2, const secp256k1_pubkey* P2,
         const unsigned char* tx_context_id
     );
 
@@ -221,31 +201,111 @@ ffibuilder.cdef(
         const unsigned char* context_id
     );
 
-    // Proof of same plaintext (multi-ciphertext)
-    size_t secp256k1_mpt_prove_same_plaintext_multi_size(size_t n_ciphertexts);
+    // Equality proof with shared randomness
+    size_t secp256k1_mpt_proof_equality_shared_r_size(size_t n);
 
-    int secp256k1_mpt_prove_same_plaintext_multi(
+    int secp256k1_mpt_prove_equality_shared_r(
         const secp256k1_context* ctx,
         unsigned char* proof_out,
-        size_t* proof_len,
-        uint64_t amount_m,
-        size_t n_ciphertexts,
-        const secp256k1_pubkey* R_array,
-        const secp256k1_pubkey* S_array,
-        const secp256k1_pubkey* Pk_array,
-        const unsigned char* r_array,
-        const unsigned char* tx_context_id
+        uint64_t amount,
+        const unsigned char* r_shared,
+        size_t n,
+        const secp256k1_pubkey* C1,
+        const secp256k1_pubkey* C2_vec,
+        const secp256k1_pubkey* Pk_vec,
+        const unsigned char* context_id
     );
 
-    int secp256k1_mpt_verify_same_plaintext_multi(
+    int secp256k1_mpt_verify_equality_shared_r(
         const secp256k1_context* ctx,
         const unsigned char* proof,
-        size_t proof_len,
-        size_t n_ciphertexts,
-        const secp256k1_pubkey* R_array,
-        const secp256k1_pubkey* S_array,
-        const secp256k1_pubkey* Pk_array,
-        const unsigned char* tx_context_id
+        size_t n,
+        const secp256k1_pubkey* C1,
+        const secp256k1_pubkey* C2_vec,
+        const secp256k1_pubkey* Pk_vec,
+        const unsigned char* context_id
+    );
+
+    // Compact standard send proof
+    int secp256k1_compact_standard_prove(
+        const secp256k1_context* ctx,
+        unsigned char* proof_out,
+        uint64_t amount,
+        uint64_t balance,
+        const unsigned char* r_shared,
+        const unsigned char* sk_A,
+        const unsigned char* r_b,
+        size_t n,
+        const secp256k1_pubkey* C1,
+        const secp256k1_pubkey* C2_vec,
+        const secp256k1_pubkey* Pk_vec,
+        const secp256k1_pubkey* PC_m,
+        const secp256k1_pubkey* pk_A,
+        const secp256k1_pubkey* PC_b,
+        const secp256k1_pubkey* B1,
+        const secp256k1_pubkey* B2,
+        const unsigned char* context_id
+    );
+
+    int secp256k1_compact_standard_verify(
+        const secp256k1_context* ctx,
+        const unsigned char* proof,
+        size_t n,
+        const secp256k1_pubkey* C1,
+        const secp256k1_pubkey* C2_vec,
+        const secp256k1_pubkey* Pk_vec,
+        const secp256k1_pubkey* PC_m,
+        const secp256k1_pubkey* pk_A,
+        const secp256k1_pubkey* PC_b,
+        const secp256k1_pubkey* B1,
+        const secp256k1_pubkey* B2,
+        const unsigned char* context_id
+    );
+
+    // Compact clawback proof
+    int secp256k1_compact_clawback_prove(
+        const secp256k1_context* ctx,
+        unsigned char* proof_out,
+        uint64_t amount,
+        const unsigned char* sk_iss,
+        const secp256k1_pubkey* P_iss,
+        const secp256k1_pubkey* C1,
+        const secp256k1_pubkey* C2,
+        const unsigned char* context_id
+    );
+
+    int secp256k1_compact_clawback_verify(
+        const secp256k1_context* ctx,
+        const unsigned char* proof,
+        uint64_t amount,
+        const secp256k1_pubkey* P_iss,
+        const secp256k1_pubkey* C1,
+        const secp256k1_pubkey* C2,
+        const unsigned char* context_id
+    );
+
+    // Compact convertback proof
+    int secp256k1_compact_convertback_prove(
+        const secp256k1_context* ctx,
+        unsigned char* proof_out,
+        uint64_t balance,
+        const unsigned char* sk_A,
+        const unsigned char* rho,
+        const secp256k1_pubkey* pk_A,
+        const secp256k1_pubkey* B1,
+        const secp256k1_pubkey* B2,
+        const secp256k1_pubkey* PC_b,
+        const unsigned char* context_id
+    );
+
+    int secp256k1_compact_convertback_verify(
+        const secp256k1_context* ctx,
+        const unsigned char* proof,
+        const secp256k1_pubkey* pk_A,
+        const secp256k1_pubkey* B1,
+        const secp256k1_pubkey* B2,
+        const secp256k1_pubkey* PC_b,
+        const unsigned char* context_id
     );
 
     // Constants
@@ -256,6 +316,7 @@ ffibuilder.cdef(
 
     // ========================================================================
     // MPT Utility Layer - High-level wrapper functions
+    // (must match XRPLF/mpt-crypto include/utility/mpt_utility.h)
     // ========================================================================
 
     // Structs
@@ -267,17 +328,17 @@ ffibuilder.cdef(
         uint8_t bytes[20];
     } account_id;
 
-    struct mpt_confidential_recipient {
+    typedef struct mpt_confidential_participant {
         uint8_t pubkey[33];
-        uint8_t encrypted_amount[66];
-    };
+        uint8_t ciphertext[66];
+    } mpt_confidential_participant;
 
-    struct mpt_pedersen_proof_params {
+    typedef struct mpt_pedersen_proof_params {
         uint8_t pedersen_commitment[33];
         uint64_t amount;
-        uint8_t encrypted_amount[66];
+        uint8_t ciphertext[66];
         uint8_t blinding_factor[32];
-    };
+    } mpt_pedersen_proof_params;
 
     // Context functions
     secp256k1_context* mpt_secp256k1_context();
@@ -285,44 +346,52 @@ ffibuilder.cdef(
     // Context hash functions
     int mpt_get_convert_context_hash(
         account_id account,
+        mpt_issuance_id iss,
         uint32_t sequence,
-        mpt_issuance_id issuanceID,
-        uint64_t amount,
         uint8_t out_hash[32]
     );
 
     int mpt_get_convert_back_context_hash(
-        account_id account,
-        uint32_t sequence,
-        mpt_issuance_id issuanceID,
-        uint64_t amount,
-        uint32_t version,
+        account_id acc,
+        mpt_issuance_id iss,
+        uint32_t seq,
+        uint32_t ver,
         uint8_t out_hash[32]
     );
 
     int mpt_get_send_context_hash(
-        account_id account,
-        uint32_t sequence,
-        mpt_issuance_id issuanceID,
-        account_id destination,
-        uint32_t version,
+        account_id acc,
+        mpt_issuance_id iss,
+        uint32_t seq,
+        account_id dest,
+        uint32_t ver,
         uint8_t out_hash[32]
     );
 
     int mpt_get_clawback_context_hash(
-        account_id account,
-        uint32_t sequence,
-        mpt_issuance_id issuanceID,
-        uint64_t amount,
+        account_id acc,
+        mpt_issuance_id iss,
+        uint32_t seq,
         account_id holder,
         uint8_t out_hash[32]
     );
 
     // Size calculation functions
-    size_t get_multi_ciphertext_equality_proof_size(size_t n_recipients);
     size_t get_confidential_send_proof_size(size_t n_recipients);
 
     // Key & Ciphertext Utilities
+    int mpt_make_ec_pair(
+        uint8_t const buffer[66],
+        secp256k1_pubkey* out1,
+        secp256k1_pubkey* out2
+    );
+
+    int mpt_serialize_ec_pair(
+        secp256k1_pubkey const* in1,
+        secp256k1_pubkey const* in2,
+        uint8_t out[66]
+    );
+
     int mpt_generate_keypair(uint8_t* out_privkey, uint8_t* out_pubkey);
     int mpt_generate_blinding_factor(uint8_t out_factor[32]);
 
@@ -344,7 +413,7 @@ ffibuilder.cdef(
         uint8_t const pubkey[33],
         uint8_t const privkey[32],
         uint8_t const ctx_hash[32],
-        uint8_t out_proof[65]
+        uint8_t out_proof[64]
     );
 
     int mpt_get_pedersen_commitment(
@@ -357,7 +426,7 @@ ffibuilder.cdef(
         uint8_t const pubkey[33],
         uint8_t const blinding_factor[32],
         uint8_t const context_hash[32],
-        struct mpt_pedersen_proof_params const* params,
+        mpt_pedersen_proof_params const* params,
         uint8_t out[195]
     );
 
@@ -365,19 +434,19 @@ ffibuilder.cdef(
         uint8_t const priv[32],
         uint8_t const pub[33],
         uint8_t const context_hash[32],
-        struct mpt_pedersen_proof_params const* params,
+        mpt_pedersen_proof_params const* params,
         uint8_t out[195]
     );
 
     int mpt_get_confidential_send_proof(
         uint8_t const priv[32],
         uint64_t amount,
-        struct mpt_confidential_recipient const* recipients,
+        mpt_confidential_participant const* recipients,
         size_t n_recipients,
         uint8_t const tx_blinding_factor[32],
         uint8_t const context_hash[32],
-        struct mpt_pedersen_proof_params const* amount_params,
-        struct mpt_pedersen_proof_params const* balance_params,
+        mpt_pedersen_proof_params const* amount_params,
+        mpt_pedersen_proof_params const* balance_params,
         uint8_t* out_proof,
         size_t* out_len
     );
@@ -387,7 +456,7 @@ ffibuilder.cdef(
         uint8_t const pub[33],
         uint8_t const context_hash[32],
         uint64_t const amount,
-        struct mpt_pedersen_proof_params const* params,
+        mpt_pedersen_proof_params const* params,
         uint8_t out_proof[883]
     );
 
@@ -396,21 +465,129 @@ ffibuilder.cdef(
         uint8_t const pub[33],
         uint8_t const context_hash[32],
         uint64_t const amount,
-        uint8_t const encrypted_amount[66],
+        uint8_t const ciphertext[66],
         uint8_t out_proof[98]
+    );
+
+    // Encryption & Commitment Validation
+    int mpt_verify_revealed_amount(
+        uint64_t const amount,
+        uint8_t const blinding_factor[32],
+        mpt_confidential_participant const* holder,
+        mpt_confidential_participant const* issuer,
+        mpt_confidential_participant const* auditor
+    );
+
+    // ZKProof Verifications
+    int mpt_verify_convert_proof(
+        uint8_t const proof[64],
+        uint8_t const pubkey[33],
+        uint8_t const context_hash[32]
+    );
+
+    int mpt_verify_convert_back_proof(
+        uint8_t const proof[883],
+        uint8_t const pubkey[33],
+        uint8_t const ciphertext[66],
+        uint8_t const balance_commitment[33],
+        uint64_t const amount,
+        uint8_t const context_hash[32]
+    );
+
+    int mpt_verify_send_proof(
+        uint8_t const* proof,
+        size_t const proof_len,
+        mpt_confidential_participant const* participants,
+        uint8_t const n_participants,
+        uint8_t const sender_spending_ciphertext[66],
+        uint8_t const amount_commitment[33],
+        uint8_t const balance_commitment[33],
+        uint8_t const context_hash[32]
+    );
+
+    int mpt_verify_clawback_proof(
+        uint8_t const proof[98],
+        uint64_t const amount,
+        uint8_t const pubkey[33],
+        uint8_t const ciphertext[66],
+        uint8_t const context_hash[32]
+    );
+
+    // Internal verification components
+    int mpt_verify_amount_linkage(
+        secp256k1_context const* ctx,
+        uint8_t const proof[195],
+        uint8_t const ciphertext[66],
+        uint8_t const pubkey[33],
+        uint8_t const commitment[33],
+        uint8_t const context_hash[32]
+    );
+
+    int mpt_verify_balance_linkage(
+        uint8_t const proof[195],
+        uint8_t const ciphertext[66],
+        uint8_t const pubkey[33],
+        uint8_t const commitment[33],
+        uint8_t const context_hash[32]
+    );
+
+    int mpt_verify_equality_proof(
+        secp256k1_context const* ctx,
+        uint8_t const* proof,
+        size_t const proof_len,
+        mpt_confidential_participant const* participants,
+        uint8_t const n_participants,
+        uint8_t const context_hash[32]
+    );
+
+    int mpt_compute_convert_back_remainder(
+        uint8_t const commitment_in[33],
+        uint64_t amount,
+        uint8_t commitment_out[33]
+    );
+
+    int mpt_verify_aggregated_bulletproof(
+        uint8_t const* proof,
+        size_t proof_len,
+        uint8_t const** compressed_commitments,
+        size_t m,
+        uint8_t const context_hash[32]
+    );
+
+    int mpt_verify_send_range_proof(
+        secp256k1_context const* ctx,
+        uint8_t const proof[754],
+        uint8_t const amount_commitment[33],
+        uint8_t const remainder_commitment[33],
+        uint8_t const context_hash[32]
     );
 """
 )
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Locate the pre-built shared library
+#
+# The CI now builds mpt-crypto as a single self-contained shared library with
+# secp256k1 and OpenSSL statically linked in.  This is much smaller than the
+# old approach of shipping three separate static archives (.a / .lib).
+#
+# Expected layout:
+#   libs/linux/libmpt-crypto.so
+#   libs/darwin/libmpt-crypto.dylib
+#   libs/win32/mpt-crypto.dll
+# ──────────────────────────────────────────────────────────────────────────────
 script_dir = os.path.dirname(os.path.abspath(__file__))
 system = platform.system().lower()
 
 if system == "darwin":
     lib_subdir = "darwin"
+    shared_lib_name = "libmpt-crypto.dylib"
 elif system == "linux":
     lib_subdir = "linux"
+    shared_lib_name = "libmpt-crypto.so"
 elif system == "windows" or system.startswith("win"):
     lib_subdir = "win32"
+    shared_lib_name = "mpt-crypto.dll"
 else:
     raise RuntimeError(f"Unsupported platform: {system}")
 
@@ -423,66 +600,50 @@ if not os.path.exists(libs_dir):
         f"Expected directory: {libs_dir}"
     )
 
+shared_lib_path = os.path.join(libs_dir, shared_lib_name)
+if not os.path.exists(shared_lib_path):
+    raise RuntimeError(
+        f"Shared library not found: {shared_lib_path}\n"
+        f"Contents of {libs_dir}: {os.listdir(libs_dir)}\n"
+        f"\n"
+        f"The CI now builds mpt-crypto as a shared library (.so/.dylib/.dll)\n"
+        f"instead of separate static archives (.a/.lib).\n"
+        f"Run: ./xrpl/core/confidential/setup_mpt_crypto.sh download"
+    )
+
 library_dirs = [libs_dir]
 include_dirs = [include_dir]
 
-# Check if OpenSSL is bundled in libs_dir
-bundled_openssl = (
-    os.path.exists(os.path.join(libs_dir, "libcrypto.a"))
-    or os.path.exists(os.path.join(libs_dir, "crypto.lib"))
-)
-
-if system == "darwin" and not bundled_openssl:
-    # Only use Homebrew OpenSSL as fallback if not bundled
-    homebrew_openssl_paths = [
-        "/opt/homebrew/opt/openssl/lib",
-        "/usr/local/opt/openssl/lib",
-        "/opt/homebrew/opt/openssl@3/lib",
-        "/usr/local/opt/openssl@3/lib",
-    ]
-    homebrew_openssl_include_paths = [
-        "/opt/homebrew/opt/openssl/include",
-        "/usr/local/opt/openssl/include",
-        "/opt/homebrew/opt/openssl@3/include",
-        "/usr/local/opt/openssl@3/include",
-    ]
-
-    for path in homebrew_openssl_paths:
-        if os.path.exists(path):
-            library_dirs.append(path)
-            break
-
-    for path in homebrew_openssl_include_paths:
-        if os.path.exists(path):
-            include_dirs.append(path)
-            break
-
 extra_compile_args = []
 extra_link_args = []
-# Core libraries: mpt-crypto, secp256k1, crypto (OpenSSL)
-# Note: OpenSSL (crypto) depends on zlib for compression
-libraries = ["mpt-crypto", "secp256k1", "crypto", "z"]
+
+# Link against the single shared library — all dependencies (secp256k1,
+# OpenSSL) are already statically linked inside it.
+libraries = ["mpt-crypto"]
 
 if system == "darwin":
-    # macOS: Link C++ standard library and use -all_load to include all symbols
-    libraries.append("c++")
-    extra_link_args = ["-Wl,-all_load"]
-elif system == "linux":
-    # Linux: Link C++ standard library and use PIC for shared library
-    libraries.append("stdc++")
-    extra_compile_args = ["-fPIC"]
-elif system == "windows" or system.startswith("win"):
-    # Windows uses different library names
-    libraries = ["mpt-crypto", "secp256k1", "crypto", "zlib"]
-    libraries.extend(["Advapi32", "User32", "Crypt32", "Ws2_32"])
+    # Set rpath so the extension can find the shared library at runtime
     extra_link_args = [
-        "/WHOLEARCHIVE:mpt-crypto.lib",
-        "/WHOLEARCHIVE:secp256k1.lib",
+        f"-Wl,-rpath,{libs_dir}",
+        f"-Wl,-rpath,@loader_path/libs/{lib_subdir}",
     ]
+elif system == "linux":
+    extra_compile_args = ["-fPIC"]
+    extra_link_args = [
+        f"-Wl,-rpath,{libs_dir}",
+        f"-Wl,-rpath,$ORIGIN/libs/{lib_subdir}",
+    ]
+elif system == "windows" or system.startswith("win"):
+    # On Windows the DLL just needs to be on PATH or in the same directory
+    libraries = ["mpt-crypto"]
 
 ffibuilder.set_source(
     "_mpt_crypto",
     """
+    #include <stdbool.h>
+    #include <stdint.h>
+    #include <stddef.h>
+
     #include <secp256k1.h>
     #include <secp256k1_mpt.h>
 
@@ -490,10 +651,6 @@ ffibuilder.set_source(
     #ifdef __cplusplus
     extern "C" {
     #endif
-
-    // Include only the C-compatible parts of the utility layer
-    #include <stdint.h>
-    #include <stddef.h>
 
     typedef struct {
         uint8_t bytes[24];
@@ -503,58 +660,66 @@ ffibuilder.set_source(
         uint8_t bytes[20];
     } account_id;
 
-    struct mpt_confidential_recipient {
+    typedef struct mpt_confidential_participant {
         uint8_t pubkey[33];
-        uint8_t encrypted_amount[66];
-    };
+        uint8_t ciphertext[66];
+    } mpt_confidential_participant;
 
-    struct mpt_pedersen_proof_params {
+    typedef struct mpt_pedersen_proof_params {
         uint8_t pedersen_commitment[33];
         uint64_t amount;
-        uint8_t encrypted_amount[66];
+        uint8_t ciphertext[66];
         uint8_t blinding_factor[32];
-    };
+    } mpt_pedersen_proof_params;
 
     // Declare utility layer functions
     secp256k1_context* mpt_secp256k1_context(void);
 
     int mpt_get_convert_context_hash(
         account_id account,
+        mpt_issuance_id iss,
         uint32_t sequence,
-        mpt_issuance_id issuanceID,
-        uint64_t amount,
         uint8_t out_hash[32]
     );
 
     int mpt_get_convert_back_context_hash(
-        account_id account,
-        uint32_t sequence,
-        mpt_issuance_id issuanceID,
-        uint64_t amount,
-        uint32_t version,
+        account_id acc,
+        mpt_issuance_id iss,
+        uint32_t seq,
+        uint32_t ver,
         uint8_t out_hash[32]
     );
 
     int mpt_get_send_context_hash(
-        account_id account,
-        uint32_t sequence,
-        mpt_issuance_id issuanceID,
-        account_id destination,
-        uint32_t version,
+        account_id acc,
+        mpt_issuance_id iss,
+        uint32_t seq,
+        account_id dest,
+        uint32_t ver,
         uint8_t out_hash[32]
     );
 
     int mpt_get_clawback_context_hash(
-        account_id account,
-        uint32_t sequence,
-        mpt_issuance_id issuanceID,
-        uint64_t amount,
+        account_id acc,
+        mpt_issuance_id iss,
+        uint32_t seq,
         account_id holder,
         uint8_t out_hash[32]
     );
 
-    size_t get_multi_ciphertext_equality_proof_size(size_t n_recipients);
     size_t get_confidential_send_proof_size(size_t n_recipients);
+
+    int mpt_make_ec_pair(
+        uint8_t const buffer[66],
+        secp256k1_pubkey* out1,
+        secp256k1_pubkey* out2
+    );
+
+    int mpt_serialize_ec_pair(
+        secp256k1_pubkey const* in1,
+        secp256k1_pubkey const* in2,
+        uint8_t out[66]
+    );
 
     int mpt_generate_keypair(uint8_t* out_privkey, uint8_t* out_pubkey);
     int mpt_generate_blinding_factor(uint8_t out_factor[32]);
@@ -576,7 +741,7 @@ ffibuilder.set_source(
         uint8_t const pubkey[33],
         uint8_t const privkey[32],
         uint8_t const ctx_hash[32],
-        uint8_t out_proof[65]
+        uint8_t out_proof[64]
     );
 
     int mpt_get_pedersen_commitment(
@@ -589,7 +754,7 @@ ffibuilder.set_source(
         uint8_t const pubkey[33],
         uint8_t const blinding_factor[32],
         uint8_t const context_hash[32],
-        struct mpt_pedersen_proof_params const* params,
+        mpt_pedersen_proof_params const* params,
         uint8_t out[195]
     );
 
@@ -597,19 +762,19 @@ ffibuilder.set_source(
         uint8_t const priv[32],
         uint8_t const pub[33],
         uint8_t const context_hash[32],
-        struct mpt_pedersen_proof_params const* params,
+        mpt_pedersen_proof_params const* params,
         uint8_t out[195]
     );
 
     int mpt_get_confidential_send_proof(
         uint8_t const priv[32],
         uint64_t amount,
-        struct mpt_confidential_recipient const* recipients,
+        mpt_confidential_participant const* recipients,
         size_t n_recipients,
         uint8_t const tx_blinding_factor[32],
         uint8_t const context_hash[32],
-        struct mpt_pedersen_proof_params const* amount_params,
-        struct mpt_pedersen_proof_params const* balance_params,
+        mpt_pedersen_proof_params const* amount_params,
+        mpt_pedersen_proof_params const* balance_params,
         uint8_t* out_proof,
         size_t* out_len
     );
@@ -619,7 +784,7 @@ ffibuilder.set_source(
         uint8_t const pub[33],
         uint8_t const context_hash[32],
         uint64_t const amount,
-        struct mpt_pedersen_proof_params const* params,
+        mpt_pedersen_proof_params const* params,
         uint8_t out_proof[883]
     );
 
@@ -628,8 +793,98 @@ ffibuilder.set_source(
         uint8_t const pub[33],
         uint8_t const context_hash[32],
         uint64_t const amount,
-        uint8_t const encrypted_amount[66],
+        uint8_t const ciphertext[66],
         uint8_t out_proof[98]
+    );
+
+    int mpt_verify_revealed_amount(
+        uint64_t const amount,
+        uint8_t const blinding_factor[32],
+        mpt_confidential_participant const* holder,
+        mpt_confidential_participant const* issuer,
+        mpt_confidential_participant const* auditor
+    );
+
+    int mpt_verify_convert_proof(
+        uint8_t const proof[64],
+        uint8_t const pubkey[33],
+        uint8_t const context_hash[32]
+    );
+
+    int mpt_verify_convert_back_proof(
+        uint8_t const proof[883],
+        uint8_t const pubkey[33],
+        uint8_t const ciphertext[66],
+        uint8_t const balance_commitment[33],
+        uint64_t const amount,
+        uint8_t const context_hash[32]
+    );
+
+    int mpt_verify_send_proof(
+        uint8_t const* proof,
+        size_t const proof_len,
+        mpt_confidential_participant const* participants,
+        uint8_t const n_participants,
+        uint8_t const sender_spending_ciphertext[66],
+        uint8_t const amount_commitment[33],
+        uint8_t const balance_commitment[33],
+        uint8_t const context_hash[32]
+    );
+
+    int mpt_verify_clawback_proof(
+        uint8_t const proof[98],
+        uint64_t const amount,
+        uint8_t const pubkey[33],
+        uint8_t const ciphertext[66],
+        uint8_t const context_hash[32]
+    );
+
+    int mpt_verify_amount_linkage(
+        secp256k1_context const* ctx,
+        uint8_t const proof[195],
+        uint8_t const ciphertext[66],
+        uint8_t const pubkey[33],
+        uint8_t const commitment[33],
+        uint8_t const context_hash[32]
+    );
+
+    int mpt_verify_balance_linkage(
+        uint8_t const proof[195],
+        uint8_t const ciphertext[66],
+        uint8_t const pubkey[33],
+        uint8_t const commitment[33],
+        uint8_t const context_hash[32]
+    );
+
+    int mpt_verify_equality_proof(
+        secp256k1_context const* ctx,
+        uint8_t const* proof,
+        size_t const proof_len,
+        mpt_confidential_participant const* participants,
+        uint8_t const n_participants,
+        uint8_t const context_hash[32]
+    );
+
+    int mpt_compute_convert_back_remainder(
+        uint8_t const commitment_in[33],
+        uint64_t amount,
+        uint8_t commitment_out[33]
+    );
+
+    int mpt_verify_aggregated_bulletproof(
+        uint8_t const* proof,
+        size_t proof_len,
+        uint8_t const** compressed_commitments,
+        size_t m,
+        uint8_t const context_hash[32]
+    );
+
+    int mpt_verify_send_range_proof(
+        secp256k1_context const* ctx,
+        uint8_t const proof[754],
+        uint8_t const amount_commitment[33],
+        uint8_t const remainder_commitment[33],
+        uint8_t const context_hash[32]
     );
 
     #ifdef __cplusplus
@@ -655,5 +910,11 @@ if __name__ == "__main__":
         if os.path.exists(c_file):
             os.remove(c_file)
             print(f"Cleaned up intermediate file: {c_file}")
+
+        # Print summary
+        print("")
+        print("Build complete!")
+        print(f"  Shared library: {shared_lib_path}")
+        print(f"  Size: {os.path.getsize(shared_lib_path) / (1024*1024):.1f} MB")
     finally:
         os.chdir(original_dir)

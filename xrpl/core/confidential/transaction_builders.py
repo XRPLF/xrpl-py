@@ -93,7 +93,7 @@ def prepare_confidential_convert(
     # Compute context hash
     mpt_issuance_id_bytes = bytes.fromhex(mpt_issuance_id)
     context_id = compute_convert_context_hash(
-        wallet.classic_address, sequence, mpt_issuance_id_bytes, amount
+        wallet.classic_address, sequence, mpt_issuance_id_bytes
     )
 
     # Generate Schnorr proof of knowledge
@@ -411,7 +411,6 @@ def prepare_confidential_convert_back(
         wallet.classic_address,
         sequence,
         mpt_issuance_id_bytes,
-        amount,
         holder_version,
     )
 
@@ -542,7 +541,6 @@ def prepare_confidential_clawback(
         issuer=issuer_wallet.address,
         sequence=issuer_sequence,
         mpt_issuance_id=mpt_issuance_id_bytes,
-        amount=amount,
         holder=holder_address,
     )
 

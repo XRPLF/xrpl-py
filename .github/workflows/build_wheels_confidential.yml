@@ -60,60 +60,62 @@ jobs:
             echo "name=mpt-crypto-win32-x86_64" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Download prebuilt mpt-crypto libraries
+      # Download the shared library artifact for this platform
+      - name: Download shared library
         id: download-libs
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: ${{ steps.artifact-name.outputs.name }}
-          path: artifacts
+          path: artifacts/libs
 
-      - name: Check library download status
+      # Download headers (only built once, from Linux)
+      - name: Download headers
+        id: download-headers
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: mpt-crypto-headers
+          path: artifacts/headers
+
+      - name: Check download status
         if: steps.download-libs.outcome == 'failure'
         run: |
-          echo "::warning::Failed to download mpt-crypto libraries. This is expected if running standalone without build_mpt_crypto_libs."
+          echo "::warning::Failed to download mpt-crypto shared library. This is expected if running standalone."
           echo "Wheel will be built without native libraries (pure Python fallback)."
 
-      - name: Copy libraries and headers
+      - name: Copy shared library and headers
         shell: bash
         run: |
-          mkdir -p xrpl/core/confidential/libs/{linux,darwin,win32}
+          LIB_SUBDIR=""
+          if [ "$RUNNER_OS" == "Linux" ]; then LIB_SUBDIR="linux"; fi
+          if [ "$RUNNER_OS" == "macOS" ]; then LIB_SUBDIR="darwin"; fi
+          if [ "$RUNNER_OS" == "Windows" ]; then LIB_SUBDIR="win32"; fi
+
+          mkdir -p "xrpl/core/confidential/libs/$LIB_SUBDIR"
           mkdir -p xrpl/core/confidential/include/utility
 
-          # Copy platform-specific libraries
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            cp artifacts/xrpl/core/confidential/libs/linux/*.a xrpl/core/confidential/libs/linux/ 2>/dev/null || \
-              cp artifacts/libs/linux/*.a xrpl/core/confidential/libs/linux/ 2>/dev/null || \
-              cp artifacts/*.a xrpl/core/confidential/libs/linux/ 2>/dev/null || true
+          # Copy shared library (flatten any nested paths)
+          echo "=== Copying shared library ==="
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            find artifacts/libs -name "*.dll" -exec cp {} "xrpl/core/confidential/libs/$LIB_SUBDIR/" \; 2>/dev/null || true
+            find artifacts/libs -name "*.lib" -exec cp {} "xrpl/core/confidential/libs/$LIB_SUBDIR/" \; 2>/dev/null || true
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            cp artifacts/xrpl/core/confidential/libs/darwin/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || \
-              cp artifacts/libs/darwin/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || \
-              cp artifacts/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || true
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            cp artifacts/xrpl/core/confidential/libs/win32/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || \
-              cp artifacts/libs/win32/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || \
-              cp artifacts/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || true
+            find artifacts/libs -name "*.dylib" -exec cp {} "xrpl/core/confidential/libs/$LIB_SUBDIR/" \; 2>/dev/null || true
+          else
+            find artifacts/libs -name "*.so" -exec cp {} "xrpl/core/confidential/libs/$LIB_SUBDIR/" \; 2>/dev/null || true
           fi
 
           # Copy headers
-          find artifacts -name "secp256k1_mpt.h" -exec cp {} xrpl/core/confidential/include/ \; 2>/dev/null || true
-          find artifacts -name "secp256k1.h" -exec cp {} xrpl/core/confidential/include/ \; 2>/dev/null || true
-          find artifacts -name "mpt_utility.h" -exec cp {} xrpl/core/confidential/include/utility/ \; 2>/dev/null || true
+          echo "=== Copying headers ==="
+          find artifacts/headers -name "secp256k1_mpt.h" -exec cp {} xrpl/core/confidential/include/ \; 2>/dev/null || true
+          find artifacts/headers -name "secp256k1.h" -exec cp {} xrpl/core/confidential/include/ \; 2>/dev/null || true
+          find artifacts/headers -name "mpt_utility.h" -exec cp {} xrpl/core/confidential/include/utility/ \; 2>/dev/null || true
 
-          # List what we have
-          echo "=== Libraries copied ==="
-          ls -la xrpl/core/confidential/libs/*/ 2>/dev/null || echo "No libraries found"
-          echo "=== Headers copied ==="
-          ls -la xrpl/core/confidential/include/ 2>/dev/null || echo "No headers found"
-
-      - name: Install system dependencies
-        shell: bash
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt-get update && sudo apt-get install -y libssl-dev
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            brew install openssl
-          fi
+          echo "=== Shared library ==="
+          ls -lh "xrpl/core/confidential/libs/$LIB_SUBDIR/" 2>/dev/null || echo "No library found"
+          echo "=== Headers ==="
+          ls -lh xrpl/core/confidential/include/ 2>/dev/null || echo "No headers found"
 
       - name: Install Poetry
         run: |
@@ -130,7 +132,6 @@ jobs:
         run: |
           cd xrpl/core/confidential
           if [ "$RUNNER_OS" == "macOS" ]; then
-            # Detect architecture and set ARCHFLAGS accordingly
             ARCH=$(uname -m)
             if [ "$ARCH" == "arm64" ]; then
               export ARCHFLAGS="-arch arm64"
@@ -139,13 +140,13 @@ jobs:
             fi
             echo "Building for macOS $ARCH"
           fi
-          # Only build if libraries exist
-          if ls libs/*/*.a 2>/dev/null || ls libs/*/*.lib 2>/dev/null; then
+          # Only build if shared library exists
+          if ls libs/*/*.so libs/*/*.dylib libs/*/*.dll 2>/dev/null; then
             poetry run python build_mpt_crypto.py
             echo "CFFI extension built successfully"
             echo "CFFI_BUILT=true" >> $GITHUB_ENV
           else
-            echo "No native libraries found, skipping CFFI build (pure Python wheel)"
+            echo "No shared library found, skipping CFFI build (pure Python wheel)"
             echo "CFFI_BUILT=false" >> $GITHUB_ENV
           fi
 
@@ -196,8 +197,12 @@ jobs:
         run: |
           echo "=== Wheel contents ==="
           for whl in dist/*.whl; do
-            echo "Checking $whl:"
-            unzip -l "$whl" | grep -E "\.so$|\.pyd$|\.dylib$|_mpt_crypto" || echo "No compiled extensions found"
+            echo ""
+            echo "Wheel: $whl"
+            echo "Size: $(du -h "$whl" | cut -f1)"
+            echo ""
+            echo "Native files:"
+            unzip -l "$whl" | grep -E "\.so|\.pyd|\.dylib|\.dll|_mpt_crypto" || echo "No compiled extensions found"
           done
 
       - name: Upload wheel artifact

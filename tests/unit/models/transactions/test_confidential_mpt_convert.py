@@ -8,7 +8,7 @@ _MPTOKEN_ISSUANCE_ID = "000000000000000000000000" + _ACCOUNT
 _VALID_CIPHERTEXT = "A" * 132  # 66 bytes (two compressed EC points)
 _VALID_BLINDING_FACTOR = "B" * 64
 _VALID_HOLDER_PUBLIC_KEY = "C" * 66
-_VALID_SCHNORR_PROOF = "D" * 130
+_VALID_SCHNORR_PROOF = "D" * 128
 
 
 class TestConfidentialMPTConvert(TestCase):
@@ -164,7 +164,7 @@ class TestConfidentialMPTConvert(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'zk_proof': "
-            "'zk_proof must be 65 bytes (130 hex characters) for Schnorr Proof'}",
+            "'zk_proof must be 64 bytes (128 hex characters) for Schnorr Proof'}",
         )
 
     def test_missing_zk_proof_with_holder_key(self):

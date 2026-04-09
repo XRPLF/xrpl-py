@@ -1,3 +1,22 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Build MPT Crypto Libraries
+#
+# Builds the mpt-crypto C library as a self-contained shared library for each
+# supported platform. Dependencies (secp256k1, OpenSSL) are statically linked
+# INTO the shared library so the resulting binaries are self-contained and can
+# be loaded directly at runtime without requiring system-level installs.
+#
+# This approach (shared lib with static deps) produces much smaller binaries
+# compared to shipping separate static archives, because the linker performs
+# dead-code elimination and only includes symbols actually referenced by
+# mpt-crypto.
+#
+# Output artifacts:
+#   mpt-crypto-linux-x86_64    → libmpt-crypto.so    (~2-4 MB)
+#   mpt-crypto-darwin-arm64    → libmpt-crypto.dylib  (~2-4 MB)
+#   mpt-crypto-darwin-x86_64   → libmpt-crypto.dylib  (~2-4 MB)
+#   mpt-crypto-win32-x86_64    → mpt-crypto.dll       (~3-5 MB)
+# ──────────────────────────────────────────────────────────────────────────────
 name: Build MPT Crypto Libraries
 on:
   workflow_call:
@@ -19,430 +38,114 @@ on:
       - ".github/workflows/build_mpt_crypto_libs.yml"
 
 jobs:
-  build_linux:
-    name: Build for Linux (x86_64)
-    runs-on: ubuntu-22.04
+  build:
+    name: Build ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # ── Linux x86_64 ──
+          - os: ubuntu-22.04
+            platform: linux-x86_64
+            lib_subdir: linux
+            lib_filename: libmpt-crypto.so
+            cmake_lib_filename: libmpt-crypto.so
+            conan_extra_args: ""
+
+          # ── macOS ARM64 (Apple Silicon) ──
+          - os: macos-14
+            platform: darwin-arm64
+            lib_subdir: darwin
+            lib_filename: libmpt-crypto.dylib
+            cmake_lib_filename: libmpt-crypto.dylib
+            conan_extra_args: "-s arch=armv8"
+
+          # ── macOS x86_64 (Intel) ──
+          - os: macos-15-intel
+            platform: darwin-x86_64
+            lib_subdir: darwin
+            lib_filename: libmpt-crypto.dylib
+            cmake_lib_filename: libmpt-crypto.dylib
+            conan_extra_args: "-s arch=x86_64"
+
+          # ── Windows x86_64 ──
+          - os: windows-2022
+            platform: win32-x86_64
+            lib_subdir: win32
+            lib_filename: mpt-crypto.dll
+            cmake_lib_filename: mpt-crypto.dll
+            conan_extra_args: ""
+
+    runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.git_ref || github.ref }}
 
+      # ── Clone mpt-crypto source ──
+      - name: Clone mpt-crypto
+        shell: bash
+        run: |
+          git clone https://github.com/XRPLF/mpt-crypto.git /tmp/mpt-crypto
+          echo "==> Checked out mpt-crypto at:"
+          cd /tmp/mpt-crypto && git log --oneline -1
+
+      # ── Copy header files (needed for CFFI cdef) ──
+      - name: Copy header files
+        shell: bash
+        run: |
+          mkdir -p xrpl/core/confidential/include/utility
+          cp /tmp/mpt-crypto/include/secp256k1_mpt.h xrpl/core/confidential/include/
+          cp /tmp/mpt-crypto/include/utility/mpt_utility.h xrpl/core/confidential/include/utility/
+
+      # ── Set up build tools ──
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
-      - name: Install dependencies
+      - name: Install Conan and Ninja
+        run: pip install "conan>=2.0.0" ninja
+
+      - name: Install system dependencies (Linux)
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake build-essential libssl-dev ninja-build
-          pip install conan
+          sudo apt-get install -y cmake build-essential
 
-      - name: Setup Conan profile
+      - name: Install system dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install cmake
+
+      - name: Set up MSVC environment
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      # ── Configure Conan ──
+      - name: Configure Conan
+        shell: bash
         run: |
           conan profile detect --force
-          conan remote add --index 0 xrplf https://conan.ripplex.io
+          echo "==> Detected Conan profile:"
+          conan profile show
+          conan remote add --index 0 xrplf https://conan.ripplex.io || true
 
-      - name: Clone mpt-crypto
-        run: |
-          git clone --branch mpt-utility https://github.com/yinyiqian1/mpt-crypto.git /tmp/mpt-crypto
-
-      - name: Copy header files
-        run: |
-          mkdir -p xrpl/core/confidential/include/utility
-          cp /tmp/mpt-crypto/include/secp256k1_mpt.h xrpl/core/confidential/include/
-          cp /tmp/mpt-crypto/include/utility/mpt_utility.h xrpl/core/confidential/include/utility/
-
-      - name: Build mpt-crypto
-        run: |
-          cd /tmp/mpt-crypto
-          mkdir -p build && cd build
-          conan install .. --build="*" -o "&:tests=False" -o "&:fPIC=True"
-          cmake .. -DCMAKE_BUILD_TYPE=Release \
-                   -G Ninja \
-                   -DCMAKE_TOOLCHAIN_FILE=build/generators/conan_toolchain.cmake \
-                   -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-                   -DENABLE_TESTS=OFF
-          ninja
-
-      - name: Copy libraries
-        run: |
-          rm -rf xrpl/core/confidential/libs/linux
-          mkdir -p xrpl/core/confidential/libs/linux
-
-          MPT_LIB=$(find /tmp/mpt-crypto/build -name "libmpt-crypto.a" | head -n 1)
-          SECP_LIB=$(find ~/.conan2/p -path "*/p/lib/libsecp256k1.a" 2>/dev/null | head -n 1)
-          if [ -z "$SECP_LIB" ]; then
-            SECP_LIB=$(find /tmp/mpt-crypto/build -name "libsecp256k1.a" 2>/dev/null | head -n 1)
-          fi
-          CRYPTO_LIB=$(find ~/.conan2 -name "libcrypto.a" 2>/dev/null | head -n 1)
-
-          if [ -n "$MPT_LIB" ] && [ -f "$MPT_LIB" ]; then
-            cp "$MPT_LIB" xrpl/core/confidential/libs/linux/
-          else
-            echo "Error: libmpt-crypto.a not found!"
-            exit 1
-          fi
-
-          if [ -n "$SECP_LIB" ] && [ -f "$SECP_LIB" ]; then
-            cp "$SECP_LIB" xrpl/core/confidential/libs/linux/
-          else
-            echo "Error: libsecp256k1.a not found!"
-            exit 1
-          fi
-
-          if [ -n "$CRYPTO_LIB" ] && [ -f "$CRYPTO_LIB" ]; then
-            cp "$CRYPTO_LIB" xrpl/core/confidential/libs/linux/
-            echo "Bundled OpenSSL: $CRYPTO_LIB"
-          else
-            echo "Error: libcrypto.a not found in Conan cache!"
-            echo "Searching for any OpenSSL libraries..."
-            find ~/.conan2 -name "libcrypto*" 2>/dev/null || echo "No libcrypto files found"
-            exit 1
-          fi
-
-      - name: Verify bundled libraries
-        run: |
-          echo "=== Verifying bundled libraries ==="
-          LIBS_DIR="xrpl/core/confidential/libs/linux"
-
-          echo "Library files:"
-          ls -la "$LIBS_DIR/"
-
-          echo ""
-          echo "Library sizes:"
-          du -h "$LIBS_DIR/"*
-
-          echo ""
-          echo "Checking required libraries exist:"
-          REQUIRED_LIBS=("libmpt-crypto.a" "libsecp256k1.a" "libcrypto.a")
-          MISSING=0
-          for lib in "${REQUIRED_LIBS[@]}"; do
-            if [ -f "$LIBS_DIR/$lib" ]; then
-              echo "  ✓ $lib ($(du -h "$LIBS_DIR/$lib" | cut -f1))"
-            else
-              echo "  ✗ $lib MISSING"
-              MISSING=1
-            fi
-          done
-
-          if [ $MISSING -eq 1 ]; then
-            echo ""
-            echo "ERROR: Missing required libraries!"
-            exit 1
-          fi
-
-          echo ""
-          echo "=== All required libraries verified ==="
-
-      - name: Upload libraries and headers
-        uses: actions/upload-artifact@v4
-        with:
-          name: mpt-crypto-linux-x86_64
-          path: |
-            xrpl/core/confidential/libs/linux/*.a
-            xrpl/core/confidential/include/*.h
-            xrpl/core/confidential/include/utility/*.h
-
-  build_macos_arm64:
-    name: Build for macOS (ARM64)
-    runs-on: macos-14
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.git_ref || github.ref }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
-          brew install cmake openssl ninja
-          pip install conan
-
-      - name: Setup Conan profile
-        run: |
-          conan profile detect --force
-          conan remote add --index 0 xrplf https://conan.ripplex.io
-
-      - name: Clone mpt-crypto
-        run: |
-          git clone --branch mpt-utility https://github.com/yinyiqian1/mpt-crypto.git /tmp/mpt-crypto
-
-      - name: Copy header files
-        run: |
-          mkdir -p xrpl/core/confidential/include/utility
-          cp /tmp/mpt-crypto/include/secp256k1_mpt.h xrpl/core/confidential/include/
-          cp /tmp/mpt-crypto/include/utility/mpt_utility.h xrpl/core/confidential/include/utility/
-
-      - name: Build mpt-crypto
-        run: |
-          cd /tmp/mpt-crypto
-          mkdir -p build && cd build
-          conan install .. --build="*" -o "&:tests=False" -s arch=armv8 -o "&:fPIC=True"
-          cmake .. -DCMAKE_BUILD_TYPE=Release \
-                   -G Ninja \
-                   -DCMAKE_TOOLCHAIN_FILE=build/generators/conan_toolchain.cmake \
-                   -DCMAKE_OSX_ARCHITECTURES=arm64 \
-                   -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-                   -DENABLE_TESTS=OFF
-          ninja
-
-      - name: Copy libraries
-        run: |
-          rm -rf xrpl/core/confidential/libs/darwin
-          mkdir -p xrpl/core/confidential/libs/darwin
-
-          MPT_LIB=$(find /tmp/mpt-crypto/build -name "libmpt-crypto.a" | head -n 1)
-          SECP_LIB=$(find ~/.conan2 -name "libsecp256k1.a" 2>/dev/null | head -n 1)
-          if [ -z "$SECP_LIB" ]; then
-            SECP_LIB=$(find /tmp/mpt-crypto/build -name "libsecp256k1.a" 2>/dev/null | head -n 1)
-          fi
-          CRYPTO_LIB=$(find ~/.conan2 -name "libcrypto.a" 2>/dev/null | head -n 1)
-
-          if [ -n "$MPT_LIB" ] && [ -f "$MPT_LIB" ]; then
-            cp "$MPT_LIB" xrpl/core/confidential/libs/darwin/
-          else
-            echo "Error: libmpt-crypto.a not found!"
-            exit 1
-          fi
-
-          if [ -n "$SECP_LIB" ] && [ -f "$SECP_LIB" ]; then
-            cp "$SECP_LIB" xrpl/core/confidential/libs/darwin/
-          else
-            echo "Error: libsecp256k1.a not found!"
-            exit 1
-          fi
-
-          if [ -n "$CRYPTO_LIB" ] && [ -f "$CRYPTO_LIB" ]; then
-            cp "$CRYPTO_LIB" xrpl/core/confidential/libs/darwin/
-            echo "Bundled OpenSSL: $CRYPTO_LIB"
-          else
-            echo "Error: libcrypto.a not found in Conan cache!"
-            echo "Searching for any OpenSSL libraries..."
-            find ~/.conan2 -name "libcrypto*" 2>/dev/null || echo "No libcrypto files found"
-            exit 1
-          fi
-
-      - name: Verify bundled libraries
-        run: |
-          echo "=== Verifying bundled libraries (ARM64) ==="
-          LIBS_DIR="xrpl/core/confidential/libs/darwin"
-
-          echo "Library files:"
-          ls -la "$LIBS_DIR/"
-
-          echo ""
-          echo "Library sizes:"
-          du -h "$LIBS_DIR/"*
-
-          echo ""
-          echo "Architecture verification:"
-          for lib in "$LIBS_DIR"/*.a; do
-            echo "  $(basename $lib): $(lipo -info $lib 2>/dev/null || file $lib)"
-          done
-
-          echo ""
-          echo "Checking required libraries exist:"
-          REQUIRED_LIBS=("libmpt-crypto.a" "libsecp256k1.a" "libcrypto.a")
-          MISSING=0
-          for lib in "${REQUIRED_LIBS[@]}"; do
-            if [ -f "$LIBS_DIR/$lib" ]; then
-              echo "  ✓ $lib ($(du -h "$LIBS_DIR/$lib" | cut -f1))"
-            else
-              echo "  ✗ $lib MISSING"
-              MISSING=1
-            fi
-          done
-
-          if [ $MISSING -eq 1 ]; then
-            echo ""
-            echo "ERROR: Missing required libraries!"
-            exit 1
-          fi
-
-          echo ""
-          echo "=== All required libraries verified ==="
-
-      - name: Upload libraries and headers
-        uses: actions/upload-artifact@v4
-        with:
-          name: mpt-crypto-darwin-arm64
-          path: |
-            xrpl/core/confidential/libs/darwin/*.a
-            xrpl/core/confidential/include/*.h
-            xrpl/core/confidential/include/utility/*.h
-
-  build_macos_intel:
-    name: Build for macOS (Intel x86_64)
-    runs-on: macos-15-intel
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.git_ref || github.ref }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
-          brew install cmake openssl ninja
-          pip install conan
-
-      - name: Setup Conan profile
-        run: |
-          conan profile detect --force
-          conan remote add --index 0 xrplf https://conan.ripplex.io
-
-      - name: Clone mpt-crypto
-        run: |
-          git clone --branch mpt-utility https://github.com/yinyiqian1/mpt-crypto.git /tmp/mpt-crypto
-
-      - name: Copy header files
-        run: |
-          mkdir -p xrpl/core/confidential/include/utility
-          cp /tmp/mpt-crypto/include/secp256k1_mpt.h xrpl/core/confidential/include/
-          cp /tmp/mpt-crypto/include/utility/mpt_utility.h xrpl/core/confidential/include/utility/
-
-      - name: Build mpt-crypto
-        run: |
-          cd /tmp/mpt-crypto
-          mkdir -p build && cd build
-          conan install .. --build="*" -o "&:tests=False" -s arch=x86_64 -o "&:fPIC=True"
-          cmake .. -DCMAKE_BUILD_TYPE=Release \
-                   -G Ninja \
-                   -DCMAKE_TOOLCHAIN_FILE=build/generators/conan_toolchain.cmake \
-                   -DCMAKE_OSX_ARCHITECTURES=x86_64 \
-                   -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-                   -DENABLE_TESTS=OFF
-          ninja
-
-      - name: Copy libraries
-        run: |
-          rm -rf xrpl/core/confidential/libs/darwin
-          mkdir -p xrpl/core/confidential/libs/darwin
-
-          MPT_LIB=$(find /tmp/mpt-crypto/build -name "libmpt-crypto.a" | head -n 1)
-          SECP_LIB=$(find ~/.conan2 -name "libsecp256k1.a" 2>/dev/null | head -n 1)
-          if [ -z "$SECP_LIB" ]; then
-            SECP_LIB=$(find /tmp/mpt-crypto/build -name "libsecp256k1.a" 2>/dev/null | head -n 1)
-          fi
-          CRYPTO_LIB=$(find ~/.conan2 -name "libcrypto.a" 2>/dev/null | head -n 1)
-
-          if [ -n "$MPT_LIB" ] && [ -f "$MPT_LIB" ]; then
-            cp "$MPT_LIB" xrpl/core/confidential/libs/darwin/
-          else
-            echo "Error: libmpt-crypto.a not found!"
-            exit 1
-          fi
-
-          if [ -n "$SECP_LIB" ] && [ -f "$SECP_LIB" ]; then
-            cp "$SECP_LIB" xrpl/core/confidential/libs/darwin/
-          else
-            echo "Error: libsecp256k1.a not found!"
-            exit 1
-          fi
-
-          if [ -n "$CRYPTO_LIB" ] && [ -f "$CRYPTO_LIB" ]; then
-            cp "$CRYPTO_LIB" xrpl/core/confidential/libs/darwin/
-            echo "Bundled OpenSSL: $CRYPTO_LIB"
-          else
-            echo "Error: libcrypto.a not found in Conan cache!"
-            echo "Searching for any OpenSSL libraries..."
-            find ~/.conan2 -name "libcrypto*" 2>/dev/null || echo "No libcrypto files found"
-            exit 1
-          fi
-
-      - name: Verify bundled libraries
-        run: |
-          echo "=== Verifying bundled libraries (Intel x86_64) ==="
-          LIBS_DIR="xrpl/core/confidential/libs/darwin"
-
-          echo "Library files:"
-          ls -la "$LIBS_DIR/"
-
-          echo ""
-          echo "Library sizes:"
-          du -h "$LIBS_DIR/"*
-
-          echo ""
-          echo "Architecture verification:"
-          for lib in "$LIBS_DIR"/*.a; do
-            echo "  $(basename $lib): $(lipo -info $lib 2>/dev/null || file $lib)"
-          done
-
-          echo ""
-          echo "Checking required libraries exist:"
-          REQUIRED_LIBS=("libmpt-crypto.a" "libsecp256k1.a" "libcrypto.a")
-          MISSING=0
-          for lib in "${REQUIRED_LIBS[@]}"; do
-            if [ -f "$LIBS_DIR/$lib" ]; then
-              echo "  ✓ $lib ($(du -h "$LIBS_DIR/$lib" | cut -f1))"
-            else
-              echo "  ✗ $lib MISSING"
-              MISSING=1
-            fi
-          done
-
-          if [ $MISSING -eq 1 ]; then
-            echo ""
-            echo "ERROR: Missing required libraries!"
-            exit 1
-          fi
-
-          echo ""
-          echo "=== All required libraries verified ==="
-
-      - name: Upload libraries and headers
-        uses: actions/upload-artifact@v4
-        with:
-          name: mpt-crypto-darwin-x86_64
-          path: |
-            xrpl/core/confidential/libs/darwin/*.a
-            xrpl/core/confidential/include/*.h
-            xrpl/core/confidential/include/utility/*.h
-
-  build_windows:
-    name: Build for Windows (x86_64) with MSVC
-    runs-on: windows-2022
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.git_ref || github.ref }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
-          pip install conan
-
-      - name: Setup Conan profile
-        run: |
-          conan profile detect --force
-          conan remote add --index 0 xrplf https://conan.ripplex.io
-
-      - name: Clone mpt-crypto
-        run: |
-          git clone --branch mpt-utility https://github.com/yinyiqian1/mpt-crypto.git C:\mpt-crypto
-
-      - name: Copy header files
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force -Path xrpl/core/confidential/include/utility
-          Copy-Item C:\mpt-crypto\include\secp256k1_mpt.h -Destination xrpl/core/confidential/include/
-          Copy-Item C:\mpt-crypto\include\utility\mpt_utility.h -Destination xrpl/core/confidential/include/utility/
-
+      # ── Patch mpt_utility.cpp for Windows ──
       - name: Patch mpt_utility.cpp for Windows
+        if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $utilityFile = "C:\mpt-crypto\src\utility\mpt_utility.cpp"
+          $utilityFile = "/tmp/mpt-crypto/src/utility/mpt_utility.cpp"
+          # On Windows the path is different
+          $utilityFile = "C:\mpt-crypto-patched\src\utility\mpt_utility.cpp"
+          # Re-clone for Windows since /tmp doesn't exist
+          if (Test-Path "C:\mpt-crypto-patched") { Remove-Item -Recurse -Force "C:\mpt-crypto-patched" }
+          Copy-Item -Recurse "/tmp/mpt-crypto" "C:\mpt-crypto-patched" -ErrorAction SilentlyContinue
+          if (-not (Test-Path "C:\mpt-crypto-patched")) {
+            git clone https://github.com/XRPLF/mpt-crypto.git C:\mpt-crypto-patched
+          }
+          $utilityFile = "C:\mpt-crypto-patched\src\utility\mpt_utility.cpp"
           $lines = Get-Content $utilityFile
           $newLines = @()
           foreach ($line in $lines) {
@@ -458,130 +161,206 @@ jobs:
           }
           $newLines | Set-Content $utilityFile
 
-      - name: Setup MSVC environment
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Build mpt-crypto with MSVC
-        shell: pwsh
+      # ── Install dependencies via Conan ──
+      #
+      # Key flags (matching Java workflow approach):
+      #   -o "&:shared=True"             → Build mpt-crypto as a SHARED library
+      #   -o "&:tests=False"             → Skip building test executables
+      #   -o "secp256k1/*:shared=False"  → Static secp256k1, linked INTO the shared lib
+      #   -o "openssl/*:shared=False"    → Static OpenSSL, linked INTO the shared lib
+      #   -o "*/fPIC=True"               → Position Independent Code for static deps
+      #   -b missing                     → Build deps from source if no pre-built binary
+      - name: Install dependencies (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
         run: |
-          Set-Location C:\mpt-crypto
+          cd /tmp/mpt-crypto
+          conan install . \
+            -of build \
+            -b missing \
+            -s build_type=Release \
+            -o "&:shared=True" \
+            -o "&:tests=False" \
+            -o "secp256k1/*:shared=False" \
+            -o "secp256k1/*:fPIC=True" \
+            -o "openssl/*:shared=False" \
+            -o "openssl/*:fPIC=True" \
+            ${{ matrix.conan_extra_args }}
 
-          $cmakeContent = Get-Content CMakeLists.txt -Raw
-          $cmakeContent = $cmakeContent -replace 'add_library\(mpt-crypto', 'add_library(mpt-crypto STATIC'
-          Set-Content CMakeLists.txt $cmakeContent
-
-          New-Item -ItemType Directory -Force -Path build
-          Set-Location build
-          conan install .. --build="secp256k1/*" -o "&:tests=False"
-          cmake .. -G "Visual Studio 17 2022" -A x64 `
-            -DCMAKE_BUILD_TYPE=Release `
-            -DCMAKE_TOOLCHAIN_FILE="C:\mpt-crypto\build\generators\conan_toolchain.cmake" `
-            -DBUILD_SHARED_LIBS=OFF `
-            -DENABLE_TESTS=OFF
-          cmake --build . --config Release
-
-      - name: Copy libraries
-        shell: pwsh
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
         run: |
-          Remove-Item -Path xrpl/core/confidential/libs/win32 -Recurse -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Force -Path xrpl/core/confidential/libs/win32
+          cd C:/mpt-crypto-patched
+          conan install . \
+            -of build \
+            -b missing \
+            -s build_type=Release \
+            -o "&:shared=True" \
+            -o "&:tests=False" \
+            -o "secp256k1/*:shared=False" \
+            -o "openssl/*:shared=False"
 
-          $mptCryptoLib = Get-ChildItem -Path C:\mpt-crypto\build\Release -Filter mpt-crypto.lib -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $mptCryptoLib) {
-            $mptCryptoLib = Get-ChildItem -Path C:\mpt-crypto\build -Recurse -Filter mpt-crypto.lib -ErrorAction SilentlyContinue | Select-Object -First 1
-          }
-          if ($mptCryptoLib) {
-            Copy-Item $mptCryptoLib.FullName -Destination xrpl/core/confidential/libs/win32/
-          } else {
-            Write-Error "Error: mpt-crypto.lib not found!"
-            exit 1
-          }
-
-          $secp256k1 = Get-ChildItem -Path $env:USERPROFILE\.conan2 -Recurse -Filter secp256k1.lib -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $secp256k1) {
-            $secp256k1 = Get-ChildItem -Path $env:USERPROFILE\.conan2 -Recurse -Filter *secp256k1*.lib -ErrorAction SilentlyContinue | Select-Object -First 1
-          }
-          if (-not $secp256k1) {
-            $secp256k1 = Get-ChildItem -Path C:\mpt-crypto\build -Recurse -Filter *secp256k1*.lib -ErrorAction SilentlyContinue | Select-Object -First 1
-          }
-          if ($secp256k1) {
-            Copy-Item $secp256k1.FullName -Destination "xrpl/core/confidential/libs/win32/secp256k1.lib"
-          } else {
-            Write-Error "Error: secp256k1.lib not found!"
-            exit 1
-          }
-
-          $cryptoLib = Get-ChildItem -Path $env:USERPROFILE\.conan2 -Recurse -Filter libcrypto.lib -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $cryptoLib) {
-            $cryptoLib = Get-ChildItem -Path $env:USERPROFILE\.conan2 -Recurse -Filter crypto.lib -ErrorAction SilentlyContinue | Select-Object -First 1
-          }
-          if ($cryptoLib) {
-            Copy-Item $cryptoLib.FullName -Destination "xrpl/core/confidential/libs/win32/crypto.lib"
-          } else {
-            Write-Error "Error: crypto.lib not found!"
-            exit 1
-          }
-
-          $zlibLib = Get-ChildItem -Path $env:USERPROFILE\.conan2 -Recurse -Filter zlib.lib -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $zlibLib) {
-            $zlibLib = Get-ChildItem -Path $env:USERPROFILE\.conan2 -Recurse -Filter *zlib*.lib -ErrorAction SilentlyContinue | Select-Object -First 1
-          }
-          if ($zlibLib) {
-            Copy-Item $zlibLib.FullName -Destination "xrpl/core/confidential/libs/win32/zlib.lib"
-          } else {
-            Write-Error "Error: zlib.lib not found!"
-            exit 1
-          }
-
-      - name: Verify bundled libraries
-        shell: pwsh
+      # ── Configure CMake ──
+      - name: Configure CMake (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
         run: |
-          Write-Host "=== Verifying bundled libraries ===" -ForegroundColor Cyan
-          $libsDir = "xrpl/core/confidential/libs/win32"
-
-          Write-Host ""
-          Write-Host "Library files:"
-          Get-ChildItem -Path $libsDir | Format-Table Name, Length
-
-          Write-Host ""
-          Write-Host "Checking required libraries exist:"
-          $requiredLibs = @("mpt-crypto.lib", "secp256k1.lib", "crypto.lib", "zlib.lib")
-          $missing = $false
-
-          foreach ($lib in $requiredLibs) {
-            $libPath = Join-Path $libsDir $lib
-            if (Test-Path $libPath) {
-              $size = (Get-Item $libPath).Length / 1KB
-              Write-Host "  ✓ $lib ($([math]::Round($size, 1)) KB)" -ForegroundColor Green
-            } else {
-              Write-Host "  ✗ $lib MISSING" -ForegroundColor Red
-              $missing = $true
-            }
-          }
-
-          if ($missing) {
-            Write-Host ""
-            Write-Error "ERROR: Missing required libraries!"
+          cd /tmp/mpt-crypto
+          TOOLCHAIN=$(find build -name "conan_toolchain.cmake" -print -quit)
+          if [ -z "${TOOLCHAIN}" ]; then
+            echo "ERROR: Could not find conan_toolchain.cmake under build/"
+            find build -type f -name "*.cmake" | head -20
             exit 1
-          }
+          fi
+          echo "==> Using toolchain: ${TOOLCHAIN}"
 
-          Write-Host ""
-          Write-Host "=== All required libraries verified ===" -ForegroundColor Cyan
+          CMAKE_EXTRA_ARGS=""
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            ARCH=$(uname -m)
+            if [ "$ARCH" == "arm64" ]; then
+              CMAKE_EXTRA_ARGS="-DCMAKE_OSX_ARCHITECTURES=arm64"
+            else
+              CMAKE_EXTRA_ARGS="-DCMAKE_OSX_ARCHITECTURES=x86_64"
+            fi
+          fi
 
-      - name: Upload libraries and headers
+          cmake -B build -S . \
+            -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}" \
+            -DCMAKE_BUILD_TYPE=Release \
+            $CMAKE_EXTRA_ARGS
+
+      - name: Configure CMake (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          cd C:/mpt-crypto-patched
+          TOOLCHAIN=$(find build -name "conan_toolchain.cmake" -print -quit)
+          if [ -z "${TOOLCHAIN}" ]; then
+            echo "ERROR: Could not find conan_toolchain.cmake under build/"
+            find build -type f -name "*.cmake" | head -20
+            exit 1
+          fi
+          echo "==> Using toolchain: ${TOOLCHAIN}"
+
+          cmake -B build -S . \
+            -G "Visual Studio 17 2022" \
+            -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}" \
+            -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON
+
+      # ── Build ──
+      - name: Build shared library (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          cd /tmp/mpt-crypto
+          cmake --build build --config Release
+
+      - name: Build shared library (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          cd C:/mpt-crypto-patched
+          cmake --build build --config Release
+
+      # ── Package ──
+      - name: Package library
+        shell: bash
+        run: |
+          mkdir -p output/${{ matrix.lib_subdir }}
+
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            BUILD_DIR="C:/mpt-crypto-patched/build"
+          else
+            BUILD_DIR="/tmp/mpt-crypto/build"
+          fi
+
+          BUILT_LIB=$(find "$BUILD_DIR" -maxdepth 3 -name "${{ matrix.cmake_lib_filename }}" -print -quit)
+
+          if [ -z "${BUILT_LIB}" ]; then
+            echo "ERROR: Could not find ${{ matrix.cmake_lib_filename }} in build/"
+            echo "Build directory contents:"
+            find "$BUILD_DIR" -type f \( -name "*.dylib" -o -name "*.so" -o -name "*.dll" -o -name "*.lib" \) 2>/dev/null
+            exit 1
+          fi
+
+          echo "==> Found: ${BUILT_LIB}"
+          cp "${BUILT_LIB}" "output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }}"
+
+          # On Windows, also copy the import library if it exists
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            IMPORT_LIB=$(find "$BUILD_DIR" -maxdepth 3 -name "mpt-crypto.lib" -print -quit)
+            if [ -n "${IMPORT_LIB}" ]; then
+              cp "${IMPORT_LIB}" "output/${{ matrix.lib_subdir }}/"
+              echo "==> Copied import lib: ${IMPORT_LIB}"
+            fi
+          fi
+
+          echo "==> Packaged: output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }}"
+          ls -lh "output/${{ matrix.lib_subdir }}/"
+
+      # ── Verify ──
+      - name: Verify library (macOS)
+        if: startsWith(matrix.platform, 'darwin')
+        run: |
+          echo "==> File size:"
+          ls -lh output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }}
+          echo ""
+          echo "==> Linked libraries (should only show system libs):"
+          otool -L output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }}
+          echo ""
+          echo "==> Architecture:"
+          file output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }}
+
+      - name: Verify library (Linux)
+        if: startsWith(matrix.platform, 'linux')
+        run: |
+          echo "==> File size:"
+          ls -lh output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }}
+          echo ""
+          echo "==> Linked libraries (should only show system libs):"
+          ldd output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }} || true
+          echo ""
+          echo "==> Architecture:"
+          file output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }}
+
+      - name: Verify library (Windows)
+        if: startsWith(matrix.platform, 'win32')
+        shell: bash
+        run: |
+          echo "==> File info:"
+          ls -lh output/${{ matrix.lib_subdir }}/
+          file output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }}
+
+      # ── Upload artifacts ──
+      - name: Upload shared library
         uses: actions/upload-artifact@v4
         with:
-          name: mpt-crypto-win32-x86_64
+          name: mpt-crypto-${{ matrix.platform }}
+          path: output/${{ matrix.lib_subdir }}/
+          if-no-files-found: error
+
+      - name: Upload headers
+        # Only upload headers once (from the Linux build)
+        if: matrix.platform == 'linux-x86_64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mpt-crypto-headers
           path: |
-            xrpl/core/confidential/libs/win32/*.lib
             xrpl/core/confidential/include/*.h
             xrpl/core/confidential/include/utility/*.h
+          if-no-files-found: error
 
+  # ──────────────────────────────────────────────────────────────────────────
+  # Test: verify the shared libraries load correctly and pass unit tests
+  # ──────────────────────────────────────────────────────────────────────────
   test_libraries:
-    name: Test libraries on ${{ matrix.os }}
-    needs: [build_linux, build_macos_arm64, build_macos_intel, build_windows]
+    name: Test on ${{ matrix.os }} (Python ${{ matrix.python-version }})
+    needs: [build]
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-22.04, macos-14, macos-15-intel, windows-2022]
         python-version: ["3.9", "3.11", "3.12"]
@@ -596,25 +375,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Check Python architecture
-        shell: bash
-        run: |
-          python -c "import platform; print(f'Python architecture: {platform.machine()}')"
-          file $(which python) || true
-          uname -m
-
-      - name: Install system dependencies
-        shell: bash
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt-get update
-            sudo apt-get install -y libssl-dev
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            brew install openssl
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            choco install openssl --no-progress
-          fi
-
       - name: Install Poetry
         run: |
           python -m pip install --upgrade pip
@@ -623,69 +383,55 @@ jobs:
       - name: Install project dependencies
         run: |
           poetry install --no-root --extras confidential
-          # Install setuptools explicitly for Python 3.12+ (required by cffi)
           poetry run pip install setuptools
 
-      - name: Download libraries for this platform
-        uses: actions/download-artifact@v4
-        with:
-          pattern: mpt-crypto-*
-          path: artifacts
-
-      - name: Copy libraries and headers to correct locations
+      # Download the shared library for this platform
+      - name: Determine artifact name
+        id: artifact
         shell: bash
         run: |
-          mkdir -p xrpl/core/confidential/libs/linux
-          mkdir -p xrpl/core/confidential/libs/darwin
-          mkdir -p xrpl/core/confidential/libs/win32
-          mkdir -p xrpl/core/confidential/include
-          mkdir -p xrpl/core/confidential/include/utility
-
-          # Copy Linux libraries
-          cp artifacts/mpt-crypto-linux-x86_64/libs/linux/*.a xrpl/core/confidential/libs/linux/ 2>/dev/null || \
-            cp artifacts/mpt-crypto-linux-x86_64/xrpl/core/confidential/libs/linux/*.a xrpl/core/confidential/libs/linux/ 2>/dev/null || true
-
-          # Copy macOS libraries - select based on architecture
-          if [ "$RUNNER_OS" == "macOS" ]; then
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            echo "name=mpt-crypto-linux-x86_64" >> "$GITHUB_OUTPUT"
+            echo "lib_subdir=linux" >> "$GITHUB_OUTPUT"
+          elif [ "$RUNNER_OS" == "macOS" ]; then
             ARCH=$(uname -m)
             if [ "$ARCH" == "arm64" ]; then
-              DARWIN_ARTIFACT="mpt-crypto-darwin-arm64"
+              echo "name=mpt-crypto-darwin-arm64" >> "$GITHUB_OUTPUT"
             else
-              DARWIN_ARTIFACT="mpt-crypto-darwin-x86_64"
+              echo "name=mpt-crypto-darwin-x86_64" >> "$GITHUB_OUTPUT"
             fi
-            cp artifacts/$DARWIN_ARTIFACT/libs/darwin/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || \
-              cp artifacts/$DARWIN_ARTIFACT/xrpl/core/confidential/libs/darwin/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || \
-              cp artifacts/$DARWIN_ARTIFACT/*.a xrpl/core/confidential/libs/darwin/ 2>/dev/null || true
+            echo "lib_subdir=darwin" >> "$GITHUB_OUTPUT"
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            echo "name=mpt-crypto-win32-x86_64" >> "$GITHUB_OUTPUT"
+            echo "lib_subdir=win32" >> "$GITHUB_OUTPUT"
           fi
 
-          # Copy Windows libraries
-          cp artifacts/mpt-crypto-win32-x86_64/libs/win32/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || \
-            cp artifacts/mpt-crypto-win32-x86_64/xrpl/core/confidential/libs/win32/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || \
-            cp artifacts/mpt-crypto-win32-x86_64/*.lib xrpl/core/confidential/libs/win32/ 2>/dev/null || true
+      - name: Download shared library
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.artifact.outputs.name }}
+          path: xrpl/core/confidential/libs/${{ steps.artifact.outputs.lib_subdir }}
 
-          # Copy main headers
-          if [ -d "artifacts/mpt-crypto-linux-x86_64/include" ]; then
-            cp artifacts/mpt-crypto-linux-x86_64/include/*.h xrpl/core/confidential/include/
-          elif [ -d "artifacts/mpt-crypto-linux-x86_64/xrpl/core/confidential/include" ]; then
-            cp artifacts/mpt-crypto-linux-x86_64/xrpl/core/confidential/include/*.h xrpl/core/confidential/include/
-          elif [ -f "artifacts/mpt-crypto-linux-x86_64/secp256k1_mpt.h" ]; then
-            cp artifacts/mpt-crypto-linux-x86_64/*.h xrpl/core/confidential/include/
-          else
-            find artifacts/mpt-crypto-linux-x86_64 -name "secp256k1_mpt.h" -exec cp {} xrpl/core/confidential/include/ \;
-          fi
+      - name: Download headers
+        uses: actions/download-artifact@v4
+        with:
+          name: mpt-crypto-headers
+          path: xrpl/core/confidential/
 
-          # Copy utility headers
-          if [ -d "artifacts/mpt-crypto-linux-x86_64/include/utility" ]; then
-            cp artifacts/mpt-crypto-linux-x86_64/include/utility/*.h xrpl/core/confidential/include/utility/
-          elif [ -d "artifacts/mpt-crypto-linux-x86_64/xrpl/core/confidential/include/utility" ]; then
-            cp artifacts/mpt-crypto-linux-x86_64/xrpl/core/confidential/include/utility/*.h xrpl/core/confidential/include/utility/
-          fi
+      - name: Verify downloaded files
+        shell: bash
+        run: |
+          echo "=== Shared library ==="
+          ls -lh xrpl/core/confidential/libs/${{ steps.artifact.outputs.lib_subdir }}/
+          echo ""
+          echo "=== Headers ==="
+          ls -lh xrpl/core/confidential/include/
+          ls -lh xrpl/core/confidential/include/utility/ 2>/dev/null || true
 
-      - name: Build C extension
+      - name: Build CFFI extension
         shell: bash
         run: |
           cd xrpl/core/confidential
-
           if [ "$RUNNER_OS" == "macOS" ]; then
             ARCH=$(uname -m)
             if [ "$ARCH" == "arm64" ]; then
@@ -696,9 +442,17 @@ jobs:
               export _PYTHON_HOST_PLATFORM="macosx-10.9-x86_64"
             fi
           fi
-
           poetry run python build_mpt_crypto.py
 
       - name: Run confidential MPT tests
+        shell: bash
         run: |
+          # Set library path so the shared lib can be found at runtime
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            export LD_LIBRARY_PATH="$PWD/xrpl/core/confidential/libs/linux:$LD_LIBRARY_PATH"
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            export DYLD_LIBRARY_PATH="$PWD/xrpl/core/confidential/libs/darwin:$DYLD_LIBRARY_PATH"
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            export PATH="$PWD/xrpl/core/confidential/libs/win32:$PATH"
+          fi
           poetry run python -m unittest discover -s tests/unit/core/confidential -v

@@ -282,40 +282,38 @@ class MPTCrypto:
 
         # Build recipients array
         n_recipients = len(recipients)
-        recipients_array = ffi.new(f"struct mpt_confidential_recipient[{n_recipients}]")
+        recipients_array = ffi.new(f"mpt_confidential_participant[{n_recipients}]")
         for i, (pubkey, encrypted_amount) in enumerate(recipients):
             pubkey_bytes = bytes.fromhex(pubkey)
             enc_amt_bytes = bytes.fromhex(encrypted_amount)
             ffi.memmove(recipients_array[i].pubkey, pubkey_bytes, 33)
-            ffi.memmove(recipients_array[i].encrypted_amount, enc_amt_bytes, 66)
+            ffi.memmove(recipients_array[i].ciphertext, enc_amt_bytes, 66)
 
         # Build amount_params
-        amount_params = ffi.new("struct mpt_pedersen_proof_params*")
+        amount_params = ffi.new("mpt_pedersen_proof_params*")
         ffi.memmove(
             amount_params.pedersen_commitment, bytes.fromhex(amount_commitment), 33
         )
         amount_params.amount = amount
         ffi.memmove(
-            amount_params.encrypted_amount, bytes.fromhex(sender_encrypted_amount), 66
+            amount_params.ciphertext, bytes.fromhex(sender_encrypted_amount), 66
         )
         ffi.memmove(amount_params.blinding_factor, bytes.fromhex(amount_blinding), 32)
 
         # Build balance_params
         # NOTE: sender_balance_encrypted should be a fresh encryption of the current balance
         # using balance_blinding, NOT the balance from the ledger
-        balance_params = ffi.new("struct mpt_pedersen_proof_params*")
+        balance_params = ffi.new("mpt_pedersen_proof_params*")
         ffi.memmove(
             balance_params.pedersen_commitment, bytes.fromhex(balance_commitment), 33
         )
         balance_params.amount = sender_current_balance
         ffi.memmove(
-            balance_params.encrypted_amount,
+            balance_params.ciphertext,
             bytes.fromhex(sender_balance_encrypted),
             66,
         )
-        ffi.memmove(
-            balance_params.blinding_factor, bytes.fromhex(balance_blinding), 32
-        )
+        ffi.memmove(balance_params.blinding_factor, bytes.fromhex(balance_blinding), 32)
 
         # Get proof size
         proof_size = lib.get_confidential_send_proof_size(n_recipients)
@@ -385,19 +383,17 @@ class MPTCrypto:
         context_bytes = bytes.fromhex(context_hash)
 
         # Build balance_params
-        balance_params = ffi.new("struct mpt_pedersen_proof_params*")
+        balance_params = ffi.new("mpt_pedersen_proof_params*")
         ffi.memmove(
             balance_params.pedersen_commitment, bytes.fromhex(balance_commitment), 33
         )
         balance_params.amount = current_balance
         ffi.memmove(
-            balance_params.encrypted_amount,
+            balance_params.ciphertext,
             bytes.fromhex(holder_balance_encrypted),
             66,
         )
-        ffi.memmove(
-            balance_params.blinding_factor, bytes.fromhex(balance_blinding), 32
-        )
+        ffi.memmove(balance_params.blinding_factor, bytes.fromhex(balance_blinding), 32)
 
         # Allocate proof buffer (195 + 688 = 883 bytes)
         proof_size = 195 + 688

@@ -13,7 +13,7 @@ from xrpl.core.confidential.crypto_bindings import ffi, lib
 # Size constants
 PRIVKEY_SIZE = 32
 PUBKEY_COMPRESSED_SIZE = 33
-SCHNORR_PROOF_SIZE = 65
+SCHNORR_PROOF_SIZE = 64
 CONTEXT_ID_SIZE = 32
 
 
@@ -80,7 +80,7 @@ def generate_pok(ctx, privkey: str, pubkey_compressed: str, context_id: str) -> 
         context_id: 64-char hex string (32-byte context ID)
 
     Returns:
-        130-char hex string (65-byte Schnorr proof)
+        128-char hex string (64-byte Schnorr proof)
     """
     # Convert hex strings to bytes
     privkey_bytes = bytes.fromhex(privkey)
@@ -95,27 +95,24 @@ def generate_pok(ctx, privkey: str, pubkey_compressed: str, context_id: str) -> 
         raise ValueError("context_id must be 32 bytes")
 
     # Generate Schnorr proof using utility layer
-    proof = ffi.new("uint8_t[]", 65)
+    proof = ffi.new("uint8_t[]", 64)
     result = lib.mpt_get_convert_proof(
         pubkey_bytes, privkey_bytes, context_id_bytes, proof
     )
     if result != 0:
         raise RuntimeError("Failed to generate Schnorr proof")
 
-    return bytes(proof[0:65]).hex().upper()
+    return bytes(proof[0:64]).hex().upper()
 
 
 def verify_pok(ctx, pubkey_compressed: str, proof: str, context_id: str) -> bool:
     """
     Verify a Schnorr proof of knowledge of secret key.
 
-    Note: The utility layer doesn't provide a verification function,
-    so this still uses the low-level secp256k1 functions.
-
     Args:
-        ctx: secp256k1 context (required for verification)
+        ctx: Ignored (kept for backward compatibility). Uses mpt_verify_convert_proof.
         pubkey_compressed: 66-char hex string (33-byte compressed public key)
-        proof: 130-char hex string (65-byte Schnorr proof)
+        proof: 128-char hex string (64-byte Schnorr proof)
         context_id: 64-char hex string (32-byte context ID)
 
     Returns:
@@ -133,15 +130,7 @@ def verify_pok(ctx, pubkey_compressed: str, proof: str, context_id: str) -> bool
     if len(context_id_bytes) != CONTEXT_ID_SIZE:
         raise ValueError(f"context_id must be {CONTEXT_ID_SIZE} bytes")
 
-    # Parse compressed public key
-    pubkey_parsed = ffi.new("secp256k1_pubkey *")
-    result = lib.secp256k1_ec_pubkey_parse(ctx, pubkey_parsed, pubkey_bytes, 33)
-    if result != 1:
-        raise RuntimeError("Failed to parse public key")
-
-    # Verify proof
-    result = lib.secp256k1_mpt_pok_sk_verify(
-        ctx, proof_bytes, pubkey_parsed, context_id_bytes
-    )
+    # Verify using utility layer
+    result = lib.mpt_verify_convert_proof(proof_bytes, pubkey_bytes, context_id_bytes)
 
     return result == 1

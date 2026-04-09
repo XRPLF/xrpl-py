@@ -37,11 +37,16 @@ documentation = "https://xrpl-py.readthedocs.io"
 name = "xrpl-py"
 description = "A complete Python library for interacting with the XRP ledger"
 packages = [{ include = "xrpl" }, { include = "LICENSE" }]
-# Include compiled CFFI extensions for confidential MPT
+# Include compiled CFFI extensions and shared libraries for confidential MPT
 include = [
+  # CFFI extension (thin wrapper that dlopen's the shared library)
   { path = "xrpl/core/confidential/_mpt_crypto*.so", format = "wheel" },
   { path = "xrpl/core/confidential/_mpt_crypto*.pyd", format = "wheel" },
   { path = "xrpl/core/confidential/_mpt_crypto*.dylib", format = "wheel" },
+  # Shared library (self-contained: secp256k1 + OpenSSL statically linked in)
+  { path = "xrpl/core/confidential/libs/linux/libmpt-crypto.so", format = "wheel" },
+  { path = "xrpl/core/confidential/libs/darwin/libmpt-crypto.dylib", format = "wheel" },
+  { path = "xrpl/core/confidential/libs/win32/mpt-crypto.dll", format = "wheel" },
 ]
 
 [tool.poetry.dependencies]

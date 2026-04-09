@@ -2,20 +2,16 @@
 Test suite for MPT utility layer functions.
 
 This test suite mirrors the C++ tests in
-tools/mpt-crypto-mpt-utility/tests/test_mpt_utility.cpp to ensure
+tools/mpt-crypto-main/tests/test_mpt_utility.cpp to ensure
 the Python wrappers correctly call the utility layer functions.
+
+NOTE: The C utility functions return 0 on success (not 1).
 """
 
 import secrets
 import unittest
 
-from xrpl.core.confidential import (
-    commitments,
-    context,
-    encryption,
-    keypair,
-    plaintext_proofs,
-)
+from xrpl.core.confidential import commitments, context, encryption, keypair
 from xrpl.core.confidential.crypto_bindings import ffi, lib
 
 
@@ -68,68 +64,33 @@ class TestConfidentialConvert(unittest.TestCase):
         seq = 12345
         convert_amount = 750
 
-        # Generate keypair
+        # Generate keypair, blinding factor and encrypt the amount
         privkey, pubkey = keypair.generate_keypair()
+        bf = secrets.token_bytes(32).hex().upper()
+        encryption.encrypt(None, pubkey, convert_amount, bf)
 
-        # Generate blinding factor and encrypt
-        blinding_factor = secrets.token_bytes(32).hex().upper()
-        c1, c2, _ = encryption.encrypt(None, pubkey, convert_amount, blinding_factor)
-
-        # Generate context hash
-        tx_hash = context.compute_convert_context_hash(
-            acc,
-            seq,
-            issuance,
-            convert_amount,
-        )
-
-        # Generate convert proof (Schnorr proof of knowledge)
+        # Generate context hash and ZKProof
+        tx_hash = context.compute_convert_context_hash(acc, seq, issuance)
         proof = keypair.generate_pok(None, privkey, pubkey, tx_hash)
 
-        # Verify proof length
-        self.assertEqual(len(proof), 130)  # 65 bytes = 130 hex chars
+        # Verify proof length (64 bytes = 128 hex chars)
+        self.assertEqual(len(proof), 128)
 
-        # Verify encryption using low-level secp256k1 functions
-        ctx = lib.mpt_secp256k1_context()
-        self.assertNotEqual(ctx, ffi.NULL)
-
-        # Parse ciphertext components
-        c1_bytes = bytes.fromhex(c1)
-        c2_bytes = bytes.fromhex(c2)
-        pubkey_bytes = bytes.fromhex(pubkey)
-        bf_bytes = bytes.fromhex(blinding_factor)
-        proof_bytes = bytes.fromhex(proof)
-        tx_hash_bytes = bytes.fromhex(tx_hash)
-
-        c1_pk = ffi.new("secp256k1_pubkey *")
-        c2_pk = ffi.new("secp256k1_pubkey *")
-        pk = ffi.new("secp256k1_pubkey *")
-
-        # Parse compressed points
-        self.assertEqual(lib.secp256k1_ec_pubkey_parse(ctx, c1_pk, c1_bytes, 33), 1)
-        self.assertEqual(lib.secp256k1_ec_pubkey_parse(ctx, c2_pk, c2_bytes, 33), 1)
-        self.assertEqual(lib.secp256k1_ec_pubkey_parse(ctx, pk, pubkey_bytes, 33), 1)
-
-        # Verify encryption
+        # Verify the ZKProof for convert
         self.assertEqual(
-            lib.secp256k1_elgamal_verify_encryption(
-                ctx, c1_pk, c2_pk, pk, convert_amount, bf_bytes
+            lib.mpt_verify_convert_proof(
+                bytes.fromhex(proof), bytes.fromhex(pubkey), bytes.fromhex(tx_hash)
             ),
-            1,
-        )
-
-        # Verify Schnorr proof
-        self.assertEqual(
-            lib.secp256k1_mpt_pok_sk_verify(ctx, proof_bytes, pk, tx_hash_bytes),
-            1,
+            0,
         )
 
 
 class TestConfidentialSend(unittest.TestCase):
-    """Test confidential send transaction."""
+    """Test confidential send transaction (mirrors test_mpt_confidential_send)."""
 
     def test_send_transaction(self):
         """Test generating confidential send proof with bulletproof."""
+        # Setup mock account, issuance and transaction details
         sender_acc = create_mock_account_id(0x11)
         dest_acc = create_mock_account_id(0x22)
         issuance = create_mock_issuance_id(0xBB)
@@ -138,10 +99,12 @@ class TestConfidentialSend(unittest.TestCase):
         prev_balance = 2000
         version = 1
 
+        # Generate keypairs for all parties
         sender_priv, sender_pub = keypair.generate_keypair()
         _, dest_pub = keypair.generate_keypair()
         _, issuer_pub = keypair.generate_keypair()
 
+        # Encrypt for all participants (using same shared blinding factor)
         shared_bf = secrets.token_bytes(32).hex().upper()
 
         sender_c1, sender_c2, _ = encryption.encrypt(
@@ -154,6 +117,11 @@ class TestConfidentialSend(unittest.TestCase):
             None, issuer_pub, amount_to_send, shared_bf
         )
 
+        sender_ct = sender_c1 + sender_c2
+        dest_ct = dest_c1 + dest_c2
+        issuer_ct = issuer_c1 + issuer_c2
+
+        # Generate pedersen commitments for amount and balance
         amount_bf = secrets.token_bytes(32).hex().upper()
         amount_comm = commitments.create_pedersen_commitment(
             None, amount_to_send, amount_bf
@@ -164,22 +132,19 @@ class TestConfidentialSend(unittest.TestCase):
             None, prev_balance, balance_bf
         )
 
-        # Generate context hash
+        # Generate context hash for the transaction
         tx_hash = context.compute_send_context_hash(
-            sender_acc,
-            seq,
-            issuance,
-            dest_acc,
-            version,
+            sender_acc, seq, issuance, dest_acc, version
         )
 
+        # Generate previous balance ciphertext
         prev_bal_bf = secrets.token_bytes(32).hex().upper()
         prev_bal_c1, prev_bal_c2, _ = encryption.encrypt(
             None, sender_pub, prev_balance, prev_bal_bf
         )
         prev_bal_ct = prev_bal_c1 + prev_bal_c2
 
-        # Generate complete proof using utility layer
+        # Generate the confidential send proof
         from xrpl.core.confidential.main import MPTCrypto
 
         crypto = MPTCrypto()
@@ -189,26 +154,50 @@ class TestConfidentialSend(unittest.TestCase):
             amount=amount_to_send,
             sender_current_balance=prev_balance,
             recipients=[
-                (sender_pub, sender_c1 + sender_c2),
-                (dest_pub, dest_c1 + dest_c2),
-                (issuer_pub, issuer_c1 + issuer_c2),
+                (sender_pub, sender_ct),
+                (dest_pub, dest_ct),
+                (issuer_pub, issuer_ct),
             ],
             tx_blinding_factor=shared_bf,
             context_hash=tx_hash,
             amount_commitment=amount_comm,
             amount_blinding=amount_bf,
-            sender_encrypted_amount=sender_c1 + sender_c2,
+            sender_encrypted_amount=sender_ct,
             balance_commitment=balance_comm,
             balance_blinding=balance_bf,
             sender_balance_encrypted=prev_bal_ct,
         )
 
-        # Verify proof length (1503 bytes = 3006 hex chars)
-        # 359 (equality) + 195 (amount link) + 195 (balance link) + 754 (bulletproof)
-        self.assertEqual(len(complete_proof), 3006)
+        # Verify proof size matches library expectation
+        expected_size = lib.get_confidential_send_proof_size(3)
+        self.assertEqual(len(complete_proof), expected_size * 2)
 
-        # The proof structure is verified by the utility layer itself
-        # Here we just verify that the proof was generated successfully
+        # Build participants array for verification
+        participants = ffi.new("mpt_confidential_participant[3]")
+        for i, (pub, ct) in enumerate(
+            [
+                (sender_pub, sender_ct),
+                (dest_pub, dest_ct),
+                (issuer_pub, issuer_ct),
+            ]
+        ):
+            ffi.memmove(participants[i].pubkey, bytes.fromhex(pub), 33)
+            ffi.memmove(participants[i].ciphertext, bytes.fromhex(ct), 66)
+
+        # Verify the confidential send proof
+        self.assertEqual(
+            lib.mpt_verify_send_proof(
+                bytes.fromhex(complete_proof),
+                expected_size,
+                participants,
+                3,
+                bytes.fromhex(prev_bal_ct),
+                bytes.fromhex(amount_comm),
+                bytes.fromhex(balance_comm),
+                bytes.fromhex(tx_hash),
+            ),
+            0,
+        )
 
 
 class TestConfidentialConvertBack(unittest.TestCase):
@@ -232,15 +221,13 @@ class TestConfidentialConvertBack(unittest.TestCase):
         spending_bal_ct = bal_c1 + bal_c2
 
         # Generate context hash
-        tx_hash = context.compute_convert_back_context_hash(
-            acc, seq, issuance, amount_to_convert_back, version
-        )
+        tx_hash = context.compute_convert_back_context_hash(acc, seq, issuance, version)
 
-        # Generate Pedersen commitment for current balance
+        # Generate pedersen commitment for current balance
         pcm_bf = secrets.token_bytes(32).hex().upper()
         pcm_comm = commitments.create_pedersen_commitment(None, current_balance, pcm_bf)
 
-        # Generate complete proof (includes linkage proof + bulletproof)
+        # Generate convert back proof
         from xrpl.core.confidential.main import MPTCrypto
 
         crypto = MPTCrypto()
@@ -259,41 +246,18 @@ class TestConfidentialConvertBack(unittest.TestCase):
         # Verify proof length (883 bytes = 1766 hex chars: 195 + 688)
         self.assertEqual(len(complete_proof), 1766)
 
-        # Verify the linkage proof portion using low-level secp256k1 functions
-        ctx = lib.mpt_secp256k1_context()
-        self.assertNotEqual(ctx, ffi.NULL)
-
-        # Parse points
-        c1_bytes = bytes.fromhex(bal_c1)
-        c2_bytes = bytes.fromhex(bal_c2)
-        pk_bytes = bytes.fromhex(pubkey)
-        pcm_bytes = bytes.fromhex(pcm_comm)
-        linkage_proof_bytes = bytes.fromhex(complete_proof[:390])  # First 195 bytes
-        tx_hash_bytes = bytes.fromhex(tx_hash)
-
-        c1_pk = ffi.new("secp256k1_pubkey *")
-        c2_pk = ffi.new("secp256k1_pubkey *")
-        pk = ffi.new("secp256k1_pubkey *")
-        pcm_pk = ffi.new("secp256k1_pubkey *")
-
-        self.assertEqual(lib.secp256k1_ec_pubkey_parse(ctx, c1_pk, c1_bytes, 33), 1)
-        self.assertEqual(lib.secp256k1_ec_pubkey_parse(ctx, c2_pk, c2_bytes, 33), 1)
-        self.assertEqual(lib.secp256k1_ec_pubkey_parse(ctx, pk, pk_bytes, 33), 1)
-        self.assertEqual(lib.secp256k1_ec_pubkey_parse(ctx, pcm_pk, pcm_bytes, 33), 1)
-
-        # Verify balance linkage proof
-        # Note: The order is pk, c2, c1 (not c1, c2, pk) as per the C++ reference
+        # Verify the ZKProof for convert back
         self.assertEqual(
-            lib.secp256k1_elgamal_pedersen_link_verify(
-                ctx, linkage_proof_bytes, pk, c2_pk, c1_pk, pcm_pk, tx_hash_bytes
+            lib.mpt_verify_convert_back_proof(
+                bytes.fromhex(complete_proof),
+                bytes.fromhex(pubkey),
+                bytes.fromhex(spending_bal_ct),
+                bytes.fromhex(pcm_comm),
+                amount_to_convert_back,
+                bytes.fromhex(tx_hash),
             ),
-            1,
+            0,
         )
-
-        # Note: Bulletproof verification requires secp256k1_ec_pubkey_create,
-        # secp256k1_ec_pubkey_negate, and secp256k1_ec_pubkey_combine which are
-        # not exposed in the Python bindings. The bulletproof is verified by
-        # rippled during transaction processing.
 
 
 class TestConfidentialClawback(unittest.TestCase):
@@ -313,48 +277,38 @@ class TestConfidentialClawback(unittest.TestCase):
 
         # Generate context hash
         tx_hash = context.compute_clawback_context_hash(
-            issuer_acc, seq, issuance, claw_amount, holder_acc
+            issuer_acc, seq, issuance, holder_acc
         )
 
         # Mock holder's "sfIssuerEncryptedBalance"
         bf = secrets.token_bytes(32).hex().upper()
         c1, c2, _ = encryption.encrypt(None, issuer_pub, claw_amount, bf)
+        issuer_encrypted_bal = c1 + c2
 
-        # Generate clawback proof (equality plaintext proof)
-        # Note: Pass private key, not blinding factor
-        proof = plaintext_proofs.create_equality_plaintext_proof(
-            None, issuer_pub, c2, c1, claw_amount, issuer_priv, tx_hash
+        # Generate clawback proof using utility layer
+        clawback_proof = ffi.new("uint8_t[98]")
+        self.assertEqual(
+            lib.mpt_get_clawback_proof(
+                bytes.fromhex(issuer_priv),
+                bytes.fromhex(issuer_pub),
+                bytes.fromhex(tx_hash),
+                claw_amount,
+                bytes.fromhex(issuer_encrypted_bal),
+                clawback_proof,
+            ),
+            0,
         )
 
-        # Verify proof length (98 bytes = 196 hex chars)
-        self.assertEqual(len(proof), 196)
-
-        # Verify the proof using low-level secp256k1 functions
-        ctx = lib.mpt_secp256k1_context()
-        self.assertNotEqual(ctx, ffi.NULL)
-
-        # Parse points
-        c1_bytes = bytes.fromhex(c1)
-        c2_bytes = bytes.fromhex(c2)
-        pk_bytes = bytes.fromhex(issuer_pub)
-        proof_bytes = bytes.fromhex(proof)
-        tx_hash_bytes = bytes.fromhex(tx_hash)
-
-        c1_pk = ffi.new("secp256k1_pubkey *")
-        c2_pk = ffi.new("secp256k1_pubkey *")
-        pk = ffi.new("secp256k1_pubkey *")
-
-        self.assertEqual(lib.secp256k1_ec_pubkey_parse(ctx, c1_pk, c1_bytes, 33), 1)
-        self.assertEqual(lib.secp256k1_ec_pubkey_parse(ctx, c2_pk, c2_bytes, 33), 1)
-        self.assertEqual(lib.secp256k1_ec_pubkey_parse(ctx, pk, pk_bytes, 33), 1)
-
-        # Verify equality plaintext proof
-        # Note: The order is pk, c2, c1 (not c1, c2, pk) as per the C++ reference
+        # Verify the clawback proof
         self.assertEqual(
-            lib.secp256k1_equality_plaintext_verify(
-                ctx, proof_bytes, pk, c2_pk, c1_pk, claw_amount, tx_hash_bytes
+            lib.mpt_verify_clawback_proof(
+                clawback_proof,
+                claw_amount,
+                bytes.fromhex(issuer_pub),
+                bytes.fromhex(issuer_encrypted_bal),
+                bytes.fromhex(tx_hash),
             ),
-            1,
+            0,
         )
 
 
