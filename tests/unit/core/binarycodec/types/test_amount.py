@@ -205,6 +205,27 @@ class TestAmount(TestSerializedType):
             amount_object = amount.Amount.from_value(json)
             self.assertEqual(amount_object.to_hex(), serialized)
 
+    def test_iou_sub_precision_rounds_to_zero(self):
+        """IOU amounts with mantissa below MIN_IOU_MANTISSA must serialize as
+        the canonical zero (0x8000000000000000), not as a non-zero amount that
+        rippled will reject with 'invalid currency value'."""
+        zero_hex = "8000000000000000"
+        sub_precision_values = [
+            "1e-96",
+            "10e-96",
+            "100e-96",
+            "1000e-96",
+            "999999999999999e-96",
+        ]
+        for value in sub_precision_values:
+            with self.subTest(value=value):
+                result = amount._serialize_issued_currency_value(value)
+                self.assertEqual(
+                    result.hex(),
+                    zero_hex,
+                    f"{value} should serialize to zero but got {result.hex()}",
+                )
+
     def test_from_value_xrp(self):
         for json, serialized in XRP_CASES:
             amount_object = amount.Amount.from_value(json)
