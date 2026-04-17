@@ -215,8 +215,8 @@ class TestAmount(TestSerializedType):
         issuer = "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw"
         # 8-byte amount ("Not XRP" bit only) + 20-byte currency + 20-byte issuer.
         # Canonical zero layout: only the type bit (bit 63) is set; sign,
-        # exponent, and mantissa are all 0.
-        # See: https://xrpl.org/docs/references/protocol/binary-format#token-amount-format
+        # exponent, and mantissa are all 0. See:
+        # https://xrpl.org/docs/references/protocol/binary-format#token-amount-format
         zero_amount_hex = "8000000000000000"
         usd_currency_hex = "0000000000000000000000005553440000000000"
         issuer_hex = "8B1CE810C13D6F337DAC85863B3D70265A24DF44"

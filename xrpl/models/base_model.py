@@ -100,12 +100,13 @@ class BaseModel(ABC):
         {"secret", "seed", "seed_hex", "passphrase", "private_key"}
     )
 
-    def __init_subclass__(cls: Type[Self], **kwargs: Any) -> None:
-        # Install our redacting __repr__ on every subclass *before* any
-        # @dataclass decorator runs. dataclass only auto-generates __repr__
-        # when one isn't already present in cls.__dict__, so pre-populating
-        # it here makes every BaseModel subclass flow through our redaction
-        # logic with no per-class opt-in.
+    def __init_subclass__(cls: Type[Self], **kwargs: Any) -> None:  # noqa: ANN401
+        """Install our redacting ``__repr__`` on every subclass before any
+        ``@dataclass`` decorator runs. ``@dataclass`` only auto-generates a
+        ``__repr__`` when one isn't already present in ``cls.__dict__``, so
+        pre-populating it here makes every ``BaseModel`` subclass flow
+        through the redaction logic with no per-class opt-in.
+        """
         super().__init_subclass__(**kwargs)
         if "__repr__" not in cls.__dict__:
             cls.__repr__ = BaseModel.__repr__
