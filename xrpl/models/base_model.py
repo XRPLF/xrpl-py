@@ -109,7 +109,7 @@ class BaseModel(ABC):
         """
         super().__init_subclass__(**kwargs)
         if "__repr__" not in cls.__dict__:
-            cls.__repr__ = BaseModel.__repr__
+            setattr(cls, "__repr__", BaseModel.__repr__)
 
     @classmethod
     def is_dict_of_model(cls: Type[Self], dictionary: Any) -> bool:  # noqa: ANN401
