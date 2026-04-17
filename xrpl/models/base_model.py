@@ -93,6 +93,23 @@ def _value_to_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
 class BaseModel(ABC):
     """The base class for all model types."""
 
+    # Field names whose values must never appear in __repr__ output. Subclasses
+    # may extend this via set-union. Applies to any model, so new request types
+    # that re-use these names inherit the redaction automatically.
+    _SENSITIVE_FIELDS = frozenset(
+        {"secret", "seed", "seed_hex", "passphrase", "private_key"}
+    )
+
+    def __init_subclass__(cls: Type[Self], **kwargs: Any) -> None:
+        # Install our redacting __repr__ on every subclass *before* any
+        # @dataclass decorator runs. dataclass only auto-generates __repr__
+        # when one isn't already present in cls.__dict__, so pre-populating
+        # it here makes every BaseModel subclass flow through our redaction
+        # logic with no per-class opt-in.
+        super().__init_subclass__(**kwargs)
+        if "__repr__" not in cls.__dict__:
+            cls.__repr__ = BaseModel.__repr__
+
     @classmethod
     def is_dict_of_model(cls: Type[Self], dictionary: Any) -> bool:  # noqa: ANN401
         """
@@ -413,6 +430,17 @@ class BaseModel(ABC):
         return isinstance(other, BaseModel) and self.to_dict() == other.to_dict()
 
     def __repr__(self: Self) -> str:
-        """Returns a string representation of a BaseModel object."""
-        repr_items = [f"{key}={repr(value)}" for key, value in self.to_dict().items()]
-        return f"{type(self).__name__}({repr_items})"
+        """Returns a string representation of a BaseModel object.
+
+        Fields named in ``_SENSITIVE_FIELDS`` are replaced with a fixed
+        placeholder so secret material (seeds, passphrases, private keys)
+        never reaches logs, tracebacks, or error-reporting pipelines.
+        """
+        parts = []
+        for f in fields(self):
+            value = getattr(self, f.name)
+            if f.name in self._SENSITIVE_FIELDS and value is not None:
+                parts.append(f"{f.name}='***REDACTED***'")
+            else:
+                parts.append(f"{f.name}={value!r}")
+        return f"{type(self).__name__}({', '.join(parts)})"

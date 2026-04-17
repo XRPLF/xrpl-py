@@ -80,3 +80,47 @@ class TestSign(TestCase):
             transaction=_TRANSACTION, seed=_SEED, key_type=CryptoAlgorithm.SECP256K1
         )
         self.assertTrue(request.is_valid())
+
+    def test_sensitive_fields_redacted_in_repr(self):
+        """Regression test for issue #992: secret, seed, seed_hex, and
+        passphrase must never appear in repr() / str() output, since those
+        surfaces commonly feed logs and error-reporting pipelines. The raw
+        values must still round-trip through to_dict() so the RPC payload
+        is unchanged."""
+        for field, value in [
+            ("secret", _SECRET),
+            ("seed", _SEED),
+            ("seed_hex", _SEED_HEX),
+            ("passphrase", _PASSPHRASE),
+        ]:
+            request = Sign(transaction=_TRANSACTION, **{field: value})
+            self.assertNotIn(value, repr(request), f"{field} leaked via repr")
+            self.assertNotIn(value, str(request), f"{field} leaked via str")
+            self.assertIn("***REDACTED***", repr(request))
+            self.assertIn("***REDACTED***", str(request))
+            self.assertEqual(request.to_dict()[field], value)
+
+    def test_non_sensitive_fields_appear_in_repr(self):
+        """Redaction must not over-mask: ordinary fields must still appear in
+        repr() with their real values, and the overall shape must match the
+        standard dataclass format `ClassName(field=value, ...)`."""
+        request = Sign(
+            transaction=_TRANSACTION,
+            seed=_SEED,
+            key_type=CryptoAlgorithm.SECP256K1,
+            offline=True,
+            fee_mult_max=42,
+        )
+        rendered = repr(request)
+        self.assertTrue(rendered.startswith("Sign("))
+        self.assertTrue(rendered.endswith(")"))
+        # Non-sensitive scalar fields render with their real values
+        self.assertIn("offline=True", rendered)
+        self.assertIn("fee_mult_max=42", rendered)
+        self.assertIn("CryptoAlgorithm.SECP256K1", rendered)
+        # Nested transaction is rendered (not replaced by a placeholder)
+        self.assertIn("account='r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ'", rendered)
+        self.assertIn("domain='asjcsodafsaid0f9asdfasdf'", rendered)
+        # None-valued sensitive fields are rendered as None, not REDACTED
+        self.assertIn("secret=None", rendered)
+        self.assertIn("passphrase=None", rendered)
