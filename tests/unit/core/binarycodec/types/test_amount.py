@@ -205,6 +205,36 @@ class TestAmount(TestSerializedType):
             amount_object = amount.Amount.from_value(json)
             self.assertEqual(amount_object.to_hex(), serialized)
 
+    def test_iou_underflow_rounds_to_zero(self):
+        """Regression test for issue #948.
+
+        A non-zero IOU value whose normalized mantissa falls below
+        MIN_IOU_MANTISSA (or whose exponent falls below MIN_IOU_EXPONENT)
+        must serialize to the canonical zero amount (only the "Not XRP"
+        bit set), and must round-trip back to "0"."""
+        issuer = "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw"
+        # 8-byte amount ("Not XRP" bit only) + 20-byte currency + 20-byte issuer.
+        # Canonical zero layout: only the type bit (bit 63) is set; sign,
+        # exponent, and mantissa are all 0.
+        # See: https://xrpl.org/docs/references/protocol/binary-format#token-amount-format
+        zero_amount_hex = "8000000000000000"
+        usd_currency_hex = "0000000000000000000000005553440000000000"
+        issuer_hex = "8B1CE810C13D6F337DAC85863B3D70265A24DF44"
+        zero_hex = zero_amount_hex + usd_currency_hex + issuer_hex
+        underflow_cases = ["1e-82", "1e-96", "-1e-96"]
+        for value in underflow_cases:
+            iou = {"value": value, "currency": "USD", "issuer": issuer}
+            amount_object = amount.Amount.from_value(iou)
+            self.assertEqual(
+                amount_object.to_hex(),
+                zero_hex,
+                f"IOU value {value!r} should serialize to canonical zero",
+            )
+            round_tripped = amount_object.to_json()
+            self.assertEqual(round_tripped["value"], "0")
+            self.assertEqual(round_tripped["currency"], "USD")
+            self.assertEqual(round_tripped["issuer"], issuer)
+
     def test_from_value_xrp(self):
         for json, serialized in XRP_CASES:
             amount_object = amount.Amount.from_value(json)
