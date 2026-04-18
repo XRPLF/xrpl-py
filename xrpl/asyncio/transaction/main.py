@@ -343,6 +343,8 @@ def _is_not_later_rippled_version(source: str, target: str) -> bool:
         return True
     source_decomp = source.split(".")
     target_decomp = target.split(".")
+    if len(source_decomp) < 3 or len(target_decomp) < 3:
+        return False
     source_major, source_minor = int(source_decomp[0]), int(source_decomp[1])
     target_major, target_minor = int(target_decomp[0]), int(target_decomp[1])
 
