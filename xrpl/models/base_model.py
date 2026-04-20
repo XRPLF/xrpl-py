@@ -441,7 +441,7 @@ class BaseModel(ABC):
         for f in fields(self):
             value = getattr(self, f.name)
             if f.name in self._SENSITIVE_FIELDS and value is not None:
-                parts.append(f"{f.name}='***REDACTED***'")
+                parts.append(f"{f.name}='-HIDDEN-'")
             else:
                 parts.append(f"{f.name}={value!r}")
         return f"{type(self).__name__}({', '.join(parts)})"

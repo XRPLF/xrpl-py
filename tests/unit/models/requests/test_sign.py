@@ -81,7 +81,7 @@ class TestSign(TestCase):
         )
         self.assertTrue(request.is_valid())
 
-    def test_sensitive_fields_redacted_in_repr(self):
+    def test_sensitive_fields_HIDDEN_in_repr(self):
         """Regression test for issue #992: secret, seed, seed_hex, and
         passphrase must never appear in repr() / str() output, since those
         surfaces commonly feed logs and error-reporting pipelines. The raw
@@ -96,8 +96,8 @@ class TestSign(TestCase):
             request = Sign(transaction=_TRANSACTION, **{field: value})
             self.assertNotIn(value, repr(request), f"{field} leaked via repr")
             self.assertNotIn(value, str(request), f"{field} leaked via str")
-            self.assertIn("***REDACTED***", repr(request))
-            self.assertIn("***REDACTED***", str(request))
+            self.assertIn("-HIDDEN-", repr(request))
+            self.assertIn("-HIDDEN-", str(request))
             self.assertEqual(request.to_dict()[field], value)
 
     def test_non_sensitive_fields_appear_in_repr(self):
@@ -121,6 +121,6 @@ class TestSign(TestCase):
         # Nested transaction is rendered (not replaced by a placeholder)
         self.assertIn("account='r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ'", rendered)
         self.assertIn("domain='asjcsodafsaid0f9asdfasdf'", rendered)
-        # None-valued sensitive fields are rendered as None, not REDACTED
+        # None-valued sensitive fields are rendered as None, not -HIDDEN-
         self.assertIn("secret=None", rendered)
         self.assertIn("passphrase=None", rendered)
