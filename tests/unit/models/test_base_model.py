@@ -1,23 +1,32 @@
 import json
 import os
+from dataclasses import dataclass
 from unittest import TestCase
+
+from typing_extensions import Self
 
 from xrpl.models import XRPLModelException
 from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.models.base_model import BaseModel
 from xrpl.models.currencies import XRP, IssuedCurrency
 from xrpl.models.requests import (
     AccountChannels,
     BookOffers,
+    ChannelAuthorize,
     PathFind,
     PathFindSubcommand,
     PathStep,
     Request,
     Sign,
+    SignAndSubmit,
+    SignFor,
     SubmitMultisigned,
     SubmitOnly,
 )
 from xrpl.models.requests.request import _DEFAULT_API_VERSION
 from xrpl.models.transactions import (
+    AccountSet,
+    AccountSetAsfFlag,
     AMMBid,
     AuthAccount,
     CheckCreate,
@@ -69,6 +78,51 @@ class TestBaseModel(TestCase):
             f"issuer='{issuer}', value='{value}')"
         )
         self.assertEqual(repr(amount), expected_repr)
+
+    def test_init_subclass_preserves_subclass_defined_repr(self):
+        # A subclass that defines its own __repr__ must keep it. The
+        # __init_subclass__ hook installs the redacting __repr__ only when
+        # the subclass hasn't provided one; dropping that guard would
+        # silently overwrite any subclass-defined repr.
+        @dataclass(frozen=True)
+        class _CustomModel(BaseModel):
+            value: str = "x"
+
+            def __repr__(self: Self) -> str:
+                return "CUSTOM_REPR"
+
+        self.assertEqual(repr(_CustomModel(value="anything")), "CUSTOM_REPR")
+
+    def test_repr_redaction_applies_to_every_signing_request(self):
+        # The fix for issue #992 lives on BaseModel.__init_subclass__, so
+        # every subclass should inherit the redacting __repr__. test_sign.py
+        # only exercises Sign; this test proves the wiring reaches every
+        # secret-bearing request class. Protects against a future change
+        # (e.g. adding an explicit @dataclass(repr=True) on one subclass)
+        # that would force dataclass to regenerate __repr__ and silently
+        # reintroduce the leak on only that class.
+        transaction = AccountSet(
+            account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+            fee="0.00001",
+            set_flag=AccountSetAsfFlag.ASF_DISALLOW_XRP,
+            sequence=19048,
+        )
+        seed = "sEdTM1uX8pu2do5XvTnutH6HsouMaM2"
+        cases = [
+            Sign(transaction=transaction, seed=seed),
+            SignFor(
+                account="r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ",
+                transaction=transaction,
+                seed=seed,
+            ),
+            SignAndSubmit(transaction=transaction, seed=seed),
+            ChannelAuthorize(channel_id="0" * 64, amount="1000", seed=seed),
+        ]
+        for request in cases:
+            with self.subTest(request_cls=type(request).__name__):
+                rendered = repr(request)
+                self.assertNotIn(seed, rendered)
+                self.assertIn("seed='-HIDDEN-'", rendered)
 
     def test_is_dict_of_model_when_true(self):
         self.assertTrue(
