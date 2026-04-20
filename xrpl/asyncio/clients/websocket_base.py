@@ -136,7 +136,13 @@ class WebsocketBase(Client):
         As long as a given client remains open, this handler will be running as a Task.
         """
         async for response in cast(websocket_client.ClientConnection, self._websocket):
-            response_dict = json.loads(response)
+            try:
+                response_dict = json.loads(response)
+            except json.JSONDecodeError:
+                # Issue #977: a single malformed frame must not kill the
+                # handler task and leave the client deaf to every frame
+                # that follows.
+                continue
 
             # if this response corresponds to request, fulfill the Future
             if "id" in response_dict and response_dict["id"] in self._open_requests:
