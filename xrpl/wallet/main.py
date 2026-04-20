@@ -81,11 +81,8 @@ class Wallet:
                 addresscodec.decode_seed(seed, wallet_algorithm)
             except Exception as e:
                 raise XRPLAddressCodecException(
-                    "Attempted to initialize a Wallet with "
-                    + "an invalid seed: "
-                    + seed
-                    + ". The cryptographic algorithm"
-                    + " used is: "
+                    "Attempted to initialize a Wallet with an invalid seed. "
+                    "The cryptographic algorithm used is: "
                     + wallet_algorithm
                     + "\nError message: "
                     + str(e)

@@ -51,3 +51,12 @@ class TestWallet(TestCase):
     def test_init_secp256k1_with_sEd_seed_fail(self):
         with self.assertRaises(XRPLAddressCodecException):
             Wallet.from_seed(SED_SEED, algorithm=CryptoAlgorithm.SECP256K1)
+
+    def test_invalid_seed_not_leaked_in_exception(self):
+        """Regression test for issue #987: exception messages for invalid
+        seeds must not include the raw seed, since they often get logged or
+        captured by error-tracking systems."""
+        secret_seed = "sInvalidSeedXXXXXXXXXXXXXX"
+        with self.assertRaises(XRPLAddressCodecException) as ctx:
+            Wallet(public_key="abc", private_key="def", seed=secret_seed)
+        self.assertNotIn(secret_seed, str(ctx.exception))

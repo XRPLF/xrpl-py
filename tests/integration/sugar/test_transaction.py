@@ -301,7 +301,7 @@ class TestTransaction(IntegrationTestCase):
 
         # The expected fee is read from the below-specified config file
         expected_fee = ""
-        with open(".ci-config/rippled.cfg", "r", encoding="utf-8") as file:
+        with open(".ci-config/xrpld.cfg", "r", encoding="utf-8") as file:
             lines = file.readlines()  # Read all lines into a list
 
             for value in lines:

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
-from random import randrange
+from secrets import randbelow
 from typing import TYPE_CHECKING, Any, Dict, Optional, cast
 
 from typing_extensions import Final, Self
@@ -18,7 +18,10 @@ from xrpl.models.requests.request import Request
 from xrpl.models.response import Response
 
 _PAYLOAD_MAX_SIZE: Final[int] = 2**24
-_REQ_ID_MAX: Final[int] = 1_000_000
+# Widened from 1_000_000 to 2**62 so birthday-paradox collisions are
+# astronomically unlikely (expected collision after ~2**31 requests instead
+# of ~1,177). IDs are embedded in a string, so arbitrary Python ints are fine.
+_REQ_ID_MAX: Final[int] = 2**62
 
 # the types from asyncio are not implemented as generics in python 3.8 and
 # lower, so we need to only subscript them when running typechecking.
@@ -47,7 +50,7 @@ def _inject_request_id(request: Request) -> Request:
     if request.id is not None:
         return request
     request_dict = request.to_dict()
-    request_dict["id"] = f"{request.method}_{randrange(_REQ_ID_MAX)}"
+    request_dict["id"] = f"{request.method}_{randbelow(_REQ_ID_MAX)}"
     return Request.from_dict(request_dict)
 
 
@@ -133,7 +136,13 @@ class WebsocketBase(Client):
         As long as a given client remains open, this handler will be running as a Task.
         """
         async for response in cast(websocket_client.ClientConnection, self._websocket):
-            response_dict = json.loads(response)
+            try:
+                response_dict = json.loads(response)
+            except json.JSONDecodeError:
+                # Issue #977: a single malformed frame must not kill the
+                # handler task and leave the client deaf to every frame
+                # that follows.
+                continue
 
             # if this response corresponds to request, fulfill the Future
             if "id" in response_dict and response_dict["id"] in self._open_requests:
