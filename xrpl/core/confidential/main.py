@@ -11,8 +11,6 @@ from xrpl.core.confidential import (
     commitments,
     encryption,
     keypair,
-    link_proofs,
-    plaintext_proofs,
 )
 from xrpl.core.confidential.crypto_bindings import (
     SECP256K1_CONTEXT_SIGN,
@@ -31,7 +29,8 @@ from xrpl.core.confidential.keypair import (
     PRIVKEY_SIZE,
     SCHNORR_PROOF_SIZE,
 )
-from xrpl.core.confidential.link_proofs import ACCOUNT_ID_SIZE, MPT_ISSUANCE_ID_SIZE
+ACCOUNT_ID_SIZE = 20
+MPT_ISSUANCE_ID_SIZE = 24
 
 # Export size constants
 __all__ = [
@@ -120,131 +119,135 @@ class MPTCrypto:
             self.ctx, proof, commitment, pk_base_uncompressed
         )
 
-    # Link Proofs
-    def create_elgamal_pedersen_link_proof(  # noqa: PLR0913
+    # Verify proofs using utility layer
+    def verify_clawback_proof(
         self,
-        c1: str,
-        c2: str,
-        pk_uncompressed: str,
-        pedersen_commitment: str,
+        proof: str,
         amount: int,
-        amount_blinding: str,
-        pedersen_blinding: str,
-        context_id: str,
-    ) -> str:
-        """Create an ElGamal-Pedersen link proof."""
-        return link_proofs.create_elgamal_pedersen_link_proof(
-            self.ctx,
-            c1,
-            c2,
-            pk_uncompressed,
-            pedersen_commitment,
+        pubkey_compressed: str,
+        ciphertext: str,
+        context_hash: str,
+    ) -> bool:
+        """
+        Verify a ConfidentialMPTClawback proof using the utility layer.
+
+        Args:
+            proof: Hex string of the compact sigma proof
+            amount: The publicly known amount to be clawed back
+            pubkey_compressed: 66-char hex string (33-byte issuer's public key)
+            ciphertext: 132-char hex string (66-byte IssuerEncryptedBalance)
+            context_hash: 64-char hex string (32-byte context hash)
+
+        Returns:
+            True if proof is valid, False otherwise
+        """
+        proof_bytes = bytes.fromhex(proof)
+        pubkey_bytes = bytes.fromhex(pubkey_compressed)
+        ciphertext_bytes = bytes.fromhex(ciphertext)
+        context_bytes = bytes.fromhex(context_hash)
+
+        result = lib.mpt_verify_clawback_proof(
+            proof_bytes, amount, pubkey_bytes, ciphertext_bytes, context_bytes
+        )
+        return result == 0
+
+    def verify_convert_back_proof(
+        self,
+        proof: str,
+        pubkey_compressed: str,
+        ciphertext: str,
+        balance_commitment: str,
+        amount: int,
+        context_hash: str,
+    ) -> bool:
+        """
+        Verify a ConfidentialMPTConvertBack proof using the utility layer.
+
+        Args:
+            proof: Hex string of the proof (816 bytes)
+            pubkey_compressed: 66-char hex string (33-byte holder's public key)
+            ciphertext: 132-char hex string (66-byte holder's balance ciphertext)
+            balance_commitment: 66-char hex string (33-byte Pedersen commitment)
+            amount: The publicly revealed conversion amount
+            context_hash: 64-char hex string (32-byte context hash)
+
+        Returns:
+            True if proof is valid, False otherwise
+        """
+        proof_bytes = bytes.fromhex(proof)
+        pubkey_bytes = bytes.fromhex(pubkey_compressed)
+        ciphertext_bytes = bytes.fromhex(ciphertext)
+        commitment_bytes = bytes.fromhex(balance_commitment)
+        context_bytes = bytes.fromhex(context_hash)
+
+        result = lib.mpt_verify_convert_back_proof(
+            proof_bytes,
+            pubkey_bytes,
+            ciphertext_bytes,
+            commitment_bytes,
             amount,
-            amount_blinding,
-            pedersen_blinding,
-            context_id,
+            context_bytes,
         )
+        return result == 0
 
-    def verify_elgamal_pedersen_link_proof(
+    def verify_send_proof(
         self,
         proof: str,
-        c1: str,
-        c2: str,
-        pk_uncompressed: str,
-        pedersen_commitment: str,
-        context_id: str,
+        participants: list,
+        sender_spending_ciphertext: str,
+        amount_commitment: str,
+        balance_commitment: str,
+        context_hash: str,
     ) -> bool:
-        """Verify an ElGamal-Pedersen link proof."""
-        return link_proofs.verify_elgamal_pedersen_link_proof(
-            self.ctx, proof, c1, c2, pk_uncompressed, pedersen_commitment, context_id
-        )
+        """
+        Verify a ConfidentialMPTSend proof using the utility layer.
 
-    def create_balance_link_proof(  # noqa: PLR0913
-        self,
-        pk_uncompressed: str,
-        c2: str,
-        c1: str,
-        pedersen_commitment: str,
-        amount: int,
-        private_key: str,
-        pedersen_blinding: str,
-        context_id: str,
-    ) -> str:
-        """Create a balance link proof (uses SWAPPED parameter order)."""
-        return link_proofs.create_balance_link_proof(
-            self.ctx,
-            pk_uncompressed,
-            c2,
-            c1,
-            pedersen_commitment,
-            amount,
-            private_key,
-            pedersen_blinding,
-            context_id,
-        )
+        Args:
+            proof: Hex string of the proof (946 bytes)
+            participants: List of (pubkey, encrypted_amount) tuples as hex strings
+            sender_spending_ciphertext: 132-char hex string (66-byte on-ledger balance)
+            amount_commitment: 66-char hex string (33-byte Pedersen commitment)
+            balance_commitment: 66-char hex string (33-byte Pedersen commitment)
+            context_hash: 64-char hex string (32-byte context hash)
 
-    # Equality and Same Plaintext Proofs
-    def create_equality_plaintext_proof(
-        self,
-        pk_uncompressed: str,
-        c2: str,
-        c1: str,
-        amount: int,
-        private_key: str,
-        context_id: str,
-    ) -> str:
-        """Create an equality proof for ConfidentialMPTClawback."""
-        return plaintext_proofs.create_equality_plaintext_proof(
-            self.ctx, pk_uncompressed, c2, c1, amount, private_key, context_id
-        )
+        Returns:
+            True if proof is valid, False otherwise
+        """
+        proof_bytes = bytes.fromhex(proof)
+        context_bytes = bytes.fromhex(context_hash)
+        spending_bytes = bytes.fromhex(sender_spending_ciphertext)
+        amount_commit_bytes = bytes.fromhex(amount_commitment)
+        balance_commit_bytes = bytes.fromhex(balance_commitment)
 
-    def verify_equality_plaintext_proof(
-        self,
-        proof: str,
-        pk_uncompressed: str,
-        c2: str,
-        c1: str,
-        amount: int,
-        context_id: str,
-    ) -> bool:
-        """Verify an equality plaintext proof (for ConfidentialMPTClawback)."""
-        return plaintext_proofs.verify_equality_plaintext_proof(
-            self.ctx, proof, pk_uncompressed, c2, c1, amount, context_id
-        )
+        n_participants = len(participants)
+        participants_array = ffi.new(f"mpt_confidential_participant[{n_participants}]")
+        for i, (pubkey, encrypted_amount) in enumerate(participants):
+            ffi.memmove(participants_array[i].pubkey, bytes.fromhex(pubkey), 33)
+            ffi.memmove(
+                participants_array[i].ciphertext, bytes.fromhex(encrypted_amount), 66
+            )
 
-    def create_same_plaintext_proof_multi(
-        self,
-        amount: int,
-        ciphertexts: list,
-        context_id: str,
-    ) -> str:
-        """Create a proof that multiple ciphertexts encrypt the same amount."""
-        return plaintext_proofs.create_same_plaintext_proof_multi(
-            self.ctx, amount, ciphertexts, context_id
+        result = lib.mpt_verify_send_proof(
+            proof_bytes,
+            participants_array,
+            n_participants,
+            spending_bytes,
+            amount_commit_bytes,
+            balance_commit_bytes,
+            context_bytes,
         )
-
-    def verify_same_plaintext_proof_multi(
-        self,
-        proof: str,
-        ciphertexts: list,
-        context_id: str,
-    ) -> bool:
-        """Verify a proof that multiple ciphertexts encrypt the same amount."""
-        return plaintext_proofs.verify_same_plaintext_proof_multi(
-            self.ctx, proof, ciphertexts, context_id
-        )
+        return result == 0
 
     def create_confidential_send_proof(
         self,
         sender_privkey: str,
+        sender_pubkey: str,
         amount: int,
         sender_current_balance: int,
-        recipients: list,
+        participants: list,
         tx_blinding_factor: str,
         context_hash: str,
         amount_commitment: str,
-        amount_blinding: str,
-        sender_encrypted_amount: str,
         balance_commitment: str,
         balance_blinding: str,
         sender_balance_encrypted: str,
@@ -252,57 +255,47 @@ class MPTCrypto:
         """
         Generate complete proof for ConfidentialMPTSend using utility layer.
 
-        This generates the complete ZKProof including:
-        - Multi-ciphertext equality proof
-        - Pedersen linkage proofs (amount and balance)
-        - Double bulletproof (range proofs)
+        Produces a compact AND-composed sigma proof (192 bytes) that simultaneously
+        proves ciphertext equality, Pedersen commitment linkage, and balance ownership,
+        followed by an aggregated Bulletproof range proof (754 bytes).
+        Total proof size is fixed at 946 bytes.
 
         Args:
             sender_privkey: 64-char hex string of sender's private key
+            sender_pubkey: 66-char hex string of sender's compressed public key
             amount: Amount being sent (uint64)
-            recipients: List of (pubkey, encrypted_amount) tuples as hex strings
-                       Each pubkey is 66 hex chars (33 bytes compressed)
-                       Each encrypted_amount is 132 hex chars (66 bytes)
+            sender_current_balance: Sender's current balance (uint64)
+            participants: List of (pubkey, encrypted_amount) tuples as hex strings.
+                         Must include sender, destination, issuer, and optionally auditor.
+                         Each pubkey is 66 hex chars (33 bytes compressed)
+                         Each encrypted_amount is 132 hex chars (66 bytes)
             tx_blinding_factor: 64-char hex string of ElGamal blinding factor
             context_hash: 64-char hex string of transaction context hash
             amount_commitment: 66-char hex string of Pedersen commitment to amount
-            amount_blinding: 64-char hex string of blinding factor for amount commitment
-            sender_encrypted_amount: 132-char hex string of sender's encrypted amount
             balance_commitment: 66-char hex string of Pedersen commitment to balance
             balance_blinding: 64-char hex string of blinding factor for balance commitment
-            sender_balance_encrypted: 132-char hex string of sender's current balance
+            sender_balance_encrypted: 132-char hex string of sender's current balance ciphertext
 
         Returns:
-            Hex string of complete ZKProof (approximately 1503 bytes = 3006 hex chars)
+            Hex string of complete ZKProof (946 bytes = 1892 hex chars)
         """
         # Convert inputs from hex to bytes
         priv_bytes = bytes.fromhex(sender_privkey)
+        pub_bytes = bytes.fromhex(sender_pubkey)
         tx_blinding_bytes = bytes.fromhex(tx_blinding_factor)
         context_bytes = bytes.fromhex(context_hash)
+        amount_commitment_bytes = bytes.fromhex(amount_commitment)
 
-        # Build recipients array
-        n_recipients = len(recipients)
-        recipients_array = ffi.new(f"mpt_confidential_participant[{n_recipients}]")
-        for i, (pubkey, encrypted_amount) in enumerate(recipients):
+        # Build participants array
+        n_participants = len(participants)
+        participants_array = ffi.new(f"mpt_confidential_participant[{n_participants}]")
+        for i, (pubkey, encrypted_amount) in enumerate(participants):
             pubkey_bytes = bytes.fromhex(pubkey)
             enc_amt_bytes = bytes.fromhex(encrypted_amount)
-            ffi.memmove(recipients_array[i].pubkey, pubkey_bytes, 33)
-            ffi.memmove(recipients_array[i].ciphertext, enc_amt_bytes, 66)
-
-        # Build amount_params
-        amount_params = ffi.new("mpt_pedersen_proof_params*")
-        ffi.memmove(
-            amount_params.pedersen_commitment, bytes.fromhex(amount_commitment), 33
-        )
-        amount_params.amount = amount
-        ffi.memmove(
-            amount_params.ciphertext, bytes.fromhex(sender_encrypted_amount), 66
-        )
-        ffi.memmove(amount_params.blinding_factor, bytes.fromhex(amount_blinding), 32)
+            ffi.memmove(participants_array[i].pubkey, pubkey_bytes, 33)
+            ffi.memmove(participants_array[i].ciphertext, enc_amt_bytes, 66)
 
         # Build balance_params
-        # NOTE: sender_balance_encrypted should be a fresh encryption of the current balance
-        # using balance_blinding, NOT the balance from the ledger
         balance_params = ffi.new("mpt_pedersen_proof_params*")
         ffi.memmove(
             balance_params.pedersen_commitment, bytes.fromhex(balance_commitment), 33
@@ -315,8 +308,9 @@ class MPTCrypto:
         )
         ffi.memmove(balance_params.blinding_factor, bytes.fromhex(balance_blinding), 32)
 
-        # Get proof size
-        proof_size = lib.get_confidential_send_proof_size(n_recipients)
+        # Proof size: SECP256K1_COMPACT_STANDARD_PROOF_SIZE (192) +
+        #             kMPT_DOUBLE_BULLETPROOF_SIZE (754) = 946
+        proof_size = lib.SECP256K1_COMPACT_STANDARD_PROOF_SIZE + lib.kMPT_DOUBLE_BULLETPROOF_SIZE
 
         # Allocate proof buffer
         proof_buffer = ffi.new(f"uint8_t[{proof_size}]")
@@ -326,12 +320,13 @@ class MPTCrypto:
         # Generate proof
         result = lib.mpt_get_confidential_send_proof(
             priv_bytes,
+            pub_bytes,
             amount,
-            recipients_array,
-            n_recipients,
+            participants_array,
+            n_participants,
             tx_blinding_bytes,
             context_bytes,
-            amount_params,
+            amount_commitment_bytes,
             balance_params,
             proof_buffer,
             out_len,
@@ -342,9 +337,6 @@ class MPTCrypto:
                 f"Failed to generate confidential send proof (error code: {result})"
             )
 
-        # Return the proof
-        # Note: The utility layer currently returns an incomplete proof (missing bulletproof)
-        # This will be fixed in an upcoming mpt-crypto release
         actual_len = out_len[0]
         proof = bytes(ffi.buffer(proof_buffer, actual_len))
         return proof.hex().upper()
@@ -363,6 +355,10 @@ class MPTCrypto:
         """
         Generate ZK proof for ConfidentialMPTConvertBack transaction using utility layer.
 
+        Produces a compact AND-composed sigma proof (128 bytes) over the balance
+        witness, followed by a single Bulletproof range proof (688 bytes) over the
+        remainder commitment. Total proof size: 816 bytes.
+
         Args:
             holder_privkey: 64-char hex string of holder's private key
             holder_pubkey: 66-char hex string of holder's compressed public key
@@ -374,8 +370,8 @@ class MPTCrypto:
             holder_balance_encrypted: 132-char hex string of holder's encrypted balance
 
         Returns:
-            Hex string of ZKProof (883 bytes = 1766 hex chars)
-            Includes: Pedersen linkage proof (195 bytes) + Bulletproof (688 bytes)
+            Hex string of ZKProof (816 bytes = 1632 hex chars)
+            Includes: Compact sigma proof (128 bytes) + Bulletproof (688 bytes)
         """
         # Convert inputs from hex to bytes
         priv_bytes = bytes.fromhex(holder_privkey)
@@ -395,8 +391,9 @@ class MPTCrypto:
         )
         ffi.memmove(balance_params.blinding_factor, bytes.fromhex(balance_blinding), 32)
 
-        # Allocate proof buffer (195 + 688 = 883 bytes)
-        proof_size = 195 + 688
+        # Proof size: SECP256K1_COMPACT_CONVERTBACK_PROOF_SIZE (128) +
+        #             kMPT_SINGLE_BULLETPROOF_SIZE (688) = 816
+        proof_size = lib.SECP256K1_COMPACT_CONVERTBACK_PROOF_SIZE + lib.kMPT_SINGLE_BULLETPROOF_SIZE
         proof_buffer = ffi.new(f"uint8_t[{proof_size}]")
 
         # Generate proof
@@ -428,6 +425,9 @@ class MPTCrypto:
         """
         Generate ZK proof for ConfidentialMPTClawback transaction using utility layer.
 
+        Produces a compact sigma proof that proves the issuer knows the private key
+        and that the ciphertext decrypts to the specified amount.
+
         Args:
             issuer_privkey: 64-char hex string of issuer's private key
             issuer_pubkey: 66-char hex string of issuer's compressed public key
@@ -436,7 +436,7 @@ class MPTCrypto:
             issuer_encrypted_balance: 132-char hex string of issuer's encrypted balance from ledger
 
         Returns:
-            Hex string of ZKProof (98 bytes = 196 hex chars)
+            Hex string of ZKProof (SECP256K1_COMPACT_CLAWBACK_PROOF_SIZE bytes)
         """
         # Convert inputs from hex to bytes
         priv_bytes = bytes.fromhex(issuer_privkey)
@@ -444,8 +444,9 @@ class MPTCrypto:
         context_bytes = bytes.fromhex(context_hash)
         encrypted_balance_bytes = bytes.fromhex(issuer_encrypted_balance)
 
-        # Allocate proof buffer (98 bytes for equality proof)
-        proof_buffer = ffi.new("uint8_t[98]")
+        # Allocate proof buffer
+        proof_size = lib.SECP256K1_COMPACT_CLAWBACK_PROOF_SIZE
+        proof_buffer = ffi.new(f"uint8_t[{proof_size}]")
 
         # Generate proof
         result = lib.mpt_get_clawback_proof(
@@ -462,5 +463,5 @@ class MPTCrypto:
                 f"Failed to generate clawback proof (error code: {result})"
             )
 
-        proof = bytes(ffi.buffer(proof_buffer, 98))
+        proof = bytes(ffi.buffer(proof_buffer, proof_size))
         return proof.hex().upper()

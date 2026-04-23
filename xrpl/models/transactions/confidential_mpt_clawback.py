@@ -8,7 +8,7 @@ from typing import Dict
 from typing_extensions import Self
 
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.confidential_mpt_convert import EQUALITY_PROOF_LENGTH
+from xrpl.models.transactions.confidential_mpt_convert import CLAWBACK_PROOF_LENGTH
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
@@ -58,9 +58,9 @@ class ConfidentialMPTClawback(Transaction):
             if self.account == self.holder:
                 errors["holder"] = "Cannot claw back from the same account"
 
-        if len(self.zk_proof) != EQUALITY_PROOF_LENGTH:
+        if len(self.zk_proof) != CLAWBACK_PROOF_LENGTH:
             errors["zk_proof"] = (
-                "zk_proof must be 98 bytes (196 hex characters) for Equality Proof"
+                "zk_proof must be 64 bytes (128 hex characters) for compact sigma proof"
             )
 
         if self.mpt_amount <= 0:

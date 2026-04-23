@@ -16,7 +16,6 @@ from xrpl.models.utils import require_kwargs_on_init
 HOLDER_ELGAMAL_PUBLIC_KEY_LENGTH = 33 * 2  # 33 bytes = 66 hex chars
 BLINDING_FACTOR_LENGTH = 32 * 2  # 32 bytes = 64 hex chars
 SCHNORR_PROOF_LENGTH = 64 * 2  # 64 bytes = 128 hex chars (32 R + 32 s)
-EQUALITY_PROOF_LENGTH = 98 * 2  # 98 bytes = 196 hex chars (plaintext-ciphertext)
 
 # ElGamal ciphertext: two compressed EC points (C1, C2), each 33 bytes
 CIPHERTEXT_LENGTH = 66 * 2  # 66 bytes = 132 hex chars
@@ -24,11 +23,14 @@ CIPHERTEXT_LENGTH = 66 * 2  # 66 bytes = 132 hex chars
 # Pedersen commitment: one compressed EC point (33 bytes)
 COMMITMENT_LENGTH = 33 * 2  # 33 bytes = 66 hex chars
 
-# ConfidentialMPTSend proof: equality + linkage + double bulletproof (~1503 bytes)
-SEND_PROOF_LENGTH = 1503 * 2  # 1503 bytes = 3006 hex chars
+# ConfidentialMPTClawback proof: compact sigma proof (64 bytes)
+CLAWBACK_PROOF_LENGTH = 64 * 2  # 64 bytes = 128 hex chars
 
-# ConfidentialMPTConvertBack proof: balance linkage + bulletproof (883 bytes)
-CONVERT_BACK_PROOF_LENGTH = 883 * 2  # 883 bytes = 1766 hex chars
+# ConfidentialMPTSend proof: compact sigma (192) + double bulletproof (754) = 946 bytes
+SEND_PROOF_LENGTH = 946 * 2  # 946 bytes = 1892 hex chars
+
+# ConfidentialMPTConvertBack proof: compact sigma (128) + bulletproof (688) = 816 bytes
+CONVERT_BACK_PROOF_LENGTH = 816 * 2  # 816 bytes = 1632 hex chars
 
 
 @require_kwargs_on_init

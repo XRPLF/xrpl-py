@@ -130,7 +130,7 @@ def verify_pok(ctx, pubkey_compressed: str, proof: str, context_id: str) -> bool
     if len(context_id_bytes) != CONTEXT_ID_SIZE:
         raise ValueError(f"context_id must be {CONTEXT_ID_SIZE} bytes")
 
-    # Verify using utility layer
+    # Verify using utility layer (returns 0 on success, -1 on failure)
     result = lib.mpt_verify_convert_proof(proof_bytes, pubkey_bytes, context_id_bytes)
 
-    return result == 1
+    return result == 0

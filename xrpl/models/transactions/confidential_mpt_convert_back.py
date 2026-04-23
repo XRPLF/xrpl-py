@@ -61,9 +61,9 @@ class ConfidentialMPTConvertBack(Transaction):
 
     zk_proof: str = REQUIRED  # type: ignore
     """
-    Complete proof (883 bytes) consisting of:
-    - Balance linkage proof (195 bytes): proves the link between the current
-      ConfidentialBalanceSpending and the balance commitment
+    Complete proof (816 bytes) consisting of:
+    - Compact sigma proof (128 bytes): proves balance ownership and commitment
+      linkage under a single Fiat-Shamir challenge
     - Bulletproof (688 bytes): proves the remaining balance is in valid range
     """
 
@@ -113,10 +113,10 @@ class ConfidentialMPTConvertBack(Transaction):
                 "balance_commitment must be 33 bytes (66 hex characters)"
             )
 
-        # Validate zk_proof length (883 bytes for ConvertBack proof)
+        # Validate zk_proof length (816 bytes for ConvertBack proof)
         if len(self.zk_proof) != CONVERT_BACK_PROOF_LENGTH:
             errors["zk_proof"] = (
-                "zk_proof must be 883 bytes (1766 hex characters) for ConvertBack proof"
+                "zk_proof must be 816 bytes (1632 hex characters) for ConvertBack proof"
             )
 
         return errors

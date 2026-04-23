@@ -314,10 +314,30 @@ ffibuilder.cdef(
     #define SECP256K1_EC_COMPRESSED ...
     #define SECP256K1_EC_UNCOMPRESSED ...
 
+    // Proof size constants (from secp256k1_mpt.h)
+    #define SECP256K1_COMPACT_CLAWBACK_PROOF_SIZE ...
+    #define SECP256K1_COMPACT_CONVERTBACK_PROOF_SIZE ...
+    #define SECP256K1_COMPACT_STANDARD_PROOF_SIZE ...
+
     // ========================================================================
     // MPT Utility Layer - High-level wrapper functions
     // (must match XRPLF/mpt-crypto include/utility/mpt_utility.h)
     // ========================================================================
+
+    // Size constants
+    #define kMPT_HALF_SHA_SIZE ...
+    #define kMPT_PUBKEY_SIZE ...
+    #define kMPT_PRIVKEY_SIZE ...
+    #define kMPT_BLINDING_FACTOR_SIZE ...
+    #define kMPT_ELGAMAL_CIPHER_SIZE ...
+    #define kMPT_ELGAMAL_TOTAL_SIZE ...
+    #define kMPT_PEDERSEN_COMMIT_SIZE ...
+    #define kMPT_SCHNORR_PROOF_SIZE ...
+    #define kMPT_SINGLE_BULLETPROOF_SIZE ...
+    #define kMPT_DOUBLE_BULLETPROOF_SIZE ...
+    #define kMPT_ZKP_CONTEXT_HASH_SIZE ...
+    #define kMPT_ACCOUNT_ID_SIZE ...
+    #define kMPT_ISSUANCE_ID_SIZE ...
 
     // Structs
     typedef struct {
@@ -376,17 +396,14 @@ ffibuilder.cdef(
         uint8_t out_hash[32]
     );
 
-    // Size calculation functions
-    size_t get_confidential_send_proof_size(size_t n_recipients);
-
     // Key & Ciphertext Utilities
-    int mpt_make_ec_pair(
+    _Bool mpt_make_ec_pair(
         uint8_t const buffer[66],
         secp256k1_pubkey* out1,
         secp256k1_pubkey* out2
     );
 
-    int mpt_serialize_ec_pair(
+    _Bool mpt_serialize_ec_pair(
         secp256k1_pubkey const* in1,
         secp256k1_pubkey const* in2,
         uint8_t out[66]
@@ -408,7 +425,7 @@ ffibuilder.cdef(
         uint64_t* out_amount
     );
 
-    // Proof Generation
+    // ZKProof Generation
     int mpt_get_convert_proof(
         uint8_t const pubkey[33],
         uint8_t const privkey[32],
@@ -422,30 +439,15 @@ ffibuilder.cdef(
         uint8_t out_commitment[33]
     );
 
-    int mpt_get_amount_linkage_proof(
-        uint8_t const pubkey[33],
-        uint8_t const blinding_factor[32],
-        uint8_t const context_hash[32],
-        mpt_pedersen_proof_params const* params,
-        uint8_t out[195]
-    );
-
-    int mpt_get_balance_linkage_proof(
-        uint8_t const priv[32],
-        uint8_t const pub[33],
-        uint8_t const context_hash[32],
-        mpt_pedersen_proof_params const* params,
-        uint8_t out[195]
-    );
-
     int mpt_get_confidential_send_proof(
         uint8_t const priv[32],
+        uint8_t const pub[33],
         uint64_t amount,
-        mpt_confidential_participant const* recipients,
-        size_t n_recipients,
+        mpt_confidential_participant const* participants,
+        size_t n_participants,
         uint8_t const tx_blinding_factor[32],
         uint8_t const context_hash[32],
-        mpt_pedersen_proof_params const* amount_params,
+        uint8_t const amount_commitment[33],
         mpt_pedersen_proof_params const* balance_params,
         uint8_t* out_proof,
         size_t* out_len
@@ -457,7 +459,7 @@ ffibuilder.cdef(
         uint8_t const context_hash[32],
         uint64_t const amount,
         mpt_pedersen_proof_params const* params,
-        uint8_t out_proof[883]
+        uint8_t* out_proof
     );
 
     int mpt_get_clawback_proof(
@@ -466,10 +468,10 @@ ffibuilder.cdef(
         uint8_t const context_hash[32],
         uint64_t const amount,
         uint8_t const ciphertext[66],
-        uint8_t out_proof[98]
+        uint8_t* out_proof
     );
 
-    // Encryption & Commitment Validation
+    // Non-ZKP Validation
     int mpt_verify_revealed_amount(
         uint64_t const amount,
         uint8_t const blinding_factor[32],
@@ -486,7 +488,7 @@ ffibuilder.cdef(
     );
 
     int mpt_verify_convert_back_proof(
-        uint8_t const proof[883],
+        uint8_t const* proof,
         uint8_t const pubkey[33],
         uint8_t const ciphertext[66],
         uint8_t const balance_commitment[33],
@@ -496,7 +498,6 @@ ffibuilder.cdef(
 
     int mpt_verify_send_proof(
         uint8_t const* proof,
-        size_t const proof_len,
         mpt_confidential_participant const* participants,
         uint8_t const n_participants,
         uint8_t const sender_spending_ciphertext[66],
@@ -506,40 +507,14 @@ ffibuilder.cdef(
     );
 
     int mpt_verify_clawback_proof(
-        uint8_t const proof[98],
+        uint8_t const* proof,
         uint64_t const amount,
         uint8_t const pubkey[33],
         uint8_t const ciphertext[66],
         uint8_t const context_hash[32]
     );
 
-    // Internal verification components
-    int mpt_verify_amount_linkage(
-        secp256k1_context const* ctx,
-        uint8_t const proof[195],
-        uint8_t const ciphertext[66],
-        uint8_t const pubkey[33],
-        uint8_t const commitment[33],
-        uint8_t const context_hash[32]
-    );
-
-    int mpt_verify_balance_linkage(
-        uint8_t const proof[195],
-        uint8_t const ciphertext[66],
-        uint8_t const pubkey[33],
-        uint8_t const commitment[33],
-        uint8_t const context_hash[32]
-    );
-
-    int mpt_verify_equality_proof(
-        secp256k1_context const* ctx,
-        uint8_t const* proof,
-        size_t const proof_len,
-        mpt_confidential_participant const* participants,
-        uint8_t const n_participants,
-        uint8_t const context_hash[32]
-    );
-
+    // Helper functions
     int mpt_compute_convert_back_remainder(
         uint8_t const commitment_in[33],
         uint64_t amount,
@@ -555,10 +530,9 @@ ffibuilder.cdef(
     );
 
     int mpt_verify_send_range_proof(
-        secp256k1_context const* ctx,
         uint8_t const proof[754],
         uint8_t const amount_commitment[33],
-        uint8_t const remainder_commitment[33],
+        uint8_t const balance_commitment[33],
         uint8_t const context_hash[32]
     );
 """
@@ -707,15 +681,13 @@ ffibuilder.set_source(
         uint8_t out_hash[32]
     );
 
-    size_t get_confidential_send_proof_size(size_t n_recipients);
-
-    int mpt_make_ec_pair(
+    bool mpt_make_ec_pair(
         uint8_t const buffer[66],
         secp256k1_pubkey* out1,
         secp256k1_pubkey* out2
     );
 
-    int mpt_serialize_ec_pair(
+    bool mpt_serialize_ec_pair(
         secp256k1_pubkey const* in1,
         secp256k1_pubkey const* in2,
         uint8_t out[66]
@@ -750,30 +722,15 @@ ffibuilder.set_source(
         uint8_t out_commitment[33]
     );
 
-    int mpt_get_amount_linkage_proof(
-        uint8_t const pubkey[33],
-        uint8_t const blinding_factor[32],
-        uint8_t const context_hash[32],
-        mpt_pedersen_proof_params const* params,
-        uint8_t out[195]
-    );
-
-    int mpt_get_balance_linkage_proof(
-        uint8_t const priv[32],
-        uint8_t const pub[33],
-        uint8_t const context_hash[32],
-        mpt_pedersen_proof_params const* params,
-        uint8_t out[195]
-    );
-
     int mpt_get_confidential_send_proof(
         uint8_t const priv[32],
+        uint8_t const pub[33],
         uint64_t amount,
-        mpt_confidential_participant const* recipients,
-        size_t n_recipients,
+        mpt_confidential_participant const* participants,
+        size_t n_participants,
         uint8_t const tx_blinding_factor[32],
         uint8_t const context_hash[32],
-        mpt_pedersen_proof_params const* amount_params,
+        uint8_t const amount_commitment[33],
         mpt_pedersen_proof_params const* balance_params,
         uint8_t* out_proof,
         size_t* out_len
@@ -785,7 +742,7 @@ ffibuilder.set_source(
         uint8_t const context_hash[32],
         uint64_t const amount,
         mpt_pedersen_proof_params const* params,
-        uint8_t out_proof[883]
+        uint8_t* out_proof
     );
 
     int mpt_get_clawback_proof(
@@ -794,7 +751,7 @@ ffibuilder.set_source(
         uint8_t const context_hash[32],
         uint64_t const amount,
         uint8_t const ciphertext[66],
-        uint8_t out_proof[98]
+        uint8_t* out_proof
     );
 
     int mpt_verify_revealed_amount(
@@ -812,7 +769,7 @@ ffibuilder.set_source(
     );
 
     int mpt_verify_convert_back_proof(
-        uint8_t const proof[883],
+        uint8_t const* proof,
         uint8_t const pubkey[33],
         uint8_t const ciphertext[66],
         uint8_t const balance_commitment[33],
@@ -822,7 +779,6 @@ ffibuilder.set_source(
 
     int mpt_verify_send_proof(
         uint8_t const* proof,
-        size_t const proof_len,
         mpt_confidential_participant const* participants,
         uint8_t const n_participants,
         uint8_t const sender_spending_ciphertext[66],
@@ -832,36 +788,10 @@ ffibuilder.set_source(
     );
 
     int mpt_verify_clawback_proof(
-        uint8_t const proof[98],
+        uint8_t const* proof,
         uint64_t const amount,
         uint8_t const pubkey[33],
         uint8_t const ciphertext[66],
-        uint8_t const context_hash[32]
-    );
-
-    int mpt_verify_amount_linkage(
-        secp256k1_context const* ctx,
-        uint8_t const proof[195],
-        uint8_t const ciphertext[66],
-        uint8_t const pubkey[33],
-        uint8_t const commitment[33],
-        uint8_t const context_hash[32]
-    );
-
-    int mpt_verify_balance_linkage(
-        uint8_t const proof[195],
-        uint8_t const ciphertext[66],
-        uint8_t const pubkey[33],
-        uint8_t const commitment[33],
-        uint8_t const context_hash[32]
-    );
-
-    int mpt_verify_equality_proof(
-        secp256k1_context const* ctx,
-        uint8_t const* proof,
-        size_t const proof_len,
-        mpt_confidential_participant const* participants,
-        uint8_t const n_participants,
         uint8_t const context_hash[32]
     );
 
@@ -880,10 +810,9 @@ ffibuilder.set_source(
     );
 
     int mpt_verify_send_range_proof(
-        secp256k1_context const* ctx,
         uint8_t const proof[754],
         uint8_t const amount_commitment[33],
-        uint8_t const remainder_commitment[33],
+        uint8_t const balance_commitment[33],
         uint8_t const context_hash[32]
     );
 

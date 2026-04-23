@@ -113,10 +113,10 @@ class ConfidentialMPTSend(Transaction):
                 "balance_commitment must be 33 bytes (66 hex characters)"
             )
 
-        # Validate zk_proof length (1503 bytes for Send proof)
+        # Validate zk_proof length (946 bytes for Send proof)
         if len(self.zk_proof) != SEND_PROOF_LENGTH:
             errors["zk_proof"] = (
-                "zk_proof must be 1503 bytes (3006 hex characters) for Send proof"
+                "zk_proof must be 946 bytes (1892 hex characters) for Send proof"
             )
 
         return errors

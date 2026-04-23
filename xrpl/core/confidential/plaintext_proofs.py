@@ -12,17 +12,17 @@ PUBKEY_COMPRESSED_SIZE = 33
 CONTEXT_ID_SIZE = 32
 
 
-def create_equality_plaintext_proof(
+def create_clawback_proof(
     ctx,
     pk_compressed: str,
-    c2: str,
     c1: str,
+    c2: str,
     amount: int,
     private_key: str,
     context_id: str,
 ) -> str:
     """
-    Create an equality proof for ConfidentialMPTClawback using the utility layer.
+    Create a compact sigma proof for ConfidentialMPTClawback using the utility layer.
 
     Proves that the issuer knows the private key corresponding to the public key
     and that the encrypted amount matches the plaintext amount.
@@ -30,19 +30,19 @@ def create_equality_plaintext_proof(
     Args:
         ctx: Ignored (kept for backward compatibility). Uses mpt_secp256k1_context().
         pk_compressed: 66-char hex string (33-byte compressed public key)
-        c2: 66-char hex string (33-byte compressed C2 point)
         c1: 66-char hex string (33-byte compressed C1 point)
+        c2: 66-char hex string (33-byte compressed C2 point)
         amount: The plaintext amount
         private_key: 64-char hex string (32-byte private key)
         context_id: 64-char hex string (32-byte transaction context ID)
 
     Returns:
-        196-char hex string (98-byte equality proof)
+        Hex string of compact sigma proof (SECP256K1_COMPACT_CLAWBACK_PROOF_SIZE bytes)
     """
     # Convert hex strings to bytes
     pk_bytes = bytes.fromhex(pk_compressed)
-    c2_bytes = bytes.fromhex(c2)
     c1_bytes = bytes.fromhex(c1)
+    c2_bytes = bytes.fromhex(c2)
     private_key_bytes = bytes.fromhex(private_key)
     context_id_bytes = bytes.fromhex(context_id)
 
@@ -59,7 +59,8 @@ def create_equality_plaintext_proof(
     encrypted_amount = c1_bytes + c2_bytes
 
     # Generate clawback proof using utility layer
-    proof = ffi.new("uint8_t[]", 98)
+    proof_size = lib.SECP256K1_COMPACT_CLAWBACK_PROOF_SIZE
+    proof = ffi.new(f"uint8_t[{proof_size}]")
     result = lib.mpt_get_clawback_proof(
         private_key_bytes,
         pk_bytes,
@@ -71,77 +72,48 @@ def create_equality_plaintext_proof(
     if result != 0:
         raise RuntimeError("Failed to create clawback proof")
 
-    return bytes(proof[0:98]).hex().upper()
+    return bytes(proof[0:proof_size]).hex().upper()
 
 
-def verify_equality_plaintext_proof(
+def verify_clawback_proof(
     ctx,
     proof: str,
-    pk_compressed: str,
-    c2: str,
-    c1: str,
     amount: int,
+    pk_compressed: str,
+    ciphertext: str,
     context_id: str,
 ) -> bool:
     """
-    Verify an equality plaintext proof (for ConfidentialMPTClawback).
-
-    Note: The utility layer doesn't provide a verification function,
-    so this still uses the low-level secp256k1 functions.
+    Verify a ConfidentialMPTClawback proof using the utility layer.
 
     Args:
-        ctx: secp256k1 context (required for verification)
-        proof: 196-char hex string (98-byte proof)
-        pk_compressed: 66-char hex string (33-byte compressed public key)
-        c2: 66-char hex string (33-byte compressed point)
-        c1: 66-char hex string (33-byte compressed point)
+        ctx: Ignored (kept for backward compatibility). Uses mpt_secp256k1_context().
+        proof: Hex string of compact sigma proof
         amount: The amount being clawed back
+        pk_compressed: 66-char hex string (33-byte compressed public key)
+        ciphertext: 132-char hex string (66-byte ciphertext, c1 || c2)
         context_id: 64-char hex string (32-byte context ID)
 
     Returns:
         True if proof is valid, False otherwise
     """
-    # Convert hex strings to bytes
     proof_bytes = bytes.fromhex(proof)
     pk_bytes = bytes.fromhex(pk_compressed)
-    c2_bytes = bytes.fromhex(c2)
-    c1_bytes = bytes.fromhex(c1)
+    ciphertext_bytes = bytes.fromhex(ciphertext)
     context_id_bytes = bytes.fromhex(context_id)
 
-    if len(proof_bytes) != 98:
-        raise ValueError("proof must be 98 bytes")
     if len(pk_bytes) != PUBKEY_COMPRESSED_SIZE:
         raise ValueError(f"pk must be {PUBKEY_COMPRESSED_SIZE} bytes")
-    if len(c2_bytes) != PUBKEY_COMPRESSED_SIZE:
-        raise ValueError(f"c2 must be {PUBKEY_COMPRESSED_SIZE} bytes")
-    if len(c1_bytes) != PUBKEY_COMPRESSED_SIZE:
-        raise ValueError(f"c1 must be {PUBKEY_COMPRESSED_SIZE} bytes")
+    if len(ciphertext_bytes) != 66:
+        raise ValueError("ciphertext must be 66 bytes")
     if len(context_id_bytes) != CONTEXT_ID_SIZE:
         raise ValueError(f"context_id must be {CONTEXT_ID_SIZE} bytes")
 
-    # Parse pk (compressed)
-    pk_pubkey = ffi.new("secp256k1_pubkey *")
-    result = lib.secp256k1_ec_pubkey_parse(ctx, pk_pubkey, pk_bytes, 33)
-    if result != 1:
-        raise RuntimeError("Failed to parse pk")
-
-    # Parse c2, c1
-    c2_pk = ffi.new("secp256k1_pubkey *")
-    c1_pk = ffi.new("secp256k1_pubkey *")
-    result = lib.secp256k1_ec_pubkey_parse(ctx, c2_pk, c2_bytes, 33)
-    if result != 1:
-        raise RuntimeError("Failed to parse c2")
-    result = lib.secp256k1_ec_pubkey_parse(ctx, c1_pk, c1_bytes, 33)
-    if result != 1:
-        raise RuntimeError("Failed to parse c1")
-
-    # Verify proof
-    # The C library expects (pk, c2, c1), as per the C++ reference test
-    result = lib.secp256k1_equality_plaintext_verify(
-        ctx, proof_bytes, pk_pubkey, c2_pk, c1_pk, amount, context_id_bytes
+    result = lib.mpt_verify_clawback_proof(
+        proof_bytes, amount, pk_bytes, ciphertext_bytes, context_id_bytes
     )
 
-    return result == 1
+    return result == 0
 
 
 def create_same_plaintext_proof_multi(  # noqa: PLR0914
