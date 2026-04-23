@@ -314,7 +314,7 @@ ffibuilder.cdef(
     #define SECP256K1_EC_COMPRESSED ...
     #define SECP256K1_EC_UNCOMPRESSED ...
 
-    // Proof size constants (from secp256k1_mpt.h)
+    // Proof size constants (from secp256k1_mpt.h — resolved at compile time)
     #define SECP256K1_COMPACT_CLAWBACK_PROOF_SIZE ...
     #define SECP256K1_COMPACT_CONVERTBACK_PROOF_SIZE ...
     #define SECP256K1_COMPACT_STANDARD_PROOF_SIZE ...
@@ -324,20 +324,20 @@ ffibuilder.cdef(
     // (must match XRPLF/mpt-crypto include/utility/mpt_utility.h)
     // ========================================================================
 
-    // Size constants
-    #define kMPT_HALF_SHA_SIZE ...
-    #define kMPT_PUBKEY_SIZE ...
-    #define kMPT_PRIVKEY_SIZE ...
-    #define kMPT_BLINDING_FACTOR_SIZE ...
-    #define kMPT_ELGAMAL_CIPHER_SIZE ...
-    #define kMPT_ELGAMAL_TOTAL_SIZE ...
-    #define kMPT_PEDERSEN_COMMIT_SIZE ...
-    #define kMPT_SCHNORR_PROOF_SIZE ...
-    #define kMPT_SINGLE_BULLETPROOF_SIZE ...
-    #define kMPT_DOUBLE_BULLETPROOF_SIZE ...
-    #define kMPT_ZKP_CONTEXT_HASH_SIZE ...
-    #define kMPT_ACCOUNT_ID_SIZE ...
-    #define kMPT_ISSUANCE_ID_SIZE ...
+    // Size constants (from mpt_utility.h — mirrored here since the header is C++)
+    #define kMPT_HALF_SHA_SIZE 32
+    #define kMPT_PUBKEY_SIZE 33
+    #define kMPT_PRIVKEY_SIZE 32
+    #define kMPT_BLINDING_FACTOR_SIZE 32
+    #define kMPT_ELGAMAL_CIPHER_SIZE 33
+    #define kMPT_ELGAMAL_TOTAL_SIZE 66
+    #define kMPT_PEDERSEN_COMMIT_SIZE 33
+    #define kMPT_SCHNORR_PROOF_SIZE 64
+    #define kMPT_SINGLE_BULLETPROOF_SIZE 688
+    #define kMPT_DOUBLE_BULLETPROOF_SIZE 754
+    #define kMPT_ZKP_CONTEXT_HASH_SIZE 74
+    #define kMPT_ACCOUNT_ID_SIZE 20
+    #define kMPT_ISSUANCE_ID_SIZE 24
 
     // Structs
     typedef struct {
@@ -620,6 +620,21 @@ ffibuilder.set_source(
 
     #include <secp256k1.h>
     #include <secp256k1_mpt.h>
+
+    // Size constants from mpt_utility.h (C++ header, cannot #include directly)
+    #define kMPT_HALF_SHA_SIZE 32
+    #define kMPT_PUBKEY_SIZE 33
+    #define kMPT_PRIVKEY_SIZE 32
+    #define kMPT_BLINDING_FACTOR_SIZE 32
+    #define kMPT_ELGAMAL_CIPHER_SIZE 33
+    #define kMPT_ELGAMAL_TOTAL_SIZE 66
+    #define kMPT_PEDERSEN_COMMIT_SIZE 33
+    #define kMPT_SCHNORR_PROOF_SIZE 64
+    #define kMPT_SINGLE_BULLETPROOF_SIZE 688
+    #define kMPT_DOUBLE_BULLETPROOF_SIZE 754
+    #define kMPT_ZKP_CONTEXT_HASH_SIZE 74
+    #define kMPT_ACCOUNT_ID_SIZE 20
+    #define kMPT_ISSUANCE_ID_SIZE 24
 
     // Forward declare utility layer functions (avoid including C++ header)
     #ifdef __cplusplus
