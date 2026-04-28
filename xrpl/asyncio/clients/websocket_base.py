@@ -141,7 +141,10 @@ class WebsocketBase(Client):
             except json.JSONDecodeError:
                 # Issue #977: a single malformed frame must not kill the
                 # handler task and leave the client deaf to every frame
-                # that follows.
+                # that follows. Surface the dropped frame so the failure is
+                # not silent.
+                # TODO: Introduce a module-level logging system across xrpl-py library
+                print(f"xrpl-py: skipping malformed WebSocket frame: {response!r}")
                 continue
 
             # if this response corresponds to request, fulfill the Future

@@ -2,22 +2,13 @@
 the WebSocket handler task."""
 
 import asyncio
+import io
 import json
+from contextlib import redirect_stdout
 from typing import List
 from unittest import IsolatedAsyncioTestCase
 
-from xrpl.asyncio.clients.websocket_base import WebsocketBase
-
-
-class _ConcreteWebsocketBase(WebsocketBase):
-    """Concrete subclass only needed because WebsocketBase is abstract
-    (it declares _request_impl). The handler logic under test lives
-    entirely in the parent; we never invoke this method."""
-
-    async def _request_impl(  # type: ignore[no-untyped-def]
-        self, request, timeout=None
-    ):
-        raise NotImplementedError
+from xrpl.asyncio.clients.async_websocket_client import AsyncWebsocketClient
 
 
 class _FakeWebSocket:
@@ -51,7 +42,7 @@ class TestHandlerMalformedJson(IsolatedAsyncioTestCase):
             json.dumps({"id": "req_2", "result": "ok"}).encode(),
         ]
 
-        ws = _ConcreteWebsocketBase("ws://test")
+        ws = AsyncWebsocketClient("ws://test")
         ws._websocket = _FakeWebSocket(frames)  # type: ignore[assignment]
         ws._messages = asyncio.Queue()
         ws._open_requests = {}
@@ -67,3 +58,30 @@ class TestHandlerMalformedJson(IsolatedAsyncioTestCase):
         self.assertEqual(len(enqueued), 2)
         self.assertEqual(enqueued[0], {"id": "req_1", "result": "ok"})
         self.assertEqual(enqueued[1], {"id": "req_2", "result": "ok"})
+
+    async def test_handler_prints_malformed_frame(self) -> None:
+        """The skipped frame must be surfaced on stdout so the failure is
+        not silent."""
+        bad_frame = b"{ this is not valid json"
+        frames = [
+            json.dumps({"id": "req_1", "result": "ok"}).encode(),
+            bad_frame,
+            json.dumps({"id": "req_2", "result": "ok"}).encode(),
+        ]
+
+        ws = AsyncWebsocketClient("ws://test")
+        ws._websocket = _FakeWebSocket(frames)  # type: ignore[assignment]
+        ws._messages = asyncio.Queue()
+        ws._open_requests = {}
+
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            await ws._handler()
+        output = buf.getvalue()
+
+        # The malformed frame's repr must appear in stdout, and the two
+        # valid frames must not (only the bad one is logged).
+        self.assertIn(repr(bad_frame), output)
+        self.assertIn("malformed", output.lower())
+        self.assertNotIn("req_1", output)
+        self.assertNotIn("req_2", output)
