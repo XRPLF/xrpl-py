@@ -1,32 +1,39 @@
 # ──────────────────────────────────────────────────────────────────────────────
-# Build MPT Crypto Libraries
+# Download MPT Crypto Libraries
 #
-# Builds the mpt-crypto C library as a self-contained shared library for each
-# supported platform. Dependencies (secp256k1, OpenSSL) are statically linked
-# INTO the shared library so the resulting binaries are self-contained and can
-# be loaded directly at runtime without requiring system-level installs.
+# Downloads pre-built mpt-crypto shared libraries from an XRPLF/mpt-crypto
+# GitHub release and re-uploads them as per-platform workflow artifacts for
+# consumption by build_wheels_confidential.yml.
 #
-# This approach (shared lib with static deps) produces much smaller binaries
-# compared to shipping separate static archives, because the linker performs
-# dead-code elimination and only includes symbols actually referenced by
-# mpt-crypto.
+# The mpt-crypto project builds and publishes self-contained shared libraries
+# (.dylib/.so/.dll) with secp256k1 and OpenSSL statically linked in.
+# See: https://github.com/XRPLF/mpt-crypto
 #
-# Output artifacts:
-#   mpt-crypto-linux-x86_64    → libmpt-crypto.so    (~2-4 MB)
-#   mpt-crypto-darwin-arm64    → libmpt-crypto.dylib  (~2-4 MB)
-#   mpt-crypto-darwin-x86_64   → libmpt-crypto.dylib  (~2-4 MB)
-#   mpt-crypto-win32-x86_64    → mpt-crypto.dll       (~3-5 MB)
+# Output artifacts (same interface as before):
+#   mpt-crypto-linux-x86_64    → libmpt-crypto.so
+#   mpt-crypto-darwin-arm64    → libmpt-crypto.dylib
+#   mpt-crypto-darwin-x86_64   → libmpt-crypto.dylib
+#   mpt-crypto-win32-x86_64    → mpt-crypto.dll
+#   mpt-crypto-headers         → secp256k1_mpt.h, utility/mpt_utility.h
 # ──────────────────────────────────────────────────────────────────────────────
 name: Build MPT Crypto Libraries
 on:
   workflow_call:
     inputs:
+      mpt_crypto_version:
+        description: "mpt-crypto release tag (e.g. 0.3.0-rc2). Defaults to latest."
+        required: false
+        type: string
       git_ref:
         description: "Git ref to checkout (branch, tag, or SHA)"
         required: false
         type: string
   workflow_dispatch:
     inputs:
+      mpt_crypto_version:
+        description: "mpt-crypto release tag (e.g. 0.3.0-rc2). Leave empty for latest."
+        required: false
+        type: string
       git_ref:
         description: "Git ref to checkout (branch, tag, or SHA)"
         required: false
@@ -37,319 +44,108 @@ on:
     paths:
       - ".github/workflows/build_mpt_crypto_libs.yml"
 
+env:
+  MPT_CRYPTO_REPO: XRPLF/mpt-crypto
+
 jobs:
-  build:
-    name: Build ${{ matrix.platform }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # ── Linux x86_64 ──
-          - os: ubuntu-22.04
-            platform: linux-x86_64
-            lib_subdir: linux
-            lib_filename: libmpt-crypto.so
-            cmake_lib_filename: libmpt-crypto.so
-            conan_extra_args: ""
-
-          # ── macOS ARM64 (Apple Silicon) ──
-          - os: macos-14
-            platform: darwin-arm64
-            lib_subdir: darwin
-            lib_filename: libmpt-crypto.dylib
-            cmake_lib_filename: libmpt-crypto.dylib
-            conan_extra_args: "-s arch=armv8"
-
-          # ── macOS x86_64 (Intel) ──
-          - os: macos-15-intel
-            platform: darwin-x86_64
-            lib_subdir: darwin
-            lib_filename: libmpt-crypto.dylib
-            cmake_lib_filename: libmpt-crypto.dylib
-            conan_extra_args: "-s arch=x86_64"
-
-          # ── Windows x86_64 ──
-          - os: windows-2022
-            platform: win32-x86_64
-            lib_subdir: win32
-            lib_filename: mpt-crypto.dll
-            cmake_lib_filename: mpt-crypto.dll
-            conan_extra_args: ""
-
-    runs-on: ${{ matrix.os }}
-
+  download:
+    name: Download mpt-crypto natives
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.git_ref || github.ref }}
 
-      # ── Clone mpt-crypto source ──
-      - name: Clone mpt-crypto
-        shell: bash
+      # ── Resolve the release tag ──
+      - name: Resolve mpt-crypto version
+        id: resolve
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git clone https://github.com/XRPLF/mpt-crypto.git /tmp/mpt-crypto
-          echo "==> Checked out mpt-crypto at:"
-          cd /tmp/mpt-crypto && git log --oneline -1
-
-      # ── Copy header files (needed for CFFI cdef) ──
-      - name: Copy header files
-        shell: bash
-        run: |
-          mkdir -p xrpl/core/confidential/include/utility
-          cp /tmp/mpt-crypto/include/secp256k1_mpt.h xrpl/core/confidential/include/
-          cp /tmp/mpt-crypto/include/utility/mpt_utility.h xrpl/core/confidential/include/utility/
-
-      # ── Set up build tools ──
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install Conan and Ninja
-        run: pip install "conan>=2.0.0" ninja
-
-      - name: Install system dependencies (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake build-essential
-
-      - name: Install system dependencies (macOS)
-        if: runner.os == 'macOS'
-        run: brew install cmake
-
-      - name: Set up MSVC environment
-        if: runner.os == 'Windows'
-        uses: ilammy/msvc-dev-cmd@v1
-
-      # ── Configure Conan ──
-      - name: Configure Conan
-        shell: bash
-        run: |
-          conan profile detect --force
-          echo "==> Detected Conan profile:"
-          conan profile show
-          conan remote add --index 0 xrplf https://conan.ripplex.io || true
-
-      # ── Patch mpt_utility.cpp for Windows ──
-      - name: Patch mpt_utility.cpp for Windows
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $utilityFile = "/tmp/mpt-crypto/src/utility/mpt_utility.cpp"
-          # On Windows the path is different
-          $utilityFile = "C:\mpt-crypto-patched\src\utility\mpt_utility.cpp"
-          # Re-clone for Windows since /tmp doesn't exist
-          if (Test-Path "C:\mpt-crypto-patched") { Remove-Item -Recurse -Force "C:\mpt-crypto-patched" }
-          Copy-Item -Recurse "/tmp/mpt-crypto" "C:\mpt-crypto-patched" -ErrorAction SilentlyContinue
-          if (-not (Test-Path "C:\mpt-crypto-patched")) {
-            git clone https://github.com/XRPLF/mpt-crypto.git C:\mpt-crypto-patched
-          }
-          $utilityFile = "C:\mpt-crypto-patched\src\utility\mpt_utility.cpp"
-          $lines = Get-Content $utilityFile
-          $newLines = @()
-          foreach ($line in $lines) {
-            if ($line -match '#include <arpa/inet\.h>') {
-              $newLines += '#ifdef _WIN32'
-              $newLines += '#include <winsock2.h>'
-              $newLines += '#else'
-              $newLines += '#include <arpa/inet.h>'
-              $newLines += '#endif'
-            } else {
-              $newLines += $line
-            }
-          }
-          $newLines | Set-Content $utilityFile
-
-      # ── Install dependencies via Conan ──
-      #
-      # Key flags (matching Java workflow approach):
-      #   -o "&:shared=True"             → Build mpt-crypto as a SHARED library
-      #   -o "&:tests=False"             → Skip building test executables
-      #   -o "secp256k1/*:shared=False"  → Static secp256k1, linked INTO the shared lib
-      #   -o "openssl/*:shared=False"    → Static OpenSSL, linked INTO the shared lib
-      #   -o "*/fPIC=True"               → Position Independent Code for static deps
-      #   -b missing                     → Build deps from source if no pre-built binary
-      - name: Install dependencies (Unix)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          cd /tmp/mpt-crypto
-          conan install . \
-            -of build \
-            -b missing \
-            -s build_type=Release \
-            -o "&:shared=True" \
-            -o "&:tests=False" \
-            -o "secp256k1/*:shared=False" \
-            -o "secp256k1/*:fPIC=True" \
-            -o "openssl/*:shared=False" \
-            -o "openssl/*:fPIC=True" \
-            ${{ matrix.conan_extra_args }}
-
-      - name: Install dependencies (Windows)
-        if: runner.os == 'Windows'
-        shell: bash
-        run: |
-          cd C:/mpt-crypto-patched
-          conan install . \
-            -of build \
-            -b missing \
-            -s build_type=Release \
-            -o "&:shared=True" \
-            -o "&:tests=False" \
-            -o "secp256k1/*:shared=False" \
-            -o "openssl/*:shared=False"
-
-      # ── Configure CMake ──
-      - name: Configure CMake (Unix)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          cd /tmp/mpt-crypto
-          TOOLCHAIN=$(find build -name "conan_toolchain.cmake" -print -quit)
-          if [ -z "${TOOLCHAIN}" ]; then
-            echo "ERROR: Could not find conan_toolchain.cmake under build/"
-            find build -type f -name "*.cmake" | head -20
-            exit 1
-          fi
-          echo "==> Using toolchain: ${TOOLCHAIN}"
-
-          CMAKE_EXTRA_ARGS=""
-          if [ "$RUNNER_OS" == "macOS" ]; then
-            ARCH=$(uname -m)
-            if [ "$ARCH" == "arm64" ]; then
-              CMAKE_EXTRA_ARGS="-DCMAKE_OSX_ARCHITECTURES=arm64"
-            else
-              CMAKE_EXTRA_ARGS="-DCMAKE_OSX_ARCHITECTURES=x86_64"
-            fi
-          fi
-
-          cmake -B build -S . \
-            -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}" \
-            -DCMAKE_BUILD_TYPE=Release \
-            $CMAKE_EXTRA_ARGS
-
-      - name: Configure CMake (Windows)
-        if: runner.os == 'Windows'
-        shell: bash
-        run: |
-          cd C:/mpt-crypto-patched
-          TOOLCHAIN=$(find build -name "conan_toolchain.cmake" -print -quit)
-          if [ -z "${TOOLCHAIN}" ]; then
-            echo "ERROR: Could not find conan_toolchain.cmake under build/"
-            find build -type f -name "*.cmake" | head -20
-            exit 1
-          fi
-          echo "==> Using toolchain: ${TOOLCHAIN}"
-
-          cmake -B build -S . \
-            -G "Visual Studio 17 2022" \
-            -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}" \
-            -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON
-
-      # ── Build ──
-      - name: Build shared library (Unix)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          cd /tmp/mpt-crypto
-          cmake --build build --config Release
-
-      - name: Build shared library (Windows)
-        if: runner.os == 'Windows'
-        shell: bash
-        run: |
-          cd C:/mpt-crypto-patched
-          cmake --build build --config Release
-
-      # ── Package ──
-      - name: Package library
-        shell: bash
-        run: |
-          mkdir -p output/${{ matrix.lib_subdir }}
-
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            BUILD_DIR="C:/mpt-crypto-patched/build"
+          if [ -n "${{ inputs.mpt_crypto_version }}" ]; then
+            TAG="${{ inputs.mpt_crypto_version }}"
           else
-            BUILD_DIR="/tmp/mpt-crypto/build"
+            TAG=$(gh release list --repo "$MPT_CRYPTO_REPO" --limit 1 \
+                  --json tagName --jq '.[0].tagName')
           fi
+          echo "version=$TAG" >> "$GITHUB_OUTPUT"
+          echo "==> Using mpt-crypto release: $TAG"
 
-          BUILT_LIB=$(find "$BUILD_DIR" -maxdepth 3 -name "${{ matrix.cmake_lib_filename }}" -print -quit)
-
-          if [ -z "${BUILT_LIB}" ]; then
-            echo "ERROR: Could not find ${{ matrix.cmake_lib_filename }} in build/"
-            echo "Build directory contents:"
-            find "$BUILD_DIR" -type f \( -name "*.dylib" -o -name "*.so" -o -name "*.dll" -o -name "*.lib" \) 2>/dev/null
-            exit 1
-          fi
-
-          echo "==> Found: ${BUILT_LIB}"
-          cp "${BUILT_LIB}" "output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }}"
-
-          # On Windows, also copy the import library if it exists
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            IMPORT_LIB=$(find "$BUILD_DIR" -maxdepth 3 -name "mpt-crypto.lib" -print -quit)
-            if [ -n "${IMPORT_LIB}" ]; then
-              cp "${IMPORT_LIB}" "output/${{ matrix.lib_subdir }}/"
-              echo "==> Copied import lib: ${IMPORT_LIB}"
-            fi
-          fi
-
-          echo "==> Packaged: output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }}"
-          ls -lh "output/${{ matrix.lib_subdir }}/"
-
-      # ── Verify ──
-      - name: Verify library (macOS)
-        if: startsWith(matrix.platform, 'darwin')
+      # ── Download the combined natives tarball ──
+      - name: Download release tarball
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "==> File size:"
-          ls -lh output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }}
-          echo ""
-          echo "==> Linked libraries (should only show system libs):"
-          otool -L output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }}
-          echo ""
-          echo "==> Architecture:"
-          file output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }}
+          TAG="${{ steps.resolve.outputs.version }}"
+          echo "==> Downloading mpt-crypto-natives-${TAG}.tar.gz"
+          gh release download "$TAG" \
+            --repo "$MPT_CRYPTO_REPO" \
+            --pattern "mpt-crypto-natives-*.tar.gz" \
+            --dir /tmp/download
+          ls -lh /tmp/download/
 
-      - name: Verify library (Linux)
-        if: startsWith(matrix.platform, 'linux')
+      # ── Extract ──
+      - name: Extract tarball
         run: |
-          echo "==> File size:"
-          ls -lh output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }}
-          echo ""
-          echo "==> Linked libraries (should only show system libs):"
-          ldd output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }} || true
-          echo ""
-          echo "==> Architecture:"
-          file output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }}
+          mkdir -p /tmp/natives
+          tar xzf /tmp/download/mpt-crypto-natives-*.tar.gz -C /tmp/natives
+          echo "==> Extracted contents:"
+          find /tmp/natives -type f | sort
 
-      - name: Verify library (Windows)
-        if: startsWith(matrix.platform, 'win32')
-        shell: bash
+      # ── Re-upload as per-platform artifacts ──
+      # This preserves the artifact interface expected by build_wheels_confidential.yml
+
+      - name: Stage linux-x86_64
         run: |
-          echo "==> File info:"
-          ls -lh output/${{ matrix.lib_subdir }}/
-          file output/${{ matrix.lib_subdir }}/${{ matrix.lib_filename }}
-
-      # ── Upload artifacts ──
-      - name: Upload shared library
-        uses: actions/upload-artifact@v4
+          mkdir -p output/linux
+          cp /tmp/natives/linux-x86-64/libmpt-crypto.so output/linux/
+      - uses: actions/upload-artifact@v4
         with:
-          name: mpt-crypto-${{ matrix.platform }}
-          path: output/${{ matrix.lib_subdir }}/
+          name: mpt-crypto-linux-x86_64
+          path: output/linux/
           if-no-files-found: error
 
-      - name: Upload headers
-        # Only upload headers once (from the Linux build)
-        if: matrix.platform == 'linux-x86_64'
-        uses: actions/upload-artifact@v4
+      - name: Stage darwin-arm64
+        run: |
+          mkdir -p output/darwin-arm64
+          cp /tmp/natives/darwin-aarch64/libmpt-crypto.dylib output/darwin-arm64/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mpt-crypto-darwin-arm64
+          path: output/darwin-arm64/
+          if-no-files-found: error
+
+      - name: Stage darwin-x86_64
+        run: |
+          mkdir -p output/darwin-x86_64
+          cp /tmp/natives/darwin-x86-64/libmpt-crypto.dylib output/darwin-x86_64/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mpt-crypto-darwin-x86_64
+          path: output/darwin-x86_64/
+          if-no-files-found: error
+
+      - name: Stage win32-x86_64
+        run: |
+          mkdir -p output/win32
+          cp /tmp/natives/win32-x86-64/mpt-crypto.dll output/win32/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mpt-crypto-win32-x86_64
+          path: output/win32/
+          if-no-files-found: error
+
+      - name: Stage headers
+        run: |
+          mkdir -p output/include/utility
+          cp /tmp/natives/include/secp256k1_mpt.h output/include/
+          cp /tmp/natives/include/utility/mpt_utility.h output/include/utility/
+      - uses: actions/upload-artifact@v4
         with:
           name: mpt-crypto-headers
-          path: |
-            xrpl/core/confidential/include/*.h
-            xrpl/core/confidential/include/utility/*.h
+          path: output/include/
           if-no-files-found: error
 
   # ──────────────────────────────────────────────────────────────────────────
@@ -357,7 +153,7 @@ jobs:
   # ──────────────────────────────────────────────────────────────────────────
   test_libraries:
     name: Test on ${{ matrix.os }} (Python ${{ matrix.python-version }})
-    needs: [build]
+    needs: [download]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -416,7 +212,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: mpt-crypto-headers
-          path: xrpl/core/confidential/
+          path: xrpl/core/confidential/include
 
       - name: Verify downloaded files
         shell: bash

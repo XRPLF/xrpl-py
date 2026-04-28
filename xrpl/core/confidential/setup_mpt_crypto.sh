@@ -6,9 +6,10 @@
 # secp256k1 and OpenSSL statically linked in.
 #
 # Usage:
-#   ./xrpl/core/confidential/setup_mpt_crypto.sh download             # from latest release
-#   ./xrpl/core/confidential/setup_mpt_crypto.sh download --run ID    # from workflow run
-#   ./xrpl/core/confidential/setup_mpt_crypto.sh build                # build locally
+#   ./xrpl/core/confidential/setup_mpt_crypto.sh download                    # from latest release
+#   ./xrpl/core/confidential/setup_mpt_crypto.sh download --version 0.3.0-rc2  # specific release
+#   ./xrpl/core/confidential/setup_mpt_crypto.sh download --run ID           # from workflow run
+#   ./xrpl/core/confidential/setup_mpt_crypto.sh build                       # build locally
 #
 # If no argument is provided, it will prompt you to choose.
 
@@ -77,6 +78,7 @@ clean_stale_artifacts() {
 # ──────────────────────────────────────────────────────────────────────────
 download_from_mpt_crypto() {
     local RUN_ID="$1"
+    local VERSION="$2"
 
     echo ""
     echo "=== Downloading pre-built binaries from $MPT_CRYPTO_REPO ==="
@@ -117,44 +119,27 @@ download_from_mpt_crypto() {
 
         TARBALL="$TEMP_DIR/mpt-crypto-natives.tar.gz"
     else
-        # ── Download from the latest release ──
-        echo "Looking for latest release with native binaries..."
-
-        # Find the latest release that has a natives tarball attached
-        TARBALL_NAME=$(gh release list --repo "$MPT_CRYPTO_REPO" --limit 10 --json tagName,assets \
-            --jq '.[].tagName' | while read -r tag; do
-            ASSET=$(gh release view "$tag" --repo "$MPT_CRYPTO_REPO" --json assets \
-                --jq '.assets[].name' 2>/dev/null | grep "mpt-crypto-natives" | head -1)
-            if [ -n "$ASSET" ]; then
-                echo "$tag:$ASSET"
-                break
-            fi
-        done)
-
-        if [ -z "$TARBALL_NAME" ]; then
-            echo ""
-            echo "No release with native binaries found."
-            echo "To download from a specific CI run instead, use:"
-            echo "  $0 download --run <RUN_ID>"
-            echo ""
-            echo "Find run IDs at:"
-            echo "  https://github.com/$MPT_CRYPTO_REPO/actions/workflows/build-shared-libs.yml"
-            exit 1
+        # ── Download from a release ──
+        if [ -n "$VERSION" ]; then
+            TAG="$VERSION"
+            echo "Downloading release: $TAG"
+        else
+            TAG=$(gh release list --repo "$MPT_CRYPTO_REPO" --limit 1 \
+                  | head -1 | awk '{print $1}')
+            echo "Latest release: $TAG"
         fi
-
-        TAG="${TARBALL_NAME%%:*}"
-        ASSET="${TARBALL_NAME##*:}"
-        echo "Found release: $TAG (asset: $ASSET)"
 
         gh release download "$TAG" \
             --repo "$MPT_CRYPTO_REPO" \
-            --pattern "$ASSET" \
+            --pattern "mpt-crypto-natives-*.tar.gz" \
             --dir "$TEMP_DIR" || {
+            echo ""
             echo "ERROR: Failed to download from release $TAG."
+            echo "Check: https://github.com/$MPT_CRYPTO_REPO/releases"
             exit 1
         }
 
-        TARBALL="$TEMP_DIR/$ASSET"
+        TARBALL=$(find "$TEMP_DIR" -name "mpt-crypto-natives-*.tar.gz" -print -quit)
     fi
 
     # ── Extract and install ──
@@ -341,26 +326,31 @@ else
         download)
             shift
             RUN_ID=""
+            VERSION=""
             while [ $# -gt 0 ]; do
                 case "$1" in
                     --run)
                         RUN_ID="$2"
                         shift 2
                         ;;
+                    --version)
+                        VERSION="$2"
+                        shift 2
+                        ;;
                     *)
                         echo "Unknown option: $1"
-                        echo "Usage: $0 download [--run RUN_ID]"
+                        echo "Usage: $0 download [--version TAG | --run RUN_ID]"
                         exit 1
                         ;;
                 esac
             done
-            download_from_mpt_crypto "$RUN_ID"
+            download_from_mpt_crypto "$RUN_ID" "$VERSION"
             ;;
         build)
             build_locally
             ;;
         *)
-            echo "Usage: $0 [download [--run RUN_ID] | build]"
+            echo "Usage: $0 [download [--version TAG | --run RUN_ID] | build]"
             exit 1
             ;;
     esac

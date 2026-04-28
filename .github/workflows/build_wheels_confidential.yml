@@ -7,6 +7,10 @@ on:
         description: "Git ref to checkout (branch, tag, or SHA)"
         required: true
         type: string
+      mpt_crypto_version:
+        description: "mpt-crypto release tag (e.g. 0.3.0-rc2). Defaults to latest."
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       git_ref:
@@ -14,12 +18,19 @@ on:
         required: false
         type: string
         default: "confidential-mpt"
+      mpt_crypto_version:
+        description: "mpt-crypto release tag (e.g. 0.3.0-rc2). Leave empty for latest."
+        required: false
+        type: string
   push:
     branches:
       - confidential-mpt
     paths:
       - ".github/workflows/build_wheels_confidential.yml"
       - "xrpl/core/confidential/build_mpt_crypto.py"
+
+env:
+  MPT_CRYPTO_REPO: XRPLF/mpt-crypto
 
 jobs:
   build-wheels:
@@ -43,79 +54,78 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Determine artifact name
-        id: artifact-name
+      # ── Resolve mpt-crypto release tag ──
+      - name: Resolve mpt-crypto version
+        id: resolve
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            echo "name=mpt-crypto-linux-x86_64" >> "$GITHUB_OUTPUT"
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            ARCH=$(uname -m)
-            if [ "$ARCH" == "arm64" ]; then
-              echo "name=mpt-crypto-darwin-arm64" >> "$GITHUB_OUTPUT"
-            else
-              echo "name=mpt-crypto-darwin-x86_64" >> "$GITHUB_OUTPUT"
-            fi
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            echo "name=mpt-crypto-win32-x86_64" >> "$GITHUB_OUTPUT"
+          if [ -n "${{ inputs.mpt_crypto_version }}" ]; then
+            TAG="${{ inputs.mpt_crypto_version }}"
+          else
+            TAG=$(gh release list --repo "$MPT_CRYPTO_REPO" --limit 1 \
+                  --json tagName --jq '.[0].tagName')
           fi
+          echo "version=$TAG" >> "$GITHUB_OUTPUT"
+          echo "==> Using mpt-crypto release: $TAG"
 
-      # Download the shared library artifact for this platform
-      - name: Download shared library
-        id: download-libs
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ steps.artifact-name.outputs.name }}
-          path: artifacts/libs
-
-      # Download headers (only built once, from Linux)
-      - name: Download headers
-        id: download-headers
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: mpt-crypto-headers
-          path: artifacts/headers
-
-      - name: Check download status
-        if: steps.download-libs.outcome == 'failure'
+      # ── Download from mpt-crypto release ──
+      - name: Download mpt-crypto natives
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "::warning::Failed to download mpt-crypto shared library. This is expected if running standalone."
-          echo "Wheel will be built without native libraries (pure Python fallback)."
+          TAG="${{ steps.resolve.outputs.version }}"
+          gh release download "$TAG" \
+            --repo "$MPT_CRYPTO_REPO" \
+            --pattern "mpt-crypto-natives-*.tar.gz" \
+            --dir /tmp/download
 
-      - name: Copy shared library and headers
+          mkdir -p /tmp/natives
+          tar xzf /tmp/download/mpt-crypto-natives-*.tar.gz -C /tmp/natives
+          echo "==> Extracted mpt-crypto natives ($TAG):"
+          find /tmp/natives -type f | sort
+
+      # ── Map bundle directories to xrpl-py layout ──
+      # Bundle uses: darwin-aarch64/, linux-x86-64/, win32-x86-64/
+      # xrpl-py uses: libs/darwin/, libs/linux/, libs/win32/
+      - name: Install native library and headers
         shell: bash
         run: |
           LIB_SUBDIR=""
-          if [ "$RUNNER_OS" == "Linux" ]; then LIB_SUBDIR="linux"; fi
-          if [ "$RUNNER_OS" == "macOS" ]; then LIB_SUBDIR="darwin"; fi
-          if [ "$RUNNER_OS" == "Windows" ]; then LIB_SUBDIR="win32"; fi
+          BUNDLE_SUBDIR=""
 
-          mkdir -p "xrpl/core/confidential/libs/$LIB_SUBDIR"
-          mkdir -p xrpl/core/confidential/include/utility
-
-          # Copy shared library (flatten any nested paths)
-          echo "=== Copying shared library ==="
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            find artifacts/libs -name "*.dll" -exec cp {} "xrpl/core/confidential/libs/$LIB_SUBDIR/" \; 2>/dev/null || true
-            find artifacts/libs -name "*.lib" -exec cp {} "xrpl/core/confidential/libs/$LIB_SUBDIR/" \; 2>/dev/null || true
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            LIB_SUBDIR="linux"
+            BUNDLE_SUBDIR="linux-x86-64"
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            find artifacts/libs -name "*.dylib" -exec cp {} "xrpl/core/confidential/libs/$LIB_SUBDIR/" \; 2>/dev/null || true
-          else
-            find artifacts/libs -name "*.so" -exec cp {} "xrpl/core/confidential/libs/$LIB_SUBDIR/" \; 2>/dev/null || true
+            LIB_SUBDIR="darwin"
+            ARCH=$(uname -m)
+            if [ "$ARCH" == "arm64" ]; then
+              BUNDLE_SUBDIR="darwin-aarch64"
+            else
+              BUNDLE_SUBDIR="darwin-x86-64"
+            fi
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            LIB_SUBDIR="win32"
+            BUNDLE_SUBDIR="win32-x86-64"
           fi
 
+          # Copy shared library
+          mkdir -p "xrpl/core/confidential/libs/$LIB_SUBDIR"
+          cp /tmp/natives/$BUNDLE_SUBDIR/* "xrpl/core/confidential/libs/$LIB_SUBDIR/"
+
           # Copy headers
-          echo "=== Copying headers ==="
-          find artifacts/headers -name "secp256k1_mpt.h" -exec cp {} xrpl/core/confidential/include/ \; 2>/dev/null || true
-          find artifacts/headers -name "secp256k1.h" -exec cp {} xrpl/core/confidential/include/ \; 2>/dev/null || true
-          find artifacts/headers -name "mpt_utility.h" -exec cp {} xrpl/core/confidential/include/utility/ \; 2>/dev/null || true
+          mkdir -p xrpl/core/confidential/include/utility
+          cp /tmp/natives/include/secp256k1_mpt.h xrpl/core/confidential/include/
+          cp /tmp/natives/include/utility/mpt_utility.h xrpl/core/confidential/include/utility/
 
           echo "=== Shared library ==="
-          ls -lh "xrpl/core/confidential/libs/$LIB_SUBDIR/" 2>/dev/null || echo "No library found"
+          ls -lh "xrpl/core/confidential/libs/$LIB_SUBDIR/"
           echo "=== Headers ==="
-          ls -lh xrpl/core/confidential/include/ 2>/dev/null || echo "No headers found"
+          ls -lh xrpl/core/confidential/include/
+          ls -lh xrpl/core/confidential/include/utility/
 
       - name: Install Poetry
         run: |
@@ -140,15 +150,8 @@ jobs:
             fi
             echo "Building for macOS $ARCH"
           fi
-          # Only build if shared library exists
-          if ls libs/*/*.so libs/*/*.dylib libs/*/*.dll 2>/dev/null; then
-            poetry run python build_mpt_crypto.py
-            echo "CFFI extension built successfully"
-            echo "CFFI_BUILT=true" >> $GITHUB_ENV
-          else
-            echo "No shared library found, skipping CFFI build (pure Python wheel)"
-            echo "CFFI_BUILT=false" >> $GITHUB_ENV
-          fi
+          poetry run python build_mpt_crypto.py
+          echo "CFFI extension built successfully"
 
       - name: Build wheel with Poetry
         run: poetry build -f wheel
@@ -156,14 +159,11 @@ jobs:
       - name: Retag wheel with platform tag
         shell: bash
         run: |
-          # Get Python version info
           PY_VERSION=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
 
-          # Determine platform tag
           if [ "$RUNNER_OS" == "Linux" ]; then
             PLATFORM="manylinux_2_17_x86_64.manylinux2014_x86_64"
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            # Detect architecture for macOS
             ARCH=$(uname -m)
             if [ "$ARCH" == "arm64" ]; then
               PLATFORM="macosx_11_0_arm64"
@@ -176,18 +176,12 @@ jobs:
 
           echo "Platform tag: $PLATFORM"
 
-          # Retag the wheel
           cd dist
           for whl in *-py3-none-any.whl; do
             echo "Original wheel: $whl"
-
-            # Use wheel tags command to properly retag (creates new file)
             python -m wheel tags --python-tag="${PY_VERSION}" --abi-tag="${PY_VERSION}" --platform-tag="${PLATFORM}" "$whl"
-
-            # Delete the original py3-none-any wheel to avoid conflicts
             echo "Removing original: $whl"
             rm "$whl"
-
             echo "Remaining wheels:"
             ls -la *.whl
           done
