@@ -140,7 +140,7 @@ def main():
         flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK
         | MPTokenIssuanceCreateFlag.TF_MPT_CAN_CLAWBACK
         | MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER
-        | MPTokenIssuanceCreateFlag.TF_MPT_CAN_PRIVACY,
+        | MPTokenIssuanceCreateFlag.TF_MPT_CAN_CONFIDENTIAL_AMOUNT,
         maximum_amount="1000000000000",
         asset_scale=2,
     )
@@ -161,7 +161,7 @@ def main():
     set_issuer_pk_tx = MPTokenIssuanceSet(
         account=issuer_wallet.address,
         mptoken_issuance_id=mpt_issuance_id,
-        issuer_elgamal_public_key=issuer_pk,
+        issuer_encryption_key=issuer_pk,
     )
 
     response = sign_and_submit(set_issuer_pk_tx, client, issuer_wallet)

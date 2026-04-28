@@ -13,7 +13,7 @@ from xrpl.models.transactions.transaction import Transaction, TransactionFlagInt
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
-ELGAMAL_PUBLIC_KEY_LENGTH = 33 * 2
+ENCRYPTION_KEY_LENGTH = 33 * 2
 
 
 class MPTokenIssuanceSetFlag(int, Enum):
@@ -47,12 +47,35 @@ class MPTokenIssuanceSetFlagInterface(TransactionFlagInterface):
     TF_MPT_UNLOCK: bool
 
 
+class MPTokenIssuanceSetMutableFlag(int, Enum):
+    """
+    Bit flags for the MutableFlags field on MPTokenIssuanceSet transactions.
+    These control the lsfMPTCanConfidentialAmount flag post-issuance.
+    Requires the DynamicMPT amendment.
+    """
+
+    TMF_MPT_SET_CAN_CONFIDENTIAL_AMOUNT = 0x00001000
+    """
+    Sets the lsfMPTCanConfidentialAmount flag on the issuance, enabling
+    confidential transfers. Only valid if lsmfMPTCannotMutateCanConfidentialAmount
+    is not set.
+    """
+
+    TMF_MPT_CLEAR_CAN_CONFIDENTIAL_AMOUNT = 0x00002000
+    """
+    Clears the lsfMPTCanConfidentialAmount flag on the issuance, disabling
+    confidential transfers. Only succeeds if ConfidentialOutstandingAmount is 0
+    and lsmfMPTCannotMutateCanConfidentialAmount is not set.
+    """
+
+
 @require_kwargs_on_init
 @dataclass(frozen=True)
 class MPTokenIssuanceSet(Transaction):
     """
     The MPTokenIssuanceSet transaction is used to globally lock/unlock a
-    MPTokenIssuance, or lock/unlock an individual's MPToken.
+    MPTokenIssuance, lock/unlock an individual's MPToken, register encryption
+    keys, and enable/disable the confidential amount feature.
     """
 
     mptoken_issuance_id: str = REQUIRED
@@ -64,18 +87,21 @@ class MPTokenIssuanceSet(Transaction):
     If omitted, this transaction will apply to all any accounts holding MPTs.
     """
 
-    issuer_elgamal_public_key: Optional[str] = None
+    issuer_encryption_key: Optional[str] = None
     """
-    The EC-ElGamal public key used for the issuer's mirror balances.
-    Can be 33 bytes (66 hex chars, compressed) or 64 bytes (128 hex chars,
-    uncompressed).
+    The 33-byte EC-ElGamal public key used for the issuer's mirror balances.
     """
 
-    auditor_elgamal_public_key: Optional[str] = None
+    auditor_encryption_key: Optional[str] = None
     """
-    The EC-ElGamal public key used for regulatory oversight (if applicable).
-    Can be 33 bytes (66 hex chars, compressed) or 64 bytes (128 hex chars,
-    uncompressed).
+    The 33-byte EC-ElGamal public key used for regulatory oversight (if applicable).
+    """
+
+    mutable_flags: Optional[int] = None
+    """
+    Bit flags to toggle mutable issuance properties. Used to enable or disable
+    the confidential amount feature post-issuance.
+    See MPTokenIssuanceSetMutableFlag for available values.
     """
 
     transaction_type: TransactionType = field(
@@ -93,36 +119,48 @@ class MPTokenIssuanceSet(Transaction):
                 "flag conflict: both TF_MPT_LOCK and TF_MPT_UNLOCK can't be set"
             )
 
-        has_issuer_key = (
-            hasattr(self, "issuer_elgamal_public_key")
-            and self.issuer_elgamal_public_key is not None
-        )
-        has_auditor_key = (
-            hasattr(self, "auditor_elgamal_public_key")
-            and self.auditor_elgamal_public_key is not None
-        )
-
-        if has_issuer_key and self.issuer_elgamal_public_key is not None:
-            key_len = len(self.issuer_elgamal_public_key)
-            # Accept compressed (33 bytes = 66 hex) or uncompressed (64 bytes = 128 hex)
-            if key_len not in [66, 128]:
-                errors["issuer_elgamal_public_key"] = (
-                    "issuer_elgamal_public_key must be 33 bytes (66 hex characters, "
-                    "compressed) or 64 bytes (128 hex characters, uncompressed)"
+        # Check mutable_flags for mutual exclusion
+        if self.mutable_flags is not None:
+            has_set = bool(
+                self.mutable_flags
+                & MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_CONFIDENTIAL_AMOUNT
+            )
+            has_clear = bool(
+                self.mutable_flags
+                & MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_CONFIDENTIAL_AMOUNT
+            )
+            if has_set and has_clear:
+                errors["mutable_flags"] = (
+                    "flag conflict: both TMF_MPT_SET_CAN_CONFIDENTIAL_AMOUNT and "
+                    "TMF_MPT_CLEAR_CAN_CONFIDENTIAL_AMOUNT can't be set"
                 )
 
-        if has_auditor_key and self.auditor_elgamal_public_key is not None:
-            key_len = len(self.auditor_elgamal_public_key)
-            # Accept compressed (33 bytes = 66 hex) or uncompressed (64 bytes = 128 hex)
-            if key_len not in [66, 128]:
-                errors["auditor_elgamal_public_key"] = (
-                    "auditor_elgamal_public_key must be 33 bytes (66 hex characters, "
-                    "compressed) or 64 bytes (128 hex characters, uncompressed)"
+        has_issuer_key = (
+            hasattr(self, "issuer_encryption_key")
+            and self.issuer_encryption_key is not None
+        )
+        has_auditor_key = (
+            hasattr(self, "auditor_encryption_key")
+            and self.auditor_encryption_key is not None
+        )
+
+        if has_issuer_key and self.issuer_encryption_key is not None:
+            key_len = len(self.issuer_encryption_key)
+            if key_len != ENCRYPTION_KEY_LENGTH:
+                errors["issuer_encryption_key"] = (
+                    "issuer_encryption_key must be 33 bytes (66 hex characters)"
+                )
+
+        if has_auditor_key and self.auditor_encryption_key is not None:
+            key_len = len(self.auditor_encryption_key)
+            if key_len != ENCRYPTION_KEY_LENGTH:
+                errors["auditor_encryption_key"] = (
+                    "auditor_encryption_key must be 33 bytes (66 hex characters)"
                 )
 
         if has_auditor_key and not has_issuer_key:
-            errors["auditor_elgamal_public_key"] = (
-                "auditor_elgamal_public_key requires issuer_elgamal_public_key"
+            errors["auditor_encryption_key"] = (
+                "auditor_encryption_key requires issuer_encryption_key"
             )
 
         if (
@@ -131,7 +169,7 @@ class MPTokenIssuanceSet(Transaction):
             and (has_issuer_key or has_auditor_key)
         ):
             errors["holder"] = (
-                "Cannot mutate privacy fields while also acting as a Holder"
+                "Cannot mutate confidential fields while also acting as a Holder"
             )
 
         return errors

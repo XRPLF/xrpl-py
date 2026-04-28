@@ -69,7 +69,7 @@ class ConfidentialMPTConvertBack(Transaction):
 
     auditor_encrypted_amount: Optional[str] = None
     """
-    Ciphertext for the auditor. Required if sfAuditorElGamalPublicKey is
+    Ciphertext for the auditor. Required if sfAuditorEncryptionKey is
     present on the issuance.
     """
 

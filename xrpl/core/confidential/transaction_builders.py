@@ -139,7 +139,7 @@ def prepare_confidential_convert(
         account=wallet.address,
         mptoken_issuance_id=mpt_issuance_id,
         mpt_amount=amount,
-        holder_elgamal_public_key=holder_pubkey,
+        holder_encryption_key=holder_pubkey,
         holder_encrypted_amount=holder_c1 + holder_c2,
         issuer_encrypted_amount=issuer_c1 + issuer_c2,
         blinding_factor=blinding_factor,

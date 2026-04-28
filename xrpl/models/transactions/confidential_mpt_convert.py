@@ -13,7 +13,7 @@ from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
 # Length constants for validation (in hex characters)
-HOLDER_ELGAMAL_PUBLIC_KEY_LENGTH = 33 * 2  # 33 bytes = 66 hex chars
+HOLDER_ENCRYPTION_KEY_LENGTH = 33 * 2  # 33 bytes = 66 hex chars
 BLINDING_FACTOR_LENGTH = 32 * 2  # 32 bytes = 64 hex chars
 SCHNORR_PROOF_LENGTH = 64 * 2  # 64 bytes = 128 hex chars (32 R + 32 s)
 
@@ -45,7 +45,7 @@ class ConfidentialMPTConvert(Transaction):
     (CB_IN) to avoid immediate proof staleness, requiring an explicit merge into
     the spending balance (CB_S) before use. This transaction also serves as the
     opt-in mechanism for confidential MPT participation: by executing it
-    (including a zero-amount conversion), a holder's HolderElGamalPublicKey is
+    (including a zero-amount conversion), a holder's HolderEncryptionKey is
     recorded on their MPToken object, enabling the holder to receive and manage
     confidential funds.
 
@@ -78,7 +78,7 @@ class ConfidentialMPTConvert(Transaction):
     to verify the ciphertexts match the plaintext MPTAmount.
     """
 
-    holder_elgamal_public_key: Optional[str] = None
+    holder_encryption_key: Optional[str] = None
     """
     The holder's ElGamal public key. Mandatory if the account has not yet
     registered a key (initialization). Forbidden if a key is already registered.
@@ -86,7 +86,7 @@ class ConfidentialMPTConvert(Transaction):
 
     auditor_encrypted_amount: Optional[str] = None
     """
-    ElGamal Ciphertext for the auditor. Required if sfAuditorElGamalPublicKey
+    ElGamal Ciphertext for the auditor. Required if sfAuditorEncryptionKey
     is present on the issuance.
     """
 
@@ -104,23 +104,23 @@ class ConfidentialMPTConvert(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        if self.holder_elgamal_public_key is not None and self.zk_proof is None:
+        if self.holder_encryption_key is not None and self.zk_proof is None:
             errors["zk_proof"] = (
                 "zk_proof is required when registering a new holder public key"
             )
 
-        if self.holder_elgamal_public_key is None and self.zk_proof is not None:
+        if self.holder_encryption_key is None and self.zk_proof is not None:
             errors["zk_proof"] = (
                 "zk_proof should not be provided if not registering a "
                 "holder public key"
             )
 
         if (
-            self.holder_elgamal_public_key is not None
-            and len(self.holder_elgamal_public_key) != HOLDER_ELGAMAL_PUBLIC_KEY_LENGTH
+            self.holder_encryption_key is not None
+            and len(self.holder_encryption_key) != HOLDER_ENCRYPTION_KEY_LENGTH
         ):
-            errors["holder_elgamal_public_key"] = (
-                "holder_elgamal_public_key must be 33 bytes (66 hex characters)"
+            errors["holder_encryption_key"] = (
+                "holder_encryption_key must be 33 bytes (66 hex characters)"
             )
 
         if len(self.blinding_factor) != BLINDING_FACTOR_LENGTH:
@@ -133,8 +133,8 @@ class ConfidentialMPTConvert(Transaction):
                 "zk_proof must be 64 bytes (128 hex characters) for Schnorr Proof"
             )
 
-        if self.mpt_amount <= 0:
-            errors["mpt_amount"] = "mpt_amount cannot be zero or negative"
+        if self.mpt_amount < 0:
+            errors["mpt_amount"] = "mpt_amount cannot be negative"
 
         if len(self.holder_encrypted_amount) != CIPHERTEXT_LENGTH:
             errors["holder_encrypted_amount"] = (

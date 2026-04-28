@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from typing_extensions import Self
 
@@ -61,8 +61,14 @@ class ConfidentialMPTSend(Transaction):
 
     auditor_encrypted_amount: Optional[str] = None
     """
-    Ciphertext for the auditor. Required if sfAuditorElGamalPublicKey is
+    Ciphertext for the auditor. Required if sfAuditorEncryptionKey is
     present on the issuance.
+    """
+
+    credential_ids: Optional[List[str]] = None
+    """
+    Credential(s) to attach to the transaction for authorization purposes (XLS-70).
+    Required if the destination account uses credential-based deposit authorization.
     """
 
     transaction_type: TransactionType = field(
