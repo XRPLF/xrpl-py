@@ -189,22 +189,29 @@ Examples can be found in subfolders of [tests/integrations](https://github.com/X
 
 ## Updating `definitions.json` and models
 
-To update just the `definitions.json` file:
+Definitions are now pulled from rippled CI artifacts using the [GitHub CLI (`gh`)](https://cli.github.com/).
+
+To update `definitions.json` from the `develop` branch (default):
 
 ```bash
-poetry run poe definitions https://github.com/XRPLF/rippled/tree/develop
+poetry run poe definitions
 ```
 
-Any Github branch link or local path to rippled will work here.
-
-To update the models as well:
+To update from a specific branch or pull request:
 
 ```bash
-poetry run poe generate https://github.com/XRPLF/rippled/tree/develop
+poetry run poe definitions my-feature
+poetry run poe definitions pr:6858
+poetry run poe definitions contributor:my-feature
+```
+
+To update the transaction models (still requires a rippled path or GitHub branch URL):
+
+```bash
+poetry run poe generate_tx_models https://github.com/XRPLF/rippled/tree/develop
 ```
 
 Verify that the changes make sense by inspection before submitting, as there may be updates required for the `xrpl-codec-gen` tool depending on the latest amendments we're updating to match.
-
 
 ## Mailing Lists
 
