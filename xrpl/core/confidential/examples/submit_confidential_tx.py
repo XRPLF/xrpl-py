@@ -12,6 +12,7 @@ The workflow includes:
 4. Merging inbox to spending balance (ConfidentialMPTMergeInbox)
 5. Sending confidential tokens (ConfidentialMPTSend)
 6. Converting back to public (ConfidentialMPTConvertBack)
+7. Issuer clawback of a holder's confidential balance (ConfidentialMPTClawback)
 
 Prerequisites:
 - rippled running on localhost:5005 with confidential MPT support
@@ -27,7 +28,9 @@ import sys
 from xrpl.clients import JsonRpcClient
 from xrpl.constants import CryptoAlgorithm
 from xrpl.models.amounts import MPTAmount
-from xrpl.models.requests import AccountInfo, GenericRequest
+from xrpl.models.requests import AccountInfo, AccountObjects, GenericRequest, LedgerEntry
+from xrpl.models.requests.account_objects import AccountObjectType
+from xrpl.models.requests.ledger_entry import MPToken as MPTokenQuery
 from xrpl.models.transactions import (
     MPTokenAuthorize,
     MPTokenIssuanceCreate,
@@ -49,6 +52,7 @@ try:
         print_tx_response,
     )
     from xrpl.core.confidential.transaction_builders import (
+        prepare_confidential_clawback,
         prepare_confidential_convert,
         prepare_confidential_convert_back,
         prepare_confidential_merge_inbox,
@@ -206,8 +210,6 @@ def main():
 
     # Query Holder1's MPT balance to verify
     print("\nQuerying Holder1's MPT balance...")
-    from xrpl.models.requests import AccountObjects, AccountObjectType
-
     holder_objects = client.request(
         AccountObjects(
             account=holder1_wallet.address,
@@ -358,6 +360,50 @@ def main():
     check_tx_success(response, "ConfidentialMPTConvertBack")
     client.request(LEDGER_ACCEPT_REQUEST)
     print(f"Converted {convert_back_amount} confidential tokens back to public")
+
+    # Clawback Holder2's confidential balance
+    print_section("Step 12: Clawback (Issuer reclaims Holder2's confidential balance)")
+
+    # The issuer needs the IssuerEncryptedBalance from Holder2's MPToken on the
+    # ledger. This is the mirror balance encrypted under the issuer's key.
+    print("\nQuerying Holder2's MPToken for IssuerEncryptedBalance...")
+    holder2_mptoken_resp = client.request(
+        LedgerEntry(
+            mptoken=MPTokenQuery(
+                account=holder2_wallet.classic_address,
+                mpt_issuance_id=mpt_issuance_id,
+            )
+        )
+    )
+    holder2_node = holder2_mptoken_resp.result["node"]
+    issuer_encrypted_balance = holder2_node["IssuerEncryptedBalance"]
+    print(f"   IssuerEncryptedBalance: {issuer_encrypted_balance[:40]}...")
+
+    # Decrypt to learn the amount the issuer will claw back
+    issuer_bal_c1 = issuer_encrypted_balance[:66]
+    issuer_bal_c2 = issuer_encrypted_balance[66:132]
+    clawback_amount = crypto.decrypt(issuer_sk, issuer_bal_c1, issuer_bal_c2)
+    print(f"   Decrypted balance (amount to claw back): {clawback_amount}")
+
+    print(f"\nClawing back {clawback_amount} tokens from Holder2...")
+    print("Using prepare_confidential_clawback() function...")
+
+    clawback_tx = prepare_confidential_clawback(
+        client=client,
+        issuer_wallet=issuer_wallet,
+        holder_address=holder2_wallet.address,
+        mpt_issuance_id=mpt_issuance_id,
+        amount=clawback_amount,
+        issuer_privkey=issuer_sk,
+        issuer_pubkey=issuer_pk,
+        issuer_encrypted_balance=issuer_encrypted_balance,
+    )
+
+    response = sign_and_submit(clawback_tx, client, issuer_wallet)
+    print_tx_response(response, "ConfidentialMPTClawback")
+    check_tx_success(response, "ConfidentialMPTClawback")
+    client.request(LEDGER_ACCEPT_REQUEST)
+    print(f"Clawed back {clawback_amount} tokens from Holder2")
 
 
 if __name__ == "__main__":
