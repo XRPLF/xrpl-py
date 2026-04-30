@@ -31,7 +31,7 @@ This is a maintenance upgrade of dependencies and does not fit any of the standa
 ### Major version upgrade notes
 
 **packaging 25.0 → 26.2** ([release notes](https://github.com/pypa/packaging/releases/tag/26.0)): v26 adds PEP 751 pylock support, PEP 794 import name metadata, ~3x faster tokenization, and caching for Version/Specifier objects. The deprecated `._version` NamedTuple has a compatibility shim. No code changes were required because xrpl-py does not import packaging directly — it is only a transitive dependency of black and sphinx, pinned as a dev dep.
-| [#936](https://github.com/XRPLF/xrpl-py/pull/936) | types-deprecated | 1.2.15.20241117 | — | Pending | — |
+| [#936](https://github.com/XRPLF/xrpl-py/pull/936) | types-deprecated | 1.2.15.20241117 | 1.3.1.20260408 | Upgraded | No |
 | [#935](https://github.com/XRPLF/xrpl-py/pull/935) | poethepoet | 0.30.0 | — | Pending | — |
 | [#934](https://github.com/XRPLF/xrpl-py/pull/934) | typing-extensions | 4.13.2 | — | Pending | — |
 | [#933](https://github.com/XRPLF/xrpl-py/pull/933) | mypy | 1.16.1 | — | Pending | — |
@@ -41,7 +41,7 @@ This is a maintenance upgrade of dependencies and does not fit any of the standa
 | [#928](https://github.com/XRPLF/xrpl-py/pull/928) | isort | 5.13.2 | — | Pending | — |
 | [#926](https://github.com/XRPLF/xrpl-py/pull/926) | pygments | 2.19.2 | — | Pending | — |
 
-**Progress: 3/12 dependencies processed**
+**Progress: 4/12 dependencies processed**
 
 ### Closing instructions
 
