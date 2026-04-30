@@ -79,14 +79,15 @@ class Wallet:
                 # We do not use the outputs of the below function, we are interested in
                 # whether it throws an exception or not
                 addresscodec.decode_seed(seed, wallet_algorithm)
-            except Exception as e:
+            except Exception:
+                # ``from None`` suppresses the original exception's traceback so
+                # that ``base58.b58decode``'s ``ValueError("Invalid character 'X'")``
+                # — which embeds a byte from the seed — cannot reach logs or
+                # error-reporting pipelines through the chained cause.
                 raise XRPLAddressCodecException(
                     "Attempted to initialize a Wallet with an invalid seed. "
-                    "The cryptographic algorithm used is: "
-                    + wallet_algorithm
-                    + "\nError message: "
-                    + str(e)
-                )
+                    "The cryptographic algorithm used is: " + wallet_algorithm
+                ) from None
 
         self.seed = seed
 
