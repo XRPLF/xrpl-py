@@ -17,22 +17,58 @@ Parse each PR to extract package names and versions. Dependabot PRs come in two 
 
 If any PR can't be parsed from either title or body, flag it for manual review. Build a table of all proposed upgrades. Report the table to the user before proceeding.
 
-## Step 2: Apply
+## Step 2: Apply, Validate, and Commit (one dependency at a time)
 
 1. Create a branch from main: `deps/batch-deps-upgrade-YYYY-QN` (use current year and quarter)
 2. Check for **dependency conflicts** before upgrading. For each proposed upgrade, review `pyproject.toml` constraints and run `poetry show <pkg>` to check if any other dependency pins a version range that would block the upgrade. Mark conflicts as Skipped (dependency conflict: <details>) and do not attempt them.
-3. For each remaining Dependabot PR, determine if it's a direct dep (listed in `pyproject.toml` under `[tool.poetry.dependencies]` or `[tool.poetry.group.dev.dependencies]`) or transitive dep (only in `poetry.lock`):
-   - **Direct deps**: update the version constraint in `pyproject.toml`
-   - **Transitive deps**: run `poetry update <pkg>` to update within the existing constraint range
-4. Run `poetry lock` to regenerate `poetry.lock`. **Do NOT delete `poetry.lock` and regenerate from scratch** — this can change dependency resolution and break builds even when no versions changed.
-5. Run `poetry install` to sync the virtual environment.
-6. Diff `pyproject.toml` and `poetry.lock` against main to classify each Dependabot PR as:
-   - Upgraded: version changed
-   - No-op: version was already current or newer
-7. If any upgrade changes the public API of the library (new errors, changed return types, removed functionality) and results in a breaking change, add an entry under `## [Unreleased]` in `CHANGELOG.md`.
-8. Verify completeness: every PR from step 1 must have a status (Upgraded, No-op, or Skipped). If any PR is unaccounted for, stop and report it before proceeding.
 
-## Step 3: Validate
+### For each remaining dependency, repeat the following cycle:
+
+#### 2a. Apply the single upgrade
+
+1. Determine if the dep is direct or transitive:
+   - **Direct deps** (listed in `pyproject.toml` under `[tool.poetry.dependencies]` or `[tool.poetry.group.dev.dependencies]`): update the version constraint in `pyproject.toml` to the new version using caret (`^<new_version>`), then run `poetry update <pkg>`. Always update `pyproject.toml` for direct deps — even if the current constraint already allows the new version — so the pinned minimum stays current.
+   - **Transitive deps** (not in `pyproject.toml`): run `poetry update <pkg>` to update within the existing constraint range
+2. Run `poetry lock` to regenerate `poetry.lock`. **Do NOT delete `poetry.lock` and regenerate from scratch** — this can change dependency resolution and break builds even when no versions changed.
+3. Run `poetry install` to sync the virtual environment.
+4. Diff `pyproject.toml` and `poetry.lock` against the previous state to confirm the version actually changed. If the version was already current or newer, classify the PR as No-op and move on to the next dependency.
+
+#### 2b. Run per-dependency validation (current Python only)
+
+Run the following on the **current Python version** only (not the full matrix — that happens in Step 3 after all upgrades). Lint and type-check are also deferred to Step 3 since CI only runs them on Python 3.10.
+
+1. **Unit tests**:
+   ```bash
+   poetry run poe test_unit
+   poetry run coverage report --fail-under=85
+   ```
+
+2. **Integration tests** (requires a running xrpld Docker container — see Step 3 for container setup):
+   ```bash
+   poetry run poe test_integration
+   poetry run coverage report --fail-under=70
+   ```
+
+If any step fails:
+
+- **Attempt to fix** the breaking change with code modifications before rolling back (see Step 3 for common fix patterns).
+- If the fix requires a large-scale migration or is blocked by an external constraint, **roll back** the single upgrade (`git checkout -- pyproject.toml poetry.lock` and re-run `poetry install`), mark it as Skipped, and move on.
+
+#### 2c. Pause for user review
+
+If the upgrade changes the public API of the library (new errors, changed return types, removed functionality), add an entry under `## [Unreleased]` in `CHANGELOG.md`.
+
+Then **pause and wait for the user** to review the changes and make a commit before proceeding to the next dependency. Suggest a commit message: `chore(deps): upgrade <pkg> from <old> to <new>`.
+
+### After all dependencies are processed
+
+Verify completeness: every PR from Step 1 must have a status (Upgraded, No-op, or Skipped). If any PR is unaccounted for, stop and report it.
+
+## Step 3: Full matrix validation (after all upgrades are committed)
+
+After all dependencies have been processed and committed individually in Step 2, run the **full validation suite across all Python versions** to catch any cross-version issues.
+
+### Determine Python versions
 
 Read each workflow file under `.github/workflows/` to determine the Python versions used:
 
@@ -109,7 +145,9 @@ For each Python version, run the following in order:
    poetry run poe test_faucet
    ```
 
-Collect results from all parallel runs. All Python versions must pass before proceeding.
+Collect results from all parallel runs. All Python versions must pass.
+
+### Handling failures
 
 If any step fails, **attempt to fix the breaking change with code modifications before rolling back**. Common patterns:
 
@@ -123,26 +161,38 @@ Only roll back and mark as Skipped if:
 - The fix requires a large-scale migration across the codebase
 - The upgrade is blocked by an external dependency constraint you cannot update
 
-If a failure persists after investigation and you cannot identify a fix, roll back the upgrade and mark it as Skipped. Re-run validation until green.
+If a failure is traced to a specific dependency upgrade, revert that commit, mark it as Skipped, and re-run validation until green.
 
-## Step 4: Generate Outputs
+## Step 4: Generate Outputs (incremental)
 
-Do NOT commit or create a PR. Instead, generate the following outputs for the human to use:
+Build the following output files **incrementally** — update them after each dependency is processed in Step 2, so the user can see cumulative progress at any point.
 
-1. **Code changes note** — write a markdown file (`.claude/skills/batch-deps-upgrade/code-changes.md`) documenting every non-`pyproject.toml` source code change, explaining what broke, why, and the minimal fix applied.
+### 4a. Code changes note (updated after each upgrade)
 
-2. **Commit message** — output a concise commit message the human can copy-paste into `git commit -m "..."`. Format: `chore(deps): quarterly batch dependency upgrade YYYY-QN` followed by a brief summary of upgrades, skips, and removals.
+Append to `.claude/skills/batch-deps-upgrade/code-changes.md` after each dependency that required non-`pyproject.toml` source code changes. Each entry should document what broke, why, and the minimal fix applied.
 
-3. **PR description** — write a markdown file (`.claude/skills/batch-deps-upgrade/pr-description.md`) following the repo's PR template (`.github/pull_request_template.md`):
-   - For "High Level Overview of Change", summarize the batch upgrade.
-   - For "Context of Change", explain that this batches Dependabot PRs to reduce merge noise.
-   - For "Type of Change", determine dynamically:
-     - Check "Breaking change" ONLY if the upgrade visibly changes the library's public API (e.g., error messages, return types, removed functions). This aligns with whether a `CHANGELOG.md` entry was added in Step 2.7.
-     - Otherwise, do not check any Type of Change — dependency upgrades are maintenance and don't fit "Refactor" (which means restructuring code without behavior change). Note in the PR body that the upgrade is maintenance.
-   - For "Did you update CHANGELOG.md?", check "Yes" if an entry was added, otherwise check "No, this change does not impact library users".
-   - Include a "Superseded Dependabot PRs" section with a table: PR (linked), Package, From, To, Status, MajorVersionUpgrade
-     - Status values: Upgraded, No-op (reason), Skipped (dependency conflict / CI failure: error)
-     - MajorVersionUpgrade: `No` if the major version number did not change. Otherwise `Yes` plus a link for each major version crossed. For example, 1.x → 3.x yields `Yes ([v2](url), [v3](url))`. Each link should point to the package's release notes or changelog for that major version. Verify each link returns HTTP 200 and has meaningful content (e.g., `curl -sL -o /dev/null -w "%{http_code}" <url>`); if a package doesn't publish per-version GitHub releases, fall back to the CHANGELOG file or the closest valid release tag.
-   - Closing instructions with two paragraphs:
-     1. "After merging, close the following superseded PRs (Skipped ones remain open for future handling): #X, #Y, #Z" — list only Upgraded and No-op PRs.
-     2. "The following PRs were Skipped and should remain open: #A (package-a), #B (package-b), ..." — annotate each with the package name. These stay open so Dependabot keeps rebasing them.
+### 4b. Per-dependency report (after each upgrade)
+
+After each dependency is processed (upgraded, no-op, or skipped), report to the user:
+
+- Package name and version change (old → new)
+- Status: Upgraded, No-op, or Skipped (with reason)
+- If Upgraded: summary of any code changes required to fix breakage
+- Running tally of progress (e.g., "3/12 dependencies processed")
+
+### 4c. PR description (updated after each upgrade)
+
+Maintain `.claude/skills/batch-deps-upgrade/pr-description.md` and update it after each dependency, following the repo's PR template (`.github/pull_request_template.md`):
+
+- For "High Level Overview of Change", summarize the batch upgrade.
+- For "Context of Change", explain that this batches Dependabot PRs to reduce merge noise. Note that each upgrade was applied and validated individually.
+- For "Type of Change", determine dynamically:
+  - Check "Breaking change" ONLY if any upgrade visibly changes the library's public API (e.g., error messages, return types, removed functions). This aligns with whether a `CHANGELOG.md` entry was added during Step 2c.
+  - Otherwise, do not check any Type of Change — dependency upgrades are maintenance and don't fit "Refactor" (which means restructuring code without behavior change). Note in the PR body that the upgrade is maintenance.
+- For "Did you update CHANGELOG.md?", check "Yes" if an entry was added, otherwise check "No, this change does not impact library users".
+- Include a "Superseded Dependabot PRs" section with a table: PR (linked), Package, From, To, Status, MajorVersionUpgrade
+  - Status values: Upgraded, No-op (reason), Skipped (dependency conflict / CI failure: error)
+  - MajorVersionUpgrade: `No` if the major version number did not change. Otherwise `Yes` plus a link for each major version crossed. For example, 1.x → 3.x yields `Yes ([v2](url), [v3](url))`. Each link should point to the package's release notes or changelog for that major version. Verify each link returns HTTP 200 and has meaningful content (e.g., `curl -sL -o /dev/null -w "%{http_code}" <url>`); if a package doesn't publish per-version GitHub releases, fall back to the CHANGELOG file or the closest valid release tag.
+- Closing instructions with two paragraphs:
+  1. "After merging, close the following superseded PRs (Skipped ones remain open for future handling): #X, #Y, #Z" — list only Upgraded and No-op PRs.
+  2. "The following PRs were Skipped and should remain open: #A (package-a), #B (package-b), ..." — annotate each with the package name. These stay open so Dependabot keeps rebasing them.
