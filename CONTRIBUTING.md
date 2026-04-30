@@ -87,19 +87,28 @@ poetry run poe test_unit
 
 #### Integration Tests
 
-To run integration tests, you'll need a standalone xrpld node running with WS port `6006` and JSON RPC port `5005`. You can run a docker container for this:
+To run integration tests, you'll need a standalone `xrpld` node running with WS port `6006` and JSON RPC port `5005`. You can run a docker container for this:
 
 ```bash
-docker run -d -p 5005:5005 -p 6006:6006 --volume $PWD/.ci-config/:/etc/opt/xrpld/ rippleci/xrpld:develop --standalone
+docker run \
+  --detach \
+  --publish 5005:5005 \
+  --publish 6006:6006 \
+  --volume "$PWD/.ci-config/:/etc/opt/xrpld/" \
+  --name xrpld-service \
+  rippleci/xrpld:develop --standalone
 ```
 
 Breaking down the command:
 
-- `docker run -p 5005:5005 -p 6006:6006` starts a Docker container with an open port for admin JsonRPC and WebSocket requests.
-- `-d` runs the docker container in detached mode. The container will run in the background and developer gets back control of the terminal.
-- `--volume $PWD/.ci-config:/etc/opt/xrpld/` mounts the config directory. It must be an absolute path, so we use `$PWD` instead of `./`. xrpld searches `/etc/opt/xrpld/` (default behavior) for config files.
-- `rippleci/xrpld:develop` is an image that is regularly updated with the latest build of the `develop` branch of xrpld.
-- `--standalone` starts xrpld in standalone mode.
+- `--detach` runs the container in the background so the terminal stays free.
+- `--publish 5005:5005 --publish 6006:6006` exposes the admin JSON-RPC and WebSocket ports on the host.
+- `--volume "$PWD/.ci-config/:/etc/opt/xrpld/"` mounts the host directory containing `xrpld.cfg` and `validators.txt` into the container. `xrpld` reads config from `/etc/opt/xrpld/` by default, so no explicit config-file path is needed. `$PWD` is used so the command works from any working directory.
+- `--name xrpld-service` names the container — this is the label shown by `docker ps` / `docker stats`.
+- `rippleci/xrpld:develop` is an image that is regularly updated with the latest build of the `develop` branch of `rippled` Github repository. (the binary was recently renamed to `xrpld`).
+- `--standalone` is passed to the image's entrypoint (`xrpld`) to start the node in standalone mode.
+
+When you're done, stop and remove the container with `docker stop xrpld-service && docker rm xrpld-service`.
 
 Then to actually run the tests, run the command:
 

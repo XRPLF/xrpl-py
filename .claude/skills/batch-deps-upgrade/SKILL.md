@@ -57,7 +57,9 @@ Replace `<version>` with the target version (e.g. `3.10`, `3.11`, `3.12`, `3.13`
 
 ### Validation order
 
-For each Python version from the unit test matrix, run the following in order:
+Run validation **in parallel across all Python versions** from the unit test matrix to speed things up. For each Python version, create a separate working directory (e.g. using `git worktree` or by spawning parallel agents) so that each version's virtual environment does not interfere with the others.
+
+For each Python version, run the following in order:
 
 1. **Lint and type-check** (only on the single lint Python version from the `lint-and-type-check` job):
 
@@ -73,7 +75,7 @@ For each Python version from the unit test matrix, run the following in order:
    poetry run coverage report --fail-under=85
    ```
 
-3. **Integration tests** (requires an xrpld Docker container):
+3. **Integration tests** (requires a single shared xrpld Docker container — start it once before running integration tests for any Python version):
    - Pre-run cleanup: `docker rm -f xrpld-service 2>/dev/null || true`
    - Start the container:
      ```bash
@@ -95,17 +97,19 @@ For each Python version from the unit test matrix, run the following in order:
        exit 1
      fi
      ```
-   - Run:
+   - Run for each Python version:
      ```bash
      poetry run poe test_integration
      poetry run coverage report --fail-under=70
      ```
-   - Stop container: `docker logs xrpld-service && docker stop xrpld-service`
+   - Stop container after all versions complete: `docker logs xrpld-service && docker stop xrpld-service`
 
 4. **Faucet tests**:
    ```bash
    poetry run poe test_faucet
    ```
+
+Collect results from all parallel runs. All Python versions must pass before proceeding.
 
 If any step fails, **attempt to fix the breaking change with code modifications before rolling back**. Common patterns:
 
