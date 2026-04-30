@@ -439,6 +439,8 @@ class BaseModel(ABC):
         """
         parts = []
         for f in fields(self):
+            if not f.repr:
+                continue
             value = getattr(self, f.name)
             if f.name in self._SENSITIVE_FIELDS and value is not None:
                 parts.append(f"{f.name}='-HIDDEN-'")
