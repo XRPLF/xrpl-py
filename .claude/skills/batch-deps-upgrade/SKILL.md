@@ -193,6 +193,10 @@ Maintain `.claude/skills/batch-deps-upgrade/pr-description.md` and update it aft
 - Include a "Superseded Dependabot PRs" section with a table: PR (linked), Package, From, To, Status, MajorVersionUpgrade
   - Status values: Upgraded, No-op (reason), Skipped (dependency conflict / CI failure: error)
   - MajorVersionUpgrade: `No` if the major version number did not change. Otherwise `Yes` plus a link for each major version crossed. For example, 1.x → 3.x yields `Yes ([v2](url), [v3](url))`. Each link should point to the package's release notes or changelog for that major version. Verify each link returns HTTP 200 and has meaningful content (e.g., `curl -sL -o /dev/null -w "%{http_code}" <url>`); if a package doesn't publish per-version GitHub releases, fall back to the CHANGELOG file or the closest valid release tag.
+- For every **major version upgrade**, add a "Major version upgrade notes" section below the table. For each major-version package, include:
+  - A link to the release notes
+  - A brief summary of key changes (breaking changes, deprecations, new features)
+  - An explanation of why no code changes were required, OR a summary of the code changes that were made. This helps reviewers understand the impact without having to read the full release notes themselves.
 - Closing instructions with two paragraphs:
   1. "After merging, close the following superseded PRs (Skipped ones remain open for future handling): #X, #Y, #Z" — list only Upgraded and No-op PRs.
   2. "The following PRs were Skipped and should remain open: #A (package-a), #B (package-b), ..." — annotate each with the package name. These stay open so Dependabot keeps rebasing them.

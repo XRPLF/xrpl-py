@@ -65,7 +65,7 @@ aiounittest = "^1.4.3"
 coverage = "^7.2.7"
 Sphinx = "^7.1.2"
 poethepoet = "^0.30.0"
-packaging = "^25.0"
+packaging = "^26.0"
 
 [tool.isort]
 # Make sure that isort's settings line up with black
