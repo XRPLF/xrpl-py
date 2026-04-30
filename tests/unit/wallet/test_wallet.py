@@ -51,3 +51,37 @@ class TestWallet(TestCase):
     def test_init_secp256k1_with_sEd_seed_fail(self):
         with self.assertRaises(XRPLAddressCodecException):
             Wallet.from_seed(SED_SEED, algorithm=CryptoAlgorithm.SECP256K1)
+
+    def test_invalid_seed_not_leaked_in_exception(self):
+        """Regression test for issue #987: exception messages for invalid
+        seeds must not include the raw seed, since they often get logged or
+        captured by error-tracking systems."""
+        secret_seed = "sInvalidSeedXXXXXXXXXXXXXX"
+        with self.assertRaises(XRPLAddressCodecException) as ctx:
+            Wallet(public_key="abc", private_key="def", seed=secret_seed)
+        self.assertNotIn(secret_seed, str(ctx.exception))
+
+    def test_invalid_seed_chars_not_leaked_via_base58_value_error(self):
+        """The XRPL base58 alphabet excludes '0', 'O', 'I', and 'l'. When a
+        seed contains any of these, ``base58.b58decode`` raises
+        ``ValueError("Invalid character '0' ...")`` with the offending byte
+        embedded in the message. ``Wallet.__init__`` must neither concatenate
+        ``str(e)`` into its own message nor leave the original exception
+        attached as ``__cause__`` / ``__context__``, since either path leaks
+        a character of the seed into logs and tracebacks.
+        """
+        # Every character below is in the base58 alphabet *except* '0', so
+        # any '0' in the message or chained cause could only have come from
+        # the seed.
+        seed = "sZZZZZZZZZZZZZZZZZZZZZZZZ0"
+        with self.assertRaises(XRPLAddressCodecException) as ctx:
+            Wallet(public_key="abc", private_key="def", seed=seed)
+
+        exc = ctx.exception
+        self.assertNotIn(seed, str(exc))
+        self.assertNotIn("0", str(exc))
+        # ``raise ... from None`` must suppress the chained cause so that
+        # the original ``ValueError("Invalid character '0'")`` can't reach
+        # full-traceback log sinks.
+        self.assertIsNone(exc.__cause__)
+        self.assertTrue(exc.__suppress_context__)

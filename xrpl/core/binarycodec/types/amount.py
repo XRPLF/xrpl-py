@@ -209,7 +209,7 @@ def _serialize_issued_currency_value(value: str) -> bytes:
 
     if exp < MIN_IOU_EXPONENT or mantissa < MIN_IOU_MANTISSA:
         # Round to zero
-        _ZERO_CURRENCY_AMOUNT_HEX.to_bytes(8, byteorder="big", signed=False)
+        return _ZERO_CURRENCY_AMOUNT_HEX.to_bytes(8, byteorder="big", signed=False)
 
     if exp > MAX_IOU_EXPONENT or mantissa > MAX_IOU_MANTISSA:
         raise XRPLBinaryCodecException(
