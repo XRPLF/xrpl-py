@@ -101,12 +101,12 @@ docker run \
 
 Breaking down the command:
 
-- `--detach` runs the container in the background so the terminal stays free.
-- `--publish 5005:5005 --publish 6006:6006` exposes the admin JSON-RPC and WebSocket ports on the host.
-- `--volume "$PWD/.ci-config/:/etc/opt/xrpld/"` mounts the host directory containing `xrpld.cfg` and `validators.txt` into the container. `xrpld` reads config from `/etc/opt/xrpld/` by default, so no explicit config-file path is needed. `$PWD` is used so the command works from any working directory.
-- `--name xrpld-service` names the container — this is the label shown by `docker ps` / `docker stats`.
-- `rippleci/xrpld:develop` is an image that is regularly updated with the latest build of the `develop` branch of `rippled` Github repository. (the binary was recently renamed to `xrpld`).
-- `--standalone` is passed to the image's entrypoint (`xrpld`) to start the node in standalone mode.
+- `--detach` — run in background
+- `--publish 5005:5005 --publish 6006:6006` — expose JSON-RPC and WebSocket ports
+- `--volume "$PWD/.ci-config/:/etc/opt/xrpld/"` — mount local config into the container
+- `--name xrpld-service` — name the container
+- `rippleci/xrpld:develop` — latest `develop` branch build of xrpld
+- `--standalone` — start xrpld in standalone mode
 
 When you're done, stop and remove the container with `docker stop xrpld-service && docker rm xrpld-service`.
 
