@@ -73,19 +73,25 @@ For each Python version from the unit test matrix, run the following in order:
    poetry run coverage report --fail-under=85
    ```
 
-3. **Integration tests** (requires a rippled Docker container):
-   - Pre-run cleanup: `docker rm -f rippled-service 2>/dev/null || true`
+3. **Integration tests** (requires an xrpld Docker container):
+   - Pre-run cleanup: `docker rm -f xrpld-service 2>/dev/null || true`
    - Start the container:
      ```bash
-     docker run --detach --rm -p 5005:5005 -p 6006:6006 --volume "$PWD/.ci-config/:/etc/opt/ripple/" --name rippled-service --health-cmd="rippled server_info || exit 1" --health-interval=5s --health-retries=10 --health-timeout=2s --entrypoint bash rippleci/rippled:develop -c "mkdir -p /var/lib/rippled/db/ && rippled -a"
+     docker run \
+       --detach \
+       --publish 5005:5005 \
+       --publish 6006:6006 \
+       --volume "$PWD/.ci-config/:/etc/opt/xrpld/" \
+       --name xrpld-service \
+       rippleci/xrpld:develop --standalone
      ```
    - Wait for port 6006 with a bounded timeout:
      ```bash
      SECONDS=0
      until nc -z localhost 6006 || [ $SECONDS -gt 120 ]; do sleep 2; done
      if ! nc -z localhost 6006; then
-       echo "Error: rippled did not start within 120s"
-       docker logs rippled-service
+       echo "Error: xrpld did not start within 120s"
+       docker logs xrpld-service
        exit 1
      fi
      ```
@@ -94,7 +100,7 @@ For each Python version from the unit test matrix, run the following in order:
      poetry run poe test_integration
      poetry run coverage report --fail-under=70
      ```
-   - Stop container: `docker stop rippled-service`
+   - Stop container: `docker logs xrpld-service && docker stop xrpld-service`
 
 4. **Faucet tests**:
    ```bash
