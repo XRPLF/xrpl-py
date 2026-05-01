@@ -31,6 +31,7 @@ class RequestMethod(str, Enum):
     ACCOUNT_NFTS = "account_nfts"
     ACCOUNT_OBJECTS = "account_objects"
     ACCOUNT_OFFERS = "account_offers"
+    ACCOUNT_SPONSORING = "account_sponsoring"
     ACCOUNT_TX = "account_tx"
     GATEWAY_BALANCES = "gateway_balances"
     NO_RIPPLE_CHECK = "noripple_check"
