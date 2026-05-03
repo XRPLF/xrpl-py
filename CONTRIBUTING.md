@@ -22,6 +22,10 @@ To make it easy to manage your Python environment with `xrpl-py`, including swit
 
         pyenv global 3.11.6
 
+  - If you're already using `pyenv` you can instead run the following to just use the desired version for this directory:
+
+        pyenv local 3.11.6
+
 ### Set up shell environment
 
 To enable autocompletion and other functionality from your shell, add `pyenv` to your environment.
