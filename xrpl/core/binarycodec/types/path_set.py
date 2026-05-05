@@ -12,12 +12,14 @@ from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.account_id import AccountID
 from xrpl.core.binarycodec.types.currency import Currency
+from xrpl.core.binarycodec.types.hash192 import HASH192_BYTES, Hash192
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
 
 # Constant for masking types of a PathStep
 _TYPE_ACCOUNT: Final[int] = 0x01
 _TYPE_CURRENCY: Final[int] = 0x10
 _TYPE_ISSUER: Final[int] = 0x20
+_TYPE_MPT: Final[int] = 0x40
 
 # Constants for separating Paths in a PathSet
 _PATHSET_END_BYTE: Final[int] = 0x00
@@ -26,7 +28,12 @@ _PATH_SEPARATOR_BYTE: Final[int] = 0xFF
 
 def _is_path_step(value: Dict[str, str]) -> bool:
     """Helper function to determine if a dictionary represents a valid path step."""
-    return "issuer" in value or "account" in value or "currency" in value
+    return (
+        "issuer" in value
+        or "account" in value
+        or "currency" in value
+        or "mpt_issuance_id" in value
+    )
 
 
 def _is_path_set(value: List[List[Dict[str, str]]]) -> bool:
@@ -57,6 +64,16 @@ class PathStep(SerializedType):
                 f" received {value.__class__.__name__}."
             )
 
+        if "account" in value and "mpt_issuance_id" in value:
+            raise XRPLBinaryCodecException(
+                "Account and mpt_issuance_id are mutually exclusive in a path step"
+            )
+
+        if "currency" in value and "mpt_issuance_id" in value:
+            raise XRPLBinaryCodecException(
+                "Currency and mpt_issuance_id are mutually exclusive in a path step"
+            )
+
         data_type = 0x00
         buffer = b""
         if "account" in value:
@@ -67,6 +84,10 @@ class PathStep(SerializedType):
             currency = Currency.from_value(value["currency"])
             buffer += bytes(currency)
             data_type |= _TYPE_CURRENCY
+        elif "mpt_issuance_id" in value:
+            mpt_id = Hash192.from_value(value["mpt_issuance_id"])
+            buffer += bytes(mpt_id)
+            data_type |= _TYPE_MPT
         if "issuer" in value:
             issuer = AccountID.from_value(value["issuer"])
             buffer += bytes(issuer)
@@ -90,12 +111,27 @@ class PathStep(SerializedType):
         data_type = parser.read_uint8()
         buffer = b""
 
+        if (data_type & _TYPE_ACCOUNT) and (data_type & _TYPE_MPT):
+            raise XRPLBinaryCodecException(
+                "Invalid binary input: Account and mpt_issuance_id are "
+                "mutually exclusive in a path step"
+            )
+
+        if (data_type & _TYPE_CURRENCY) and (data_type & _TYPE_MPT):
+            raise XRPLBinaryCodecException(
+                "Invalid binary input: Currency and mpt_issuance_id are "
+                "mutually exclusive in a path step"
+            )
+
         if data_type & _TYPE_ACCOUNT:
             account_id = parser.read(AccountID.LENGTH)
             buffer += account_id
         if data_type & _TYPE_CURRENCY:
             currency = parser.read(Currency.LENGTH)
             buffer += currency
+        elif data_type & _TYPE_MPT:
+            mpt_id = parser.read(HASH192_BYTES)
+            buffer += mpt_id
         if data_type & _TYPE_ISSUER:
             issuer = parser.read(AccountID.LENGTH)
             buffer += issuer
@@ -119,6 +155,9 @@ class PathStep(SerializedType):
         if data_type & _TYPE_CURRENCY:
             currency = Currency.from_parser(parser).to_json()
             json["currency"] = currency
+        elif data_type & _TYPE_MPT:
+            mpt_id = parser.read(HASH192_BYTES).hex().upper()
+            json["mpt_issuance_id"] = mpt_id
         if data_type & _TYPE_ISSUER:
             issuer = AccountID.from_parser(parser).to_json()
             json["issuer"] = issuer
