@@ -10,6 +10,7 @@ from typing import Dict, List, Optional
 
 from typing_extensions import Self
 
+from xrpl.constants import HEX_MPTID_REGEX
 from xrpl.models.base_model import BaseModel
 
 
@@ -73,6 +74,8 @@ class PathStep(BaseModel):
             return "Cannot set both mpt_issuance_id and currency"
         if self.account is not None:
             return "Cannot set both mpt_issuance_id and account"
+        if not HEX_MPTID_REGEX.fullmatch(self.mpt_issuance_id):
+            return f"Invalid mpt_issuance_id {self.mpt_issuance_id}"
         return None
 
 

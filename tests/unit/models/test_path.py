@@ -59,3 +59,17 @@ class TestPathStepMPT(TestCase):
             "Cannot set both mpt_issuance_id and account",
             ctx.exception.args[0],
         )
+
+    # --- mpt_issuance_id format validation ---
+
+    def test_mpt_issuance_id_invalid_format_too_short(self):
+        bad_id = "00000001A407AF5856CECE"
+        with self.assertRaises(XRPLModelException) as ctx:
+            PathStep(mpt_issuance_id=bad_id)
+        self.assertIn(f"Invalid mpt_issuance_id {bad_id}", ctx.exception.args[0])
+
+    def test_mpt_issuance_id_invalid_format_non_hex(self):
+        bad_id = "00000001A407AF5856CECE4281FED12B7B179B49A4AEF50G"  # 'G' is non-hex
+        with self.assertRaises(XRPLModelException) as ctx:
+            PathStep(mpt_issuance_id=bad_id)
+        self.assertIn(f"Invalid mpt_issuance_id {bad_id}", ctx.exception.args[0])
