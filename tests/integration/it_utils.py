@@ -772,7 +772,7 @@ def create_amm_pool_with_mpt(client: SyncClient = JSON_RPC_CLIENT) -> Dict[str, 
         not response.is_successful()
         or response.result.get("engine_result") != "tesSUCCESS"
     ):
-        raise ValueError(
+        raise XRPLException(
             f"AMMCreate transaction failed: {response.result.get('engine_result')}"
         )
 
@@ -841,7 +841,7 @@ async def create_amm_pool_with_mpt_async(
         not response.is_successful()
         or response.result.get("engine_result") != "tesSUCCESS"
     ):
-        raise ValueError(
+        raise XRPLException(
             f"AMMCreate transaction failed: {response.result.get('engine_result')}"
         )
 
