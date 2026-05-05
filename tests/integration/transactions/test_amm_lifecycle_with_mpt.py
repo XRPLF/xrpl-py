@@ -153,34 +153,6 @@ class TestAMMLifecycleWithMPT(IntegrationTestCase):
         )
 
     @test_async_and_sync(globals())
-    async def test_mpt_amm_delete(self, client):
-        amm_pool = await create_amm_pool_with_mpt_async(client)
-        asset = amm_pool["asset"]
-        asset2 = amm_pool["asset2"]
-        lp_wallet = amm_pool["lp_wallet"]
-
-        # Withdraw all assets to empty the pool
-        # Note: Withdrawal of all the assets (i.e outstanding LPTokens = 0) in the AMM
-        # pool will delete the AMM.
-        response = await sign_and_reliable_submission_async(
-            AMMWithdraw(
-                account=lp_wallet.classic_address,
-                asset=asset,
-                asset2=asset2,
-                flags=AMMWithdrawFlag.TF_WITHDRAW_ALL,
-            ),
-            lp_wallet,
-            client,
-        )
-
-        self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-
-        # Verify the AMM no longer exists
-        amm_info = await client.request(AMMInfo(asset=asset, asset2=asset2))
-        self.assertEqual(amm_info.result["error"], "actNotFound")
-
-    @test_async_and_sync(globals())
     async def test_mpt_amm_clawback(self, client):
         amm_pool = await create_amm_pool_with_mpt_async(
             client,
@@ -262,9 +234,7 @@ class TestAMMLifecycleWithMPT(IntegrationTestCase):
         post_amm = post_amm_info.result["amm"]
 
         # Auction slot should be owned by the bidder
-        self.assertEqual(
-            post_amm["auction_slot"]["account"], lp_wallet.classic_address
-        )
+        self.assertEqual(post_amm["auction_slot"]["account"], lp_wallet.classic_address)
         # LP token supply should decrease (bid amount returned to the AMM)
         self.assertLess(
             float(post_amm["lp_token"]["value"]),

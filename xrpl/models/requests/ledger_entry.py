@@ -321,7 +321,6 @@ class XChainCreateAccountClaimID(XChainBridge):
     """
 
 
-@require_kwargs_on_init
 @dataclass(frozen=True, kw_only=True)
 class AMM(BaseModel):
     """
@@ -344,7 +343,6 @@ class AMM(BaseModel):
     """
 
 
-@require_kwargs_on_init
 @dataclass(frozen=True, kw_only=True)
 class LedgerEntry(Request, LookupByLedgerRequest):
     """
