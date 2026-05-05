@@ -237,3 +237,21 @@ class TestPathSet(TestCase):
 
         parser = BinaryParser(invalid_hex)
         self.assertRaises(XRPLBinaryCodecException, PathSet.from_parser, parser)
+
+    def test_account_and_mpt_mutually_exclusive_in_serialization(self):
+        """Providing both account and mpt_issuance_id in a single step must raise."""
+        account = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+        mpt_id = "00000001B5F762798A53D543A014CAF8B297CFF8F2F937E8"
+        path = [[{"account": account, "mpt_issuance_id": mpt_id}]]
+        self.assertRaises(XRPLBinaryCodecException, PathSet.from_value, path)
+
+    def test_account_and_mpt_mutually_exclusive_in_deserialization(self):
+        """A type byte with both Account (0x01) and MPT (0x40) flags must raise."""
+        # "41" = 0x01 | 0x40 — an invalid combination
+        account = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+        account_hex = str(AccountID.from_value(account)).upper()
+        mpt_hex = "00000001B5F762798A53D543A014CAF8B297CFF8F2F937E8"
+        invalid_hex = "41" + account_hex + mpt_hex + "00"
+
+        parser = BinaryParser(invalid_hex)
+        self.assertRaises(XRPLBinaryCodecException, PathSet.from_parser, parser)

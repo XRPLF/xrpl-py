@@ -64,6 +64,11 @@ class PathStep(SerializedType):
                 f" received {value.__class__.__name__}."
             )
 
+        if "account" in value and "mpt_issuance_id" in value:
+            raise XRPLBinaryCodecException(
+                "Account and mpt_issuance_id are mutually exclusive in a path step"
+            )
+
         if "currency" in value and "mpt_issuance_id" in value:
             raise XRPLBinaryCodecException(
                 "Currency and mpt_issuance_id are mutually exclusive in a path step"
@@ -105,6 +110,12 @@ class PathStep(SerializedType):
         """
         data_type = parser.read_uint8()
         buffer = b""
+
+        if (data_type & _TYPE_ACCOUNT) and (data_type & _TYPE_MPT):
+            raise XRPLBinaryCodecException(
+                "Invalid binary input: Account and mpt_issuance_id are "
+                "mutually exclusive in a path step"
+            )
 
         if (data_type & _TYPE_CURRENCY) and (data_type & _TYPE_MPT):
             raise XRPLBinaryCodecException(
