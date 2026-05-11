@@ -177,10 +177,21 @@ class TestWalletMain(TestCase):
 
         _test_wallet_types(self, wallet, "secp256k1")
 
-    def test_from_seed_using_default_algorithm(self):
+    def test_from_seed_infers_secp256k1_from_s_prefix(self):
+        # constants["seed"]["seed"] is an `s...` family seed; with no explicit
+        # algorithm the result should be inferred as secp256k1.
         wallet = Wallet.from_seed(constants["seed"]["seed"])
 
-        _test_wallet_values(self, wallet, "seed", "ed25519")
+        _test_wallet_values(self, wallet, "seed", "secp256k1")
+
+    def test_from_seed_infers_ed25519_from_sEd_prefix(self):
+        sed_seed = "sEdVRAkrcTVBt4jKfJyKzQzndPFARgs"
+        inferred = Wallet.from_seed(sed_seed)
+        explicit = Wallet.from_seed(sed_seed, algorithm=CryptoAlgorithm.ED25519)
+
+        self.assertEqual(inferred.public_key, explicit.public_key)
+        self.assertEqual(inferred.private_key, explicit.private_key)
+        self.assertEqual(inferred.algorithm, CryptoAlgorithm.ED25519)
 
     def test_from_seed_using_algorithm_ecdsa_secp256k1(self):
         wallet = Wallet.from_seed(
@@ -196,13 +207,15 @@ class TestWalletMain(TestCase):
 
         _test_wallet_values(self, wallet, "seed", "ed25519")
 
-    def test_from_seed_using_regular_key_pair_using_default_algorithm(self):
+    def test_from_seed_using_regular_key_pair_infers_secp256k1_from_s_prefix(self):
+        # regular_key_pair seed is `sh8i92...`, an `s...` family seed;
+        # inference should pick secp256k1.
         wallet = Wallet.from_seed(
             constants["regular_key_pair"]["seed"],
             master_address=constants["regular_key_pair"]["master_address"],
         )
 
-        _test_wallet_values(self, wallet, "regular_key_pair", "ed25519")
+        _test_wallet_values(self, wallet, "regular_key_pair", "secp256k1")
 
     def test_from_seed_using_regular_key_pair_using_algorithm_ed25519(self):
         wallet = Wallet.from_seed(
@@ -222,10 +235,10 @@ class TestWalletMain(TestCase):
 
         _test_wallet_values(self, wallet, "regular_key_pair", "secp256k1")
 
-    def test_from_secret_using_default_algorithm(self):
+    def test_from_secret_infers_secp256k1_from_s_prefix(self):
         wallet = Wallet.from_secret(constants["seed"]["seed"])
 
-        _test_wallet_values(self, wallet, "seed", "ed25519")
+        _test_wallet_values(self, wallet, "seed", "secp256k1")
 
     def test_from_secret_using_algorithm_ecdsa_secp256k1(self):
         wallet = Wallet.from_secret(
@@ -241,13 +254,13 @@ class TestWalletMain(TestCase):
 
         _test_wallet_values(self, wallet, "seed", "ed25519")
 
-    def test_from_secret_using_regular_key_pair_using_default_algorithm(self):
+    def test_from_secret_using_regular_key_pair_infers_secp256k1_from_s_prefix(self):
         wallet = Wallet.from_secret(
             constants["regular_key_pair"]["seed"],
             master_address=constants["regular_key_pair"]["master_address"],
         )
 
-        _test_wallet_values(self, wallet, "regular_key_pair", "ed25519")
+        _test_wallet_values(self, wallet, "regular_key_pair", "secp256k1")
 
     def test_from_secret_using_regular_key_pair_using_algorithm_ed25519(self):
         wallet = Wallet.from_secret(

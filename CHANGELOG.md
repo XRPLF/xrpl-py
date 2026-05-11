@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Dropped support for Python 3.8 (EOL October 2024) and Python 3.9 (EOL October 2025). The minimum supported Python version is now 3.10.
 - Ensure consistent use of ED25519 as the default cryptographic algorithm in `Wallet.from_secret_numbers` method. This change ensures consistency across the entire Wallet class, where ED25519 is used as the default Cryptographic signing algorithm.
+- `Wallet.from_seed` and `Wallet.from_secret` no longer default to `ED25519` when `algorithm` is omitted. The algorithm is now inferred from the seed prefix: `sEd...` seeds derive an ED25519 keypair, all other family seeds (`s...`) derive a SECP256K1 keypair. This fixes the long-standing case where ingesting a secp256k1 family seed without an explicit algorithm silently produced an ED25519 keypair for an unrelated account. Callers that previously relied on the ED25519 default being applied to an `s...` family seed must now pass `algorithm=CryptoAlgorithm.ED25519` explicitly to keep deriving the same keypair. Callers that pass an explicit `algorithm` are unaffected. `Wallet.create`, `Wallet.from_entropy`, and `Wallet.from_secret_numbers` continue to default to ED25519 (they generate a fresh seed rather than ingesting one, so there is no prefix to infer from).
 
 ### Fixed
 
