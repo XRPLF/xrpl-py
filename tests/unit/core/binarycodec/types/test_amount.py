@@ -279,9 +279,11 @@ class TestAmount(TestSerializedType):
             ("1.2000000", "1.2", "D4844364C5BB0000"),
             ("-1.2000000", "-1.2", "94844364C5BB0000"),
         ]
-        for original_value, expected_decoded_value, expected_header_hex in (
-            trailing_zero_cases
-        ):
+        for (
+            original_value,
+            expected_decoded_value,
+            expected_header_hex,
+        ) in trailing_zero_cases:
             iou_dict = {
                 "value": original_value,
                 "currency": "USD",
