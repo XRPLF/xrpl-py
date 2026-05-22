@@ -94,7 +94,7 @@ docker run \
   --detach \
   --publish 5005:5005 \
   --publish 6006:6006 \
-  --volume "$PWD/.ci-config/:/etc/opt/xrpld/" \
+  --volume "$PWD/.ci-config/:/etc/xrpld/" \
   --name xrpld-service \
   rippleci/xrpld:develop --standalone
 ```
@@ -103,7 +103,7 @@ Breaking down the command:
 
 - `--detach` — run in background
 - `--publish 5005:5005 --publish 6006:6006` — expose JSON-RPC and WebSocket ports
-- `--volume "$PWD/.ci-config/:/etc/opt/xrpld/"` — mount local config into the container
+- `--volume "$PWD/.ci-config/:/etc/xrpld/"` — mount local config into the container
 - `--name xrpld-service` — name the container
 - `rippleci/xrpld:develop` — latest `develop` branch build of xrpld
 - `--standalone` — start xrpld in standalone mode
