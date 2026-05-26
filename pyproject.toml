@@ -100,6 +100,10 @@ args = [{ name = "BRANCH_OR_PR", positional = true, default = "", multiple = tru
 cmd = "python3 -m unittest ${FILE_PATHS}"
 args = [{ name = "FILE_PATHS", positional = true, multiple = true }]
 
+[tool.poe.tasks.validate_definitions]
+help = "Validate definitions.json against rippled develop benchmark"
+cmd = "python3 tools/validate_definitions.py"
+
 [tool.poe.tasks.generate_tx_models]
 help = "Generate transaction models from rippled source"
 cmd = "python3 tools/generate_tx_models.py ${FILE_OR_GITHUB_PATH}"

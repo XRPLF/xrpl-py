@@ -65,6 +65,12 @@ jobs:
         run: |
           poetry run mypy --strict --implicit-reexport xrpl
 
+      - name: Validate definitions.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          poetry run poe validate_definitions
+
   unit-test:
     name: Unit test
     runs-on: ubuntu-latest
