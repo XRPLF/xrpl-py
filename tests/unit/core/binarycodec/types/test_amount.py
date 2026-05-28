@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import xrpl.core.binarycodec.types.amount as amount
 from tests.unit.core.binarycodec.types.test_serialized_type import (
     TestSerializedType,
@@ -234,6 +236,78 @@ class TestAmount(TestSerializedType):
             self.assertEqual(round_tripped["value"], "0")
             self.assertEqual(round_tripped["currency"], "USD")
             self.assertEqual(round_tripped["issuer"], issuer)
+
+    def test_iou_to_json_preserves_significant_trailing_zeros(self):
+        """IOU values must round-trip exactly when the decoded Decimal
+        stringifies as an integer (e.g. ``"1000000000000000"``) or in
+        scientific notation (e.g. ``"1E+20"``) — in both shapes the old
+        ``rstrip("0")`` chewed into significant digits."""
+        issuer = "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw"
+        # Each entry: (input value form, expected decoded value string,
+        #              expected 8-byte header in canonical hex).
+        trailing_zero_cases = [
+            # Integer-form decoded Decimal (canonical internal exponent == 0).
+            # ``str(Decimal)`` has no decimal point; the buggy first
+            # ``rstrip("0")`` eats every significant trailing zero.
+            ("1000000000000000", "1000000000000000", "D8438D7EA4C68000"),
+            ("-1000000000000000", "-1000000000000000", "98438D7EA4C68000"),
+            # Single trailing zero: the buggy strip eats exactly one digit,
+            # producing a small ``x10`` corruption (``9999999999999990`` ->
+            # ``999999999999999``) that is plausible-looking and easy to miss
+            # under a loose equality check.
+            ("9999999999999990", "9999999999999990", "D86386F26FC0FFF6"),
+            ("-9999999999999990", "-9999999999999990", "986386F26FC0FFF6"),
+            # Interior non-zero digit: proves the strip stops where it lands.
+            ("1234567890000000", "1234567890000000", "D84462D53C88D880"),
+            # Sci-notation *input* that lands on an integer canonical decode.
+            ("25e14", "2500000000000000", "D848E1BC9BF04000"),
+            # Large-magnitude (canonical internal exponent pushes outside the
+            # fixed-point window): ``str(Decimal)`` emits sci notation like
+            # ``"1.000000000000000E+20"`` and the buggy ``rstrip("0")`` shaves
+            # a digit off the exponent itself (e.g. ``E+20`` -> ``E+2``). Full
+            # mantissa-sign x exponent-sign matrix at |exponent|=20, well
+            # within the IOU exponent range and free of any rounding concerns.
+            ("1e20", "1" + "0" * 20, "D9838D7EA4C68000"),
+            ("-1e20", "-1" + "0" * 20, "99838D7EA4C68000"),
+            ("1e-20", "0." + "0" * 19 + "1", "CF838D7EA4C68000"),
+            ("-1e-20", "-0." + "0" * 19 + "1", "8F838D7EA4C68000"),
+            # Happy-path: fractional trailing zeros (the encoder pads the
+            # canonical mantissa to 16 digits, so the decoded Decimal carries
+            # 15 fractional digits even for an input like ``"1.2"``). The
+            # output must NOT carry those zeros forward; this guards against
+            # an over-correction that drops the fractional rstrip entirely.
+            ("1.2000000", "1.2", "D4844364C5BB0000"),
+            ("-1.2000000", "-1.2", "94844364C5BB0000"),
+        ]
+        for (
+            original_value,
+            expected_decoded_value,
+            expected_header_hex,
+        ) in trailing_zero_cases:
+            iou_dict = {
+                "value": original_value,
+                "currency": "USD",
+                "issuer": issuer,
+            }
+            amount_object = amount.Amount.from_value(iou_dict)
+            self.assertEqual(
+                amount_object.to_hex()[:16].upper(),
+                expected_header_hex,
+                f"Encoder produced unexpected header for {original_value!r}",
+            )
+            round_tripped_iou = amount_object.to_json()
+            self.assertEqual(
+                round_tripped_iou["value"],
+                expected_decoded_value,
+                f"Round-trip corrupted {original_value!r}: "
+                f"got {round_tripped_iou['value']!r}",
+            )
+            self.assertEqual(
+                Decimal(round_tripped_iou["value"]),
+                Decimal(original_value),
+                f"Decoded value {round_tripped_iou['value']!r} is "
+                f"numerically unequal to input {original_value!r}",
+            )
 
     def test_from_value_xrp(self):
         for json, serialized in XRP_CASES:

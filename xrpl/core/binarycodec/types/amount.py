@@ -386,7 +386,13 @@ class Amount(SerializedType):
             if value.is_zero():
                 value_str = "0"
             else:
-                value_str = str(value).rstrip("0").rstrip(".")
+                # ``f"{value:f}"`` forces fixed-point output (no scientific
+                # notation); the guarded ``rstrip`` then only trims trailing
+                # zeros that are fractional padding, never significant digits
+                # of an integer-form Decimal or digits of an exponent.
+                value_str = f"{value:f}"
+                if "." in value_str:
+                    value_str = value_str.rstrip("0").rstrip(".")
             verify_iou_value(value_str)
 
             return {
