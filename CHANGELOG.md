@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add support for Batch (XLS-56) `BatchV1_1` signing.
+- Support for custom HTTP headers (e.g. API keys, Dhali payment-claims) on the base `Client`, `JsonRpcBase`, and `WebsocketBase` clients, plus `XRPLAuthenticationException` for 401/402/403 responses.
 
 ### Removed
 
