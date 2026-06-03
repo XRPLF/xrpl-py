@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed correct mapping of `sfMutableFlags`, `sfStartDate`, and `sfPreviousPaymentDueDate` fields in the binary codec `definitions.json`.
 - Fixed `Amount` codec to correctly handle large integers with trailing zeros (precision is counted by significant digits, not total digits).
+- Fixed `Amount.to_json` to preserve significant digits when an IOU value's canonical `Decimal` stringifies as an integer or in scientific notation; previously the decoder applied `rstrip("0")` unconditionally and silently truncated values such as `1000000000000000` to `"1"`.
 - Fixed async WebSocket handler so a single malformed JSON frame is skipped instead of terminating the handler task and silencing the client for the remainder of the connection (issue #977).
 - Fixed WebSocket request-ID generation to use a cryptographic RNG (`secrets.randbelow`) and widened the ID range from `1_000_000` to `2**62`, making birthday-paradox collisions astronomically unlikely (expected collision after ~2**31 requests instead of ~1,177) (issue #986).
 
