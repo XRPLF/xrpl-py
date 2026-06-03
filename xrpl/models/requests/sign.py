@@ -26,11 +26,9 @@ from xrpl.constants import CryptoAlgorithm
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class Sign(Request):
     """
     The sign method takes a transaction in JSON format and a seed value, and returns a
@@ -66,6 +64,7 @@ class Sign(Request):
     build_path: Optional[bool] = None  # note: None does have meaning here
     fee_mult_max: int = 10
     fee_div_max: int = 1
+    signature_target: Optional[str] = None
 
     @classmethod
     def from_dict(cls: Type[Self], value: Dict[str, Any]) -> Self:

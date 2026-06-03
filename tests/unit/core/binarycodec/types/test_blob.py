@@ -17,3 +17,7 @@ class TestBlob(TestCase):
     def test_raises_invalid_value_type(self):
         invalid_value = [1, 2, 3]
         self.assertRaises(XRPLBinaryCodecException, Blob.from_value, invalid_value)
+
+    def test_raises_invalid_non_hex_input(self):
+        invalid_value = "Z"
+        self.assertRaises(ValueError, Blob.from_value, invalid_value)

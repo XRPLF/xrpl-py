@@ -2,6 +2,11 @@
 
 from xrpl.utils.get_nftoken_id import get_nftoken_id
 from xrpl.utils.get_xchain_claim_id import get_xchain_claim_id
+from xrpl.utils.mptoken_metadata import (
+    decode_mptoken_metadata,
+    encode_mptoken_metadata,
+    validate_mptoken_metadata,
+)
 from xrpl.utils.parse_nftoken_id import parse_nftoken_id
 from xrpl.utils.str_conversions import hex_to_str, str_to_hex
 from xrpl.utils.time_conversions import (
@@ -35,4 +40,7 @@ __all__ = [
     "get_nftoken_id",
     "parse_nftoken_id",
     "get_xchain_claim_id",
+    "decode_mptoken_metadata",
+    "encode_mptoken_metadata",
+    "validate_mptoken_metadata",
 ]

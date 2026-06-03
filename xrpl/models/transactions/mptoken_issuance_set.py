@@ -16,8 +16,6 @@ from xrpl.models.utils import (
     HEX_REGEX,
     MAX_MPTOKEN_METADATA_LENGTH,
     MPT_META_WARNING_HEADER,
-    require_kwargs_on_init,
-    validate_mptoken_metadata,
 )
 
 _MAX_TRANSFER_FEE: Final[int] = 50000
@@ -122,8 +120,7 @@ class MPTokenIssuanceSetFlagInterface(TransactionFlagInterface):
     TF_MPT_UNLOCK: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class MPTokenIssuanceSet(Transaction):
     """
     The MPTokenIssuanceSet transaction is used to globally lock/unlock a
@@ -305,6 +302,9 @@ class MPTokenIssuanceSet(Transaction):
                     errors["mptoken_metadata"] = "Metadata must be a valid hex string"
 
                 # Validate metadata format with warnings
+                # Lazy import to avoid circular dependency
+                from xrpl.utils.mptoken_metadata import validate_mptoken_metadata
+
                 validation_messages = validate_mptoken_metadata(self.mptoken_metadata)
                 if len(validation_messages) > 0:
                     message = "\n".join(

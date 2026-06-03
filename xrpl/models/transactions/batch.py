@@ -18,7 +18,6 @@ from xrpl.models.transactions.transaction import (
     TransactionFlagInterface,
 )
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class BatchFlag(int, Enum):
@@ -48,8 +47,7 @@ class BatchFlagInterface(TransactionFlagInterface):
     TF_INDEPENDENT: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class BatchSigner(NestedModel):
     """Represents a Batch signer."""
 
@@ -62,8 +60,7 @@ class BatchSigner(NestedModel):
     signers: Optional[List[Signer]] = None
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class Batch(Transaction):
     """Represents a Batch transaction."""
 

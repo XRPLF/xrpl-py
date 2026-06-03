@@ -11,9 +11,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support for `Dynamic Multi-Purpose Tokens` (XLS-94d)
 
+### BREAKING CHANGE
+
+- Dropped support for Python 3.8 (EOL October 2024) and Python 3.9 (EOL October 2025). The minimum supported Python version is now 3.10.
+- Ensure consistent use of ED25519 as the default cryptographic algorithm in `Wallet.from_secret_numbers` method. This change ensures consistency across the entire Wallet class, where ED25519 is used as the default Cryptographic signing algorithm.
+
+### Fixed
+
+- Fixed correct mapping of `sfMutableFlags`, `sfStartDate`, and `sfPreviousPaymentDueDate` fields in the binary codec `definitions.json`.
+- Fixed `Amount` codec to correctly handle large integers with trailing zeros (precision is counted by significant digits, not total digits).
+- Fixed `Amount.to_json` to preserve significant digits when an IOU value's canonical `Decimal` stringifies as an integer or in scientific notation; previously the decoder applied `rstrip("0")` unconditionally and silently truncated values such as `1000000000000000` to `"1"`.
+- Fixed async WebSocket handler so a single malformed JSON frame is skipped instead of terminating the handler task and silencing the client for the remainder of the connection (issue #977).
+- Fixed WebSocket request-ID generation to use a cryptographic RNG (`secrets.randbelow`) and widened the ID range from `1_000_000` to `2**62`, making birthday-paradox collisions astronomically unlikely (expected collision after ~2**31 requests instead of ~1,177) (issue #986).
+
+## [[4.5.0]]
+
+### Added
+
+- Added `sign_loan_set_by_counterparty` helper function to sign LoanSet transactions as the counterparty (supports both single-sign and multi-sign modes)
+- Added `combine_loanset_counterparty_signers` helper function to combine multiple counterparty signatures for multi-sign LoanSet transactions
+- Added `compute_signature` helper function to compute transaction signatures with optional multi-sign support
+- Introduce the binary-codec for the new rippled type titled "Int32". This type is used to represent the LoanScale field relating to the Lending Protocol.
+
+### Fixed
+
+- Updates `Number` codec with mantissa range normalization ([10^18, 10^19 - 1]) and appropriate overflow/underflow checks
+- Fix `Request.from_xrpl` by aliasing it to `Request.from_dict`
+
+## [[4.4.0]] - 2025-12-16
+
+### Added
+
+- Support for the Lending Protocol (XLS-66d)
+
+## [[4.3.1]] - 2025-11-12
+
+### Added
+
+- Add `encode_mptoken_metadata` and `decode_mptoken_metadata` helper functions to encode and decode MPTokenMetadata as per XLS-89 standard.
+
 ### Fixed
 
 - Removed snippets files from the xrpl-py code repository. Updated the README file to point to the correct location on XRPL.org.
+- [Breaking change] Fix `MPTokenMetadata` type to adhere to the XLS-89 standard. Since XLS-89 is still in a forming state and undergoing changes, this breaking change is being released as a bug fix via patch version bump. If you are using `MPTokenMetadata` in your code, please verify that it adheres to the updated type definition.
+- [Breaking change] Fix `validate_mptoken_metadata` to correctly validate MPTokenMetadata as per XLS-89 standard. Since XLS-89 is still in a forming state and undergoing changes, this breaking change is being released as a bug fix via patch version bump. If you are using `validateMPTokenMetadata` in your code, expect it to change as per the XLS-89 standard.
+- Fixed the binary-codec issues pertaining to the serialization of the `MPTCurrency` rippled type. (Reference PR: https://github.com/XRPLF/xrpl-py/pull/870)
 
 ## [[4.3.0]] - 2025-07-29
 

@@ -393,7 +393,7 @@ class TestMPTokenIssuanceSet(TestCase):
             self.assertTrue(len(caught_warnings) > 0, "Expected warning not emitted")
             warning_messages = [str(w.message) for w in caught_warnings]
             found = any(
-                "- icon is required and must be string." in msg
+                "- icon/i: should be a non-empty string." in msg
                 for msg in warning_messages
             )
-            self.assertTrue(found, "- icon is required and must be string.")
+            self.assertTrue(found, "- icon/i: should be a non-empty string.")

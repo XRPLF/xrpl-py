@@ -9,14 +9,12 @@ from typing_extensions import Self
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 _DOMAIN_ID_REGEX: Final[Pattern[str]] = re.compile("[A-F0-9]{64}")
 DOMAIN_ID_LENGTH: Final[int] = 64
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class PermissionedDomainDelete(Transaction):
     """This transaction deletes a PermissionedDomain object."""
 

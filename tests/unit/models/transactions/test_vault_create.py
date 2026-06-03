@@ -18,6 +18,7 @@ class TestVaultCreate(TestCase):
             assets_maximum="1000",
             withdrawal_policy=1,
             data=str_to_hex("A" * 256),
+            scale=4,
         )
         self.assertTrue(tx.is_valid())
 
@@ -88,7 +89,13 @@ class TestVaultCreate(TestCase):
         invalid_metadata = {
             "ticker": "TBILL",
             "name": "T-Bill Yield Token",
-            "invalid_field": "should cause warning",
+            "icon": "https://example.org/tbill-icon.png",
+            "uris": [
+                {
+                    "title": "Product Page",
+                    "category": "website",
+                }
+            ],
         }
 
         tx = VaultCreate(
@@ -106,7 +113,42 @@ class TestVaultCreate(TestCase):
             self.assertTrue(len(caught_warnings) > 0, "Expected warning not emitted")
             warning_messages = [str(w.message) for w in caught_warnings]
             found = any(
-                "- icon is required and must be string." in msg
+                "- uris/us: should be an array of objects each with "
+                "uri/u, category/c, and title/t properties." in msg
                 for msg in warning_messages
             )
-            self.assertTrue(found, "- icon is required and must be string.")
+            self.assertTrue(
+                found,
+                "- uris/us: should be an array of objects each "
+                "with uri/u, category/c, and title/t properties.",
+            )
+
+    def test_scale_field_too_large(self):
+        with self.assertRaises(XRPLModelException) as error:
+            VaultCreate(
+                account=_ACCOUNT,
+                asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                assets_maximum="1000",
+                withdrawal_policy=1,
+                data=str_to_hex("A" * 256),
+                scale=18 + 1,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'VaultCreate': 'Scale field is higher than the allowed limit (18)'}",
+        )
+
+    def test_scale_field_too_small(self):
+        with self.assertRaises(XRPLModelException) as error:
+            VaultCreate(
+                account=_ACCOUNT,
+                asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                assets_maximum="1000",
+                withdrawal_policy=1,
+                data=str_to_hex("A" * 256),
+                scale=-1,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'VaultCreate': 'Scale field is lower than the allowed limit (0)'}",
+        )

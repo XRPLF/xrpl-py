@@ -63,7 +63,7 @@ The `xrpl-py` library is available on [PyPI](https://pypi.org/). Install with `p
 pip3 install xrpl-py
 ```
 
-The library supports [Python 3.8](https://www.python.org/downloads/) and later.
+The library supports [Python 3.10](https://www.python.org/downloads/) and later.
 
 [![Supported Versions](https://img.shields.io/pypi/pyversions/xrpl-py.svg)](https://pypi.org/project/xrpl-py)
 
@@ -295,7 +295,7 @@ async def submit_sample_transaction():
         fee="10",
     )
     # sign and submit the transaction
-    tx_response = await submit_and_wait(my_tx_payment_signed, async_client, test_wallet)
+    tx_response = await submit_and_wait(my_tx_payment, async_client, test_wallet)
 
 asyncio.run(submit_sample_transaction())
 ```
