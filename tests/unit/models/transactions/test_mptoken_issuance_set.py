@@ -178,71 +178,49 @@ class TestMPTokenIssuanceSet(TestCase):
             error.exception.args[0],
         )
 
-    def test_mutable_flags_set_clear_can_lock_conflict(self):
-        """Test that SET and CLEAR CAN_LOCK cannot both be set."""
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_LOCK,
-            )
-        self.assertIn("Cannot set and clear CAN_LOCK", error.exception.args[0])
-
-    def test_mutable_flags_set_clear_require_auth_conflict(self):
-        """Test that SET and CLEAR REQUIRE_AUTH cannot both be set."""
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_REQUIRE_AUTH
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_REQUIRE_AUTH,
-            )
-        self.assertIn("Cannot set and clear REQUIRE_AUTH", error.exception.args[0])
-
-    def test_mutable_flags_set_clear_can_escrow_conflict(self):
-        """Test that SET and CLEAR CAN_ESCROW cannot both be set."""
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_ESCROW
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_ESCROW,
-            )
-        self.assertIn("Cannot set and clear CAN_ESCROW", error.exception.args[0])
-
-    def test_mutable_flags_set_clear_can_trade_conflict(self):
-        """Test that SET and CLEAR CAN_TRADE cannot both be set."""
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_TRADE
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_TRADE,
-            )
-        self.assertIn("Cannot set and clear CAN_TRADE", error.exception.args[0])
-
-    def test_mutable_flags_set_clear_can_transfer_conflict(self):
-        """Test that SET and CLEAR CAN_TRANSFER cannot both be set."""
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_TRANSFER
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_TRANSFER,
-            )
-        self.assertIn("Cannot set and clear CAN_TRANSFER", error.exception.args[0])
-
-    def test_mutable_flags_set_clear_can_clawback_conflict(self):
-        """Test that SET and CLEAR CAN_CLAWBACK cannot both be set."""
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_CLAWBACK
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_CLAWBACK,
-            )
-        self.assertIn("Cannot set and clear CAN_CLAWBACK", error.exception.args[0])
+    def test_mutable_flags_set_clear_conflicts(self):
+        """Test that SET and CLEAR of the same flag cannot both be present."""
+        set_clear_pairs = [
+            (
+                MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK,
+                MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_LOCK,
+                "CAN_LOCK",
+            ),
+            (
+                MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_REQUIRE_AUTH,
+                MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_REQUIRE_AUTH,
+                "REQUIRE_AUTH",
+            ),
+            (
+                MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_ESCROW,
+                MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_ESCROW,
+                "CAN_ESCROW",
+            ),
+            (
+                MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_TRADE,
+                MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_TRADE,
+                "CAN_TRADE",
+            ),
+            (
+                MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_TRANSFER,
+                MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_TRANSFER,
+                "CAN_TRANSFER",
+            ),
+            (
+                MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_CLAWBACK,
+                MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_CLAWBACK,
+                "CAN_CLAWBACK",
+            ),
+        ]
+        for set_flag, clear_flag, name in set_clear_pairs:
+            with self.subTest(flag=name):
+                with self.assertRaises(XRPLModelException) as error:
+                    MPTokenIssuanceSet(
+                        account=_ACCOUNT,
+                        mptoken_issuance_id=_TOKEN_ID,
+                        mutable_flags=set_flag | clear_flag,
+                    )
+                self.assertIn(f"Cannot set and clear {name}", error.exception.args[0])
 
     def test_transfer_fee_with_clear_can_transfer_fails(self):
         """Test that non-zero transfer_fee cannot be set when clearing CAN_TRANSFER."""
