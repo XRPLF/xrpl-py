@@ -1571,6 +1571,26 @@
       }
     ],
     [
+      "ReferenceHolding",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 39,
+        "type": "Hash256"
+      }
+    ],
+    [
+      "ObjectID",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 40,
+        "type": "Hash256"
+      }
+    ],
+    [
       "hash",
       {
         "isSerialized": false,
@@ -1587,26 +1607,6 @@
         "isSigningField": false,
         "isVLEncoded": false,
         "nth": 258,
-        "type": "Hash256"
-      }
-    ],
-    [
-      "ObjectID",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 40,
-        "type": "Hash256"
-      }
-    ],
-    [
-      "ReferenceHolding",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 39,
         "type": "Hash256"
       }
     ],
@@ -3481,6 +3481,26 @@
       }
     ],
     [
+      "TakerPaysMPT",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 3,
+        "type": "Hash192"
+      }
+    ],
+    [
+      "TakerGetsMPT",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 4,
+        "type": "Hash192"
+      }
+    ],
+    [
       "LockingChainIssue",
       {
         "isSerialized": true,
@@ -3619,11 +3639,11 @@
     "PermissionedDomain": 130,
     "RippleState": 114,
     "SignerList": 83,
+    "Sponsorship": 144,
     "Ticket": 84,
     "Vault": 132,
     "XChainOwnedClaimID": 113,
-    "XChainOwnedCreateAccountClaimID": 116,
-    "Sponsorship": 144
+    "XChainOwnedCreateAccountClaimID": 116
   },
   "TRANSACTION_RESULTS": {
     "tecAMM_ACCOUNT": 168,
@@ -3666,7 +3686,6 @@
     "tecNFTOKEN_OFFER_TYPE_MISMATCH": 157,
     "tecNO_ALTERNATIVE_KEY": 130,
     "tecNO_AUTH": 134,
-    "tecNO_DELEGATE_PERMISSION": 198,
     "tecNO_DST": 124,
     "tecNO_DST_INSUF_XRP": 125,
     "tecNO_ENTRY": 140,
@@ -3676,6 +3695,7 @@
     "tecNO_LINE_REDUNDANT": 127,
     "tecNO_PERMISSION": 139,
     "tecNO_REGULAR_KEY": 131,
+    "tecNO_SPONSOR_PERMISSION": 198,
     "tecNO_SUITABLE_NFTOKEN_PAGE": 155,
     "tecNO_TARGET": 138,
     "tecOBJECT_NOT_FOUND": 160,
@@ -3710,6 +3730,7 @@
     "tecXCHAIN_SELF_COMMIT": 184,
     "tecXCHAIN_SENDING_ACCOUNT_MISMATCH": 179,
     "tecXCHAIN_WRONG_CHAIN": 176,
+
     "tefALREADY": -198,
     "tefBAD_ADD_AUTH": -197,
     "tefBAD_AUTH": -196,
@@ -3732,6 +3753,7 @@
     "tefPAST_SEQ": -190,
     "tefTOO_BIG": -181,
     "tefWRONG_PRIOR": -189,
+
     "telBAD_DOMAIN": -398,
     "telBAD_PATH_COUNT": -397,
     "telBAD_PUBLIC_KEY": -396,
@@ -3749,6 +3771,7 @@
     "telNO_DST_PARTIAL": -393,
     "telREQUIRES_NETWORK_ID": -385,
     "telWRONG_NETWORK": -386,
+
     "temARRAY_EMPTY": -253,
     "temARRAY_TOO_LARGE": -252,
     "temBAD_AMM_TOKENS": -261,
@@ -3758,6 +3781,7 @@
     "temBAD_FEE": -295,
     "temBAD_ISSUER": -294,
     "temBAD_LIMIT": -293,
+    "temBAD_MPT": -249,
     "temBAD_NFTOKEN_TRANSFER_FEE": -262,
     "temBAD_OFFER": -292,
     "temBAD_PATH": -291,
@@ -3799,21 +3823,25 @@
     "temXCHAIN_BRIDGE_BAD_REWARD_AMOUNT": -255,
     "temXCHAIN_BRIDGE_NONDOOR_OWNER": -257,
     "temXCHAIN_EQUAL_DOOR_ACCOUNTS": -260,
+
     "terADDRESS_COLLISION": -86,
     "terFUNDS_SPENT": -98,
     "terINSUF_FEE_B": -97,
     "terLAST": -91,
+    "terLOCKED": -84,
     "terNO_ACCOUNT": -96,
     "terNO_AMM": -87,
     "terNO_AUTH": -95,
     "terNO_DELEGATE_PERMISSION": -85,
     "terNO_LINE": -94,
     "terNO_RIPPLE": -90,
+    "terNO_SPONSORSHIP": -83,
     "terOWNERS": -93,
     "terPRE_SEQ": -92,
     "terPRE_TICKET": -88,
     "terQUEUED": -89,
     "terRETRY": -99,
+
     "tesSUCCESS": 0
   },
   "TRANSACTION_TYPES": {
@@ -3876,6 +3904,8 @@
     "SetFee": 101,
     "SetRegularKey": 5,
     "SignerListSet": 12,
+    "SponsorshipSet": 86,
+    "SponsorshipTransfer": 85,
     "TicketCreate": 10,
     "TrustSet": 20,
     "UNLModify": 102,
@@ -3892,9 +3922,7 @@
     "XChainCommit": 42,
     "XChainCreateBridge": 48,
     "XChainCreateClaimID": 41,
-    "XChainModifyBridge": 47,
-    "SponsorshipSet": 86,
-    "SponsorshipTransfer": 85
+    "XChainModifyBridge": 47
   },
   "TYPES": {
     "AccountID": 8,
@@ -3906,6 +3934,8 @@
     "Hash160": 17,
     "Hash192": 21,
     "Hash256": 5,
+    "Hash384": 22,
+    "Hash512": 23,
     "Int32": 10,
     "Int64": 11,
     "Issue": 24,
@@ -3919,8 +3949,6 @@
     "Transaction": 10001,
     "UInt16": 1,
     "UInt32": 2,
-    "UInt384": 22,
-    "UInt512": 23,
     "UInt64": 3,
     "UInt8": 16,
     "UInt96": 20,
