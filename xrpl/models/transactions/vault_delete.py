@@ -8,13 +8,11 @@ from typing_extensions import Self
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 _MAX_VAULT_ID_LENGTH = 64
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class VaultDelete(Transaction):
     """The VaultDelete transaction deletes an existing vault object."""
 

@@ -79,17 +79,15 @@ class Wallet:
                 # We do not use the outputs of the below function, we are interested in
                 # whether it throws an exception or not
                 addresscodec.decode_seed(seed, wallet_algorithm)
-            except Exception as e:
+            except Exception:
+                # ``from None`` suppresses the original exception's traceback so
+                # that ``base58.b58decode``'s ``ValueError("Invalid character 'X'")``
+                # — which embeds a byte from the seed — cannot reach logs or
+                # error-reporting pipelines through the chained cause.
                 raise XRPLAddressCodecException(
-                    "Attempted to initialize a Wallet with "
-                    + "an invalid seed: "
-                    + seed
-                    + ". The cryptographic algorithm"
-                    + " used is: "
-                    + wallet_algorithm
-                    + "\nError message: "
-                    + str(e)
-                )
+                    "Attempted to initialize a Wallet with an invalid seed. "
+                    "The cryptographic algorithm used is: " + wallet_algorithm
+                ) from None
 
         self.seed = seed
 
@@ -140,7 +138,7 @@ class Wallet:
         seed: str,
         *,
         master_address: Optional[str] = None,
-        algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
+        algorithm: Optional[CryptoAlgorithm] = None,
     ) -> Self:
         """
         Generates a new Wallet from seed (secret).
@@ -149,8 +147,9 @@ class Wallet:
             seed: The seed (secret) used to derive the account keys.
             master_address: Include if a Wallet uses a Regular Key Pair. This sets the
                 address that this wallet corresponds to. The default is `None`.
-            algorithm: The key-generation algorithm to use when generating the seed.
-                The default is `ED25519`.
+            algorithm: The key-generation algorithm to use. When omitted, the algorithm
+                is inferred from the seed prefix: `sEd...` seeds derive an ED25519
+                keypair, all other family seeds (`s...`) derive a SECP256K1 keypair.
 
         Returns:
             The wallet that is generated from the given secret.
@@ -205,7 +204,7 @@ class Wallet:
         secret_numbers: List[str] | str,
         *,
         master_address: Optional[str] = None,
-        algorithm: CryptoAlgorithm = CryptoAlgorithm.SECP256K1,
+        algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
     ) -> Self:
         """
         Generates a new Wallet from secret numbers.
@@ -216,9 +215,8 @@ class Wallet:
             master_address: Include if a Wallet uses a Regular Key Pair. It must be
                 the master address of the account. The default is `None`.
             algorithm: The digital signature algorithm to generate an address for.
-                The default is `SECP256K1
-                <https://xrpl.org/cryptographic-keys.html#secp256k1-key-derivation>`_
-                (XUMM standard as of December 2022).
+            The default is `ED25519
+            <https://xrpl.org/docs/concepts/accounts/cryptographic-keys#ed25519-key-derivation>`_.
 
         Returns:
             The wallet that is generated from the given secret numbers.

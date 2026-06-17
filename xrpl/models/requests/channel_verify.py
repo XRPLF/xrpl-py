@@ -8,11 +8,9 @@ from dataclasses import dataclass, field
 
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class ChannelVerify(Request):
     """
     The channel_verify method checks the validity of a

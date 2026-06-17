@@ -9,11 +9,7 @@ from typing_extensions import Self
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import (
-    KW_ONLY_DATACLASS,
-    require_kwargs_on_init,
-    validate_credential_ids,
-)
+from xrpl.models.utils import validate_credential_ids
 
 
 class PaymentChannelClaimFlag(int, Enum):
@@ -60,8 +56,7 @@ class PaymentChannelClaimFlagInterface(TransactionFlagInterface):
     TF_CLOSE: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class PaymentChannelClaim(Transaction):
     """
     Represents a `PaymentChannelClaim <https://xrpl.org/paymentchannelclaim.html>`_

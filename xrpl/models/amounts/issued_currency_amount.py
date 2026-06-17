@@ -13,11 +13,9 @@ from typing_extensions import Self
 
 from xrpl.models.currencies import IssuedCurrency
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class IssuedCurrencyAmount(IssuedCurrency):
     """
     Specifies an amount in an issued currency.

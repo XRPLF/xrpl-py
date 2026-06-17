@@ -13,11 +13,9 @@ from xrpl.models.transactions.vault_create import (
     VAULT_MAX_DOMAIN_ID_LENGTH,
 )
 from xrpl.models.transactions.vault_delete import _MAX_VAULT_ID_LENGTH
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class VaultSet(Transaction):
     """The VaultSet updates an existing Vault ledger object."""
 

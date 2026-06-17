@@ -5,11 +5,9 @@ from dataclasses import dataclass, field
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class CheckCancel(Transaction):
     """
     Represents a `CheckCancel <https://xrpl.org/checkcancel.html>`_ transaction,

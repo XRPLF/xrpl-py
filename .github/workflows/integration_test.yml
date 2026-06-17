@@ -2,13 +2,21 @@ name: Integration test
 
 env:
   POETRY_VERSION: 2.1.1
-  RIPPLED_DOCKER_IMAGE: rippleci/rippled:develop
+  XRPLD_DOCKER_IMAGE: rippleci/xrpld:develop
 
 on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      git_ref:
+        description: "Git ref (branch, tag, or SHA) to test"
+        required: false
+        type: string
+        default: ""
 
 jobs:
   integration-test:
@@ -17,11 +25,13 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref != '' && inputs.git_ref || github.ref }}
 
       - name: Load cached .local
         id: cache-poetry
@@ -32,7 +42,13 @@ jobs:
 
       - name: Run docker in background
         run: |
-          docker run --detach --rm -p 5005:5005 -p 6006:6006 --volume "${{ github.workspace }}/.ci-config/":"/etc/opt/ripple/" --name rippled-service --health-cmd="rippled server_info || exit 1" --health-interval=5s --health-retries=10 --health-timeout=2s --env GITHUB_ACTIONS=true --env CI=true --entrypoint bash ${{ env.RIPPLED_DOCKER_IMAGE }} -c "rippled -a"
+          docker run \
+            --detach \
+            --publish 5005:5005 \
+            --publish 6006:6006 \
+            --volume "${{ github.workspace }}/.ci-config/":"/etc/xrpld/" \
+            --name xrpld-service \
+            ${{ env.XRPLD_DOCKER_IMAGE }} --standalone
 
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'
@@ -60,4 +76,4 @@ jobs:
 
       - name: Stop docker container
         if: always()
-        run: docker stop rippled-service
+        run: docker logs xrpld-service && docker stop xrpld-service

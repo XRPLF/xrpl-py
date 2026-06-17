@@ -8,7 +8,6 @@ from enum import Enum
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class LoanManageFlag(int, Enum):
@@ -46,8 +45,7 @@ class LoanManageFlagInterface(TransactionFlagInterface):
     TF_LOAN_UNIMPAIR: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class LoanManage(Transaction):
     """The transaction updates an existing Loan object."""
 

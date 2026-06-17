@@ -14,10 +14,8 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import (
     HEX_REGEX,
-    KW_ONLY_DATACLASS,
     MAX_MPTOKEN_METADATA_LENGTH,
     MPT_META_WARNING_HEADER,
-    require_kwargs_on_init,
 )
 
 VAULT_MAX_DATA_LENGTH = 256 * 2
@@ -59,8 +57,7 @@ class WithdrawalPolicy(int, Enum):
     """Requests are processed on a first-come-first-serve basis."""
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class VaultCreate(Transaction):
     """The VaultCreate transaction creates a new Vault object."""
 
@@ -85,6 +82,14 @@ class VaultCreate(Transaction):
 
     domain_id: Optional[str] = None
     """The PermissionedDomain object ID associated with the shares of this Vault."""
+
+    scale: Optional[int] = None
+    """(Trust line tokens only) Specifies decimal precision for share calculations.
+    Assets are multiplied by 10^Scale to convert fractional amounts into whole number
+    shares. For example, with a Scale of 6, depositing 20.3 units creates 20,300,000
+    shares (20.3 × 10^Scale). For trust line tokens this can be configured at vault
+    creation, and valid values are between 0-18, with the default being 6. For XRP and
+    MPTs, this is fixed at 0."""
 
     withdrawal_policy: Optional[Union[int, WithdrawalPolicy]] = None
     """Indicates the withdrawal strategy used by the Vault. The below withdrawal policy
@@ -123,6 +128,16 @@ class VaultCreate(Transaction):
             errors["domain_id"] = (
                 "Invalid domain ID: Length must be 32 characters (64 hex characters)."
             )
+
+        if self.scale is not None:
+            if self.scale > 18:
+                errors["VaultCreate"] = (
+                    "Scale field is higher than the allowed limit (18)"
+                )
+            elif self.scale < 0:
+                errors["VaultCreate"] = (
+                    "Scale field is lower than the allowed limit (0)"
+                )
 
         if self.mptoken_metadata is not None:
             # Lazy import to avoid circular dependency

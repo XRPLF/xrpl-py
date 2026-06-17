@@ -4,6 +4,7 @@ Note: Much of the ideas and constants in this file are borrowed from the rippled
 implementation of the `Number` and `STNumber` class. Please refer to the cpp code.
 """
 
+import math
 import re
 from typing import Optional, Pattern, Tuple, Type
 
@@ -13,18 +14,30 @@ from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
 
+_DEBUG = False
+
 # Limits of representation after normalization of mantissa and exponent
-_MIN_MANTISSA = 1000000000000000
-_MAX_MANTISSA = 9999999999999999
+# This minimum and maximum correspond to the "MantissaRange::large" values. This is the
+# default range of the Number type. However, legacy transactions make use of the
+# MantissaRange::small i.e. [10^15, 10^16-1].
+_MIN_MANTISSA = 1_000_000_000_000_000_000
+_MAX_MANTISSA = _MIN_MANTISSA * 10 - 1
+_MAX_REP = 9_223_372_036_854_775_807
+
+_MANTISSA_LOG = math.log10(_MIN_MANTISSA)
 
 _MIN_EXPONENT = -32768
 _MAX_EXPONENT = 32768
 
+# the below value is used for the representation of Number zero
 _DEFAULT_VALUE_EXPONENT = -2147483648
 
 
 def normalize(mantissa: int, exponent: int) -> Tuple[int, int]:
     """Normalize the mantissa and exponent of a number.
+
+    This implementation matches rippled's doNormalize function. In case of a tie, it
+    rounds up the mantissa.
 
     Args:
         mantissa: The mantissa of the input number
@@ -33,25 +46,63 @@ def normalize(mantissa: int, exponent: int) -> Tuple[int, int]:
     Returns:
         A tuple containing the normalized mantissa and exponent
     """
+    if mantissa == 0:
+        return (0, _DEFAULT_VALUE_EXPONENT)
+
     is_negative = mantissa < 0
     m = abs(mantissa)
 
+    # Scale up mantissa while it's below minimum
     while m < _MIN_MANTISSA and exponent > _MIN_EXPONENT:
-        exponent -= 1
         m *= 10
+        exponent -= 1
 
-    # Note: This code rounds the normalized mantissa "towards_zero". If your use case
-    # needs other rounding modes -- to_nearest, up (or) down, let us know with an
-    # appropriate bug report
+    truncated_digit: int = 0
+
+    # Scale down mantissa while it's above maximum, pushing digits to guard
     while m > _MAX_MANTISSA:
         if exponent >= _MAX_EXPONENT:
-            raise XRPLBinaryCodecException("Mantissa and exponent are too large.")
-
-        exponent += 1
+            raise XRPLBinaryCodecException("Number::normalize overflow 1")
+        truncated_digit = m % 10
         m //= 10
+        exponent += 1
+
+    # Handle underflow
+    if exponent < _MIN_EXPONENT or m < _MIN_MANTISSA:
+        return (0, _DEFAULT_VALUE_EXPONENT)
+
+    # When using largeRange, m needs to fit within int64 (maxRep).
+    # Cut it down here so rounding is done while it's smaller.
+    if m > _MAX_REP:
+        if exponent >= _MAX_EXPONENT:
+            raise XRPLBinaryCodecException("Number::normalize overflow 1.5")
+        truncated_digit = m % 10
+        m //= 10
+        exponent += 1
+
+    # Apply rounding based on truncated digit (round half to even)
+    if truncated_digit >= 5:
+        m += 1
+        # After rounding up, check if we exceeded limits
+        if m > _MAX_REP:
+            # Check for overflow
+            truncated_digit = m % 10
+            m //= 10
+            exponent += 1
+            if truncated_digit >= 5:
+                m += 1
+
+    if exponent > _MAX_EXPONENT:
+        raise XRPLBinaryCodecException("Overflow: exponent too large after rounding")
 
     if is_negative:
         m = -m
+
+    if _DEBUG:
+        print("\n================================================")
+        print("Mantissa after Normalization: ", m)
+        print("Exponent after Normalization: ", exponent)
+        print("================================================")
 
     return (m, exponent)
 
@@ -168,6 +219,12 @@ def extractNumberPartsFromString(value: str) -> NumberParts:
     if is_negative:
         mantissa = -mantissa
 
+    if _DEBUG:
+        print("================================================")
+        print("Mantissa extracted from number parts: ", mantissa)
+        print("Exponent extracted from number parts: ", exponent)
+        print("is_negative extracted from number parts: ", is_negative)
+        print("================================================")
     return NumberParts(mantissa, exponent, is_negative)
 
 
@@ -231,6 +288,29 @@ class Number(SerializedType):
 
         return cls(serialized_mantissa + serialized_exponent)
 
+    @classmethod
+    def from_mantissa_exponent(cls: Type[Self], _mantissa: int, _exponent: int) -> Self:
+        """Construct a Number from mantissa and exponent values. Note: This method is
+        only used in unit tests.
+
+        Args:
+            _mantissa: The mantissa of the number
+            _exponent: The exponent of the number
+
+        Returns:
+            A Number instance
+        """
+        normalized_mantissa, normalized_exponent = normalize(_mantissa, _exponent)
+        serialized_mantissa = add64(normalized_mantissa)
+        serialized_exponent = add32(normalized_exponent)
+
+        # Number type consists of two cpp std::uint_64t (mantissa) and
+        # std::uint_32t (exponent) types which are 8 bytes and 4 bytes respectively
+        assert len(serialized_mantissa) == 8
+        assert len(serialized_exponent) == 4
+
+        return cls(serialized_mantissa + serialized_exponent)
+
     def to_json(self: Self) -> str:
         """Convert the Number to a JSON string.
 
@@ -244,6 +324,13 @@ class Number(SerializedType):
         mantissa = int.from_bytes(self.buffer[:8], byteorder="big", signed=True)
         exponent = int.from_bytes(self.buffer[8:12], byteorder="big", signed=True)
 
+        # Restore mantissa if it was shrunk during serialization.
+        # If the mantissa > _MAX_REP, it is shrunk by a factor of 10 and the exponent
+        # is incremented. This if-condition handles that special case.
+        if mantissa != 0 and abs(mantissa) < _MIN_MANTISSA:
+            mantissa *= 10
+            exponent -= 1
+
         if exponent == 0:
             return str(mantissa)
 
@@ -253,24 +340,26 @@ class Number(SerializedType):
             return "0"
 
         # Use scientific notation for very small or large numbers
-        if exponent < -25 or exponent > -5:
+        if exponent != 0 and (
+            exponent < -(_MANTISSA_LOG + 10) or exponent > -(_MANTISSA_LOG - 10)
+        ):
+            while mantissa != 0 and mantissa % 10 == 0 and exponent < _MAX_EXPONENT:
+                mantissa = mantissa // 10
+                exponent += 1
+
             return f"{mantissa}e{exponent}"
 
         is_negative = mantissa < 0
         mantissa = abs(mantissa)
 
-        # The below padding values are influenced by the exponent range of [-25, -5]
-        # in the above if-condition. Values outside of this range use the scientific
-        # notation and do not go through the below logic.
-        PAD_PREFIX = 27
-        PAD_SUFFIX = 23
+        PAD_PREFIX = int(_MANTISSA_LOG + 12)
+        PAD_SUFFIX = int(_MANTISSA_LOG + 8)
 
         raw_value: str = "0" * PAD_PREFIX + str(mantissa) + "0" * PAD_SUFFIX
 
-        # Note: The rationale for choosing 43 is that the highest mantissa has 16
-        # digits in decimal representation and the PAD_PREFIX has 27 characters.
-        # 27 + 16 sums upto 43 characters.
-        OFFSET = exponent + 43
+        # In cases where the mantissa exceeds _MAX_REP, the number of digits in the
+        # decimal representation of `mantissa` is one less than _MANTISSA_LOG
+        OFFSET = int(exponent + PAD_PREFIX + len(str(mantissa)))
         assert OFFSET > 0, "Exponent is below acceptable limit"
 
         generate_mantissa: str = raw_value[:OFFSET].lstrip("0")

@@ -11,7 +11,6 @@ from typing_extensions import Self
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
 
 
 class MPTokenIssuanceSetFlag(int, Enum):
@@ -45,8 +44,7 @@ class MPTokenIssuanceSetFlagInterface(TransactionFlagInterface):
     TF_MPT_UNLOCK: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class MPTokenIssuanceSet(Transaction):
     """
     The MPTokenIssuanceSet transaction is used to globally lock/unlock a

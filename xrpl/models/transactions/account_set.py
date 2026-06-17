@@ -10,7 +10,6 @@ from typing_extensions import Final, Self
 
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 _MAX_TRANSFER_RATE: Final[int] = 2000000000
 _MIN_TRANSFER_RATE: Final[int] = 1000000000
@@ -170,8 +169,7 @@ class AccountSetFlagInterface(TransactionFlagInterface):
     TF_ALLOW_XRP: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class AccountSet(Transaction):
     """
     Represents an `AccountSet transaction <https://xrpl.org/accountset.html>`_,

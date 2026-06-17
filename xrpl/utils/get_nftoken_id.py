@@ -66,11 +66,9 @@ def get_nftoken_id(meta: TransactionMetadata) -> Union[str, None]:
                     transaction response).
     """
     if meta is None or meta.get("AffectedNodes") is None:
-        raise TypeError(
-            f"""Unable to parse the parameter given to get_nftoken_id.
+        raise TypeError(f"""Unable to parse the parameter given to get_nftoken_id.
             'meta' must be the metadata from an NFTokenMint transaction.
-            Received {meta} instead."""
-        )
+            Received {meta} instead.""")
 
     """
     * When a mint results in splitting an existing page,

@@ -9,11 +9,9 @@ from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class LoanBrokerCoverWithdraw(Transaction):
     """This transaction withdraws First-Loss Capital from a Loan Broker"""
 
@@ -30,6 +28,13 @@ class LoanBrokerCoverWithdraw(Transaction):
     destination: Optional[str] = None
     """
     An account to receive the assets. It must be able to receive the asset.
+    """
+
+    destination_tag: Optional[int] = None
+    """
+    An arbitrary `destination tag
+    <https://xrpl.org/source-and-destination-tags.html>`_ that
+    identifies the reason for the Payment, or a hosted recipient to pay.
     """
 
     transaction_type: TransactionType = field(

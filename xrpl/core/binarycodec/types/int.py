@@ -1,0 +1,25 @@
+"""Base class for serializing and deserializing signed integers.
+See `Int Fields <https://xrpl.org/serialization.html#int-fields>`_
+"""
+
+from __future__ import annotations
+
+from typing_extensions import Self
+
+from xrpl.core.binarycodec.types.uint import UInt
+
+
+class Int(UInt):
+    """Base class for serializing and deserializing signed integers.
+    See `Int Fields <https://xrpl.org/serialization.html#int-fields>`_
+    """
+
+    @property
+    def value(self: Self) -> int:
+        """
+        Get the value of the Int represented by `self.buffer`.
+
+        Returns:
+            The int value of the Int.
+        """
+        return int.from_bytes(self.buffer, byteorder="big", signed=True)

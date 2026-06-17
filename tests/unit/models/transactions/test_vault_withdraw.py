@@ -6,6 +6,7 @@ from xrpl.models.transactions.vault_withdraw import VaultWithdraw
 
 _ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _VAULT_ID = "B982D2AAEF6014E6BE3194D939865453D56D16FF7081BB1D0ED865C708ABCEEE"
+_DESTINATION = "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
 
 
 class TestVaultWithdraw(TestCase):
@@ -14,6 +15,16 @@ class TestVaultWithdraw(TestCase):
             account=_ACCOUNT,
             vault_id=_VAULT_ID,
             amount=IssuedCurrencyAmount(currency="USD", issuer=_ACCOUNT, value="100"),
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_valid_with_destination_tag(self):
+        tx = VaultWithdraw(
+            account=_ACCOUNT,
+            vault_id=_VAULT_ID,
+            amount=IssuedCurrencyAmount(currency="USD", issuer=_ACCOUNT, value="100"),
+            destination=_DESTINATION,
+            destination_tag=3000,
         )
         self.assertTrue(tx.is_valid())
 
