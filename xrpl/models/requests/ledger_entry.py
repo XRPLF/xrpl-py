@@ -124,9 +124,9 @@ class Directory(BaseModel):
     :meta hide-value:
     """
 
-    dir_root: str = REQUIRED
+    dir_root: Optional[str] = None
     """
-    This field is required.
+    This field is optional when querying by owner and sub_index.
 
     :meta hide-value:
     """
