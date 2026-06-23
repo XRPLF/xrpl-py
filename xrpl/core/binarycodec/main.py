@@ -5,7 +5,7 @@ decoding them.
 
 from typing import Any, Dict, List, Optional, TypedDict, cast
 
-from typing_extensions import Final
+from typing_extensions import Final, NotRequired
 
 from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.types import AccountID, Hash256, STObject, UInt32, UInt64
@@ -73,32 +73,56 @@ def encode_for_signing_claim(json: Dict[str, Any]) -> str:
 
 class BatchSigningDict(TypedDict):
     """
-    A TypedDict for the JSON representation of a Batch transaction that is
-    intended to be signed.
+    A TypedDict describing the data of a Batch transaction that is intended to be
+    signed by a ``BatchSigner`` (XLS-56 ``Batch`` V1_1).
     """
 
+    account: str
+    sequence: int
     flags: int
     transaction_ids: List[str]
+    batch_account: str
+    signer_account: NotRequired[str]
 
 
 def encode_for_signing_batch(json: BatchSigningDict) -> str:
     """
-    Encode a Batch transaction's data to be signed.
+    Encode a Batch transaction's data to be signed by a ``BatchSigner``.
+
+    Serializes the XLS-56 Batch V1_1 signing payload::
+
+        BATCH_PREFIX | Account | Sequence | Flags | len(transaction_ids)
+            | transaction_ids[] | batch_account [ | signer_account ]
+
+    The outer ``account`` and ``sequence`` bind the signature to a specific Batch,
+    preventing it from being replayed under a different outer account or sequence.
 
     Args:
-        json: A JSON-like dictionary representation of Batch data.
+        json: A dictionary describing the Batch signing data. Requires the outer
+            Batch ``account``, its ``sequence`` value (the ``Sequence``, or the
+            ``TicketSequence`` value when a ticket is used), ``flags``, the list of
+            inner ``transaction_ids``, and the ``batch_account`` (the
+            ``BatchSigner.Account`` the signature binds to). ``signer_account`` is the
+            inner ``Signers`` entry account for a multi-signed ``BatchSigner``.
 
     Returns:
-        The binary-encoded Batch data, ready to be signed.
+        The binary-encoded Batch signing data, as an uppercase hex string.
     """
-    prefix = _BATCH_PREFIX
-    flags = UInt32.from_value(json["flags"])
     transaction_ids = json["transaction_ids"]
-    len_transaction_ids = UInt32.from_value(len(transaction_ids))
 
-    buffer = prefix + bytes(flags) + bytes(len_transaction_ids)
+    buffer = _BATCH_PREFIX
+    buffer += bytes(AccountID.from_value(json["account"]))
+    buffer += bytes(UInt32.from_value(json["sequence"]))
+    buffer += bytes(UInt32.from_value(json["flags"]))
+    buffer += bytes(UInt32.from_value(len(transaction_ids)))
     for tx in transaction_ids:
         buffer += bytes(Hash256.from_value(tx))
+
+    buffer += bytes(AccountID.from_value(json["batch_account"]))
+    # The inner signer account is only present for a multi-signed BatchSigner.
+    signer_account = json.get("signer_account")
+    if signer_account is not None:
+        buffer += bytes(AccountID.from_value(signer_account))
 
     return buffer.hex().upper()
 
