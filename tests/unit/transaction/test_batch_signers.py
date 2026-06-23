@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from xrpl.constants import CryptoAlgorithm, XRPLException
 from xrpl.core.binarycodec.main import decode
-from xrpl.models.transactions import Batch
+from xrpl.models.transactions import Batch, Signer
 from xrpl.models.transactions.batch import BatchSigner
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.transaction.batch_signers import (
@@ -23,7 +23,13 @@ submit_wallet = Wallet.from_seed(
     "sEd7HmQFsoyj5TAm6d98gytM9LJA1MF",
     algorithm=CryptoAlgorithm.ED25519,
 )
+regkey_wallet = Wallet.from_seed(
+    "sEdStM1pngFcLQqVfH3RQcg2Qr6ov9e",
+    algorithm=CryptoAlgorithm.ED25519,
+)
 other_wallet = Wallet.create()
+
+REGKEY_PUBLIC_KEY = "ED37D3F048B7F1E680B0A97F70C7843160B9F25D6398D07E68B9A2C83AA8E1B156"
 
 
 class TestSignMultiAccountBatch(TestCase):
@@ -39,8 +45,7 @@ class TestSignMultiAccountBatch(TestCase):
                         "Amount": "5000000",
                         "Destination": "rPMh7Pi9ct699iZUTWaytJUoHcJ7cgyziK",
                         "Fee": "0",
-                        "NetworkID": 21336,
-                        "Sequence": 0,
+                        "Sequence": 215,
                         "SigningPubKey": "",
                         "TransactionType": "Payment",
                     },
@@ -52,8 +57,7 @@ class TestSignMultiAccountBatch(TestCase):
                         "Flags": 1073741824,
                         "Destination": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
                         "Fee": "0",
-                        "NetworkID": 21336,
-                        "Sequence": 0,
+                        "Sequence": 470,
                         "SigningPubKey": "",
                         "TransactionType": "Payment",
                     },
@@ -73,9 +77,9 @@ class TestSignMultiAccountBatch(TestCase):
                     "8F3AFC006E3FE"
                 ),
                 txn_signature=(
-                    "3045022100EAE8F20550F414DE2EC5501544D17500EFAE6B4B66C36B05BBF59CA"
-                    "FDA2C72A502201C9D5C8BEEB6AAC63DC6FB9FEF3E5F008638D36B488E6D98D084"
-                    "AC5813E9342A"
+                    "304502210098890858AA57D6515D7C523FE076FA97BFA87DA666A87B4A7CF44249"
+                    "181DC1DC02201B90E513FE2F45D41FB31850F463C0ECBA8F5126B1AF431B67C400"
+                    "4CA0DD8042"
                 ),
             )
         ]
@@ -93,13 +97,83 @@ class TestSignMultiAccountBatch(TestCase):
                     "6A6E9E62BA638"
                 ),
                 txn_signature=(
-                    "640D96D68C061EF61C5D72460E2254CA74D1CCE75FFC9FF327FC1072419AF474D2"
-                    "5A8A01E17AE0BCE71D96B5C5CB87D890D86058A909FB8918DAA046B67EA30C"
+                    "27B496F0C1F2C4789A0E6CF25265069980190C786053CF5D6C066C07E21D632A6E"
+                    "B87C56275109A8542EEDE782FDC5591EA51FAF28C3FCFCF35BCE960F1D8601"
                 ),
             )
         ]
 
         self.assertIsNotNone(result.batch_signers)
+        self.assertEqual(result.batch_signers, expected)
+
+    def test_different_account(self):
+        # Sign with a regular key on behalf of an account in the Batch.
+        result = sign_multiaccount_batch(
+            regkey_wallet, self.batch_tx, batch_account=ed_wallet.address
+        )
+        expected = [
+            BatchSigner(
+                account="rJy554HmWFFJQGnRfZuoo8nV97XSMq77h7",
+                signing_pub_key=REGKEY_PUBLIC_KEY,
+                txn_signature=(
+                    "046315C731DF089E08EB6662251F12B22938ED462F66BC561A847A87DF6B3C9AC8"
+                    "11D9EC5971EDEC2BA96C959BDE883CD838B7EF6460A47AD9B71518F1A2A00B"
+                ),
+            )
+        ]
+
+        self.assertEqual(result.batch_signers, expected)
+
+    def test_multisign(self):
+        result = sign_multiaccount_batch(
+            regkey_wallet,
+            self.batch_tx,
+            multisign=True,
+            batch_account=ed_wallet.address,
+        )
+        expected = [
+            BatchSigner(
+                account="rJy554HmWFFJQGnRfZuoo8nV97XSMq77h7",
+                signers=[
+                    Signer(
+                        account="rwRNeznwHzdfYeKWpevYmax2NSDioyeEtT",
+                        signing_pub_key=REGKEY_PUBLIC_KEY,
+                        txn_signature=(
+                            "8FCA6C1056C2146DC13F4D10BA297335A82F562D837FA3C65D75DCDC87"
+                            "540F61428B7370FCC1DE4D83B6FA1A00A18CD9283E7B08089091ED84CC"
+                            "3E4A8B43F00F"
+                        ),
+                    )
+                ],
+            )
+        ]
+
+        self.assertEqual(result.batch_signers, expected)
+
+    def test_multisign_with_regular_key(self):
+        result = sign_multiaccount_batch(
+            regkey_wallet,
+            self.batch_tx,
+            multisign=submit_wallet.address,
+            batch_account=ed_wallet.address,
+        )
+        expected = [
+            BatchSigner(
+                account="rJy554HmWFFJQGnRfZuoo8nV97XSMq77h7",
+                signers=[
+                    Signer(
+                        account="rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
+                        signing_pub_key=REGKEY_PUBLIC_KEY,
+                        txn_signature=(
+                            "D80D4195BF67D5CB12CA225D04DA4D00AC77250803671E09DF61F1695A"
+                            "831FAD6BF820F335DD2D8CFE16DA55CFC2E64AEC8A1429524E6CDB6C36"
+                            "B7AEA717C700"
+                        ),
+                    )
+                ],
+            )
+        ]
+
         self.assertEqual(result.batch_signers, expected)
 
     def test_not_included_account(self):
