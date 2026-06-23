@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### BREAKING CHANGE
+
+- Updated Batch (XLS-56) signing to the V1_1 payload from [rippled #6446](https://github.com/XRPLF/rippled/pull/6446). `encode_for_signing_batch` now binds the outer `Account` and `Sequence` (or `TicketSequence`), the `BatchSigner` account, and — for multi-signed batch signers — the inner signer account into the signed data, preventing signature replay across outer accounts/sequences. Batch signatures produced by older xrpl-py versions are no longer valid; re-sign with this version against a `BatchV1_1`-enabled network.
+
+### Added
+
+- `sign_multiaccount_batch` accepts a `batch_account` argument (sign on behalf of an account when the signing key differs, e.g. a regular key) and a string `multisign` value (multi-sign as a specific account). The counterparty of an inner transaction now counts as an involved account.
+
+### Fixed
+
+- `combine_batch_signers` now rejects fragments that disagree on the outer account, sequence value, flags, or inner transaction IDs (previously only flags and `RawTransactions` were checked) and de-duplicates `BatchSigners` by account so the combined array is strictly ascending and unique.
+
 ## [[5.0.0]]
 
 ### BREAKING CHANGE
