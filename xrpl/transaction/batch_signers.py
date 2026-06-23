@@ -1,6 +1,6 @@
 """Helper functions for signing multi-account Batch transactions."""
 
-from typing import List, Optional, Union, cast
+from typing import List, Optional, Tuple, Union, cast
 
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec.codec import decode_classic_address
@@ -150,29 +150,51 @@ def combine_batch_signers(transactions: List[Union[Batch, str]]) -> str:
     return encode(_get_batch_with_all_signers(batch_txs).to_xrpl())
 
 
+def _get_batch_equivalence_key(tx: Batch) -> Tuple[str, int, int, Tuple[str, ...]]:
+    """
+    Build a comparison key over every field bound into a Batch signature
+    (XLS-56 V1_1): the outer account, sequence value, flags, and inner transaction
+    IDs. Fragments that disagree on any of these were signed over different payloads
+    and cannot be combined.
+    """
+    return (
+        tx.account,
+        _get_batch_seq_value(tx),
+        tx._flags_to_int() or 0,
+        tuple(raw_tx.get_hash() for raw_tx in tx.raw_transactions),
+    )
+
+
 def _validate_batch_equivalence(transactions: List[Batch]) -> None:
-    example_tx = transactions[0]
-    for tx in transactions:
-        if (
-            tx.flags != example_tx.flags
-            or tx.raw_transactions != example_tx.raw_transactions
-        ):
+    example_key = _get_batch_equivalence_key(transactions[0])
+    for tx in transactions[1:]:
+        if _get_batch_equivalence_key(tx) != example_key:
             raise XRPLException(
-                "Flags and RawTransactions are not the same for all provided "
-                "transactions."
+                "Account, sequence, flags, and transaction hashes must be the same "
+                "for all provided transactions."
             )
 
 
 def _get_batch_with_all_signers(transactions: List[Batch]) -> Batch:
-    batch_signers = [
-        signer
-        for tx in transactions
-        if tx.batch_signers is not None
-        for signer in tx.batch_signers
-        if signer.account != transactions[0].account
-    ]
-    batch_signers.sort(
-        key=lambda signer: decode_classic_address(signer.account).hex().upper()
+    outer_account = transactions[0].account
+    # A batch signer cannot be the outer account (rippled: temBAD_SIGNER).
+    batch_signers = sorted(
+        (
+            signer
+            for tx in transactions
+            if tx.batch_signers is not None
+            for signer in tx.batch_signers
+            if signer.account != outer_account
+        ),
+        key=lambda signer: decode_classic_address(signer.account).hex().upper(),
     )
+    # BatchSigners must be strictly ascending and unique by account, so
+    # de-duplicate when combining fragments that share a signer.
+    deduped_signers: List[BatchSigner] = []
+    last_account: Optional[str] = None
+    for signer in batch_signers:
+        if signer.account != last_account:
+            deduped_signers.append(signer)
+            last_account = signer.account
     returned_tx_dict = transactions[0].to_dict()
-    return Batch.from_dict({**returned_tx_dict, "batch_signers": batch_signers})
+    return Batch.from_dict({**returned_tx_dict, "batch_signers": deduped_signers})

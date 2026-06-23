@@ -2,9 +2,10 @@ from unittest import TestCase
 
 from xrpl.constants import CryptoAlgorithm, XRPLException
 from xrpl.core.binarycodec.main import decode
-from xrpl.models.transactions import Batch, Signer
+from xrpl.models.transactions import Batch, BatchFlag, Signer
 from xrpl.models.transactions.batch import BatchSigner
 from xrpl.models.transactions.transaction import Transaction
+from xrpl.transaction import sign
 from xrpl.transaction.batch_signers import (
     combine_batch_signers,
     sign_multiaccount_batch,
@@ -265,3 +266,39 @@ class TestCombineBatchSigners(TestCase):
             "BatchSigners", []
         )
         self.assertEqual(decode(result)["BatchSigners"], expected_valid)
+
+    def test_dedup_shared_signer(self):
+        # Combining fragments that share a signer keeps a single, unique signer.
+        result = combine_batch_signers([self.tx1, self.tx1])
+        self.assertEqual(
+            decode(result)["BatchSigners"], self.tx1.to_xrpl()["BatchSigners"]
+        )
+
+    def test_no_transactions(self):
+        with self.assertRaises(XRPLException):
+            combine_batch_signers([])
+
+    def test_signed_batch_rejected(self):
+        # A fully signed outer Batch cannot be combined.
+        signed_blob = sign(self.tx1, secp_wallet).blob()
+        with self.assertRaises(XRPLException):
+            combine_batch_signers([signed_blob, self.tx2])
+
+    def _signed_with_field(self, **overrides):
+        bad_dict = {**self.batch_tx.to_xrpl(), **overrides}
+        return sign_multiaccount_batch(secp_wallet, Batch.from_xrpl(bad_dict))
+
+    def test_different_flags(self):
+        bad_tx = self._signed_with_field(Flags=int(BatchFlag.TF_INDEPENDENT))
+        with self.assertRaises(XRPLException):
+            combine_batch_signers([self.tx1, bad_tx])
+
+    def test_different_account(self):
+        bad_tx = self._signed_with_field(Account="rJy554HmWFFJQGnRfZuoo8nV97XSMq77h7")
+        with self.assertRaises(XRPLException):
+            combine_batch_signers([self.tx1, bad_tx])
+
+    def test_different_sequence(self):
+        bad_tx = self._signed_with_field(Sequence=216)
+        with self.assertRaises(XRPLException):
+            combine_batch_signers([self.tx1, bad_tx])
