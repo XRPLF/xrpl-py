@@ -57,7 +57,7 @@ def sign_multiaccount_batch(
     """
     signing_account = batch_account if batch_account is not None else wallet.address
 
-    multisign_address: Union[bool, str] = False
+    multisign_address: Optional[str] = None
     if isinstance(multisign, str):
         multisign_address = multisign
     elif multisign:
