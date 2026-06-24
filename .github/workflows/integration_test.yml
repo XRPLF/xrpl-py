@@ -26,9 +26,6 @@ jobs:
     name: Integration test
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    permissions:
-      contents: read
-      packages: read
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
@@ -45,13 +42,6 @@ jobs:
         with:
           path: /home/runner/.local
           key: dotlocal-${{ env.POETRY_VERSION }}
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run docker in background
         run: |
