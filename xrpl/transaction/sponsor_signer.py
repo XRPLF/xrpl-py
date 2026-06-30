@@ -23,7 +23,7 @@ sponsee's live at the top level.
 
 For sponsor accounts that require multiple keys (multi-sig), each key holder
 calls :func:`sign_as_sponsor` with ``multisign=True``, then all contributions
-are merged with :func:`combine_sponsor_signers`` before the sponsee signs.
+are merged with :func:`combine_sponsor_signers` before the sponsee signs.
 
 This module mirrors the API of :mod:`xrpl.transaction.batch_signers` and
 :mod:`xrpl.transaction.counterparty_signer` for consistency.
@@ -95,8 +95,8 @@ def sign_as_sponsor(
     Returns:
         A :class:`SignSponsorResult` containing:
 
-        - ``tx`` – the transaction with ``sponsor_signature`` added.
-        - ``tx_blob`` – the serialised transaction blob (no sponsee sig yet).
+        - ``tx`` - the transaction with ``sponsor_signature`` added.
+        - ``tx_blob`` - the serialised transaction blob (no sponsee sig yet).
 
     Raises:
         XRPLException: If the transaction has no ``sponsor`` field, if
@@ -209,8 +209,8 @@ def combine_sponsor_signers(
     Returns:
         A :class:`CombineSponsorSignersResult` containing:
 
-        - ``tx`` – the combined transaction object.
-        - ``tx_blob`` – the serialised hex blob ready for the sponsee to sign
+        - ``tx`` - the combined transaction object.
+        - ``tx_blob`` - the serialised hex blob ready for the sponsee to sign
           and submit.
 
     Raises:
