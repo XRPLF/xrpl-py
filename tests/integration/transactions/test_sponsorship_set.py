@@ -1,12 +1,9 @@
 """Integration tests for SponsorshipSet transaction type (XLS-68 §9)."""
 
-from unittest import skipUnless
-
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     fund_wallet_async,
     sign_and_reliable_submission_async,
-    sponsor_amendment_supported,
     test_async_and_sync,
 )
 from xrpl.asyncio.transaction import autofill, sign
@@ -19,11 +16,6 @@ from xrpl.transaction.multisign import multisign
 from xrpl.wallet import Wallet
 
 
-@skipUnless(
-    sponsor_amendment_supported(),
-    "XLS-68 Sponsor amendment not supported by the connected rippled server. "
-    "Run against a build of rippled PR #7350 with the amendment enabled.",
-)
 class TestSponsorshipSet(IntegrationTestCase):
 
     # ── §9.1 CounterpartySponsor field (sponsee-initiated delete) ───────
