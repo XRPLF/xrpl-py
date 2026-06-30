@@ -349,6 +349,20 @@ class TestSponsorshipTransfer(TestCase):
             )
         self.assertIn(self._SPONSEE_FLAG_MSG, str(cm.exception))
 
+    def test_invalid_sponsee_with_reassign_flag(self):
+        """sponsee must not be set when TF_SPONSORSHIP_REASSIGN is active."""
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorshipTransfer(
+                account=_ACCOUNT,
+                object_id=_OBJECT_ID,
+                sponsee=_ACCOUNT2,
+                flags=SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN,
+            )
+        self.assertIn(
+            "`sponsee` cannot be set when `TF_SPONSORSHIP_REASSIGN` is active.",
+            str(cm.exception),
+        )
+
     # ------------------------------------------------------------------ #
     #  Concern 5 — Transaction-level sponsor cross-field validation       #
     # ------------------------------------------------------------------ #

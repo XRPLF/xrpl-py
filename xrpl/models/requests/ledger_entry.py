@@ -271,8 +271,7 @@ class Ticket(BaseModel):
     """
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class Sponsorship(BaseModel):
     """Required fields for requesting a Sponsorship if not querying by object ID."""
 
@@ -291,8 +290,7 @@ class Sponsorship(BaseModel):
     """
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class Vault(BaseModel):
     """Required fields for requesting a Vault ledger-object if not querying by
     object ID.

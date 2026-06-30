@@ -33,7 +33,7 @@ class TestSponsorshipSet(TestCase):
             sponsee=_ACCOUNT2,
             fee_amount="1000000",
             max_fee="2000000",
-            reserve_count=5,
+            remaining_owner_count=5,
         )
         self.assertTrue(tx.is_valid())
 
@@ -90,15 +90,16 @@ class TestSponsorshipSet(TestCase):
         tx = SponsorshipSet(
             account=_ACCOUNT,
             counterparty_sponsor=_ACCOUNT2,
+            flags=SponsorshipSetFlag.TF_DELETE_OBJECT,
         )
         self.assertTrue(tx.is_valid())
 
-    def test_valid_with_reserve_count(self):
-        """Setting reserve_count."""
+    def test_valid_with_remaining_owner_count(self):
+        """Setting remaining_owner_count."""
         tx = SponsorshipSet(
             account=_ACCOUNT,
             sponsee=_ACCOUNT2,
-            reserve_count=10,
+            remaining_owner_count=10,
         )
         self.assertTrue(tx.is_valid())
 
@@ -316,3 +317,47 @@ class TestSponsorshipSet(TestCase):
             "`TF_DELETE_OBJECT` cannot be combined with any set/clear flags.",
             str(cm.exception),
         )
+
+    # ------------------------------------------------------------------ #
+    #  Concern 4 — counterparty_sponsor only valid when deleting          #
+    # ------------------------------------------------------------------ #
+
+    def test_invalid_counterparty_sponsor_without_delete(self):
+        """counterparty_sponsor without TF_DELETE_OBJECT must be rejected."""
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorshipSet(
+                account=_ACCOUNT,
+                counterparty_sponsor=_ACCOUNT2,
+            )
+        self.assertIn(
+            "`counterparty_sponsor` can only be used together with "
+            "`TF_DELETE_OBJECT`",
+            str(cm.exception),
+        )
+
+    # ------------------------------------------------------------------ #
+    #  Concern 5 — delete forbids fee_amount/max_fee/remaining_owner_count #
+    # ------------------------------------------------------------------ #
+
+    def test_invalid_delete_with_fee_amount(self):
+        """fee_amount must not be present when deleting."""
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorshipSet(
+                account=_ACCOUNT,
+                sponsee=_ACCOUNT2,
+                fee_amount="1000000",
+                flags=SponsorshipSetFlag.TF_DELETE_OBJECT,
+            )
+        self.assertIn("TF_DELETE_OBJECT", str(cm.exception))
+        self.assertIn("fee_amount", str(cm.exception))
+
+    def test_invalid_delete_with_remaining_owner_count(self):
+        """remaining_owner_count must not be present when deleting."""
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorshipSet(
+                account=_ACCOUNT,
+                sponsee=_ACCOUNT2,
+                remaining_owner_count=3,
+                flags=SponsorshipSetFlag.TF_DELETE_OBJECT,
+            )
+        self.assertIn("remaining_owner_count", str(cm.exception))

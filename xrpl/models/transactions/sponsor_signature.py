@@ -9,11 +9,9 @@ from typing_extensions import Self
 
 from xrpl.models.base_model import BaseModel
 from xrpl.models.transactions.transaction import Signer
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class SponsorSignature(BaseModel):
     """
     Signature payload supplied by the sponsor.

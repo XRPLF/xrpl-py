@@ -881,7 +881,7 @@
       }
     ],
     [
-      "ReserveCount",
+      "RemainingOwnerCount",
       {
         "isSerialized": true,
         "isSigningField": true,

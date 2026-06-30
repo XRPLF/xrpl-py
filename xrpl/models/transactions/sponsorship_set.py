@@ -11,7 +11,6 @@ from typing_extensions import Self
 from xrpl.models.amounts import Amount
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class SponsorshipSetFlag(int, Enum):
@@ -51,8 +50,7 @@ class SponsorshipSetFlagInterface(TransactionFlagInterface):
     TF_DELETE_OBJECT: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class SponsorshipSet(Transaction):
     """
     Represents a SponsorshipSet transaction, which creates or modifies
@@ -71,8 +69,9 @@ class SponsorshipSet(Transaction):
     max_fee: Optional[Amount] = None
     """The maximum fee that can be sponsored."""
 
-    reserve_count: Optional[int] = None
-    """The number of reserves to sponsor."""
+    remaining_owner_count: Optional[int] = None
+    """The number of owner reserves (object reserves) the sponsor will cover.
+    Serialized as the ``RemainingOwnerCount`` field (``sfRemainingOwnerCount``)."""
 
     transaction_type: TransactionType = field(
         default=TransactionType.SPONSORSHIP_SET,
@@ -132,9 +131,44 @@ class SponsorshipSet(Transaction):
                 "`TF_DELETE_OBJECT` cannot be combined with any set/clear flags."
             )
 
-        # ── Concern 1: fee_amount / max_fee must be XRP (not IOU) ─────────────
-        # C++: if (!isXRP(amount)) return temBAD_AMOUNT  (only for non-delete)
-        if not delete_obj:
+        # ── Concern 4: counterparty_sponsor is only valid when deleting ───────
+        # C++ preflight: only the sponsor (account == sponsor) may create/update a
+        # sponsorship; either party may delete. Specifying `counterparty_sponsor`
+        # means the submitter is the sponsee, which is only allowed for deletion.
+        # Only flag this once the field is otherwise well-formed (exactly one of
+        # counterparty_sponsor / sponsee, and it differs from `account`).
+        if (
+            has_counterparty
+            and not has_sponsee
+            and self.counterparty_sponsor != self.account
+            and not delete_obj
+        ):
+            errors["counterparty_sponsor"] = (
+                "`counterparty_sponsor` can only be used together with "
+                "`TF_DELETE_OBJECT` (only the sponsor may create or update a "
+                "sponsorship)."
+            )
+
+        if delete_obj:
+            # C++ preflight: FeeAmount / MaxFee / RemainingOwnerCount must not be
+            # present when deleting the Sponsorship object.
+            forbidden = [
+                name
+                for name, value in (
+                    ("fee_amount", self.fee_amount),
+                    ("max_fee", self.max_fee),
+                    ("remaining_owner_count", self.remaining_owner_count),
+                )
+                if value is not None
+            ]
+            if forbidden:
+                errors["delete_object"] = (
+                    "When `TF_DELETE_OBJECT` is active, the following fields must "
+                    f"not be set: {', '.join(f'`{name}`' for name in forbidden)}."
+                )
+        else:
+            # ── Concern 1: fee_amount / max_fee must be XRP (not IOU) ──────────
+            # C++: if (!isXRP(amount)) return temBAD_AMOUNT  (only for non-delete)
             if self.fee_amount is not None and not isinstance(self.fee_amount, str):
                 errors["fee_amount"] = (
                     "`fee_amount` must be XRP drops (a string), "

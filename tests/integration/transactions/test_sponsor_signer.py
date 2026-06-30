@@ -28,7 +28,7 @@ from tests.integration.it_utils import (
 )
 from xrpl.asyncio.transaction import autofill, submit
 from xrpl.asyncio.transaction.main import sign
-from xrpl.models import Payment
+from xrpl.models import AccountObjects, AccountObjectType, CheckCreate, Payment
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import SignerEntry, SignerListSet
 from xrpl.transaction import combine_sponsor_signers, sign_as_sponsor
@@ -170,3 +170,54 @@ class TestSponsorSigner(IntegrationTestCase):
         response = await submit(combined.tx, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+    # -----------------------------------------------------------------------
+    # Reserve sponsorship (spfSponsorReserve) at object creation
+    # -----------------------------------------------------------------------
+
+    @test_async_and_sync(
+        globals(), ["xrpl.transaction.autofill", "xrpl.transaction.submit"]
+    )
+    async def test_reserve_sponsor_check_create(self, client):
+        """Sponsor covers the object reserve of a sponsee's newly-created Check.
+
+        Exercises the common ``sfSponsor`` + ``spfSponsorReserve`` path on an
+        object-creating transaction (CheckCreate is allow-listed for reserve
+        sponsorship in rippled), co-signed via ``sign_as_sponsor``.
+        """
+        sponsor_wallet = Wallet.create()
+        sponsee_wallet = Wallet.create()
+        destination_wallet = Wallet.create()
+
+        await fund_wallet_async(sponsor_wallet)
+        await fund_wallet_async(sponsee_wallet)
+        await fund_wallet_async(destination_wallet)
+
+        # Sponsee builds a CheckCreate whose reserve is covered by the sponsor.
+        check = CheckCreate(
+            account=sponsee_wallet.address,
+            destination=destination_wallet.address,
+            send_max="1000000",
+            sponsor=sponsor_wallet.address,
+            sponsor_flags=_TF_SPONSOR_RESERVE,
+        )
+        autofilled = await autofill(check, client)
+
+        # Sponsee signs first, then the sponsor co-signs.
+        sponsee_signed = sign(autofilled, sponsee_wallet)
+        sponsor_result = sign_as_sponsor(sponsor_wallet, sponsee_signed)
+
+        response = await submit(sponsor_result.tx, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # The created Check records the sponsor that covers its reserve.
+        objects_response = await client.request(
+            AccountObjects(
+                account=sponsee_wallet.address,
+                type=AccountObjectType.CHECK,
+            )
+        )
+        checks = objects_response.result["account_objects"]
+        self.assertEqual(len(checks), 1)
+        self.assertEqual(checks[0].get("Sponsor"), sponsor_wallet.address)

@@ -10,7 +10,6 @@ from typing_extensions import Self
 
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class SponsorshipTransferFlag(int, Enum):
@@ -42,8 +41,7 @@ class SponsorshipTransferFlagInterface(TransactionFlagInterface):
     TF_SPONSORSHIP_REASSIGN: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class SponsorshipTransfer(Transaction):
     """
     Represents a SponsorshipTransfer transaction, which transfers
@@ -75,10 +73,15 @@ class SponsorshipTransfer(Transaction):
                 "`TF_SPONSORSHIP_REASSIGN` may be set at a time."
             )
 
-        # sponsee is not used for CREATE operation.
+        # sponsee is only meaningful when ending sponsorship. The C++ preflight
+        # rejects it for both CREATE and REASSIGN operations.
         if self.sponsee is not None and create:
             errors["sponsee"] = (
                 "`sponsee` cannot be set when `TF_SPONSORSHIP_CREATE` is active."
+            )
+        elif self.sponsee is not None and reassign:
+            errors["sponsee"] = (
+                "`sponsee` cannot be set when `TF_SPONSORSHIP_REASSIGN` is active."
             )
 
         return errors

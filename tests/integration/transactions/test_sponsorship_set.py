@@ -79,7 +79,7 @@ class TestSponsorshipSet(IntegrationTestCase):
             sponsee=sponsee_wallet.address,
             fee_amount="2000000",
             max_fee="100000",
-            reserve_count=10,
+            remaining_owner_count=10,
         )
         response = await sign_and_reliable_submission_async(tx, sponsor_wallet, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)

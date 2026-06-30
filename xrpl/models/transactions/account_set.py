@@ -111,10 +111,6 @@ class AccountSetAsfFlag(int, Enum):
     used in Escrow.
     """
 
-    ASF_DISALLOW_INCOMING_SPONSOR = 19
-    """Disallow other accounts from creating Sponsorship objects directed at this
-    account."""
-
 
 class AccountSetFlag(int, Enum):
     """
