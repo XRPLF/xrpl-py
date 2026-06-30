@@ -85,6 +85,32 @@ FUNDING_AMOUNT = "2000000000"
 LEDGER_ACCEPT_REQUEST = GenericRequest(method="ledger_accept")
 LEDGER_ACCEPT_TIME = 0.1
 
+_sponsor_amendment_supported_cache: Optional[bool] = None
+
+
+def sponsor_amendment_supported() -> bool:
+    """
+    Return whether the locally-connected rippled recognizes the XLS-68 Sponsor
+    transaction types.
+
+    The Sponsor amendment is not yet present in the default CI rippled image, so
+    XLS-68 integration tests are skipped unless the connected server understands
+    the new transaction types. To exercise them, run against a build of the
+    rippled `Sponsor` feature branch (https://github.com/XRPLF/rippled/pull/7350)
+    with the amendment enabled. The result is cached after the first lookup.
+    """
+    global _sponsor_amendment_supported_cache
+    if _sponsor_amendment_supported_cache is None:
+        try:
+            response = JSON_RPC_CLIENT.request(
+                GenericRequest(method="server_definitions")
+            )
+            tx_types = response.result.get("TRANSACTION_TYPES", {})
+            _sponsor_amendment_supported_cache = "SponsorshipSet" in tx_types
+        except Exception:
+            _sponsor_amendment_supported_cache = False
+    return _sponsor_amendment_supported_cache
+
 
 class AsyncTestTimer:
     def __init__(

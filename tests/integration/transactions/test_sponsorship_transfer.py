@@ -1,10 +1,13 @@
 """Integration tests for SponsorshipTransfer transaction type (XLS-68)."""
 
+from unittest import skipUnless
+
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     LEDGER_ACCEPT_REQUEST,
     fund_wallet_async,
     sign_and_reliable_submission_async,
+    sponsor_amendment_supported,
     test_async_and_sync,
 )
 from xrpl.asyncio.transaction import autofill, sign, submit
@@ -48,6 +51,11 @@ def _build_sponsor_signed_tx(transfer_tx, sponsee_wallet, sponsor_wallet):
     return SponsorshipTransfer.from_xrpl(tx_json)
 
 
+@skipUnless(
+    sponsor_amendment_supported(),
+    "XLS-68 Sponsor amendment not supported by the connected rippled server. "
+    "Run against a build of rippled PR #7350 with the amendment enabled.",
+)
 class TestSponsorshipTransfer(IntegrationTestCase):
 
     @test_async_and_sync(
