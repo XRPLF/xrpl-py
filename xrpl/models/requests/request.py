@@ -16,7 +16,6 @@ import xrpl.models.requests  # bare import to get around circular dependency
 from xrpl.models.base_model import ABBREVIATIONS, BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 _DEFAULT_API_VERSION: Final[int] = 2
 
@@ -99,7 +98,7 @@ class RequestMethod(str, Enum):
     GENERIC_REQUEST = "zzgeneric_request"
 
 
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class Request(BaseModel):
     """
     The base class for all network request types.
@@ -213,8 +212,7 @@ class Request(BaseModel):
         return {**super().to_dict(), "method": self.method.value}
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class LookupByLedgerRequest:
     """Represents requests that need specifying an instance of the ledger"""
 

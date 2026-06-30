@@ -12,7 +12,6 @@ from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 PERMISSIONS_MAX_LENGTH = 10
 
@@ -75,8 +74,7 @@ class GranularPermission(str, Enum):
     """Delegates ability to sponsor object and account reserves."""
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class Permission(NestedModel):
     """Represents one entry in a Permissions list used in DelegateSet
     transaction.
@@ -90,8 +88,7 @@ class Permission(NestedModel):
     """
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class DelegateSet(Transaction):
     """DelegateSet allows an account to delegate a set of permissions to another
     account.

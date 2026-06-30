@@ -13,7 +13,6 @@ from xrpl.models.currencies import Currency
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class AMMDepositFlag(int, Enum):
@@ -44,8 +43,7 @@ class AMMDepositFlagInterface(TransactionFlagInterface):
     TF_TWO_ASSET_IF_EMPTY: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class AMMDeposit(Transaction):
     """
     Deposit funds into an Automated Market Maker (AMM) instance

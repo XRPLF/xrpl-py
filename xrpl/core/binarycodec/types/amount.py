@@ -151,14 +151,11 @@ def verify_mpt_value(mpt_value: str) -> None:
 
 def _calculate_precision(value: str) -> int:
     """Calculate the precision of given value as a string."""
-    decimal_value = Decimal(value, Context(prec=MAX_PREC))
-    if decimal_value == decimal_value.to_integral():
-        return len(
-            decimal_value.quantize(Decimal(1), context=Context(prec=MAX_PREC))
-            .as_tuple()
-            .digits
-        )
-    return len(decimal_value.normalize(Context()).as_tuple().digits)
+    ctx = Context(prec=MAX_PREC)
+    decimal_value = Decimal(value, ctx)
+    if decimal_value.is_zero():
+        return 0
+    return len(decimal_value.normalize(ctx).as_tuple().digits)
 
 
 def _verify_no_decimal(decimal: Decimal) -> None:
@@ -212,7 +209,7 @@ def _serialize_issued_currency_value(value: str) -> bytes:
 
     if exp < MIN_IOU_EXPONENT or mantissa < MIN_IOU_MANTISSA:
         # Round to zero
-        _ZERO_CURRENCY_AMOUNT_HEX.to_bytes(8, byteorder="big", signed=False)
+        return _ZERO_CURRENCY_AMOUNT_HEX.to_bytes(8, byteorder="big", signed=False)
 
     if exp > MAX_IOU_EXPONENT or mantissa > MAX_IOU_MANTISSA:
         raise XRPLBinaryCodecException(
@@ -389,7 +386,13 @@ class Amount(SerializedType):
             if value.is_zero():
                 value_str = "0"
             else:
-                value_str = str(value).rstrip("0").rstrip(".")
+                # ``f"{value:f}"`` forces fixed-point output (no scientific
+                # notation); the guarded ``rstrip`` then only trims trailing
+                # zeros that are fractional padding, never significant digits
+                # of an integer-form Decimal or digits of an exponent.
+                value_str = f"{value:f}"
+                if "." in value_str:
+                    value_str = value_str.rstrip("0").rstrip(".")
             verify_iou_value(value_str)
 
             return {

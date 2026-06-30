@@ -30,7 +30,7 @@ class NormalizedNode(TypedDict):
 
 
 def _normalize_node(
-    affected_node: Union[CreatedNode, ModifiedNode, DeletedNode]
+    affected_node: Union[CreatedNode, ModifiedNode, DeletedNode],
 ) -> NormalizedNode:
     node_keys = affected_node.keys()
     assert len(node_keys) == 1

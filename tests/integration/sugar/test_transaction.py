@@ -18,7 +18,9 @@ from xrpl.asyncio.transaction import (
     simulate,
 )
 from xrpl.asyncio.transaction import submit as submit_transaction_alias_async
-from xrpl.asyncio.transaction import submit_and_wait
+from xrpl.asyncio.transaction import (
+    submit_and_wait,
+)
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import classic_address_to_xaddress
 from xrpl.core.binarycodec.main import encode
@@ -301,7 +303,7 @@ class TestTransaction(IntegrationTestCase):
 
         # The expected fee is read from the below-specified config file
         expected_fee = ""
-        with open(".ci-config/rippled.cfg", "r", encoding="utf-8") as file:
+        with open(".ci-config/xrpld.cfg", "r", encoding="utf-8") as file:
             lines = file.readlines()  # Read all lines into a list
 
             for value in lines:

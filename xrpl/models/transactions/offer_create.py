@@ -10,11 +10,7 @@ from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import (
-    KW_ONLY_DATACLASS,
-    require_kwargs_on_init,
-    validate_domain_id,
-)
+from xrpl.models.utils import validate_domain_id
 
 
 class OfferCreateFlag(int, Enum):
@@ -81,8 +77,7 @@ class OfferCreateFlagInterface(TransactionFlagInterface):
     TF_HYBRID: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class OfferCreate(Transaction):
     """
     Represents an `OfferCreate <https://xrpl.org/offercreate.html>`_ transaction,

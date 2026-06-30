@@ -24,7 +24,6 @@ from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
 from xrpl.models.types import XRPL_VALUE_TYPE
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 if TYPE_CHECKING:
     from xrpl.models.transactions.sponsor_signature import SponsorSignature
@@ -84,8 +83,7 @@ def _value_to_tx_json(value: XRPL_VALUE_TYPE) -> XRPL_VALUE_TYPE:
     return value
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class Memo(NestedModel):
     """
     An arbitrary piece of data attached to a transaction. A transaction can
@@ -129,8 +127,7 @@ class Memo(NestedModel):
         return errors
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class Signer(NestedModel):
     """
     One Signer in a multi-signature. A multi-signed transaction can have an
@@ -182,8 +179,7 @@ class TransactionFlagInterface(FlagInterface):
     TF_INNER_BATCH_TXN: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class Transaction(BaseModel):
     """
     The base class for all `transaction types
@@ -295,9 +291,7 @@ class Transaction(BaseModel):
             (self.sequence is not None and self.sequence != 0)
             or self.account_txn_id is not None
         ):
-            errors[
-                "Transaction"
-            ] = """If ticket_sequence is provided,
+            errors["Transaction"] = """If ticket_sequence is provided,
             account_txn_id must be None and sequence must be None or 0"""
 
         if self.account == self.delegate:

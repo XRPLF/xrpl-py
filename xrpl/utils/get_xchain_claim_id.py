@@ -19,11 +19,9 @@ def get_xchain_claim_id(meta: TransactionMetadata) -> str:
                     transaction response).
     """
     if meta is None or meta.get("AffectedNodes") is None:
-        raise TypeError(
-            f"""Unable to parse the parameter given to get_xchain_claim_id.
+        raise TypeError(f"""Unable to parse the parameter given to get_xchain_claim_id.
             'meta' must be the metadata from an XChainCreateClaimID transaction.
-            Received {meta} instead."""
-        )
+            Received {meta} instead.""")
 
     affected_nodes = [
         node
