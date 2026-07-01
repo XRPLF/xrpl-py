@@ -5,9 +5,9 @@ This module provides a clean Python API for the mpt-crypto library,
 which implements cryptographic operations for confidential MPT transactions.
 """
 
-from xrpl.core.confidential.crypto_bindings import MPT_CRYPTO_AVAILABLE
-from xrpl.core.confidential.main import MPTCrypto
-from xrpl.core.confidential.transaction_builders import (
+from xrpl.ext.confidential.crypto_bindings import MPT_CRYPTO_AVAILABLE
+from xrpl.ext.confidential.main import MPTCrypto
+from xrpl.ext.confidential.transaction_builders import (
     prepare_confidential_clawback,
     prepare_confidential_convert,
     prepare_confidential_convert_back,

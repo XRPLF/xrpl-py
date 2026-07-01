@@ -8,7 +8,7 @@ creating/verifying Schnorr proofs of knowledge.
 import secrets
 from typing import Optional, Tuple
 
-from xrpl.core.confidential.crypto_bindings import ffi, lib
+from xrpl.ext.confidential.crypto_bindings import ffi, lib
 
 # Size constants
 PRIVKEY_SIZE = 32
@@ -17,7 +17,7 @@ SCHNORR_PROOF_SIZE = 64
 CONTEXT_ID_SIZE = 32
 
 
-def generate_keypair(ctx=None) -> Tuple[str, str]:
+def generate_keypair(ctx: object = None) -> Tuple[str, str]:
     """
     Generate an ElGamal keypair using the utility layer.
 
@@ -46,7 +46,7 @@ def generate_keypair(ctx=None) -> Tuple[str, str]:
 
 
 def generate_keypair_with_pok(
-    ctx=None, context_id: Optional[str] = None
+    ctx: object = None, context_id: Optional[str] = None
 ) -> Tuple[str, str, str]:
     """
     Generate an ElGamal keypair with a Schnorr proof of knowledge.
@@ -69,7 +69,9 @@ def generate_keypair_with_pok(
     return privkey, pubkey, proof
 
 
-def generate_pok(ctx, privkey: str, pubkey_compressed: str, context_id: str) -> str:
+def generate_pok(
+    ctx: object, privkey: str, pubkey_compressed: str, context_id: str
+) -> str:
     """
     Generate a Schnorr proof of knowledge using the utility layer.
 
@@ -105,7 +107,9 @@ def generate_pok(ctx, privkey: str, pubkey_compressed: str, context_id: str) -> 
     return bytes(proof[0:64]).hex().upper()
 
 
-def verify_pok(ctx, pubkey_compressed: str, proof: str, context_id: str) -> bool:
+def verify_pok(
+    ctx: object, pubkey_compressed: str, proof: str, context_id: str
+) -> bool:
     """
     Verify a Schnorr proof of knowledge of secret key.
 

@@ -11,7 +11,7 @@ data, used to bind zero-knowledge proofs to specific transactions.
 from typing import Union
 
 from xrpl.core.addresscodec import decode_classic_address
-from xrpl.core.confidential.crypto_bindings import ffi, lib
+from xrpl.ext.confidential.crypto_bindings import ffi, lib
 
 # Transaction type codes (from rippled)
 TX_TYPE_CONFIDENTIAL_CONVERT = 85

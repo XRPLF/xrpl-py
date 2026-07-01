@@ -8,7 +8,7 @@ from typing import Dict, List, Optional
 from typing_extensions import Self
 
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.confidential_mpt_convert import (
+from xrpl.models.transactions.confidential_mpt_constants import (
     CIPHERTEXT_LENGTH,
     COMMITMENT_LENGTH,
     SEND_PROOF_LENGTH,

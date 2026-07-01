@@ -3,7 +3,7 @@
 Example: Submit Confidential MPT Transactions
 
 This example demonstrates the complete workflow for confidential MPT transactions
-using the high-level transaction builder functions from xrpl.core.confidential.
+using the high-level transaction builder functions from xrpl.ext.confidential.
 
 The workflow includes:
 1. Setting up accounts and funding them
@@ -28,7 +28,12 @@ import sys
 from xrpl.clients import JsonRpcClient
 from xrpl.constants import CryptoAlgorithm
 from xrpl.models.amounts import MPTAmount
-from xrpl.models.requests import AccountInfo, AccountObjects, GenericRequest, LedgerEntry
+from xrpl.models.requests import (
+    AccountInfo,
+    AccountObjects,
+    GenericRequest,
+    LedgerEntry,
+)
 from xrpl.models.requests.account_objects import AccountObjectType
 from xrpl.models.requests.ledger_entry import MPToken as MPTokenQuery
 from xrpl.models.transactions import (
@@ -43,15 +48,15 @@ from xrpl.wallet import Wallet
 
 # Import confidential MPT utilities
 try:
-    from xrpl.core.confidential import MPTCrypto
-    from xrpl.core.confidential.examples.utils import (
+    from xrpl.ext.confidential import MPTCrypto
+    from xrpl.ext.confidential.examples.utils import (
         check_tx_success,
         fund_account,
         get_mpt_issuance_id,
         print_section,
         print_tx_response,
     )
-    from xrpl.core.confidential.transaction_builders import (
+    from xrpl.ext.confidential.transaction_builders import (
         prepare_confidential_clawback,
         prepare_confidential_convert,
         prepare_confidential_convert_back,
@@ -59,7 +64,7 @@ try:
         prepare_confidential_send,
     )
 except ImportError as e:
-    print(f"ERROR: xrpl.core.confidential not available: {e}")
+    print(f"ERROR: xrpl.ext.confidential not available: {e}")
     print("Build with: poetry run poe build_mpt_crypto")
     sys.exit(1)
 

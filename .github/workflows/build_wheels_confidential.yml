@@ -1,206 +1,116 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Build xrpl-py-confidential wheels (cibuildwheel)
+#
+# Supersedes the old hand-retag flow. Builds the SEPARATE xrpl-py-confidential
+# distribution from packaging/confidential/ — the core `xrpl-py` wheel stays
+# pure py3-none-any and is unaffected by this workflow.
+#
+# Coverage (broad reach > wheel size):
+#   Linux  x86_64 + aarch64  — libmpt-crypto BUILT FROM SOURCE in manylinux_2_28
+#   macOS  arm64 + x86_64    — built from source, MACOSX_DEPLOYMENT_TARGET=13.0
+#   Windows AMD64            — upstream prebuilt DLL + delvewheel
+#   CPython 3.8–3.13
+#
+# Triggers are manual/`workflow_call` only on purpose: this references the
+# packaging/confidential/xrpl_confidential/ package that lands during the
+# SPLIT_DESIGN.md migration. No auto push trigger until the move is merged.
+# ──────────────────────────────────────────────────────────────────────────────
 name: Build Confidential MPT Wheels
 
 on:
   workflow_call:
     inputs:
       git_ref:
-        description: "Git ref to checkout (branch, tag, or SHA)"
+        description: "Git ref to checkout"
         required: true
-        type: string
-      mpt_crypto_version:
-        description: "mpt-crypto release tag (e.g. 0.3.0-rc2). Defaults to latest."
-        required: false
         type: string
   workflow_dispatch:
     inputs:
       git_ref:
-        description: "Git ref to checkout (branch, tag, or SHA)"
+        description: "Git ref to checkout"
         required: false
         type: string
         default: "confidential-mpt"
-      mpt_crypto_version:
-        description: "mpt-crypto release tag (e.g. 0.3.0-rc2). Leave empty for latest."
+      publish:
+        description: "Publish to PyPI after build"
         required: false
-        type: string
-  push:
-    branches:
-      - confidential-mpt
-    paths:
-      - ".github/workflows/build_wheels_confidential.yml"
-      - "xrpl/core/confidential/build_mpt_crypto.py"
+        type: boolean
+        default: false
 
-env:
-  MPT_CRYPTO_REPO: XRPLF/mpt-crypto
+permissions:
+  contents: read
 
 jobs:
   build-wheels:
-    name: Build wheel on ${{ matrix.os }} (Python ${{ matrix.python-version }})
+    name: Wheels · ${{ matrix.label }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-15-intel, macos-14, windows-2022]
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
-
+        include:
+          - { os: ubuntu-latest,    label: linux-x86_64 }
+          - { os: ubuntu-24.04-arm, label: linux-aarch64 }
+          - { os: macos-14,         label: macos-arm64 }
+          - { os: macos-15-intel,   label: macos-x86_64 }
+          - { os: windows-2022,     label: windows-amd64 }
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ inputs.git_ref || github.ref }}
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      # Stage xrpl/ext/confidential into the build project (host-side) so the
+      # isolated PEP 517 build — and, on Linux, the manylinux container that
+      # only mounts the project dir — can see the package source.
+      - name: Stage source
+        shell: bash
+        run: bash packaging/confidential/scripts/stage-source.sh
+
+      # cibuildwheel drives the per-platform before-all (build-from-source on
+      # Linux/macOS, prebuilt fetch on Windows) and the repair step
+      # (auditwheel / delocate / delvewheel) from packaging/confidential config.
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.21
         with:
-          python-version: ${{ matrix.python-version }}
-
-      # ── Resolve mpt-crypto release tag ──
-      - name: Resolve mpt-crypto version
-        id: resolve
-        shell: bash
+          package-dir: packaging/confidential
+          output-dir: wheelhouse
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if [ -n "${{ inputs.mpt_crypto_version }}" ]; then
-            TAG="${{ inputs.mpt_crypto_version }}"
-          else
-            TAG=$(gh release list --repo "$MPT_CRYPTO_REPO" --limit 1 \
-                  --json tagName --jq '.[0].tagName')
-          fi
-          echo "version=$TAG" >> "$GITHUB_OUTPUT"
-          echo "==> Using mpt-crypto release: $TAG"
+          CIBW_ARCHS: auto          # native arch per runner (incl. linux aarch64)
 
-      # ── Download from mpt-crypto release ──
-      - name: Download mpt-crypto natives
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          TAG="${{ steps.resolve.outputs.version }}"
-          gh release download "$TAG" \
-            --repo "$MPT_CRYPTO_REPO" \
-            --pattern "mpt-crypto-natives-*.tar.gz" \
-            --dir /tmp/download
-
-          mkdir -p /tmp/natives
-          tar xzf /tmp/download/mpt-crypto-natives-*.tar.gz -C /tmp/natives
-          echo "==> Extracted mpt-crypto natives ($TAG):"
-          find /tmp/natives -type f | sort
-
-      # ── Map bundle directories to xrpl-py layout ──
-      # Bundle uses: darwin-aarch64/, linux-x86-64/, win32-x86-64/
-      # xrpl-py uses: libs/darwin/, libs/linux/, libs/win32/
-      - name: Install native library and headers
-        shell: bash
-        run: |
-          LIB_SUBDIR=""
-          BUNDLE_SUBDIR=""
-
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            LIB_SUBDIR="linux"
-            BUNDLE_SUBDIR="linux-x86-64"
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            LIB_SUBDIR="darwin"
-            ARCH=$(uname -m)
-            if [ "$ARCH" == "arm64" ]; then
-              BUNDLE_SUBDIR="darwin-aarch64"
-            else
-              BUNDLE_SUBDIR="darwin-x86-64"
-            fi
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            LIB_SUBDIR="win32"
-            BUNDLE_SUBDIR="win32-x86-64"
-          fi
-
-          # Copy shared library
-          mkdir -p "xrpl/core/confidential/libs/$LIB_SUBDIR"
-          cp /tmp/natives/$BUNDLE_SUBDIR/* "xrpl/core/confidential/libs/$LIB_SUBDIR/"
-
-          # Copy headers
-          mkdir -p xrpl/core/confidential/include/utility
-          cp /tmp/natives/include/secp256k1_mpt.h xrpl/core/confidential/include/
-          cp /tmp/natives/include/utility/mpt_utility.h xrpl/core/confidential/include/utility/
-
-          echo "=== Shared library ==="
-          ls -lh "xrpl/core/confidential/libs/$LIB_SUBDIR/"
-          echo "=== Headers ==="
-          ls -lh xrpl/core/confidential/include/
-          ls -lh xrpl/core/confidential/include/utility/
-
-      - name: Install Poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry wheel
-
-      - name: Install build dependencies
-        run: |
-          poetry install --no-root --extras confidential
-          poetry run pip install setuptools
-
-      - name: Build CFFI extension
-        shell: bash
-        run: |
-          cd xrpl/core/confidential
-          if [ "$RUNNER_OS" == "macOS" ]; then
-            ARCH=$(uname -m)
-            if [ "$ARCH" == "arm64" ]; then
-              export ARCHFLAGS="-arch arm64"
-            else
-              export ARCHFLAGS="-arch x86_64"
-            fi
-            echo "Building for macOS $ARCH"
-          fi
-          poetry run python build_mpt_crypto.py
-          echo "CFFI extension built successfully"
-
-      - name: Build wheel with Poetry
-        run: poetry build -f wheel
-
-      - name: Retag wheel with platform tag
-        shell: bash
-        run: |
-          PY_VERSION=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
-
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            PLATFORM="manylinux_2_17_x86_64.manylinux2014_x86_64"
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            ARCH=$(uname -m)
-            if [ "$ARCH" == "arm64" ]; then
-              PLATFORM="macosx_11_0_arm64"
-            else
-              PLATFORM="macosx_10_9_x86_64"
-            fi
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            PLATFORM="win_amd64"
-          fi
-
-          echo "Platform tag: $PLATFORM"
-
-          cd dist
-          for whl in *-py3-none-any.whl; do
-            echo "Original wheel: $whl"
-            python -m wheel tags --python-tag="${PY_VERSION}" --abi-tag="${PY_VERSION}" --platform-tag="${PLATFORM}" "$whl"
-            echo "Removing original: $whl"
-            rm "$whl"
-            echo "Remaining wheels:"
-            ls -la *.whl
-          done
-
-      - name: List wheel contents
-        shell: bash
-        run: |
-          echo "=== Wheel contents ==="
-          for whl in dist/*.whl; do
-            echo ""
-            echo "Wheel: $whl"
-            echo "Size: $(du -h "$whl" | cut -f1)"
-            echo ""
-            echo "Native files:"
-            unzip -l "$whl" | grep -E "\.so|\.pyd|\.dylib|\.dll|_mpt_crypto" || echo "No compiled extensions found"
-          done
-
-      - name: Upload wheel artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: wheel-${{ matrix.os }}-py${{ matrix.python-version }}
-          path: dist/*.whl
+          name: confidential-wheels-${{ matrix.label }}
+          path: wheelhouse/*.whl
+          if-no-files-found: error
+
+  build-sdist:
+    name: sdist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref || github.ref }}
+      - run: pipx run build --sdist --outdir dist packaging/confidential
+      - uses: actions/upload-artifact@v4
+        with:
+          name: confidential-sdist
+          path: dist/*.tar.gz
+          if-no-files-found: error
+
+  publish:
+    name: Publish to PyPI
+    needs: [build-wheels, build-sdist]
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish }}
+    runs-on: ubuntu-latest
+    environment: pypi-confidential        # protected env / manual approval gate
+    permissions:
+      id-token: write                     # PyPI Trusted Publishing (OIDC)
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: confidential-*
+          path: dist
+          merge-multiple: true
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist

@@ -69,8 +69,8 @@ poetry install --extras confidential
 ### Basic Example
 
 ```python
-from xrpl.core.confidential import MPTCrypto
-from xrpl.core.confidential.transaction_builders import prepare_confidential_convert
+from xrpl.ext.confidential import MPTCrypto
+from xrpl.ext.confidential.transaction_builders import prepare_confidential_convert
 from xrpl.clients import JsonRpcClient
 from xrpl.wallet import Wallet
 
@@ -116,7 +116,7 @@ Each function handles all the complexity of:
 For advanced use cases, you can use the `MPTCrypto` class directly:
 
 ```python
-from xrpl.core.confidential import MPTCrypto
+from xrpl.ext.confidential import MPTCrypto
 
 crypto = MPTCrypto()
 

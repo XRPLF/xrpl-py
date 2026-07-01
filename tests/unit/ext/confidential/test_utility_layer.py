@@ -10,7 +10,19 @@ NOTE: The C utility functions return 0 on success (not 1).
 
 import unittest
 
-from xrpl.core.confidential.crypto_bindings import ffi, lib
+from xrpl.ext.confidential.crypto_bindings import MPT_CRYPTO_AVAILABLE, ffi, lib
+
+
+def setUpModule() -> None:
+    """Skip the whole module unless the mpt-crypto C extension is built.
+
+    These are integration tests that call into the native library. In a
+    pure-Python checkout (no compiled ``_mpt_crypto`` extension) ``ffi``/``lib``
+    are stubs that raise on access, so the entire module is skipped rather than
+    erroring. They run in the native ``xrpl-py-confidential`` build/CI.
+    """
+    if not MPT_CRYPTO_AVAILABLE:
+        raise unittest.SkipTest("mpt-crypto C extension not built")
 
 
 # ---------------------------------------------------------------------------
@@ -144,7 +156,11 @@ def make_send_fixture(n_participants=3):
     # Build participant list
     participants = ffi.new(f"mpt_confidential_participant[{n_participants}]")
     for i, (pub, ct) in enumerate(
-        [(f.sender_pub, f.sender_ct), (f.dest_pub, f.dest_ct), (f.issuer_pub, f.issuer_ct)]
+        [
+            (f.sender_pub, f.sender_ct),
+            (f.dest_pub, f.dest_ct),
+            (f.issuer_pub, f.issuer_ct),
+        ]
     ):
         ffi.memmove(participants[i].pubkey, pub, 33)
         ffi.memmove(participants[i].ciphertext, ct, 66)
@@ -156,7 +172,9 @@ def make_send_fixture(n_participants=3):
     f.n_participants = n_participants
 
     # Generate proof
-    proof_size = lib.SECP256K1_COMPACT_STANDARD_PROOF_SIZE + lib.kMPT_DOUBLE_BULLETPROOF_SIZE
+    proof_size = (
+        lib.SECP256K1_COMPACT_STANDARD_PROOF_SIZE + lib.kMPT_DOUBLE_BULLETPROOF_SIZE
+    )
     f.proof = ffi.new(f"uint8_t[{proof_size}]")
     out_len = ffi.new("size_t *", proof_size)
 
@@ -204,7 +222,10 @@ class TestEncryptionDecryptionIntegrate(unittest.TestCase):
                 ct = encrypt_amount(original_amount, pub, bf)
 
                 decrypted = ffi.new("uint64_t *")
-                self.assertEqual(lib.mpt_decrypt_amount(ct, priv, decrypted), 0)
+                # 0.4.0-rc2: decrypt searches a [range_low, range_high] window.
+                self.assertEqual(
+                    lib.mpt_decrypt_amount(ct, priv, decrypted, 0, 10000), 0
+                )
                 self.assertEqual(decrypted[0], original_amount)
 
 
@@ -223,7 +244,9 @@ class TestConfidentialConvertIntegrate(unittest.TestCase):
 
         # Context hash
         tx_hash = ffi.new("uint8_t[32]")
-        self.assertEqual(lib.mpt_get_convert_context_hash(acc, issuance, seq, tx_hash), 0)
+        self.assertEqual(
+            lib.mpt_get_convert_context_hash(acc, issuance, seq, tx_hash), 0
+        )
 
         # Prove
         proof = ffi.new(f"uint8_t[{lib.kMPT_SCHNORR_PROOF_SIZE}]")
@@ -288,7 +311,9 @@ class TestConfidentialSendIntegrate(unittest.TestCase):
         ffi.memmove(bal_params.ciphertext, prev_bal_ct, 66)
 
         # Generate proof
-        proof_size = lib.SECP256K1_COMPACT_STANDARD_PROOF_SIZE + lib.kMPT_DOUBLE_BULLETPROOF_SIZE
+        proof_size = (
+            lib.SECP256K1_COMPACT_STANDARD_PROOF_SIZE + lib.kMPT_DOUBLE_BULLETPROOF_SIZE
+        )
         proof = ffi.new(f"uint8_t[{proof_size}]")
         out_len = ffi.new("size_t *", proof_size)
 
@@ -343,7 +368,10 @@ class TestConvertBackIntegrate(unittest.TestCase):
         # Context hash
         context_hash = ffi.new("uint8_t[32]")
         self.assertEqual(
-            lib.mpt_get_convert_back_context_hash(acc, issuance, seq, version, context_hash), 0
+            lib.mpt_get_convert_back_context_hash(
+                acc, issuance, seq, version, context_hash
+            ),
+            0,
         )
 
         pcb_bf = generate_blinding_factor()
@@ -357,17 +385,27 @@ class TestConvertBackIntegrate(unittest.TestCase):
         ffi.memmove(pc_params.ciphertext, spending_bal_ct, 66)
 
         # Generate proof
-        proof_size = lib.SECP256K1_COMPACT_CONVERTBACK_PROOF_SIZE + lib.kMPT_SINGLE_BULLETPROOF_SIZE
+        proof_size = (
+            lib.SECP256K1_COMPACT_CONVERTBACK_PROOF_SIZE
+            + lib.kMPT_SINGLE_BULLETPROOF_SIZE
+        )
         proof = ffi.new(f"uint8_t[{proof_size}]")
         self.assertEqual(
-            lib.mpt_get_convert_back_proof(priv, pub, context_hash, amount_to_convert_back, pc_params, proof),
+            lib.mpt_get_convert_back_proof(
+                priv, pub, context_hash, amount_to_convert_back, pc_params, proof
+            ),
             0,
         )
 
         # Verify
         self.assertEqual(
             lib.mpt_verify_convert_back_proof(
-                proof, pub, spending_bal_ct, pcb_comm, amount_to_convert_back, context_hash
+                proof,
+                pub,
+                spending_bal_ct,
+                pcb_comm,
+                amount_to_convert_back,
+                context_hash,
             ),
             0,
         )
@@ -388,7 +426,9 @@ class TestClawbackIntegrate(unittest.TestCase):
         # Context hash
         context_hash = ffi.new("uint8_t[32]")
         self.assertEqual(
-            lib.mpt_get_clawback_context_hash(issuer_acc, issuance, seq, holder_acc, context_hash),
+            lib.mpt_get_clawback_context_hash(
+                issuer_acc, issuance, seq, holder_acc, context_hash
+            ),
             0,
         )
 
@@ -399,7 +439,12 @@ class TestClawbackIntegrate(unittest.TestCase):
         proof = ffi.new(f"uint8_t[{lib.SECP256K1_COMPACT_CLAWBACK_PROOF_SIZE}]")
         self.assertEqual(
             lib.mpt_get_clawback_proof(
-                issuer_priv, issuer_pub, context_hash, claw_amount, issuer_encrypted_bal, proof
+                issuer_priv,
+                issuer_pub,
+                context_hash,
+                claw_amount,
+                issuer_encrypted_bal,
+                proof,
             ),
             0,
         )
@@ -428,7 +473,9 @@ class TestConfidentialConvert(unittest.TestCase):
 
         priv, pub = generate_keypair()
         tx_hash = ffi.new("uint8_t[32]")
-        self.assertEqual(lib.mpt_get_convert_context_hash(acc, issuance, seq, tx_hash), 0)
+        self.assertEqual(
+            lib.mpt_get_convert_context_hash(acc, issuance, seq, tx_hash), 0
+        )
 
         proof = ffi.new(f"uint8_t[{lib.kMPT_SCHNORR_PROOF_SIZE}]")
         self.assertEqual(lib.mpt_get_convert_proof(pub, priv, tx_hash, proof), 0)
@@ -486,13 +533,20 @@ class TestConfidentialSend(unittest.TestCase):
         f = make_send_fixture(3)
 
         # Proof size must be exactly 192 (compact sigma) + 754 (bulletproof)
-        expected = lib.SECP256K1_COMPACT_STANDARD_PROOF_SIZE + lib.kMPT_DOUBLE_BULLETPROOF_SIZE
+        expected = (
+            lib.SECP256K1_COMPACT_STANDARD_PROOF_SIZE + lib.kMPT_DOUBLE_BULLETPROOF_SIZE
+        )
         self.assertEqual(f.proof_len, expected)
 
         self.assertEqual(
             lib.mpt_verify_send_proof(
-                f.proof, f.participants, f.n_participants,
-                f.bal_ct, f.amount_comm, f.balance_comm, f.ctx_hash,
+                f.proof,
+                f.participants,
+                f.n_participants,
+                f.bal_ct,
+                f.amount_comm,
+                f.balance_comm,
+                f.ctx_hash,
             ),
             0,
         )
@@ -501,13 +555,20 @@ class TestConfidentialSend(unittest.TestCase):
         """valid: n=4 (sender, dest, issuer, auditor)"""
         f = make_send_fixture(4)
 
-        expected = lib.SECP256K1_COMPACT_STANDARD_PROOF_SIZE + lib.kMPT_DOUBLE_BULLETPROOF_SIZE
+        expected = (
+            lib.SECP256K1_COMPACT_STANDARD_PROOF_SIZE + lib.kMPT_DOUBLE_BULLETPROOF_SIZE
+        )
         self.assertEqual(f.proof_len, expected)
 
         self.assertEqual(
             lib.mpt_verify_send_proof(
-                f.proof, f.participants, f.n_participants,
-                f.bal_ct, f.amount_comm, f.balance_comm, f.ctx_hash,
+                f.proof,
+                f.participants,
+                f.n_participants,
+                f.bal_ct,
+                f.amount_comm,
+                f.balance_comm,
+                f.ctx_hash,
             ),
             0,
         )
@@ -521,8 +582,13 @@ class TestConfidentialSend(unittest.TestCase):
 
         self.assertNotEqual(
             lib.mpt_verify_send_proof(
-                bytes(proof_copy), f.participants, f.n_participants,
-                f.bal_ct, f.amount_comm, f.balance_comm, f.ctx_hash,
+                bytes(proof_copy),
+                f.participants,
+                f.n_participants,
+                f.bal_ct,
+                f.amount_comm,
+                f.balance_comm,
+                f.ctx_hash,
             ),
             0,
         )
@@ -533,8 +599,13 @@ class TestConfidentialSend(unittest.TestCase):
 
         self.assertNotEqual(
             lib.mpt_verify_send_proof(
-                f.proof, f.participants, f.n_participants,
-                f.bal_ct, f.amount_comm, f.balance_comm, bad_ctx,
+                f.proof,
+                f.participants,
+                f.n_participants,
+                f.bal_ct,
+                f.amount_comm,
+                f.balance_comm,
+                bad_ctx,
             ),
             0,
         )
@@ -544,12 +615,19 @@ class TestConfidentialSend(unittest.TestCase):
         f = make_send_fixture(3)
 
         bad_bf = generate_blinding_factor()
-        bad_amt_comm = get_pedersen_commitment(100, bad_bf)  # same amount, different blinding
+        bad_amt_comm = get_pedersen_commitment(
+            100, bad_bf
+        )  # same amount, different blinding
 
         self.assertNotEqual(
             lib.mpt_verify_send_proof(
-                f.proof, f.participants, f.n_participants,
-                f.bal_ct, bad_amt_comm, f.balance_comm, f.ctx_hash,
+                f.proof,
+                f.participants,
+                f.n_participants,
+                f.bal_ct,
+                bad_amt_comm,
+                f.balance_comm,
+                f.ctx_hash,
             ),
             0,
         )
@@ -563,8 +641,13 @@ class TestConfidentialSend(unittest.TestCase):
 
         self.assertNotEqual(
             lib.mpt_verify_send_proof(
-                f.proof, f.participants, f.n_participants,
-                bad_bal_ct, f.amount_comm, f.balance_comm, f.ctx_hash,
+                f.proof,
+                f.participants,
+                f.n_participants,
+                bad_bal_ct,
+                f.amount_comm,
+                f.balance_comm,
+                f.ctx_hash,
             ),
             0,
         )
@@ -578,8 +661,13 @@ class TestConfidentialSend(unittest.TestCase):
 
         self.assertNotEqual(
             lib.mpt_verify_send_proof(
-                f.proof, f.participants, f.n_participants,
-                f.bal_ct, f.amount_comm, bad_bal_comm, f.ctx_hash,
+                f.proof,
+                f.participants,
+                f.n_participants,
+                f.bal_ct,
+                f.amount_comm,
+                bad_bal_comm,
+                f.ctx_hash,
             ),
             0,
         )
@@ -603,7 +691,9 @@ class TestConvertBack(unittest.TestCase):
         spending_bal_ct = encrypt_amount(current_balance, pub, bal_bf)
 
         ctx = ffi.new("uint8_t[32]")
-        assert lib.mpt_get_convert_back_context_hash(acc, issuance, seq, version, ctx) == 0
+        assert (
+            lib.mpt_get_convert_back_context_hash(acc, issuance, seq, version, ctx) == 0
+        )
         ctx_bytes = bytes(ctx[0:32])
 
         pcb_bf = generate_blinding_factor()
@@ -615,10 +705,15 @@ class TestConvertBack(unittest.TestCase):
         ffi.memmove(pc_params.pedersen_commitment, pcb_comm, 33)
         ffi.memmove(pc_params.ciphertext, spending_bal_ct, 66)
 
-        proof_size = lib.SECP256K1_COMPACT_CONVERTBACK_PROOF_SIZE + lib.kMPT_SINGLE_BULLETPROOF_SIZE
+        proof_size = (
+            lib.SECP256K1_COMPACT_CONVERTBACK_PROOF_SIZE
+            + lib.kMPT_SINGLE_BULLETPROOF_SIZE
+        )
         proof = ffi.new(f"uint8_t[{proof_size}]")
         assert (
-            lib.mpt_get_convert_back_proof(priv, pub, ctx_bytes, amount_to_convert_back, pc_params, proof)
+            lib.mpt_get_convert_back_proof(
+                priv, pub, ctx_bytes, amount_to_convert_back, pc_params, proof
+            )
             == 0
         )
 
@@ -636,8 +731,12 @@ class TestConvertBack(unittest.TestCase):
         fx = self._make_convert_back_fixture()
         self.assertEqual(
             lib.mpt_verify_convert_back_proof(
-                fx["proof"], fx["pub"], fx["spending_bal_ct"],
-                fx["pcb_comm"], fx["amount"], fx["ctx"],
+                fx["proof"],
+                fx["pub"],
+                fx["spending_bal_ct"],
+                fx["pcb_comm"],
+                fx["amount"],
+                fx["ctx"],
             ),
             0,
         )
@@ -650,8 +749,12 @@ class TestConvertBack(unittest.TestCase):
 
         self.assertNotEqual(
             lib.mpt_verify_convert_back_proof(
-                bytes(bad_proof), fx["pub"], fx["spending_bal_ct"],
-                fx["pcb_comm"], fx["amount"], fx["ctx"],
+                bytes(bad_proof),
+                fx["pub"],
+                fx["spending_bal_ct"],
+                fx["pcb_comm"],
+                fx["amount"],
+                fx["ctx"],
             ),
             0,
         )
@@ -662,8 +765,12 @@ class TestConvertBack(unittest.TestCase):
 
         self.assertNotEqual(
             lib.mpt_verify_convert_back_proof(
-                fx["proof"], fx["pub"], fx["spending_bal_ct"],
-                fx["pcb_comm"], fx["amount"], bad_ctx,
+                fx["proof"],
+                fx["pub"],
+                fx["spending_bal_ct"],
+                fx["pcb_comm"],
+                fx["amount"],
+                bad_ctx,
             ),
             0,
         )
@@ -677,8 +784,12 @@ class TestConvertBack(unittest.TestCase):
 
         self.assertNotEqual(
             lib.mpt_verify_convert_back_proof(
-                fx["proof"], fx["pub"], fx["spending_bal_ct"],
-                bad_comm, fx["amount"], fx["ctx"],
+                fx["proof"],
+                fx["pub"],
+                fx["spending_bal_ct"],
+                bad_comm,
+                fx["amount"],
+                fx["ctx"],
             ),
             0,
         )
@@ -692,8 +803,12 @@ class TestConvertBack(unittest.TestCase):
 
         self.assertNotEqual(
             lib.mpt_verify_convert_back_proof(
-                fx["proof"], fx["pub"], bad_ct,
-                fx["pcb_comm"], fx["amount"], fx["ctx"],
+                fx["proof"],
+                fx["pub"],
+                bad_ct,
+                fx["pcb_comm"],
+                fx["amount"],
+                fx["ctx"],
             ),
             0,
         )
@@ -714,7 +829,10 @@ class TestClawback(unittest.TestCase):
 
         ctx = ffi.new("uint8_t[32]")
         assert (
-            lib.mpt_get_clawback_context_hash(issuer_acc, issuance, seq, holder_acc, ctx) == 0
+            lib.mpt_get_clawback_context_hash(
+                issuer_acc, issuance, seq, holder_acc, ctx
+            )
+            == 0
         )
         ctx_bytes = bytes(ctx[0:32])
 
@@ -723,13 +841,17 @@ class TestClawback(unittest.TestCase):
 
         proof = ffi.new(f"uint8_t[{lib.SECP256K1_COMPACT_CLAWBACK_PROOF_SIZE}]")
         assert (
-            lib.mpt_get_clawback_proof(issuer_priv, issuer_pub, ctx_bytes, claw_amount, ct, proof)
+            lib.mpt_get_clawback_proof(
+                issuer_priv, issuer_pub, ctx_bytes, claw_amount, ct, proof
+            )
             == 0
         )
 
         return {
             "proof": proof,
-            "proof_bytes": bytes(ffi.buffer(proof, lib.SECP256K1_COMPACT_CLAWBACK_PROOF_SIZE)),
+            "proof_bytes": bytes(
+                ffi.buffer(proof, lib.SECP256K1_COMPACT_CLAWBACK_PROOF_SIZE)
+            ),
             "amount": claw_amount,
             "issuer_pub": issuer_pub,
             "ct": ct,
@@ -792,6 +914,108 @@ class TestClawback(unittest.TestCase):
             ),
             0,
         )
+
+
+class TestKeypairValidation(unittest.TestCase):
+    """Mirrors C++ test_mpt_keypair_validation (success + uniqueness).
+
+    The upstream nullptr-rejection cases are not ported: the Python wrappers
+    always allocate the output buffers, so there is no null path to exercise.
+    """
+
+    def test_generate_keypair_succeeds_and_is_unique(self):
+        priv1, pub1 = generate_keypair()
+        priv2, pub2 = generate_keypair()
+        self.assertEqual(len(priv1), 32)
+        self.assertEqual(len(pub1), 33)
+        # Compressed pubkey prefix is 0x02 or 0x03.
+        self.assertIn(pub1[0], (0x02, 0x03))
+        # Two fresh keypairs must differ.
+        self.assertNotEqual(priv1, priv2)
+        self.assertNotEqual(pub1, pub2)
+
+
+class TestContextHashValidation(unittest.TestCase):
+    """Mirrors C++ test_mpt_context_hash_validation for the four context-hash
+    functions: each succeeds, is deterministic, and is input-sensitive."""
+
+    def test_all_context_hashes_succeed(self):
+        acc = make_account_id(0xAA)
+        other = make_account_id(0xCC)
+        issuance = make_issuance_id(0xBB)
+        out = ffi.new("uint8_t[32]")
+        self.assertEqual(lib.mpt_get_convert_context_hash(acc, issuance, 1, out), 0)
+        self.assertEqual(
+            lib.mpt_get_convert_back_context_hash(acc, issuance, 1, 2, out), 0
+        )
+        self.assertEqual(
+            lib.mpt_get_send_context_hash(acc, issuance, 1, other, 2, out), 0
+        )
+        self.assertEqual(
+            lib.mpt_get_clawback_context_hash(acc, issuance, 1, other, out), 0
+        )
+
+    def _convert_hash(self, acc, issuance, seq):
+        out = ffi.new("uint8_t[32]")
+        self.assertEqual(lib.mpt_get_convert_context_hash(acc, issuance, seq, out), 0)
+        return bytes(out[0:32])
+
+    def test_context_hash_is_deterministic_and_input_sensitive(self):
+        acc = make_account_id(0xAA)
+        issuance = make_issuance_id(0xBB)
+        h1 = self._convert_hash(acc, issuance, 1)
+        # Same inputs -> same hash.
+        self.assertEqual(h1, self._convert_hash(acc, issuance, 1))
+        # Different sequence -> different hash.
+        self.assertNotEqual(h1, self._convert_hash(acc, issuance, 2))
+        # Different account -> different hash.
+        self.assertNotEqual(h1, self._convert_hash(make_account_id(0xCC), issuance, 1))
+
+
+class TestModelConstantsMatchLibrary(unittest.TestCase):
+    """The pure-Python model size constants must equal the compiled library's.
+
+    This is the drift guard for the single source of truth in
+    xrpl.models.transactions.confidential_mpt_constants: if a mpt-crypto version
+    bump changes a proof size, this fails instead of letting the models validate
+    against a stale length.
+    """
+
+    def test_proof_sizes_match_library(self):
+        from xrpl.models.transactions import confidential_mpt_constants as k
+
+        self.assertEqual(
+            k.CLAWBACK_PROOF_SIZE, lib.SECP256K1_COMPACT_CLAWBACK_PROOF_SIZE
+        )
+        self.assertEqual(
+            k.COMPACT_CONVERTBACK_PROOF_SIZE,
+            lib.SECP256K1_COMPACT_CONVERTBACK_PROOF_SIZE,
+        )
+        self.assertEqual(
+            k.COMPACT_STANDARD_PROOF_SIZE, lib.SECP256K1_COMPACT_STANDARD_PROOF_SIZE
+        )
+        self.assertEqual(k.SINGLE_BULLETPROOF_SIZE, lib.kMPT_SINGLE_BULLETPROOF_SIZE)
+        self.assertEqual(k.DOUBLE_BULLETPROOF_SIZE, lib.kMPT_DOUBLE_BULLETPROOF_SIZE)
+        self.assertEqual(k.SCHNORR_PROOF_SIZE, lib.kMPT_SCHNORR_PROOF_SIZE)
+        # Composite proofs the ZKProof field carries.
+        self.assertEqual(
+            k.SEND_PROOF_SIZE,
+            lib.SECP256K1_COMPACT_STANDARD_PROOF_SIZE
+            + lib.kMPT_DOUBLE_BULLETPROOF_SIZE,
+        )
+        self.assertEqual(
+            k.CONVERT_BACK_PROOF_SIZE,
+            lib.SECP256K1_COMPACT_CONVERTBACK_PROOF_SIZE
+            + lib.kMPT_SINGLE_BULLETPROOF_SIZE,
+        )
+
+
+# NOTE: the upstream unit tests test_mpt_make_ec_pair_validation,
+# test_mpt_compute_convert_back_remainder_validation and
+# test_mpt_verify_aggregated_bulletproof_validation are intentionally NOT ported.
+# They exercise mpt_make_ec_pair / mpt_compute_convert_back_remainder /
+# mpt_verify_aggregated_bulletproof, which are verifier/helper primitives outside
+# the prover-focused FFI surface this SDK binds (see build_mpt_crypto.py).
 
 
 if __name__ == "__main__":

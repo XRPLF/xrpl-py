@@ -15,6 +15,9 @@ import glob
 import importlib.util
 import os
 import platform
+from typing import NoReturn, Optional
+
+from typing_extensions import Self
 
 # Find the compiled C extension in the current directory without modifying sys.path
 # This avoids polluting sys.path with this directory which contains utils.py
@@ -26,7 +29,7 @@ ffi = None
 lib = None
 
 
-def _preload_shared_library():
+def _preload_shared_library() -> None:
     """
     Pre-load the mpt-crypto shared library so it's available when
     the CFFI extension is imported.  On macOS/Linux the rpath compiled
@@ -55,7 +58,7 @@ def _preload_shared_library():
 _preload_shared_library()
 
 
-def _find_extension_path():
+def _find_extension_path() -> Optional[str]:
     """Find the compiled C extension file."""
     for ext in [".so", ".pyd", ".dylib"]:
         candidate = os.path.join(_current_dir, f"_mpt_crypto{ext}")
@@ -68,7 +71,7 @@ def _find_extension_path():
     return None
 
 
-def _load_extension():
+def _load_extension() -> None:
     """Try to load the mpt_crypto extension."""
     global ffi, lib, MPT_CRYPTO_AVAILABLE, _import_error
 
@@ -110,27 +113,27 @@ _load_extension()
 # Provide fallback objects if not available
 if not MPT_CRYPTO_AVAILABLE:
 
-    def _raise_not_available(*_args, **_kwargs):
+    def _raise_not_available(*_args: object, **_kwargs: object) -> NoReturn:
         raise ImportError(
             "\n"
             "Confidential MPT support is not available.\n"
             "\n"
-            "To enable confidential MPT features, run the setup script:\n"
-            "  python -m xrpl.core.confidential.setup\n"
+            "To enable confidential MPT features, install the add-on:\n"
+            "  pip install xrpl-py-confidential\n"
             "\n"
-            "Or manually build the C extension:\n"
-            "  python xrpl/core/confidential/build_mpt_crypto.py\n"
+            "Or build the C extension from source:\n"
+            "  python xrpl/ext/confidential/build_mpt_crypto.py\n"
             "\n"
             f"Original error: {_import_error}\n"
         )
 
     # Create dummy objects that will raise the error when accessed
     class _DummyFFI:
-        def __getattr__(self, name):
+        def __getattr__(self: Self, name: str) -> object:
             _raise_not_available()
 
     class _DummyLib:
-        def __getattr__(self, name):
+        def __getattr__(self: Self, name: str) -> object:
             _raise_not_available()
 
     ffi = _DummyFFI()

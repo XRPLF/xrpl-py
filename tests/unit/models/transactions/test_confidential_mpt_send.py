@@ -8,7 +8,7 @@ _DESTINATION = "rN7n3473SaZBCG4dFL83w7a1RXtXtbk2D9"
 _MPTOKEN_ISSUANCE_ID = "000000000000000000000000" + _SENDER
 _VALID_CIPHERTEXT = "A" * 132  # 66 bytes (two compressed EC points)
 _VALID_COMMITMENT = "B" * 66  # 33 bytes (one compressed EC point)
-_VALID_SEND_PROOF = "C" * 3006
+_VALID_SEND_PROOF = "C" * 1892  # 946 bytes: sigma (192) + double bulletproof (754)
 
 
 class TestConfidentialMPTSend(TestCase):
@@ -190,5 +190,5 @@ class TestConfidentialMPTSend(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'zk_proof': "
-            "'zk_proof must be 1503 bytes (3006 hex characters) for Send proof'}",
+            "'zk_proof must be 946 bytes (1892 hex characters) for Send proof'}",
         )

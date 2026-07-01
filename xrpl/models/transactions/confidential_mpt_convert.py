@@ -8,29 +8,34 @@ from typing import Dict, Optional
 from typing_extensions import Self
 
 from xrpl.models.required import REQUIRED
+
+# Length constants are defined once in confidential_mpt_constants and re-exported
+# here for backward compatibility with existing imports.
+from xrpl.models.transactions.confidential_mpt_constants import (
+    BLINDING_FACTOR_LENGTH,
+    CIPHERTEXT_LENGTH,
+    CLAWBACK_PROOF_LENGTH,
+    COMMITMENT_LENGTH,
+    CONVERT_BACK_PROOF_LENGTH,
+    HOLDER_ENCRYPTION_KEY_LENGTH,
+    SCHNORR_PROOF_LENGTH,
+    SEND_PROOF_LENGTH,
+)
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init
 
-# Length constants for validation (in hex characters)
-HOLDER_ENCRYPTION_KEY_LENGTH = 33 * 2  # 33 bytes = 66 hex chars
-BLINDING_FACTOR_LENGTH = 32 * 2  # 32 bytes = 64 hex chars
-SCHNORR_PROOF_LENGTH = 64 * 2  # 64 bytes = 128 hex chars (32 R + 32 s)
-
-# ElGamal ciphertext: two compressed EC points (C1, C2), each 33 bytes
-CIPHERTEXT_LENGTH = 66 * 2  # 66 bytes = 132 hex chars
-
-# Pedersen commitment: one compressed EC point (33 bytes)
-COMMITMENT_LENGTH = 33 * 2  # 33 bytes = 66 hex chars
-
-# ConfidentialMPTClawback proof: compact sigma proof (64 bytes)
-CLAWBACK_PROOF_LENGTH = 64 * 2  # 64 bytes = 128 hex chars
-
-# ConfidentialMPTSend proof: compact sigma (192) + double bulletproof (754) = 946 bytes
-SEND_PROOF_LENGTH = 946 * 2  # 946 bytes = 1892 hex chars
-
-# ConfidentialMPTConvertBack proof: compact sigma (128) + bulletproof (688) = 816 bytes
-CONVERT_BACK_PROOF_LENGTH = 816 * 2  # 816 bytes = 1632 hex chars
+__all__ = [
+    "ConfidentialMPTConvert",
+    "BLINDING_FACTOR_LENGTH",
+    "CIPHERTEXT_LENGTH",
+    "CLAWBACK_PROOF_LENGTH",
+    "COMMITMENT_LENGTH",
+    "CONVERT_BACK_PROOF_LENGTH",
+    "HOLDER_ENCRYPTION_KEY_LENGTH",
+    "SCHNORR_PROOF_LENGTH",
+    "SEND_PROOF_LENGTH",
+]
 
 
 @require_kwargs_on_init

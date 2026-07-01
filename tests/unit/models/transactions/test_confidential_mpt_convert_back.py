@@ -10,7 +10,7 @@ _MPTOKEN_ISSUANCE_ID = "000000000000000000000000" + _ACCOUNT
 _VALID_CIPHERTEXT = "A" * 132  # 66 bytes (two compressed EC points)
 _VALID_COMMITMENT = "B" * 66  # 33 bytes (one compressed EC point)
 _VALID_BLINDING_FACTOR = "C" * 64
-_VALID_CONVERT_BACK_PROOF = "D" * 1766
+_VALID_CONVERT_BACK_PROOF = "D" * 1632  # 816 bytes: sigma (128) + bulletproof (688)
 
 
 class TestConfidentialMPTConvertBack(TestCase):
@@ -181,5 +181,5 @@ class TestConfidentialMPTConvertBack(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'zk_proof': "
-            "'zk_proof must be 883 bytes (1766 hex characters) for ConvertBack proof'}",
+            "'zk_proof must be 816 bytes (1632 hex characters) for ConvertBack proof'}",
         )

@@ -7,28 +7,27 @@ by wrapping the functional modules into a single class interface.
 
 from typing import Optional, Tuple
 
-from xrpl.core.confidential import (
-    commitments,
-    encryption,
-    keypair,
-)
-from xrpl.core.confidential.crypto_bindings import (
+from typing_extensions import Self
+
+from xrpl.ext.confidential import commitments, encryption, keypair
+from xrpl.ext.confidential.crypto_bindings import (
     SECP256K1_CONTEXT_SIGN,
     SECP256K1_CONTEXT_VERIFY,
     ffi,
     lib,
 )
-from xrpl.core.confidential.encryption import (
+from xrpl.ext.confidential.encryption import (
     BLINDING_FACTOR_SIZE,
     PUBKEY_COMPRESSED_SIZE,
 )
 
 # Re-export size constants
-from xrpl.core.confidential.keypair import (
+from xrpl.ext.confidential.keypair import (
     CONTEXT_ID_SIZE,
     PRIVKEY_SIZE,
     SCHNORR_PROOF_SIZE,
 )
+
 ACCOUNT_ID_SIZE = 20
 MPT_ISSUANCE_ID_SIZE = 24
 
@@ -48,7 +47,7 @@ __all__ = [
 class MPTCrypto:
     """High-level Python API for mpt-crypto operations."""
 
-    def __init__(self):
+    def __init__(self: Self) -> None:
         """Initialize the secp256k1 context."""
         self.ctx = lib.secp256k1_context_create(
             SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY
@@ -56,35 +55,37 @@ class MPTCrypto:
         if self.ctx == ffi.NULL:
             raise RuntimeError("Failed to create secp256k1 context")
 
-    def __del__(self):
+    def __del__(self: Self) -> None:
         """Clean up the secp256k1 context."""
         if hasattr(self, "ctx") and self.ctx != ffi.NULL:
             lib.secp256k1_context_destroy(self.ctx)
 
     # Keypair generation and Schnorr PoK
-    def generate_keypair(self) -> Tuple[str, str]:
+    def generate_keypair(self: Self) -> Tuple[str, str]:
         """Generate an ElGamal keypair."""
         return keypair.generate_keypair(self.ctx)
 
     def generate_keypair_with_pok(
-        self, context_id: Optional[str] = None
+        self: Self, context_id: Optional[str] = None
     ) -> Tuple[str, str, str]:
         """Generate an ElGamal keypair with a Schnorr proof of knowledge."""
         return keypair.generate_keypair_with_pok(self.ctx, context_id)
 
     def generate_pok(
-        self, privkey: str, pubkey_uncompressed: str, context_id: str
+        self: Self, privkey: str, pubkey_uncompressed: str, context_id: str
     ) -> str:
         """Generate a Schnorr proof of knowledge of the secret key."""
         return keypair.generate_pok(self.ctx, privkey, pubkey_uncompressed, context_id)
 
-    def verify_pok(self, pubkey_uncompressed: str, proof: str, context_id: str) -> bool:
+    def verify_pok(
+        self: Self, pubkey_uncompressed: str, proof: str, context_id: str
+    ) -> bool:
         """Verify a Schnorr proof of knowledge of secret key."""
         return keypair.verify_pok(self.ctx, pubkey_uncompressed, proof, context_id)
 
     # Encryption/Decryption
     def encrypt(
-        self,
+        self: Self,
         pubkey_uncompressed: str,
         amount: int,
         blinding_factor: Optional[str] = None,
@@ -94,17 +95,30 @@ class MPTCrypto:
             self.ctx, pubkey_uncompressed, amount, blinding_factor
         )
 
-    def decrypt(self, privkey: str, c1: str, c2: str) -> int:
-        """Decrypt an ElGamal ciphertext."""
-        return encryption.decrypt(self.ctx, privkey, c1, c2)
+    def decrypt(
+        self: Self,
+        privkey: str,
+        c1: str,
+        c2: str,
+        range_low: int = 0,
+        range_high: int = encryption.DEFAULT_DECRYPT_RANGE_HIGH,
+    ) -> int:
+        """Decrypt an ElGamal ciphertext.
+
+        Searches for the amount by discrete log over ``[range_low, range_high]``;
+        cost scales with the width of the range.
+        """
+        return encryption.decrypt(self.ctx, privkey, c1, c2, range_low, range_high)
 
     # Commitments and Bulletproofs
-    def create_pedersen_commitment(self, amount: int, blinding_factor: str) -> str:
+    def create_pedersen_commitment(
+        self: Self, amount: int, blinding_factor: str
+    ) -> str:
         """Create a Pedersen commitment: PC = amount*G + blinding_factor*H"""
         return commitments.create_pedersen_commitment(self.ctx, amount, blinding_factor)
 
     def create_bulletproof(
-        self, amount: int, blinding_factor: str, pk_base_uncompressed: str
+        self: Self, amount: int, blinding_factor: str, pk_base_uncompressed: str
     ) -> str:
         """Create a Bulletproof range proof."""
         return commitments.create_bulletproof(
@@ -112,7 +126,7 @@ class MPTCrypto:
         )
 
     def verify_bulletproof(
-        self, proof: str, commitment: str, pk_base_uncompressed: str
+        self: Self, proof: str, commitment: str, pk_base_uncompressed: str
     ) -> bool:
         """Verify a Bulletproof range proof."""
         return commitments.verify_bulletproof(
@@ -121,7 +135,7 @@ class MPTCrypto:
 
     # Verify proofs using utility layer
     def verify_clawback_proof(
-        self,
+        self: Self,
         proof: str,
         amount: int,
         pubkey_compressed: str,
@@ -152,7 +166,7 @@ class MPTCrypto:
         return result == 0
 
     def verify_convert_back_proof(
-        self,
+        self: Self,
         proof: str,
         pubkey_compressed: str,
         ciphertext: str,
@@ -191,7 +205,7 @@ class MPTCrypto:
         return result == 0
 
     def verify_send_proof(
-        self,
+        self: Self,
         proof: str,
         participants: list,
         sender_spending_ciphertext: str,
@@ -239,7 +253,7 @@ class MPTCrypto:
         return result == 0
 
     def create_confidential_send_proof(
-        self,
+        self: Self,
         sender_privkey: str,
         sender_pubkey: str,
         amount: int,
@@ -265,16 +279,16 @@ class MPTCrypto:
             sender_pubkey: 66-char hex string of sender's compressed public key
             amount: Amount being sent (uint64)
             sender_current_balance: Sender's current balance (uint64)
-            participants: List of (pubkey, encrypted_amount) tuples as hex strings.
-                         Must include sender, destination, issuer, and optionally auditor.
-                         Each pubkey is 66 hex chars (33 bytes compressed)
-                         Each encrypted_amount is 132 hex chars (66 bytes)
+            participants: List of (pubkey, encrypted_amount) tuples as hex
+                         strings. Must include sender, destination, issuer, and
+                         optionally auditor. Each pubkey is 66 hex chars (33
+                         bytes compressed); each encrypted_amount 132 hex chars.
             tx_blinding_factor: 64-char hex string of ElGamal blinding factor
             context_hash: 64-char hex string of transaction context hash
             amount_commitment: 66-char hex string of Pedersen commitment to amount
-            balance_commitment: 66-char hex string of Pedersen commitment to balance
-            balance_blinding: 64-char hex string of blinding factor for balance commitment
-            sender_balance_encrypted: 132-char hex string of sender's current balance ciphertext
+            balance_commitment: 66-char hex of Pedersen commitment to balance
+            balance_blinding: 64-char hex blinding factor for balance commitment
+            sender_balance_encrypted: 132-char hex of sender's balance ciphertext
 
         Returns:
             Hex string of complete ZKProof (946 bytes = 1892 hex chars)
@@ -310,7 +324,9 @@ class MPTCrypto:
 
         # Proof size: SECP256K1_COMPACT_STANDARD_PROOF_SIZE (192) +
         #             kMPT_DOUBLE_BULLETPROOF_SIZE (754) = 946
-        proof_size = lib.SECP256K1_COMPACT_STANDARD_PROOF_SIZE + lib.kMPT_DOUBLE_BULLETPROOF_SIZE
+        proof_size = (
+            lib.SECP256K1_COMPACT_STANDARD_PROOF_SIZE + lib.kMPT_DOUBLE_BULLETPROOF_SIZE
+        )
 
         # Allocate proof buffer
         proof_buffer = ffi.new(f"uint8_t[{proof_size}]")
@@ -342,7 +358,7 @@ class MPTCrypto:
         return proof.hex().upper()
 
     def create_confidential_convert_back_proof(
-        self,
+        self: Self,
         holder_privkey: str,
         holder_pubkey: str,
         amount: int,
@@ -353,7 +369,7 @@ class MPTCrypto:
         holder_balance_encrypted: str,
     ) -> str:
         """
-        Generate ZK proof for ConfidentialMPTConvertBack transaction using utility layer.
+        Generate ZK proof for a ConfidentialMPTConvertBack transaction.
 
         Produces a compact AND-composed sigma proof (128 bytes) over the balance
         witness, followed by a single Bulletproof range proof (688 bytes) over the
@@ -365,9 +381,9 @@ class MPTCrypto:
             amount: Amount being converted back (uint64)
             current_balance: Holder's current confidential balance (uint64)
             context_hash: 64-char hex string of transaction context hash
-            balance_commitment: 66-char hex string of Pedersen commitment to balance
-            balance_blinding: 64-char hex string of blinding factor for balance commitment
-            holder_balance_encrypted: 132-char hex string of holder's encrypted balance
+            balance_commitment: 66-char hex of Pedersen commitment to balance
+            balance_blinding: 64-char hex blinding factor for balance commitment
+            holder_balance_encrypted: 132-char hex of holder's encrypted balance
 
         Returns:
             Hex string of ZKProof (816 bytes = 1632 hex chars)
@@ -393,7 +409,10 @@ class MPTCrypto:
 
         # Proof size: SECP256K1_COMPACT_CONVERTBACK_PROOF_SIZE (128) +
         #             kMPT_SINGLE_BULLETPROOF_SIZE (688) = 816
-        proof_size = lib.SECP256K1_COMPACT_CONVERTBACK_PROOF_SIZE + lib.kMPT_SINGLE_BULLETPROOF_SIZE
+        proof_size = (
+            lib.SECP256K1_COMPACT_CONVERTBACK_PROOF_SIZE
+            + lib.kMPT_SINGLE_BULLETPROOF_SIZE
+        )
         proof_buffer = ffi.new(f"uint8_t[{proof_size}]")
 
         # Generate proof
@@ -415,7 +434,7 @@ class MPTCrypto:
         return proof.hex().upper()
 
     def create_confidential_clawback_proof(
-        self,
+        self: Self,
         issuer_privkey: str,
         issuer_pubkey: str,
         amount: int,
@@ -433,7 +452,7 @@ class MPTCrypto:
             issuer_pubkey: 66-char hex string of issuer's compressed public key
             amount: Amount being clawed back (uint64)
             context_hash: 64-char hex string of transaction context hash
-            issuer_encrypted_balance: 132-char hex string of issuer's encrypted balance from ledger
+            issuer_encrypted_balance: 132-char hex of issuer's encrypted balance
 
         Returns:
             Hex string of ZKProof (SECP256K1_COMPACT_CLAWBACK_PROOF_SIZE bytes)

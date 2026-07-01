@@ -5,16 +5,18 @@ This module provides functions for creating Pedersen commitments and
 generating/verifying Bulletproof range proofs.
 """
 
-from xrpl.core.confidential.crypto_bindings import ffi, lib
+from typing import Optional
+
+from xrpl.ext.confidential.crypto_bindings import ffi, lib
 
 # Size constants
 PUBKEY_UNCOMPRESSED_SIZE = 64
 PUBKEY_COMPRESSED_SIZE = 33
 
 
-def create_pedersen_commitment(ctx, amount: int, blinding_factor: str) -> str:
+def create_pedersen_commitment(ctx: object, amount: int, blinding_factor: str) -> str:
     """
-    Create a Pedersen commitment using the utility layer: PC = amount*G + blinding_factor*H
+    Create a Pedersen commitment: ``PC = amount*G + blinding_factor*H``.
 
     Args:
         ctx: Ignored (kept for backward compatibility). Uses mpt_secp256k1_context().
@@ -41,7 +43,11 @@ def create_pedersen_commitment(ctx, amount: int, blinding_factor: str) -> str:
 
 
 def create_bulletproof(
-    ctx, amount: int, blinding_factor: str, pk_base_uncompressed: str, context_id: str = None
+    ctx: object,
+    amount: int,
+    blinding_factor: str,
+    pk_base_uncompressed: str,
+    context_id: Optional[str] = None,
 ) -> str:
     """
     Create a Bulletproof range proof using the aggregated API (m=1).
@@ -50,7 +56,7 @@ def create_bulletproof(
         amount: The amount to prove (uint64)
         blinding_factor: 64-char hex string (32-byte blinding factor)
         pk_base_uncompressed: 128-char hex string (64-byte H generator, X || Y)
-        context_id: Optional 64-char hex string (32-byte context ID). If None, uses zeros.
+        context_id: Optional 64-char hex (32-byte context ID); None => zeros.
 
     Returns:
         Variable-length hex string (proof, typically ~1024 bytes)
@@ -97,7 +103,11 @@ def create_bulletproof(
 
 
 def verify_bulletproof(
-    ctx, proof: str, commitment: str, pk_base_uncompressed: str, context_id: str = None
+    ctx: object,
+    proof: str,
+    commitment: str,
+    pk_base_uncompressed: str,
+    context_id: Optional[str] = None,
 ) -> bool:
     """
     Verify a Bulletproof range proof using the aggregated API (m=1).
@@ -106,7 +116,7 @@ def verify_bulletproof(
         proof: Variable-length hex string (proof bytes)
         commitment: 128-char hex string (64-byte Pedersen commitment, X || Y)
         pk_base_uncompressed: 128-char hex string (64-byte H generator, X || Y)
-        context_id: Optional 64-char hex string (32-byte context ID). If None, uses zeros.
+        context_id: Optional 64-char hex (32-byte context ID); None => zeros.
 
     Returns:
         True if proof is valid, False otherwise

@@ -20,7 +20,7 @@ class TestConfidentialMPTConvert(TestCase):
             holder_encrypted_amount=_VALID_CIPHERTEXT,
             issuer_encrypted_amount=_VALID_CIPHERTEXT,
             blinding_factor=_VALID_BLINDING_FACTOR,
-            holder_elgamal_public_key=_VALID_HOLDER_PUBLIC_KEY,
+            holder_encryption_key=_VALID_HOLDER_PUBLIC_KEY,
             zk_proof=_VALID_SCHNORR_PROOF,
         )
         self.assertTrue(tx.is_valid())
@@ -36,20 +36,18 @@ class TestConfidentialMPTConvert(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-    def test_invalid_mpt_amount_zero(self):
-        with self.assertRaises(XRPLModelException) as err:
-            ConfidentialMPTConvert(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_MPTOKEN_ISSUANCE_ID,
-                mpt_amount=0,
-                holder_encrypted_amount=_VALID_CIPHERTEXT,
-                issuer_encrypted_amount=_VALID_CIPHERTEXT,
-                blinding_factor=_VALID_BLINDING_FACTOR,
-            )
-        self.assertEqual(
-            err.exception.args[0],
-            "{'mpt_amount': 'mpt_amount cannot be zero or negative'}",
+    def test_valid_mpt_amount_zero(self):
+        # A zero-amount convert is valid: it is the opt-in mechanism that
+        # registers the holder's encryption key without moving value.
+        tx = ConfidentialMPTConvert(
+            account=_ACCOUNT,
+            mptoken_issuance_id=_MPTOKEN_ISSUANCE_ID,
+            mpt_amount=0,
+            holder_encrypted_amount=_VALID_CIPHERTEXT,
+            issuer_encrypted_amount=_VALID_CIPHERTEXT,
+            blinding_factor=_VALID_BLINDING_FACTOR,
         )
+        self.assertTrue(tx.is_valid())
 
     def test_invalid_mpt_amount_negative(self):
         with self.assertRaises(XRPLModelException) as err:
@@ -63,7 +61,7 @@ class TestConfidentialMPTConvert(TestCase):
             )
         self.assertEqual(
             err.exception.args[0],
-            "{'mpt_amount': 'mpt_amount cannot be zero or negative'}",
+            "{'mpt_amount': 'mpt_amount cannot be negative'}",
         )
 
     def test_invalid_holder_encrypted_amount_length(self):
@@ -140,13 +138,13 @@ class TestConfidentialMPTConvert(TestCase):
                 holder_encrypted_amount=_VALID_CIPHERTEXT,
                 issuer_encrypted_amount=_VALID_CIPHERTEXT,
                 blinding_factor=_VALID_BLINDING_FACTOR,
-                holder_elgamal_public_key="C" * 50,
+                holder_encryption_key="C" * 50,
                 zk_proof=_VALID_SCHNORR_PROOF,
             )
         self.assertEqual(
             err.exception.args[0],
-            "{'holder_elgamal_public_key': "
-            "'holder_elgamal_public_key must be 33 bytes (66 hex characters)'}",
+            "{'holder_encryption_key': "
+            "'holder_encryption_key must be 33 bytes (66 hex characters)'}",
         )
 
     def test_invalid_zk_proof_length(self):
@@ -158,7 +156,7 @@ class TestConfidentialMPTConvert(TestCase):
                 holder_encrypted_amount=_VALID_CIPHERTEXT,
                 issuer_encrypted_amount=_VALID_CIPHERTEXT,
                 blinding_factor=_VALID_BLINDING_FACTOR,
-                holder_elgamal_public_key=_VALID_HOLDER_PUBLIC_KEY,
+                holder_encryption_key=_VALID_HOLDER_PUBLIC_KEY,
                 zk_proof="D" * 100,
             )
         self.assertEqual(
@@ -176,7 +174,7 @@ class TestConfidentialMPTConvert(TestCase):
                 holder_encrypted_amount=_VALID_CIPHERTEXT,
                 issuer_encrypted_amount=_VALID_CIPHERTEXT,
                 blinding_factor=_VALID_BLINDING_FACTOR,
-                holder_elgamal_public_key=_VALID_HOLDER_PUBLIC_KEY,
+                holder_encryption_key=_VALID_HOLDER_PUBLIC_KEY,
             )
         self.assertEqual(
             err.exception.args[0],

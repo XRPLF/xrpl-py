@@ -8,7 +8,7 @@ from typing import Dict
 from typing_extensions import Self
 
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.confidential_mpt_convert import CLAWBACK_PROOF_LENGTH
+from xrpl.models.transactions.confidential_mpt_constants import CLAWBACK_PROOF_LENGTH
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import require_kwargs_on_init

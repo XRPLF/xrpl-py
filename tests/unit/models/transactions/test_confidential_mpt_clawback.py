@@ -6,7 +6,7 @@ from xrpl.models.transactions.confidential_mpt_clawback import ConfidentialMPTCl
 _ISSUER = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _HOLDER = "rN7n3473SaZBCG4dFL83w7a1RXtXtbk2D9"
 _MPTOKEN_ISSUANCE_ID = "000000000000000000000000" + _ISSUER
-_VALID_EQUALITY_PROOF = "A" * 196
+_VALID_EQUALITY_PROOF = "A" * 128  # 64 bytes: compact sigma proof
 
 
 class TestConfidentialMPTClawback(TestCase):
@@ -74,7 +74,7 @@ class TestConfidentialMPTClawback(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'zk_proof': "
-            "'zk_proof must be 98 bytes (196 hex characters) for Equality Proof'}",
+            "'zk_proof must be 64 bytes (128 hex characters) for compact sigma proof'}",
         )
 
     def test_invalid_zk_proof_length_too_long(self):
@@ -89,7 +89,7 @@ class TestConfidentialMPTClawback(TestCase):
         self.assertEqual(
             err.exception.args[0],
             "{'zk_proof': "
-            "'zk_proof must be 98 bytes (196 hex characters) for Equality Proof'}",
+            "'zk_proof must be 64 bytes (128 hex characters) for compact sigma proof'}",
         )
 
     def test_valid_large_mpt_amount(self):

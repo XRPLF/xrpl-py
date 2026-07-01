@@ -2,7 +2,7 @@
 High-level transaction builders for confidential MPT transactions.
 
 This module provides convenient functions to prepare confidential MPT transactions
-using the C bindings (xrpl.core.confidential). Each function handles the
+using the C bindings (xrpl.ext.confidential). Each function handles the
 complexity of proof generation, encryption, and transaction construction.
 
 Design principles (matching the mpt-crypto C library pattern):
@@ -16,8 +16,14 @@ Design principles (matching the mpt-crypto C library pattern):
 from typing import Optional
 
 from xrpl.clients import Client
-from xrpl.models.requests import AccountInfo, AccountObjects, LedgerEntry
-from xrpl.models.requests.account_objects import AccountObjectType
+from xrpl.ext.confidential.context import (
+    compute_clawback_context_hash,
+    compute_convert_back_context_hash,
+    compute_convert_context_hash,
+    compute_send_context_hash,
+)
+from xrpl.ext.confidential.encryption import DEFAULT_DECRYPT_RANGE_HIGH
+from xrpl.models.requests import AccountInfo, LedgerEntry
 from xrpl.models.requests.ledger_entry import MPToken
 from xrpl.models.transactions import (
     ConfidentialMPTClawback,
@@ -28,16 +34,9 @@ from xrpl.models.transactions import (
 )
 from xrpl.wallet import Wallet
 
-from .context import (
-    compute_clawback_context_hash,
-    compute_convert_back_context_hash,
-    compute_convert_context_hash,
-    compute_send_context_hash,
-)
-
 try:
-    from xrpl.core.confidential import MPTCrypto
-    from xrpl.core.confidential.crypto_bindings import ffi, lib
+    from xrpl.ext.confidential import MPTCrypto
+    from xrpl.ext.confidential.crypto_bindings import ffi, lib
 
     # Global MPTCrypto instance used by all transaction builder functions
     crypto = MPTCrypto()
@@ -49,7 +48,9 @@ except ImportError:
 
 def _generate_blinding_factor() -> str:
     """
-    Generate a cryptographically valid blinding factor using mpt_generate_blinding_factor.
+    Generate a cryptographically valid blinding factor.
+
+    Uses mpt_generate_blinding_factor.
 
     Unlike secrets.token_bytes(32), this function validates the scalar against
     the secp256k1 curve order, ensuring it is a valid private key / blinding factor.
@@ -62,6 +63,35 @@ def _generate_blinding_factor() -> str:
     if result != 0:
         raise RuntimeError("Failed to generate blinding factor")
     return bytes(bf[0:32]).hex().upper()
+
+
+def _get_balance_decrypt_range_high(client: Client, mpt_issuance_id: str) -> int:
+    """
+    Derive the decrypt discrete-log search upper bound from the issuance.
+
+    A holder's confidential balance can never exceed the issuance's
+    ``MaximumAmount``, so it is the tightest sound upper bound for the
+    brute-force decryption search. If the issuance leaves ``MaximumAmount``
+    unset (unlimited), fall back to the amount actually in circulation
+    (``OutstandingAmount``), which still bounds any single balance.
+
+    Args:
+        client: XRPL client.
+        mpt_issuance_id: 24-byte MPT issuance ID (hex string).
+
+    Returns:
+        Inclusive upper bound for the decrypt search range.
+    """
+    issuance = client.request(LedgerEntry(mpt_issuance=mpt_issuance_id))
+    node = issuance.result.get("node", {})
+    # UInt64 fields are returned as decimal strings.
+    for field in ("MaximumAmount", "OutstandingAmount"):
+        value = node.get(field)
+        if value is not None and int(value) > 0:
+            return int(value)
+    # Issuance not found or amounts are zero/absent: fall back to the wrapper
+    # default so a tiny balance still decrypts.
+    return DEFAULT_DECRYPT_RANGE_HIGH
 
 
 def prepare_confidential_convert(
@@ -238,9 +268,11 @@ def prepare_confidential_send(
     sender_balance_c1 = sender_balance_hex[:66]  # First 33 bytes = 66 hex chars
     sender_balance_c2 = sender_balance_hex[66:132]  # Next 33 bytes = 66 hex chars
 
-    # Decrypt sender's current balance
+    # Decrypt sender's current balance. The search range is bounded by the
+    # issuance's maximum amount (the balance cannot exceed it).
+    range_high = _get_balance_decrypt_range_high(client, mpt_issuance_id)
     sender_current_balance = crypto.decrypt(
-        sender_privkey, sender_balance_c1, sender_balance_c2
+        sender_privkey, sender_balance_c1, sender_balance_c2, 0, range_high
     )
 
     # Compute context hash
@@ -393,9 +425,11 @@ def prepare_confidential_convert_back(
     holder_balance_c1 = holder_balance_hex[:66]  # First 33 bytes = 66 hex chars
     holder_balance_c2 = holder_balance_hex[66:132]  # Next 33 bytes = 66 hex chars
 
-    # Decrypt holder's current balance
+    # Decrypt holder's current balance. The search range is bounded by the
+    # issuance's maximum amount (the balance cannot exceed it).
+    range_high = _get_balance_decrypt_range_high(client, mpt_issuance_id)
     holder_current_balance = crypto.decrypt(
-        holder_privkey, holder_balance_c1, holder_balance_c2
+        holder_privkey, holder_balance_c1, holder_balance_c2, 0, range_high
     )
 
     # Compute context hash
