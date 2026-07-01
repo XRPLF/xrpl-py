@@ -6,10 +6,10 @@
 # secp256k1 and OpenSSL statically linked in.
 #
 # Usage:
-#   ./xrpl/core/confidential/setup_mpt_crypto.sh download                    # from latest release
-#   ./xrpl/core/confidential/setup_mpt_crypto.sh download --version 0.3.0-rc2  # specific release
-#   ./xrpl/core/confidential/setup_mpt_crypto.sh download --run ID           # from workflow run
-#   ./xrpl/core/confidential/setup_mpt_crypto.sh build                       # build locally
+#   ./xrpl/ext/confidential/setup_mpt_crypto.sh download                     # from latest release
+#   ./xrpl/ext/confidential/setup_mpt_crypto.sh download --version 0.4.0-rc2  # specific release
+#   ./xrpl/ext/confidential/setup_mpt_crypto.sh download --run ID            # from workflow run
+#   ./xrpl/ext/confidential/setup_mpt_crypto.sh build                        # build locally
 #
 # If no argument is provided, it will prompt you to choose.
 
@@ -359,7 +359,7 @@ fi
 echo ""
 echo "Next steps:"
 echo "  1. Build the CFFI extension:"
-echo "       poetry run python xrpl/core/confidential/build_mpt_crypto.py"
-echo "  2. Run tests:"
-echo "       poetry run python -m unittest tests.test_utility_layer -v"
+echo "       poetry run python xrpl/ext/confidential/build_mpt_crypto.py"
+echo "  2. Verify it loaded:"
+echo "       poetry run python -c \"import xrpl.ext.confidential as c; print('available:', c.MPT_CRYPTO_AVAILABLE)\""
 echo ""

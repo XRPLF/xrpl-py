@@ -1,319 +1,173 @@
-# Confidential Multi-Purpose Token (MPT) Support
+# Confidential Multi-Purpose Token (MPT) Support — XLS-0096
 
-This module provides Python bindings for confidential MPT operations using the mpt-crypto C library.
+Python bindings for confidential MPT operations, backed by the
+[mpt-crypto](https://github.com/XRPLF/mpt-crypto) C library (the same crypto
+`rippled` uses, so proofs verify on-ledger).
 
-## Overview
+- **Import path:** `xrpl.ext.confidential` (`xrpl.ext` is a PEP 420 namespace
+  package — this code ships as the separate `xrpl-py-confidential` distribution,
+  so the core `xrpl-py` wheel stays pure-Python).
+- **Native pieces:** a thin CFFI extension `_mpt_crypto` that dynamically loads
+  `libmpt-crypto.{dylib,so,dll}` (secp256k1 + OpenSSL statically linked inside).
+- **Pinned upstream version:** see [`MPT_CRYPTO_VERSION`](./MPT_CRYPTO_VERSION)
+  (currently `0.4.0-rc2`). The client must build against the same mpt-crypto
+  version the target `rippled` was built with.
 
-The confidential MPT feature uses C libraries built from the [mpt-crypto](https://github.com/XRPLF/mpt-crypto) repository:
+> **Status:** beta / feature branch. There is no published `xrpl-py-confidential`
+> wheel yet, so the only supported path today is the **local build from this
+> branch** described below.
 
-- **Static libraries**: `libmpt-crypto.a`, `libsecp256k1.a` (built by CI, included in wheels)
-- **C header files**: `secp256k1.h` (in git), `secp256k1_mpt.h` (downloaded during build)
-- **Python bindings**: Built using CFFI
+## Prerequisites
 
-This approach uses the same cryptographic library that `rippled` uses internally, ensuring perfect compatibility.
+1. **`gh` CLI** installed and authenticated (used to fetch the native library).
+2. **Toolchain** for building the CFFI extension: a C compiler (Xcode CLT on
+   macOS, `build-essential` on Linux).
 
-## Installation
-
-Confidential MPT is an **optional feature**. There are different setup paths for end users vs. contributors.
-
-### For End Users (Recommended)
-
-Install xrpl-py with pre-built binaries from PyPI:
-
-```bash
-pip install xrpl-py[confidential]
-```
-
-The wheel includes all necessary compiled binaries. No build step required!
-
-### For Contributors/Developers
-
-If you're developing xrpl-py locally, you need to set up the MPT crypto binaries:
-
-#### Option 1: Download from CI (Recommended)
+## Quickstart (local build from this branch)
 
 ```bash
-# Download pre-built binaries from the latest CI run
-./xrpl/core/confidential/setup_mpt_crypto.sh download
+# 1. Core dependencies
+poetry install
 
-# Build the Python extension
-poetry run python xrpl/core/confidential/build_mpt_crypto.py
+# 2. CFFI — required only to BUILD the confidential extension. It is intentionally
+#    NOT a core xrpl-py dependency, so install it into the venv explicitly:
+poetry run pip install cffi
+
+# 3. Fetch the pinned native shared library into xrpl/ext/confidential/libs/.
+#    (Headers are already committed under include/.) Pass the version from
+#    xrpl/ext/confidential/MPT_CRYPTO_VERSION (currently 0.4.0-rc2):
+VERSION=$(grep -E '^MPT_CRYPTO_VERSION=' xrpl/ext/confidential/MPT_CRYPTO_VERSION | cut -d= -f2)
+./xrpl/ext/confidential/setup_mpt_crypto.sh download --version "$VERSION"
+
+# 4. Build the CFFI extension (produces _mpt_crypto.<abi>.so in xrpl/ext/confidential/)
+poetry run python xrpl/ext/confidential/build_mpt_crypto.py
+
+# 5. Verify it loaded
+poetry run python -c "import xrpl.ext.confidential as c; print('available:', c.MPT_CRYPTO_AVAILABLE)"
 ```
 
-**Requirements**: GitHub CLI (`gh`) installed and authenticated
-
-#### Option 2: Build Locally
+Then run the end-to-end example against your standalone node:
 
 ```bash
-# Build binaries from source
-./xrpl/core/confidential/setup_mpt_crypto.sh build
-
-# Build the Python extension
-poetry run python xrpl/core/confidential/build_mpt_crypto.py
+poetry run python xrpl/ext/confidential/examples/submit_confidential_tx.py
 ```
 
-**Requirements**:
-
-- **macOS**: Xcode Command Line Tools, OpenSSL (`brew install openssl`), CMake, Conan
-- **Linux**: build-essential, libssl-dev, CMake, Conan
-- **Windows**: Use Option 1 (download from CI)
-
-#### Install Dependencies
-
-```bash
-poetry install --extras confidential
-```
+It exercises all five transaction types: convert → merge → send → merge →
+convert-back → clawback.
 
 ## Usage
 
-### Basic Example
+### High-level transaction builders (recommended)
 
 ```python
+from xrpl.clients import JsonRpcClient
 from xrpl.ext.confidential import MPTCrypto
 from xrpl.ext.confidential.transaction_builders import prepare_confidential_convert
-from xrpl.clients import JsonRpcClient
+from xrpl.transaction import sign_and_submit
 from xrpl.wallet import Wallet
 
-# Initialize
 client = JsonRpcClient("http://localhost:5005")
-wallet = Wallet.from_seed("sXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+wallet = Wallet.from_seed("s...")
 crypto = MPTCrypto()
 
-# Prepare a confidential convert transaction
+holder_sk, holder_pk = crypto.generate_keypair()
 tx = prepare_confidential_convert(
     client=client,
     wallet=wallet,
-    mpt_issuance_id="000004A2A67A324B17A366D8F0D768C32B23180D6A1E54B7",
+    mpt_issuance_id="000004A2...",
     amount=1000,
-    crypto=crypto
+    holder_privkey=holder_sk,
+    holder_pubkey=holder_pk,
+    issuer_pubkey=issuer_pk,   # the issuance's registered ElGamal key
 )
-
-# Sign and submit
-from xrpl.transaction import sign_and_submit
 response = sign_and_submit(tx, client, wallet)
 ```
 
-### Available Transaction Builders
+Builders (each returns a ready-to-sign model with the correct fee already set):
 
-The `transaction_builders` module provides high-level functions for all confidential MPT operations:
+| Function | Transaction |
+|---|---|
+| `prepare_confidential_convert(client, wallet, ...)` | public → confidential (inbox) |
+| `prepare_confidential_merge_inbox(client, wallet, ...)` | inbox → spending balance |
+| `prepare_confidential_send(client, sender_wallet, ...)` | confidential transfer |
+| `prepare_confidential_convert_back(client, wallet, ...)` | confidential → public |
+| `prepare_confidential_clawback(client, issuer_wallet, ...)` | issuer reclaim |
 
-- **`prepare_confidential_convert()`** - Convert public tokens to confidential
-- **`prepare_confidential_merge_inbox()`** - Merge inbox to spending balance
-- **`prepare_confidential_send()`** - Transfer confidential tokens between holders
-- **`prepare_confidential_convert_back()`** - Convert confidential tokens back to public
-- **`prepare_confidential_clawback()`** - Clawback confidential tokens (issuer only)
+Each handles ledger queries, context-hash computation, ZK-proof generation,
+encryption, the confidential fee, and model construction.
 
-Each function handles all the complexity of:
-
-- Querying ledger state
-- Computing context hashes
-- Generating zero-knowledge proofs
-- Encrypting amounts
-- Constructing the transaction
-
-### Low-Level Cryptographic Operations
-
-For advanced use cases, you can use the `MPTCrypto` class directly:
+### Low-level `MPTCrypto`
 
 ```python
-from xrpl.ext.confidential import MPTCrypto
-
 crypto = MPTCrypto()
-
-# Generate ElGamal keypair
 privkey, pubkey = crypto.generate_keypair()
-
-# Encrypt an amount
 c1, c2, blinding = crypto.encrypt(pubkey, amount=1000)
 
-# Decrypt
-decrypted_amount = crypto.decrypt(privkey, c1, c2)
+# NOTE: decrypt brute-forces a discrete log over [range_low, range_high];
+# cost is O(range_high - range_low) (~3s per 1,000,000). Bound it tightly —
+# e.g. by the issuance's ConfidentialOutstandingAmount, never MaximumAmount.
+amount = crypto.decrypt(privkey, c1, c2, range_low=0, range_high=10_000)
 
-# Create Pedersen commitment
 commitment = crypto.create_pedersen_commitment(amount=1000, blinding_factor=blinding)
-
-# Generate proofs
-schnorr_proof = crypto.generate_pok(privkey, pubkey, context_id)
-link_proof = crypto.create_elgamal_pedersen_link_proof(c1, c2, pubkey, commitment, ...)
 ```
 
-## Module Structure
+## Behaviors worth knowing
+
+- **Confidential fee = `base_fee × 10`.** rippled charges
+  `base_fee × (kConfidentialFeeMultiplier + 1)` for ZK-proof verification. The
+  builders set this automatically; if you hand-build a confidential transaction
+  and let autofill set only the base fee you will get `telINSUF_FEE_P`.
+- **`definitions.json` must match the target rippled.** Field codes for the
+  confidential fields can shift between rippled builds. If a submit fails with
+  `Field '<X>' is required but missing`, regenerate the client definitions from
+  the running node's `server_definitions` (see `tools/generate_definitions.py`).
+- **Decrypt is O(range)** — see the note above.
+
+## Module structure
 
 ```
-xrpl/core/confidential/
-├── __init__.py                  # Public API exports
-├── main.py                      # MPTCrypto wrapper class
-├── crypto_bindings.py           # Low-level C library bindings (CFFI)
-├── keypair.py                   # Keypair generation and Schnorr PoK
-├── encryption.py                # ElGamal encryption/decryption
-├── commitments.py               # Pedersen commitments and Bulletproofs
-├── link_proofs.py               # ElGamal-Pedersen link proofs
-├── plaintext_proofs.py          # Equality and same plaintext proofs
-├── transaction_builders.py      # High-level transaction preparation
-├── context.py                   # Context hash computation
-├── build_mpt_crypto.py          # C extension build script
-├── tests/                       # Unit tests
-│   ├── test_encryption.py
-│   └── test_proofs.py
-├── examples/                    # Example scripts
-│   ├── submit_confidential_tx.py
-│   └── utils.py
-├── include/                     # C header files
-│   ├── secp256k1.h              # In git
-│   └── secp256k1_mpt.h          # Not in git (downloaded by setup)
-├── libs/                        # Not in git (created by setup script)
-│   ├── darwin/                  # macOS libraries
-│   ├── linux/                   # Linux libraries
-│   └── win32/                   # Windows libraries
-└── README.md                    # This file
+xrpl/ext/confidential/            # namespace: xrpl.ext.confidential
+├── __init__.py                   # public API (MPTCrypto, builders, sizes)
+├── main.py                       # MPTCrypto wrapper class
+├── crypto_bindings.py            # CFFI ffi/lib loader (graceful if unbuilt)
+├── keypair.py                    # keypair + Schnorr PoK
+├── encryption.py                 # ElGamal encrypt/decrypt
+├── commitments.py                # Pedersen commitments + Bulletproofs
+├── plaintext_proofs.py           # clawback (equality) proof
+├── context.py                    # context-hash computation
+├── transaction_builders.py       # high-level prepare_* functions
+├── build_mpt_crypto.py           # CFFI build script (#includes real headers)
+├── setup_mpt_crypto.sh           # fetch/build the native libmpt-crypto
+├── MPT_CRYPTO_VERSION            # pinned upstream mpt-crypto tag
+├── include/                      # vendored headers (committed)
+│   ├── secp256k1.h  secp256k1_mpt.h  mpt_protocol.h
+│   └── utility/mpt_utility.h
+├── libs/                         # native lib — fetched, NOT committed (.gitignore)
+└── examples/submit_confidential_tx.py
 ```
 
-## Architecture
+The transaction **models** (`ConfidentialMPT*`) and their `definitions.json`
+entries live in core `xrpl-py` (`xrpl/models/transactions/`), so a plain
+`xrpl-py` install can construct/sign/serialize/decode these transactions — only
+**proof generation** needs this native add-on.
 
-The module uses a layered architecture:
+## Packaging & distribution
 
-1. **Native C Libraries** (`libs/`) - Pre-compiled `libmpt-crypto.a` and `libsecp256k1.a`
-2. **CFFI Build** (`build_mpt_crypto.py`) - Compiles C extension linking native libraries
-3. **C Extension** (`_mpt_crypto.so`) - Generated platform-specific binary (not in git)
-4. **Low-level Bindings** (`crypto_bindings.py`) - Imports CFFI `ffi` and `lib` objects
-5. **Functional Modules** (`keypair.py`, `encryption.py`, etc.) - Pure functions taking `ctx` parameter
-6. **Wrapper Class** (`main.py`) - `MPTCrypto` class that manages context and delegates to functional modules
-7. **Public API** (`__init__.py`) - Exports `MPTCrypto` and transaction builders
-
-The compiled `.so` file is platform and Python-version specific, so it must be rebuilt when:
-
-- Switching Python versions
-- Moving to a different platform (macOS, Linux, Windows)
-- Updating the `mpt-crypto` C library
+Native code lives here but ships as the separate **`xrpl-py-confidential`**
+distribution, built from [`packaging/confidential/`](../../../packaging/confidential/)
+with `cibuildwheel` (see [`SPLIT_DESIGN.md`](../../../packaging/confidential/SPLIT_DESIGN.md)).
+Core `xrpl-py` `exclude`s `xrpl/ext/**`, so its wheel stays `py3-none-any`. The
+native library is never committed (only the pinned headers are); it is fetched
+at dev time by `setup_mpt_crypto.sh` and, in CI, built/fetched per platform.
 
 ## Troubleshooting
 
-### Import Error: "Confidential MPT support is not available"
-
-The C extension hasn't been built yet. Build it:
-
-```bash
-poetry run poe build_mpt_crypto
-```
-
-### Build fails with "Pre-compiled libraries not found"
-
-Your platform may not have pre-compiled libraries yet. Currently supported:
-
-- **macOS** (darwin): ✅ Included
-- **Linux**: Coming soon
-- **Windows**: Coming soon
-
-### Build fails with "cffi not found"
-
-Install cffi:
-
-```bash
-poetry install --extras confidential
-```
-
-### Wrong Python version
-
-The `.so` file was built for a different Python version. Rebuild:
-
-```bash
-poetry run poe build_mpt_crypto
-```
-
-## Binary Distribution
-
-### For End Users
-
-Pre-built binaries are included in PyPI wheels for all supported platforms:
-
-- **macOS**: Universal binary (x86_64 + ARM64)
-- **Linux**: x86_64
-- **Windows**: x86_64
-
-When you `pip install xrpl-py[confidential]`, you get a wheel with all binaries included.
-
-### For Contributors
-
-Binaries are **not stored in git** to keep the repository clean. Instead:
-
-1. **CI builds binaries** for all platforms via `.github/workflows/build_mpt_crypto_libs.yml`
-2. **Developers download** from CI artifacts or build locally using `xrpl/core/confidential/setup_mpt_crypto.sh`
-3. **Wheels include binaries** built by CI during the release process
-
-### Directory Structure (Local Development)
-
-After running the setup script, you'll have:
-
-```
-xrpl/core/confidential/
-├── libs/                    # Not in git, created by setup script
-│   ├── darwin/              # macOS (universal: x86_64 and arm64)
-│   │   ├── libmpt-crypto.a
-│   │   └── libsecp256k1.a
-│   ├── linux/               # Linux (x86_64)
-│   │   ├── libmpt-crypto.a
-│   │   └── libsecp256k1.a
-│   └── win32/               # Windows (x86_64)
-│       ├── mpt-crypto.lib
-│       ├── secp256k1.lib
-│       ├── crypto.lib       # OpenSSL
-│       └── zlib.lib
-├── include/
-│   ├── secp256k1.h          # In git
-│   └── secp256k1_mpt.h      # Not in git, downloaded by setup script
-└── _mpt_crypto*.so          # Not in git, built by build_mpt_crypto.py
-```
-
-### Building Libraries (For CI/Maintainers)
-
-The GitHub Actions workflow `.github/workflows/build_mpt_crypto_libs.yml` handles building libraries for all platforms. The process:
-
-1. **Clone mpt-crypto** from GitHub
-2. **Install dependencies** via Conan (secp256k1, OpenSSL, zlib)
-3. **Build static libraries** with platform-specific flags:
-   - macOS/Linux: `-DCMAKE_POSITION_INDEPENDENT_CODE=ON` (required for Python extensions)
-   - Windows: `/WHOLEARCHIVE` linker flags for proper symbol resolution
-4. **Upload artifacts** for use by test jobs and wheel building
-
-See the workflow file for detailed build commands.
-
-## Integration with Poetry
-
-### Optional Dependencies
-
-Confidential MPT support is available as an optional dependency:
-
-```toml
-[tool.poetry.dependencies]
-cffi = { version = "^1.15.0", optional = true }
-
-[project.optional-dependencies]
-confidential = ["cffi>=1.15.0"]
-
-[tool.poetry.extras]
-confidential = ["cffi"]
-```
-
-### Installation Options
-
-```bash
-# With Poetry
-poetry install --extras confidential
-
-# With pip
-pip install xrpl-py[confidential]
-```
-
-### Build Task
-
-A Poetry task is provided to build the C extension:
-
-```bash
-poetry run poe build_mpt_crypto
-```
-
-## Examples
-
-See the `examples/` directory for complete working examples:
-
-- `submit_confidential_tx.py` - Complete workflow demonstrating all confidential MPT transaction types
+| Symptom | Cause / fix |
+|---|---|
+| `ImportError: Confidential MPT support is not available` | Extension not built — run the Quickstart (steps 2–4). |
+| `ModuleNotFoundError: No module named 'cffi'` | `poetry run pip install cffi` (step 2). |
+| `Pre-compiled libraries not found` at build | Native lib not fetched — run `setup_mpt_crypto.sh download` (step 3). |
+| Submit fails `Field '...' is required but missing` | Client `definitions.json` out of sync with rippled — regenerate from `server_definitions`. |
+| Submit fails `telINSUF_FEE_P` | Confidential fee too low — use the builders (they set `base_fee × 10`). |
+| `decrypt` hangs for minutes | `range_high` too large; bound by actual supply, not `MaximumAmount`. |
+| `badFeature` for `ConfidentialTransfer` | rippled build lacks the amendment — see Prerequisites. |

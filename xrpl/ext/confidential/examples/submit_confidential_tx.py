@@ -14,13 +14,15 @@ The workflow includes:
 6. Converting back to public (ConfidentialMPTConvertBack)
 7. Issuer clawback of a holder's confidential balance (ConfidentialMPTClawback)
 
-Prerequisites:
-- rippled running on localhost:5005 with confidential MPT support
-- C bindings built: poetry run poe build_mpt_crypto
-- Install with: poetry install --extras confidential
+Prerequisites (see xrpl/ext/confidential/README.md for the full quickstart):
+- A ConfidentialTransfer-enabled rippled running on localhost:5005
+- The CFFI extension built:
+    poetry run pip install cffi
+    ./xrpl/ext/confidential/setup_mpt_crypto.sh download --version <pinned>
+    poetry run python xrpl/ext/confidential/build_mpt_crypto.py
 
 Usage:
-    poetry run python xrpl/core/confidential/examples/submit_confidential_tx.py
+    poetry run python xrpl/ext/confidential/examples/submit_confidential_tx.py
 """
 
 import sys
@@ -65,7 +67,8 @@ try:
     )
 except ImportError as e:
     print(f"ERROR: xrpl.ext.confidential not available: {e}")
-    print("Build with: poetry run poe build_mpt_crypto")
+    print("Build it: poetry run python xrpl/ext/confidential/build_mpt_crypto.py")
+    print("See xrpl/ext/confidential/README.md for the full quickstart.")
     sys.exit(1)
 
 # Configuration
