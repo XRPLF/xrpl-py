@@ -12,7 +12,6 @@ from xrpl.models.amounts import Amount, get_amount_value
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
 class NFTokenCreateOfferFlag(int, Enum):
@@ -31,8 +30,7 @@ class NFTokenCreateOfferFlagInterface(TransactionFlagInterface):
     TF_SELL_NFTOKEN: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class NFTokenCreateOffer(Transaction):
     """
     The NFTokenCreateOffer transaction creates either an offer to buy an

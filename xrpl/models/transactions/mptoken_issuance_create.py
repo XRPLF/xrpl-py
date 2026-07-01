@@ -15,7 +15,6 @@ from xrpl.models.utils import (
     HEX_REGEX,
     MAX_MPTOKEN_METADATA_LENGTH,
     MPT_META_WARNING_HEADER,
-    require_kwargs_on_init,
 )
 
 _MAX_TRANSFER_FEE: Final[int] = 50000
@@ -71,8 +70,7 @@ class MPTokenIssuanceCreateFlagInterface(TransactionFlagInterface):
     TF_MPT_CAN_CONFIDENTIAL_AMOUNT: bool
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class MPTokenIssuanceCreate(Transaction):
     """
     The MPTokenIssuanceCreate transaction creates a MPTokenIssuance object

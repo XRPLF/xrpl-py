@@ -14,10 +14,8 @@ from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import (
     HEX_REGEX,
-    KW_ONLY_DATACLASS,
     MAX_MPTOKEN_METADATA_LENGTH,
     MPT_META_WARNING_HEADER,
-    require_kwargs_on_init,
 )
 
 VAULT_MAX_DATA_LENGTH = 256 * 2
@@ -59,8 +57,7 @@ class WithdrawalPolicy(int, Enum):
     """Requests are processed on a first-come-first-serve basis."""
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class VaultCreate(Transaction):
     """The VaultCreate transaction creates a new Vault object."""
 

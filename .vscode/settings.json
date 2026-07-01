@@ -31,6 +31,7 @@
       "source.organizeImports": "always"
     }
   },
+  "black-formatter.path": ["poetry", "run", "black"],
   "isort.args": ["--profile", "black"],
   "python.testing.pytestEnabled": false,
   "python.testing.unittestEnabled": true

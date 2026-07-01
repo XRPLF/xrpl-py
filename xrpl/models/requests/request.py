@@ -5,6 +5,7 @@ Represents fields common to all request types.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, Optional, Type, Union, cast
@@ -15,7 +16,6 @@ import xrpl.models.requests  # bare import to get around circular dependency
 from xrpl.models.base_model import ABBREVIATIONS, BaseModel
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 _DEFAULT_API_VERSION: Final[int] = 2
 
@@ -98,7 +98,7 @@ class RequestMethod(str, Enum):
     GENERIC_REQUEST = "zzgeneric_request"
 
 
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class Request(BaseModel):
     """
     The base class for all network request types.
@@ -163,6 +163,22 @@ class Request(BaseModel):
         return super(Request, cls).from_dict(value)
 
     @classmethod
+    def from_xrpl(cls: Type[Self], value: Union[str, Dict[str, Any]]) -> Self:
+        """
+        Construct a new Request from a dictionary of parameters. Alias of `from_dict`.
+
+        Args:
+            value: The value to construct the Request from.
+
+        Returns:
+            A new Request object, constructed using the given parameters.
+
+        Raises:
+            XRPLModelException: If the dictionary provided is invalid.
+        """
+        return cls.from_dict(value if isinstance(value, dict) else json.loads(value))
+
+    @classmethod
     def get_method(cls: Type[Self], method: str) -> Type[Request]:
         """
         Returns the correct request method based on the string name.
@@ -196,8 +212,7 @@ class Request(BaseModel):
         return {**super().to_dict(), "method": self.method.value}
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class LookupByLedgerRequest:
     """Represents requests that need specifying an instance of the ledger"""
 

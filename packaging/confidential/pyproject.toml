@@ -20,9 +20,9 @@ version = "0.1.0"                 # tracks the mpt-crypto release it bundles
 description = "Native Confidential MPT (XLS-0096) proof generation for xrpl-py"
 readme = "README.md"
 license = { text = "ISC" }
-requires-python = ">=3.8.1"
+requires-python = ">=3.10"
 dependencies = [
-  "xrpl-py>=4.7",                 # provides the ConfidentialMPT* models this returns
+  "xrpl-py>=4.6.0b5",             # provides the ConfidentialMPT* models this returns
   "cffi>=1.15.0",
 ]
 
@@ -46,7 +46,7 @@ include-package-data = true
 # ──────────────────────────────────────────────────────────────────────────────
 [tool.cibuildwheel]
 build-frontend = "build"
-build = "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
+build = "cp310-* cp311-* cp312-* cp313-*"
 skip = "*-musllinux* pp* *_i686 *_ppc64le *_s390x"
 test-command = 'python -c "import xrpl.ext.confidential; print(\"import OK\")"'
 

@@ -23,7 +23,6 @@ from xrpl.models.transactions.confidential_mpt_constants import (
 )
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.utils import require_kwargs_on_init
 
 __all__ = [
     "ConfidentialMPTConvert",
@@ -38,8 +37,7 @@ __all__ = [
 ]
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 # pylint: disable=too-many-instance-attributes
 class ConfidentialMPTConvert(Transaction):
     """

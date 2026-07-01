@@ -15,11 +15,9 @@ from xrpl.models.currencies import Currency
 from xrpl.models.requests.request import Request, RequestMethod
 from xrpl.models.requests.subscribe import StreamParameter
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class UnsubscribeBook(BaseModel):
     """Format for elements in the ``books`` array for Unsubscribe only."""
 
@@ -40,8 +38,7 @@ class UnsubscribeBook(BaseModel):
     both: bool = False
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class Unsubscribe(Request):
     """
     The unsubscribe command tells the server to stop sending

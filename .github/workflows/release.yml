@@ -245,7 +245,7 @@ jobs:
       - name: Install Python + Retrieve Poetry dependencies from cache
         uses: actions/setup-python@v5
         with:
-          python-version: "3.8"
+          python-version: "3.10"
           cache: "poetry"
 
       - name: Build source tarball
@@ -284,7 +284,7 @@ jobs:
       - name: Prepare vulnerability scan
         uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.10"
       - name: Install CycloneDX Python tool
         run: |
           set -euo pipefail
@@ -298,7 +298,7 @@ jobs:
             exit 1
           fi
       - name: Scan SBOM for vulnerabilities using Trivy
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
         with:
           scan-type: sbom
           scan-ref: sbom.json
@@ -647,10 +647,10 @@ jobs:
       - unit-tests
     if: ${{ always()
       && needs.pre-release.result == 'success'
-      && needs['publish-to-pypi'].result == 'success'
       && needs.ask_for_dev_team_review.result == 'success'
       && needs.first_review.result == 'success'
       && needs.ask_for_sec_team_review.result == 'success'
+      && needs['publish-to-pypi'].result == 'success'
       && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
       && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
       && needs['unit-tests'].result == 'success' }}
