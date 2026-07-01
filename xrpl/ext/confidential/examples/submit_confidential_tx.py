@@ -260,6 +260,7 @@ def main():
     print("Using prepare_confidential_merge_inbox() function...")
 
     merge_tx = prepare_confidential_merge_inbox(
+        client=client,
         wallet=holder1_wallet,
         mpt_issuance_id=mpt_issuance_id,
     )
@@ -334,6 +335,7 @@ def main():
     print_section("Step 10: Merge Inbox to Spending Balance (Holder2)")
     print("\nMerging Holder2's inbox...")
     merge_tx2 = prepare_confidential_merge_inbox(
+        client=client,
         wallet=holder2_wallet,
         mpt_issuance_id=mpt_issuance_id,
     )

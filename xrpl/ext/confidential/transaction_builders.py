@@ -23,7 +23,7 @@ from xrpl.ext.confidential.context import (
     compute_send_context_hash,
 )
 from xrpl.ext.confidential.encryption import DEFAULT_DECRYPT_RANGE_HIGH
-from xrpl.models.requests import AccountInfo, LedgerEntry
+from xrpl.models.requests import AccountInfo, Fee, LedgerEntry
 from xrpl.models.requests.ledger_entry import MPToken
 from xrpl.models.transactions import (
     ConfidentialMPTClawback,
@@ -65,15 +65,38 @@ def _generate_blinding_factor() -> str:
     return bytes(bf[0:32]).hex().upper()
 
 
+# rippled charges confidential MPT transactions base_fee * (kConfidentialFeeMultiplier
+# + 1) to account for zero-knowledge proof verification cost. As of the
+# ConfidentialTransfer amendment kConfidentialFeeMultiplier == 9, i.e. 10x the
+# base fee. Standard autofill only sets the base fee, so the builders set it here
+# to avoid telINSUF_FEE_P.
+CONFIDENTIAL_FEE_MULTIPLIER = 10
+
+
+def _confidential_fee(client: Client) -> str:
+    """
+    Compute the fee (in drops) required for a confidential MPT transaction.
+
+    Args:
+        client: XRPL client used to read the current base fee.
+
+    Returns:
+        The required fee in drops as a string (base_fee * CONFIDENTIAL_FEE_MULTIPLIER).
+    """
+    base_fee = int(client.request(Fee()).result["drops"]["base_fee"])
+    return str(base_fee * CONFIDENTIAL_FEE_MULTIPLIER)
+
+
 def _get_balance_decrypt_range_high(client: Client, mpt_issuance_id: str) -> int:
     """
     Derive the decrypt discrete-log search upper bound from the issuance.
 
-    A holder's confidential balance can never exceed the issuance's
-    ``MaximumAmount``, so it is the tightest sound upper bound for the
-    brute-force decryption search. If the issuance leaves ``MaximumAmount``
-    unset (unlimited), fall back to the amount actually in circulation
-    (``OutstandingAmount``), which still bounds any single balance.
+    Decryption cost is O(range_high - range_low) (it brute-forces the discrete
+    log), so the bound must be as tight as possible — NOT the issuance's
+    ``MaximumAmount``, which is typically ~2^63 and would make decryption take
+    effectively forever. The tightest sound bound is the amount actually in
+    confidential circulation: no single confidential balance can exceed the
+    ``ConfidentialOutstandingAmount`` (falling back to ``OutstandingAmount``).
 
     Args:
         client: XRPL client.
@@ -84,13 +107,14 @@ def _get_balance_decrypt_range_high(client: Client, mpt_issuance_id: str) -> int
     """
     issuance = client.request(LedgerEntry(mpt_issuance=mpt_issuance_id))
     node = issuance.result.get("node", {})
-    # UInt64 fields are returned as decimal strings.
-    for field in ("MaximumAmount", "OutstandingAmount"):
+    # UInt64 fields are returned as decimal strings. Prefer the tightest supply
+    # bound; deliberately skip MaximumAmount (see note above).
+    for field in ("ConfidentialOutstandingAmount", "OutstandingAmount"):
         value = node.get(field)
         if value is not None and int(value) > 0:
             return int(value)
     # Issuance not found or amounts are zero/absent: fall back to the wrapper
-    # default so a tiny balance still decrypts.
+    # default so a tiny balance still decrypts quickly.
     return DEFAULT_DECRYPT_RANGE_HIGH
 
 
@@ -175,10 +199,12 @@ def prepare_confidential_convert(
         blinding_factor=blinding_factor,
         zk_proof=schnorr_proof,
         auditor_encrypted_amount=auditor_encrypted_amount,
+        fee=_confidential_fee(client),
     )
 
 
 def prepare_confidential_merge_inbox(
+    client: Client,
     wallet: Wallet,
     mpt_issuance_id: str,
 ) -> ConfidentialMPTMergeInbox:
@@ -189,6 +215,7 @@ def prepare_confidential_merge_inbox(
     balance to the spending balance. No proofs or encryption needed.
 
     Args:
+        client: XRPL client (used to read the base fee for the confidential fee).
         wallet: Wallet of the account merging inbox
         mpt_issuance_id: 24-byte MPT issuance ID (hex string)
 
@@ -198,6 +225,7 @@ def prepare_confidential_merge_inbox(
     return ConfidentialMPTMergeInbox(
         account=wallet.address,
         mptoken_issuance_id=mpt_issuance_id,
+        fee=_confidential_fee(client),
     )
 
 
@@ -359,6 +387,7 @@ def prepare_confidential_send(
         balance_commitment=balance_commitment,
         zk_proof=zk_proof,
         auditor_encrypted_amount=auditor_encrypted_amount,
+        fee=_confidential_fee(client),
     )
 
 
@@ -486,6 +515,7 @@ def prepare_confidential_convert_back(
         balance_commitment=balance_commitment,
         zk_proof=balance_link_proof,
         auditor_encrypted_amount=auditor_encrypted_amount,
+        fee=_confidential_fee(client),
     )
 
 
@@ -549,4 +579,5 @@ def prepare_confidential_clawback(
         mpt_amount=amount,
         holder=holder_address,
         zk_proof=clawback_proof,
+        fee=_confidential_fee(client),
     )
