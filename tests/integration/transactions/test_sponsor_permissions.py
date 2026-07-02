@@ -1,4 +1,9 @@
-"""Integration tests verifying SponsorFee/SponsorReserve wire values (65549/65550)."""
+"""Integration tests for transaction-level sponsor delegation (XLS-68).
+
+Sponsor delegation is transaction-level: SponsorshipSet
+is delegable (its delegation permission code is its transaction-type code + 1),
+while SponsorshipTransfer is not delegable.
+"""
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
@@ -15,114 +20,46 @@ from xrpl.models.requests import AccountObjects, AccountObjectType, LedgerEntry
 from xrpl.models.requests.ledger_entry import Delegate
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import DelegateSet
-from xrpl.models.transactions.delegate_set import GranularPermission, Permission
+from xrpl.models.transactions.delegate_set import Permission
+from xrpl.models.transactions.types import TransactionType
 from xrpl.wallet.main import Wallet
 
-_SPONSOR_FEE_WIRE = 65549
-_SPONSOR_RESERVE_WIRE = 65550
 
-
-class TestSponsorPermissionsWireValues(IntegrationTestCase):
+class TestSponsorDelegation(IntegrationTestCase):
     # ------------------------------------------------------------------ #
-    #  Codec-level (no network) — verify 65549 / 65550 round-trip        #
+    #  Codec-level (no network)                                           #
     # ------------------------------------------------------------------ #
 
-    def test_sponsor_fee_wire_value_in_definitions(self):
-        """SponsorFee must map to numeric wire value 65549."""
-        self.assertEqual(
-            _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP["SponsorFee"],
-            _SPONSOR_FEE_WIRE,
-        )
+    def test_sponsorship_set_is_delegable_permission(self):
+        """SponsorshipSet maps to a delegation code (tx-type code + 1)."""
+        code = _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP["SponsorshipSet"]
+        self.assertEqual(_DELEGABLE_PERMISSIONS_CODE_TO_STR_MAP[code], "SponsorshipSet")
 
-    def test_sponsor_reserve_wire_value_in_definitions(self):
-        """SponsorReserve must map to numeric wire value 65550."""
-        self.assertEqual(
-            _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP["SponsorReserve"],
-            _SPONSOR_RESERVE_WIRE,
-        )
+    def test_removed_granular_sponsor_permissions_absent(self):
+        """The old SponsorFee / SponsorReserve granular permissions are gone."""
+        self.assertNotIn("SponsorFee", _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP)
+        self.assertNotIn("SponsorReserve", _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP)
 
-    def test_sponsor_fee_reverse_lookup(self):
-        """Numeric code 65549 must decode back to 'SponsorFee'."""
-        self.assertEqual(
-            _DELEGABLE_PERMISSIONS_CODE_TO_STR_MAP[_SPONSOR_FEE_WIRE],
-            "SponsorFee",
-        )
-
-    def test_sponsor_reserve_reverse_lookup(self):
-        """Numeric code 65550 must decode back to 'SponsorReserve'."""
-        self.assertEqual(
-            _DELEGABLE_PERMISSIONS_CODE_TO_STR_MAP[_SPONSOR_RESERVE_WIRE],
-            "SponsorReserve",
-        )
-
-    def test_sponsor_fee_binary_codec_roundtrip(self):
-        """SponsorFee encodes to binary and decodes back via the codec."""
+    def test_sponsorship_set_delegation_binary_roundtrip(self):
+        """A SponsorshipSet delegation encodes/decodes via the binary codec."""
         tx = DelegateSet(
             account="r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59",
             authorize="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
-            permissions=[Permission(permission_value=GranularPermission.SPONSOR_FEE)],
+            permissions=[Permission(permission_value=TransactionType.SPONSORSHIP_SET)],
             sequence=1,
             fee="12",
         )
         decoded = decode(encode(tx.to_xrpl()))
         perm_value = decoded["Permissions"][0]["Permission"]["PermissionValue"]
-        self.assertEqual(perm_value, "SponsorFee")
-
-    def test_sponsor_reserve_binary_codec_roundtrip(self):
-        """SponsorReserve encodes to binary and decodes back via the codec."""
-        tx = DelegateSet(
-            account="r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59",
-            authorize="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
-            permissions=[
-                Permission(permission_value=GranularPermission.SPONSOR_RESERVE)
-            ],
-            sequence=1,
-            fee="12",
-        )
-        decoded = decode(encode(tx.to_xrpl()))
-        perm_value = decoded["Permissions"][0]["Permission"]["PermissionValue"]
-        self.assertEqual(perm_value, "SponsorReserve")
-
-    def test_both_sponsor_permissions_binary_codec_roundtrip(self):
-        """Both sponsor permissions encode/decode with correct wire values."""
-        tx = DelegateSet(
-            account="r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59",
-            authorize="rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
-            permissions=[
-                Permission(permission_value=GranularPermission.SPONSOR_FEE),
-                Permission(permission_value=GranularPermission.SPONSOR_RESERVE),
-            ],
-            sequence=1,
-            fee="12",
-        )
-        decoded = decode(encode(tx.to_xrpl()))
-        perm_values = {
-            p["Permission"]["PermissionValue"] for p in decoded["Permissions"]
-        }
-        self.assertIn("SponsorFee", perm_values)
-        self.assertIn("SponsorReserve", perm_values)
-
-    def test_sponsor_fee_enum_value_matches_wire(self):
-        """GranularPermission.SPONSOR_FEE string value maps to wire code 65549."""
-        self.assertEqual(
-            _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP[GranularPermission.SPONSOR_FEE],
-            _SPONSOR_FEE_WIRE,
-        )
-
-    def test_sponsor_reserve_enum_value_matches_wire(self):
-        """GranularPermission.SPONSOR_RESERVE string value maps to wire code 65550."""
-        self.assertEqual(
-            _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP[GranularPermission.SPONSOR_RESERVE],
-            _SPONSOR_RESERVE_WIRE,
-        )
+        self.assertEqual(perm_value, "SponsorshipSet")
 
     # ------------------------------------------------------------------ #
-    #  Network — DelegateSet with sponsor permissions accepted by rippled #
+    #  Network — transaction-level SponsorshipSet delegation accepted     #
     # ------------------------------------------------------------------ #
 
     @test_async_and_sync(globals())
-    async def test_delegate_set_sponsor_fee_accepted(self, client):
-        """DelegateSet with SponsorFee is accepted by rippled (wire value correct)."""
+    async def test_delegate_sponsorship_set_accepted(self, client):
+        """DelegateSet delegating SponsorshipSet is accepted by rippled."""
         alice = Wallet.create()
         await fund_wallet_async(alice)
         bob = Wallet.create()
@@ -131,71 +68,27 @@ class TestSponsorPermissionsWireValues(IntegrationTestCase):
         tx = DelegateSet(
             account=alice.address,
             authorize=bob.address,
-            permissions=[Permission(permission_value=GranularPermission.SPONSOR_FEE)],
+            permissions=[Permission(permission_value=TransactionType.SPONSORSHIP_SET)],
         )
         response = await sign_and_reliable_submission_async(
             tx, alice, client, check_fee=False
         )
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
-        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-
-    @test_async_and_sync(globals())
-    async def test_delegate_set_sponsor_reserve_accepted(self, client):
-        """DelegateSet with SponsorReserve is accepted."""
-        alice = Wallet.create()
-        await fund_wallet_async(alice)
-        bob = Wallet.create()
-        await fund_wallet_async(bob)
-
-        tx = DelegateSet(
-            account=alice.address,
-            authorize=bob.address,
-            permissions=[
-                Permission(permission_value=GranularPermission.SPONSOR_RESERVE)
-            ],
-        )
-        response = await sign_and_reliable_submission_async(
-            tx, alice, client, check_fee=False
-        )
-        self.assertEqual(response.status, ResponseStatus.SUCCESS)
-        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-
-    @test_async_and_sync(globals())
-    async def test_ledger_returns_sponsor_permission_values(self, client):
-        """Ledger entry round-trips SponsorFee and SponsorReserve string names."""
-        alice = Wallet.create()
-        await fund_wallet_async(alice)
-        bob = Wallet.create()
-        await fund_wallet_async(bob)
-
-        tx = DelegateSet(
-            account=alice.address,
-            authorize=bob.address,
-            permissions=[
-                Permission(permission_value=GranularPermission.SPONSOR_FEE),
-                Permission(permission_value=GranularPermission.SPONSOR_RESERVE),
-            ],
-        )
-        response = await sign_and_reliable_submission_async(
-            tx, alice, client, check_fee=False
-        )
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         ledger_response = await client.request(
             LedgerEntry(delegate=Delegate(account=alice.address, authorize=bob.address))
         )
         self.assertTrue(ledger_response.is_successful())
-
         perm_values = {
             p["Permission"]["PermissionValue"]
             for p in ledger_response.result["node"]["Permissions"]
         }
-        self.assertIn(GranularPermission.SPONSOR_FEE.value, perm_values)
-        self.assertIn(GranularPermission.SPONSOR_RESERVE.value, perm_values)
+        self.assertIn(TransactionType.SPONSORSHIP_SET.value, perm_values)
 
     @test_async_and_sync(globals())
-    async def test_account_objects_sponsor_permissions(self, client):
-        """AccountObjects returns SponsorFee and SponsorReserve permission values."""
+    async def test_account_objects_sponsorship_set_delegation(self, client):
+        """AccountObjects returns the delegated SponsorshipSet permission."""
         alice = Wallet.create()
         await fund_wallet_async(alice)
         bob = Wallet.create()
@@ -204,10 +97,7 @@ class TestSponsorPermissionsWireValues(IntegrationTestCase):
         tx = DelegateSet(
             account=alice.address,
             authorize=bob.address,
-            permissions=[
-                Permission(permission_value=GranularPermission.SPONSOR_FEE),
-                Permission(permission_value=GranularPermission.SPONSOR_RESERVE),
-            ],
+            permissions=[Permission(permission_value=TransactionType.SPONSORSHIP_SET)],
         )
         response = await sign_and_reliable_submission_async(
             tx, alice, client, check_fee=False
@@ -218,10 +108,8 @@ class TestSponsorPermissionsWireValues(IntegrationTestCase):
             AccountObjects(account=alice.address, type=AccountObjectType.DELEGATE)
         )
         self.assertTrue(objects_response.is_successful())
-
         perm_values = {
             p["Permission"]["PermissionValue"]
             for p in objects_response.result["account_objects"][0]["Permissions"]
         }
-        self.assertIn(GranularPermission.SPONSOR_FEE.value, perm_values)
-        self.assertIn(GranularPermission.SPONSOR_RESERVE.value, perm_values)
+        self.assertIn(TransactionType.SPONSORSHIP_SET.value, perm_values)

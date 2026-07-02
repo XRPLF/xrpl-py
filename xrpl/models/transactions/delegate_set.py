@@ -22,6 +22,7 @@ NON_DELEGABLE_TRANSACTIONS = {
     TransactionType.DELEGATE_SET,
     TransactionType.ACCOUNT_DELETE,
     TransactionType.BATCH,
+    TransactionType.SPONSORSHIP_TRANSFER,
 }
 
 
@@ -66,12 +67,6 @@ class GranularPermission(str, Enum):
 
     MPTOKEN_ISSUANCE_UNLOCK = "MPTokenIssuanceUnlock"
     """Use the MPTIssuanceSet transaction to unlock (unfreeze) a holder."""
-
-    SPONSOR_FEE = "SponsorFee"
-    """Delegates ability to sponsor transaction fees."""
-
-    SPONSOR_RESERVE = "SponsorReserve"
-    """Delegates ability to sponsor object and account reserves."""
 
 
 @dataclass(frozen=True, kw_only=True)
