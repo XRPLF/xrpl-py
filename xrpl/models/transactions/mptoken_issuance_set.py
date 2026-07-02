@@ -112,6 +112,12 @@ class MPTokenIssuanceSet(Transaction):
     If omitted, this transaction will apply to all any accounts holding MPTs.
     """
 
+    domain_id: Optional[str] = None
+    """
+    The DomainID of a Permissioned Domain to associate with this MPTokenIssuance,
+    as a 64-character hex string.
+    """
+
     mptoken_metadata: Optional[str] = None
     """
     New metadata to replace the existing value. Only valid if the MPTokenIssuance
@@ -165,15 +171,6 @@ class MPTokenIssuanceSet(Transaction):
                 "holder cannot be provided when mutable_flags, mptoken_metadata, "
                 "or transfer_fee is present"
             )
-
-        # Check for malformed combinations with Flags field
-        if has_dynamic_fields and self.flags is not None:
-            # Flags cannot be used with DynamicMPT fields
-            if self.flags != 0:
-                errors["flags"] = (
-                    "Flags cannot be provided when mutable_flags, "
-                    "mptoken_metadata, or transfer_fee is present"
-                )
 
         # Validate mutable_flags
         if self.mutable_flags is not None:

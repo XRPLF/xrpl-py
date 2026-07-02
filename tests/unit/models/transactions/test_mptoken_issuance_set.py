@@ -90,24 +90,6 @@ class TestMPTokenIssuanceSet(TestCase):
                     )
                 self.assertIn("holder cannot be provided", error.exception.args[0])
 
-    def test_flags_with_dynamic_field_fails(self):
-        """Non-universal Flags cannot be combined with any mutate-issuance field."""
-        dynamic_fields = [
-            {"mutable_flags": MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK},
-            {"mptoken_metadata": "464F4F"},
-            {"transfer_fee": 200},
-        ]
-        for field in dynamic_fields:
-            with self.subTest(field=next(iter(field))):
-                with self.assertRaises(XRPLModelException) as error:
-                    MPTokenIssuanceSet(
-                        account=_ACCOUNT,
-                        mptoken_issuance_id=_TOKEN_ID,
-                        flags=MPTokenIssuanceSetFlag.TF_MPT_LOCK,
-                        **field,
-                    )
-                self.assertIn("Flags cannot be provided when", error.exception.args[0])
-
     def test_mutable_flags_zero_fails(self):
         """Test that mutable_flags cannot be 0."""
         with self.assertRaises(XRPLModelException) as error:

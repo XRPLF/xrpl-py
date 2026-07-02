@@ -131,6 +131,12 @@ class MPTokenIssuanceCreate(Transaction):
     may not be discoverable by ecosystem tools such as explorers and indexers.
     """
 
+    domain_id: Optional[str] = None
+    """
+    The DomainID of a Permissioned Domain to associate with this MPTokenIssuance,
+    as a 64-character hex string.
+    """
+
     mutable_flags: Optional[int] = None
     """
     Declares which fields may be modified and which MPT issuance flags may be
