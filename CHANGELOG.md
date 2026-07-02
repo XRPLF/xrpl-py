@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support for `Dynamic Multi-Purpose Tokens` (XLS-94d)
 
+## [[5.0.0]]
+
 ### BREAKING CHANGE
 
 - Dropped support for Python 3.8 (EOL October 2024) and Python 3.9 (EOL October 2025). The minimum supported Python version is now 3.10.
