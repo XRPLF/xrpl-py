@@ -38,27 +38,29 @@ class MPTokenIssuanceCreateFlag(int, Enum):
 class MPTokenIssuanceCreateMutableFlag(int, Enum):
     """
     MutableFlags for MPTokenIssuanceCreate transaction.
-    These flags indicate which fields or flags can be modified after issuance.
+    These flags declare which fields may be modified and which MPT issuance flags
+    may be enabled after issuance via MPTokenIssuanceSet.
+    MPT issuance flags are one-way: once enabled, they cannot be disabled.
     Prefixed with TMF (Transaction Mutable Flag) to distinguish from TF flags.
     """
 
-    TMF_MPT_CAN_MUTATE_CAN_LOCK = 0x00000002
-    """Indicates flag lsfMPTCanLock can be changed"""
+    TMF_MPT_CAN_ENABLE_CAN_LOCK = 0x00000002
+    """Allows flag lsfMPTCanLock to be enabled after issuance"""
 
-    TMF_MPT_CAN_MUTATE_REQUIRE_AUTH = 0x00000004
-    """Indicates flag lsfMPTRequireAuth can be changed"""
+    TMF_MPT_CAN_ENABLE_REQUIRE_AUTH = 0x00000004
+    """Allows flag lsfMPTRequireAuth to be enabled after issuance"""
 
-    TMF_MPT_CAN_MUTATE_CAN_ESCROW = 0x00000008
-    """Indicates flag lsfMPTCanEscrow can be changed"""
+    TMF_MPT_CAN_ENABLE_CAN_ESCROW = 0x00000008
+    """Allows flag lsfMPTCanEscrow to be enabled after issuance"""
 
-    TMF_MPT_CAN_MUTATE_CAN_TRADE = 0x00000010
-    """Indicates flag lsfMPTCanTrade can be changed"""
+    TMF_MPT_CAN_ENABLE_CAN_TRADE = 0x00000010
+    """Allows flag lsfMPTCanTrade to be enabled after issuance"""
 
-    TMF_MPT_CAN_MUTATE_CAN_TRANSFER = 0x00000020
-    """Indicates flag lsfMPTCanTransfer can be changed"""
+    TMF_MPT_CAN_ENABLE_CAN_TRANSFER = 0x00000020
+    """Allows flag lsfMPTCanTransfer to be enabled after issuance"""
 
-    TMF_MPT_CAN_MUTATE_CAN_CLAWBACK = 0x00000040
-    """Indicates flag lsfMPTCanClawback can be changed"""
+    TMF_MPT_CAN_ENABLE_CAN_CLAWBACK = 0x00000040
+    """Allows flag lsfMPTCanClawback to be enabled after issuance"""
 
     TMF_MPT_CAN_MUTATE_METADATA = 0x00010000
     """Allows field MPTokenMetadata to be modified"""
@@ -131,10 +133,11 @@ class MPTokenIssuanceCreate(Transaction):
 
     mutable_flags: Optional[int] = None
     """
-    Indicates specific fields or flags that are mutable after issuance.
+    Declares which fields may be modified and which MPT issuance flags may be
+    enabled after issuance.
     This field is optional and only available when the DynamicMPT amendment is enabled.
-    Use MPTokenIssuanceCreateMutableFlag enum values to specify which fields/flags
-    can be modified via MPTokenIssuanceSet after creation.
+    Use MPTokenIssuanceCreateMutableFlag enum values. Note that MPT issuance flags
+    are one-way: once enabled via MPTokenIssuanceSet, they cannot be disabled.
     """
 
     transaction_type: TransactionType = field(
@@ -182,12 +185,12 @@ class MPTokenIssuanceCreate(Transaction):
         if self.mutable_flags is not None:
             # Define all valid mutable flags
             valid_mutable_flags = (
-                MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_CAN_LOCK.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_REQUIRE_AUTH.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_CAN_ESCROW.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_CAN_TRADE.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_CAN_TRANSFER.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_CAN_CLAWBACK.value
+                MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_LOCK.value
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_REQUIRE_AUTH.value
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_ESCROW.value
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_TRADE.value
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_TRANSFER.value
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_CLAWBACK.value
                 | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_METADATA.value
                 | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_TRANSFER_FEE.value
             )

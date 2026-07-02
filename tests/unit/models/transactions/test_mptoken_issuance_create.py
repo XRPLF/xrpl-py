@@ -145,6 +145,21 @@ class TestMPTokenIssuanceCreate(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
+    def test_tx_with_all_can_enable_flags(self):
+        """All six CanEnable boolean mutable flags combined are valid."""
+        tx = MPTokenIssuanceCreate(
+            account=_ACCOUNT,
+            mutable_flags=(
+                MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_LOCK
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_REQUIRE_AUTH
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_ESCROW
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_TRADE
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_TRANSFER
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_CLAWBACK
+            ),
+        )
+        self.assertTrue(tx.is_valid())
+
     def test_tx_mutable_flags_invalid_bits_fails(self):
         # Test reserved bit (0x00000001)
         with self.assertRaises(XRPLModelException) as error:

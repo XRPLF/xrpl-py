@@ -66,77 +66,47 @@ class TestMPTokenIssuanceSet(TestCase):
             account=_ACCOUNT,
             mptoken_issuance_id=_TOKEN_ID,
             mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK
-            | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_ESCROW,
+            | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_ESCROW,
             transfer_fee=200,
             mptoken_metadata=str_to_hex(json.dumps(metadata)),
         )
         self.assertTrue(tx.is_valid())
 
-    def test_holder_with_mutable_flags_fails(self):
-        """Test that holder cannot be provided with mutable_flags."""
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                holder="rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG",
-                mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK,
-            )
-        self.assertIn("holder cannot be provided", error.exception.args[0])
+    def test_holder_with_dynamic_field_fails(self):
+        """holder cannot be combined with any mutate-issuance field."""
+        dynamic_fields = [
+            {"mutable_flags": MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK},
+            {"mptoken_metadata": "464F4F"},
+            {"transfer_fee": 200},
+        ]
+        for field in dynamic_fields:
+            with self.subTest(field=next(iter(field))):
+                with self.assertRaises(XRPLModelException) as error:
+                    MPTokenIssuanceSet(
+                        account=_ACCOUNT,
+                        mptoken_issuance_id=_TOKEN_ID,
+                        holder="rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG",
+                        **field,
+                    )
+                self.assertIn("holder cannot be provided", error.exception.args[0])
 
-    def test_holder_with_metadata_fails(self):
-        """Test that holder cannot be provided with mptoken_metadata."""
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                holder="rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG",
-                mptoken_metadata="464F4F",
-            )
-        self.assertIn("holder cannot be provided", error.exception.args[0])
-
-    def test_holder_with_transfer_fee_fails(self):
-        """Test that holder cannot be provided with transfer_fee."""
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                holder="rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG",
-                transfer_fee=200,
-            )
-        self.assertIn("holder cannot be provided", error.exception.args[0])
-
-    def test_flags_with_mutable_flags_fails(self):
-        """Test that Flags cannot be provided with mutable_flags."""
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                flags=MPTokenIssuanceSetFlag.TF_MPT_LOCK,
-                mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK,
-            )
-        self.assertIn("Flags cannot be provided when", error.exception.args[0])
-
-    def test_flags_with_metadata_fails(self):
-        """Test that Flags cannot be provided with mptoken_metadata."""
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                flags=MPTokenIssuanceSetFlag.TF_MPT_LOCK,
-                mptoken_metadata="464F4F",
-            )
-        self.assertIn("Flags cannot be provided when", error.exception.args[0])
-
-    def test_flags_with_transfer_fee_fails(self):
-        """Test that Flags cannot be provided with transfer_fee."""
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                flags=MPTokenIssuanceSetFlag.TF_MPT_LOCK,
-                transfer_fee=200,
-            )
-        self.assertIn("Flags cannot be provided when", error.exception.args[0])
+    def test_flags_with_dynamic_field_fails(self):
+        """Non-universal Flags cannot be combined with any mutate-issuance field."""
+        dynamic_fields = [
+            {"mutable_flags": MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK},
+            {"mptoken_metadata": "464F4F"},
+            {"transfer_fee": 200},
+        ]
+        for field in dynamic_fields:
+            with self.subTest(field=next(iter(field))):
+                with self.assertRaises(XRPLModelException) as error:
+                    MPTokenIssuanceSet(
+                        account=_ACCOUNT,
+                        mptoken_issuance_id=_TOKEN_ID,
+                        flags=MPTokenIssuanceSetFlag.TF_MPT_LOCK,
+                        **field,
+                    )
+                self.assertIn("Flags cannot be provided when", error.exception.args[0])
 
     def test_mutable_flags_zero_fails(self):
         """Test that mutable_flags cannot be 0."""
@@ -178,71 +148,14 @@ class TestMPTokenIssuanceSet(TestCase):
             error.exception.args[0],
         )
 
-    def test_mutable_flags_set_clear_conflicts(self):
-        """Test that SET and CLEAR of the same flag cannot both be present."""
-        set_clear_pairs = [
-            (
-                MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK,
-                MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_LOCK,
-                "CAN_LOCK",
-            ),
-            (
-                MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_REQUIRE_AUTH,
-                MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_REQUIRE_AUTH,
-                "REQUIRE_AUTH",
-            ),
-            (
-                MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_ESCROW,
-                MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_ESCROW,
-                "CAN_ESCROW",
-            ),
-            (
-                MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_TRADE,
-                MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_TRADE,
-                "CAN_TRADE",
-            ),
-            (
-                MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_TRANSFER,
-                MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_TRANSFER,
-                "CAN_TRANSFER",
-            ),
-            (
-                MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_CLAWBACK,
-                MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_CLAWBACK,
-                "CAN_CLAWBACK",
-            ),
-        ]
-        for set_flag, clear_flag, name in set_clear_pairs:
-            with self.subTest(flag=name):
-                with self.assertRaises(XRPLModelException) as error:
-                    MPTokenIssuanceSet(
-                        account=_ACCOUNT,
-                        mptoken_issuance_id=_TOKEN_ID,
-                        mutable_flags=set_flag | clear_flag,
-                    )
-                self.assertIn(f"Cannot set and clear {name}", error.exception.args[0])
-
-    def test_transfer_fee_with_clear_can_transfer_fails(self):
-        """Test that non-zero transfer_fee cannot be set when clearing CAN_TRANSFER."""
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                transfer_fee=200,
-                mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_TRANSFER,
-            )
-        self.assertIn(
-            "Cannot include non-zero transfer_fee when clearing CAN_TRANSFER",
-            error.exception.args[0],
-        )
-
-    def test_zero_transfer_fee_with_clear_can_transfer_valid(self):
-        """Test that zero transfer_fee is allowed when clearing CAN_TRANSFER."""
+    def test_multiple_set_flags_valid(self):
+        """Test that multiple distinct SET flags can be combined."""
         tx = MPTokenIssuanceSet(
             account=_ACCOUNT,
             mptoken_issuance_id=_TOKEN_ID,
-            transfer_fee=0,
-            mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_TRANSFER,
+            mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK
+            | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_REQUIRE_AUTH
+            | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_CLAWBACK,
         )
         self.assertTrue(tx.is_valid())
 

@@ -44,8 +44,10 @@ class MPTokenIssuanceSetFlag(int, Enum):
 class MPTokenIssuanceSetMutableFlag(int, Enum):
     """
     MutableFlags for MPTokenIssuanceSet transaction.
-    These flags are used to set or clear flags that were marked as mutable during
-    MPTokenIssuanceCreate. Prefixed with TMF (Transaction Mutable Flag).
+    These flags enable MPT issuance flags that were declared mutable during
+    MPTokenIssuanceCreate. They are one-way: once enabled, the corresponding
+    capability cannot be disabled by MPTokenIssuanceSet.
+    Prefixed with TMF (Transaction Mutable Flag).
     """
 
     TMF_MPT_SET_CAN_LOCK = 0x00000001
@@ -54,59 +56,29 @@ class MPTokenIssuanceSetMutableFlag(int, Enum):
     individually and globally.
     """
 
-    TMF_MPT_CLEAR_CAN_LOCK = 0x00000002
-    """
-    Clears the lsfMPTCanLock flag. Disables both individual and global
-    locking of the token.
-    """
-
-    TMF_MPT_SET_REQUIRE_AUTH = 0x00000004
+    TMF_MPT_SET_REQUIRE_AUTH = 0x00000002
     """Sets the lsfMPTRequireAuth flag. Requires individual holders to be authorized."""
 
-    TMF_MPT_CLEAR_REQUIRE_AUTH = 0x00000008
-    """Clears the lsfMPTRequireAuth flag. Holders are not required to be authorized."""
-
-    TMF_MPT_SET_CAN_ESCROW = 0x00000010
+    TMF_MPT_SET_CAN_ESCROW = 0x00000004
     """Sets the lsfMPTCanEscrow flag. Allows holders to place balances into escrow."""
 
-    TMF_MPT_CLEAR_CAN_ESCROW = 0x00000020
-    """
-    Clears the lsfMPTCanEscrow flag. Disallows holders from placing
-    balances into escrow.
-    """
-
-    TMF_MPT_SET_CAN_TRADE = 0x00000040
+    TMF_MPT_SET_CAN_TRADE = 0x00000008
     """
     Sets the lsfMPTCanTrade flag. Allows holders to trade balances on
     the XRPL DEX.
     """
 
-    TMF_MPT_CLEAR_CAN_TRADE = 0x00000080
-    """
-    Clears the lsfMPTCanTrade flag. Disallows holders from trading
-    balances on the XRPL DEX.
-    """
-
-    TMF_MPT_SET_CAN_TRANSFER = 0x00000100
+    TMF_MPT_SET_CAN_TRANSFER = 0x00000010
     """
     Sets the lsfMPTCanTransfer flag. Allows tokens to be transferred to
     non-issuer accounts.
     """
 
-    TMF_MPT_CLEAR_CAN_TRANSFER = 0x00000200
-    """
-    Clears the lsfMPTCanTransfer flag. Disallows transfers to non-issuer
-    accounts.
-    """
-
-    TMF_MPT_SET_CAN_CLAWBACK = 0x00000400
+    TMF_MPT_SET_CAN_CLAWBACK = 0x00000020
     """
     Sets the lsfMPTCanClawback flag. Enables the issuer to claw back
     tokens via Clawback or AMMClawback transactions.
     """
-
-    TMF_MPT_CLEAR_CAN_CLAWBACK = 0x00000800
-    """Clears the lsfMPTCanClawback flag. The token cannot be clawed back."""
 
 
 class MPTokenIssuanceSetFlagInterface(TransactionFlagInterface):
@@ -127,7 +99,8 @@ class MPTokenIssuanceSet(Transaction):
     MPTokenIssuance, or lock/unlock an individual's MPToken.
 
     With the DynamicMPT amendment, this transaction can also be used to update
-    fields or flags that were marked as mutable during MPTokenIssuanceCreate.
+    fields (MPTokenMetadata, TransferFee) or enable MPT issuance flags that were
+    marked as mutable during MPTokenIssuanceCreate.
     """
 
     mptoken_issuance_id: str = REQUIRED
@@ -157,7 +130,8 @@ class MPTokenIssuanceSet(Transaction):
 
     mutable_flags: Optional[int] = None
     """
-    Set or clear flags which were marked as mutable during creation.
+    Enable MPT issuance flags that were marked as mutable during creation.
+    These flags are one-way: once enabled, they cannot be disabled.
     Use MPTokenIssuanceSetMutableFlag enum values.
     Requires DynamicMPT amendment.
     """
@@ -210,77 +184,14 @@ class MPTokenIssuanceSet(Transaction):
             # Validate only known bits are used
             valid_mask = (
                 MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK.value
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_LOCK.value
                 | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_REQUIRE_AUTH.value
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_REQUIRE_AUTH.value
                 | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_ESCROW.value
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_ESCROW.value
                 | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_TRADE.value
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_TRADE.value
                 | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_TRANSFER.value
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_TRANSFER.value
                 | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_CLAWBACK.value
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_CLAWBACK.value
             )
             if self.mutable_flags & ~valid_mask:
                 errors["mutable_flags"] = "mutable_flags contains invalid bits"
-
-            # Check for conflicting set/clear flags
-            flag_pairs = [
-                (
-                    MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK,
-                    MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_LOCK,
-                    "CAN_LOCK",
-                ),
-                (
-                    MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_REQUIRE_AUTH,
-                    MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_REQUIRE_AUTH,
-                    "REQUIRE_AUTH",
-                ),
-                (
-                    MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_ESCROW,
-                    MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_ESCROW,
-                    "CAN_ESCROW",
-                ),
-                (
-                    MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_TRADE,
-                    MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_TRADE,
-                    "CAN_TRADE",
-                ),
-                (
-                    MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_TRANSFER,
-                    MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_TRANSFER,
-                    "CAN_TRANSFER",
-                ),
-                (
-                    MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_CLAWBACK,
-                    MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_CLAWBACK,
-                    "CAN_CLAWBACK",
-                ),
-            ]
-
-            for set_flag, clear_flag, name in flag_pairs:
-                if (self.mutable_flags & set_flag.value) and (
-                    self.mutable_flags & clear_flag.value
-                ):
-                    errors["mutable_flags"] = (
-                        f"Cannot set and clear {name} flag simultaneously"
-                    )
-                    break
-
-            # Check for TMF_MPT_CLEAR_CAN_TRANSFER with non-zero transfer_fee
-            if (
-                self.transfer_fee is not None
-                and self.transfer_fee != 0
-                and (
-                    self.mutable_flags
-                    & MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_TRANSFER.value
-                )
-            ):
-                errors["transfer_fee"] = (
-                    "Cannot include non-zero transfer_fee when clearing "
-                    "CAN_TRANSFER flag"
-                )
 
         # Validate transfer_fee
         if self.transfer_fee is not None:

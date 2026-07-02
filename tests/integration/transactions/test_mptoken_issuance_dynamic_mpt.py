@@ -115,23 +115,6 @@ class TestDynamicMPT(IntegrationTestCase):
         self.assertEqual(mpt_issuance["TransferFee"], 100)
 
     @test_async_and_sync(globals())
-    async def test_create_with_mutable_flags(self, client):
-        """Test creating MPT with mutable flags for CAN_LOCK and CAN_ESCROW."""
-        tx = MPTokenIssuanceCreate(
-            account=WALLET.classic_address,
-            asset_scale=2,
-            mutable_flags=(
-                MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_CAN_LOCK
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_CAN_ESCROW
-            ),
-        )
-
-        response = await sign_and_reliable_submission_async(tx, WALLET, client)
-
-        self.assertTrue(response.is_successful())
-        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
-
-    @test_async_and_sync(globals())
     async def test_update_metadata(self, client):
         """Test updating metadata on an MPT with mutable metadata."""
         # Create MPT with mutable metadata
@@ -246,13 +229,13 @@ class TestDynamicMPT(IntegrationTestCase):
         self.assertEqual(mpt_issuance["TransferFee"], 200)
 
     @test_async_and_sync(globals())
-    async def test_set_and_clear_flags(self, client):
-        """Test setting and clearing mutable flags."""
+    async def test_enable_flag(self, client):
+        """Test enabling a mutable flag (one-way: cannot be disabled afterward)."""
         # Create MPT with mutable CAN_LOCK flag
         create_tx = MPTokenIssuanceCreate(
             account=WALLET.classic_address,
             asset_scale=2,
-            mutable_flags=MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_CAN_LOCK,
+            mutable_flags=MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_LOCK,
         )
 
         create_response = await sign_and_reliable_submission_async(
@@ -290,32 +273,104 @@ class TestDynamicMPT(IntegrationTestCase):
         # Verify lsfMPTCanLock flag is set
         self.assertTrue(mpt_issuance["Flags"] & LSF_MPT_CAN_LOCK)
 
-        # Clear CAN_LOCK flag
-        clear_tx = MPTokenIssuanceSet(
+    @test_async_and_sync(globals())
+    async def test_enable_flag_not_declared_mutable_fails(self, client):
+        """A flag not declared mutable at creation cannot be enabled later.
+
+        This enforces the one-way model: since clear flags no longer exist, the
+        only control over a flag is enabling one that was declared mutable. A
+        flag that was never declared mutable can never be turned on.
+        """
+        # Create MPT declaring only CAN_ESCROW mutable (CAN_LOCK is NOT mutable)
+        create_tx = MPTokenIssuanceCreate(
+            account=WALLET.classic_address,
+            asset_scale=2,
+            mutable_flags=(
+                MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_ESCROW
+            ),
+        )
+
+        create_response = await sign_and_reliable_submission_async(
+            create_tx, WALLET, client
+        )
+        self.assertTrue(create_response.is_successful())
+
+        # Get the MPTokenIssuanceID using Tx request
+        tx_hash = create_response.result["tx_json"]["hash"]
+        tx_response = await client.request(Tx(transaction=tx_hash))
+        mpt_id = tx_response.result["meta"]["mpt_issuance_id"]
+
+        # Attempt to enable CAN_LOCK, which was not declared mutable
+        set_tx = MPTokenIssuanceSet(
             account=WALLET.classic_address,
             mptoken_issuance_id=mpt_id,
-            mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_LOCK,
+            mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK,
         )
 
-        clear_response = await sign_and_reliable_submission_async(
-            clear_tx, WALLET, client
-        )
-        self.assertTrue(clear_response.is_successful())
-        self.assertEqual(clear_response.result["engine_result"], "tesSUCCESS")
+        set_response = await sign_and_reliable_submission_async(set_tx, WALLET, client)
+        self.assertEqual(set_response.result["engine_result"], "tecNO_PERMISSION")
 
-        # Verify CAN_LOCK flag was cleared on the ledger
+        # Verify lsfMPTCanLock flag was NOT set on the ledger
         account_objects_response = await client.request(
             AccountObjects(account=WALLET.address, type=AccountObjectType.MPT_ISSUANCE)
         )
-
         mpt_issuance = next(
             obj
             for obj in account_objects_response.result["account_objects"]
             if obj["mpt_issuance_id"] == mpt_id
         )
-
-        # Verify lsfMPTCanLock flag is cleared
         self.assertFalse(mpt_issuance["Flags"] & LSF_MPT_CAN_LOCK)
+
+    @test_async_and_sync(globals())
+    async def test_reenable_already_enabled_flag_is_noop(self, client):
+        """Re-enabling an already-enabled flag succeeds with no additional effect.
+
+        Per XLS-94, enabling a mutable flag is one-way and idempotent: once the
+        flag is on, re-issuing the same enable is valid (tesSUCCESS) and leaves
+        the flag set.
+        """
+        # Create MPT declaring CAN_LOCK mutable
+        create_tx = MPTokenIssuanceCreate(
+            account=WALLET.classic_address,
+            asset_scale=2,
+            mutable_flags=MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_LOCK,
+        )
+        create_response = await sign_and_reliable_submission_async(
+            create_tx, WALLET, client
+        )
+        self.assertTrue(create_response.is_successful())
+
+        tx_hash = create_response.result["tx_json"]["hash"]
+        tx_response = await client.request(Tx(transaction=tx_hash))
+        mpt_id = tx_response.result["meta"]["mpt_issuance_id"]
+
+        # Enable CAN_LOCK
+        set_tx = MPTokenIssuanceSet(
+            account=WALLET.classic_address,
+            mptoken_issuance_id=mpt_id,
+            mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK,
+        )
+        first_response = await sign_and_reliable_submission_async(
+            set_tx, WALLET, client
+        )
+        self.assertEqual(first_response.result["engine_result"], "tesSUCCESS")
+
+        # Enable CAN_LOCK again - idempotent, still succeeds
+        second_response = await sign_and_reliable_submission_async(
+            set_tx, WALLET, client
+        )
+        self.assertEqual(second_response.result["engine_result"], "tesSUCCESS")
+
+        # Verify lsfMPTCanLock flag is still set
+        account_objects_response = await client.request(
+            AccountObjects(account=WALLET.address, type=AccountObjectType.MPT_ISSUANCE)
+        )
+        mpt_issuance = next(
+            obj
+            for obj in account_objects_response.result["account_objects"]
+            if obj["mpt_issuance_id"] == mpt_id
+        )
+        self.assertTrue(mpt_issuance["Flags"] & LSF_MPT_CAN_LOCK)
 
     @test_async_and_sync(globals())
     async def test_multiple_mutable_flags(self, client):
@@ -326,8 +381,8 @@ class TestDynamicMPT(IntegrationTestCase):
             asset_scale=2,
             flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
             mutable_flags=(
-                MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_CAN_LOCK
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_CAN_ESCROW
+                MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_LOCK
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_ESCROW
                 | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_TRANSFER_FEE
             ),
         )
@@ -348,7 +403,7 @@ class TestDynamicMPT(IntegrationTestCase):
             mptoken_issuance_id=mpt_id,
             mutable_flags=(
                 MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_ESCROW
+                | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_ESCROW
             ),
             transfer_fee=150,
         )
@@ -373,8 +428,8 @@ class TestDynamicMPT(IntegrationTestCase):
         # Verify CAN_LOCK flag is set
         self.assertTrue(mpt_issuance["Flags"] & LSF_MPT_CAN_LOCK)
 
-        # Verify CAN_ESCROW flag is cleared
-        self.assertFalse(mpt_issuance["Flags"] & LSF_MPT_CAN_ESCROW)
+        # Verify CAN_ESCROW flag is set
+        self.assertTrue(mpt_issuance["Flags"] & LSF_MPT_CAN_ESCROW)
 
         # Verify TransferFee was set to 150
         self.assertEqual(mpt_issuance["TransferFee"], 150)
