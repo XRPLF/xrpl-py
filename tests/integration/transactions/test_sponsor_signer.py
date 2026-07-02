@@ -22,6 +22,7 @@ transactions will return ``"temDISABLED"`` instead of ``"tesSUCCESS"``.
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
+    LEDGER_ACCEPT_REQUEST,
     fund_wallet_async,
     sign_and_reliable_submission_async,
     test_async_and_sync,
@@ -29,6 +30,7 @@ from tests.integration.it_utils import (
 from xrpl.asyncio.transaction import autofill, submit
 from xrpl.asyncio.transaction.main import sign
 from xrpl.models import AccountObjects, AccountObjectType, CheckCreate, Payment
+from xrpl.models.requests import AccountInfo
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import SignerEntry, SignerListSet
 from xrpl.transaction import combine_sponsor_signers, sign_as_sponsor
@@ -210,6 +212,7 @@ class TestSponsorSigner(IntegrationTestCase):
         response = await submit(sponsor_result.tx, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+        await client.request(LEDGER_ACCEPT_REQUEST)
 
         # The created Check records the sponsor that covers its reserve.
         objects_response = await client.request(
@@ -221,3 +224,16 @@ class TestSponsorSigner(IntegrationTestCase):
         checks = objects_response.result["account_objects"]
         self.assertEqual(len(checks), 1)
         self.assertEqual(checks[0].get("Sponsor"), sponsor_wallet.address)
+
+        # sfSponsoredOwnerCount (on the sponsee) and sfSponsoringOwnerCount (on
+        # the sponsor) track the object reserve the sponsor covers (XLS-68). The
+        # sponsee holds one sponsored owner object (the Check), so its own
+        # OwnerCount stays 0 while SponsoredOwnerCount is 1.
+        sponsee_info = await client.request(AccountInfo(account=sponsee_wallet.address))
+        self.assertEqual(
+            sponsee_info.result["account_data"].get("SponsoredOwnerCount"), 1
+        )
+        sponsor_info = await client.request(AccountInfo(account=sponsor_wallet.address))
+        self.assertEqual(
+            sponsor_info.result["account_data"].get("SponsoringOwnerCount"), 1
+        )

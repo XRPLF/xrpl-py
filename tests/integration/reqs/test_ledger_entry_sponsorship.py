@@ -47,3 +47,6 @@ class TestLedgerEntrySponsorship(IntegrationTestCase):
         self.assertEqual(node["LedgerEntryType"], "Sponsorship")
         self.assertEqual(node["Owner"], sponsor_wallet.address)
         self.assertEqual(node["Sponsee"], sponsee_wallet.address)
+        # sfSponseeNode (XLS-68) is a required field on the Sponsorship object
+        # (the directory node pointer on the sponsee's owner directory).
+        self.assertIn("SponseeNode", node)
