@@ -100,35 +100,23 @@ class TestMPTokenIssuanceSet(TestCase):
             )
         self.assertIn("mutable_flags cannot be 0", error.exception.args[0])
 
-    def test_mutable_flags_invalid_bits(self):
-        """Test that invalid/reserved bits are rejected."""
-        invalid_flag = 0x00001000  # Bit 12 is not defined
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                mutable_flags=invalid_flag,
-            )
-        self.assertIn(
-            "mutable_flags contains invalid bits",
-            error.exception.args[0],
-        )
-
-    def test_mutable_flags_mixed_valid_and_invalid_bits(self):
-        """Test that mixing valid and invalid bits is rejected."""
-        mixed_flags = (
-            MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK.value | 0x00010000
-        )
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                mutable_flags=mixed_flags,
-            )
-        self.assertIn(
-            "mutable_flags contains invalid bits",
-            error.exception.args[0],
-        )
+    def test_mutable_flags_invalid_bits_fail(self):
+        """Unknown or reserved bits in mutable_flags are rejected."""
+        cases = [
+            0x00001000,  # undefined bit
+            MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK.value | 0x00010000,
+        ]
+        for value in cases:
+            with self.subTest(mutable_flags=value):
+                with self.assertRaises(XRPLModelException) as error:
+                    MPTokenIssuanceSet(
+                        account=_ACCOUNT,
+                        mptoken_issuance_id=_TOKEN_ID,
+                        mutable_flags=value,
+                    )
+                self.assertIn(
+                    "mutable_flags contains invalid bits", error.exception.args[0]
+                )
 
     def test_multiple_set_flags_valid(self):
         """Test that multiple distinct SET flags can be combined."""
@@ -141,109 +129,63 @@ class TestMPTokenIssuanceSet(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-    def test_valid_with_transfer_fee(self):
-        """Test valid transaction with transfer fee."""
-        tx = MPTokenIssuanceSet(
-            account=_ACCOUNT,
-            mptoken_issuance_id=_TOKEN_ID,
-            transfer_fee=200,
-        )
-        self.assertTrue(tx.is_valid())
+    def test_valid_transfer_fee_values(self):
+        """Valid transfer_fee values: mid-range, zero (removal), and the max."""
+        for fee in (200, 0, 50000):
+            with self.subTest(transfer_fee=fee):
+                tx = MPTokenIssuanceSet(
+                    account=_ACCOUNT,
+                    mptoken_issuance_id=_TOKEN_ID,
+                    transfer_fee=fee,
+                )
+                self.assertTrue(tx.is_valid())
 
-    def test_valid_with_zero_transfer_fee(self):
-        """Test valid transaction with zero transfer fee (removes field)."""
-        tx = MPTokenIssuanceSet(
-            account=_ACCOUNT,
-            mptoken_issuance_id=_TOKEN_ID,
-            transfer_fee=0,
-        )
-        self.assertTrue(tx.is_valid())
+    def test_transfer_fee_out_of_range_fails(self):
+        """transfer_fee outside the 0..50000 range is rejected."""
+        for fee in (-1, 50001):
+            with self.subTest(transfer_fee=fee):
+                with self.assertRaises(XRPLModelException) as error:
+                    MPTokenIssuanceSet(
+                        account=_ACCOUNT,
+                        mptoken_issuance_id=_TOKEN_ID,
+                        transfer_fee=fee,
+                    )
+                self.assertIn(
+                    "transfer_fee must be between 0 and 50000",
+                    error.exception.args[0],
+                )
 
-    def test_transfer_fee_negative_fails(self):
-        """Test that negative transfer_fee is rejected."""
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                transfer_fee=-1,
+    def test_valid_metadata_values(self):
+        """Valid metadata: proper hex, empty (removal), and the max length."""
+        valid = str_to_hex(
+            json.dumps(
+                {"ticker": "TBILL", "name": "T-Bill", "icon": "https://ex.org/i.png"}
             )
-        self.assertIn(
-            "transfer_fee must be between 0 and 50000", error.exception.args[0]
         )
+        for metadata in (valid, "", "FF" * 1024):
+            with self.subTest(length=len(metadata)):
+                tx = MPTokenIssuanceSet(
+                    account=_ACCOUNT,
+                    mptoken_issuance_id=_TOKEN_ID,
+                    mptoken_metadata=metadata,
+                )
+                self.assertTrue(tx.is_valid())
 
-    def test_transfer_fee_exceeds_max_fails(self):
-        """Test that transfer_fee > 50000 is rejected."""
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                transfer_fee=50001,
-            )
-        self.assertIn(
-            "transfer_fee must be between 0 and 50000", error.exception.args[0]
-        )
-
-    def test_transfer_fee_at_max_valid(self):
-        """Test that transfer_fee = 50000 is valid."""
-        tx = MPTokenIssuanceSet(
-            account=_ACCOUNT,
-            mptoken_issuance_id=_TOKEN_ID,
-            transfer_fee=50000,
-        )
-        self.assertTrue(tx.is_valid())
-
-    def test_valid_with_metadata(self):
-        """Test valid transaction with metadata."""
-        metadata = {"ticker": "TBILL", "name": "T-Bill", "icon": "https://ex.org/i.png"}
-        tx = MPTokenIssuanceSet(
-            account=_ACCOUNT,
-            mptoken_issuance_id=_TOKEN_ID,
-            mptoken_metadata=str_to_hex(json.dumps(metadata)),
-        )
-        self.assertTrue(tx.is_valid())
-
-    def test_valid_with_empty_metadata(self):
-        """Test valid transaction with empty metadata (removes field)."""
-        tx = MPTokenIssuanceSet(
-            account=_ACCOUNT,
-            mptoken_issuance_id=_TOKEN_ID,
-            mptoken_metadata="",
-        )
-        self.assertTrue(tx.is_valid())
-
-    def test_metadata_too_long_fails(self):
-        """Test that metadata > 1024 bytes is rejected."""
-        long_metadata = "FF" * 1025
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                mptoken_metadata=long_metadata,
-            )
-        self.assertIn(
-            "Metadata must be a hex string less than 1024 bytes",
-            error.exception.args[0],
-        )
-
-    def test_metadata_at_max_length_valid(self):
-        """Test that metadata = 1024 bytes (2048 hex chars) is valid."""
-        max_metadata = "FF" * 1024
-        tx = MPTokenIssuanceSet(
-            account=_ACCOUNT,
-            mptoken_issuance_id=_TOKEN_ID,
-            mptoken_metadata=max_metadata,
-        )
-        self.assertTrue(tx.is_valid())
-
-    def test_metadata_not_hex_fails(self):
-        """Test that non-hex metadata is rejected."""
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceSet(
-                account=_ACCOUNT,
-                mptoken_issuance_id=_TOKEN_ID,
-                mptoken_metadata="not_hex_string",
-            )
-        self.assertIn("Metadata must be a valid hex string", error.exception.args[0])
+    def test_metadata_invalid_fails(self):
+        """Metadata that is too long or not valid hex is rejected."""
+        cases = [
+            ("FF" * 1025, "Metadata must be a hex string less than 1024 bytes"),
+            ("not_hex_string", "Metadata must be a valid hex string"),
+        ]
+        for metadata, message in cases:
+            with self.subTest(message=message):
+                with self.assertRaises(XRPLModelException) as error:
+                    MPTokenIssuanceSet(
+                        account=_ACCOUNT,
+                        mptoken_issuance_id=_TOKEN_ID,
+                        mptoken_metadata=metadata,
+                    )
+                self.assertIn(message, error.exception.args[0])
 
     def test_metadata_emits_warning_for_missing_fields(self):
         """Test that warnings are emitted for metadata missing required fields."""
