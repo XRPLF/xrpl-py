@@ -132,25 +132,9 @@ jobs:
       git_ref: ${{ github.event.inputs.release_branch }}
     secrets: inherit
 
-  build-mpt-crypto-libs:
-    name: Build MPT crypto libraries
-    needs:
-      - input-validate
-    uses: ./.github/workflows/build_mpt_crypto_libs.yml
-    with:
-      git_ref: ${{ github.event.inputs.release_branch }}
-    secrets: inherit
-
-  build-wheels:
-    name: Build confidential MPT wheels
-    needs:
-      - input-validate
-      - unit-tests
-      - build-mpt-crypto-libs
-    uses: ./.github/workflows/build_wheels_confidential.yml
-    with:
-      git_ref: ${{ github.event.inputs.release_branch }}
-    secrets: inherit
+  # The native Confidential MPT add-on ships as the separate xrpl-py-confidential
+  # distribution and is built/published by build_wheels_confidential.yml on its
+  # own tags — it is intentionally NOT part of the pure xrpl-py release below.
 
   pre-release:
     name: Pre-release distribution 📦 (${{ needs.input-validate.outputs.package_version }})
@@ -159,13 +143,11 @@ jobs:
       - faucet-tests
       - integration-tests
       - unit-tests
-      - build-wheels
     if: ${{ always()
       && needs.input-validate.result == 'success'
       && (needs['faucet-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
       && (needs['integration-tests'].result == 'success' || needs.input-validate.outputs.is_beta_release == 'true')
-      && needs['unit-tests'].result == 'success'
-      && needs['build-wheels'].result == 'success' }}
+      && needs['unit-tests'].result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -248,15 +230,8 @@ jobs:
           python-version: "3.10"
           cache: "poetry"
 
-      - name: Build source tarball
-        run: poetry build -f sdist
-
-      - name: Download all wheel artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: wheel-*
-          path: dist/
-          merge-multiple: true
+      - name: Build distribution (sdist + pure py3-none-any wheel)
+        run: poetry build
 
       - name: List distribution packages
         run: |
