@@ -390,6 +390,51 @@ class TestAmount(TestSerializedType):
                 amount_object = amount.Amount.from_parser(parser)
                 self.assertEqual(amount_object.to_json(), json)
 
+    def test_to_json_rejects_malformed_iou_mantissa_and_exponent(self):
+        """Malformed IOU bytes must raise ``XRPLBinaryCodecException``, never
+        decode to a silently altered value or leak a raw ``decimal``
+        exception. The 54-bit mantissa field can physically hold 17-digit
+        values (up to 2**54 - 1) and the 8-bit biased exponent field values
+        up to 158, both outside the canonical IOU range; under the fixed
+        16-digit decode context (#1009) an unchecked 17-digit mantissa would
+        be silently rounded and an out-of-range exponent would raise
+        ``decimal.Overflow``."""
+        currency_and_issuer = (
+            "0000000000000000000000005553440000000000"  # USD
+            "0000000000000000000000000000000000000001"
+        )
+
+        def malformed_iou_hex(mantissa, exponent):
+            field = exponent + 97
+            b1 = 0x80 | 0x40 | (field >> 2)
+            b2 = ((field & 0x3) << 6) | ((mantissa >> 48) & 0x3F)
+            rest = mantissa & 0xFFFFFFFFFFFF
+            return f"{b1:02X}{b2:02X}{rest:012X}" + currency_and_issuer
+
+        # 17-digit mantissa (2**54 - 1) with a legal exponent: must raise,
+        # not round to a 16-digit value.
+        with self.assertRaises(XRPLBinaryCodecException) as raised:
+            amount.Amount.from_parser(
+                BinaryParser(malformed_iou_hex(2**54 - 1, -20))
+            ).to_json()
+        self.assertIn("mantissa", str(raised.exception))
+
+        # Out-of-range exponents (the biased field encodes -97..158, legal
+        # range is -96..80) with a canonical mantissa: must raise the codec
+        # exception, not decimal.Overflow.
+        for exponent in (158, 81, -97):
+            with self.assertRaises(XRPLBinaryCodecException) as raised:
+                amount.Amount.from_parser(
+                    BinaryParser(malformed_iou_hex(10**15, exponent))
+                ).to_json()
+            self.assertIn("exponent", str(raised.exception))
+
+        # The canonical zero encoding is exempt from the exponent bound
+        # (its biased exponent field decodes to -97) and must still decode.
+        zero_blob = "80" + "0" * 14 + currency_and_issuer
+        zero_value = amount.Amount.from_parser(BinaryParser(zero_blob)).to_json()
+        self.assertEqual(zero_value["value"], "0")
+
     def test_from_value_xrp(self):
         for json, serialized in XRP_CASES:
             amount_object = amount.Amount.from_value(json)
