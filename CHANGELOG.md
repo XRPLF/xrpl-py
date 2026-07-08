@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Security
+
+- Added regression test coverage confirming that `repr()`/`str()` of the `SignAndSubmit`, `SignFor`, and `ChannelAuthorize` signing requests redacts their raw `secret`, `seed`, `seed_hex`, and `passphrase` values via the `BaseModel._SENSITIVE_FIELDS` mechanism (rendered as `-HIDDEN-`), while `to_dict()`/`to_xrpl()` and JSON serialization still round-trip the real values to the RPC payload. The redaction itself shipped in 5.0.0; these tests lock in the behavior so it cannot silently regress (issue #992).
+
 ## [[5.0.0]]
 
 ### BREAKING CHANGE
