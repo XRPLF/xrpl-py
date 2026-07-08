@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Fixed
+
+- Fixed `Currency` decoder to classify a 160-bit currency code as a standard ISO code only when it has the exact standard layout (12 leading zero bytes, 3 ASCII code bytes, 5 trailing zero bytes); malformed codes such as `0000000000000000000000005553440000000001` now render as their raw 40-char hex instead of being misclassified as `USD`, matching rippled and xrpl.js (issue #1006).
+- Fixed `Currency` decoder so decoding a 160-bit code never raises: non-ASCII code bytes no longer raise `UnicodeDecodeError`, and bytes spelling `XRP` in the code position render as raw hex instead of raising `XRPLBinaryCodecException`. Every 20-byte buffer now decodes to `XRP`, a 3-char ISO code, or the raw 40-char hex, matching rippled and xrpl.js (issue #1007).
+
 ## [[5.0.0]]
 
 ### BREAKING CHANGE

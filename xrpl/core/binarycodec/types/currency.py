@@ -19,12 +19,23 @@ def _is_iso_code(value: str) -> bool:
 
 
 def _iso_code_from_hex(value: bytes) -> Optional[str]:
-    candidate_iso = value.decode("ascii")
+    """
+    Decode the 3 ASCII bytes of a standard-format currency code to an ISO code.
+
+    Returns ``None`` (so the caller renders the raw hex) rather than raising
+    when the bytes are not ASCII, spell the reserved code ``XRP``, or are not a
+    valid ISO code. This mirrors rippled and xrpl.js, which never raise while
+    decoding a 160-bit currency and fall back to the raw hex representation.
+    """
+    try:
+        candidate_iso = value.decode("ascii")
+    except UnicodeDecodeError:
+        # Non-ASCII bytes in the code position are not a standard ISO code.
+        return None
     if candidate_iso == "XRP":
-        raise XRPLBinaryCodecException(
-            "Disallowed currency code: to indicate the currency "
-            "XRP you must use 20 bytes of 0s"
-        )
+        # 'XRP' in the standard code position is not a valid ISO code; on
+        # decode it is rendered as raw hex (only 20 zero bytes mean XRP).
+        return None
     if _is_iso_code(candidate_iso):
         return candidate_iso
     return None
@@ -33,6 +44,23 @@ def _iso_code_from_hex(value: bytes) -> Optional[str]:
 def _is_hex(value: str) -> bool:
     """Tests if value is a valid 40-char hex string."""
     return bool(HEX_CURRENCY_REGEX.fullmatch(value))
+
+
+def _is_standard_code(buffer: bytes) -> bool:
+    """
+    Tests if a 20-byte buffer is in the standard currency-code format.
+
+    A standard code is 12 leading zero bytes, 3 ASCII bytes holding the code,
+    then 5 trailing zero bytes. Any other layout (a non-zero type/reserved
+    byte, non-ASCII code bytes, or non-zero trailing bytes) is a non-standard
+    code and is rendered as raw hex. This matches the ``STANDARD_FORMAT`` check
+    in rippled and xrpl.js.
+    """
+    return (
+        buffer[0:12] == bytes(12)
+        and buffer[15:20] == bytes(5)
+        and all(byte <= 0x7F for byte in buffer[12:15])
+    )
 
 
 def _iso_to_bytes(iso: str) -> bytes:
@@ -81,17 +109,18 @@ class Currency(Hash160):
         else:
             super().__init__(bytes(self.LENGTH))
 
-        code_bytes = self.buffer[12:15]
         # Determine whether this currency code is in standard or nonstandard format:
         # https://xrpl.org/currency-formats.html#nonstandard-currency-codes
-        if self.buffer[0] != 0:
-            # non-standard currency
-            self._iso = None
-        elif self.buffer.hex() == "0" * 40:  # all 0s
+        # Decoding never raises: any 20-byte buffer resolves to "XRP", a 3-char
+        # ISO code, or (via to_json) the raw 40-char hex string.
+        if self.buffer == bytes(self.LENGTH):  # all 0s
             # the special case for literal XRP
             self._iso = "XRP"
+        elif _is_standard_code(self.buffer):
+            self._iso = _iso_code_from_hex(self.buffer[12:15])
         else:
-            self._iso = _iso_code_from_hex(code_bytes)
+            # non-standard currency, rendered as raw hex by to_json
+            self._iso = None
 
     @classmethod
     def from_value(cls: Type[Self], value: str) -> Self:
