@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, getcontext, localcontext
 
 import xrpl.core.binarycodec.types.amount as amount
 from tests.unit.core.binarycodec.types.test_serialized_type import (
@@ -308,6 +308,87 @@ class TestAmount(TestSerializedType):
                 f"Decoded value {round_tripped_iou['value']!r} is "
                 f"numerically unequal to input {original_value!r}",
             )
+
+    def test_to_json_iou_independent_of_ambient_decimal_context(self):
+        """Regression test for issue #1009.
+
+        ``Amount.to_json()`` reconstructs an IOU's decimal value with
+        ``Decimal`` arithmetic. That arithmetic must always use a fixed,
+        internal Decimal context (``IOU_DECIMAL_CONTEXT``) and must never
+        be affected by -- or leak changes into -- whatever ``Decimal``
+        context the calling application happens to have configured via
+        ``decimal.getcontext()``."""
+        issuer = "rrrrrrrrrrrrrrrrrrrrBZbvji"
+
+        def encode_then_decode(value):
+            iou = {"value": value, "currency": "USD", "issuer": issuer}
+            return amount.Amount.from_value(iou).to_json()["value"]
+
+        cases = [
+            # Exact reproduction from the issue: 16 significant digits that
+            # a prec=6 ambient context would silently round to
+            # "1234570000000000".
+            "1234567890123456",
+            # Negative IOU value.
+            "-1234567890123456",
+            # Large positive exponent (near MAX_IOU_EXPONENT).
+            "9999999999999999e80",
+            "-9999999999999999e80",
+            # Large negative exponent (near MIN_IOU_EXPONENT).
+            "9999999999999999e-96",
+            "-9999999999999999e-96",
+        ]
+
+        for value in cases:
+            for prec in (6, 28):
+                with localcontext() as ctx:
+                    ctx.prec = prec
+                    decoded_value = encode_then_decode(value)
+                self.assertEqual(
+                    Decimal(decoded_value),
+                    Decimal(value),
+                    f"Ambient Decimal context prec={prec} corrupted "
+                    f"round-trip of {value!r}: got {decoded_value!r}",
+                )
+
+    def test_to_json_does_not_mutate_ambient_decimal_context(self):
+        """``to_json()`` must not leave any lasting change in the caller's
+        ambient Decimal context (regression test for issue #1009)."""
+        issuer = "rrrrrrrrrrrrrrrrrrrrBZbvji"
+        iou = {
+            "value": "1234567890123456",
+            "currency": "USD",
+            "issuer": issuer,
+        }
+        amount_object = amount.Amount.from_value(iou)
+
+        with localcontext() as ctx:
+            ctx.prec = 6
+            prec_before = getcontext().prec
+            amount_object.to_json()
+            prec_after = getcontext().prec
+            self.assertEqual(
+                prec_before,
+                prec_after,
+                "to_json() mutated the caller's ambient Decimal context",
+            )
+
+    def test_to_json_xrp_and_mpt_unaffected_by_narrowed_ambient_precision(self):
+        """XRP-drops and MPT amounts don't go through Decimal
+        reconstruction in ``to_json()``, so they must be unaffected by a
+        narrowed ambient Decimal context (regression test for #1009)."""
+        with localcontext() as ctx:
+            ctx.prec = 6
+
+            for json, serialized in XRP_CASES:
+                parser = BinaryParser(serialized)
+                amount_object = amount.Amount.from_parser(parser)
+                self.assertEqual(amount_object.to_json(), json)
+
+            for json, serialized in MPT_CASES:
+                parser = BinaryParser(serialized)
+                amount_object = amount.Amount.from_parser(parser)
+                self.assertEqual(amount_object.to_json(), json)
 
     def test_from_value_xrp(self):
         for json, serialized in XRP_CASES:

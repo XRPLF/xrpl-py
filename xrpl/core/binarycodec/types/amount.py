@@ -381,7 +381,22 @@ class Amount(SerializedType):
             exponent = ((b1 & 0x3F) << 2) + ((b2 & 0xFF) >> 6) - 97
             hex_mantissa = hex(b2 & 0x3F) + value_bytes[2:].hex()
             int_mantissa = int(hex_mantissa[2:], 16)
-            value = Decimal(f"{sign}{int_mantissa}") * Decimal(f"1e{exponent}")
+            # Reconstructing the value from mantissa/exponent must be
+            # deterministic regardless of the caller's ambient Decimal
+            # context (see xrpl-py#1009). ``IOU_DECIMAL_CONTEXT`` fixes
+            # prec=MAX_IOU_PRECISION (16), which exactly matches the
+            # maximum number of digits a canonical (non-zero) IOU mantissa
+            # can have (MAX_IOU_MANTISSA == 10**16 - 1), so multiplying the
+            # mantissa by a power of ten never needs to round -- it only
+            # shifts the decimal point and never introduces additional
+            # significant digits. Its Emax is widened beyond
+            # MAX_IOU_EXPONENT to accommodate the Decimal *adjusted*
+            # exponent of that multiplication (see the comment on
+            # ``IOU_DECIMAL_CONTEXT`` in xrpl/constants.py), so this
+            # context can represent any legal decoded value exactly,
+            # without rounding or overflow.
+            with localcontext(IOU_DECIMAL_CONTEXT):
+                value = Decimal(f"{sign}{int_mantissa}") * Decimal(f"1e{exponent}")
 
             if value.is_zero():
                 value_str = "0"

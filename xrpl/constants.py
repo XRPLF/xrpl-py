@@ -68,7 +68,20 @@ MAX_IOU_MANTISSA: Final[int] = 10**16 - 1
 
 # Configure Decimal
 IOU_DECIMAL_CONTEXT: Final[Context] = Context(
-    prec=MAX_IOU_PRECISION, Emax=MAX_IOU_EXPONENT, Emin=MIN_IOU_EXPONENT
+    prec=MAX_IOU_PRECISION,
+    # `Context.Emax`/`Emin` bound the Decimal *adjusted* exponent (the
+    # value's exponent plus its digit count minus one), not the raw IOU
+    # exponent field. A canonical (non-zero) IOU mantissa always has
+    # exactly MAX_IOU_PRECISION (16) digits, so reconstructing a value at
+    # the maximum legal IOU exponent (MAX_IOU_EXPONENT == 80) produces an
+    # adjusted exponent of 80 + 16 - 1 == 95. Emax must be at least that
+    # large or the multiplication used to decode canonical bytes back into
+    # a value (see Amount.to_json()) raises decimal.Overflow for otherwise
+    # perfectly legal amounts. The minimum legal IOU exponent (-96)
+    # produces an adjusted exponent of -96 + 16 - 1 == -81, which is
+    # already comfortably within Emin, so Emin needs no adjustment.
+    Emax=MAX_IOU_EXPONENT + MAX_IOU_PRECISION - 1,
+    Emin=MIN_IOU_EXPONENT,
 )
 """
 Decimal context for working with IOUs.
