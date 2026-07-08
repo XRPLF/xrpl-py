@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, getcontext, localcontext
 
 import xrpl.core.binarycodec.types.amount as amount
 from tests.unit.core.binarycodec.types.test_serialized_type import (
@@ -308,6 +308,132 @@ class TestAmount(TestSerializedType):
                 f"Decoded value {round_tripped_iou['value']!r} is "
                 f"numerically unequal to input {original_value!r}",
             )
+
+    def test_to_json_iou_independent_of_ambient_decimal_context(self):
+        """Regression test for issue #1009.
+
+        ``Amount.to_json()`` reconstructs an IOU's decimal value with
+        ``Decimal`` arithmetic. That arithmetic must always use a fixed,
+        internal Decimal context (``IOU_DECIMAL_CONTEXT``) and must never
+        be affected by -- or leak changes into -- whatever ``Decimal``
+        context the calling application happens to have configured via
+        ``decimal.getcontext()``."""
+        issuer = "rrrrrrrrrrrrrrrrrrrrBZbvji"
+
+        def encode_then_decode(value):
+            iou = {"value": value, "currency": "USD", "issuer": issuer}
+            return amount.Amount.from_value(iou).to_json()["value"]
+
+        cases = [
+            # Exact reproduction from the issue: 16 significant digits that
+            # a prec=6 ambient context would silently round to
+            # "1234570000000000".
+            "1234567890123456",
+            # Negative IOU value.
+            "-1234567890123456",
+            # Large positive exponent (near MAX_IOU_EXPONENT).
+            "9999999999999999e80",
+            "-9999999999999999e80",
+            # Large negative exponent (near MIN_IOU_EXPONENT).
+            "9999999999999999e-96",
+            "-9999999999999999e-96",
+        ]
+
+        for value in cases:
+            for prec in (6, 28):
+                with localcontext() as ctx:
+                    ctx.prec = prec
+                    decoded_value = encode_then_decode(value)
+                self.assertEqual(
+                    Decimal(decoded_value),
+                    Decimal(value),
+                    f"Ambient Decimal context prec={prec} corrupted "
+                    f"round-trip of {value!r}: got {decoded_value!r}",
+                )
+
+    def test_to_json_does_not_mutate_ambient_decimal_context(self):
+        """``to_json()`` must not leave any lasting change in the caller's
+        ambient Decimal context (regression test for issue #1009)."""
+        issuer = "rrrrrrrrrrrrrrrrrrrrBZbvji"
+        iou = {
+            "value": "1234567890123456",
+            "currency": "USD",
+            "issuer": issuer,
+        }
+        amount_object = amount.Amount.from_value(iou)
+
+        with localcontext() as ctx:
+            ctx.prec = 6
+            prec_before = getcontext().prec
+            amount_object.to_json()
+            prec_after = getcontext().prec
+            self.assertEqual(
+                prec_before,
+                prec_after,
+                "to_json() mutated the caller's ambient Decimal context",
+            )
+
+    def test_to_json_xrp_and_mpt_unaffected_by_narrowed_ambient_precision(self):
+        """XRP-drops and MPT amounts don't go through Decimal
+        reconstruction in ``to_json()``, so they must be unaffected by a
+        narrowed ambient Decimal context (regression test for #1009)."""
+        with localcontext() as ctx:
+            ctx.prec = 6
+
+            for json, serialized in XRP_CASES:
+                parser = BinaryParser(serialized)
+                amount_object = amount.Amount.from_parser(parser)
+                self.assertEqual(amount_object.to_json(), json)
+
+            for json, serialized in MPT_CASES:
+                parser = BinaryParser(serialized)
+                amount_object = amount.Amount.from_parser(parser)
+                self.assertEqual(amount_object.to_json(), json)
+
+    def test_to_json_rejects_malformed_iou_mantissa_and_exponent(self):
+        """Malformed IOU bytes must raise ``XRPLBinaryCodecException``, never
+        decode to a silently altered value or leak a raw ``decimal``
+        exception. The 54-bit mantissa field can physically hold 17-digit
+        values (up to 2**54 - 1) and the 8-bit biased exponent field values
+        up to 158, both outside the canonical IOU range; under the fixed
+        16-digit decode context (#1009) an unchecked 17-digit mantissa would
+        be silently rounded and an out-of-range exponent would raise
+        ``decimal.Overflow``."""
+        currency_and_issuer = (
+            "0000000000000000000000005553440000000000"  # USD
+            "0000000000000000000000000000000000000001"
+        )
+
+        def malformed_iou_hex(mantissa, exponent):
+            field = exponent + 97
+            b1 = 0x80 | 0x40 | (field >> 2)
+            b2 = ((field & 0x3) << 6) | ((mantissa >> 48) & 0x3F)
+            rest = mantissa & 0xFFFFFFFFFFFF
+            return f"{b1:02X}{b2:02X}{rest:012X}" + currency_and_issuer
+
+        # 17-digit mantissa (2**54 - 1) with a legal exponent: must raise,
+        # not round to a 16-digit value.
+        with self.assertRaises(XRPLBinaryCodecException) as raised:
+            amount.Amount.from_parser(
+                BinaryParser(malformed_iou_hex(2**54 - 1, -20))
+            ).to_json()
+        self.assertIn("mantissa", str(raised.exception))
+
+        # Out-of-range exponents (the biased field encodes -97..158, legal
+        # range is -96..80) with a canonical mantissa: must raise the codec
+        # exception, not decimal.Overflow.
+        for exponent in (158, 81, -97):
+            with self.assertRaises(XRPLBinaryCodecException) as raised:
+                amount.Amount.from_parser(
+                    BinaryParser(malformed_iou_hex(10**15, exponent))
+                ).to_json()
+            self.assertIn("exponent", str(raised.exception))
+
+        # The canonical zero encoding is exempt from the exponent bound
+        # (its biased exponent field decodes to -97) and must still decode.
+        zero_blob = "80" + "0" * 14 + currency_and_issuer
+        zero_value = amount.Amount.from_parser(BinaryParser(zero_blob)).to_json()
+        self.assertEqual(zero_value["value"], "0")
 
     def test_from_value_xrp(self):
         for json, serialized in XRP_CASES:

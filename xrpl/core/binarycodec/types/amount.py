@@ -381,7 +381,43 @@ class Amount(SerializedType):
             exponent = ((b1 & 0x3F) << 2) + ((b2 & 0xFF) >> 6) - 97
             hex_mantissa = hex(b2 & 0x3F) + value_bytes[2:].hex()
             int_mantissa = int(hex_mantissa[2:], 16)
-            value = Decimal(f"{sign}{int_mantissa}") * Decimal(f"1e{exponent}")
+            # Reject malformed (non-canonical) bytes before reconstructing
+            # the value: the 54-bit mantissa field and 8-bit biased exponent
+            # field can physically encode values outside the legal IOU range,
+            # but such bytes can never come from a canonically serialized
+            # amount. Checking here keeps the arithmetic below exact (a
+            # 17-digit mantissa would otherwise be silently rounded by the
+            # fixed-precision context) and surfaces a codec error instead of
+            # a raw decimal.Overflow for out-of-range exponents. The zero
+            # encoding is exempt: its biased exponent field decodes to -97.
+            if int_mantissa != 0:
+                if int_mantissa > MAX_IOU_MANTISSA:
+                    raise XRPLBinaryCodecException(
+                        f"Invalid amount bytes: mantissa {int_mantissa} is "
+                        f"above the maximum IOU mantissa ({MAX_IOU_MANTISSA})."
+                    )
+                if not MIN_IOU_EXPONENT <= exponent <= MAX_IOU_EXPONENT:
+                    raise XRPLBinaryCodecException(
+                        f"Invalid amount bytes: exponent {exponent} is "
+                        f"outside the legal IOU exponent range "
+                        f"[{MIN_IOU_EXPONENT}, {MAX_IOU_EXPONENT}]."
+                    )
+            # Reconstructing the value from mantissa/exponent must be
+            # deterministic regardless of the caller's ambient Decimal
+            # context (see xrpl-py#1009). ``IOU_DECIMAL_CONTEXT`` fixes
+            # prec=MAX_IOU_PRECISION (16), which exactly matches the
+            # maximum number of digits a canonical (non-zero) IOU mantissa
+            # can have (MAX_IOU_MANTISSA == 10**16 - 1), so multiplying the
+            # mantissa by a power of ten never needs to round -- it only
+            # shifts the decimal point and never introduces additional
+            # significant digits. Its Emax is widened beyond
+            # MAX_IOU_EXPONENT to accommodate the Decimal *adjusted*
+            # exponent of that multiplication (see the comment on
+            # ``IOU_DECIMAL_CONTEXT`` in xrpl/constants.py), so this
+            # context can represent any legal decoded value exactly,
+            # without rounding or overflow.
+            with localcontext(IOU_DECIMAL_CONTEXT):
+                value = Decimal(f"{sign}{int_mantissa}") * Decimal(f"1e{exponent}")
 
             if value.is_zero():
                 value_str = "0"

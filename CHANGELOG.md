@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Fixed
+
+- Fixed `Amount.to_json` so decoding an IOU value's canonical bytes no longer depends on the caller's ambient `decimal` context precision; the reconstruction now runs under a fixed, internal Decimal context (widened to avoid overflow at the maximum legal IOU exponent), so it always produces the exact canonical value regardless of what the application has set via `decimal.getcontext()` (issue #1009). Malformed IOU bytes whose mantissa or exponent fields fall outside the canonical range (physically encodable but never produced by canonical serialization) are now rejected with an `XRPLBinaryCodecException` before reconstruction instead of being silently rounded or, for out-of-range exponents, surfacing a raw `decimal` error.
+
 ## [[5.0.0]]
 
 ### BREAKING CHANGE
