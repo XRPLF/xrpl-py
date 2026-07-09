@@ -23,7 +23,7 @@ def ripple_time_to_datetime(ripple_time: int) -> datetime:
     <https://docs.python.org/3/library/datetime.html#datetime-objects>`_ object.
 
     Args:
-        ripple_time: Whole seconds since the Ripple Epoch of 2001-01-01T00:00Z
+        ripple_time: Whole seconds since the Ripple Epoch of 2000-01-01T00:00Z
 
     Returns:
         The equivalent time as a ``datetime`` instance.
@@ -53,7 +53,7 @@ def datetime_to_ripple_time(dt: datetime) -> int:
 
     Returns:
         The equivalent time in whole seconds since the Ripple Epoch of
-        2001-01-01T00:00Z
+        2000-01-01T00:00Z
 
     Raises:
         XRPLTimeRangeException: if the time is outside the range that can be
@@ -76,7 +76,7 @@ def ripple_time_to_posix(ripple_time: int) -> int:
 
     Args:
         ripple_time: A timestamp as the number of whole seconds since the
-                     Ripple Epoch of 2001-01-01T00:00Z
+                     Ripple Epoch of 2000-01-01T00:00Z
 
     Returns:
         The equivalent time in whole seconds since the UNIX epoch of
@@ -108,7 +108,7 @@ def posix_to_ripple_time(timestamp: Union[int, float]) -> int:
 
     Returns:
         The equivalent time in whole seconds since the Ripple Epoch of
-        2001-01-01T00:00Z
+        2000-01-01T00:00Z
 
     Raises:
         XRPLTimeRangeException: if the time is outside the range that can be

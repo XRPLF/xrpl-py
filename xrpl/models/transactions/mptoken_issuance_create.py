@@ -35,6 +35,40 @@ class MPTokenIssuanceCreateFlag(int, Enum):
     TF_MPT_CAN_CLAWBACK = 0x00000040
 
 
+class MPTokenIssuanceCreateMutableFlag(int, Enum):
+    """
+    MutableFlags for MPTokenIssuanceCreate transaction.
+    These flags declare which fields may be modified and which MPT issuance flags
+    may be enabled after issuance via MPTokenIssuanceSet.
+    MPT issuance flags are one-way: once enabled, they cannot be disabled.
+    Prefixed with TMF (Transaction Mutable Flag) to distinguish from TF flags.
+    """
+
+    TMF_MPT_CAN_ENABLE_CAN_LOCK = 0x00000002
+    """Allows flag lsfMPTCanLock to be enabled after issuance"""
+
+    TMF_MPT_CAN_ENABLE_REQUIRE_AUTH = 0x00000004
+    """Allows flag lsfMPTRequireAuth to be enabled after issuance"""
+
+    TMF_MPT_CAN_ENABLE_CAN_ESCROW = 0x00000008
+    """Allows flag lsfMPTCanEscrow to be enabled after issuance"""
+
+    TMF_MPT_CAN_ENABLE_CAN_TRADE = 0x00000010
+    """Allows flag lsfMPTCanTrade to be enabled after issuance"""
+
+    TMF_MPT_CAN_ENABLE_CAN_TRANSFER = 0x00000020
+    """Allows flag lsfMPTCanTransfer to be enabled after issuance"""
+
+    TMF_MPT_CAN_ENABLE_CAN_CLAWBACK = 0x00000040
+    """Allows flag lsfMPTCanClawback to be enabled after issuance"""
+
+    TMF_MPT_CAN_MUTATE_METADATA = 0x00010000
+    """Allows field MPTokenMetadata to be modified"""
+
+    TMF_MPT_CAN_MUTATE_TRANSFER_FEE = 0x00020000
+    """Allows field TransferFee to be modified"""
+
+
 class MPTokenIssuanceCreateFlagInterface(TransactionFlagInterface):
     """
     Transactions of the MPTokenIssuanceCreate type support additional values in the
@@ -97,6 +131,21 @@ class MPTokenIssuanceCreate(Transaction):
     may not be discoverable by ecosystem tools such as explorers and indexers.
     """
 
+    domain_id: Optional[str] = None
+    """
+    The DomainID of a Permissioned Domain to associate with this MPTokenIssuance,
+    as a 64-character hex string.
+    """
+
+    mutable_flags: Optional[int] = None
+    """
+    Declares which fields may be modified and which MPT issuance flags may be
+    enabled after issuance.
+    This field is optional and only available when the DynamicMPT amendment is enabled.
+    Use MPTokenIssuanceCreateMutableFlag enum values. Note that MPT issuance flags
+    are one-way: once enabled via MPTokenIssuanceSet, they cannot be disabled.
+    """
+
     transaction_type: TransactionType = field(
         default=TransactionType.MPTOKEN_ISSUANCE_CREATE,
         init=False,
@@ -137,5 +186,30 @@ class MPTokenIssuanceCreate(Transaction):
                     + [f"- {msg}" for msg in validation_messages]
                 )
                 warnings.warn(message, stacklevel=5)
+
+        # Validate mutable_flags (DynamicMPT)
+        if self.mutable_flags is not None:
+            # Define all valid mutable flags
+            valid_mutable_flags = (
+                MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_LOCK.value
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_REQUIRE_AUTH.value
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_ESCROW.value
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_TRADE.value
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_TRANSFER.value
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_CLAWBACK.value
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_METADATA.value
+                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_TRANSFER_FEE.value
+            )
+
+            # Check for bits that are NOT in the valid set,
+            # including the reserved 0x00000001
+            if self.mutable_flags & ~valid_mutable_flags:
+                errors["mutable_flags"] = (
+                    "mutable_flags contains invalid or reserved bits"
+                )
+
+            # Check for zero value
+            if self.mutable_flags == 0:
+                errors["mutable_flags"] = "mutable_flags cannot be 0"
 
         return errors

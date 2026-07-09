@@ -59,12 +59,14 @@ from xrpl.models.transactions.mptoken_issuance_create import (
     MPTokenIssuanceCreate,
     MPTokenIssuanceCreateFlag,
     MPTokenIssuanceCreateFlagInterface,
+    MPTokenIssuanceCreateMutableFlag,
 )
 from xrpl.models.transactions.mptoken_issuance_destroy import MPTokenIssuanceDestroy
 from xrpl.models.transactions.mptoken_issuance_set import (
     MPTokenIssuanceSet,
     MPTokenIssuanceSetFlag,
     MPTokenIssuanceSetFlagInterface,
+    MPTokenIssuanceSetMutableFlag,
 )
 from xrpl.models.transactions.nftoken_accept_offer import NFTokenAcceptOffer
 from xrpl.models.transactions.nftoken_burn import NFTokenBurn
@@ -192,10 +194,12 @@ __all__ = [
     "MPTokenIssuanceCreate",
     "MPTokenIssuanceCreateFlag",
     "MPTokenIssuanceCreateFlagInterface",
+    "MPTokenIssuanceCreateMutableFlag",
     "MPTokenIssuanceDestroy",
     "MPTokenIssuanceSet",
     "MPTokenIssuanceSetFlag",
     "MPTokenIssuanceSetFlagInterface",
+    "MPTokenIssuanceSetMutableFlag",
     "NFTokenAcceptOffer",
     "NFTokenBurn",
     "NFTokenCancelOffer",
