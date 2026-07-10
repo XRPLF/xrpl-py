@@ -1,6 +1,6 @@
 """Helper functions for signing multi-account Batch transactions."""
 
-from typing import List, Union, cast
+from typing import List, Optional, Tuple, Union, cast
 
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec.codec import decode_classic_address
@@ -12,8 +12,28 @@ from xrpl.models.transactions.batch import BatchSigner
 from xrpl.wallet import Wallet
 
 
+def _get_batch_seq_value(transaction: Batch) -> int:
+    """
+    Resolve the sequence value bound into a Batch signature: the ``Sequence`` when
+    non-zero, otherwise the ``TicketSequence`` value (or 0).
+
+    Args:
+        transaction: The Batch transaction being signed.
+
+    Returns:
+        The sequence value to bind into the signature.
+    """
+    sequence = transaction.sequence or 0
+    if sequence != 0:
+        return sequence
+    return transaction.ticket_sequence or 0
+
+
 def sign_multiaccount_batch(
-    wallet: Wallet, transaction: Batch, multisign: bool = False
+    wallet: Wallet,
+    transaction: Batch,
+    multisign: Union[bool, str] = False,
+    batch_account: Optional[str] = None,
 ) -> Batch:
     """
     Sign a multi-account Batch transaction.
@@ -21,39 +41,63 @@ def sign_multiaccount_batch(
     Args:
         wallet: Wallet instance.
         transaction: The Batch transaction to sign.
-        multisign: Specify true/false to use multisign. Defaults to False.
+        multisign: Specify ``True`` to multi-sign with ``wallet``'s address, or pass
+            an address string to multi-sign on behalf of that account (e.g. when
+            signing with a regular key). Defaults to ``False`` (single-sign).
+        batch_account: The account included in the Batch on whose behalf this
+            signature is provided. Defaults to ``wallet``'s address. Use this when the
+            signing key differs from the account it signs for (e.g. a regular key).
 
     Raises:
-        XRPLException: If the wallet signing the transaction doesn't have an account in
-            the Batch.
+        XRPLException: If the account signing the transaction doesn't submit (or is
+            the counterparty of) an inner transaction in the Batch.
 
     Returns:
         The Batch transaction with the BatchSigner included.
     """
+    signing_account = batch_account if batch_account is not None else wallet.address
+
+    multisign_address: Optional[str] = None
+    if isinstance(multisign, str):
+        multisign_address = multisign
+    elif multisign:
+        multisign_address = wallet.address
+
+    # An account must sign the Batch if it submits an inner transaction or is the
+    # `Counterparty` of one.
     involved_accounts = set(tx.account for tx in transaction.raw_transactions)
-    if wallet.address not in involved_accounts:
+    for tx in transaction.raw_transactions:
+        counterparty = getattr(tx, "counterparty", None)
+        if isinstance(counterparty, str):
+            involved_accounts.add(counterparty)
+    if signing_account not in involved_accounts:
         raise XRPLException("Must be signing for an address included in the Batch.")
 
     fields_to_sign: BatchSigningDict = {
+        "account": transaction.account,
+        "sequence": _get_batch_seq_value(transaction),
         "flags": transaction._flags_to_int() or 0,
         "transaction_ids": [tx.get_hash() for tx in transaction.raw_transactions],
+        "batch_account": signing_account,
     }
-    if multisign:
+    if multisign_address:
+        # Multi-signed batch signers also bind the inner signer account.
+        fields_to_sign["signer_account"] = multisign_address
+
+    signature = sign(encode_for_signing_batch(fields_to_sign), wallet.private_key)
+
+    if multisign_address:
         signer = Signer(
-            account=wallet.address,
+            account=multisign_address,
             signing_pub_key=wallet.public_key,
-            txn_signature=sign(
-                encode_for_signing_batch(fields_to_sign), wallet.private_key
-            ),
+            txn_signature=signature,
         )
-        batch_signer = BatchSigner(account=wallet.address, signers=[signer])
+        batch_signer = BatchSigner(account=signing_account, signers=[signer])
     else:
         batch_signer = BatchSigner(
-            account=wallet.address,
+            account=signing_account,
             signing_pub_key=wallet.public_key,
-            txn_signature=sign(
-                encode_for_signing_batch(fields_to_sign), wallet.private_key
-            ),
+            txn_signature=signature,
         )
 
     transaction_dict = transaction.to_dict()
@@ -106,29 +150,51 @@ def combine_batch_signers(transactions: List[Union[Batch, str]]) -> str:
     return encode(_get_batch_with_all_signers(batch_txs).to_xrpl())
 
 
+def _get_batch_equivalence_key(tx: Batch) -> Tuple[str, int, int, Tuple[str, ...]]:
+    """
+    Build a comparison key over every field bound into a Batch signature
+    (XLS-56 V1_1): the outer account, sequence value, flags, and inner transaction
+    IDs. Fragments that disagree on any of these were signed over different payloads
+    and cannot be combined.
+    """
+    return (
+        tx.account,
+        _get_batch_seq_value(tx),
+        tx._flags_to_int() or 0,
+        tuple(raw_tx.get_hash() for raw_tx in tx.raw_transactions),
+    )
+
+
 def _validate_batch_equivalence(transactions: List[Batch]) -> None:
-    example_tx = transactions[0]
-    for tx in transactions:
-        if (
-            tx.flags != example_tx.flags
-            or tx.raw_transactions != example_tx.raw_transactions
-        ):
+    example_key = _get_batch_equivalence_key(transactions[0])
+    for tx in transactions[1:]:
+        if _get_batch_equivalence_key(tx) != example_key:
             raise XRPLException(
-                "Flags and RawTransactions are not the same for all provided "
-                "transactions."
+                "Account, sequence, flags, and transaction hashes must be the same "
+                "for all provided transactions."
             )
 
 
 def _get_batch_with_all_signers(transactions: List[Batch]) -> Batch:
-    batch_signers = [
-        signer
-        for tx in transactions
-        if tx.batch_signers is not None
-        for signer in tx.batch_signers
-        if signer.account != transactions[0].account
-    ]
-    batch_signers.sort(
-        key=lambda signer: decode_classic_address(signer.account).hex().upper()
+    outer_account = transactions[0].account
+    # A batch signer cannot be the outer account (rippled: temBAD_SIGNER).
+    batch_signers = sorted(
+        (
+            signer
+            for tx in transactions
+            if tx.batch_signers is not None
+            for signer in tx.batch_signers
+            if signer.account != outer_account
+        ),
+        key=lambda signer: decode_classic_address(signer.account).hex().upper(),
     )
+    # BatchSigners must be strictly ascending and unique by account, so
+    # de-duplicate when combining fragments that share a signer.
+    deduped_signers: List[BatchSigner] = []
+    last_account: Optional[str] = None
+    for signer in batch_signers:
+        if signer.account != last_account:
+            deduped_signers.append(signer)
+            last_account = signer.account
     returned_tx_dict = transactions[0].to_dict()
-    return Batch.from_dict({**returned_tx_dict, "batch_signers": batch_signers})
+    return Batch.from_dict({**returned_tx_dict, "batch_signers": deduped_signers})

@@ -2,7 +2,10 @@ name: Integration test
 
 env:
   POETRY_VERSION: 2.1.1
-  XRPLD_DOCKER_IMAGE: rippleci/xrpld:develop
+  # Standalone rippled with the XLS-56 BatchV1_1 amendment, built from the amd64
+  # binary artifact of https://github.com/XRPLF/rippled/pull/6446 and pushed to
+  # GHCR. Revert to rippleci/xrpld:develop once BatchV1_1 lands in develop.
+  XRPLD_DOCKER_IMAGE: ghcr.io/ckeshava/xrpld-batch-v1_1:latest
 
 on:
   push:
