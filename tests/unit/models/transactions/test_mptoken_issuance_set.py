@@ -103,7 +103,7 @@ class TestMPTokenIssuanceSet(TestCase):
     def test_mutable_flags_invalid_bits_fail(self):
         """Unknown or reserved bits in mutable_flags are rejected."""
         cases = [
-            0x00001000,  # undefined bit
+            0x00004000,  # undefined bit (0x1000/0x2000 are now confidential flags)
             MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK.value | 0x00010000,
         ]
         for value in cases:

@@ -78,6 +78,11 @@ jobs:
         with:
           ref: ${{ inputs.git_ref != '' && inputs.git_ref || github.ref }}
 
+      # Note: the native Confidential MPT add-on (xrpl/ext/confidential/) ships as
+      # the separate xrpl-py-confidential distribution and is built/tested in
+      # build_wheels_confidential.yml. Core unit tests do not build it; the
+      # confidential native tests self-skip when the extension is absent.
+
       - name: Load cached .local
         id: cache-poetry
         uses: actions/cache@v4

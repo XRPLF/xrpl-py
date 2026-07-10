@@ -2,7 +2,7 @@
 name = "xrpl-py"
 version = "5.0.0"
 description = "A complete Python library for interacting with the XRP ledger"
-license = "ISC"
+license = { text = "ISC" }
 readme = "README.md"
 authors = [
   { name = "Mayukha Vadari", email = "mvadari@ripple.com" },
@@ -37,6 +37,11 @@ documentation = "https://xrpl-py.readthedocs.io"
 name = "xrpl-py"
 description = "A complete Python library for interacting with the XRP ledger"
 packages = [{ include = "xrpl" }, { include = "LICENSE" }]
+# The native Confidential MPT add-on lives at xrpl/ext/confidential/ but ships as
+# the separate `xrpl-py-confidential` distribution. Exclude it here so the core
+# xrpl-py wheel stays pure-Python (py3-none-any). `xrpl.ext` is a PEP 420
+# namespace package (no __init__.py), contributed only by the add-on.
+exclude = ["xrpl/ext/**"]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
@@ -78,12 +83,14 @@ build-backend = "poetry.core.masonry.api"
 [tool.coverage.run]
 branch = true
 source = ["xrpl"]
+omit = ["xrpl/ext/confidential/*"]
 
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
 skip_empty = true
 precision = 2
+omit = ["xrpl/ext/confidential/*"]
 
 [tool.poe.tasks]
 test_unit = "coverage run -m unittest discover tests/unit"

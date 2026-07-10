@@ -33,6 +33,11 @@ class MPTokenIssuanceCreateFlag(int, Enum):
     TF_MPT_CAN_TRADE = 0x00000010
     TF_MPT_CAN_TRANSFER = 0x00000020
     TF_MPT_CAN_CLAWBACK = 0x00000040
+    TF_MPT_CAN_HOLD_CONFIDENTIAL_BALANCE = 0x00000080
+    """
+    If set, indicates that the MPT can hold confidential balances.
+    This flag must be set to enable confidential MPT functionality.
+    """
 
 
 class MPTokenIssuanceCreateMutableFlag(int, Enum):
@@ -68,6 +73,13 @@ class MPTokenIssuanceCreateMutableFlag(int, Enum):
     TMF_MPT_CAN_MUTATE_TRANSFER_FEE = 0x00020000
     """Allows field TransferFee to be modified"""
 
+    TMF_MPT_CANNOT_ENABLE_CAN_HOLD_CONFIDENTIAL_BALANCE = 0x00000080
+    """
+    If set, the lsfMPTCanHoldConfidentialBalance flag can never be enabled after
+    the token is issued, permanently locking the confidential-amount setting.
+    Requires the ConfidentialTransfer amendment.
+    """
+
 
 class MPTokenIssuanceCreateFlagInterface(TransactionFlagInterface):
     """
@@ -82,6 +94,7 @@ class MPTokenIssuanceCreateFlagInterface(TransactionFlagInterface):
     TF_MPT_CAN_TRADE: bool
     TF_MPT_CAN_TRANSFER: bool
     TF_MPT_CAN_CLAWBACK: bool
+    TF_MPT_CAN_HOLD_CONFIDENTIAL_BALANCE: bool
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -189,17 +202,10 @@ class MPTokenIssuanceCreate(Transaction):
 
         # Validate mutable_flags (DynamicMPT)
         if self.mutable_flags is not None:
-            # Define all valid mutable flags
-            valid_mutable_flags = (
-                MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_LOCK.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_REQUIRE_AUTH.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_ESCROW.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_TRADE.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_TRANSFER.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_CLAWBACK.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_METADATA.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_TRANSFER_FEE.value
-            )
+            # Define all valid mutable flags (union of the enum)
+            valid_mutable_flags = 0
+            for _flag in MPTokenIssuanceCreateMutableFlag:
+                valid_mutable_flags |= _flag.value
 
             # Check for bits that are NOT in the valid set,
             # including the reserved 0x00000001

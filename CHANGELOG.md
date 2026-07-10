@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Support for `Dynamic Multi-Purpose Tokens` (XLS-94d)
+- Support for `Confidential MPT` (XLS-96): the `ConfidentialMPTConvert`, `ConfidentialMPTConvertBack`, `ConfidentialMPTSend`, `ConfidentialMPTMergeInbox`, and `ConfidentialMPTClawback` transactions, plus the `MPTokenIssuanceCreate`/`MPTokenIssuanceSet` fields and flags for holding confidential balances (`tfMPTCanHoldConfidentialBalance`, `tmfMPTCannotEnableCanHoldConfidentialBalance`, `tmfMPTSetCanHoldConfidentialBalance`). The optional native cryptography (proof generation and balance decryption) is provided by the separate `xrpl.ext.confidential` extension.
 - `sign_multiaccount_batch` accepts a `batch_account` argument (sign on behalf of an account when the signing key differs, e.g. a regular key) and a string `multisign` value (multi-sign as a specific account). The counterparty of an inner transaction now counts as an involved account.
 
 ### Fixed

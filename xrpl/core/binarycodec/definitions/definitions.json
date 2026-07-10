@@ -3847,6 +3847,7 @@
     "MPTokenIssuance": {
       "lsfMPTCanClawback": 64,
       "lsfMPTCanEscrow": 8,
+      "lsfMPTCanHoldConfidentialBalance": 128,
       "lsfMPTCanLock": 2,
       "lsfMPTCanTrade": 16,
       "lsfMPTCanTransfer": 32,
@@ -3861,7 +3862,8 @@
       "lsmfMPTCanEnableCanTransfer": 32,
       "lsmfMPTCanEnableRequireAuth": 4,
       "lsmfMPTCanMutateMetadata": 65536,
-      "lsmfMPTCanMutateTransferFee": 131072
+      "lsmfMPTCanMutateTransferFee": 131072,
+      "lsmfMPTCannotEnableCanHoldConfidentialBalance": 128
     },
     "NFTokenOffer": {
       "lsfSellNFToken": 1
@@ -4650,6 +4652,30 @@
       {
         "name": "PreviousTxnLgrSeq",
         "optionality": 0
+      },
+      {
+        "name": "ConfidentialBalanceInbox",
+        "optionality": 1
+      },
+      {
+        "name": "ConfidentialBalanceSpending",
+        "optionality": 1
+      },
+      {
+        "name": "ConfidentialBalanceVersion",
+        "optionality": 2
+      },
+      {
+        "name": "IssuerEncryptedBalance",
+        "optionality": 1
+      },
+      {
+        "name": "AuditorEncryptedBalance",
+        "optionality": 1
+      },
+      {
+        "name": "HolderEncryptionKey",
+        "optionality": 1
       }
     ],
     "MPTokenIssuance": [
@@ -4708,6 +4734,18 @@
       {
         "name": "ReferenceHolding",
         "optionality": 1
+      },
+      {
+        "name": "IssuerEncryptionKey",
+        "optionality": 1
+      },
+      {
+        "name": "AuditorEncryptionKey",
+        "optionality": 1
+      },
+      {
+        "name": "ConfidentialOutstandingAmount",
+        "optionality": 2
       }
     ],
     "NFTokenOffer": [
@@ -5307,6 +5345,7 @@
     "MPTokenIssuanceCreate": {
       "tfMPTCanClawback": 64,
       "tfMPTCanEscrow": 8,
+      "tfMPTCanHoldConfidentialBalance": 128,
       "tfMPTCanLock": 2,
       "tfMPTCanTrade": 16,
       "tfMPTCanTransfer": 32,
@@ -5612,6 +5651,144 @@
       },
       {
         "name": "Holder",
+        "optionality": 1
+      }
+    ],
+    "ConfidentialMPTClawback": [
+      {
+        "name": "MPTokenIssuanceID",
+        "optionality": 0
+      },
+      {
+        "name": "Holder",
+        "optionality": 0
+      },
+      {
+        "name": "MPTAmount",
+        "optionality": 0
+      },
+      {
+        "name": "ZKProof",
+        "optionality": 0
+      }
+    ],
+    "ConfidentialMPTConvert": [
+      {
+        "name": "MPTokenIssuanceID",
+        "optionality": 0
+      },
+      {
+        "name": "MPTAmount",
+        "optionality": 0
+      },
+      {
+        "name": "HolderEncryptionKey",
+        "optionality": 1
+      },
+      {
+        "name": "HolderEncryptedAmount",
+        "optionality": 0
+      },
+      {
+        "name": "IssuerEncryptedAmount",
+        "optionality": 0
+      },
+      {
+        "name": "AuditorEncryptedAmount",
+        "optionality": 1
+      },
+      {
+        "name": "BlindingFactor",
+        "optionality": 0
+      },
+      {
+        "name": "ZKProof",
+        "optionality": 1
+      }
+    ],
+    "ConfidentialMPTConvertBack": [
+      {
+        "name": "MPTokenIssuanceID",
+        "optionality": 0
+      },
+      {
+        "name": "MPTAmount",
+        "optionality": 0
+      },
+      {
+        "name": "HolderEncryptedAmount",
+        "optionality": 0
+      },
+      {
+        "name": "IssuerEncryptedAmount",
+        "optionality": 0
+      },
+      {
+        "name": "AuditorEncryptedAmount",
+        "optionality": 1
+      },
+      {
+        "name": "BlindingFactor",
+        "optionality": 0
+      },
+      {
+        "name": "ZKProof",
+        "optionality": 0
+      },
+      {
+        "name": "BalanceCommitment",
+        "optionality": 0
+      }
+    ],
+    "ConfidentialMPTMergeInbox": [
+      {
+        "name": "MPTokenIssuanceID",
+        "optionality": 0
+      }
+    ],
+    "ConfidentialMPTSend": [
+      {
+        "name": "MPTokenIssuanceID",
+        "optionality": 0
+      },
+      {
+        "name": "Destination",
+        "optionality": 0
+      },
+      {
+        "name": "DestinationTag",
+        "optionality": 1
+      },
+      {
+        "name": "SenderEncryptedAmount",
+        "optionality": 0
+      },
+      {
+        "name": "DestinationEncryptedAmount",
+        "optionality": 0
+      },
+      {
+        "name": "IssuerEncryptedAmount",
+        "optionality": 0
+      },
+      {
+        "name": "AuditorEncryptedAmount",
+        "optionality": 1
+      },
+      {
+        "name": "ZKProof",
+        "optionality": 0
+      },
+      {
+        "name": "AmountCommitment",
+        "optionality": 0
+      },
+      {
+        "name": "BalanceCommitment",
+        "optionality": 0
+      },
+      {
+        "name": "CredentialIDs",
         "optionality": 1
       }
     ],
@@ -6013,6 +6190,14 @@
       },
       {
         "name": "MutableFlags",
+        "optionality": 1
+      },
+      {
+        "name": "IssuerEncryptionKey",
+        "optionality": 1
+      },
+      {
+        "name": "AuditorEncryptionKey",
         "optionality": 1
       }
     ],
@@ -6424,6 +6609,10 @@
       {
         "name": "VaultID",
         "optionality": 0
+      },
+      {
+        "name": "MemoData",
+        "optionality": 1
       }
     ],
     "VaultDeposit": [

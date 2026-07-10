@@ -20,6 +20,8 @@ from xrpl.models.utils import (
 
 _MAX_TRANSFER_FEE: Final[int] = 50000
 
+ENCRYPTION_KEY_LENGTH = 33 * 2
+
 
 class MPTokenIssuanceSetFlag(int, Enum):
     """
@@ -80,6 +82,14 @@ class MPTokenIssuanceSetMutableFlag(int, Enum):
     tokens via Clawback or AMMClawback transactions.
     """
 
+    TMF_MPT_SET_CAN_HOLD_CONFIDENTIAL_BALANCE = 0x00000040
+    """
+    Sets the lsfMPTCanHoldConfidentialBalance flag on the issuance, enabling
+    confidential transfers. Only valid if lsmfMPTCannotEnableCanHoldConfidentialBalance
+    is not set. Enabling is one-way: there is no flag to clear it once set.
+    Requires the ConfidentialTransfer amendment.
+    """
+
 
 class MPTokenIssuanceSetFlagInterface(TransactionFlagInterface):
     """
@@ -101,6 +111,9 @@ class MPTokenIssuanceSet(Transaction):
     With the DynamicMPT amendment, this transaction can also be used to update
     fields (MPTokenMetadata, TransferFee) or enable MPT issuance flags that were
     marked as mutable during MPTokenIssuanceCreate.
+
+    With the ConfidentialTransfer amendment, it can also register encryption keys
+    and enable/disable the confidential amount feature.
     """
 
     mptoken_issuance_id: str = REQUIRED
@@ -134,12 +147,24 @@ class MPTokenIssuanceSet(Transaction):
     Requires DynamicMPT amendment.
     """
 
+    issuer_encryption_key: Optional[str] = None
+    """
+    The 33-byte EC-ElGamal public key used for the issuer's mirror balances.
+    """
+
+    auditor_encryption_key: Optional[str] = None
+    """
+    The 33-byte EC-ElGamal public key used for regulatory oversight (if applicable).
+    """
+
     mutable_flags: Optional[int] = None
     """
-    Enable MPT issuance flags that were marked as mutable during creation.
-    These flags are one-way: once enabled, they cannot be disabled.
+    Enable MPT issuance flags that were marked as mutable during creation
+    (one-way: once enabled, they cannot be disabled), and/or toggle the
+    confidential amount feature post-issuance.
     Use MPTokenIssuanceSetMutableFlag enum values.
-    Requires DynamicMPT amendment.
+    Requires the DynamicMPT amendment (confidential-amount flags additionally
+    require the ConfidentialTransfer amendment).
     """
 
     transaction_type: TransactionType = field(
@@ -172,21 +197,16 @@ class MPTokenIssuanceSet(Transaction):
                 "or transfer_fee is present"
             )
 
-        # Validate mutable_flags
+        # Validate mutable_flags (DynamicMPT + ConfidentialTransfer)
         if self.mutable_flags is not None:
             # Check for invalid value (0 is invalid)
             if self.mutable_flags == 0:
                 errors["mutable_flags"] = "mutable_flags cannot be 0"
 
-            # Validate only known bits are used
-            valid_mask = (
-                MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK.value
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_REQUIRE_AUTH.value
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_ESCROW.value
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_TRADE.value
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_TRANSFER.value
-                | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_CLAWBACK.value
-            )
+            # Validate only known bits are used (union of all mutable flags)
+            valid_mask = 0
+            for _flag in MPTokenIssuanceSetMutableFlag:
+                valid_mask |= _flag.value
             if self.mutable_flags & ~valid_mask:
                 errors["mutable_flags"] = "mutable_flags contains invalid bits"
 
@@ -220,5 +240,43 @@ class MPTokenIssuanceSet(Transaction):
                         + [f"- {msg}" for msg in validation_messages]
                     )
                     warnings.warn(message, stacklevel=5)
+
+        # ConfidentialTransfer: encryption key validations
+        has_issuer_key = (
+            hasattr(self, "issuer_encryption_key")
+            and self.issuer_encryption_key is not None
+        )
+        has_auditor_key = (
+            hasattr(self, "auditor_encryption_key")
+            and self.auditor_encryption_key is not None
+        )
+
+        if has_issuer_key and self.issuer_encryption_key is not None:
+            key_len = len(self.issuer_encryption_key)
+            if key_len != ENCRYPTION_KEY_LENGTH:
+                errors["issuer_encryption_key"] = (
+                    "issuer_encryption_key must be 33 bytes (66 hex characters)"
+                )
+
+        if has_auditor_key and self.auditor_encryption_key is not None:
+            key_len = len(self.auditor_encryption_key)
+            if key_len != ENCRYPTION_KEY_LENGTH:
+                errors["auditor_encryption_key"] = (
+                    "auditor_encryption_key must be 33 bytes (66 hex characters)"
+                )
+
+        if has_auditor_key and not has_issuer_key:
+            errors["auditor_encryption_key"] = (
+                "auditor_encryption_key requires issuer_encryption_key"
+            )
+
+        if (
+            hasattr(self, "holder")
+            and self.holder is not None
+            and (has_issuer_key or has_auditor_key)
+        ):
+            errors["holder"] = (
+                "Cannot mutate confidential fields while also acting as a Holder"
+            )
 
         return errors

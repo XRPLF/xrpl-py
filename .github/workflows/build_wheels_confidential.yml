@@ -1,0 +1,116 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Build xrpl-py-confidential wheels (cibuildwheel)
+#
+# Supersedes the old hand-retag flow. Builds the SEPARATE xrpl-py-confidential
+# distribution from packaging/confidential/ — the core `xrpl-py` wheel stays
+# pure py3-none-any and is unaffected by this workflow.
+#
+# Coverage (broad reach > wheel size):
+#   Linux  x86_64 + aarch64  — libmpt-crypto BUILT FROM SOURCE in manylinux_2_28
+#   macOS  arm64 + x86_64    — built from source, MACOSX_DEPLOYMENT_TARGET=13.0
+#   Windows AMD64            — upstream prebuilt DLL + delvewheel
+#   CPython 3.8–3.13
+#
+# Triggers are manual/`workflow_call` only on purpose: this references the
+# packaging/confidential/xrpl_confidential/ package that lands during the
+# SPLIT_DESIGN.md migration. No auto push trigger until the move is merged.
+# ──────────────────────────────────────────────────────────────────────────────
+name: Build Confidential MPT Wheels
+
+on:
+  workflow_call:
+    inputs:
+      git_ref:
+        description: "Git ref to checkout"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      git_ref:
+        description: "Git ref to checkout"
+        required: false
+        type: string
+        default: "confidential-mpt"
+      publish:
+        description: "Publish to PyPI after build"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build-wheels:
+    name: Wheels · ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest,    label: linux-x86_64 }
+          - { os: ubuntu-24.04-arm, label: linux-aarch64 }
+          - { os: macos-14,         label: macos-arm64 }
+          - { os: macos-15-intel,   label: macos-x86_64 }
+          - { os: windows-2022,     label: windows-amd64 }
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.git_ref || github.ref }}
+
+      # Stage xrpl/ext/confidential into the build project (host-side) so the
+      # isolated PEP 517 build — and, on Linux, the manylinux container that
+      # only mounts the project dir — can see the package source.
+      - name: Stage source
+        shell: bash
+        run: bash packaging/confidential/scripts/stage-source.sh
+
+      # cibuildwheel drives the per-platform before-all (build-from-source on
+      # Linux/macOS, prebuilt fetch on Windows) and the repair step
+      # (auditwheel / delocate / delvewheel) from packaging/confidential config.
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.21
+        with:
+          package-dir: packaging/confidential
+          output-dir: wheelhouse
+        env:
+          CIBW_ARCHS: auto          # native arch per runner (incl. linux aarch64)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: confidential-wheels-${{ matrix.label }}
+          path: wheelhouse/*.whl
+          if-no-files-found: error
+
+  build-sdist:
+    name: sdist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref || github.ref }}
+      - run: pipx run build --sdist --outdir dist packaging/confidential
+      - uses: actions/upload-artifact@v4
+        with:
+          name: confidential-sdist
+          path: dist/*.tar.gz
+          if-no-files-found: error
+
+  publish:
+    name: Publish to PyPI
+    needs: [build-wheels, build-sdist]
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish }}
+    runs-on: ubuntu-latest
+    environment: pypi-confidential        # protected env / manual approval gate
+    permissions:
+      id-token: write                     # PyPI Trusted Publishing (OIDC)
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: confidential-*
+          path: dist
+          merge-multiple: true
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist

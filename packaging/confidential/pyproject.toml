@@ -1,0 +1,65 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# xrpl-py-confidential — native add-on for XLS-0096 Confidential MPT.
+#
+# The package SOURCE lives at <repo>/xrpl/ext/confidential/ (so it imports as
+# `xrpl.ext.confidential` and is linted/formatted by the repo-root configs).
+# `xrpl.ext` is a PEP 420 namespace package — this distribution must NOT ship
+# `xrpl/__init__.py` or `xrpl/ext/__init__.py`.
+#
+# Because PEP 517 builds are isolated to this project directory, the source is
+# STAGED in here (scripts/stage-source.sh copies ../../xrpl/ext/confidential ->
+# ./xrpl/ext/confidential) before the wheel build. The staged tree is gitignored.
+# ──────────────────────────────────────────────────────────────────────────────
+[build-system]
+requires = ["setuptools>=68", "wheel", "cffi>=1.15.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xrpl-py-confidential"
+version = "0.1.0"                 # tracks the mpt-crypto release it bundles
+description = "Native Confidential MPT (XLS-0096) proof generation for xrpl-py"
+readme = "README.md"
+license = { text = "ISC" }
+requires-python = ">=3.10"
+dependencies = [
+  "xrpl-py>=4.6.0b5",             # provides the ConfidentialMPT* models this returns
+  "cffi>=1.15.0",
+]
+
+[project.urls]
+repository = "https://github.com/XRPLF/xrpl-py"
+
+[tool.setuptools]
+# Explicit single-package list: ships only xrpl/ext/confidential/* — no
+# xrpl/__init__.py and no xrpl/ext/__init__.py, preserving the namespace.
+packages = ["xrpl.ext.confidential"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"xrpl.ext.confidential" = ["libs/**/*", "include/**/*", "*.so", "*.pyd", "*.dylib"]
+
+# ──────────────────────────────────────────────────────────────────────────────
+# cibuildwheel — broad coverage prioritized over wheel size.
+# The workflow stages the source (host) before invoking cibuildwheel; before-all
+# then builds (Linux/macOS) or fetches (Windows) libmpt-crypto into the staged
+# xrpl/ext/confidential/libs/<platform>/.
+# ──────────────────────────────────────────────────────────────────────────────
+[tool.cibuildwheel]
+build-frontend = "build"
+build = "cp310-* cp311-* cp312-* cp313-*"
+skip = "*-musllinux* pp* *_i686 *_ppc64le *_s390x"
+test-command = 'python -c "import xrpl.ext.confidential; print(\"import OK\")"'
+
+[tool.cibuildwheel.linux]
+manylinux-x86_64-image = "manylinux_2_28"
+manylinux-aarch64-image = "manylinux_2_28"
+before-all = "bash scripts/build-mpt-crypto-lib.sh"
+
+[tool.cibuildwheel.macos]
+before-all = "bash scripts/build-mpt-crypto-lib.sh"
+environment = { MACOSX_DEPLOYMENT_TARGET = "13.0" }
+
+[tool.cibuildwheel.windows]
+before-all = "bash scripts/fetch-prebuilt-natives.sh"
+before-build = "pip install delvewheel"
+repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"

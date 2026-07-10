@@ -38,8 +38,11 @@ _CAMEL_TO_SNAKE_CASE_REGEX: Final[Pattern[str]] = re.compile(
 ABBREVIATIONS: Final[Dict[str, str]] = {
     "amm": "AMM",
     "did": "DID",
+    "elgamal": "ElGamal",
     "id": "ID",
+    "ids": "IDs",
     "lp": "LP",
+    "mpt": "MPT",
     "mptoken": "MPToken",
     "nft": "NFT",
     "nftoken": "NFToken",
@@ -48,6 +51,7 @@ ABBREVIATIONS: Final[Dict[str, str]] = {
     "unl": "UNL",
     "uri": "URI",
     "xchain": "XChain",
+    "zk": "ZK",
 }
 # Define keys that should be excluded from key to json conversion
 EXCLUDED_KEYS = {"mpt_issuance_id"}
