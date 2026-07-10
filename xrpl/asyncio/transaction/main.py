@@ -583,6 +583,29 @@ async def _calculate_fee_per_transaction_type(
             )
         base_fee += net_fee * counterparty_signers_count
 
+    # SponsorSignature with multi-sign
+    # Fee = (1 + |tx.Signers| + |SponsorSignature.Signers|) × base
+    if transaction.sponsor is not None:
+        sponsor_signers_count = await _fetch_counterparty_signers_count(
+            client, transaction.sponsor
+        )
+
+        if sponsor_signers_count > 1:
+            print(
+                (
+                    f"Warning: You are using autofill for a "
+                    f"sponsored transaction: "
+                    f"{transaction.to_dict()}. The fee "
+                    "estimation is based on the number of "
+                    "signers in the sponsor's SignerList. It "
+                    "might be possible to optimize the fee by "
+                    "considering the minimum quorum."
+                    "\nIf you prefer optimized transaction fee,"
+                    " please fill the fee field manually."
+                )
+            )
+            base_fee += net_fee * (1 + sponsor_signers_count)
+
     # Multi-signed/Multi-Account Batch Transactions
     # BaseFee × (1 + Number of Signatures Provided)
     if signers_count is not None and signers_count > 0:
