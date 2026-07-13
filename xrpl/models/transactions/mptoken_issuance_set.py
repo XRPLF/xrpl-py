@@ -49,22 +49,17 @@ class MPTokenIssuanceSetFlagInterface(TransactionFlagInterface):
 class MPTokenIssuanceSetMutableFlag(int, Enum):
     """
     Bit flags for the MutableFlags field on MPTokenIssuanceSet transactions.
-    These control the lsfMPTCanConfidentialAmount flag post-issuance.
-    Requires the DynamicMPT amendment.
+    Enables the lsfMPTCanHoldConfidentialBalance flag post-issuance.
+    The sfMutableFlags field requires the DynamicMPT amendment.
     """
 
-    TMF_MPT_SET_CAN_CONFIDENTIAL_AMOUNT = 0x00001000
+    TMF_MPT_SET_CAN_HOLD_CONFIDENTIAL_BALANCE = 0x00000040
     """
-    Sets the lsfMPTCanConfidentialAmount flag on the issuance, enabling
-    confidential transfers. Only valid if lsmfMPTCannotMutateCanConfidentialAmount
-    is not set.
-    """
-
-    TMF_MPT_CLEAR_CAN_CONFIDENTIAL_AMOUNT = 0x00002000
-    """
-    Clears the lsfMPTCanConfidentialAmount flag on the issuance, disabling
-    confidential transfers. Only succeeds if ConfidentialOutstandingAmount is 0
-    and lsmfMPTCannotMutateCanConfidentialAmount is not set.
+    Sets the lsfMPTCanHoldConfidentialBalance flag on the issuance, enabling
+    confidential transfers. Only valid if
+    lsmfMPTCannotEnableCanHoldConfidentialBalance is not set. Enabling is
+    one-way: there is no flag to clear it once set.
+    Requires the ConfidentialTransfer amendment.
     """
 
 
@@ -116,22 +111,6 @@ class MPTokenIssuanceSet(Transaction):
             errors["flags"] = (
                 "flag conflict: both TF_MPT_LOCK and TF_MPT_UNLOCK can't be set"
             )
-
-        # Check mutable_flags for mutual exclusion
-        if self.mutable_flags is not None:
-            has_set = bool(
-                self.mutable_flags
-                & MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_CONFIDENTIAL_AMOUNT
-            )
-            has_clear = bool(
-                self.mutable_flags
-                & MPTokenIssuanceSetMutableFlag.TMF_MPT_CLEAR_CAN_CONFIDENTIAL_AMOUNT
-            )
-            if has_set and has_clear:
-                errors["mutable_flags"] = (
-                    "flag conflict: both TMF_MPT_SET_CAN_CONFIDENTIAL_AMOUNT and "
-                    "TMF_MPT_CLEAR_CAN_CONFIDENTIAL_AMOUNT can't be set"
-                )
 
         has_issuer_key = (
             hasattr(self, "issuer_encryption_key")

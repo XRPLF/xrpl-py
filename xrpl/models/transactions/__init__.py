@@ -68,7 +68,7 @@ from xrpl.models.transactions.mptoken_issuance_create import (
     MPTokenIssuanceCreate,
     MPTokenIssuanceCreateFlag,
     MPTokenIssuanceCreateFlagInterface,
-    MPTokenIssuanceMutableFlag,
+    MPTokenIssuanceCreateMutableFlag,
 )
 from xrpl.models.transactions.mptoken_issuance_destroy import MPTokenIssuanceDestroy
 from xrpl.models.transactions.mptoken_issuance_set import (
@@ -208,7 +208,7 @@ __all__ = [
     "MPTokenIssuanceCreate",
     "MPTokenIssuanceCreateFlag",
     "MPTokenIssuanceCreateFlagInterface",
-    "MPTokenIssuanceMutableFlag",
+    "MPTokenIssuanceCreateMutableFlag",
     "MPTokenIssuanceDestroy",
     "MPTokenIssuanceSet",
     "MPTokenIssuanceSetFlag",

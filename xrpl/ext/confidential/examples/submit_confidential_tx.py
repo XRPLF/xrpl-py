@@ -152,7 +152,7 @@ def main():
         flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK
         | MPTokenIssuanceCreateFlag.TF_MPT_CAN_CLAWBACK
         | MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER
-        | MPTokenIssuanceCreateFlag.TF_MPT_CAN_CONFIDENTIAL_AMOUNT,
+        | MPTokenIssuanceCreateFlag.TF_MPT_CAN_HOLD_CONFIDENTIAL_BALANCE,
         maximum_amount="1000000000000",
         asset_scale=2,
     )

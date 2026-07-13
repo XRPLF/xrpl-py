@@ -9,20 +9,26 @@ Runs under both the async and sync variants of @test_async_and_sync: the body
 uses the async builders (prepare_confidential_*_async); the decorator's source
 transform rewrites them to the sync builders, which are supplied via `modules`.
 
-Skipped unless BOTH hold, so the suite stays green on the stock rippled image:
-  * the native mpt-crypto CFFI extension is built (MPT_CRYPTO_AVAILABLE), and
-  * the connected node has the ConfidentialTransfer amendment enabled.
+Requires the ConfidentialTransfer amendment on the connected node and the native
+mpt-crypto CFFI extension (xrpl.ext.confidential) to be built.
 """
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
-    JSON_RPC_CLIENT,
     fund_wallet_async,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
+from xrpl.ext.confidential import MPTCrypto
+from xrpl.ext.confidential.transaction_builders import (
+    prepare_confidential_clawback_async,
+    prepare_confidential_convert_async,
+    prepare_confidential_convert_back_async,
+    prepare_confidential_merge_inbox_async,
+    prepare_confidential_send_async,
+)
 from xrpl.models.amounts import MPTAmount
-from xrpl.models.requests import Feature, LedgerEntry
+from xrpl.models.requests import LedgerEntry
 from xrpl.models.requests.ledger_entry import MPToken as MPTokenQuery
 from xrpl.models.requests.tx import Tx
 from xrpl.models.transactions import (
@@ -33,18 +39,6 @@ from xrpl.models.transactions import (
     Payment,
 )
 from xrpl.wallet import Wallet
-
-try:
-    from xrpl.ext.confidential import MPT_CRYPTO_AVAILABLE, MPTCrypto
-    from xrpl.ext.confidential.transaction_builders import (
-        prepare_confidential_clawback_async,
-        prepare_confidential_convert_async,
-        prepare_confidential_convert_back_async,
-        prepare_confidential_merge_inbox_async,
-        prepare_confidential_send_async,
-    )
-except ImportError:
-    MPT_CRYPTO_AVAILABLE = False
 
 # Sync counterparts for the @test_async_and_sync transform (imported into the
 # generated sync test's namespace; not referenced directly, so not imported here
@@ -58,32 +52,7 @@ _SYNC_BUILDERS = [
 ]
 
 
-def _confidential_enabled() -> bool:
-    """True if mpt-crypto is built and the node has the amendment enabled."""
-    if not MPT_CRYPTO_AVAILABLE:
-        return False
-    try:
-        resp = JSON_RPC_CLIENT.request(Feature(feature="ConfidentialTransfer"))
-    except Exception:
-        return False
-    if not resp.is_successful():
-        return False
-    return any(
-        isinstance(v, dict)
-        and v.get("name") == "ConfidentialTransfer"
-        and v.get("enabled")
-        for v in resp.result.values()
-    )
-
-
 class TestConfidentialMPT(IntegrationTestCase):
-    def setUp(self):
-        if not _confidential_enabled():
-            self.skipTest(
-                "ConfidentialTransfer amendment or mpt-crypto extension "
-                "not available on this node"
-            )
-
     def _assert_success(self, response, label):
         self.assertTrue(response.is_successful(), f"{label}: {response.result}")
         self.assertEqual(
@@ -115,7 +84,7 @@ class TestConfidentialMPT(IntegrationTestCase):
                     MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK
                     | MPTokenIssuanceCreateFlag.TF_MPT_CAN_CLAWBACK
                     | MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER
-                    | MPTokenIssuanceCreateFlag.TF_MPT_CAN_CONFIDENTIAL_AMOUNT
+                    | MPTokenIssuanceCreateFlag.TF_MPT_CAN_HOLD_CONFIDENTIAL_BALANCE
                 ),
                 maximum_amount="1000000000000",
                 asset_scale=2,

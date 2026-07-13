@@ -20,17 +20,18 @@ from xrpl.models.utils import (
 _MAX_TRANSFER_FEE: Final[int] = 50000
 
 
-class MPTokenIssuanceMutableFlag(int, Enum):
+class MPTokenIssuanceCreateMutableFlag(int, Enum):
     """
-    Mutable flags for MPTokenIssuance, stored in the sfMutableFlags field.
-    These control which issuance properties can be changed after creation.
-    Requires the DynamicMPT amendment.
+    MutableFlags for MPTokenIssuanceCreate, stored in the sfMutableFlags field.
+    These declare which fields or flags may be modified after issuance.
+    The sfMutableFlags field requires the DynamicMPT amendment.
     """
 
-    LSMF_MPT_CANNOT_MUTATE_CAN_CONFIDENTIAL_AMOUNT = 0x00040000
+    TMF_MPT_CANNOT_ENABLE_CAN_HOLD_CONFIDENTIAL_BALANCE = 0x00000080
     """
-    If set, the lsfMPTCanPrivacy flag can never be changed after the token
-    is issued. This locks the privacy setting permanently.
+    If set, the lsfMPTCanHoldConfidentialBalance flag can never be enabled after
+    the token is issued, permanently locking the confidential-amount setting.
+    Requires the ConfidentialTransfer amendment.
     """
 
 
@@ -47,9 +48,9 @@ class MPTokenIssuanceCreateFlag(int, Enum):
     TF_MPT_CAN_TRADE = 0x00000010
     TF_MPT_CAN_TRANSFER = 0x00000020
     TF_MPT_CAN_CLAWBACK = 0x00000040
-    TF_MPT_CAN_CONFIDENTIAL_AMOUNT = 0x00000080
+    TF_MPT_CAN_HOLD_CONFIDENTIAL_BALANCE = 0x00000080
     """
-    If set, indicates that the MPT can support confidential transactions.
+    If set, indicates that the MPT can hold confidential balances.
     This flag must be set to enable confidential MPT functionality.
     """
 
@@ -67,7 +68,7 @@ class MPTokenIssuanceCreateFlagInterface(TransactionFlagInterface):
     TF_MPT_CAN_TRADE: bool
     TF_MPT_CAN_TRANSFER: bool
     TF_MPT_CAN_CLAWBACK: bool
-    TF_MPT_CAN_CONFIDENTIAL_AMOUNT: bool
+    TF_MPT_CAN_HOLD_CONFIDENTIAL_BALANCE: bool
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -121,7 +122,7 @@ class MPTokenIssuanceCreate(Transaction):
     """
     Specifies which flags can be mutated after issuance creation.
     This field requires the DynamicMPT amendment to be enabled.
-    See MPTokenIssuanceMutableFlag for available values.
+    See MPTokenIssuanceCreateMutableFlag for available values.
     """
 
     transaction_type: TransactionType = field(
