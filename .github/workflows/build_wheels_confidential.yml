@@ -9,11 +9,14 @@
 #   Linux  x86_64 + aarch64  — libmpt-crypto BUILT FROM SOURCE in manylinux_2_28
 #   macOS  arm64 + x86_64    — built from source, MACOSX_DEPLOYMENT_TARGET=13.0
 #   Windows AMD64            — upstream prebuilt DLL + delvewheel
-#   CPython 3.8–3.13
+#   CPython 3.10–3.13 (matches core xrpl-py's minimum; 3.14 pending a
+#                      cibuildwheel major upgrade — see build/skip below)
 #
-# Triggers are manual/`workflow_call` only on purpose: this references the
-# packaging/confidential/xrpl_confidential/ package that lands during the
-# SPLIT_DESIGN.md migration. No auto push trigger until the move is merged.
+# Triggers are manual (`workflow_dispatch`) / `workflow_call` on purpose: the
+# xrpl-py-confidential distribution (packaging/confidential/, staging the
+# xrpl/ext/confidential/ source) is versioned and published independently of
+# core xrpl-py — its version tracks the bundled mpt-crypto release — so it is
+# deliberately not tied to the core release/tag flow.
 # ──────────────────────────────────────────────────────────────────────────────
 name: Build Confidential MPT Wheels
 

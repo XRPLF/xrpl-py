@@ -19,7 +19,7 @@ from tests.integration.it_utils import (
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
-from xrpl.ext.confidential import MPTCrypto
+from xrpl.ext.confidential import MPT_CRYPTO_AVAILABLE, MPTCrypto
 from xrpl.ext.confidential.transaction_builders import (
     prepare_confidential_clawback_async,
     prepare_confidential_convert_async,
@@ -53,6 +53,13 @@ _SYNC_BUILDERS = [
 
 
 class TestConfidentialMPT(IntegrationTestCase):
+    def setUp(self):
+        # The native mpt-crypto CFFI extension ships as the separate
+        # xrpl-py-confidential distribution and is not built in core CI; skip
+        # cleanly when it is absent (same pattern as the native unit tests).
+        if not MPT_CRYPTO_AVAILABLE:
+            self.skipTest("mpt-crypto extension (xrpl.ext.confidential) not built")
+
     def _assert_success(self, response, label):
         self.assertTrue(response.is_successful(), f"{label}: {response.result}")
         self.assertEqual(
