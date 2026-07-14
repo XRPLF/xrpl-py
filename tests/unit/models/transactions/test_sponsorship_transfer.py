@@ -258,10 +258,10 @@ class TestSponsorshipTransfer(TestCase):
 
     def test_flag_enum_values(self):
         """Verify SponsorshipTransferFlag enum values match the spec."""
-        self.assertEqual(int(SponsorshipTransferFlag.TF_SPONSORSHIP_END), 0x00000001)
-        self.assertEqual(int(SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE), 0x00000002)
+        self.assertEqual(int(SponsorshipTransferFlag.TF_SPONSORSHIP_END), 0x00010000)
+        self.assertEqual(int(SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE), 0x00020000)
         self.assertEqual(
-            int(SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN), 0x00000004
+            int(SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN), 0x00040000
         )
 
     def test_immutable_frozen_dataclass(self):
@@ -285,10 +285,10 @@ class TestSponsorshipTransfer(TestCase):
         """Passing an integer directly as flags is accepted."""
         tx = SponsorshipTransfer(
             account=_ACCOUNT,
-            flags=0x00000001,
+            flags=0x00010000,
         )
         self.assertTrue(tx.is_valid())
-        self.assertEqual(tx.to_dict()["flags"], 1)
+        self.assertEqual(tx.to_dict()["flags"], 0x00010000)
 
     # ------------------------------------------------------------------ #
     #  Concern 4 — SponsorshipTransfer flag validation                    #

@@ -20,13 +20,13 @@ class SponsorshipTransferFlag(int, Enum):
     Flags field. This enum represents those options.
     """
 
-    TF_SPONSORSHIP_END = 0x00000001
+    TF_SPONSORSHIP_END = 0x00010000
     """End sponsorship of an object."""
 
-    TF_SPONSORSHIP_CREATE = 0x00000002
+    TF_SPONSORSHIP_CREATE = 0x00020000
     """Create sponsorship of an object."""
 
-    TF_SPONSORSHIP_REASSIGN = 0x00000004
+    TF_SPONSORSHIP_REASSIGN = 0x00040000
     """Reassign sponsorship of an object."""
 
 
