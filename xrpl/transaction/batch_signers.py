@@ -1,6 +1,6 @@
 """Helper functions for signing multi-account Batch transactions."""
 
-from typing import List, Optional, Tuple, Union, cast
+from typing import Dict, List, Optional, Tuple, Union, cast
 
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec.codec import decode_classic_address
@@ -63,10 +63,11 @@ def sign_multiaccount_batch(
     elif multisign:
         multisign_address = wallet.address
 
-    # An account must sign the Batch if it submits an inner transaction or is the
-    # `Counterparty` of one.
-    involved_accounts = set(tx.account for tx in transaction.raw_transactions)
+    # An involved account authorizes an inner transaction (its delegate when
+    # present, else its account) or is the counterparty of one.
+    involved_accounts = set()
     for tx in transaction.raw_transactions:
+        involved_accounts.add(tx.delegate or tx.account)
         counterparty = getattr(tx, "counterparty", None)
         if isinstance(counterparty, str):
             involved_accounts.add(counterparty)
@@ -175,26 +176,61 @@ def _validate_batch_equivalence(transactions: List[Batch]) -> None:
             )
 
 
+def _account_sort_key(account: str) -> str:
+    """Sort key ordering accounts by their AccountID bytes (rippled requirement)."""
+    return decode_classic_address(account).hex().upper()
+
+
 def _get_batch_with_all_signers(transactions: List[Batch]) -> Batch:
     outer_account = transactions[0].account
-    # A batch signer cannot be the outer account (rippled: temBAD_SIGNER).
+
+    # Group BatchSigners by account, merging fragments that share one. A batch
+    # signer cannot be the outer account (rippled: temBAD_SIGNER).
+    signers_by_account: Dict[str, BatchSigner] = {}
+    for tx in transactions:
+        for signer in tx.batch_signers or []:
+            if signer.account == outer_account:
+                continue
+            previous = signers_by_account.get(signer.account)
+            signers_by_account[signer.account] = (
+                _merge_batch_signers(previous, signer) if previous else signer
+            )
+
     batch_signers = sorted(
-        (
-            signer
-            for tx in transactions
-            if tx.batch_signers is not None
-            for signer in tx.batch_signers
-            if signer.account != outer_account
-        ),
-        key=lambda signer: decode_classic_address(signer.account).hex().upper(),
+        signers_by_account.values(),
+        key=lambda signer: _account_sort_key(signer.account),
     )
-    # BatchSigners must be strictly ascending and unique by account, so
-    # de-duplicate when combining fragments that share a signer.
-    deduped_signers: List[BatchSigner] = []
-    last_account: Optional[str] = None
-    for signer in batch_signers:
-        if signer.account != last_account:
-            deduped_signers.append(signer)
-            last_account = signer.account
     returned_tx_dict = transactions[0].to_dict()
-    return Batch.from_dict({**returned_tx_dict, "batch_signers": deduped_signers})
+    return Batch.from_dict({**returned_tx_dict, "batch_signers": batch_signers})
+
+
+def _merge_batch_signers(first: BatchSigner, second: BatchSigner) -> BatchSigner:
+    """
+    Merge two BatchSigners that share the same account: multi-signed fragments
+    have their inner ``Signers`` merged and sorted by account; identical single-
+    signed fragments collapse to one; any other combination raises.
+    """
+    if first.signers is not None and second.signers is not None:
+        inner_by_account = {
+            inner.account: inner for inner in [*first.signers, *second.signers]
+        }
+        merged = sorted(
+            inner_by_account.values(),
+            key=lambda inner: _account_sort_key(inner.account),
+        )
+        return BatchSigner(account=first.account, signers=merged)
+
+    if first.signers is None and second.signers is None:
+        if (
+            first.signing_pub_key == second.signing_pub_key
+            and first.txn_signature == second.txn_signature
+        ):
+            return first
+        raise XRPLException(
+            f"Conflicting single-signed BatchSigners for account {first.account}."
+        )
+
+    raise XRPLException(
+        "Cannot combine single-signed and multi-signed BatchSigners for account "
+        f"{first.account}."
+    )

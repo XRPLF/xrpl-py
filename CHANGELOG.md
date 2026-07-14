@@ -9,12 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `sign_multiaccount_batch` accepts a `batch_account` argument (sign on behalf of an account when the signing key differs, e.g. a regular key) and a string `multisign` value (multi-sign as a specific account). The counterparty of an inner transaction now counts as an involved account.
+- Add support for Batch (XLS-56) `BatchV1_1` signing.
 
-### Fixed
+### Removed
 
-- Updated Batch (XLS-56) signing to the V1_1 payload from [rippled #6446](https://github.com/XRPLF/rippled/pull/6446). `encode_for_signing_batch` now binds the outer `Account` and `Sequence` (or `TicketSequence`), the `BatchSigner` account, and — for multi-signed batch signers — the inner signer account into the signed data, preventing signature replay across outer accounts/sequences. (Batch is still in active development and not live on any network, so no existing signatures are affected.)
-- `combine_batch_signers` now rejects fragments that disagree on the outer account, sequence value, flags, or inner transaction IDs (previously only flags and `RawTransactions` were checked) and de-duplicates `BatchSigners` by account so the combined array is strictly ascending and unique.
+- Drop support for the older `Batch` signing format (never live on any network, so no existing signatures are affected).
 
 ## [[5.0.0]]
 
@@ -30,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `Amount` codec to correctly handle large integers with trailing zeros (precision is counted by significant digits, not total digits).
 - Fixed `Amount.to_json` to preserve significant digits when an IOU value's canonical `Decimal` stringifies as an integer or in scientific notation; previously the decoder applied `rstrip("0")` unconditionally and silently truncated values such as `1000000000000000` to `"1"`.
 - Fixed async WebSocket handler so a single malformed JSON frame is skipped instead of terminating the handler task and silencing the client for the remainder of the connection (issue #977).
-- Fixed WebSocket request-ID generation to use a cryptographic RNG (`secrets.randbelow`) and widened the ID range from `1_000_000` to `2**62`, making birthday-paradox collisions astronomically unlikely (expected collision after ~2**31 requests instead of ~1,177) (issue #986).
+- Fixed WebSocket request-ID generation to use a cryptographic RNG (`secrets.randbelow`) and widened the ID range from `1_000_000` to `2**62`, making birthday-paradox collisions astronomically unlikely (expected collision after ~2\*\*31 requests instead of ~1,177) (issue #986).
 
 ## [[4.5.0]]
 
