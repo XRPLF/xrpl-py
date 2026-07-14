@@ -182,6 +182,20 @@ class TestSignMultiAccountBatch(TestCase):
         with self.assertRaises(XRPLException):
             sign_multiaccount_batch(other_wallet, self.batch_tx)
 
+    def test_self_multisign_raises(self):
+        # multisign=True with no batch_account makes the signer sign for itself.
+        with self.assertRaises(XRPLException):
+            sign_multiaccount_batch(secp_wallet, self.batch_tx, multisign=True)
+
+    def test_multisign_signer_equals_batch_account_raises(self):
+        with self.assertRaises(XRPLException):
+            sign_multiaccount_batch(
+                secp_wallet,
+                self.batch_tx,
+                multisign=ed_wallet.address,
+                batch_account=ed_wallet.address,
+            )
+
 
 class TestCombineBatchSigners(TestCase):
     batch_tx = Batch.from_xrpl(

@@ -63,6 +63,14 @@ def sign_multiaccount_batch(
     elif multisign:
         multisign_address = wallet.address
 
+    # A multi-signed signer must differ from the account it signs for; an account
+    # cannot be on its own signer list (rippled: "Invalid multisigner").
+    if multisign_address == signing_account:
+        raise XRPLException(
+            "A multi-signed BatchSigner's signer account must differ from the "
+            "batch account."
+        )
+
     # An involved account authorizes an inner transaction (its delegate when
     # present, else its account) or is the counterparty of one.
     involved_accounts = set()
