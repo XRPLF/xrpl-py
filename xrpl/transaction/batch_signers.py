@@ -219,9 +219,15 @@ def _merge_batch_signers(first: BatchSigner, second: BatchSigner) -> BatchSigner
     signed fragments collapse to one; any other combination raises.
     """
     if first.signers is not None and second.signers is not None:
-        inner_by_account = {
-            inner.account: inner for inner in [*first.signers, *second.signers]
-        }
+        inner_by_account: Dict[str, Signer] = {}
+        for inner in [*first.signers, *second.signers]:
+            existing = inner_by_account.get(inner.account)
+            if existing is not None and existing != inner:
+                raise XRPLException(
+                    "Conflicting signatures for inner signer "
+                    f"{inner.account} on batch account {first.account}."
+                )
+            inner_by_account[inner.account] = inner
         merged = sorted(
             inner_by_account.values(),
             key=lambda inner: _account_sort_key(inner.account),

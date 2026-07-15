@@ -360,3 +360,30 @@ class TestCombineBatchSigners(TestCase):
         )
         with self.assertRaises(XRPLException):
             combine_batch_signers([single, multi])
+
+    def test_conflicting_inner_signers_raises(self):
+        # Same batch account and inner signer account across fragments, but a
+        # different signature -- merging must raise, not silently drop one.
+        frag1 = sign_multiaccount_batch(
+            regkey_wallet,
+            self.batch_tx,
+            multisign=True,
+            batch_account=ed_wallet.address,
+        )
+        conflicting_dict = self.batch_tx.to_dict()
+        conflicting_dict["batch_signers"] = [
+            BatchSigner(
+                account=ed_wallet.address,
+                signers=[
+                    Signer(
+                        account=regkey_wallet.address,
+                        signing_pub_key=regkey_wallet.public_key,
+                        txn_signature="DEADBEEF",
+                    )
+                ],
+            )
+        ]
+        frag2 = Batch.from_dict(conflicting_dict)
+
+        with self.assertRaises(XRPLException):
+            combine_batch_signers([frag1, frag2])
