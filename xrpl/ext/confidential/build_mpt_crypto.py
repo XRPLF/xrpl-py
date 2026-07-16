@@ -248,7 +248,9 @@ elif system == "linux":
         f"-Wl,-rpath,$ORIGIN/libs/{lib_subdir}",
     ]
 elif system == "windows" or system.startswith("win"):
-    # On Windows the DLL just needs to be on PATH or in the same directory
+    # MSVC links against the import library mpt-crypto.lib, resolved from
+    # library_dirs (libs/win32); the matching mpt-crypto.dll is loaded at
+    # runtime (see crypto_bindings._preload_shared_library).
     libraries = ["mpt-crypto"]
 
 ffibuilder.set_source(
