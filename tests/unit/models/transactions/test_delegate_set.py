@@ -3,6 +3,7 @@ from unittest import TestCase
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import DelegateSet
 from xrpl.models.transactions.delegate_set import (
+    NON_DELEGABLE_TRANSACTIONS,
     PERMISSIONS_MAX_LENGTH,
     GranularPermission,
     Permission,
@@ -112,3 +113,29 @@ class TestDelegateSet(TestCase):
             "{'permissions': \"Non-delegable transactions found in `permissions` "
             "list: {<TransactionType.ACCOUNT_DELETE: 'AccountDelete'>}.\"}",
         )
+
+    def test_non_delegable_transactions_vault_and_loan_family(self):
+        for transaction_type in [
+            TransactionType.VAULT_CREATE,
+            TransactionType.VAULT_SET,
+            TransactionType.VAULT_DELETE,
+            TransactionType.VAULT_DEPOSIT,
+            TransactionType.VAULT_WITHDRAW,
+            TransactionType.VAULT_CLAWBACK,
+            TransactionType.LOAN_BROKER_SET,
+            TransactionType.LOAN_BROKER_DELETE,
+            TransactionType.LOAN_BROKER_COVER_DEPOSIT,
+            TransactionType.LOAN_BROKER_COVER_WITHDRAW,
+            TransactionType.LOAN_BROKER_COVER_CLAWBACK,
+            TransactionType.LOAN_SET,
+            TransactionType.LOAN_DELETE,
+            TransactionType.LOAN_MANAGE,
+            TransactionType.LOAN_PAY,
+        ]:
+            self.assertIn(transaction_type, NON_DELEGABLE_TRANSACTIONS)
+            with self.assertRaises(XRPLModelException):
+                DelegateSet(
+                    account=_ACCOUNT,
+                    authorize=_DELEGATED_ACCOUNT,
+                    permissions=[Permission(permission_value=transaction_type)],
+                )
