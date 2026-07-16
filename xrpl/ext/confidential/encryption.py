@@ -5,7 +5,6 @@ This module provides functions for encrypting and decrypting amounts
 using ElGamal encryption.
 """
 
-import secrets
 from typing import Optional, Tuple
 
 from xrpl.ext.confidential.crypto_bindings import ffi, lib
@@ -48,9 +47,14 @@ def encrypt(
     if len(pubkey_bytes) != 33:
         raise ValueError("pubkey must be 33 bytes (compressed)")
 
-    # Generate or use provided blinding factor
+    # Generate or use provided blinding factor. Use the library's generator
+    # (not raw random bytes) so the scalar is reduced against the secp256k1
+    # curve order and is a valid ElGamal randomness scalar.
     if blinding_factor is None:
-        blinding_bytes = secrets.token_bytes(32)
+        bf_buf = ffi.new("uint8_t[32]")
+        if lib.mpt_generate_blinding_factor(bf_buf) != 0:
+            raise RuntimeError("Failed to generate blinding factor")
+        blinding_bytes = bytes(bf_buf[0:32])
         blinding_factor = blinding_bytes.hex().upper()
     else:
         blinding_bytes = bytes.fromhex(blinding_factor)
