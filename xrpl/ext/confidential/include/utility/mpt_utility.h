@@ -176,7 +176,10 @@ mpt_encrypt_amount(
  * @param out_amount [out] Pointer to store the decrypted uint64_t amount.
  * @param range_low  [in]  Lower bound of the search range (inclusive).
  * @param range_high [in]  Upper bound of the search range (inclusive).
- * @return 0 on success, -1 on failure, -2 if range_low > range_high.
+ *                         Must satisfy range_low <= range_high and
+ *                         range_high != UINT64_MAX.
+ * @return 0 on success, -1 on failure, -2 if range_low > range_high or
+ *         range_high == UINT64_MAX.
  * @note Performance scales linearly with (range_high - range_low). A range of [0, 1,000,000] takes
  * approximately 3 seconds on Apple Silicon. Do not pass arbitrarily large ranges.
  */

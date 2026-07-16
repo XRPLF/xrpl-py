@@ -222,11 +222,21 @@ class TestEncryptionDecryptionIntegrate(unittest.TestCase):
                 ct = encrypt_amount(original_amount, pub, bf)
 
                 decrypted = ffi.new("uint64_t *")
-                # 0.4.0-rc2: decrypt searches a [range_low, range_high] window.
+                # 1.0.1: decrypt searches a [range_low, range_high] window.
                 self.assertEqual(
                     lib.mpt_decrypt_amount(ct, priv, decrypted, 0, 10000), 0
                 )
                 self.assertEqual(decrypted[0], original_amount)
+
+    def test_decrypt_rejects_uint64_max_range(self):
+        # mpt-crypto 1.0.1 (#133): a range_high of UINT64_MAX is rejected
+        # with -2 immediately, rather than running an effectively-infinite
+        # discrete-log search. This guards our binding against the pre-rc4
+        # infinite-loop behaviour. (Requires the pinned mpt-crypto >= 1.0.1.)
+        priv, pub = generate_keypair()
+        ct = encrypt_amount(1, pub, generate_blinding_factor())
+        decrypted = ffi.new("uint64_t *")
+        self.assertEqual(lib.mpt_decrypt_amount(ct, priv, decrypted, 0, 2**64 - 1), -2)
 
 
 class TestConfidentialConvertIntegrate(unittest.TestCase):
