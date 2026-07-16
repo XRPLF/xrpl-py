@@ -126,7 +126,12 @@ class ConfidentialMPTConvert(Transaction):
                 "holder_encryption_key must be 33 bytes (66 hex characters)"
             )
 
-        if len(self.blinding_factor) != BLINDING_FACTOR_LENGTH:
+        # Guard REQUIRED fields against the sentinel so super()'s "is not set"
+        # error surfaces first instead of a TypeError.
+        if (
+            self.blinding_factor is not REQUIRED
+            and len(self.blinding_factor) != BLINDING_FACTOR_LENGTH
+        ):
             errors["blinding_factor"] = (
                 "blinding_factor must be 32 bytes (64 hex characters)"
             )
@@ -136,15 +141,21 @@ class ConfidentialMPTConvert(Transaction):
                 "zk_proof must be 64 bytes (128 hex characters) for Schnorr Proof"
             )
 
-        if self.mpt_amount < 0:
+        if self.mpt_amount is not REQUIRED and self.mpt_amount < 0:
             errors["mpt_amount"] = "mpt_amount cannot be negative"
 
-        if len(self.holder_encrypted_amount) != CIPHERTEXT_LENGTH:
+        if (
+            self.holder_encrypted_amount is not REQUIRED
+            and len(self.holder_encrypted_amount) != CIPHERTEXT_LENGTH
+        ):
             errors["holder_encrypted_amount"] = (
                 "holder_encrypted_amount must be 66 bytes (132 hex characters)"
             )
 
-        if len(self.issuer_encrypted_amount) != CIPHERTEXT_LENGTH:
+        if (
+            self.issuer_encrypted_amount is not REQUIRED
+            and len(self.issuer_encrypted_amount) != CIPHERTEXT_LENGTH
+        ):
             errors["issuer_encrypted_amount"] = (
                 "issuer_encrypted_amount must be 66 bytes (132 hex characters)"
             )

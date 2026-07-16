@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Support for `Confidential MPT` (XLS-96). The optional native cryptography (proof generation and balance decryption) is provided by the separate `xrpl.ext.confidential` extension.
+- Support for `Confidential MPT` (XLS-0096). The optional native cryptography (proof generation and balance decryption) is provided by the separate `xrpl.ext.confidential` extension.
 - Add support for Batch (XLS-56) `BatchV1_1` signing.
 
 ### Removed

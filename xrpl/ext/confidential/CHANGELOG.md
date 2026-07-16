@@ -23,10 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `xrpl.ext.confidential`:
   - `MPTCrypto` — ElGamal keypair generation, Pedersen commitments, Bulletproofs
     range proofs, Schnorr proofs of knowledge, and discrete-log balance decryption.
-  - High-level async/sync transaction builders: `prepare_confidential_convert`,
-    `prepare_confidential_convert_back`, `prepare_confidential_send`,
-    `prepare_confidential_merge_inbox`, and `prepare_confidential_clawback`
-    (each with an `_async` counterpart).
+  - High-level transaction builders exported from `xrpl.ext.confidential`:
+    `prepare_confidential_convert`, `prepare_confidential_convert_back`,
+    `prepare_confidential_send`, `prepare_confidential_merge_inbox`, and
+    `prepare_confidential_clawback`. Async counterparts (`*_async`) are available
+    from `xrpl.ext.confidential.transaction_builders`.
   - CFFI bindings to `mpt-crypto` (with secp256k1 and OpenSSL statically linked),
     built via `build_mpt_crypto.py` / `setup_mpt_crypto.sh`.
 - Bundles the pinned `mpt-crypto` release recorded in

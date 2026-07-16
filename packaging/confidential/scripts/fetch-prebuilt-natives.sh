@@ -32,8 +32,11 @@ if [ -n "${BUNDLE_SHA256:-}" ] && [ "${BUNDLE_SHA256}" != "REPLACE_ME_WITH_RELEA
   echo "${BUNDLE_SHA256}  $TMP/$BUNDLE" | sha256sum -c - \
     || { echo "ERROR: sha256 mismatch for $BUNDLE" >&2; exit 1; }
 else
-  echo "WARNING: BUNDLE_SHA256 not pinned — observed hash (NOT verified):" >&2
+  echo "ERROR: BUNDLE_SHA256 is not pinned in version.env — refusing to stage an" >&2
+  echo "unverified native artifact into a published wheel. Set BUNDLE_SHA256 to the" >&2
+  echo "sha256 of $BUNDLE before building. Observed (unverified) hash:" >&2
   sha256sum "$TMP/$BUNDLE" >&2
+  exit 1
 fi
 
 tar -xzf "$TMP/$BUNDLE" -C "$TMP"
