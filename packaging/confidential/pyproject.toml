@@ -43,6 +43,10 @@ include-package-data = true
 # The workflow stages the source (host) before invoking cibuildwheel; before-all
 # then builds (Linux/macOS) or fetches (Windows) libmpt-crypto into the staged
 # xrpl/ext/confidential/libs/<platform>/.
+#
+# before-all runs with CWD = the dir cibuildwheel was invoked from (repo root),
+# NOT this package dir, so the script paths use the {package} placeholder
+# (absolute path to package-dir, translated to the in-container path on Linux).
 # ──────────────────────────────────────────────────────────────────────────────
 [tool.cibuildwheel]
 build-frontend = "build"
@@ -53,13 +57,13 @@ test-command = 'python -c "import xrpl.ext.confidential; print(\"import OK\")"'
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
-before-all = "bash scripts/build-mpt-crypto-lib.sh"
+before-all = "bash {package}/scripts/build-mpt-crypto-lib.sh"
 
 [tool.cibuildwheel.macos]
-before-all = "bash scripts/build-mpt-crypto-lib.sh"
+before-all = "bash {package}/scripts/build-mpt-crypto-lib.sh"
 environment = { MACOSX_DEPLOYMENT_TARGET = "13.0" }
 
 [tool.cibuildwheel.windows]
-before-all = "bash scripts/fetch-prebuilt-natives.sh"
+before-all = "bash {package}/scripts/fetch-prebuilt-natives.sh"
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"

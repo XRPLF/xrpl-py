@@ -103,6 +103,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.git_ref || github.ref }}
+      # Same host-side staging as the wheel job: the sdist build is isolated to
+      # packaging/confidential, and setup.py's cffi_modules references
+      # xrpl/ext/confidential/build_mpt_crypto.py, which only exists after staging.
+      - name: Stage source
+        shell: bash
+        run: bash packaging/confidential/scripts/stage-source.sh
       - run: pipx run build --sdist --outdir dist packaging/confidential
       - uses: actions/upload-artifact@v4
         with:
