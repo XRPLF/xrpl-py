@@ -35,38 +35,45 @@ class MPTokenIssuanceCreateFlag(int, Enum):
     TF_MPT_CAN_CLAWBACK = 0x00000040
 
 
-class MPTokenIssuanceCreateMutableFlag(int, Enum):
+class MPTokenIssuanceImmutableFlag(int, Enum):
     """
-    MutableFlags for MPTokenIssuanceCreate transaction.
-    These flags declare which fields may be modified and which MPT issuance flags
-    may be enabled after issuance via MPTokenIssuanceSet.
-    MPT issuance flags are one-way: once enabled, they cannot be disabled.
-    Prefixed with TMF (Transaction Mutable Flag) to distinguish from TF flags.
+    ImmutableFlags for the MPTokenIssuance ledger object (XLS-94d DynamicMPT).
+    Under DynamicMPT, MPTokenMetadata, TransferFee, and the MPT issuance flags
+    are mutable by default; setting a bit here permanently makes the corresponding
+    field or flag immutable. Once set, it can never be modified again.
+    Shared by MPTokenIssuanceCreate and MPTokenIssuanceSet.
+    Prefixed with TIF (Transaction Immutable Flag).
     """
 
-    TMF_MPT_CAN_ENABLE_CAN_LOCK = 0x00000002
-    """Allows flag lsfMPTCanLock to be enabled after issuance"""
+    TIF_MPT_CAN_LOCK = 0x00000002
+    """Makes flag lsfMPTCanLock immutable"""
 
-    TMF_MPT_CAN_ENABLE_REQUIRE_AUTH = 0x00000004
-    """Allows flag lsfMPTRequireAuth to be enabled after issuance"""
+    TIF_MPT_REQUIRE_AUTH = 0x00000004
+    """Makes flag lsfMPTRequireAuth immutable"""
 
-    TMF_MPT_CAN_ENABLE_CAN_ESCROW = 0x00000008
-    """Allows flag lsfMPTCanEscrow to be enabled after issuance"""
+    TIF_MPT_CAN_ESCROW = 0x00000008
+    """Makes flag lsfMPTCanEscrow immutable"""
 
-    TMF_MPT_CAN_ENABLE_CAN_TRADE = 0x00000010
-    """Allows flag lsfMPTCanTrade to be enabled after issuance"""
+    TIF_MPT_CAN_TRADE = 0x00000010
+    """Makes flag lsfMPTCanTrade immutable"""
 
-    TMF_MPT_CAN_ENABLE_CAN_TRANSFER = 0x00000020
-    """Allows flag lsfMPTCanTransfer to be enabled after issuance"""
+    TIF_MPT_CAN_TRANSFER = 0x00000020
+    """Makes flag lsfMPTCanTransfer immutable"""
 
-    TMF_MPT_CAN_ENABLE_CAN_CLAWBACK = 0x00000040
-    """Allows flag lsfMPTCanClawback to be enabled after issuance"""
+    TIF_MPT_CAN_CLAWBACK = 0x00000040
+    """Makes flag lsfMPTCanClawback immutable"""
 
-    TMF_MPT_CAN_MUTATE_METADATA = 0x00010000
-    """Allows field MPTokenMetadata to be modified"""
+    TIF_MPT_CAN_HOLD_CONFIDENTIAL_BALANCE = 0x00000080
+    """
+    Makes flag lsfMPTCanHoldConfidentialBalance immutable.
+    Requires the ConfidentialTransfer amendment (XLS-96).
+    """
 
-    TMF_MPT_CAN_MUTATE_TRANSFER_FEE = 0x00020000
-    """Allows field TransferFee to be modified"""
+    TIF_MPT_METADATA = 0x00010000
+    """Makes field MPTokenMetadata immutable"""
+
+    TIF_MPT_TRANSFER_FEE = 0x00020000
+    """Makes field TransferFee immutable"""
 
 
 class MPTokenIssuanceCreateFlagInterface(TransactionFlagInterface):
@@ -137,13 +144,14 @@ class MPTokenIssuanceCreate(Transaction):
     as a 64-character hex string.
     """
 
-    mutable_flags: Optional[int] = None
+    immutable_flags: Optional[int] = None
     """
-    Declares which fields may be modified and which MPT issuance flags may be
-    enabled after issuance.
+    Permanently makes specific fields or flags immutable. Under DynamicMPT,
+    MPTokenMetadata, TransferFee, and the MPT issuance flags are mutable by
+    default; setting a bit here makes the corresponding field/flag immutable
+    for the life of the issuance.
     This field is optional and only available when the DynamicMPT amendment is enabled.
-    Use MPTokenIssuanceCreateMutableFlag enum values. Note that MPT issuance flags
-    are one-way: once enabled via MPTokenIssuanceSet, they cannot be disabled.
+    Use MPTokenIssuanceImmutableFlag enum values.
     """
 
     transaction_type: TransactionType = field(
@@ -187,29 +195,19 @@ class MPTokenIssuanceCreate(Transaction):
                 )
                 warnings.warn(message, stacklevel=5)
 
-        # Validate mutable_flags (DynamicMPT)
-        if self.mutable_flags is not None:
-            # Define all valid mutable flags
-            valid_mutable_flags = (
-                MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_LOCK.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_REQUIRE_AUTH.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_ESCROW.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_TRADE.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_TRANSFER.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_CLAWBACK.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_METADATA.value
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_TRANSFER_FEE.value
-            )
+        # Validate immutable_flags (DynamicMPT)
+        if self.immutable_flags is not None:
+            # A present ImmutableFlags must be non-zero and use only known bits
+            # (the reserved 0x00000001 is not a valid ImmutableFlags bit).
+            valid_mask = 0
+            for flag in MPTokenIssuanceImmutableFlag:
+                valid_mask |= flag.value
 
-            # Check for bits that are NOT in the valid set,
-            # including the reserved 0x00000001
-            if self.mutable_flags & ~valid_mutable_flags:
-                errors["mutable_flags"] = (
-                    "mutable_flags contains invalid or reserved bits"
+            if self.immutable_flags == 0:
+                errors["immutable_flags"] = "immutable_flags cannot be 0"
+            elif self.immutable_flags & ~valid_mask:
+                errors["immutable_flags"] = (
+                    "immutable_flags contains invalid or reserved bits"
                 )
-
-            # Check for zero value
-            if self.mutable_flags == 0:
-                errors["mutable_flags"] = "mutable_flags cannot be 0"
 
         return errors

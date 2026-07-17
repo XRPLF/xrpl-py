@@ -709,7 +709,7 @@
       }
     ],
     [
-      "MutableFlags",
+      "ImmutableFlags",
       {
         "isSerialized": true,
         "isSigningField": true,
@@ -3523,15 +3523,16 @@
       "lsfMPTLocked": 1,
       "lsfMPTRequireAuth": 4
     },
-    "MPTokenIssuanceMutable": {
-      "lsmfMPTCanEnableCanClawback": 64,
-      "lsmfMPTCanEnableCanEscrow": 8,
-      "lsmfMPTCanEnableCanLock": 2,
-      "lsmfMPTCanEnableCanTrade": 16,
-      "lsmfMPTCanEnableCanTransfer": 32,
-      "lsmfMPTCanEnableRequireAuth": 4,
-      "lsmfMPTCanMutateMetadata": 65536,
-      "lsmfMPTCanMutateTransferFee": 131072
+    "MPTokenIssuanceImmutable": {
+      "lsifMPTCanClawback": 64,
+      "lsifMPTCanEscrow": 8,
+      "lsifMPTCanHoldConfidentialBalance": 128,
+      "lsifMPTCanLock": 2,
+      "lsifMPTCanTrade": 16,
+      "lsifMPTCanTransfer": 32,
+      "lsifMPTMetadata": 65536,
+      "lsifMPTRequireAuth": 4,
+      "lsifMPTTransferFee": 131072
     },
     "NFTokenOffer": {
       "lsfSellNFToken": 1
@@ -4372,7 +4373,7 @@
         "optionality": 1
       },
       {
-        "name": "MutableFlags",
+        "name": "ImmutableFlags",
         "optionality": 2
       },
       {
@@ -5649,7 +5650,7 @@
         "optionality": 1
       },
       {
-        "name": "MutableFlags",
+        "name": "ImmutableFlags",
         "optionality": 1
       }
     ],
@@ -5681,7 +5682,7 @@
         "optionality": 1
       },
       {
-        "name": "MutableFlags",
+        "name": "ImmutableFlags",
         "optionality": 1
       }
     ],

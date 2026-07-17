@@ -3,20 +3,22 @@ import warnings
 from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.transactions import MPTokenIssuanceSet
-from xrpl.models.transactions.mptoken_issuance_set import (
+from xrpl.models.transactions import (
+    MPTokenIssuanceImmutableFlag,
+    MPTokenIssuanceSet,
     MPTokenIssuanceSetFlag,
-    MPTokenIssuanceSetMutableFlag,
 )
 from xrpl.utils import str_to_hex
 
 _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _TOKEN_ID = "000004C463C52827307480341125DA0577DEFC38405B0E3E"
+_HOLDER = "rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG"
 
 
 class TestMPTokenIssuanceSet(TestCase):
+    # --- base lock/unlock behavior ---
     def test_valid_basic_transaction(self):
-        """Test valid transaction with lock flag."""
+        """Valid transaction with a lock flag."""
         tx = MPTokenIssuanceSet(
             account=_ACCOUNT,
             mptoken_issuance_id=_TOKEN_ID,
@@ -25,31 +27,30 @@ class TestMPTokenIssuanceSet(TestCase):
         self.assertTrue(tx.is_valid())
 
     def test_valid_with_holder(self):
-        """Test valid transaction with holder field."""
+        """Valid lock of an individual holder's balance."""
         tx = MPTokenIssuanceSet(
             account=_ACCOUNT,
             mptoken_issuance_id=_TOKEN_ID,
-            holder="rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG",
+            holder=_HOLDER,
             flags=MPTokenIssuanceSetFlag.TF_MPT_LOCK,
         )
         self.assertTrue(tx.is_valid())
 
     def test_valid_without_flags(self):
-        """Test valid transaction without flags (only tx fee deducted)."""
+        """Valid transaction without flags (only tx fee deducted)."""
         tx = MPTokenIssuanceSet(
             account=_ACCOUNT,
             mptoken_issuance_id=_TOKEN_ID,
-            holder="rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG",
+            holder=_HOLDER,
         )
         self.assertTrue(tx.is_valid())
 
     def test_lock_unlock_flag_conflict(self):
-        """Test that TF_MPT_LOCK and TF_MPT_UNLOCK cannot both be set."""
+        """TF_MPT_LOCK and TF_MPT_UNLOCK cannot both be set."""
         with self.assertRaises(XRPLModelException) as error:
             MPTokenIssuanceSet(
                 account=_ACCOUNT,
                 mptoken_issuance_id=_TOKEN_ID,
-                holder="rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG",
                 flags=MPTokenIssuanceSetFlag.TF_MPT_LOCK
                 | MPTokenIssuanceSetFlag.TF_MPT_UNLOCK,
             )
@@ -58,77 +59,109 @@ class TestMPTokenIssuanceSet(TestCase):
             error.exception.args[0],
         )
 
-    # DynamicMPT tests
+    # --- DynamicMPT: capability-setting flags (via the Flags field) ---
+    def test_set_capability_flags_valid(self):
+        """Multiple TF_MPT_SET_* capability flags can be combined."""
+        tx = MPTokenIssuanceSet(
+            account=_ACCOUNT,
+            mptoken_issuance_id=_TOKEN_ID,
+            flags=MPTokenIssuanceSetFlag.TF_MPT_SET_CAN_LOCK
+            | MPTokenIssuanceSetFlag.TF_MPT_SET_CAN_ESCROW
+            | MPTokenIssuanceSetFlag.TF_MPT_SET_CAN_CLAWBACK,
+        )
+        self.assertTrue(tx.is_valid())
+
     def test_valid_with_all_dynamic_fields(self):
-        """Test valid transaction with all dynamic fields combined."""
+        """Capability flag + metadata + transfer_fee + immutable_flags together."""
         metadata = {"ticker": "TBILL", "name": "T-Bill", "icon": "https://ex.org/i.png"}
         tx = MPTokenIssuanceSet(
             account=_ACCOUNT,
             mptoken_issuance_id=_TOKEN_ID,
-            mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK
-            | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_ESCROW,
+            flags=MPTokenIssuanceSetFlag.TF_MPT_SET_CAN_TRANSFER,
             transfer_fee=200,
             mptoken_metadata=str_to_hex(json.dumps(metadata)),
+            immutable_flags=MPTokenIssuanceImmutableFlag.TIF_MPT_CAN_LOCK,
         )
         self.assertTrue(tx.is_valid())
 
-    def test_holder_with_dynamic_field_fails(self):
-        """holder cannot be combined with any mutate-issuance field."""
-        dynamic_fields = [
-            {"mutable_flags": MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK},
+    # --- holder cannot be combined with a mutate operation ---
+    def test_holder_with_mutate_fails(self):
+        """holder cannot be combined with any mutate-issuance operation."""
+        mutate_fields = [
+            {"flags": MPTokenIssuanceSetFlag.TF_MPT_SET_CAN_LOCK},
             {"mptoken_metadata": "464F4F"},
             {"transfer_fee": 200},
+            {"immutable_flags": MPTokenIssuanceImmutableFlag.TIF_MPT_METADATA},
         ]
-        for field in dynamic_fields:
-            with self.subTest(field=next(iter(field))):
+        for fields in mutate_fields:
+            with self.subTest(field=next(iter(fields))):
                 with self.assertRaises(XRPLModelException) as error:
                     MPTokenIssuanceSet(
                         account=_ACCOUNT,
                         mptoken_issuance_id=_TOKEN_ID,
-                        holder="rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG",
-                        **field,
+                        holder=_HOLDER,
+                        **fields,
                     )
                 self.assertIn("holder cannot be provided", error.exception.args[0])
 
-    def test_mutable_flags_zero_fails(self):
-        """Test that mutable_flags cannot be 0."""
+    # --- lock/unlock cannot be combined with a mutate operation ---
+    def test_lock_unlock_with_mutate_fails(self):
+        """TF_MPT_LOCK / TF_MPT_UNLOCK cannot be combined with a mutate op."""
+        for lock_flag in (
+            MPTokenIssuanceSetFlag.TF_MPT_LOCK,
+            MPTokenIssuanceSetFlag.TF_MPT_UNLOCK,
+        ):
+            with self.subTest(flag=lock_flag):
+                with self.assertRaises(XRPLModelException) as error:
+                    MPTokenIssuanceSet(
+                        account=_ACCOUNT,
+                        mptoken_issuance_id=_TOKEN_ID,
+                        flags=lock_flag,
+                        immutable_flags=MPTokenIssuanceImmutableFlag.TIF_MPT_METADATA,
+                    )
+                self.assertIn("cannot be combined with", error.exception.args[0])
+
+    # --- immutable_flags validation ---
+    def test_valid_with_immutable_flags(self):
+        """A subset of ImmutableFlags is valid."""
+        tx = MPTokenIssuanceSet(
+            account=_ACCOUNT,
+            mptoken_issuance_id=_TOKEN_ID,
+            immutable_flags=MPTokenIssuanceImmutableFlag.TIF_MPT_METADATA
+            | MPTokenIssuanceImmutableFlag.TIF_MPT_TRANSFER_FEE,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_immutable_flags_zero_fails(self):
+        """immutable_flags cannot be 0."""
         with self.assertRaises(XRPLModelException) as error:
             MPTokenIssuanceSet(
                 account=_ACCOUNT,
                 mptoken_issuance_id=_TOKEN_ID,
-                mutable_flags=0,
+                immutable_flags=0,
             )
-        self.assertIn("mutable_flags cannot be 0", error.exception.args[0])
+        self.assertIn("immutable_flags cannot be 0", error.exception.args[0])
 
-    def test_mutable_flags_invalid_bits_fail(self):
-        """Unknown or reserved bits in mutable_flags are rejected."""
+    def test_immutable_flags_invalid_bits_fail(self):
+        """Unknown or reserved bits in immutable_flags are rejected."""
         cases = [
-            0x00001000,  # undefined bit
-            MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK.value | 0x00010000,
+            0x00000001,  # reserved bit
+            MPTokenIssuanceImmutableFlag.TIF_MPT_CAN_LOCK.value | 0x00001000,
         ]
         for value in cases:
-            with self.subTest(mutable_flags=value):
+            with self.subTest(immutable_flags=value):
                 with self.assertRaises(XRPLModelException) as error:
                     MPTokenIssuanceSet(
                         account=_ACCOUNT,
                         mptoken_issuance_id=_TOKEN_ID,
-                        mutable_flags=value,
+                        immutable_flags=value,
                     )
                 self.assertIn(
-                    "mutable_flags contains invalid bits", error.exception.args[0]
+                    "immutable_flags contains invalid or reserved bits",
+                    error.exception.args[0],
                 )
 
-    def test_multiple_set_flags_valid(self):
-        """Test that multiple distinct SET flags can be combined."""
-        tx = MPTokenIssuanceSet(
-            account=_ACCOUNT,
-            mptoken_issuance_id=_TOKEN_ID,
-            mutable_flags=MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_LOCK
-            | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_REQUIRE_AUTH
-            | MPTokenIssuanceSetMutableFlag.TMF_MPT_SET_CAN_CLAWBACK,
-        )
-        self.assertTrue(tx.is_valid())
-
+    # --- transfer_fee ---
     def test_valid_transfer_fee_values(self):
         """Valid transfer_fee values: mid-range, zero (removal), and the max."""
         for fee in (200, 0, 50000):
@@ -155,6 +188,7 @@ class TestMPTokenIssuanceSet(TestCase):
                     error.exception.args[0],
                 )
 
+    # --- metadata ---
     def test_valid_metadata_values(self):
         """Valid metadata: proper hex, empty (removal), and the max length."""
         valid = str_to_hex(
@@ -188,23 +222,20 @@ class TestMPTokenIssuanceSet(TestCase):
                 self.assertIn(message, error.exception.args[0])
 
     def test_metadata_emits_warning_for_missing_fields(self):
-        """Test that warnings are emitted for metadata missing required fields."""
+        """A warning is emitted for metadata missing XLS-89 required fields."""
         invalid_metadata = {
             "ticker": "TBILL",
             "name": "T-Bill Yield Token",
             "invalid_field": "should cause warning",
         }
-
         tx = MPTokenIssuanceSet(
             account=_ACCOUNT,
             mptoken_issuance_id=_TOKEN_ID,
             mptoken_metadata=str_to_hex(json.dumps(invalid_metadata)),
         )
-
         with warnings.catch_warnings(record=True) as caught_warnings:
             warnings.simplefilter("always")
-            valid = tx.is_valid()
-            self.assertTrue(valid)
+            self.assertTrue(tx.is_valid())
             self.assertTrue(len(caught_warnings) > 0, "Expected warning not emitted")
             warning_messages = [str(w.message) for w in caught_warnings]
             found = any(
