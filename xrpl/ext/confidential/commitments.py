@@ -12,7 +12,7 @@ Windows; range-proof verification in production is performed by rippled.
 
 from typing import Optional
 
-from xrpl.ext.confidential.crypto_bindings import ffi, lib
+from xrpl.ext.confidential.crypto_bindings import MPT_CRYPTO_AVAILABLE, ffi, lib
 
 # Size constants
 PUBKEY_UNCOMPRESSED_SIZE = 64
@@ -20,7 +20,12 @@ PUBKEY_COMPRESSED_SIZE = 33
 
 # secp256k1_ec_pubkey_parse is declared in the FFI cdef off-Windows only, so its
 # absence marks a platform that cannot support the raw-pubkey Bulletproof paths.
-_HAS_EC_PUBKEY_PARSE = hasattr(lib, "secp256k1_ec_pubkey_parse")
+# Guard on MPT_CRYPTO_AVAILABLE first: in a pure-Python checkout `lib` is a stub
+# whose attribute access raises ImportError (which hasattr would re-raise, not
+# swallow), so short-circuit before touching it.
+_HAS_EC_PUBKEY_PARSE = MPT_CRYPTO_AVAILABLE and hasattr(
+    lib, "secp256k1_ec_pubkey_parse"
+)
 _NO_PUBKEY_PARSE_MSG = (
     "This function requires secp256k1_ec_pubkey_parse, which mpt-crypto's "
     "Windows DLL does not export; it is unavailable on Windows. Range-proof "

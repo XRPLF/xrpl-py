@@ -80,5 +80,9 @@ environment = { MACOSX_DEPLOYMENT_TARGET = "13.0" }
 
 [tool.cibuildwheel.windows]
 before-all = "bash {package}/scripts/fetch-prebuilt-natives.sh"
-before-build = "pip install delvewheel"
-repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
+# No delvewheel repair. mpt-crypto.dll is shipped in the wheel (package-data
+# libs/win32/) and loaded explicitly at import by
+# crypto_bindings._preload_shared_library — secp256k1 and OpenSSL are statically
+# linked into it, so it has no extra DLLs to vendor. delvewheel repair only fails
+# here trying to relocate a self-contained DLL we already manage ourselves.
+repair-wheel-command = ""
