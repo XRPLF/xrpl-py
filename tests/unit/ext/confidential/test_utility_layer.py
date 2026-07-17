@@ -992,7 +992,17 @@ class TestModelConstantsMatchLibrary(unittest.TestCase):
     """
 
     def test_proof_sizes_match_library(self):
-        from xrpl.models.transactions import confidential_mpt_constants as k
+        # This drift guard cross-checks the CORE xrpl-py model constants against
+        # the compiled library. In the isolated native-wheel smoke test the
+        # installed core may not ship the confidential models yet, so skip rather
+        # than error; the guard still runs in the core test suite (source tree).
+        try:
+            from xrpl.models.transactions import confidential_mpt_constants as k
+        except ImportError:
+            self.skipTest(
+                "xrpl.models.transactions.confidential_mpt_constants unavailable "
+                "(core xrpl-py without the confidential models)"
+            )
 
         self.assertEqual(
             k.CLAWBACK_PROOF_SIZE, lib.SECP256K1_COMPACT_CLAWBACK_PROOF_SIZE
