@@ -4,6 +4,7 @@ Build script for mpt-crypto C library Python bindings using cffi.
 
 import os
 import platform
+import sys
 
 from cffi import FFI
 
@@ -207,22 +208,20 @@ else:
 
 libs_dir = os.path.join(script_dir, "libs", lib_subdir)
 include_dir = os.path.join(script_dir, "include")
-
-if not os.path.exists(libs_dir):
-    raise RuntimeError(
-        f"Pre-compiled libraries not found for platform '{lib_subdir}'. "
-        f"Expected directory: {libs_dir}"
-    )
-
 shared_lib_path = os.path.join(libs_dir, shared_lib_name)
+
+# The library is only needed when we actually COMPILE the extension
+# (ffibuilder.compile() during a wheel build). This module is also imported
+# purely for metadata — e.g. `build --sdist`, whose isolated env has no
+# compiled natives — so a missing library here must NOT abort the import.
+# We warn instead; the linker enforces presence at wheel-compile time.
 if not os.path.exists(shared_lib_path):
-    raise RuntimeError(
-        f"Shared library not found: {shared_lib_path}\n"
-        f"Contents of {libs_dir}: {os.listdir(libs_dir)}\n"
-        f"\n"
-        f"The CI now builds mpt-crypto as a shared library (.so/.dylib/.dll)\n"
-        f"instead of separate static archives (.a/.lib).\n"
-        f"Run: ./xrpl/core/confidential/setup_mpt_crypto.sh download"
+    print(
+        f"WARNING: mpt-crypto shared library not found at {shared_lib_path}. "
+        f"This is required only when building a wheel (ffibuilder.compile); "
+        f"source-only builds (sdist) are unaffected. Run "
+        f"./xrpl/ext/confidential/setup_mpt_crypto.sh download to fetch it.",
+        file=sys.stderr,
     )
 
 library_dirs = [libs_dir]

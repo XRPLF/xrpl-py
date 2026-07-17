@@ -51,7 +51,10 @@ include-package-data = true
 [tool.cibuildwheel]
 build-frontend = "build"
 build = "cp310-* cp311-* cp312-* cp313-*"
-skip = "*-musllinux* pp* *_i686 *_ppc64le *_s390x"
+# Skip targets we ship no native for: musl, PyPy, 32-bit (linux i686 / Windows
+# win32), and non-amd64 Windows (win_arm64). The prebuilt Windows bundle is
+# win32-x86-64 (64-bit) only, so a 32-bit wheel build fails to link (LNK1120).
+skip = "*-musllinux* pp* *_i686 *_ppc64le *_s390x *-win32 *-win_arm64"
 test-command = 'python -c "import xrpl.ext.confidential; print(\"import OK\")"'
 
 [tool.cibuildwheel.linux]

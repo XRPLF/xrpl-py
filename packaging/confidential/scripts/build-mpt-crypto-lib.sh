@@ -35,7 +35,13 @@ fi
 # Constrain build-tool major versions so an upstream release can't silently
 # pull an incompatible (or compromised) new major into the wheel-build pipeline.
 # Bump these bounds deliberately and validate in the wheel CI.
-python3 -m pip install --upgrade --quiet "conan>=2,<3" "ninja>=1.11,<2" "cmake>=3.28,<4"
+#
+# --break-system-packages: the macOS runners' default python3 is Homebrew's,
+# which is PEP 668 externally-managed and refuses `pip install` without this.
+# It's a harmless no-op on the manylinux container python (not externally
+# managed). These are ephemeral CI runners, so mutating site-packages is fine.
+python3 -m pip install --upgrade --quiet --break-system-packages \
+  "conan>=2,<3" "ninja>=1.11,<2" "cmake>=3.28,<4"
 
 # ── 2. Fetch the pinned source ──
 SRC="$(mktemp -d)/mpt-crypto"
