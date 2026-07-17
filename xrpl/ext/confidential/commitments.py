@@ -3,6 +3,11 @@ Pedersen commitments and Bulletproof range proofs.
 
 This module provides functions for creating Pedersen commitments and
 generating/verifying Bulletproof range proofs.
+
+NOTE: create_bulletproof/verify_bulletproof rely on secp256k1_ec_pubkey_parse,
+which mpt-crypto's Windows DLL does not export (see build_mpt_crypto.py). They
+are therefore available on Linux/macOS only and raise NotImplementedError on
+Windows; range-proof verification in production is performed by rippled.
 """
 
 from typing import Optional
@@ -12,6 +17,15 @@ from xrpl.ext.confidential.crypto_bindings import ffi, lib
 # Size constants
 PUBKEY_UNCOMPRESSED_SIZE = 64
 PUBKEY_COMPRESSED_SIZE = 33
+
+# secp256k1_ec_pubkey_parse is declared in the FFI cdef off-Windows only, so its
+# absence marks a platform that cannot support the raw-pubkey Bulletproof paths.
+_HAS_EC_PUBKEY_PARSE = hasattr(lib, "secp256k1_ec_pubkey_parse")
+_NO_PUBKEY_PARSE_MSG = (
+    "This function requires secp256k1_ec_pubkey_parse, which mpt-crypto's "
+    "Windows DLL does not export; it is unavailable on Windows. Range-proof "
+    "verification in production is performed by rippled."
+)
 
 
 def create_pedersen_commitment(ctx: object, amount: int, blinding_factor: str) -> str:
@@ -52,6 +66,8 @@ def create_bulletproof(
     """
     Create a Bulletproof range proof using the aggregated API (m=1).
 
+    Not available on Windows (see module docstring); raises NotImplementedError.
+
     Args:
         amount: The amount to prove (uint64)
         blinding_factor: 64-char hex string (32-byte blinding factor)
@@ -61,6 +77,9 @@ def create_bulletproof(
     Returns:
         Variable-length hex string (proof, typically ~1024 bytes)
     """
+    if not _HAS_EC_PUBKEY_PARSE:
+        raise NotImplementedError(_NO_PUBKEY_PARSE_MSG)
+
     # Convert inputs from hex
     blinding_bytes = bytes.fromhex(blinding_factor)
     pk_base_bytes = bytes.fromhex(pk_base_uncompressed)
@@ -112,6 +131,8 @@ def verify_bulletproof(
     """
     Verify a Bulletproof range proof using the aggregated API (m=1).
 
+    Not available on Windows (see module docstring); raises NotImplementedError.
+
     Args:
         proof: Variable-length hex string (proof bytes)
         commitment: 128-char hex string (64-byte Pedersen commitment, X || Y)
@@ -121,6 +142,9 @@ def verify_bulletproof(
     Returns:
         True if proof is valid, False otherwise
     """
+    if not _HAS_EC_PUBKEY_PARSE:
+        raise NotImplementedError(_NO_PUBKEY_PARSE_MSG)
+
     # Convert hex strings to bytes
     proof_bytes = bytes.fromhex(proof)
     commitment_bytes = bytes.fromhex(commitment)

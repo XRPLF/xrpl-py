@@ -26,14 +26,21 @@ ffibuilder.cdef(
     typedef struct secp256k1_context_struct secp256k1_context;
     typedef struct { unsigned char data[64]; } secp256k1_pubkey;
 
-    secp256k1_context* secp256k1_context_create(unsigned int flags);
-    void secp256k1_context_destroy(secp256k1_context* ctx);
-    int secp256k1_ec_pubkey_parse(
-        const secp256k1_context* ctx,
-        secp256k1_pubkey* pubkey,
-        const unsigned char* input,
-        size_t inputlen
-    );
+    // NOTE on vanilla upstream secp256k1 symbols. secp256k1 is statically linked
+    // INTO libmpt-crypto; on Windows its symbols are NOT re-exported by the DLL
+    // (only mpt-crypto's own API is), so referencing them breaks the link
+    // (LNK2001). Therefore:
+    //   * secp256k1_context_create / _destroy are not declared at all — we use
+    //     the exported mpt_secp256k1_context() (below) on every platform.
+    //   * secp256k1_ec_pubkey_parse IS available on the Linux/macOS shared libs,
+    //     so it is declared conditionally (off-Windows only) via a second cdef()
+    //     further down, keeping create_bulletproof/verify_bulletproof usable
+    //     there while the Windows extension still links.
+    // Keep the typedefs above — the exported bulletproof / mpt_ signatures below
+    // still use them.
+
+    // Globally shared secp256k1 context owned by mpt-crypto (do not destroy).
+    secp256k1_context* mpt_secp256k1_context(void);
 
     // ---- Bulletproof range proofs (aggregated API) ----
     int secp256k1_bulletproof_prove_agg(
@@ -205,6 +212,19 @@ elif system == "windows" or system.startswith("win"):
     shared_lib_name = "mpt-crypto.dll"
 else:
     raise RuntimeError(f"Unsupported platform: {system}")
+
+# Platform-gated FFI surface: secp256k1_ec_pubkey_parse is exported by the
+# Linux/macOS shared library but not by the Windows DLL (statically-linked
+# secp256k1 symbols aren't re-exported on Windows). Declaring it only off-Windows
+# lets the Windows extension link while commitments.create_bulletproof /
+# verify_bulletproof stay available on Linux/macOS (they guard on
+# hasattr(lib, "secp256k1_ec_pubkey_parse") at runtime).
+if lib_subdir != "win32":
+    ffibuilder.cdef(
+        "int secp256k1_ec_pubkey_parse("
+        "const secp256k1_context* ctx, secp256k1_pubkey* pubkey, "
+        "const unsigned char* input, size_t inputlen);"
+    )
 
 libs_dir = os.path.join(script_dir, "libs", lib_subdir)
 include_dir = os.path.join(script_dir, "include")

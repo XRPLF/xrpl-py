@@ -55,7 +55,19 @@ build = "cp310-* cp311-* cp312-* cp313-*"
 # win32), and non-amd64 Windows (win_arm64). The prebuilt Windows bundle is
 # win32-x86-64 (64-bit) only, so a 32-bit wheel build fails to link (LNK1120).
 skip = "*-musllinux* pp* *_i686 *_ppc64le *_s390x *-win32 *-win_arm64"
-test-command = 'python -c "import xrpl.ext.confidential; print(\"import OK\")"'
+# The wheel's unique value is the compiled _mpt_crypto extension + bundled
+# libmpt-crypto. Validate THAT directly: the utility-layer unit tests import only
+# xrpl.ext.confidential.crypto_bindings (the native layer) and exercise the
+# exported mpt_ C API — no core xrpl-py ConfidentialMPT* transaction models
+# required, so we don't need a released core xrpl-py just to smoke-test the binary.
+#
+# Run the test file as a SCRIPT (it has a unittest __main__ guard) rather than via
+# pytest: that puts the test's own dir — not the repo root — on sys.path[0], so
+# `import xrpl...` resolves to the INSTALLED wheel (with the compiled extension)
+# instead of the source tree (which has none, and would make setUpModule skip
+# every test). The leading assert fails loudly if the native extension did not
+# load, so a skipped module cannot masquerade as a green run.
+test-command = 'python -c "import xrpl.ext.confidential.crypto_bindings as c; assert c.MPT_CRYPTO_AVAILABLE" && python {project}/tests/unit/ext/confidential/test_utility_layer.py'
 
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_28"

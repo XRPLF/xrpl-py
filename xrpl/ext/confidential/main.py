@@ -10,12 +10,7 @@ from typing import Optional, Tuple
 from typing_extensions import Self
 
 from xrpl.ext.confidential import commitments, encryption, keypair
-from xrpl.ext.confidential.crypto_bindings import (
-    SECP256K1_CONTEXT_SIGN,
-    SECP256K1_CONTEXT_VERIFY,
-    ffi,
-    lib,
-)
+from xrpl.ext.confidential.crypto_bindings import ffi, lib
 from xrpl.ext.confidential.encryption import (
     BLINDING_FACTOR_SIZE,
     PUBKEY_COMPRESSED_SIZE,
@@ -48,17 +43,15 @@ class MPTCrypto:
     """High-level Python API for mpt-crypto operations."""
 
     def __init__(self: Self) -> None:
-        """Initialize the secp256k1 context."""
-        self.ctx = lib.secp256k1_context_create(
-            SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY
-        )
+        """Initialize with mpt-crypto's globally shared secp256k1 context."""
+        # Use the context owned by mpt-crypto rather than creating our own:
+        # secp256k1_context_create/destroy are not exported by the Windows DLL
+        # (secp256k1 is statically linked in). This shared context is what every
+        # functional module already uses internally, so nothing else changes.
+        # It is owned by the library — do NOT destroy it (hence no __del__).
+        self.ctx = lib.mpt_secp256k1_context()
         if self.ctx == ffi.NULL:
-            raise RuntimeError("Failed to create secp256k1 context")
-
-    def __del__(self: Self) -> None:
-        """Clean up the secp256k1 context."""
-        if hasattr(self, "ctx") and self.ctx != ffi.NULL:
-            lib.secp256k1_context_destroy(self.ctx)
+            raise RuntimeError("Failed to obtain mpt-crypto secp256k1 context")
 
     # Keypair generation and Schnorr PoK
     def generate_keypair(self: Self) -> Tuple[str, str]:
@@ -120,7 +113,7 @@ class MPTCrypto:
     def create_bulletproof(
         self: Self, amount: int, blinding_factor: str, pk_base_uncompressed: str
     ) -> str:
-        """Create a Bulletproof range proof."""
+        """Create a Bulletproof range proof (Linux/macOS only; see commitments)."""
         return commitments.create_bulletproof(
             self.ctx, amount, blinding_factor, pk_base_uncompressed
         )
@@ -128,7 +121,7 @@ class MPTCrypto:
     def verify_bulletproof(
         self: Self, proof: str, commitment: str, pk_base_uncompressed: str
     ) -> bool:
-        """Verify a Bulletproof range proof."""
+        """Verify a Bulletproof range proof (Linux/macOS only; see commitments)."""
         return commitments.verify_bulletproof(
             self.ctx, proof, commitment, pk_base_uncompressed
         )
