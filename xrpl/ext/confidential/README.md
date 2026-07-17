@@ -10,7 +10,7 @@ Python bindings for confidential MPT operations, backed by the
 - **Native pieces:** a thin CFFI extension `_mpt_crypto` that dynamically loads
   `libmpt-crypto.{dylib,so,dll}` (secp256k1 + OpenSSL statically linked inside).
 - **Pinned upstream version:** see [`MPT_CRYPTO_VERSION`](./MPT_CRYPTO_VERSION)
-  (currently `1.0.1`). The client must build against the same mpt-crypto
+  (currently `1.0.2`). The client must build against the same mpt-crypto
   version the target `rippled` was built with.
 
 > **Status:** beta / feature branch. There is no published `xrpl-py-confidential`
@@ -35,7 +35,7 @@ poetry run pip install cffi
 
 # 3. Fetch the pinned native shared library into xrpl/ext/confidential/libs/.
 #    (Headers are already committed under include/.) Pass the version from
-#    xrpl/ext/confidential/MPT_CRYPTO_VERSION (currently 1.0.1):
+#    xrpl/ext/confidential/MPT_CRYPTO_VERSION (currently 1.0.2):
 VERSION=$(grep -E '^MPT_CRYPTO_VERSION=' xrpl/ext/confidential/MPT_CRYPTO_VERSION | cut -d= -f2)
 ./xrpl/ext/confidential/setup_mpt_crypto.sh download --version "$VERSION"
 

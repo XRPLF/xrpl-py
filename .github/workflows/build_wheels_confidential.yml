@@ -21,6 +21,16 @@
 name: Build Confidential MPT Wheels
 
 on:
+  # Validation gate: build (do NOT publish) the full cross-platform wheel matrix
+  # on PRs that touch the native add-on or its packaging, so a break in any
+  # platform's build or the `import xrpl.ext.confidential` smoke test is caught
+  # in CI. Core xrpl-py CI does not exercise the native build otherwise.
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "xrpl/ext/confidential/**"
+      - "packaging/confidential/**"
+      - ".github/workflows/build_wheels_confidential.yml"
   workflow_call:
     inputs:
       git_ref:

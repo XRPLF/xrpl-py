@@ -1,3 +1,3 @@
 # Pinned mpt-crypto release these bindings target.
-MPT_CRYPTO_VERSION=1.0.1
+MPT_CRYPTO_VERSION=1.0.2
 MPT_CRYPTO_REPO=XRPLF/mpt-crypto

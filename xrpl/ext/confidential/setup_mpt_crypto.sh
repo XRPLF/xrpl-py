@@ -7,7 +7,7 @@
 #
 # Usage:
 #   ./xrpl/ext/confidential/setup_mpt_crypto.sh download                     # from latest release
-#   ./xrpl/ext/confidential/setup_mpt_crypto.sh download --version 1.0.1  # specific release
+#   ./xrpl/ext/confidential/setup_mpt_crypto.sh download --version 1.0.2  # specific release
 #   ./xrpl/ext/confidential/setup_mpt_crypto.sh download --run ID            # from workflow run
 #   ./xrpl/ext/confidential/setup_mpt_crypto.sh build                        # build locally
 #
