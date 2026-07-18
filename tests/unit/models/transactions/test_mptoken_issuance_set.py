@@ -14,6 +14,15 @@ _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _TOKEN_ID = "000004C463C52827307480341125DA0577DEFC38405B0E3E"
 _HOLDER = "rajgkBmMxmz161r8bWYH7CQAFZP5bA9oSG"
 
+# The four ways a transaction can "mutate the issuance" — each must conflict
+# with both `holder` and the lock/unlock flags.
+_MUTATE_FIELDS = [
+    {"flags": MPTokenIssuanceSetFlag.TF_MPT_SET_CAN_LOCK},
+    {"mptoken_metadata": "464F4F"},
+    {"transfer_fee": 200},
+    {"immutable_flags": MPTokenIssuanceImmutableFlag.TIF_MPT_METADATA},
+]
+
 
 class TestMPTokenIssuanceSet(TestCase):
     # --- base lock/unlock behavior ---
@@ -59,42 +68,29 @@ class TestMPTokenIssuanceSet(TestCase):
             error.exception.args[0],
         )
 
-    # --- DynamicMPT: capability-setting flags (via the Flags field) ---
-    def test_set_capability_flags_valid(self):
-        """Multiple TF_MPT_SET_* capability flags can be combined."""
+    # --- DynamicMPT: capability-setting flags + all dynamic fields ---
+    def test_valid_with_all_dynamic_fields(self):
+        """Multiple capability flags, multiple immutable_flags, metadata, and
+        transfer_fee can all be combined in a single valid transaction."""
+        metadata = {"ticker": "TBILL", "name": "T-Bill", "icon": "https://ex.org/i.png"}
         tx = MPTokenIssuanceSet(
             account=_ACCOUNT,
             mptoken_issuance_id=_TOKEN_ID,
             flags=MPTokenIssuanceSetFlag.TF_MPT_SET_CAN_LOCK
             | MPTokenIssuanceSetFlag.TF_MPT_SET_CAN_ESCROW
-            | MPTokenIssuanceSetFlag.TF_MPT_SET_CAN_CLAWBACK,
-        )
-        self.assertTrue(tx.is_valid())
-
-    def test_valid_with_all_dynamic_fields(self):
-        """Capability flag + metadata + transfer_fee + immutable_flags together."""
-        metadata = {"ticker": "TBILL", "name": "T-Bill", "icon": "https://ex.org/i.png"}
-        tx = MPTokenIssuanceSet(
-            account=_ACCOUNT,
-            mptoken_issuance_id=_TOKEN_ID,
-            flags=MPTokenIssuanceSetFlag.TF_MPT_SET_CAN_TRANSFER,
+            | MPTokenIssuanceSetFlag.TF_MPT_SET_CAN_TRANSFER,
             transfer_fee=200,
             mptoken_metadata=str_to_hex(json.dumps(metadata)),
-            immutable_flags=MPTokenIssuanceImmutableFlag.TIF_MPT_CAN_LOCK,
+            immutable_flags=MPTokenIssuanceImmutableFlag.TIF_MPT_CAN_CLAWBACK
+            | MPTokenIssuanceImmutableFlag.TIF_MPT_REQUIRE_AUTH,
         )
         self.assertTrue(tx.is_valid())
 
     # --- holder cannot be combined with a mutate operation ---
     def test_holder_with_mutate_fails(self):
         """holder cannot be combined with any mutate-issuance operation."""
-        mutate_fields = [
-            {"flags": MPTokenIssuanceSetFlag.TF_MPT_SET_CAN_LOCK},
-            {"mptoken_metadata": "464F4F"},
-            {"transfer_fee": 200},
-            {"immutable_flags": MPTokenIssuanceImmutableFlag.TIF_MPT_METADATA},
-        ]
-        for fields in mutate_fields:
-            with self.subTest(field=next(iter(fields))):
+        for fields in _MUTATE_FIELDS:
+            with self.subTest(mutate=next(iter(fields))):
                 with self.assertRaises(XRPLModelException) as error:
                     MPTokenIssuanceSet(
                         account=_ACCOUNT,
@@ -106,20 +102,23 @@ class TestMPTokenIssuanceSet(TestCase):
 
     # --- lock/unlock cannot be combined with a mutate operation ---
     def test_lock_unlock_with_mutate_fails(self):
-        """TF_MPT_LOCK / TF_MPT_UNLOCK cannot be combined with a mutate op."""
+        """TF_MPT_LOCK / TF_MPT_UNLOCK cannot be combined with any mutate op."""
         for lock_flag in (
             MPTokenIssuanceSetFlag.TF_MPT_LOCK,
             MPTokenIssuanceSetFlag.TF_MPT_UNLOCK,
         ):
-            with self.subTest(flag=lock_flag):
-                with self.assertRaises(XRPLModelException) as error:
-                    MPTokenIssuanceSet(
-                        account=_ACCOUNT,
-                        mptoken_issuance_id=_TOKEN_ID,
-                        flags=lock_flag,
-                        immutable_flags=MPTokenIssuanceImmutableFlag.TIF_MPT_METADATA,
-                    )
-                self.assertIn("cannot be combined with", error.exception.args[0])
+            for fields in _MUTATE_FIELDS:
+                # A capability flag shares the Flags field with the lock flag,
+                # so OR them together; other mutates are independent kwargs.
+                kwargs = {**fields, "flags": lock_flag | fields.get("flags", 0)}
+                with self.subTest(lock=lock_flag, mutate=next(iter(fields))):
+                    with self.assertRaises(XRPLModelException) as error:
+                        MPTokenIssuanceSet(
+                            account=_ACCOUNT,
+                            mptoken_issuance_id=_TOKEN_ID,
+                            **kwargs,
+                        )
+                    self.assertIn("cannot be combined with", error.exception.args[0])
 
     # --- immutable_flags validation ---
     def test_valid_with_immutable_flags(self):

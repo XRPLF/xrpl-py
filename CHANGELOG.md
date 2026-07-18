@@ -16,7 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Drop support for the older `Batch` signing format (never live on any network, so no existing signatures are affected).
 
-
 ## [[5.0.0]]
 
 ### BREAKING CHANGE

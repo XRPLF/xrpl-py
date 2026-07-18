@@ -45,27 +45,44 @@ class MPTokenIssuanceSetFlag(int, Enum):
     """
 
     TF_MPT_SET_CAN_LOCK = 0x00000004
-    """Sets the lsfMPTCanLock flag on the issuance."""
+    """
+    Sets the lsfMPTCanLock flag. Enables the token to be locked both
+    individually and globally.
+    """
 
     TF_MPT_SET_REQUIRE_AUTH = 0x00000008
-    """Sets the lsfMPTRequireAuth flag on the issuance."""
+    """
+    Sets the lsfMPTRequireAuth flag. Requires individual holders to be
+    authorized.
+    """
 
     TF_MPT_SET_CAN_ESCROW = 0x00000010
-    """Sets the lsfMPTCanEscrow flag on the issuance."""
+    """
+    Sets the lsfMPTCanEscrow flag. Allows holders to place balances into escrow.
+    """
 
     TF_MPT_SET_CAN_TRADE = 0x00000020
-    """Sets the lsfMPTCanTrade flag on the issuance."""
+    """
+    Sets the lsfMPTCanTrade flag. Allows holders to trade balances on the
+    XRPL DEX.
+    """
 
     TF_MPT_SET_CAN_TRANSFER = 0x00000040
-    """Sets the lsfMPTCanTransfer flag on the issuance."""
+    """
+    Sets the lsfMPTCanTransfer flag. Allows tokens to be transferred to
+    non-issuer accounts.
+    """
 
     TF_MPT_SET_CAN_CLAWBACK = 0x00000080
-    """Sets the lsfMPTCanClawback flag on the issuance."""
+    """
+    Sets the lsfMPTCanClawback flag. Enables the issuer to claw back tokens via
+    Clawback or AMMClawback transactions.
+    """
 
     TF_MPT_SET_CAN_HOLD_CONFIDENTIAL_BALANCE = 0x00000100
     """
-    Sets the lsfMPTCanHoldConfidentialBalance flag on the issuance.
-    Requires the ConfidentialTransfer amendment (XLS-96).
+    Sets the lsfMPTCanHoldConfidentialBalance flag. Enables the token to be held
+    in a confidential balance. Requires the XLS-96 Confidential MPT amendment.
     """
 
 

@@ -66,7 +66,7 @@ class MPTokenIssuanceImmutableFlag(int, Enum):
     TIF_MPT_CAN_HOLD_CONFIDENTIAL_BALANCE = 0x00000080
     """
     Makes flag lsfMPTCanHoldConfidentialBalance immutable.
-    Requires the ConfidentialTransfer amendment (XLS-96).
+    Requires the XLS-96 Confidential MPT amendment.
     """
 
     TIF_MPT_METADATA = 0x00010000
@@ -203,6 +203,10 @@ class MPTokenIssuanceCreate(Transaction):
             for flag in MPTokenIssuanceImmutableFlag:
                 valid_mask |= flag.value
 
+            # The zero case needs its own check: `0 & ~valid_mask` is 0 (falsy),
+            # so the invalid-bits check below would let it through. Zero has no
+            # bits set, meaning nothing is declared immutable, which is a
+            # pointless no-op we reject explicitly.
             if self.immutable_flags == 0:
                 errors["immutable_flags"] = "immutable_flags cannot be 0"
             elif self.immutable_flags & ~valid_mask:

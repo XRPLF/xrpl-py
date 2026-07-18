@@ -112,15 +112,6 @@ class TestMPTokenIssuanceCreate(TestCase):
             )
 
     # DynamicMPT tests
-    def test_tx_with_immutable_flags(self):
-        """A subset of ImmutableFlags (field + capability) is valid."""
-        tx = MPTokenIssuanceCreate(
-            account=_ACCOUNT,
-            immutable_flags=MPTokenIssuanceImmutableFlag.TIF_MPT_METADATA
-            | MPTokenIssuanceImmutableFlag.TIF_MPT_CAN_LOCK,
-        )
-        self.assertTrue(tx.is_valid())
-
     def test_tx_with_all_immutable_flags(self):
         """All ImmutableFlags bits combined are valid."""
         all_flags = 0
