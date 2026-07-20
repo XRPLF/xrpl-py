@@ -52,16 +52,24 @@ class ConfidentialMPTClawback(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        if hasattr(self, "account") and hasattr(self, "holder"):
-            if self.account == self.holder:
-                errors["holder"] = "Cannot claw back from the same account"
+        # Guard against the REQUIRED sentinel so super()'s "is not set" error
+        # surfaces first instead of a TypeError on the sentinel.
+        if (
+            self.account is not REQUIRED
+            and self.holder is not REQUIRED
+            and self.account == self.holder
+        ):
+            errors["holder"] = "Cannot claw back from the same account"
 
-        if len(self.zk_proof) != CLAWBACK_PROOF_LENGTH:
+        if (
+            self.zk_proof is not REQUIRED
+            and len(self.zk_proof) != CLAWBACK_PROOF_LENGTH
+        ):
             errors["zk_proof"] = (
                 "zk_proof must be 64 bytes (128 hex characters) for compact sigma proof"
             )
 
-        if self.mpt_amount <= 0:
+        if self.mpt_amount is not REQUIRED and self.mpt_amount <= 0:
             errors["mpt_amount"] = "mpt_amount cannot be zero or negative"
 
         return errors

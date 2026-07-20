@@ -7,7 +7,7 @@
 #
 # Usage:
 #   ./xrpl/ext/confidential/setup_mpt_crypto.sh download                     # from latest release
-#   ./xrpl/ext/confidential/setup_mpt_crypto.sh download --version 0.4.0-rc2  # specific release
+#   ./xrpl/ext/confidential/setup_mpt_crypto.sh download --version 1.0.2  # specific release
 #   ./xrpl/ext/confidential/setup_mpt_crypto.sh download --run ID            # from workflow run
 #   ./xrpl/ext/confidential/setup_mpt_crypto.sh build                        # build locally
 #
@@ -146,6 +146,32 @@ download_from_mpt_crypto() {
     if [ ! -f "$TARBALL" ]; then
         echo "ERROR: Tarball not found at $TARBALL"
         exit 1
+    fi
+
+    # ── Integrity check: verify the bundle against the pinned BUNDLE_SHA256
+    # when the downloaded version matches the pin. Best-effort for a dev helper:
+    # arbitrary --version/--run downloads have no pinned hash, so we at least
+    # surface the observed sha256 for manual comparison. ──
+    if command -v sha256sum >/dev/null 2>&1; then
+        OBSERVED_SHA="$(sha256sum "$TARBALL" | awk '{print $1}')"
+    else
+        OBSERVED_SHA="$(shasum -a 256 "$TARBALL" | awk '{print $1}')"
+    fi
+    VERSION_ENV="$REPO_ROOT/packaging/confidential/version.env"
+    PINNED_VERSION="$(grep -E '^MPT_CRYPTO_VERSION=' "$VERSION_ENV" 2>/dev/null | cut -d= -f2)"
+    PINNED_SHA="$(grep -E '^BUNDLE_SHA256=' "$VERSION_ENV" 2>/dev/null | cut -d= -f2)"
+    if [ -n "$PINNED_SHA" ] \
+       && [ "$PINNED_SHA" != "REPLACE_ME_WITH_RELEASE_ASSET_SHA256" ] \
+       && [ "${TAG:-}" = "$PINNED_VERSION" ]; then
+        if [ "$OBSERVED_SHA" != "$PINNED_SHA" ]; then
+            echo "ERROR: sha256 mismatch for $TARBALL" >&2
+            echo "  expected (version.env): $PINNED_SHA" >&2
+            echo "  observed:               $OBSERVED_SHA" >&2
+            exit 1
+        fi
+        echo "Verified bundle sha256 against pinned BUNDLE_SHA256."
+    else
+        echo "WARNING: bundle not pinned in version.env; sha256 (unverified): $OBSERVED_SHA" >&2
     fi
 
     echo "Extracting $TARBALL..."

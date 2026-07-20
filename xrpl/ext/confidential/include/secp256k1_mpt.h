@@ -64,7 +64,13 @@ secp256k1_elgamal_encrypt(
  * @param[in]  privkey    The 32-byte ElGamal private key.
  * @param[in]  range_low  Lower bound of the search range (inclusive).
  * @param[in]  range_high Upper bound of the search range (inclusive).
- *                        Must be >= range_low; returns 0 otherwise.
+ *                        Must be >= range_low and must not be UINT64_MAX;
+ *                        either condition returns 0 immediately.  UINT64_MAX
+ *                        is rejected because the loop runs
+ *                        range_high - max(1, range_low) + 1 iterations — a
+ *                        UINT64_MAX upper bound would require up to 2^64 - 1
+ *                        iterations (effectively infinite).  Use
+ *                        secp256k1_elgamal_decrypt_bsgs for larger ranges.
  *                        Recommended default: range_low=0, range_high=1000000.
  *
  * @return 1 if the ciphertext decrypts to an amount in [range_low, range_high]
@@ -248,7 +254,11 @@ void
 secp256k1_mpt_scalar_add(unsigned char* res, unsigned char const* a, unsigned char const* b);
 void
 secp256k1_mpt_scalar_mul(unsigned char* res, unsigned char const* a, unsigned char const* b);
-void
+/* Computes the modular inverse of a scalar. Returns 1 on success,
+ * 0 if the input is zero (inverse undefined). Callers must check
+ * the return value. */
+
+int
 secp256k1_mpt_scalar_inverse(unsigned char* res, unsigned char const* in);
 void
 secp256k1_mpt_scalar_negate(unsigned char* res, unsigned char const* in);

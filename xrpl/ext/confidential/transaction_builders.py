@@ -164,7 +164,16 @@ def _assemble_convert(  # noqa: ANN
     auditor_pubkey: Optional[str],
 ) -> ConfidentialMPTConvert:
     if holder_privkey is None or holder_pubkey is None:
-        holder_privkey, holder_pubkey = crypto.generate_keypair()
+        # Never auto-generate here: the public key is registered on-chain, but a
+        # private key generated (and discarded) inside the builder would be
+        # unrecoverable, permanently locking the resulting confidential balance.
+        # The caller must generate a keypair with MPTCrypto.generate_keypair()
+        # and persist the private key.
+        raise ValueError(
+            "holder_privkey and holder_pubkey are required. Generate a keypair "
+            "with MPTCrypto.generate_keypair() and retain the private key; it is "
+            "needed to decrypt and spend the confidential balance."
+        )
 
     context_id = compute_convert_context_hash(
         account, sequence, bytes.fromhex(mpt_issuance_id)
@@ -392,8 +401,8 @@ def prepare_confidential_convert(
     mpt_issuance_id: str,
     amount: int,
     issuer_pubkey: str,
-    holder_privkey: Optional[str] = None,
-    holder_pubkey: Optional[str] = None,
+    holder_privkey: str,
+    holder_pubkey: str,
     auditor_pubkey: Optional[str] = None,
 ) -> ConfidentialMPTConvert:
     """
@@ -405,9 +414,11 @@ def prepare_confidential_convert(
         mpt_issuance_id: 24-byte MPT issuance ID (hex string).
         amount: Amount to convert (uint64).
         issuer_pubkey: 66-char hex of the issuer's compressed public key.
-        holder_privkey: Optional 64-char hex of the holder's private key
-            (a new keypair is generated if omitted).
-        holder_pubkey: Optional 66-char hex of the holder's compressed public key.
+        holder_privkey: 64-char hex of the holder's private key. Generate a
+            keypair with ``MPTCrypto.generate_keypair()`` and persist the private
+            key: it is required to later decrypt and spend the confidential
+            balance, and the builder never generates one for you.
+        holder_pubkey: 66-char hex of the holder's compressed public key.
         auditor_pubkey: Optional 66-char hex of the auditor's public key.
 
     Returns:
@@ -597,8 +608,8 @@ async def prepare_confidential_convert_async(
     mpt_issuance_id: str,
     amount: int,
     issuer_pubkey: str,
-    holder_privkey: Optional[str] = None,
-    holder_pubkey: Optional[str] = None,
+    holder_privkey: str,
+    holder_pubkey: str,
     auditor_pubkey: Optional[str] = None,
 ) -> ConfidentialMPTConvert:
     """
@@ -610,8 +621,11 @@ async def prepare_confidential_convert_async(
         mpt_issuance_id: 24-byte MPT issuance ID (hex string).
         amount: Amount to convert (uint64).
         issuer_pubkey: 66-char hex of the issuer's compressed public key.
-        holder_privkey: Optional 64-char hex of the holder's private key.
-        holder_pubkey: Optional 66-char hex of the holder's compressed public key.
+        holder_privkey: 64-char hex of the holder's private key. Generate a
+            keypair with ``MPTCrypto.generate_keypair()`` and persist the private
+            key: it is required to later decrypt and spend the confidential
+            balance, and the builder never generates one for you.
+        holder_pubkey: 66-char hex of the holder's compressed public key.
         auditor_pubkey: Optional 66-char hex of the auditor's public key.
 
     Returns:

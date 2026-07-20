@@ -32,13 +32,27 @@ if [ -n "${BUNDLE_SHA256:-}" ] && [ "${BUNDLE_SHA256}" != "REPLACE_ME_WITH_RELEA
   echo "${BUNDLE_SHA256}  $TMP/$BUNDLE" | sha256sum -c - \
     || { echo "ERROR: sha256 mismatch for $BUNDLE" >&2; exit 1; }
 else
-  echo "WARNING: BUNDLE_SHA256 not pinned — observed hash (NOT verified):" >&2
+  echo "ERROR: BUNDLE_SHA256 is not pinned in version.env — refusing to stage an" >&2
+  echo "unverified native artifact into a published wheel. Set BUNDLE_SHA256 to the" >&2
+  echo "sha256 of $BUNDLE before building. Observed (unverified) hash:" >&2
   sha256sum "$TMP/$BUNDLE" >&2
+  exit 1
 fi
 
 tar -xzf "$TMP/$BUNDLE" -C "$TMP"
 mkdir -p "$PKG/libs/win32"
 cp "$TMP/win32-x86-64/mpt-crypto.dll" "$PKG/libs/win32/"
+# Windows also needs the MSVC import library to LINK the CFFI extension
+# (build_mpt_crypto.py uses libraries=["mpt-crypto"] + library_dirs=[libs/win32]);
+# the .dll alone only satisfies the runtime load.
+if [ -f "$TMP/win32-x86-64/mpt-crypto.lib" ]; then
+  cp "$TMP/win32-x86-64/mpt-crypto.lib" "$PKG/libs/win32/"
+else
+  echo "ERROR: mpt-crypto.lib (import library) missing from the natives bundle;" >&2
+  echo "the CFFI extension cannot link on Windows without it. Use an mpt-crypto" >&2
+  echo "release whose win32-x86-64 bundle includes mpt-crypto.lib." >&2
+  exit 1
+fi
 
 echo "==> Staged library:"
 find "$PKG/libs" -type f | sort

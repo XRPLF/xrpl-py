@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from xrpl.constants import CryptoAlgorithm, XRPLException
+from xrpl.core.addresscodec.codec import decode_classic_address
 from xrpl.core.binarycodec.main import decode
 from xrpl.models.transactions import Batch, BatchFlag, Signer
 from xrpl.models.transactions.batch import BatchSigner
@@ -181,6 +182,20 @@ class TestSignMultiAccountBatch(TestCase):
         with self.assertRaises(XRPLException):
             sign_multiaccount_batch(other_wallet, self.batch_tx)
 
+    def test_self_multisign_raises(self):
+        # multisign=True with no batch_account makes the signer sign for itself.
+        with self.assertRaises(XRPLException):
+            sign_multiaccount_batch(secp_wallet, self.batch_tx, multisign=True)
+
+    def test_multisign_signer_equals_batch_account_raises(self):
+        with self.assertRaises(XRPLException):
+            sign_multiaccount_batch(
+                secp_wallet,
+                self.batch_tx,
+                multisign=ed_wallet.address,
+                batch_account=ed_wallet.address,
+            )
+
 
 class TestCombineBatchSigners(TestCase):
     batch_tx = Batch.from_xrpl(
@@ -302,3 +317,73 @@ class TestCombineBatchSigners(TestCase):
         bad_tx = self._signed_with_field(Sequence=216)
         with self.assertRaises(XRPLException):
             combine_batch_signers([self.tx1, bad_tx])
+
+    def test_merge_multisigned_inner_signers(self):
+        # Fragments sharing a multisig batch account merge into one BatchSigner.
+        frag1 = sign_multiaccount_batch(
+            regkey_wallet,
+            self.batch_tx,
+            multisign=True,
+            batch_account=ed_wallet.address,
+        )
+        frag2 = sign_multiaccount_batch(
+            submit_wallet,
+            self.batch_tx,
+            multisign=True,
+            batch_account=ed_wallet.address,
+        )
+        result = decode(combine_batch_signers([frag1, frag2]))["BatchSigners"]
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["BatchSigner"]["Account"], ed_wallet.address)
+        inner = result[0]["BatchSigner"]["Signers"]
+        self.assertEqual(len(inner), 2)
+        signer_accounts = [entry["Signer"]["Account"] for entry in inner]
+        self.assertEqual(
+            set(signer_accounts), {regkey_wallet.address, submit_wallet.address}
+        )
+        # Inner Signers must be sorted by AccountID bytes.
+        expected_order = sorted(
+            signer_accounts,
+            key=lambda account: decode_classic_address(account).hex().upper(),
+        )
+        self.assertEqual(signer_accounts, expected_order)
+
+    def test_mismatched_single_and_multi_signed(self):
+        # Single-signed and multi-signed fragments for one account cannot combine.
+        single = sign_multiaccount_batch(ed_wallet, self.batch_tx)
+        multi = sign_multiaccount_batch(
+            regkey_wallet,
+            self.batch_tx,
+            multisign=True,
+            batch_account=ed_wallet.address,
+        )
+        with self.assertRaises(XRPLException):
+            combine_batch_signers([single, multi])
+
+    def test_conflicting_inner_signers_raises(self):
+        # Same batch account and inner signer account across fragments, but a
+        # different signature -- merging must raise, not silently drop one.
+        frag1 = sign_multiaccount_batch(
+            regkey_wallet,
+            self.batch_tx,
+            multisign=True,
+            batch_account=ed_wallet.address,
+        )
+        conflicting_dict = self.batch_tx.to_dict()
+        conflicting_dict["batch_signers"] = [
+            BatchSigner(
+                account=ed_wallet.address,
+                signers=[
+                    Signer(
+                        account=regkey_wallet.address,
+                        signing_pub_key=regkey_wallet.public_key,
+                        txn_signature="DEADBEEF",
+                    )
+                ],
+            )
+        ]
+        frag2 = Batch.from_dict(conflicting_dict)
+
+        with self.assertRaises(XRPLException):
+            combine_batch_signers([frag1, frag2])

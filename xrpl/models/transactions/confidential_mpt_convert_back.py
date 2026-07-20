@@ -54,7 +54,7 @@ class ConfidentialMPTConvertBack(Transaction):
     balance_commitment: str = REQUIRED  # type: ignore
     """
     Pedersen commitment to the holder's CURRENT confidential spending balance
-    (64 bytes uncompressed).
+    (33 bytes compressed).
     """
 
     zk_proof: str = REQUIRED  # type: ignore
@@ -79,20 +79,31 @@ class ConfidentialMPTConvertBack(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        if len(self.blinding_factor) != BLINDING_FACTOR_LENGTH:
+        # Guard each check against the REQUIRED sentinel so super()'s
+        # "is not set" error surfaces first instead of a TypeError.
+        if (
+            self.blinding_factor is not REQUIRED
+            and len(self.blinding_factor) != BLINDING_FACTOR_LENGTH
+        ):
             errors["blinding_factor"] = (
                 "blinding_factor must be 32 bytes (64 hex characters)"
             )
 
-        if self.mpt_amount <= 0:
+        if self.mpt_amount is not REQUIRED and self.mpt_amount <= 0:
             errors["mpt_amount"] = "mpt_amount cannot be zero or negative"
 
-        if len(self.holder_encrypted_amount) != CIPHERTEXT_LENGTH:
+        if (
+            self.holder_encrypted_amount is not REQUIRED
+            and len(self.holder_encrypted_amount) != CIPHERTEXT_LENGTH
+        ):
             errors["holder_encrypted_amount"] = (
                 "holder_encrypted_amount must be 66 bytes (132 hex characters)"
             )
 
-        if len(self.issuer_encrypted_amount) != CIPHERTEXT_LENGTH:
+        if (
+            self.issuer_encrypted_amount is not REQUIRED
+            and len(self.issuer_encrypted_amount) != CIPHERTEXT_LENGTH
+        ):
             errors["issuer_encrypted_amount"] = (
                 "issuer_encrypted_amount must be 66 bytes (132 hex characters)"
             )
@@ -106,13 +117,19 @@ class ConfidentialMPTConvertBack(Transaction):
             )
 
         # Validate balance_commitment length (33 bytes = 66 hex for compressed point)
-        if len(self.balance_commitment) != COMMITMENT_LENGTH:
+        if (
+            self.balance_commitment is not REQUIRED
+            and len(self.balance_commitment) != COMMITMENT_LENGTH
+        ):
             errors["balance_commitment"] = (
                 "balance_commitment must be 33 bytes (66 hex characters)"
             )
 
         # Validate zk_proof length (816 bytes for ConvertBack proof)
-        if len(self.zk_proof) != CONVERT_BACK_PROOF_LENGTH:
+        if (
+            self.zk_proof is not REQUIRED
+            and len(self.zk_proof) != CONVERT_BACK_PROOF_LENGTH
+        ):
             errors["zk_proof"] = (
                 "zk_proof must be 816 bytes (1632 hex characters) for ConvertBack proof"
             )

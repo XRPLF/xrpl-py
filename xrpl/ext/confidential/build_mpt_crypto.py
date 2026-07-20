@@ -4,6 +4,7 @@ Build script for mpt-crypto C library Python bindings using cffi.
 
 import os
 import platform
+import sys
 
 from cffi import FFI
 
@@ -25,14 +26,21 @@ ffibuilder.cdef(
     typedef struct secp256k1_context_struct secp256k1_context;
     typedef struct { unsigned char data[64]; } secp256k1_pubkey;
 
-    secp256k1_context* secp256k1_context_create(unsigned int flags);
-    void secp256k1_context_destroy(secp256k1_context* ctx);
-    int secp256k1_ec_pubkey_parse(
-        const secp256k1_context* ctx,
-        secp256k1_pubkey* pubkey,
-        const unsigned char* input,
-        size_t inputlen
-    );
+    // NOTE on vanilla upstream secp256k1 symbols. secp256k1 is statically linked
+    // INTO libmpt-crypto; on Windows its symbols are NOT re-exported by the DLL
+    // (only mpt-crypto's own API is), so referencing them breaks the link
+    // (LNK2001). Therefore:
+    //   * secp256k1_context_create / _destroy are not declared at all — we use
+    //     the exported mpt_secp256k1_context() (below) on every platform.
+    //   * secp256k1_ec_pubkey_parse IS available on the Linux/macOS shared libs,
+    //     so it is declared conditionally (off-Windows only) via a second cdef()
+    //     further down, keeping create_bulletproof/verify_bulletproof usable
+    //     there while the Windows extension still links.
+    // Keep the typedefs above — the exported bulletproof / mpt_ signatures below
+    // still use them.
+
+    // Globally shared secp256k1 context owned by mpt-crypto (do not destroy).
+    secp256k1_context* mpt_secp256k1_context(void);
 
     // ---- Bulletproof range proofs (aggregated API) ----
     int secp256k1_bulletproof_prove_agg(
@@ -205,24 +213,35 @@ elif system == "windows" or system.startswith("win"):
 else:
     raise RuntimeError(f"Unsupported platform: {system}")
 
-libs_dir = os.path.join(script_dir, "libs", lib_subdir)
-include_dir = os.path.join(script_dir, "include")
-
-if not os.path.exists(libs_dir):
-    raise RuntimeError(
-        f"Pre-compiled libraries not found for platform '{lib_subdir}'. "
-        f"Expected directory: {libs_dir}"
+# Platform-gated FFI surface: secp256k1_ec_pubkey_parse is exported by the
+# Linux/macOS shared library but not by the Windows DLL (statically-linked
+# secp256k1 symbols aren't re-exported on Windows). Declaring it only off-Windows
+# lets the Windows extension link while commitments.create_bulletproof /
+# verify_bulletproof stay available on Linux/macOS (they guard on
+# hasattr(lib, "secp256k1_ec_pubkey_parse") at runtime).
+if lib_subdir != "win32":
+    ffibuilder.cdef(
+        "int secp256k1_ec_pubkey_parse("
+        "const secp256k1_context* ctx, secp256k1_pubkey* pubkey, "
+        "const unsigned char* input, size_t inputlen);"
     )
 
+libs_dir = os.path.join(script_dir, "libs", lib_subdir)
+include_dir = os.path.join(script_dir, "include")
 shared_lib_path = os.path.join(libs_dir, shared_lib_name)
+
+# The library is only needed when we actually COMPILE the extension
+# (ffibuilder.compile() during a wheel build). This module is also imported
+# purely for metadata — e.g. `build --sdist`, whose isolated env has no
+# compiled natives — so a missing library here must NOT abort the import.
+# We warn instead; the linker enforces presence at wheel-compile time.
 if not os.path.exists(shared_lib_path):
-    raise RuntimeError(
-        f"Shared library not found: {shared_lib_path}\n"
-        f"Contents of {libs_dir}: {os.listdir(libs_dir)}\n"
-        f"\n"
-        f"The CI now builds mpt-crypto as a shared library (.so/.dylib/.dll)\n"
-        f"instead of separate static archives (.a/.lib).\n"
-        f"Run: ./xrpl/core/confidential/setup_mpt_crypto.sh download"
+    print(
+        f"WARNING: mpt-crypto shared library not found at {shared_lib_path}. "
+        f"This is required only when building a wheel (ffibuilder.compile); "
+        f"source-only builds (sdist) are unaffected. Run "
+        f"./xrpl/ext/confidential/setup_mpt_crypto.sh download to fetch it.",
+        file=sys.stderr,
     )
 
 library_dirs = [libs_dir]
@@ -248,7 +267,9 @@ elif system == "linux":
         f"-Wl,-rpath,$ORIGIN/libs/{lib_subdir}",
     ]
 elif system == "windows" or system.startswith("win"):
-    # On Windows the DLL just needs to be on PATH or in the same directory
+    # MSVC links against the import library mpt-crypto.lib, resolved from
+    # library_dirs (libs/win32); the matching mpt-crypto.dll is loaded at
+    # runtime (see crypto_bindings._preload_shared_library).
     libraries = ["mpt-crypto"]
 
 ffibuilder.set_source(

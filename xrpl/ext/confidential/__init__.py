@@ -5,14 +5,34 @@ This module provides a clean Python API for the mpt-crypto library,
 which implements cryptographic operations for confidential MPT transactions.
 """
 
+from typing import TYPE_CHECKING, List
+
 from xrpl.ext.confidential.crypto_bindings import MPT_CRYPTO_AVAILABLE
 from xrpl.ext.confidential.main import MPTCrypto
-from xrpl.ext.confidential.transaction_builders import (
-    prepare_confidential_clawback,
-    prepare_confidential_convert,
-    prepare_confidential_convert_back,
-    prepare_confidential_merge_inbox,
-    prepare_confidential_send,
+
+# The transaction builders import the ConfidentialMPT* models from CORE xrpl-py.
+# Expose them lazily (PEP 562 __getattr__) so that importing this package — or
+# using only the native crypto layer (MPTCrypto / crypto_bindings) — does not
+# require a core xrpl-py that ships those models. Calling a builder imports
+# transaction_builders at that point (and so needs the models only then). The
+# TYPE_CHECKING block keeps the names resolvable for type checkers / IDEs.
+if TYPE_CHECKING:
+    from xrpl.ext.confidential.transaction_builders import (  # noqa: F401
+        prepare_confidential_clawback,
+        prepare_confidential_convert,
+        prepare_confidential_convert_back,
+        prepare_confidential_merge_inbox,
+        prepare_confidential_send,
+    )
+
+_LAZY_BUILDERS = frozenset(
+    {
+        "prepare_confidential_clawback",
+        "prepare_confidential_convert",
+        "prepare_confidential_convert_back",
+        "prepare_confidential_merge_inbox",
+        "prepare_confidential_send",
+    }
 )
 
 # Size constants (matching mpt_utility.h)
@@ -33,7 +53,7 @@ __all__ = [
     # Core crypto class
     "MPTCrypto",
     "MPT_CRYPTO_AVAILABLE",
-    # Transaction builders
+    # Transaction builders (resolved lazily via __getattr__)
     "prepare_confidential_convert",
     "prepare_confidential_merge_inbox",
     "prepare_confidential_send",
@@ -53,3 +73,16 @@ __all__ = [
     "SINGLE_BULLETPROOF_SIZE",
     "DOUBLE_BULLETPROOF_SIZE",
 ]
+
+
+def __getattr__(name: str) -> object:
+    """Lazily import the transaction builders (see note above)."""
+    if name in _LAZY_BUILDERS:
+        from xrpl.ext.confidential import transaction_builders
+
+        return getattr(transaction_builders, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__() -> List[str]:
+    return sorted(__all__)

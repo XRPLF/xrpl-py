@@ -52,10 +52,10 @@ class ConfidentialMPTSend(Transaction):
     """ZKP bundle establishing equality, linkage, and range sufficiency."""
 
     amount_commitment: str = REQUIRED  # type: ignore
-    """Pedersen commitment to the amount being sent (64 bytes)."""
+    """Pedersen commitment to the amount being sent (33 bytes)."""
 
     balance_commitment: str = REQUIRED  # type: ignore
-    """Pedersen commitment to the sender's remaining spending balance (64 bytes)."""
+    """Pedersen commitment to the sender's remaining spending balance (33 bytes)."""
 
     auditor_encrypted_amount: Optional[str] = None
     """
@@ -77,23 +77,36 @@ class ConfidentialMPTSend(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        # Validate sender != destination (temMALFORMED)
-        if hasattr(self, "account") and hasattr(self, "destination"):
-            if self.account == self.destination:
-                errors["destination"] = "Sender cannot send to themselves"
+        # Validate sender != destination (temMALFORMED). Guard against the
+        # REQUIRED sentinel so super()'s "is not set" error surfaces first.
+        if (
+            self.account is not REQUIRED
+            and self.destination is not REQUIRED
+            and self.account == self.destination
+        ):
+            errors["destination"] = "Sender cannot send to themselves"
 
         # Validate ciphertext lengths (temBAD_CIPHERTEXT)
-        if len(self.sender_encrypted_amount) != CIPHERTEXT_LENGTH:
+        if (
+            self.sender_encrypted_amount is not REQUIRED
+            and len(self.sender_encrypted_amount) != CIPHERTEXT_LENGTH
+        ):
             errors["sender_encrypted_amount"] = (
                 "sender_encrypted_amount must be 66 bytes (132 hex characters)"
             )
 
-        if len(self.destination_encrypted_amount) != CIPHERTEXT_LENGTH:
+        if (
+            self.destination_encrypted_amount is not REQUIRED
+            and len(self.destination_encrypted_amount) != CIPHERTEXT_LENGTH
+        ):
             errors["destination_encrypted_amount"] = (
                 "destination_encrypted_amount must be 66 bytes (132 hex characters)"
             )
 
-        if len(self.issuer_encrypted_amount) != CIPHERTEXT_LENGTH:
+        if (
+            self.issuer_encrypted_amount is not REQUIRED
+            and len(self.issuer_encrypted_amount) != CIPHERTEXT_LENGTH
+        ):
             errors["issuer_encrypted_amount"] = (
                 "issuer_encrypted_amount must be 66 bytes (132 hex characters)"
             )
@@ -107,18 +120,24 @@ class ConfidentialMPTSend(Transaction):
             )
 
         # Validate commitment lengths (33 bytes = 66 hex for compressed point)
-        if len(self.amount_commitment) != COMMITMENT_LENGTH:
+        if (
+            self.amount_commitment is not REQUIRED
+            and len(self.amount_commitment) != COMMITMENT_LENGTH
+        ):
             errors["amount_commitment"] = (
                 "amount_commitment must be 33 bytes (66 hex characters)"
             )
 
-        if len(self.balance_commitment) != COMMITMENT_LENGTH:
+        if (
+            self.balance_commitment is not REQUIRED
+            and len(self.balance_commitment) != COMMITMENT_LENGTH
+        ):
             errors["balance_commitment"] = (
                 "balance_commitment must be 33 bytes (66 hex characters)"
             )
 
         # Validate zk_proof length (946 bytes for Send proof)
-        if len(self.zk_proof) != SEND_PROOF_LENGTH:
+        if self.zk_proof is not REQUIRED and len(self.zk_proof) != SEND_PROOF_LENGTH:
             errors["zk_proof"] = (
                 "zk_proof must be 946 bytes (1892 hex characters) for Send proof"
             )

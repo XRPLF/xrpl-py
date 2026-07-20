@@ -43,23 +43,46 @@ include-package-data = true
 # The workflow stages the source (host) before invoking cibuildwheel; before-all
 # then builds (Linux/macOS) or fetches (Windows) libmpt-crypto into the staged
 # xrpl/ext/confidential/libs/<platform>/.
+#
+# before-all runs with CWD = the dir cibuildwheel was invoked from (repo root),
+# NOT this package dir, so the script paths use the {package} placeholder
+# (absolute path to package-dir, translated to the in-container path on Linux).
 # ──────────────────────────────────────────────────────────────────────────────
 [tool.cibuildwheel]
 build-frontend = "build"
 build = "cp310-* cp311-* cp312-* cp313-*"
-skip = "*-musllinux* pp* *_i686 *_ppc64le *_s390x"
-test-command = 'python -c "import xrpl.ext.confidential; print(\"import OK\")"'
+# Skip targets we ship no native for: musl, PyPy, 32-bit (linux i686 / Windows
+# win32), and non-amd64 Windows (win_arm64). The prebuilt Windows bundle is
+# win32-x86-64 (64-bit) only, so a 32-bit wheel build fails to link (LNK1120).
+skip = "*-musllinux* pp* *_i686 *_ppc64le *_s390x *-win32 *-win_arm64"
+# The wheel's unique value is the compiled _mpt_crypto extension + bundled
+# libmpt-crypto. Validate THAT directly: the utility-layer unit tests import only
+# xrpl.ext.confidential.crypto_bindings (the native layer) and exercise the
+# exported mpt_ C API — no core xrpl-py ConfidentialMPT* transaction models
+# required, so we don't need a released core xrpl-py just to smoke-test the binary.
+#
+# Run the test file as a SCRIPT (it has a unittest __main__ guard) rather than via
+# pytest: that puts the test's own dir — not the repo root — on sys.path[0], so
+# `import xrpl...` resolves to the INSTALLED wheel (with the compiled extension)
+# instead of the source tree (which has none, and would make setUpModule skip
+# every test). The leading assert fails loudly if the native extension did not
+# load, so a skipped module cannot masquerade as a green run.
+test-command = 'python -c "import xrpl.ext.confidential.crypto_bindings as c; assert c.MPT_CRYPTO_AVAILABLE" && python {project}/tests/unit/ext/confidential/test_utility_layer.py'
 
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
-before-all = "bash scripts/build-mpt-crypto-lib.sh"
+before-all = "bash {package}/scripts/build-mpt-crypto-lib.sh"
 
 [tool.cibuildwheel.macos]
-before-all = "bash scripts/build-mpt-crypto-lib.sh"
+before-all = "bash {package}/scripts/build-mpt-crypto-lib.sh"
 environment = { MACOSX_DEPLOYMENT_TARGET = "13.0" }
 
 [tool.cibuildwheel.windows]
-before-all = "bash scripts/fetch-prebuilt-natives.sh"
-before-build = "pip install delvewheel"
-repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
+before-all = "bash {package}/scripts/fetch-prebuilt-natives.sh"
+# No delvewheel repair. mpt-crypto.dll is shipped in the wheel (package-data
+# libs/win32/) and loaded explicitly at import by
+# crypto_bindings._preload_shared_library — secp256k1 and OpenSSL are statically
+# linked into it, so it has no extra DLLs to vendor. delvewheel repair only fails
+# here trying to relocate a self-contained DLL we already manage ourselves.
+repair-wheel-command = ""

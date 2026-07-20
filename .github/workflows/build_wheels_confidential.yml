@@ -9,15 +9,28 @@
 #   Linux  x86_64 + aarch64  — libmpt-crypto BUILT FROM SOURCE in manylinux_2_28
 #   macOS  arm64 + x86_64    — built from source, MACOSX_DEPLOYMENT_TARGET=13.0
 #   Windows AMD64            — upstream prebuilt DLL + delvewheel
-#   CPython 3.8–3.13
+#   CPython 3.10–3.13 (matches core xrpl-py's minimum; 3.14 pending a
+#                      cibuildwheel major upgrade — see build/skip below)
 #
-# Triggers are manual/`workflow_call` only on purpose: this references the
-# packaging/confidential/xrpl_confidential/ package that lands during the
-# SPLIT_DESIGN.md migration. No auto push trigger until the move is merged.
+# Triggers are manual (`workflow_dispatch`) / `workflow_call` on purpose: the
+# xrpl-py-confidential distribution (packaging/confidential/, staging the
+# xrpl/ext/confidential/ source) is versioned and published independently of
+# core xrpl-py — its version tracks the bundled mpt-crypto release — so it is
+# deliberately not tied to the core release/tag flow.
 # ──────────────────────────────────────────────────────────────────────────────
 name: Build Confidential MPT Wheels
 
 on:
+  # Validation gate: build (do NOT publish) the full cross-platform wheel matrix
+  # on PRs that touch the native add-on or its packaging, so a break in any
+  # platform's build or the `import xrpl.ext.confidential` smoke test is caught
+  # in CI. Core xrpl-py CI does not exercise the native build otherwise.
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "xrpl/ext/confidential/**"
+      - "packaging/confidential/**"
+      - ".github/workflows/build_wheels_confidential.yml"
   workflow_call:
     inputs:
       git_ref:
@@ -90,6 +103,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.git_ref || github.ref }}
+      # Same host-side staging as the wheel job: the sdist build is isolated to
+      # packaging/confidential, and setup.py's cffi_modules references
+      # xrpl/ext/confidential/build_mpt_crypto.py, which only exists after staging.
+      - name: Stage source
+        shell: bash
+        run: bash packaging/confidential/scripts/stage-source.sh
       - run: pipx run build --sdist --outdir dist packaging/confidential
       - uses: actions/upload-artifact@v4
         with:
