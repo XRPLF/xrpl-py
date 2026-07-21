@@ -24,11 +24,9 @@ from dataclasses import dataclass
 
 from xrpl.models.requests.submit import Submit
 from xrpl.models.required import REQUIRED
-from xrpl.models.utils import KW_ONLY_DATACLASS, require_kwargs_on_init
 
 
-@require_kwargs_on_init
-@dataclass(frozen=True, **KW_ONLY_DATACLASS)
+@dataclass(frozen=True, kw_only=True)
 class SubmitOnly(Submit):
     """
     The submit method applies a transaction and sends it to the network to be confirmed

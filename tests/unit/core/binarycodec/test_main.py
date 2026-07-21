@@ -402,20 +402,28 @@ class TestMainSigning(TestCase):
         )
         self.assertEqual(encode_for_signing_claim(json), expected)
 
-    def test_batch(self):
-        flags = 1
-        transaction_ids = [
-            "ABE4871E9083DF66727045D49DEEDD3A6F166EB7F8D1E92FE868F02E76B2C5CA",
-            "795AAC88B59E95C3497609749127E69F12958BC016C600C770AEEB1474C840B4",
-        ]
-
-        json = {"flags": flags, "transaction_ids": transaction_ids}
+    def test_batch_single_signed(self):
+        json = {
+            "account": "rNCFjv8Ek5oDrNiMJ3pw6eLLFtMjZLJnf2",
+            "sequence": 5,
+            "flags": 1,
+            "transaction_ids": [
+                "ABE4871E9083DF66727045D49DEEDD3A6F166EB7F8D1E92FE868F02E76B2C5CA",
+                "795AAC88B59E95C3497609749127E69F12958BC016C600C770AEEB1474C840B4",
+            ],
+            # The BatchSigner.Account the signature is bound to (XLS-56 V1_1).
+            "batch_account": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
+        }
         actual = encode_for_signing_batch(json)
         self.assertEqual(
             actual,
             (
                 # hash prefix
                 "42434800"
+                # outer account
+                "95F14B0E44F78A264E41713C64B5F89242540EE2"
+                # outer sequence
+                "00000005"
                 # flags
                 "00000001"
                 # transaction_ids length
@@ -423,6 +431,46 @@ class TestMainSigning(TestCase):
                 # transaction_ids
                 "ABE4871E9083DF66727045D49DEEDD3A6F166EB7F8D1E92FE868F02E76B2C5CA"
                 "795AAC88B59E95C3497609749127E69F12958BC016C600C770AEEB1474C840B4"
+                # batch signer account
+                "C1D81FB31C42392BA1570431F1CBCBEEBBEF50E1"
+            ),
+        )
+
+    def test_batch_multi_signed(self):
+        json = {
+            "account": "rNCFjv8Ek5oDrNiMJ3pw6eLLFtMjZLJnf2",
+            "sequence": 5,
+            "flags": 1,
+            "transaction_ids": [
+                "ABE4871E9083DF66727045D49DEEDD3A6F166EB7F8D1E92FE868F02E76B2C5CA",
+                "795AAC88B59E95C3497609749127E69F12958BC016C600C770AEEB1474C840B4",
+            ],
+            # The BatchSigner.Account the signature is bound to.
+            "batch_account": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
+            # The inner Signers entry account for a multi-signed BatchSigner.
+            "signer_account": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+        }
+        actual = encode_for_signing_batch(json)
+        self.assertEqual(
+            actual,
+            (
+                # hash prefix
+                "42434800"
+                # outer account
+                "95F14B0E44F78A264E41713C64B5F89242540EE2"
+                # outer sequence
+                "00000005"
+                # flags
+                "00000001"
+                # transaction_ids length
+                "00000002"
+                # transaction_ids
+                "ABE4871E9083DF66727045D49DEEDD3A6F166EB7F8D1E92FE868F02E76B2C5CA"
+                "795AAC88B59E95C3497609749127E69F12958BC016C600C770AEEB1474C840B4"
+                # batch signer account
+                "C1D81FB31C42392BA1570431F1CBCBEEBBEF50E1"
+                # inner signer account
+                "B5F762798A53D543A014CAF8B297CFF8F2F937E8"
             ),
         )
 
