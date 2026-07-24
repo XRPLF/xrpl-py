@@ -112,3 +112,31 @@ class TestDelegateSet(TestCase):
             "{'permissions': \"Non-delegable transactions found in `permissions` "
             "list: {<TransactionType.ACCOUNT_DELETE: 'AccountDelete'>}.\"}",
         )
+
+    def test_non_delegable_vault_and_loan_transactions(self):
+        # rippled marks all Vault (XLS-65) and Loan/LoanBroker transactions as
+        # NotDelegable; each must be rejected in a DelegateSet permission list.
+        non_delegable_types = [
+            TransactionType.VAULT_CREATE,
+            TransactionType.VAULT_SET,
+            TransactionType.VAULT_DELETE,
+            TransactionType.VAULT_DEPOSIT,
+            TransactionType.VAULT_WITHDRAW,
+            TransactionType.VAULT_CLAWBACK,
+            TransactionType.LOAN_BROKER_SET,
+            TransactionType.LOAN_BROKER_DELETE,
+            TransactionType.LOAN_BROKER_COVER_DEPOSIT,
+            TransactionType.LOAN_BROKER_COVER_WITHDRAW,
+            TransactionType.LOAN_BROKER_COVER_CLAWBACK,
+            TransactionType.LOAN_SET,
+            TransactionType.LOAN_DELETE,
+            TransactionType.LOAN_MANAGE,
+            TransactionType.LOAN_PAY,
+        ]
+        for tx_type in non_delegable_types:
+            with self.assertRaises(XRPLModelException):
+                DelegateSet(
+                    account=_ACCOUNT,
+                    authorize=_DELEGATED_ACCOUNT,
+                    permissions=[Permission(permission_value=tx_type)],
+                )

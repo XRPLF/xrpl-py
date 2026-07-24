@@ -23,6 +23,23 @@ NON_DELEGABLE_TRANSACTIONS = {
     TransactionType.ACCOUNT_DELETE,
     TransactionType.BATCH,
     TransactionType.SPONSORSHIP_TRANSFER,
+    # Vault (XLS-65) transactions are marked NotDelegable in rippled.
+    TransactionType.VAULT_CREATE,
+    TransactionType.VAULT_SET,
+    TransactionType.VAULT_DELETE,
+    TransactionType.VAULT_DEPOSIT,
+    TransactionType.VAULT_WITHDRAW,
+    TransactionType.VAULT_CLAWBACK,
+    # Loan / LoanBroker transactions are marked NotDelegable in rippled.
+    TransactionType.LOAN_BROKER_SET,
+    TransactionType.LOAN_BROKER_DELETE,
+    TransactionType.LOAN_BROKER_COVER_DEPOSIT,
+    TransactionType.LOAN_BROKER_COVER_WITHDRAW,
+    TransactionType.LOAN_BROKER_COVER_CLAWBACK,
+    TransactionType.LOAN_SET,
+    TransactionType.LOAN_DELETE,
+    TransactionType.LOAN_MANAGE,
+    TransactionType.LOAN_PAY,
 }
 
 
