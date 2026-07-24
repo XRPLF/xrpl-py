@@ -59,7 +59,7 @@ transactions_file = func(sys.argv[1], "include/xrpl/protocol/detail/transactions
 # Translate from rippled string format to what the binary codecs expect
 def _translate(inp: str) -> str:
     if re.match(r"^UINT", inp):
-        if re.search(r"256|160|128|192", inp):
+        if re.search(r"256|160|128|192|384|512", inp):
             return inp.replace("UINT", "Hash")
         else:
             return inp.replace("UINT", "UInt")
@@ -104,8 +104,7 @@ _add_line("{")
 _add_line('  "FIELDS": [')
 
 # The ones that are harder to parse directly from SField.cpp
-_add_line(
-    """    [
+_add_line("""    [
       "Generic",
       {
         "isSerialized": false,
@@ -164,8 +163,7 @@ _add_line(
         "nth": 259,
         "type": "Amount"
       }
-    ],"""
-)
+    ],""")
 
 # Parse STypes
 # Example line:
@@ -194,7 +192,7 @@ def _is_serialized(t: str, name: str) -> str:
 
 
 def _is_signing_field(t: str, not_signing_field: str) -> str:
-    if not_signing_field == "notSigning":
+    if not_signing_field in ("notSigning", "kNotSigning"):
         return "false"
     if t == "LEDGERENTRY" or t == "TRANSACTION" or t == "VALIDATION" or t == "METADATA":
         return "false"
@@ -207,7 +205,7 @@ def _is_signing_field(t: str, not_signing_field: str) -> str:
 # UNTYPED_SFIELD(sfSigners,  ARRAY, 3, SField::sMD_Default, SField::notSigning)
 sfield_hits = re.findall(
     r"^ *[A-Z]*TYPED_SFIELD[ \n]*\([ \n]*sf([^,\n]*),[ \n]*([^, \n]+)[ \n]*,[ \n]*"
-    r"([0-9]+)(,.*?(notSigning))?",
+    r"([0-9]+)(,.*?(notSigning|kNotSigning))?",
     sfield_macro_file,
     re.MULTILINE,
 )

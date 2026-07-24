@@ -100,6 +100,17 @@ from xrpl.models.transactions.permissioned_domain_delete import PermissionedDoma
 from xrpl.models.transactions.permissioned_domain_set import PermissionedDomainSet
 from xrpl.models.transactions.set_regular_key import SetRegularKey
 from xrpl.models.transactions.signer_list_set import SignerEntry, SignerListSet
+from xrpl.models.transactions.sponsor_signature import SponsorSignature
+from xrpl.models.transactions.sponsorship_set import (
+    SponsorshipSet,
+    SponsorshipSetFlag,
+    SponsorshipSetFlagInterface,
+)
+from xrpl.models.transactions.sponsorship_transfer import (
+    SponsorshipTransfer,
+    SponsorshipTransferFlag,
+    SponsorshipTransferFlagInterface,
+)
 from xrpl.models.transactions.ticket_create import TicketCreate
 from xrpl.models.transactions.transaction import (
     Memo,
@@ -226,6 +237,13 @@ __all__ = [
     "Signer",
     "SignerEntry",
     "SignerListSet",
+    "SponsorSignature",
+    "SponsorshipSet",
+    "SponsorshipSetFlag",
+    "SponsorshipSetFlagInterface",
+    "SponsorshipTransfer",
+    "SponsorshipTransferFlag",
+    "SponsorshipTransferFlagInterface",
     "TicketCreate",
     "Transaction",
     "TransactionFlag",
