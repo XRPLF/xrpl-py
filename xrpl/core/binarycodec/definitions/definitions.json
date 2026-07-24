@@ -3523,17 +3523,6 @@
       "lsfMPTLocked": 1,
       "lsfMPTRequireAuth": 4
     },
-    "MPTokenIssuanceImmutable": {
-      "lsifMPTCanClawback": 64,
-      "lsifMPTCanEscrow": 8,
-      "lsifMPTCanHoldConfidentialBalance": 128,
-      "lsifMPTCanLock": 2,
-      "lsifMPTCanTrade": 16,
-      "lsifMPTCanTransfer": 32,
-      "lsifMPTMetadata": 65536,
-      "lsifMPTRequireAuth": 4,
-      "lsifMPTTransferFee": 131072
-    },
     "NFTokenOffer": {
       "lsfSellNFToken": 1
     },
