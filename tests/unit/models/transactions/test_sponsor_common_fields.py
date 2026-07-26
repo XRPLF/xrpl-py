@@ -103,21 +103,41 @@ class TestSponsorCommonFields(TestCase):
 
     _UNSPONSORABLE_MSG = "cannot be sponsored"
 
-    def test_batch_with_sponsor_rejected(self):
-        """Batch transaction with sponsor is rejected."""
+    def _batch(self, **kwargs):
         inner_tx = Payment(
             account=_ACCOUNT,
             destination=_DESTINATION,
             amount="1000000",
         )
+        return Batch(
+            account=_ACCOUNT,
+            raw_transactions=[inner_tx, inner_tx],
+            **kwargs,
+        )
+
+    def test_batch_with_sponsor_fee_allowed(self):
+        """An outer Batch may be fee-sponsored (spfSponsorFee).
+
+        Per XLS-68 §13.2, only reserve sponsorship is disallowed on the outer
+        Batch; fee sponsorship follows the standard rules. rippled only rejects
+        `isReserveSponsored` on the outer Batch (Batch.cpp preflight).
+        """
+        tx = self._batch(sponsor=_SPONSOR, sponsor_flags=1)
+        self.assertTrue(tx.is_valid())
+        self.assertEqual(tx.sponsor, _SPONSOR)
+        self.assertEqual(tx.sponsor_flags, 1)
+
+    def test_batch_with_sponsor_reserve_rejected(self):
+        """An outer Batch must not use spfSponsorReserve (XLS-68 §13.4.1)."""
         with self.assertRaises(XRPLModelException) as cm:
-            Batch(
-                account=_ACCOUNT,
-                raw_transactions=[inner_tx],
-                sponsor=_SPONSOR,
-                sponsor_flags=1,
-            )
-        self.assertIn(self._UNSPONSORABLE_MSG, str(cm.exception))
+            self._batch(sponsor=_SPONSOR, sponsor_flags=2)
+        self.assertIn("not allowed on an outer Batch", str(cm.exception))
+
+    def test_batch_with_sponsor_fee_and_reserve_rejected(self):
+        """spfSponsorReserve is rejected on an outer Batch even alongside fee."""
+        with self.assertRaises(XRPLModelException) as cm:
+            self._batch(sponsor=_SPONSOR, sponsor_flags=3)
+        self.assertIn("not allowed on an outer Batch", str(cm.exception))
 
     def test_pseudo_transaction_with_sponsor_rejected(self):
         """Pseudo-transaction with sponsor is rejected."""

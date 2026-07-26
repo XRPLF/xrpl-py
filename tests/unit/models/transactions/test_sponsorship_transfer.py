@@ -200,7 +200,7 @@ class TestSponsorshipTransfer(TestCase):
             account=_ACCOUNT,
             object_id=_OBJECT_ID,
             sponsor=_ACCOUNT2,
-            sponsor_flags=0x00000001,  # tfSponsorFee
+            sponsor_flags=0x00000001,  # spfSponsorFee
         )
         self.assertTrue(tx.is_valid())
         d = tx.to_dict()
@@ -213,7 +213,7 @@ class TestSponsorshipTransfer(TestCase):
             account=_ACCOUNT,
             sponsee=_ACCOUNT2,
             sponsor=_ACCOUNT2,
-            sponsor_flags=0x00000002,  # tfSponsorReserve
+            sponsor_flags=0x00000002,  # spfSponsorReserve
         )
         self.assertTrue(tx.is_valid())
         d = tx.to_dict()
@@ -410,8 +410,8 @@ class TestSponsorshipTransfer(TestCase):
                 sponsor_flags=0x00000004,  # bit 2 — outside allowed 0x1|0x2
             )
         self.assertIn(
-            "`sponsor_flags` may only use bits 0x1 (tfSponsorFee) "
-            "and 0x2 (tfSponsorReserve).",
+            "`sponsor_flags` may only use bits 0x1 (spfSponsorFee) "
+            "and 0x2 (spfSponsorReserve).",
             str(cm.exception),
         )
 
@@ -424,7 +424,7 @@ class TestSponsorshipTransfer(TestCase):
                 sponsor_flags=0x00000007,  # 0x1 | 0x2 | 0x4
             )
         self.assertIn(
-            "`sponsor_flags` may only use bits 0x1 (tfSponsorFee) "
-            "and 0x2 (tfSponsorReserve).",
+            "`sponsor_flags` may only use bits 0x1 (spfSponsorFee) "
+            "and 0x2 (spfSponsorReserve).",
             str(cm.exception),
         )

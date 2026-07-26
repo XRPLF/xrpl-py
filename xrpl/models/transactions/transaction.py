@@ -30,6 +30,10 @@ if TYPE_CHECKING:
 
 _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
 
+_SPF_SPONSOR_FEE: Final[int] = 0x00000001
+_SPF_SPONSOR_RESERVE: Final[int] = 0x00000002
+_SPF_SPONSOR_FLAG_MASK: Final[int] = ~(_SPF_SPONSOR_FEE | _SPF_SPONSOR_RESERVE)
+
 
 def transaction_json_to_binary_codec_form(
     dictionary: Dict[str, XRPL_VALUE_TYPE],
@@ -291,7 +295,9 @@ class Transaction(BaseModel):
             (self.sequence is not None and self.sequence != 0)
             or self.account_txn_id is not None
         ):
-            errors["Transaction"] = """If ticket_sequence is provided,
+            errors[
+                "Transaction"
+            ] = """If ticket_sequence is provided,
             account_txn_id must be None and sequence must be None or 0"""
 
         if self.account == self.delegate:
@@ -303,10 +309,13 @@ class Transaction(BaseModel):
 
         if self.sponsor_flags is not None and self.sponsor is None:
             errors["sponsor_flags"] = "`sponsor_flags` requires `sponsor` to be set."
-        elif self.sponsor_flags is not None and (self.sponsor_flags & ~0x3) != 0:
+        elif (
+            self.sponsor_flags is not None
+            and (self.sponsor_flags & _SPF_SPONSOR_FLAG_MASK) != 0
+        ):
             errors["sponsor_flags"] = (
-                "`sponsor_flags` may only use bits 0x1 (tfSponsorFee) "
-                "and 0x2 (tfSponsorReserve)."
+                "`sponsor_flags` may only use bits 0x1 (spfSponsorFee) "
+                "and 0x2 (spfSponsorReserve)."
             )
 
         if self.sponsor_signature is not None and self.sponsor is None:
@@ -314,13 +323,25 @@ class Transaction(BaseModel):
                 "`sponsor_signature` requires `sponsor` to be set."
             )
 
-        # Pseudo-transactions and Batch cannot be sponsored (XLS-68 §8.3.4).
-        if self.sponsor is not None and (
-            isinstance(self.transaction_type, PseudoTransactionType)
-            or self.transaction_type == TransactionType.BATCH
+        # Pseudo-transactions cannot be sponsored at all (XLS-68 §8.3.4): their
+        # fees and reserves are covered by the network, not by any one account.
+        if self.sponsor is not None and isinstance(
+            self.transaction_type, PseudoTransactionType
         ):
-            errors["sponsor"] = (
-                "Pseudo-transactions and Batch transactions " "cannot be sponsored."
+            errors["sponsor"] = "Pseudo-transactions cannot be sponsored."
+
+        # An outer Batch creates no objects of its own, so reserve sponsorship on
+        # it is meaningless and disallowed (XLS-68 §8.3.4, §13.2). Fee sponsorship
+        # of the outer Batch is allowed and follows the standard rules; inner
+        # transactions should carry spfSponsorReserve instead.
+        if (
+            self.transaction_type == TransactionType.BATCH
+            and self.sponsor_flags is not None
+            and self.sponsor_flags & _SPF_SPONSOR_RESERVE
+        ):
+            errors["sponsor_flags"] = (
+                "`spfSponsorReserve` (0x2) is not allowed on an outer Batch "
+                "transaction. Set it on the inner transactions instead."
             )
 
         return errors
