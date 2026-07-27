@@ -193,9 +193,7 @@ def _is_serialized(t: str, name: str) -> str:
     return "true"
 
 
-def _is_signing_field(t: str, not_signing_field: str, field: str) -> str:
-    if "Sign" in field:
-        print(field, t, not_signing_field, not_signing_field == "kNotSigning")
+def _is_signing_field(t: str, not_signing_field: str) -> str:
     if not_signing_field == "kNotSigning":
         return "false"
     if t == "LEDGERENTRY" or t == "TRANSACTION" or t == "VALIDATION" or t == "METADATA":
@@ -229,7 +227,7 @@ for x in range(len(sfield_hits)):
     )
     _add_line(
         '        "isSigningField": '
-        + _is_signing_field(sfield_hits[x][1], sfield_hits[x][4], sfield_hits[x][0])
+        + _is_signing_field(sfield_hits[x][1], sfield_hits[x][4])
         + ","
     )
     _add_line('        "isVLEncoded": ' + _is_vl_encoded(sfield_hits[x][1]) + ",")
