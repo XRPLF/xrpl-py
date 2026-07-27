@@ -1,11 +1,19 @@
 from unittest import TestCase
 
+from xrpl.core.binarycodec import decode, encode
 from xrpl.models.exceptions import XRPLModelException
+from xrpl.models.transactions.payment import Payment
 from xrpl.models.transactions.sponsor_signature import SponsorSignature
-from xrpl.models.transactions.transaction import Signer
+from xrpl.models.transactions.transaction import Signer, TransactionFlag
 
 _ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _ACCOUNT2 = "rPyfep3gcLzkH4MYxKxJhE7bgUJfUCJM83"
+
+# `_ACCOUNT2` above does not pass address-checksum validation, which the model
+# layer never applies but the binary codec does. These two are checksum-valid
+# and so are usable in tests that actually encode a transaction.
+_DESTINATION = "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX"
+_SPONSOR = "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
 _SIGNING_PUB_KEY = "ED5F5AC43F527AE97194AC44903F8E0397F1B8AFDC25990B3B8F093E2D1D8B0E2D"
 _TXN_SIGNATURE = (
     "304402203B9B0B6E0735AD5F370B2B0B3A81CDE62CC5B7C3"
@@ -83,14 +91,42 @@ class TestSponsorSignature(TestCase):
         )
         self.assertTrue(sig.is_valid())
 
-    def test_invalid_sponsor_signature_empty(self):
-        """SponsorSignature with no fields set must be rejected."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorSignature()
-        self.assertIn(
-            "Must provide either (`signing_pub_key` + `txn_signature`) "
-            "for single-signature or `signers` for multi-signature.",
-            str(cm.exception),
+    def test_valid_empty_placeholder(self):
+        """An empty SponsorSignature is valid -- it is a required placeholder.
+
+        XLS-68 §13.3: a Batch inner transaction naming a `sponsor` must carry an
+        empty `SponsorSignature`; its presence (not its contents) is what tells
+        the ledger the sponsor needs a `BatchSigners` entry. §17.4: `simulate`
+        autofills the sponsor signing fields only when the field is present.
+        rippled has no preflight rule requiring it to be non-empty.
+        """
+        sig = SponsorSignature()
+        self.assertTrue(sig.is_valid())
+        self.assertIsNone(sig.signing_pub_key)
+        self.assertIsNone(sig.txn_signature)
+        self.assertIsNone(sig.signers)
+
+    def test_empty_placeholder_serializes_to_empty_object(self):
+        """The empty placeholder must reach the wire as an empty STObject."""
+        tx = Payment(
+            account=_ACCOUNT,
+            destination=_DESTINATION,
+            amount="1000000",
+            sequence=0,
+            fee="0",
+            signing_pub_key="",
+            flags=TransactionFlag.TF_INNER_BATCH_TXN,
+            sponsor=_SPONSOR,
+            sponsor_flags=2,
+            sponsor_signature=SponsorSignature(),
+        )
+        self.assertEqual(tx.to_xrpl()["SponsorSignature"], {})
+
+        # Survives a full binary round trip and rehydrates as the model type.
+        decoded = decode(encode(tx.to_xrpl()))
+        self.assertEqual(decoded["SponsorSignature"], {})
+        self.assertEqual(
+            Payment.from_xrpl(decoded).sponsor_signature, SponsorSignature()
         )
 
     def test_invalid_sponsor_signature_missing_txn_signature(self):
