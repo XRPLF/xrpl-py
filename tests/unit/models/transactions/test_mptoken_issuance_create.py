@@ -73,11 +73,13 @@ class TestMPTokenIssuanceCreate(TestCase):
 
     def test_mptoken_metadata_empty_string(self):
         with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceCreate(
-                account=_ACCOUNT,
-                flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK,
-                mptoken_metadata="",
-            )
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                MPTokenIssuanceCreate(
+                    account=_ACCOUNT,
+                    flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK,
+                    mptoken_metadata="",
+                )
         self.assertEqual(
             error.exception.args[0],
             (
@@ -88,11 +90,13 @@ class TestMPTokenIssuanceCreate(TestCase):
 
     def test_mptoken_metadata_not_hex(self):
         with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceCreate(
-                account=_ACCOUNT,
-                flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK,
-                mptoken_metadata="http://xrpl.org",
-            )
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                MPTokenIssuanceCreate(
+                    account=_ACCOUNT,
+                    flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK,
+                    mptoken_metadata="http://xrpl.org",
+                )
         self.assertEqual(
             error.exception.args[0],
             (
@@ -111,13 +115,12 @@ class TestMPTokenIssuanceCreate(TestCase):
             "issuer_name": "Example Yield Co.",
         }
 
-        tx = MPTokenIssuanceCreate(
-            account=_ACCOUNT,
-            mptoken_metadata=str_to_hex(json.dumps(invalid_metadata)),
-        )
-
         with warnings.catch_warnings(record=True) as caught_warnings:
             warnings.simplefilter("always")
+            tx = MPTokenIssuanceCreate(
+                account=_ACCOUNT,
+                mptoken_metadata=str_to_hex(json.dumps(invalid_metadata)),
+            )
             valid = tx.is_valid()
             self.assertTrue(valid)
             self.assertTrue(len(caught_warnings) > 0, "Expected warning not emitted")
