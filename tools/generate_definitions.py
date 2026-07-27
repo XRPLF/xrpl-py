@@ -193,8 +193,10 @@ def _is_serialized(t: str, name: str) -> str:
     return "true"
 
 
-def _is_signing_field(t: str, not_signing_field: str) -> str:
-    if not_signing_field == "notSigning":
+def _is_signing_field(t: str, not_signing_field: str, field: str) -> str:
+    if "Sign" in field:
+        print(field, t, not_signing_field, not_signing_field == "kNotSigning")
+    if not_signing_field == "kNotSigning":
         return "false"
     if t == "LEDGERENTRY" or t == "TRANSACTION" or t == "VALIDATION" or t == "METADATA":
         return "false"
@@ -204,16 +206,16 @@ def _is_signing_field(t: str, not_signing_field: str) -> str:
 # Parse SField.cpp for all the SFields and their serialization info
 # Example lines:
 # TYPED_SFIELD(sfFee, AMOUNT, 8)
-# UNTYPED_SFIELD(sfSigners,  ARRAY, 3, SField::sMD_Default, SField::notSigning)
+# UNTYPED_SFIELD(sfSigners,  ARRAY, 3, SField::sMD_Default, SField::kNotSigning)
 sfield_hits = re.findall(
     r"^ *[A-Z]*TYPED_SFIELD[ \n]*\([ \n]*sf([^,\n]*),[ \n]*([^, \n]+)[ \n]*,[ \n]*"
-    r"([0-9]+)(,.*?(notSigning))?",
+    r"([0-9]+)(,.*?(kNotSigning))?",
     sfield_macro_file,
     re.MULTILINE,
 )
 sfield_hits += [
-    ("hash", "UINT256", "257", "", "notSigning"),
-    ("index", "UINT256", "258", "", "notSigning"),
+    ("hash", "UINT256", "257", "", "kNotSigning"),
+    ("index", "UINT256", "258", "", "kNotSigning"),
 ]
 sfield_hits.sort(key=lambda x: int(type_map[x[1]]) * 2**16 + int(x[2]))
 for x in range(len(sfield_hits)):
@@ -227,7 +229,7 @@ for x in range(len(sfield_hits)):
     )
     _add_line(
         '        "isSigningField": '
-        + _is_signing_field(sfield_hits[x][1], sfield_hits[x][4])
+        + _is_signing_field(sfield_hits[x][1], sfield_hits[x][4], sfield_hits[x][0])
         + ","
     )
     _add_line('        "isVLEncoded": ' + _is_vl_encoded(sfield_hits[x][1]) + ",")

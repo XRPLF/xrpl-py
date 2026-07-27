@@ -3244,7 +3244,7 @@
       "SponsorSignature",
       {
         "isSerialized": true,
-        "isSigningField": true,
+        "isSigningField": false,
         "isVLEncoded": false,
         "nth": 38,
         "type": "STObject"
