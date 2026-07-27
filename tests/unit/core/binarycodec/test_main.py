@@ -338,8 +338,8 @@ class TestMainFixtures(TestCase):
         test_binary = test["binary"]
         test_json = test["json"]
         with self.subTest(test_binary=test_binary, test_json=test_json):
-            self.assertEqual(decode(test_binary), test_json)
             self.assertEqual(encode(test_json), test_binary)
+            self.assertEqual(decode(test_binary), test_json)
 
     def _check_xaddress_jsons(self, test):
         x_json = test["xjson"]

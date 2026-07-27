@@ -43,17 +43,19 @@ class TestVaultCreate(TestCase):
 
     def test_long_mpt_metadata_field(self):
         with self.assertRaises(XRPLModelException) as e:
-            VaultCreate(
-                account=_ACCOUNT,
-                asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
-                assets_maximum="1000",
-                withdrawal_policy=1,
-                # Note: MPTMetadata is associated with a Multi-Purpose token and not a
-                # conventional IOU token. This unit test demonstrates the validity of
-                # the transaction model only. It must not be misconstrued as an
-                # archetype of a VaultCreate transaction.
-                mptoken_metadata=str_to_hex("A" * 1025),
-            )
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                VaultCreate(
+                    account=_ACCOUNT,
+                    asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                    assets_maximum="1000",
+                    withdrawal_policy=1,
+                    # Note: MPTMetadata is associated with a Multi-Purpose token and not
+                    # a conventional IOU token. This unit test demonstrates the validity
+                    # of the transaction model only. It must not be misconstrued as an
+                    # archetype of a VaultCreate transaction.
+                    mptoken_metadata=str_to_hex("A" * 1025),
+                )
         self.assertEqual(
             e.exception.args[0],
             str(
@@ -98,16 +100,15 @@ class TestVaultCreate(TestCase):
             ],
         }
 
-        tx = VaultCreate(
-            account=_ACCOUNT,
-            asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
-            assets_maximum="1000",
-            withdrawal_policy=1,
-            mptoken_metadata=str_to_hex(json.dumps(invalid_metadata)),
-        )
-
         with warnings.catch_warnings(record=True) as caught_warnings:
             warnings.simplefilter("always")
+            tx = VaultCreate(
+                account=_ACCOUNT,
+                asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                assets_maximum="1000",
+                withdrawal_policy=1,
+                mptoken_metadata=str_to_hex(json.dumps(invalid_metadata)),
+            )
             valid = tx.is_valid()
             self.assertTrue(valid)
             self.assertTrue(len(caught_warnings) > 0, "Expected warning not emitted")
