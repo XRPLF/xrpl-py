@@ -123,6 +123,11 @@ class TestSponsorSigner(IntegrationTestCase):
         await sign_and_reliable_submission_async(signer_list_tx, sponsor_wallet, client)
 
         # Step 1 – Sponsee builds and autofills the transaction.
+        #
+        # `sponsor_signers_count` is required here: `Fee` is a signing field, so
+        # it is final before the sponsor signs, which means SponsorSignature does
+        # not exist yet and the count cannot be read off the transaction. Without
+        # it the fee is one base fee and the ledger returns telINSUF_FEE_P.
         payment = Payment(
             account=sponsee_wallet.address,
             destination=destination_wallet.address,
@@ -130,7 +135,7 @@ class TestSponsorSigner(IntegrationTestCase):
             sponsor=sponsor_wallet.address,
             sponsor_flags=_TF_SPONSOR_FEE,
         )
-        autofilled = await autofill(payment, client)
+        autofilled = await autofill(payment, client, sponsor_signers_count=2)
 
         # Step 2 – Sponsee signs first (sets SigningPubKey + TxnSignature).
         sponsee_signed = sign(autofilled, sponsee_wallet)

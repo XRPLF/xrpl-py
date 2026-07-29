@@ -112,7 +112,10 @@ def autofill_and_sign(
 
 
 def autofill(
-    transaction: T, client: SyncClient, signers_count: Optional[int] = None
+    transaction: T,
+    client: SyncClient,
+    signers_count: Optional[int] = None,
+    sponsor_signers_count: Optional[int] = None,
 ) -> T:
     """
     Autofills fields in a transaction. This will set all autofill-able fields according
@@ -125,6 +128,10 @@ def autofill(
         client: a network client.
         signers_count: the expected number of signers for this transaction.
             Only used for multisigned transactions.
+        sponsor_signers_count: the expected number of keys the sponsor will
+            multi-sign with (XLS-68). Only used when the sponsor multi-signs;
+            leave unset for a pre-funded sponsorship or a single-signing
+            sponsor.
 
     Returns:
         The autofilled transaction.
@@ -134,6 +141,7 @@ def autofill(
             transaction,
             client,
             signers_count,
+            sponsor_signers_count,
         )
     )
 
