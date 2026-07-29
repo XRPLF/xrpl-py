@@ -6,24 +6,36 @@ When ``lsfSponsorshipRequireSignForFee`` / ``lsfSponsorshipRequireSignForReserve
 is set, or when there is no pre-funded ``Sponsorship`` ledger object, the sponsor
 must co-sign each transaction before it is submitted.
 
-Signing flow (per rippled implementation):
+Signing flow (XLS-0068 section 3.2):
 
 1. The sponsee constructs and autofills the transaction, setting the ``sponsor``
-   and ``sponsor_flags`` fields.
-2. The sponsee signs the transaction with the standard ``xrpl.transaction.sign``
-   helper (this sets ``SigningPubKey``).
-3. The sponsor calls :func:`sign_as_sponsor` on the signed transaction to add
-   their ``SponsorSignature``.
-4. The sponsee submits the fully-signed transaction.
+   and ``sponsor_flags`` fields and their own ``signing_pub_key``. They do not
+   sign yet.
+2. The sponsor calls :func:`sign_as_sponsor` and returns the resulting
+   ``SponsorSignature`` to the sponsee.
+3. The sponsee signs the transaction and submits it.
 
-Both the sponsor and the sponsee sign the same canonical signing data
-(``HashPrefix::txSign`` + transaction fields).  The sponsor's signature and
-public key live inside the ``SponsorSignature`` inner object, while the
-sponsee's live at the top level.
+Both parties sign the same canonical signing data (``HashPrefix::txSign`` +
+the transaction's signing fields).  The sponsor's signature and public key live
+inside the ``SponsorSignature`` inner object, while the sponsee's live at the
+top level.
+
+Only ``SigningPubKey`` must be settled before the sponsor signs, because it is a
+signing field -- filling it in afterwards would change the data the sponsor
+signed and silently invalidate their signature.  Neither ``TxnSignature`` nor
+``SponsorSignature`` is a signing field, so the two parties' signatures are
+independent: the sponsee may equally sign first, in which case
+``signing_pub_key`` is already set and steps 2 and 3 swap.
+
+A **multi-signing sponsee** never populates ``SigningPubKey`` at all -- an empty
+value is how the ledger signals multi-signing, and the signatures live in
+``Signers`` instead.  Pass ``sponsee_multisign=True`` in that case, to confirm
+the empty value is deliberate rather than an unset field.
 
 For sponsor accounts that require multiple keys (multi-sig), each key holder
 calls :func:`sign_as_sponsor` with ``multisign=True``, then all contributions
-are merged with :func:`combine_sponsor_signers` before the sponsee signs.
+are merged with :func:`combine_sponsor_signers`.  The sponsor's and sponsee's
+signing modes are independent; either, both, or neither may multi-sign.
 
 This module mirrors the API of :mod:`xrpl.transaction.batch_signers` and
 :mod:`xrpl.transaction.counterparty_signer` for consistency.
@@ -72,6 +84,7 @@ def sign_as_sponsor(
     wallet: Wallet,
     transaction: Union[Transaction, str],
     multisign: Union[bool, str] = False,
+    sponsee_multisign: bool = False,
 ) -> SignSponsorResult:
     """
     Sign a transaction as the fee/reserve sponsor (XLS-0068).
@@ -80,8 +93,8 @@ def sign_as_sponsor(
     field of the transaction.  The sponsor signs the **same** canonical
     transaction data that the sponsee will sign (``HashPrefix::txSign`` +
     signing-field serialisation), so the sponsee's ``SigningPubKey`` must
-    already be present on the transaction when the sponsor signs.
-
+    already be settled when the sponsor signs -- either populated with the
+    sponsee's key, or deliberately empty because the sponsee multi-signs.
 
     Args:
         wallet: The sponsor's wallet used for signing.
@@ -91,6 +104,15 @@ def sign_as_sponsor(
         multisign: Pass ``True`` (or a classic/x-address string for regular-key
             usage) to produce a multi-signature entry inside
             ``SponsorSignature.Signers``.  Defaults to ``False`` (single-sig).
+            This describes how the **sponsor** signs.
+        sponsee_multisign: Pass ``True`` when the **sponsee** multi-signs, which
+            leaves their ``SigningPubKey`` permanently empty -- that empty value
+            is how the ledger signals multi-signing, and the sponsee's signatures
+            live in ``Signers`` instead. Without this, an empty
+            ``signing_pub_key`` is rejected, since it is otherwise
+            indistinguishable from a field the sponsee has not set yet, which
+            would invalidate the sponsor's signature once they did.
+            Independent of ``multisign``.
 
     Returns:
         A :class:`SignSponsorResult` containing:
@@ -102,7 +124,8 @@ def sign_as_sponsor(
         XRPLException: If the transaction has no ``sponsor`` field, if
             ``fee`` has not been autofilled yet, if a non-multisig
             ``sponsor_signature`` already exists when ``multisign=False``,
-            or if ``signing_pub_key`` is empty
+            or if ``signing_pub_key`` is empty and ``sponsee_multisign`` is
+            not set
     """
     if isinstance(transaction, str):
         tx = Transaction.from_blob(transaction)
@@ -129,12 +152,18 @@ def sign_as_sponsor(
             "`SponsorSignature.Signers`."
         )
 
-    # The sponsor signs the same canonical data as the sponsee.  That data
-    # includes SigningPubKey (a signing field)
-    if not tx.signing_pub_key:
+    # The sponsor signs the same canonical data as the sponsee, and that data
+    # includes SigningPubKey (a signing field). An empty value is ambiguous: it
+    # is the ledger's marker for a multi-signing sponsee, but it is also what an
+    # unset field looks like -- and if the sponsee populates it afterwards, the
+    # sponsor's signature is silently invalidated. Only the caller can tell the
+    # two apart.
+    if not tx.signing_pub_key and not sponsee_multisign:
         raise XRPLException(
-            "Transaction `signing_pub_key` cannot be empty "
-            "during Sponsor signature step."
+            "Transaction `signing_pub_key` cannot be empty during the Sponsor "
+            "signature step. Set the sponsee's `signing_pub_key` first (XLS-68 "
+            "§3.2 step 1), or pass `sponsee_multisign=True` if the sponsee "
+            "multi-signs and the empty value is intentional."
         )
     tx_dict = tx.to_dict()
     tx = Transaction.from_dict(tx_dict)

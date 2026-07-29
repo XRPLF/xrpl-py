@@ -196,6 +196,78 @@ class TestSignMultiAccountBatch(TestCase):
                 batch_account=ed_wallet.address,
             )
 
+    # An inner transaction's sponsor authorizes through the outer BatchSigners,
+    # never through the inner's SponsorSignature (XLS-68 §13.3). rippled counts
+    # the sponsor as a required signer when `Sponsor` and `SponsorSignature` are
+    # both present, and rejects the whole Batch with temBAD_SIGNER if
+    # BatchSigners does not match its required set exactly.
+    sponsored_batch_tx = Batch.from_xrpl(
+        {
+            "Account": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
+            "Flags": 1,
+            "RawTransactions": [
+                {
+                    "RawTransaction": {
+                        "Account": "rJy554HmWFFJQGnRfZuoo8nV97XSMq77h7",
+                        "Flags": 1073741824,
+                        "Amount": "5000000",
+                        "Destination": "rPMh7Pi9ct699iZUTWaytJUoHcJ7cgyziK",
+                        "Fee": "0",
+                        "Sequence": 215,
+                        "SigningPubKey": "",
+                        "TransactionType": "Payment",
+                        "Sponsor": other_wallet.address,
+                        "SponsorFlags": 2,  # spfSponsorReserve
+                        "SponsorSignature": {},  # empty placeholder
+                    },
+                },
+                {
+                    "RawTransaction": {
+                        "Account": "rPMh7Pi9ct699iZUTWaytJUoHcJ7cgyziK",
+                        "Amount": "1000000",
+                        "Flags": 1073741824,
+                        "Destination": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
+                        "Fee": "0",
+                        "Sequence": 470,
+                        "SigningPubKey": "",
+                        "TransactionType": "Payment",
+                    },
+                },
+            ],
+            "TransactionType": "Batch",
+        }
+    )
+
+    def test_inner_transaction_sponsor_may_sign(self):
+        signed = sign_multiaccount_batch(other_wallet, self.sponsored_batch_tx)
+        self.assertEqual(len(signed.batch_signers), 1)
+        self.assertEqual(signed.batch_signers[0].account, other_wallet.address)
+
+    def test_inner_sponsor_without_placeholder_may_not_sign(self):
+        # No SponsorSignature -> rippled does not require the sponsor's entry, so
+        # an extra BatchSigner would be rejected as "extra signer provided".
+        with self.assertRaises(XRPLException):
+            sign_multiaccount_batch(other_wallet, self.batch_tx)
+
+    def test_sponsored_batch_signers_match_required_set(self):
+        # rippled's required set here is {inner-0 authorizer, inner-0 sponsor,
+        # inner-1 authorizer}. The outer account signs the Batch itself and must
+        # not appear in BatchSigners.
+        parts = [
+            sign_multiaccount_batch(ed_wallet, self.sponsored_batch_tx),
+            sign_multiaccount_batch(secp_wallet, self.sponsored_batch_tx),
+            sign_multiaccount_batch(other_wallet, self.sponsored_batch_tx),
+        ]
+        merged = Transaction.from_blob(combine_batch_signers(parts))
+        accounts = [signer.account for signer in merged.batch_signers]
+        self.assertEqual(
+            set(accounts),
+            {ed_wallet.address, secp_wallet.address, other_wallet.address},
+        )
+        self.assertNotIn(submit_wallet.address, accounts)
+        ids = [decode_classic_address(a).hex() for a in accounts]
+        self.assertEqual(ids, sorted(ids))
+
 
 class TestCombineBatchSigners(TestCase):
     batch_tx = Batch.from_xrpl(

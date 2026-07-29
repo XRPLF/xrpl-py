@@ -34,6 +34,7 @@ from xrpl.models.requests import AccountInfo
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import SignerEntry, SignerListSet
 from xrpl.transaction import combine_sponsor_signers, sign_as_sponsor
+from xrpl.transaction.multisign import multisign
 from xrpl.wallet import Wallet
 
 # Sponsor-type flags (XLS-0068).
@@ -242,3 +243,147 @@ class TestSponsorSigner(IntegrationTestCase):
         self.assertEqual(
             sponsor_info.result["account_data"].get("SponsoringOwnerCount"), 1
         )
+
+    # -----------------------------------------------------------------------
+    # Multi-signature sponsee (XLS-68 §3.2 with a multisigned sponsee)
+    #
+    # A multi-signing sponsee never populates SigningPubKey -- an empty value is
+    # how the ledger signals multi-signing, and the signatures live in Signers
+    # instead. `sign_as_sponsor(..., sponsee_multisign=True)` confirms the empty
+    # value is deliberate.
+    # -----------------------------------------------------------------------
+
+    @test_async_and_sync(
+        globals(), ["xrpl.transaction.autofill", "xrpl.transaction.submit"]
+    )
+    async def test_multisig_sponsee_single_sig_sponsor(self, client):
+        """Multi-key sponsee, single-key sponsor."""
+        sponsor_wallet = Wallet.create()
+        sponsee_wallet = Wallet.create()
+        sponsee_key1 = Wallet.create()
+        sponsee_key2 = Wallet.create()
+        destination_wallet = Wallet.create()
+
+        await fund_wallet_async(sponsor_wallet)
+        await fund_wallet_async(sponsee_wallet)
+        await fund_wallet_async(destination_wallet)
+
+        # Give the sponsee a SignerList so it can multi-sign.
+        signer_list_tx = SignerListSet(
+            account=sponsee_wallet.address,
+            signer_quorum=2,
+            signer_entries=[
+                SignerEntry(account=sponsee_key1.address, signer_weight=1),
+                SignerEntry(account=sponsee_key2.address, signer_weight=1),
+            ],
+        )
+        await sign_and_reliable_submission_async(signer_list_tx, sponsee_wallet, client)
+
+        # `signers_count` covers the sponsee's two signatures; the sponsor
+        # single-signs and is not billed.
+        payment = Payment(
+            account=sponsee_wallet.address,
+            destination=destination_wallet.address,
+            amount="1000000",
+            sponsor=sponsor_wallet.address,
+            sponsor_flags=_TF_SPONSOR_FEE,
+        )
+        autofilled = await autofill(payment, client, signers_count=2)
+
+        # The sponsee multi-signs: SigningPubKey stays empty.
+        part1 = sign(autofilled, sponsee_key1, multisign=True)
+        part2 = sign(autofilled, sponsee_key2, multisign=True)
+        sponsee_signed = multisign(autofilled, [part1, part2])
+        self.assertEqual(sponsee_signed.signing_pub_key, "")
+        self.assertEqual(len(sponsee_signed.signers), 2)
+
+        # The sponsor co-signs the empty-SigningPubKey transaction.
+        sponsor_result = sign_as_sponsor(
+            sponsor_wallet, sponsee_signed, sponsee_multisign=True
+        )
+        self.assertIsNotNone(sponsor_result.tx.sponsor_signature.signing_pub_key)
+        self.assertEqual(len(sponsor_result.tx.signers), 2)
+
+        response = await submit(sponsor_result.tx, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+    @test_async_and_sync(
+        globals(), ["xrpl.transaction.autofill", "xrpl.transaction.submit"]
+    )
+    async def test_multisig_sponsee_multisig_sponsor(self, client):
+        """Both parties multi-sign; the two signer sets are independent."""
+        sponsor_wallet = Wallet.create()
+        sponsor_key1 = Wallet.create()
+        sponsor_key2 = Wallet.create()
+        sponsee_wallet = Wallet.create()
+        sponsee_key1 = Wallet.create()
+        sponsee_key2 = Wallet.create()
+        destination_wallet = Wallet.create()
+
+        await fund_wallet_async(sponsor_wallet)
+        await fund_wallet_async(sponsee_wallet)
+        await fund_wallet_async(destination_wallet)
+
+        for wallet, keys in (
+            (sponsee_wallet, (sponsee_key1, sponsee_key2)),
+            (sponsor_wallet, (sponsor_key1, sponsor_key2)),
+        ):
+            await sign_and_reliable_submission_async(
+                SignerListSet(
+                    account=wallet.address,
+                    signer_quorum=2,
+                    signer_entries=[
+                        SignerEntry(account=key.address, signer_weight=1)
+                        for key in keys
+                    ],
+                ),
+                wallet,
+                client,
+            )
+
+        # base * (1 + |tx.Signers| + |SponsorSignature.Signers|) = base * 5
+        payment = Payment(
+            account=sponsee_wallet.address,
+            destination=destination_wallet.address,
+            amount="1000000",
+            sponsor=sponsor_wallet.address,
+            sponsor_flags=_TF_SPONSOR_FEE,
+        )
+        autofilled = await autofill(
+            payment, client, signers_count=2, sponsor_signers_count=2
+        )
+
+        sponsee_signed = multisign(
+            autofilled,
+            [
+                sign(autofilled, sponsee_key1, multisign=True),
+                sign(autofilled, sponsee_key2, multisign=True),
+            ],
+        )
+        self.assertEqual(sponsee_signed.signing_pub_key, "")
+
+        # Each sponsor key holder signs independently, then the contributions
+        # merge into SponsorSignature.Signers.
+        combined = combine_sponsor_signers(
+            [
+                sign_as_sponsor(
+                    sponsor_key1,
+                    sponsee_signed,
+                    multisign=True,
+                    sponsee_multisign=True,
+                ).tx,
+                sign_as_sponsor(
+                    sponsor_key2,
+                    sponsee_signed,
+                    multisign=True,
+                    sponsee_multisign=True,
+                ).tx,
+            ]
+        )
+        self.assertEqual(len(combined.tx.signers), 2)
+        self.assertEqual(len(combined.tx.sponsor_signature.signers), 2)
+
+        response = await submit(combined.tx, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
