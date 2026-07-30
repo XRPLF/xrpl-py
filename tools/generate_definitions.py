@@ -104,7 +104,8 @@ _add_line("{")
 _add_line('  "FIELDS": [')
 
 # The ones that are harder to parse directly from SField.cpp
-_add_line("""    [
+_add_line(
+    """    [
       "Generic",
       {
         "isSerialized": false,
@@ -163,7 +164,8 @@ _add_line("""    [
         "nth": 259,
         "type": "Amount"
       }
-    ],""")
+    ],"""
+)
 
 # Parse STypes
 # Example line:
@@ -192,7 +194,7 @@ def _is_serialized(t: str, name: str) -> str:
 
 
 def _is_signing_field(t: str, not_signing_field: str) -> str:
-    if not_signing_field in ("notSigning", "kNotSigning"):
+    if not_signing_field == "kNotSigning":
         return "false"
     if t == "LEDGERENTRY" or t == "TRANSACTION" or t == "VALIDATION" or t == "METADATA":
         return "false"
@@ -202,16 +204,16 @@ def _is_signing_field(t: str, not_signing_field: str) -> str:
 # Parse SField.cpp for all the SFields and their serialization info
 # Example lines:
 # TYPED_SFIELD(sfFee, AMOUNT, 8)
-# UNTYPED_SFIELD(sfSigners,  ARRAY, 3, SField::sMD_Default, SField::notSigning)
+# UNTYPED_SFIELD(sfSigners,  ARRAY, 3, SField::sMD_Default, SField::kNotSigning)
 sfield_hits = re.findall(
     r"^ *[A-Z]*TYPED_SFIELD[ \n]*\([ \n]*sf([^,\n]*),[ \n]*([^, \n]+)[ \n]*,[ \n]*"
-    r"([0-9]+)(,.*?(notSigning|kNotSigning))?",
+    r"([0-9]+)(,.*?(kNotSigning))?",
     sfield_macro_file,
     re.MULTILINE,
 )
 sfield_hits += [
-    ("hash", "UINT256", "257", "", "notSigning"),
-    ("index", "UINT256", "258", "", "notSigning"),
+    ("hash", "UINT256", "257", "", "kNotSigning"),
+    ("index", "UINT256", "258", "", "kNotSigning"),
 ]
 sfield_hits.sort(key=lambda x: int(type_map[x[1]]) * 2**16 + int(x[2]))
 for x in range(len(sfield_hits)):
