@@ -243,11 +243,54 @@ class TestSignMultiAccountBatch(TestCase):
         self.assertEqual(len(signed.batch_signers), 1)
         self.assertEqual(signed.batch_signers[0].account, other_wallet.address)
 
+    # Same as sponsored_batch_tx but with the SponsorSignature placeholder
+    # omitted. rippled gates the sponsor's required-signer status on that field
+    # being present, so this shape must NOT admit the sponsor.
+    sponsor_without_placeholder_tx = Batch.from_xrpl(
+        {
+            "Account": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
+            "Flags": 1,
+            "RawTransactions": [
+                {
+                    "RawTransaction": {
+                        "Account": "rJy554HmWFFJQGnRfZuoo8nV97XSMq77h7",
+                        "Flags": 1073741824,
+                        "Amount": "5000000",
+                        "Destination": "rPMh7Pi9ct699iZUTWaytJUoHcJ7cgyziK",
+                        "Fee": "0",
+                        "Sequence": 215,
+                        "SigningPubKey": "",
+                        "TransactionType": "Payment",
+                        "Sponsor": other_wallet.address,
+                        "SponsorFlags": 2,  # spfSponsorReserve, no placeholder
+                    },
+                },
+                {
+                    "RawTransaction": {
+                        "Account": "rPMh7Pi9ct699iZUTWaytJUoHcJ7cgyziK",
+                        "Amount": "1000000",
+                        "Flags": 1073741824,
+                        "Destination": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
+                        "Fee": "0",
+                        "Sequence": 470,
+                        "SigningPubKey": "",
+                        "TransactionType": "Payment",
+                    },
+                },
+            ],
+            "TransactionType": "Batch",
+        }
+    )
+
     def test_inner_sponsor_without_placeholder_may_not_sign(self):
-        # No SponsorSignature -> rippled does not require the sponsor's entry, so
-        # an extra BatchSigner would be rejected as "extra signer provided".
+        # `Sponsor` present but no `SponsorSignature`: rippled does not require
+        # this sponsor's entry (it is the pre-funded path), so an extra
+        # BatchSigner would be rejected as "extra signer provided".
+        inner = self.sponsor_without_placeholder_tx.raw_transactions[0]
+        self.assertEqual(inner.sponsor, other_wallet.address)
+        self.assertIsNone(inner.sponsor_signature)
         with self.assertRaises(XRPLException):
-            sign_multiaccount_batch(other_wallet, self.batch_tx)
+            sign_multiaccount_batch(other_wallet, self.sponsor_without_placeholder_tx)
 
     def test_sponsored_batch_signers_match_required_set(self):
         # rippled's required set here is {inner-0 authorizer, inner-0 sponsor,

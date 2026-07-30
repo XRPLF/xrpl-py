@@ -179,7 +179,10 @@ class TestSponsorshipTransfer(IntegrationTestCase):
             sponsor_flags=2,
             sponsor=sponsor_wallet.address,
         )
-        create_tx = await autofill(create_tx, client)
+        # Two sponsor signers are attached below, and `Fee` is a signing field --
+        # final before those signatures exist -- so the count must be declared.
+        # base * (1 + |tx.Signers| + |SponsorSignature.Signers|) = base * 3.
+        create_tx = await autofill(create_tx, client, sponsor_signers_count=2)
 
         # Sign as the sponsee (primary signer).
         signed_tx = sign(create_tx, sponsee_wallet)

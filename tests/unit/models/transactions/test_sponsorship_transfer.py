@@ -16,9 +16,15 @@ _OBJECT_ID = "DB303FC1C7611B22C09E773B51044F6BEA02EF917DF59A2E2860871E167066A5"
 
 class TestSponsorshipTransfer(TestCase):
     def test_valid_minimal(self):
-        """SponsorshipTransfer with just account."""
+        """SponsorshipTransfer with just account and one operation flag.
+
+        rippled requires exactly one of END / CREATE / REASSIGN
+        (`popcount(flags & transferFlags) != 1` -> temINVALID_FLAG), so there is
+        no valid flagless form.
+        """
         tx = SponsorshipTransfer(
             account=_ACCOUNT,
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
         )
         self.assertTrue(tx.is_valid())
 
@@ -27,14 +33,16 @@ class TestSponsorshipTransfer(TestCase):
         tx = SponsorshipTransfer(
             account=_ACCOUNT,
             object_id=_OBJECT_ID,
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
         )
         self.assertTrue(tx.is_valid())
 
     def test_valid_with_sponsee(self):
-        """Setting sponsee."""
+        """Setting sponsee. Only valid with END; CREATE/REASSIGN reject it."""
         tx = SponsorshipTransfer(
             account=_ACCOUNT,
             sponsee=_ACCOUNT2,
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
         )
         self.assertTrue(tx.is_valid())
 
@@ -44,6 +52,7 @@ class TestSponsorshipTransfer(TestCase):
             account=_ACCOUNT,
             object_id=_OBJECT_ID,
             sponsee=_ACCOUNT2,
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
         )
         self.assertTrue(tx.is_valid())
 
@@ -78,6 +87,7 @@ class TestSponsorshipTransfer(TestCase):
         """Verify transaction_type is TransactionType.SPONSORSHIP_TRANSFER."""
         tx = SponsorshipTransfer(
             account=_ACCOUNT,
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
         )
         self.assertEqual(tx.transaction_type, TransactionType.SPONSORSHIP_TRANSFER)
 
@@ -110,11 +120,11 @@ class TestSponsorshipTransfer(TestCase):
         """to_dict() does not include fields set to None."""
         tx = SponsorshipTransfer(
             account=_ACCOUNT,
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
         )
         d = tx.to_dict()
         self.assertNotIn("object_id", d)
         self.assertNotIn("sponsee", d)
-        self.assertNotIn("flags", d)
         self.assertNotIn("sponsor", d)
         self.assertNotIn("sponsor_flags", d)
         self.assertNotIn("sponsor_signature", d)
@@ -125,6 +135,7 @@ class TestSponsorshipTransfer(TestCase):
             account=_ACCOUNT,
             object_id=_OBJECT_ID,
             sponsee=_ACCOUNT2,
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
         )
         xrpl_dict = tx.to_xrpl()
         self.assertIn("Account", xrpl_dict)
@@ -201,6 +212,7 @@ class TestSponsorshipTransfer(TestCase):
             object_id=_OBJECT_ID,
             sponsor=_ACCOUNT2,
             sponsor_flags=0x00000001,  # spfSponsorFee
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
         )
         self.assertTrue(tx.is_valid())
         d = tx.to_dict()
@@ -214,6 +226,7 @@ class TestSponsorshipTransfer(TestCase):
             sponsee=_ACCOUNT2,
             sponsor=_ACCOUNT2,
             sponsor_flags=0x00000002,  # spfSponsorReserve
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
         )
         self.assertTrue(tx.is_valid())
         d = tx.to_dict()
@@ -227,6 +240,7 @@ class TestSponsorshipTransfer(TestCase):
             sponsee=_ACCOUNT2,
             sponsor=_ACCOUNT2,
             sponsor_flags=0x00000001,
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
             sponsor_signature=SponsorSignature(
                 signing_pub_key="ED000000",
                 txn_signature="DEADBEEF",
@@ -244,6 +258,7 @@ class TestSponsorshipTransfer(TestCase):
             object_id=_OBJECT_ID,
             sponsor=_ACCOUNT2,
             sponsor_flags=0x00000001,
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
             sponsor_signature=SponsorSignature(
                 signers=[
                     Signer(
@@ -268,18 +283,24 @@ class TestSponsorshipTransfer(TestCase):
         """SponsorshipTransfer is frozen; mutating fields raises AttributeError."""
         tx = SponsorshipTransfer(
             account=_ACCOUNT,
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
         )
         with self.assertRaises(AttributeError):
             tx.sponsee = _ACCOUNT2  # type: ignore[misc]
 
-    def test_no_flags_in_dict_when_none(self):
-        """flags key is absent from to_dict() when no flags are set."""
-        tx = SponsorshipTransfer(
-            account=_ACCOUNT,
-            object_id=_OBJECT_ID,
-        )
-        d = tx.to_dict()
-        self.assertNotIn("flags", d)
+    def test_invalid_no_operation_flag(self):
+        """Zero operation flags is malformed, not a valid "no-op" form.
+
+        rippled: `popcount(tx.getFlags() & transferFlags) != 1` ->
+        temINVALID_FLAG. A flagless SponsorshipTransfer names no operation to
+        perform, so the model must reject it rather than let the server do it.
+        """
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorshipTransfer(
+                account=_ACCOUNT,
+                object_id=_OBJECT_ID,
+            )
+        self.assertIn("Exactly one of", str(cm.exception))
 
     def test_integer_flag_value(self):
         """Passing an integer directly as flags is accepted."""
@@ -296,7 +317,7 @@ class TestSponsorshipTransfer(TestCase):
 
     _MULTI_FLAG_MSG = (
         "Exactly one of `TF_SPONSORSHIP_END`, `TF_SPONSORSHIP_CREATE`, or "
-        "`TF_SPONSORSHIP_REASSIGN` may be set at a time."
+        "`TF_SPONSORSHIP_REASSIGN` must be set."
     )
     _SPONSEE_FLAG_MSG = (
         "`sponsee` cannot be set when `TF_SPONSORSHIP_CREATE` is active."

@@ -66,11 +66,11 @@ class SponsorshipTransfer(Transaction):
         create = self.has_flag(int(SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE))
         reassign = self.has_flag(int(SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN))
 
-        # Exactly one of the three operation flags may be set at a time.
-        if sum([end, create, reassign]) > 1:
+        # Exactly one of the three operation flags must be set.
+        if sum([end, create, reassign]) != 1:
             errors["flags"] = (
                 "Exactly one of `TF_SPONSORSHIP_END`, `TF_SPONSORSHIP_CREATE`, or "
-                "`TF_SPONSORSHIP_REASSIGN` may be set at a time."
+                "`TF_SPONSORSHIP_REASSIGN` must be set."
             )
 
         # sponsee is only meaningful when ending sponsorship. The C++ preflight

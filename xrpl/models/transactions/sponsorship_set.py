@@ -115,19 +115,19 @@ class SponsorshipSet(Transaction):
 
         # ── Concern 3: mutually exclusive flag pairs ───────────────────────────
         if set_fee and clear_fee:
-            errors["flags"] = (
+            errors["flags_fee"] = (
                 "`TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE` and "
                 "`TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_FEE` are mutually exclusive."
             )
         if set_res and clear_res:
-            errors["flags"] = (
+            errors["flags_reserve"] = (
                 "`TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_RESERVE`"
                 " and "
                 "`TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_RESERVE`"
                 " are mutually exclusive."
             )
         if delete_obj and (set_fee or clear_fee or set_res or clear_res):
-            errors["flags"] = (
+            errors["flags_delete"] = (
                 "`TF_DELETE_OBJECT` cannot be combined with any set/clear flags."
             )
 

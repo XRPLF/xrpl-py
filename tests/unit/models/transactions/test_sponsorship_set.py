@@ -361,3 +361,41 @@ class TestSponsorshipSet(TestCase):
                 flags=SponsorshipSetFlag.TF_DELETE_OBJECT,
             )
         self.assertIn("remaining_owner_count", str(cm.exception))
+
+    def test_simultaneous_flag_conflicts_are_all_reported(self):
+        """Each mutually-exclusive pair reports under its own key.
+
+        A shared `errors["flags"]` key let later checks overwrite earlier ones, so
+        a transaction violating several rules surfaced only the last, sending the
+        caller round a fix-and-rediscover loop.
+        """
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorshipSet(
+                account=_ACCOUNT,
+                sponsee=_ACCOUNT2,
+                flags=(
+                    SponsorshipSetFlag.TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE
+                    | SponsorshipSetFlag.TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_FEE
+                    | SponsorshipSetFlag.TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_RESERVE
+                    | SponsorshipSetFlag.TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_RESERVE
+                ),
+            )
+        message = str(cm.exception)
+        self.assertIn("TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE", message)
+        self.assertIn("TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_RESERVE", message)
+
+    def test_delete_object_conflict_reported_alongside_pair_conflict(self):
+        """TF_DELETE_OBJECT's conflict does not mask a set/clear pair conflict."""
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorshipSet(
+                account=_ACCOUNT,
+                sponsee=_ACCOUNT2,
+                flags=(
+                    SponsorshipSetFlag.TF_DELETE_OBJECT
+                    | SponsorshipSetFlag.TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE
+                    | SponsorshipSetFlag.TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_FEE
+                ),
+            )
+        message = str(cm.exception)
+        self.assertIn("TF_DELETE_OBJECT", message)
+        self.assertIn("TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE", message)

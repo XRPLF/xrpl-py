@@ -10,8 +10,8 @@ These tests exercise the full co-signing flow described in XLS-0068 §3.2:
 
 Two scenarios are covered:
 
-* **Single-signature sponsor** – the sponsor account uses a single key.
-* **Multi-signature sponsor** – the sponsor account requires multiple keys;
+* **Single-signature sponsor** - the sponsor account uses a single key.
+* **Multi-signature sponsor** - the sponsor account requires multiple keys;
   each holder signs independently and the signatures are merged with
   ``combine_sponsor_signers`` before the sponsee signs.
 
@@ -60,7 +60,7 @@ class TestSponsorSigner(IntegrationTestCase):
         await fund_wallet_async(sponsee_wallet)
         await fund_wallet_async(destination_wallet)
 
-        # Step 1 – Sponsee builds and autofills the transaction.
+        # Step 1 - Sponsee builds and autofills the transaction.
         payment = Payment(
             account=sponsee_wallet.address,
             destination=destination_wallet.address,
@@ -70,13 +70,13 @@ class TestSponsorSigner(IntegrationTestCase):
         )
         autofilled = await autofill(payment, client)
 
-        # Step 2 – Sponsee signs first (sets SigningPubKey + TxnSignature).
+        # Step 2 - Sponsee signs first (sets SigningPubKey + TxnSignature).
         sponsee_signed = sign(autofilled, sponsee_wallet)
 
         self.assertIsNotNone(sponsee_signed.txn_signature)
         self.assertEqual(sponsee_signed.signing_pub_key, sponsee_wallet.public_key)
 
-        # Step 3 – Sponsor co-signs the already-signed transaction.
+        # Step 3 - Sponsor co-signs the already-signed transaction.
         sponsor_result = sign_as_sponsor(sponsor_wallet, sponsee_signed)
 
         self.assertIsNotNone(sponsor_result.tx.sponsor_signature)
@@ -88,7 +88,7 @@ class TestSponsorSigner(IntegrationTestCase):
         self.assertIsNone(sponsor_result.tx.sponsor_signature.signers)
         self.assertIsNotNone(sponsor_result.tx_blob)
 
-        # Step 4 – Submit and verify.
+        # Step 4 - Submit and verify.
         response = await submit(sponsor_result.tx, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
@@ -121,9 +121,12 @@ class TestSponsorSigner(IntegrationTestCase):
                 SignerEntry(account=sponsor_key2.address, signer_weight=1),
             ],
         )
-        await sign_and_reliable_submission_async(signer_list_tx, sponsor_wallet, client)
+        list_response = await sign_and_reliable_submission_async(
+            signer_list_tx, sponsor_wallet, client
+        )
+        self.assertEqual(list_response.result["engine_result"], "tesSUCCESS")
 
-        # Step 1 – Sponsee builds and autofills the transaction.
+        # Step 1 - Sponsee builds and autofills the transaction.
         #
         # `sponsor_signers_count` is required here: `Fee` is a signing field, so
         # it is final before the sponsor signs, which means SponsorSignature does
@@ -138,11 +141,11 @@ class TestSponsorSigner(IntegrationTestCase):
         )
         autofilled = await autofill(payment, client, sponsor_signers_count=2)
 
-        # Step 2 – Sponsee signs first (sets SigningPubKey + TxnSignature).
+        # Step 2 - Sponsee signs first (sets SigningPubKey + TxnSignature).
         sponsee_signed = sign(autofilled, sponsee_wallet)
         self.assertIsNotNone(sponsee_signed.txn_signature)
 
-        # Step 3 – Each key holder produces a multisig sponsor contribution.
+        # Step 3 - Each key holder produces a multisig sponsor contribution.
         sig1_result = sign_as_sponsor(sponsor_key1, sponsee_signed, multisign=True)
         sig2_result = sign_as_sponsor(sponsor_key2, sponsee_signed, multisign=True)
 
@@ -161,7 +164,7 @@ class TestSponsorSigner(IntegrationTestCase):
             sponsor_key2.address,
         )
 
-        # Step 4 – Merge all sponsor signers into one transaction.
+        # Step 4 - Merge all sponsor signers into one transaction.
         combined = combine_sponsor_signers([sig1_result.tx, sig2_result.tx])
 
         self.assertEqual(len(combined.tx.sponsor_signature.signers), 2)
@@ -174,7 +177,7 @@ class TestSponsorSigner(IntegrationTestCase):
         ]
         self.assertEqual(ids, sorted(ids))
 
-        # Step 5 – Submit and verify.
+        # Step 5 - Submit and verify.
         response = await submit(combined.tx, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
@@ -277,7 +280,10 @@ class TestSponsorSigner(IntegrationTestCase):
                 SignerEntry(account=sponsee_key2.address, signer_weight=1),
             ],
         )
-        await sign_and_reliable_submission_async(signer_list_tx, sponsee_wallet, client)
+        list_response = await sign_and_reliable_submission_async(
+            signer_list_tx, sponsee_wallet, client
+        )
+        self.assertEqual(list_response.result["engine_result"], "tesSUCCESS")
 
         # `signers_count` covers the sponsee's two signatures; the sponsor
         # single-signs and is not billed.
@@ -329,7 +335,7 @@ class TestSponsorSigner(IntegrationTestCase):
             (sponsee_wallet, (sponsee_key1, sponsee_key2)),
             (sponsor_wallet, (sponsor_key1, sponsor_key2)),
         ):
-            await sign_and_reliable_submission_async(
+            list_response = await sign_and_reliable_submission_async(
                 SignerListSet(
                     account=wallet.address,
                     signer_quorum=2,
@@ -341,6 +347,7 @@ class TestSponsorSigner(IntegrationTestCase):
                 wallet,
                 client,
             )
+            self.assertEqual(list_response.result["engine_result"], "tesSUCCESS")
 
         # base * (1 + |tx.Signers| + |SponsorSignature.Signers|) = base * 5
         payment = Payment(

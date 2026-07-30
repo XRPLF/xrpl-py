@@ -221,6 +221,9 @@ class TestPreFundedSponsorship(IntegrationTestCase):
             response.result["engine_result"],
             ("terINSUF_FEE_B", "tecINSUFF_FEE"),
         )
+        # tecINSUFF_FEE is applied and included in a ledger, unlike the purely
+        # local terINSUF_FEE_B, so close the ledger before reading state.
+        await client.request(LEDGER_ACCEPT_REQUEST)
 
         # Nothing was spent from the budget.
         after_resp = await client.request(
