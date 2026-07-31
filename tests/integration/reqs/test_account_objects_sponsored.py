@@ -21,10 +21,14 @@ class TestAccountObjectsSponsored(IntegrationTestCase):
         await fund_wallet_async(sponsor_wallet)
         await fund_wallet_async(sponsee_wallet)
 
-        # Create a sponsorship
+        # Create a sponsorship. A create must leave the object with a positive
+        # budget -- rippled rejects a budgetless Sponsorship with
+        # tecNO_PERMISSION, since it consumes the sponsor's reserve while being
+        # unusable (XLS-68 §9.5).
         tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
+            fee_amount_delta="1000000",
         )
         response = await sign_and_reliable_submission_async(tx, sponsor_wallet, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
@@ -76,10 +80,14 @@ class TestAccountObjectsSponsored(IntegrationTestCase):
         await fund_wallet_async(sponsor_wallet)
         await fund_wallet_async(sponsee_wallet)
 
-        # Create a sponsorship
+        # Create a sponsorship. A create must leave the object with a positive
+        # budget -- rippled rejects a budgetless Sponsorship with
+        # tecNO_PERMISSION, since it consumes the sponsor's reserve while being
+        # unusable (XLS-68 §9.5).
         tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
+            fee_amount_delta="1000000",
         )
         response = await sign_and_reliable_submission_async(tx, sponsor_wallet, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)

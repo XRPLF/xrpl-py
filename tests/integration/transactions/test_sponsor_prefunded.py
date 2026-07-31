@@ -234,3 +234,234 @@ class TestPreFundedSponsorship(IntegrationTestCase):
             )
         )
         self.assertEqual(after_resp.result["node"]["FeeAmount"], _FEE_BUDGET)
+
+    # -----------------------------------------------------------------------
+    # Delta arithmetic on the Sponsorship object (XLS-68 §9.6)
+    #
+    # `FeeAmountDelta` and `RemainingOwnerCountDelta` are *changes*, not
+    # replacements. A negative delta refunds/reduces, clamped so the result never
+    # goes below zero, and a result of zero removes the field entirely.
+    # -----------------------------------------------------------------------
+
+    @test_async_and_sync(
+        globals(), ["xrpl.transaction.autofill", "xrpl.transaction.submit"]
+    )
+    async def test_positive_then_negative_fee_delta(self, client):
+        """A negative delta refunds XRP to the sponsor and lowers FeeAmount."""
+        sponsor_wallet = Wallet.create()
+        sponsee_wallet = Wallet.create()
+        await fund_wallet_async(sponsor_wallet)
+        await fund_wallet_async(sponsee_wallet)
+
+        create_resp = await sign_and_reliable_submission_async(
+            SponsorshipSet(
+                account=sponsor_wallet.address,
+                sponsee=sponsee_wallet.address,
+                fee_amount_delta="3000000",
+            ),
+            sponsor_wallet,
+            client,
+        )
+        self.assertEqual(create_resp.result["engine_result"], "tesSUCCESS")
+
+        node = await client.request(
+            LedgerEntry(
+                sponsorship=Sponsorship(
+                    sponsor=sponsor_wallet.address, sponsee=sponsee_wallet.address
+                )
+            )
+        )
+        self.assertEqual(node.result["node"]["FeeAmount"], "3000000")
+
+        sponsor_before = await client.request(
+            LedgerEntry(account_root=sponsor_wallet.address)
+        )
+        balance_before = int(sponsor_before.result["node"]["Balance"])
+
+        # Refund 1 XRP of the budget back to the sponsor.
+        reduce_resp = await sign_and_reliable_submission_async(
+            SponsorshipSet(
+                account=sponsor_wallet.address,
+                sponsee=sponsee_wallet.address,
+                fee_amount_delta="-1000000",
+            ),
+            sponsor_wallet,
+            client,
+        )
+        self.assertEqual(reduce_resp.result["engine_result"], "tesSUCCESS")
+
+        node = await client.request(
+            LedgerEntry(
+                sponsorship=Sponsorship(
+                    sponsor=sponsor_wallet.address, sponsee=sponsee_wallet.address
+                )
+            )
+        )
+        self.assertEqual(node.result["node"]["FeeAmount"], "2000000")
+
+        # The refund landed in the sponsor's balance, net of the transaction fee.
+        sponsor_after = await client.request(
+            LedgerEntry(account_root=sponsor_wallet.address)
+        )
+        balance_after = int(sponsor_after.result["node"]["Balance"])
+        self.assertGreater(balance_after, balance_before)
+
+    @test_async_and_sync(
+        globals(), ["xrpl.transaction.autofill", "xrpl.transaction.submit"]
+    )
+    async def test_negative_fee_delta_clamps_and_clears_field(self, client):
+        """An over-large negative delta clamps to zero and removes FeeAmount.
+
+        The object survives because `RemainingOwnerCount` still provides a budget;
+        without it the transaction would be rejected with tecNO_PERMISSION.
+        """
+        sponsor_wallet = Wallet.create()
+        sponsee_wallet = Wallet.create()
+        await fund_wallet_async(sponsor_wallet)
+        await fund_wallet_async(sponsee_wallet)
+
+        create_resp = await sign_and_reliable_submission_async(
+            SponsorshipSet(
+                account=sponsor_wallet.address,
+                sponsee=sponsee_wallet.address,
+                fee_amount_delta="1000000",
+                remaining_owner_count_delta=4,
+            ),
+            sponsor_wallet,
+            client,
+        )
+        self.assertEqual(create_resp.result["engine_result"], "tesSUCCESS")
+
+        # Ask to remove far more than is held; rippled clamps to the balance.
+        clamp_resp = await sign_and_reliable_submission_async(
+            SponsorshipSet(
+                account=sponsor_wallet.address,
+                sponsee=sponsee_wallet.address,
+                fee_amount_delta="-999000000",
+            ),
+            sponsor_wallet,
+            client,
+        )
+        self.assertEqual(clamp_resp.result["engine_result"], "tesSUCCESS")
+
+        node = await client.request(
+            LedgerEntry(
+                sponsorship=Sponsorship(
+                    sponsor=sponsor_wallet.address, sponsee=sponsee_wallet.address
+                )
+            )
+        )
+        # Reaching zero clears the field rather than storing "0".
+        self.assertNotIn("FeeAmount", node.result["node"])
+        self.assertEqual(node.result["node"]["RemainingOwnerCount"], 4)
+
+    @test_async_and_sync(
+        globals(), ["xrpl.transaction.autofill", "xrpl.transaction.submit"]
+    )
+    async def test_negative_owner_count_delta_clamps_and_clears_field(self, client):
+        """A negative count delta reduces the budget and clears it at zero."""
+        sponsor_wallet = Wallet.create()
+        sponsee_wallet = Wallet.create()
+        await fund_wallet_async(sponsor_wallet)
+        await fund_wallet_async(sponsee_wallet)
+
+        create_resp = await sign_and_reliable_submission_async(
+            SponsorshipSet(
+                account=sponsor_wallet.address,
+                sponsee=sponsee_wallet.address,
+                fee_amount_delta="1000000",
+                remaining_owner_count_delta=5,
+            ),
+            sponsor_wallet,
+            client,
+        )
+        self.assertEqual(create_resp.result["engine_result"], "tesSUCCESS")
+
+        reduce_resp = await sign_and_reliable_submission_async(
+            SponsorshipSet(
+                account=sponsor_wallet.address,
+                sponsee=sponsee_wallet.address,
+                remaining_owner_count_delta=-2,
+            ),
+            sponsor_wallet,
+            client,
+        )
+        self.assertEqual(reduce_resp.result["engine_result"], "tesSUCCESS")
+
+        node = await client.request(
+            LedgerEntry(
+                sponsorship=Sponsorship(
+                    sponsor=sponsor_wallet.address, sponsee=sponsee_wallet.address
+                )
+            )
+        )
+        self.assertEqual(node.result["node"]["RemainingOwnerCount"], 3)
+
+        # Overshoot: clamps to zero, and the field is removed. FeeAmount keeps
+        # the object alive.
+        clamp_resp = await sign_and_reliable_submission_async(
+            SponsorshipSet(
+                account=sponsor_wallet.address,
+                sponsee=sponsee_wallet.address,
+                remaining_owner_count_delta=-99,
+            ),
+            sponsor_wallet,
+            client,
+        )
+        self.assertEqual(clamp_resp.result["engine_result"], "tesSUCCESS")
+
+        node = await client.request(
+            LedgerEntry(
+                sponsorship=Sponsorship(
+                    sponsor=sponsor_wallet.address, sponsee=sponsee_wallet.address
+                )
+            )
+        )
+        self.assertNotIn("RemainingOwnerCount", node.result["node"])
+        self.assertEqual(node.result["node"]["FeeAmount"], "1000000")
+
+    @test_async_and_sync(
+        globals(), ["xrpl.transaction.autofill", "xrpl.transaction.submit"]
+    )
+    async def test_removing_all_budget_is_rejected(self, client):
+        """Zeroing the only remaining budget leaves an unusable object.
+
+        rippled returns tecNO_PERMISSION rather than keeping a Sponsorship that
+        consumes the sponsor's reserve while providing nothing (XLS-68 §9.5).
+        """
+        sponsor_wallet = Wallet.create()
+        sponsee_wallet = Wallet.create()
+        await fund_wallet_async(sponsor_wallet)
+        await fund_wallet_async(sponsee_wallet)
+
+        create_resp = await sign_and_reliable_submission_async(
+            SponsorshipSet(
+                account=sponsor_wallet.address,
+                sponsee=sponsee_wallet.address,
+                fee_amount_delta="1000000",
+            ),
+            sponsor_wallet,
+            client,
+        )
+        self.assertEqual(create_resp.result["engine_result"], "tesSUCCESS")
+
+        remove_resp = await sign_and_reliable_submission_async(
+            SponsorshipSet(
+                account=sponsor_wallet.address,
+                sponsee=sponsee_wallet.address,
+                fee_amount_delta="-1000000",
+            ),
+            sponsor_wallet,
+            client,
+        )
+        self.assertEqual(remove_resp.result["engine_result"], "tecNO_PERMISSION")
+
+        # The object is untouched.
+        node = await client.request(
+            LedgerEntry(
+                sponsorship=Sponsorship(
+                    sponsor=sponsor_wallet.address, sponsee=sponsee_wallet.address
+                )
+            )
+        )
+        self.assertEqual(node.result["node"]["FeeAmount"], "1000000")

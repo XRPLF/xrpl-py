@@ -78,5 +78,24 @@ class TestSponsorTrustlineReserve(IntegrationTestCase):
         )
         node = ledger_response.result["node"]
         self.assertEqual(node["LedgerEntryType"], "RippleState")
-        recorded_sponsor = node.get("HighSponsor") or node.get("LowSponsor")
-        self.assertEqual(recorded_sponsor, sponsor_wallet.address)
+
+        # A RippleState has two sides, and the sponsor is recorded on the side
+        # belonging to the *owner* of the reserve -- the sponsee. rippled picks
+        # the field by comparing the owner against HighLimit/LowLimit's issuer
+        # (getLedgerEntrySponsorField), so derive the expected side the same way
+        # rather than accepting either. The unexpected side must stay absent.
+        high_account = node["HighLimit"]["issuer"]
+        low_account = node["LowLimit"]["issuer"]
+        self.assertIn(sponsee_wallet.address, (high_account, low_account))
+
+        if high_account == sponsee_wallet.address:
+            expected_field, other_field = "HighSponsor", "LowSponsor"
+        else:
+            expected_field, other_field = "LowSponsor", "HighSponsor"
+
+        self.assertEqual(
+            node.get(expected_field),
+            sponsor_wallet.address,
+            f"sponsor should be recorded in {expected_field}; node={node}",
+        )
+        self.assertNotIn(other_field, node)

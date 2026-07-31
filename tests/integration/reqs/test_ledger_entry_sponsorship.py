@@ -21,10 +21,13 @@ class TestLedgerEntrySponsorship(IntegrationTestCase):
         await fund_wallet_async(sponsor_wallet)
         await fund_wallet_async(sponsee_wallet)
 
-        # Create a sponsorship object.
+        # Create a sponsorship object. A create must leave a positive budget --
+        # rippled rejects a budgetless Sponsorship with tecNO_PERMISSION
+        # (XLS-68 §9.5).
         tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
+            fee_amount_delta="1000000",
         )
         response = await sign_and_reliable_submission_async(tx, sponsor_wallet, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)

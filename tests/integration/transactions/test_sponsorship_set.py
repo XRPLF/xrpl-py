@@ -31,9 +31,12 @@ class TestSponsorshipSet(IntegrationTestCase):
         await fund_wallet_async(sponsee_wallet)
 
         # Sponsor creates the sponsorship.
+        # A create must leave the object with a positive budget; rippled rejects a
+        # budgetless Sponsorship with tecNO_PERMISSION (XLS-68 §9.5).
         create_tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
+            fee_amount_delta="1000000",
         )
         create_resp = await sign_and_reliable_submission_async(
             create_tx, sponsor_wallet, client
@@ -160,10 +163,13 @@ class TestSponsorshipSet(IntegrationTestCase):
         await fund_wallet_async(sponsee_wallet)
 
         # Create with the flag set.
+        # A create must leave the object with a positive budget; rippled rejects a
+        # budgetless Sponsorship with tecNO_PERMISSION (XLS-68 §9.5).
         create_tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
             flags=(SponsorshipSetFlag.TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE),
+            fee_amount_delta="1000000",
         )
         create_resp = await sign_and_reliable_submission_async(
             create_tx, sponsor_wallet, client
@@ -193,10 +199,13 @@ class TestSponsorshipSet(IntegrationTestCase):
         await fund_wallet_async(sponsee_wallet)
 
         # Create with the flag set.
+        # A create must leave the object with a positive budget; rippled rejects a
+        # budgetless Sponsorship with tecNO_PERMISSION (XLS-68 §9.5).
         create_tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
             flags=(SponsorshipSetFlag.TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_RESERVE),
+            fee_amount_delta="1000000",
         )
         create_resp = await sign_and_reliable_submission_async(
             create_tx, sponsor_wallet, client
@@ -225,9 +234,12 @@ class TestSponsorshipSet(IntegrationTestCase):
         await fund_wallet_async(sponsor_wallet)
         await fund_wallet_async(sponsee_wallet)
 
+        # A create must leave the object with a positive budget; rippled rejects a
+        # budgetless Sponsorship with tecNO_PERMISSION (XLS-68 §9.5).
         create_tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
+            fee_amount_delta="1000000",
         )
         create_resp = await sign_and_reliable_submission_async(
             create_tx, sponsor_wallet, client

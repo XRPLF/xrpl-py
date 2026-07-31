@@ -234,14 +234,18 @@ class TestSponsorSigner(IntegrationTestCase):
         self.assertEqual(len(checks), 1)
         self.assertEqual(checks[0].get("Sponsor"), sponsor_wallet.address)
 
-        # sfSponsoredOwnerCount (on the sponsee) and sfSponsoringOwnerCount (on
-        # the sponsor) track the object reserve the sponsor covers (XLS-68). The
-        # sponsee holds one sponsored owner object (the Check), so its own
-        # OwnerCount stays 0 while SponsoredOwnerCount is 1.
+        # The sponsee still *owns* the Check (XLS-68 §4.2), so its OwnerCount
+        # increments as normal -- and SponsoredOwnerCount increments alongside it,
+        # as a subset (rippled asserts OwnerCount >= SponsoredOwnerCount). The
+        # reserve is computed as
+        #     OwnerCount - SponsoredOwnerCount + SponsoringOwnerCount
+        # so the two cancel for the sponsee (net 0) while the sponsor's
+        # SponsoringOwnerCount adds 1. The burden moves; the ownership does not.
         sponsee_info = await client.request(AccountInfo(account=sponsee_wallet.address))
-        self.assertEqual(
-            sponsee_info.result["account_data"].get("SponsoredOwnerCount"), 1
-        )
+        sponsee_data = sponsee_info.result["account_data"]
+        self.assertEqual(sponsee_data.get("SponsoredOwnerCount"), 1)
+        self.assertEqual(sponsee_data.get("OwnerCount"), 1)
+
         sponsor_info = await client.request(AccountInfo(account=sponsor_wallet.address))
         self.assertEqual(
             sponsor_info.result["account_data"].get("SponsoringOwnerCount"), 1
