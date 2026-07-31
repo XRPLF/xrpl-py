@@ -1931,6 +1931,16 @@
       }
     ],
     [
+      "FeeAmountDelta",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 34,
+        "type": "Amount"
+      }
+    ],
+    [
       "PublicKey",
       {
         "isSerialized": true,
@@ -2817,6 +2827,16 @@
         "isSigningField": true,
         "isVLEncoded": false,
         "nth": 1,
+        "type": "Int32"
+      }
+    ],
+    [
+      "RemainingOwnerCountDelta",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 2,
         "type": "Int32"
       }
     ],

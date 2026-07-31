@@ -77,9 +77,9 @@ class TestSponsorshipSet(IntegrationTestCase):
         tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
-            fee_amount="2000000",
+            fee_amount_delta="2000000",
             max_fee="100000",
-            remaining_owner_count=10,
+            remaining_owner_count_delta=10,
         )
         response = await sign_and_reliable_submission_async(tx, sponsor_wallet, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
@@ -136,7 +136,7 @@ class TestSponsorshipSet(IntegrationTestCase):
         tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
-            fee_amount="1000000",
+            fee_amount_delta="1000000",
         )
         autofilled_tx = await autofill(tx, client, len([signer1, signer2]))
 

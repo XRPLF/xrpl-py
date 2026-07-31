@@ -56,7 +56,7 @@ class TestPreFundedSponsorship(IntegrationTestCase):
             SponsorshipSet(
                 account=sponsor_wallet.address,
                 sponsee=sponsee_wallet.address,
-                fee_amount=_FEE_BUDGET,
+                fee_amount_delta=_FEE_BUDGET,
             ),
             sponsor_wallet,
             client,
@@ -130,8 +130,8 @@ class TestPreFundedSponsorship(IntegrationTestCase):
             SponsorshipSet(
                 account=sponsor_wallet.address,
                 sponsee=sponsee_wallet.address,
-                fee_amount=_FEE_BUDGET,
-                remaining_owner_count=_OWNER_COUNT_BUDGET,
+                fee_amount_delta=_FEE_BUDGET,
+                remaining_owner_count_delta=_OWNER_COUNT_BUDGET,
             ),
             sponsor_wallet,
             client,
@@ -198,7 +198,7 @@ class TestPreFundedSponsorship(IntegrationTestCase):
             SponsorshipSet(
                 account=sponsor_wallet.address,
                 sponsee=sponsee_wallet.address,
-                fee_amount=_FEE_BUDGET,
+                fee_amount_delta=_FEE_BUDGET,
                 max_fee="1",  # 1 drop: below any real transaction fee
             ),
             sponsor_wallet,

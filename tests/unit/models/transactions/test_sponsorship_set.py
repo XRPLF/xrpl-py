@@ -19,30 +19,45 @@ class TestSponsorshipSet(TestCase):
     # ------------------------------------------------------------------ #
 
     def test_valid_minimal(self):
-        """Sponsor submits with only the sponsee field."""
+        """Sponsor submits with a sponsee and one budget delta.
+
+        A SponsorshipSet that is not deleting must actually change something --
+        rippled returns temREDUNDANT when no delta, `max_fee`, or sponsorship
+        flag is present -- so there is no valid field-free form.
+        """
         tx = SponsorshipSet(
             account=_ACCOUNT,
             sponsee=_ACCOUNT2,
+            fee_amount_delta="1000000",
         )
         self.assertTrue(tx.is_valid())
+
+    def test_invalid_no_modification(self):
+        """Neither a delta, `max_fee`, nor a flag means the tx does nothing."""
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorshipSet(
+                account=_ACCOUNT,
+                sponsee=_ACCOUNT2,
+            )
+        self.assertIn("must set at least one of", str(cm.exception))
 
     def test_valid_all_fields(self):
         """Sponsor submits with sponsee and every optional field set."""
         tx = SponsorshipSet(
             account=_ACCOUNT,
             sponsee=_ACCOUNT2,
-            fee_amount="1000000",
+            fee_amount_delta="1000000",
             max_fee="2000000",
-            remaining_owner_count=5,
+            remaining_owner_count_delta=5,
         )
         self.assertTrue(tx.is_valid())
 
     def test_valid_with_xrp_fee_amount(self):
-        """fee_amount as XRP drops string."""
+        """fee_amount_delta as XRP drops string."""
         tx = SponsorshipSet(
             account=_ACCOUNT,
             sponsee=_ACCOUNT2,
-            fee_amount="1000000",
+            fee_amount_delta="1000000",
         )
         self.assertTrue(tx.is_valid())
 
@@ -95,11 +110,11 @@ class TestSponsorshipSet(TestCase):
         self.assertTrue(tx.is_valid())
 
     def test_valid_with_remaining_owner_count(self):
-        """Setting remaining_owner_count."""
+        """Setting remaining_owner_count_delta."""
         tx = SponsorshipSet(
             account=_ACCOUNT,
             sponsee=_ACCOUNT2,
-            remaining_owner_count=10,
+            remaining_owner_count_delta=10,
         )
         self.assertTrue(tx.is_valid())
 
@@ -108,6 +123,7 @@ class TestSponsorshipSet(TestCase):
         tx = SponsorshipSet(
             account=_ACCOUNT,
             sponsee=_ACCOUNT2,
+            fee_amount_delta="1000000",
         )
         self.assertEqual(tx.transaction_type, TransactionType.SPONSORSHIP_SET)
 
@@ -137,11 +153,11 @@ class TestSponsorshipSet(TestCase):
         self.assertTrue(tx.is_valid())
 
     # ------------------------------------------------------------------ #
-    #  Concern 1 — fee_amount / max_fee must be XRP (not IOU or MPT)     #
+    #  Concern 1 — fee_amount_delta / max_fee must be XRP (not IOU or MPT)     #
     # ------------------------------------------------------------------ #
 
     _FEE_AMOUNT_MSG = (
-        "`fee_amount` must be XRP drops (a string), "
+        "`fee_amount_delta` must be XRP drops (a string), "
         "not an issued currency or MPT amount."
     )
     _MAX_FEE_MSG = (
@@ -150,12 +166,12 @@ class TestSponsorshipSet(TestCase):
     )
 
     def test_invalid_fee_amount_iou(self):
-        """fee_amount as IssuedCurrencyAmount is rejected."""
+        """fee_amount_delta as IssuedCurrencyAmount is rejected."""
         with self.assertRaises(XRPLModelException) as cm:
             SponsorshipSet(
                 account=_ACCOUNT,
                 sponsee=_ACCOUNT2,
-                fee_amount=IssuedCurrencyAmount(
+                fee_amount_delta=IssuedCurrencyAmount(
                     currency="USD",
                     issuer=_ACCOUNT,
                     value="10",
@@ -178,12 +194,12 @@ class TestSponsorshipSet(TestCase):
         self.assertIn(self._MAX_FEE_MSG, str(cm.exception))
 
     def test_invalid_fee_amount_mpt(self):
-        """fee_amount as MPTAmount must be rejected with the correct message."""
+        """fee_amount_delta as MPTAmount must be rejected with the correct message."""
         with self.assertRaises(XRPLModelException) as cm:
             SponsorshipSet(
                 account=_ACCOUNT,
                 sponsee=_ACCOUNT2,
-                fee_amount=MPTAmount(
+                fee_amount_delta=MPTAmount(
                     mpt_issuance_id=_MPT_ISSUANCE_ID,
                     value="100",
                 ),
@@ -336,31 +352,31 @@ class TestSponsorshipSet(TestCase):
         )
 
     # ------------------------------------------------------------------ #
-    #  Concern 5 — delete forbids fee_amount/max_fee/remaining_owner_count #
+    #  Concern 5 — delete forbids fee_amount_delta/max_fee/remaining_owner_count_delta #
     # ------------------------------------------------------------------ #
 
     def test_invalid_delete_with_fee_amount(self):
-        """fee_amount must not be present when deleting."""
+        """fee_amount_delta must not be present when deleting."""
         with self.assertRaises(XRPLModelException) as cm:
             SponsorshipSet(
                 account=_ACCOUNT,
                 sponsee=_ACCOUNT2,
-                fee_amount="1000000",
+                fee_amount_delta="1000000",
                 flags=SponsorshipSetFlag.TF_DELETE_OBJECT,
             )
         self.assertIn("TF_DELETE_OBJECT", str(cm.exception))
-        self.assertIn("fee_amount", str(cm.exception))
+        self.assertIn("fee_amount_delta", str(cm.exception))
 
     def test_invalid_delete_with_remaining_owner_count(self):
-        """remaining_owner_count must not be present when deleting."""
+        """remaining_owner_count_delta must not be present when deleting."""
         with self.assertRaises(XRPLModelException) as cm:
             SponsorshipSet(
                 account=_ACCOUNT,
                 sponsee=_ACCOUNT2,
-                remaining_owner_count=3,
+                remaining_owner_count_delta=3,
                 flags=SponsorshipSetFlag.TF_DELETE_OBJECT,
             )
-        self.assertIn("remaining_owner_count", str(cm.exception))
+        self.assertIn("remaining_owner_count_delta", str(cm.exception))
 
     def test_simultaneous_flag_conflicts_are_all_reported(self):
         """Each mutually-exclusive pair reports under its own key.
@@ -399,3 +415,83 @@ class TestSponsorshipSet(TestCase):
         message = str(cm.exception)
         self.assertIn("TF_DELETE_OBJECT", message)
         self.assertIn("TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE", message)
+
+    # ------------------------------------------------------------------ #
+    #  Delta semantics (xrpld-private #335)                              #
+    # ------------------------------------------------------------------ #
+
+    def test_negative_fee_amount_delta_is_valid(self):
+        """A negative delta refunds budget to the sponsor, so it is legal.
+
+        rippled clamps the refund so the budget cannot go below zero; only zero
+        is rejected, as a no-op.
+        """
+        tx = SponsorshipSet(
+            account=_ACCOUNT,
+            sponsee=_ACCOUNT2,
+            fee_amount_delta="-500000",
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_negative_remaining_owner_count_delta_is_valid(self):
+        """RemainingOwnerCountDelta is a signed Int32; negative reduces budget."""
+        tx = SponsorshipSet(
+            account=_ACCOUNT,
+            sponsee=_ACCOUNT2,
+            remaining_owner_count_delta=-2,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_invalid_zero_fee_amount_delta(self):
+        """Zero has no effect -> temBAD_AMOUNT."""
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorshipSet(
+                account=_ACCOUNT,
+                sponsee=_ACCOUNT2,
+                fee_amount_delta="0",
+            )
+        self.assertIn("must be non-zero", str(cm.exception))
+
+    def test_invalid_zero_remaining_owner_count_delta(self):
+        """Zero has no effect -> temINVALID."""
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorshipSet(
+                account=_ACCOUNT,
+                sponsee=_ACCOUNT2,
+                remaining_owner_count_delta=0,
+            )
+        self.assertIn("must be non-zero", str(cm.exception))
+
+    def test_invalid_negative_max_fee(self):
+        """`max_fee` is an absolute cap, not a delta -> temBAD_AMOUNT."""
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorshipSet(
+                account=_ACCOUNT,
+                sponsee=_ACCOUNT2,
+                max_fee="-1",
+                fee_amount_delta="1000000",
+            )
+        self.assertIn("must not be negative", str(cm.exception))
+
+    def test_valid_flag_only_no_deltas(self):
+        """A flag change alone is a real modification, so not redundant."""
+        tx = SponsorshipSet(
+            account=_ACCOUNT,
+            sponsee=_ACCOUNT2,
+            flags=SponsorshipSetFlag.TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_delta_fields_serialize_with_new_names(self):
+        """The wire names are FeeAmountDelta / RemainingOwnerCountDelta."""
+        tx = SponsorshipSet(
+            account=_ACCOUNT,
+            sponsee=_ACCOUNT2,
+            fee_amount_delta="1000000",
+            remaining_owner_count_delta=-4,
+        )
+        xrpl_dict = tx.to_xrpl()
+        self.assertEqual(xrpl_dict["FeeAmountDelta"], "1000000")
+        self.assertEqual(xrpl_dict["RemainingOwnerCountDelta"], -4)
+        self.assertNotIn("FeeAmount", xrpl_dict)
+        self.assertNotIn("RemainingOwnerCount", xrpl_dict)
