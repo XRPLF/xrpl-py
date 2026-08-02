@@ -1,6 +1,6 @@
-"""Integration test for sponsored AccountDelete (XLS-68 §12).
+"""Integration test for sponsored AccountDelete.
 
-Per §12, when a sponsored account is deleted:
+When a sponsored account is deleted:
 - Destination must equal AccountRoot.Sponsor
 - Remaining XRP transfers to the sponsor
 - Sponsor's SponsoringAccountCount decrements
@@ -85,7 +85,7 @@ class TestAccountDeleteSponsored(IntegrationTestCase):
             await client.request(LEDGER_ACCEPT_REQUEST)
 
         # Step 3: Submit AccountDelete from the sponsee.
-        # Per XLS-68 §12, destination must be the sponsor.
+        # Destination must be the sponsor.
         delete_tx = AccountDelete(
             account=sponsee_wallet.address,
             destination=sponsor_wallet.address,
@@ -104,7 +104,7 @@ class TestAccountDeleteSponsored(IntegrationTestCase):
     async def test_sponsored_account_delete_wrong_destination(self, client):
         """A sponsored account's remaining XRP must go to its sponsor.
 
-        XLS-68 §12: if the AccountRoot carries a `Sponsor`, a `Destination` other
+        If the AccountRoot carries a `Sponsor`, a `Destination` other
         than that sponsor is rejected with `tecNO_SPONSOR_PERMISSION` -- the
         sponsor funded the account reserve, so it must be repaid.
         """
@@ -152,7 +152,7 @@ class TestAccountDeleteSponsored(IntegrationTestCase):
     async def test_sponsoring_account_cannot_be_deleted(self, client):
         """A sponsor cannot delete itself while it still sponsors anything.
 
-        XLS-68 §12: a non-zero `SponsoringOwnerCount` or `SponsoringAccountCount`
+        A non-zero `SponsoringOwnerCount` or `SponsoringAccountCount`
         yields `tecHAS_OBLIGATIONS`. The sponsor must transfer or dissolve its
         sponsorships first -- it cannot walk away from the reserve it committed.
         """

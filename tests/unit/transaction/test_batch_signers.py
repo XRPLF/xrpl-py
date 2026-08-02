@@ -197,7 +197,7 @@ class TestSignMultiAccountBatch(TestCase):
             )
 
     # An inner transaction's sponsor authorizes through the outer BatchSigners,
-    # never through the inner's SponsorSignature (XLS-68 §13.3). rippled counts
+    # never through the inner's SponsorSignature. rippled counts
     # the sponsor as a required signer when `Sponsor` and `SponsorSignature` are
     # both present, and rejects the whole Batch with temBAD_SIGNER if
     # BatchSigners does not match its required set exactly.

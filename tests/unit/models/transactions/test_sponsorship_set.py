@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from xrpl.core.binarycodec import decode, encode
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.amounts.mpt_amount import MPTAmount
 from xrpl.models.exceptions import XRPLModelException
@@ -153,7 +154,7 @@ class TestSponsorshipSet(TestCase):
         self.assertTrue(tx.is_valid())
 
     # ------------------------------------------------------------------ #
-    #  Concern 1 — fee_amount_delta / max_fee must be XRP (not IOU or MPT)     #
+    #  fee_amount_delta / max_fee must be XRP (not IOU or MPT)                 #
     # ------------------------------------------------------------------ #
 
     _FEE_AMOUNT_MSG = (
@@ -220,7 +221,7 @@ class TestSponsorshipSet(TestCase):
         self.assertIn(self._MAX_FEE_MSG, str(cm.exception))
 
     # ------------------------------------------------------------------ #
-    #  Concern 2 — XOR: exactly one of counterparty_sponsor / sponsee     #
+    #  XOR: exactly one of counterparty_sponsor / sponsee                 #
     # ------------------------------------------------------------------ #
 
     _XOR_MSG = (
@@ -265,7 +266,7 @@ class TestSponsorshipSet(TestCase):
         )
 
     # ------------------------------------------------------------------ #
-    #  Concern 3 — mutually exclusive flag combinations                   #
+    #  Mutually exclusive flag combinations                               #
     # ------------------------------------------------------------------ #
 
     def test_invalid_set_and_clear_fee_flags(self):
@@ -335,7 +336,7 @@ class TestSponsorshipSet(TestCase):
         )
 
     # ------------------------------------------------------------------ #
-    #  Concern 4 — counterparty_sponsor only valid when deleting          #
+    #  counterparty_sponsor only valid when deleting                      #
     # ------------------------------------------------------------------ #
 
     def test_invalid_counterparty_sponsor_without_delete(self):
@@ -352,7 +353,7 @@ class TestSponsorshipSet(TestCase):
         )
 
     # ------------------------------------------------------------------ #
-    #  Concern 5 — delete forbids fee_amount_delta/max_fee/remaining_owner_count_delta #
+    #  Delete forbids fee_amount_delta/max_fee/remaining_owner_count_delta      #
     # ------------------------------------------------------------------ #
 
     def test_invalid_delete_with_fee_amount(self):
@@ -417,7 +418,7 @@ class TestSponsorshipSet(TestCase):
         self.assertIn("TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE", message)
 
     # ------------------------------------------------------------------ #
-    #  Delta semantics (xrpld-private #335)                              #
+    #  Delta semantics                                                   #
     # ------------------------------------------------------------------ #
 
     def test_negative_fee_amount_delta_is_valid(self):
@@ -432,6 +433,28 @@ class TestSponsorshipSet(TestCase):
             fee_amount_delta="-500000",
         )
         self.assertTrue(tx.is_valid())
+
+    def test_negative_deltas_round_trip_through_the_binary_codec(self):
+        """Model validation alone does not prove a negative delta is sendable.
+
+        ``FeeAmountDelta`` is an ``Amount``, and XRP amounts encode the sign as a
+        flag bit rather than two's complement, so a negative value exercises a
+        separate code path from a positive one.
+        """
+        # Encoding checksums addresses, which model validation does not, so use
+        # real ones rather than the module's placeholder constants.
+        tx = SponsorshipSet(
+            account="rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+            sponsee="rN7n7otQDd6FczFgLdSqtcsAUxDkw6fzRH",
+            fee_amount_delta="-500000",
+            remaining_owner_count_delta=-2,
+            fee="10",
+            sequence=1,
+            signing_pub_key="",
+        )
+        decoded = decode(encode(tx.to_xrpl()))
+        self.assertEqual(decoded["FeeAmountDelta"], "-500000")
+        self.assertEqual(decoded["RemainingOwnerCountDelta"], -2)
 
     def test_negative_remaining_owner_count_delta_is_valid(self):
         """RemainingOwnerCountDelta is a signed Int32; negative reduces budget."""

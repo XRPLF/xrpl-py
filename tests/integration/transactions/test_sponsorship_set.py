@@ -1,4 +1,4 @@
-"""Integration tests for SponsorshipSet transaction type (XLS-68 §9)."""
+"""Integration tests for SponsorshipSet transaction type."""
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
@@ -18,7 +18,7 @@ from xrpl.wallet import Wallet
 
 class TestSponsorshipSet(IntegrationTestCase):
 
-    # ── §9.1 CounterpartySponsor field (sponsee-initiated delete) ───────
+    # ── CounterpartySponsor field (sponsee-initiated delete) ───────────
     # Only the sponsor can create/update; the sponsee
     # may only use CounterpartySponsor with tfDeleteObject.
 
@@ -32,7 +32,7 @@ class TestSponsorshipSet(IntegrationTestCase):
 
         # Sponsor creates the sponsorship.
         # A create must leave the object with a positive budget; rippled rejects a
-        # budgetless Sponsorship with tecNO_PERMISSION (XLS-68 §9.5).
+        # budgetless Sponsorship with tecNO_PERMISSION.
         create_tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
@@ -67,7 +67,7 @@ class TestSponsorshipSet(IntegrationTestCase):
             0,
         )
 
-    # ── §9.1 all optional fields together ──────────────────────────────
+    # ── All optional fields together ───────────────────────────────────
 
     @test_async_and_sync(globals())
     async def test_sponsorship_set_all_fields(self, client):
@@ -152,7 +152,7 @@ class TestSponsorshipSet(IntegrationTestCase):
         self.assertTrue(response.is_successful())
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-    # ── §9.2 tfSponsorshipClearRequireSignForFee flag ──────────────────
+    # ── tfSponsorshipClearRequireSignForFee flag ───────────────────────
 
     @test_async_and_sync(globals())
     async def test_clear_require_sign_for_fee(self, client):
@@ -164,7 +164,7 @@ class TestSponsorshipSet(IntegrationTestCase):
 
         # Create with the flag set.
         # A create must leave the object with a positive budget; rippled rejects a
-        # budgetless Sponsorship with tecNO_PERMISSION (XLS-68 §9.5).
+        # budgetless Sponsorship with tecNO_PERMISSION.
         create_tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
@@ -188,7 +188,7 @@ class TestSponsorshipSet(IntegrationTestCase):
         self.assertEqual(clear_resp.status, ResponseStatus.SUCCESS)
         self.assertEqual(clear_resp.result["engine_result"], "tesSUCCESS")
 
-    # ── §9.2 tfSponsorshipClearRequireSignForReserve flag ──────────────
+    # ── tfSponsorshipClearRequireSignForReserve flag ───────────────────
 
     @test_async_and_sync(globals())
     async def test_clear_require_sign_for_reserve(self, client):
@@ -200,7 +200,7 @@ class TestSponsorshipSet(IntegrationTestCase):
 
         # Create with the flag set.
         # A create must leave the object with a positive budget; rippled rejects a
-        # budgetless Sponsorship with tecNO_PERMISSION (XLS-68 §9.5).
+        # budgetless Sponsorship with tecNO_PERMISSION.
         create_tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
@@ -224,7 +224,7 @@ class TestSponsorshipSet(IntegrationTestCase):
         self.assertEqual(clear_resp.status, ResponseStatus.SUCCESS)
         self.assertEqual(clear_resp.result["engine_result"], "tesSUCCESS")
 
-    # ── §9.2 tfDeleteObject flag ───────────────────────────────────────
+    # ── tfDeleteObject flag ────────────────────────────────────────────
 
     @test_async_and_sync(globals())
     async def test_sponsorship_set_delete(self, client):
@@ -235,7 +235,7 @@ class TestSponsorshipSet(IntegrationTestCase):
         await fund_wallet_async(sponsee_wallet)
 
         # A create must leave the object with a positive budget; rippled rejects a
-        # budgetless Sponsorship with tecNO_PERMISSION (XLS-68 §9.5).
+        # budgetless Sponsorship with tecNO_PERMISSION.
         create_tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,

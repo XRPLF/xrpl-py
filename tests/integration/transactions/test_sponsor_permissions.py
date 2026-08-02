@@ -1,4 +1,4 @@
-"""Integration tests for transaction-level sponsor delegation (XLS-68).
+"""Integration tests for transaction-level sponsor delegation.
 
 Sponsor delegation is transaction-level: SponsorshipSet
 is delegable (its delegation permission code is its transaction-type code + 1),

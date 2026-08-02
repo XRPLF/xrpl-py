@@ -278,7 +278,7 @@ async def autofill(
         signers_count: the expected number of signers for this transaction.
             Only used for multisigned transactions.
         sponsor_signers_count: the expected number of keys the sponsor will
-            multi-sign with (XLS-68). Only used when the sponsor multi-signs;
+            multi-sign with. Only used when the sponsor multi-signs;
             leave unset for a pre-funded sponsorship or a single-signing
             sponsor.
 
@@ -452,7 +452,7 @@ async def _check_fee(
         signers_count: the expected number of signers for this transaction.
             Only used for multisigned transactions.
         sponsor_signers_count: the expected number of keys the sponsor will
-            multi-sign with (XLS-68). Only used when the sponsor multi-signs;
+            multi-sign with. Only used when the sponsor multi-signs;
             leave unset for a pre-funded sponsorship or a single-signing
             sponsor. Must match the value passed to :func:`autofill`, or the
             correct fee is rejected here as too high.
@@ -527,7 +527,7 @@ async def _calculate_fee_per_transaction_type(
             Only used for multisigned transactions and multi-account/multi-signed Batch
             transactions.
         sponsor_signers_count: the expected number of keys the sponsor will
-            multi-sign with (XLS-68). Only used when the sponsor multi-signs;
+            multi-sign with. Only used when the sponsor multi-signs;
             leave unset for a pre-funded sponsorship or a single-signing
             sponsor.
 
@@ -601,7 +601,7 @@ async def _calculate_fee_per_transaction_type(
             )
         base_fee += net_fee * counterparty_signers_count
 
-    # Sponsored Transactions (XLS-68)
+    # Sponsored transactions.
     # BaseFee × (1 + |tx.Signers| + |SponsorSignature.Signers|), so only a
     # multi-signed sponsor adds anything. `Fee` is a signing field and therefore
     # final before the sponsor signs, so SponsorSignature is always absent here

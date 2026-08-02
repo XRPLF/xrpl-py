@@ -1,5 +1,5 @@
 """Integration tests for AccountObjects request with sponsored field and new
-AccountObjectType values (XLS-68 sponsored fees)."""
+AccountObjectType values for sponsored fees."""
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
@@ -24,7 +24,7 @@ class TestAccountObjectsSponsored(IntegrationTestCase):
         # Create a sponsorship. A create must leave the object with a positive
         # budget -- rippled rejects a budgetless Sponsorship with
         # tecNO_PERMISSION, since it consumes the sponsor's reserve while being
-        # unusable (XLS-68 §9.5).
+        # unusable.
         tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
@@ -83,7 +83,7 @@ class TestAccountObjectsSponsored(IntegrationTestCase):
         # Create a sponsorship. A create must leave the object with a positive
         # budget -- rippled rejects a budgetless Sponsorship with
         # tecNO_PERMISSION, since it consumes the sponsor's reserve while being
-        # unusable (XLS-68 §9.5).
+        # unusable.
         tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,

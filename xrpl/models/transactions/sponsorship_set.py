@@ -92,7 +92,7 @@ class SponsorshipSet(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        # ── Concern 2: exactly one of counterparty_sponsor / sponsee ──────────
+        # ── Exactly one of counterparty_sponsor / sponsee ─────────────────────
         has_counterparty = self.counterparty_sponsor is not None
         has_sponsee = self.sponsee is not None
 
@@ -124,7 +124,7 @@ class SponsorshipSet(Transaction):
             int(SponsorshipSetFlag.TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_RESERVE)
         )
 
-        # ── Concern 3: mutually exclusive flag pairs ───────────────────────────
+        # ── Mutually exclusive flag pairs ──────────────────────────────────────
         if set_fee and clear_fee:
             errors["flags_fee"] = (
                 "`TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE` and "
@@ -142,7 +142,7 @@ class SponsorshipSet(Transaction):
                 "`TF_DELETE_OBJECT` cannot be combined with any set/clear flags."
             )
 
-        # ── Concern 4: counterparty_sponsor is only valid when deleting ───────
+        # ── counterparty_sponsor is only valid when deleting ──────────────────
         # C++ preflight: only the sponsor (account == sponsor) may create/update a
         # sponsorship; either party may delete. Specifying `counterparty_sponsor`
         # means the submitter is the sponsee, which is only allowed for deletion.

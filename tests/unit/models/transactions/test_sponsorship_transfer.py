@@ -312,7 +312,7 @@ class TestSponsorshipTransfer(TestCase):
         self.assertEqual(tx.to_dict()["flags"], 0x00010000)
 
     # ------------------------------------------------------------------ #
-    #  Concern 4 — SponsorshipTransfer flag validation                    #
+    #  SponsorshipTransfer flag validation                                #
     # ------------------------------------------------------------------ #
 
     _MULTI_FLAG_MSG = (
@@ -385,7 +385,7 @@ class TestSponsorshipTransfer(TestCase):
         )
 
     # ------------------------------------------------------------------ #
-    #  Concern 5 — Transaction-level sponsor cross-field validation       #
+    #  Transaction-level sponsor cross-field validation                   #
     # ------------------------------------------------------------------ #
 
     def test_invalid_sponsor_equals_account(self):

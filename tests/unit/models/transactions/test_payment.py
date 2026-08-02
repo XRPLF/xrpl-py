@@ -310,7 +310,7 @@ class TestPayment(TestCase):
         self.assertEqual(PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT, 0x00080000)
 
     # ------------------------------------------------------------------ #
-    #  Issue 11 — TF_SPONSOR_CREATED_ACCOUNT mutual-exclusion validation  #
+    #  TF_SPONSOR_CREATED_ACCOUNT mutual-exclusion validation             #
     # ------------------------------------------------------------------ #
 
     def test_invalid_sponsor_created_account_with_no_ripple_direct(self):

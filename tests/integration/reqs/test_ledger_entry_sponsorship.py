@@ -1,4 +1,4 @@
-"""Integration tests for LedgerEntry request with Sponsorship (XLS-68)."""
+"""Integration tests for LedgerEntry request with Sponsorship."""
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
@@ -22,8 +22,7 @@ class TestLedgerEntrySponsorship(IntegrationTestCase):
         await fund_wallet_async(sponsee_wallet)
 
         # Create a sponsorship object. A create must leave a positive budget --
-        # rippled rejects a budgetless Sponsorship with tecNO_PERMISSION
-        # (XLS-68 §9.5).
+        # rippled rejects a budgetless Sponsorship with tecNO_PERMISSION.
         tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
@@ -50,6 +49,6 @@ class TestLedgerEntrySponsorship(IntegrationTestCase):
         self.assertEqual(node["LedgerEntryType"], "Sponsorship")
         self.assertEqual(node["Owner"], sponsor_wallet.address)
         self.assertEqual(node["Sponsee"], sponsee_wallet.address)
-        # sfSponseeNode (XLS-68) is a required field on the Sponsorship object
+        # sfSponseeNode is a required field on the Sponsorship object
         # (the directory node pointer on the sponsee's owner directory).
         self.assertIn("SponseeNode", node)

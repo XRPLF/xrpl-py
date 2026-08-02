@@ -260,7 +260,7 @@ class TestBatch(IntegrationTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-    # ── Sponsorship inside a Batch (XLS-68 §13) ────────────────────────────
+    # ── Sponsorship inside a Batch ─────────────────────────────────────────
     #
     # An inner transaction's SponsorSignature must stay an empty placeholder;
     # the sponsor's authorization comes from the outer BatchSigners instead.
@@ -352,7 +352,7 @@ class TestBatch(IntegrationTestCase):
         )
         autofilled = await autofill(batch, client)
         # The outer account's SigningPubKey must be settled before the sponsor
-        # signs, because it is a signing field (XLS-68 §3.2 step 1).
+        # signs, because it is a signing field.
         prepared = Batch.from_dict(
             {**autofilled.to_dict(), "signing_pub_key": WALLET.public_key}
         )

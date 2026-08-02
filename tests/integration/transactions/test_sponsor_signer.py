@@ -1,6 +1,6 @@
 """Integration tests for sponsor-signature signing utilities (XLS-0068).
 
-These tests exercise the full co-signing flow described in XLS-0068 §3.2:
+These tests exercise the full co-signing flow:
 
   1. Sponsee builds and autofills a transaction with ``sponsor`` /
      ``sponsor_flags`` fields.
@@ -234,7 +234,7 @@ class TestSponsorSigner(IntegrationTestCase):
         self.assertEqual(len(checks), 1)
         self.assertEqual(checks[0].get("Sponsor"), sponsor_wallet.address)
 
-        # The sponsee still *owns* the Check (XLS-68 §4.2), so its OwnerCount
+        # The sponsee still *owns* the Check, so its OwnerCount
         # increments as normal -- and SponsoredOwnerCount increments alongside it,
         # as a subset (rippled asserts OwnerCount >= SponsoredOwnerCount). The
         # reserve is computed as
@@ -252,7 +252,7 @@ class TestSponsorSigner(IntegrationTestCase):
         )
 
     # -----------------------------------------------------------------------
-    # Multi-signature sponsee (XLS-68 §3.2 with a multisigned sponsee)
+    # Multi-signature sponsee
     #
     # A multi-signing sponsee never populates SigningPubKey -- an empty value is
     # how the ledger signals multi-signing, and the signatures live in Signers

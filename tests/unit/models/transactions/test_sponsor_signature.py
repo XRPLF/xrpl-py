@@ -94,9 +94,9 @@ class TestSponsorSignature(TestCase):
     def test_valid_empty_placeholder(self):
         """An empty SponsorSignature is valid -- it is a required placeholder.
 
-        XLS-68 §13.3: a Batch inner transaction naming a `sponsor` must carry an
+        A Batch inner transaction naming a `sponsor` must carry an
         empty `SponsorSignature`; its presence (not its contents) is what tells
-        the ledger the sponsor needs a `BatchSigners` entry. §17.4: `simulate`
+        the ledger the sponsor needs a `BatchSigners` entry. `simulate`
         autofills the sponsor signing fields only when the field is present.
         rippled has no preflight rule requiring it to be non-empty.
         """

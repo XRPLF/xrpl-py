@@ -1,4 +1,4 @@
-"""Sponsored-transaction fee threading through the synchronous wrappers (XLS-68)."""
+"""Sponsored-transaction fee threading through the synchronous wrappers."""
 
 from unittest import TestCase
 from unittest.mock import AsyncMock, patch

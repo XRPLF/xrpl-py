@@ -1,4 +1,4 @@
-"""Integration tests for pre-funded sponsorship (XLS-0068 §3.3).
+"""Integration tests for pre-funded sponsorship.
 
 The pre-funded flow is the headline convenience of the amendment: the sponsor
 creates a ``Sponsorship`` object once, and thereafter the sponsee submits
@@ -236,7 +236,7 @@ class TestPreFundedSponsorship(IntegrationTestCase):
         self.assertEqual(after_resp.result["node"]["FeeAmount"], _FEE_BUDGET)
 
     # -----------------------------------------------------------------------
-    # Delta arithmetic on the Sponsorship object (XLS-68 §9.6)
+    # Delta arithmetic on the Sponsorship object
     #
     # `FeeAmountDelta` and `RemainingOwnerCountDelta` are *changes*, not
     # replacements. A negative delta refunds/reduces, clamped so the result never
@@ -427,7 +427,7 @@ class TestPreFundedSponsorship(IntegrationTestCase):
         """Zeroing the only remaining budget leaves an unusable object.
 
         rippled returns tecNO_PERMISSION rather than keeping a Sponsorship that
-        consumes the sponsor's reserve while providing nothing (XLS-68 §9.5).
+        consumes the sponsor's reserve while providing nothing.
         """
         sponsor_wallet = Wallet.create()
         sponsee_wallet = Wallet.create()

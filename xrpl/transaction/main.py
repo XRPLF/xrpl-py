@@ -129,7 +129,7 @@ def autofill(
         signers_count: the expected number of signers for this transaction.
             Only used for multisigned transactions.
         sponsor_signers_count: the expected number of keys the sponsor will
-            multi-sign with (XLS-68). Only used when the sponsor multi-signs;
+            multi-sign with. Only used when the sponsor multi-signs;
             leave unset for a pre-funded sponsorship or a single-signing
             sponsor.
 

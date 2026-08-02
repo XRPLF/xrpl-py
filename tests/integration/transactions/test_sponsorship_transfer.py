@@ -1,4 +1,4 @@
-"""Integration tests for SponsorshipTransfer transaction type (XLS-68)."""
+"""Integration tests for SponsorshipTransfer transaction type."""
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (

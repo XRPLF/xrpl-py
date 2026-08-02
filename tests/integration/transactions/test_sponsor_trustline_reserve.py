@@ -1,4 +1,4 @@
-"""Integration test for reserve-sponsored trust lines (XLS-68).
+"""Integration test for reserve-sponsored trust lines.
 
 When a trust line's owner reserve is sponsored (the trust-line owner submits a
 TrustSet carrying ``sfSponsor`` + the ``spfSponsorReserve`` flag, co-signed by

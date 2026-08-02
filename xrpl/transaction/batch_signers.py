@@ -80,10 +80,10 @@ def sign_multiaccount_batch(
         if isinstance(counterparty, str):
             involved_accounts.add(counterparty)
 
-        # An inner transaction's sponsor authorizes through the outer
-        # BatchSigners, not through the inner's SponsorSignature -- which must
-        # stay an empty placeholder (XLS-68). rippled counts the sponsor as
-        # a required signer only when that placeholder is present.
+        # The empty SponsorSignature placeholder selects the co-signed path, where
+        # the sponsor authorizes through BatchSigners. Without it the sponsorship
+        # is pre-funded and the sponsor must stay out, or rippled counts it as an
+        # extra signer (temBAD_SIGNER).
         if tx.sponsor is not None and tx.sponsor_signature is not None:
             involved_accounts.add(tx.sponsor)
     if signing_account not in involved_accounts:

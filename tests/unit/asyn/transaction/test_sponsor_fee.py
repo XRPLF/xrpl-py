@@ -1,4 +1,4 @@
-"""Fee calculation for sponsored transactions (XLS-68)."""
+"""Fee calculation for sponsored transactions."""
 
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import AsyncMock, patch
@@ -17,7 +17,7 @@ _SIG = "AB" * 32
 
 
 class TestSponsorFeeCalculation(IsolatedAsyncioTestCase):
-    """Fee autofill for sponsored transactions (XLS-68 §8.2).
+    """Fee autofill for sponsored transactions.
 
     rippled requires ``base * (1 + |tx.Signers| + |tx.SponsorSignature.Signers|)``
     (``Transactor::calculateBaseFee``), so only a *multi-signed* sponsor adds
@@ -83,8 +83,8 @@ class TestSponsorFeeCalculation(IsolatedAsyncioTestCase):
     async def test_empty_batch_inner_placeholder_adds_nothing(self):
         """An empty SponsorSignature placeholder is not billed.
 
-        A Batch inner transaction naming a sponsor carries an empty placeholder
-        (XLS-68 §13.3); it has no Signers, so it contributes nothing.
+        A Batch inner transaction naming a sponsor carries an empty
+        placeholder; it has no Signers, so it contributes nothing.
         """
         tx = self._payment(
             sponsor=_SPONSOR,

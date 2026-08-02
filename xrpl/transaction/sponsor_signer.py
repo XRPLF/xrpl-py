@@ -161,9 +161,9 @@ def sign_as_sponsor(
     if not tx.signing_pub_key and not sponsee_multisign:
         raise XRPLException(
             "Transaction `signing_pub_key` cannot be empty during the Sponsor "
-            "signature step. Set the sponsee's `signing_pub_key` first (XLS-68 "
-            "§3.2 step 1), or pass `sponsee_multisign=True` if the sponsee "
-            "multi-signs and the empty value is intentional."
+            "signature step. Set the sponsee's `signing_pub_key` first, or pass "
+            "`sponsee_multisign=True` if the sponsee multi-signs and the empty "
+            "value is intentional."
         )
     tx_dict = tx.to_dict()
     tx = Transaction.from_dict(tx_dict)

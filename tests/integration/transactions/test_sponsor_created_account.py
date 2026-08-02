@@ -1,4 +1,4 @@
-"""Integration tests for Payment tfSponsorCreatedAccount flag (XLS-68).
+"""Integration tests for Payment tfSponsorCreatedAccount flag.
 
 When a Payment carries ``TF_SPONSOR_CREATED_ACCOUNT`` and targets a not-yet-funded
 destination, the sending account creates the destination account and sponsors its

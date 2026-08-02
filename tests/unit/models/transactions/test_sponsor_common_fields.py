@@ -99,7 +99,7 @@ class TestSponsorCommonFields(TestCase):
         self.assertNotIn("sponsor_flags", d)
         self.assertNotIn("sponsor_signature", d)
 
-    # ── XLS-68 §8.3.4: transactions that cannot be sponsored ──
+    # ── Transactions that cannot be sponsored ──
 
     _UNSPONSORABLE_MSG = "cannot be sponsored"
 
@@ -118,7 +118,7 @@ class TestSponsorCommonFields(TestCase):
     def test_batch_with_sponsor_fee_allowed(self):
         """An outer Batch may be fee-sponsored (spfSponsorFee).
 
-        Per XLS-68 §13.2, only reserve sponsorship is disallowed on the outer
+        Only reserve sponsorship is disallowed on the outer
         Batch; fee sponsorship follows the standard rules. rippled only rejects
         `isReserveSponsored` on the outer Batch (Batch.cpp preflight).
         """
@@ -128,7 +128,7 @@ class TestSponsorCommonFields(TestCase):
         self.assertEqual(tx.sponsor_flags, 1)
 
     def test_batch_with_sponsor_reserve_rejected(self):
-        """An outer Batch must not use spfSponsorReserve (XLS-68 §13.4.1)."""
+        """An outer Batch must not use spfSponsorReserve."""
         with self.assertRaises(XRPLModelException) as cm:
             self._batch(sponsor=_SPONSOR, sponsor_flags=2)
         self.assertIn("not allowed on an outer Batch", str(cm.exception))

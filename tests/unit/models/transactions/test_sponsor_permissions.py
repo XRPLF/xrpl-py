@@ -1,8 +1,8 @@
-"""Tests for transaction-level delegation of sponsor transactions (XLS-68).
+"""Tests for transaction-level delegation of sponsor transactions.
 
 The former SponsorFee / SponsorReserve *granular* permissions were removed from
-rippled (PR #7665). Sponsor delegation is now transaction-level: SponsorshipSet
-is delegable, while SponsorshipTransfer is not.
+rippled. Sponsor delegation is now transaction-level: SponsorshipSet is
+delegable, while SponsorshipTransfer is not.
 """
 
 from unittest import TestCase

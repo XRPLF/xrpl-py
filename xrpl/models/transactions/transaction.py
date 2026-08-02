@@ -321,7 +321,7 @@ class Transaction(BaseModel):
                 "`sponsor_signature` requires `sponsor` to be set."
             )
 
-        # Pseudo-transactions cannot be sponsored at all (XLS-68 §8.3.4): their
+        # Pseudo-transactions cannot be sponsored at all: their
         # fees and reserves are covered by the network, not by any one account.
         if self.sponsor is not None and isinstance(
             self.transaction_type, PseudoTransactionType
@@ -329,7 +329,7 @@ class Transaction(BaseModel):
             errors["sponsor"] = "Pseudo-transactions cannot be sponsored."
 
         # An outer Batch creates no objects of its own, so reserve sponsorship on
-        # it is meaningless and disallowed (XLS-68 §8.3.4, §13.2). Fee sponsorship
+        # it is meaningless and disallowed. Fee sponsorship
         # of the outer Batch is allowed and follows the standard rules; inner
         # transactions should carry spfSponsorReserve instead.
         if (

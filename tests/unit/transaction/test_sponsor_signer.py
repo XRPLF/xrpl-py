@@ -60,7 +60,7 @@ class TestSignAsSponsor(TestCase):
     """
 
     def test_spec_order_sponsee_sets_pubkey_then_sponsor_signs(self):
-        """XLS-68 §3.2: the sponsee need not have signed, only set its key."""
+        """The sponsee need not have signed, only set its key."""
         tx = _payment(signing_pub_key=SPONSEE.public_key)
         self.assertFalse(tx.is_signed())
 
