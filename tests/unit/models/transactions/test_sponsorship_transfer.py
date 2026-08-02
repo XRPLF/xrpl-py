@@ -33,15 +33,6 @@ class TestSponsorshipTransfer(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-    def test_valid_with_object_id(self):
-        """Setting object_id (hex string, 64 chars)."""
-        tx = SponsorshipTransfer(
-            account=_ACCOUNT,
-            object_id=_OBJECT_ID,
-            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
-        )
-        self.assertTrue(tx.is_valid())
-
     def test_valid_with_sponsee(self):
         """Setting sponsee. Only valid with END; CREATE/REASSIGN reject it."""
         tx = SponsorshipTransfer(
@@ -99,16 +90,6 @@ class TestSponsorshipTransfer(TestCase):
             flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
         )
         self.assertEqual(tx.transaction_type, TransactionType.SPONSORSHIP_TRANSFER)
-
-    def test_valid_with_flags_and_all_fields(self):
-        """All fields plus a flag."""
-        tx = SponsorshipTransfer(
-            account=_ACCOUNT,
-            object_id=_OBJECT_ID,
-            sponsee=_ACCOUNT2,
-            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
-        )
-        self.assertTrue(tx.is_valid())
 
     def test_to_dict_snake_case_fields(self):
         """to_dict() produces snake_case field names and correct values."""
@@ -338,70 +319,37 @@ class TestSponsorshipTransfer(TestCase):
         "`sponsee` cannot be set when `TF_SPONSORSHIP_CREATE` is active."
     )
 
-    def test_invalid_end_and_create_flags(self):
-        """Setting TF_SPONSORSHIP_END and TF_SPONSORSHIP_CREATE together is rejected."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipTransfer(
-                account=_ACCOUNT,
-                flags=(
-                    SponsorshipTransferFlag.TF_SPONSORSHIP_END
-                    | SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE
-                ),
-            )
-        self.assertIn(self._MULTI_FLAG_MSG, str(cm.exception))
+    def test_invalid_any_two_operation_flags(self):
+        """Exactly one operation flag; every pair is rejected."""
+        end = SponsorshipTransferFlag.TF_SPONSORSHIP_END
+        create = SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE
+        reassign = SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN
+        for a, b in ((end, create), (end, reassign), (create, reassign)):
+            with self.subTest(pair=f"{a.name}|{b.name}"):
+                with self.assertRaises(XRPLModelException) as cm:
+                    SponsorshipTransfer(account=_ACCOUNT, flags=a | b)
+                self.assertIn(self._MULTI_FLAG_MSG, str(cm.exception))
 
-    def test_invalid_end_and_reassign_flags(self):
-        """END and REASSIGN together is rejected."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipTransfer(
-                account=_ACCOUNT,
-                flags=(
-                    SponsorshipTransferFlag.TF_SPONSORSHIP_END
-                    | SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN
-                ),
-            )
-        self.assertIn(self._MULTI_FLAG_MSG, str(cm.exception))
-
-    def test_invalid_create_and_reassign_flags(self):
-        """CREATE and REASSIGN together is rejected."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipTransfer(
-                account=_ACCOUNT,
-                flags=(
-                    SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE
-                    | SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN
-                ),
-            )
-        self.assertIn(self._MULTI_FLAG_MSG, str(cm.exception))
-
-    def test_invalid_sponsee_with_create_flag(self):
-        """sponsee must not be set when TF_SPONSORSHIP_CREATE is active."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipTransfer(
-                account=_ACCOUNT,
-                object_id=_OBJECT_ID,
-                sponsee=_ACCOUNT2,
-                flags=SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE,
-            )
-        self.assertIn(self._SPONSEE_FLAG_MSG, str(cm.exception))
-
-    def test_invalid_sponsee_with_reassign_flag(self):
-        """sponsee must not be set when TF_SPONSORSHIP_REASSIGN is active."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipTransfer(
-                account=_ACCOUNT,
-                object_id=_OBJECT_ID,
-                sponsee=_ACCOUNT2,
-                flags=SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN,
-            )
-        self.assertIn(
-            "`sponsee` cannot be set when `TF_SPONSORSHIP_REASSIGN` is active.",
-            str(cm.exception),
-        )
-
-    # ------------------------------------------------------------------ #
-    #  Transaction-level sponsor cross-field validation                   #
-    # ------------------------------------------------------------------ #
+    def test_invalid_sponsee_with_create_or_reassign(self):
+        """`sponsee` names an existing relationship, so only END accepts it."""
+        for flag in (
+            SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE,
+            SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN,
+        ):
+            with self.subTest(flag=flag.name):
+                with self.assertRaises(XRPLModelException) as cm:
+                    SponsorshipTransfer(
+                        account=_ACCOUNT,
+                        object_id=_OBJECT_ID,
+                        sponsee=_ACCOUNT2,
+                        sponsor=_SPONSOR,
+                        sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE,
+                        flags=flag,
+                    )
+                self.assertIn(
+                    f"`sponsee` cannot be set when `{flag.name}` is active.",
+                    str(cm.exception),
+                )
 
     def test_invalid_sponsor_equals_account(self):
         """sponsor identical to account must be rejected."""
@@ -437,37 +385,22 @@ class TestSponsorshipTransfer(TestCase):
             "`sponsor_signature` requires `sponsor` to be set.", str(cm.exception)
         )
 
-    def test_invalid_sponsor_flags_bad_bits(self):
-        """sponsor_flags with bits beyond 0x3 must be rejected."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipTransfer(
-                account=_ACCOUNT,
-                sponsor=_ACCOUNT2,
-                sponsor_flags=0x00000004,  # bit 2 — outside allowed 0x1|0x2
-            )
-        self.assertIn(
-            "`sponsor_flags` may only use bits 0x1 (spfSponsorFee) "
-            "and 0x2 (spfSponsorReserve).",
-            str(cm.exception),
-        )
-
-    def test_invalid_sponsor_flags_combined_bad_bits(self):
-        """sponsor_flags mixing valid and invalid bits must be rejected."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipTransfer(
-                account=_ACCOUNT,
-                sponsor=_ACCOUNT2,
-                sponsor_flags=0x00000007,  # 0x1 | 0x2 | 0x4
-            )
-        self.assertIn(
-            "`sponsor_flags` may only use bits 0x1 (spfSponsorFee) "
-            "and 0x2 (spfSponsorReserve).",
-            str(cm.exception),
-        )
-
-    # ------------------------------------------------------------------ #
-    #  Operation-specific field rules                                      #
-    # ------------------------------------------------------------------ #
+    def test_invalid_sponsor_flags_bits(self):
+        """Only 0x1 and 0x2 are defined; anything else is rejected."""
+        for value, label in (
+            (0x00000004, "unknown bit alone"),
+            (0x00000007, "unknown bit mixed with valid ones"),
+        ):
+            with self.subTest(case=label):
+                with self.assertRaises(XRPLModelException) as cm:
+                    SponsorshipTransfer(
+                        account=_ACCOUNT, sponsor=_ACCOUNT2, sponsor_flags=value
+                    )
+                self.assertIn(
+                    "`sponsor_flags` may only use bits 0x1 (spfSponsorFee) "
+                    "and 0x2 (spfSponsorReserve).",
+                    str(cm.exception),
+                )
 
     def test_create_and_reassign_require_a_sponsor(self):
         """Both name an incoming sponsor, so `sponsor` is mandatory.

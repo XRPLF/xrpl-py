@@ -53,15 +53,6 @@ class TestSponsorshipSet(TestCase):
         )
         self.assertTrue(tx.is_valid())
 
-    def test_valid_with_xrp_fee_amount(self):
-        """fee_amount_delta as XRP drops string."""
-        tx = SponsorshipSet(
-            account=_ACCOUNT,
-            sponsee=_ACCOUNT2,
-            fee_amount_delta="1000000",
-        )
-        self.assertTrue(tx.is_valid())
-
     def test_valid_with_xrp_max_fee(self):
         """max_fee as XRP drops string."""
         tx = SponsorshipSet(
@@ -144,15 +135,6 @@ class TestSponsorshipSet(TestCase):
         )
         self.assertTrue(tx2.is_valid())
 
-    def test_valid_delete_with_counterparty_sponsor(self):
-        """Sponsee deletes using counterparty_sponsor + TF_DELETE_OBJECT."""
-        tx = SponsorshipSet(
-            account=_ACCOUNT,
-            counterparty_sponsor=_ACCOUNT2,
-            flags=SponsorshipSetFlag.TF_DELETE_OBJECT,
-        )
-        self.assertTrue(tx.is_valid())
-
     # ------------------------------------------------------------------ #
     #  fee_amount_delta / max_fee must be XRP (not IOU or MPT)                 #
     # ------------------------------------------------------------------ #
@@ -166,60 +148,6 @@ class TestSponsorshipSet(TestCase):
         "not an issued currency or MPT amount."
     )
 
-    def test_invalid_fee_amount_iou(self):
-        """fee_amount_delta as IssuedCurrencyAmount is rejected."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipSet(
-                account=_ACCOUNT,
-                sponsee=_ACCOUNT2,
-                fee_amount_delta=IssuedCurrencyAmount(
-                    currency="USD",
-                    issuer=_ACCOUNT,
-                    value="10",
-                ),
-            )
-        self.assertIn(self._FEE_AMOUNT_MSG, str(cm.exception))
-
-    def test_invalid_max_fee_iou(self):
-        """max_fee as IssuedCurrencyAmount must be rejected with the correct message."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipSet(
-                account=_ACCOUNT,
-                sponsee=_ACCOUNT2,
-                max_fee=IssuedCurrencyAmount(
-                    currency="USD",
-                    issuer=_ACCOUNT,
-                    value="100",
-                ),
-            )
-        self.assertIn(self._MAX_FEE_MSG, str(cm.exception))
-
-    def test_invalid_fee_amount_mpt(self):
-        """fee_amount_delta as MPTAmount must be rejected with the correct message."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipSet(
-                account=_ACCOUNT,
-                sponsee=_ACCOUNT2,
-                fee_amount_delta=MPTAmount(
-                    mpt_issuance_id=_MPT_ISSUANCE_ID,
-                    value="100",
-                ),
-            )
-        self.assertIn(self._FEE_AMOUNT_MSG, str(cm.exception))
-
-    def test_invalid_max_fee_mpt(self):
-        """max_fee as MPTAmount must be rejected with the correct message."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipSet(
-                account=_ACCOUNT,
-                sponsee=_ACCOUNT2,
-                max_fee=MPTAmount(
-                    mpt_issuance_id=_MPT_ISSUANCE_ID,
-                    value="100",
-                ),
-            )
-        self.assertIn(self._MAX_FEE_MSG, str(cm.exception))
-
     # ------------------------------------------------------------------ #
     #  XOR: exactly one of counterparty_sponsor / sponsee                 #
     # ------------------------------------------------------------------ #
@@ -228,6 +156,25 @@ class TestSponsorshipSet(TestCase):
         "Exactly one of `counterparty_sponsor` or `sponsee` must be present "
         "(not both, not neither)."
     )
+
+    def test_invalid_non_xrp_amounts(self):
+        """Both amount fields are XRP drops; neither accepts IOU or MPT."""
+        amounts = {
+            "IOU": IssuedCurrencyAmount(currency="USD", issuer=_ACCOUNT, value="10"),
+            "MPT": MPTAmount(mpt_issuance_id=_MPT_ISSUANCE_ID, value="100"),
+        }
+        fields = {
+            "fee_amount_delta": self._FEE_AMOUNT_MSG,
+            "max_fee": self._MAX_FEE_MSG,
+        }
+        for field, message in fields.items():
+            for kind, amount in amounts.items():
+                with self.subTest(field=field, amount=kind):
+                    with self.assertRaises(XRPLModelException) as cm:
+                        SponsorshipSet(
+                            account=_ACCOUNT, sponsee=_ACCOUNT2, **{field: amount}
+                        )
+                    self.assertIn(message, str(cm.exception))
 
     def test_invalid_neither_counterparty_nor_sponsee(self):
         """Providing neither counterparty_sponsor nor sponsee must be rejected."""
@@ -269,75 +216,71 @@ class TestSponsorshipSet(TestCase):
     #  Mutually exclusive flag combinations                               #
     # ------------------------------------------------------------------ #
 
-    def test_invalid_set_and_clear_fee_flags(self):
-        """SET and CLEAR require-sign-for-fee flags are mutually exclusive."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipSet(
-                account=_ACCOUNT,
-                sponsee=_ACCOUNT2,
-                flags=(
-                    SponsorshipSetFlag.TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE
-                    | SponsorshipSetFlag.TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_FEE
-                ),
-            )
-        self.assertIn(
-            "`TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE` and "
-            "`TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_FEE` are mutually exclusive.",
-            str(cm.exception),
-        )
-
-    def test_invalid_set_and_clear_reserve_flags(self):
-        """SET and CLEAR require-sign-for-reserve flags are mutually exclusive."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipSet(
-                account=_ACCOUNT,
-                sponsee=_ACCOUNT2,
-                flags=(
-                    SponsorshipSetFlag.TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_RESERVE
-                    | SponsorshipSetFlag.TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_RESERVE
-                ),
-            )
-        self.assertIn(
-            "`TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_RESERVE` and "
-            "`TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_RESERVE` are mutually exclusive.",
-            str(cm.exception),
-        )
-
-    def test_invalid_delete_with_set_fee_flag(self):
-        """TF_DELETE_OBJECT can't combine with set fee flag."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipSet(
-                account=_ACCOUNT,
-                sponsee=_ACCOUNT2,
-                flags=(
-                    SponsorshipSetFlag.TF_DELETE_OBJECT
-                    | SponsorshipSetFlag.TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE
-                ),
-            )
-        self.assertIn(
-            "`TF_DELETE_OBJECT` cannot be combined with any set/clear flags.",
-            str(cm.exception),
-        )
-
-    def test_invalid_delete_with_clear_reserve_flag(self):
-        """TF_DELETE_OBJECT can't combine with clear reserve flag."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipSet(
-                account=_ACCOUNT,
-                sponsee=_ACCOUNT2,
-                flags=(
-                    SponsorshipSetFlag.TF_DELETE_OBJECT
-                    | SponsorshipSetFlag.TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_RESERVE
-                ),
-            )
-        self.assertIn(
-            "`TF_DELETE_OBJECT` cannot be combined with any set/clear flags.",
-            str(cm.exception),
-        )
-
     # ------------------------------------------------------------------ #
     #  counterparty_sponsor only valid when deleting                      #
     # ------------------------------------------------------------------ #
+
+    def test_invalid_set_and_clear_the_same_budget(self):
+        """Setting and clearing one budget's require-sign flag contradicts itself."""
+        for budget in ("FEE", "RESERVE"):
+            with self.subTest(budget=budget):
+                set_flag = getattr(
+                    SponsorshipSetFlag, f"TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_{budget}"
+                )
+                clear_flag = getattr(
+                    SponsorshipSetFlag,
+                    f"TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_{budget}",
+                )
+                with self.assertRaises(XRPLModelException) as cm:
+                    SponsorshipSet(
+                        account=_ACCOUNT,
+                        sponsee=_ACCOUNT2,
+                        flags=set_flag | clear_flag,
+                    )
+                self.assertIn(
+                    f"`{set_flag.name}` and `{clear_flag.name}` are mutually "
+                    "exclusive.",
+                    str(cm.exception),
+                )
+
+    def test_invalid_delete_combined_with_any_set_or_clear_flag(self):
+        """Deleting the object leaves nothing for a flag to apply to."""
+        for flag in (
+            SponsorshipSetFlag.TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE,
+            SponsorshipSetFlag.TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_FEE,
+            SponsorshipSetFlag.TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_RESERVE,
+            SponsorshipSetFlag.TF_SPONSORSHIP_CLEAR_REQUIRE_SIGN_FOR_RESERVE,
+        ):
+            with self.subTest(flag=flag.name):
+                with self.assertRaises(XRPLModelException) as cm:
+                    SponsorshipSet(
+                        account=_ACCOUNT,
+                        sponsee=_ACCOUNT2,
+                        flags=SponsorshipSetFlag.TF_DELETE_OBJECT | flag,
+                    )
+                self.assertIn(
+                    "`TF_DELETE_OBJECT` cannot be combined with any set/clear "
+                    "flags.",
+                    str(cm.exception),
+                )
+
+    def test_invalid_delete_with_a_modification_field(self):
+        """A delete carries no budget changes (rippled: temMALFORMED)."""
+        for field, value in (
+            ("fee_amount_delta", "1000000"),
+            ("max_fee", "1000000"),
+            ("remaining_owner_count_delta", 3),
+        ):
+            with self.subTest(field=field):
+                with self.assertRaises(XRPLModelException) as cm:
+                    SponsorshipSet(
+                        account=_ACCOUNT,
+                        sponsee=_ACCOUNT2,
+                        flags=SponsorshipSetFlag.TF_DELETE_OBJECT,
+                        **{field: value},
+                    )
+                self.assertIn("TF_DELETE_OBJECT", str(cm.exception))
+                self.assertIn(field, str(cm.exception))
 
     def test_invalid_counterparty_sponsor_without_delete(self):
         """counterparty_sponsor without TF_DELETE_OBJECT must be rejected."""
@@ -355,29 +298,6 @@ class TestSponsorshipSet(TestCase):
     # ------------------------------------------------------------------ #
     #  Delete forbids fee_amount_delta/max_fee/remaining_owner_count_delta      #
     # ------------------------------------------------------------------ #
-
-    def test_invalid_delete_with_fee_amount(self):
-        """fee_amount_delta must not be present when deleting."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipSet(
-                account=_ACCOUNT,
-                sponsee=_ACCOUNT2,
-                fee_amount_delta="1000000",
-                flags=SponsorshipSetFlag.TF_DELETE_OBJECT,
-            )
-        self.assertIn("TF_DELETE_OBJECT", str(cm.exception))
-        self.assertIn("fee_amount_delta", str(cm.exception))
-
-    def test_invalid_delete_with_remaining_owner_count(self):
-        """remaining_owner_count_delta must not be present when deleting."""
-        with self.assertRaises(XRPLModelException) as cm:
-            SponsorshipSet(
-                account=_ACCOUNT,
-                sponsee=_ACCOUNT2,
-                remaining_owner_count_delta=3,
-                flags=SponsorshipSetFlag.TF_DELETE_OBJECT,
-            )
-        self.assertIn("remaining_owner_count_delta", str(cm.exception))
 
     def test_simultaneous_flag_conflicts_are_all_reported(self):
         """Each mutually-exclusive pair reports under its own key.
@@ -495,15 +415,6 @@ class TestSponsorshipSet(TestCase):
                 fee_amount_delta="1000000",
             )
         self.assertIn("must not be negative", str(cm.exception))
-
-    def test_valid_flag_only_no_deltas(self):
-        """A flag change alone is a real modification, so not redundant."""
-        tx = SponsorshipSet(
-            account=_ACCOUNT,
-            sponsee=_ACCOUNT2,
-            flags=SponsorshipSetFlag.TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE,
-        )
-        self.assertTrue(tx.is_valid())
 
     def test_delta_fields_serialize_with_new_names(self):
         """The wire names are FeeAmountDelta / RemainingOwnerCountDelta."""

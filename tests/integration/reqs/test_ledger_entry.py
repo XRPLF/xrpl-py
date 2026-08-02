@@ -1,9 +1,4 @@
-"""Integration tests for LedgerEntry with a Sponsorship object.
-
-Each setup creates a Sponsorship with a `fee_amount_delta`: a create must leave
-the object with a positive budget, or rippled rejects it with
-`tecNO_PERMISSION`.
-"""
+"""Integration tests for the LedgerEntry request."""
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
@@ -17,10 +12,15 @@ from xrpl.models.response import ResponseStatus
 from xrpl.wallet import Wallet
 
 
-class TestLedgerEntrySponsorship(IntegrationTestCase):
+class TestLedgerEntry(IntegrationTestCase):
     @test_async_and_sync(globals())
     async def test_ledger_entry_sponsorship_by_owner_and_sponsee(self, client):
-        """Query a Sponsorship ledger entry by owner + sponsee."""
+        """Query a Sponsorship ledger entry by owner + sponsee.
+
+        The create passes a `fee_amount_delta` because a `SponsorshipSet` that
+        creates the object must leave it with a positive budget, or rippled
+        rejects it with `tecNO_PERMISSION`.
+        """
         sponsor_wallet = Wallet.create()
         sponsee_wallet = Wallet.create()
         await fund_wallet_async(sponsor_wallet)

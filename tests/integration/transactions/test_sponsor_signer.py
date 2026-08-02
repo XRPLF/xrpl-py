@@ -21,7 +21,13 @@ from tests.integration.it_utils import (
 from xrpl.asyncio.transaction import autofill, submit
 from xrpl.asyncio.transaction.main import sign
 from xrpl.core.addresscodec import decode_classic_address
-from xrpl.models import AccountObjects, AccountObjectType, CheckCreate, Payment
+from xrpl.models import (
+    AccountObjects,
+    AccountObjectType,
+    CheckCancel,
+    CheckCreate,
+    Payment,
+)
 from xrpl.models.requests import AccountInfo
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import SignerEntry, SignerListSet
@@ -229,6 +235,74 @@ class TestSponsorSigner(IntegrationTestCase):
         self.assertEqual(
             sponsor_info.result["account_data"].get("SponsoringOwnerCount"), 1
         )
+
+    @test_async_and_sync(
+        globals(), ["xrpl.transaction.autofill", "xrpl.transaction.submit"]
+    )
+    async def test_deleting_a_sponsored_object_refunds_the_sponsor(self, client):
+        """The reserve burden is released when the object goes away.
+
+        Deletion reads the object's own `Sponsor` field to decide who to refund,
+        so the count comes off the sponsor rather than the owner. Without this
+        the sponsor would be permanently encumbered by an object that no longer
+        exists.
+        """
+        sponsor_wallet = Wallet.create()
+        sponsee_wallet = Wallet.create()
+        destination_wallet = Wallet.create()
+        await fund_wallet_async(sponsor_wallet)
+        await fund_wallet_async(sponsee_wallet)
+        await fund_wallet_async(destination_wallet)
+
+        check = CheckCreate(
+            account=sponsee_wallet.address,
+            destination=destination_wallet.address,
+            send_max="1000000",
+            sponsor=sponsor_wallet.address,
+            sponsor_flags=_TF_SPONSOR_RESERVE,
+        )
+        autofilled = await autofill(check, client)
+        create_resp = await submit(
+            sign_as_sponsor(sponsor_wallet, sign(autofilled, sponsee_wallet)).tx,
+            client,
+        )
+        self.assertEqual(create_resp.result["engine_result"], "tesSUCCESS")
+        await client.request(LEDGER_ACCEPT_REQUEST)
+
+        objects = await client.request(
+            AccountObjects(account=sponsee_wallet.address, type=AccountObjectType.CHECK)
+        )
+        checks = objects.result["account_objects"]
+        self.assertEqual(len(checks), 1)
+        check_id = checks[0]["index"]
+
+        sponsor_info = await client.request(AccountInfo(account=sponsor_wallet.address))
+        self.assertEqual(
+            sponsor_info.result["account_data"].get("SponsoringOwnerCount"), 1
+        )
+
+        cancel_resp = await sign_and_reliable_submission_async(
+            CheckCancel(account=sponsee_wallet.address, check_id=check_id),
+            sponsee_wallet,
+            client,
+        )
+        self.assertEqual(cancel_resp.result["engine_result"], "tesSUCCESS")
+        await client.request(LEDGER_ACCEPT_REQUEST)
+
+        # The sponsor is released, and the sponsee's paired counts unwind too.
+        sponsor_after = await client.request(
+            AccountInfo(account=sponsor_wallet.address)
+        )
+        self.assertEqual(
+            sponsor_after.result["account_data"].get("SponsoringOwnerCount", 0), 0
+        )
+        sponsee_after = await client.request(
+            AccountInfo(account=sponsee_wallet.address)
+        )
+        self.assertEqual(
+            sponsee_after.result["account_data"].get("SponsoredOwnerCount", 0), 0
+        )
+        self.assertEqual(sponsee_after.result["account_data"].get("OwnerCount", 0), 0)
 
     # -----------------------------------------------------------------------
     # Multi-signature sponsee

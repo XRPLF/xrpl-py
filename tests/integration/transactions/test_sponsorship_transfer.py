@@ -37,6 +37,11 @@ class TestSponsorshipTransfer(IntegrationTestCase):
         ["xrpl.transaction.autofill", "xrpl.transaction.submit"],
     )
     async def test_basic_sponsorship_transfer(self, client):
+        """Account-level sponsorship: CREATE, then REASSIGN to a new sponsor.
+
+        With no `object_id` the target is the sponsee's own account reserve, so
+        this covers the account-level path that `test_object_level_...` does not.
+        """
         sponsor_wallet = Wallet.create()
         sponsee_wallet = Wallet.create()
         new_sponsor_wallet = Wallet.create()

@@ -1,10 +1,24 @@
 from tests.integration.integration_test_case import IntegrationTestCase
-from tests.integration.it_utils import test_async_and_sync
+from tests.integration.it_utils import (
+    fund_wallet_async,
+    sign_and_reliable_submission_async,
+    test_async_and_sync,
+)
 from tests.integration.reusable_values import WALLET
-from xrpl.models.requests import AccountObjects
+from xrpl.models import SponsorshipSet
+from xrpl.models.requests import AccountObjects, AccountObjectType
+from xrpl.models.response import ResponseStatus
+from xrpl.wallet import Wallet
 
 
 class TestAccountObjects(IntegrationTestCase):
+    """`sponsored` filter and sponsorship object types are covered below.
+
+    Each sponsorship setup passes a `fee_amount_delta`: a create must leave the
+    object with a positive budget, or rippled rejects it with
+    `tecNO_PERMISSION`.
+    """
+
     @test_async_and_sync(globals())
     async def test_basic_functionality(self, client):
         response = await client.request(
@@ -13,3 +27,87 @@ class TestAccountObjects(IntegrationTestCase):
             )
         )
         self.assertTrue(response.is_successful())
+
+    @test_async_and_sync(globals())
+    async def test_sponsored_field_true(self, client):
+        """Test that the sponsored=True filter returns only sponsored objects."""
+        sponsor_wallet = Wallet.create()
+        sponsee_wallet = Wallet.create()
+        await fund_wallet_async(sponsor_wallet)
+        await fund_wallet_async(sponsee_wallet)
+
+        tx = SponsorshipSet(
+            account=sponsor_wallet.address,
+            sponsee=sponsee_wallet.address,
+            fee_amount_delta="1000000",
+        )
+        response = await sign_and_reliable_submission_async(tx, sponsor_wallet, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        account_objects_response = await client.request(
+            AccountObjects(
+                account=sponsee_wallet.address,
+                sponsored=True,
+            )
+        )
+        self.assertTrue(account_objects_response.is_successful())
+
+    @test_async_and_sync(globals())
+    async def test_sponsored_field_false(self, client):
+        """Test that the sponsored=False filter returns only non-sponsored objects."""
+        wallet = Wallet.create()
+        await fund_wallet_async(wallet)
+
+        # Query with sponsored=False
+        account_objects_response = await client.request(
+            AccountObjects(
+                account=wallet.address,
+                sponsored=False,
+            )
+        )
+        self.assertTrue(account_objects_response.is_successful())
+
+    @test_async_and_sync(globals())
+    async def test_sponsored_field_none(self, client):
+        """Test that omitting sponsored returns all objects (default behavior)."""
+        wallet = Wallet.create()
+        await fund_wallet_async(wallet)
+
+        # Query without sponsored field (default None)
+        account_objects_response = await client.request(
+            AccountObjects(
+                account=wallet.address,
+            )
+        )
+        self.assertTrue(account_objects_response.is_successful())
+
+    @test_async_and_sync(globals())
+    async def test_type_sponsorship_filter(self, client):
+        """Test filtering account_objects by type=SPONSORSHIP."""
+        sponsor_wallet = Wallet.create()
+        sponsee_wallet = Wallet.create()
+        await fund_wallet_async(sponsor_wallet)
+        await fund_wallet_async(sponsee_wallet)
+
+        tx = SponsorshipSet(
+            account=sponsor_wallet.address,
+            sponsee=sponsee_wallet.address,
+            fee_amount_delta="1000000",
+        )
+        response = await sign_and_reliable_submission_async(tx, sponsor_wallet, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # Filter by SPONSORSHIP type on the sponsor's account
+        account_objects_response = await client.request(
+            AccountObjects(
+                account=sponsor_wallet.address,
+                type=AccountObjectType.SPONSORSHIP,
+            )
+        )
+        self.assertTrue(account_objects_response.is_successful())
+        sponsorship_objects = account_objects_response.result["account_objects"]
+        self.assertGreater(len(sponsorship_objects), 0)
+        for obj in sponsorship_objects:
+            self.assertEqual(obj["LedgerEntryType"], "Sponsorship")

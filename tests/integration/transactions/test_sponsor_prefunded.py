@@ -26,6 +26,7 @@ from tests.integration.it_utils import (
 from xrpl.asyncio.transaction import autofill, submit
 from xrpl.asyncio.transaction.main import sign
 from xrpl.models import CheckCreate, Payment, SponsorshipSet
+from xrpl.models.requests import AccountInfo
 from xrpl.models.requests.ledger_entry import LedgerEntry, Sponsorship
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions.sponsorship_set import SponsorshipSetFlag
@@ -371,6 +372,86 @@ class TestPreFundedSponsorship(IntegrationTestCase):
             client,
         )
         self.assertEqual(signed_resp.result["engine_result"], "tesSUCCESS")
+
+    @test_async_and_sync(
+        globals(), ["xrpl.transaction.autofill", "xrpl.transaction.submit"]
+    )
+    async def test_co_signing_does_not_bypass_the_reserve_budget(self, client):
+        """A co-signature authorizes; it does not create budget.
+
+        `checkSponsor` short-circuits on a present `SponsorSignature`, which is
+        easy to read as "co-signing skips the Sponsorship object". It does not:
+        once the object exists, `checkReserve` still measures the request
+        against `RemainingOwnerCount`. A fee-only Sponsorship therefore blocks a
+        co-signed *reserve* sponsorship, and raising the count is what unblocks
+        it -- the same transaction, signed the same way.
+        """
+        sponsor_wallet = Wallet.create()
+        sponsee_wallet = Wallet.create()
+        destination_wallet = Wallet.create()
+        await fund_wallet_async(sponsor_wallet)
+        await fund_wallet_async(sponsee_wallet)
+        await fund_wallet_async(destination_wallet)
+
+        # Fee budget only -- RemainingOwnerCount is absent, so effectively zero.
+        create_resp = await sign_and_reliable_submission_async(
+            SponsorshipSet(
+                account=sponsor_wallet.address,
+                sponsee=sponsee_wallet.address,
+                fee_amount_delta=_FEE_BUDGET,
+            ),
+            sponsor_wallet,
+            client,
+        )
+        self.assertEqual(create_resp.result["engine_result"], "tesSUCCESS")
+
+        check = CheckCreate(
+            account=sponsee_wallet.address,
+            destination=destination_wallet.address,
+            send_max="1000000",
+            sponsor=sponsor_wallet.address,
+            sponsor_flags=_TF_SPONSOR_RESERVE,
+        )
+        autofilled = await autofill(check, client)
+        blocked = await submit(
+            sign_as_sponsor(sponsor_wallet, sign(autofilled, sponsee_wallet)).tx,
+            client,
+        )
+        self.assertEqual(blocked.result["engine_result"], "tecINSUFFICIENT_RESERVE")
+        await client.request(LEDGER_ACCEPT_REQUEST)
+
+        # Nothing was created and no counts moved.
+        sponsor_info = await client.request(AccountInfo(account=sponsor_wallet.address))
+        self.assertEqual(
+            sponsor_info.result["account_data"].get("SponsoringOwnerCount", 0), 0
+        )
+
+        # Grant one owner count; the identical transaction now succeeds.
+        topup_resp = await sign_and_reliable_submission_async(
+            SponsorshipSet(
+                account=sponsor_wallet.address,
+                sponsee=sponsee_wallet.address,
+                remaining_owner_count_delta=1,
+            ),
+            sponsor_wallet,
+            client,
+        )
+        self.assertEqual(topup_resp.result["engine_result"], "tesSUCCESS")
+
+        autofilled = await autofill(check, client)
+        allowed = await submit(
+            sign_as_sponsor(sponsor_wallet, sign(autofilled, sponsee_wallet)).tx,
+            client,
+        )
+        self.assertEqual(allowed.result["engine_result"], "tesSUCCESS")
+        await client.request(LEDGER_ACCEPT_REQUEST)
+
+        sponsor_after = await client.request(
+            AccountInfo(account=sponsor_wallet.address)
+        )
+        self.assertEqual(
+            sponsor_after.result["account_data"].get("SponsoringOwnerCount"), 1
+        )
 
     # -----------------------------------------------------------------------
     # Delta arithmetic on the Sponsorship object
