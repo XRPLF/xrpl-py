@@ -14,17 +14,16 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from xrpl.asyncio.transaction import autofill, sign, submit
-from xrpl.core.binarycodec import encode_for_signing
-from xrpl.core.keypairs import sign as keypairs_sign
 from xrpl.models import SponsorshipTransfer
 from xrpl.models.requests import AccountInfo
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import AccountDelete
 from xrpl.models.transactions.sponsorship_transfer import SponsorshipTransferFlag
+from xrpl.transaction import sign_as_sponsor
 from xrpl.utils import xrp_to_drops
 from xrpl.wallet import Wallet
 
-# Sponsor-type flags (XLS-0068).
+# Sponsor-type flags.
 _TF_SPONSOR_RESERVE = 0x00000002
 
 # AccountDelete requires a special fee of 5 XRP.
@@ -35,19 +34,9 @@ ACCOUNT_DELETE_FEE = xrp_to_drops(5)
 _LEDGERS_TO_ADVANCE = 260
 
 
-def _build_sponsor_signed_tx(transfer_tx, sponsee_wallet, sponsor_wallet):
-    """Sign a SponsorshipTransfer as the sponsee, then co-sign."""
-    signed_tx = sign(transfer_tx, sponsee_wallet)
-    tx_json = signed_tx.to_xrpl()
-    sponsor_sig = keypairs_sign(
-        bytes.fromhex(encode_for_signing(tx_json)),
-        sponsor_wallet.private_key,
-    )
-    tx_json["SponsorSignature"] = {
-        "SigningPubKey": sponsor_wallet.public_key,
-        "TxnSignature": sponsor_sig,
-    }
-    return SponsorshipTransfer.from_xrpl(tx_json)
+def _sponsee_then_sponsor(transfer_tx, sponsee_wallet, sponsor_wallet):
+    """Sign as the sponsee, then have the sponsor co-sign."""
+    return sign_as_sponsor(sponsor_wallet, sign(transfer_tx, sponsee_wallet)).tx
 
 
 class TestAccountDeleteSponsored(IntegrationTestCase):
@@ -71,7 +60,7 @@ class TestAccountDeleteSponsored(IntegrationTestCase):
             sponsor=sponsor_wallet.address,
         )
         create_tx = await autofill(create_tx, client)
-        final_create_tx = _build_sponsor_signed_tx(
+        final_create_tx = _sponsee_then_sponsor(
             create_tx, sponsee_wallet, sponsor_wallet
         )
         create_response = await submit(final_create_tx, client)
@@ -124,7 +113,7 @@ class TestAccountDeleteSponsored(IntegrationTestCase):
         )
         autofilled = await autofill(create_tx, client)
         create_response = await submit(
-            _build_sponsor_signed_tx(autofilled, sponsee_wallet, sponsor_wallet), client
+            _sponsee_then_sponsor(autofilled, sponsee_wallet, sponsor_wallet), client
         )
         await client.request(LEDGER_ACCEPT_REQUEST)
         self.assertEqual(create_response.result["engine_result"], "tesSUCCESS")
@@ -173,7 +162,7 @@ class TestAccountDeleteSponsored(IntegrationTestCase):
         )
         autofilled = await autofill(create_tx, client)
         create_response = await submit(
-            _build_sponsor_signed_tx(autofilled, sponsee_wallet, sponsor_wallet), client
+            _sponsee_then_sponsor(autofilled, sponsee_wallet, sponsor_wallet), client
         )
         await client.request(LEDGER_ACCEPT_REQUEST)
         self.assertEqual(create_response.result["engine_result"], "tesSUCCESS")

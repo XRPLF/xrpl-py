@@ -1,4 +1,4 @@
-"""Model for the SponsorSignature transaction common field (XLS-0068)."""
+"""Model for the SponsorSignature transaction common field."""
 
 from __future__ import annotations
 

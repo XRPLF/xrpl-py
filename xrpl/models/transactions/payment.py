@@ -209,4 +209,24 @@ class Payment(Transaction):
                     f"{', '.join(incompatible)}."
                 )
 
+            # The flag funds a new account's reserve, so the payment must be
+            # plain XRP: no issued currency (rippled: temBAD_AMOUNT) and no
+            # pathfinding fields (temINVALID). `paths` is otherwise only caught
+            # for an XRP amount, so an issued amount would slip past.
+            if not is_xrp(self.amount):
+                errors["amount"] = (
+                    "`TF_SPONSOR_CREATED_ACCOUNT` requires an XRP `amount`; it "
+                    "funds the created account's reserve."
+                )
+            routing = [
+                name
+                for name, value in (("send_max", self.send_max), ("paths", self.paths))
+                if value is not None
+            ]
+            if routing:
+                errors["sponsor_created_account"] = (
+                    "`TF_SPONSOR_CREATED_ACCOUNT` cannot be combined with "
+                    f"{', '.join(f'`{name}`' for name in routing)}."
+                )
+
         return errors

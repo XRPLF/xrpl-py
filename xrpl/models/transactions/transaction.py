@@ -183,6 +183,23 @@ class TransactionFlagInterface(FlagInterface):
     TF_INNER_BATCH_TXN: bool
 
 
+class SponsorFlag(int, Enum):
+    """
+    Values for the ``sponsor_flags`` common field, which declares what a sponsor
+    is covering. At least one must be set whenever ``sponsor`` is present, and
+    the two may be combined.
+
+    These use the ``spf`` prefix rather than ``tf``: they are their own field,
+    not part of ``Flags``.
+    """
+
+    SPF_SPONSOR_FEE = 0x00000001
+    """The sponsor pays the transaction fee."""
+
+    SPF_SPONSOR_RESERVE = 0x00000002
+    """The sponsor covers the reserve of any object the transaction creates."""
+
+
 @dataclass(frozen=True, kw_only=True)
 class Transaction(BaseModel):
     """
@@ -284,7 +301,9 @@ class Transaction(BaseModel):
     """The sponsoring account covering fees or reserves for this transaction."""
 
     sponsor_flags: Optional[int] = None
-    """Sponsorship type flags (tfSponsorFee=0x00000001, tfSponsorReserve=0x00000002)."""
+    """What the sponsor is covering. Use :class:`SponsorFlag`
+    (``SPF_SPONSOR_FEE`` = 0x1, ``SPF_SPONSOR_RESERVE`` = 0x2); the two may be
+    combined. Required whenever ``sponsor`` is set, and must be non-zero."""
 
     sponsor_signature: Optional[SponsorSignature] = None
     """The sponsor's signing information for co-signed sponsorship."""
@@ -305,8 +324,23 @@ class Transaction(BaseModel):
         if self.sponsor is not None and self.sponsor == self.account:
             errors["sponsor"] = "`sponsor` must differ from `account`."
 
+        # `sponsor` and `sponsor_flags` are all-or-nothing, and the flags must
+        # name at least one thing to sponsor. rippled rejects any other
+        # combination with temINVALID_FLAG.
         if self.sponsor_flags is not None and self.sponsor is None:
             errors["sponsor_flags"] = "`sponsor_flags` requires `sponsor` to be set."
+        elif self.sponsor is not None and self.sponsor_flags is None:
+            errors["sponsor_flags"] = (
+                "`sponsor_flags` is required when `sponsor` is set. Use "
+                "`SponsorFlag.SPF_SPONSOR_FEE` and/or "
+                "`SponsorFlag.SPF_SPONSOR_RESERVE`."
+            )
+        elif self.sponsor_flags is not None and self.sponsor_flags == 0:
+            errors["sponsor_flags"] = (
+                "`sponsor_flags` must not be zero; at least one of "
+                "`SPF_SPONSOR_FEE` (0x1) or `SPF_SPONSOR_RESERVE` (0x2) "
+                "must be set."
+            )
         elif (
             self.sponsor_flags is not None
             and (self.sponsor_flags & _SPF_SPONSOR_FLAG_MASK) != 0
@@ -314,6 +348,17 @@ class Transaction(BaseModel):
             errors["sponsor_flags"] = (
                 "`sponsor_flags` may only use bits 0x1 (spfSponsorFee) "
                 "and 0x2 (spfSponsorReserve)."
+            )
+
+        # Reserve sponsorship and permissioned delegation cannot be combined:
+        # the created object's owner would be ambiguous (rippled: temINVALID).
+        if (
+            self.delegate is not None
+            and self.sponsor_flags is not None
+            and self.sponsor_flags & _SPF_SPONSOR_RESERVE
+        ):
+            errors["delegate_sponsor"] = (
+                "`delegate` cannot be combined with `spfSponsorReserve` (0x2)."
             )
 
         if self.sponsor_signature is not None and self.sponsor is None:

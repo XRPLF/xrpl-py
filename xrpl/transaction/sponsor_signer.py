@@ -1,12 +1,12 @@
-"""Helper functions for co-signing transactions as a fee/reserve sponsor (XLS-0068).
+"""Helper functions for co-signing transactions as a fee/reserve sponsor.
 
-XLS-0068 introduces a sponsored-fee/reserve model where a *sponsor* account can
+The sponsored-fee/reserve model lets a *sponsor* account
 cover the transaction fee and/or object reserve costs on behalf of a *sponsee*.
 When ``lsfSponsorshipRequireSignForFee`` / ``lsfSponsorshipRequireSignForReserve``
 is set, or when there is no pre-funded ``Sponsorship`` ledger object, the sponsor
 must co-sign each transaction before it is submitted.
 
-Signing flow (XLS-0068 section 3.2):
+Signing flow:
 
 1. The sponsee constructs and autofills the transaction, setting the ``sponsor``
    and ``sponsor_flags`` fields and their own ``signing_pub_key``. They do not
@@ -87,7 +87,7 @@ def sign_as_sponsor(
     sponsee_multisign: bool = False,
 ) -> SignSponsorResult:
     """
-    Sign a transaction as the fee/reserve sponsor (XLS-0068).
+    Sign a transaction as the fee/reserve sponsor.
 
     The sponsor's cryptographic approval is placed in the ``SponsorSignature``
     field of the transaction.  The sponsor signs the **same** canonical

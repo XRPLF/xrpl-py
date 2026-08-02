@@ -28,9 +28,11 @@ from xrpl.asyncio.transaction.main import sign
 from xrpl.models import CheckCreate, Payment, SponsorshipSet
 from xrpl.models.requests.ledger_entry import LedgerEntry, Sponsorship
 from xrpl.models.response import ResponseStatus
+from xrpl.models.transactions.sponsorship_set import SponsorshipSetFlag
+from xrpl.transaction import sign_as_sponsor
 from xrpl.wallet import Wallet
 
-# Sponsor-type flags (XLS-0068).
+# Sponsor-type flags.
 _TF_SPONSOR_FEE = 0x00000001
 _TF_SPONSOR_RESERVE = 0x00000002
 
@@ -234,6 +236,141 @@ class TestPreFundedSponsorship(IntegrationTestCase):
             )
         )
         self.assertEqual(after_resp.result["node"]["FeeAmount"], _FEE_BUDGET)
+
+    # -----------------------------------------------------------------------
+    # Authorization: what makes the pre-funded path legal
+    #
+    # `Transactor::checkSponsor` short-circuits to tesSUCCESS whenever
+    # `SponsorSignature` is present. Only when it is absent does the ledger
+    # consult the Sponsorship object, and it refuses with terNO_PERMISSION if
+    # the object is missing or carries the matching RequireSign flag.
+    # -----------------------------------------------------------------------
+
+    @test_async_and_sync(
+        globals(), ["xrpl.transaction.autofill", "xrpl.transaction.submit"]
+    )
+    async def test_prefunded_without_sponsorship_object_is_rejected(self, client):
+        """Naming a sponsor who never pre-funded anything is not authorized.
+
+        Nothing about the transaction is malformed, so this is not a `tem`
+        failure -- the sponsor simply has not consented, and rippled returns
+        terNO_PERMISSION.
+        """
+        sponsor_wallet = Wallet.create()
+        sponsee_wallet = Wallet.create()
+        destination_wallet = Wallet.create()
+        await fund_wallet_async(sponsor_wallet)
+        await fund_wallet_async(sponsee_wallet)
+        await fund_wallet_async(destination_wallet)
+
+        # No SponsorshipSet is submitted, so no Sponsorship object exists.
+        payment = Payment(
+            account=sponsee_wallet.address,
+            destination=destination_wallet.address,
+            amount="1000000",
+            sponsor=sponsor_wallet.address,
+            sponsor_flags=_TF_SPONSOR_FEE,
+        )
+        autofilled = await autofill(payment, client)
+        response = await submit(sign(autofilled, sponsee_wallet), client)
+        self.assertEqual(response.result["engine_result"], "terNO_PERMISSION")
+
+    @test_async_and_sync(
+        globals(), ["xrpl.transaction.autofill", "xrpl.transaction.submit"]
+    )
+    async def test_require_sign_for_fee_forces_a_co_signature(self, client):
+        """`lsfSponsorshipRequireSignForFee` opts out of the pre-funded path.
+
+        The budget exists and is untouched; the flag alone is what blocks the
+        unsigned submission. The identical transaction succeeds once the sponsor
+        co-signs, because a present `SponsorSignature` bypasses the object check
+        entirely.
+        """
+        sponsor_wallet = Wallet.create()
+        sponsee_wallet = Wallet.create()
+        destination_wallet = Wallet.create()
+        await fund_wallet_async(sponsor_wallet)
+        await fund_wallet_async(sponsee_wallet)
+        await fund_wallet_async(destination_wallet)
+
+        create_resp = await sign_and_reliable_submission_async(
+            SponsorshipSet(
+                account=sponsor_wallet.address,
+                sponsee=sponsee_wallet.address,
+                fee_amount_delta=_FEE_BUDGET,
+                flags=SponsorshipSetFlag.TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_FEE,
+            ),
+            sponsor_wallet,
+            client,
+        )
+        self.assertEqual(create_resp.result["engine_result"], "tesSUCCESS")
+
+        payment = Payment(
+            account=sponsee_wallet.address,
+            destination=destination_wallet.address,
+            amount="1000000",
+            sponsor=sponsor_wallet.address,
+            sponsor_flags=_TF_SPONSOR_FEE,
+        )
+        autofilled = await autofill(payment, client)
+
+        # Unsigned by the sponsor: refused despite a funded budget.
+        unsigned_resp = await submit(sign(autofilled, sponsee_wallet), client)
+        self.assertEqual(unsigned_resp.result["engine_result"], "terNO_PERMISSION")
+
+        # Same transaction, sponsor co-signs: accepted.
+        signed_resp = await submit(
+            sign_as_sponsor(sponsor_wallet, sign(autofilled, sponsee_wallet)).tx,
+            client,
+        )
+        self.assertEqual(signed_resp.result["engine_result"], "tesSUCCESS")
+
+    @test_async_and_sync(
+        globals(), ["xrpl.transaction.autofill", "xrpl.transaction.submit"]
+    )
+    async def test_require_sign_for_reserve_forces_a_co_signature(self, client):
+        """`lsfSponsorshipRequireSignForReserve` does the same for reserves.
+
+        The two RequireSign flags are independent: this Sponsorship funds both a
+        fee budget and an owner-count budget, and only the reserve side is gated.
+        """
+        sponsor_wallet = Wallet.create()
+        sponsee_wallet = Wallet.create()
+        destination_wallet = Wallet.create()
+        await fund_wallet_async(sponsor_wallet)
+        await fund_wallet_async(sponsee_wallet)
+        await fund_wallet_async(destination_wallet)
+
+        create_resp = await sign_and_reliable_submission_async(
+            SponsorshipSet(
+                account=sponsor_wallet.address,
+                sponsee=sponsee_wallet.address,
+                fee_amount_delta=_FEE_BUDGET,
+                remaining_owner_count_delta=_OWNER_COUNT_BUDGET,
+                flags=SponsorshipSetFlag.TF_SPONSORSHIP_SET_REQUIRE_SIGN_FOR_RESERVE,
+            ),
+            sponsor_wallet,
+            client,
+        )
+        self.assertEqual(create_resp.result["engine_result"], "tesSUCCESS")
+
+        check = CheckCreate(
+            account=sponsee_wallet.address,
+            destination=destination_wallet.address,
+            send_max="1000000",
+            sponsor=sponsor_wallet.address,
+            sponsor_flags=_TF_SPONSOR_RESERVE,
+        )
+        autofilled = await autofill(check, client)
+
+        unsigned_resp = await submit(sign(autofilled, sponsee_wallet), client)
+        self.assertEqual(unsigned_resp.result["engine_result"], "terNO_PERMISSION")
+
+        signed_resp = await submit(
+            sign_as_sponsor(sponsor_wallet, sign(autofilled, sponsee_wallet)).tx,
+            client,
+        )
+        self.assertEqual(signed_resp.result["engine_result"], "tesSUCCESS")
 
     # -----------------------------------------------------------------------
     # Delta arithmetic on the Sponsorship object

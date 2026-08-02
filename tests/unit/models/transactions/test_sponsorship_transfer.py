@@ -1,17 +1,22 @@
 from unittest import TestCase
 
+from xrpl.core.binarycodec import decode, encode
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions.sponsor_signature import SponsorSignature
 from xrpl.models.transactions.sponsorship_transfer import (
     SponsorshipTransfer,
     SponsorshipTransferFlag,
 )
-from xrpl.models.transactions.transaction import Signer
+from xrpl.models.transactions.transaction import Signer, SponsorFlag
 from xrpl.models.transactions.types import TransactionType
 
 _ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _ACCOUNT2 = "rPyfep3gcLzkH4MYxKxJhE7bgUJfUCJM83"
 _OBJECT_ID = "DB303FC1C7611B22C09E773B51044F6BEA02EF917DF59A2E2860871E167066A5"
+
+# `_ACCOUNT2` is not checksum-valid, which the model layer never checks but the
+# binary codec does. Use this one in tests that encode.
+_SPONSOR = "rN7n7otQDd6FczFgLdSqtcsAUxDkw6fzRH"
 
 
 class TestSponsorshipTransfer(TestCase):
@@ -70,6 +75,8 @@ class TestSponsorshipTransfer(TestCase):
         tx = SponsorshipTransfer(
             account=_ACCOUNT,
             object_id=_OBJECT_ID,
+            sponsor=_ACCOUNT2,
+            sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE,
             flags=SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE,
         )
         self.assertTrue(tx.is_valid())
@@ -79,6 +86,8 @@ class TestSponsorshipTransfer(TestCase):
         tx = SponsorshipTransfer(
             account=_ACCOUNT,
             object_id=_OBJECT_ID,
+            sponsor=_ACCOUNT2,
+            sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE,
             flags=SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN,
         )
         self.assertTrue(tx.is_valid())
@@ -151,6 +160,8 @@ class TestSponsorshipTransfer(TestCase):
         tx = SponsorshipTransfer(
             account=_ACCOUNT,
             object_id=_OBJECT_ID,
+            sponsor=_ACCOUNT2,
+            sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE,
             flags=SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN,
         )
         roundtripped = SponsorshipTransfer.from_dict(tx.to_dict())
@@ -175,6 +186,8 @@ class TestSponsorshipTransfer(TestCase):
         """FlagInterface dict with TF_SPONSORSHIP_CREATE (no sponsee)."""
         tx = SponsorshipTransfer(
             account=_ACCOUNT,
+            sponsor=_ACCOUNT2,
+            sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE,
             flags={"TF_SPONSORSHIP_CREATE": True},
         )
         self.assertTrue(tx.is_valid())
@@ -186,6 +199,8 @@ class TestSponsorshipTransfer(TestCase):
         tx = SponsorshipTransfer(
             account=_ACCOUNT,
             object_id=_OBJECT_ID,
+            sponsor=_ACCOUNT2,
+            sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE,
             flags={"TF_SPONSORSHIP_REASSIGN": True},
         )
         self.assertTrue(tx.is_valid())
@@ -206,27 +221,28 @@ class TestSponsorshipTransfer(TestCase):
         )
 
     def test_with_sponsor_fee_fields(self):
-        """SponsorshipTransfer with sponsor and sponsor_flags (fee sponsorship)."""
+        """Fee sponsorship may ride alongside the required reserve flag."""
         tx = SponsorshipTransfer(
             account=_ACCOUNT,
             object_id=_OBJECT_ID,
             sponsor=_ACCOUNT2,
-            sponsor_flags=0x00000001,  # spfSponsorFee
-            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
+            sponsor_flags=(
+                SponsorFlag.SPF_SPONSOR_FEE | SponsorFlag.SPF_SPONSOR_RESERVE
+            ),
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE,
         )
         self.assertTrue(tx.is_valid())
         d = tx.to_dict()
         self.assertEqual(d["sponsor"], _ACCOUNT2)
-        self.assertEqual(d["sponsor_flags"], 1)
+        self.assertEqual(d["sponsor_flags"], 3)
 
     def test_with_sponsor_reserve_fields(self):
         """SponsorshipTransfer with sponsor covering reserve costs."""
         tx = SponsorshipTransfer(
             account=_ACCOUNT,
-            sponsee=_ACCOUNT2,
             sponsor=_ACCOUNT2,
-            sponsor_flags=0x00000002,  # spfSponsorReserve
-            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
+            sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE,
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE,
         )
         self.assertTrue(tx.is_valid())
         d = tx.to_dict()
@@ -237,10 +253,9 @@ class TestSponsorshipTransfer(TestCase):
         tx = SponsorshipTransfer(
             account=_ACCOUNT,
             object_id=_OBJECT_ID,
-            sponsee=_ACCOUNT2,
             sponsor=_ACCOUNT2,
-            sponsor_flags=0x00000001,
-            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
+            sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE,
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE,
             sponsor_signature=SponsorSignature(
                 signing_pub_key="ED000000",
                 txn_signature="DEADBEEF",
@@ -257,8 +272,8 @@ class TestSponsorshipTransfer(TestCase):
             account=_ACCOUNT,
             object_id=_OBJECT_ID,
             sponsor=_ACCOUNT2,
-            sponsor_flags=0x00000001,
-            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
+            sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE,
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE,
             sponsor_signature=SponsorSignature(
                 signers=[
                     Signer(
@@ -449,3 +464,84 @@ class TestSponsorshipTransfer(TestCase):
             "and 0x2 (spfSponsorReserve).",
             str(cm.exception),
         )
+
+    # ------------------------------------------------------------------ #
+    #  Operation-specific field rules                                      #
+    # ------------------------------------------------------------------ #
+
+    def test_create_and_reassign_require_a_sponsor(self):
+        """Both name an incoming sponsor, so `sponsor` is mandatory.
+
+        rippled: `!isFieldPresent(sfSponsor)` -> temMALFORMED.
+        """
+        for flag in (
+            SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE,
+            SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN,
+        ):
+            with self.subTest(flag=flag.name):
+                with self.assertRaises(XRPLModelException) as cm:
+                    SponsorshipTransfer(
+                        account=_ACCOUNT, object_id=_OBJECT_ID, flags=flag
+                    )
+                self.assertIn("`sponsor` is required", str(cm.exception))
+
+    def test_create_and_reassign_require_the_reserve_flag(self):
+        """Fee-only sponsorship cannot transfer a reserve.
+
+        rippled: `!isReserveSponsored(tx)` -> temINVALID_FLAG.
+        """
+        for flag in (
+            SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE,
+            SponsorshipTransferFlag.TF_SPONSORSHIP_REASSIGN,
+        ):
+            with self.subTest(flag=flag.name):
+                with self.assertRaises(XRPLModelException) as cm:
+                    SponsorshipTransfer(
+                        account=_ACCOUNT,
+                        object_id=_OBJECT_ID,
+                        sponsor=_ACCOUNT2,
+                        sponsor_flags=SponsorFlag.SPF_SPONSOR_FEE,
+                        flags=flag,
+                    )
+                self.assertIn("SPF_SPONSOR_RESERVE", str(cm.exception))
+
+    def test_end_rejects_a_sponsor(self):
+        """Ending removes a sponsor rather than naming one (temMALFORMED)."""
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorshipTransfer(
+                account=_ACCOUNT,
+                object_id=_OBJECT_ID,
+                sponsor=_ACCOUNT2,
+                sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE,
+                flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
+            )
+        self.assertIn("cannot be set when `TF_SPONSORSHIP_END`", str(cm.exception))
+
+    def test_end_rejects_sponsee_equal_to_account(self):
+        """`sponsee == account` is redundant and rejected (temMALFORMED)."""
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorshipTransfer(
+                account=_ACCOUNT,
+                sponsee=_ACCOUNT,
+                flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
+            )
+        self.assertIn("`sponsee` must differ from `account`", str(cm.exception))
+
+    def test_every_field_survives_the_binary_codec(self):
+        """Model validation says a field is accepted, not that it is sendable.
+
+        Each field is serialized separately, so a populated instance of every
+        one is the only way to know the whole transaction reaches the wire.
+        """
+        tx = SponsorshipTransfer(
+            account=_ACCOUNT,
+            object_id=_OBJECT_ID,
+            sponsor=_SPONSOR,
+            sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE,
+            flags=SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE,
+            fee="10",
+            sequence=1,
+            signing_pub_key="",
+        )
+        source = tx.to_xrpl()
+        self.assertEqual(decode(encode(source)), source)

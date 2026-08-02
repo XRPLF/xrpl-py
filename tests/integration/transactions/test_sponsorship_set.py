@@ -1,4 +1,10 @@
-"""Integration tests for SponsorshipSet transaction type."""
+"""Integration tests for SponsorshipSet transaction type.
+
+Every create below carries a `fee_amount_delta`: a `SponsorshipSet` that creates
+the object must leave it with a positive budget, or rippled rejects it with
+`tecNO_PERMISSION` -- a budgetless Sponsorship consumes the sponsor's reserve
+while being unusable.
+"""
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
@@ -30,9 +36,6 @@ class TestSponsorshipSet(IntegrationTestCase):
         await fund_wallet_async(sponsor_wallet)
         await fund_wallet_async(sponsee_wallet)
 
-        # Sponsor creates the sponsorship.
-        # A create must leave the object with a positive budget; rippled rejects a
-        # budgetless Sponsorship with tecNO_PERMISSION.
         create_tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
@@ -55,7 +58,6 @@ class TestSponsorshipSet(IntegrationTestCase):
         self.assertEqual(delete_resp.status, ResponseStatus.SUCCESS)
         self.assertEqual(delete_resp.result["engine_result"], "tesSUCCESS")
 
-        # Confirm the sponsorship object was deleted.
         account_objects_response = await client.request(
             AccountObjects(
                 account=sponsor_wallet.address,
@@ -115,7 +117,6 @@ class TestSponsorshipSet(IntegrationTestCase):
         await fund_wallet_async(sponsor_wallet)
         await fund_wallet_async(sponsee_wallet)
 
-        # Set up a SignerList on the sponsor account.
         signer_list_tx = SignerListSet(
             account=sponsor_wallet.address,
             signer_quorum=2,
@@ -135,7 +136,6 @@ class TestSponsorshipSet(IntegrationTestCase):
         )
         self.assertEqual(list_resp.result["engine_result"], "tesSUCCESS")
 
-        # Build and autofill the SponsorshipSet.
         tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
@@ -143,7 +143,6 @@ class TestSponsorshipSet(IntegrationTestCase):
         )
         autofilled_tx = await autofill(tx, client, len([signer1, signer2]))
 
-        # Each signer signs for multisign.
         tx_1 = sign(autofilled_tx, signer1, multisign=True)
         tx_2 = sign(autofilled_tx, signer2, multisign=True)
         multisigned_tx = multisign(autofilled_tx, [tx_1, tx_2])
@@ -162,9 +161,6 @@ class TestSponsorshipSet(IntegrationTestCase):
         await fund_wallet_async(sponsor_wallet)
         await fund_wallet_async(sponsee_wallet)
 
-        # Create with the flag set.
-        # A create must leave the object with a positive budget; rippled rejects a
-        # budgetless Sponsorship with tecNO_PERMISSION.
         create_tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
@@ -176,7 +172,6 @@ class TestSponsorshipSet(IntegrationTestCase):
         )
         self.assertEqual(create_resp.result["engine_result"], "tesSUCCESS")
 
-        # Clear the flag.
         clear_tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
@@ -198,9 +193,6 @@ class TestSponsorshipSet(IntegrationTestCase):
         await fund_wallet_async(sponsor_wallet)
         await fund_wallet_async(sponsee_wallet)
 
-        # Create with the flag set.
-        # A create must leave the object with a positive budget; rippled rejects a
-        # budgetless Sponsorship with tecNO_PERMISSION.
         create_tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
@@ -212,7 +204,6 @@ class TestSponsorshipSet(IntegrationTestCase):
         )
         self.assertEqual(create_resp.result["engine_result"], "tesSUCCESS")
 
-        # Clear the flag.
         clear_tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
@@ -234,8 +225,6 @@ class TestSponsorshipSet(IntegrationTestCase):
         await fund_wallet_async(sponsor_wallet)
         await fund_wallet_async(sponsee_wallet)
 
-        # A create must leave the object with a positive budget; rippled rejects a
-        # budgetless Sponsorship with tecNO_PERMISSION.
         create_tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,

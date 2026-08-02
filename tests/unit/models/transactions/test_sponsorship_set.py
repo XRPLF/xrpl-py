@@ -518,3 +518,29 @@ class TestSponsorshipSet(TestCase):
         self.assertEqual(xrpl_dict["RemainingOwnerCountDelta"], -4)
         self.assertNotIn("FeeAmount", xrpl_dict)
         self.assertNotIn("RemainingOwnerCount", xrpl_dict)
+
+    def test_every_field_survives_the_binary_codec(self):
+        """Both addressing forms, with every optional field populated."""
+        shapes = {
+            "sponsee": dict(
+                sponsee="rN7n7otQDd6FczFgLdSqtcsAUxDkw6fzRH",
+                fee_amount_delta="-500000",
+                max_fee="100000",
+                remaining_owner_count_delta=-2,
+            ),
+            "counterparty_sponsor": dict(
+                counterparty_sponsor="rN7n7otQDd6FczFgLdSqtcsAUxDkw6fzRH",
+                flags=SponsorshipSetFlag.TF_DELETE_OBJECT,
+            ),
+        }
+        for label, fields in shapes.items():
+            with self.subTest(shape=label):
+                tx = SponsorshipSet(
+                    account="rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+                    fee="10",
+                    sequence=1,
+                    signing_pub_key="",
+                    **fields,
+                )
+                source = tx.to_xrpl()
+                self.assertEqual(decode(encode(source)), source)

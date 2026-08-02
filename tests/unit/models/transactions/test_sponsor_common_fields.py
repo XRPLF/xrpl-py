@@ -7,7 +7,7 @@ from xrpl.models.transactions.batch import Batch
 from xrpl.models.transactions.payment import Payment
 from xrpl.models.transactions.pseudo_transactions import EnableAmendment
 from xrpl.models.transactions.sponsor_signature import SponsorSignature
-from xrpl.models.transactions.transaction import Signer
+from xrpl.models.transactions.transaction import Signer, SponsorFlag
 
 _ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _SPONSOR = "rPyfep3gcLzkH4MYxKxJhE7bgUJfUCJM83"
@@ -149,3 +149,140 @@ class TestSponsorCommonFields(TestCase):
                 sponsor_flags=1,
             )
         self.assertIn(self._UNSPONSORABLE_MSG, str(cm.exception))
+
+
+class TestSponsorCommonFieldValidation(TestCase):
+    """`sponsor` / `sponsor_flags` are all-or-nothing and must name something."""
+
+    def test_sponsor_requires_sponsor_flags(self):
+        """rippled: `hasSponsor != hasSponsorFlags` -> temINVALID_FLAG."""
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT, destination=_DESTINATION, amount="1", sponsor=_SPONSOR
+            )
+        self.assertIn("`sponsor_flags` is required", str(cm.exception))
+
+    def test_sponsor_flags_may_not_be_zero(self):
+        """Zero flags sponsors nothing (rippled: temINVALID_FLAG)."""
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount="1",
+                sponsor=_SPONSOR,
+                sponsor_flags=0,
+            )
+        self.assertIn("must not be zero", str(cm.exception))
+
+    def test_delegate_cannot_be_combined_with_reserve_sponsorship(self):
+        """The created object's owner would be ambiguous (rippled: temINVALID)."""
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount="1",
+                delegate=_SPONSOR,
+                sponsor=_DESTINATION,
+                sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE,
+            )
+        self.assertIn("cannot be combined with `spfSponsorReserve`", str(cm.exception))
+
+    def test_delegate_with_fee_sponsorship_is_allowed(self):
+        """Only *reserve* sponsorship conflicts with delegation."""
+        tx = Payment(
+            account=_ACCOUNT,
+            destination=_DESTINATION,
+            amount="1",
+            delegate=_SPONSOR,
+            sponsor=_DESTINATION,
+            sponsor_flags=SponsorFlag.SPF_SPONSOR_FEE,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_sponsor_flag_enum_matches_the_wire_values(self):
+        """The enum is the documented spelling of the two bits."""
+        self.assertEqual(int(SponsorFlag.SPF_SPONSOR_FEE), 0x00000001)
+        self.assertEqual(int(SponsorFlag.SPF_SPONSOR_RESERVE), 0x00000002)
+        combined = Payment(
+            account=_ACCOUNT,
+            destination=_DESTINATION,
+            amount="1",
+            sponsor=_SPONSOR,
+            sponsor_flags=(
+                SponsorFlag.SPF_SPONSOR_FEE | SponsorFlag.SPF_SPONSOR_RESERVE
+            ),
+        )
+        self.assertEqual(combined.to_xrpl()["SponsorFlags"], 3)
+
+
+class TestBatchInnerSponsorRules(TestCase):
+    """An inner transaction is unsigned and its fee is zero.
+
+    Both facts constrain what sponsorship an inner may declare.
+    """
+
+    _OTHER = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+
+    def _inner(self, **overrides):
+        fields = {
+            "account": _ACCOUNT,
+            "destination": _DESTINATION,
+            "amount": "1",
+            "fee": "0",
+            "sequence": 1,
+            "signing_pub_key": "",
+            "flags": 0x40000000,
+        }
+        fields.update(overrides)
+        return Payment(**fields)
+
+    def _batch(self, inner):
+        return Batch(
+            account=_SPONSOR,
+            raw_transactions=[inner, self._inner(account=self._OTHER)],
+            flags=0x00010000,
+            fee="20",
+            sequence=1,
+        )
+
+    def test_inner_may_not_sponsor_the_fee(self):
+        """The outer Batch pays every inner's fee (rippled: temINVALID_FLAG)."""
+        with self.assertRaises(XRPLModelException) as cm:
+            self._batch(
+                self._inner(sponsor=_SPONSOR, sponsor_flags=SponsorFlag.SPF_SPONSOR_FEE)
+            )
+        self.assertIn("`SPF_SPONSOR_FEE` (0x1) is not allowed", str(cm.exception))
+
+    def test_inner_placeholder_may_not_carry_signers(self):
+        """The sponsor signs through the outer BatchSigners instead."""
+        with self.assertRaises(XRPLModelException) as cm:
+            self._batch(
+                self._inner(
+                    sponsor=_SPONSOR,
+                    sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE,
+                    sponsor_signature=SponsorSignature(
+                        signers=[
+                            Signer(
+                                account=_SPONSOR,
+                                signing_pub_key="ED000000",
+                                txn_signature="DEADBEEF",
+                            )
+                        ]
+                    ),
+                )
+            )
+        self.assertIn("must be an empty placeholder", str(cm.exception))
+
+    def test_both_legal_inner_shapes_are_accepted(self):
+        """Co-signed carries the empty placeholder; pre-funded omits it."""
+        co_signed = self._inner(
+            sponsor=_SPONSOR,
+            sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE,
+            sponsor_signature=SponsorSignature(),
+        )
+        pre_funded = self._inner(
+            sponsor=_SPONSOR, sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE
+        )
+        for label, inner in (("co-signed", co_signed), ("pre-funded", pre_funded)):
+            with self.subTest(shape=label):
+                self.assertTrue(self._batch(inner).is_valid())

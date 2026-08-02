@@ -22,7 +22,7 @@ from xrpl.models.response import ResponseStatus
 from xrpl.transaction import sign_as_sponsor
 from xrpl.wallet import Wallet
 
-# Sponsor-type flags (XLS-0068).
+# Sponsor-type flags.
 _TF_SPONSOR_RESERVE = 0x00000002
 
 

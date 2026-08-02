@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from xrpl.core.binarycodec import decode, encode
+from xrpl.core.binarycodec import decode, encode, encode_for_signing
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions.payment import Payment
 from xrpl.models.transactions.sponsor_signature import SponsorSignature
@@ -20,6 +20,22 @@ _TXN_SIGNATURE = (
     "3C5B15C76C3E4B8A0CEEF10220523D4C16C3F68C0840F1B1"
     "F4BF7D5F1C6D3DA2F9D0E4EB7A4E6BF1C3A5D7E9"
 )
+
+
+def _sponsored_payment(**overrides):
+    """A checksum-valid, reserve-sponsored Payment ready to encode."""
+    fields = {
+        "account": _ACCOUNT,
+        "destination": _DESTINATION,
+        "amount": "1000000",
+        "sequence": 1,
+        "fee": "10",
+        "signing_pub_key": _SIGNING_PUB_KEY,
+        "sponsor": _SPONSOR,
+        "sponsor_flags": 2,
+    }
+    fields.update(overrides)
+    return Payment(**fields)
 
 
 class TestSponsorSignature(TestCase):
@@ -127,6 +143,68 @@ class TestSponsorSignature(TestCase):
         self.assertEqual(decoded["SponsorSignature"], {})
         self.assertEqual(
             Payment.from_xrpl(decoded).sponsor_signature, SponsorSignature()
+        )
+
+    def test_populated_sponsor_signature_round_trips(self):
+        """Both the single-signed and multi-signed shapes survive the wire.
+
+        The empty placeholder is covered above; these are the shapes that
+        actually carry signatures, and only ``is_valid()`` had exercised them.
+        """
+        single = SponsorSignature(
+            signing_pub_key=_SIGNING_PUB_KEY, txn_signature=_TXN_SIGNATURE
+        )
+        multi = SponsorSignature(
+            signers=[
+                Signer(
+                    account=_SPONSOR,
+                    signing_pub_key=_SIGNING_PUB_KEY,
+                    txn_signature=_TXN_SIGNATURE,
+                )
+            ]
+        )
+        for label, sponsor_signature in (("single", single), ("multi", multi)):
+            with self.subTest(shape=label):
+                tx = _sponsored_payment(sponsor_signature=sponsor_signature)
+                rehydrated = Payment.from_xrpl(decode(encode(tx.to_xrpl())))
+                self.assertEqual(rehydrated.sponsor_signature, sponsor_signature)
+
+    def test_sponsor_signature_is_absent_from_the_signing_payload(self):
+        """``sfSponsorSignature`` is kNotSigning, so it cannot sign over itself.
+
+        This is what lets the sponsor sign a transaction the sponsee has already
+        signed: attaching the sponsor's signature leaves the payload both parties
+        signed byte-identical. If the field were a signing field, the sponsor's
+        own signature would invalidate the sponsee's.
+        """
+        unsigned = _sponsored_payment()
+        signed = _sponsored_payment(
+            sponsor_signature=SponsorSignature(
+                signing_pub_key=_SIGNING_PUB_KEY, txn_signature=_TXN_SIGNATURE
+            )
+        )
+        self.assertEqual(
+            encode_for_signing(unsigned.to_xrpl()),
+            encode_for_signing(signed.to_xrpl()),
+        )
+        # It is still serialized -- just not signed over.
+        self.assertIn("SponsorSignature", decode(encode(signed.to_xrpl())))
+
+    def test_sponsor_and_sponsor_flags_are_in_the_signing_payload(self):
+        """The terms of the sponsorship are signed, so they are tamper-evident.
+
+        The signature does not cover ``SponsorSignature``, but it must cover who
+        the sponsor is and what they agreed to pay for -- otherwise either party
+        could rewrite the deal after the other signed.
+        """
+        baseline = encode_for_signing(_sponsored_payment().to_xrpl())
+        self.assertNotEqual(
+            baseline,
+            encode_for_signing(_sponsored_payment(sponsor=_DESTINATION).to_xrpl()),
+        )
+        self.assertNotEqual(
+            baseline,
+            encode_for_signing(_sponsored_payment(sponsor_flags=1).to_xrpl()),
         )
 
     def test_invalid_sponsor_signature_missing_txn_signature(self):

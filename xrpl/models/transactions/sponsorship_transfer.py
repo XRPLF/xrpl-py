@@ -8,7 +8,11 @@ from typing import Dict, Optional
 
 from typing_extensions import Self
 
-from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
+from xrpl.models.transactions.transaction import (
+    SponsorFlag,
+    Transaction,
+    TransactionFlagInterface,
+)
 from xrpl.models.transactions.types import TransactionType
 
 
@@ -83,5 +87,42 @@ class SponsorshipTransfer(Transaction):
             errors["sponsee"] = (
                 "`sponsee` cannot be set when `TF_SPONSORSHIP_REASSIGN` is active."
             )
+
+        # Create and Reassign both name the incoming reserve sponsor, so they
+        # need `sponsor` (temMALFORMED) carrying `spfSponsorReserve`
+        # (temINVALID_FLAG).
+        if create or reassign:
+            operation = "TF_SPONSORSHIP_CREATE" if create else "TF_SPONSORSHIP_REASSIGN"
+            if self.sponsor is None:
+                errors["sponsor"] = (
+                    f"`sponsor` is required when `{operation}` is active; it "
+                    "names the sponsor taking on the reserve."
+                )
+            elif not (self.sponsor_flags or 0) & SponsorFlag.SPF_SPONSOR_RESERVE:
+                errors["sponsor_flags"] = (
+                    f"`sponsor_flags` must include `SPF_SPONSOR_RESERVE` (0x2) "
+                    f"when `{operation}` is active."
+                )
+
+        # Ending sponsorship removes a sponsor rather than naming one, so
+        # `sponsor` must be absent (temMALFORMED). `sponsor_flags` without
+        # `sponsor` is already rejected on the base transaction.
+        if end:
+            if self.sponsor is not None:
+                errors["sponsor"] = (
+                    "`sponsor` cannot be set when `TF_SPONSORSHIP_END` is active; "
+                    "ending removes the existing sponsor rather than naming one."
+                )
+            if self.sponsee is not None and self.sponsee == self.account:
+                errors["sponsee"] = (
+                    "`sponsee` must differ from `account`; omit it to end the "
+                    "submitter's own sponsorship."
+                )
+
+        # Not validated here: rippled also requires `SponsorSignature` on an
+        # account-level Create/Reassign (one with no `object_id`). That check
+        # cannot move to the model -- it runs at preflight, whereas models
+        # validate at construction, and the transaction must be constructible
+        # before anyone can sign it.
 
         return errors

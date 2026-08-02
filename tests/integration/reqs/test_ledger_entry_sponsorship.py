@@ -1,4 +1,9 @@
-"""Integration tests for LedgerEntry request with Sponsorship."""
+"""Integration tests for LedgerEntry with a Sponsorship object.
+
+Each setup creates a Sponsorship with a `fee_amount_delta`: a create must leave
+the object with a positive budget, or rippled rejects it with
+`tecNO_PERMISSION`.
+"""
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
@@ -21,8 +26,6 @@ class TestLedgerEntrySponsorship(IntegrationTestCase):
         await fund_wallet_async(sponsor_wallet)
         await fund_wallet_async(sponsee_wallet)
 
-        # Create a sponsorship object. A create must leave a positive budget --
-        # rippled rejects a budgetless Sponsorship with tecNO_PERMISSION.
         tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
@@ -32,7 +35,6 @@ class TestLedgerEntrySponsorship(IntegrationTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-        # Query via LedgerEntry with Sponsorship(owner, sponsee).
         ledger_response = await client.request(
             LedgerEntry(
                 sponsorship=Sponsorship(

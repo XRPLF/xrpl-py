@@ -1,4 +1,4 @@
-"""Unit tests for sign_as_sponsor (XLS-0068)."""
+"""Unit tests for sign_as_sponsor."""
 
 from unittest import TestCase
 

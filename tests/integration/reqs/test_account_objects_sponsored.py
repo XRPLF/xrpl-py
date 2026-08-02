@@ -1,5 +1,10 @@
-"""Integration tests for AccountObjects request with sponsored field and new
-AccountObjectType values for sponsored fees."""
+"""Integration tests for AccountObjects with the sponsored filter and the new
+sponsorship AccountObjectType values.
+
+Each setup creates a Sponsorship with a `fee_amount_delta`: a create must leave
+the object with a positive budget, or rippled rejects it with
+`tecNO_PERMISSION`.
+"""
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
@@ -21,10 +26,6 @@ class TestAccountObjectsSponsored(IntegrationTestCase):
         await fund_wallet_async(sponsor_wallet)
         await fund_wallet_async(sponsee_wallet)
 
-        # Create a sponsorship. A create must leave the object with a positive
-        # budget -- rippled rejects a budgetless Sponsorship with
-        # tecNO_PERMISSION, since it consumes the sponsor's reserve while being
-        # unusable.
         tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
@@ -34,7 +35,6 @@ class TestAccountObjectsSponsored(IntegrationTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-        # Query with sponsored=True on the sponsee's account
         account_objects_response = await client.request(
             AccountObjects(
                 account=sponsee_wallet.address,
@@ -80,10 +80,6 @@ class TestAccountObjectsSponsored(IntegrationTestCase):
         await fund_wallet_async(sponsor_wallet)
         await fund_wallet_async(sponsee_wallet)
 
-        # Create a sponsorship. A create must leave the object with a positive
-        # budget -- rippled rejects a budgetless Sponsorship with
-        # tecNO_PERMISSION, since it consumes the sponsor's reserve while being
-        # unusable.
         tx = SponsorshipSet(
             account=sponsor_wallet.address,
             sponsee=sponsee_wallet.address,
