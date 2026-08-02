@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added support for the XLS-68d Sponsored-Fees-Reserves amendment
 - Add support for Batch (XLS-56) `BatchV1_1` signing.
 
+### Changed
+
+- The binary codec now serializes negative XRP amounts. `SponsorshipSet.FeeAmountDelta` is a signed amount, and rippled's `STAmount` encodes the sign as a flag bit rather than two's complement. The codec is field-agnostic, so this applies to every `Amount` field: a negative value that previously raised `XRPLBinaryCodecException` locally is now serialized and rejected by the server with `temBAD_AMOUNT` instead. Transaction models are unaffected — `Payment` and friends still reject negative amounts during validation.
+
 ### Removed
 
 - Drop support for the older `Batch` signing format (never live on any network, so no existing signatures are affected).

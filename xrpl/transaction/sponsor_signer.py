@@ -147,9 +147,12 @@ def sign_as_sponsor(
 
     if not multisign and tx.sponsor_signature is not None:
         raise XRPLException(
-            "Transaction already has a `sponsor_signature`. "
-            "Use multisign=True to add additional signatures to "
-            "`SponsorSignature.Signers`."
+            "Transaction already has a `sponsor_signature`. To collect several "
+            "sponsor signatures, have each key holder call this function with "
+            "`multisign=True` on the *same* transaction, then merge the results "
+            "with `combine_sponsor_signers`. Calling it again on an "
+            "already-signed transaction would replace the existing signature, "
+            "not add to it."
         )
 
     # The sponsor signs the same canonical data as the sponsee, and that data
@@ -165,9 +168,6 @@ def sign_as_sponsor(
             "`sponsee_multisign=True` if the sponsee multi-signs and the empty "
             "value is intentional."
         )
-    tx_dict = tx.to_dict()
-    tx = Transaction.from_dict(tx_dict)
-
     tx_json = tx.to_xrpl()
 
     # Resolve multisign address (if any).
