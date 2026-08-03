@@ -20,6 +20,7 @@ from xrpl.models.required import REQUIRED
 class StreamParameter(str, Enum):
     """Represents possible values of the streams query param for subscribe."""
 
+    BOOK_CHANGES = "book_changes"
     CONSENSUS = "consensus"
     LEDGER = "ledger"
     MANIFESTS = "manifests"
