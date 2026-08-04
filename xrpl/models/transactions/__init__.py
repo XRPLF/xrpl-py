@@ -126,6 +126,7 @@ from xrpl.models.transactions.ticket_create import TicketCreate
 from xrpl.models.transactions.transaction import (
     Memo,
     Signer,
+    SponsorFlag,
     Transaction,
     TransactionFlag,
     TransactionFlagInterface,
@@ -264,6 +265,7 @@ __all__ = [
     "SponsorshipTransferFlagInterface",
     "TicketCreate",
     "Transaction",
+    "SponsorFlag",
     "TransactionFlag",
     "TransactionFlagInterface",
     "TransactionMetadata",

@@ -9,14 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added support for the XLS-68d Sponsored-Fees-Reserves amendment
 - Support for `Dynamic Multi-Purpose Tokens` (XLS-94d)
 - Support for `Confidential MPT` (XLS-96): the `ConfidentialMPTConvert`, `ConfidentialMPTConvertBack`, `ConfidentialMPTSend`, `ConfidentialMPTMergeInbox`, and `ConfidentialMPTClawback` transactions, plus the `MPTokenIssuanceCreate`/`MPTokenIssuanceSet` fields and flags for holding confidential balances (`tfMPTCanHoldConfidentialBalance`, `tmfMPTCannotEnableCanHoldConfidentialBalance`, `tmfMPTSetCanHoldConfidentialBalance`). The optional native cryptography (proof generation and balance decryption) is provided by the separate `xrpl.ext.confidential` extension.
+- Add support for Batch (XLS-56) `BatchV1_1` signing.
 - `sign_multiaccount_batch` accepts a `batch_account` argument (sign on behalf of an account when the signing key differs, e.g. a regular key) and a string `multisign` value (multi-sign as a specific account). The counterparty of an inner transaction now counts as an involved account.
+
+### Changed
+
+- The binary codec now serializes negative XRP amounts. `SponsorshipSet.FeeAmountDelta` is a signed amount, and rippled's `STAmount` encodes the sign as a flag bit rather than two's complement. The codec is field-agnostic, so this applies to every `Amount` field: a negative value that previously raised `XRPLBinaryCodecException` locally is now serialized and rejected by the server with `temBAD_AMOUNT` instead. Transaction models are unaffected — `Payment` and friends still reject negative amounts during validation.
 
 ### Fixed
 
 - Updated Batch (XLS-56) signing to the V1_1 payload from [rippled #6446](https://github.com/XRPLF/rippled/pull/6446). `encode_for_signing_batch` now binds the outer `Account` and `Sequence` (or `TicketSequence`), the `BatchSigner` account, and — for multi-signed batch signers — the inner signer account into the signed data, preventing signature replay across outer accounts/sequences. (Batch is still in active development and not live on any network, so no existing signatures are affected.)
 - `combine_batch_signers` now rejects fragments that disagree on the outer account, sequence value, flags, or inner transaction IDs (previously only flags and `RawTransactions` were checked) and de-duplicates `BatchSigners` by account so the combined array is strictly ascending and unique.
+
+### Removed
+
+- Drop support for the older `Batch` signing format (never live on any network, so no existing signatures are affected).
 
 ## [[5.0.0]]
 
@@ -25,10 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dropped support for Python 3.8 (EOL October 2024) and Python 3.9 (EOL October 2025). The minimum supported Python version is now 3.10.
 - Ensure consistent use of ED25519 as the default cryptographic algorithm in `Wallet.from_secret_numbers` method. This change ensures consistency across the entire Wallet class, where ED25519 is used as the default Cryptographic signing algorithm.
 - `Wallet.from_seed` and `Wallet.from_secret` no longer default to `ED25519` when `algorithm` is omitted. The algorithm is now inferred from the seed prefix: `sEd...` seeds derive an ED25519 keypair, all other family seeds (`s...`) derive a SECP256K1 keypair. This fixes the long-standing case where ingesting a secp256k1 family seed without an explicit algorithm silently produced an ED25519 keypair for an unrelated account. Callers that previously relied on the ED25519 default being applied to an `s...` family seed must now pass `algorithm=CryptoAlgorithm.ED25519` explicitly to keep deriving the same keypair. Callers that pass an explicit `algorithm` are unaffected. `Wallet.create`, `Wallet.from_entropy`, and `Wallet.from_secret_numbers` continue to default to ED25519 (they generate a fresh seed rather than ingesting one, so there is no prefix to infer from).
-
-### Added
-
-- Added support for the XLS-68d Sponsored-Fees-Reserves amendment
 
 ### Fixed
 

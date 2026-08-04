@@ -1,5 +1,10 @@
 from unittest import TestCase
 
+from xrpl.core.binarycodec import decode, encode
+from xrpl.core.binarycodec.definitions.definitions import (
+    _DELEGABLE_PERMISSIONS_CODE_TO_STR_MAP,
+    _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP,
+)
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import DelegateSet
 from xrpl.models.transactions.delegate_set import (
@@ -140,3 +145,76 @@ class TestDelegateSet(TestCase):
                     authorize=_DELEGATED_ACCOUNT,
                     permissions=[Permission(permission_value=tx_type)],
                 )
+
+    def test_delegate_sponsorship_set_is_valid(self):
+        """SponsorshipSet can be delegated at the transaction level."""
+        tx = DelegateSet(
+            account=_ACCOUNT,
+            authorize=_DELEGATED_ACCOUNT,
+            permissions=[Permission(permission_value=TransactionType.SPONSORSHIP_SET)],
+        )
+        self.assertTrue(tx.is_valid())
+        d = tx.to_dict()
+        self.assertEqual(
+            d["permissions"][0]["permission"]["permission_value"], "SponsorshipSet"
+        )
+
+    def test_delegate_sponsorship_set_to_xrpl_camel_case(self):
+        """to_xrpl() emits CamelCase keys for a SponsorshipSet delegation."""
+        tx = DelegateSet(
+            account=_ACCOUNT,
+            authorize=_DELEGATED_ACCOUNT,
+            permissions=[Permission(permission_value=TransactionType.SPONSORSHIP_SET)],
+        )
+        xrpl_dict = tx.to_xrpl()
+        self.assertIn("Permissions", xrpl_dict)
+        perm = xrpl_dict["Permissions"][0]
+        self.assertEqual(perm["Permission"]["PermissionValue"], "SponsorshipSet")
+
+    def test_delegate_sponsorship_set_roundtrip(self):
+        """Roundtrip preserves the SponsorshipSet transaction-level permission."""
+        tx = DelegateSet(
+            account=_ACCOUNT,
+            authorize=_DELEGATED_ACCOUNT,
+            permissions=[Permission(permission_value=TransactionType.SPONSORSHIP_SET)],
+        )
+        roundtripped = DelegateSet.from_dict(tx.to_dict())
+        self.assertEqual(
+            roundtripped.permissions[0].permission_value,
+            TransactionType.SPONSORSHIP_SET,
+        )
+
+    def test_sponsorship_set_is_delegable_permission(self):
+        """SponsorshipSet maps to a delegation code (tx-type code + 1)."""
+        code = _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP["SponsorshipSet"]
+        self.assertEqual(_DELEGABLE_PERMISSIONS_CODE_TO_STR_MAP[code], "SponsorshipSet")
+
+    def test_removed_granular_sponsor_permissions_absent(self):
+        """The old SponsorFee / SponsorReserve granular permissions are gone."""
+        self.assertNotIn("SponsorFee", _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP)
+        self.assertNotIn("SponsorReserve", _DELEGABLE_PERMISSIONS_STR_TO_CODE_MAP)
+
+    def test_sponsorship_set_delegation_binary_roundtrip(self):
+        """A SponsorshipSet delegation encodes/decodes via the binary codec."""
+        tx = DelegateSet(
+            account=_ACCOUNT,
+            authorize=_DELEGATED_ACCOUNT,
+            permissions=[Permission(permission_value=TransactionType.SPONSORSHIP_SET)],
+            sequence=1,
+            fee="12",
+        )
+        decoded = decode(encode(tx.to_xrpl()))
+        perm_value = decoded["Permissions"][0]["Permission"]["PermissionValue"]
+        self.assertEqual(perm_value, "SponsorshipSet")
+
+    def test_delegate_sponsorship_transfer_rejected(self):
+        """SponsorshipTransfer is not delegable and must be rejected."""
+        with self.assertRaises(XRPLModelException) as cm:
+            DelegateSet(
+                account=_ACCOUNT,
+                authorize=_DELEGATED_ACCOUNT,
+                permissions=[
+                    Permission(permission_value=TransactionType.SPONSORSHIP_TRANSFER)
+                ],
+            )
+        self.assertIn("Non-delegable", str(cm.exception))

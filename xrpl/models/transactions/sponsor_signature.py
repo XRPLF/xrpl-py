@@ -1,4 +1,4 @@
-"""Model for the SponsorSignature inner object used in SponsorshipSet."""
+"""Model for the SponsorSignature transaction common field."""
 
 from __future__ import annotations
 
@@ -14,13 +14,30 @@ from xrpl.models.transactions.transaction import Signer
 @dataclass(frozen=True, kw_only=True)
 class SponsorSignature(BaseModel):
     """
-    Signature payload supplied by the sponsor.
+    The sponsor's signing information for a fee-/reserve-sponsored transaction.
+
     Fields:
     - signing_pub_key: hex-encoded public key of the sponsor (required if
     txn_signature is set).
     - txn_signature: hex-encoded signature over the canonical transaction
     (required if signing_pub_key is set).
     - signers: optional multisign array reusing the standard Signer objects.
+
+    All three fields are optional, and an **empty** ``SponsorSignature()`` is a
+    valid, meaningful value in two cases:
+
+    - **Batch inner transactions**. An inner transaction that
+      names a ``sponsor`` must carry an empty placeholder; its *presence* --
+      not its contents -- is what tells the ledger that the named sponsor needs
+      an entry in the outer transaction's ``BatchSigners``. Populating any of
+      the three fields on an inner transaction is rejected.
+    - **``simulate``**. The server autofills the sponsor's
+      signing fields only when the field is present, so a dry run of a
+      sponsored transaction supplies the empty object.
+
+    For an ordinary submitted transaction, populate either
+    ``signing_pub_key`` + ``txn_signature`` (single-sign) or ``signers``
+    (multi-sign) -- see :func:`xrpl.transaction.sign_as_sponsor`.
     """
 
     signing_pub_key: Optional[str] = None
@@ -39,11 +56,6 @@ class SponsorSignature(BaseModel):
             errors["SponsorSignature"] = (
                 "Cannot set both single-signature fields "
                 "(`signing_pub_key`/`txn_signature`) and `signers`."
-            )
-        elif not has_single_sig and not has_multi_sig:
-            errors["SponsorSignature"] = (
-                "Must provide either (`signing_pub_key` + `txn_signature`) "
-                "for single-signature or `signers` for multi-signature."
             )
         elif has_single_sig:
             if self.signing_pub_key is None:

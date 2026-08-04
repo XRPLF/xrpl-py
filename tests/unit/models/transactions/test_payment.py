@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.exceptions import XRPLModelException
+from xrpl.models.path import PathStep
 from xrpl.models.transactions import Payment, PaymentFlag
 from xrpl.wallet import Wallet
 
@@ -310,7 +311,7 @@ class TestPayment(TestCase):
         self.assertEqual(PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT, 0x00080000)
 
     # ------------------------------------------------------------------ #
-    #  Issue 11 — TF_SPONSOR_CREATED_ACCOUNT mutual-exclusion validation  #
+    #  TF_SPONSOR_CREATED_ACCOUNT mutual-exclusion validation             #
     # ------------------------------------------------------------------ #
 
     def test_invalid_sponsor_created_account_with_no_ripple_direct(self):
@@ -385,3 +386,60 @@ class TestPayment(TestCase):
         exception_str = str(cm.exception)
         self.assertIn("`TF_NO_RIPPLE_DIRECT`", exception_str)
         self.assertIn("`TF_PARTIAL_PAYMENT`", exception_str)
+
+
+class TestSponsorCreatedAccountPaymentShape(TestCase):
+    """`tfSponsorCreatedAccount` funds a reserve, so it must be plain XRP."""
+
+    _IOU = IssuedCurrencyAmount(currency="USD", issuer=_DESTINATION, value="10")
+    _FLAG = PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT
+
+    def test_rejects_issued_currency_amount(self):
+        """rippled: `!dstAmount.native()` -> temBAD_AMOUNT."""
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount=self._IOU,
+                send_max=self._IOU,
+                flags=self._FLAG,
+            )
+        self.assertIn("requires an XRP `amount`", str(cm.exception))
+
+    def test_rejects_send_max(self):
+        """rippled: `isFieldPresent(sfSendMax)` -> temINVALID."""
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount="1000000",
+                send_max=self._IOU,
+                flags=self._FLAG,
+            )
+        self.assertIn("`send_max`", str(cm.exception))
+
+    def test_rejects_paths_even_with_an_issued_amount(self):
+        """`paths` is otherwise only rejected for an XRP amount.
+
+        Without a flag-specific rule an issued amount would carry paths straight
+        past the model and fail at the server instead.
+        """
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount=self._IOU,
+                send_max=self._IOU,
+                flags=self._FLAG,
+                paths=[[PathStep(account=_DESTINATION)]],
+            )
+        self.assertIn("`paths`", str(cm.exception))
+
+    def test_plain_xrp_payment_is_accepted(self):
+        tx = Payment(
+            account=_ACCOUNT,
+            destination=_DESTINATION,
+            amount="1000000",
+            flags=self._FLAG,
+        )
+        self.assertTrue(tx.is_valid())

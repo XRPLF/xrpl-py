@@ -73,7 +73,11 @@ def verify_xrp_value(xrp_value: str) -> None:
     # Zero is less than both the min and max XRP amounts but is valid.
     if decimal.is_zero():
         return
-    if (decimal.compare(_MIN_XRP) == -1) or (decimal.compare(_MAX_DROPS) == 1):
+    # Signed XRP is legal in delta fields (SponsorshipSet's FeeAmountDelta), so
+    # range-check the magnitude. `copy_abs` not `abs`: under the caller's
+    # IOU_DECIMAL_CONTEXT `abs` rounds to 16 digits, admitting 1e17 + 1 drops.
+    magnitude = decimal.copy_abs()
+    if (magnitude.compare(_MIN_XRP) == -1) or (magnitude.compare(_MAX_DROPS) == 1):
         raise XRPLBinaryCodecException(f"{xrp_value} is an invalid XRP amount.")
 
 
@@ -236,9 +240,12 @@ def _serialize_xrp_amount(value: str) -> bytes:
         The bytes representing the serialized XRP amount.
     """
     verify_xrp_value(value)
-    # set the "is positive" bit (this is backwards from usual two's complement!)
-    value_with_pos_bit = int(value) | _POS_SIGN_BIT_MASK
-    return value_with_pos_bit.to_bytes(8, byteorder="big")
+    # The sign is a flag bit, not two's complement (rippled STAmount::add):
+    # bits 0-61 hold the magnitude, bit 62 is set when the amount is not negative.
+    drops = int(value)
+    magnitude = abs(drops)
+    sign_bit = _POS_SIGN_BIT_MASK if drops >= 0 else 0
+    return (magnitude | sign_bit).to_bytes(8, byteorder="big")
 
 
 def _serialize_issued_currency_amount(value: Dict[str, str]) -> bytes:

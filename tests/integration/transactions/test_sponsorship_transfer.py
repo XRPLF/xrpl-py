@@ -1,4 +1,4 @@
-"""Integration tests for SponsorshipTransfer transaction type (XLS-68)."""
+"""Integration tests for SponsorshipTransfer transaction type."""
 
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
@@ -8,9 +8,6 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from xrpl.asyncio.transaction import autofill, sign, submit
-from xrpl.core.addresscodec import decode_classic_address
-from xrpl.core.binarycodec import encode_for_multisigning, encode_for_signing
-from xrpl.core.keypairs import sign as keypairs_sign
 from xrpl.models import (
     AccountObjects,
     AccountObjectType,
@@ -20,32 +17,17 @@ from xrpl.models import (
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions import SignerEntry, SignerListSet
 from xrpl.models.transactions.sponsorship_transfer import SponsorshipTransferFlag
+from xrpl.transaction import combine_sponsor_signers, sign_as_sponsor
 from xrpl.wallet import Wallet
 
 
-def _build_sponsor_signed_tx(transfer_tx, sponsee_wallet, sponsor_wallet):
-    """Sign a SponsorshipTransfer as the sponsee, then co-sign.
+def _sponsee_then_sponsor(transfer_tx, sponsee_wallet, sponsor_wallet):
+    """Sign as the sponsee, then have the sponsor co-sign.
 
-    Returns a fully-signed SponsorshipTransfer ready to submit.
+    Thin wrapper over the public API so each call site stays one line; the
+    signing itself is `sign_as_sponsor`, not a reimplementation of it.
     """
-    # Sign as the sponsee (primary signer) — sets SigningPubKey
-    signed_tx = sign(transfer_tx, sponsee_wallet)
-
-    # Compute the sponsor's co-signature over the signed tx.
-    # SigningPubKey (isSigningField=true) is included in the hash;
-    # TxnSignature/SponsorSignature (isSigningField=false) excluded.
-    tx_json = signed_tx.to_xrpl()
-    sponsor_sig = keypairs_sign(
-        bytes.fromhex(encode_for_signing(tx_json)),
-        sponsor_wallet.private_key,
-    )
-
-    # Attach the SponsorSignature
-    tx_json["SponsorSignature"] = {
-        "SigningPubKey": sponsor_wallet.public_key,
-        "TxnSignature": sponsor_sig,
-    }
-    return SponsorshipTransfer.from_xrpl(tx_json)
+    return sign_as_sponsor(sponsor_wallet, sign(transfer_tx, sponsee_wallet)).tx
 
 
 class TestSponsorshipTransfer(IntegrationTestCase):
@@ -55,6 +37,11 @@ class TestSponsorshipTransfer(IntegrationTestCase):
         ["xrpl.transaction.autofill", "xrpl.transaction.submit"],
     )
     async def test_basic_sponsorship_transfer(self, client):
+        """Account-level sponsorship: CREATE, then REASSIGN to a new sponsor.
+
+        With no `object_id` the target is the sponsee's own account reserve, so
+        this covers the account-level path that `test_object_level_...` does not.
+        """
         sponsor_wallet = Wallet.create()
         sponsee_wallet = Wallet.create()
         new_sponsor_wallet = Wallet.create()
@@ -72,7 +59,7 @@ class TestSponsorshipTransfer(IntegrationTestCase):
             sponsor=sponsor_wallet.address,
         )
         create_tx = await autofill(create_tx, client)
-        final_create_tx = _build_sponsor_signed_tx(
+        final_create_tx = _sponsee_then_sponsor(
             create_tx, sponsee_wallet, sponsor_wallet
         )
         create_response = await submit(final_create_tx, client)
@@ -88,7 +75,7 @@ class TestSponsorshipTransfer(IntegrationTestCase):
             sponsor=new_sponsor_wallet.address,
         )
         reassign_tx = await autofill(reassign_tx, client)
-        final_reassign_tx = _build_sponsor_signed_tx(
+        final_reassign_tx = _sponsee_then_sponsor(
             reassign_tx, sponsee_wallet, new_sponsor_wallet
         )
         reassign_response = await submit(final_reassign_tx, client)
@@ -118,7 +105,7 @@ class TestSponsorshipTransfer(IntegrationTestCase):
             sponsor=sponsor_wallet.address,
         )
         create_tx = await autofill(create_tx, client)
-        final_create_tx = _build_sponsor_signed_tx(
+        final_create_tx = _sponsee_then_sponsor(
             create_tx, sponsee_wallet, sponsor_wallet
         )
         create_response = await submit(final_create_tx, client)
@@ -179,35 +166,21 @@ class TestSponsorshipTransfer(IntegrationTestCase):
             sponsor_flags=2,
             sponsor=sponsor_wallet.address,
         )
-        create_tx = await autofill(create_tx, client)
+        # Two sponsor signers are attached below, and `Fee` is a signing field --
+        # final before those signatures exist -- so the count must be declared.
+        # base * (1 + |tx.Signers| + |SponsorSignature.Signers|) = base * 3.
+        create_tx = await autofill(create_tx, client, sponsor_signers_count=2)
 
-        # Sign as the sponsee (primary signer).
+        # Sign as the sponsee (primary signer), then each sponsor key holder
+        # contributes independently and the contributions are merged.
         signed_tx = sign(create_tx, sponsee_wallet)
-        tx_json = signed_tx.to_xrpl()
-
-        # Each signer signs via encode_for_multisigning.
-        signers = []
-        for signer_wallet in [signer1, signer2]:
-            sig = keypairs_sign(
-                bytes.fromhex(encode_for_multisigning(tx_json, signer_wallet.address)),
-                signer_wallet.private_key,
-            )
-            signers.append(
-                {
-                    "Signer": {
-                        "Account": signer_wallet.address,
-                        "SigningPubKey": signer_wallet.public_key,
-                        "TxnSignature": sig,
-                    }
-                }
-            )
-
-        # Sort signers by decoded account (XRPL requirement).
-        signers.sort(key=lambda s: decode_classic_address(s["Signer"]["Account"]))
-
-        # Attach multi-signed SponsorSignature.
-        tx_json["SponsorSignature"] = {"Signers": signers}
-        final_tx = SponsorshipTransfer.from_xrpl(tx_json)
+        final_tx = combine_sponsor_signers(
+            [
+                sign_as_sponsor(signer1, signed_tx, multisign=True).tx,
+                sign_as_sponsor(signer2, signed_tx, multisign=True).tx,
+            ]
+        ).tx
+        self.assertEqual(len(final_tx.sponsor_signature.signers), 2)
 
         create_response = await submit(final_tx, client)
         await client.request(LEDGER_ACCEPT_REQUEST)
@@ -263,7 +236,7 @@ class TestSponsorshipTransfer(IntegrationTestCase):
             sponsor=sponsor_wallet.address,
         )
         create_tx = await autofill(create_tx, client)
-        final_create_tx = _build_sponsor_signed_tx(
+        final_create_tx = _sponsee_then_sponsor(
             create_tx, sponsee_wallet, sponsor_wallet
         )
         create_response = await submit(final_create_tx, client)
@@ -280,7 +253,7 @@ class TestSponsorshipTransfer(IntegrationTestCase):
             sponsor=new_sponsor_wallet.address,
         )
         reassign_tx = await autofill(reassign_tx, client)
-        final_reassign_tx = _build_sponsor_signed_tx(
+        final_reassign_tx = _sponsee_then_sponsor(
             reassign_tx, sponsee_wallet, new_sponsor_wallet
         )
         reassign_response = await submit(final_reassign_tx, client)

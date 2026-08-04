@@ -2521,7 +2521,7 @@
       "type_id": 6,
       "is_native": true,
       "type": "Amount",
-      "error": "Value is negative",
+      "expected_hex": "0000000000000001",
       "is_negative": true
     },
     {
