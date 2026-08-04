@@ -6,7 +6,7 @@ from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import (
     MPTokenIssuanceCreate,
     MPTokenIssuanceCreateFlag,
-    MPTokenIssuanceCreateMutableFlag,
+    MPTokenIssuanceImmutableFlag,
 )
 from xrpl.utils import str_to_hex
 from xrpl.utils.mptoken_metadata import encode_mptoken_metadata
@@ -112,39 +112,22 @@ class TestMPTokenIssuanceCreate(TestCase):
             )
 
     # DynamicMPT tests
-    def test_tx_with_mutable_flags(self):
-        tx = MPTokenIssuanceCreate(
-            account=_ACCOUNT,
-            flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_TRANSFER,
-            transfer_fee=100,
-            mutable_flags=MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_METADATA
-            | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_MUTATE_TRANSFER_FEE,
-        )
+    def test_tx_with_all_immutable_flags(self):
+        """All ImmutableFlags bits combined are valid."""
+        all_flags = 0
+        for flag in MPTokenIssuanceImmutableFlag:
+            all_flags |= flag.value
+        tx = MPTokenIssuanceCreate(account=_ACCOUNT, immutable_flags=all_flags)
         self.assertTrue(tx.is_valid())
 
-    def test_tx_with_all_can_enable_flags(self):
-        """All six CanEnable boolean mutable flags combined are valid."""
-        tx = MPTokenIssuanceCreate(
-            account=_ACCOUNT,
-            mutable_flags=(
-                MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_LOCK
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_REQUIRE_AUTH
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_ESCROW
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_TRADE
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_TRANSFER
-                | MPTokenIssuanceCreateMutableFlag.TMF_MPT_CAN_ENABLE_CAN_CLAWBACK
-            ),
-        )
-        self.assertTrue(tx.is_valid())
-
-    def test_tx_mutable_flags_invalid_fails(self):
-        # Reserved bit 0x00000001, and 0 (no flags declared)
+    def test_tx_immutable_flags_invalid_fails(self):
+        # Reserved bit 0x00000001, and 0 (nothing declared immutable)
         cases = [
-            (0x00000001, "mutable_flags contains invalid or reserved bits"),
-            (0, "mutable_flags cannot be 0"),
+            (0x00000001, "immutable_flags contains invalid or reserved bits"),
+            (0, "immutable_flags cannot be 0"),
         ]
         for value, message in cases:
-            with self.subTest(mutable_flags=value):
+            with self.subTest(immutable_flags=value):
                 with self.assertRaises(XRPLModelException) as error:
-                    MPTokenIssuanceCreate(account=_ACCOUNT, mutable_flags=value)
+                    MPTokenIssuanceCreate(account=_ACCOUNT, immutable_flags=value)
                 self.assertIn(message, error.exception.args[0])
