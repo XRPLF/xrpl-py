@@ -68,6 +68,19 @@ class TestMPTokenIssuanceSet(TestCase):
             error.exception.args[0],
         )
 
+    def test_domain_id_with_holder_fails(self):
+        """domain_id and holder are mutually exclusive."""
+        with self.assertRaises(XRPLModelException) as error:
+            MPTokenIssuanceSet(
+                account=_ACCOUNT,
+                mptoken_issuance_id=_TOKEN_ID,
+                holder=_HOLDER,
+                domain_id="A" * 64,
+            )
+        self.assertIn(
+            "domain_id and holder cannot both be set", error.exception.args[0]
+        )
+
     # --- DynamicMPT: capability-setting flags + all dynamic fields ---
     def test_valid_with_all_dynamic_fields(self):
         """Multiple capability flags, multiple immutable_flags, metadata, and

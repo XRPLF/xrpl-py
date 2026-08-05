@@ -183,6 +183,10 @@ class MPTokenIssuanceSet(Transaction):
                 "flag conflict: both TF_MPT_LOCK and TF_MPT_UNLOCK can't be set"
             )
 
+        # domain_id and holder are mutually exclusive.
+        if self.domain_id is not None and self.holder is not None:
+            errors["domain_id"] = "domain_id and holder cannot both be set"
+
         # A transaction "mutates the issuance" if it sets any capability flag,
         # updates metadata / transfer_fee, or declares immutability.
         has_capability_flag = any(self.has_flag(f) for f in _CAPABILITY_SET_FLAGS)
