@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- The binary codec now serializes negative XRP amounts. `SponsorshipSet.FeeAmountDelta` is a signed amount, and rippled's `STAmount` encodes the sign as a flag bit rather than two's complement. The codec is field-agnostic, so this applies to every `Amount` field: a negative value that previously raised `XRPLBinaryCodecException` locally is now serialized and rejected by the server with `temBAD_AMOUNT` instead. Transaction models are unaffected — `Payment` and friends still reject negative amounts during validation.
+- The binary codec now serializes negative XRP amounts. `SponsorshipSet.FeeAmountDelta` is a signed amount, and rippled's `STAmount` encodes the sign as a flag bit rather than two's complement. The codec is field-agnostic, so this applies to every `Amount` field: a negative value such as `Payment(amount="-1000000")` or a negative `fee` previously raised `XRPLBinaryCodecException` at encode time and is now serialized, to be rejected by the server with `temBAD_AMOUNT`. No transaction model checks the sign of an `Amount` field, so this removes the only client-side guard against a negative amount. Callers that relied on it should validate before submitting.
 
 ### Removed
 
