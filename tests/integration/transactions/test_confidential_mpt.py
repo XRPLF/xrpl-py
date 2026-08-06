@@ -68,6 +68,27 @@ class TestConfidentialMPT(IntegrationTestCase):
             f"{label}: {response.result}",
         )
 
+    async def _decrypt_balance(
+        self, client, crypto, account, mpt_id, privkey, field, range_high=100000
+    ):
+        """Decrypt an ElGamal balance blob (c1||c2) on the holder's MPToken.
+
+        ``field`` is a balance SField such as ConfidentialBalanceSpending,
+        ConfidentialBalanceInbox, IssuerEncryptedBalance or
+        AuditorEncryptedBalance. Returns 0 when the field is absent.
+        """
+        node = (
+            await client.request(
+                LedgerEntry(
+                    mptoken=MPTokenQuery(account=account, mpt_issuance_id=mpt_id)
+                )
+            )
+        ).result["node"]
+        blob = node.get(field, "")
+        if not blob:
+            return 0
+        return crypto.decrypt(privkey, blob[:66], blob[66:132], 0, range_high)
+
     @test_async_and_sync(globals(), _SYNC_BUILDERS)
     async def test_confidential_mpt_workflow(self, client):
         crypto = MPTCrypto()
@@ -82,6 +103,10 @@ class TestConfidentialMPT(IntegrationTestCase):
         issuer_sk, issuer_pk = crypto.generate_keypair()
         holder1_sk, holder1_pk = crypto.generate_keypair()
         holder2_sk, holder2_pk = crypto.generate_keypair()
+        # Auditor key: once registered on the issuance, every confidential
+        # transaction must carry an auditor ciphertext, so it is threaded through
+        # all builders below and its mirror balance is asserted at the end.
+        auditor_sk, auditor_pk = crypto.generate_keypair()
 
         # Create a confidential-capable MPT issuance.
         create_res = await sign_and_reliable_submission_async(
@@ -105,18 +130,19 @@ class TestConfidentialMPT(IntegrationTestCase):
         )
         mpt_id = tx_res.result["meta"]["mpt_issuance_id"]
 
-        # Register the issuer's ElGamal key on the issuance.
+        # Register the issuer's and auditor's ElGamal keys on the issuance.
         self._assert_success(
             await sign_and_reliable_submission_async(
                 MPTokenIssuanceSet(
                     account=issuer.address,
                     mptoken_issuance_id=mpt_id,
                     issuer_encryption_key=issuer_pk,
+                    auditor_encryption_key=auditor_pk,
                 ),
                 issuer,
                 client,
             ),
-            "MPTokenIssuanceSet (issuer key)",
+            "MPTokenIssuanceSet (issuer + auditor keys)",
         )
 
         # Authorize both holders.
@@ -167,6 +193,7 @@ class TestConfidentialMPT(IntegrationTestCase):
             holder_privkey=holder1_sk,
             holder_pubkey=holder1_pk,
             issuer_pubkey=issuer_pk,
+            auditor_pubkey=auditor_pk,
         )
         self._assert_success(
             await sign_and_reliable_submission_async(convert_tx, holder1, client),
@@ -179,6 +206,20 @@ class TestConfidentialMPT(IntegrationTestCase):
             await sign_and_reliable_submission_async(merge_tx, holder1, client),
             "ConfidentialMPTMergeInbox (holder1)",
         )
+        # After converting 1000 and merging the inbox, holder1's decrypted
+        # spending balance must be exactly 1000.
+        self.assertEqual(
+            await self._decrypt_balance(
+                client,
+                crypto,
+                holder1.classic_address,
+                mpt_id,
+                holder1_sk,
+                "ConfidentialBalanceSpending",
+            ),
+            1000,
+            "holder1 spending balance after convert+merge",
+        )
 
         # holder2: convert (this also registers holder2's ElGamal key).
         convert_h2 = await prepare_confidential_convert_async(
@@ -189,6 +230,7 @@ class TestConfidentialMPT(IntegrationTestCase):
             holder_privkey=holder2_sk,
             holder_pubkey=holder2_pk,
             issuer_pubkey=issuer_pk,
+            auditor_pubkey=auditor_pk,
         )
         self._assert_success(
             await sign_and_reliable_submission_async(convert_h2, holder2, client),
@@ -206,6 +248,7 @@ class TestConfidentialMPT(IntegrationTestCase):
             sender_pubkey=holder1_pk,
             receiver_pubkey=holder2_pk,
             issuer_pubkey=issuer_pk,
+            auditor_pubkey=auditor_pk,
         )
         self._assert_success(
             await sign_and_reliable_submission_async(send_tx, holder1, client),
@@ -218,6 +261,32 @@ class TestConfidentialMPT(IntegrationTestCase):
             await sign_and_reliable_submission_async(merge_h2, holder2, client),
             "ConfidentialMPTMergeInbox (holder2)",
         )
+        # holder1 sent 300 of its 1000 -> 700 remaining. holder2 converted 100
+        # then received 300 and merged -> 400. Confirm both by decryption.
+        self.assertEqual(
+            await self._decrypt_balance(
+                client,
+                crypto,
+                holder1.classic_address,
+                mpt_id,
+                holder1_sk,
+                "ConfidentialBalanceSpending",
+            ),
+            700,
+            "holder1 spending balance after send",
+        )
+        self.assertEqual(
+            await self._decrypt_balance(
+                client,
+                crypto,
+                holder2.classic_address,
+                mpt_id,
+                holder2_sk,
+                "ConfidentialBalanceSpending",
+            ),
+            400,
+            "holder2 spending balance after receiving send",
+        )
 
         # holder1: convert confidential back to public.
         convert_back_tx = await prepare_confidential_convert_back_async(
@@ -228,10 +297,24 @@ class TestConfidentialMPT(IntegrationTestCase):
             holder_privkey=holder1_sk,
             holder_pubkey=holder1_pk,
             issuer_pubkey=issuer_pk,
+            auditor_pubkey=auditor_pk,
         )
         self._assert_success(
             await sign_and_reliable_submission_async(convert_back_tx, holder1, client),
             "ConfidentialMPTConvertBack",
+        )
+        # holder1 converted 200 back to public -> 500 confidential remaining.
+        self.assertEqual(
+            await self._decrypt_balance(
+                client,
+                crypto,
+                holder1.classic_address,
+                mpt_id,
+                holder1_sk,
+                "ConfidentialBalanceSpending",
+            ),
+            500,
+            "holder1 spending balance after convert-back",
         )
 
         # Issuer claws back holder2's confidential balance.
@@ -252,7 +335,21 @@ class TestConfidentialMPT(IntegrationTestCase):
             0,
             100000,
         )
-        self.assertGreater(clawback_amount, 0)
+        # The issuer mirror tracks holder2's confidential balance (400), and the
+        # auditor mirror must track the same amount.
+        self.assertEqual(clawback_amount, 400, "issuer mirror of holder2 balance")
+        self.assertEqual(
+            await self._decrypt_balance(
+                client,
+                crypto,
+                holder2.classic_address,
+                mpt_id,
+                auditor_sk,
+                "AuditorEncryptedBalance",
+            ),
+            400,
+            "auditor mirror of holder2 balance",
+        )
         clawback_tx = await prepare_confidential_clawback_async(
             client=client,
             issuer_wallet=issuer,
@@ -266,4 +363,17 @@ class TestConfidentialMPT(IntegrationTestCase):
         self._assert_success(
             await sign_and_reliable_submission_async(clawback_tx, issuer, client),
             "ConfidentialMPTClawback",
+        )
+        # Clawback reclaimed the full balance -> holder2 spending balance is 0.
+        self.assertEqual(
+            await self._decrypt_balance(
+                client,
+                crypto,
+                holder2.classic_address,
+                mpt_id,
+                holder2_sk,
+                "ConfidentialBalanceSpending",
+            ),
+            0,
+            "holder2 spending balance after clawback",
         )

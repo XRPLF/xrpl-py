@@ -17,12 +17,9 @@ SCHNORR_PROOF_SIZE = 64
 CONTEXT_ID_SIZE = 32
 
 
-def generate_keypair(ctx: object = None) -> Tuple[str, str]:
+def generate_keypair() -> Tuple[str, str]:
     """
     Generate an ElGamal keypair using the utility layer.
-
-    Args:
-        ctx: Ignored (kept for backward compatibility). Uses mpt_secp256k1_context().
 
     Returns:
         Tuple of (privkey, pubkey_compressed) as hex strings:
@@ -46,37 +43,33 @@ def generate_keypair(ctx: object = None) -> Tuple[str, str]:
 
 
 def generate_keypair_with_pok(
-    ctx: object = None, context_id: Optional[str] = None
+    context_id: Optional[str] = None,
 ) -> Tuple[str, str, str]:
     """
     Generate an ElGamal keypair with a Schnorr proof of knowledge.
 
     Args:
-        ctx: Ignored (kept for backward compatibility). Uses mpt_secp256k1_context().
         context_id: Optional 64-char hex string (32-byte context ID).
                    If not provided, a random one is generated.
 
     Returns:
         Tuple of (privkey, pubkey_compressed, proof) as hex strings
     """
-    privkey, pubkey = generate_keypair(ctx)
+    privkey, pubkey = generate_keypair()
 
     if context_id is None:
         context_id = secrets.token_bytes(32).hex().upper()
 
-    proof = generate_pok(ctx, privkey, pubkey, context_id)
+    proof = generate_pok(privkey, pubkey, context_id)
 
     return privkey, pubkey, proof
 
 
-def generate_pok(
-    ctx: object, privkey: str, pubkey_compressed: str, context_id: str
-) -> str:
+def generate_pok(privkey: str, pubkey_compressed: str, context_id: str) -> str:
     """
     Generate a Schnorr proof of knowledge using the utility layer.
 
     Args:
-        ctx: Ignored (kept for backward compatibility). Uses mpt_secp256k1_context().
         privkey: 64-char hex string (32-byte private key)
         pubkey_compressed: 66-char hex string (33-byte compressed public key)
         context_id: 64-char hex string (32-byte context ID)
@@ -107,14 +100,11 @@ def generate_pok(
     return bytes(proof[0:64]).hex().upper()
 
 
-def verify_pok(
-    ctx: object, pubkey_compressed: str, proof: str, context_id: str
-) -> bool:
+def verify_pok(pubkey_compressed: str, proof: str, context_id: str) -> bool:
     """
     Verify a Schnorr proof of knowledge of secret key.
 
     Args:
-        ctx: Ignored (kept for backward compatibility). Uses mpt_verify_convert_proof.
         pubkey_compressed: 66-char hex string (33-byte compressed public key)
         proof: 128-char hex string (64-byte Schnorr proof)
         context_id: 64-char hex string (32-byte context ID)

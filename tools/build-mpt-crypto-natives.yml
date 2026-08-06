@@ -27,9 +27,12 @@ on:
   workflow_dispatch:
     inputs:
       mpt_crypto_ref:
-        description: 'Git ref (branch, tag, or commit SHA) of XRPLF/mpt-crypto to build'
+        # Prefer an immutable release tag (e.g. 1.0.2) so published native
+        # binaries are built from a known, auditable source rather than a moving
+        # branch like main. Branch/commit refs are still accepted for testing.
+        description: 'Release tag (preferred), branch, or commit SHA of XRPLF/mpt-crypto to build'
         required: true
-        default: 'main'
+        default: '1.0.2'
 
 jobs:
   build:
@@ -74,11 +77,12 @@ jobs:
       # ── Checkout mpt-crypto source at the requested ref ──
       # actions/checkout doesn't support arbitrary commit SHAs for external repos
       # (it only matches branches/tags). So we do a full clone + checkout instead.
-      # Falls back to f2243cf for push-triggered runs (TODO: remove fallback with push trigger)
+      # Falls back to the pinned release tag for push-triggered runs (TODO: remove
+      # fallback with push trigger).
       - name: Clone mpt-crypto
         shell: bash
         env:
-          MPT_REF: ${{ inputs.mpt_crypto_ref || 'f2243cf' }}
+          MPT_REF: ${{ inputs.mpt_crypto_ref || '1.0.2' }}
         run: |
           git clone https://github.com/XRPLF/mpt-crypto.git .
           git checkout "${MPT_REF}"

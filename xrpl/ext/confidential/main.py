@@ -56,25 +56,25 @@ class MPTCrypto:
     # Keypair generation and Schnorr PoK
     def generate_keypair(self: Self) -> Tuple[str, str]:
         """Generate an ElGamal keypair."""
-        return keypair.generate_keypair(self.ctx)
+        return keypair.generate_keypair()
 
     def generate_keypair_with_pok(
         self: Self, context_id: Optional[str] = None
     ) -> Tuple[str, str, str]:
         """Generate an ElGamal keypair with a Schnorr proof of knowledge."""
-        return keypair.generate_keypair_with_pok(self.ctx, context_id)
+        return keypair.generate_keypair_with_pok(context_id)
 
     def generate_pok(
         self: Self, privkey: str, pubkey_uncompressed: str, context_id: str
     ) -> str:
         """Generate a Schnorr proof of knowledge of the secret key."""
-        return keypair.generate_pok(self.ctx, privkey, pubkey_uncompressed, context_id)
+        return keypair.generate_pok(privkey, pubkey_uncompressed, context_id)
 
     def verify_pok(
         self: Self, pubkey_uncompressed: str, proof: str, context_id: str
     ) -> bool:
         """Verify a Schnorr proof of knowledge of secret key."""
-        return keypair.verify_pok(self.ctx, pubkey_uncompressed, proof, context_id)
+        return keypair.verify_pok(pubkey_uncompressed, proof, context_id)
 
     # Encryption/Decryption
     def encrypt(
@@ -84,9 +84,7 @@ class MPTCrypto:
         blinding_factor: Optional[str] = None,
     ) -> Tuple[str, str, str]:
         """Encrypt an amount using ElGamal encryption."""
-        return encryption.encrypt(
-            self.ctx, pubkey_uncompressed, amount, blinding_factor
-        )
+        return encryption.encrypt(pubkey_uncompressed, amount, blinding_factor)
 
     def decrypt(
         self: Self,
@@ -101,30 +99,28 @@ class MPTCrypto:
         Searches for the amount by discrete log over ``[range_low, range_high]``;
         cost scales with the width of the range.
         """
-        return encryption.decrypt(self.ctx, privkey, c1, c2, range_low, range_high)
+        return encryption.decrypt(privkey, c1, c2, range_low, range_high)
 
     # Commitments and Bulletproofs
     def create_pedersen_commitment(
         self: Self, amount: int, blinding_factor: str
     ) -> str:
         """Create a Pedersen commitment: PC = amount*G + blinding_factor*H"""
-        return commitments.create_pedersen_commitment(self.ctx, amount, blinding_factor)
+        return commitments.create_pedersen_commitment(amount, blinding_factor)
 
     def create_bulletproof(
         self: Self, amount: int, blinding_factor: str, pk_base_uncompressed: str
     ) -> str:
         """Create a Bulletproof range proof (Linux/macOS only; see commitments)."""
         return commitments.create_bulletproof(
-            self.ctx, amount, blinding_factor, pk_base_uncompressed
+            amount, blinding_factor, pk_base_uncompressed
         )
 
     def verify_bulletproof(
         self: Self, proof: str, commitment: str, pk_base_uncompressed: str
     ) -> bool:
         """Verify a Bulletproof range proof (Linux/macOS only; see commitments)."""
-        return commitments.verify_bulletproof(
-            self.ctx, proof, commitment, pk_base_uncompressed
-        )
+        return commitments.verify_bulletproof(proof, commitment, pk_base_uncompressed)
 
     # Verify proofs using utility layer
     def verify_clawback_proof(

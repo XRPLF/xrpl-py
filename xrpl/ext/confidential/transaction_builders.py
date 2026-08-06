@@ -12,7 +12,9 @@ Each builder comes in two flavors:
 Both share the same pure (client-free) crypto assembly; only the ledger queries
 differ. All cryptographic keys are explicit parameters — the caller provides
 them. The builders only query the ledger for mutable state the caller cannot
-know in advance (sequence, encrypted balance, version, base fee).
+know in advance (sequence, encrypted balance, version). The confidential fee
+multiplier is applied by core xrpl-py autofill (keyed on transaction type), so
+the builders leave the fee unset.
 """
 
 from typing import Optional, Tuple
@@ -26,7 +28,7 @@ from xrpl.ext.confidential.context import (
     compute_send_context_hash,
 )
 from xrpl.ext.confidential.encryption import DEFAULT_DECRYPT_RANGE_HIGH
-from xrpl.models.requests import AccountInfo, Fee, LedgerEntry
+from xrpl.models.requests import AccountInfo, LedgerEntry
 from xrpl.models.requests.ledger_entry import MPToken
 from xrpl.models.transactions import (
     ConfidentialMPTClawback,
@@ -66,22 +68,17 @@ def _generate_blinding_factor() -> str:
     return bytes(bf[0:32]).hex().upper()
 
 
-# rippled charges confidential MPT transactions base_fee * (kConfidentialFeeMultiplier
-# + 1) to account for zero-knowledge proof verification cost. As of the
-# ConfidentialTransfer amendment kConfidentialFeeMultiplier == 9, i.e. 10x the
-# base fee. Standard autofill only sets the base fee, so the builders set it here
-# to avoid telINSUF_FEE_P.
-CONFIDENTIAL_FEE_MULTIPLIER = 10
+# The confidential base-fee multiplier (rippled charges base_fee * (1 +
+# kConfidentialFeeMultiplier) for ZK-proof verification) is applied by core
+# xrpl-py autofill's fee calculation, keyed on the transaction type — the same
+# place EscrowFinish/AccountDelete/Batch special fees live. The builders leave
+# the fee unset so autofill computes it, matching xrpl.js and xrpl4j.
 
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Ledger I/O helpers (sync + async). Private; kept thin so the sync/async pairs
 # differ only in the await.
 # ──────────────────────────────────────────────────────────────────────────────
-def _fee_from_base(base_fee: int) -> str:
-    return str(base_fee * CONFIDENTIAL_FEE_MULTIPLIER)
-
-
 def _range_high_from_node(node: dict) -> int:
     # Decryption cost is O(range_high - range_low), so bound as tightly as
     # possible — NOT the issuance's MaximumAmount (typically ~2^63). No single
@@ -92,16 +89,6 @@ def _range_high_from_node(node: dict) -> int:
         if value is not None and int(value) > 0:
             return int(value)
     return DEFAULT_DECRYPT_RANGE_HIGH
-
-
-def _confidential_fee(client: SyncClient) -> str:
-    resp = client.request(Fee())
-    return _fee_from_base(int(resp.result["drops"]["base_fee"]))
-
-
-async def _confidential_fee_async(client: AsyncClient) -> str:
-    resp = await client.request(Fee())
-    return _fee_from_base(int(resp.result["drops"]["base_fee"]))
 
 
 def _account_sequence(client: SyncClient, address: str) -> int:
@@ -119,6 +106,31 @@ def _parse_mptoken(result: dict) -> Tuple[int, str]:
     version = node.get("ConfidentialBalanceVersion", 0)
     balance_hex = node.get("ConfidentialBalanceSpending", "")
     return version, balance_hex
+
+
+def _holder_key_registered_from_node(result: dict) -> bool:
+    # rippled records the holder's ElGamal key (sfHolderEncryptionKey) on the
+    # MPToken at the first convert; a subsequent convert that re-sends the key
+    # returns tecDUPLICATE. Absent node (MPToken not yet created) => unregistered.
+    return bool(result.get("node", {}).get("HolderEncryptionKey"))
+
+
+def _holder_key_registered(
+    client: SyncClient, account: str, mpt_issuance_id: str
+) -> bool:
+    resp = client.request(
+        LedgerEntry(mptoken=MPToken(account=account, mpt_issuance_id=mpt_issuance_id))
+    )
+    return _holder_key_registered_from_node(resp.result)
+
+
+async def _holder_key_registered_async(
+    client: AsyncClient, account: str, mpt_issuance_id: str
+) -> bool:
+    resp = await client.request(
+        LedgerEntry(mptoken=MPToken(account=account, mpt_issuance_id=mpt_issuance_id))
+    )
+    return _holder_key_registered_from_node(resp.result)
 
 
 def _mptoken_state(
@@ -157,28 +169,41 @@ def _assemble_convert(  # noqa: ANN
     mpt_issuance_id: str,
     amount: int,
     sequence: int,
-    fee: str,
     issuer_pubkey: str,
     holder_privkey: Optional[str],
     holder_pubkey: Optional[str],
     auditor_pubkey: Optional[str],
+    holder_key_registered: bool,
 ) -> ConfidentialMPTConvert:
-    if holder_privkey is None or holder_pubkey is None:
+    if holder_pubkey is None:
         # Never auto-generate here: the public key is registered on-chain, but a
         # private key generated (and discarded) inside the builder would be
         # unrecoverable, permanently locking the resulting confidential balance.
         # The caller must generate a keypair with MPTCrypto.generate_keypair()
         # and persist the private key.
         raise ValueError(
-            "holder_privkey and holder_pubkey are required. Generate a keypair "
-            "with MPTCrypto.generate_keypair() and retain the private key; it is "
+            "holder_pubkey is required. Generate a keypair with "
+            "MPTCrypto.generate_keypair() and retain the private key; it is "
             "needed to decrypt and spend the confidential balance."
         )
 
-    context_id = compute_convert_context_hash(
-        account, sequence, bytes.fromhex(mpt_issuance_id)
-    )
-    schnorr_proof = crypto.generate_pok(holder_privkey, holder_pubkey, context_id)
+    # rippled records sfHolderEncryptionKey on the first convert (the opt-in) and
+    # rejects a second registration with tecDUPLICATE. Include the key + PoK only
+    # when it is not yet on the ledger; subsequent converts omit both.
+    register_key = not holder_key_registered
+    schnorr_proof = None
+    if register_key:
+        if holder_privkey is None:
+            raise ValueError(
+                "holder_privkey is required for the first convert (holder-key "
+                "registration): it signs the proof of knowledge that opts the "
+                "account into confidential MPT."
+            )
+        context_id = compute_convert_context_hash(
+            account, sequence, bytes.fromhex(mpt_issuance_id)
+        )
+        schnorr_proof = crypto.generate_pok(holder_privkey, holder_pubkey, context_id)
+
     blinding_factor = _generate_blinding_factor()
 
     holder_c1, holder_c2, _ = crypto.encrypt(holder_pubkey, amount, blinding_factor)
@@ -195,13 +220,15 @@ def _assemble_convert(  # noqa: ANN
         account=account,
         mptoken_issuance_id=mpt_issuance_id,
         mpt_amount=amount,
-        holder_encryption_key=holder_pubkey,
+        holder_encryption_key=holder_pubkey if register_key else None,
         holder_encrypted_amount=holder_c1 + holder_c2,
         issuer_encrypted_amount=issuer_c1 + issuer_c2,
         blinding_factor=blinding_factor,
         zk_proof=schnorr_proof,
         auditor_encrypted_amount=auditor_encrypted_amount,
-        fee=fee,
+        # Pin the sequence: the proof's context hash is bound to this exact
+        # value, so autofill must not substitute a different one.
+        sequence=sequence,
     )
 
 
@@ -214,7 +241,6 @@ def _assemble_send(  # noqa: ANN
     version: int,
     balance_hex: str,
     range_high: int,
-    fee: str,
     sender_privkey: str,
     sender_pubkey: str,
     receiver_pubkey: str,
@@ -288,7 +314,9 @@ def _assemble_send(  # noqa: ANN
         balance_commitment=balance_commitment,
         zk_proof=zk_proof,
         auditor_encrypted_amount=auditor_encrypted_amount,
-        fee=fee,
+        # Pin the sequence: the proof's context hash is bound to this exact
+        # value, so autofill must not substitute a different one.
+        sequence=sequence,
     )
 
 
@@ -300,7 +328,6 @@ def _assemble_convert_back(  # noqa: ANN
     version: int,
     balance_hex: str,
     range_high: int,
-    fee: str,
     holder_privkey: str,
     holder_pubkey: str,
     issuer_pubkey: str,
@@ -354,7 +381,9 @@ def _assemble_convert_back(  # noqa: ANN
         balance_commitment=balance_commitment,
         zk_proof=balance_link_proof,
         auditor_encrypted_amount=auditor_encrypted_amount,
-        fee=fee,
+        # Pin the sequence: the proof's context hash is bound to this exact
+        # value, so autofill must not substitute a different one.
+        sequence=sequence,
     )
 
 
@@ -364,7 +393,6 @@ def _assemble_clawback(  # noqa: ANN
     mpt_issuance_id: str,
     amount: int,
     sequence: int,
-    fee: str,
     issuer_privkey: str,
     issuer_pubkey: str,
     issuer_encrypted_balance: str,
@@ -388,7 +416,9 @@ def _assemble_clawback(  # noqa: ANN
         mpt_amount=amount,
         holder=holder_address,
         zk_proof=clawback_proof,
-        fee=fee,
+        # Pin the sequence: the proof's context hash is bound to this exact
+        # value, so autofill must not substitute a different one.
+        sequence=sequence,
     )
 
 
@@ -429,11 +459,11 @@ def prepare_confidential_convert(
         mpt_issuance_id,
         amount,
         _account_sequence(client, wallet.address),
-        _confidential_fee(client),
         issuer_pubkey,
         holder_privkey,
         holder_pubkey,
         auditor_pubkey,
+        _holder_key_registered(client, wallet.classic_address, mpt_issuance_id),
     )
 
 
@@ -449,7 +479,9 @@ def prepare_confidential_merge_inbox(
     are needed.
 
     Args:
-        client: XRPL client (used to read the base fee).
+        client: XRPL client. Accepted for signature parity with the other
+            builders; MergeInbox needs no ledger data and the fee is applied by
+            autofill, so it is currently unused.
         wallet: Wallet of the account merging its inbox.
         mpt_issuance_id: 24-byte MPT issuance ID (hex string).
 
@@ -459,7 +491,6 @@ def prepare_confidential_merge_inbox(
     return ConfidentialMPTMergeInbox(
         account=wallet.address,
         mptoken_issuance_id=mpt_issuance_id,
-        fee=_confidential_fee(client),
     )
 
 
@@ -505,7 +536,6 @@ def prepare_confidential_send(
         version,
         balance_hex,
         _decrypt_range_high(client, mpt_issuance_id),
-        _confidential_fee(client),
         sender_privkey,
         sender_pubkey,
         receiver_pubkey,
@@ -551,7 +581,6 @@ def prepare_confidential_convert_back(
         version,
         balance_hex,
         _decrypt_range_high(client, mpt_issuance_id),
-        _confidential_fee(client),
         holder_privkey,
         holder_pubkey,
         issuer_pubkey,
@@ -592,7 +621,6 @@ def prepare_confidential_clawback(
         mpt_issuance_id,
         amount,
         _account_sequence(client, issuer_wallet.address),
-        _confidential_fee(client),
         issuer_privkey,
         issuer_pubkey,
         issuer_encrypted_balance,
@@ -636,11 +664,13 @@ async def prepare_confidential_convert_async(
         mpt_issuance_id,
         amount,
         await _account_sequence_async(client, wallet.address),
-        await _confidential_fee_async(client),
         issuer_pubkey,
         holder_privkey,
         holder_pubkey,
         auditor_pubkey,
+        await _holder_key_registered_async(
+            client, wallet.classic_address, mpt_issuance_id
+        ),
     )
 
 
@@ -663,7 +693,6 @@ async def prepare_confidential_merge_inbox_async(
     return ConfidentialMPTMergeInbox(
         account=wallet.address,
         mptoken_issuance_id=mpt_issuance_id,
-        fee=await _confidential_fee_async(client),
     )
 
 
@@ -709,7 +738,6 @@ async def prepare_confidential_send_async(
         version,
         balance_hex,
         await _decrypt_range_high_async(client, mpt_issuance_id),
-        await _confidential_fee_async(client),
         sender_privkey,
         sender_pubkey,
         receiver_pubkey,
@@ -755,7 +783,6 @@ async def prepare_confidential_convert_back_async(
         version,
         balance_hex,
         await _decrypt_range_high_async(client, mpt_issuance_id),
-        await _confidential_fee_async(client),
         holder_privkey,
         holder_pubkey,
         issuer_pubkey,
@@ -796,7 +823,6 @@ async def prepare_confidential_clawback_async(
         mpt_issuance_id,
         amount,
         await _account_sequence_async(client, issuer_wallet.address),
-        await _confidential_fee_async(client),
         issuer_privkey,
         issuer_pubkey,
         issuer_encrypted_balance,

@@ -33,12 +33,11 @@ _NO_PUBKEY_PARSE_MSG = (
 )
 
 
-def create_pedersen_commitment(ctx: object, amount: int, blinding_factor: str) -> str:
+def create_pedersen_commitment(amount: int, blinding_factor: str) -> str:
     """
     Create a Pedersen commitment: ``PC = amount*G + blinding_factor*H``.
 
     Args:
-        ctx: Ignored (kept for backward compatibility). Uses mpt_secp256k1_context().
         amount: The amount to commit to (uint64)
         blinding_factor: 64-char hex string (32-byte blinding factor)
 
@@ -62,7 +61,6 @@ def create_pedersen_commitment(ctx: object, amount: int, blinding_factor: str) -
 
 
 def create_bulletproof(
-    ctx: object,
     amount: int,
     blinding_factor: str,
     pk_base_uncompressed: str,
@@ -84,6 +82,9 @@ def create_bulletproof(
     """
     if not _HAS_EC_PUBKEY_PARSE:
         raise NotImplementedError(_NO_PUBKEY_PARSE_MSG)
+
+    # mpt-crypto's globally shared secp256k1 context (see MPTCrypto.__init__).
+    ctx = lib.mpt_secp256k1_context()
 
     # Convert inputs from hex
     blinding_bytes = bytes.fromhex(blinding_factor)
@@ -127,7 +128,6 @@ def create_bulletproof(
 
 
 def verify_bulletproof(
-    ctx: object,
     proof: str,
     commitment: str,
     pk_base_uncompressed: str,
@@ -149,6 +149,9 @@ def verify_bulletproof(
     """
     if not _HAS_EC_PUBKEY_PARSE:
         raise NotImplementedError(_NO_PUBKEY_PARSE_MSG)
+
+    # mpt-crypto's globally shared secp256k1 context (see MPTCrypto.__init__).
+    ctx = lib.mpt_secp256k1_context()
 
     # Convert hex strings to bytes
     proof_bytes = bytes.fromhex(proof)

@@ -19,19 +19,29 @@ from xrpl.ext.confidential.main import MPTCrypto
 if TYPE_CHECKING:
     from xrpl.ext.confidential.transaction_builders import (  # noqa: F401
         prepare_confidential_clawback,
+        prepare_confidential_clawback_async,
         prepare_confidential_convert,
+        prepare_confidential_convert_async,
         prepare_confidential_convert_back,
+        prepare_confidential_convert_back_async,
         prepare_confidential_merge_inbox,
+        prepare_confidential_merge_inbox_async,
         prepare_confidential_send,
+        prepare_confidential_send_async,
     )
 
 _LAZY_BUILDERS = frozenset(
     {
         "prepare_confidential_clawback",
+        "prepare_confidential_clawback_async",
         "prepare_confidential_convert",
+        "prepare_confidential_convert_async",
         "prepare_confidential_convert_back",
+        "prepare_confidential_convert_back_async",
         "prepare_confidential_merge_inbox",
+        "prepare_confidential_merge_inbox_async",
         "prepare_confidential_send",
+        "prepare_confidential_send_async",
     }
 )
 
@@ -59,6 +69,12 @@ __all__ = [
     "prepare_confidential_send",
     "prepare_confidential_convert_back",
     "prepare_confidential_clawback",
+    # Async transaction builders (resolved lazily via __getattr__)
+    "prepare_confidential_convert_async",
+    "prepare_confidential_merge_inbox_async",
+    "prepare_confidential_send_async",
+    "prepare_confidential_convert_back_async",
+    "prepare_confidential_clawback_async",
     # Size constants
     "PRIVKEY_SIZE",
     "PUBKEY_COMPRESSED_SIZE",

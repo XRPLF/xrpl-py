@@ -37,6 +37,12 @@ class ConfidentialMPTSend(Transaction):
     destination: str = REQUIRED  # type: ignore
     """The receiver's XRPL account."""
 
+    destination_tag: Optional[int] = None
+    """
+    An arbitrary tag that identifies the reason for the transfer, or a hosted
+    recipient at the destination account.
+    """
+
     mptoken_issuance_id: str = REQUIRED  # type: ignore
     """Identifier of the MPT issuance being transferred."""
 

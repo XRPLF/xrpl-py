@@ -21,7 +21,6 @@ DEFAULT_DECRYPT_RANGE_HIGH = 1_000_000
 
 
 def encrypt(
-    ctx: object,
     pubkey_compressed: str,
     amount: int,
     blinding_factor: Optional[str] = None,
@@ -30,7 +29,6 @@ def encrypt(
     Encrypt an amount using ElGamal encryption via the utility layer.
 
     Args:
-        ctx: Ignored (kept for backward compatibility). Uses mpt_secp256k1_context().
         pubkey_compressed: 66-char hex string (33-byte compressed public key)
         amount: The amount to encrypt (uint64)
         blinding_factor: Optional 64-char hex string (32-byte blinding factor).
@@ -75,7 +73,6 @@ def encrypt(
 
 
 def decrypt(
-    ctx: object,
     privkey: str,
     c1: str,
     c2: str,
@@ -93,7 +90,6 @@ def decrypt(
     MPTokenIssuance on the ledger.
 
     Args:
-        ctx: Ignored (kept for backward compatibility). Uses mpt_secp256k1_context().
         privkey: 64-char hex string (32-byte private key)
         c1: 66-char hex string (33-byte compressed C1 point)
         c2: 66-char hex string (33-byte compressed C2 point)

@@ -42,6 +42,22 @@ _LEDGER_OFFSET: Final[int] = 20
 _RESTRICTED_NETWORKS = 1024
 _REQUIRED_NETWORKID_VERSION = "1.11.0"
 
+# rippled charges Confidential MPT (XLS-0096) transactions an extra base-fee
+# multiplier on top of the standard cost to account for zero-knowledge proof
+# verification. Mirrors kConfidentialFeeMultiplier in rippled's Protocol.h: the
+# total cost is base_fee * (1 + kConfidentialFeeMultiplier) plus the usual
+# per-multisigner surcharge.
+_CONFIDENTIAL_FEE_MULTIPLIER = 9
+_CONFIDENTIAL_TRANSACTION_TYPES = frozenset(
+    {
+        TransactionType.CONFIDENTIAL_CONVERT,
+        TransactionType.CONFIDENTIAL_CONVERT_BACK,
+        TransactionType.CONFIDENTIAL_SEND,
+        TransactionType.CONFIDENTIAL_CLAWBACK,
+        TransactionType.CONFIDENTIAL_MERGE_INBOX,
+    }
+)
+
 T = TypeVar("T", bound=Transaction, default=Transaction)
 
 
@@ -582,6 +598,11 @@ async def _calculate_fee_per_transaction_type(
                 )
             )
         base_fee += net_fee * counterparty_signers_count
+
+    # Confidential MPT (XLS-0096) Transactions
+    # BaseFee × (1 + kConfidentialFeeMultiplier) for ZK-proof verification.
+    elif transaction.transaction_type in _CONFIDENTIAL_TRANSACTION_TYPES:
+        base_fee = net_fee * (1 + _CONFIDENTIAL_FEE_MULTIPLIER)
 
     # Multi-signed/Multi-Account Batch Transactions
     # BaseFee × (1 + Number of Signatures Provided)

@@ -12,6 +12,16 @@ Python bindings for confidential MPT operations, backed by the
 - **Pinned upstream version:** see [`MPT_CRYPTO_VERSION`](./MPT_CRYPTO_VERSION)
   (currently `1.0.2`). The client must build against the same mpt-crypto
   version the target `rippled` was built with.
+- **Entry point from core:** `xrpl.core.require_confidential()` returns this
+  module, raising an actionable `pip install xrpl-py-confidential` error when the
+  add-on is not installed:
+
+  ```python
+  from xrpl.core import require_confidential
+
+  confidential = require_confidential()
+  tx = confidential.prepare_confidential_send(client, ...)
+  ```
 
 > **Status:** beta / feature branch. There is no published `xrpl-py-confidential`
 > wheel yet, so the only supported path today is the **local build from this
@@ -133,7 +143,6 @@ xrpl/ext/confidential/            # namespace: xrpl.ext.confidential
 ├── keypair.py                    # keypair + Schnorr PoK
 ├── encryption.py                 # ElGamal encrypt/decrypt
 ├── commitments.py                # Pedersen commitments + Bulletproofs
-├── plaintext_proofs.py           # clawback (equality) proof
 ├── context.py                    # context-hash computation
 ├── transaction_builders.py       # high-level prepare_* functions
 ├── build_mpt_crypto.py           # CFFI build script (#includes real headers)
