@@ -83,11 +83,40 @@ jobs:
         shell: bash
         env:
           MPT_REF: ${{ inputs.mpt_crypto_ref || '1.0.2' }}
+          # Immutable commit the pinned release tag must resolve to. Keep in sync
+          # with MPT_CRYPTO_VERSION / MPT_CRYPTO_COMMIT in
+          # packaging/confidential/version.env (the single source of truth for
+          # the xrpl-py packaging path; this JNA-natives workflow does not check
+          # out xrpl-py, so the value is mirrored here).
+          PINNED_VERSION: "1.0.2"
+          PINNED_COMMIT: "376691c5fca7898bd1161b0ac6646109d069ceb9"
         run: |
           git clone https://github.com/XRPLF/mpt-crypto.git .
           git checkout "${MPT_REF}"
           echo "==> Checked out mpt-crypto at:"
           git log --oneline -1
+
+          # Supply-chain: git tags are mutable (force-pushable), so pinning a tag
+          # is NOT the same as pinning a commit. When building the pinned release
+          # (the default), verify the resolved commit matches the immutable SHA so
+          # a moved/tampered tag can't inject code into the built native
+          # artifacts. Mirrors the check in
+          # packaging/confidential/scripts/build-mpt-crypto-lib.sh. A custom ref
+          # is an explicit testing override and is allowed with a warning (a
+          # 40-char commit SHA is already immutable).
+          if [ "${MPT_REF}" = "${PINNED_VERSION}" ]; then
+            ACTUAL_SHA="$(git rev-parse HEAD)"
+            if [ "${ACTUAL_SHA}" != "${PINNED_COMMIT}" ]; then
+              echo "ERROR: tag ${MPT_REF} resolved to ${ACTUAL_SHA}," >&2
+              echo "       expected pinned commit ${PINNED_COMMIT}." >&2
+              echo "       The tag may have been moved or tampered with; refusing to build." >&2
+              exit 1
+            fi
+            echo "==> Verified ${MPT_REF} resolves to pinned commit ${PINNED_COMMIT}."
+          else
+            echo "==> WARNING: building custom ref '${MPT_REF}' (not the pinned" \
+                 "release ${PINNED_VERSION}); skipping commit-SHA verification."
+          fi
 
       # ── Set up build tools ──
       - name: Set up Python
