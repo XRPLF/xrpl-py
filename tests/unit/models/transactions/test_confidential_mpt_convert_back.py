@@ -6,7 +6,7 @@ from xrpl.models.transactions.confidential_mpt_convert_back import (
 )
 
 _ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
-_MPTOKEN_ISSUANCE_ID = "000000000000000000000000" + _ACCOUNT
+_MPTOKEN_ISSUANCE_ID = "0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47"
 _VALID_CIPHERTEXT = "A" * 132  # 66 bytes (two compressed EC points)
 _VALID_COMMITMENT = "B" * 66  # 33 bytes (one compressed EC point)
 _VALID_BLINDING_FACTOR = "C" * 64
@@ -182,4 +182,22 @@ class TestConfidentialMPTConvertBack(TestCase):
             err.exception.args[0],
             "{'zk_proof': "
             "'zk_proof must be 816 bytes (1632 hex characters) for ConvertBack proof'}",
+        )
+
+    def test_invalid_mptoken_issuance_id(self):
+        with self.assertRaises(XRPLModelException) as err:
+            ConfidentialMPTConvertBack(
+                account=_ACCOUNT,
+                mptoken_issuance_id="00" * 12,  # 24 hex chars, not 48
+                mpt_amount=1000,
+                holder_encrypted_amount=_VALID_CIPHERTEXT,
+                issuer_encrypted_amount=_VALID_CIPHERTEXT,
+                blinding_factor=_VALID_BLINDING_FACTOR,
+                balance_commitment=_VALID_COMMITMENT,
+                zk_proof=_VALID_CONVERT_BACK_PROOF,
+            )
+        self.assertEqual(
+            err.exception.args[0],
+            "{'mptoken_issuance_id': 'mptoken_issuance_id must be a 48-character "
+            "hex string (24-byte MPTokenIssuanceID)'}",
         )

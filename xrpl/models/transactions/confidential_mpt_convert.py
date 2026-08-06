@@ -20,6 +20,7 @@ from xrpl.models.transactions.confidential_mpt_constants import (
     HOLDER_ENCRYPTION_KEY_LENGTH,
     SCHNORR_PROOF_LENGTH,
     SEND_PROOF_LENGTH,
+    get_mptoken_issuance_id_error,
 )
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -167,5 +168,10 @@ class ConfidentialMPTConvert(Transaction):
             errors["auditor_encrypted_amount"] = (
                 "auditor_encrypted_amount must be 66 bytes (132 hex characters)"
             )
+
+        if self.mptoken_issuance_id is not REQUIRED:
+            issuance_id_error = get_mptoken_issuance_id_error(self.mptoken_issuance_id)
+            if issuance_id_error is not None:
+                errors["mptoken_issuance_id"] = issuance_id_error
 
         return errors

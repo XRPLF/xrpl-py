@@ -8,6 +8,9 @@ from typing import Dict
 from typing_extensions import Self
 
 from xrpl.models.required import REQUIRED
+from xrpl.models.transactions.confidential_mpt_constants import (
+    get_mptoken_issuance_id_error,
+)
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 
@@ -36,4 +39,10 @@ class ConfidentialMPTMergeInbox(Transaction):
 
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
+
+        if self.mptoken_issuance_id is not REQUIRED:
+            issuance_id_error = get_mptoken_issuance_id_error(self.mptoken_issuance_id)
+            if issuance_id_error is not None:
+                errors["mptoken_issuance_id"] = issuance_id_error
+
         return errors

@@ -5,7 +5,7 @@ from xrpl.models.transactions.confidential_mpt_send import ConfidentialMPTSend
 
 _SENDER = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _DESTINATION = "rN7n3473SaZBCG4dFL83w7a1RXtXtbk2D9"
-_MPTOKEN_ISSUANCE_ID = "000000000000000000000000" + _SENDER
+_MPTOKEN_ISSUANCE_ID = "0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47"
 _VALID_CIPHERTEXT = "A" * 132  # 66 bytes (two compressed EC points)
 _VALID_COMMITMENT = "B" * 66  # 33 bytes (one compressed EC point)
 _VALID_SEND_PROOF = "C" * 1892  # 946 bytes: sigma (192) + double bulletproof (754)
@@ -191,4 +191,23 @@ class TestConfidentialMPTSend(TestCase):
             err.exception.args[0],
             "{'zk_proof': "
             "'zk_proof must be 946 bytes (1892 hex characters) for Send proof'}",
+        )
+
+    def test_invalid_mptoken_issuance_id(self):
+        with self.assertRaises(XRPLModelException) as err:
+            ConfidentialMPTSend(
+                account=_SENDER,
+                destination=_DESTINATION,
+                mptoken_issuance_id="00" * 12,  # 24 hex chars, not 48
+                sender_encrypted_amount=_VALID_CIPHERTEXT,
+                destination_encrypted_amount=_VALID_CIPHERTEXT,
+                issuer_encrypted_amount=_VALID_CIPHERTEXT,
+                zk_proof=_VALID_SEND_PROOF,
+                amount_commitment=_VALID_COMMITMENT,
+                balance_commitment=_VALID_COMMITMENT,
+            )
+        self.assertEqual(
+            err.exception.args[0],
+            "{'mptoken_issuance_id': 'mptoken_issuance_id must be a 48-character "
+            "hex string (24-byte MPTokenIssuanceID)'}",
         )

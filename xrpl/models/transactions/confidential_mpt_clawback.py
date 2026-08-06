@@ -8,7 +8,10 @@ from typing import Dict
 from typing_extensions import Self
 
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.confidential_mpt_constants import CLAWBACK_PROOF_LENGTH
+from xrpl.models.transactions.confidential_mpt_constants import (
+    CLAWBACK_PROOF_LENGTH,
+    get_mptoken_issuance_id_error,
+)
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 
@@ -71,5 +74,10 @@ class ConfidentialMPTClawback(Transaction):
 
         if self.mpt_amount is not REQUIRED and self.mpt_amount <= 0:
             errors["mpt_amount"] = "mpt_amount cannot be zero or negative"
+
+        if self.mptoken_issuance_id is not REQUIRED:
+            issuance_id_error = get_mptoken_issuance_id_error(self.mptoken_issuance_id)
+            if issuance_id_error is not None:
+                errors["mptoken_issuance_id"] = issuance_id_error
 
         return errors

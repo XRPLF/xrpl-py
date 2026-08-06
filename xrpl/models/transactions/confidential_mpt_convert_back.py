@@ -13,6 +13,7 @@ from xrpl.models.transactions.confidential_mpt_constants import (
     CIPHERTEXT_LENGTH,
     COMMITMENT_LENGTH,
     CONVERT_BACK_PROOF_LENGTH,
+    get_mptoken_issuance_id_error,
 )
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
@@ -133,5 +134,10 @@ class ConfidentialMPTConvertBack(Transaction):
             errors["zk_proof"] = (
                 "zk_proof must be 816 bytes (1632 hex characters) for ConvertBack proof"
             )
+
+        if self.mptoken_issuance_id is not REQUIRED:
+            issuance_id_error = get_mptoken_issuance_id_error(self.mptoken_issuance_id)
+            if issuance_id_error is not None:
+                errors["mptoken_issuance_id"] = issuance_id_error
 
         return errors
