@@ -68,22 +68,17 @@ class TestConfidentialMPT(IntegrationTestCase):
             f"{label}: {response.result}",
         )
 
-    async def _decrypt_balance(
-        self, client, crypto, account, mpt_id, privkey, field, range_high=100000
-    ):
-        """Decrypt an ElGamal balance blob (c1||c2) on the holder's MPToken.
+    @staticmethod
+    def _decrypt_field(crypto, node, field, privkey, range_high=100000):
+        """Decrypt an ElGamal balance blob (c1||c2) from an MPToken ``node`` dict.
 
-        ``field`` is a balance SField such as ConfidentialBalanceSpending,
-        ConfidentialBalanceInbox, IssuerEncryptedBalance or
+        Pure/synchronous so it works under both the async and sync variants of
+        @test_async_and_sync (the decorator strips ``await`` in the test body but
+        does not transform helper methods, so the ledger read is done inline at
+        the call site). ``field`` is a balance SField such as
+        ConfidentialBalanceSpending, IssuerEncryptedBalance or
         AuditorEncryptedBalance. Returns 0 when the field is absent.
         """
-        node = (
-            await client.request(
-                LedgerEntry(
-                    mptoken=MPTokenQuery(account=account, mpt_issuance_id=mpt_id)
-                )
-            )
-        ).result["node"]
         blob = node.get(field, "")
         if not blob:
             return 0
@@ -208,14 +203,18 @@ class TestConfidentialMPT(IntegrationTestCase):
         )
         # After converting 1000 and merging the inbox, holder1's decrypted
         # spending balance must be exactly 1000.
+        holder1_node = (
+            await client.request(
+                LedgerEntry(
+                    mptoken=MPTokenQuery(
+                        account=holder1.classic_address, mpt_issuance_id=mpt_id
+                    )
+                )
+            )
+        ).result["node"]
         self.assertEqual(
-            await self._decrypt_balance(
-                client,
-                crypto,
-                holder1.classic_address,
-                mpt_id,
-                holder1_sk,
-                "ConfidentialBalanceSpending",
+            self._decrypt_field(
+                crypto, holder1_node, "ConfidentialBalanceSpending", holder1_sk
             ),
             1000,
             "holder1 spending balance after convert+merge",
@@ -263,26 +262,34 @@ class TestConfidentialMPT(IntegrationTestCase):
         )
         # holder1 sent 300 of its 1000 -> 700 remaining. holder2 converted 100
         # then received 300 and merged -> 400. Confirm both by decryption.
+        holder1_node = (
+            await client.request(
+                LedgerEntry(
+                    mptoken=MPTokenQuery(
+                        account=holder1.classic_address, mpt_issuance_id=mpt_id
+                    )
+                )
+            )
+        ).result["node"]
         self.assertEqual(
-            await self._decrypt_balance(
-                client,
-                crypto,
-                holder1.classic_address,
-                mpt_id,
-                holder1_sk,
-                "ConfidentialBalanceSpending",
+            self._decrypt_field(
+                crypto, holder1_node, "ConfidentialBalanceSpending", holder1_sk
             ),
             700,
             "holder1 spending balance after send",
         )
+        holder2_node = (
+            await client.request(
+                LedgerEntry(
+                    mptoken=MPTokenQuery(
+                        account=holder2.classic_address, mpt_issuance_id=mpt_id
+                    )
+                )
+            )
+        ).result["node"]
         self.assertEqual(
-            await self._decrypt_balance(
-                client,
-                crypto,
-                holder2.classic_address,
-                mpt_id,
-                holder2_sk,
-                "ConfidentialBalanceSpending",
+            self._decrypt_field(
+                crypto, holder2_node, "ConfidentialBalanceSpending", holder2_sk
             ),
             400,
             "holder2 spending balance after receiving send",
@@ -304,14 +311,18 @@ class TestConfidentialMPT(IntegrationTestCase):
             "ConfidentialMPTConvertBack",
         )
         # holder1 converted 200 back to public -> 500 confidential remaining.
+        holder1_node = (
+            await client.request(
+                LedgerEntry(
+                    mptoken=MPTokenQuery(
+                        account=holder1.classic_address, mpt_issuance_id=mpt_id
+                    )
+                )
+            )
+        ).result["node"]
         self.assertEqual(
-            await self._decrypt_balance(
-                client,
-                crypto,
-                holder1.classic_address,
-                mpt_id,
-                holder1_sk,
-                "ConfidentialBalanceSpending",
+            self._decrypt_field(
+                crypto, holder1_node, "ConfidentialBalanceSpending", holder1_sk
             ),
             500,
             "holder1 spending balance after convert-back",
@@ -336,16 +347,11 @@ class TestConfidentialMPT(IntegrationTestCase):
             100000,
         )
         # The issuer mirror tracks holder2's confidential balance (400), and the
-        # auditor mirror must track the same amount.
+        # auditor mirror (same holder2_node) must track the same amount.
         self.assertEqual(clawback_amount, 400, "issuer mirror of holder2 balance")
         self.assertEqual(
-            await self._decrypt_balance(
-                client,
-                crypto,
-                holder2.classic_address,
-                mpt_id,
-                auditor_sk,
-                "AuditorEncryptedBalance",
+            self._decrypt_field(
+                crypto, holder2_node, "AuditorEncryptedBalance", auditor_sk
             ),
             400,
             "auditor mirror of holder2 balance",
@@ -365,14 +371,18 @@ class TestConfidentialMPT(IntegrationTestCase):
             "ConfidentialMPTClawback",
         )
         # Clawback reclaimed the full balance -> holder2 spending balance is 0.
+        holder2_node = (
+            await client.request(
+                LedgerEntry(
+                    mptoken=MPTokenQuery(
+                        account=holder2.classic_address, mpt_issuance_id=mpt_id
+                    )
+                )
+            )
+        ).result["node"]
         self.assertEqual(
-            await self._decrypt_balance(
-                client,
-                crypto,
-                holder2.classic_address,
-                mpt_id,
-                holder2_sk,
-                "ConfidentialBalanceSpending",
+            self._decrypt_field(
+                crypto, holder2_node, "ConfidentialBalanceSpending", holder2_sk
             ),
             0,
             "holder2 spending balance after clawback",

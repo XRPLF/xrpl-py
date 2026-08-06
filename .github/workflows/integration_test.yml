@@ -150,3 +150,110 @@ jobs:
       - name: Stop docker container
         if: always()
         run: docker logs xrpld-service && docker stop xrpld-service
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Confidential MPT (XLS-0096) integration test.
+  #
+  # The native add-on (xrpl.ext.confidential) ships as the separate
+  # xrpl-py-confidential distribution and is NOT built by the core job above, so
+  # tests/integration/.../test_confidential_mpt.py self-skips there. This job
+  # builds the add-on against the pinned mpt-crypto release and runs the full
+  # convert -> merge -> send -> convert-back -> clawback lifecycle for real.
+  #
+  # Gated on the private image: the lifecycle needs the ConfidentialTransfer
+  # amendment, which the configured private xrpld image (see .github/
+  # xrpld-image.env) provides. When XRPLD_PRIVATE_VERSION is cleared and the
+  # public default image is used, this job is skipped rather than failing on a
+  # node without the amendment.
+  # ────────────────────────────────────────────────────────────────────────────
+  confidential-integration-test:
+    name: Confidential MPT integration test
+    needs: resolve_xrpld_image
+    if: ${{ needs.resolve_xrpld_image.outputs.is_private == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      XRPLD_DOCKER_IMAGE: ${{ needs.resolve_xrpld_image.outputs.image }}
+      # `gh release download` of the mpt-crypto native bundle (public repo).
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref != '' && inputs.git_ref || github.ref }}
+
+      - name: Load cached .local
+        id: cache-poetry
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/.local
+          key: dotlocal-${{ env.POETRY_VERSION }}
+
+      - name: Log in to the private GitLab registry
+        if: ${{ needs.resolve_xrpld_image.outputs.is_private == 'true' }}
+        env:
+          GITLAB_REGISTRY_USERNAME: ${{ vars.GITLAB_REGISTRY_USERNAME }}
+          GITLAB_REGISTRY_TOKEN: ${{ secrets.GITLAB_REGISTRY_TOKEN }}
+        run: |
+          printf '%s' "${GITLAB_REGISTRY_TOKEN}" | docker login registry.gitlab.com \
+            --username "${GITLAB_REGISTRY_USERNAME}" \
+            --password-stdin
+
+      - name: Run docker in background
+        run: |
+          docker run \
+            --detach \
+            --publish 5005:5005 \
+            --publish 6006:6006 \
+            --volume "${{ github.workspace }}/.ci-config/":"/etc/xrpld/" \
+            --name xrpld-service \
+            "${XRPLD_DOCKER_IMAGE}" --standalone
+
+      - name: Install poetry
+        if: steps.cache-poetry.outputs.cache-hit != 'true'
+        run: |
+          curl -sSL https://install.python-poetry.org/ | python - --version ${{ env.POETRY_VERSION }}
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install Python + Retrieve Poetry dependencies from cache
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "poetry"
+
+      - name: Install poetry dependencies
+        run: poetry install
+
+      # cffi is a BUILD-time dependency of the native extension only; it is
+      # intentionally not a core xrpl-py dependency.
+      - name: Install cffi (build-time only)
+        run: poetry run pip install cffi
+
+      # Fetch the prebuilt libmpt-crypto for this platform from the pinned
+      # mpt-crypto release (linux-x86-64/libmpt-crypto.so) into
+      # xrpl/ext/confidential/libs/.
+      - name: Fetch pinned native mpt-crypto library
+        run: |
+          VERSION=$(grep -E '^MPT_CRYPTO_VERSION=' \
+            xrpl/ext/confidential/MPT_CRYPTO_VERSION | cut -d= -f2)
+          echo "Fetching mpt-crypto natives for pinned version ${VERSION}"
+          ./xrpl/ext/confidential/setup_mpt_crypto.sh download --version "${VERSION}"
+
+      - name: Build the CFFI extension
+        run: poetry run python xrpl/ext/confidential/build_mpt_crypto.py
+
+      # Fail loudly if the extension did not build/load, so the integration test
+      # below cannot silently self-skip and report a false green.
+      - name: Verify the native extension is available
+        run: |
+          poetry run python -c "from xrpl.ext.confidential import MPT_CRYPTO_AVAILABLE; assert MPT_CRYPTO_AVAILABLE, 'native mpt-crypto extension failed to build/load'; print('MPT_CRYPTO_AVAILABLE = True')"
+
+      - name: Confidential MPT integration test
+        run: |
+          poetry run python -m unittest -v \
+            tests.integration.transactions.test_confidential_mpt
+
+      - name: Stop docker container
+        if: always()
+        run: docker logs xrpld-service && docker stop xrpld-service
