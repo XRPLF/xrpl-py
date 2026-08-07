@@ -38,7 +38,7 @@ jobs:
         id: resolve
         env:
           IMAGE_CONFIG_FILE: .github/xrpld-image.env
-          DEFAULT_IMAGE: rippleci/xrpld:develop
+          DEFAULT_IMAGE: rippleci/xrpld:3.3.0
           PRIVATE_IMAGE_REPO: registry.gitlab.com/ripple/xrpledger/xrpld_package_deploy/xrpld-private
           GITLAB_REGISTRY_USERNAME: ${{ vars.GITLAB_REGISTRY_USERNAME }}
           GITLAB_REGISTRY_TOKEN: ${{ secrets.GITLAB_REGISTRY_TOKEN }}
