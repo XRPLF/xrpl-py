@@ -13,8 +13,6 @@ Requires the ConfidentialTransfer amendment on the connected node and the native
 mpt-crypto CFFI extension (xrpl.ext.confidential) to be built.
 """
 
-import os
-
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     fund_wallet_async,
@@ -53,11 +51,6 @@ _SYNC_BUILDERS = [
     "xrpl.ext.confidential.transaction_builders.prepare_confidential_clawback",
 ]
 
-# CI runners that cannot run a local rippled container (macOS ARM, Windows) run
-# this test against public Devnet instead. The confidential-integration-test
-# matrix sets CONFIDENTIAL_IT_USE_DEVNET; locally it defaults to standalone.
-_USE_DEVNET = os.environ.get("CONFIDENTIAL_IT_USE_DEVNET", "").lower() == "true"
-
 
 class TestConfidentialMPT(IntegrationTestCase):
     def setUp(self):
@@ -91,7 +84,7 @@ class TestConfidentialMPT(IntegrationTestCase):
             return 0
         return crypto.decrypt(privkey, blob[:66], blob[66:132], 0, range_high)
 
-    @test_async_and_sync(globals(), _SYNC_BUILDERS, use_devnet=_USE_DEVNET)
+    @test_async_and_sync(globals(), _SYNC_BUILDERS)
     async def test_confidential_mpt_workflow(self, client):
         crypto = MPTCrypto()
 
@@ -125,7 +118,6 @@ class TestConfidentialMPT(IntegrationTestCase):
             ),
             issuer,
             client,
-            is_devnet_or_testnet=_USE_DEVNET,
         )
         self._assert_success(create_res, "MPTokenIssuanceCreate")
         tx_res = await client.request(
@@ -144,7 +136,6 @@ class TestConfidentialMPT(IntegrationTestCase):
                 ),
                 issuer,
                 client,
-                is_devnet_or_testnet=_USE_DEVNET,
             ),
             "MPTokenIssuanceSet (issuer + auditor keys)",
         )
@@ -158,7 +149,6 @@ class TestConfidentialMPT(IntegrationTestCase):
                     ),
                     holder,
                     client,
-                    is_devnet_or_testnet=_USE_DEVNET,
                 ),
                 "MPTokenAuthorize",
             )
@@ -173,7 +163,6 @@ class TestConfidentialMPT(IntegrationTestCase):
                 ),
                 issuer,
                 client,
-                is_devnet_or_testnet=_USE_DEVNET,
             ),
             "Payment -> holder1",
         )
@@ -186,7 +175,6 @@ class TestConfidentialMPT(IntegrationTestCase):
                 ),
                 issuer,
                 client,
-                is_devnet_or_testnet=_USE_DEVNET,
             ),
             "Payment -> holder2",
         )
@@ -203,18 +191,14 @@ class TestConfidentialMPT(IntegrationTestCase):
             auditor_pubkey=auditor_pk,
         )
         self._assert_success(
-            await sign_and_reliable_submission_async(
-                convert_tx, holder1, client, is_devnet_or_testnet=_USE_DEVNET
-            ),
+            await sign_and_reliable_submission_async(convert_tx, holder1, client),
             "ConfidentialMPTConvert (holder1)",
         )
         merge_tx = await prepare_confidential_merge_inbox_async(
             client=client, wallet=holder1, mpt_issuance_id=mpt_id
         )
         self._assert_success(
-            await sign_and_reliable_submission_async(
-                merge_tx, holder1, client, is_devnet_or_testnet=_USE_DEVNET
-            ),
+            await sign_and_reliable_submission_async(merge_tx, holder1, client),
             "ConfidentialMPTMergeInbox (holder1)",
         )
         # After converting 1000 and merging the inbox, holder1's decrypted
@@ -248,9 +232,7 @@ class TestConfidentialMPT(IntegrationTestCase):
             auditor_pubkey=auditor_pk,
         )
         self._assert_success(
-            await sign_and_reliable_submission_async(
-                convert_h2, holder2, client, is_devnet_or_testnet=_USE_DEVNET
-            ),
+            await sign_and_reliable_submission_async(convert_h2, holder2, client),
             "ConfidentialMPTConvert (holder2)",
         )
 
@@ -268,18 +250,14 @@ class TestConfidentialMPT(IntegrationTestCase):
             auditor_pubkey=auditor_pk,
         )
         self._assert_success(
-            await sign_and_reliable_submission_async(
-                send_tx, holder1, client, is_devnet_or_testnet=_USE_DEVNET
-            ),
+            await sign_and_reliable_submission_async(send_tx, holder1, client),
             "ConfidentialMPTSend",
         )
         merge_h2 = await prepare_confidential_merge_inbox_async(
             client=client, wallet=holder2, mpt_issuance_id=mpt_id
         )
         self._assert_success(
-            await sign_and_reliable_submission_async(
-                merge_h2, holder2, client, is_devnet_or_testnet=_USE_DEVNET
-            ),
+            await sign_and_reliable_submission_async(merge_h2, holder2, client),
             "ConfidentialMPTMergeInbox (holder2)",
         )
         # holder1 sent 300 of its 1000 -> 700 remaining. holder2 converted 100
@@ -329,9 +307,7 @@ class TestConfidentialMPT(IntegrationTestCase):
             auditor_pubkey=auditor_pk,
         )
         self._assert_success(
-            await sign_and_reliable_submission_async(
-                convert_back_tx, holder1, client, is_devnet_or_testnet=_USE_DEVNET
-            ),
+            await sign_and_reliable_submission_async(convert_back_tx, holder1, client),
             "ConfidentialMPTConvertBack",
         )
         # holder1 converted 200 back to public -> 500 confidential remaining.
@@ -391,9 +367,7 @@ class TestConfidentialMPT(IntegrationTestCase):
             issuer_encrypted_balance=issuer_encrypted_balance,
         )
         self._assert_success(
-            await sign_and_reliable_submission_async(
-                clawback_tx, issuer, client, is_devnet_or_testnet=_USE_DEVNET
-            ),
+            await sign_and_reliable_submission_async(clawback_tx, issuer, client),
             "ConfidentialMPTClawback",
         )
         # Clawback reclaimed the full balance -> holder2 spending balance is 0.
