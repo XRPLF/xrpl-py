@@ -152,30 +152,84 @@ jobs:
         run: docker logs xrpld-service && docker stop xrpld-service
 
   # ────────────────────────────────────────────────────────────────────────────
-  # Confidential MPT (XLS-0096) integration test.
+  # Confidential MPT (XLS-0096) native integration test — cross-platform matrix.
   #
   # The native add-on (xrpl.ext.confidential) ships as the separate
   # xrpl-py-confidential distribution and is NOT built by the core job above, so
-  # tests/integration/.../test_confidential_mpt.py self-skips there. This job
-  # builds the add-on against the pinned mpt-crypto release and runs the full
-  # convert -> merge -> send -> convert-back -> clawback lifecycle for real.
+  # tests/integration/.../test_confidential_mpt.py self-skips there. This matrix
+  # builds the CFFI extension from source on each platform and runs the full
+  # convert -> merge -> send -> convert-back -> clawback lifecycle for real,
+  # validating the native layer (macOS @rpath dylib load, the Windows DLL) that
+  # a compile-and-import smoke test would miss. Mirrors xrpl4j's
+  # `build_confidential_native_its` (PR #810).
   #
-  # Gated on the private image: the lifecycle needs the ConfidentialTransfer
-  # amendment, which the configured private xrpld image (see .github/
-  # xrpld-image.env) provides. When XRPLD_PRIVATE_VERSION is cleared and the
-  # public default image is used, this job is skipped rather than failing on a
-  # node without the amendment.
+  # Ledger source per row (chosen by what the runner can do):
+  #   * local-rippled — runners with a Docker engine run the private xrpld image
+  #     (ConfidentialTransfer amendment) as a standalone Testcontainer. ARM Linux
+  #     emulates the amd64-only image via QEMU; macOS Intel gets Docker via Colima.
+  #   * devnet — macOS ARM (no nested virt) and Windows (no Linux containers)
+  #     cannot run the container, so they target Devnet via CONFIDENTIAL_IT_USE_DEVNET.
+  #
+  # Native provisioning is per-platform (CFFI compiles per Python version), so we
+  # pin ONE Python per platform — the risk we de-risk is the native layer, which
+  # is platform/arch-specific, not Python-version-specific. Pre-publish we build
+  # the ext from source; once xrpl-py-confidential wheels are published this can
+  # become `pip install xrpl-py-confidential`.
+  #
+  # NOTE: the devnet rows are `continue-on-error` (informational) until (a)
+  # ConfidentialTransfer is confirmed enabled on public Devnet and (b) the
+  # from-source CFFI build is shaken out on macOS-ARM / Windows runners.
   # ────────────────────────────────────────────────────────────────────────────
   confidential-integration-test:
-    name: Confidential MPT integration test
+    name: Confidential MPT IT · ${{ matrix.platform }} · ${{ matrix.network }}
     needs: resolve_xrpld_image
+    # The local-rippled rows need the private image (ConfidentialTransfer). When
+    # XRPLD_PRIVATE_VERSION is cleared (public default image), skip the whole
+    # matrix rather than fail on a node without the amendment.
     if: ${{ needs.resolve_xrpld_image.outputs.is_private == 'true' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    continue-on-error: ${{ matrix.network == 'devnet' }}
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Docker-native: local standalone rippled.
+          - os: ubuntu-latest
+            platform: linux-x86-64
+            python: "3.11"
+            network: local-rippled
+          # amd64-only image runs under QEMU emulation on ARM Linux.
+          - os: ubuntu-24.04-arm
+            platform: linux-aarch64
+            python: "3.11"
+            network: local-rippled
+            setup_qemu: true
+          # No preinstalled Docker; Colima provides the engine.
+          - os: macos-15-intel
+            platform: darwin-x86-64
+            python: "3.11"
+            network: local-rippled
+            setup_docker_via_colima: true
+          # No nested virtualization -> Devnet.
+          - os: macos-14
+            platform: darwin-aarch64
+            python: "3.11"
+            network: devnet
+          # No Linux containers -> Devnet.
+          - os: windows-latest
+            platform: win32-x86-64
+            python: "3.11"
+            network: devnet
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     env:
       XRPLD_DOCKER_IMAGE: ${{ needs.resolve_xrpld_image.outputs.image }}
       # `gh release download` of the mpt-crypto native bundle (public repo).
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # The confidential test reads this to target Devnet instead of localhost.
+      CONFIDENTIAL_IT_USE_DEVNET: ${{ matrix.network == 'devnet' && 'true' || 'false' }}
 
     steps:
       - name: Checkout code
@@ -183,15 +237,22 @@ jobs:
         with:
           ref: ${{ inputs.git_ref != '' && inputs.git_ref || github.ref }}
 
-      - name: Load cached .local
-        id: cache-poetry
-        uses: actions/cache@v4
+      # ── Provide a Docker engine + rippled for the local-rippled rows ──
+      - name: Set up QEMU (emulate the amd64 rippled image on ARM Linux)
+        if: ${{ matrix.setup_qemu }}
+        uses: docker/setup-qemu-action@v3
         with:
-          path: /home/runner/.local
-          key: dotlocal-${{ env.POETRY_VERSION }}
+          platforms: amd64
+
+      - name: Set up Docker via Colima (macOS Intel)
+        if: ${{ matrix.setup_docker_via_colima }}
+        run: |
+          brew install colima docker
+          colima start --cpus 3 --memory 8
+          echo "DOCKER_HOST=unix://$HOME/.colima/default/docker.sock" >> "$GITHUB_ENV"
 
       - name: Log in to the private GitLab registry
-        if: ${{ needs.resolve_xrpld_image.outputs.is_private == 'true' }}
+        if: ${{ matrix.network == 'local-rippled' }}
         env:
           GITLAB_REGISTRY_USERNAME: ${{ vars.GITLAB_REGISTRY_USERNAME }}
           GITLAB_REGISTRY_TOKEN: ${{ secrets.GITLAB_REGISTRY_TOKEN }}
@@ -200,27 +261,26 @@ jobs:
             --username "${GITLAB_REGISTRY_USERNAME}" \
             --password-stdin
 
-      - name: Run docker in background
+      - name: Run rippled (standalone)
+        if: ${{ matrix.network == 'local-rippled' }}
         run: |
           docker run \
             --detach \
+            --platform linux/amd64 \
             --publish 5005:5005 \
             --publish 6006:6006 \
             --volume "${{ github.workspace }}/.ci-config/":"/etc/xrpld/" \
             --name xrpld-service \
             "${XRPLD_DOCKER_IMAGE}" --standalone
 
-      - name: Install poetry
-        if: steps.cache-poetry.outputs.cache-hit != 'true'
-        run: |
-          curl -sSL https://install.python-poetry.org/ | python - --version ${{ env.POETRY_VERSION }}
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Install Python + Retrieve Poetry dependencies from cache
+      # ── Python + poetry (pipx is portable across all runners) ──
+      - name: Install Python ${{ matrix.python }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-          cache: "poetry"
+          python-version: ${{ matrix.python }}
+
+      - name: Install poetry
+        run: pipx install "poetry==${{ env.POETRY_VERSION }}"
 
       - name: Install poetry dependencies
         run: poetry install
@@ -230,9 +290,13 @@ jobs:
       - name: Install cffi (build-time only)
         run: poetry run pip install cffi
 
+      # Windows needs the MSVC developer environment to compile the CFFI ext.
+      - name: Set up MSVC (Windows)
+        if: ${{ runner.os == 'Windows' }}
+        uses: ilammy/msvc-dev-cmd@v1
+
       # Fetch the prebuilt libmpt-crypto for this platform from the pinned
-      # mpt-crypto release (linux-x86-64/libmpt-crypto.so) into
-      # xrpl/ext/confidential/libs/.
+      # mpt-crypto release into xrpl/ext/confidential/libs/.
       - name: Fetch pinned native mpt-crypto library
         run: |
           VERSION=$(grep -E '^MPT_CRYPTO_VERSION=' \
@@ -254,6 +318,6 @@ jobs:
           poetry run python -m unittest -v \
             tests.integration.transactions.test_confidential_mpt
 
-      - name: Stop docker container
-        if: always()
+      - name: rippled logs + stop
+        if: ${{ always() && matrix.network == 'local-rippled' }}
         run: docker logs xrpld-service && docker stop xrpld-service
