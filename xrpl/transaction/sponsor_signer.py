@@ -66,7 +66,7 @@ class SignSponsorResult:
     """The transaction object with ``sponsor_signature`` populated."""
 
     tx_blob: str
-    """Serialised hex blob of the transaction."""
+    """Serialized hex blob of the transaction."""
 
 
 @dataclass
@@ -77,7 +77,7 @@ class CombineSponsorSignersResult:
     """The transaction object with all sponsor signers merged."""
 
     tx_blob: str
-    """Serialised hex blob ready to be signed by the sponsee and submitted."""
+    """Serialized hex blob ready to be signed by the sponsee and submitted."""
 
 
 def sign_as_sponsor(
@@ -118,7 +118,7 @@ def sign_as_sponsor(
         A :class:`SignSponsorResult` containing:
 
         - ``tx`` - the transaction with ``sponsor_signature`` added.
-        - ``tx_blob`` - the serialised transaction blob (no sponsee sig yet).
+        - ``tx_blob`` - the serialized transaction blob (no sponsee sig yet).
 
     Raises:
         XRPLException: If the transaction has no ``sponsor`` field, if
@@ -239,7 +239,7 @@ def combine_sponsor_signers(
         A :class:`CombineSponsorSignersResult` containing:
 
         - ``tx`` - the combined transaction object.
-        - ``tx_blob`` - the serialised hex blob ready for the sponsee to sign
+        - ``tx_blob`` - the serialized hex blob ready for the sponsee to sign
           and submit.
 
     Raises:

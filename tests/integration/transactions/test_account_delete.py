@@ -1,9 +1,9 @@
-"""Integration test for sponsored AccountDelete.
+"""Integration tests for AccountDelete.
 
-When a sponsored account is deleted:
-- Destination must equal AccountRoot.Sponsor
-- Remaining XRP transfers to the sponsor
-- Sponsor's SponsoringAccountCount decrements
+- TestAccountDelete: the plain (non-sponsored) submit path.
+- TestAccountDeleteSponsored: XLS-68 sponsored-account deletion, where the
+  destination must equal the sponsor, remaining XRP repays the sponsor, and a
+  sponsor with outstanding obligations cannot delete itself.
 """
 
 from tests.integration.integration_test_case import IntegrationTestCase
@@ -13,6 +13,7 @@ from tests.integration.it_utils import (
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
+from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.asyncio.transaction import autofill, sign, submit
 from xrpl.models import SponsorshipTransfer
 from xrpl.models.requests import AccountInfo
@@ -32,6 +33,27 @@ ACCOUNT_DELETE_FEE = xrp_to_drops(5)
 
 # AccountDelete requires current_ledger_index >= account_sequence + 256.
 _LEDGERS_TO_ADVANCE = 260
+
+# Destination tag for the plain (non-sponsored) AccountDelete regression test.
+_DESTINATION_TAG = 3
+
+
+class TestAccountDelete(IntegrationTestCase):
+    @test_async_and_sync(globals())
+    async def test_all_fields(self, client):
+        # We can re-use the shared wallet bc this test should fail to actually
+        # delete the associated account (it hasn't aged 256 ledgers), so it only
+        # asserts the plain AccountDelete submits successfully.
+        account_delete = AccountDelete(
+            account=WALLET.address,
+            fee=ACCOUNT_DELETE_FEE,
+            destination=DESTINATION.address,
+            destination_tag=_DESTINATION_TAG,
+        )
+        response = await sign_and_reliable_submission_async(
+            account_delete, WALLET, client, check_fee=False
+        )
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
 
 
 def _sponsee_then_sponsor(transfer_tx, sponsee_wallet, sponsor_wallet):

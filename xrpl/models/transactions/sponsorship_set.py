@@ -204,13 +204,20 @@ class SponsorshipSet(Transaction):
                 elif int(self.max_fee) < 0:
                     errors["max_fee"] = "`max_fee` must not be negative."
 
-            # `remaining_owner_count_delta` must be non-zero (temINVALID).
-            if self.remaining_owner_count_delta == 0:
-                errors["remaining_owner_count_delta"] = (
-                    "`remaining_owner_count_delta` must be non-zero; it is a "
-                    "change to apply to the reserve budget, so zero has no "
-                    "effect."
-                )
+            # `remaining_owner_count_delta` must be non-zero (temINVALID) and fit
+            # in a signed 32-bit integer
+            if self.remaining_owner_count_delta is not None:
+                if self.remaining_owner_count_delta == 0:
+                    errors["remaining_owner_count_delta"] = (
+                        "`remaining_owner_count_delta` must be non-zero; it is a "
+                        "change to apply to the reserve budget, so zero has no "
+                        "effect."
+                    )
+                elif not (-(2**31) <= self.remaining_owner_count_delta <= 2**31 - 1):
+                    errors["remaining_owner_count_delta"] = (
+                        "`remaining_owner_count_delta` must fit in a signed 32-bit "
+                        "integer (-2147483648 to 2147483647)."
+                    )
 
             # A transaction that neither carries a modification field nor sets a
             # sponsorship flag does nothing (temREDUNDANT).

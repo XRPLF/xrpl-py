@@ -51,6 +51,7 @@ async def sign_and_submit(
     wallet: Wallet,
     autofill: bool = True,
     check_fee: bool = True,
+    sponsor_signers_count: Optional[int] = None,
 ) -> Response:
     """
     Signs a transaction (locally, without trusting external rippled nodes) and submits
@@ -63,15 +64,22 @@ async def sign_and_submit(
         autofill: whether to autofill the relevant fields. Defaults to True.
         check_fee: whether to check if the fee is higher than the expected transaction
             type fee. Defaults to True.
+        sponsor_signers_count: the expected number of keys the sponsor will
+            multi-sign with. Only used when the sponsor multi-signs; leave unset
+            for a pre-funded sponsorship or a single-signing sponsor.
 
     Returns:
         The response from the ledger.
     """
     if autofill:
-        transaction = await autofill_and_sign(transaction, client, wallet, check_fee)
+        transaction = await autofill_and_sign(
+            transaction, client, wallet, check_fee, sponsor_signers_count
+        )
     else:
         if check_fee:
-            await _check_fee(transaction, client)
+            await _check_fee(
+                transaction, client, sponsor_signers_count=sponsor_signers_count
+            )
         transaction = sign(transaction, wallet)
     return await submit(transaction, client)
 
@@ -131,6 +139,7 @@ async def autofill_and_sign(
     client: Client,
     wallet: Wallet,
     check_fee: bool = True,
+    sponsor_signers_count: Optional[int] = None,
 ) -> T:
     """
     Autofills relevant fields. Then, signs a transaction locally, without trusting
@@ -142,6 +151,9 @@ async def autofill_and_sign(
         client: a network client.
         check_fee: whether to check if the fee is higher than the expected transaction
             type fee. Defaults to True.
+        sponsor_signers_count: the expected number of keys the sponsor will
+            multi-sign with. Only used when the sponsor multi-signs; leave unset
+            for a pre-funded sponsorship or a single-signing sponsor.
 
     Returns:
         The signed transaction.
@@ -150,9 +162,17 @@ async def autofill_and_sign(
     # The fee check will be done if transaction.fee exists. Otherwise the fee
     # will be auto-filled in autofill()
     if check_fee:
-        await _check_fee(transaction, client)
+        await _check_fee(
+            transaction, client, sponsor_signers_count=sponsor_signers_count
+        )
 
-    return sign(await autofill(transaction, client), wallet, multisign=False)
+    return sign(
+        await autofill(
+            transaction, client, sponsor_signers_count=sponsor_signers_count
+        ),
+        wallet,
+        multisign=False,
+    )
 
 
 async def submit(

@@ -282,25 +282,35 @@ class TestBatchInnerSponsorRules(TestCase):
             )
         self.assertIn("`SPF_SPONSOR_FEE` (0x1) is not allowed", str(cm.exception))
 
-    def test_inner_placeholder_may_not_carry_signers(self):
-        """The sponsor signs through the outer BatchSigners instead."""
-        with self.assertRaises(XRPLModelException) as cm:
-            self._batch(
-                self._inner(
-                    sponsor=_SPONSOR,
-                    sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE,
-                    sponsor_signature=SponsorSignature(
-                        signers=[
-                            Signer(
-                                account=_SPONSOR,
-                                signing_pub_key="ED000000",
-                                txn_signature="DEADBEEF",
-                            )
-                        ]
-                    ),
-                )
-            )
-        self.assertIn("must be an empty placeholder", str(cm.exception))
+    def test_inner_placeholder_must_be_empty(self):
+        """Populating ANY field of the placeholder is rejected; the sponsor
+        signs through the outer BatchSigners instead (rippled: temBAD_SIGNER).
+        """
+        populated = {
+            "single-sig": SponsorSignature(
+                signing_pub_key="ED000000", txn_signature="DEADBEEF"
+            ),
+            "multi-sig": SponsorSignature(
+                signers=[
+                    Signer(
+                        account=_SPONSOR,
+                        signing_pub_key="ED000000",
+                        txn_signature="DEADBEEF",
+                    )
+                ]
+            ),
+        }
+        for shape, sponsor_signature in populated.items():
+            with self.subTest(shape=shape):
+                with self.assertRaises(XRPLModelException) as cm:
+                    self._batch(
+                        self._inner(
+                            sponsor=_SPONSOR,
+                            sponsor_flags=SponsorFlag.SPF_SPONSOR_RESERVE,
+                            sponsor_signature=sponsor_signature,
+                        )
+                    )
+                self.assertIn("must be an empty placeholder", str(cm.exception))
 
     def test_both_legal_inner_shapes_are_accepted(self):
         """Co-signed carries the empty placeholder; pre-funded omits it."""

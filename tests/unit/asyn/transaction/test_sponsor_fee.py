@@ -1,4 +1,9 @@
-"""Fee calculation for sponsored transactions."""
+"""Fee calculation for sponsored transactions.
+
+Fee *arithmetic* lives here. The submission entry points threading the signer
+counts into that arithmetic are covered in ``test_main.py`` (`sign_and_submit`,
+`autofill_and_sign`) and ``test_reliable_submission.py` (`submit_and_wait`).
+"""
 
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import AsyncMock, patch

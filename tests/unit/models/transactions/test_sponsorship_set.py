@@ -405,6 +405,38 @@ class TestSponsorshipSet(TestCase):
             )
         self.assertIn("must be non-zero", str(cm.exception))
 
+    def test_invalid_remaining_owner_count_delta_out_of_int32_range(self):
+        """It serializes as a signed Int32; out-of-range -> XRPLModelException.
+
+        Without the model check the codec would raise a raw OverflowError.
+        """
+        for label, value in (
+            ("above max", 2**31),
+            ("below min", -(2**31) - 1),
+        ):
+            with self.subTest(case=label):
+                with self.assertRaises(XRPLModelException) as cm:
+                    SponsorshipSet(
+                        account=_ACCOUNT,
+                        sponsee=_ACCOUNT2,
+                        remaining_owner_count_delta=value,
+                    )
+                self.assertIn("signed 32-bit", str(cm.exception))
+
+    def test_remaining_owner_count_delta_int32_boundaries_are_valid(self):
+        """The signed-Int32 extremes themselves fit and are accepted."""
+        for label, value in (
+            ("max", 2**31 - 1),
+            ("min", -(2**31)),
+        ):
+            with self.subTest(case=label):
+                tx = SponsorshipSet(
+                    account=_ACCOUNT,
+                    sponsee=_ACCOUNT2,
+                    remaining_owner_count_delta=value,
+                )
+                self.assertTrue(tx.is_valid())
+
     def test_invalid_negative_max_fee(self):
         """`max_fee` is an absolute cap, not a delta -> temBAD_AMOUNT."""
         with self.assertRaises(XRPLModelException) as cm:

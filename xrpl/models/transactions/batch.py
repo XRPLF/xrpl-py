@@ -124,9 +124,13 @@ class Batch(Transaction):
                 )
 
             # An inner is unsigned: its sponsor authorizes through the outer
-            # BatchSigners, so the placeholder must stay empty
-            # (rippled: temBAD_SIGNER).
-            if tx.sponsor_signature is not None and tx.sponsor_signature.signers:
+            # BatchSigners, so the placeholder must stay empty -- populating ANY
+            # of the three fields is rejected (rippled: temBAD_SIGNER).
+            if tx.sponsor_signature is not None and (
+                tx.sponsor_signature.signing_pub_key is not None
+                or tx.sponsor_signature.txn_signature is not None
+                or tx.sponsor_signature.signers is not None
+            ):
                 errors[f"raw_transactions[{i}].sponsor_signature"] = (
                     "A Batch inner transaction's `sponsor_signature` must be an "
                     "empty placeholder; the sponsor signs through the outer "

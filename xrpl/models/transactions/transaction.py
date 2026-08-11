@@ -371,7 +371,11 @@ class Transaction(BaseModel):
         if self.sponsor is not None and isinstance(
             self.transaction_type, PseudoTransactionType
         ):
-            errors["sponsor"] = "Pseudo-transactions cannot be sponsored."
+            # Distinct key from the `sponsor == account` check above so both
+            # errors can surface instead of one overwriting the other.
+            errors["sponsor_pseudo_transaction"] = (
+                "Pseudo-transactions cannot be sponsored."
+            )
 
         # An outer Batch creates no objects of its own, so reserve sponsorship on
         # it is meaningless and disallowed. Fee sponsorship
