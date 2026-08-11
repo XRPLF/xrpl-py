@@ -83,7 +83,8 @@ tx = prepare_confidential_convert(
 response = sign_and_submit(tx, client, wallet)
 ```
 
-Builders (each returns a ready-to-sign model with the correct fee already set):
+Builders (each returns a ready-to-sign model; the confidential fee is applied by
+core xrpl-py autofill on submit — see "Behaviors worth knowing"):
 
 | Function | Transaction |
 |---|---|
@@ -94,7 +95,17 @@ Builders (each returns a ready-to-sign model with the correct fee already set):
 | `prepare_confidential_clawback(client, issuer_wallet, ...)` | issuer reclaim |
 
 Each handles ledger queries, context-hash computation, ZK-proof generation,
-encryption, the confidential fee, and model construction.
+encryption, and model construction. They deliberately leave the `fee` unset —
+core xrpl-py autofill applies the confidential multiplier on submit.
+
+You can also decrypt your own on-ledger confidential balance:
+
+```python
+from xrpl.ext.confidential import decrypt_confidential_balance
+
+# e.g. the holder's ConfidentialBalanceSpending, or the issuer/auditor mirror
+balance = decrypt_confidential_balance(balance_hex, privkey, range_high=10_000)
+```
 
 ### Low-level `MPTCrypto`
 
@@ -114,9 +125,23 @@ commitment = crypto.create_pedersen_commitment(amount=1000, blinding_factor=blin
 ## Behaviors worth knowing
 
 - **Confidential fee = `base_fee × 10`.** rippled charges
-  `base_fee × (kConfidentialFeeMultiplier + 1)` for ZK-proof verification. The
-  builders set this automatically; if you hand-build a confidential transaction
-  and let autofill set only the base fee you will get `telINSUF_FEE_P`.
+  `base_fee × (kConfidentialFeeMultiplier + 1)` for ZK-proof verification.
+  **Core xrpl-py autofill applies this multiplier** for every `ConfidentialMPT*`
+  transaction type — the builders leave `fee` unset on purpose. So the normal
+  sign-and-submit path just works. If you **sign offline / skip autofill**, you
+  must set `fee = base_fee × 10` yourself, or the submit fails `telINSUF_FEE_P`.
+- **The proof is bound to the `Sequence`.** Each builder queries the account
+  sequence, binds it into the proof's context hash, and pins it on the returned
+  transaction. Do **not** let autofill (or a concurrently-submitted transaction)
+  change the sequence between building and submitting, or verification fails.
+- **First convert registers your key; later converts must not.** The first
+  `ConfidentialMPTConvert` for an account carries the `HolderEncryptionKey` + a
+  proof of knowledge (the opt-in); subsequent converts must omit them or rippled
+  returns `tecDUPLICATE`. The builder detects this from the ledger automatically,
+  so just call it — but if you hand-build, include the key only on the first.
+- **Auditor ciphertext is mandatory once an auditor key is registered.** If the
+  issuance has an `AuditorEncryptionKey`, every confidential transaction must
+  carry an `auditor_encrypted_amount` — pass `auditor_pubkey=` to the builders.
 - **`definitions.json` must match the target rippled.** Field codes for the
   confidential fields can shift between rippled builds. If a submit fails with
   `Field '<X>' is required but missing`, regenerate the client definitions from
@@ -167,6 +192,7 @@ at dev time by `setup_mpt_crypto.sh` and, in CI, built/fetched per platform.
 | `ModuleNotFoundError: No module named 'cffi'` | `poetry run pip install cffi` (step 2). |
 | `Pre-compiled libraries not found` at build | Native lib not fetched — run `setup_mpt_crypto.sh download` (step 3). |
 | Submit fails `Field '...' is required but missing` | Client `definitions.json` out of sync with rippled — regenerate from `server_definitions`. |
-| Submit fails `telINSUF_FEE_P` | Confidential fee too low — use the builders (they set `base_fee × 10`). |
+| Submit fails `telINSUF_FEE_P` | Confidential fee too low. Use autofill (sign_and_submit), which applies `base_fee × 10`; if signing offline, set `fee = base_fee × 10` yourself. |
+| Submit fails `tecDUPLICATE` on convert | The `HolderEncryptionKey` is already registered — omit it (and the proof) on subsequent converts. The builder handles this automatically. |
 | `decrypt` hangs for minutes | `range_high` too large; bound by actual supply, not `MaximumAmount`. |
 | `badFeature` for `ConfidentialTransfer` | rippled build lacks the amendment — see Prerequisites. |

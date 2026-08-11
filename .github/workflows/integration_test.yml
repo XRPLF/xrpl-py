@@ -157,9 +157,15 @@ jobs:
   # The ConfidentialMPT* models and the fee-in-autofill logic live in CORE
   # xrpl-py, so this job (which runs on every PR) is the regression net for
   # core-side changes that the confidential-paths-filtered
-  # build_wheels_confidential.yml would not trigger on. Cross-platform NATIVE
-  # coverage (macOS / Windows / ARM, consuming the built wheels) lives in that
-  # workflow's `confidential-native-it` job instead.
+  # build_wheels_confidential.yml would not trigger on. It exercises the full
+  # lifecycle against a real ledger — the platform-independent behavior.
+  #
+  # Cross-platform NATIVE coverage (does the wheel build, load, and pass the
+  # native crypto unit tests on macOS / Windows / ARM?) is handled separately by
+  # build_wheels_confidential.yml's cibuildwheel matrix, whose per-wheel
+  # `test-command` runs the `test_utility_layer` native unit tests on each
+  # platform. The confidential crypto is deterministic and the rest is pure
+  # Python, so the integration lifecycle only needs to run once (here, on Linux).
   #
   # The native add-on ships as the separate xrpl-py-confidential distribution and
   # is not a core dependency, so it's built from source here — Linux x86-64 only,

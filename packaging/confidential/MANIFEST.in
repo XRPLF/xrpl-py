@@ -1,0 +1,15 @@
+# Files needed by a from-source build that setuptools does not auto-include in
+# the sdist (only *.py are included by default). Paths are relative to this
+# project root (packaging/confidential/); scripts/stage-source.sh copies
+# <repo>/xrpl/ext/confidential/ to ./xrpl/ext/confidential/ before the build.
+#
+# The vendored C headers are #included by build_mpt_crypto.py's ffibuilder
+# set_source(); without them a source build fails with "secp256k1.h not found".
+recursive-include xrpl/ext/confidential/include *.h
+
+# The native-library fetch/build helper + the pinned version it downloads. The
+# shared library itself is NOT shipped — it is fetched at build time (or supplied
+# via MPT_CRYPTO_LIB_DIR); a from-sdist build on a platform with no prebuilt wheel
+# still needs the native lib present to link.
+include xrpl/ext/confidential/setup_mpt_crypto.sh
+include xrpl/ext/confidential/MPT_CRYPTO_VERSION

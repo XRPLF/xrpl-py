@@ -37,6 +37,7 @@ from xrpl.models.transactions import (
     ConfidentialMPTMergeInbox,
     ConfidentialMPTSend,
 )
+from xrpl.models.transactions.confidential_mpt_constants import CIPHERTEXT_LENGTH
 from xrpl.wallet import Wallet
 
 try:
@@ -45,10 +46,79 @@ try:
 
     # Global MPTCrypto instance used by all transaction builder functions
     crypto = MPTCrypto()
-except ImportError:
+    _NATIVE_IMPORT_ERROR: Optional[ImportError] = None
+except ImportError as error:
     crypto = None  # type: ignore
     ffi = None  # type: ignore
     lib = None  # type: ignore
+    _NATIVE_IMPORT_ERROR = error
+
+
+def _require_native() -> None:
+    """Raise the actionable "install the add-on" error if the native mpt-crypto
+    extension is unavailable.
+
+    Without this, a caller lacking the native library would hit a cryptic
+    ``AttributeError: 'NoneType' object has no attribute ...`` deep inside a
+    builder (``crypto``/``lib`` are ``None``). Re-raises the original
+    :class:`ImportError` from ``crypto_bindings`` — which already carries the
+    ``pip install xrpl-py-confidential`` instructions — chained as the cause.
+
+    Raises:
+        ImportError: If the native mpt-crypto extension is not available.
+    """
+    if crypto is None:
+        raise ImportError(
+            "Confidential MPT proof generation requires the native mpt-crypto "
+            "extension, which is not available. Install the add-on with:  "
+            "pip install xrpl-py-confidential"
+        ) from _NATIVE_IMPORT_ERROR
+
+
+def decrypt_confidential_balance(
+    balance_hex: str,
+    privkey: str,
+    range_low: int = 0,
+    range_high: int = DEFAULT_DECRYPT_RANGE_HIGH,
+) -> int:
+    """Decrypt an on-ledger ElGamal balance blob to its plaintext amount.
+
+    Convenience wrapper over :meth:`MPTCrypto.decrypt` that slices the 132-char
+    hex ``c1 || c2`` blob for you. Use it to read your own confidential balance
+    from an MPToken's ``ConfidentialBalanceSpending`` / ``ConfidentialBalanceInbox``
+    (with the holder's private key), or the ``IssuerEncryptedBalance`` /
+    ``AuditorEncryptedBalance`` mirror (with the issuer's / auditor's key).
+
+    Decryption is a brute-force discrete-log search over
+    ``[range_low, range_high]``; cost is O(range_high - range_low), so bound it
+    as tightly as the issuance's outstanding amount allows.
+
+    Args:
+        balance_hex: 132-char hex ElGamal ciphertext (``c1 || c2``). An empty
+            string (no confidential balance yet) returns 0.
+        privkey: 64-char hex of the decrypting party's private key.
+        range_low: Inclusive lower bound of the search range (default 0).
+        range_high: Inclusive upper bound of the search range.
+
+    Returns:
+        The decrypted balance as a ``uint64``.
+
+    Raises:
+        ImportError: If the native mpt-crypto extension is not installed.
+        ValueError: If ``balance_hex`` is non-empty but not 132 hex characters.
+    """
+    _require_native()
+    if not balance_hex:
+        return 0
+    if len(balance_hex) != CIPHERTEXT_LENGTH:
+        raise ValueError(
+            f"balance_hex must be {CIPHERTEXT_LENGTH} hex characters "
+            f"({CIPHERTEXT_LENGTH // 2}-byte c1||c2 ElGamal ciphertext)"
+        )
+    half = CIPHERTEXT_LENGTH // 2  # c1 is the first compressed point (66 hex)
+    return crypto.decrypt(
+        privkey, balance_hex[:half], balance_hex[half:], range_low, range_high
+    )
 
 
 def _generate_blinding_factor() -> str:
@@ -175,6 +245,7 @@ def _assemble_convert(  # noqa: ANN
     auditor_pubkey: Optional[str],
     holder_key_registered: bool,
 ) -> ConfidentialMPTConvert:
+    _require_native()
     if holder_pubkey is None:
         # Never auto-generate here: the public key is registered on-chain, but a
         # private key generated (and discarded) inside the builder would be
@@ -247,6 +318,7 @@ def _assemble_send(  # noqa: ANN
     issuer_pubkey: str,
     auditor_pubkey: Optional[str],
 ) -> ConfidentialMPTSend:
+    _require_native()
     if not balance_hex:
         raise ValueError("Sender has no confidential balance")
 
@@ -333,6 +405,7 @@ def _assemble_convert_back(  # noqa: ANN
     issuer_pubkey: str,
     auditor_pubkey: Optional[str],
 ) -> ConfidentialMPTConvertBack:
+    _require_native()
     if not balance_hex:
         raise ValueError("Holder has no confidential balance")
 
@@ -397,6 +470,7 @@ def _assemble_clawback(  # noqa: ANN
     issuer_pubkey: str,
     issuer_encrypted_balance: str,
 ) -> ConfidentialMPTClawback:
+    _require_native()
     context_id = compute_clawback_context_hash(
         issuer=account,
         sequence=sequence,

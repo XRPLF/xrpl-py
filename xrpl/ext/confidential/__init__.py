@@ -18,6 +18,7 @@ from xrpl.ext.confidential.main import MPTCrypto
 # TYPE_CHECKING block keeps the names resolvable for type checkers / IDEs.
 if TYPE_CHECKING:
     from xrpl.ext.confidential.transaction_builders import (  # noqa: F401
+        decrypt_confidential_balance,
         prepare_confidential_clawback,
         prepare_confidential_clawback_async,
         prepare_confidential_convert,
@@ -32,6 +33,7 @@ if TYPE_CHECKING:
 
 _LAZY_BUILDERS = frozenset(
     {
+        "decrypt_confidential_balance",
         "prepare_confidential_clawback",
         "prepare_confidential_clawback_async",
         "prepare_confidential_convert",
@@ -75,6 +77,8 @@ __all__ = [
     "prepare_confidential_send_async",
     "prepare_confidential_convert_back_async",
     "prepare_confidential_clawback_async",
+    # Balance decryption helper (resolved lazily via __getattr__)
+    "decrypt_confidential_balance",
     # Size constants
     "PRIVKEY_SIZE",
     "PUBKEY_COMPRESSED_SIZE",
