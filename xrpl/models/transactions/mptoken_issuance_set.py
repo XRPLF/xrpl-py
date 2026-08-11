@@ -212,7 +212,7 @@ class MPTokenIssuanceSet(Transaction):
 
         # tfMPTLock/tfMPTUnlock cannot be combined with a mutate operation.
         if is_mutate and (is_lock or is_unlock):
-            errors["flags"] = (
+            errors["lock_unlock_mutate"] = (
                 "TF_MPT_LOCK/TF_MPT_UNLOCK cannot be combined with capability "
                 "flags, mptoken_metadata, transfer_fee, or immutable_flags"
             )
