@@ -131,3 +131,14 @@ class TestMPTokenIssuanceCreate(TestCase):
                 with self.assertRaises(XRPLModelException) as error:
                     MPTokenIssuanceCreate(account=_ACCOUNT, immutable_flags=value)
                 self.assertIn(message, error.exception.args[0])
+
+    def test_domain_id_invalid_fails(self):
+        cases = [
+            ("ABCD", "domain_id length must be 64 characters."),
+            ("Z" * 64, "domain_id must only contain hexadecimal characters."),
+        ]
+        for value, message in cases:
+            with self.subTest(domain_id=value):
+                with self.assertRaises(XRPLModelException) as error:
+                    MPTokenIssuanceCreate(account=_ACCOUNT, domain_id=value)
+                self.assertIn(message, error.exception.args[0])

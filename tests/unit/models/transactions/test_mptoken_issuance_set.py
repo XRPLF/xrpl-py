@@ -81,6 +81,35 @@ class TestMPTokenIssuanceSet(TestCase):
             "domain_id and holder cannot both be set", error.exception.args[0]
         )
 
+    def test_domain_id_invalid_fails(self):
+        """Malformed domain_id (wrong length or non-hex) is rejected."""
+        cases = [
+            ("ABCD", "domain_id length must be 64 characters."),
+            ("Z" * 64, "domain_id must only contain hexadecimal characters."),
+        ]
+        for value, message in cases:
+            with self.subTest(domain_id=value):
+                with self.assertRaises(XRPLModelException) as error:
+                    MPTokenIssuanceSet(
+                        account=_ACCOUNT,
+                        mptoken_issuance_id=_TOKEN_ID,
+                        domain_id=value,
+                    )
+                self.assertIn(message, error.exception.args[0])
+
+    def test_domain_id_invalid_and_holder_reports_both(self):
+        """An invalid domain_id and a holder surface as separate errors."""
+        with self.assertRaises(XRPLModelException) as error:
+            MPTokenIssuanceSet(
+                account=_ACCOUNT,
+                mptoken_issuance_id=_TOKEN_ID,
+                holder=_HOLDER,
+                domain_id="ABCD",
+            )
+        message = error.exception.args[0]
+        self.assertIn("domain_id length must be 64 characters.", message)
+        self.assertIn("domain_id and holder cannot both be set", message)
+
     # --- DynamicMPT: capability-setting flags + all dynamic fields ---
     def test_valid_with_all_dynamic_fields(self):
         """Multiple capability flags, multiple immutable_flags, metadata, and

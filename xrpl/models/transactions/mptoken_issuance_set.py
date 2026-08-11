@@ -19,6 +19,7 @@ from xrpl.models.utils import (
     HEX_REGEX,
     MAX_MPTOKEN_METADATA_LENGTH,
     MPT_META_WARNING_HEADER,
+    validate_domain_id,
 )
 
 _MAX_TRANSFER_FEE: Final[int] = 50000
@@ -183,9 +184,14 @@ class MPTokenIssuanceSet(Transaction):
                 "flag conflict: both TF_MPT_LOCK and TF_MPT_UNLOCK can't be set"
             )
 
+        if self.domain_id is not None:
+            err = validate_domain_id(self.domain_id)
+            if err:
+                errors["domain_id"] = err
+
         # domain_id and holder are mutually exclusive.
         if self.domain_id is not None and self.holder is not None:
-            errors["domain_id"] = "domain_id and holder cannot both be set"
+            errors["domain_id_holder"] = "domain_id and holder cannot both be set"
 
         # A transaction "mutates the issuance" if it sets any capability flag,
         # updates metadata / transfer_fee, or declares immutability.

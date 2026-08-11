@@ -15,6 +15,7 @@ from xrpl.models.utils import (
     HEX_REGEX,
     MAX_MPTOKEN_METADATA_LENGTH,
     MPT_META_WARNING_HEADER,
+    validate_domain_id,
 )
 
 _MAX_TRANSFER_FEE: Final[int] = 50000
@@ -194,6 +195,11 @@ class MPTokenIssuanceCreate(Transaction):
                     + [f"- {msg}" for msg in validation_messages]
                 )
                 warnings.warn(message, stacklevel=5)
+
+        if self.domain_id is not None:
+            err = validate_domain_id(self.domain_id)
+            if err:
+                errors["domain_id"] = err
 
         # Validate immutable_flags (DynamicMPT)
         if self.immutable_flags is not None:
