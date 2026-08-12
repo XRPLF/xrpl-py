@@ -33,8 +33,9 @@ poetry install
 #    NOT a core xrpl-py dependency, so install it into the venv explicitly:
 poetry run pip install cffi
 
-# 3. Fetch the pinned native shared library into xrpl/ext/confidential/libs/.
-#    (Headers are already committed under include/.) Pass the version from
+# 3. Fetch the pinned self-contained static archive into xrpl/ext/confidential/libs/.
+#    (Headers are already committed under include/.) It is linked INTO the
+#    extension in step 4. Pass the version from
 #    xrpl/ext/confidential/MPT_CRYPTO_VERSION (currently 1.0.2):
 VERSION=$(grep -E '^MPT_CRYPTO_VERSION=' xrpl/ext/confidential/MPT_CRYPTO_VERSION | cut -d= -f2)
 ./xrpl/ext/confidential/setup_mpt_crypto.sh download --version "$VERSION"

@@ -41,16 +41,17 @@ fi
 
 tar -xzf "$TMP/$BUNDLE" -C "$TMP"
 mkdir -p "$PKG/libs/win32"
-cp "$TMP/win32-x86-64/mpt-crypto.dll" "$PKG/libs/win32/"
-# Windows also needs the MSVC import library to LINK the CFFI extension
-# (build_mpt_crypto.py uses libraries=["mpt-crypto"] + library_dirs=[libs/win32]);
-# the .dll alone only satisfies the runtime load.
-if [ -f "$TMP/win32-x86-64/mpt-crypto.lib" ]; then
-  cp "$TMP/win32-x86-64/mpt-crypto.lib" "$PKG/libs/win32/"
+# The self-contained STATIC archive is linked INTO the CFFI extension
+# (build_mpt_crypto.py uses extra_objects=[mpt-crypto-static.lib]); no DLL is
+# shipped or loaded at runtime. The manifest lists the Win32 system libs to
+# co-link.
+if [ -f "$TMP/win32-x86-64/mpt-crypto-static.lib" ]; then
+  cp "$TMP/win32-x86-64/mpt-crypto-static.lib" "$PKG/libs/win32/"
+  cp "$TMP/win32-x86-64/mpt-crypto-static.link-libs.txt" "$PKG/libs/win32/"
 else
-  echo "ERROR: mpt-crypto.lib (import library) missing from the natives bundle;" >&2
-  echo "the CFFI extension cannot link on Windows without it. Use an mpt-crypto" >&2
-  echo "release whose win32-x86-64 bundle includes mpt-crypto.lib." >&2
+  echo "ERROR: mpt-crypto-static.lib (self-contained static archive) missing from" >&2
+  echo "the natives bundle; the CFFI extension cannot link on Windows without it." >&2
+  echo "Use an mpt-crypto release whose win32-x86-64 bundle includes it." >&2
   exit 1
 fi
 

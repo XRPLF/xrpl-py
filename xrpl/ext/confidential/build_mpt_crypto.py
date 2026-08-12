@@ -11,8 +11,7 @@ from cffi import FFI
 ffibuilder = FFI()
 
 # Define the C API that we want to expose to Python
-ffibuilder.cdef(
-    """
+ffibuilder.cdef("""
     // ────────────────────────────────────────────────────────────────────
     // Prover-focused FFI surface for mpt-crypto (XLS-0096 Confidential MPT).
     //
@@ -27,17 +26,14 @@ ffibuilder.cdef(
     typedef struct { unsigned char data[64]; } secp256k1_pubkey;
 
     // NOTE on vanilla upstream secp256k1 symbols. secp256k1 is statically linked
-    // INTO libmpt-crypto; on Windows its symbols are NOT re-exported by the DLL
-    // (only mpt-crypto's own API is), so referencing them breaks the link
-    // (LNK2001). Therefore:
-    //   * secp256k1_context_create / _destroy are not declared at all — we use
-    //     the exported mpt_secp256k1_context() (below) on every platform.
-    //   * secp256k1_ec_pubkey_parse IS available on the Linux/macOS shared libs,
-    //     so it is declared conditionally (off-Windows only) via a second cdef()
-    //     further down, keeping create_bulletproof/verify_bulletproof usable
-    //     there while the Windows extension still links.
-    // Keep the typedefs above — the exported bulletproof / mpt_ signatures below
-    // still use them.
+    // INTO the extension (via the self-contained mpt-crypto archive), so its
+    // public API is bound directly on every platform — including Windows, where a
+    // DLL would not have re-exported these symbols. secp256k1_ec_pubkey_parse is
+    // therefore declared unconditionally (further down), so
+    // create_bulletproof/verify_bulletproof work everywhere. We still use the
+    // exported mpt_secp256k1_context() for the shared context rather than
+    // secp256k1_context_create/_destroy. Keep the typedefs above — the bulletproof
+    // / mpt_ signatures below still use them.
 
     // Globally shared secp256k1 context owned by mpt-crypto (do not destroy).
     secp256k1_context* mpt_secp256k1_context(void);
@@ -183,94 +179,108 @@ ffibuilder.cdef(
     #define kMPT_SCHNORR_PROOF_SIZE ...
     #define kMPT_SINGLE_BULLETPROOF_SIZE ...
     #define kMPT_DOUBLE_BULLETPROOF_SIZE ...
-"""
-)
+""")
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Locate the pre-built shared library
+# Locate the self-contained STATIC archive and link it INTO the extension.
 #
-# The CI now builds mpt-crypto as a single self-contained shared library with
-# secp256k1 and OpenSSL statically linked in.  This is much smaller than the
-# old approach of shipping three separate static archives (.a / .lib).
+# mpt-crypto ships a self-contained static archive (secp256k1 + OpenSSL merged
+# in). We statically link it into the _mpt_crypto extension, so the compiled
+# .so/.pyd is self-contained: no shared library to load at runtime, no rpath,
+# and — on Windows — no LoadLibrary preload. secp256k1's API is linked directly,
+# so secp256k1_ec_pubkey_parse is available on every platform (the old Windows
+# DLL did not re-export it).
 #
-# Expected layout:
-#   libs/linux/libmpt-crypto.so
-#   libs/darwin/libmpt-crypto.dylib
-#   libs/win32/mpt-crypto.dll
+# Expected layout (staged by the before-all step, per platform):
+#   libs/linux/libmpt-crypto.a
+#   libs/darwin/libmpt-crypto.a
+#   libs/win32/mpt-crypto-static.lib
+#   libs/<platform>/mpt-crypto-static.link-libs.txt   (system libs to co-link)
 # ──────────────────────────────────────────────────────────────────────────────
 script_dir = os.path.dirname(os.path.abspath(__file__))
 system = platform.system().lower()
 
 if system == "darwin":
     lib_subdir = "darwin"
-    shared_lib_name = "libmpt-crypto.dylib"
+    static_lib_name = "libmpt-crypto.a"
 elif system == "linux":
     lib_subdir = "linux"
-    shared_lib_name = "libmpt-crypto.so"
+    static_lib_name = "libmpt-crypto.a"
 elif system == "windows" or system.startswith("win"):
     lib_subdir = "win32"
-    shared_lib_name = "mpt-crypto.dll"
+    static_lib_name = "mpt-crypto-static.lib"
 else:
     raise RuntimeError(f"Unsupported platform: {system}")
 
-# Platform-gated FFI surface: secp256k1_ec_pubkey_parse is exported by the
-# Linux/macOS shared library but not by the Windows DLL (statically-linked
-# secp256k1 symbols aren't re-exported on Windows). Declaring it only off-Windows
-# lets the Windows extension link while commitments.create_bulletproof /
-# verify_bulletproof stay available on Linux/macOS (they guard on
-# hasattr(lib, "secp256k1_ec_pubkey_parse") at runtime).
-if lib_subdir != "win32":
-    ffibuilder.cdef(
-        "int secp256k1_ec_pubkey_parse("
-        "const secp256k1_context* ctx, secp256k1_pubkey* pubkey, "
-        "const unsigned char* input, size_t inputlen);"
-    )
+# secp256k1_ec_pubkey_parse is now linked directly from the static archive on
+# every platform (static linking binds symbols that a DLL would not re-export),
+# so declare it unconditionally — this restores commitments.create_bulletproof /
+# verify_bulletproof on Windows.
+ffibuilder.cdef(
+    "int secp256k1_ec_pubkey_parse("
+    "const secp256k1_context* ctx, secp256k1_pubkey* pubkey, "
+    "const unsigned char* input, size_t inputlen);"
+)
 
 libs_dir = os.path.join(script_dir, "libs", lib_subdir)
 include_dir = os.path.join(script_dir, "include")
-shared_lib_path = os.path.join(libs_dir, shared_lib_name)
+static_lib_path = os.path.join(libs_dir, static_lib_name)
+link_libs_manifest = os.path.join(libs_dir, "mpt-crypto-static.link-libs.txt")
 
-# The library is only needed when we actually COMPILE the extension
+
+def _read_system_libs(manifest_path: str) -> list:
+    """Read the system libraries to co-link, from the archive's manifest.
+
+    mpt-crypto emits ``mpt-crypto-static.link-libs.txt`` next to the archive —
+    one library name per line (the C++ runtime + OpenSSL's OS-level deps that
+    the self-contained archive still needs). Falls back to per-platform defaults
+    if the manifest is absent (e.g. an older bundle).
+    """
+    if os.path.exists(manifest_path):
+        names = []
+        with open(manifest_path) as handle:
+            for line in handle:
+                name = line.strip()
+                if name and not name.startswith("#"):
+                    names.append(name)
+        if names:
+            return names
+    if system == "darwin":
+        return ["c++"]
+    if system == "linux":
+        return ["stdc++", "pthread", "dl", "m"]
+    return [
+        "crypt32",
+        "ws2_32",
+        "advapi32",
+        "user32",
+        "gdi32",
+        "bcrypt",
+        "legacy_stdio_definitions",
+    ]
+
+
+# The archive is only needed when we actually COMPILE the extension
 # (ffibuilder.compile() during a wheel build). This module is also imported
 # purely for metadata — e.g. `build --sdist`, whose isolated env has no
-# compiled natives — so a missing library here must NOT abort the import.
+# staged natives — so a missing archive here must NOT abort the import.
 # We warn instead; the linker enforces presence at wheel-compile time.
-if not os.path.exists(shared_lib_path):
+if not os.path.exists(static_lib_path):
     print(
-        f"WARNING: mpt-crypto shared library not found at {shared_lib_path}. "
+        f"WARNING: mpt-crypto static archive not found at {static_lib_path}. "
         f"This is required only when building a wheel (ffibuilder.compile); "
         f"source-only builds (sdist) are unaffected. Run "
         f"./xrpl/ext/confidential/setup_mpt_crypto.sh download to fetch it.",
         file=sys.stderr,
     )
 
-library_dirs = [libs_dir]
 include_dirs = [include_dir]
+# System libs the self-contained archive still needs (C++ runtime + OpenSSL's
+# OS-level deps). They are linked AFTER the archive.
+libraries = _read_system_libs(link_libs_manifest)
 
-extra_compile_args = []
-extra_link_args = []
-
-# Link against the single shared library — all dependencies (secp256k1,
-# OpenSSL) are already statically linked inside it.
-libraries = ["mpt-crypto"]
-
-if system == "darwin":
-    # Set rpath so the extension can find the shared library at runtime
-    extra_link_args = [
-        f"-Wl,-rpath,{libs_dir}",
-        f"-Wl,-rpath,@loader_path/libs/{lib_subdir}",
-    ]
-elif system == "linux":
-    extra_compile_args = ["-fPIC"]
-    extra_link_args = [
-        f"-Wl,-rpath,{libs_dir}",
-        f"-Wl,-rpath,$ORIGIN/libs/{lib_subdir}",
-    ]
-elif system == "windows" or system.startswith("win"):
-    # MSVC links against the import library mpt-crypto.lib, resolved from
-    # library_dirs (libs/win32); the matching mpt-crypto.dll is loaded at
-    # runtime (see crypto_bindings._preload_shared_library).
-    libraries = ["mpt-crypto"]
+extra_compile_args = ["-fPIC"] if system == "linux" else []
+extra_link_args: list = []
 
 ffibuilder.set_source(
     "_mpt_crypto",
@@ -283,8 +293,10 @@ ffibuilder.set_source(
     #include <secp256k1_mpt.h>
     #include "utility/mpt_utility.h"
     """,
+    # Statically link the whole self-contained archive INTO the extension, so the
+    # compiled _mpt_crypto is standalone (no runtime shared-library dependency).
+    extra_objects=[static_lib_path],
     libraries=libraries,
-    library_dirs=library_dirs,
     include_dirs=include_dirs,
     extra_compile_args=extra_compile_args,
     extra_link_args=extra_link_args,
@@ -306,7 +318,7 @@ if __name__ == "__main__":
         # Print summary
         print("")
         print("Build complete!")
-        print(f"  Shared library: {shared_lib_path}")
-        print(f"  Size: {os.path.getsize(shared_lib_path) / (1024*1024):.1f} MB")
+        print(f"  Static archive: {static_lib_path}")
+        print(f"  Size: {os.path.getsize(static_lib_path) / (1024*1024):.1f} MB")
     finally:
         os.chdir(original_dir)

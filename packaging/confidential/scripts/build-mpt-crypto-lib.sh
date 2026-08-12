@@ -60,21 +60,25 @@ if [ "${ACTUAL_SHA}" != "${MPT_CRYPTO_COMMIT}" ]; then
 fi
 
 # ── 3. Build via upstream's own script (keeps us ABI-aligned) ──
+# build-native-libs.sh produces the self-contained STATIC archive (secp256k1 +
+# OpenSSL merged in) that we link into the CFFI extension, plus the link-libs
+# manifest listing the system libs to co-link.
 pushd "$SRC" >/dev/null
 if [ "$(uname -s)" = "Darwin" ]; then
   export MACOSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET:-13.0}"
 fi
-bash ./.github/scripts/build-shared-lib.sh
+bash ./.github/scripts/build-native-libs.sh
 popd >/dev/null
 
-# ── 4. Stage the built library into the package's libs/<platform>/ ──
+# ── 4. Stage the static archive + its manifest into libs/<platform>/ ──
 if [ "$(uname -s)" = "Darwin" ]; then
-  mkdir -p "$PKG/libs/darwin"
-  cp "$SRC/build/libmpt-crypto.dylib" "$PKG/libs/darwin/"
+  DEST="$PKG/libs/darwin"
 else
-  mkdir -p "$PKG/libs/linux"
-  cp "$SRC/build/libmpt-crypto.so" "$PKG/libs/linux/"
+  DEST="$PKG/libs/linux"
 fi
+mkdir -p "$DEST"
+cp "$SRC/build/libmpt-crypto-bundled.a" "$DEST/libmpt-crypto.a"
+cp "$SRC/build/mpt-crypto-static.link-libs.txt" "$DEST/"
 
 echo "==> Staged library:"
 find "$PKG/libs" -type f | sort
