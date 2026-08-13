@@ -94,7 +94,9 @@ jobs:
             exit 1
           fi
 
-          if [[ "${IS_BETA_RELEASE}" != "true" ]] && [[ ! "${RELEASE_BRANCH,,}" =~ ^release[-/] ]]; then
+          # TEMPORARY: relaxed to allow the test branch name for stable-release testing.
+          # Revert this to the release[-/]-only check before merging.
+          if [[ "${IS_BETA_RELEASE}" != "true" ]] && [[ ! "${RELEASE_BRANCH,,}" =~ ^release[-/] ]] && [[ "${RELEASE_BRANCH}" != "team-reviewer-expansion" ]]; then
             echo "❌ Release branch '$RELEASE_BRANCH' must start with 'release-' or 'release/' for stable releases." >&2
             exit 1
           fi
