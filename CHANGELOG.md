@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added support for the XLS-68d Sponsored-Fees-Reserves amendment
+- Added support for the Sponsored Fees and Reserves (XLS-68)
+- Support for `Dynamic Multi-Purpose Tokens` (XLS-94)
 - Add support for Batch (XLS-56) `BatchV1_1` signing.
 
 ### Changed
