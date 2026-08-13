@@ -79,7 +79,10 @@ jobs:
           RELEASE_BRANCH: ${{ github.event.inputs.release_branch }}
         run: |
           set -euo pipefail
-          if [[ "${TRIGGER_BRANCH}" != "main" ]]; then
+          # TEMPORARY: relaxed to allow dispatch from this test branch too, so the
+          # reviewer-expansion/Slack changes can be exercised before merging to main.
+          # Revert this to the main-only check before merging.
+          if [[ "${TRIGGER_BRANCH}" != "main" && "${TRIGGER_BRANCH}" != "team-reviewer-expansion" ]]; then
             echo "❌ This workflow must be dispatched from the main branch (current: ${TRIGGER_BRANCH})." >&2
             exit 1
           fi
@@ -482,7 +485,7 @@ jobs:
         shell: bash
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          CHANNEL: "#xrpl-py"
+          CHANNEL: "#test-alert"
           EXECUTOR: ${{ github.triggering_actor || github.actor }}
           RELEASE_BRANCH: ${{ env.RELEASE_BRANCH }}
           PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
@@ -562,7 +565,7 @@ jobs:
           curl -sS -X POST https://slack.com/api/chat.postMessage \
             -H "Authorization: Bearer $SLACK_TOKEN" \
             -H "Content-Type: application/json; charset=utf-8" \
-            -d "$(jq -n --arg channel "#ripplex-security" --arg text "$MSG" '{channel:$channel, text:$text}')" \
+            -d "$(jq -n --arg channel "#test-alert" --arg text "$MSG" '{channel:$channel, text:$text}')" \
             | jq -er '.ok' >/dev/null
 
       - name: Awaiting security approval
@@ -713,7 +716,7 @@ jobs:
           curl -sS -X POST https://slack.com/api/chat.postMessage \
             -H "Authorization: Bearer $SLACK_TOKEN" \
             -H "Content-Type: application/json; charset=utf-8" \
-            -d "$(jq -n --arg channel "#xrpl-py" --arg text "$text" '{channel:$channel, text:$text}')"
+            -d "$(jq -n --arg channel "#test-alert" --arg text "$text" '{channel:$channel, text:$text}')"
 
   notify-failure:
     name: Notify Slack if release fails
@@ -743,6 +746,6 @@ jobs:
             -H "Authorization: Bearer $SLACK_TOKEN" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
-                  --arg channel "#xrpl-py" \
+                  --arg channel "#test-alert" \
                   --arg text "$MESSAGE" \
                   '{channel: $channel, text: $text}')"
