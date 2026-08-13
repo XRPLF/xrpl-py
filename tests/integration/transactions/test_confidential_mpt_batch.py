@@ -4,7 +4,7 @@ rippled applies each confidential send to the sender's ConfidentialBalance-
 Spending as ``new CB_S = CB_S - SenderEncryptedAmount`` with a version bump (see
 ``chainAfterSend``). So a Batch containing multiple same-``(sender, token)``
 confidential sends only validates if every send after the first proves against
-the *predicted* state left by the previous one. ``prepare_confidential_send_batch``
+the *predicted* state left by the previous one. ``prepare_confidential_batch``
 threads that predicted state through the chain.
 
 This test confirms two Batch compositions on-ledger:
@@ -25,9 +25,13 @@ from tests.integration.it_utils import (
 )
 from xrpl.ext.confidential import MPT_CRYPTO_AVAILABLE, MPTCrypto
 from xrpl.ext.confidential.transaction_builders import (
+    ConfidentialConvertBackOp,
+    ConfidentialMergeInboxOp,
+    ConfidentialSendOp,
+    prepare_confidential_batch_async,
     prepare_confidential_convert_async,
     prepare_confidential_merge_inbox_async,
-    prepare_confidential_send_batch_async,
+    prepare_confidential_send_async,
 )
 from xrpl.models import Batch, BatchFlag
 from xrpl.models.amounts import MPTAmount
@@ -48,7 +52,8 @@ from xrpl.wallet import Wallet
 _SYNC_BUILDERS = [
     "xrpl.ext.confidential.transaction_builders.prepare_confidential_convert",
     "xrpl.ext.confidential.transaction_builders.prepare_confidential_merge_inbox",
-    "xrpl.ext.confidential.transaction_builders.prepare_confidential_send_batch",
+    "xrpl.ext.confidential.transaction_builders.prepare_confidential_send",
+    "xrpl.ext.confidential.transaction_builders.prepare_confidential_batch",
 ]
 
 
@@ -197,18 +202,18 @@ class TestConfidentialMPTBatch(IntegrationTestCase):
         # ── Scenario A: Batch of TWO chained confidential sends ──────────────
         # holder1 -> holder2 (30) and holder1 -> holder3 (20) in one Batch. The
         # second send must bind to holder1's CB_S *after* the first applies;
-        # prepare_confidential_send_batch predicts that state and pins each inner
-        # send to a consecutive sequence.
-        chained = await prepare_confidential_send_batch_async(
+        # prepare_confidential_batch predicts that state and pins each inner send
+        # to a consecutive sequence.
+        chained = await prepare_confidential_batch_async(
             client=client,
-            sender_wallet=holder1,
+            wallet=holder1,
             mpt_issuance_id=mpt_id,
-            transfers=[
-                (holder2.address, holder2_pk, 30),
-                (holder3.address, holder3_pk, 20),
+            operations=[
+                ConfidentialSendOp(holder2.address, holder2_pk, 30),
+                ConfidentialSendOp(holder3.address, holder3_pk, 20),
             ],
-            sender_privkey=holder1_sk,
-            sender_pubkey=holder1_pk,
+            account_privkey=holder1_sk,
+            account_pubkey=holder1_pk,
             issuer_pubkey=issuer_pk,
         )
         self.assertEqual(len(chained), 2)
@@ -270,13 +275,13 @@ class TestConfidentialMPTBatch(IntegrationTestCase):
         # pinned by the builder; the Payment must be pinned to the next sequence
         # so it does not collide (batch autofill only advances its counter for
         # inners it assigns itself).
-        one_send = await prepare_confidential_send_batch_async(
+        one_send = await prepare_confidential_batch_async(
             client=client,
-            sender_wallet=holder1,
+            wallet=holder1,
             mpt_issuance_id=mpt_id,
-            transfers=[(holder2.address, holder2_pk, 40)],
-            sender_privkey=holder1_sk,
-            sender_pubkey=holder1_pk,
+            operations=[ConfidentialSendOp(holder2.address, holder2_pk, 40)],
+            account_privkey=holder1_sk,
+            account_pubkey=holder1_pk,
             issuer_pubkey=issuer_pk,
         )
         self.assertEqual(len(one_send), 1)
@@ -332,4 +337,159 @@ class TestConfidentialMPTBatch(IntegrationTestCase):
             self._spending(holder2_node, crypto, holder2_sk),
             170,
             "holder2 spending after mixed batch + merge",
+        )
+
+        # ── Scenario C: Batch mixing ConvertBack + Send (two debit types) ────
+        # Exercises the general prepare_confidential_batch across two *different*
+        # confidential transaction types chained on the same CB_S: convert 50
+        # back to public, then send 60 — the send must prove against the balance
+        # the convert-back leaves, not the stale on-ledger value.
+        mixed = await prepare_confidential_batch_async(
+            client=client,
+            wallet=holder1,
+            mpt_issuance_id=mpt_id,
+            operations=[
+                ConfidentialConvertBackOp(50),
+                ConfidentialSendOp(holder3.address, holder3_pk, 60),
+            ],
+            account_privkey=holder1_sk,
+            account_pubkey=holder1_pk,
+            issuer_pubkey=issuer_pk,
+        )
+        self.assertEqual(len(mixed), 2)
+        batch_c = Batch(
+            account=holder1.address,
+            flags=BatchFlag.TF_ALL_OR_NOTHING,
+            raw_transactions=list(mixed),
+        )
+        self._assert_success(
+            await sign_and_reliable_submission_async(batch_c, holder1, client),
+            "Batch (convert-back + send chained)",
+        )
+
+        # holder1: spending 910 - 50 (convert-back) - 60 (send) -> 800, and the
+        # 50 returns to its public MPT balance (9000 -> 9050).
+        holder1_node = (
+            await client.request(
+                LedgerEntry(
+                    mptoken=MPTokenQuery(
+                        account=holder1.classic_address, mpt_issuance_id=mpt_id
+                    )
+                )
+            )
+        ).result["node"]
+        self.assertEqual(
+            self._spending(holder1_node, crypto, holder1_sk),
+            800,
+            "holder1 spending after convert-back + send chain",
+        )
+        self.assertEqual(
+            int(holder1_node.get("MPTAmount", 0)),
+            9050,
+            "holder1 public balance after convert-back",
+        )
+        # holder3 receives 60 into its inbox; merge -> 120 + 60 = 180.
+        m3 = await prepare_confidential_merge_inbox_async(
+            client=client, wallet=holder3, mpt_issuance_id=mpt_id
+        )
+        self._assert_success(
+            await sign_and_reliable_submission_async(m3, holder3, client),
+            "ConfidentialMPTMergeInbox (holder3, scenario C)",
+        )
+        holder3_node = (
+            await client.request(
+                LedgerEntry(
+                    mptoken=MPTokenQuery(
+                        account=holder3.classic_address, mpt_issuance_id=mpt_id
+                    )
+                )
+            )
+        ).result["node"]
+        self.assertEqual(
+            self._spending(holder3_node, crypto, holder3_sk),
+            180,
+            "holder3 spending after convert-back + send chain + merge",
+        )
+
+        # ── Scenario D: Batch mixing MergeInbox + Send (the credit predictor) ─
+        # First give holder1 an inbox: holder2 sends it 25 (single, un-batched).
+        # Then a Batch [MergeInboxOp, SendOp] — the merge folds the 25 inbox into
+        # holder1's CB_S (800 -> 825) and the send must prove against that merged
+        # balance (825 -> 810). This exercises the add-based (credit) prediction
+        # on-ledger, which the debit-only scenarios above do not.
+        seed = await prepare_confidential_send_async(
+            client=client,
+            sender_wallet=holder2,
+            receiver_address=holder1.address,
+            mpt_issuance_id=mpt_id,
+            amount=25,
+            sender_privkey=holder2_sk,
+            sender_pubkey=holder2_pk,
+            receiver_pubkey=holder1_pk,
+            issuer_pubkey=issuer_pk,
+        )
+        self._assert_success(
+            await sign_and_reliable_submission_async(seed, holder2, client),
+            "ConfidentialMPTSend (seed holder1 inbox)",
+        )
+
+        merge_send = await prepare_confidential_batch_async(
+            client=client,
+            wallet=holder1,
+            mpt_issuance_id=mpt_id,
+            operations=[
+                ConfidentialMergeInboxOp(),
+                ConfidentialSendOp(holder3.address, holder3_pk, 15),
+            ],
+            account_privkey=holder1_sk,
+            account_pubkey=holder1_pk,
+            issuer_pubkey=issuer_pk,
+        )
+        self.assertEqual(len(merge_send), 2)
+        batch_d = Batch(
+            account=holder1.address,
+            flags=BatchFlag.TF_ALL_OR_NOTHING,
+            raw_transactions=list(merge_send),
+        )
+        self._assert_success(
+            await sign_and_reliable_submission_async(batch_d, holder1, client),
+            "Batch (merge-inbox + send chained)",
+        )
+
+        # holder1: 800 + 25 (merge) - 15 (send) -> 810.
+        holder1_node = (
+            await client.request(
+                LedgerEntry(
+                    mptoken=MPTokenQuery(
+                        account=holder1.classic_address, mpt_issuance_id=mpt_id
+                    )
+                )
+            )
+        ).result["node"]
+        self.assertEqual(
+            self._spending(holder1_node, crypto, holder1_sk),
+            810,
+            "holder1 spending after merge + send chain",
+        )
+        # holder3 receives 15 into its inbox; merge -> 180 + 15 = 195.
+        m3b = await prepare_confidential_merge_inbox_async(
+            client=client, wallet=holder3, mpt_issuance_id=mpt_id
+        )
+        self._assert_success(
+            await sign_and_reliable_submission_async(m3b, holder3, client),
+            "ConfidentialMPTMergeInbox (holder3, scenario D)",
+        )
+        holder3_node = (
+            await client.request(
+                LedgerEntry(
+                    mptoken=MPTokenQuery(
+                        account=holder3.classic_address, mpt_issuance_id=mpt_id
+                    )
+                )
+            )
+        ).result["node"]
+        self.assertEqual(
+            self._spending(holder3_node, crypto, holder3_sk),
+            195,
+            "holder3 spending after merge + send chain + merge",
         )

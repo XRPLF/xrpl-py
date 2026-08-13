@@ -18,8 +18,14 @@ from xrpl.ext.confidential.main import MPTCrypto
 # TYPE_CHECKING block keeps the names resolvable for type checkers / IDEs.
 if TYPE_CHECKING:
     from xrpl.ext.confidential.transaction_builders import (  # noqa: F401
+        ConfidentialConvertBackOp,
+        ConfidentialMergeInboxOp,
+        ConfidentialSendOp,
         decrypt_confidential_balance,
-        predict_confidential_send_state,
+        predict_confidential_debit_state,
+        predict_confidential_merge_state,
+        prepare_confidential_batch,
+        prepare_confidential_batch_async,
         prepare_confidential_clawback,
         prepare_confidential_clawback_async,
         prepare_confidential_convert,
@@ -30,12 +36,13 @@ if TYPE_CHECKING:
         prepare_confidential_merge_inbox_async,
         prepare_confidential_send,
         prepare_confidential_send_async,
-        prepare_confidential_send_batch,
-        prepare_confidential_send_batch_async,
     )
 
 _LAZY_BUILDERS = frozenset(
     {
+        "ConfidentialConvertBackOp",
+        "ConfidentialMergeInboxOp",
+        "ConfidentialSendOp",
         "decrypt_confidential_balance",
         "prepare_confidential_clawback",
         "prepare_confidential_clawback_async",
@@ -43,13 +50,14 @@ _LAZY_BUILDERS = frozenset(
         "prepare_confidential_convert_async",
         "prepare_confidential_convert_back",
         "prepare_confidential_convert_back_async",
-        "predict_confidential_send_state",
+        "predict_confidential_debit_state",
+        "predict_confidential_merge_state",
+        "prepare_confidential_batch",
+        "prepare_confidential_batch_async",
         "prepare_confidential_merge_inbox",
         "prepare_confidential_merge_inbox_async",
         "prepare_confidential_send",
         "prepare_confidential_send_async",
-        "prepare_confidential_send_batch",
-        "prepare_confidential_send_batch_async",
     }
 )
 
@@ -75,18 +83,22 @@ __all__ = [
     "prepare_confidential_convert",
     "prepare_confidential_merge_inbox",
     "prepare_confidential_send",
-    "prepare_confidential_send_batch",
+    "prepare_confidential_batch",
     "prepare_confidential_convert_back",
     "prepare_confidential_clawback",
     # Async transaction builders (resolved lazily via __getattr__)
     "prepare_confidential_convert_async",
     "prepare_confidential_merge_inbox_async",
     "prepare_confidential_send_async",
-    "prepare_confidential_send_batch_async",
+    "prepare_confidential_batch_async",
     "prepare_confidential_convert_back_async",
     "prepare_confidential_clawback_async",
-    # Batch-chaining primitive (resolved lazily via __getattr__)
-    "predict_confidential_send_state",
+    # Batch operation specs + chaining primitives (resolved lazily)
+    "ConfidentialSendOp",
+    "ConfidentialConvertBackOp",
+    "ConfidentialMergeInboxOp",
+    "predict_confidential_debit_state",
+    "predict_confidential_merge_state",
     # Balance decryption helper (resolved lazily via __getattr__)
     "decrypt_confidential_balance",
     # Size constants
