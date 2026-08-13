@@ -79,10 +79,7 @@ jobs:
           RELEASE_BRANCH: ${{ github.event.inputs.release_branch }}
         run: |
           set -euo pipefail
-          # TEMPORARY: relaxed to allow dispatch from this test branch too, so the
-          # reviewer-expansion/Slack changes can be exercised before merging to main.
-          # Revert this to the main-only check before merging.
-          if [[ "${TRIGGER_BRANCH}" != "main" && "${TRIGGER_BRANCH}" != "team-reviewer-expansion" ]]; then
+          if [[ "${TRIGGER_BRANCH}" != "main" ]]; then
             echo "❌ This workflow must be dispatched from the main branch (current: ${TRIGGER_BRANCH})." >&2
             exit 1
           fi
@@ -94,9 +91,7 @@ jobs:
             exit 1
           fi
 
-          # TEMPORARY: relaxed to allow the test branch name for stable-release testing.
-          # Revert this to the release[-/]-only check before merging.
-          if [[ "${IS_BETA_RELEASE}" != "true" ]] && [[ ! "${RELEASE_BRANCH,,}" =~ ^release[-/] ]] && [[ "${RELEASE_BRANCH}" != "team-reviewer-expansion" ]]; then
+          if [[ "${IS_BETA_RELEASE}" != "true" ]] && [[ ! "${RELEASE_BRANCH,,}" =~ ^release[-/] ]]; then
             echo "❌ Release branch '$RELEASE_BRANCH' must start with 'release-' or 'release/' for stable releases." >&2
             exit 1
           fi
@@ -123,15 +118,10 @@ jobs:
     name: Run integration tests matrix (${{ needs.input-validate.outputs.package_version }})
     needs:
       - input-validate
-    runs-on: ubuntu-latest
-    # TEMPORARY: integration tests skipped for testing this branch. Restore the
-    # `uses: ./.github/workflows/integration_test.yml` call before merging.
-    steps:
-      - run: echo "Skipping integration tests for this test run"
-    # uses: ./.github/workflows/integration_test.yml
-    # with:
-    #   git_ref: ${{ github.event.inputs.release_branch }}
-    # secrets: inherit
+    uses: ./.github/workflows/integration_test.yml
+    with:
+      git_ref: ${{ github.event.inputs.release_branch }}
+    secrets: inherit
 
   unit-tests:
     name: Run unit tests matrix (${{ needs.input-validate.outputs.package_version }})
@@ -492,7 +482,7 @@ jobs:
         shell: bash
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          CHANNEL: "#test-alert"
+          CHANNEL: "#xrpl-py"
           EXECUTOR: ${{ github.triggering_actor || github.actor }}
           RELEASE_BRANCH: ${{ env.RELEASE_BRANCH }}
           PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
@@ -572,7 +562,7 @@ jobs:
           curl -sS -X POST https://slack.com/api/chat.postMessage \
             -H "Authorization: Bearer $SLACK_TOKEN" \
             -H "Content-Type: application/json; charset=utf-8" \
-            -d "$(jq -n --arg channel "#test-alert" --arg text "$MSG" '{channel:$channel, text:$text}')" \
+            -d "$(jq -n --arg channel "#ripplex-security" --arg text "$MSG" '{channel:$channel, text:$text}')" \
             | jq -er '.ok' >/dev/null
 
       - name: Awaiting security approval
@@ -723,7 +713,7 @@ jobs:
           curl -sS -X POST https://slack.com/api/chat.postMessage \
             -H "Authorization: Bearer $SLACK_TOKEN" \
             -H "Content-Type: application/json; charset=utf-8" \
-            -d "$(jq -n --arg channel "#test-alert" --arg text "$text" '{channel:$channel, text:$text}')"
+            -d "$(jq -n --arg channel "#xrpl-py" --arg text "$text" '{channel:$channel, text:$text}')"
 
   notify-failure:
     name: Notify Slack if release fails
@@ -753,6 +743,6 @@ jobs:
             -H "Authorization: Bearer $SLACK_TOKEN" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
-                  --arg channel "#test-alert" \
+                  --arg channel "#xrpl-py" \
                   --arg text "$MESSAGE" \
                   '{channel: $channel, text: $text}')"
