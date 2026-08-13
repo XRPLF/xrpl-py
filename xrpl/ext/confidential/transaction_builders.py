@@ -17,7 +17,7 @@ multiplier is applied by core xrpl-py autofill (keyed on transaction type), so
 the builders leave the fee unset.
 """
 
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 from xrpl.asyncio.clients.async_client import AsyncClient
 from xrpl.clients.sync_client import SyncClient
@@ -28,6 +28,7 @@ from xrpl.ext.confidential.context import (
     compute_send_context_hash,
 )
 from xrpl.ext.confidential.encryption import DEFAULT_DECRYPT_RANGE_HIGH
+from xrpl.ext.confidential.homomorphic import subtract_ciphertexts
 from xrpl.models.requests import AccountInfo, LedgerEntry
 from xrpl.models.requests.ledger_entry import MPToken
 from xrpl.models.transactions import (
@@ -392,6 +393,41 @@ def _assemble_send(  # noqa: ANN
     )
 
 
+def predict_confidential_send_state(
+    version: int, balance_hex: str, sender_encrypted_amount: str
+) -> Tuple[int, str]:
+    """
+    Predict a sender's ConfidentialBalanceSpending state after one send applies.
+
+    Mirrors rippled's ``chainAfterSend``: on a confidential send the spending
+    balance is homomorphically decremented by the send's SenderEncryptedAmount
+    (``new CB_S = CB_S - SenderEncryptedAmount``) and the version bumps by one.
+
+    This is the primitive behind :func:`prepare_confidential_send_batch`. Use it
+    directly only when composing chained sends yourself (e.g. a multi-account
+    Batch): each subsequent same-``(account, token)`` send's proof must bind to
+    the balance *after* the previous one applies, not the stale on-ledger value.
+
+    Args:
+        version: The ConfidentialBalanceVersion the previous send bound to.
+        balance_hex: The 132-char hex ConfidentialBalanceSpending (c1||c2) the
+            previous send bound to.
+        sender_encrypted_amount: The 132-char hex SenderEncryptedAmount (c1||c2)
+            of the previous send.
+
+    Returns:
+        ``(next_version, next_balance_hex)`` for the following send in the chain.
+    """
+    half = CIPHERTEXT_LENGTH // 2  # one compressed point = 66 hex chars
+    new_c1, new_c2 = subtract_ciphertexts(
+        balance_hex[:half],
+        balance_hex[half:CIPHERTEXT_LENGTH],
+        sender_encrypted_amount[:half],
+        sender_encrypted_amount[half:CIPHERTEXT_LENGTH],
+    )
+    return version + 1, new_c1 + new_c2
+
+
 def _assemble_convert_back(  # noqa: ANN
     account: str,
     mpt_issuance_id: str,
@@ -618,6 +654,96 @@ def prepare_confidential_send(
     )
 
 
+def prepare_confidential_send_batch(
+    client: SyncClient,
+    sender_wallet: Wallet,
+    mpt_issuance_id: str,
+    transfers: List[Tuple[str, str, int]],
+    sender_privkey: str,
+    sender_pubkey: str,
+    issuer_pubkey: str,
+    auditor_pubkey: Optional[str] = None,
+    first_inner_sequence: Optional[int] = None,
+) -> List[ConfidentialMPTSend]:
+    """
+    Prepare several chained ConfidentialMPTSend transactions for one Batch.
+
+    rippled applies each confidential send to the sender's ConfidentialBalance-
+    Spending as ``new CB_S = CB_S - SenderEncryptedAmount`` with a version bump
+    (see ``chainAfterSend``). So when a single Batch contains multiple sends of
+    the *same* ``(sender, token)``, every send after the first must prove against
+    the balance/version left by the previous one — not the stale on-ledger value.
+    This builder queries the on-ledger state once, then threads that predicted
+    state (via :func:`predict_confidential_send_state`) through the chain,
+    pinning each inner send to a consecutive sequence number.
+
+    The returned transactions are ready to drop into a ``Batch``'s
+    ``raw_transactions`` (in order). Inner-Batch sequencing assigns the outer
+    Batch account its current sequence ``S`` and then ``S+1, S+2, ...`` to its
+    inner transactions, so — for the common case of the sender batching their own
+    sends — the first inner send is pinned to ``S+1`` by default. Pass
+    ``first_inner_sequence`` explicitly for any other arrangement (e.g. a
+    multi-account Batch where the sender is not the outer account, or a
+    ticket-based Batch).
+
+    Args:
+        client: XRPL client (used to query sequence, balance, version, range).
+        sender_wallet: Wallet of the sender (the shared source of all transfers).
+        mpt_issuance_id: 24-byte MPT issuance ID (hex string). All transfers must
+            be for this same issuance — chaining is per ``(account, token)``.
+        transfers: Ordered list of ``(receiver_address, receiver_pubkey, amount)``
+            tuples, one per confidential send, applied in the given order.
+        sender_privkey: 64-char hex of the sender's private key.
+        sender_pubkey: 66-char hex of the sender's compressed public key.
+        issuer_pubkey: 66-char hex of the issuer's compressed public key.
+        auditor_pubkey: Optional 66-char hex of the auditor's public key.
+        first_inner_sequence: Sequence to pin the first inner send to. Defaults to
+            the sender's next sequence + 1 (the sender-batches-own-sends case).
+
+    Returns:
+        A list of ConfidentialMPTSend transactions, correctly chained and
+        sequence-pinned, in the same order as ``transfers``.
+
+    Raises:
+        ValueError: If ``transfers`` is empty.
+    """
+    _require_native()
+    if not transfers:
+        raise ValueError("transfers must contain at least one confidential send")
+
+    version, balance_hex = _mptoken_state(
+        client, sender_wallet.classic_address, mpt_issuance_id
+    )
+    range_high = _decrypt_range_high(client, mpt_issuance_id)
+    if first_inner_sequence is None:
+        first_inner_sequence = _account_sequence(client, sender_wallet.address) + 1
+
+    sends: List[ConfidentialMPTSend] = []
+    for i, (receiver_address, receiver_pubkey, amount) in enumerate(transfers):
+        send = _assemble_send(
+            sender_wallet.address,
+            receiver_address,
+            mpt_issuance_id,
+            amount,
+            first_inner_sequence + i,
+            version,
+            balance_hex,
+            range_high,
+            sender_privkey,
+            sender_pubkey,
+            receiver_pubkey,
+            issuer_pubkey,
+            auditor_pubkey,
+        )
+        sends.append(send)
+        # Predict the CB_S/version the *next* send in the chain must bind to.
+        version, balance_hex = predict_confidential_send_state(
+            version, balance_hex, send.sender_encrypted_amount
+        )
+
+    return sends
+
+
 def prepare_confidential_convert_back(
     client: SyncClient,
     wallet: Wallet,
@@ -818,6 +944,80 @@ async def prepare_confidential_send_async(
         issuer_pubkey,
         auditor_pubkey,
     )
+
+
+async def prepare_confidential_send_batch_async(
+    client: AsyncClient,
+    sender_wallet: Wallet,
+    mpt_issuance_id: str,
+    transfers: List[Tuple[str, str, int]],
+    sender_privkey: str,
+    sender_pubkey: str,
+    issuer_pubkey: str,
+    auditor_pubkey: Optional[str] = None,
+    first_inner_sequence: Optional[int] = None,
+) -> List[ConfidentialMPTSend]:
+    """
+    Async variant of :func:`prepare_confidential_send_batch`.
+
+    Args:
+        client: Async XRPL client.
+        sender_wallet: Wallet of the sender (the shared source of all transfers).
+        mpt_issuance_id: 24-byte MPT issuance ID (hex string). All transfers must
+            be for this same issuance — chaining is per ``(account, token)``.
+        transfers: Ordered list of ``(receiver_address, receiver_pubkey, amount)``
+            tuples, one per confidential send, applied in the given order.
+        sender_privkey: 64-char hex of the sender's private key.
+        sender_pubkey: 66-char hex of the sender's compressed public key.
+        issuer_pubkey: 66-char hex of the issuer's compressed public key.
+        auditor_pubkey: Optional 66-char hex of the auditor's public key.
+        first_inner_sequence: Sequence to pin the first inner send to. Defaults to
+            the sender's next sequence + 1 (the sender-batches-own-sends case).
+
+    Returns:
+        A list of ConfidentialMPTSend transactions, correctly chained and
+        sequence-pinned, in the same order as ``transfers``.
+
+    Raises:
+        ValueError: If ``transfers`` is empty.
+    """
+    _require_native()
+    if not transfers:
+        raise ValueError("transfers must contain at least one confidential send")
+
+    version, balance_hex = await _mptoken_state_async(
+        client, sender_wallet.classic_address, mpt_issuance_id
+    )
+    range_high = await _decrypt_range_high_async(client, mpt_issuance_id)
+    if first_inner_sequence is None:
+        first_inner_sequence = (
+            await _account_sequence_async(client, sender_wallet.address) + 1
+        )
+
+    sends: List[ConfidentialMPTSend] = []
+    for i, (receiver_address, receiver_pubkey, amount) in enumerate(transfers):
+        send = _assemble_send(
+            sender_wallet.address,
+            receiver_address,
+            mpt_issuance_id,
+            amount,
+            first_inner_sequence + i,
+            version,
+            balance_hex,
+            range_high,
+            sender_privkey,
+            sender_pubkey,
+            receiver_pubkey,
+            issuer_pubkey,
+            auditor_pubkey,
+        )
+        sends.append(send)
+        # Predict the CB_S/version the *next* send in the chain must bind to.
+        version, balance_hex = predict_confidential_send_state(
+            version, balance_hex, send.sender_encrypted_amount
+        )
+
+    return sends
 
 
 async def prepare_confidential_convert_back_async(

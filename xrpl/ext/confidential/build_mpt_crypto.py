@@ -222,6 +222,27 @@ ffibuilder.cdef(
     "const unsigned char* input, size_t inputlen);"
 )
 
+# Point serialization + ElGamal homomorphic ops — used by homomorphic.py to
+# predict a confidential balance's next state (Enc(a) +/- Enc(b) = Enc(a +/- b))
+# for chaining proofs across multiple confidential transfers in one Batch.
+# Like secp256k1_ec_pubkey_parse, these are linked directly from the static
+# archive on every platform.
+ffibuilder.cdef(
+    "int secp256k1_ec_pubkey_serialize("
+    "const secp256k1_context* ctx, unsigned char* output, size_t* outputlen, "
+    "const secp256k1_pubkey* pubkey, unsigned int flags);"
+    "int secp256k1_elgamal_add("
+    "const secp256k1_context* ctx, secp256k1_pubkey* sum_c1, "
+    "secp256k1_pubkey* sum_c2, const secp256k1_pubkey* a_c1, "
+    "const secp256k1_pubkey* a_c2, const secp256k1_pubkey* b_c1, "
+    "const secp256k1_pubkey* b_c2);"
+    "int secp256k1_elgamal_subtract("
+    "const secp256k1_context* ctx, secp256k1_pubkey* diff_c1, "
+    "secp256k1_pubkey* diff_c2, const secp256k1_pubkey* a_c1, "
+    "const secp256k1_pubkey* a_c2, const secp256k1_pubkey* b_c1, "
+    "const secp256k1_pubkey* b_c2);"
+)
+
 libs_dir = os.path.join(script_dir, "libs", lib_subdir)
 include_dir = os.path.join(script_dir, "include")
 static_lib_path = os.path.join(libs_dir, static_lib_name)
