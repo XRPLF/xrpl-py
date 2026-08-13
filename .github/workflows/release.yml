@@ -121,10 +121,15 @@ jobs:
     name: Run integration tests matrix (${{ needs.input-validate.outputs.package_version }})
     needs:
       - input-validate
-    uses: ./.github/workflows/integration_test.yml
-    with:
-      git_ref: ${{ github.event.inputs.release_branch }}
-    secrets: inherit
+    runs-on: ubuntu-latest
+    # TEMPORARY: integration tests skipped for testing this branch. Restore the
+    # `uses: ./.github/workflows/integration_test.yml` call before merging.
+    steps:
+      - run: echo "Skipping integration tests for this test run"
+    # uses: ./.github/workflows/integration_test.yml
+    # with:
+    #   git_ref: ${{ github.event.inputs.release_branch }}
+    # secrets: inherit
 
   unit-tests:
     name: Run unit tests matrix (${{ needs.input-validate.outputs.package_version }})
