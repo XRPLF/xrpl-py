@@ -709,7 +709,7 @@
       }
     ],
     [
-      "MutableFlags",
+      "ImmutableFlags",
       {
         "isSerialized": true,
         "isSigningField": true,
@@ -3854,17 +3854,6 @@
       "lsfMPTLocked": 1,
       "lsfMPTRequireAuth": 4
     },
-    "MPTokenIssuanceMutable": {
-      "lsmfMPTCanEnableCanClawback": 64,
-      "lsmfMPTCanEnableCanEscrow": 8,
-      "lsmfMPTCanEnableCanLock": 2,
-      "lsmfMPTCanEnableCanTrade": 16,
-      "lsmfMPTCanEnableCanTransfer": 32,
-      "lsmfMPTCanEnableRequireAuth": 4,
-      "lsmfMPTCanMutateMetadata": 65536,
-      "lsmfMPTCanMutateTransferFee": 131072,
-      "lsmfMPTCannotEnableCanHoldConfidentialBalance": 128
-    },
     "NFTokenOffer": {
       "lsfSellNFToken": 1
     },
@@ -3888,6 +3877,10 @@
     },
     "SignerList": {
       "lsfOneOwnerCount": 65536
+    },
+    "Sponsorship": {
+      "lsfSponsorshipRequireSignForFee": 65536,
+      "lsfSponsorshipRequireSignForReserve": 131072
     },
     "Vault": {
       "lsfVaultPrivate": 65536
@@ -4016,6 +4009,18 @@
       {
         "name": "FirstNFTokenSequence",
         "optionality": 1
+      },
+      {
+        "name": "SponsoredOwnerCount",
+        "optionality": 2
+      },
+      {
+        "name": "SponsoringOwnerCount",
+        "optionality": 2
+      },
+      {
+        "name": "SponsoringAccountCount",
+        "optionality": 2
       },
       {
         "name": "AMMID",
@@ -4728,7 +4733,7 @@
         "optionality": 1
       },
       {
-        "name": "MutableFlags",
+        "name": "ImmutableFlags",
         "optionality": 2
       },
       {
@@ -5054,6 +5059,14 @@
       {
         "name": "HighQualityOut",
         "optionality": 1
+      },
+      {
+        "name": "HighSponsor",
+        "optionality": 1
+      },
+      {
+        "name": "LowSponsor",
+        "optionality": 1
       }
     ],
     "SignerList": [
@@ -5083,6 +5096,44 @@
       },
       {
         "name": "PreviousTxnLgrSeq",
+        "optionality": 0
+      }
+    ],
+    "Sponsorship": [
+      {
+        "name": "PreviousTxnID",
+        "optionality": 0
+      },
+      {
+        "name": "PreviousTxnLgrSeq",
+        "optionality": 0
+      },
+      {
+        "name": "Owner",
+        "optionality": 0
+      },
+      {
+        "name": "Sponsee",
+        "optionality": 0
+      },
+      {
+        "name": "FeeAmount",
+        "optionality": 1
+      },
+      {
+        "name": "MaxFee",
+        "optionality": 1
+      },
+      {
+        "name": "RemainingOwnerCount",
+        "optionality": 2
+      },
+      {
+        "name": "OwnerNode",
+        "optionality": 0
+      },
+      {
+        "name": "SponseeNode",
         "optionality": 0
       }
     ],
@@ -5250,6 +5301,10 @@
       {
         "name": "Flags",
         "optionality": 0
+      },
+      {
+        "name": "Sponsor",
+        "optionality": 1
       }
     ]
   },
@@ -5353,6 +5408,13 @@
     },
     "MPTokenIssuanceSet": {
       "tfMPTLock": 1,
+      "tfMPTSetCanClawback": 128,
+      "tfMPTSetCanEscrow": 16,
+      "tfMPTSetCanHoldConfidentialBalance": 256,
+      "tfMPTSetCanLock": 4,
+      "tfMPTSetCanTrade": 32,
+      "tfMPTSetCanTransfer": 64,
+      "tfMPTSetRequireAuth": 8,
       "tfMPTUnlock": 2
     },
     "NFTokenCreateOffer": {
@@ -5374,11 +5436,24 @@
     "Payment": {
       "tfLimitQuality": 262144,
       "tfNoRippleDirect": 65536,
-      "tfPartialPayment": 131072
+      "tfPartialPayment": 131072,
+      "tfSponsorCreatedAccount": 524288
     },
     "PaymentChannelClaim": {
       "tfClose": 131072,
       "tfRenew": 65536
+    },
+    "SponsorshipSet": {
+      "tfDeleteObject": 1048576,
+      "tfSponsorshipClearRequireSignForFee": 131072,
+      "tfSponsorshipClearRequireSignForReserve": 524288,
+      "tfSponsorshipSetRequireSignForFee": 65536,
+      "tfSponsorshipSetRequireSignForReserve": 262144
+    },
+    "SponsorshipTransfer": {
+      "tfSponsorshipCreate": 131072,
+      "tfSponsorshipEnd": 65536,
+      "tfSponsorshipReassign": 262144
     },
     "TrustSet": {
       "tfClearDeepFreeze": 8388608,
@@ -6157,7 +6232,7 @@
         "optionality": 1
       },
       {
-        "name": "MutableFlags",
+        "name": "ImmutableFlags",
         "optionality": 1
       }
     ],
@@ -6189,7 +6264,7 @@
         "optionality": 1
       },
       {
-        "name": "MutableFlags",
+        "name": "ImmutableFlags",
         "optionality": 1
       },
       {
@@ -6524,6 +6599,38 @@
       },
       {
         "name": "SignerEntries",
+        "optionality": 1
+      }
+    ],
+    "SponsorshipSet": [
+      {
+        "name": "CounterpartySponsor",
+        "optionality": 1
+      },
+      {
+        "name": "Sponsee",
+        "optionality": 1
+      },
+      {
+        "name": "FeeAmount",
+        "optionality": 1
+      },
+      {
+        "name": "MaxFee",
+        "optionality": 1
+      },
+      {
+        "name": "RemainingOwnerCount",
+        "optionality": 1
+      }
+    ],
+    "SponsorshipTransfer": [
+      {
+        "name": "ObjectID",
+        "optionality": 1
+      },
+      {
+        "name": "Sponsee",
         "optionality": 1
       }
     ],
@@ -6917,6 +7024,18 @@
       {
         "name": "Delegate",
         "optionality": 1
+      },
+      {
+        "name": "Sponsor",
+        "optionality": 1
+      },
+      {
+        "name": "SponsorFlags",
+        "optionality": 1
+      },
+      {
+        "name": "SponsorSignature",
+        "optionality": 1
       }
     ]
   },
@@ -7235,5 +7354,5 @@
     "Vector256": 19,
     "XChainBridge": 25
   },
-  "hash": "B8D71E05792AE08998F375C630B52EA351F327AB29CC8E48B6F69B56D4DF8EEA"
+  "hash": "8EB5E0E1DCEC6C6AAD9BB299B58DD4FF88A6D8F6982813E943BC9931B4E7A2AA"
 }
