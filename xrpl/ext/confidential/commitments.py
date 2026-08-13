@@ -4,19 +4,33 @@ Pedersen commitments and Bulletproof range proofs.
 This module provides functions for creating Pedersen commitments and
 generating/verifying Bulletproof range proofs.
 
-create_bulletproof / verify_bulletproof are available on every platform:
-mpt-crypto (including secp256k1) is statically linked into the extension, so
-secp256k1_ec_pubkey_parse is bound directly everywhere (the old Windows DLL did
-not re-export it).
+NOTE: create_bulletproof/verify_bulletproof rely on secp256k1_ec_pubkey_parse,
+which mpt-crypto's Windows DLL does not export (see build_mpt_crypto.py). They
+are therefore available on Linux/macOS only and raise NotImplementedError on
+Windows; range-proof verification in production is performed by rippled.
 """
 
 from typing import Optional
 
-from xrpl.ext.confidential.crypto_bindings import ffi, lib
+from xrpl.ext.confidential.crypto_bindings import MPT_CRYPTO_AVAILABLE, ffi, lib
 
 # Size constants
 PUBKEY_UNCOMPRESSED_SIZE = 64
 PUBKEY_COMPRESSED_SIZE = 33
+
+# secp256k1_ec_pubkey_parse is declared in the FFI cdef off-Windows only, so its
+# absence marks a platform that cannot support the raw-pubkey Bulletproof paths.
+# Guard on MPT_CRYPTO_AVAILABLE first: in a pure-Python checkout `lib` is a stub
+# whose attribute access raises ImportError (which hasattr would re-raise, not
+# swallow), so short-circuit before touching it.
+_HAS_EC_PUBKEY_PARSE = MPT_CRYPTO_AVAILABLE and hasattr(
+    lib, "secp256k1_ec_pubkey_parse"
+)
+_NO_PUBKEY_PARSE_MSG = (
+    "This function requires secp256k1_ec_pubkey_parse, which mpt-crypto's "
+    "Windows DLL does not export; it is unavailable on Windows. Range-proof "
+    "verification in production is performed by rippled."
+)
 
 
 def create_pedersen_commitment(amount: int, blinding_factor: str) -> str:
@@ -55,6 +69,8 @@ def create_bulletproof(
     """
     Create a Bulletproof range proof using the aggregated API (m=1).
 
+    Not available on Windows (see module docstring); raises NotImplementedError.
+
     Args:
         amount: The amount to prove (uint64)
         blinding_factor: 64-char hex string (32-byte blinding factor)
@@ -64,6 +80,9 @@ def create_bulletproof(
     Returns:
         Variable-length hex string (proof, typically ~1024 bytes)
     """
+    if not _HAS_EC_PUBKEY_PARSE:
+        raise NotImplementedError(_NO_PUBKEY_PARSE_MSG)
+
     # mpt-crypto's globally shared secp256k1 context (see MPTCrypto.__init__).
     ctx = lib.mpt_secp256k1_context()
 
@@ -117,6 +136,8 @@ def verify_bulletproof(
     """
     Verify a Bulletproof range proof using the aggregated API (m=1).
 
+    Not available on Windows (see module docstring); raises NotImplementedError.
+
     Args:
         proof: Variable-length hex string (proof bytes)
         commitment: 128-char hex string (64-byte Pedersen commitment, X || Y)
@@ -126,6 +147,9 @@ def verify_bulletproof(
     Returns:
         True if proof is valid, False otherwise
     """
+    if not _HAS_EC_PUBKEY_PARSE:
+        raise NotImplementedError(_NO_PUBKEY_PARSE_MSG)
+
     # mpt-crypto's globally shared secp256k1 context (see MPTCrypto.__init__).
     ctx = lib.mpt_secp256k1_context()
 

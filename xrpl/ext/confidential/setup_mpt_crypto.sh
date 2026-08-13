@@ -1,9 +1,9 @@
 #!/bin/bash
 # Setup script for MPT crypto binaries for local development
 #
-# Downloads the pre-built self-contained STATIC archive from XRPLF/mpt-crypto
-# (or builds it locally) and stages it where build_mpt_crypto.py links it INTO
-# the CFFI extension. The archive has secp256k1 + OpenSSL merged in.
+# Downloads pre-built native libraries from XRPLF/mpt-crypto or builds locally.
+# The binaries are self-contained shared libraries (.dylib/.so/.dll) with
+# secp256k1 and OpenSSL statically linked in.
 #
 # Usage:
 #   ./xrpl/ext/confidential/setup_mpt_crypto.sh download                     # from latest release
@@ -20,7 +20,6 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 LIBS_DIR="$SCRIPT_DIR/libs"
 INCLUDE_DIR="$SCRIPT_DIR/include"
 MPT_CRYPTO_REPO="XRPLF/mpt-crypto"
-MANIFEST_NAME="mpt-crypto-static.link-libs.txt"
 
 # Detect platform
 OS="$(uname -s)"
@@ -35,7 +34,7 @@ case "$OS" in
         else
             BUNDLE_SUBDIR="darwin-x86-64"
         fi
-        LIB_NAME="libmpt-crypto.a"
+        LIB_NAME="libmpt-crypto.dylib"
         ;;
     Linux*)
         PLATFORM="linux"
@@ -45,13 +44,13 @@ case "$OS" in
         else
             BUNDLE_SUBDIR="linux-x86-64"
         fi
-        LIB_NAME="libmpt-crypto.a"
+        LIB_NAME="libmpt-crypto.so"
         ;;
     MINGW*|MSYS*|CYGWIN*)
         PLATFORM="windows"
         LIB_SUBDIR="win32"
         BUNDLE_SUBDIR="win32-x86-64"
-        LIB_NAME="mpt-crypto-static.lib"
+        LIB_NAME="mpt-crypto.dll"
         ;;
     *)
         echo "Unsupported platform: $OS"
@@ -183,11 +182,11 @@ download_from_mpt_crypto() {
     echo "Contents:"
     find "$EXTRACT_DIR" -type f | sort
 
-    # Copy the static archive + its link-libs manifest for this platform.
+    # Copy the shared library for this platform
     # Bundle uses OS-arch dirs (e.g. darwin-aarch64/), xrpl-py uses OS-only (e.g. darwin/)
     SRC_LIB="$EXTRACT_DIR/$BUNDLE_SUBDIR/$LIB_NAME"
     if [ ! -f "$SRC_LIB" ]; then
-        echo "ERROR: Static archive not found: $SRC_LIB"
+        echo "ERROR: Library not found: $SRC_LIB"
         echo "Available platform directories:"
         ls -d "$EXTRACT_DIR"/*/ 2>/dev/null || echo "  (none)"
         exit 1
@@ -195,8 +194,12 @@ download_from_mpt_crypto() {
 
     mkdir -p "$LIBS_DIR/$LIB_SUBDIR"
     cp "$SRC_LIB" "$LIBS_DIR/$LIB_SUBDIR/"
-    cp "$EXTRACT_DIR/$BUNDLE_SUBDIR/$MANIFEST_NAME" "$LIBS_DIR/$LIB_SUBDIR/" 2>/dev/null || true
     echo "Installed: $LIBS_DIR/$LIB_SUBDIR/$LIB_NAME"
+
+    # On Windows, also copy the import library if present
+    if [ "$PLATFORM" = "windows" ]; then
+        find "$EXTRACT_DIR/$BUNDLE_SUBDIR" -name "*.lib" -exec cp {} "$LIBS_DIR/$LIB_SUBDIR/" \; 2>/dev/null || true
+    fi
 
     # Copy headers
     mkdir -p "$INCLUDE_DIR/utility"
@@ -232,12 +235,12 @@ download_from_mpt_crypto() {
 # ──────────────────────────────────────────────────────────────────────────
 build_locally() {
     echo ""
-    echo "=== Building the mpt-crypto static archive locally ==="
+    echo "=== Building MPT crypto shared library locally ==="
     echo ""
 
     clean_stale_artifacts
-    echo "This will clone mpt-crypto and build its self-contained static archive"
-    echo "(secp256k1 + OpenSSL merged in) via its own build-native-libs.sh."
+    echo "This will clone mpt-crypto and build it as a shared library"
+    echo "with secp256k1 and OpenSSL statically linked in."
     echo "This may take several minutes..."
     echo ""
 
@@ -268,15 +271,43 @@ build_locally() {
     git clone --depth 1 "https://github.com/$MPT_CRYPTO_REPO.git"
     cd mpt-crypto
 
-    # Build the self-contained static archive via mpt-crypto's own script.
+    # Build as shared library with static deps
     case "$PLATFORM" in
         darwin|linux)
-            echo "Building via mpt-crypto's build-native-libs.sh..."
-            bash ./.github/scripts/build-native-libs.sh
+            echo "Installing dependencies via Conan..."
+            conan install . \
+                -of build \
+                --build=missing \
+                -s build_type=Release \
+                -o "&:shared=True" \
+                -o "&:tests=False" \
+                -o "secp256k1/*:shared=False" \
+                -o "secp256k1/*:fPIC=True" \
+                -o "openssl/*:shared=False" \
+                -o "openssl/*:fPIC=True"
 
+            TOOLCHAIN=$(find build -name "conan_toolchain.cmake" -print -quit)
+
+            # Use Ninja if available, otherwise fall back to Unix Makefiles
+            if command -v ninja &> /dev/null; then
+                CMAKE_GENERATOR="Ninja"
+            else
+                CMAKE_GENERATOR="Unix Makefiles"
+                echo "Note: Ninja not found, using Make instead."
+            fi
+
+            echo "Configuring CMake (generator: $CMAKE_GENERATOR)..."
+            cmake -B build -S . \
+                -G "$CMAKE_GENERATOR" \
+                -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN" \
+                -DCMAKE_BUILD_TYPE=Release
+
+            echo "Building..."
+            cmake --build build --config Release
+
+            # Copy shared library
             mkdir -p "$LIBS_DIR/$LIB_SUBDIR"
-            cp build/libmpt-crypto-bundled.a "$LIBS_DIR/$LIB_SUBDIR/$LIB_NAME"
-            cp build/mpt-crypto-static.link-libs.txt "$LIBS_DIR/$LIB_SUBDIR/"
+            find build -maxdepth 2 -name "$LIB_NAME" -exec cp {} "$LIBS_DIR/$LIB_SUBDIR/" \;
             ;;
         windows)
             echo "Windows local builds are not yet supported."
