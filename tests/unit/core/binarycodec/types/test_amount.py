@@ -348,3 +348,60 @@ class TestAmount(TestSerializedType):
         self.assertTrue(is_issued_currency(issued_currency))
         xrp_amount = "10"
         self.assertFalse(is_issued_currency(xrp_amount))
+
+    # ── MPT amount parser hardening ──
+    #
+    # The 33-byte MPT amount wire format is:
+    #   leading_byte(1) || mantissa(8, BE unsigned) || MPTID(24)
+    # leading_byte bits: 0x40 = positive sign, 0x20 = MPT-amount marker.
+    # Valid mantissa <= 2^63 - 1 (rippled's maxMPTokenAmount).
+    # Negative zero (sign bit clear, mantissa zero) is forbidden — zero must
+    # be encoded as positive (leading_byte = 0x60).
+    #
+    # Wire-format reference:
+    #   https://xrpl.org/serialization.html#amount-fields
+    # Leading-byte semantics, sign-bit, and mantissa bounds in rippled:
+    #   https://github.com/XRPLF/rippled/blob/develop/src/libxrpl/protocol/STAmount.cpp
+
+    _VALID_MPTID = "0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47"
+
+    def test_mpt_from_parser_rejects_mantissa_at_2_pow_63(self):
+        # leading_byte=60, mantissa=0x8000000000000000 (= 2^63, high bit set)
+        invalid_hex = "60" + "8000000000000000" + self._VALID_MPTID
+        parser = BinaryParser(invalid_hex)
+        self.assertRaises(XRPLBinaryCodecException, amount.Amount.from_parser, parser)
+
+    def test_mpt_from_parser_rejects_mantissa_above_2_pow_63(self):
+        # mantissa = 2^63 + 1
+        invalid_hex = "60" + "8000000000000001" + self._VALID_MPTID
+        parser = BinaryParser(invalid_hex)
+        self.assertRaises(XRPLBinaryCodecException, amount.Amount.from_parser, parser)
+
+    def test_mpt_from_parser_rejects_negative_zero(self):
+        # leading_byte=20 (MPT marker, sign bit clear), mantissa=0
+        invalid_hex = "20" + "0000000000000000" + self._VALID_MPTID
+        parser = BinaryParser(invalid_hex)
+        self.assertRaises(XRPLBinaryCodecException, amount.Amount.from_parser, parser)
+
+    def test_mpt_from_parser_accepts_max_valid_mantissa(self):
+        # mantissa = 2^63 - 1
+        valid_hex = "60" + "7FFFFFFFFFFFFFFF" + self._VALID_MPTID
+        parser = BinaryParser(valid_hex)
+        amount_object = amount.Amount.from_parser(parser)
+        self.assertEqual(
+            amount_object.to_json(),
+            {
+                "value": "9223372036854775807",
+                "mpt_issuance_id": self._VALID_MPTID,
+            },
+        )
+
+    def test_mpt_from_parser_accepts_positive_zero(self):
+        # leading_byte=60 (positive sign + MPT marker), mantissa=0
+        valid_hex = "60" + "0000000000000000" + self._VALID_MPTID
+        parser = BinaryParser(valid_hex)
+        amount_object = amount.Amount.from_parser(parser)
+        self.assertEqual(
+            amount_object.to_json(),
+            {"value": "0", "mpt_issuance_id": self._VALID_MPTID},
+        )

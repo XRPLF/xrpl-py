@@ -6,6 +6,7 @@ from xrpl.models.transactions import LoanBrokerCoverClawback
 
 _SOURCE = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _ISSUER = "rHxTJLqdVUxjJuZEZvajXYYQJ7q8p4DhHy"
+_MPT_ISSUANCE_ID = "00000001A407AF5856CECE4281FED12B7B179B49A4AEF506"
 
 
 class TestLoanBrokerCoverClawback(TestCase):
@@ -47,7 +48,7 @@ class TestLoanBrokerCoverClawback(TestCase):
         tx = LoanBrokerCoverClawback(
             account=_SOURCE,
             amount=MPTAmount(
-                mpt_issuance_id=_ISSUER,
+                mpt_issuance_id=_MPT_ISSUANCE_ID,
                 value="10.20",
             ),
             loan_broker_id=_ISSUER,

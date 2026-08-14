@@ -9,9 +9,8 @@ _XRP_AMOUNT = "1000"
 _ISSUED_CURRENCY_AMOUNT = IssuedCurrencyAmount(
     currency="BTC", value="1.002", issuer=_ACCOUNT
 )
-_MPT_AMOUNT = MPTAmount(
-    mpt_issuance_id="000004C463C52827307480341125DA0577DEFC38405B0E3E", value="10"
-)
+_MPT_ISSUANCE_ID = "000004C463C52827307480341125DA0577DEFC38405B0E3E"
+_MPT_AMOUNT = MPTAmount(mpt_issuance_id=_MPT_ISSUANCE_ID, value="10")
 
 
 class TestClawback(TestCase):

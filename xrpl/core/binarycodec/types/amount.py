@@ -351,7 +351,28 @@ class Amount(SerializedType):
         # the amount can be either MPT or XRP at this point
         is_mpt = (first_byte & 0x20) != 0  # type: ignore
         num_bytes = 33 if is_mpt else 8
-        return cls(parser.read(num_bytes))
+        buffer = parser.read(num_bytes)
+
+        if is_mpt:
+            # The MPT mantissa is an unsigned 64-bit integer; valid values fit
+            # in int63 (rippled's maxMPTokenAmount = 2^63 - 1). Reject blobs
+            # that exceed this bound or use the negative-zero encoding (zero
+            # must be encoded as positive: leading_byte = 0x60).
+            # See https://xrpl.org/serialization.html#amount-fields and
+            # https://github.com/XRPLF/rippled/blob/develop/src/libxrpl/protocol/STAmount.cpp
+            mantissa = int.from_bytes(buffer[1:9], byteorder="big", signed=False)
+            is_positive = (buffer[0] & 0x40) != 0
+            if mantissa & 0x8000000000000000:
+                raise XRPLBinaryCodecException(
+                    f"Invalid MPT amount: mantissa {mantissa} exceeds the "
+                    "maximum allowed value of 2^63 - 1."
+                )
+            if not is_positive and mantissa == 0:
+                raise XRPLBinaryCodecException(
+                    "Invalid MPT amount: negative zero is not a valid encoding."
+                )
+
+        return cls(buffer)
 
     def to_json(self: Self) -> Union[str, Dict[Any, Any]]:
         """Construct a JSON object representing this Amount.
