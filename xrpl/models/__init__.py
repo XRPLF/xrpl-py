@@ -1,10 +1,11 @@
 """Top-level exports for the models package."""
 
-from xrpl.models import amounts, currencies, requests, transactions
+from xrpl.models import amounts, currencies, ledger_objects, requests, transactions
 from xrpl.models.amounts import *  # noqa: F401, F403
 from xrpl.models.auth_account import AuthAccount
 from xrpl.models.currencies import *  # noqa: F401, F403
 from xrpl.models.exceptions import XRPLModelException
+from xrpl.models.ledger_objects import *  # noqa: F401, F403
 from xrpl.models.mptoken_metadata import MPTokenMetadata, MPTokenMetadataUri
 from xrpl.models.path import Path, PathStep
 from xrpl.models.requests import *  # noqa: F401, F403
@@ -20,6 +21,8 @@ __all__ = [
     "AuthAccount",
     "currencies",
     *currencies.__all__,
+    "ledger_objects",
+    *ledger_objects.__all__,
     "MPTokenMetadata",
     "MPTokenMetadataUri",
     "requests",

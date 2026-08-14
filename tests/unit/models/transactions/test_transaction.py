@@ -268,3 +268,148 @@ class TestTransaction(TestCase):
         }
         payment_txn = Payment.from_xrpl(payment_tx_json)
         self.assertTrue(payment_txn.is_valid())
+
+
+    def test_transaction_with_sponsor(self):
+        """Test transaction with Sponsor field."""
+        from xrpl.models.transactions import SponsorSignature
+
+        tx = Payment(
+            account=_ACCOUNT,
+            destination="rN7n7otQDd6FczFgLdlqtyMVrn3HMfXoKk",
+            amount="1000000",
+            sponsor="rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+            sponsor_flags=0x00000001,  # tfSponsorFee
+            sponsor_signature=SponsorSignature(
+                signing_pub_key="0330E7FC9D56BB25D6893BA3F317AE5BCF33B3291BD63DB32654A313222F7FD020",
+                txn_signature="3045022100D184EB4AE5956FF600E7536EE459345C7BBCF097A84CC61A93B9AF7197EDB98702201CEA8009B7BEEBAA2AACC0359B41C427C1C5B550A4CA4B80CF2174AF2D6D5DCE",
+            ),
+        )
+        self.assertTrue(tx.is_valid())
+        self.assertEqual(tx.sponsor, "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW")
+        self.assertEqual(tx.sponsor_flags, 0x00000001)
+
+    def test_sponsor_signature_without_sponsor(self):
+        """Test that SponsorSignature requires Sponsor field."""
+        from xrpl.models.transactions import SponsorSignature
+
+        with self.assertRaises(XRPLModelException) as err:
+            Payment(
+                account=_ACCOUNT,
+                destination="rN7n7otQDd6FczFgLdlqtyMVrn3HMfXoKk",
+                amount="1000000",
+                sponsor_signature=SponsorSignature(
+                    signing_pub_key="0330E7FC9D56BB25D6893BA3F317AE5BCF33B3291BD63DB32654A313222F7FD020",
+                    txn_signature="3045022100D184EB4AE5956FF600E7536EE459345C7BBCF097A84CC61A93B9AF7197EDB98702201CEA8009B7BEEBAA2AACC0359B41C427C1C5B550A4CA4B80CF2174AF2D6D5DCE",
+                ),
+            )
+        self.assertIn("sponsor_signature", str(err.exception))
+
+    def test_sponsor_flags_without_sponsor(self):
+        """Test that SponsorFlags requires Sponsor field."""
+        with self.assertRaises(XRPLModelException) as err:
+            Payment(
+                account=_ACCOUNT,
+                destination="rN7n7otQDd6FczFgLdlqtyMVrn3HMfXoKk",
+                amount="1000000",
+                sponsor_flags=0x00000001,
+            )
+        self.assertIn("sponsor_flags", str(err.exception))
+
+    def test_invalid_sponsor_flags(self):
+        """Test that invalid SponsorFlags values are rejected."""
+        from xrpl.models.transactions import SponsorSignature
+
+        with self.assertRaises(XRPLModelException) as err:
+            Payment(
+                account=_ACCOUNT,
+                destination="rN7n7otQDd6FczFgLdlqtyMVrn3HMfXoKk",
+                amount="1000000",
+                sponsor="rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+                sponsor_flags=0x00000004,  # Invalid flag
+                sponsor_signature=SponsorSignature(
+                    signing_pub_key="0330E7FC9D56BB25D6893BA3F317AE5BCF33B3291BD63DB32654A313222F7FD020",
+                    txn_signature="3045022100D184EB4AE5956FF600E7536EE459345C7BBCF097A84CC61A93B9AF7197EDB98702201CEA8009B7BEEBAA2AACC0359B41C427C1C5B550A4CA4B80CF2174AF2D6D5DCE",
+                ),
+            )
+        self.assertIn("sponsor_flags_invalid", str(err.exception))
+
+    def test_valid_sponsor_flags_fee(self):
+        """Test valid tfSponsorFee flag."""
+        from xrpl.models.transactions import SponsorSignature
+
+        tx = Payment(
+            account=_ACCOUNT,
+            destination="rN7n7otQDd6FczFgLdlqtyMVrn3HMfXoKk",
+            amount="1000000",
+            sponsor="rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+            sponsor_flags=0x00000001,  # tfSponsorFee
+            sponsor_signature=SponsorSignature(
+                signing_pub_key="0330E7FC9D56BB25D6893BA3F317AE5BCF33B3291BD63DB32654A313222F7FD020",
+                txn_signature="3045022100D184EB4AE5956FF600E7536EE459345C7BBCF097A84CC61A93B9AF7197EDB98702201CEA8009B7BEEBAA2AACC0359B41C427C1C5B550A4CA4B80CF2174AF2D6D5DCE",
+            ),
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_valid_sponsor_flags_reserve(self):
+        """Test valid tfSponsorReserve flag."""
+        from xrpl.models.transactions import SponsorSignature
+
+        tx = Payment(
+            account=_ACCOUNT,
+            destination="rN7n7otQDd6FczFgLdlqtyMVrn3HMfXoKk",
+            amount="1000000",
+            sponsor="rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+            sponsor_flags=0x00000002,  # tfSponsorReserve
+            sponsor_signature=SponsorSignature(
+                signing_pub_key="0330E7FC9D56BB25D6893BA3F317AE5BCF33B3291BD63DB32654A313222F7FD020",
+                txn_signature="3045022100D184EB4AE5956FF600E7536EE459345C7BBCF097A84CC61A93B9AF7197EDB98702201CEA8009B7BEEBAA2AACC0359B41C427C1C5B550A4CA4B80CF2174AF2D6D5DCE",
+            ),
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_valid_sponsor_flags_both(self):
+        """Test valid combination of both sponsor flags."""
+        from xrpl.models.transactions import SponsorSignature
+
+        tx = Payment(
+            account=_ACCOUNT,
+            destination="rN7n7otQDd6FczFgLdlqtyMVrn3HMfXoKk",
+            amount="1000000",
+            sponsor="rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+            sponsor_flags=0x00000003,  # tfSponsorFee | tfSponsorReserve
+            sponsor_signature=SponsorSignature(
+                signing_pub_key="0330E7FC9D56BB25D6893BA3F317AE5BCF33B3291BD63DB32654A313222F7FD020",
+                txn_signature="3045022100D184EB4AE5956FF600E7536EE459345C7BBCF097A84CC61A93B9AF7197EDB98702201CEA8009B7BEEBAA2AACC0359B41C427C1C5B550A4CA4B80CF2174AF2D6D5DCE",
+            ),
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_sponsor_without_sponsor_signature(self):
+        """Test that Sponsor can be present without SponsorSignature (for pre-funded sponsorship)."""
+        tx = Payment(
+            account=_ACCOUNT,
+            destination="rN7n7otQDd6FczFgLdlqtyMVrn3HMfXoKk",
+            amount="1000000",
+            sponsor="rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+        )
+        # This should be valid - sponsor can be present without signature/flags
+        # for pre-funded sponsorship scenarios
+        self.assertTrue(tx.is_valid())
+
+    def test_sponsor_without_sponsor_flags(self):
+        """Test that Sponsor can be present without SponsorFlags."""
+        from xrpl.models.transactions import SponsorSignature
+
+        tx = Payment(
+            account=_ACCOUNT,
+            destination="rN7n7otQDd6FczFgLdlqtyMVrn3HMfXoKk",
+            amount="1000000",
+            sponsor="rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+            sponsor_signature=SponsorSignature(
+                signing_pub_key="0330E7FC9D56BB25D6893BA3F317AE5BCF33B3291BD63DB32654A313222F7FD020",
+                txn_signature="3045022100D184EB4AE5956FF600E7536EE459345C7BBCF097A84CC61A93B9AF7197EDB98702201CEA8009B7BEEBAA2AACC0359B41C427C1C5B550A4CA4B80CF2174AF2D6D5DCE",
+            ),
+        )
+        # This should be valid - flags are optional
+        self.assertTrue(tx.is_valid())
