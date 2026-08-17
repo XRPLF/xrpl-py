@@ -20,10 +20,6 @@
 name: Build mpt-crypto Native Libraries
 
 on:
-  # TODO: Remove push trigger after initial testing — only workflow_dispatch should remain
-  push:
-    branches:
-      - rp/conf-mpt-jna-workflow-setup
   workflow_dispatch:
     inputs:
       mpt_crypto_ref:
@@ -77,12 +73,10 @@ jobs:
       # ── Checkout mpt-crypto source at the requested ref ──
       # actions/checkout doesn't support arbitrary commit SHAs for external repos
       # (it only matches branches/tags). So we do a full clone + checkout instead.
-      # Falls back to the pinned release tag for push-triggered runs (TODO: remove
-      # fallback with push trigger).
       - name: Clone mpt-crypto
         shell: bash
         env:
-          MPT_REF: ${{ inputs.mpt_crypto_ref || '1.0.4' }}
+          MPT_REF: ${{ inputs.mpt_crypto_ref }}
           # Immutable commit the pinned release tag must resolve to. Keep in sync
           # with MPT_CRYPTO_VERSION / MPT_CRYPTO_COMMIT in
           # packaging/confidential/version.env (the single source of truth for

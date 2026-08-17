@@ -5,7 +5,11 @@ from xrpl.models.transactions.confidential_mpt_clawback import ConfidentialMPTCl
 
 _ISSUER = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _HOLDER = "rN7n3473SaZBCG4dFL83w7a1RXtXtbk2D9"
-_MPTOKEN_ISSUANCE_ID = "0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47"
+# Clawback is issuer-only: the issuance ID must embed _ISSUER's AccountID
+# (204288D2..09711) as its issuer — sequence(8 hex) || issuerAccountID(40 hex).
+_MPTOKEN_ISSUANCE_ID = "0000012F204288D2E47F8EF6C99BCC457966320D12409711"
+# A well-formed issuance ID whose issuer is NOT _ISSUER.
+_MPTOKEN_ISSUANCE_ID_OTHER_ISSUER = "0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47"
 _VALID_EQUALITY_PROOF = "A" * 128  # 64 bytes: compact sigma proof
 
 
@@ -131,3 +135,34 @@ class TestConfidentialMPTClawback(TestCase):
             zk_proof=_VALID_EQUALITY_PROOF,
         )
         self.assertTrue(tx.is_valid())
+
+    def test_invalid_mpt_amount_above_max(self):
+        with self.assertRaises(XRPLModelException) as err:
+            ConfidentialMPTClawback(
+                account=_ISSUER,
+                holder=_HOLDER,
+                mptoken_issuance_id=_MPTOKEN_ISSUANCE_ID,
+                mpt_amount=9223372036854775808,  # 2**63, over maxMPTokenAmount
+                zk_proof=_VALID_EQUALITY_PROOF,
+            )
+        self.assertEqual(
+            err.exception.args[0],
+            "{'mpt_amount': 'mpt_amount must not exceed 9223372036854775807 "
+            "(maxMPTokenAmount, 2**63 - 1)'}",
+        )
+
+    def test_invalid_account_not_issuer(self):
+        # Clawback account must be the issuance's issuer.
+        with self.assertRaises(XRPLModelException) as err:
+            ConfidentialMPTClawback(
+                account=_ISSUER,
+                holder=_HOLDER,
+                mptoken_issuance_id=_MPTOKEN_ISSUANCE_ID_OTHER_ISSUER,
+                mpt_amount=1000,
+                zk_proof=_VALID_EQUALITY_PROOF,
+            )
+        self.assertEqual(
+            err.exception.args[0],
+            "{'account': \"ConfidentialMPTClawback account must be "
+            "the issuance's issuer\"}",
+        )

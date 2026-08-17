@@ -9,6 +9,7 @@ from typing_extensions import Self
 
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.confidential_mpt_constants import (
+    address_is_issuer,
     get_mptoken_issuance_id_error,
 )
 from xrpl.models.transactions.transaction import Transaction
@@ -44,5 +45,12 @@ class ConfidentialMPTMergeInbox(Transaction):
             issuance_id_error = get_mptoken_issuance_id_error(self.mptoken_issuance_id)
             if issuance_id_error is not None:
                 errors["mptoken_issuance_id"] = issuance_id_error
+            elif self.account is not REQUIRED and address_is_issuer(
+                self.mptoken_issuance_id, self.account
+            ):
+                # The issuer has no personal confidential balance to merge, so it
+                # cannot be the Account of a MergeInbox (temMALFORMED,
+                # ConfidentialMPTMergeInbox.cpp preflight).
+                errors["account"] = "The issuer cannot be the account of a MergeInbox"
 
         return errors

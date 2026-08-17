@@ -7,6 +7,8 @@ from xrpl.models.transactions.confidential_mpt_convert_back import (
 
 _ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _MPTOKEN_ISSUANCE_ID = "0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47"
+# An issuance ID whose embedded issuer IS _ACCOUNT (204288D2..09711).
+_ISSUER_ISSUANCE_ID = "0000012F204288D2E47F8EF6C99BCC457966320D12409711"
 _VALID_CIPHERTEXT = "A" * 132  # 66 bytes (two compressed EC points)
 _VALID_COMMITMENT = "B" * 66  # 33 bytes (one compressed EC point)
 _VALID_BLINDING_FACTOR = "C" * 64
@@ -14,6 +16,41 @@ _VALID_CONVERT_BACK_PROOF = "D" * 1632  # 816 bytes: sigma (128) + bulletproof (
 
 
 class TestConfidentialMPTConvertBack(TestCase):
+    def test_invalid_mpt_amount_above_max(self):
+        with self.assertRaises(XRPLModelException) as err:
+            ConfidentialMPTConvertBack(
+                account=_ACCOUNT,
+                mptoken_issuance_id=_MPTOKEN_ISSUANCE_ID,
+                mpt_amount=9223372036854775808,  # 2**63, over maxMPTokenAmount
+                holder_encrypted_amount=_VALID_CIPHERTEXT,
+                issuer_encrypted_amount=_VALID_CIPHERTEXT,
+                blinding_factor=_VALID_BLINDING_FACTOR,
+                balance_commitment=_VALID_COMMITMENT,
+                zk_proof=_VALID_CONVERT_BACK_PROOF,
+            )
+        self.assertEqual(
+            err.exception.args[0],
+            "{'mpt_amount': 'mpt_amount must not exceed 9223372036854775807 "
+            "(maxMPTokenAmount, 2**63 - 1)'}",
+        )
+
+    def test_invalid_account_is_issuer(self):
+        with self.assertRaises(XRPLModelException) as err:
+            ConfidentialMPTConvertBack(
+                account=_ACCOUNT,
+                mptoken_issuance_id=_ISSUER_ISSUANCE_ID,
+                mpt_amount=1000,
+                holder_encrypted_amount=_VALID_CIPHERTEXT,
+                issuer_encrypted_amount=_VALID_CIPHERTEXT,
+                blinding_factor=_VALID_BLINDING_FACTOR,
+                balance_commitment=_VALID_COMMITMENT,
+                zk_proof=_VALID_CONVERT_BACK_PROOF,
+            )
+        self.assertEqual(
+            err.exception.args[0],
+            "{'account': 'The issuer cannot be the account of a ConvertBack'}",
+        )
+
     def test_valid_convert_back(self):
         tx = ConfidentialMPTConvertBack(
             account=_ACCOUNT,

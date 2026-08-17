@@ -268,6 +268,7 @@ build_locally() {
     # natives. version.env is the single source of truth for the pinned version.
     VERSION_ENV="$REPO_ROOT/packaging/confidential/version.env"
     MPT_CRYPTO_VERSION="$(grep -E '^MPT_CRYPTO_VERSION=' "$VERSION_ENV" 2>/dev/null | cut -d= -f2)"
+    MPT_CRYPTO_COMMIT="$(grep -E '^MPT_CRYPTO_COMMIT=' "$VERSION_ENV" 2>/dev/null | cut -d= -f2)"
     if [ -z "$MPT_CRYPTO_VERSION" ]; then
         echo "ERROR: could not read MPT_CRYPTO_VERSION from $VERSION_ENV" >&2
         exit 1
@@ -278,6 +279,22 @@ build_locally() {
     git clone --depth 1 --branch "$MPT_CRYPTO_VERSION" \
         "https://github.com/$MPT_CRYPTO_REPO.git"
     cd mpt-crypto
+
+    # Supply-chain: git tags are mutable (force-pushable). Verify the checked-out
+    # commit matches the pinned immutable SHA before building, so a moved/tampered
+    # tag can't inject code into a local source build. Mirrors
+    # packaging/confidential/scripts/build-mpt-crypto-lib.sh and the natives
+    # workflow. Skipped only if version.env carries no pinned commit.
+    if [ -n "$MPT_CRYPTO_COMMIT" ]; then
+        ACTUAL_SHA="$(git rev-parse HEAD)"
+        if [ "$ACTUAL_SHA" != "$MPT_CRYPTO_COMMIT" ]; then
+            echo "ERROR: tag $MPT_CRYPTO_VERSION resolved to $ACTUAL_SHA," >&2
+            echo "       expected pinned commit $MPT_CRYPTO_COMMIT." >&2
+            echo "       The tag may have been moved or tampered with; refusing to build." >&2
+            exit 1
+        fi
+        echo "Verified $MPT_CRYPTO_VERSION resolves to pinned commit $MPT_CRYPTO_COMMIT."
+    fi
 
     # Build the self-contained static archive via mpt-crypto's own script.
     case "$PLATFORM" in

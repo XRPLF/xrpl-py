@@ -12,10 +12,12 @@ from xrpl.models.transactions.confidential_mpt_constants import (
     CIPHERTEXT_LENGTH,
     COMMITMENT_LENGTH,
     SEND_PROOF_LENGTH,
+    address_is_issuer,
     get_mptoken_issuance_id_error,
 )
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
+from xrpl.models.utils import validate_credential_ids
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -93,6 +95,10 @@ class ConfidentialMPTSend(Transaction):
         ):
             errors["destination"] = "Sender cannot send to themselves"
 
+        # XLS-70 credentials, when present, must be a valid list (max length,
+        # uniqueness, hex format) — matches rippled's credentials::checkFields.
+        errors.update(validate_credential_ids(self.credential_ids))
+
         # Validate ciphertext lengths (temBAD_CIPHERTEXT)
         if (
             self.sender_encrypted_amount is not REQUIRED
@@ -153,5 +159,19 @@ class ConfidentialMPTSend(Transaction):
             issuance_id_error = get_mptoken_issuance_id_error(self.mptoken_issuance_id)
             if issuance_id_error is not None:
                 errors["mptoken_issuance_id"] = issuance_id_error
+            else:
+                # A ConfidentialMPTSend only moves value holder<->holder, so the
+                # issuer cannot be the Account or the Destination (temMALFORMED,
+                # ConfidentialMPTSend.cpp preflight).
+                if self.account is not REQUIRED and address_is_issuer(
+                    self.mptoken_issuance_id, self.account
+                ):
+                    errors["account"] = "The issuer cannot be the sender of a Send"
+                if self.destination is not REQUIRED and address_is_issuer(
+                    self.mptoken_issuance_id, self.destination
+                ):
+                    errors["destination"] = (
+                        "The issuer cannot be the destination of a Send"
+                    )
 
         return errors

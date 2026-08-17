@@ -10,6 +10,8 @@ from typing_extensions import Self
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.confidential_mpt_constants import (
     CLAWBACK_PROOF_LENGTH,
+    address_is_issuer,
+    get_mpt_amount_error,
     get_mptoken_issuance_id_error,
 )
 from xrpl.models.transactions.transaction import Transaction
@@ -72,12 +74,22 @@ class ConfidentialMPTClawback(Transaction):
                 "zk_proof must be 64 bytes (128 hex characters) for compact sigma proof"
             )
 
-        if self.mpt_amount is not REQUIRED and self.mpt_amount <= 0:
-            errors["mpt_amount"] = "mpt_amount cannot be zero or negative"
+        if self.mpt_amount is not REQUIRED:
+            amount_error = get_mpt_amount_error(self.mpt_amount, allow_zero=False)
+            if amount_error is not None:
+                errors["mpt_amount"] = amount_error
 
         if self.mptoken_issuance_id is not REQUIRED:
             issuance_id_error = get_mptoken_issuance_id_error(self.mptoken_issuance_id)
             if issuance_id_error is not None:
                 errors["mptoken_issuance_id"] = issuance_id_error
+            elif self.account is not REQUIRED and not address_is_issuer(
+                self.mptoken_issuance_id, self.account
+            ):
+                # Clawback is issuer-only: Account MUST be the issuance's issuer
+                # (temMALFORMED, ConfidentialMPTClawback.cpp preflight).
+                errors["account"] = (
+                    "ConfidentialMPTClawback account must be the issuance's issuer"
+                )
 
         return errors

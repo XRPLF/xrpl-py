@@ -241,10 +241,22 @@ jobs:
         run: |
           poetry run python -c "from xrpl.ext.confidential import MPT_CRYPTO_AVAILABLE; assert MPT_CRYPTO_AVAILABLE, 'native mpt-crypto extension failed to build/load'; print('MPT_CRYPTO_AVAILABLE = True')"
 
+      # Native unit tests (chaining state prediction + homomorphic ops) self-skip
+      # when MPT_CRYPTO_AVAILABLE is False, so the core unit-test job never runs
+      # them. Run them here, where the native extension is built, so the chaining
+      # feature actually has executed coverage.
+      - name: Confidential MPT native unit tests
+        run: |
+          poetry run python -m unittest -v \
+            tests.unit.ext.confidential.test_chaining \
+            tests.unit.ext.confidential.test_homomorphic \
+            tests.unit.ext.confidential.test_utility_layer
+
       - name: Confidential MPT integration test
         run: |
           poetry run python -m unittest -v \
-            tests.integration.transactions.test_confidential_mpt
+            tests.integration.transactions.test_confidential_mpt \
+            tests.integration.transactions.test_confidential_mpt_batch
 
       - name: rippled logs + stop
         if: always()

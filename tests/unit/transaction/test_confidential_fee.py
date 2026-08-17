@@ -17,6 +17,9 @@ _EXPECTED_CONFIDENTIAL_FEE = str(_BASE_FEE * 10)
 _ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _HOLDER = "rN7n3473SaZBCG4dFL83w7a1RXtXtbk2D9"
 _ISSUANCE_ID = "0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47"
+# ConfidentialMPTClawback is issuer-only, so its issuance ID must embed
+# _ACCOUNT's AccountID (204288D2..09711) as the issuer.
+_CLAWBACK_ISSUANCE_ID = "0000012F204288D2E47F8EF6C99BCC457966320D12409711"
 _CIPHERTEXT = "A" * 132
 _COMMITMENT = "B" * 66
 
@@ -39,7 +42,7 @@ class TestConfidentialFee(IsolatedAsyncioTestCase):
         tx = ConfidentialMPTClawback(
             account=_ACCOUNT,
             holder=_HOLDER,
-            mptoken_issuance_id=_ISSUANCE_ID,
+            mptoken_issuance_id=_CLAWBACK_ISSUANCE_ID,
             mpt_amount=1000,
             zk_proof="A" * 128,
         )

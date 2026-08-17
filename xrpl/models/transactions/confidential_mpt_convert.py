@@ -20,6 +20,8 @@ from xrpl.models.transactions.confidential_mpt_constants import (
     HOLDER_ENCRYPTION_KEY_LENGTH,
     SCHNORR_PROOF_LENGTH,
     SEND_PROOF_LENGTH,
+    address_is_issuer,
+    get_mpt_amount_error,
     get_mptoken_issuance_id_error,
 )
 from xrpl.models.transactions.transaction import Transaction
@@ -142,8 +144,13 @@ class ConfidentialMPTConvert(Transaction):
                 "zk_proof must be 64 bytes (128 hex characters) for Schnorr Proof"
             )
 
-        if self.mpt_amount is not REQUIRED and self.mpt_amount < 0:
-            errors["mpt_amount"] = "mpt_amount cannot be negative"
+        if self.mpt_amount is not REQUIRED:
+            # A zero amount is permitted here on purpose: rippled allows a
+            # zero-amount Convert to register the holder's ElGamal key and
+            # initialize the confidential-balance fields.
+            amount_error = get_mpt_amount_error(self.mpt_amount, allow_zero=True)
+            if amount_error is not None:
+                errors["mpt_amount"] = amount_error
 
         if (
             self.holder_encrypted_amount is not REQUIRED
@@ -173,5 +180,12 @@ class ConfidentialMPTConvert(Transaction):
             issuance_id_error = get_mptoken_issuance_id_error(self.mptoken_issuance_id)
             if issuance_id_error is not None:
                 errors["mptoken_issuance_id"] = issuance_id_error
+            elif self.account is not REQUIRED and address_is_issuer(
+                self.mptoken_issuance_id, self.account
+            ):
+                # The issuer converts through its mirror balances, not a personal
+                # confidential balance, so it cannot be the Account of a Convert
+                # (temMALFORMED, ConfidentialMPTConvert.cpp preflight).
+                errors["account"] = "The issuer cannot be the account of a Convert"
 
         return errors

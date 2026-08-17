@@ -171,10 +171,13 @@ class MPTCrypto:
         Returns:
             True if proof is valid, False otherwise
         """
-        proof_bytes = bytes.fromhex(proof)
-        pubkey_bytes = bytes.fromhex(pubkey_compressed)
-        ciphertext_bytes = bytes.fromhex(ciphertext)
-        context_bytes = bytes.fromhex(context_hash)
+        # Validate every decoded length before the C call: these inputs are
+        # untrusted (network/ledger-sourced proofs), and the C function reads
+        # fixed sizes regardless of the buffer it is handed.
+        proof_bytes = _hex_to_fixed_bytes(proof, 64, "proof")
+        pubkey_bytes = _hex_to_fixed_bytes(pubkey_compressed, 33, "pubkey_compressed")
+        ciphertext_bytes = _hex_to_fixed_bytes(ciphertext, 66, "ciphertext")
+        context_bytes = _hex_to_fixed_bytes(context_hash, 32, "context_hash")
 
         result = lib.mpt_verify_clawback_proof(
             proof_bytes, amount, pubkey_bytes, ciphertext_bytes, context_bytes
@@ -204,11 +207,14 @@ class MPTCrypto:
         Returns:
             True if proof is valid, False otherwise
         """
-        proof_bytes = bytes.fromhex(proof)
-        pubkey_bytes = bytes.fromhex(pubkey_compressed)
-        ciphertext_bytes = bytes.fromhex(ciphertext)
-        commitment_bytes = bytes.fromhex(balance_commitment)
-        context_bytes = bytes.fromhex(context_hash)
+        # Validate lengths before the C call (untrusted proof inputs).
+        proof_bytes = _hex_to_fixed_bytes(proof, 816, "proof")
+        pubkey_bytes = _hex_to_fixed_bytes(pubkey_compressed, 33, "pubkey_compressed")
+        ciphertext_bytes = _hex_to_fixed_bytes(ciphertext, 66, "ciphertext")
+        commitment_bytes = _hex_to_fixed_bytes(
+            balance_commitment, 33, "balance_commitment"
+        )
+        context_bytes = _hex_to_fixed_bytes(context_hash, 32, "context_hash")
 
         result = lib.mpt_verify_convert_back_proof(
             proof_bytes,
@@ -243,13 +249,25 @@ class MPTCrypto:
         Returns:
             True if proof is valid, False otherwise
         """
-        proof_bytes = bytes.fromhex(proof)
-        context_bytes = bytes.fromhex(context_hash)
-        spending_bytes = bytes.fromhex(sender_spending_ciphertext)
-        amount_commit_bytes = bytes.fromhex(amount_commitment)
-        balance_commit_bytes = bytes.fromhex(balance_commitment)
+        # Validate lengths before the C call (untrusted proof inputs).
+        proof_bytes = _hex_to_fixed_bytes(proof, 946, "proof")
+        context_bytes = _hex_to_fixed_bytes(context_hash, 32, "context_hash")
+        spending_bytes = _hex_to_fixed_bytes(
+            sender_spending_ciphertext, 66, "sender_spending_ciphertext"
+        )
+        amount_commit_bytes = _hex_to_fixed_bytes(
+            amount_commitment, 33, "amount_commitment"
+        )
+        balance_commit_bytes = _hex_to_fixed_bytes(
+            balance_commitment, 33, "balance_commitment"
+        )
 
         n_participants = len(participants)
+        if not 3 <= n_participants <= 4:
+            raise ValueError(
+                "participants must contain 3 or 4 entries "
+                "(sender, destination, issuer, [auditor])"
+            )
         participants_array = ffi.new(f"mpt_confidential_participant[{n_participants}]")
         for i, (pubkey, encrypted_amount) in enumerate(participants):
             ffi.memmove(
@@ -315,15 +333,24 @@ class MPTCrypto:
         Returns:
             Hex string of complete ZKProof (946 bytes = 1892 hex chars)
         """
-        # Convert inputs from hex to bytes
-        priv_bytes = bytes.fromhex(sender_privkey)
-        pub_bytes = bytes.fromhex(sender_pubkey)
-        tx_blinding_bytes = bytes.fromhex(tx_blinding_factor)
-        context_bytes = bytes.fromhex(context_hash)
-        amount_commitment_bytes = bytes.fromhex(amount_commitment)
+        # Convert inputs from hex to bytes, validating lengths before the C call.
+        priv_bytes = _hex_to_fixed_bytes(sender_privkey, 32, "sender_privkey")
+        pub_bytes = _hex_to_fixed_bytes(sender_pubkey, 33, "sender_pubkey")
+        tx_blinding_bytes = _hex_to_fixed_bytes(
+            tx_blinding_factor, 32, "tx_blinding_factor"
+        )
+        context_bytes = _hex_to_fixed_bytes(context_hash, 32, "context_hash")
+        amount_commitment_bytes = _hex_to_fixed_bytes(
+            amount_commitment, 33, "amount_commitment"
+        )
 
         # Build participants array
         n_participants = len(participants)
+        if not 3 <= n_participants <= 4:
+            raise ValueError(
+                "participants must contain 3 or 4 entries "
+                "(sender, destination, issuer, [auditor])"
+            )
         participants_array = ffi.new(f"mpt_confidential_participant[{n_participants}]")
         for i, (pubkey, encrypted_amount) in enumerate(participants):
             pubkey_bytes = _hex_to_fixed_bytes(pubkey, 33, "participant pubkey")
@@ -421,10 +448,10 @@ class MPTCrypto:
             Hex string of ZKProof (816 bytes = 1632 hex chars)
             Includes: Compact sigma proof (128 bytes) + Bulletproof (688 bytes)
         """
-        # Convert inputs from hex to bytes
-        priv_bytes = bytes.fromhex(holder_privkey)
-        pub_bytes = bytes.fromhex(holder_pubkey)
-        context_bytes = bytes.fromhex(context_hash)
+        # Convert inputs from hex to bytes, validating lengths before the C call.
+        priv_bytes = _hex_to_fixed_bytes(holder_privkey, 32, "holder_privkey")
+        pub_bytes = _hex_to_fixed_bytes(holder_pubkey, 33, "holder_pubkey")
+        context_bytes = _hex_to_fixed_bytes(context_hash, 32, "context_hash")
 
         # Build balance_params
         balance_params = ffi.new("mpt_pedersen_proof_params*")
@@ -497,11 +524,13 @@ class MPTCrypto:
         Returns:
             Hex string of ZKProof (SECP256K1_COMPACT_CLAWBACK_PROOF_SIZE bytes)
         """
-        # Convert inputs from hex to bytes
-        priv_bytes = bytes.fromhex(issuer_privkey)
-        pub_bytes = bytes.fromhex(issuer_pubkey)
-        context_bytes = bytes.fromhex(context_hash)
-        encrypted_balance_bytes = bytes.fromhex(issuer_encrypted_balance)
+        # Convert inputs from hex to bytes, validating lengths before the C call.
+        priv_bytes = _hex_to_fixed_bytes(issuer_privkey, 32, "issuer_privkey")
+        pub_bytes = _hex_to_fixed_bytes(issuer_pubkey, 33, "issuer_pubkey")
+        context_bytes = _hex_to_fixed_bytes(context_hash, 32, "context_hash")
+        encrypted_balance_bytes = _hex_to_fixed_bytes(
+            issuer_encrypted_balance, 66, "issuer_encrypted_balance"
+        )
 
         # Allocate proof buffer
         proof_size = lib.SECP256K1_COMPACT_CLAWBACK_PROOF_SIZE
