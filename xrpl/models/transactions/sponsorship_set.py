@@ -187,11 +187,23 @@ class SponsorshipSet(Transaction):
                         "`fee_amount_delta` must be XRP drops (a string), "
                         "not an issued currency or MPT amount."
                     )
-                elif int(self.fee_amount_delta) == 0:
-                    errors["fee_amount_delta"] = (
-                        "`fee_amount_delta` must be non-zero; it is a change to "
-                        "apply to the fee budget, so zero has no effect."
-                    )
+                else:
+                    try:
+                        fee_amount_delta_drops = int(self.fee_amount_delta)
+                    except ValueError:
+                        # A non-numeric string would otherwise raise a raw
+                        # ValueError from int() instead of a clean model error.
+                        errors["fee_amount_delta"] = (
+                            "`fee_amount_delta` must be an integer string of "
+                            "XRP drops."
+                        )
+                    else:
+                        if fee_amount_delta_drops == 0:
+                            errors["fee_amount_delta"] = (
+                                "`fee_amount_delta` must be non-zero; it is a "
+                                "change to apply to the fee budget, so zero has "
+                                "no effect."
+                            )
 
             # `max_fee` is an absolute cap, so it must be XRP and non-negative
             # (temBAD_AMOUNT).
@@ -201,8 +213,16 @@ class SponsorshipSet(Transaction):
                         "`max_fee` must be XRP drops (a string), "
                         "not an issued currency or MPT amount."
                     )
-                elif int(self.max_fee) < 0:
-                    errors["max_fee"] = "`max_fee` must not be negative."
+                else:
+                    try:
+                        max_fee_drops = int(self.max_fee)
+                    except ValueError:
+                        errors["max_fee"] = (
+                            "`max_fee` must be an integer string of XRP drops."
+                        )
+                    else:
+                        if max_fee_drops < 0:
+                            errors["max_fee"] = "`max_fee` must not be negative."
 
             # `remaining_owner_count_delta` must be non-zero (temINVALID) and fit
             # in a signed 32-bit integer

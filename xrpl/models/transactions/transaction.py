@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from hashlib import sha512
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, Union, cast
+from typing import Any, Dict, List, Optional, Type, Union, cast
 
 from typing_extensions import Final, Self
 
@@ -24,9 +24,6 @@ from xrpl.models.requests import PathStep
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.types import PseudoTransactionType, TransactionType
 from xrpl.models.types import XRPL_VALUE_TYPE
-
-if TYPE_CHECKING:
-    from xrpl.models.transactions.sponsor_signature import SponsorSignature
 
 _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
 
@@ -163,6 +160,70 @@ class Signer(NestedModel):
 
     :meta hide-value:
     """
+
+
+@dataclass(frozen=True, kw_only=True)
+class SponsorSignature(BaseModel):
+    """
+    The sponsor's signing information for a fee-/reserve-sponsored transaction.
+
+    Fields:
+    - signing_pub_key: hex-encoded public key of the sponsor (required if
+    txn_signature is set).
+    - txn_signature: hex-encoded signature over the canonical transaction
+    (required if signing_pub_key is set).
+    - signers: optional multisign array reusing the standard Signer objects.
+
+    All three fields are optional, and an **empty** ``SponsorSignature()`` is a
+    valid, meaningful value in two cases:
+
+    - **Batch inner transactions**. An inner transaction that
+      names a ``sponsor`` must carry an empty placeholder; its *presence* --
+      not its contents -- is what tells the ledger that the named sponsor needs
+      an entry in the outer transaction's ``BatchSigners``. Populating any of
+      the three fields on an inner transaction is rejected.
+    - **``simulate``**. The server autofills the sponsor's
+      signing fields only when the field is present, so a dry run of a
+      sponsored transaction supplies the empty object.
+
+    For an ordinary submitted transaction, populate either
+    ``signing_pub_key`` + ``txn_signature`` (single-sign) or ``signers``
+    (multi-sign) -- see :func:`xrpl.transaction.sign_as_sponsor`.
+    """
+
+    signing_pub_key: Optional[str] = None
+    txn_signature: Optional[str] = None
+    signers: Optional[List[Signer]] = None
+
+    def _get_errors(self: Self) -> Dict[str, str]:
+        errors = super()._get_errors()
+
+        has_single_sig = (
+            self.signing_pub_key is not None or self.txn_signature is not None
+        )
+        has_multi_sig = self.signers is not None
+
+        if self.signers is not None and len(self.signers) == 0:
+            errors["signers"] = (
+                "`signers` must not be empty; omit it for the empty placeholder, "
+                "or provide at least one signer."
+            )
+        elif has_single_sig and has_multi_sig:
+            errors["SponsorSignature"] = (
+                "Cannot set both single-signature fields "
+                "(`signing_pub_key`/`txn_signature`) and `signers`."
+            )
+        elif has_single_sig:
+            if self.signing_pub_key is None:
+                errors["signing_pub_key"] = (
+                    "`signing_pub_key` is required when `txn_signature` is set."
+                )
+            if self.txn_signature is None:
+                errors["txn_signature"] = (
+                    "`txn_signature` is required when `signing_pub_key` is set."
+                )
+
+        return errors
 
 
 class TransactionFlag(int, Enum):
@@ -327,7 +388,9 @@ class Transaction(BaseModel):
         # `sponsor` and `sponsor_flags` are all-or-nothing, and the flags must
         # name at least one thing to sponsor. rippled rejects any other
         # combination with temINVALID_FLAG.
-        if self.sponsor_flags is not None and self.sponsor is None:
+        if self.sponsor_flags is not None and not isinstance(self.sponsor_flags, int):
+            errors["sponsor_flags"] = "`sponsor_flags` must be an integer."
+        elif self.sponsor_flags is not None and self.sponsor is None:
             errors["sponsor_flags"] = "`sponsor_flags` requires `sponsor` to be set."
         elif self.sponsor is not None and self.sponsor_flags is None:
             errors["sponsor_flags"] = (
@@ -354,7 +417,7 @@ class Transaction(BaseModel):
         # the created object's owner would be ambiguous (rippled: temINVALID).
         if (
             self.delegate is not None
-            and self.sponsor_flags is not None
+            and isinstance(self.sponsor_flags, int)
             and self.sponsor_flags & _SPF_SPONSOR_RESERVE
         ):
             errors["delegate_sponsor"] = (
@@ -383,7 +446,7 @@ class Transaction(BaseModel):
         # transactions should carry spfSponsorReserve instead.
         if (
             self.transaction_type == TransactionType.BATCH
-            and self.sponsor_flags is not None
+            and isinstance(self.sponsor_flags, int)
             and self.sponsor_flags & _SPF_SPONSOR_RESERVE
         ):
             errors["sponsor_flags"] = (
@@ -647,11 +710,3 @@ class Transaction(BaseModel):
             del processed_value["deliver_max"]
 
         return cls.from_dict(processed_value)
-
-
-# Late import to avoid circular dependency (sponsor_signature imports Signer from this
-# module). This makes SponsorSignature available in the module namespace so that
-# get_type_hints() can resolve the forward reference in Transaction.sponsor_signature.
-from xrpl.models.transactions.sponsor_signature import (  # noqa: E402, F811
-    SponsorSignature,
-)

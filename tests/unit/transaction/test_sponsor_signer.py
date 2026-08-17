@@ -3,10 +3,11 @@
 from unittest import TestCase
 
 from xrpl.constants import XRPLException
+from xrpl.core.addresscodec import decode_classic_address
 from xrpl.core.binarycodec import encode_for_multisigning, encode_for_signing
 from xrpl.core.keypairs import is_valid_message
 from xrpl.models.transactions import Payment
-from xrpl.transaction import multisign, sign, sign_as_sponsor
+from xrpl.transaction import combine_sponsor_signers, multisign, sign, sign_as_sponsor
 from xrpl.wallet import Wallet
 
 SPONSEE = Wallet.create()
@@ -14,6 +15,8 @@ SPONSOR = Wallet.create()
 DESTINATION = Wallet.create()
 SPONSEE_KEY_A = Wallet.create()
 SPONSEE_KEY_B = Wallet.create()
+SPONSOR_KEY_A = Wallet.create()
+SPONSOR_KEY_B = Wallet.create()
 
 
 def _payment(**kwargs) -> Payment:
@@ -168,3 +171,71 @@ class TestSignAsSponsor(TestCase):
         )
         with self.assertRaises(XRPLException):
             sign_as_sponsor(SPONSOR, no_fee, sponsee_multisign=True)
+
+
+class TestCombineSponsorSigners(TestCase):
+    """Merge independent sponsor multisig contributions into one transaction.
+
+    Each sponsor key holder calls ``sign_as_sponsor(..., multisign=True)`` on the
+    same sponsee-keyed transaction; ``combine_sponsor_signers`` collects their
+    ``SponsorSignature.Signers`` into a single, canonically-sorted array. This is
+    pure, network-free code, so it is exercised here rather than only end-to-end.
+    """
+
+    def _sponsor_multisigned(self, key: Wallet, **overrides) -> Payment:
+        tx = _payment(signing_pub_key=SPONSEE.public_key, **overrides)
+        return sign_as_sponsor(key, tx, multisign=True).tx
+
+    def test_combines_signers_sorted_by_account(self):
+        """Every contribution is merged and sorted ascending by account ID."""
+        part_a = self._sponsor_multisigned(SPONSOR_KEY_A)
+        part_b = self._sponsor_multisigned(SPONSOR_KEY_B)
+
+        combined = combine_sponsor_signers([part_a, part_b])
+        signers = combined.tx.sponsor_signature.signers
+
+        self.assertEqual(len(signers), 2)
+        accounts = [s.account for s in signers]
+        self.assertEqual({SPONSOR_KEY_A.address, SPONSOR_KEY_B.address}, set(accounts))
+        # XRPL requires ascending order by decoded account ID.
+        self.assertEqual(
+            accounts,
+            sorted(accounts, key=lambda a: decode_classic_address(a).hex().upper()),
+        )
+        # The merged transaction is serializable (proves from_dict rebuilt it).
+        self.assertTrue(combined.tx_blob)
+
+    def test_accepts_serialized_blobs(self):
+        """Inputs may be hex blobs, not just Transaction objects."""
+        blob_a = sign_as_sponsor(
+            SPONSOR_KEY_A, _payment(signing_pub_key=SPONSEE.public_key), multisign=True
+        ).tx_blob
+        blob_b = sign_as_sponsor(
+            SPONSOR_KEY_B, _payment(signing_pub_key=SPONSEE.public_key), multisign=True
+        ).tx_blob
+
+        combined = combine_sponsor_signers([blob_a, blob_b])
+        self.assertEqual(len(combined.tx.sponsor_signature.signers), 2)
+
+    def test_empty_list_raises(self):
+        with self.assertRaises(XRPLException) as ctx:
+            combine_sponsor_signers([])
+        self.assertIn("0 transactions", str(ctx.exception))
+
+    def test_transaction_without_sponsor_signers_raises(self):
+        """A single-signed sponsor (no Signers array) cannot be combined."""
+        single = sign_as_sponsor(
+            SPONSOR, _payment(signing_pub_key=SPONSEE.public_key)
+        ).tx
+        self.assertIsNone(single.sponsor_signature.signers)
+        with self.assertRaises(XRPLException) as ctx:
+            combine_sponsor_signers([single])
+        self.assertIn("Signers", str(ctx.exception))
+
+    def test_differing_transactions_raise(self):
+        """Contributions must agree on every field except SponsorSignature.Signers."""
+        part_a = self._sponsor_multisigned(SPONSOR_KEY_A, destination_tag=1)
+        part_b = self._sponsor_multisigned(SPONSOR_KEY_B, destination_tag=2)
+        with self.assertRaises(XRPLException) as ctx:
+            combine_sponsor_signers([part_a, part_b])
+        self.assertIn("identical", str(ctx.exception))

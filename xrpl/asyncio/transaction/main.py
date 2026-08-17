@@ -470,7 +470,8 @@ async def _check_fee(
         transaction: The transaction to check.
         client: Client instance to use to look up network load
         signers_count: the expected number of signers for this transaction.
-            Only used for multisigned transactions.
+            Only used for multisigned transactions. Must match the value passed
+            to :func:`autofill`, or the correct fee is rejected here as too high.
         sponsor_signers_count: the expected number of keys the sponsor will
             multi-sign with. Only used when the sponsor multi-signs;
             leave unset for a pre-funded sponsorship or a single-signing

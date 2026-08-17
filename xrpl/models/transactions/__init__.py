@@ -101,7 +101,6 @@ from xrpl.models.transactions.permissioned_domain_delete import PermissionedDoma
 from xrpl.models.transactions.permissioned_domain_set import PermissionedDomainSet
 from xrpl.models.transactions.set_regular_key import SetRegularKey
 from xrpl.models.transactions.signer_list_set import SignerEntry, SignerListSet
-from xrpl.models.transactions.sponsor_signature import SponsorSignature
 from xrpl.models.transactions.sponsorship_set import (
     SponsorshipSet,
     SponsorshipSetFlag,
@@ -117,6 +116,7 @@ from xrpl.models.transactions.transaction import (
     Memo,
     Signer,
     SponsorFlag,
+    SponsorSignature,
     Transaction,
     TransactionFlag,
     TransactionFlagInterface,

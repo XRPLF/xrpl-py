@@ -24,10 +24,10 @@ from xrpl.models.transactions import (
     SponsorFlag,
     SponsorshipSet,
     SponsorshipTransfer,
+    SponsorSignature,
     TrustSet,
 )
 from xrpl.models.transactions.pseudo_transactions import EnableAmendment
-from xrpl.models.transactions.sponsor_signature import SponsorSignature
 from xrpl.models.transactions.sponsorship_set import SponsorshipSetFlag
 from xrpl.models.transactions.sponsorship_transfer import SponsorshipTransferFlag
 from xrpl.models.transactions.transaction import Signer, TransactionFlag
@@ -243,6 +243,22 @@ class TestSponsorCommonFieldValidation(TestCase):
         )
         self.assertEqual(combined.to_xrpl()["SponsorFlags"], 3)
 
+    def test_non_integer_sponsor_flags_is_a_model_error(self):
+        """A non-int must surface as XRPLModelException, not a raw TypeError.
+
+        The value reaches a bitwise `&` in validation, so an unguarded non-int
+        would crash with TypeError before any error is recorded.
+        """
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount="1",
+                sponsor=_SPONSOR,
+                sponsor_flags="not-an-int",
+            )
+        self.assertIn("must be an integer", str(cm.exception))
+
 
 class TestBatchInnerSponsorRules(TestCase):
     """An inner transaction is unsigned and its fee is zero.
@@ -426,6 +442,17 @@ class TestSponsorSignature(TestCase):
         self.assertIsNone(sig.signing_pub_key)
         self.assertIsNone(sig.txn_signature)
         self.assertIsNone(sig.signers)
+
+    def test_empty_signers_array_is_rejected(self):
+        """`signers=[]` is malformed -- distinct from the empty placeholder.
+
+        The placeholder is `signers=None` (serialized `{}`); a present-but-empty
+        array serializes `{"Signers": []}`, which rippled rejects
+        (`kMinMultiSigners == 1`).
+        """
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorSignature(signers=[])
+        self.assertIn("`signers` must not be empty", str(cm.exception))
 
     def test_empty_placeholder_serializes_to_empty_object(self):
         """The empty placeholder must reach the wire as an empty STObject."""

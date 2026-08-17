@@ -18,8 +18,8 @@ from xrpl.models import (
 )
 from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
 from xrpl.models.response import ResponseStatus
+from xrpl.models.transactions import SponsorSignature
 from xrpl.models.transactions.delegate_set import Permission
-from xrpl.models.transactions.sponsor_signature import SponsorSignature
 from xrpl.models.transactions.types import TransactionType
 from xrpl.transaction.batch_signers import (
     combine_batch_signers,

@@ -448,6 +448,21 @@ class TestSponsorshipSet(TestCase):
             )
         self.assertIn("must not be negative", str(cm.exception))
 
+    def test_non_numeric_amount_strings_are_model_errors(self):
+        """A non-numeric XRP-drops string must raise XRPLModelException.
+
+        Both fields parse with `int()` to enforce their numeric rules; an
+        unparseable string would otherwise escape as a raw `ValueError`.
+        """
+        for field in ("fee_amount_delta", "max_fee"):
+            for value in ("abc", "1.5"):
+                with self.subTest(field=field, value=value):
+                    with self.assertRaises(XRPLModelException) as cm:
+                        SponsorshipSet(
+                            account=_ACCOUNT, sponsee=_ACCOUNT2, **{field: value}
+                        )
+                    self.assertIn("integer string of XRP drops", str(cm.exception))
+
     def test_delta_fields_serialize_with_new_names(self):
         """The wire names are FeeAmountDelta / RemainingOwnerCountDelta."""
         tx = SponsorshipSet(

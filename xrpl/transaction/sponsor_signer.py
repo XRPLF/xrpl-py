@@ -52,8 +52,7 @@ from xrpl.core.addresscodec import (
 )
 from xrpl.core.binarycodec import encode, encode_for_multisigning, encode_for_signing
 from xrpl.core.keypairs import sign as keypairs_sign
-from xrpl.models.transactions import Transaction
-from xrpl.models.transactions.sponsor_signature import SponsorSignature
+from xrpl.models.transactions import SponsorSignature, Transaction
 from xrpl.models.transactions.transaction import Signer
 from xrpl.wallet import Wallet
 

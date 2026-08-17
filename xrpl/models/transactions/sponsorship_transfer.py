@@ -98,7 +98,9 @@ class SponsorshipTransfer(Transaction):
                     f"`sponsor` is required when `{operation}` is active; it "
                     "names the sponsor taking on the reserve."
                 )
-            elif not (self.sponsor_flags or 0) & SponsorFlag.SPF_SPONSOR_RESERVE:
+            elif isinstance(self.sponsor_flags, int) and not (
+                self.sponsor_flags & SponsorFlag.SPF_SPONSOR_RESERVE
+            ):
                 errors["sponsor_flags"] = (
                     f"`sponsor_flags` must include `SPF_SPONSOR_RESERVE` (0x2) "
                     f"when `{operation}` is active."

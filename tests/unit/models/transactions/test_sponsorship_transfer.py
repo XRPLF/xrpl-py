@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from xrpl.core.binarycodec import decode, encode
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.transactions.sponsor_signature import SponsorSignature
+from xrpl.models.transactions import SponsorSignature
 from xrpl.models.transactions.sponsorship_transfer import (
     SponsorshipTransfer,
     SponsorshipTransferFlag,
@@ -459,6 +459,19 @@ class TestSponsorshipTransfer(TestCase):
                 flags=SponsorshipTransferFlag.TF_SPONSORSHIP_END,
             )
         self.assertIn("`sponsee` must differ from `account`", str(cm.exception))
+
+    def test_non_integer_sponsor_flags_is_a_model_error(self):
+        """The reserve-flag check bitwise-ANDs sponsor_flags; a non-int must
+        raise XRPLModelException rather than a raw TypeError."""
+        with self.assertRaises(XRPLModelException) as cm:
+            SponsorshipTransfer(
+                account=_ACCOUNT,
+                object_id=_OBJECT_ID,
+                sponsor=_SPONSOR,
+                sponsor_flags="not-an-int",
+                flags=SponsorshipTransferFlag.TF_SPONSORSHIP_CREATE,
+            )
+        self.assertIn("must be an integer", str(cm.exception))
 
     def test_every_field_survives_the_binary_codec(self):
         """Model validation says a field is accepted, not that it is sendable.
