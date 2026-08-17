@@ -4,17 +4,15 @@ Low-level bindings to the mpt-crypto C library.
 This module handles importing the compiled C extension and provides
 graceful error handling when the extension is not available.
 
-The mpt-crypto library is distributed as a self-contained shared library
-(.so/.dylib/.dll) with secp256k1 and OpenSSL statically linked in.
-A thin CFFI extension (_mpt_crypto) is compiled at build time to provide
-the Python bindings; it dynamically links to the shared library at runtime.
+The mpt-crypto C code (with secp256k1 and OpenSSL) is statically linked INTO
+the CFFI extension (_mpt_crypto) at build time, so the compiled extension is
+self-contained — there is no separate shared library to load at runtime, and
+no platform-specific preload step.
 """
 
-import ctypes
 import glob
 import importlib.util
 import os
-import platform
 from typing import NoReturn, Optional
 
 from typing_extensions import Self
@@ -27,35 +25,6 @@ _import_error = None
 MPT_CRYPTO_AVAILABLE = False
 ffi = None
 lib = None
-
-
-def _preload_shared_library() -> None:
-    """
-    Pre-load the mpt-crypto shared library so it's available when
-    the CFFI extension is imported.  On macOS/Linux the rpath compiled
-    into the CFFI extension should handle this, but on Windows (and as
-    a fallback) we load it explicitly.
-    """
-    system = platform.system().lower()
-    if system == "darwin":
-        lib_subdir, lib_name = "darwin", "libmpt-crypto.dylib"
-    elif system == "linux":
-        lib_subdir, lib_name = "linux", "libmpt-crypto.so"
-    elif system == "windows" or system.startswith("win"):
-        lib_subdir, lib_name = "win32", "mpt-crypto.dll"
-    else:
-        return  # unsupported, let it fail later with a clear error
-
-    lib_path = os.path.join(_current_dir, "libs", lib_subdir, lib_name)
-    if os.path.exists(lib_path):
-        try:
-            ctypes.cdll.LoadLibrary(lib_path)
-        except OSError:
-            pass  # will surface as an ImportError later
-
-
-# Pre-load before attempting to import the CFFI extension
-_preload_shared_library()
 
 
 def _find_extension_path() -> Optional[str]:

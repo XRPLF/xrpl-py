@@ -7,10 +7,11 @@ Python bindings for confidential MPT operations, backed by the
 - **Import path:** `xrpl.ext.confidential` (`xrpl.ext` is a PEP 420 namespace
   package — this code ships as the separate `xrpl-py-confidential` distribution,
   so the core `xrpl-py` wheel stays pure-Python).
-- **Native pieces:** a thin CFFI extension `_mpt_crypto` that dynamically loads
-  `libmpt-crypto.{dylib,so,dll}` (secp256k1 + OpenSSL statically linked inside).
+- **Native pieces:** a thin CFFI extension `_mpt_crypto` that **statically links**
+  the self-contained `libmpt-crypto` archive (secp256k1 + OpenSSL merged in), so
+  there is no shared library to load or locate at runtime.
 - **Pinned upstream version:** see [`MPT_CRYPTO_VERSION`](./MPT_CRYPTO_VERSION)
-  (currently `1.0.2`). The client must build against the same mpt-crypto
+  (currently `1.0.4`). The client must build against the same mpt-crypto
   version the target `rippled` was built with.
 
 > **Status:** beta / feature branch. There is no published `xrpl-py-confidential`
@@ -33,9 +34,10 @@ poetry install
 #    NOT a core xrpl-py dependency, so install it into the venv explicitly:
 poetry run pip install cffi
 
-# 3. Fetch the pinned native shared library into xrpl/ext/confidential/libs/.
-#    (Headers are already committed under include/.) Pass the version from
-#    xrpl/ext/confidential/MPT_CRYPTO_VERSION (currently 1.0.2):
+# 3. Fetch the pinned self-contained static archive into xrpl/ext/confidential/libs/.
+#    (Headers are already committed under include/.) It is linked INTO the
+#    extension in step 4. Pass the version from
+#    xrpl/ext/confidential/MPT_CRYPTO_VERSION (currently 1.0.4):
 VERSION=$(grep -E '^MPT_CRYPTO_VERSION=' xrpl/ext/confidential/MPT_CRYPTO_VERSION | cut -d= -f2)
 ./xrpl/ext/confidential/setup_mpt_crypto.sh download --version "$VERSION"
 
