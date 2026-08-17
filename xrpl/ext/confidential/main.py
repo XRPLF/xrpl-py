@@ -26,6 +26,33 @@ from xrpl.ext.confidential.keypair import (
 ACCOUNT_ID_SIZE = 20
 MPT_ISSUANCE_ID_SIZE = 24
 
+
+def _hex_to_fixed_bytes(value: str, expected_len: int, field: str) -> bytes:
+    """
+    Decode ``value`` from hex and require exactly ``expected_len`` bytes.
+
+    The result is copied into a fixed-size C struct field via ``ffi.memmove``,
+    which reads ``expected_len`` bytes from the source regardless of its actual
+    length. Validating the decoded length first turns a short or malformed hex
+    string into a clear ``ValueError`` instead of an out-of-bounds read.
+
+    Args:
+        value: Hex-encoded input string.
+        expected_len: Required decoded length, in bytes.
+        field: Field name, used in the error message.
+
+    Returns:
+        The decoded bytes, guaranteed to be exactly ``expected_len`` long.
+
+    Raises:
+        ValueError: If ``value`` does not decode to exactly ``expected_len`` bytes.
+    """
+    decoded = bytes.fromhex(value)
+    if len(decoded) != expected_len:
+        raise ValueError(f"{field} must be {expected_len} bytes, got {len(decoded)}")
+    return decoded
+
+
 # Export size constants
 __all__ = [
     "MPTCrypto",
@@ -225,9 +252,15 @@ class MPTCrypto:
         n_participants = len(participants)
         participants_array = ffi.new(f"mpt_confidential_participant[{n_participants}]")
         for i, (pubkey, encrypted_amount) in enumerate(participants):
-            ffi.memmove(participants_array[i].pubkey, bytes.fromhex(pubkey), 33)
             ffi.memmove(
-                participants_array[i].ciphertext, bytes.fromhex(encrypted_amount), 66
+                participants_array[i].pubkey,
+                _hex_to_fixed_bytes(pubkey, 33, "participant pubkey"),
+                33,
+            )
+            ffi.memmove(
+                participants_array[i].ciphertext,
+                _hex_to_fixed_bytes(encrypted_amount, 66, "participant ciphertext"),
+                66,
             )
 
         result = lib.mpt_verify_send_proof(
@@ -293,23 +326,33 @@ class MPTCrypto:
         n_participants = len(participants)
         participants_array = ffi.new(f"mpt_confidential_participant[{n_participants}]")
         for i, (pubkey, encrypted_amount) in enumerate(participants):
-            pubkey_bytes = bytes.fromhex(pubkey)
-            enc_amt_bytes = bytes.fromhex(encrypted_amount)
+            pubkey_bytes = _hex_to_fixed_bytes(pubkey, 33, "participant pubkey")
+            enc_amt_bytes = _hex_to_fixed_bytes(
+                encrypted_amount, 66, "participant ciphertext"
+            )
             ffi.memmove(participants_array[i].pubkey, pubkey_bytes, 33)
             ffi.memmove(participants_array[i].ciphertext, enc_amt_bytes, 66)
 
         # Build balance_params
         balance_params = ffi.new("mpt_pedersen_proof_params*")
         ffi.memmove(
-            balance_params.pedersen_commitment, bytes.fromhex(balance_commitment), 33
+            balance_params.pedersen_commitment,
+            _hex_to_fixed_bytes(balance_commitment, 33, "balance_commitment"),
+            33,
         )
         balance_params.amount = sender_current_balance
         ffi.memmove(
             balance_params.ciphertext,
-            bytes.fromhex(sender_balance_encrypted),
+            _hex_to_fixed_bytes(
+                sender_balance_encrypted, 66, "sender_balance_encrypted"
+            ),
             66,
         )
-        ffi.memmove(balance_params.blinding_factor, bytes.fromhex(balance_blinding), 32)
+        ffi.memmove(
+            balance_params.blinding_factor,
+            _hex_to_fixed_bytes(balance_blinding, 32, "balance_blinding"),
+            32,
+        )
 
         # Proof size: SECP256K1_COMPACT_STANDARD_PROOF_SIZE (192) +
         #             kMPT_DOUBLE_BULLETPROOF_SIZE (754) = 946
@@ -386,15 +429,23 @@ class MPTCrypto:
         # Build balance_params
         balance_params = ffi.new("mpt_pedersen_proof_params*")
         ffi.memmove(
-            balance_params.pedersen_commitment, bytes.fromhex(balance_commitment), 33
+            balance_params.pedersen_commitment,
+            _hex_to_fixed_bytes(balance_commitment, 33, "balance_commitment"),
+            33,
         )
         balance_params.amount = current_balance
         ffi.memmove(
             balance_params.ciphertext,
-            bytes.fromhex(holder_balance_encrypted),
+            _hex_to_fixed_bytes(
+                holder_balance_encrypted, 66, "holder_balance_encrypted"
+            ),
             66,
         )
-        ffi.memmove(balance_params.blinding_factor, bytes.fromhex(balance_blinding), 32)
+        ffi.memmove(
+            balance_params.blinding_factor,
+            _hex_to_fixed_bytes(balance_blinding, 32, "balance_blinding"),
+            32,
+        )
 
         # Proof size: SECP256K1_COMPACT_CONVERTBACK_PROOF_SIZE (128) +
         #             kMPT_SINGLE_BULLETPROOF_SIZE (688) = 816

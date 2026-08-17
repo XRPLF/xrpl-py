@@ -11,6 +11,7 @@ data, used to bind zero-knowledge proofs to specific transactions.
 from typing import Union
 
 from xrpl.core.addresscodec import decode_classic_address
+from xrpl.core.addresscodec.exceptions import XRPLAddressCodecException
 from xrpl.ext.confidential.crypto_bindings import ffi, lib
 
 # Transaction type codes (from rippled)
@@ -49,7 +50,7 @@ def compute_convert_context_hash(
     if isinstance(account, str):
         try:
             account_id = decode_classic_address(account)
-        except (ValueError, KeyError):
+        except (ValueError, KeyError, XRPLAddressCodecException):
             account_id = bytes.fromhex(account)
     else:
         account_id = account
@@ -115,7 +116,7 @@ def compute_convert_back_context_hash(
     if isinstance(account, str):
         try:
             account_id = decode_classic_address(account)
-        except (ValueError, KeyError):
+        except (ValueError, KeyError, XRPLAddressCodecException):
             account_id = bytes.fromhex(account)
     else:
         account_id = account
@@ -190,7 +191,7 @@ def compute_send_context_hash(
         # Try to decode as classic address first, otherwise treat as hex
         try:
             account_id = decode_classic_address(account)
-        except (ValueError, KeyError):
+        except (ValueError, KeyError, XRPLAddressCodecException):
             account_id = bytes.fromhex(account)
     else:
         account_id = account
@@ -200,7 +201,7 @@ def compute_send_context_hash(
         # Try to decode as classic address first, otherwise treat as hex
         try:
             dest_id = decode_classic_address(destination)
-        except (ValueError, KeyError):
+        except (ValueError, KeyError, XRPLAddressCodecException):
             dest_id = bytes.fromhex(destination)
     else:
         dest_id = destination
@@ -277,7 +278,7 @@ def compute_clawback_context_hash(
         # Try to decode as classic address first, otherwise treat as hex
         try:
             issuer_id = decode_classic_address(issuer)
-        except (ValueError, KeyError):
+        except (ValueError, KeyError, XRPLAddressCodecException):
             issuer_id = bytes.fromhex(issuer)
     else:
         issuer_id = issuer
@@ -287,7 +288,7 @@ def compute_clawback_context_hash(
         # Try to decode as classic address first, otherwise treat as hex
         try:
             holder_id = decode_classic_address(holder)
-        except (ValueError, KeyError):
+        except (ValueError, KeyError, XRPLAddressCodecException):
             holder_id = bytes.fromhex(holder)
     else:
         holder_id = holder

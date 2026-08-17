@@ -263,9 +263,20 @@ build_locally() {
 
     cd "$TEMP_DIR"
 
-    # Clone mpt-crypto
-    echo "Cloning $MPT_CRYPTO_REPO..."
-    git clone --depth 1 "https://github.com/$MPT_CRYPTO_REPO.git"
+    # Build from the SAME pinned release the download/packaging paths use, rather
+    # than the moving default branch, so a local source build matches the shipped
+    # natives. version.env is the single source of truth for the pinned version.
+    VERSION_ENV="$REPO_ROOT/packaging/confidential/version.env"
+    MPT_CRYPTO_VERSION="$(grep -E '^MPT_CRYPTO_VERSION=' "$VERSION_ENV" 2>/dev/null | cut -d= -f2)"
+    if [ -z "$MPT_CRYPTO_VERSION" ]; then
+        echo "ERROR: could not read MPT_CRYPTO_VERSION from $VERSION_ENV" >&2
+        exit 1
+    fi
+
+    # Clone mpt-crypto at the pinned release tag
+    echo "Cloning $MPT_CRYPTO_REPO at $MPT_CRYPTO_VERSION..."
+    git clone --depth 1 --branch "$MPT_CRYPTO_VERSION" \
+        "https://github.com/$MPT_CRYPTO_REPO.git"
     cd mpt-crypto
 
     # Build the self-contained static archive via mpt-crypto's own script.
