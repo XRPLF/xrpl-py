@@ -71,7 +71,12 @@ skip = "*-musllinux* pp* *_i686 *_ppc64le *_s390x *-win32 *-win_arm64"
 # instead of the source tree (which has none, and would make setUpModule skip
 # every test). The leading assert fails loudly if the native extension did not
 # load, so a skipped module cannot masquerade as a green run.
-test-command = 'python -c "import xrpl.ext.confidential.crypto_bindings as c; assert c.MPT_CRYPTO_AVAILABLE" && python {project}/tests/unit/ext/confidential/test_utility_layer.py && python {project}/tests/unit/ext/confidential/test_homomorphic.py && python {project}/tests/unit/ext/confidential/test_chaining.py'
+# Only tests that depend solely on the native extension (this wheel) may run
+# here: cibuildwheel installs the PUBLISHED xrpl-py, which does not yet ship the
+# ConfidentialMPT* transaction models. test_chaining.py imports those via
+# transaction_builders, so it runs in the integration_test job (built against
+# local source) instead — not here.
+test-command = 'python -c "import xrpl.ext.confidential.crypto_bindings as c; assert c.MPT_CRYPTO_AVAILABLE" && python {project}/tests/unit/ext/confidential/test_utility_layer.py && python {project}/tests/unit/ext/confidential/test_homomorphic.py'
 
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_28"
