@@ -169,13 +169,12 @@ jobs:
   #
   # The native add-on ships as the separate xrpl-py-confidential distribution and
   # is not a core dependency, so it's built from source here — Linux x86-64 only,
-  # the most reliable from-source target. Gated on the private image, which
-  # provides the ConfidentialTransfer amendment.
+  # the most reliable from-source target. Runs against the resolved xrpld image
+  # (public by default; private only if configured in .github/xrpld-image.env).
   # ────────────────────────────────────────────────────────────────────────────
   confidential-integration-test:
     name: Confidential MPT integration test (linux-x86-64)
     needs: resolve_xrpld_image
-    if: ${{ needs.resolve_xrpld_image.outputs.is_private == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -190,6 +189,7 @@ jobs:
           ref: ${{ inputs.git_ref != '' && inputs.git_ref || github.ref }}
 
       - name: Log in to the private GitLab registry
+        if: ${{ needs.resolve_xrpld_image.outputs.is_private == 'true' }}
         env:
           GITLAB_REGISTRY_USERNAME: ${{ vars.GITLAB_REGISTRY_USERNAME }}
           GITLAB_REGISTRY_TOKEN: ${{ secrets.GITLAB_REGISTRY_TOKEN }}
