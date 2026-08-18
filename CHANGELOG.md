@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
-### BREAKING CHANGE
-
-- The binary codec now serializes negative XRP amounts instead of raising. A negative `Amount` (for example `Payment(amount="-1000000")` or a negative `fee`) previously raised `XRPLBinaryCodecException` at encode time; it is now serialized and rejected by the server with `temBAD_AMOUNT` instead. The change is needed for `SponsorshipSet.FeeAmountDelta`, which is a signed amount, and applies to every `Amount` field because the codec does not distinguish between them. Since no transaction model checks an amount's sign, this removes the only client-side guard against negative amounts — code that relied on the encode-time error must now validate the amount before submitting.
-
 ### Added
 
 - Added support for the Sponsored Fees and Reserves (XLS-68)
