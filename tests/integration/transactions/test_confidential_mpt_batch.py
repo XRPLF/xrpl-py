@@ -582,11 +582,13 @@ class TestConfidentialMPTBatch(IntegrationTestCase):
             "Batch (multi-account confidential sends)",
         )
 
-        # holder1 sent 10 -> 810 - 10 = 800; holder2 sent 5 (the 10 it received
-        # lands in its inbox, not spending) -> 170 - 5 = 165.
+        # holder1 sent 10 -> 810 - 10 = 800. holder2 entered this batch at 145
+        # (170 after scenario B, minus the 25 it seeded to holder1 in scenario D)
+        # and sent 5 here -> 140 (the 10 it received lands in its inbox, not
+        # spending).
         for holder, sk, expected in (
             (holder1, holder1_sk, 800),
-            (holder2, holder2_sk, 165),
+            (holder2, holder2_sk, 140),
         ):
             node = (
                 await client.request(
