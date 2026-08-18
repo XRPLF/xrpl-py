@@ -206,15 +206,29 @@ class TestConfidentialMPTBatch(IntegrationTestCase):
         # to a consecutive sequence.
         chained = await prepare_confidential_batch_async(
             client=client,
-            wallet=holder1,
-            mpt_issuance_id=mpt_id,
+            batch_account=holder1.address,
             operations=[
-                ConfidentialSendOp(holder2.address, holder2_pk, 30),
-                ConfidentialSendOp(holder3.address, holder3_pk, 20),
+                ConfidentialSendOp(
+                    holder1.address,
+                    mpt_id,
+                    holder2.address,
+                    holder2_pk,
+                    30,
+                    holder1_sk,
+                    holder1_pk,
+                    issuer_pk,
+                ),
+                ConfidentialSendOp(
+                    holder1.address,
+                    mpt_id,
+                    holder3.address,
+                    holder3_pk,
+                    20,
+                    holder1_sk,
+                    holder1_pk,
+                    issuer_pk,
+                ),
             ],
-            account_privkey=holder1_sk,
-            account_pubkey=holder1_pk,
-            issuer_pubkey=issuer_pk,
         )
         self.assertEqual(len(chained), 2)
         batch_a = Batch(
@@ -277,12 +291,19 @@ class TestConfidentialMPTBatch(IntegrationTestCase):
         # inners it assigns itself).
         one_send = await prepare_confidential_batch_async(
             client=client,
-            wallet=holder1,
-            mpt_issuance_id=mpt_id,
-            operations=[ConfidentialSendOp(holder2.address, holder2_pk, 40)],
-            account_privkey=holder1_sk,
-            account_pubkey=holder1_pk,
-            issuer_pubkey=issuer_pk,
+            batch_account=holder1.address,
+            operations=[
+                ConfidentialSendOp(
+                    holder1.address,
+                    mpt_id,
+                    holder2.address,
+                    holder2_pk,
+                    40,
+                    holder1_sk,
+                    holder1_pk,
+                    issuer_pk,
+                )
+            ],
         )
         self.assertEqual(len(one_send), 1)
         payment = Payment(
@@ -346,15 +367,22 @@ class TestConfidentialMPTBatch(IntegrationTestCase):
         # the convert-back leaves, not the stale on-ledger value.
         mixed = await prepare_confidential_batch_async(
             client=client,
-            wallet=holder1,
-            mpt_issuance_id=mpt_id,
+            batch_account=holder1.address,
             operations=[
-                ConfidentialConvertBackOp(50),
-                ConfidentialSendOp(holder3.address, holder3_pk, 60),
+                ConfidentialConvertBackOp(
+                    holder1.address, mpt_id, 50, holder1_sk, holder1_pk, issuer_pk
+                ),
+                ConfidentialSendOp(
+                    holder1.address,
+                    mpt_id,
+                    holder3.address,
+                    holder3_pk,
+                    60,
+                    holder1_sk,
+                    holder1_pk,
+                    issuer_pk,
+                ),
             ],
-            account_privkey=holder1_sk,
-            account_pubkey=holder1_pk,
-            issuer_pubkey=issuer_pk,
         )
         self.assertEqual(len(mixed), 2)
         batch_c = Batch(
@@ -435,15 +463,20 @@ class TestConfidentialMPTBatch(IntegrationTestCase):
 
         merge_send = await prepare_confidential_batch_async(
             client=client,
-            wallet=holder1,
-            mpt_issuance_id=mpt_id,
+            batch_account=holder1.address,
             operations=[
-                ConfidentialMergeInboxOp(),
-                ConfidentialSendOp(holder3.address, holder3_pk, 15),
+                ConfidentialMergeInboxOp(holder1.address, mpt_id),
+                ConfidentialSendOp(
+                    holder1.address,
+                    mpt_id,
+                    holder3.address,
+                    holder3_pk,
+                    15,
+                    holder1_sk,
+                    holder1_pk,
+                    issuer_pk,
+                ),
             ],
-            account_privkey=holder1_sk,
-            account_pubkey=holder1_pk,
-            issuer_pubkey=issuer_pk,
         )
         self.assertEqual(len(merge_send), 2)
         batch_d = Batch(

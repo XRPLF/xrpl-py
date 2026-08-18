@@ -358,6 +358,96 @@ class TestConfidentialSendIntegrate(unittest.TestCase):
             0,
         )
 
+    def test_send_prover_or_verifier_rejects_overspend(self):
+        # Negative counterpart to test_send_prove_and_verify: the aggregated
+        # Bulletproof ranges both the amount AND the remainder (balance - amount).
+        # Sending more than the balance makes the remainder wrap near the group
+        # order, outside [0, 2^64). The system may refuse the witness prover-side
+        # or reject it verifier-side; either upholds no-overdraft, so we assert at
+        # least one fires (mirrors xrpl-rust's send_proof_rejects_amount_exceeding
+        # _balance and xrpl.js's "refuses to send more than the spendable balance").
+        sender_acc = make_account_id(0x11)
+        dest_acc = make_account_id(0x22)
+        issuance = make_issuance_id(0xBB)
+        seq = 54321
+        prev_balance = 100
+        amount_to_send = 200  # strictly greater than the balance
+        version = 1
+
+        sender_priv, sender_pub = generate_keypair()
+        _, dest_pub = generate_keypair()
+        _, issuer_pub = generate_keypair()
+
+        shared_bf = generate_blinding_factor()
+        sender_ct = encrypt_amount(amount_to_send, sender_pub, shared_bf)
+        dest_ct = encrypt_amount(amount_to_send, dest_pub, shared_bf)
+        issuer_ct = encrypt_amount(amount_to_send, issuer_pub, shared_bf)
+
+        participants = ffi.new("mpt_confidential_participant[3]")
+        for i, (pub, ct) in enumerate(
+            [(sender_pub, sender_ct), (dest_pub, dest_ct), (issuer_pub, issuer_ct)]
+        ):
+            ffi.memmove(participants[i].pubkey, pub, 33)
+            ffi.memmove(participants[i].ciphertext, ct, 66)
+
+        amount_comm = get_pedersen_commitment(amount_to_send, shared_bf)
+        balance_bf = generate_blinding_factor()
+        balance_comm = get_pedersen_commitment(prev_balance, balance_bf)
+        prev_bal_bf = generate_blinding_factor()
+        prev_bal_ct = encrypt_amount(prev_balance, sender_pub, prev_bal_bf)
+
+        send_ctx_hash = ffi.new("uint8_t[32]")
+        self.assertEqual(
+            lib.mpt_get_send_context_hash(
+                sender_acc, issuance, seq, dest_acc, version, send_ctx_hash
+            ),
+            0,
+        )
+
+        bal_params = ffi.new("mpt_pedersen_proof_params *")
+        bal_params.amount = prev_balance
+        ffi.memmove(bal_params.blinding_factor, balance_bf, 32)
+        ffi.memmove(bal_params.pedersen_commitment, balance_comm, 33)
+        ffi.memmove(bal_params.ciphertext, prev_bal_ct, 66)
+
+        proof_size = (
+            lib.SECP256K1_COMPACT_STANDARD_PROOF_SIZE + lib.kMPT_DOUBLE_BULLETPROOF_SIZE
+        )
+        proof = ffi.new(f"uint8_t[{proof_size}]")
+        out_len = ffi.new("size_t *", proof_size)
+
+        prove_rc = lib.mpt_get_confidential_send_proof(
+            sender_priv,
+            sender_pub,
+            amount_to_send,
+            participants,
+            3,
+            shared_bf,
+            send_ctx_hash,
+            amount_comm,
+            bal_params,
+            proof,
+            out_len,
+        )
+        if prove_rc != 0:
+            # Path 1: prover refused the out-of-range witness. Security upheld.
+            return
+
+        # Path 2: prover produced bytes anyway — the verifier MUST reject them.
+        self.assertNotEqual(
+            lib.mpt_verify_send_proof(
+                proof,
+                participants,
+                3,
+                prev_bal_ct,
+                amount_comm,
+                balance_comm,
+                send_ctx_hash,
+            ),
+            0,
+            "verifier accepted a Send proof where amount > balance",
+        )
+
 
 class TestConvertBackIntegrate(unittest.TestCase):
     """Mirrors test_mpt_convert_back_integrate."""
@@ -418,6 +508,69 @@ class TestConvertBackIntegrate(unittest.TestCase):
                 context_hash,
             ),
             0,
+        )
+
+    def test_convert_back_prover_or_verifier_rejects_overspend(self):
+        # Negative counterpart: the single Bulletproof ranges the remainder
+        # (balance - amount). Revealing more than the balance makes it wrap
+        # outside [0, 2^64). Prover-refusal or verifier-rejection is acceptable;
+        # assert at least one fires (mirrors xrpl-rust's
+        # convert_back_proof_rejects_withdrawal_exceeding_balance and xrpl.js's
+        # "refuses to reveal more than the balance").
+        acc = make_account_id(0x55)
+        issuance = make_issuance_id(0xEE)
+        seq = 98765
+        current_balance = 100
+        amount_to_convert_back = 200  # strictly greater than the balance
+        version = 2
+
+        priv, pub = generate_keypair()
+
+        bal_bf = generate_blinding_factor()
+        spending_bal_ct = encrypt_amount(current_balance, pub, bal_bf)
+
+        context_hash = ffi.new("uint8_t[32]")
+        self.assertEqual(
+            lib.mpt_get_convert_back_context_hash(
+                acc, issuance, seq, version, context_hash
+            ),
+            0,
+        )
+
+        pcb_bf = generate_blinding_factor()
+        pcb_comm = get_pedersen_commitment(current_balance, pcb_bf)
+
+        pc_params = ffi.new("mpt_pedersen_proof_params *")
+        pc_params.amount = current_balance
+        ffi.memmove(pc_params.blinding_factor, pcb_bf, 32)
+        ffi.memmove(pc_params.pedersen_commitment, pcb_comm, 33)
+        ffi.memmove(pc_params.ciphertext, spending_bal_ct, 66)
+
+        proof_size = (
+            lib.SECP256K1_COMPACT_CONVERTBACK_PROOF_SIZE
+            + lib.kMPT_SINGLE_BULLETPROOF_SIZE
+        )
+        proof = ffi.new(f"uint8_t[{proof_size}]")
+
+        prove_rc = lib.mpt_get_convert_back_proof(
+            priv, pub, context_hash, amount_to_convert_back, pc_params, proof
+        )
+        if prove_rc != 0:
+            # Path 1: prover refused. Security upheld.
+            return
+
+        # Path 2: prover produced bytes — the verifier MUST reject them.
+        self.assertNotEqual(
+            lib.mpt_verify_convert_back_proof(
+                proof,
+                pub,
+                spending_bal_ct,
+                pcb_comm,
+                amount_to_convert_back,
+                context_hash,
+            ),
+            0,
+            "verifier accepted a ConvertBack proof where amount > balance",
         )
 
 
