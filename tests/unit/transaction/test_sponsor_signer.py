@@ -239,3 +239,17 @@ class TestCombineSponsorSigners(TestCase):
         with self.assertRaises(XRPLException) as ctx:
             combine_sponsor_signers([part_a, part_b])
         self.assertIn("identical", str(ctx.exception))
+
+    def test_duplicate_signers_raise(self):
+        """A sponsor account may sign only once. The duplicate is caught
+        among otherwise-valid signers and named in the error."""
+        parts = [
+            self._sponsor_multisigned(SPONSOR_KEY_A),
+            self._sponsor_multisigned(SPONSOR_KEY_B),
+            self._sponsor_multisigned(SPONSOR_KEY_A),  # repeat of A
+        ]
+        with self.assertRaises(XRPLException) as ctx:
+            combine_sponsor_signers(parts)
+        message = str(ctx.exception)
+        self.assertIn(SPONSOR_KEY_A.address, message)
+        self.assertNotIn(SPONSOR_KEY_B.address, message)  # B signs once — not flagged

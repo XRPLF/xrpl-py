@@ -243,8 +243,9 @@ def combine_sponsor_signers(
 
     Raises:
         XRPLException: If ``transactions`` is empty, any transaction lacks
-            ``SponsorSignature.Signers``, or the transactions differ in fields
-            other than ``SponsorSignature.Signers``.
+            ``SponsorSignature.Signers``, the same sponsor account appears more
+            than once, or the transactions differ in fields other than
+            ``SponsorSignature.Signers``.
     """
     if len(transactions) == 0:
         raise XRPLException("There are 0 transactions to combine.")
@@ -312,6 +313,18 @@ def _get_transaction_with_all_sponsor_signers(
             and tx.sponsor_signature.signers is not None
         ):
             all_signers.extend(tx.sponsor_signature.signers)
+
+    # rippled rejects a Signers array that repeats an account, so
+    # catch a double-passed contribution here rather than at submission.
+    accounts = [signer.account for signer in all_signers]
+    duplicates = sorted(
+        {account for account in accounts if accounts.count(account) > 1}
+    )
+    if duplicates:
+        raise XRPLException(
+            f"Duplicate sponsor signer(s) for account(s): {', '.join(duplicates)}. "
+            "Each sponsor account may contribute only one signature."
+        )
 
     # XRPL requires signers sorted by account ID (ascending).
     all_signers.sort(key=lambda s: decode_classic_address(s.account).hex().upper())
