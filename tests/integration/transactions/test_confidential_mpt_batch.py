@@ -7,10 +7,15 @@ confidential sends only validates if every send after the first proves against
 the *predicted* state left by the previous one. ``prepare_confidential_batch``
 threads that predicted state through the chain.
 
-This test confirms two Batch compositions on-ledger:
-  A. two chained confidential sends from one sender  (the chaining path), and
+This test confirms several Batch compositions on-ledger:
+  A. two chained confidential sends from one sender (the chaining path),
   B. one confidential send + one ordinary XRP Payment (confidential composes
-     with a normal inner transaction).
+     with a normal inner transaction),
+  C. ConvertBack + Send chained on one balance,
+  D. MergeInbox + Send chained (the credit predictor), and
+  E. a multi-account Batch (two different sender accounts, each proving against
+     its own predicted state, with per-account signing via
+     sign_multiaccount_batch).
 
 Runs under both async and sync via @test_async_and_sync. Requires the
 ConfidentialTransfer + BatchV1_1 amendments and the native mpt-crypto CFFI
@@ -23,6 +28,7 @@ from tests.integration.it_utils import (
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
+from xrpl.asyncio.transaction import autofill
 from xrpl.ext.confidential import MPT_CRYPTO_AVAILABLE, MPTCrypto
 from xrpl.ext.confidential.transaction_builders import (
     ConfidentialConvertBackOp,
@@ -45,6 +51,7 @@ from xrpl.models.transactions import (
     MPTokenIssuanceSet,
     Payment,
 )
+from xrpl.transaction.batch_signers import sign_multiaccount_batch
 from xrpl.wallet import Wallet
 
 # Sync counterparts for the @test_async_and_sync source transform (the async
@@ -54,6 +61,7 @@ _SYNC_BUILDERS = [
     "xrpl.ext.confidential.transaction_builders.prepare_confidential_merge_inbox",
     "xrpl.ext.confidential.transaction_builders.prepare_confidential_send",
     "xrpl.ext.confidential.transaction_builders.prepare_confidential_batch",
+    "xrpl.transaction.autofill",
 ]
 
 
@@ -526,3 +534,71 @@ class TestConfidentialMPTBatch(IntegrationTestCase):
             195,
             "holder3 spending after merge + send chain + merge",
         )
+
+        # ── Scenario E: MULTI-ACCOUNT Batch (two different sender accounts) ───
+        # holder1 -> holder2 (10) AND holder2 -> holder3 (5) in ONE Batch, each
+        # send proving against its OWN account's predicted state. holder1 is the
+        # outer Batch account (its outer signature authorizes its own inner);
+        # holder2 authorizes its inner via sign_multiaccount_batch. This is the
+        # end-to-end exercise of the multi-account per-(account, token) state
+        # machine and per-account sequencing on-ledger.
+        multi = await prepare_confidential_batch_async(
+            client=client,
+            batch_account=holder1.address,
+            operations=[
+                ConfidentialSendOp(
+                    holder1.address,
+                    mpt_id,
+                    holder2.address,
+                    holder2_pk,
+                    10,
+                    holder1_sk,
+                    holder1_pk,
+                    issuer_pk,
+                ),
+                ConfidentialSendOp(
+                    holder2.address,
+                    mpt_id,
+                    holder3.address,
+                    holder3_pk,
+                    5,
+                    holder2_sk,
+                    holder2_pk,
+                    issuer_pk,
+                ),
+            ],
+        )
+        self.assertEqual(len(multi), 2)
+        batch_e = Batch(
+            account=holder1.address,
+            flags=BatchFlag.TF_ALL_OR_NOTHING,
+            raw_transactions=list(multi),
+        )
+        # One non-outer signer (holder2); holder1 signs as the outer account.
+        autofilled = await autofill(batch_e, client, 1)
+        signed = sign_multiaccount_batch(holder2, autofilled)
+        self._assert_success(
+            await sign_and_reliable_submission_async(signed, holder1, client),
+            "Batch (multi-account confidential sends)",
+        )
+
+        # holder1 sent 10 -> 810 - 10 = 800; holder2 sent 5 (the 10 it received
+        # lands in its inbox, not spending) -> 170 - 5 = 165.
+        for holder, sk, expected in (
+            (holder1, holder1_sk, 800),
+            (holder2, holder2_sk, 165),
+        ):
+            node = (
+                await client.request(
+                    LedgerEntry(
+                        mptoken=MPTokenQuery(
+                            account=holder.classic_address, mpt_issuance_id=mpt_id
+                        )
+                    )
+                )
+            ).result["node"]
+            self.assertEqual(
+                self._spending(node, crypto, sk),
+                expected,
+                "spending after multi-account confidential batch",
+            )

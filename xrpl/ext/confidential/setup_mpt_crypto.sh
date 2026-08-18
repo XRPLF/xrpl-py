@@ -80,6 +80,7 @@ clean_stale_artifacts() {
 download_from_mpt_crypto() {
     local RUN_ID="$1"
     local VERSION="$2"
+    local ALLOW_UNVERIFIED="${3:-false}"
 
     echo ""
     echo "=== Downloading pre-built binaries from $MPT_CRYPTO_REPO ==="
@@ -125,8 +126,10 @@ download_from_mpt_crypto() {
             TAG="$VERSION"
             echo "Downloading release: $TAG"
         else
+            # Read the tag name explicitly: the default table output leads with
+            # the release TITLE (which can contain spaces), not the tag.
             TAG=$(gh release list --repo "$MPT_CRYPTO_REPO" --limit 1 \
-                  | head -1 | awk '{print $1}')
+                  --json tagName --jq '.[0].tagName')
             echo "Latest release: $TAG"
         fi
 
@@ -149,10 +152,11 @@ download_from_mpt_crypto() {
         exit 1
     fi
 
-    # ── Integrity check: verify the bundle against the pinned BUNDLE_SHA256
-    # when the downloaded version matches the pin. Best-effort for a dev helper:
-    # arbitrary --version/--run downloads have no pinned hash, so we at least
-    # surface the observed sha256 for manual comparison. ──
+    # ── Integrity check: verify the bundle against the pinned BUNDLE_SHA256 when
+    # the downloaded version matches the pin. A non-pinned download (a different
+    # --version, or --run) has no pinned hash to check against, so the archive
+    # that gets linked into the native extension is unverified; refuse to proceed
+    # unless the caller explicitly opts in with --allow-unverified. ──
     if command -v sha256sum >/dev/null 2>&1; then
         OBSERVED_SHA="$(sha256sum "$TARBALL" | awk '{print $1}')"
     else
@@ -171,8 +175,17 @@ download_from_mpt_crypto() {
             exit 1
         fi
         echo "Verified bundle sha256 against pinned BUNDLE_SHA256."
+    elif [ "$ALLOW_UNVERIFIED" = "true" ]; then
+        echo "WARNING: linking an UNVERIFIED bundle (--allow-unverified)." >&2
+        echo "  '${TAG:-run $RUN_ID}' is not the pinned version (${PINNED_VERSION});" >&2
+        echo "  observed sha256: $OBSERVED_SHA" >&2
     else
-        echo "WARNING: bundle not pinned in version.env; sha256 (unverified): $OBSERVED_SHA" >&2
+        echo "ERROR: refusing to link an unverified native archive." >&2
+        echo "  '${TAG:-run $RUN_ID}' is not the version pinned in version.env" >&2
+        echo "  (${PINNED_VERSION}), so its sha256 cannot be checked." >&2
+        echo "  observed sha256: $OBSERVED_SHA" >&2
+        echo "  Re-run with --allow-unverified to link it anyway." >&2
+        exit 1
     fi
 
     echo "Extracting $TARBALL..."
@@ -350,6 +363,7 @@ else
             shift
             RUN_ID=""
             VERSION=""
+            ALLOW_UNVERIFIED="false"
             while [ $# -gt 0 ]; do
                 case "$1" in
                     --run)
@@ -360,20 +374,26 @@ else
                         VERSION="$2"
                         shift 2
                         ;;
+                    --allow-unverified)
+                        ALLOW_UNVERIFIED="true"
+                        shift
+                        ;;
                     *)
                         echo "Unknown option: $1"
-                        echo "Usage: $0 download [--version TAG | --run RUN_ID]"
+                        echo "Usage: $0 download [--version TAG | --run RUN_ID]" \
+                             "[--allow-unverified]"
                         exit 1
                         ;;
                 esac
             done
-            download_from_mpt_crypto "$RUN_ID" "$VERSION"
+            download_from_mpt_crypto "$RUN_ID" "$VERSION" "$ALLOW_UNVERIFIED"
             ;;
         build)
             build_locally
             ;;
         *)
-            echo "Usage: $0 [download [--version TAG | --run RUN_ID] | build]"
+            echo "Usage: $0 [download [--version TAG | --run RUN_ID]" \
+                 "[--allow-unverified] | build]"
             exit 1
             ;;
     esac
