@@ -218,12 +218,22 @@ download_from_mpt_crypto() {
         cp "$EXTRACT_DIR/include/utility/mpt_utility.h" "$INCLUDE_DIR/utility/" 2>/dev/null || true
         echo "Installed headers from bundle"
     else
-        echo "WARNING: No headers found in bundle. Fetching from repo..."
-        gh api "repos/$MPT_CRYPTO_REPO/contents/include/secp256k1_mpt.h" \
+        # No headers in the bundle — fetch them from the repo, but pinned to the
+        # SAME ref the natives came from (the release tag, else the version.env
+        # pin) so the header ABI matches the linked library. Never fall back to
+        # the moving default branch, which could drift from the pinned release.
+        HEADER_REF="${TAG:-$PINNED_VERSION}"
+        if [ -z "$HEADER_REF" ]; then
+            echo "ERROR: no release tag or pinned version to fetch headers at;" >&2
+            echo "  refusing to pull them from the moving default branch." >&2
+            exit 1
+        fi
+        echo "WARNING: No headers in bundle. Fetching from repo at ref ${HEADER_REF}..."
+        gh api "repos/$MPT_CRYPTO_REPO/contents/include/secp256k1_mpt.h?ref=$HEADER_REF" \
             --jq '.content' | base64 -d > "$INCLUDE_DIR/secp256k1_mpt.h"
-        gh api "repos/$MPT_CRYPTO_REPO/contents/include/utility/mpt_utility.h" \
+        gh api "repos/$MPT_CRYPTO_REPO/contents/include/utility/mpt_utility.h?ref=$HEADER_REF" \
             --jq '.content' | base64 -d > "$INCLUDE_DIR/utility/mpt_utility.h"
-        echo "Installed headers from repo"
+        echo "Installed headers from repo (ref ${HEADER_REF})"
     fi
 
     # Verify
