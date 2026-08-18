@@ -3,7 +3,11 @@ import warnings
 from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.transactions import MPTokenIssuanceCreate, MPTokenIssuanceCreateFlag
+from xrpl.models.transactions import (
+    MPTokenIssuanceCreate,
+    MPTokenIssuanceCreateFlag,
+    MPTokenIssuanceImmutableFlag,
+)
 from xrpl.utils import str_to_hex
 from xrpl.utils.mptoken_metadata import encode_mptoken_metadata
 
@@ -45,61 +49,38 @@ class TestMPTokenIssuanceCreate(TestCase):
             "tfMPTCanTransfer flag.'}",
         )
 
-    def test_transfer_fee_out_of_range_lower(self):
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceCreate(
-                account=_ACCOUNT,
-                maximum_amount="9223372036854775807",  # "7fffffffffffffff"
-                transfer_fee=-1,
-                flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK,
-            )
-        self.assertEqual(
-            error.exception.args[0],
-            "{'transfer_fee': 'Field must be between 0 and 50000'}",
-        )
+    def test_transfer_fee_out_of_range_fails(self):
+        for fee in (-1, 50001):
+            with self.subTest(transfer_fee=fee):
+                with self.assertRaises(XRPLModelException) as error:
+                    MPTokenIssuanceCreate(
+                        account=_ACCOUNT,
+                        maximum_amount="9223372036854775807",  # "7fffffffffffffff"
+                        transfer_fee=fee,
+                        flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK,
+                    )
+                self.assertEqual(
+                    error.exception.args[0],
+                    "{'transfer_fee': 'Field must be between 0 and 50000'}",
+                )
 
-    def test_transfer_fee_out_of_range_greater(self):
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceCreate(
-                account=_ACCOUNT,
-                maximum_amount="9223372036854775807",  # "7fffffffffffffff"
-                transfer_fee=50001,
-                flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK,
-            )
-        self.assertEqual(
-            error.exception.args[0],
-            "{'transfer_fee': 'Field must be between 0 and 50000'}",
-        )
-
-    def test_mptoken_metadata_empty_string(self):
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceCreate(
-                account=_ACCOUNT,
-                flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK,
-                mptoken_metadata="",
-            )
-        self.assertEqual(
-            error.exception.args[0],
-            (
-                "{'mptoken_metadata': 'Metadata must be valid non-empty hex string "
-                "less than 1024 bytes (alternatively, 2048 hex characters).'}"
-            ),
-        )
-
-    def test_mptoken_metadata_not_hex(self):
-        with self.assertRaises(XRPLModelException) as error:
-            MPTokenIssuanceCreate(
-                account=_ACCOUNT,
-                flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK,
-                mptoken_metadata="http://xrpl.org",
-            )
-        self.assertEqual(
-            error.exception.args[0],
-            (
-                "{'mptoken_metadata': 'Metadata must be valid non-empty hex string "
-                "less than 1024 bytes (alternatively, 2048 hex characters).'}"
-            ),
-        )
+    def test_mptoken_metadata_invalid_fails(self):
+        for metadata in ("", "http://xrpl.org"):
+            with self.subTest(metadata=metadata):
+                with self.assertRaises(XRPLModelException) as error:
+                    MPTokenIssuanceCreate(
+                        account=_ACCOUNT,
+                        flags=MPTokenIssuanceCreateFlag.TF_MPT_CAN_LOCK,
+                        mptoken_metadata=metadata,
+                    )
+                self.assertEqual(
+                    error.exception.args[0],
+                    (
+                        "{'mptoken_metadata': 'Metadata must be valid non-empty hex "
+                        "string less than 1024 bytes (alternatively, 2048 hex "
+                        "characters).'}"
+                    ),
+                )
 
     def test_tx_emits_warning_for_missing_icon_metadata(self):
         invalid_metadata = {
@@ -129,3 +110,35 @@ class TestMPTokenIssuanceCreate(TestCase):
             self.assertTrue(
                 found, "- asset_subclass/as: required when asset_class is rwa."
             )
+
+    # DynamicMPT tests
+    def test_tx_with_all_immutable_flags(self):
+        """All ImmutableFlags bits combined are valid."""
+        all_flags = 0
+        for flag in MPTokenIssuanceImmutableFlag:
+            all_flags |= flag.value
+        tx = MPTokenIssuanceCreate(account=_ACCOUNT, immutable_flags=all_flags)
+        self.assertTrue(tx.is_valid())
+
+    def test_tx_immutable_flags_invalid_fails(self):
+        # Reserved bit 0x00000001, and 0 (nothing declared immutable)
+        cases = [
+            (0x00000001, "immutable_flags contains invalid or reserved bits"),
+            (0, "immutable_flags cannot be 0"),
+        ]
+        for value, message in cases:
+            with self.subTest(immutable_flags=value):
+                with self.assertRaises(XRPLModelException) as error:
+                    MPTokenIssuanceCreate(account=_ACCOUNT, immutable_flags=value)
+                self.assertIn(message, error.exception.args[0])
+
+    def test_domain_id_invalid_fails(self):
+        cases = [
+            ("ABCD", "domain_id length must be 64 characters."),
+            ("Z" * 64, "domain_id must only contain hexadecimal characters."),
+        ]
+        for value, message in cases:
+            with self.subTest(domain_id=value):
+                with self.assertRaises(XRPLModelException) as error:
+                    MPTokenIssuanceCreate(account=_ACCOUNT, domain_id=value)
+                self.assertIn(message, error.exception.args[0])
