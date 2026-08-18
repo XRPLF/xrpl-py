@@ -6,7 +6,7 @@ See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
 from __future__ import annotations
 
 from decimal import MAX_PREC, Context, Decimal, InvalidOperation, localcontext
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Dict, Optional, Set, Type, Union
 
 from typing_extensions import Final, Self
 
@@ -42,7 +42,7 @@ _MPT_MASK: Final[Decimal] = Decimal(0x8000000000000000)
 # balance up or down -- so every other field rejects one at encode time, exactly
 # as it did before signed deltas existed. ``STObject`` passes the field name to
 # ``Amount.from_value`` for the fields listed here to permit negative values.
-SIGNED_XRP_FIELDS: Final[set[str]] = {
+SIGNED_XRP_FIELDS: Final[Set[str]] = {
     "FeeAmountDelta",
 }
 
