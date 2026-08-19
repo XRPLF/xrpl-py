@@ -16,9 +16,50 @@ Python bindings for confidential MPT operations, backed by the
 
 > **Status:** beta / feature branch. There is no published `xrpl-py-confidential`
 > wheel yet, so the only supported path today is the **local build from this
-> branch** described below.
+> branch** described below. The "Install from PyPI" section below documents the
+> intended end-user flow **once the wheel is published** — it does not work yet.
 
-## Prerequisites
+## Install from PyPI
+
+> **Not yet available** — pending the first `xrpl-py-confidential` release. This
+> is the intended end-user experience once the wheel ships; until then use the
+> local build under "Quickstart" below.
+
+End users install a single package:
+
+```bash
+pip install xrpl-py-confidential
+```
+
+This pulls in core `xrpl-py` automatically (it is a declared dependency). You get
+a **prebuilt binary wheel** with the `mpt-crypto` static archive already compiled
+into the extension, so **no C toolchain, no `gh` CLI, and no build step** are
+required — none of the "Prerequisites"/"Quickstart" steps below apply on this path.
+
+**Wheel coverage:** CPython 3.10–3.13 on Linux (glibc, x86-64), macOS (x86-64 and
+Apple-silicon arm64), and Windows (x86-64). No wheels are published for musl
+Linux, PyPy, 32-bit, or Windows arm64 — those targets must build locally.
+
+After installing, gate your code on the runtime availability flag — importing the
+package never hard-fails, so on an unsupported platform (or a source install with
+no compiled extension) the flag is `False` rather than raising:
+
+```python
+import xrpl.ext.confidential as c
+
+if not c.MPT_CRYPTO_AVAILABLE:
+    raise RuntimeError("native mpt-crypto extension not available on this platform")
+```
+
+**Version compatibility:** the add-on version tracks the bundled `mpt-crypto`
+release (see [`MPT_CRYPTO_VERSION`](./MPT_CRYPTO_VERSION), currently `1.0.4`), which
+must match the `mpt-crypto` the target `rippled` was built with. It also requires a
+core `xrpl-py` that ships the `ConfidentialMPT*` models (the dependency pin
+enforces the minimum); install a compatible pair for your target network.
+
+## Prerequisites (local build)
+
+These apply only to the local build from this branch — not to the PyPI wheel above.
 
 1. **`gh` CLI** installed and authenticated (used to fetch the native library).
 2. **Toolchain** for building the CFFI extension: a C compiler (Xcode CLT on
