@@ -34,6 +34,11 @@ class MPTokenIssuanceCreateFlag(int, Enum):
     TF_MPT_CAN_TRADE = 0x00000010
     TF_MPT_CAN_TRANSFER = 0x00000020
     TF_MPT_CAN_CLAWBACK = 0x00000040
+    TF_MPT_CAN_HOLD_CONFIDENTIAL_BALANCE = 0x00000080
+    """
+    If set, indicates that the MPT can hold confidential balances.
+    This flag must be set to enable confidential MPT functionality.
+    """
 
 
 class MPTokenIssuanceImmutableFlag(int, Enum):
@@ -90,6 +95,7 @@ class MPTokenIssuanceCreateFlagInterface(TransactionFlagInterface):
     TF_MPT_CAN_TRADE: bool
     TF_MPT_CAN_TRANSFER: bool
     TF_MPT_CAN_CLAWBACK: bool
+    TF_MPT_CAN_HOLD_CONFIDENTIAL_BALANCE: bool
 
 
 @dataclass(frozen=True, kw_only=True)

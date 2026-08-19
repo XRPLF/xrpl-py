@@ -24,6 +24,8 @@ from xrpl.models.utils import (
 
 _MAX_TRANSFER_FEE: Final[int] = 50000
 
+ENCRYPTION_KEY_LENGTH = 33 * 2
+
 
 class MPTokenIssuanceSetFlag(int, Enum):
     """
@@ -123,6 +125,9 @@ class MPTokenIssuanceSet(Transaction):
     The MPTokenIssuanceSet transaction is used to globally lock/unlock a
     MPTokenIssuance, or lock/unlock an individual's MPToken.
 
+    It can also register confidential encryption keys and enable the confidential
+    amount feature (XLS-0096).
+
     With the DynamicMPT amendment, this transaction can also update
     MPTokenMetadata and TransferFee, enable MPT issuance flags (via the
     TF_MPT_SET_* capability flags in the Flags field), and permanently make
@@ -136,6 +141,16 @@ class MPTokenIssuanceSet(Transaction):
     """
     An optional XRPL Address of an individual token holder balance to lock/unlock.
     If omitted, this transaction will apply to all any accounts holding MPTs.
+    """
+
+    issuer_encryption_key: Optional[str] = None
+    """
+    The 33-byte EC-ElGamal public key used for the issuer's mirror balances.
+    """
+
+    auditor_encryption_key: Optional[str] = None
+    """
+    The 33-byte EC-ElGamal public key used for regulatory oversight (if applicable).
     """
 
     domain_id: Optional[str] = None
@@ -182,6 +197,43 @@ class MPTokenIssuanceSet(Transaction):
         if is_lock and is_unlock:
             errors["flags"] = (
                 "flag conflict: both TF_MPT_LOCK and TF_MPT_UNLOCK can't be set"
+            )
+
+        has_issuer_key = (
+            hasattr(self, "issuer_encryption_key")
+            and self.issuer_encryption_key is not None
+        )
+        has_auditor_key = (
+            hasattr(self, "auditor_encryption_key")
+            and self.auditor_encryption_key is not None
+        )
+
+        if has_issuer_key and self.issuer_encryption_key is not None:
+            key_len = len(self.issuer_encryption_key)
+            if key_len != ENCRYPTION_KEY_LENGTH:
+                errors["issuer_encryption_key"] = (
+                    "issuer_encryption_key must be 33 bytes (66 hex characters)"
+                )
+
+        if has_auditor_key and self.auditor_encryption_key is not None:
+            key_len = len(self.auditor_encryption_key)
+            if key_len != ENCRYPTION_KEY_LENGTH:
+                errors["auditor_encryption_key"] = (
+                    "auditor_encryption_key must be 33 bytes (66 hex characters)"
+                )
+
+        if has_auditor_key and not has_issuer_key:
+            errors["auditor_encryption_key"] = (
+                "auditor_encryption_key requires issuer_encryption_key"
+            )
+
+        if (
+            hasattr(self, "holder")
+            and self.holder is not None
+            and (has_issuer_key or has_auditor_key)
+        ):
+            errors["holder"] = (
+                "Cannot mutate confidential fields while also acting as a Holder"
             )
 
         if self.domain_id is not None:

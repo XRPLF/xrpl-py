@@ -1,0 +1,96 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# xrpl-py-confidential — native add-on for XLS-0096 Confidential MPT.
+#
+# The package SOURCE lives at <repo>/xrpl/ext/confidential/ (so it imports as
+# `xrpl.ext.confidential` and is linted/formatted by the repo-root configs).
+# `xrpl.ext` is a PEP 420 namespace package — this distribution must NOT ship
+# `xrpl/__init__.py` or `xrpl/ext/__init__.py`.
+#
+# Because PEP 517 builds are isolated to this project directory, the source is
+# STAGED in here (scripts/stage-source.sh copies ../../xrpl/ext/confidential ->
+# ./xrpl/ext/confidential) before the wheel build. The staged tree is gitignored.
+# ──────────────────────────────────────────────────────────────────────────────
+[build-system]
+requires = ["setuptools>=68", "wheel", "cffi>=1.15.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xrpl-py-confidential"
+version = "0.1.0"                 # tracks the mpt-crypto release it bundles
+description = "Native Confidential MPT (XLS-0096) proof generation for xrpl-py"
+readme = "README.md"
+license = { text = "ISC" }
+requires-python = ">=3.10"
+dependencies = [
+  "xrpl-py>=4.6.0b5",             # provides the ConfidentialMPT* models this returns
+  "cffi>=1.15.0",
+]
+
+[project.urls]
+repository = "https://github.com/XRPLF/xrpl-py"
+
+[tool.setuptools]
+# Explicit single-package list: ships only xrpl/ext/confidential/* — no
+# xrpl/__init__.py and no xrpl/ext/__init__.py, preserving the namespace.
+packages = ["xrpl.ext.confidential"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+# The wheel ships only the compiled, self-contained extension. The static
+# archive + headers under libs/ and include/ are BUILD inputs (linked in / used
+# by the compiler), not runtime files, so they are not packaged.
+"xrpl.ext.confidential" = ["*.so", "*.pyd"]
+
+# ──────────────────────────────────────────────────────────────────────────────
+# cibuildwheel — broad coverage prioritized over wheel size.
+# The workflow stages the source (host) before invoking cibuildwheel; before-all
+# then builds (Linux/macOS) or fetches (Windows) the mpt-crypto static archive
+# into the staged xrpl/ext/confidential/libs/<platform>/, which is linked INTO
+# the extension.
+#
+# before-all runs with CWD = the dir cibuildwheel was invoked from (repo root),
+# NOT this package dir, so the script paths use the {package} placeholder
+# (absolute path to package-dir, translated to the in-container path on Linux).
+# ──────────────────────────────────────────────────────────────────────────────
+[tool.cibuildwheel]
+build-frontend = "build"
+build = "cp310-* cp311-* cp312-* cp313-*"
+# Skip targets we ship no native for: musl, PyPy, 32-bit (linux i686 / Windows
+# win32), and non-amd64 Windows (win_arm64). The prebuilt Windows bundle is
+# win32-x86-64 (64-bit) only, so a 32-bit wheel build fails to link (LNK1120).
+skip = "*-musllinux* pp* *_i686 *_ppc64le *_s390x *-win32 *-win_arm64"
+# The wheel's unique value is the compiled _mpt_crypto extension + bundled
+# libmpt-crypto. Validate THAT directly: the utility-layer unit tests import only
+# xrpl.ext.confidential.crypto_bindings (the native layer) and exercise the
+# exported mpt_ C API — no core xrpl-py ConfidentialMPT* transaction models
+# required, so we don't need a released core xrpl-py just to smoke-test the binary.
+#
+# Run the test file as a SCRIPT (it has a unittest __main__ guard) rather than via
+# pytest: that puts the test's own dir — not the repo root — on sys.path[0], so
+# `import xrpl...` resolves to the INSTALLED wheel (with the compiled extension)
+# instead of the source tree (which has none, and would make setUpModule skip
+# every test). The leading assert fails loudly if the native extension did not
+# load, so a skipped module cannot masquerade as a green run.
+# Only tests that depend solely on the native extension (this wheel) may run
+# here: cibuildwheel installs the PUBLISHED xrpl-py, which does not yet ship the
+# ConfidentialMPT* transaction models. test_chaining.py imports those via
+# transaction_builders, so it runs in the integration_test job (built against
+# local source) instead — not here.
+test-command = 'python -c "import xrpl.ext.confidential.crypto_bindings as c; assert c.MPT_CRYPTO_AVAILABLE" && python {project}/tests/unit/ext/confidential/test_utility_layer.py && python {project}/tests/unit/ext/confidential/test_homomorphic.py'
+
+[tool.cibuildwheel.linux]
+manylinux-x86_64-image = "manylinux_2_28"
+manylinux-aarch64-image = "manylinux_2_28"
+before-all = "bash {package}/scripts/build-mpt-crypto-lib.sh"
+
+[tool.cibuildwheel.macos]
+before-all = "bash {package}/scripts/build-mpt-crypto-lib.sh"
+environment = { MACOSX_DEPLOYMENT_TARGET = "13.0" }
+
+[tool.cibuildwheel.windows]
+before-all = "bash {package}/scripts/fetch-prebuilt-natives.sh"
+# No delvewheel repair needed: mpt-crypto (secp256k1 + OpenSSL) is statically
+# linked INTO the _mpt_crypto extension, so the .pyd is self-contained — there is
+# no external DLL to vendor. Its only remaining dependencies are system DLLs
+# (UCRT, kernel32, …), which delvewheel ignores.
+repair-wheel-command = ""

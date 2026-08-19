@@ -1,0 +1,418 @@
+#!/bin/bash
+# Setup script for MPT crypto binaries for local development
+#
+# Downloads the pre-built self-contained STATIC archive from XRPLF/mpt-crypto
+# (or builds it locally) and stages it where build_mpt_crypto.py links it INTO
+# the CFFI extension. The archive has secp256k1 + OpenSSL merged in.
+#
+# Usage:
+#   ./xrpl/ext/confidential/setup_mpt_crypto.sh download                     # from latest release
+#   ./xrpl/ext/confidential/setup_mpt_crypto.sh download --version 1.0.4  # specific release
+#   ./xrpl/ext/confidential/setup_mpt_crypto.sh download --run ID            # from workflow run
+#   ./xrpl/ext/confidential/setup_mpt_crypto.sh build                        # build locally
+#
+# If no argument is provided, it will prompt you to choose.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+LIBS_DIR="$SCRIPT_DIR/libs"
+INCLUDE_DIR="$SCRIPT_DIR/include"
+MPT_CRYPTO_REPO="XRPLF/mpt-crypto"
+MANIFEST_NAME="mpt-crypto-static.link-libs.txt"
+
+# Detect platform
+OS="$(uname -s)"
+ARCH="$(uname -m)"
+
+case "$OS" in
+    Darwin*)
+        PLATFORM="darwin"
+        LIB_SUBDIR="darwin"
+        if [ "$ARCH" = "arm64" ]; then
+            BUNDLE_SUBDIR="darwin-aarch64"
+        else
+            BUNDLE_SUBDIR="darwin-x86-64"
+        fi
+        LIB_NAME="libmpt-crypto.a"
+        ;;
+    Linux*)
+        PLATFORM="linux"
+        LIB_SUBDIR="linux"
+        if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+            BUNDLE_SUBDIR="linux-aarch64"
+        else
+            BUNDLE_SUBDIR="linux-x86-64"
+        fi
+        LIB_NAME="libmpt-crypto.a"
+        ;;
+    MINGW*|MSYS*|CYGWIN*)
+        PLATFORM="windows"
+        LIB_SUBDIR="win32"
+        BUNDLE_SUBDIR="win32-x86-64"
+        LIB_NAME="mpt-crypto-static.lib"
+        ;;
+    *)
+        echo "Unsupported platform: $OS"
+        exit 1
+        ;;
+esac
+
+echo "Detected platform: $PLATFORM ($ARCH)"
+echo "  Bundle subdir: $BUNDLE_SUBDIR"
+echo "  Local lib dir: $LIB_SUBDIR"
+
+clean_stale_artifacts() {
+    # Remove old compiled CFFI extensions and object files so the new library
+    # is picked up on the next build. Without this, a stale .cpython-XY.so
+    # built against an older library may be loaded instead.
+    echo "Cleaning stale build artifacts..."
+    rm -f "$SCRIPT_DIR"/_mpt_crypto*.so "$SCRIPT_DIR"/_mpt_crypto*.pyd \
+          "$SCRIPT_DIR"/_mpt_crypto*.o  "$SCRIPT_DIR"/_mpt_crypto.c
+    # Also clear __pycache__ so cached .pyc files don't reference old modules
+    rm -rf "$SCRIPT_DIR"/__pycache__
+}
+
+# ──────────────────────────────────────────────────────────────────────────
+# Download from XRPLF/mpt-crypto
+# ──────────────────────────────────────────────────────────────────────────
+download_from_mpt_crypto() {
+    local RUN_ID="${1:-}"
+    local VERSION="${2:-}"
+    local ALLOW_UNVERIFIED="${3:-false}"
+
+    echo ""
+    echo "=== Downloading pre-built binaries from $MPT_CRYPTO_REPO ==="
+    echo ""
+
+    clean_stale_artifacts
+
+    # Check if gh CLI is installed and authenticated
+    if ! command -v gh &> /dev/null; then
+        echo "ERROR: GitHub CLI (gh) is not installed."
+        echo "Please install it from: https://cli.github.com/"
+        exit 1
+    fi
+
+    if ! gh auth status &> /dev/null; then
+        echo "GitHub CLI is not authenticated. Please run: gh auth login"
+        exit 1
+    fi
+
+    # Create temp directory for download
+    TEMP_DIR=$(mktemp -d)
+    trap "rm -rf $TEMP_DIR" EXIT
+
+    if [ -n "$RUN_ID" ]; then
+        # ── Download from a specific workflow run ──
+        echo "Downloading from workflow run: $RUN_ID"
+        echo "Fetching mpt-crypto-natives-bundle artifact..."
+
+        gh run download "$RUN_ID" \
+            --repo "$MPT_CRYPTO_REPO" \
+            --name mpt-crypto-natives-bundle \
+            --dir "$TEMP_DIR" || {
+            echo ""
+            echo "ERROR: Failed to download bundle from run $RUN_ID."
+            echo "Check: https://github.com/$MPT_CRYPTO_REPO/actions/runs/$RUN_ID"
+            exit 1
+        }
+
+        TARBALL="$TEMP_DIR/mpt-crypto-natives.tar.gz"
+    else
+        # ── Download from a release ──
+        if [ -n "$VERSION" ]; then
+            TAG="$VERSION"
+            echo "Downloading release: $TAG"
+        else
+            # Read the tag name explicitly: the default table output leads with
+            # the release TITLE (which can contain spaces), not the tag.
+            TAG=$(gh release list --repo "$MPT_CRYPTO_REPO" --limit 1 \
+                  --json tagName --jq '.[0].tagName')
+            echo "Latest release: $TAG"
+        fi
+
+        gh release download "$TAG" \
+            --repo "$MPT_CRYPTO_REPO" \
+            --pattern "mpt-crypto-natives-*.tar.gz" \
+            --dir "$TEMP_DIR" || {
+            echo ""
+            echo "ERROR: Failed to download from release $TAG."
+            echo "Check: https://github.com/$MPT_CRYPTO_REPO/releases"
+            exit 1
+        }
+
+        TARBALL=$(find "$TEMP_DIR" -name "mpt-crypto-natives-*.tar.gz" -print -quit)
+    fi
+
+    # ── Extract and install ──
+    if [ ! -f "$TARBALL" ]; then
+        echo "ERROR: Tarball not found at $TARBALL"
+        exit 1
+    fi
+
+    # ── Integrity check: verify the bundle against the pinned BUNDLE_SHA256 when
+    # the downloaded version matches the pin. A non-pinned download (a different
+    # --version, or --run) has no pinned hash to check against, so the archive
+    # that gets linked into the native extension is unverified; refuse to proceed
+    # unless the caller explicitly opts in with --allow-unverified. ──
+    if command -v sha256sum >/dev/null 2>&1; then
+        OBSERVED_SHA="$(sha256sum "$TARBALL" | awk '{print $1}')"
+    else
+        OBSERVED_SHA="$(shasum -a 256 "$TARBALL" | awk '{print $1}')"
+    fi
+    VERSION_ENV="$REPO_ROOT/packaging/confidential/version.env"
+    PINNED_VERSION="$(grep -E '^MPT_CRYPTO_VERSION=' "$VERSION_ENV" 2>/dev/null | cut -d= -f2)"
+    PINNED_SHA="$(grep -E '^BUNDLE_SHA256=' "$VERSION_ENV" 2>/dev/null | cut -d= -f2)"
+    if [ -n "$PINNED_SHA" ] \
+       && [ "$PINNED_SHA" != "REPLACE_ME_WITH_RELEASE_ASSET_SHA256" ] \
+       && [ "${TAG:-}" = "$PINNED_VERSION" ]; then
+        if [ "$OBSERVED_SHA" != "$PINNED_SHA" ]; then
+            echo "ERROR: sha256 mismatch for $TARBALL" >&2
+            echo "  expected (version.env): $PINNED_SHA" >&2
+            echo "  observed:               $OBSERVED_SHA" >&2
+            exit 1
+        fi
+        echo "Verified bundle sha256 against pinned BUNDLE_SHA256."
+    elif [ "$ALLOW_UNVERIFIED" = "true" ]; then
+        echo "WARNING: linking an UNVERIFIED bundle (--allow-unverified)." >&2
+        echo "  '${TAG:-run $RUN_ID}' is not the pinned version (${PINNED_VERSION});" >&2
+        echo "  observed sha256: $OBSERVED_SHA" >&2
+    else
+        echo "ERROR: refusing to link an unverified native archive." >&2
+        echo "  '${TAG:-run $RUN_ID}' is not the version pinned in version.env" >&2
+        echo "  (${PINNED_VERSION}), so its sha256 cannot be checked." >&2
+        echo "  observed sha256: $OBSERVED_SHA" >&2
+        echo "  Re-run with --allow-unverified to link it anyway." >&2
+        exit 1
+    fi
+
+    echo "Extracting $TARBALL..."
+    EXTRACT_DIR="$TEMP_DIR/extracted"
+    mkdir -p "$EXTRACT_DIR"
+    tar xzf "$TARBALL" -C "$EXTRACT_DIR"
+
+    echo "Contents:"
+    find "$EXTRACT_DIR" -type f | sort
+
+    # Copy the static archive + its link-libs manifest for this platform.
+    # Bundle uses OS-arch dirs (e.g. darwin-aarch64/), xrpl-py uses OS-only (e.g. darwin/)
+    SRC_LIB="$EXTRACT_DIR/$BUNDLE_SUBDIR/$LIB_NAME"
+    if [ ! -f "$SRC_LIB" ]; then
+        echo "ERROR: Static archive not found: $SRC_LIB"
+        echo "Available platform directories:"
+        ls -d "$EXTRACT_DIR"/*/ 2>/dev/null || echo "  (none)"
+        exit 1
+    fi
+
+    mkdir -p "$LIBS_DIR/$LIB_SUBDIR"
+    cp "$SRC_LIB" "$LIBS_DIR/$LIB_SUBDIR/"
+    cp "$EXTRACT_DIR/$BUNDLE_SUBDIR/$MANIFEST_NAME" "$LIBS_DIR/$LIB_SUBDIR/" 2>/dev/null || true
+    echo "Installed: $LIBS_DIR/$LIB_SUBDIR/$LIB_NAME"
+
+    # Copy headers
+    mkdir -p "$INCLUDE_DIR/utility"
+    if [ -d "$EXTRACT_DIR/include" ]; then
+        cp "$EXTRACT_DIR/include/secp256k1_mpt.h" "$INCLUDE_DIR/"
+        cp "$EXTRACT_DIR/include/utility/mpt_utility.h" "$INCLUDE_DIR/utility/"
+        echo "Installed headers from bundle"
+    else
+        # No headers in the bundle — fetch them from the repo, but pinned to the
+        # SAME ref the natives came from (the release tag, else the version.env
+        # pin) so the header ABI matches the linked library. Never fall back to
+        # the moving default branch, which could drift from the pinned release.
+        HEADER_REF="${TAG:-$PINNED_VERSION}"
+        if [ -z "$HEADER_REF" ]; then
+            echo "ERROR: no release tag or pinned version to fetch headers at;" >&2
+            echo "  refusing to pull them from the moving default branch." >&2
+            exit 1
+        fi
+        echo "WARNING: No headers in bundle. Fetching from repo at ref ${HEADER_REF}..."
+        gh api "repos/$MPT_CRYPTO_REPO/contents/include/secp256k1_mpt.h?ref=$HEADER_REF" \
+            --jq '.content' | base64 -d > "$INCLUDE_DIR/secp256k1_mpt.h"
+        gh api "repos/$MPT_CRYPTO_REPO/contents/include/utility/mpt_utility.h?ref=$HEADER_REF" \
+            --jq '.content' | base64 -d > "$INCLUDE_DIR/utility/mpt_utility.h"
+        echo "Installed headers from repo (ref ${HEADER_REF})"
+    fi
+
+    # Verify
+    echo ""
+    echo "=== Verification ==="
+    echo "Library:"
+    ls -lh "$LIBS_DIR/$LIB_SUBDIR/$LIB_NAME"
+    file "$LIBS_DIR/$LIB_SUBDIR/$LIB_NAME"
+    echo ""
+    echo "Headers:"
+    ls -lh "$INCLUDE_DIR/secp256k1_mpt.h" "$INCLUDE_DIR/utility/mpt_utility.h" 2>/dev/null || echo "  (missing)"
+
+    echo ""
+    echo "Done! Binaries installed from $MPT_CRYPTO_REPO."
+}
+
+# ──────────────────────────────────────────────────────────────────────────
+# Build locally from source
+# ──────────────────────────────────────────────────────────────────────────
+build_locally() {
+    echo ""
+    echo "=== Building the mpt-crypto static archive locally ==="
+    echo ""
+
+    clean_stale_artifacts
+    echo "This will clone mpt-crypto and build its self-contained static archive"
+    echo "(secp256k1 + OpenSSL merged in) via its own build-native-libs.sh."
+    echo "This may take several minutes..."
+    echo ""
+
+    # Check for required tools
+    if ! command -v cmake &> /dev/null; then
+        echo "ERROR: cmake is not installed. Please install it first."
+        exit 1
+    fi
+
+    if ! command -v conan &> /dev/null; then
+        echo "ERROR: conan is not installed. Please install it first:"
+        echo "  pip install 'conan>=2.0.0'"
+        exit 1
+    fi
+
+    # Ensure Conan profile exists
+    conan profile detect --force
+    conan remote add --index 0 --force xrplf https://conan.ripplex.io 2>/dev/null || true
+
+    # Create temp directory
+    TEMP_DIR=$(mktemp -d)
+    trap "rm -rf $TEMP_DIR" EXIT
+
+    cd "$TEMP_DIR"
+
+    # Build from the SAME pinned release the download/packaging paths use, rather
+    # than the moving default branch, so a local source build matches the shipped
+    # natives. version.env is the single source of truth for the pinned version.
+    VERSION_ENV="$REPO_ROOT/packaging/confidential/version.env"
+    MPT_CRYPTO_VERSION="$(grep -E '^MPT_CRYPTO_VERSION=' "$VERSION_ENV" 2>/dev/null | cut -d= -f2)"
+    MPT_CRYPTO_COMMIT="$(grep -E '^MPT_CRYPTO_COMMIT=' "$VERSION_ENV" 2>/dev/null | cut -d= -f2)"
+    if [ -z "$MPT_CRYPTO_VERSION" ]; then
+        echo "ERROR: could not read MPT_CRYPTO_VERSION from $VERSION_ENV" >&2
+        exit 1
+    fi
+
+    # Clone mpt-crypto at the pinned release tag
+    echo "Cloning $MPT_CRYPTO_REPO at $MPT_CRYPTO_VERSION..."
+    git clone --depth 1 --branch "$MPT_CRYPTO_VERSION" \
+        "https://github.com/$MPT_CRYPTO_REPO.git"
+    cd mpt-crypto
+
+    # Supply-chain: git tags are mutable (force-pushable). Verify the checked-out
+    # commit matches the pinned immutable SHA before building, so a moved/tampered
+    # tag can't inject code into a local source build. Mirrors
+    # packaging/confidential/scripts/build-mpt-crypto-lib.sh and the natives
+    # workflow. Skipped only if version.env carries no pinned commit.
+    if [ -n "$MPT_CRYPTO_COMMIT" ]; then
+        ACTUAL_SHA="$(git rev-parse HEAD)"
+        if [ "$ACTUAL_SHA" != "$MPT_CRYPTO_COMMIT" ]; then
+            echo "ERROR: tag $MPT_CRYPTO_VERSION resolved to $ACTUAL_SHA," >&2
+            echo "       expected pinned commit $MPT_CRYPTO_COMMIT." >&2
+            echo "       The tag may have been moved or tampered with; refusing to build." >&2
+            exit 1
+        fi
+        echo "Verified $MPT_CRYPTO_VERSION resolves to pinned commit $MPT_CRYPTO_COMMIT."
+    fi
+
+    # Build the self-contained static archive via mpt-crypto's own script.
+    case "$PLATFORM" in
+        darwin|linux)
+            echo "Building via mpt-crypto's build-native-libs.sh..."
+            bash ./.github/scripts/build-native-libs.sh
+
+            mkdir -p "$LIBS_DIR/$LIB_SUBDIR"
+            cp build/libmpt-crypto-bundled.a "$LIBS_DIR/$LIB_SUBDIR/$LIB_NAME"
+            cp build/mpt-crypto-static.link-libs.txt "$LIBS_DIR/$LIB_SUBDIR/"
+            ;;
+        windows)
+            echo "Windows local builds are not yet supported."
+            echo "Use: $0 download --run <RUN_ID>"
+            exit 1
+            ;;
+    esac
+
+    # Copy headers
+    mkdir -p "$INCLUDE_DIR/utility"
+    cp include/secp256k1_mpt.h "$INCLUDE_DIR/"
+    cp include/utility/mpt_utility.h "$INCLUDE_DIR/utility/"
+
+    echo ""
+    echo "Done! Built and installed from source."
+    echo "Library: $LIBS_DIR/$LIB_SUBDIR/"
+    ls -lh "$LIBS_DIR/$LIB_SUBDIR/"
+}
+
+# ──────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────
+if [ $# -eq 0 ]; then
+    echo ""
+    echo "MPT Crypto Setup for Local Development"
+    echo "======================================="
+    echo "Source: $MPT_CRYPTO_REPO"
+    echo ""
+    echo "Choose an option:"
+    echo "  1) Download pre-built binaries (recommended)"
+    echo "  2) Build locally from source"
+    echo ""
+    read -p "Enter choice [1-2]: " choice
+
+    case $choice in
+        1) download_from_mpt_crypto ;;
+        2) build_locally ;;
+        *) echo "Invalid choice"; exit 1 ;;
+    esac
+else
+    case "$1" in
+        download)
+            shift
+            RUN_ID=""
+            VERSION=""
+            ALLOW_UNVERIFIED="false"
+            while [ $# -gt 0 ]; do
+                case "$1" in
+                    --run)
+                        RUN_ID="$2"
+                        shift 2
+                        ;;
+                    --version)
+                        VERSION="$2"
+                        shift 2
+                        ;;
+                    --allow-unverified)
+                        ALLOW_UNVERIFIED="true"
+                        shift
+                        ;;
+                    *)
+                        echo "Unknown option: $1"
+                        echo "Usage: $0 download [--version TAG | --run RUN_ID]" \
+                             "[--allow-unverified]"
+                        exit 1
+                        ;;
+                esac
+            done
+            download_from_mpt_crypto "$RUN_ID" "$VERSION" "$ALLOW_UNVERIFIED"
+            ;;
+        build)
+            build_locally
+            ;;
+        *)
+            echo "Usage: $0 [download [--version TAG | --run RUN_ID]" \
+                 "[--allow-unverified] | build]"
+            exit 1
+            ;;
+    esac
+fi
+
+echo ""
+echo "Next steps:"
+echo "  1. Build the CFFI extension:"
+echo "       poetry run python xrpl/ext/confidential/build_mpt_crypto.py"
+echo "  2. Verify it loaded:"
+echo "       poetry run python -c \"import xrpl.ext.confidential as c; print('available:', c.MPT_CRYPTO_AVAILABLE)\""
+echo ""

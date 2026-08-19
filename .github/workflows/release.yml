@@ -132,6 +132,10 @@ jobs:
       git_ref: ${{ github.event.inputs.release_branch }}
     secrets: inherit
 
+  # The native Confidential MPT add-on ships as the separate xrpl-py-confidential
+  # distribution and is built/published by build_wheels_confidential.yml on its
+  # own tags — it is intentionally NOT part of the pure xrpl-py release below.
+
   pre-release:
     name: Pre-release distribution 📦 (${{ needs.input-validate.outputs.package_version }})
     needs:
@@ -225,8 +229,17 @@ jobs:
         with:
           python-version: "3.10"
           cache: "poetry"
-      - name: Build a binary wheel and a source tarball
+
+      - name: Build distribution (sdist + pure py3-none-any wheel)
         run: poetry build
+
+      - name: List distribution packages
+        run: |
+          echo "=== Distribution packages ==="
+          ls -la dist/
+          echo "=== Wheel count: $(ls dist/*.whl 2>/dev/null | wc -l) ==="
+          echo "=== Sdist count: $(ls dist/*.tar.gz 2>/dev/null | wc -l) ==="
+
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4
         with:
