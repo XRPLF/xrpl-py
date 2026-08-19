@@ -22,7 +22,7 @@ readme = "README.md"
 license = { text = "ISC" }
 requires-python = ">=3.10"
 dependencies = [
-  "xrpl-py>=4.6.0b5",             # provides the ConfidentialMPT* models this returns
+  "xrpl-py>=5.1.0",               # provides the ConfidentialMPT* models this returns
   "cffi>=1.15.0",
 ]
 
@@ -71,11 +71,12 @@ skip = "*-musllinux* pp* *_i686 *_ppc64le *_s390x *-win32 *-win_arm64"
 # instead of the source tree (which has none, and would make setUpModule skip
 # every test). The leading assert fails loudly if the native extension did not
 # load, so a skipped module cannot masquerade as a green run.
-# Only tests that depend solely on the native extension (this wheel) may run
-# here: cibuildwheel installs the PUBLISHED xrpl-py, which does not yet ship the
-# ConfidentialMPT* transaction models. test_chaining.py imports those via
-# transaction_builders, so it runs in the integration_test job (built against
-# local source) instead — not here.
+# Only tests that depend solely on the native extension (this wheel) run here:
+# cibuildwheel installs the PUBLISHED xrpl-py (the >=5.1.0 floor above) into the
+# test venv, so this smoke test is kept scoped to the native layer to stay
+# self-contained and fast. test_chaining.py exercises the ConfidentialMPT*
+# transaction models via transaction_builders, so it runs in the integration_test
+# job (built against local source) instead — not here.
 test-command = 'python -c "import xrpl.ext.confidential.crypto_bindings as c; assert c.MPT_CRYPTO_AVAILABLE" && python {project}/tests/unit/ext/confidential/test_utility_layer.py && python {project}/tests/unit/ext/confidential/test_homomorphic.py'
 
 [tool.cibuildwheel.linux]
