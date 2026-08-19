@@ -1,14 +1,18 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
+    fund_wallet_async,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
 from tests.integration.reusable_values import DESTINATION, WALLET
 from xrpl.models.amounts.mpt_amount import MPTAmount
 from xrpl.models.exceptions import XRPLModelException
+from xrpl.models.requests import AccountInfo
 from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
 from xrpl.models.transactions import Payment
 from xrpl.models.transactions.mptoken_issuance_create import MPTokenIssuanceCreate
+from xrpl.models.transactions.payment import PaymentFlag
+from xrpl.wallet import Wallet
 
 
 class TestPayment(IntegrationTestCase):
@@ -179,3 +183,37 @@ class TestPayment(IntegrationTestCase):
             client,
         )
         self.assertTrue(response.is_successful())
+
+    @test_async_and_sync(globals())
+    async def test_sponsor_created_account(self, client):
+        """`tfSponsorCreatedAccount` creates and sponsors a brand-new account.
+
+        The sender covers the new account's reserve, so the delivered amount can
+        be as little as one drop -- normally a Payment to an unfunded account
+        must deliver at least the account reserve.
+        """
+        sponsor_wallet = Wallet.create()
+        await fund_wallet_async(sponsor_wallet)
+        new_account = Wallet.create()
+
+        response = await sign_and_reliable_submission_async(
+            Payment(
+                account=sponsor_wallet.address,
+                destination=new_account.address,
+                amount="1",
+                flags=PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT,
+            ),
+            sponsor_wallet,
+            client,
+        )
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        new_account_info = await client.request(
+            AccountInfo(account=new_account.address)
+        )
+        self.assertTrue(new_account_info.is_successful())
+
+        sponsor_info = await client.request(AccountInfo(account=sponsor_wallet.address))
+        self.assertEqual(
+            sponsor_info.result["account_data"].get("SponsoringAccountCount"), 1
+        )

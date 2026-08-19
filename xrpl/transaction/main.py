@@ -20,6 +20,7 @@ def sign_and_submit(
     wallet: Wallet,
     autofill: bool = True,
     check_fee: bool = True,
+    sponsor_signers_count: Optional[int] = None,
 ) -> Response:
     """
     Signs a transaction (locally, without trusting external rippled nodes) and submits
@@ -32,6 +33,9 @@ def sign_and_submit(
         autofill: whether to autofill the relevant fields. Defaults to True.
         check_fee: whether to check if the fee is higher than the expected transaction
             type fee. Defaults to True.
+        sponsor_signers_count: the expected number of keys the sponsor will
+            multi-sign with. Only used when the sponsor multi-signs; leave unset
+            for a pre-funded sponsorship or a single-signing sponsor.
 
     Returns:
         The response from the ledger.
@@ -43,6 +47,7 @@ def sign_and_submit(
             wallet,
             autofill,
             check_fee,
+            sponsor_signers_count,
         )
     )
 
@@ -86,6 +91,7 @@ def autofill_and_sign(
     client: SyncClient,
     wallet: Wallet,
     check_fee: bool = True,
+    sponsor_signers_count: Optional[int] = None,
 ) -> T:
     """
     Signs a transaction locally, without trusting external rippled nodes. Autofills
@@ -97,6 +103,9 @@ def autofill_and_sign(
         wallet: the wallet with which to sign the transaction.
         check_fee: whether to check if the fee is higher than the expected transaction
             type fee. Defaults to True.
+        sponsor_signers_count: the expected number of keys the sponsor will
+            multi-sign with. Only used when the sponsor multi-signs; leave unset
+            for a pre-funded sponsorship or a single-signing sponsor.
 
     Returns:
         The signed transaction.
@@ -107,12 +116,16 @@ def autofill_and_sign(
             client,
             wallet,
             check_fee,
+            sponsor_signers_count,
         )
     )
 
 
 def autofill(
-    transaction: T, client: SyncClient, signers_count: Optional[int] = None
+    transaction: T,
+    client: SyncClient,
+    signers_count: Optional[int] = None,
+    sponsor_signers_count: Optional[int] = None,
 ) -> T:
     """
     Autofills fields in a transaction. This will set all autofill-able fields according
@@ -125,6 +138,10 @@ def autofill(
         client: a network client.
         signers_count: the expected number of signers for this transaction.
             Only used for multisigned transactions.
+        sponsor_signers_count: the expected number of keys the sponsor will
+            multi-sign with. Only used when the sponsor multi-signs;
+            leave unset for a pre-funded sponsorship or a single-signing
+            sponsor.
 
     Returns:
         The autofilled transaction.
@@ -134,6 +151,7 @@ def autofill(
             transaction,
             client,
             signers_count,
+            sponsor_signers_count,
         )
     )
 

@@ -67,6 +67,7 @@ async def sign_and_submit(
     wallet: Wallet,
     autofill: bool = True,
     check_fee: bool = True,
+    sponsor_signers_count: Optional[int] = None,
 ) -> Response:
     """
     Signs a transaction (locally, without trusting external rippled nodes) and submits
@@ -79,15 +80,22 @@ async def sign_and_submit(
         autofill: whether to autofill the relevant fields. Defaults to True.
         check_fee: whether to check if the fee is higher than the expected transaction
             type fee. Defaults to True.
+        sponsor_signers_count: the expected number of keys the sponsor will
+            multi-sign with. Only used when the sponsor multi-signs; leave unset
+            for a pre-funded sponsorship or a single-signing sponsor.
 
     Returns:
         The response from the ledger.
     """
     if autofill:
-        transaction = await autofill_and_sign(transaction, client, wallet, check_fee)
+        transaction = await autofill_and_sign(
+            transaction, client, wallet, check_fee, sponsor_signers_count
+        )
     else:
         if check_fee:
-            await _check_fee(transaction, client)
+            await _check_fee(
+                transaction, client, sponsor_signers_count=sponsor_signers_count
+            )
         transaction = sign(transaction, wallet)
     return await submit(transaction, client)
 
@@ -147,6 +155,7 @@ async def autofill_and_sign(
     client: Client,
     wallet: Wallet,
     check_fee: bool = True,
+    sponsor_signers_count: Optional[int] = None,
 ) -> T:
     """
     Autofills relevant fields. Then, signs a transaction locally, without trusting
@@ -158,6 +167,9 @@ async def autofill_and_sign(
         client: a network client.
         check_fee: whether to check if the fee is higher than the expected transaction
             type fee. Defaults to True.
+        sponsor_signers_count: the expected number of keys the sponsor will
+            multi-sign with. Only used when the sponsor multi-signs; leave unset
+            for a pre-funded sponsorship or a single-signing sponsor.
 
     Returns:
         The signed transaction.
@@ -166,9 +178,17 @@ async def autofill_and_sign(
     # The fee check will be done if transaction.fee exists. Otherwise the fee
     # will be auto-filled in autofill()
     if check_fee:
-        await _check_fee(transaction, client)
+        await _check_fee(
+            transaction, client, sponsor_signers_count=sponsor_signers_count
+        )
 
-    return sign(await autofill(transaction, client), wallet, multisign=False)
+    return sign(
+        await autofill(
+            transaction, client, sponsor_signers_count=sponsor_signers_count
+        ),
+        wallet,
+        multisign=False,
+    )
 
 
 async def submit(
@@ -277,7 +297,10 @@ def _prepare_transaction(transaction: Transaction) -> Dict[str, Any]:
 
 
 async def autofill(
-    transaction: T, client: Client, signers_count: Optional[int] = None
+    transaction: T,
+    client: Client,
+    signers_count: Optional[int] = None,
+    sponsor_signers_count: Optional[int] = None,
 ) -> T:
     """
     Autofills fields in a transaction. This will set all autofill-able fields according
@@ -290,6 +313,10 @@ async def autofill(
         client: a network client.
         signers_count: the expected number of signers for this transaction.
             Only used for multisigned transactions.
+        sponsor_signers_count: the expected number of keys the sponsor will
+            multi-sign with. Only used when the sponsor multi-signs;
+            leave unset for a pre-funded sponsorship or a single-signing
+            sponsor.
 
     Raises:
         XRPLException: If a field is pre-filled out incorrectly.
@@ -311,7 +338,7 @@ async def autofill(
         transaction_json["sequence"] = sequence
     if "fee" not in transaction_json:
         transaction_json["fee"] = await _calculate_fee_per_transaction_type(
-            transaction, client, signers_count
+            transaction, client, signers_count, sponsor_signers_count
         )
     if "last_ledger_sequence" not in transaction_json:
         ledger_sequence = await get_latest_validated_ledger_sequence(client)
@@ -450,6 +477,7 @@ async def _check_fee(
     transaction: Transaction,
     client: Client,
     signers_count: Optional[int] = None,
+    sponsor_signers_count: Optional[int] = None,
 ) -> None:
     """
     Checks if the Transaction fee is higher than the expected Transaction type fee.
@@ -458,7 +486,13 @@ async def _check_fee(
         transaction: The transaction to check.
         client: Client instance to use to look up network load
         signers_count: the expected number of signers for this transaction.
-            Only used for multisigned transactions.
+            Only used for multisigned transactions. Must match the value passed
+            to :func:`autofill`, or the correct fee is rejected here as too high.
+        sponsor_signers_count: the expected number of keys the sponsor will
+            multi-sign with. Only used when the sponsor multi-signs;
+            leave unset for a pre-funded sponsorship or a single-signing
+            sponsor. Must match the value passed to :func:`autofill`, or the
+            correct fee is rejected here as too high.
 
     Raises:
         XRPLException: if the transaction fee is higher than the expected fee.
@@ -467,7 +501,7 @@ async def _check_fee(
         int(xrp_to_drops(0.1)),  # a fee that is obviously too high
         int(
             await _calculate_fee_per_transaction_type(
-                transaction, client, signers_count
+                transaction, client, signers_count, sponsor_signers_count
             )
         ),
     )
@@ -514,6 +548,7 @@ async def _calculate_fee_per_transaction_type(
     transaction: Transaction,
     client: Client,
     signers_count: Optional[int] = None,
+    sponsor_signers_count: Optional[int] = None,
 ) -> str:
     """
     Calculate the total fee in drops for a transaction based on:
@@ -528,6 +563,10 @@ async def _calculate_fee_per_transaction_type(
         signers_count: the expected number of signers for this transaction.
             Only used for multisigned transactions and multi-account/multi-signed Batch
             transactions.
+        sponsor_signers_count: the expected number of keys the sponsor will
+            multi-sign with. Only used when the sponsor multi-signs;
+            leave unset for a pre-funded sponsorship or a single-signing
+            sponsor.
 
     Returns:
         The expected Transaction fee in drops
@@ -603,6 +642,19 @@ async def _calculate_fee_per_transaction_type(
     # BaseFee × (1 + kConfidentialFeeMultiplier) for ZK-proof verification.
     elif transaction.transaction_type in _CONFIDENTIAL_TRANSACTION_TYPES:
         base_fee = net_fee * (1 + _CONFIDENTIAL_FEE_MULTIPLIER)
+
+    # Sponsored transactions.
+    # BaseFee × (1 + |tx.Signers| + |SponsorSignature.Signers|), so only a
+    # multi-signed sponsor adds anything. `Fee` is a signing field and therefore
+    # final before the sponsor signs, so SponsorSignature is always absent here
+    # and the count must be declared rather than read. Do not infer it from the
+    # sponsor's SignerList: having one does not mean the sponsor will multi-sign.
+    if (
+        transaction.sponsor is not None
+        and sponsor_signers_count is not None
+        and sponsor_signers_count > 0
+    ):
+        base_fee += net_fee * sponsor_signers_count
 
     # Multi-signed/Multi-Account Batch Transactions
     # BaseFee × (1 + Number of Signatures Provided)

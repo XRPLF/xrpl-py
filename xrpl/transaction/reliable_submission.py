@@ -18,6 +18,8 @@ def submit_and_wait(
     check_fee: bool = True,
     autofill: bool = True,
     fail_hard: bool = False,
+    signers_count: Optional[int] = None,
+    sponsor_signers_count: Optional[int] = None,
 ) -> Response:
     """
     Signs a transaction locally, without trusting external rippled nodes (only if
@@ -40,6 +42,11 @@ def submit_and_wait(
         fail_hard: an optional boolean. If True, and the transaction fails for
             the initial server, do not retry or relay the transaction to other
             servers. Defaults to False.
+        signers_count: the expected number of signers for this transaction.
+            Only used when the transaction is multisigned; leave unset otherwise.
+        sponsor_signers_count: the expected number of keys the sponsor will
+            multi-sign with. Only used when the sponsor multi-signs; leave unset
+            for a pre-funded sponsorship or a single-signing sponsor.
 
     Returns:
         The response from the ledger.
@@ -52,5 +59,7 @@ def submit_and_wait(
             check_fee=check_fee,
             autofill=autofill,
             fail_hard=fail_hard,
+            signers_count=signers_count,
+            sponsor_signers_count=sponsor_signers_count,
         )
     )

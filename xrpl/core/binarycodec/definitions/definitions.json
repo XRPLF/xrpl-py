@@ -1949,6 +1949,16 @@
       }
     ],
     [
+      "FeeAmountDelta",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 34,
+        "type": "Amount"
+      }
+    ],
+    [
       "PublicKey",
       {
         "isSerialized": true,
@@ -2835,6 +2845,16 @@
         "isSigningField": true,
         "isVLEncoded": false,
         "nth": 1,
+        "type": "Int32"
+      }
+    ],
+    [
+      "RemainingOwnerCountDelta",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 2,
         "type": "Int32"
       }
     ],
@@ -6612,7 +6632,7 @@
         "optionality": 1
       },
       {
-        "name": "FeeAmount",
+        "name": "FeeAmountDelta",
         "optionality": 1
       },
       {
@@ -6620,7 +6640,7 @@
         "optionality": 1
       },
       {
-        "name": "RemainingOwnerCount",
+        "name": "RemainingOwnerCountDelta",
         "optionality": 1
       }
     ],
@@ -7354,5 +7374,5 @@
     "Vector256": 19,
     "XChainBridge": 25
   },
-  "hash": "8EB5E0E1DCEC6C6AAD9BB299B58DD4FF88A6D8F6982813E943BC9931B4E7A2AA"
+  "hash": "F3DCCAD774156538A6AB3E6003A41273D5AE394A90989204838AE52A006F245B"
 }

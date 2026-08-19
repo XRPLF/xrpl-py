@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Set, Type, Union
 
 from typing_extensions import Final, Self
 
@@ -21,8 +21,14 @@ from xrpl.core.binarycodec.definitions import (
     get_transaction_type_name,
 )
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
+from xrpl.core.binarycodec.types.amount import SIGNED_XRP_FIELDS
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
 from xrpl.core.binarycodec.types.uint64 import SPECIAL_FIELDS
+
+# Fields whose `from_value` needs the field name: UInt64 fields that render in
+# base 10 (SPECIAL_FIELDS) and Amount fields that may be negative
+# (SIGNED_XRP_FIELDS). Passing the name is harmless to any other type.
+_NAME_AWARE_FIELDS: Final[Set[str]] = SPECIAL_FIELDS | SIGNED_XRP_FIELDS
 
 _OBJECT_END_MARKER_BYTE: Final[bytes] = bytes([0xE1])
 _OBJECT_END_MARKER: Final[str] = "ObjectEndMarker"
@@ -197,7 +203,7 @@ class STObject(SerializedType):
             try:
                 args = (
                     (xaddress_decoded[field.name], field.name)
-                    if field.name in SPECIAL_FIELDS
+                    if field.name in _NAME_AWARE_FIELDS
                     else (xaddress_decoded[field.name],)
                 )
                 associated_value = field.associated_type.from_value(*args)
