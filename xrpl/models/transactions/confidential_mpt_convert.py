@@ -63,22 +63,22 @@ class ConfidentialMPTConvert(Transaction):
     maintained in plaintext according to existing invariants.
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """The account initiating the conversion."""
 
-    mptoken_issuance_id: str = REQUIRED  # type: ignore
+    mptoken_issuance_id: str = REQUIRED
     """The unique identifier for the MPT issuance."""
 
-    mpt_amount: int = REQUIRED  # type: ignore
+    mpt_amount: int = REQUIRED
     """The public plaintext amount to convert."""
 
-    holder_encrypted_amount: str = REQUIRED  # type: ignore
+    holder_encrypted_amount: str = REQUIRED
     """ElGamal ciphertext credited to the holder's CB_IN."""
 
-    issuer_encrypted_amount: str = REQUIRED  # type: ignore
+    issuer_encrypted_amount: str = REQUIRED
     """ElGamal ciphertext credited to the issuer's mirror balance."""
 
-    blinding_factor: str = REQUIRED  # type: ignore
+    blinding_factor: str = REQUIRED
     """
     The 32-byte scalar value used to encrypt the amount. Used by validators
     to verify the ciphertexts match the plaintext MPTAmount.

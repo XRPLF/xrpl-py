@@ -214,8 +214,8 @@ download_from_mpt_crypto() {
     # Copy headers
     mkdir -p "$INCLUDE_DIR/utility"
     if [ -d "$EXTRACT_DIR/include" ]; then
-        cp "$EXTRACT_DIR/include/secp256k1_mpt.h" "$INCLUDE_DIR/" 2>/dev/null || true
-        cp "$EXTRACT_DIR/include/utility/mpt_utility.h" "$INCLUDE_DIR/utility/" 2>/dev/null || true
+        cp "$EXTRACT_DIR/include/secp256k1_mpt.h" "$INCLUDE_DIR/"
+        cp "$EXTRACT_DIR/include/utility/mpt_utility.h" "$INCLUDE_DIR/utility/"
         echo "Installed headers from bundle"
     else
         # No headers in the bundle — fetch them from the repo, but pinned to the

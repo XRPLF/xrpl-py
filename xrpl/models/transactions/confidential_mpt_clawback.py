@@ -34,19 +34,19 @@ class ConfidentialMPTClawback(Transaction):
     confidential balance directly into the issuer's public reserve.
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """The Issuer account sending the transaction."""
 
-    holder: str = REQUIRED  # type: ignore
+    holder: str = REQUIRED
     """The account from which funds are being clawed back."""
 
-    mptoken_issuance_id: str = REQUIRED  # type: ignore
+    mptoken_issuance_id: str = REQUIRED
     """The unique identifier for the MPT issuance."""
 
-    mpt_amount: int = REQUIRED  # type: ignore
+    mpt_amount: int = REQUIRED
     """The plaintext total amount being removed."""
 
-    zk_proof: str = REQUIRED  # type: ignore
+    zk_proof: str = REQUIRED
     """An Equality Proof validating the amount."""
 
     transaction_type: TransactionType = field(

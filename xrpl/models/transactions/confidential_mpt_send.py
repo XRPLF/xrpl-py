@@ -33,10 +33,10 @@ class ConfidentialMPTSend(Transaction):
     ConfidentialMergeInbox.
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """The sender's XRPL account."""
 
-    destination: str = REQUIRED  # type: ignore
+    destination: str = REQUIRED
     """The receiver's XRPL account."""
 
     destination_tag: Optional[int] = None
@@ -45,25 +45,25 @@ class ConfidentialMPTSend(Transaction):
     recipient at the destination account.
     """
 
-    mptoken_issuance_id: str = REQUIRED  # type: ignore
+    mptoken_issuance_id: str = REQUIRED
     """Identifier of the MPT issuance being transferred."""
 
-    sender_encrypted_amount: str = REQUIRED  # type: ignore
+    sender_encrypted_amount: str = REQUIRED
     """Ciphertext used to homomorphically debit the sender's spending balance."""
 
-    destination_encrypted_amount: str = REQUIRED  # type: ignore
+    destination_encrypted_amount: str = REQUIRED
     """Ciphertext credited to the receiver's inbox balance."""
 
-    issuer_encrypted_amount: str = REQUIRED  # type: ignore
+    issuer_encrypted_amount: str = REQUIRED
     """Ciphertext used to update the issuer mirror balance."""
 
-    zk_proof: str = REQUIRED  # type: ignore
+    zk_proof: str = REQUIRED
     """ZKP bundle establishing equality, linkage, and range sufficiency."""
 
-    amount_commitment: str = REQUIRED  # type: ignore
+    amount_commitment: str = REQUIRED
     """Pedersen commitment to the amount being sent (33 bytes)."""
 
-    balance_commitment: str = REQUIRED  # type: ignore
+    balance_commitment: str = REQUIRED
     """Pedersen commitment to the sender's remaining spending balance (33 bytes)."""
 
     auditor_encrypted_amount: Optional[str] = None

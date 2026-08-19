@@ -33,34 +33,34 @@ class ConfidentialMPTConvertBack(Transaction):
       reserve.
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """The account performing the conversion."""
 
-    mptoken_issuance_id: str = REQUIRED  # type: ignore
+    mptoken_issuance_id: str = REQUIRED
     """The unique identifier for the MPT issuance."""
 
-    mpt_amount: int = REQUIRED  # type: ignore
+    mpt_amount: int = REQUIRED
     """The plaintext amount to credit to the public balance."""
 
-    holder_encrypted_amount: str = REQUIRED  # type: ignore
+    holder_encrypted_amount: str = REQUIRED
     """Ciphertext to be subtracted from the holder's sfConfidentialBalanceSpending."""
 
-    issuer_encrypted_amount: str = REQUIRED  # type: ignore
+    issuer_encrypted_amount: str = REQUIRED
     """Ciphertext to be subtracted from the issuer's mirror balance."""
 
-    blinding_factor: str = REQUIRED  # type: ignore
+    blinding_factor: str = REQUIRED
     """
     The 32-byte scalar value used to encrypt the amount. Used by validators
     to verify the ciphertexts match the plaintext MPTAmount.
     """
 
-    balance_commitment: str = REQUIRED  # type: ignore
+    balance_commitment: str = REQUIRED
     """
     Pedersen commitment to the holder's CURRENT confidential spending balance
     (33 bytes compressed).
     """
 
-    zk_proof: str = REQUIRED  # type: ignore
+    zk_proof: str = REQUIRED
     """
     Complete proof (816 bytes) consisting of:
     - Compact sigma proof (128 bytes): proves balance ownership and commitment

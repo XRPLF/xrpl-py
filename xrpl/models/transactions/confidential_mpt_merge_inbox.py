@@ -27,10 +27,10 @@ class ConfidentialMPTMergeInbox(Transaction):
     incoming transfers.
     """
 
-    account: str = REQUIRED  # type: ignore
+    account: str = REQUIRED
     """The account performing the merge."""
 
-    mptoken_issuance_id: str = REQUIRED  # type: ignore
+    mptoken_issuance_id: str = REQUIRED
     """The unique identifier for the MPT issuance."""
 
     transaction_type: TransactionType = field(
