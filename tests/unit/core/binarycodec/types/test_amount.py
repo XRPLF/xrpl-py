@@ -83,6 +83,18 @@ XRP_CASES = [
     ["100000000000000000", "416345785D8A0000"],
 ]
 
+# A field on the signed-XRP allowlist; only these accept a negative XRP amount.
+_SIGNED_XRP_FIELD = "FeeAmountDelta"
+
+# [XRP value, hex encoding] for a signed field. The "is positive" bit is cleared
+# rather than two's complement, so the magnitude bytes match the positive case.
+SIGNED_XRP_CASES = [
+    ["100", "4000000000000064"],
+    ["-100", "0000000000000064"],
+    ["100000000000000000", "416345785D8A0000"],
+    ["-100000000000000000", "016345785D8A0000"],
+]
+
 # [MPT dict, expected serialized hex]
 MPT_CASES = [
     [
@@ -109,6 +121,8 @@ class TestAmount(TestSerializedType):
 
         amount.verify_xrp_value(valid_zero)
         amount.verify_xrp_value(valid_amount)
+        # A negative amount is valid only when explicitly allowed.
+        amount.verify_xrp_value("-1000", allow_negative=True)
 
     def test_assert_xrp_is_valid_raises(self):
         invalid_amount_large = "1e20"
@@ -130,6 +144,21 @@ class TestAmount(TestSerializedType):
             amount.verify_xrp_value,
             invalid_amount_decimal,
         )
+
+    def test_assert_xrp_rejects_negative_by_default(self):
+        """A negative amount raises unless the caller opts in."""
+        self.assertRaises(XRPLBinaryCodecException, amount.verify_xrp_value, "-1000")
+
+    def test_assert_xrp_allow_negative_still_range_checks(self):
+        """Opting into signed XRP must not widen the accepted magnitude."""
+        for invalid_negative in ("-1e20", "-1e-7", "-1.234"):
+            with self.subTest(value=invalid_negative):
+                self.assertRaises(
+                    XRPLBinaryCodecException,
+                    amount.verify_xrp_value,
+                    invalid_negative,
+                    True,
+                )
 
     def test_assert_iou_is_valid(self):
         # { zero, pos, negative } * fractional, large, small
@@ -330,6 +359,79 @@ class TestAmount(TestSerializedType):
             parser = BinaryParser(serialized)
             amount_object = amount.Amount.from_parser(parser)
             self.assertEqual(amount_object.to_json(), json)
+
+    def test_from_value_signed_xrp(self):
+        """A signed field encodes both signs; the magnitude bytes are identical."""
+        for value, serialized in SIGNED_XRP_CASES:
+            with self.subTest(value=value):
+                amount_object = amount.Amount.from_value(value, _SIGNED_XRP_FIELD)
+                self.assertEqual(amount_object.to_hex(), serialized)
+
+    def test_negative_xrp_rejected_off_the_allowlist(self):
+        """Only allowlisted fields accept a negative XRP amount."""
+        # Default field: rejected, as it was before signed deltas existed.
+        self.assertRaises(XRPLBinaryCodecException, amount.Amount.from_value, "-100")
+        # A non-allowlisted named field is rejected too.
+        self.assertRaises(
+            XRPLBinaryCodecException, amount.Amount.from_value, "-100", "Amount"
+        )
+
+    def test_xrp_extremes(self):
+        """Both signs at 1 drop and at the maximum, and one drop past it."""
+        max_drops = "100000000000000000"
+        over_max = "100000000000000001"
+
+        for value, expected_hex in (
+            ("1", "4000000000000001"),
+            ("-1", "0000000000000001"),
+            (max_drops, "416345785D8A0000"),
+            ("-" + max_drops, "016345785D8A0000"),
+        ):
+            with self.subTest(value=value):
+                self.assertEqual(
+                    amount.Amount.from_value(value, _SIGNED_XRP_FIELD).to_hex(),
+                    expected_hex,
+                )
+
+        # ``from_value`` runs inside IOU_DECIMAL_CONTEXT, whose 16-digit
+        # precision rounds ``over_max`` down to the maximum unless the magnitude
+        # is taken with a context-independent operation.
+        for value in (over_max, "-" + over_max):
+            with self.subTest(value=value):
+                self.assertRaises(
+                    XRPLBinaryCodecException,
+                    amount.Amount.from_value,
+                    value,
+                    _SIGNED_XRP_FIELD,
+                )
+
+    def test_xrp_zero_is_never_negative(self):
+        """Zero has no sign on the wire: the "is positive" bit is always set."""
+        positive_zero = "4000000000000000"
+        self.assertEqual(
+            amount.Amount.from_value("0", _SIGNED_XRP_FIELD).to_hex(), positive_zero
+        )
+        self.assertEqual(
+            amount.Amount.from_value("-0", _SIGNED_XRP_FIELD).to_hex(), positive_zero
+        )
+
+    def test_xrp_round_trip_signed(self):
+        """Encoding then decoding a signed XRP amount returns the original string."""
+        for value in (
+            "0",
+            "1",
+            "-1",
+            "100",
+            "-100",
+            "20000000",
+            "-20000000",
+            "100000000000000000",
+            "-100000000000000000",
+        ):
+            with self.subTest(value=value):
+                serialized = amount.Amount.from_value(value, _SIGNED_XRP_FIELD)
+                decoded = amount.Amount.from_parser(BinaryParser(serialized.to_hex()))
+                self.assertEqual(decoded.to_json(), value)
 
     def test_to_json_mpt(self):
         for json, serialized in MPT_CASES:

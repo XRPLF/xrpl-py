@@ -22,6 +22,7 @@ NON_DELEGABLE_TRANSACTIONS = {
     TransactionType.DELEGATE_SET,
     TransactionType.ACCOUNT_DELETE,
     TransactionType.BATCH,
+    TransactionType.SPONSORSHIP_TRANSFER,
 }
 
 

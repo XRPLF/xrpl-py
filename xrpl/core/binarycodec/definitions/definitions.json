@@ -1949,6 +1949,16 @@
       }
     ],
     [
+      "FeeAmountDelta",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 34,
+        "type": "Amount"
+      }
+    ],
+    [
       "PublicKey",
       {
         "isSerialized": true,
@@ -2835,6 +2845,16 @@
         "isSigningField": true,
         "isVLEncoded": false,
         "nth": 1,
+        "type": "Int32"
+      }
+    ],
+    [
+      "RemainingOwnerCountDelta",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 2,
         "type": "Int32"
       }
     ],
@@ -3847,6 +3867,7 @@
     "MPTokenIssuance": {
       "lsfMPTCanClawback": 64,
       "lsfMPTCanEscrow": 8,
+      "lsfMPTCanHoldConfidentialBalance": 128,
       "lsfMPTCanLock": 2,
       "lsfMPTCanTrade": 16,
       "lsfMPTCanTransfer": 32,
@@ -3876,6 +3897,10 @@
     },
     "SignerList": {
       "lsfOneOwnerCount": 65536
+    },
+    "Sponsorship": {
+      "lsfSponsorshipRequireSignForFee": 65536,
+      "lsfSponsorshipRequireSignForReserve": 131072
     },
     "Vault": {
       "lsfVaultPrivate": 65536
@@ -4004,6 +4029,18 @@
       {
         "name": "FirstNFTokenSequence",
         "optionality": 1
+      },
+      {
+        "name": "SponsoredOwnerCount",
+        "optionality": 2
+      },
+      {
+        "name": "SponsoringOwnerCount",
+        "optionality": 2
+      },
+      {
+        "name": "SponsoringAccountCount",
+        "optionality": 2
       },
       {
         "name": "AMMID",
@@ -4640,6 +4677,30 @@
       {
         "name": "PreviousTxnLgrSeq",
         "optionality": 0
+      },
+      {
+        "name": "ConfidentialBalanceInbox",
+        "optionality": 1
+      },
+      {
+        "name": "ConfidentialBalanceSpending",
+        "optionality": 1
+      },
+      {
+        "name": "ConfidentialBalanceVersion",
+        "optionality": 2
+      },
+      {
+        "name": "IssuerEncryptedBalance",
+        "optionality": 1
+      },
+      {
+        "name": "AuditorEncryptedBalance",
+        "optionality": 1
+      },
+      {
+        "name": "HolderEncryptionKey",
+        "optionality": 1
       }
     ],
     "MPTokenIssuance": [
@@ -4698,6 +4759,18 @@
       {
         "name": "ReferenceHolding",
         "optionality": 1
+      },
+      {
+        "name": "IssuerEncryptionKey",
+        "optionality": 1
+      },
+      {
+        "name": "AuditorEncryptionKey",
+        "optionality": 1
+      },
+      {
+        "name": "ConfidentialOutstandingAmount",
+        "optionality": 2
       }
     ],
     "NFTokenOffer": [
@@ -5006,6 +5079,14 @@
       {
         "name": "HighQualityOut",
         "optionality": 1
+      },
+      {
+        "name": "HighSponsor",
+        "optionality": 1
+      },
+      {
+        "name": "LowSponsor",
+        "optionality": 1
       }
     ],
     "SignerList": [
@@ -5035,6 +5116,44 @@
       },
       {
         "name": "PreviousTxnLgrSeq",
+        "optionality": 0
+      }
+    ],
+    "Sponsorship": [
+      {
+        "name": "PreviousTxnID",
+        "optionality": 0
+      },
+      {
+        "name": "PreviousTxnLgrSeq",
+        "optionality": 0
+      },
+      {
+        "name": "Owner",
+        "optionality": 0
+      },
+      {
+        "name": "Sponsee",
+        "optionality": 0
+      },
+      {
+        "name": "FeeAmount",
+        "optionality": 1
+      },
+      {
+        "name": "MaxFee",
+        "optionality": 1
+      },
+      {
+        "name": "RemainingOwnerCount",
+        "optionality": 2
+      },
+      {
+        "name": "OwnerNode",
+        "optionality": 0
+      },
+      {
+        "name": "SponseeNode",
         "optionality": 0
       }
     ],
@@ -5202,6 +5321,10 @@
       {
         "name": "Flags",
         "optionality": 0
+      },
+      {
+        "name": "Sponsor",
+        "optionality": 1
       }
     ]
   },
@@ -5297,6 +5420,7 @@
     "MPTokenIssuanceCreate": {
       "tfMPTCanClawback": 64,
       "tfMPTCanEscrow": 8,
+      "tfMPTCanHoldConfidentialBalance": 128,
       "tfMPTCanLock": 2,
       "tfMPTCanTrade": 16,
       "tfMPTCanTransfer": 32,
@@ -5304,6 +5428,13 @@
     },
     "MPTokenIssuanceSet": {
       "tfMPTLock": 1,
+      "tfMPTSetCanClawback": 128,
+      "tfMPTSetCanEscrow": 16,
+      "tfMPTSetCanHoldConfidentialBalance": 256,
+      "tfMPTSetCanLock": 4,
+      "tfMPTSetCanTrade": 32,
+      "tfMPTSetCanTransfer": 64,
+      "tfMPTSetRequireAuth": 8,
       "tfMPTUnlock": 2
     },
     "NFTokenCreateOffer": {
@@ -5325,11 +5456,24 @@
     "Payment": {
       "tfLimitQuality": 262144,
       "tfNoRippleDirect": 65536,
-      "tfPartialPayment": 131072
+      "tfPartialPayment": 131072,
+      "tfSponsorCreatedAccount": 524288
     },
     "PaymentChannelClaim": {
       "tfClose": 131072,
       "tfRenew": 65536
+    },
+    "SponsorshipSet": {
+      "tfDeleteObject": 1048576,
+      "tfSponsorshipClearRequireSignForFee": 131072,
+      "tfSponsorshipClearRequireSignForReserve": 524288,
+      "tfSponsorshipSetRequireSignForFee": 65536,
+      "tfSponsorshipSetRequireSignForReserve": 262144
+    },
+    "SponsorshipTransfer": {
+      "tfSponsorshipCreate": 131072,
+      "tfSponsorshipEnd": 65536,
+      "tfSponsorshipReassign": 262144
     },
     "TrustSet": {
       "tfClearDeepFreeze": 8388608,
@@ -5602,6 +5746,144 @@
       },
       {
         "name": "Holder",
+        "optionality": 1
+      }
+    ],
+    "ConfidentialMPTClawback": [
+      {
+        "name": "MPTokenIssuanceID",
+        "optionality": 0
+      },
+      {
+        "name": "Holder",
+        "optionality": 0
+      },
+      {
+        "name": "MPTAmount",
+        "optionality": 0
+      },
+      {
+        "name": "ZKProof",
+        "optionality": 0
+      }
+    ],
+    "ConfidentialMPTConvert": [
+      {
+        "name": "MPTokenIssuanceID",
+        "optionality": 0
+      },
+      {
+        "name": "MPTAmount",
+        "optionality": 0
+      },
+      {
+        "name": "HolderEncryptionKey",
+        "optionality": 1
+      },
+      {
+        "name": "HolderEncryptedAmount",
+        "optionality": 0
+      },
+      {
+        "name": "IssuerEncryptedAmount",
+        "optionality": 0
+      },
+      {
+        "name": "AuditorEncryptedAmount",
+        "optionality": 1
+      },
+      {
+        "name": "BlindingFactor",
+        "optionality": 0
+      },
+      {
+        "name": "ZKProof",
+        "optionality": 1
+      }
+    ],
+    "ConfidentialMPTConvertBack": [
+      {
+        "name": "MPTokenIssuanceID",
+        "optionality": 0
+      },
+      {
+        "name": "MPTAmount",
+        "optionality": 0
+      },
+      {
+        "name": "HolderEncryptedAmount",
+        "optionality": 0
+      },
+      {
+        "name": "IssuerEncryptedAmount",
+        "optionality": 0
+      },
+      {
+        "name": "AuditorEncryptedAmount",
+        "optionality": 1
+      },
+      {
+        "name": "BlindingFactor",
+        "optionality": 0
+      },
+      {
+        "name": "ZKProof",
+        "optionality": 0
+      },
+      {
+        "name": "BalanceCommitment",
+        "optionality": 0
+      }
+    ],
+    "ConfidentialMPTMergeInbox": [
+      {
+        "name": "MPTokenIssuanceID",
+        "optionality": 0
+      }
+    ],
+    "ConfidentialMPTSend": [
+      {
+        "name": "MPTokenIssuanceID",
+        "optionality": 0
+      },
+      {
+        "name": "Destination",
+        "optionality": 0
+      },
+      {
+        "name": "DestinationTag",
+        "optionality": 1
+      },
+      {
+        "name": "SenderEncryptedAmount",
+        "optionality": 0
+      },
+      {
+        "name": "DestinationEncryptedAmount",
+        "optionality": 0
+      },
+      {
+        "name": "IssuerEncryptedAmount",
+        "optionality": 0
+      },
+      {
+        "name": "AuditorEncryptedAmount",
+        "optionality": 1
+      },
+      {
+        "name": "ZKProof",
+        "optionality": 0
+      },
+      {
+        "name": "AmountCommitment",
+        "optionality": 0
+      },
+      {
+        "name": "BalanceCommitment",
+        "optionality": 0
+      },
+      {
+        "name": "CredentialIDs",
         "optionality": 1
       }
     ],
@@ -6004,6 +6286,14 @@
       {
         "name": "ImmutableFlags",
         "optionality": 1
+      },
+      {
+        "name": "IssuerEncryptionKey",
+        "optionality": 1
+      },
+      {
+        "name": "AuditorEncryptionKey",
+        "optionality": 1
       }
     ],
     "NFTokenAcceptOffer": [
@@ -6332,6 +6622,38 @@
         "optionality": 1
       }
     ],
+    "SponsorshipSet": [
+      {
+        "name": "CounterpartySponsor",
+        "optionality": 1
+      },
+      {
+        "name": "Sponsee",
+        "optionality": 1
+      },
+      {
+        "name": "FeeAmountDelta",
+        "optionality": 1
+      },
+      {
+        "name": "MaxFee",
+        "optionality": 1
+      },
+      {
+        "name": "RemainingOwnerCountDelta",
+        "optionality": 1
+      }
+    ],
+    "SponsorshipTransfer": [
+      {
+        "name": "ObjectID",
+        "optionality": 1
+      },
+      {
+        "name": "Sponsee",
+        "optionality": 1
+      }
+    ],
     "TicketCreate": [
       {
         "name": "TicketCount",
@@ -6414,6 +6736,10 @@
       {
         "name": "VaultID",
         "optionality": 0
+      },
+      {
+        "name": "MemoData",
+        "optionality": 1
       }
     ],
     "VaultDeposit": [
@@ -6717,6 +7043,18 @@
       },
       {
         "name": "Delegate",
+        "optionality": 1
+      },
+      {
+        "name": "Sponsor",
+        "optionality": 1
+      },
+      {
+        "name": "SponsorFlags",
+        "optionality": 1
+      },
+      {
+        "name": "SponsorSignature",
         "optionality": 1
       }
     ]
@@ -7036,5 +7374,5 @@
     "Vector256": 19,
     "XChainBridge": 25
   },
-  "hash": "C685734F5FEB756693B4BB978BBB3A158A65652E71EEB2977068B0D680689213"
+  "hash": "F3DCCAD774156538A6AB3E6003A41273D5AE394A90989204838AE52A006F245B"
 }

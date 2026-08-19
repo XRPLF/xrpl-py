@@ -6,7 +6,7 @@ See `Amount Fields <https://xrpl.org/serialization.html#amount-fields>`_
 from __future__ import annotations
 
 from decimal import MAX_PREC, Context, Decimal, InvalidOperation, localcontext
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Dict, Optional, Set, Type, Union
 
 from typing_extensions import Final, Self
 
@@ -37,6 +37,15 @@ _NATIVE_AMOUNT_BYTE_LENGTH: Final[int] = 8
 _CURRENCY_AMOUNT_BYTE_LENGTH: Final[int] = 48
 _MPT_MASK: Final[Decimal] = Decimal(0x8000000000000000)
 
+# Amount fields whose XRP value may be negative. A signed XRP amount is
+# meaningful only for delta fields -- SponsorshipSet's FeeAmountDelta adjusts a
+# balance up or down -- so every other field rejects one at encode time, exactly
+# as it did before signed deltas existed. ``STObject`` passes the field name to
+# ``Amount.from_value`` for the fields listed here to permit negative values.
+SIGNED_XRP_FIELDS: Final[Set[str]] = {
+    "FeeAmountDelta",
+}
+
 
 def _contains_decimal(string: str) -> bool:
     """Returns True if the given string contains a decimal point character.
@@ -50,13 +59,15 @@ def _contains_decimal(string: str) -> bool:
     return string.find(".") == -1
 
 
-def verify_xrp_value(xrp_value: str) -> None:
+def verify_xrp_value(xrp_value: str, allow_negative: bool = False) -> None:
     """
     Validates the format of an XRP amount.
     Raises if value is invalid.
 
     Args:
         xrp_value: A string representing an amount of XRP.
+        allow_negative: Whether a negative amount is permitted. Off by default;
+            enabled for the fields in ``SIGNED_XRP_FIELDS``.
 
     Returns:
         None, but raises if xrp_value is not a valid XRP amount.
@@ -73,7 +84,12 @@ def verify_xrp_value(xrp_value: str) -> None:
     # Zero is less than both the min and max XRP amounts but is valid.
     if decimal.is_zero():
         return
-    if (decimal.compare(_MIN_XRP) == -1) or (decimal.compare(_MAX_DROPS) == 1):
+    if decimal.is_signed() and not allow_negative:
+        raise XRPLBinaryCodecException(f"{xrp_value} is an invalid XRP amount.")
+    # Range-check the magnitude. `copy_abs` not `abs`: under the caller's
+    # IOU_DECIMAL_CONTEXT `abs` rounds to 16 digits, admitting 1e17 + 1 drops.
+    magnitude = decimal.copy_abs()
+    if (magnitude.compare(_MIN_XRP) == -1) or (magnitude.compare(_MAX_DROPS) == 1):
         raise XRPLBinaryCodecException(f"{xrp_value} is an invalid XRP amount.")
 
 
@@ -226,19 +242,24 @@ def _serialize_issued_currency_value(value: str) -> bytes:
     return serial.to_bytes(8, byteorder="big", signed=False)
 
 
-def _serialize_xrp_amount(value: str) -> bytes:
+def _serialize_xrp_amount(value: str, allow_negative: bool = False) -> bytes:
     """Serializes an XRP amount.
 
     Args:
         value: A string representing a quantity of XRP.
+        allow_negative: Whether a negative amount is permitted. Off by default;
+            enabled only for the signed delta fields in ``SIGNED_XRP_FIELDS``.
 
     Returns:
         The bytes representing the serialized XRP amount.
     """
-    verify_xrp_value(value)
-    # set the "is positive" bit (this is backwards from usual two's complement!)
-    value_with_pos_bit = int(value) | _POS_SIGN_BIT_MASK
-    return value_with_pos_bit.to_bytes(8, byteorder="big")
+    verify_xrp_value(value, allow_negative)
+    # The sign is a flag bit, not two's complement (rippled STAmount::add):
+    # bits 0-61 hold the magnitude, bit 62 is set when the amount is not negative.
+    drops = int(value)
+    magnitude = abs(drops)
+    sign_bit = _POS_SIGN_BIT_MASK if drops >= 0 else 0
+    return (magnitude | sign_bit).to_bytes(8, byteorder="big")
 
 
 def _serialize_issued_currency_amount(value: Dict[str, str]) -> bytes:
@@ -300,7 +321,9 @@ class Amount(SerializedType):
         super().__init__(buffer)
 
     @classmethod
-    def from_value(cls: Type[Self], value: Union[str, Dict[str, str]]) -> Self:
+    def from_value(
+        cls: Type[Self], value: Union[str, Dict[str, str]], field_name: str = ""
+    ) -> Self:
         """
         Construct an Amount from an issued currency amount or (for XRP),
         a string amount.
@@ -309,6 +332,8 @@ class Amount(SerializedType):
 
         Args:
             value: The value from which to construct an Amount.
+            field_name: The field this amount belongs to. A negative XRP amount
+                is accepted only for the fields in ``SIGNED_XRP_FIELDS``.
 
         Returns:
             An Amount object.
@@ -318,7 +343,9 @@ class Amount(SerializedType):
         """
         with localcontext(IOU_DECIMAL_CONTEXT):
             if isinstance(value, str):
-                return cls(_serialize_xrp_amount(value))
+                return cls(
+                    _serialize_xrp_amount(value, field_name in SIGNED_XRP_FIELDS)
+                )
             if IssuedCurrencyAmount.is_dict_of_model(value):
                 return cls(_serialize_issued_currency_amount(value))
             if MPTAmount.is_dict_of_model(value):
