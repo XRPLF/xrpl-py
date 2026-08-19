@@ -13,7 +13,7 @@
 #
 # If no argument is provided, it will prompt you to choose.
 
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
@@ -78,8 +78,8 @@ clean_stale_artifacts() {
 # Download from XRPLF/mpt-crypto
 # ──────────────────────────────────────────────────────────────────────────
 download_from_mpt_crypto() {
-    local RUN_ID="$1"
-    local VERSION="$2"
+    local RUN_ID="${1:-}"
+    local VERSION="${2:-}"
     local ALLOW_UNVERIFIED="${3:-false}"
 
     echo ""
