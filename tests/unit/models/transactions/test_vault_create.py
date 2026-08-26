@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from xrpl.models.currencies import IssuedCurrency
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.transactions.vault_create import VaultCreate
+from xrpl.models.transactions.vault_create import VaultCreate, VaultKind
 from xrpl.utils import str_to_hex
 
 _ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
@@ -21,6 +21,68 @@ class TestVaultCreate(TestCase):
             scale=4,
         )
         self.assertTrue(tx.is_valid())
+
+    def test_valid_close_ended_vault(self):
+        # XLS-587: close-ended vault with subscription/redemption windows.
+        tx = VaultCreate(
+            account=_ACCOUNT,
+            asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+            assets_maximum="1000",
+            vault_kind=VaultKind.CLOSED,
+            subscription_date=800000000,
+            redemption_date=810000000,
+        )
+        self.assertTrue(tx.is_valid())
+        tx_json = tx.to_xrpl()
+        self.assertEqual(tx_json["VaultKind"], 1)
+        self.assertEqual(tx_json["SubscriptionDate"], 800000000)
+        self.assertEqual(tx_json["RedemptionDate"], 810000000)
+
+    def test_valid_open_ended_vault_kind_int(self):
+        # vault_kind accepts a plain int as well as the VaultKind enum.
+        tx = VaultCreate(
+            account=_ACCOUNT,
+            asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+            vault_kind=0,
+        )
+        self.assertTrue(tx.is_valid())
+        self.assertEqual(tx.to_xrpl()["VaultKind"], 0)
+
+    def test_close_ended_vault_requires_both_dates(self):
+        with self.assertRaises(XRPLModelException) as e:
+            VaultCreate(
+                account=_ACCOUNT,
+                asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                vault_kind=VaultKind.CLOSED,
+                subscription_date=800000000,
+            )
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "vault_kind": "A close-ended vault requires both subscription_date "
+                    "and redemption_date."
+                }
+            ),
+        )
+
+    def test_open_ended_vault_forbids_dates(self):
+        with self.assertRaises(XRPLModelException) as e:
+            VaultCreate(
+                account=_ACCOUNT,
+                asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                subscription_date=800000000,
+                redemption_date=810000000,
+            )
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "vault_kind": "subscription_date and redemption_date can only be "
+                    "set on a close-ended vault (vault_kind=1)."
+                }
+            ),
+        )
 
     def test_long_data_field(self):
         with self.assertRaises(XRPLModelException) as e:

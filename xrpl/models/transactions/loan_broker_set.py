@@ -53,8 +53,8 @@ class LoanBrokerSet(Transaction):
 
     cover_rate_liquidation: Optional[int] = None
     """
-    The 1/10th basis point of minimum required first loss capital liquidated to cover a
-    Loan default. Valid values are between 0 and 100000 inclusive.
+    The 1/10th basis point of the minimum first-loss capital cover that is liquidated
+    on a loan default. Valid values are between 0 and 100000 inclusive.
     """
 
     transaction_type: TransactionType = field(
@@ -100,6 +100,7 @@ class LoanBrokerSet(Transaction):
             errors["LoanBrokerSet:cover_rate_liquidation"] = (
                 "Cover rate liquidation must be between 0 and 100_000 inclusive."
             )
+
         if self.debt_maximum is not None and (
             int(self.debt_maximum) < 0 or int(self.debt_maximum) > self.MAX_DEBT_MAXIMUM
         ):

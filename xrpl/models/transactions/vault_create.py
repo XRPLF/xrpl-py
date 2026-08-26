@@ -57,6 +57,16 @@ class WithdrawalPolicy(int, Enum):
     """Requests are processed on a first-come-first-serve basis."""
 
 
+class VaultKind(int, Enum):
+    """The kind of Vault (XLS-587, close-ended vaults)."""
+
+    OPEN = 0
+    """An open-ended vault: shares can be redeemed at any time."""
+    CLOSED = 1
+    """A close-ended vault: deposits and redemptions are restricted to the
+    subscription and redemption periods respectively."""
+
+
 @dataclass(frozen=True, kw_only=True)
 class VaultCreate(Transaction):
     """The VaultCreate transaction creates a new Vault object."""
@@ -100,6 +110,18 @@ class VaultCreate(Transaction):
                                                             come-first-serve basis.
     """
 
+    vault_kind: Optional[Union[int, VaultKind]] = None
+    """(XLS-587) The kind of Vault: 0 for an open-ended vault (the default) or 1 for a
+    close-ended vault. Can only be set at Vault creation."""
+
+    subscription_date: Optional[int] = None
+    """(XLS-587, close-ended vaults only) The time, in seconds since the Ripple Epoch,
+    up to which deposits into the Vault are accepted."""
+
+    redemption_date: Optional[int] = None
+    """(XLS-587, close-ended vaults only) The time, in seconds since the Ripple Epoch,
+    at which shares may begin to be redeemed from the Vault."""
+
     transaction_type: TransactionType = field(
         default=TransactionType.VAULT_CREATE,
         init=False,
@@ -138,6 +160,24 @@ class VaultCreate(Transaction):
                 errors["VaultCreate"] = (
                     "Scale field is lower than the allowed limit (0)"
                 )
+
+        # XLS-587 close-ended vault rules. A close-ended vault (VaultKind == 1)
+        # requires both a subscription and a redemption date; an open-ended vault
+        # (the default) must not carry either date.
+        is_closed_ended = self.vault_kind == VaultKind.CLOSED
+        has_subscription = self.subscription_date is not None
+        has_redemption = self.redemption_date is not None
+        if is_closed_ended:
+            if not (has_subscription and has_redemption):
+                errors["vault_kind"] = (
+                    "A close-ended vault requires both subscription_date and "
+                    "redemption_date."
+                )
+        elif has_subscription or has_redemption:
+            errors["vault_kind"] = (
+                "subscription_date and redemption_date can only be set on a "
+                "close-ended vault (vault_kind=1)."
+            )
 
         if self.mptoken_metadata is not None:
             # Lazy import to avoid circular dependency
