@@ -348,7 +348,7 @@ def validate_mptoken_metadata(input_hex: str) -> List[str]:
     """
     validation_messages: List[str] = []
 
-    if bool(HEX_REGEX.fullmatch(input_hex)) is False:
+    if len(input_hex) % 2 or not HEX_REGEX.fullmatch(input_hex):
         validation_messages.append("MPTokenMetadata must be in hex format.")
         return validation_messages
 

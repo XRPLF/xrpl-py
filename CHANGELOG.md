@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Fixed
+
+- Return a hex-format validation message instead of raising `ValueError` when `validate_mptoken_metadata` receives an odd-length hex string.
+- Reject odd-length `mptoken_metadata` with `XRPLModelException` in `MPTokenIssuanceCreate`, `MPTokenIssuanceSet`, and `VaultCreate` before serialization.
+
 ## [[5.1.0]]
 
 ### Added
