@@ -297,7 +297,9 @@ class MPTokenIssuanceSet(Transaction):
                     "Metadata must be a hex string less than 1024 bytes "
                     "(alternatively, 2048 hex characters)."
                 )
-            elif not HEX_REGEX.fullmatch(self.mptoken_metadata):
+            elif len(self.mptoken_metadata) % 2 or not HEX_REGEX.fullmatch(
+                self.mptoken_metadata
+            ):
                 errors["mptoken_metadata"] = "Metadata must be a valid hex string"
             else:
                 # Lazy import to avoid circular dependency
