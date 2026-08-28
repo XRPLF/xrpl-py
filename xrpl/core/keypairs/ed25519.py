@@ -15,6 +15,10 @@ from xrpl.core.keypairs.exceptions import XRPLKeypairsException
 from xrpl.core.keypairs.helpers import sha512_first_half
 
 PREFIX: Final[str] = "ED"
+
+# String keys must be _KEY_LENGTH long
+_KEY_LENGTH: Final[int] = 64
+
 _CURVE: Final[Curve] = Curve.get_curve("Ed25519")
 _SIGNER: Final[EDDSA] = EDDSA(sha512)
 
@@ -97,6 +101,4 @@ class ED25519(CryptoImplementation):
 
     @classmethod
     def _format_key(cls: Type[Self], keystr: str) -> str:
-        if len(keystr) < 64:
-            keystr = keystr.zfill(64)
-        return (PREFIX + keystr).upper()
+        return (PREFIX + keystr.zfill(_KEY_LENGTH)).upper()
