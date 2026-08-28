@@ -69,7 +69,11 @@ class WebsocketClient(SyncClient, WebsocketBase):
     """
 
     def __init__(
-        self: Self, url: str, timeout: Optional[Union[int, float]] = None
+        self: Self,
+        url: str,
+        timeout: Optional[Union[int, float]] = None,
+        *,
+        headers: Optional[Dict[str, str]] = None,
     ) -> None:
         """
         Constructs a WebsocketClient.
@@ -79,11 +83,13 @@ class WebsocketClient(SyncClient, WebsocketBase):
             timeout: Maximum seconds to wait for a new message when
                 iterating. A value of 0 or None will result in no limit.
                 If this limit is met, iteration will stop.
+            headers: Optional default headers to include with the connection
+                handshake (e.g. an API key or Dhali payment-claim).
         """
         self.timeout = timeout
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._thread: Optional[Thread] = None
-        super().__init__(url)
+        super().__init__(url, headers=headers)
 
     def is_open(self: Self) -> bool:
         """
