@@ -19,7 +19,6 @@ from xrpl.models.response import Response
 class AsyncWebsocketClient(AsyncClient, WebsocketBase):
     """
     An async client for interacting with the rippled WebSocket API.
-
     Instead of calling ``open`` and ``close`` yourself, you
     can use a context like so::
 
@@ -137,7 +136,7 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
                         streams=[StreamParameter.LEDGER],
                     ))
                     print("Unsubscribed from the ledger!")
-                except:
+                except Exception:
                     # if you wish you perform some logic when the websocket
                     # connection closes due to error, you can catch and run
                     # whatever you need to here. this is equivalent to the
@@ -176,7 +175,11 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
             while True:
                 try:
                     await long_websocket_task()
-                except:
+                except KeyboardInterrupt:
+                    # allow crtl-c to actually cancel
+                    raise
+                except Exception:
+                    # anything else reconnects
                     print("Lost connection! Reconnecting")
 
 
@@ -190,15 +193,18 @@ class AsyncWebsocketClient(AsyncClient, WebsocketBase):
                 # set up a listener task
                 listener = asyncio.create_task(on_message(client))
 
-                # subscribe to the ledger
-                await client.send(Subscribe(
-                    streams=[StreamParameter.LEDGER],
-                ))
+                try:
+                    # subscribe to the ledger
+                    await client.send(Subscribe(
+                        streams=[StreamParameter.LEDGER],
+                    ))
 
-                # sleep infinitely until the connection closes on us
-                while client.is_open():
-                    await asyncio.sleep(0)
-                listener.cancel()
+                    # sleep infinitely until the connection closes on us
+                    while client.is_open():
+                        await asyncio.sleep(0)
+                finally:
+                    # whether or not there is an error, cancel the listener
+                    listener.cancel()
 
 
         async def main():
