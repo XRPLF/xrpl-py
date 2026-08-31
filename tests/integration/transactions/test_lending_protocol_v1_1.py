@@ -14,11 +14,10 @@ prerequisite ``SingleAssetVault``) amendment enabled (see
 ``.ci-config/xrpld.cfg``).
 """
 
-from datetime import datetime, timezone
-
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     fund_wallet_async,
+    get_validated_close_time_async,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
@@ -40,7 +39,7 @@ from xrpl.models.transactions.vault_create import (
 from xrpl.models.transactions.vault_delete import VaultDelete
 from xrpl.models.transactions.vault_deposit import VaultDeposit
 from xrpl.models.transactions.vault_withdraw import VaultWithdraw
-from xrpl.utils import datetime_to_ripple_time, str_to_hex
+from xrpl.utils import str_to_hex
 from xrpl.wallet import Wallet
 
 
@@ -52,9 +51,12 @@ class TestLendingProtocolV1_1(IntegrationTestCase):
         await fund_wallet_async(vault_owner)
 
         # A close-ended vault requires a future subscription date and a
-        # redemption date at least kMinInvestmentPeriod (60s) later.
-        now = datetime_to_ripple_time(datetime.now(timezone.utc))
-        subscription_date = now + 300
+        # redemption date at least kMinInvestmentPeriod (60s) later. Derive the
+        # dates from the ledger's validated close time -- the standalone clock is
+        # not in sync with the local system clock, so a date based on
+        # datetime.now() can already be in the ledger's past (tecEXPIRED).
+        close_time = await get_validated_close_time_async(client)
+        subscription_date = close_time + 300
         redemption_date = subscription_date + 3600
 
         response = await sign_and_reliable_submission_async(
