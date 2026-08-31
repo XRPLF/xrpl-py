@@ -21,6 +21,14 @@ from xrpl.models.utils import (
 VAULT_MAX_DATA_LENGTH = 256 * 2
 VAULT_MAX_DOMAIN_ID_LENGTH = 32 * 2
 
+MIN_INVESTMENT_PERIOD = 60
+"""(XLS-587) Minimum length, in seconds, of a close-ended vault's investment period
+(``redemption_date - subscription_date``)."""
+
+MAX_INVESTMENT_PERIOD = 946708560
+"""(XLS-587) Exclusive upper bound, in seconds, on a close-ended vault's investment
+period (30 Gregorian years)."""
+
 
 class VaultCreateFlag(int, Enum):
     """Flags for the VaultCreate transaction."""
@@ -172,6 +180,15 @@ class VaultCreate(Transaction):
                 errors["vault_kind"] = (
                     "A close-ended vault requires both subscription_date and "
                     "redemption_date."
+                )
+            elif not (
+                MIN_INVESTMENT_PERIOD
+                <= self.redemption_date - self.subscription_date  # type: ignore
+                < MAX_INVESTMENT_PERIOD
+            ):
+                errors["redemption_date"] = (
+                    "redemption_date - subscription_date must be within "
+                    f"[{MIN_INVESTMENT_PERIOD}, {MAX_INVESTMENT_PERIOD}) seconds."
                 )
         elif has_subscription or has_redemption:
             errors["vault_kind"] = (

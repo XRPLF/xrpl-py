@@ -84,6 +84,76 @@ class TestVaultCreate(TestCase):
             ),
         )
 
+    def test_close_ended_vault_min_investment_period_boundary(self):
+        # XLS-587: a gap of exactly MIN_INVESTMENT_PERIOD (60s) is valid (inclusive).
+        tx = VaultCreate(
+            account=_ACCOUNT,
+            asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+            vault_kind=VaultKind.CLOSED,
+            subscription_date=800000000,
+            redemption_date=800000060,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_close_ended_vault_gap_too_small(self):
+        with self.assertRaises(XRPLModelException) as e:
+            VaultCreate(
+                account=_ACCOUNT,
+                asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                vault_kind=VaultKind.CLOSED,
+                subscription_date=800000000,
+                redemption_date=800000030,
+            )
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "redemption_date": "redemption_date - subscription_date must be "
+                    "within [60, 946708560) seconds."
+                }
+            ),
+        )
+
+    def test_close_ended_vault_redemption_before_subscription(self):
+        # A negative gap (redemption_date < subscription_date) is rejected.
+        with self.assertRaises(XRPLModelException) as e:
+            VaultCreate(
+                account=_ACCOUNT,
+                asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                vault_kind=VaultKind.CLOSED,
+                subscription_date=810000000,
+                redemption_date=800000000,
+            )
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "redemption_date": "redemption_date - subscription_date must be "
+                    "within [60, 946708560) seconds."
+                }
+            ),
+        )
+
+    def test_close_ended_vault_gap_too_large(self):
+        # A gap of exactly MAX_INVESTMENT_PERIOD is out of range (bound is half-open).
+        with self.assertRaises(XRPLModelException) as e:
+            VaultCreate(
+                account=_ACCOUNT,
+                asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                vault_kind=VaultKind.CLOSED,
+                subscription_date=0,
+                redemption_date=946708560,
+            )
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "redemption_date": "redemption_date - subscription_date must be "
+                    "within [60, 946708560) seconds."
+                }
+            ),
+        )
+
     def test_long_data_field(self):
         with self.assertRaises(XRPLModelException) as e:
             VaultCreate(
