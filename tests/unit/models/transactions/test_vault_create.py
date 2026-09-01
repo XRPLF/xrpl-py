@@ -154,6 +154,65 @@ class TestVaultCreate(TestCase):
             ),
         )
 
+    def test_unsupported_vault_kind(self):
+        # An unsupported numeric VaultKind (e.g. 2) is rejected.
+        with self.assertRaises(XRPLModelException) as e:
+            VaultCreate(
+                account=_ACCOUNT,
+                asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                vault_kind=2,
+            )
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {"vault_kind": "vault_kind must be 0 (open-ended) or 1 (close-ended)."}
+            ),
+        )
+
+    def test_nan_subscription_date(self):
+        # A NaN subscription_date is rejected (arrives as a float, not an int).
+        with self.assertRaises(XRPLModelException) as e:
+            VaultCreate(
+                account=_ACCOUNT,
+                asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                vault_kind=VaultKind.CLOSED,
+                subscription_date=float("nan"),
+                redemption_date=810000000,
+            )
+        self.assertEqual(
+            e.exception.args[0],
+            str({"subscription_date": "subscription_date must be an integer."}),
+        )
+
+    def test_nan_redemption_date(self):
+        with self.assertRaises(XRPLModelException) as e:
+            VaultCreate(
+                account=_ACCOUNT,
+                asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                vault_kind=VaultKind.CLOSED,
+                subscription_date=800000000,
+                redemption_date=float("nan"),
+            )
+        self.assertEqual(
+            e.exception.args[0],
+            str({"redemption_date": "redemption_date must be an integer."}),
+        )
+
+    def test_non_integer_redemption_date(self):
+        # A fractional redemption_date is rejected.
+        with self.assertRaises(XRPLModelException) as e:
+            VaultCreate(
+                account=_ACCOUNT,
+                asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                vault_kind=VaultKind.CLOSED,
+                subscription_date=800000000,
+                redemption_date=810000000.5,
+            )
+        self.assertEqual(
+            e.exception.args[0],
+            str({"redemption_date": "redemption_date must be an integer."}),
+        )
+
     def test_long_data_field(self):
         with self.assertRaises(XRPLModelException) as e:
             VaultCreate(

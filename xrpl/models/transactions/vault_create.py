@@ -30,6 +30,17 @@ MAX_INVESTMENT_PERIOD = 946708560
 period (30 Gregorian years)."""
 
 
+def _is_integer(value: object) -> bool:
+    """Return whether ``value`` is a genuine integer.
+
+    Mirrors JavaScript's ``Number.isInteger``: rejects ``NaN``, ``Infinity`` and
+    fractional values, all of which arrive in Python as ``float`` and would
+    otherwise slip past the ``Optional[int]`` type hint at runtime. ``bool`` is a
+    subclass of ``int`` and is excluded.
+    """
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
 class VaultCreateFlag(int, Enum):
     """Flags for the VaultCreate transaction."""
 
@@ -169,32 +180,60 @@ class VaultCreate(Transaction):
                     "Scale field is lower than the allowed limit (0)"
                 )
 
+        # XLS-587 field-type guards (matching the xrpl.js sister PR): reject an
+        # unsupported vault_kind and non-integer date fields (NaN, Infinity,
+        # fractional) before the close-ended rules interpret them.
+        vault_kind_is_valid = self.vault_kind is None or self.vault_kind in (
+            VaultKind.OPEN,
+            VaultKind.CLOSED,
+        )
+        if not vault_kind_is_valid:
+            errors["vault_kind"] = (
+                "vault_kind must be 0 (open-ended) or 1 (close-ended)."
+            )
+        subscription_is_int = self.subscription_date is None or _is_integer(
+            self.subscription_date
+        )
+        redemption_is_int = self.redemption_date is None or _is_integer(
+            self.redemption_date
+        )
+        if not subscription_is_int:
+            errors["subscription_date"] = "subscription_date must be an integer."
+        if not redemption_is_int:
+            errors["redemption_date"] = "redemption_date must be an integer."
+
         # XLS-587 close-ended vault rules. A close-ended vault (VaultKind == 1)
         # requires both a subscription and a redemption date; an open-ended vault
-        # (the default) must not carry either date.
-        is_closed_ended = self.vault_kind == VaultKind.CLOSED
+        # (the default) must not carry either date. Only interpreted once the
+        # field-type guards above pass, to avoid contradictory messages.
         has_subscription = self.subscription_date is not None
         has_redemption = self.redemption_date is not None
-        if is_closed_ended:
-            if not (has_subscription and has_redemption):
+        if vault_kind_is_valid:
+            is_closed_ended = self.vault_kind == VaultKind.CLOSED
+            if is_closed_ended:
+                if not (has_subscription and has_redemption):
+                    errors["vault_kind"] = (
+                        "A close-ended vault requires both subscription_date and "
+                        "redemption_date."
+                    )
+                elif (
+                    subscription_is_int
+                    and redemption_is_int
+                    and not (
+                        MIN_INVESTMENT_PERIOD
+                        <= self.redemption_date - self.subscription_date
+                        < MAX_INVESTMENT_PERIOD
+                    )
+                ):
+                    errors["redemption_date"] = (
+                        "redemption_date - subscription_date must be within "
+                        f"[{MIN_INVESTMENT_PERIOD}, {MAX_INVESTMENT_PERIOD}) seconds."
+                    )
+            elif has_subscription or has_redemption:
                 errors["vault_kind"] = (
-                    "A close-ended vault requires both subscription_date and "
-                    "redemption_date."
+                    "subscription_date and redemption_date can only be set on a "
+                    "close-ended vault (vault_kind=1)."
                 )
-            elif not (
-                MIN_INVESTMENT_PERIOD
-                <= self.redemption_date - self.subscription_date  # type: ignore
-                < MAX_INVESTMENT_PERIOD
-            ):
-                errors["redemption_date"] = (
-                    "redemption_date - subscription_date must be within "
-                    f"[{MIN_INVESTMENT_PERIOD}, {MAX_INVESTMENT_PERIOD}) seconds."
-                )
-        elif has_subscription or has_redemption:
-            errors["vault_kind"] = (
-                "subscription_date and redemption_date can only be set on a "
-                "close-ended vault (vault_kind=1)."
-            )
 
         if self.mptoken_metadata is not None:
             # Lazy import to avoid circular dependency
