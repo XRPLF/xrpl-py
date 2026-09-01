@@ -85,13 +85,13 @@ class TestVaultCreate(TestCase):
         )
 
     def test_close_ended_vault_min_investment_period_boundary(self):
-        # XLS-587: a gap of exactly MIN_INVESTMENT_PERIOD (60s) is valid (inclusive).
+        # XLS-587: a gap of exactly MIN_INVESTMENT_PERIOD (180s) is valid (inclusive).
         tx = VaultCreate(
             account=_ACCOUNT,
             asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
             vault_kind=VaultKind.CLOSED,
             subscription_date=800000000,
-            redemption_date=800000060,
+            redemption_date=800000180,
         )
         self.assertTrue(tx.is_valid())
 
@@ -102,14 +102,14 @@ class TestVaultCreate(TestCase):
                 asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
                 vault_kind=VaultKind.CLOSED,
                 subscription_date=800000000,
-                redemption_date=800000030,
+                redemption_date=800000179,
             )
         self.assertEqual(
             e.exception.args[0],
             str(
                 {
                     "redemption_date": "redemption_date - subscription_date must be "
-                    "within [60, 946708560) seconds."
+                    "within [180, 946708560) seconds."
                 }
             ),
         )
@@ -129,7 +129,7 @@ class TestVaultCreate(TestCase):
             str(
                 {
                     "redemption_date": "redemption_date - subscription_date must be "
-                    "within [60, 946708560) seconds."
+                    "within [180, 946708560) seconds."
                 }
             ),
         )
@@ -149,7 +149,7 @@ class TestVaultCreate(TestCase):
             str(
                 {
                     "redemption_date": "redemption_date - subscription_date must be "
-                    "within [60, 946708560) seconds."
+                    "within [180, 946708560) seconds."
                 }
             ),
         )

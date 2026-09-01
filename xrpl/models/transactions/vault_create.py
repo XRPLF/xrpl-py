@@ -21,9 +21,11 @@ from xrpl.models.utils import (
 VAULT_MAX_DATA_LENGTH = 256 * 2
 VAULT_MAX_DOMAIN_ID_LENGTH = 32 * 2
 
-MIN_INVESTMENT_PERIOD = 60
+MIN_INVESTMENT_PERIOD = 180
 """(XLS-587) Minimum length, in seconds, of a close-ended vault's investment period
-(``redemption_date - subscription_date``)."""
+(``redemption_date - subscription_date``). 180s is the smallest window that can still
+fit a minimum-interval loan plus the 60s redemption buffer enforced by LoanSet (see
+rippled ``kMinInvestmentPeriod``)."""
 
 MAX_INVESTMENT_PERIOD = 946708560
 """(XLS-587) Exclusive upper bound, in seconds, on a close-ended vault's investment
