@@ -219,8 +219,10 @@ class VaultCreate(Transaction):
                         "redemption_date."
                     )
                 elif (
-                    subscription_is_int
-                    and redemption_is_int
+                    self.subscription_date is not None
+                    and self.redemption_date is not None
+                    and _is_integer(self.subscription_date)
+                    and _is_integer(self.redemption_date)
                     and not (
                         MIN_INVESTMENT_PERIOD
                         <= self.redemption_date - self.subscription_date
