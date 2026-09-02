@@ -36,8 +36,44 @@ class TestVaultDelete(TestCase):
             e.exception.args[0],
             str(
                 {
-                    "memo_data": "MemoData must be less than 256 bytes "
-                    "(alternatively, 512 hex characters)."
+                    "memo_data": "MemoData must be an even-length hex string less "
+                    "than 256 bytes (alternatively, 512 hex characters)."
+                }
+            ),
+        )
+
+    def test_non_hex_memo_data_field(self):
+        # Non-hex characters pass a length-only check but crash MemoData encoding.
+        with self.assertRaises(XRPLModelException) as e:
+            VaultDelete(
+                account=_ACCOUNT,
+                vault_id=_VAULT_ID,
+                memo_data="GG",
+            )
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "memo_data": "MemoData must be an even-length hex string less "
+                    "than 256 bytes (alternatively, 512 hex characters)."
+                }
+            ),
+        )
+
+    def test_odd_length_memo_data_field(self):
+        # An odd number of hex characters fails bytes.fromhex during encoding.
+        with self.assertRaises(XRPLModelException) as e:
+            VaultDelete(
+                account=_ACCOUNT,
+                vault_id=_VAULT_ID,
+                memo_data="ABC",
+            )
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "memo_data": "MemoData must be an even-length hex string less "
+                    "than 256 bytes (alternatively, 512 hex characters)."
                 }
             ),
         )

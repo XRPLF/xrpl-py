@@ -21,6 +21,8 @@ from xrpl.models.utils import (
 VAULT_MAX_DATA_LENGTH = 256 * 2
 VAULT_MAX_DOMAIN_ID_LENGTH = 32 * 2
 
+_MAX_UINT32 = 2**32 - 1
+
 MIN_INVESTMENT_PERIOD = 180
 """(XLS-587) Minimum length, in seconds, of a close-ended vault's investment period
 (``redemption_date - subscription_date``). 180s is the smallest window that can still
@@ -41,6 +43,34 @@ def _is_integer(value: object) -> bool:
     subclass of ``int`` and is excluded.
     """
     return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _is_uint32(value: object) -> bool:
+    """Return whether ``value`` fits in a ``UInt32`` (``[0, 2**32 - 1]``).
+
+    ``SubscriptionDate`` and ``RedemptionDate`` are ``UInt32`` ledger fields;
+    values outside this range pass the ``Optional[int]`` type hint but raise an
+    ``OverflowError`` during binary serialization.
+    """
+    return (
+        isinstance(value, int)
+        and not isinstance(value, bool)
+        and 0 <= value <= _MAX_UINT32
+    )
+
+
+def _is_valid_hex_data(value: str) -> bool:
+    """Return whether ``value`` is a well-formed Vault data/memo blob.
+
+    It must be an even-length hex string no longer than ``VAULT_MAX_DATA_LENGTH``
+    characters (256 bytes). Odd-length or non-hex values pass length-only checks
+    but fail ``bytes.fromhex()`` during ``MemoData``/``Data`` serialization.
+    """
+    return (
+        len(value) <= VAULT_MAX_DATA_LENGTH
+        and len(value) % 2 == 0
+        and HEX_REGEX.fullmatch(value) is not None
+    )
 
 
 class VaultCreateFlag(int, Enum):
@@ -151,9 +181,10 @@ class VaultCreate(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        if self.data is not None and len(self.data) > VAULT_MAX_DATA_LENGTH:
+        if self.data is not None and not _is_valid_hex_data(self.data):
             errors["data"] = (
-                "Data must be less than 256 bytes (alternatively, 512 hex characters)."
+                "Data must be an even-length hex string less than 256 bytes "
+                "(alternatively, 512 hex characters)."
             )
         if self.mptoken_metadata is not None and (
             len(self.mptoken_metadata) == 0
@@ -185,24 +216,31 @@ class VaultCreate(Transaction):
         # XLS-587 field-type guards (matching the xrpl.js sister PR): reject an
         # unsupported vault_kind and non-integer date fields (NaN, Infinity,
         # fractional) before the close-ended rules interpret them.
-        vault_kind_is_valid = self.vault_kind is None or self.vault_kind in (
-            VaultKind.OPEN,
-            VaultKind.CLOSED,
+        # ``bool`` subclasses ``int``, so require a genuine integer before the
+        # membership test -- otherwise True/False are read as CLOSED/OPEN.
+        vault_kind_is_valid = self.vault_kind is None or (
+            _is_integer(self.vault_kind)
+            and self.vault_kind in (VaultKind.OPEN, VaultKind.CLOSED)
         )
         if not vault_kind_is_valid:
             errors["vault_kind"] = (
                 "vault_kind must be 0 (open-ended) or 1 (close-ended)."
             )
-        subscription_is_int = self.subscription_date is None or _is_integer(
+        # Both dates are UInt32 ledger fields: reject non-integers (NaN, Infinity,
+        # fractional) and values outside [0, 2**32 - 1] before serialization would
+        # raise an opaque OverflowError.
+        subscription_ok = self.subscription_date is None or _is_uint32(
             self.subscription_date
         )
-        redemption_is_int = self.redemption_date is None or _is_integer(
-            self.redemption_date
-        )
-        if not subscription_is_int:
-            errors["subscription_date"] = "subscription_date must be an integer."
-        if not redemption_is_int:
-            errors["redemption_date"] = "redemption_date must be an integer."
+        redemption_ok = self.redemption_date is None or _is_uint32(self.redemption_date)
+        if not subscription_ok:
+            errors["subscription_date"] = (
+                "subscription_date must be an integer between 0 and 4294967295."
+            )
+        if not redemption_ok:
+            errors["redemption_date"] = (
+                "redemption_date must be an integer between 0 and 4294967295."
+            )
 
         # XLS-587 close-ended vault rules. A close-ended vault (VaultKind == 1)
         # requires both a subscription and a redemption date; an open-ended vault
@@ -221,8 +259,8 @@ class VaultCreate(Transaction):
                 elif (
                     self.subscription_date is not None
                     and self.redemption_date is not None
-                    and _is_integer(self.subscription_date)
-                    and _is_integer(self.redemption_date)
+                    and _is_uint32(self.subscription_date)
+                    and _is_uint32(self.redemption_date)
                     and not (
                         MIN_INVESTMENT_PERIOD
                         <= self.redemption_date - self.subscription_date
