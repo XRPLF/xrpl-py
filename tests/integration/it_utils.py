@@ -245,6 +245,43 @@ async def sign_and_reliable_submission_async(
     return response
 
 
+# Reads the close time of the latest validated ledger. Closed-ended vault date fields
+# (SubscriptionDate / RedemptionDate) and the LoanSet schedule checks are evaluated
+# against the ledger close time, which on a standalone node is not in sync with the
+# local system clock -- so vault dates must be derived from this value, not from
+# datetime.now().
+def get_validated_close_time(client: SyncClient = JSON_RPC_CLIENT) -> int:
+    return client.request(Ledger(ledger_index="validated")).result["ledger"][
+        "close_time"
+    ]
+
+
+async def get_validated_close_time_async(
+    client: AsyncClient = ASYNC_JSON_RPC_CLIENT,
+) -> int:
+    response = await client.request(Ledger(ledger_index="validated"))
+    return response.result["ledger"]["close_time"]
+
+
+# Closes ledgers until the latest validated ledger close time is strictly past
+# `close_time`. Under LendingProtocolV1_1 a closed-ended vault must be in its
+# Investment phase (subscription_date < parentCloseTime < redemption_date) before a
+# LoanSet is accepted; closing ledgers is what advances the standalone clock (each
+# ledger_accept advances the close time, no real-time waiting required).
+def advance_ledger_past_close_time(
+    close_time: int, client: SyncClient = JSON_RPC_CLIENT
+) -> None:
+    while get_validated_close_time(client) <= close_time:
+        client.request(LEDGER_ACCEPT_REQUEST)
+
+
+async def advance_ledger_past_close_time_async(
+    close_time: int, client: AsyncClient = ASYNC_JSON_RPC_CLIENT
+) -> None:
+    while await get_validated_close_time_async(client) <= close_time:
+        await client.request(LEDGER_ACCEPT_REQUEST)
+
+
 def accept_ledger(
     use_json_client: bool = True, delay: float = LEDGER_ACCEPT_TIME
 ) -> None:

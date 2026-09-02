@@ -136,7 +136,13 @@ from xrpl.models.transactions.trust_set import (
     TrustSetFlagInterface,
 )
 from xrpl.models.transactions.vault_clawback import VaultClawback
-from xrpl.models.transactions.vault_create import VaultCreate
+from xrpl.models.transactions.vault_create import (
+    VaultCreate,
+    VaultCreateFlag,
+    VaultCreateFlagInterface,
+    VaultKind,
+    WithdrawalPolicy,
+)
 from xrpl.models.transactions.vault_delete import VaultDelete
 from xrpl.models.transactions.vault_deposit import VaultDeposit
 from xrpl.models.transactions.vault_set import VaultSet
@@ -272,6 +278,10 @@ __all__ = [
     "TrustSetFlagInterface",
     "VaultClawback",
     "VaultCreate",
+    "VaultCreateFlag",
+    "VaultCreateFlagInterface",
+    "VaultKind",
+    "WithdrawalPolicy",
     "VaultDelete",
     "VaultDeposit",
     "VaultSet",
