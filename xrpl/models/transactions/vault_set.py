@@ -43,7 +43,8 @@ class VaultSet(Transaction):
 
         if self.data is not None and len(self.data) > VAULT_MAX_DATA_LENGTH:
             errors["data"] = (
-                "Data must be less than 256 bytes (alternatively, 512 hex characters)."
+                "Data must be no longer than 256 bytes "
+                "(alternatively, 512 hex characters)."
             )
         if (
             self.domain_id is not None

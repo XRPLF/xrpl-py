@@ -4,7 +4,7 @@ These exercise the client-model additions that are part of the merged
 ``LendingProtocolV1_1`` amendment:
 
 * Close-ended vaults on ``VaultCreate`` -- the ``VaultKind`` /
-  ``SubscriptionDate`` / ``RedemptionDate`` fields (XLS-587 / #587).
+  ``SubscriptionDate`` / ``RedemptionDate`` fields (LendingProtocolV1_1).
 * The ``MemoData`` field on ``VaultDelete`` (#470).
 * ``CredentialIDs`` on ``VaultWithdraw`` for withdrawing from a
   permissioned-domain-gated vault (#538).

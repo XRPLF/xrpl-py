@@ -23,7 +23,7 @@ class TestVaultCreate(TestCase):
         self.assertTrue(tx.is_valid())
 
     def test_valid_close_ended_vault(self):
-        # XLS-587: close-ended vault with subscription/redemption windows.
+        # LendingProtocolV1_1: close-ended vault with subscription/redemption windows.
         tx = VaultCreate(
             account=_ACCOUNT,
             asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
@@ -85,7 +85,8 @@ class TestVaultCreate(TestCase):
         )
 
     def test_close_ended_vault_min_investment_period_boundary(self):
-        # XLS-587: a gap of exactly MIN_INVESTMENT_PERIOD (180s) is valid (inclusive).
+        # LendingProtocolV1_1: a gap of exactly MIN_INVESTMENT_PERIOD (180s) is
+        # valid (inclusive).
         tx = VaultCreate(
             account=_ACCOUNT,
             asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
@@ -315,7 +316,7 @@ class TestVaultCreate(TestCase):
             e.exception.args[0],
             str(
                 {
-                    "data": "Data must be an even-length hex string less than "
+                    "data": "Data must be an even-length hex string no longer than "
                     "256 bytes (alternatively, 512 hex characters)."
                 }
             ),
@@ -333,7 +334,7 @@ class TestVaultCreate(TestCase):
             e.exception.args[0],
             str(
                 {
-                    "data": "Data must be an even-length hex string less than "
+                    "data": "Data must be an even-length hex string no longer than "
                     "256 bytes (alternatively, 512 hex characters)."
                 }
             ),
@@ -357,8 +358,8 @@ class TestVaultCreate(TestCase):
             str(
                 {
                     "mptoken_metadata": (
-                        "Metadata must be valid non-empty hex string less than 1024 "
-                        "bytes (alternatively, 2048 hex characters)."
+                        "Metadata must be valid non-empty hex string no longer "
+                        "than 1024 bytes (alternatively, 2048 hex characters)."
                     )
                 }
             ),

@@ -72,7 +72,7 @@ class LoanBrokerSet(Transaction):
         errors = super()._get_errors()
 
         if self.data is not None and len(self.data) > self.MAX_DATA_PAYLOAD_LENGTH:
-            errors["LoanBrokerSet:data"] = "Data must be less than 256 bytes."
+            errors["LoanBrokerSet:data"] = "Data must be no longer than 256 bytes."
 
         if self.data is not None and not HEX_REGEX.fullmatch(self.data):
             errors["LoanBrokerSet:data"] = "Data must be a valid hex string."

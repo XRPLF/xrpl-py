@@ -175,7 +175,9 @@ class LoanSet(Transaction):
         }
 
         if self.data is not None and len(self.data) > self.MAX_DATA_LENGTH:
-            parent_class_errors["LoanSet:data"] = "Data must be less than 256 bytes."
+            parent_class_errors["LoanSet:data"] = (
+                "Data must be no longer than 256 bytes."
+            )
 
         if self.data is not None and not HEX_REGEX.fullmatch(self.data):
             parent_class_errors["LoanSet:data"] = "Data must be a valid hex string."

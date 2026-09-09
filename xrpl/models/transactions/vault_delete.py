@@ -39,7 +39,7 @@ class VaultDelete(Transaction):
 
         if self.memo_data is not None and not _is_valid_hex_data(self.memo_data):
             errors["memo_data"] = (
-                "MemoData must be an even-length hex string less than 256 bytes "
+                "MemoData must be an even-length hex string no longer than 256 bytes "
                 "(alternatively, 512 hex characters)."
             )
 

@@ -45,7 +45,7 @@ class TestVaultSet(TestCase):
             e.exception.args[0],
             str(
                 {
-                    "data": "Data must be less than 256 bytes "
+                    "data": "Data must be no longer than 256 bytes "
                     "(alternatively, 512 hex characters)."
                 }
             ),

@@ -24,14 +24,14 @@ VAULT_MAX_DOMAIN_ID_LENGTH = 32 * 2
 _MAX_UINT32 = 2**32 - 1
 
 MIN_INVESTMENT_PERIOD = 180
-"""(XLS-587) Minimum length, in seconds, of a close-ended vault's investment period
-(``redemption_date - subscription_date``). 180s is the smallest window that can still
-fit a minimum-interval loan plus the 60s redemption buffer enforced by LoanSet (see
-rippled ``kMinInvestmentPeriod``)."""
+"""(LendingProtocolV1_1) Minimum length, in seconds, of a close-ended vault's
+investment period (``redemption_date - subscription_date``). 180s is the smallest
+window that can still fit a minimum-interval loan plus the 60s redemption buffer
+enforced by LoanSet (see rippled ``kMinInvestmentPeriod``)."""
 
 MAX_INVESTMENT_PERIOD = 946708560
-"""(XLS-587) Exclusive upper bound, in seconds, on a close-ended vault's investment
-period (30 Gregorian years)."""
+"""(LendingProtocolV1_1) Exclusive upper bound, in seconds, on a close-ended
+vault's investment period (30 Gregorian years)."""
 
 
 def _is_integer(value: object) -> bool:
@@ -109,7 +109,7 @@ class WithdrawalPolicy(int, Enum):
 
 
 class VaultKind(int, Enum):
-    """The kind of Vault (XLS-587, close-ended vaults)."""
+    """The kind of Vault (LendingProtocolV1_1, close-ended vaults)."""
 
     OPEN = 0
     """An open-ended vault: shares can be redeemed at any time."""
@@ -162,16 +162,16 @@ class VaultCreate(Transaction):
     """
 
     vault_kind: Optional[Union[int, VaultKind]] = None
-    """(XLS-587) The kind of Vault: 0 for an open-ended vault (the default) or 1 for a
-    close-ended vault. Can only be set at Vault creation."""
+    """(LendingProtocolV1_1) The kind of Vault: 0 for an open-ended vault (the
+    default) or 1 for a close-ended vault. Can only be set at Vault creation."""
 
     subscription_date: Optional[int] = None
-    """(XLS-587, close-ended vaults only) The time, in seconds since the Ripple Epoch,
-    up to which deposits into the Vault are accepted."""
+    """(LendingProtocolV1_1, close-ended vaults only) The time, in seconds since
+    the Ripple Epoch, up to which deposits into the Vault are accepted."""
 
     redemption_date: Optional[int] = None
-    """(XLS-587, close-ended vaults only) The time, in seconds since the Ripple Epoch,
-    at which shares may begin to be redeemed from the Vault."""
+    """(LendingProtocolV1_1, close-ended vaults only) The time, in seconds since
+    the Ripple Epoch, at which shares may begin to be redeemed from the Vault."""
 
     transaction_type: TransactionType = field(
         default=TransactionType.VAULT_CREATE,
@@ -183,7 +183,7 @@ class VaultCreate(Transaction):
 
         if self.data is not None and not _is_valid_hex_data(self.data):
             errors["data"] = (
-                "Data must be an even-length hex string less than 256 bytes "
+                "Data must be an even-length hex string no longer than 256 bytes "
                 "(alternatively, 512 hex characters)."
             )
         if self.mptoken_metadata is not None and (
@@ -192,7 +192,7 @@ class VaultCreate(Transaction):
             or not HEX_REGEX.fullmatch(self.mptoken_metadata)
         ):
             errors["mptoken_metadata"] = (
-                "Metadata must be valid non-empty hex string less than 1024 bytes "
+                "Metadata must be valid non-empty hex string no longer than 1024 bytes "
                 "(alternatively, 2048 hex characters)."
             )
         if (
@@ -213,9 +213,9 @@ class VaultCreate(Transaction):
                     "Scale field is lower than the allowed limit (0)"
                 )
 
-        # XLS-587 field-type guards (matching the xrpl.js sister PR): reject an
-        # unsupported vault_kind and non-integer date fields (NaN, Infinity,
-        # fractional) before the close-ended rules interpret them.
+        # LendingProtocolV1_1 field-type guards (matching the xrpl.js sister PR):
+        # reject an unsupported vault_kind and non-integer date fields (NaN,
+        # Infinity, fractional) before the close-ended rules interpret them.
         # ``bool`` subclasses ``int``, so require a genuine integer before the
         # membership test -- otherwise True/False are read as CLOSED/OPEN.
         vault_kind_is_valid = self.vault_kind is None or (
@@ -242,10 +242,11 @@ class VaultCreate(Transaction):
                 "redemption_date must be an integer between 0 and 4294967295."
             )
 
-        # XLS-587 close-ended vault rules. A close-ended vault (VaultKind == 1)
-        # requires both a subscription and a redemption date; an open-ended vault
-        # (the default) must not carry either date. Only interpreted once the
-        # field-type guards above pass, to avoid contradictory messages.
+        # LendingProtocolV1_1 close-ended vault rules. A close-ended vault
+        # (VaultKind == 1) requires both a subscription and a redemption date;
+        # an open-ended vault (the default) must not carry either date. Only
+        # interpreted once the field-type guards above pass, to avoid
+        # contradictory messages.
         has_subscription = self.subscription_date is not None
         has_redemption = self.redemption_date is not None
         if vault_kind_is_valid:

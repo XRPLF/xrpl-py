@@ -36,7 +36,7 @@ class TestVaultDelete(TestCase):
             e.exception.args[0],
             str(
                 {
-                    "memo_data": "MemoData must be an even-length hex string less "
+                    "memo_data": "MemoData must be an even-length hex string no longer "
                     "than 256 bytes (alternatively, 512 hex characters)."
                 }
             ),
@@ -54,7 +54,7 @@ class TestVaultDelete(TestCase):
             e.exception.args[0],
             str(
                 {
-                    "memo_data": "MemoData must be an even-length hex string less "
+                    "memo_data": "MemoData must be an even-length hex string no longer "
                     "than 256 bytes (alternatively, 512 hex characters)."
                 }
             ),
@@ -72,7 +72,7 @@ class TestVaultDelete(TestCase):
             e.exception.args[0],
             str(
                 {
-                    "memo_data": "MemoData must be an even-length hex string less "
+                    "memo_data": "MemoData must be an even-length hex string no longer "
                     "than 256 bytes (alternatively, 512 hex characters)."
                 }
             ),
