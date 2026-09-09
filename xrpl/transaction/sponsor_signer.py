@@ -187,9 +187,7 @@ def sign_as_sponsor(
             else multisign_address
         )
         signature = keypairs_sign(
-            bytes.fromhex(
-                encode_for_multisigning_sponsor(tx_json, classic_address)
-            ),
+            bytes.fromhex(encode_for_multisigning_sponsor(tx_json, classic_address)),
             wallet.private_key,
         )
         sponsor_sig = SponsorSignature(

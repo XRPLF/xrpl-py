@@ -219,9 +219,7 @@ def encode_for_signing_sponsor(json: Dict[str, Any]) -> str:
     )
 
 
-def encode_for_multisigning_sponsor(
-    json: Dict[str, Any], signing_account: str
-) -> str:
+def encode_for_multisigning_sponsor(json: Dict[str, Any], signing_account: str) -> str:
     """
     Encode a transaction for multi-signing by the sponsor (``fixCleanup3_4_0``).
 
