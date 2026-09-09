@@ -1,12 +1,13 @@
 from tests.integration.integration_test_case import IntegrationTestCase
 from tests.integration.it_utils import (
     LEDGER_ACCEPT_REQUEST,
+    advance_ledger_past_close_time_async,
     fund_wallet_async,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
 from xrpl.asyncio.transaction import autofill_and_sign, submit
-from xrpl.core.binarycodec import encode_for_signing
+from xrpl.core.binarycodec import encode_for_signing_counterparty
 from xrpl.core.keypairs.main import sign
 from xrpl.models import (
     AccountObjects,
@@ -31,7 +32,9 @@ from xrpl.models.currencies.xrp import XRP
 from xrpl.models.requests.account_objects import AccountObjectType
 from xrpl.models.requests.tx import Tx
 from xrpl.models.response import ResponseStatus
+from xrpl.models.requests.ledger_entry import LedgerEntry
 from xrpl.models.transactions.loan_manage import LoanManageFlag
+from xrpl.models.transactions.loan_pay import LoanPayFlag
 from xrpl.models.transactions.loan_set import CounterpartySignature
 from xrpl.models.transactions.mptoken_authorize import MPTokenAuthorize
 from xrpl.models.transactions.mptoken_issuance_create import (
@@ -125,7 +128,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
 
         # borrower agrees to the terms of the loan
         borrower_txn_signature = sign(
-            encode_for_signing(loan_issuer_signed_txn.to_xrpl()),
+            encode_for_signing_counterparty(loan_issuer_signed_txn.to_xrpl()),
             borrower_wallet.private_key,
         )
 
@@ -166,6 +169,14 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         # Loan cannot be deleted until all the remaining payments are completed
         self.assertEqual(response.result["engine_result"], "tecHAS_OBLIGATIONS")
 
+        # fixCleanup3_4_0: a loan can only be impaired once a payment is late,
+        # and the late-payment LoanPay below requires the same. Advance the
+        # ledger past the loan's first payment due date so it is overdue.
+        loan_object = await client.request(LedgerEntry(index=LOAN_ID))
+        await advance_ledger_past_close_time_async(
+            loan_object.result["node"]["NextPaymentDueDate"], client
+        )
+
         # Test the LoanManage transaction
         tx = LoanManage(
             account=loan_issuer.address,
@@ -180,6 +191,10 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         tx = LoanPay(
             account=borrower_wallet.address,
             loan_id=LOAN_ID,
+            # The loan is overdue, so the payment must set the late-payment flag
+            # (fixCleanup3_4_0); a normal LoanPay on an overdue loan returns
+            # tecEXPIRED.
+            flags=LoanPayFlag.TF_LOAN_LATE_PAYMENT,
             amount="100",
         )
         response = await sign_and_reliable_submission_async(tx, borrower_wallet, client)
@@ -289,7 +304,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
 
         # Step-5.B: borrower agrees to the terms of the loan
         borrower_txn_signature = sign(
-            encode_for_signing(loan_issuer_signed_txn.to_xrpl()),
+            encode_for_signing_counterparty(loan_issuer_signed_txn.to_xrpl()),
             borrower_wallet.private_key,
         )
 
@@ -402,7 +417,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
 
         # Step-5.B: borrower agrees to the terms of the loan
         borrower_txn_signature = sign(
-            encode_for_signing(loan_issuer_signed_txn.to_xrpl()),
+            encode_for_signing_counterparty(loan_issuer_signed_txn.to_xrpl()),
             borrower_wallet.private_key,
         )
 
@@ -568,7 +583,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
 
         # borrower agrees to the terms of the loan
         borrower_txn_signature = sign(
-            encode_for_signing(loan_issuer_signed_txn.to_xrpl()),
+            encode_for_signing_counterparty(loan_issuer_signed_txn.to_xrpl()),
             borrower_wallet.private_key,
         )
 
@@ -609,6 +624,14 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         # Loan cannot be deleted until all the remaining payments are completed
         self.assertEqual(response.result["engine_result"], "tecHAS_OBLIGATIONS")
 
+        # fixCleanup3_4_0: a loan can only be impaired once a payment is late,
+        # and the late-payment LoanPay below requires the same. Advance the
+        # ledger past the loan's first payment due date so it is overdue.
+        loan_object = await client.request(LedgerEntry(index=LOAN_ID))
+        await advance_ledger_past_close_time_async(
+            loan_object.result["node"]["NextPaymentDueDate"], client
+        )
+
         # Test the LoanManage transaction
         tx = LoanManage(
             account=loan_issuer.address,
@@ -623,6 +646,10 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         tx = LoanPay(
             account=borrower_wallet.address,
             loan_id=LOAN_ID,
+            # The loan is overdue, so the payment must set the late-payment flag
+            # (fixCleanup3_4_0); a normal LoanPay on an overdue loan returns
+            # tecEXPIRED.
+            flags=LoanPayFlag.TF_LOAN_LATE_PAYMENT,
             amount=IssuedCurrencyAmount(
                 currency="USD", issuer=loan_issuer.address, value="100"
             ),
@@ -771,7 +798,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
 
         # borrower agrees to the terms of the loan
         borrower_txn_signature = sign(
-            encode_for_signing(loan_issuer_signed_txn.to_xrpl()),
+            encode_for_signing_counterparty(loan_issuer_signed_txn.to_xrpl()),
             borrower_wallet.private_key,
         )
 
@@ -812,6 +839,14 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         # Loan cannot be deleted until all the remaining payments are completed
         self.assertEqual(response.result["engine_result"], "tecHAS_OBLIGATIONS")
 
+        # fixCleanup3_4_0: a loan can only be impaired once a payment is late,
+        # and the late-payment LoanPay below requires the same. Advance the
+        # ledger past the loan's first payment due date so it is overdue.
+        loan_object = await client.request(LedgerEntry(index=LOAN_ID))
+        await advance_ledger_past_close_time_async(
+            loan_object.result["node"]["NextPaymentDueDate"], client
+        )
+
         # Test the LoanManage transaction
         tx = LoanManage(
             account=loan_issuer.address,
@@ -826,6 +861,10 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         tx = LoanPay(
             account=borrower_wallet.address,
             loan_id=LOAN_ID,
+            # The loan is overdue, so the payment must set the late-payment flag
+            # (fixCleanup3_4_0); a normal LoanPay on an overdue loan returns
+            # tecEXPIRED.
+            flags=LoanPayFlag.TF_LOAN_LATE_PAYMENT,
             amount=MPTAmount(mpt_issuance_id=MPT_ISSUANCE_ID, value="100"),
         )
         response = await sign_and_reliable_submission_async(tx, borrower_wallet, client)

@@ -120,6 +120,33 @@ class SyncTestTimer:
         self._timer.cancel()
 
 
+async def advance_ledger_past_close_time_async(close_time: int, client) -> None:
+    """Close ledgers until the validated ledger close time is strictly past
+    ``close_time``.
+
+    Under ``fixCleanup3_4_0`` a loan can only be impaired / late-paid once a
+    payment is late (``parentCloseTime > NextPaymentDueDate``); advancing the
+    standalone clock past the due date is what makes the loan overdue.
+    """
+    validated = await client.request(Ledger(ledger_index="validated"))
+    while validated.result["ledger"]["close_time"] <= close_time:
+        await client.request(LEDGER_ACCEPT_REQUEST)
+        validated = await client.request(Ledger(ledger_index="validated"))
+
+
+def advance_ledger_past_close_time(close_time: int, client) -> None:
+    """Synchronous counterpart of ``advance_ledger_past_close_time_async``.
+
+    Provided so the ``test_async_and_sync`` sync variant (which rewrites
+    ``advance_ledger_past_close_time_async(`` to ``advance_ledger_past_close_time(``)
+    resolves.
+    """
+    validated = client.request(Ledger(ledger_index="validated"))
+    while validated.result["ledger"]["close_time"] <= close_time:
+        client.request(LEDGER_ACCEPT_REQUEST)
+        validated = client.request(Ledger(ledger_index="validated"))
+
+
 def fund_wallet(wallet: Wallet) -> None:
     client = JSON_RPC_CLIENT
     payment = Payment(
