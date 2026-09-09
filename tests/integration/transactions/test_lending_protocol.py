@@ -30,9 +30,9 @@ from xrpl.models.currencies.issued_currency import IssuedCurrency
 from xrpl.models.currencies.mpt_currency import MPTCurrency
 from xrpl.models.currencies.xrp import XRP
 from xrpl.models.requests.account_objects import AccountObjectType
+from xrpl.models.requests.ledger_entry import LedgerEntry
 from xrpl.models.requests.tx import Tx
 from xrpl.models.response import ResponseStatus
-from xrpl.models.requests.ledger_entry import LedgerEntry
 from xrpl.models.transactions.loan_manage import LoanManageFlag
 from xrpl.models.transactions.loan_pay import LoanPayFlag
 from xrpl.models.transactions.loan_set import CounterpartySignature
