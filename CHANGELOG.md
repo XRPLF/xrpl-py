@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Added
+
+- Add `encode_for_signing_counterparty` / `encode_for_multisigning_counterparty` and `encode_for_signing_sponsor` / `encode_for_multisigning_sponsor` for the role-specific signing prefixes introduced by `fixCleanup3_4_0`.
+
+### Changed
+
+- Support the `fixCleanup3_4_0` signing prefixes: `sign_loan_set_by_counterparty` and `sign_as_sponsor` now sign counterparty and sponsor signatures with their role-specific prefixes. The new prefixes are always used (no opt-out), so these signatures are only valid on networks with `fixCleanup3_4_0` enabled.
+- Regenerate `definitions.json` from rippled 3.4.0: adds new fields (e.g. `VaultKind`, `SubscriptionDate`, `RedemptionDate`) and removes Hook/Emit field definitions, as Hooks is no longer supported.
+
 ## [[5.1.0]]
 
 ### Added
