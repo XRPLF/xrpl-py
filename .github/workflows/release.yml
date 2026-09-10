@@ -118,6 +118,10 @@ jobs:
     name: Run integration tests matrix (${{ needs.input-validate.outputs.package_version }})
     needs:
       - input-validate
+    # Skipped for beta/rc releases (matches faucet-tests and the xrpl.js release
+    # flow); the pre-release job below already treats a non-success integration
+    # result as passing when is_beta_release is true.
+    if: ${{ needs.input-validate.outputs.is_beta_release != 'true' }}
     uses: ./.github/workflows/integration_test.yml
     with:
       git_ref: ${{ github.event.inputs.release_branch }}
