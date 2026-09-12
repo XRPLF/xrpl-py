@@ -15,6 +15,13 @@ _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 
 
 class TestMPTokenIssuanceCreate(TestCase):
+    def test_odd_length_metadata_is_rejected(self):
+        for metadata in ("A", "abc", "7B0"):
+            with self.subTest(metadata=metadata):
+                with self.assertRaises(XRPLModelException) as error:
+                    MPTokenIssuanceCreate(account=_ACCOUNT, mptoken_metadata=metadata)
+                self.assertIn("mptoken_metadata", str(error.exception))
+
     def test_tx_is_valid(self):
         mptoken_metadata = {
             "ticker": "TBILL",

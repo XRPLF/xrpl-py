@@ -251,6 +251,9 @@ class TestMPTokenIssuanceSet(TestCase):
         cases = [
             ("FF" * 1025, "Metadata must be a hex string less than 1024 bytes"),
             ("not_hex_string", "Metadata must be a valid hex string"),
+            ("A", "Metadata must be a valid hex string"),
+            ("abc", "Metadata must be a valid hex string"),
+            ("7B0", "Metadata must be a valid hex string"),
         ]
         for metadata, message in cases:
             with self.subTest(message=message):

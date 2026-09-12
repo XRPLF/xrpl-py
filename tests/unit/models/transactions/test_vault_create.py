@@ -11,6 +11,17 @@ _ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 
 
 class TestVaultCreate(TestCase):
+    def test_odd_length_metadata_is_rejected(self):
+        for metadata in ("A", "abc", "7B0"):
+            with self.subTest(metadata=metadata):
+                with self.assertRaises(XRPLModelException) as error:
+                    VaultCreate(
+                        account=_ACCOUNT,
+                        asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                        mptoken_metadata=metadata,
+                    )
+                self.assertIn("mptoken_metadata", str(error.exception))
+
     def test_valid(self):
         tx = VaultCreate(
             account=_ACCOUNT,

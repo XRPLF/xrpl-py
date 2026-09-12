@@ -52,6 +52,29 @@ class TestUtils(TestCase):
 
 
 class TestMPTokenMetadataValidation(TestCase):
+    def test_rejects_incomplete_hex_bytes(self):
+        for metadata_hex in ("A", "abc", "7B0", str_to_hex('{"t":"USD"}')[:-1]):
+            with self.subTest(metadata_hex=metadata_hex):
+                self.assertEqual(
+                    ["MPTokenMetadata must be in hex format."],
+                    validate_mptoken_metadata(metadata_hex),
+                )
+
+    def test_rejects_non_hex_characters(self):
+        for metadata_hex in ("ZZ", "0x1234", "7B 7D"):
+            with self.subTest(metadata_hex=metadata_hex):
+                self.assertEqual(
+                    ["MPTokenMetadata must be in hex format."],
+                    validate_mptoken_metadata(metadata_hex),
+                )
+
+    def test_invalid_encoded_content_returns_validation_messages(self):
+        for metadata_hex in ("", "FF", str_to_hex("not json")):
+            with self.subTest(metadata_hex=metadata_hex):
+                messages = validate_mptoken_metadata(metadata_hex)
+                self.assertEqual(1, len(messages))
+                self.assertIn("not properly formatted as JSON", messages[0])
+
     def test_mptoken_metadata_validation_messages(self):
         test_file = os.path.join(
             os.path.dirname(__file__), "mptoken-metadata-validation-fixtures.json"
