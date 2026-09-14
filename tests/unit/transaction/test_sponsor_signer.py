@@ -4,7 +4,11 @@ from unittest import TestCase
 
 from xrpl.constants import XRPLException
 from xrpl.core.addresscodec import decode_classic_address
-from xrpl.core.binarycodec import encode_for_multisigning, encode_for_signing
+from xrpl.core.binarycodec import (
+    encode_for_multisigning_sponsor,
+    encode_for_signing,
+    encode_for_signing_sponsor,
+)
 from xrpl.core.keypairs import is_valid_message
 from xrpl.models.transactions import Payment
 from xrpl.transaction import combine_sponsor_signers, multisign, sign, sign_as_sponsor
@@ -53,6 +57,15 @@ def _verify(tx, signature: str, public_key: str) -> bool:
     )
 
 
+def _verify_sponsor(tx, signature: str, public_key: str) -> bool:
+    """Verify a single-signed sponsor signature (fixCleanup3_4_0 SPN prefix)."""
+    return is_valid_message(
+        bytes.fromhex(encode_for_signing_sponsor(tx.to_xrpl())),
+        bytes.fromhex(signature),
+        public_key,
+    )
+
+
 class TestSignAsSponsor(TestCase):
     """The sponsor's signature covers the transaction's signing fields.
 
@@ -71,16 +84,20 @@ class TestSignAsSponsor(TestCase):
         sponsor_sig = result.tx.sponsor_signature
 
         # The signature is the sponsor's, not the sponsee's.
-        self.assertFalse(_verify(tx, sponsor_sig.txn_signature, SPONSEE.public_key))
+        self.assertFalse(
+            _verify_sponsor(tx, sponsor_sig.txn_signature, SPONSEE.public_key)
+        )
         self.assertTrue(
-            _verify(tx, sponsor_sig.txn_signature, sponsor_sig.signing_pub_key)
+            _verify_sponsor(tx, sponsor_sig.txn_signature, sponsor_sig.signing_pub_key)
         )
 
         # The sponsee signs last; that adds only TxnSignature, which is not a
         # signing field, so the sponsor's signature survives.
         final = sign(result.tx, SPONSEE)
         self.assertTrue(
-            _verify(final, final.sponsor_signature.txn_signature, SPONSOR.public_key)
+            _verify_sponsor(
+                final, final.sponsor_signature.txn_signature, SPONSOR.public_key
+            )
         )
         self.assertTrue(_verify(final, final.txn_signature, final.signing_pub_key))
 
@@ -90,7 +107,9 @@ class TestSignAsSponsor(TestCase):
         final = sign_as_sponsor(SPONSOR, signed).tx
 
         self.assertTrue(
-            _verify(final, final.sponsor_signature.txn_signature, SPONSOR.public_key)
+            _verify_sponsor(
+                final, final.sponsor_signature.txn_signature, SPONSOR.public_key
+            )
         )
         self.assertTrue(_verify(final, final.txn_signature, final.signing_pub_key))
 
@@ -115,7 +134,9 @@ class TestSignAsSponsor(TestCase):
         sponsor_sig = result.tx.sponsor_signature
 
         self.assertTrue(
-            _verify(result.tx, sponsor_sig.txn_signature, sponsor_sig.signing_pub_key)
+            _verify_sponsor(
+                result.tx, sponsor_sig.txn_signature, sponsor_sig.signing_pub_key
+            )
         )
         # The sponsee's own signatures are untouched.
         self.assertEqual(len(result.tx.signers), 2)
@@ -143,7 +164,9 @@ class TestSignAsSponsor(TestCase):
             self.assertEqual(signer.account, key.address)
             self.assertTrue(
                 is_valid_message(
-                    bytes.fromhex(encode_for_multisigning(tx.to_xrpl(), key.address)),
+                    bytes.fromhex(
+                        encode_for_multisigning_sponsor(tx.to_xrpl(), key.address)
+                    ),
                     bytes.fromhex(signer.txn_signature),
                     signer.signing_pub_key,
                 )

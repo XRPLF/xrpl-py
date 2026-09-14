@@ -50,7 +50,11 @@ from xrpl.core.addresscodec import (
     is_valid_xaddress,
     xaddress_to_classic_address,
 )
-from xrpl.core.binarycodec import encode, encode_for_multisigning, encode_for_signing
+from xrpl.core.binarycodec import (
+    encode,
+    encode_for_multisigning_sponsor,
+    encode_for_signing_sponsor,
+)
 from xrpl.core.keypairs import sign as keypairs_sign
 from xrpl.models.transactions import SponsorSignature, Transaction
 from xrpl.models.transactions.transaction import Signer
@@ -183,7 +187,7 @@ def sign_as_sponsor(
             else multisign_address
         )
         signature = keypairs_sign(
-            bytes.fromhex(encode_for_multisigning(tx_json, classic_address)),
+            bytes.fromhex(encode_for_multisigning_sponsor(tx_json, classic_address)),
             wallet.private_key,
         )
         sponsor_sig = SponsorSignature(
@@ -197,7 +201,7 @@ def sign_as_sponsor(
         )
     else:
         signature = keypairs_sign(
-            bytes.fromhex(encode_for_signing(tx_json)),
+            bytes.fromhex(encode_for_signing_sponsor(tx_json)),
             wallet.private_key,
         )
         sponsor_sig = SponsorSignature(
