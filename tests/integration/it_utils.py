@@ -85,6 +85,13 @@ FUNDING_AMOUNT = "2000000000"
 LEDGER_ACCEPT_REQUEST = GenericRequest(method="ledger_accept")
 LEDGER_ACCEPT_TIME = 0.1
 
+# Upper bound on how many ledgers ``advance_ledger_past_close_time*`` will close
+# before giving up. Each standalone ``ledger_accept`` advances the close time by
+# at least the close-time resolution, so this covers far more ledger time than
+# any test's loan payment interval, while still failing fast (instead of hanging
+# until the CI job times out) if the standalone clock ever stops advancing.
+MAX_LEDGER_CLOSES = 100
+
 
 class AsyncTestTimer:
     def __init__(
@@ -127,11 +134,20 @@ async def advance_ledger_past_close_time_async(close_time: int, client) -> None:
     Under ``fixCleanup3_4_0`` a loan can only be impaired / late-paid once a
     payment is late (``parentCloseTime > NextPaymentDueDate``); advancing the
     standalone clock past the due date is what makes the loan overdue.
+
+    Raises:
+        RuntimeError: If the close time has not advanced past ``close_time``
+            after ``MAX_LEDGER_CLOSES`` ledgers, rather than looping forever.
     """
-    validated = await client.request(Ledger(ledger_index="validated"))
-    while validated.result["ledger"]["close_time"] <= close_time:
-        await client.request(LEDGER_ACCEPT_REQUEST)
+    for _ in range(MAX_LEDGER_CLOSES):
         validated = await client.request(Ledger(ledger_index="validated"))
+        if validated.result["ledger"]["close_time"] > close_time:
+            return
+        await client.request(LEDGER_ACCEPT_REQUEST)
+    raise RuntimeError(
+        f"Ledger close time did not advance past {close_time} within "
+        f"{MAX_LEDGER_CLOSES} ledger closes."
+    )
 
 
 def advance_ledger_past_close_time(close_time: int, client) -> None:
@@ -140,11 +156,20 @@ def advance_ledger_past_close_time(close_time: int, client) -> None:
     Provided so the ``test_async_and_sync`` sync variant (which rewrites
     ``advance_ledger_past_close_time_async(`` to ``advance_ledger_past_close_time(``)
     resolves.
+
+    Raises:
+        RuntimeError: If the close time has not advanced past ``close_time``
+            after ``MAX_LEDGER_CLOSES`` ledgers, rather than looping forever.
     """
-    validated = client.request(Ledger(ledger_index="validated"))
-    while validated.result["ledger"]["close_time"] <= close_time:
-        client.request(LEDGER_ACCEPT_REQUEST)
+    for _ in range(MAX_LEDGER_CLOSES):
         validated = client.request(Ledger(ledger_index="validated"))
+        if validated.result["ledger"]["close_time"] > close_time:
+            return
+        client.request(LEDGER_ACCEPT_REQUEST)
+    raise RuntimeError(
+        f"Ledger close time did not advance past {close_time} within "
+        f"{MAX_LEDGER_CLOSES} ledger closes."
+    )
 
 
 def fund_wallet(wallet: Wallet) -> None:
