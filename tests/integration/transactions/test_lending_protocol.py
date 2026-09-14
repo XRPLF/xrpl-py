@@ -8,7 +8,7 @@ from tests.integration.it_utils import (
     test_async_and_sync,
 )
 from xrpl.asyncio.transaction import autofill_and_sign, submit
-from xrpl.core.binarycodec import encode_for_signing
+from xrpl.core.binarycodec import encode_for_signing_counterparty
 from xrpl.core.keypairs.main import sign
 from xrpl.models import (
     AccountObjects,
@@ -143,7 +143,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
 
         # borrower agrees to the terms of the loan
         borrower_txn_signature = sign(
-            encode_for_signing(loan_issuer_signed_txn.to_xrpl()),
+            encode_for_signing_counterparty(loan_issuer_signed_txn.to_xrpl()),
             borrower_wallet.private_key,
         )
 
@@ -334,7 +334,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
 
         # Step-5.B: borrower agrees to the terms of the loan
         borrower_txn_signature = sign(
-            encode_for_signing(loan_issuer_signed_txn.to_xrpl()),
+            encode_for_signing_counterparty(loan_issuer_signed_txn.to_xrpl()),
             borrower_wallet.private_key,
         )
 
@@ -462,7 +462,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
 
         # Step-5.B: borrower agrees to the terms of the loan
         borrower_txn_signature = sign(
-            encode_for_signing(loan_issuer_signed_txn.to_xrpl()),
+            encode_for_signing_counterparty(loan_issuer_signed_txn.to_xrpl()),
             borrower_wallet.private_key,
         )
 
@@ -640,7 +640,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
 
         # borrower agrees to the terms of the loan
         borrower_txn_signature = sign(
-            encode_for_signing(loan_issuer_signed_txn.to_xrpl()),
+            encode_for_signing_counterparty(loan_issuer_signed_txn.to_xrpl()),
             borrower_wallet.private_key,
         )
 
@@ -867,7 +867,7 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
 
         # borrower agrees to the terms of the loan
         borrower_txn_signature = sign(
-            encode_for_signing(loan_issuer_signed_txn.to_xrpl()),
+            encode_for_signing_counterparty(loan_issuer_signed_txn.to_xrpl()),
             borrower_wallet.private_key,
         )
 

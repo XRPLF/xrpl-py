@@ -889,6 +889,46 @@
       }
     ],
     [
+      "IssuerKeyEpoch",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 77,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "AuditorKeyEpoch",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 78,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "IssuerKeyMirrorEpoch",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 79,
+        "type": "UInt32"
+      }
+    ],
+    [
+      "AuditorKeyMirrorEpoch",
+      {
+        "isSerialized": true,
+        "isSigningField": true,
+        "isVLEncoded": false,
+        "nth": 80,
+        "type": "UInt32"
+      }
+    ],
+    [
       "IndexNext",
       {
         "isSerialized": true,
@@ -4529,6 +4569,14 @@
         "optionality": 1
       },
       {
+        "name": "IssuerKeyEpoch",
+        "optionality": 1
+      },
+      {
+        "name": "AuditorKeyEpoch",
+        "optionality": 1
+      },
+      {
         "name": "ConfidentialOutstandingAmount",
         "optionality": 2
       }
@@ -7170,5 +7218,5 @@
     "Vector256": 19,
     "XChainBridge": 25
   },
-  "hash": "1EA05B0FC11101F7C500BD0DAC794A8BC746A7FBA6250B75489603EB820E0FF5"
+  "hash": "0F89957938A9185335A2ACD799EDDF3965F349E2E482A0CDD97094A1E4DB9FE7"
 }

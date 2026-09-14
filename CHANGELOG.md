@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Support for the `LendingProtocolV1_1` amendment.
+- Support the `fixCleanup3_4_0` signing prefixes.
+- Regenerate `definitions.json` from rippled 3.4.0: adds new fields (e.g. `VaultKind`, `SubscriptionDate`, `RedemptionDate`) and removes Hook/Emit field definitions, as Hooks is no longer supported.
 
 ## [[5.1.0]]
 

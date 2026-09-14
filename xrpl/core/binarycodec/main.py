@@ -19,6 +19,11 @@ _TRANSACTION_SIGNATURE_PREFIX: Final[bytes] = _num_to_bytes(0x53545800)
 _PAYMENT_CHANNEL_CLAIM_PREFIX: Final[bytes] = _num_to_bytes(0x434C4D00)
 _TRANSACTION_MULTISIG_PREFIX: Final[bytes] = _num_to_bytes(0x534D5400)
 _BATCH_PREFIX: Final[bytes] = _num_to_bytes(0x42434800)
+# Role-specific signing prefixes introduced by fixCleanup3_4_0.
+_COUNTERPARTY_TRANSACTION_SIGNATURE_PREFIX: Final[bytes] = _num_to_bytes(0x43505400)
+_COUNTERPARTY_TRANSACTION_MULTISIG_PREFIX: Final[bytes] = _num_to_bytes(0x43504D00)
+_SPONSOR_TRANSACTION_SIGNATURE_PREFIX: Final[bytes] = _num_to_bytes(0x53504E00)
+_SPONSOR_TRANSACTION_MULTISIG_PREFIX: Final[bytes] = _num_to_bytes(0x53504D00)
 
 
 def encode(json: Dict[str, Any]) -> str:
@@ -145,6 +150,91 @@ def encode_for_multisigning(json: Dict[str, Any], signing_account: str) -> str:
     return _serialize_json(
         json,
         prefix=_TRANSACTION_MULTISIG_PREFIX,
+        suffix=signing_account_id,
+        signing_only=True,
+    )
+
+
+def encode_for_signing_counterparty(json: Dict[str, Any]) -> str:
+    """
+    Encode a transaction for signing by the counterparty.
+
+    Under ``fixCleanup3_4_0`` a counterparty signature covers a distinct signing
+    prefix so it cannot be replayed as a first-party signature.
+
+    Args:
+        json: A JSON-like dictionary representation of a transaction.
+
+    Returns:
+        The binary-encoded transaction, ready to be signed.
+    """
+    return _serialize_json(
+        json,
+        prefix=_COUNTERPARTY_TRANSACTION_SIGNATURE_PREFIX,
+        signing_only=True,
+    )
+
+
+def encode_for_multisigning_counterparty(
+    json: Dict[str, Any], signing_account: str
+) -> str:
+    """
+    Encode a transaction for multi-signing by the counterparty
+    (``fixCleanup3_4_0``).
+
+    Args:
+        json: A JSON-like dictionary representation of a transaction.
+        signing_account: The address of the signer who'll provide the signature.
+
+    Returns:
+        A hex string of the encoded transaction.
+    """
+    signing_account_id = bytes(AccountID.from_value(signing_account))
+
+    return _serialize_json(
+        json,
+        prefix=_COUNTERPARTY_TRANSACTION_MULTISIG_PREFIX,
+        suffix=signing_account_id,
+        signing_only=True,
+    )
+
+
+def encode_for_signing_sponsor(json: Dict[str, Any]) -> str:
+    """
+    Encode a transaction for signing by the sponsor.
+
+    Under ``fixCleanup3_4_0`` a sponsor signature covers a distinct signing
+    prefix so it cannot be replayed as a first-party signature.
+
+    Args:
+        json: A JSON-like dictionary representation of a transaction.
+
+    Returns:
+        The binary-encoded transaction, ready to be signed.
+    """
+    return _serialize_json(
+        json,
+        prefix=_SPONSOR_TRANSACTION_SIGNATURE_PREFIX,
+        signing_only=True,
+    )
+
+
+def encode_for_multisigning_sponsor(json: Dict[str, Any], signing_account: str) -> str:
+    """
+    Encode a transaction for multi-signing by the sponsor (``fixCleanup3_4_0``).
+
+    Args:
+        json: A JSON-like dictionary representation of a transaction.
+        signing_account: The address of the signer who'll provide the signature.
+
+    Returns:
+        A hex string of the encoded transaction.
+    """
+    signing_account_id = bytes(AccountID.from_value(signing_account))
+
+    return _serialize_json(
+        json,
+        prefix=_SPONSOR_TRANSACTION_MULTISIG_PREFIX,
         suffix=signing_account_id,
         signing_only=True,
     )
