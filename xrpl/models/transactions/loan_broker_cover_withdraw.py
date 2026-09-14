@@ -41,10 +41,9 @@ class LoanBrokerCoverWithdraw(Transaction):
     """
 
     credential_ids: Optional[List[str]] = None
-    """
-    Credential(s) to attach for credential-based deposit preauthorization (XLS-70)
-    when the destination requires them.
-    """
+    """Credentials associated with the sender of this transaction, used to authorize
+    the withdrawal when the destination is in a permissioned domain that requires
+    them. The credentials included must not be expired."""
 
     transaction_type: TransactionType = field(
         default=TransactionType.LOAN_BROKER_COVER_WITHDRAW,
