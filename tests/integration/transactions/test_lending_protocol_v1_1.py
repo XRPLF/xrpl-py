@@ -51,7 +51,7 @@ class TestLendingProtocolV1_1(IntegrationTestCase):
         await fund_wallet_async(vault_owner)
 
         # A close-ended vault requires a future subscription date and a
-        # redemption date at least kMinInvestmentPeriod (60s) later. Derive the
+        # redemption date at least kMinInvestmentPeriod (180s) later. Derive the
         # dates from the ledger's validated close time -- the standalone clock is
         # not in sync with the local system clock, so a date based on
         # datetime.now() can already be in the ledger's past (tecEXPIRED).

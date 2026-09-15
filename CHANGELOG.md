@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Support for the `LendingProtocolV1_1` amendment.
+- Add `encode_for_signing_counterparty` / `encode_for_multisigning_counterparty` and `encode_for_signing_sponsor` / `encode_for_multisigning_sponsor` for the role-specific signing prefixes introduced by `fixCleanup3_4_0`.
+
+### Changed
+
 - Support the `fixCleanup3_4_0` signing prefixes.
 - Regenerate `definitions.json` from rippled 3.4.0: adds new fields (e.g. `VaultKind`, `SubscriptionDate`, `RedemptionDate`) and removes Hook/Emit field definitions, as Hooks is no longer supported.
 
