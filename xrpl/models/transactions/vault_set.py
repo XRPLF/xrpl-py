@@ -8,11 +8,9 @@ from typing_extensions import Self
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.transactions.vault_create import (
-    VAULT_MAX_DATA_LENGTH,
-    VAULT_MAX_DOMAIN_ID_LENGTH,
-)
+from xrpl.models.transactions.vault_create import VAULT_MAX_DOMAIN_ID_LENGTH
 from xrpl.models.transactions.vault_delete import _MAX_VAULT_ID_LENGTH
+from xrpl.models.utils import VAULT_MAX_DATA_LENGTH
 
 
 @dataclass(frozen=True, kw_only=True)

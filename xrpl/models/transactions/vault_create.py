@@ -16,9 +16,9 @@ from xrpl.models.utils import (
     HEX_REGEX,
     MAX_MPTOKEN_METADATA_LENGTH,
     MPT_META_WARNING_HEADER,
+    is_valid_vault_data,
 )
 
-VAULT_MAX_DATA_LENGTH = 256 * 2
 VAULT_MAX_DOMAIN_ID_LENGTH = 32 * 2
 
 _MAX_UINT32 = 2**32 - 1
@@ -56,20 +56,6 @@ def _is_uint32(value: object) -> bool:
         isinstance(value, int)
         and not isinstance(value, bool)
         and 0 <= value <= _MAX_UINT32
-    )
-
-
-def _is_valid_hex_data(value: str) -> bool:
-    """Return whether ``value`` is a well-formed Vault data/memo blob.
-
-    It must be an even-length hex string no longer than ``VAULT_MAX_DATA_LENGTH``
-    characters (256 bytes). Odd-length or non-hex values pass length-only checks
-    but fail ``bytes.fromhex()`` during ``MemoData``/``Data`` serialization.
-    """
-    return (
-        len(value) <= VAULT_MAX_DATA_LENGTH
-        and len(value) % 2 == 0
-        and HEX_REGEX.fullmatch(value) is not None
     )
 
 
@@ -181,7 +167,7 @@ class VaultCreate(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        if self.data is not None and not _is_valid_hex_data(self.data):
+        if self.data is not None and not is_valid_vault_data(self.data):
             errors["data"] = (
                 "Data must be an even-length hex string no longer than 256 bytes "
                 "(alternatively, 512 hex characters)."

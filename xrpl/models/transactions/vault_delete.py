@@ -8,7 +8,7 @@ from typing_extensions import Self
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.transactions.vault_create import _is_valid_hex_data
+from xrpl.models.utils import is_valid_vault_data
 
 _MAX_VAULT_ID_LENGTH = 64
 
@@ -37,7 +37,7 @@ class VaultDelete(Transaction):
                 "Invalid vault ID: Length must be 32 characters (64 hex characters)."
             )
 
-        if self.memo_data is not None and not _is_valid_hex_data(self.memo_data):
+        if self.memo_data is not None and not is_valid_vault_data(self.memo_data):
             errors["memo_data"] = (
                 "MemoData must be an even-length hex string no longer than 256 bytes "
                 "(alternatively, 512 hex characters)."
