@@ -117,10 +117,13 @@ class SECP256K1(CryptoImplementation):
         """
         public_key_point = _CURVE.decode_point(bytes.fromhex(public_key))
         wrapped_public = ECPublicKey(public_key_point)
-        return cast(
-            bool,
-            _SIGNER.verify(sha512_first_half(message), signature, wrapped_public),
-        )
+        try:
+            return cast(
+                bool,
+                _SIGNER.verify(sha512_first_half(message), signature, wrapped_public),
+            )
+        except (OverflowError, ValueError):
+            return False
 
     @classmethod
     def _format_keys(
