@@ -18,7 +18,7 @@ class TestLoanBrokerSet(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'LoanBrokerSet:data': 'Data must be less than 256 bytes.'}",
+            "{'LoanBrokerSet:data': 'Data must be no longer than 256 bytes.'}",
         )
 
     def test_invalid_data_non_hex_string(self):
@@ -95,8 +95,8 @@ class TestLoanBrokerSet(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'LoanBrokerSet:cover_rate_liquidation': 'Cover rate liquidation must be"
-            + " between 0 and 100_000 inclusive.'}",
+            "{'LoanBrokerSet:cover_rate_liquidation': 'Cover rate liquidation must be "
+            + "between 0 and 100_000 inclusive.'}",
         )
 
     def test_invalid_cover_rate_liquidation_too_high(self):
@@ -108,8 +108,8 @@ class TestLoanBrokerSet(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'LoanBrokerSet:cover_rate_liquidation': 'Cover rate liquidation must be"
-            + " between 0 and 100_000 inclusive.'}",
+            "{'LoanBrokerSet:cover_rate_liquidation': 'Cover rate liquidation must be "
+            + "between 0 and 100_000 inclusive.'}",
         )
 
     def test_invalid_debt_maximum_too_low(self):
@@ -143,5 +143,8 @@ class TestLoanBrokerSet(TestCase):
         tx = LoanBrokerSet(
             account=_SOURCE,
             vault_id=_VAULT_ID,
+            management_fee_rate=100,
+            cover_rate_minimum=5000,
+            cover_rate_liquidation=2000,
         )
         self.assertTrue(tx.is_valid())
