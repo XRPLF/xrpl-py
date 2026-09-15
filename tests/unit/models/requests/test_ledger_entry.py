@@ -4,6 +4,7 @@ from xrpl.models import XRP, LedgerEntry, XChainBridge
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests.ledger_entry import (
     Credential,
+    Directory,
     MPToken,
     Oracle,
     PermissionedDomain,
@@ -44,6 +45,16 @@ class TestLedgerEntry(TestCase):
     def test_has_only_directory_is_valid(self):
         req = LedgerEntry(
             directory="hello",
+        )
+        self.assertTrue(req.is_valid())
+
+    def test_directory_with_owner_and_sub_index_is_valid(self):
+        req = LedgerEntry(
+            directory=Directory(
+                owner="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+                sub_index=0,
+            ),
+            ledger_index="validated",
         )
         self.assertTrue(req.is_valid())
 
