@@ -75,9 +75,13 @@ Decimal context for working with IOUs.
 :meta private:
 """
 
-
 DROPS_DECIMAL_CONTEXT: Final[Context] = Context(prec=18, Emin=0, Emax=18)
 """
 Decimal context for working with drops.
 :meta private:
+"""
+
+MAX_NFT_URI_LENGTH: Final[int] = 512
+"""
+The maximum length of a hex-encoded NFT URI in characters.
 """
