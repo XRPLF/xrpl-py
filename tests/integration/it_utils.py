@@ -297,6 +297,24 @@ async def sign_and_reliable_submission_async(
     return response
 
 
+# Reads the close time of the latest validated ledger. Closed-ended vault date fields
+# (SubscriptionDate / RedemptionDate) and the LoanSet schedule checks are evaluated
+# against the ledger close time, which on a standalone node is not in sync with the
+# local system clock -- so vault dates must be derived from this value, not from
+# datetime.now().
+def get_validated_close_time(client: SyncClient = JSON_RPC_CLIENT) -> int:
+    return client.request(Ledger(ledger_index="validated")).result["ledger"][
+        "close_time"
+    ]
+
+
+async def get_validated_close_time_async(
+    client: AsyncClient = ASYNC_JSON_RPC_CLIENT,
+) -> int:
+    response = await client.request(Ledger(ledger_index="validated"))
+    return response.result["ledger"]["close_time"]
+
+
 def accept_ledger(
     use_json_client: bool = True, delay: float = LEDGER_ACCEPT_TIME
 ) -> None:

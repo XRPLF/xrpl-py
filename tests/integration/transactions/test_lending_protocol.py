@@ -3,6 +3,7 @@ from tests.integration.it_utils import (
     LEDGER_ACCEPT_REQUEST,
     advance_ledger_past_close_time_async,
     fund_wallet_async,
+    get_validated_close_time_async,
     sign_and_reliable_submission_async,
     test_async_and_sync,
 )
@@ -30,7 +31,6 @@ from xrpl.models.currencies.issued_currency import IssuedCurrency
 from xrpl.models.currencies.mpt_currency import MPTCurrency
 from xrpl.models.currencies.xrp import XRP
 from xrpl.models.requests.account_objects import AccountObjectType
-from xrpl.models.requests.ledger_entry import LedgerEntry
 from xrpl.models.requests.tx import Tx
 from xrpl.models.response import ResponseStatus
 from xrpl.models.transactions.loan_manage import LoanManageFlag
@@ -42,7 +42,7 @@ from xrpl.models.transactions.mptoken_issuance_create import (
     MPTokenIssuanceCreateFlag,
 )
 from xrpl.models.transactions.signer_list_set import SignerEntry, SignerListSet
-from xrpl.models.transactions.vault_create import WithdrawalPolicy
+from xrpl.models.transactions.vault_create import VaultKind, WithdrawalPolicy
 from xrpl.transaction import (
     combine_loanset_counterparty_signers,
     sign_loan_set_by_counterparty,
@@ -64,12 +64,22 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         borrower_wallet = Wallet.create()
         await fund_wallet_async(borrower_wallet)
 
-        # Step-1: Create a vault
+        # Step-1: Create a close-ended vault. Under LendingProtocolV1_1 a LoanBroker
+        # can only be attached to a close-ended vault, which requires both a
+        # subscription_date and a redemption_date. These are ledger close times, so
+        # derive them from the latest validated ledger (the standalone clock is not in
+        # sync with the local system clock).
+        close_time = await get_validated_close_time_async(client)
+        subscription_date = close_time + 10
+        redemption_date = subscription_date + 86400
         tx = VaultCreate(
             account=loan_issuer.address,
             asset=XRP(),
             assets_maximum="1000",
             withdrawal_policy=WithdrawalPolicy.VAULT_STRATEGY_FIRST_COME_FIRST_SERVE,
+            vault_kind=VaultKind.CLOSED,
+            subscription_date=subscription_date,
+            redemption_date=redemption_date,
         )
         response = await sign_and_reliable_submission_async(tx, loan_issuer, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
@@ -115,6 +125,11 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         # transaction and the requested principal (excluding fees) is transferred to
         # the Borrower.
 
+        # Advance the ledger into the vault's Investment phase before creating the
+        # loan. LendingProtocolV1_1 only accepts a LoanSet while the close-ended vault
+        # is in its Investment phase (subscription_date < close_time < redemption_date).
+        await advance_ledger_past_close_time_async(subscription_date, client)
+
         loan_issuer_signed_txn = await autofill_and_sign(
             LoanSet(
                 account=loan_issuer.address,
@@ -158,6 +173,9 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         )
         self.assertEqual(len(response.result["account_objects"]), 1)
         LOAN_ID = response.result["account_objects"][0]["index"]
+        next_payment_due_date = response.result["account_objects"][0][
+            "NextPaymentDueDate"
+        ]
 
         # Delete the Loan object
         tx = LoanDelete(
@@ -169,13 +187,11 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         # Loan cannot be deleted until all the remaining payments are completed
         self.assertEqual(response.result["engine_result"], "tecHAS_OBLIGATIONS")
 
-        # fixCleanup3_4_0: a loan can only be impaired once a payment is late,
-        # and the late-payment LoanPay below requires the same. Advance the
-        # ledger past the loan's first payment due date so it is overdue.
-        loan_object = await client.request(LedgerEntry(index=LOAN_ID))
-        await advance_ledger_past_close_time_async(
-            loan_object.result["node"]["NextPaymentDueDate"], client
-        )
+        # Advance the ledger past the loan's first payment due date so the loan
+        # becomes overdue. Under LendingProtocolV1_1 (fixCleanup3_4_0) a loan can
+        # only be impaired once a payment is late; otherwise LoanManage returns
+        # tecTOO_SOON.
+        await advance_ledger_past_close_time_async(next_payment_due_date, client)
 
         # Test the LoanManage transaction
         tx = LoanManage(
@@ -187,15 +203,14 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-        # Test the LoanPay transaction
+        # Test the LoanPay transaction. The loan is now overdue, so the payment
+        # must set the late-payment flag; a normal LoanPay on an overdue loan
+        # returns tecEXPIRED under LendingProtocolV1_1.
         tx = LoanPay(
             account=borrower_wallet.address,
             loan_id=LOAN_ID,
-            # The loan is overdue, so the payment must set the late-payment flag
-            # (fixCleanup3_4_0); a normal LoanPay on an overdue loan returns
-            # tecEXPIRED.
-            flags=LoanPayFlag.TF_LOAN_LATE_PAYMENT,
             amount="100",
+            flags=LoanPayFlag.TF_LOAN_LATE_PAYMENT,
         )
         response = await sign_and_reliable_submission_async(tx, borrower_wallet, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
@@ -233,12 +248,22 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-        # Step-1: Create a vault
+        # Step-1: Create a close-ended vault. Under LendingProtocolV1_1 a LoanBroker
+        # can only be attached to a close-ended vault, which requires both a
+        # subscription_date and a redemption_date. These are ledger close times, so
+        # derive them from the latest validated ledger (the standalone clock is not in
+        # sync with the local system clock).
+        close_time = await get_validated_close_time_async(client)
+        subscription_date = close_time + 10
+        redemption_date = subscription_date + 86400
         tx = VaultCreate(
             account=loan_issuer.address,
             asset=XRP(),
             assets_maximum="1000",
             withdrawal_policy=WithdrawalPolicy.VAULT_STRATEGY_FIRST_COME_FIRST_SERVE,
+            vault_kind=VaultKind.CLOSED,
+            subscription_date=subscription_date,
+            redemption_date=redemption_date,
         )
         response = await sign_and_reliable_submission_async(tx, loan_issuer, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
@@ -283,6 +308,11 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         # Step-5.A: The Loan Broker and Borrower create a Loan object with a LoanSet
         # transaction and the requested principal (excluding fees) is transferred to
         # the Borrower.
+
+        # Advance the ledger into the vault's Investment phase before creating the
+        # loan. LendingProtocolV1_1 only accepts a LoanSet while the close-ended vault
+        # is in its Investment phase (subscription_date < close_time < redemption_date).
+        await advance_ledger_past_close_time_async(subscription_date, client)
 
         loan_issuer_signed_txn = await autofill_and_sign(
             LoanSet(
@@ -344,12 +374,22 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         depositor_wallet = Wallet.create()
         await fund_wallet_async(depositor_wallet)
 
-        # Step-1: Create a vault
+        # Step-1: Create a close-ended vault. Under LendingProtocolV1_1 a LoanBroker
+        # can only be attached to a close-ended vault, which requires both a
+        # subscription_date and a redemption_date. These are ledger close times, so
+        # derive them from the latest validated ledger (the standalone clock is not in
+        # sync with the local system clock).
+        close_time = await get_validated_close_time_async(client)
+        subscription_date = close_time + 10
+        redemption_date = subscription_date + 86400
         tx = VaultCreate(
             account=loan_issuer.address,
             asset=XRP(),
             assets_maximum="1000",
             withdrawal_policy=WithdrawalPolicy.VAULT_STRATEGY_FIRST_COME_FIRST_SERVE,
+            vault_kind=VaultKind.CLOSED,
+            subscription_date=subscription_date,
+            redemption_date=redemption_date,
         )
         response = await sign_and_reliable_submission_async(tx, loan_issuer, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
@@ -396,6 +436,11 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         # transaction and the requested principal (excluding fees) is transferred to
         # the Borrower.
         borrower_wallet: Wallet = loan_issuer
+
+        # Advance the ledger into the vault's Investment phase before creating the
+        # loan. LendingProtocolV1_1 only accepts a LoanSet while the close-ended vault
+        # is in its Investment phase (subscription_date < close_time < redemption_date).
+        await advance_ledger_past_close_time_async(subscription_date, client)
 
         loan_issuer_signed_txn = await autofill_and_sign(
             LoanSet(
@@ -517,12 +562,19 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-        # Step-1: Create a vault
+        # Step-1: Create a close-ended vault (see the XRP lifecycle test for why the
+        # dates are derived from the latest validated ledger close time).
+        close_time = await get_validated_close_time_async(client)
+        subscription_date = close_time + 10
+        redemption_date = subscription_date + 86400
         tx = VaultCreate(
             account=loan_issuer.address,
             asset=IssuedCurrency(currency="USD", issuer=loan_issuer.address),
             assets_maximum="10000",
             withdrawal_policy=WithdrawalPolicy.VAULT_STRATEGY_FIRST_COME_FIRST_SERVE,
+            vault_kind=VaultKind.CLOSED,
+            subscription_date=subscription_date,
+            redemption_date=redemption_date,
         )
         response = await sign_and_reliable_submission_async(tx, loan_issuer, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
@@ -570,6 +622,11 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         # Step-5: The Loan Broker and Borrower create a Loan object with a LoanSet
         # transaction and the requested principal (excluding fees) is transferred to
         # the Borrower.
+        # Advance the ledger into the vault's Investment phase before creating the
+        # loan. LendingProtocolV1_1 only accepts a LoanSet while the close-ended vault
+        # is in its Investment phase (subscription_date < close_time < redemption_date).
+        await advance_ledger_past_close_time_async(subscription_date, client)
+
         loan_issuer_signed_txn = await autofill_and_sign(
             LoanSet(
                 account=loan_issuer.address,
@@ -613,6 +670,9 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         )
         self.assertEqual(len(response.result["account_objects"]), 1)
         LOAN_ID = response.result["account_objects"][0]["index"]
+        next_payment_due_date = response.result["account_objects"][0][
+            "NextPaymentDueDate"
+        ]
 
         # Delete the Loan object
         tx = LoanDelete(
@@ -624,13 +684,11 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         # Loan cannot be deleted until all the remaining payments are completed
         self.assertEqual(response.result["engine_result"], "tecHAS_OBLIGATIONS")
 
-        # fixCleanup3_4_0: a loan can only be impaired once a payment is late,
-        # and the late-payment LoanPay below requires the same. Advance the
-        # ledger past the loan's first payment due date so it is overdue.
-        loan_object = await client.request(LedgerEntry(index=LOAN_ID))
-        await advance_ledger_past_close_time_async(
-            loan_object.result["node"]["NextPaymentDueDate"], client
-        )
+        # Advance the ledger past the loan's first payment due date so the loan
+        # becomes overdue. Under LendingProtocolV1_1 (fixCleanup3_4_0) a loan can
+        # only be impaired once a payment is late; otherwise LoanManage returns
+        # tecTOO_SOON.
+        await advance_ledger_past_close_time_async(next_payment_due_date, client)
 
         # Test the LoanManage transaction
         tx = LoanManage(
@@ -642,17 +700,16 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-        # Test the LoanPay transaction
+        # Test the LoanPay transaction. The loan is now overdue, so the payment
+        # must set the late-payment flag; a normal LoanPay on an overdue loan
+        # returns tecEXPIRED under LendingProtocolV1_1.
         tx = LoanPay(
             account=borrower_wallet.address,
             loan_id=LOAN_ID,
-            # The loan is overdue, so the payment must set the late-payment flag
-            # (fixCleanup3_4_0); a normal LoanPay on an overdue loan returns
-            # tecEXPIRED.
-            flags=LoanPayFlag.TF_LOAN_LATE_PAYMENT,
             amount=IssuedCurrencyAmount(
                 currency="USD", issuer=loan_issuer.address, value="100"
             ),
+            flags=LoanPayFlag.TF_LOAN_LATE_PAYMENT,
         )
         response = await sign_and_reliable_submission_async(tx, borrower_wallet, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
@@ -736,10 +793,17 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-        # Step-1: Create a vault
+        # Step-1: Create a close-ended vault (see the XRP lifecycle test for why the
+        # dates are derived from the latest validated ledger close time).
+        close_time = await get_validated_close_time_async(client)
+        subscription_date = close_time + 10
+        redemption_date = subscription_date + 86400
         tx = VaultCreate(
             account=loan_issuer.address,
             asset=MPTCurrency(mpt_issuance_id=MPT_ISSUANCE_ID),
+            vault_kind=VaultKind.CLOSED,
+            subscription_date=subscription_date,
+            redemption_date=redemption_date,
         )
         response = await sign_and_reliable_submission_async(tx, loan_issuer, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
@@ -785,6 +849,11 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         # Step-5: The Loan Broker and Borrower create a Loan object with a LoanSet
         # transaction and the requested principal (excluding fees) is transferred to
         # the Borrower.
+        # Advance the ledger into the vault's Investment phase before creating the
+        # loan. LendingProtocolV1_1 only accepts a LoanSet while the close-ended vault
+        # is in its Investment phase (subscription_date < close_time < redemption_date).
+        await advance_ledger_past_close_time_async(subscription_date, client)
+
         loan_issuer_signed_txn = await autofill_and_sign(
             LoanSet(
                 account=loan_issuer.address,
@@ -828,6 +897,9 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         )
         self.assertEqual(len(response.result["account_objects"]), 1)
         LOAN_ID = response.result["account_objects"][0]["index"]
+        next_payment_due_date = response.result["account_objects"][0][
+            "NextPaymentDueDate"
+        ]
 
         # Delete the Loan object
         tx = LoanDelete(
@@ -839,13 +911,11 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         # Loan cannot be deleted until all the remaining payments are completed
         self.assertEqual(response.result["engine_result"], "tecHAS_OBLIGATIONS")
 
-        # fixCleanup3_4_0: a loan can only be impaired once a payment is late,
-        # and the late-payment LoanPay below requires the same. Advance the
-        # ledger past the loan's first payment due date so it is overdue.
-        loan_object = await client.request(LedgerEntry(index=LOAN_ID))
-        await advance_ledger_past_close_time_async(
-            loan_object.result["node"]["NextPaymentDueDate"], client
-        )
+        # Advance the ledger past the loan's first payment due date so the loan
+        # becomes overdue. Under LendingProtocolV1_1 (fixCleanup3_4_0) a loan can
+        # only be impaired once a payment is late; otherwise LoanManage returns
+        # tecTOO_SOON.
+        await advance_ledger_past_close_time_async(next_payment_due_date, client)
 
         # Test the LoanManage transaction
         tx = LoanManage(
@@ -857,15 +927,14 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-        # Test the LoanPay transaction
+        # Test the LoanPay transaction. The loan is now overdue, so the payment
+        # must set the late-payment flag; a normal LoanPay on an overdue loan
+        # returns tecEXPIRED under LendingProtocolV1_1.
         tx = LoanPay(
             account=borrower_wallet.address,
             loan_id=LOAN_ID,
-            # The loan is overdue, so the payment must set the late-payment flag
-            # (fixCleanup3_4_0); a normal LoanPay on an overdue loan returns
-            # tecEXPIRED.
-            flags=LoanPayFlag.TF_LOAN_LATE_PAYMENT,
             amount=MPTAmount(mpt_issuance_id=MPT_ISSUANCE_ID, value="100"),
+            flags=LoanPayFlag.TF_LOAN_LATE_PAYMENT,
         )
         response = await sign_and_reliable_submission_async(tx, borrower_wallet, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
@@ -884,12 +953,22 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         borrower_wallet = Wallet.create()
         await fund_wallet_async(borrower_wallet)
 
-        # Step-1: Create a vault
+        # Step-1: Create a close-ended vault. Under LendingProtocolV1_1 a LoanBroker
+        # can only be attached to a close-ended vault, which requires both a
+        # subscription_date and a redemption_date. These are ledger close times, so
+        # derive them from the latest validated ledger (the standalone clock is not in
+        # sync with the local system clock).
+        close_time = await get_validated_close_time_async(client)
+        subscription_date = close_time + 10
+        redemption_date = subscription_date + 86400
         tx = VaultCreate(
             account=loan_issuer.address,
             asset=XRP(),
             assets_maximum="1000",
             withdrawal_policy=WithdrawalPolicy.VAULT_STRATEGY_FIRST_COME_FIRST_SERVE,
+            vault_kind=VaultKind.CLOSED,
+            subscription_date=subscription_date,
+            redemption_date=redemption_date,
         )
         response = await sign_and_reliable_submission_async(tx, loan_issuer, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
@@ -931,6 +1010,11 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         # Step-4: Loan issuer signs the LoanSet transaction
+        # Advance the ledger into the vault's Investment phase before creating the
+        # loan. LendingProtocolV1_1 only accepts a LoanSet while the close-ended vault
+        # is in its Investment phase (subscription_date < close_time < redemption_date).
+        await advance_ledger_past_close_time_async(subscription_date, client)
+
         loan_issuer_signed_txn = await autofill_and_sign(
             LoanSet(
                 account=loan_issuer.address,
@@ -1008,12 +1092,22 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
-        # Step-1: Create a vault
+        # Step-1: Create a close-ended vault. Under LendingProtocolV1_1 a LoanBroker
+        # can only be attached to a close-ended vault, which requires both a
+        # subscription_date and a redemption_date. These are ledger close times, so
+        # derive them from the latest validated ledger (the standalone clock is not in
+        # sync with the local system clock).
+        close_time = await get_validated_close_time_async(client)
+        subscription_date = close_time + 10
+        redemption_date = subscription_date + 86400
         tx = VaultCreate(
             account=loan_issuer.address,
             asset=XRP(),
             assets_maximum="1000",
             withdrawal_policy=WithdrawalPolicy.VAULT_STRATEGY_FIRST_COME_FIRST_SERVE,
+            vault_kind=VaultKind.CLOSED,
+            subscription_date=subscription_date,
+            redemption_date=redemption_date,
         )
         response = await sign_and_reliable_submission_async(tx, loan_issuer, client)
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
@@ -1055,6 +1149,11 @@ class TestLendingProtocolLifecycle(IntegrationTestCase):
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")
 
         # Step-4: Loan issuer signs the LoanSet transaction
+        # Advance the ledger into the vault's Investment phase before creating the
+        # loan. LendingProtocolV1_1 only accepts a LoanSet while the close-ended vault
+        # is in its Investment phase (subscription_date < close_time < redemption_date).
+        await advance_ledger_past_close_time_async(subscription_date, client)
+
         loan_issuer_signed_txn = await autofill_and_sign(
             LoanSet(
                 account=loan_issuer.address,

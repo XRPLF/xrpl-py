@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Support for the `LendingProtocolV1_1` amendment.
 - Add `encode_for_signing_counterparty` / `encode_for_multisigning_counterparty` and `encode_for_signing_sponsor` / `encode_for_multisigning_sponsor` for the role-specific signing prefixes introduced by `fixCleanup3_4_0`.
 
 ### Changed

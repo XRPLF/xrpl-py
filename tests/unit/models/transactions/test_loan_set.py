@@ -18,7 +18,7 @@ class TestLoanSet(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'LoanSet:data': 'Data must be less than 256 bytes.'}",
+            "{'LoanSet:data': 'Data must be no longer than 256 bytes.'}",
         )
 
     def test_invalid_data_non_hex_string(self):
