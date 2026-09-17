@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Dict, Optional
 
 from typing_extensions import Final, Self
 
@@ -24,14 +24,26 @@ class Client(ABC):
     :meta private:
     """
 
-    def __init__(self: Self, url: str) -> None:
+    def __init__(
+        self: Self,
+        url: str,
+        *,
+        headers: Optional[Dict[str, str]] = None,
+    ) -> None:
         """
         Initializes a client.
 
         Arguments:
-            url: The url to which this client will connect
+            url: The URL to which this client will connect.
+            headers: Optional dictionary of default headers to include with
+                each request. These can be used to authenticate with private
+                XRPL nodes or pass custom metadata, such as
+                {"Authorization": "Bearer <token>"}.
         """
         self.url = url
+        # store an owned copy so later external mutation of the caller's dict
+        # cannot silently change the headers used for subsequent requests
+        self.headers = dict(headers) if headers else {}
         self.network_id: Optional[int] = None
         self.build_version: Optional[str] = None
 
