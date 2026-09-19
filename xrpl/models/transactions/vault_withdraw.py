@@ -1,7 +1,7 @@
 """Represents a VaultWithdraw transaction on the XRP Ledger."""
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from typing_extensions import Self
 
@@ -10,6 +10,7 @@ from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.transactions.vault_delete import _MAX_VAULT_ID_LENGTH
+from xrpl.models.utils import validate_credential_ids
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -34,6 +35,11 @@ class VaultWithdraw(Transaction):
     identifies the reason for the Payment, or a hosted recipient to pay.
     """
 
+    credential_ids: Optional[List[str]] = None
+    """Credentials associated with the sender of this transaction, used to authorize
+    the withdrawal when the destination is in a permissioned domain that requires
+    them. The credentials included must not be expired."""
+
     transaction_type: TransactionType = field(
         default=TransactionType.VAULT_WITHDRAW,
         init=False,
@@ -46,5 +52,7 @@ class VaultWithdraw(Transaction):
             errors["vault_id"] = (
                 "Invalid vault ID: Length must be 32 characters (64 hex characters)."
             )
+
+        errors.update(validate_credential_ids(self.credential_ids))
 
         return errors

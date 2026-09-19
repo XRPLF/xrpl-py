@@ -45,8 +45,42 @@ class TestVaultSet(TestCase):
             e.exception.args[0],
             str(
                 {
-                    "data": "Data must be less than 256 bytes "
-                    "(alternatively, 512 hex characters)."
+                    "data": "Data must be an even-length hex string no longer "
+                    "than 256 bytes (alternatively, 512 hex characters)."
+                }
+            ),
+        )
+
+    def test_non_hex_data_field(self):
+        with self.assertRaises(XRPLModelException) as e:
+            VaultSet(
+                account=_ACCOUNT,
+                vault_id=_VAULT_ID,
+                data="ZZZZ",
+            )
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "data": "Data must be an even-length hex string no longer "
+                    "than 256 bytes (alternatively, 512 hex characters)."
+                }
+            ),
+        )
+
+    def test_odd_length_data_field(self):
+        with self.assertRaises(XRPLModelException) as e:
+            VaultSet(
+                account=_ACCOUNT,
+                vault_id=_VAULT_ID,
+                data="ABC",
+            )
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "data": "Data must be an even-length hex string no longer "
+                    "than 256 bytes (alternatively, 512 hex characters)."
                 }
             ),
         )
