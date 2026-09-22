@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import xrpl.core.binarycodec.types.amount as amount
 from tests.unit.core.binarycodec.types.test_serialized_type import (
     TestSerializedType,
@@ -81,6 +83,18 @@ XRP_CASES = [
     ["100000000000000000", "416345785D8A0000"],
 ]
 
+# A field on the signed-XRP allowlist; only these accept a negative XRP amount.
+_SIGNED_XRP_FIELD = "FeeAmountDelta"
+
+# [XRP value, hex encoding] for a signed field. The "is positive" bit is cleared
+# rather than two's complement, so the magnitude bytes match the positive case.
+SIGNED_XRP_CASES = [
+    ["100", "4000000000000064"],
+    ["-100", "0000000000000064"],
+    ["100000000000000000", "416345785D8A0000"],
+    ["-100000000000000000", "016345785D8A0000"],
+]
+
 # [MPT dict, expected serialized hex]
 MPT_CASES = [
     [
@@ -107,6 +121,8 @@ class TestAmount(TestSerializedType):
 
         amount.verify_xrp_value(valid_zero)
         amount.verify_xrp_value(valid_amount)
+        # A negative amount is valid only when explicitly allowed.
+        amount.verify_xrp_value("-1000", allow_negative=True)
 
     def test_assert_xrp_is_valid_raises(self):
         invalid_amount_large = "1e20"
@@ -128,6 +144,21 @@ class TestAmount(TestSerializedType):
             amount.verify_xrp_value,
             invalid_amount_decimal,
         )
+
+    def test_assert_xrp_rejects_negative_by_default(self):
+        """A negative amount raises unless the caller opts in."""
+        self.assertRaises(XRPLBinaryCodecException, amount.verify_xrp_value, "-1000")
+
+    def test_assert_xrp_allow_negative_still_range_checks(self):
+        """Opting into signed XRP must not widen the accepted magnitude."""
+        for invalid_negative in ("-1e20", "-1e-7", "-1.234"):
+            with self.subTest(value=invalid_negative):
+                self.assertRaises(
+                    XRPLBinaryCodecException,
+                    amount.verify_xrp_value,
+                    invalid_negative,
+                    True,
+                )
 
     def test_assert_iou_is_valid(self):
         # { zero, pos, negative } * fractional, large, small
@@ -235,6 +266,78 @@ class TestAmount(TestSerializedType):
             self.assertEqual(round_tripped["currency"], "USD")
             self.assertEqual(round_tripped["issuer"], issuer)
 
+    def test_iou_to_json_preserves_significant_trailing_zeros(self):
+        """IOU values must round-trip exactly when the decoded Decimal
+        stringifies as an integer (e.g. ``"1000000000000000"``) or in
+        scientific notation (e.g. ``"1E+20"``) — in both shapes the old
+        ``rstrip("0")`` chewed into significant digits."""
+        issuer = "rDgZZ3wyprx4ZqrGQUkquE9Fs2Xs8XBcdw"
+        # Each entry: (input value form, expected decoded value string,
+        #              expected 8-byte header in canonical hex).
+        trailing_zero_cases = [
+            # Integer-form decoded Decimal (canonical internal exponent == 0).
+            # ``str(Decimal)`` has no decimal point; the buggy first
+            # ``rstrip("0")`` eats every significant trailing zero.
+            ("1000000000000000", "1000000000000000", "D8438D7EA4C68000"),
+            ("-1000000000000000", "-1000000000000000", "98438D7EA4C68000"),
+            # Single trailing zero: the buggy strip eats exactly one digit,
+            # producing a small ``x10`` corruption (``9999999999999990`` ->
+            # ``999999999999999``) that is plausible-looking and easy to miss
+            # under a loose equality check.
+            ("9999999999999990", "9999999999999990", "D86386F26FC0FFF6"),
+            ("-9999999999999990", "-9999999999999990", "986386F26FC0FFF6"),
+            # Interior non-zero digit: proves the strip stops where it lands.
+            ("1234567890000000", "1234567890000000", "D84462D53C88D880"),
+            # Sci-notation *input* that lands on an integer canonical decode.
+            ("25e14", "2500000000000000", "D848E1BC9BF04000"),
+            # Large-magnitude (canonical internal exponent pushes outside the
+            # fixed-point window): ``str(Decimal)`` emits sci notation like
+            # ``"1.000000000000000E+20"`` and the buggy ``rstrip("0")`` shaves
+            # a digit off the exponent itself (e.g. ``E+20`` -> ``E+2``). Full
+            # mantissa-sign x exponent-sign matrix at |exponent|=20, well
+            # within the IOU exponent range and free of any rounding concerns.
+            ("1e20", "1" + "0" * 20, "D9838D7EA4C68000"),
+            ("-1e20", "-1" + "0" * 20, "99838D7EA4C68000"),
+            ("1e-20", "0." + "0" * 19 + "1", "CF838D7EA4C68000"),
+            ("-1e-20", "-0." + "0" * 19 + "1", "8F838D7EA4C68000"),
+            # Happy-path: fractional trailing zeros (the encoder pads the
+            # canonical mantissa to 16 digits, so the decoded Decimal carries
+            # 15 fractional digits even for an input like ``"1.2"``). The
+            # output must NOT carry those zeros forward; this guards against
+            # an over-correction that drops the fractional rstrip entirely.
+            ("1.2000000", "1.2", "D4844364C5BB0000"),
+            ("-1.2000000", "-1.2", "94844364C5BB0000"),
+        ]
+        for (
+            original_value,
+            expected_decoded_value,
+            expected_header_hex,
+        ) in trailing_zero_cases:
+            iou_dict = {
+                "value": original_value,
+                "currency": "USD",
+                "issuer": issuer,
+            }
+            amount_object = amount.Amount.from_value(iou_dict)
+            self.assertEqual(
+                amount_object.to_hex()[:16].upper(),
+                expected_header_hex,
+                f"Encoder produced unexpected header for {original_value!r}",
+            )
+            round_tripped_iou = amount_object.to_json()
+            self.assertEqual(
+                round_tripped_iou["value"],
+                expected_decoded_value,
+                f"Round-trip corrupted {original_value!r}: "
+                f"got {round_tripped_iou['value']!r}",
+            )
+            self.assertEqual(
+                Decimal(round_tripped_iou["value"]),
+                Decimal(original_value),
+                f"Decoded value {round_tripped_iou['value']!r} is "
+                f"numerically unequal to input {original_value!r}",
+            )
+
     def test_from_value_xrp(self):
         for json, serialized in XRP_CASES:
             amount_object = amount.Amount.from_value(json)
@@ -256,6 +359,79 @@ class TestAmount(TestSerializedType):
             parser = BinaryParser(serialized)
             amount_object = amount.Amount.from_parser(parser)
             self.assertEqual(amount_object.to_json(), json)
+
+    def test_from_value_signed_xrp(self):
+        """A signed field encodes both signs; the magnitude bytes are identical."""
+        for value, serialized in SIGNED_XRP_CASES:
+            with self.subTest(value=value):
+                amount_object = amount.Amount.from_value(value, _SIGNED_XRP_FIELD)
+                self.assertEqual(amount_object.to_hex(), serialized)
+
+    def test_negative_xrp_rejected_off_the_allowlist(self):
+        """Only allowlisted fields accept a negative XRP amount."""
+        # Default field: rejected, as it was before signed deltas existed.
+        self.assertRaises(XRPLBinaryCodecException, amount.Amount.from_value, "-100")
+        # A non-allowlisted named field is rejected too.
+        self.assertRaises(
+            XRPLBinaryCodecException, amount.Amount.from_value, "-100", "Amount"
+        )
+
+    def test_xrp_extremes(self):
+        """Both signs at 1 drop and at the maximum, and one drop past it."""
+        max_drops = "100000000000000000"
+        over_max = "100000000000000001"
+
+        for value, expected_hex in (
+            ("1", "4000000000000001"),
+            ("-1", "0000000000000001"),
+            (max_drops, "416345785D8A0000"),
+            ("-" + max_drops, "016345785D8A0000"),
+        ):
+            with self.subTest(value=value):
+                self.assertEqual(
+                    amount.Amount.from_value(value, _SIGNED_XRP_FIELD).to_hex(),
+                    expected_hex,
+                )
+
+        # ``from_value`` runs inside IOU_DECIMAL_CONTEXT, whose 16-digit
+        # precision rounds ``over_max`` down to the maximum unless the magnitude
+        # is taken with a context-independent operation.
+        for value in (over_max, "-" + over_max):
+            with self.subTest(value=value):
+                self.assertRaises(
+                    XRPLBinaryCodecException,
+                    amount.Amount.from_value,
+                    value,
+                    _SIGNED_XRP_FIELD,
+                )
+
+    def test_xrp_zero_is_never_negative(self):
+        """Zero has no sign on the wire: the "is positive" bit is always set."""
+        positive_zero = "4000000000000000"
+        self.assertEqual(
+            amount.Amount.from_value("0", _SIGNED_XRP_FIELD).to_hex(), positive_zero
+        )
+        self.assertEqual(
+            amount.Amount.from_value("-0", _SIGNED_XRP_FIELD).to_hex(), positive_zero
+        )
+
+    def test_xrp_round_trip_signed(self):
+        """Encoding then decoding a signed XRP amount returns the original string."""
+        for value in (
+            "0",
+            "1",
+            "-1",
+            "100",
+            "-100",
+            "20000000",
+            "-20000000",
+            "100000000000000000",
+            "-100000000000000000",
+        ):
+            with self.subTest(value=value):
+                serialized = amount.Amount.from_value(value, _SIGNED_XRP_FIELD)
+                decoded = amount.Amount.from_parser(BinaryParser(serialized.to_hex()))
+                self.assertEqual(decoded.to_json(), value)
 
     def test_to_json_mpt(self):
         for json, serialized in MPT_CASES:

@@ -27,6 +27,10 @@ from xrpl.models.types import XRPL_VALUE_TYPE
 
 _TRANSACTION_HASH_PREFIX: Final[int] = 0x54584E00
 
+_SPF_SPONSOR_FEE: Final[int] = 0x00000001
+_SPF_SPONSOR_RESERVE: Final[int] = 0x00000002
+_SPF_SPONSOR_FLAG_MASK: Final[int] = ~(_SPF_SPONSOR_FEE | _SPF_SPONSOR_RESERVE)
+
 
 def transaction_json_to_binary_codec_form(
     dictionary: Dict[str, XRPL_VALUE_TYPE],
@@ -158,6 +162,70 @@ class Signer(NestedModel):
     """
 
 
+@dataclass(frozen=True, kw_only=True)
+class SponsorSignature(BaseModel):
+    """
+    The sponsor's signing information for a fee-/reserve-sponsored transaction.
+
+    Fields:
+    - signing_pub_key: hex-encoded public key of the sponsor (required if
+    txn_signature is set).
+    - txn_signature: hex-encoded signature over the canonical transaction
+    (required if signing_pub_key is set).
+    - signers: optional multisign array reusing the standard Signer objects.
+
+    All three fields are optional, and an **empty** ``SponsorSignature()`` is a
+    valid, meaningful value in two cases:
+
+    - **Batch inner transactions**. An inner transaction that
+      names a ``sponsor`` must carry an empty placeholder; its *presence* --
+      not its contents -- is what tells the ledger that the named sponsor needs
+      an entry in the outer transaction's ``BatchSigners``. Populating any of
+      the three fields on an inner transaction is rejected.
+    - **``simulate``**. The server autofills the sponsor's
+      signing fields only when the field is present, so a dry run of a
+      sponsored transaction supplies the empty object.
+
+    For an ordinary submitted transaction, populate either
+    ``signing_pub_key`` + ``txn_signature`` (single-sign) or ``signers``
+    (multi-sign) -- see :func:`xrpl.transaction.sign_as_sponsor`.
+    """
+
+    signing_pub_key: Optional[str] = None
+    txn_signature: Optional[str] = None
+    signers: Optional[List[Signer]] = None
+
+    def _get_errors(self: Self) -> Dict[str, str]:
+        errors = super()._get_errors()
+
+        has_single_sig = (
+            self.signing_pub_key is not None or self.txn_signature is not None
+        )
+        has_multi_sig = self.signers is not None
+
+        if self.signers is not None and len(self.signers) == 0:
+            errors["signers"] = (
+                "`signers` must not be empty; omit it for the empty placeholder, "
+                "or provide at least one signer."
+            )
+        elif has_single_sig and has_multi_sig:
+            errors["SponsorSignature"] = (
+                "Cannot set both single-signature fields "
+                "(`signing_pub_key`/`txn_signature`) and `signers`."
+            )
+        elif has_single_sig:
+            if self.signing_pub_key is None:
+                errors["signing_pub_key"] = (
+                    "`signing_pub_key` is required when `txn_signature` is set."
+                )
+            if self.txn_signature is None:
+                errors["txn_signature"] = (
+                    "`txn_signature` is required when `signing_pub_key` is set."
+                )
+
+        return errors
+
+
 class TransactionFlag(int, Enum):
     """
     Transactions of the Transaction type support additional values in the Flags field.
@@ -174,6 +242,23 @@ class TransactionFlagInterface(FlagInterface):
     """
 
     TF_INNER_BATCH_TXN: bool
+
+
+class SponsorFlag(int, Enum):
+    """
+    Values for the ``sponsor_flags`` common field, which declares what a sponsor
+    is covering. At least one must be set whenever ``sponsor`` is present, and
+    the two may be combined.
+
+    These use the ``spf`` prefix rather than ``tf``: they are their own field,
+    not part of ``Flags``.
+    """
+
+    SPF_SPONSOR_FEE = 0x00000001
+    """The sponsor pays the transaction fee."""
+
+    SPF_SPONSOR_RESERVE = 0x00000002
+    """The sponsor covers the reserve of any object the transaction creates."""
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -273,6 +358,17 @@ class Transaction(BaseModel):
     delegate: Optional[str] = None
     """The delegate account that is sending the transaction."""
 
+    sponsor: Optional[str] = None
+    """The sponsoring account covering fees or reserves for this transaction."""
+
+    sponsor_flags: Optional[int] = None
+    """What the sponsor is covering. Use :class:`SponsorFlag`
+    (``SPF_SPONSOR_FEE`` = 0x1, ``SPF_SPONSOR_RESERVE`` = 0x2); the two may be
+    combined. Required whenever ``sponsor`` is set, and must be non-zero."""
+
+    sponsor_signature: Optional[SponsorSignature] = None
+    """The sponsor's signing information for co-signed sponsorship."""
+
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
         if self.ticket_sequence is not None and (
@@ -284,6 +380,79 @@ class Transaction(BaseModel):
 
         if self.account == self.delegate:
             errors["delegate"] = "Account and delegate addresses cannot be the same"
+
+        # ── Sponsor cross-field checks ─────────────────────────────────────────
+        if self.sponsor is not None and self.sponsor == self.account:
+            errors["sponsor"] = "`sponsor` must differ from `account`."
+
+        # `sponsor` and `sponsor_flags` are all-or-nothing, and the flags must
+        # name at least one thing to sponsor. rippled rejects any other
+        # combination with temINVALID_FLAG.
+        if self.sponsor_flags is not None and not isinstance(self.sponsor_flags, int):
+            errors["sponsor_flags"] = "`sponsor_flags` must be an integer."
+        elif self.sponsor_flags is not None and self.sponsor is None:
+            errors["sponsor_flags"] = "`sponsor_flags` requires `sponsor` to be set."
+        elif self.sponsor is not None and self.sponsor_flags is None:
+            errors["sponsor_flags"] = (
+                "`sponsor_flags` is required when `sponsor` is set. Use "
+                "`SponsorFlag.SPF_SPONSOR_FEE` and/or "
+                "`SponsorFlag.SPF_SPONSOR_RESERVE`."
+            )
+        elif self.sponsor_flags is not None and self.sponsor_flags == 0:
+            errors["sponsor_flags"] = (
+                "`sponsor_flags` must not be zero; at least one of "
+                "`SPF_SPONSOR_FEE` (0x1) or `SPF_SPONSOR_RESERVE` (0x2) "
+                "must be set."
+            )
+        elif (
+            self.sponsor_flags is not None
+            and (self.sponsor_flags & _SPF_SPONSOR_FLAG_MASK) != 0
+        ):
+            errors["sponsor_flags"] = (
+                "`sponsor_flags` may only use bits 0x1 (spfSponsorFee) "
+                "and 0x2 (spfSponsorReserve)."
+            )
+
+        # Reserve sponsorship and permissioned delegation cannot be combined:
+        # the created object's owner would be ambiguous (rippled: temINVALID).
+        if (
+            self.delegate is not None
+            and isinstance(self.sponsor_flags, int)
+            and self.sponsor_flags & _SPF_SPONSOR_RESERVE
+        ):
+            errors["delegate_sponsor"] = (
+                "`delegate` cannot be combined with `spfSponsorReserve` (0x2)."
+            )
+
+        if self.sponsor_signature is not None and self.sponsor is None:
+            errors["sponsor_signature"] = (
+                "`sponsor_signature` requires `sponsor` to be set."
+            )
+
+        # Pseudo-transactions cannot be sponsored at all: their
+        # fees and reserves are covered by the network, not by any one account.
+        if self.sponsor is not None and isinstance(
+            self.transaction_type, PseudoTransactionType
+        ):
+            # Distinct key from the `sponsor == account` check above so both
+            # errors can surface instead of one overwriting the other.
+            errors["sponsor_pseudo_transaction"] = (
+                "Pseudo-transactions cannot be sponsored."
+            )
+
+        # An outer Batch creates no objects of its own, so reserve sponsorship on
+        # it is meaningless and disallowed. Fee sponsorship
+        # of the outer Batch is allowed and follows the standard rules; inner
+        # transactions should carry spfSponsorReserve instead.
+        if (
+            self.transaction_type == TransactionType.BATCH
+            and isinstance(self.sponsor_flags, int)
+            and self.sponsor_flags & _SPF_SPONSOR_RESERVE
+        ):
+            errors["sponsor_flags"] = (
+                "`spfSponsorReserve` (0x2) is not allowed on an outer Batch "
+                "transaction. Set it on the inner transactions instead."
+            )
 
         return errors
 

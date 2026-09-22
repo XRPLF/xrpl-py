@@ -81,6 +81,15 @@ Use `xrpl-py` to build Python applications that leverage the [XRP Ledger](https:
 - Methods for inspecting accounts — See [XRPL Account Methods](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.account.html) for more information.
 - Codecs for encoding and decoding addresses and other objects — See [Core Codecs](https://xrpl-py.readthedocs.io/en/stable/source/xrpl.core.html) for more information.
 
+### Confidential MPT (XLS-0096)
+
+Confidential Multi-Purpose Token support is available as an optional native add-on,
+`xrpl-py-confidential`, which provides ElGamal encryption and zero-knowledge proof
+generation for confidential transfers. The transaction models ship in core `xrpl-py`;
+only proof generation needs the add-on. See
+[`xrpl/ext/confidential/README.md`](./xrpl/ext/confidential/README.md) for details.
+_(Beta — see that README for current availability.)_
+
 ## [➡️ Reference Documentation](https://xrpl-py.readthedocs.io/en/stable/)
 
 See the complete [`xrpl-py` reference documentation on Read the Docs](https://xrpl-py.readthedocs.io/en/stable/index.html).

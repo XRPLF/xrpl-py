@@ -1,1 +1,15 @@
 include binary_codec/definitions/definitions.json
+
+# Include README and documentation
+include README.md
+include LICENSE
+
+# Core xrpl-py is pure-Python. The native Confidential MPT add-on lives at
+# xrpl/ext/confidential/ and ships as the separate xrpl-py-confidential
+# distribution (packaging/confidential/), so it is intentionally NOT bundled
+# here. Keep any stray native artifacts out of the core distribution.
+global-exclude *.so
+global-exclude *.pyd
+global-exclude *.dylib
+global-exclude *.o
+global-exclude *.a

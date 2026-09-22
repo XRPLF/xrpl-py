@@ -1,0 +1,3 @@
+# Prebuilt mpt-crypto shared libraries are fetched/built, never committed.
+*
+!.gitignore

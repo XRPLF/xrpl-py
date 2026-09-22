@@ -41,6 +41,10 @@ Please check relevant options, delete irrelevant ones.
 <!--
 Please describe the tests that you ran to verify your changes and provide instructions so that others can reproduce.
 -->
+* Unit tests
+  * [ ] For PRs to support new amendments, I add unit tests to cover all failure conditions, with error code `tem*`, mentioned in the XLS spec
+* Integration tests
+* Other tests
 
 <!--
 ## Future Tasks

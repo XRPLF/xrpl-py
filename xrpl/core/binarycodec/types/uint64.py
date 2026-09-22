@@ -6,7 +6,7 @@ See `UInt Fields <https://xrpl.org/serialization.html#uint-fields>`_
 from __future__ import annotations
 
 import re
-from typing import Optional, Pattern, Type, Union
+from typing import Optional, Pattern, Set, Type, Union
 
 from typing_extensions import Final, Self
 
@@ -19,7 +19,7 @@ _WIDTH: Final[int] = 8  # 64 / 8
 _BASE10_REGEX: Final[Pattern[str]] = re.compile("^[0-9]{1,20}$")
 _HEX_REGEX: Final[Pattern[str]] = re.compile("^[a-fA-F0-9]{1,16}$")
 
-SPECIAL_FIELDS: Final[set[str]] = {
+SPECIAL_FIELDS: Final[Set[str]] = {
     "MaximumAmount",
     "OutstandingAmount",
     "MPTAmount",

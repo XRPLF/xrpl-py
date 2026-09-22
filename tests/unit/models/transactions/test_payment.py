@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from xrpl.models.amounts import IssuedCurrencyAmount
 from xrpl.models.exceptions import XRPLModelException
+from xrpl.models.path import PathStep
 from xrpl.models.transactions import Payment, PaymentFlag
 from xrpl.wallet import Wallet
 
@@ -294,3 +295,151 @@ class TestPayment(TestCase):
             error.exception.args[0],
             "{'domain_id': 'domain_id length must be 64 characters.'}",
         )
+
+    def test_sponsor_created_account_flag(self):
+        """Payment with tfSponsorCreatedAccount flag."""
+        tx = Payment(
+            account=_ACCOUNT,
+            destination=_DESTINATION,
+            amount="1000000",
+            flags=PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT,
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_sponsor_created_account_flag_value(self):
+        """Verify flag value is correct."""
+        self.assertEqual(PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT, 0x00080000)
+
+    # ------------------------------------------------------------------ #
+    #  TF_SPONSOR_CREATED_ACCOUNT mutual-exclusion validation             #
+    # ------------------------------------------------------------------ #
+
+    def test_invalid_sponsor_created_account_with_no_ripple_direct(self):
+        """TF_SPONSOR_CREATED_ACCOUNT and TF_NO_RIPPLE_DIRECT are mutually exclusive."""
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount="1000000",
+                flags=(
+                    PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT
+                    | PaymentFlag.TF_NO_RIPPLE_DIRECT
+                ),
+            )
+        self.assertIn(
+            "`TF_SPONSOR_CREATED_ACCOUNT` cannot be combined with "
+            "`TF_NO_RIPPLE_DIRECT`.",
+            str(cm.exception),
+        )
+
+    def test_invalid_sponsor_created_account_with_partial_payment(self):
+        """TF_SPONSOR_CREATED_ACCOUNT and TF_PARTIAL_PAYMENT are mutually exclusive."""
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount="1000000",
+                send_max="2000000",
+                flags=(
+                    PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT
+                    | PaymentFlag.TF_PARTIAL_PAYMENT
+                ),
+            )
+        self.assertIn(
+            "`TF_SPONSOR_CREATED_ACCOUNT` cannot be combined with "
+            "`TF_PARTIAL_PAYMENT`.",
+            str(cm.exception),
+        )
+
+    def test_invalid_sponsor_created_account_with_limit_quality(self):
+        """TF_SPONSOR_CREATED_ACCOUNT and TF_LIMIT_QUALITY are mutually exclusive."""
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount="1000000",
+                flags=(
+                    PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT
+                    | PaymentFlag.TF_LIMIT_QUALITY
+                ),
+            )
+        self.assertIn(
+            "`TF_SPONSOR_CREATED_ACCOUNT` cannot be combined with "
+            "`TF_LIMIT_QUALITY`.",
+            str(cm.exception),
+        )
+
+    def test_invalid_sponsor_created_account_with_multiple_incompatible_flags(self):
+        """TF_SPONSOR_CREATED_ACCOUNT combined with multiple incompatible flags."""
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount="1000000",
+                send_max="2000000",
+                flags=(
+                    PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT
+                    | PaymentFlag.TF_NO_RIPPLE_DIRECT
+                    | PaymentFlag.TF_PARTIAL_PAYMENT
+                ),
+            )
+        exception_str = str(cm.exception)
+        self.assertIn("`TF_NO_RIPPLE_DIRECT`", exception_str)
+        self.assertIn("`TF_PARTIAL_PAYMENT`", exception_str)
+
+
+class TestSponsorCreatedAccountPaymentShape(TestCase):
+    """`tfSponsorCreatedAccount` funds a reserve, so it must be plain XRP."""
+
+    _IOU = IssuedCurrencyAmount(currency="USD", issuer=_DESTINATION, value="10")
+    _FLAG = PaymentFlag.TF_SPONSOR_CREATED_ACCOUNT
+
+    def test_rejects_issued_currency_amount(self):
+        """rippled: `!dstAmount.native()` -> temBAD_AMOUNT."""
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount=self._IOU,
+                send_max=self._IOU,
+                flags=self._FLAG,
+            )
+        self.assertIn("requires an XRP `amount`", str(cm.exception))
+
+    def test_rejects_send_max(self):
+        """rippled: `isFieldPresent(sfSendMax)` -> temINVALID."""
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount="1000000",
+                send_max=self._IOU,
+                flags=self._FLAG,
+            )
+        self.assertIn("`send_max`", str(cm.exception))
+
+    def test_rejects_paths_even_with_an_issued_amount(self):
+        """`paths` is otherwise only rejected for an XRP amount.
+
+        Without a flag-specific rule an issued amount would carry paths straight
+        past the model and fail at the server instead.
+        """
+        with self.assertRaises(XRPLModelException) as cm:
+            Payment(
+                account=_ACCOUNT,
+                destination=_DESTINATION,
+                amount=self._IOU,
+                send_max=self._IOU,
+                flags=self._FLAG,
+                paths=[[PathStep(account=_DESTINATION)]],
+            )
+        self.assertIn("`paths`", str(cm.exception))
+
+    def test_plain_xrp_payment_is_accepted(self):
+        tx = Payment(
+            account=_ACCOUNT,
+            destination=_DESTINATION,
+            amount="1000000",
+            flags=self._FLAG,
+        )
+        self.assertTrue(tx.is_valid())

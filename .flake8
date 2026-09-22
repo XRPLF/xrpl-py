@@ -16,6 +16,13 @@ max-line-length = 88
 # TODO: remove this rule
 allow-init-docstring=True
 
+# The confidential add-on (xrpl/ext/confidential/) is linted under the SAME
+# rules as the rest of xrpl-py. Only the CFFI build script (embedded C source
+# in a string) and example scripts are excluded.
+exclude =
+  xrpl/ext/confidential/build_mpt_crypto.py,
+  xrpl/ext/confidential/examples/*
+
 per-file-ignores =
   # For tests, disable type annotation and docstring linting.
   tests/*: ANN D DOC

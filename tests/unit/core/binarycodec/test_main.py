@@ -10,9 +10,13 @@ from xrpl.core.binarycodec.main import (
     decode,
     encode,
     encode_for_multisigning,
+    encode_for_multisigning_counterparty,
+    encode_for_multisigning_sponsor,
     encode_for_signing,
     encode_for_signing_batch,
     encode_for_signing_claim,
+    encode_for_signing_counterparty,
+    encode_for_signing_sponsor,
 )
 
 TX_JSON = {
@@ -402,20 +406,28 @@ class TestMainSigning(TestCase):
         )
         self.assertEqual(encode_for_signing_claim(json), expected)
 
-    def test_batch(self):
-        flags = 1
-        transaction_ids = [
-            "ABE4871E9083DF66727045D49DEEDD3A6F166EB7F8D1E92FE868F02E76B2C5CA",
-            "795AAC88B59E95C3497609749127E69F12958BC016C600C770AEEB1474C840B4",
-        ]
-
-        json = {"flags": flags, "transaction_ids": transaction_ids}
+    def test_batch_single_signed(self):
+        json = {
+            "account": "rNCFjv8Ek5oDrNiMJ3pw6eLLFtMjZLJnf2",
+            "sequence": 5,
+            "flags": 1,
+            "transaction_ids": [
+                "ABE4871E9083DF66727045D49DEEDD3A6F166EB7F8D1E92FE868F02E76B2C5CA",
+                "795AAC88B59E95C3497609749127E69F12958BC016C600C770AEEB1474C840B4",
+            ],
+            # The BatchSigner.Account the signature is bound to (XLS-56 V1_1).
+            "batch_account": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
+        }
         actual = encode_for_signing_batch(json)
         self.assertEqual(
             actual,
             (
                 # hash prefix
                 "42434800"
+                # outer account
+                "95F14B0E44F78A264E41713C64B5F89242540EE2"
+                # outer sequence
+                "00000005"
                 # flags
                 "00000001"
                 # transaction_ids length
@@ -423,6 +435,46 @@ class TestMainSigning(TestCase):
                 # transaction_ids
                 "ABE4871E9083DF66727045D49DEEDD3A6F166EB7F8D1E92FE868F02E76B2C5CA"
                 "795AAC88B59E95C3497609749127E69F12958BC016C600C770AEEB1474C840B4"
+                # batch signer account
+                "C1D81FB31C42392BA1570431F1CBCBEEBBEF50E1"
+            ),
+        )
+
+    def test_batch_multi_signed(self):
+        json = {
+            "account": "rNCFjv8Ek5oDrNiMJ3pw6eLLFtMjZLJnf2",
+            "sequence": 5,
+            "flags": 1,
+            "transaction_ids": [
+                "ABE4871E9083DF66727045D49DEEDD3A6F166EB7F8D1E92FE868F02E76B2C5CA",
+                "795AAC88B59E95C3497609749127E69F12958BC016C600C770AEEB1474C840B4",
+            ],
+            # The BatchSigner.Account the signature is bound to.
+            "batch_account": "rJCxK2hX9tDMzbnn3cg1GU2g19Kfmhzxkp",
+            # The inner Signers entry account for a multi-signed BatchSigner.
+            "signer_account": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+        }
+        actual = encode_for_signing_batch(json)
+        self.assertEqual(
+            actual,
+            (
+                # hash prefix
+                "42434800"
+                # outer account
+                "95F14B0E44F78A264E41713C64B5F89242540EE2"
+                # outer sequence
+                "00000005"
+                # flags
+                "00000001"
+                # transaction_ids length
+                "00000002"
+                # transaction_ids
+                "ABE4871E9083DF66727045D49DEEDD3A6F166EB7F8D1E92FE868F02E76B2C5CA"
+                "795AAC88B59E95C3497609749127E69F12958BC016C600C770AEEB1474C840B4"
+                # batch signer account
+                "C1D81FB31C42392BA1570431F1CBCBEEBBEF50E1"
+                # inner signer account
+                "B5F762798A53D543A014CAF8B297CFF8F2F937E8"
             ),
         )
 
@@ -438,3 +490,36 @@ class TestMainSigning(TestCase):
         self.assertEqual(
             encode_for_multisigning(multisig_json, signing_account), expected
         )
+
+    def test_single_signing_counterparty(self):
+        # Under fixCleanup3_4_0 the counterparty signs the same payload as the
+        # first party; only the 4-byte prefix differs: STX -> CPT.
+        base = encode_for_signing(signing_json)
+        actual = encode_for_signing_counterparty(signing_json)
+        self.assertTrue(base.startswith("53545800"))
+        self.assertEqual(actual[:8], "43505400")
+        self.assertEqual(actual[8:], base[8:])
+
+    def test_single_signing_sponsor(self):
+        # Only the 4-byte prefix differs: STX -> SPN.
+        base = encode_for_signing(signing_json)
+        actual = encode_for_signing_sponsor(signing_json)
+        self.assertEqual(actual[:8], "53504E00")
+        self.assertEqual(actual[8:], base[8:])
+
+    def test_multisig_counterparty(self):
+        signing_account = "rJZdUusLDtY9NEsGea7ijqhVrXv98rYBYN"
+        multisig_json = {**signing_json, "SigningPubKey": ""}
+        base = encode_for_multisigning(multisig_json, signing_account)
+        actual = encode_for_multisigning_counterparty(multisig_json, signing_account)
+        self.assertTrue(base.startswith("534D5400"))
+        self.assertEqual(actual[:8], "43504D00")
+        self.assertEqual(actual[8:], base[8:])
+
+    def test_multisig_sponsor(self):
+        signing_account = "rJZdUusLDtY9NEsGea7ijqhVrXv98rYBYN"
+        multisig_json = {**signing_json, "SigningPubKey": ""}
+        base = encode_for_multisigning(multisig_json, signing_account)
+        actual = encode_for_multisigning_sponsor(multisig_json, signing_account)
+        self.assertEqual(actual[:8], "53504D00")
+        self.assertEqual(actual[8:], base[8:])

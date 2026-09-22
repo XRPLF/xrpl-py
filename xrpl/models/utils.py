@@ -17,6 +17,10 @@ _MAX_DOMAIN_ID_LENGTH = 64
 
 MAX_MPTOKEN_METADATA_LENGTH = 1024 * 2
 
+VAULT_MAX_DATA_LENGTH = 256 * 2
+"""(LendingProtocolV1_1) Maximum length, in hex characters, of a Vault's ``Data``
+blob and ``VaultDelete``'s ``MemoData`` (256 bytes, i.e. 512 hex characters)."""
+
 MPT_META_WARNING_HEADER = (
     "MPTokenMetadata is not properly formatted as JSON as per the XLS-89d standard. "
     "While adherence to this standard is not mandatory, such non-compliant MPToken's "
@@ -93,3 +97,24 @@ def validate_domain_id(domain_id: str) -> str:
     if not HEX_REGEX.fullmatch(domain_id):
         return "domain_id must only contain hexadecimal characters."
     return ""
+
+
+def is_valid_vault_data(value: str) -> bool:
+    """Return whether ``value`` is a well-formed Vault data/memo blob.
+
+    Shared by ``VaultCreate`` (``Data``) and ``VaultDelete`` (``MemoData``). It
+    must be an even-length hex string no longer than ``VAULT_MAX_DATA_LENGTH``
+    characters (256 bytes). Odd-length or non-hex values pass length-only checks
+    but fail ``bytes.fromhex()`` during serialization.
+
+    Args:
+        value: The hex-encoded blob to validate.
+
+    Returns:
+        Whether ``value`` is a valid Vault data/memo blob.
+    """
+    return (
+        len(value) <= VAULT_MAX_DATA_LENGTH
+        and len(value) % 2 == 0
+        and HEX_REGEX.fullmatch(value) is not None
+    )

@@ -124,6 +124,8 @@ async def _get_signed_tx(
     wallet: Optional[Wallet] = None,
     check_fee: bool = True,
     autofill: bool = True,
+    signers_count: Optional[int] = None,
+    sponsor_signers_count: Optional[int] = None,
 ) -> Transaction:
     """
     Sets up a transaction to be submitted by optionally autofilling, signing,
@@ -138,6 +140,11 @@ async def _get_signed_tx(
             higher than the expected transaction type fee. Defaults to True.
         autofill: an optional boolean indicating whether to autofill the
             transaction. Defaults to True.
+        signers_count: the expected number of signers for this transaction.
+            Only used when the transaction is multisigned; leave unset otherwise.
+        sponsor_signers_count: the expected number of keys the sponsor will
+            multi-sign with. Only used when the sponsor multi-signs; leave unset
+            for a pre-funded sponsorship or a single-signing sponsor.
 
     Returns:
         The signed transaction.
@@ -159,10 +166,20 @@ async def _get_signed_tx(
         )
 
     if check_fee:
-        await _check_fee(transaction, client)
+        await _check_fee(
+            transaction,
+            client,
+            signers_count=signers_count,
+            sponsor_signers_count=sponsor_signers_count,
+        )
 
     if autofill:
-        transaction = await _autofill(transaction, client)
+        transaction = await _autofill(
+            transaction,
+            client,
+            signers_count=signers_count,
+            sponsor_signers_count=sponsor_signers_count,
+        )
 
     if transaction.signers:
         return sign(transaction, wallet, multisign=True)
@@ -178,6 +195,8 @@ async def submit_and_wait(
     check_fee: bool = True,
     autofill: bool = True,
     fail_hard: bool = False,
+    signers_count: Optional[int] = None,
+    sponsor_signers_count: Optional[int] = None,
 ) -> Response:
     """
     Signs a transaction locally if the transaction is unsigned, then submits,
@@ -199,12 +218,23 @@ async def submit_and_wait(
         fail_hard: an optional boolean. If True, and the transaction fails for
             the initial server, do not retry or relay the transaction to other
             servers. Defaults to False.
+        signers_count: the expected number of signers for this transaction.
+            Only used when the transaction is multisigned; leave unset otherwise.
+        sponsor_signers_count: the expected number of keys the sponsor will
+            multi-sign with. Only used when the sponsor multi-signs; leave unset
+            for a pre-funded sponsorship or a single-signing sponsor.
 
     Returns:
         The response from the ledger.
     """
     signed_transaction = await _get_signed_tx(
-        transaction, client, wallet, check_fee, autofill
+        transaction,
+        client,
+        wallet,
+        check_fee,
+        autofill,
+        signers_count=signers_count,
+        sponsor_signers_count=sponsor_signers_count,
     )
     return await _send_reliable_submission(
         signed_transaction, client, fail_hard=fail_hard

@@ -23,16 +23,19 @@ from xrpl.transaction.main import (
 )
 from xrpl.transaction.multisign import multisign
 from xrpl.transaction.reliable_submission import submit_and_wait
+from xrpl.transaction.sponsor_signer import combine_sponsor_signers, sign_as_sponsor
 
 __all__ = [
     "autofill",
     "autofill_and_sign",
     "combine_batch_signers",
     "combine_loanset_counterparty_signers",
+    "combine_sponsor_signers",
     "compute_signature",
     "multisign",
     "sign",
     "sign_and_submit",
+    "sign_as_sponsor",
     "sign_loan_set_by_counterparty",
     "sign_multiaccount_batch",
     "simulate",

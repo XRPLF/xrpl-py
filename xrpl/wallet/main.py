@@ -138,7 +138,7 @@ class Wallet:
         seed: str,
         *,
         master_address: Optional[str] = None,
-        algorithm: CryptoAlgorithm = CryptoAlgorithm.ED25519,
+        algorithm: Optional[CryptoAlgorithm] = None,
     ) -> Self:
         """
         Generates a new Wallet from seed (secret).
@@ -147,8 +147,9 @@ class Wallet:
             seed: The seed (secret) used to derive the account keys.
             master_address: Include if a Wallet uses a Regular Key Pair. This sets the
                 address that this wallet corresponds to. The default is `None`.
-            algorithm: The key-generation algorithm to use when generating the seed.
-                The default is `ED25519`.
+            algorithm: The key-generation algorithm to use. When omitted, the algorithm
+                is inferred from the seed prefix: `sEd...` seeds derive an ED25519
+                keypair, all other family seeds (`s...`) derive a SECP256K1 keypair.
 
         Returns:
             The wallet that is generated from the given secret.

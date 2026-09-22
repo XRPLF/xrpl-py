@@ -13,6 +13,7 @@ from xrpl.models.nested_model import NestedModel
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import (
     Signer,
+    SponsorFlag,
     Transaction,
     TransactionFlag,
     TransactionFlagInterface,
@@ -111,6 +112,29 @@ class Batch(Transaction):
             if not tx.has_flag(TransactionFlag.TF_INNER_BATCH_TXN):
                 errors[f"raw_transactions[{i}]"] = (
                     "RawTransaction must have tfInnerBatchTxn flag set."
+                )
+
+            # The outer Batch pays every inner's fee -- inner fees are zero --
+            # so there is no inner fee to sponsor (rippled: temINVALID_FLAG).
+            if (tx.sponsor_flags or 0) & SponsorFlag.SPF_SPONSOR_FEE:
+                errors[f"raw_transactions[{i}].sponsor_flags"] = (
+                    "`SPF_SPONSOR_FEE` (0x1) is not allowed on a Batch inner "
+                    "transaction; the outer Batch pays every inner's fee. Use "
+                    "`SPF_SPONSOR_RESERVE` (0x2), or fee-sponsor the outer Batch."
+                )
+
+            # An inner is unsigned: its sponsor authorizes through the outer
+            # BatchSigners, so the placeholder must stay empty -- populating ANY
+            # of the three fields is rejected (rippled: temBAD_SIGNER).
+            if tx.sponsor_signature is not None and (
+                tx.sponsor_signature.signing_pub_key is not None
+                or tx.sponsor_signature.txn_signature is not None
+                or tx.sponsor_signature.signers is not None
+            ):
+                errors[f"raw_transactions[{i}].sponsor_signature"] = (
+                    "A Batch inner transaction's `sponsor_signature` must be an "
+                    "empty placeholder; the sponsor signs through the outer "
+                    "transaction's `batch_signers` instead."
                 )
         if len(self.raw_transactions) < 2:
             errors["raw_transactions"] = "Batch must contain at least 2 transactions."
