@@ -61,12 +61,19 @@ class WebsocketBase(Client):
     :meta private:
     """
 
-    def __init__(self: Self, url: str) -> None:
+    def __init__(
+        self: Self,
+        url: str,
+        *,
+        headers: Optional[Dict[str, str]] = None,
+    ) -> None:
         """
         Initializes a websocket client.
 
         Arguments:
             url: The URL of the rippled node to submit requests to.
+            headers: Optional default headers to include with the connection
+                handshake (e.g. an API key or Dhali payment-claim).
         """
         self._open_requests: _REQUESTS_TYPE = {}
         self._websocket: Optional[websocket_client.ClientConnection] = None
@@ -76,7 +83,7 @@ class WebsocketBase(Client):
         # will initialize a new event loop when it opens the connection, so for
         # that client the initializer cannot create the queue
         self._messages: Optional[_MESSAGES_TYPE] = None
-        super().__init__(url)
+        super().__init__(url, headers=headers)
 
     def is_open(self: Self) -> bool:
         """
@@ -96,7 +103,10 @@ class WebsocketBase(Client):
         """Connects the client to the Web Socket API at its URL."""
         # open the connection
         self._websocket = await websocket_client.connect(
-            self.url, max_size=_PAYLOAD_MAX_SIZE
+            self.url,
+            max_size=_PAYLOAD_MAX_SIZE,
+            # pass None when no headers were supplied to preserve default behavior
+            additional_headers=self.headers or None,
         )
 
         # make a message queue
