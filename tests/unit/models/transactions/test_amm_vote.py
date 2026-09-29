@@ -1,7 +1,8 @@
 from sys import maxsize
 from unittest import TestCase
 
-from xrpl.models.currencies import XRP, IssuedCurrency
+from xrpl.core.binarycodec import decode
+from xrpl.models.currencies import XRP, IssuedCurrency, MPTCurrency
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMVote
 
@@ -9,6 +10,8 @@ _ACCOUNT = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _ASSET = XRP()
 _ASSET2 = IssuedCurrency(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3SEW")
 _TRADING_FEE = 234
+_MPT_ID = "00000003430427B80BD2D09D36B70B969E12801065F22308"
+_MPT_ID2 = "00000004430427B80BD2D09D36B70B969E12801065F22308"
 
 
 class TestAMMVote(TestCase):
@@ -46,3 +49,13 @@ class TestAMMVote(TestCase):
             error.exception.args[0],
             "{'trading_fee': 'Must be between 0 and 1000'}",
         )
+
+    def test_tx_valid_with_mpt(self):
+        tx = AMMVote(
+            account=_ACCOUNT,
+            asset=MPTCurrency(mpt_issuance_id=_MPT_ID),
+            asset2=MPTCurrency(mpt_issuance_id=_MPT_ID2),
+            trading_fee=_TRADING_FEE,
+        )
+        self.assertTrue(tx.is_valid())
+        self.assertEqual(decode(tx.blob()), tx.to_xrpl())

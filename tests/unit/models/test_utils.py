@@ -5,6 +5,7 @@ from unittest import TestCase
 from xrpl.models.currencies import IssuedCurrency
 from xrpl.models.requests import AccountInfo
 from xrpl.models.transactions import Payment, PaymentFlag
+from xrpl.models.utils import get_mpt_issuer
 from xrpl.utils.mptoken_metadata import (
     decode_mptoken_metadata,
     encode_mptoken_metadata,
@@ -49,6 +50,21 @@ class TestUtils(TestCase):
                 [1, 2, "example invalid positional arg"],
                 account=_ACCOUNT,
             )
+
+    def test_get_mpt_issuer(self):
+        # Issuer and MPTokenIssuanceID pairs as returned by rippled.
+        for issuer, mpt_issuance_id in (
+            (
+                "rnBrX4JuTHN7pPDKRDSksEXet6sc4z1yEp",
+                "000000382DC5198D47716ED9FB6B7BEBE699BF69A87E91B2",
+            ),
+            (
+                "rncNdLXxKg5ppj9KbX1mFqL6oE34HGWoLV",
+                "00000028328a6fc697f2b1673f70ba1b3e90e702669926b3",
+            ),
+        ):
+            with self.subTest(mpt_issuance_id=mpt_issuance_id):
+                self.assertEqual(get_mpt_issuer(mpt_issuance_id), issuer)
 
 
 class TestMPTokenMetadataValidation(TestCase):

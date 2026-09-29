@@ -1,6 +1,6 @@
 """Types used by the parser."""
 
-from typing import List
+from typing import List, Union
 
 from typing_extensions import Literal, NotRequired, TypedDict
 
@@ -40,12 +40,22 @@ class CurrencyAmount(Balance):
     pass
 
 
+class MPTCurrencyAmount(TypedDict):
+    """An MPT amount model, in the same shape as an MPT amount in the ledger."""
+
+    mpt_issuance_id: str
+    """The MPTokenIssuanceID of the MPT."""
+
+    value: str
+    """The amount of the MPT, in its smallest unit."""
+
+
 class OfferChange(TypedDict):
     """A single offer change."""
 
     flags: int
-    taker_gets: CurrencyAmount
-    taker_pays: CurrencyAmount
+    taker_gets: Union[CurrencyAmount, MPTCurrencyAmount]
+    taker_pays: Union[CurrencyAmount, MPTCurrencyAmount]
     sequence: int
     status: Literal["created", "partially-filled", "filled", "cancelled"]
     maker_exchange_rate: str

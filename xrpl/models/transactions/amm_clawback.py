@@ -4,16 +4,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from typing_extensions import Self
 
-from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.currencies import Currency
-from xrpl.models.currencies.issued_currency import IssuedCurrency
+from xrpl.models.amounts import ClawbackAmount, IssuedCurrencyAmount, MPTAmount
+from xrpl.models.currencies import Currency, IssuedCurrency, MPTCurrency
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
+from xrpl.models.utils import get_mpt_issuer
 
 
 class AMMClawbackFlag(int, Enum):
@@ -48,11 +48,11 @@ class AMMClawback(Transaction):
     holder: str = REQUIRED
     """The account holding the asset to be clawed back."""
 
-    asset: IssuedCurrency = REQUIRED
+    asset: Union[IssuedCurrency, MPTCurrency] = REQUIRED
     """
     Specifies the asset that the issuer wants to claw back from the AMM pool. In JSON,
-    this is an object with currency and issuer fields. The issuer field must match with
-    Account.
+    this is an object with currency and issuer fields, or with an mpt_issuance_id field
+    for an MPT. The asset's issuer must match Account.
     """
 
     asset2: Currency = REQUIRED
@@ -61,12 +61,12 @@ class AMMClawback(Transaction):
     currency and issuer fields (omit issuer for XRP).
     """
 
-    amount: Optional[IssuedCurrencyAmount] = None
+    amount: Optional[ClawbackAmount] = None
     """
-    The maximum amount to claw back from the AMM account. The currency and issuer
-    subfields should match the Asset subfields. If this field isn't specified, or the
-    value subfield exceeds the holder's available tokens in the AMM, all of the
-    holder's tokens are clawed back.
+    The maximum amount to claw back from the AMM account. It must be the same asset as
+    Asset (matching currency and issuer, or mpt_issuance_id). If this field isn't
+    specified, or the value subfield exceeds the holder's available tokens in the AMM,
+    all of the holder's tokens are clawed back.
     """
 
     transaction_type: TransactionType = field(
@@ -89,18 +89,36 @@ class AMMClawback(Transaction):
         if self.account == self.holder:
             errors += "Issuer and holder wallets must be distinct."
 
-        if self.account != self.asset.issuer:
+        if isinstance(self.asset, MPTCurrency):
+            # An MPT's issuer is encoded in its issuance ID.
+            asset_issuer = get_mpt_issuer(self.asset.mpt_issuance_id)
+            amount_matches_asset = (
+                isinstance(self.amount, MPTAmount)
+                and self.amount.mpt_issuance_id.upper()
+                == self.asset.mpt_issuance_id.upper()
+            )
+            amount_error = "Amount.mpt_issuance_id must match Asset.mpt_issuance_id."
+        elif isinstance(self.asset, IssuedCurrency):
+            asset_issuer = self.asset.issuer
+            amount_matches_asset = (
+                isinstance(self.amount, IssuedCurrencyAmount)
+                and self.amount.issuer == self.asset.issuer
+                and self.amount.currency == self.asset.currency
+            )
+            amount_error = (
+                "Amount.issuer and Amount.currency must match corresponding Asset "
+                + "fields."
+            )
+        else:
+            # A wrongly-typed asset is already reported by the base type check.
+            return errors if errors else None
+
+        if self.account != asset_issuer:
             errors += (
                 "Asset.issuer and AMMClawback transaction sender must be identical."
             )
 
-        if self.amount is not None and (
-            self.amount.issuer != self.asset.issuer
-            or self.amount.currency != self.asset.currency
-        ):
-            errors += (
-                "Amount.issuer and Amount.currency must match corresponding Asset "
-                + "fields."
-            )
+        if self.amount is not None and not amount_matches_asset:
+            errors += amount_error
 
         return errors if errors else None

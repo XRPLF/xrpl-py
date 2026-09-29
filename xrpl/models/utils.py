@@ -5,6 +5,8 @@ from typing import Dict, List, Optional, Pattern
 
 from typing_extensions import Final
 
+from xrpl.core.addresscodec import encode_classic_address
+
 HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
 
 MAX_CREDENTIAL_ARRAY_LENGTH = 8
@@ -97,6 +99,20 @@ def validate_domain_id(domain_id: str) -> str:
     if not HEX_REGEX.fullmatch(domain_id):
         return "domain_id must only contain hexadecimal characters."
     return ""
+
+
+def get_mpt_issuer(mpt_issuance_id: str) -> str:
+    """
+    Returns the issuer encoded in an MPTokenIssuanceID, which is a 32-bit sequence
+    followed by the issuer's 160-bit AccountID. No ledger lookup is needed.
+
+    Args:
+        mpt_issuance_id: A well-formed 48-character hex MPTokenIssuanceID.
+
+    Returns:
+        The classic address of the MPT issuer.
+    """
+    return encode_classic_address(bytes.fromhex(mpt_issuance_id[8:]))
 
 
 def is_valid_vault_data(value: str) -> bool:

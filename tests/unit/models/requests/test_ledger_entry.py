@@ -1,8 +1,10 @@
 from unittest import TestCase
 
-from xrpl.models import XRP, LedgerEntry, XChainBridge
+from xrpl.models import XRP, LedgerEntry, MPTCurrency, XChainBridge
+from xrpl.models.currencies import IssuedCurrency
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests.ledger_entry import (
+    AMM,
     Credential,
     MPToken,
     Oracle,
@@ -216,4 +218,37 @@ class TestLedgerEntry(TestCase):
                 mptoken=MPToken(
                     mpt_issuance_id="00002403C84A0A28E0190E208E982C352BBD5006600555CF",
                 )
+            )
+
+    def test_get_amm_by_object_id(self):
+        req = LedgerEntry(
+            amm="A6C9A57E8D7E2D32ED8A4AAA3A8E6BC7C5E1D07D4E27D1D0A5B0D7B1B8C4A3F2"
+        )
+        self.assertTrue(req.is_valid())
+
+    def test_get_amm_by_assets(self):
+        mpt_id = "00000003430427B80BD2D09D36B70B969E12801065F22308"
+        for asset2 in (
+            IssuedCurrency(currency="USD", issuer="rB6XJbxKx2oBSK1E3Hvh7KcZTCCBukWyhv"),
+            MPTCurrency(mpt_issuance_id=mpt_id),
+        ):
+            with self.subTest(asset2=asset2):
+                req = LedgerEntry(amm=AMM(asset=XRP(), asset2=asset2))
+                self.assertTrue(req.is_valid())
+                self.assertEqual(
+                    req.to_dict()["amm"],
+                    {"asset": {"currency": "XRP"}, "asset2": asset2.to_dict()},
+                )
+                self.assertEqual(LedgerEntry.from_dict(req.to_dict()), req)
+
+    def test_invalid_amm(self):
+        # missing asset2
+        with self.assertRaises(XRPLModelException):
+            LedgerEntry(amm=AMM(asset=XRP()))
+
+        # more than one query param
+        with self.assertRaises(XRPLModelException):
+            LedgerEntry(
+                amm=AMM(asset=XRP(), asset2=XRP()),
+                account_root="rB6XJbxKx2oBSK1E3Hvh7KcZTCCBukWyhv",
             )
