@@ -14,6 +14,10 @@ with open(path_to_json + "offer_cancelled.json", "r") as infile:
     offer_cancelled = json.load(infile)
 with open(path_to_json + "offer_with_expiration.json", "r") as infile:
     offer_with_expiration = json.load(infile)
+with open(path_to_json + "offer_mpt_created.json", "r") as infile:
+    offer_mpt_created = json.load(infile)
+with open(path_to_json + "offer_mpt_partially_filled_and_filled.json", "r") as infile:
+    offer_mpt_partially_filled_and_filled = json.load(infile)
 
 
 class TestGetOrderBookChanges(TestCase):
@@ -131,6 +135,69 @@ class TestGetOrderBookChanges(TestCase):
                         "maker_exchange_rate": "4.616809340779822",
                         "expiration_time": 708682031,
                     }
+                ],
+            }
+        ]
+        self.assertEqual(actual, expected)
+
+    def test_mpt_offer_created(self):
+        actual = get_order_book_changes(offer_mpt_created["meta"])
+        expected = [
+            {
+                "maker_account": "rNS6ijd78ak1BzMSP8Qkr2XtCrJCyozuLG",
+                "offer_changes": [
+                    {
+                        "flags": 131072,
+                        "taker_gets": {
+                            "mpt_issuance_id": (
+                                "0000005A69CF4172E161DE37E2079EAB7468C7B838B7C107"
+                            ),
+                            "value": "200",
+                        },
+                        "taker_pays": {
+                            "mpt_issuance_id": (
+                                "0000005969CF4172E161DE37E2079EAB7468C7B838B7C107"
+                            ),
+                            "value": "100",
+                        },
+                        "sequence": 92,
+                        "status": "created",
+                        "maker_exchange_rate": "0.5",
+                    }
+                ],
+            }
+        ]
+        self.assertEqual(actual, expected)
+
+    def test_mpt_offer_partially_filled_and_filled(self):
+        mpt_issuance_id = "000000486218C57EEFCECB783CCEDA9C8E37032AD92B429F"
+        actual = get_order_book_changes(offer_mpt_partially_filled_and_filled["meta"])
+        expected = [
+            {
+                "maker_account": "r9Qxj5tPX5G2FLexRX1MqW1wE9NeNNWExM",
+                "offer_changes": [
+                    {
+                        "flags": 0,
+                        "taker_gets": {
+                            "mpt_issuance_id": mpt_issuance_id,
+                            "value": "-50",
+                        },
+                        "taker_pays": {"currency": "XRP", "value": "-1.000000"},
+                        "sequence": 77,
+                        "status": "partially-filled",
+                        "maker_exchange_rate": "0.02",
+                    },
+                    {
+                        "flags": 0,
+                        "taker_gets": {
+                            "mpt_issuance_id": mpt_issuance_id,
+                            "value": "-100",
+                        },
+                        "taker_pays": {"currency": "XRP", "value": "-1.000000"},
+                        "sequence": 76,
+                        "status": "filled",
+                        "maker_exchange_rate": "0.01",
+                    },
                 ],
             }
         ]

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from xrpl.models.currencies import XRP, IssuedCurrency
+from xrpl.models.currencies import XRP, IssuedCurrency, MPTCurrency
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests import AMMInfo
 from xrpl.models.requests.request import _DEFAULT_API_VERSION
@@ -51,3 +51,11 @@ class TestAMMInfo(TestCase):
             AMMInfo(
                 asset2=_ASSET_2,
             )
+
+    def test_mpt_assets(self):
+        mpt_asset = MPTCurrency(
+            mpt_issuance_id="00000003430427B80BD2D09D36B70B969E12801065F22308"
+        )
+        request = AMMInfo(asset=mpt_asset, asset2=_ASSET)
+        self.assertTrue(request.is_valid())
+        self.assertEqual(request.to_dict()["asset"], mpt_asset.to_dict())

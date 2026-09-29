@@ -1,7 +1,8 @@
 from unittest import TestCase
 
-from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.currencies import XRP, IssuedCurrency
+from xrpl.core.binarycodec import decode
+from xrpl.models.amounts import IssuedCurrencyAmount, MPTAmount
+from xrpl.models.currencies import XRP, IssuedCurrency, MPTCurrency
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMWithdraw
 from xrpl.models.transactions.amm_withdraw import AMMWithdrawFlag
@@ -12,6 +13,8 @@ _ASSET2 = IssuedCurrency(currency="ETH", issuer="rpGtkFRXhgVaBzC5XCR7gyE2AZN5SN3
 _AMOUNT = "1000"
 _LPTOKEN_CURRENCY = "B3813FCAB4EE68B3D0D735D6849465A9113EE048"
 _LPTOKEN_ISSUER = "rH438jEAzTs5PYtV6CHZqpDpwCKQmPW9Cg"
+_MPT_ID = "00000003430427B80BD2D09D36B70B969E12801065F22308"
+_MPT_ID2 = "00000004430427B80BD2D09D36B70B969E12801065F22308"
 
 
 class TestAMMWithdraw(TestCase):
@@ -132,4 +135,30 @@ class TestAMMWithdraw(TestCase):
         self.assertEqual(
             error.exception.args[0],
             "{'AMMWithdraw': 'Must set `amount` with `e_price`'}",
+        )
+
+    def test_tx_valid_mpt_amount(self):
+        tx = AMMWithdraw(
+            account=_ACCOUNT,
+            asset=_ASSET,
+            asset2=MPTCurrency(mpt_issuance_id=_MPT_ID),
+            amount=MPTAmount(mpt_issuance_id=_MPT_ID, value="100"),
+            flags=AMMWithdrawFlag.TF_SINGLE_ASSET,
+        )
+        self.assertTrue(tx.is_valid())
+        self.assertEqual(decode(tx.blob()), tx.to_xrpl())
+
+    def test_mpt_eprice(self):
+        with self.assertRaises(XRPLModelException) as error:
+            AMMWithdraw(
+                account=_ACCOUNT,
+                asset=_ASSET,
+                asset2=MPTCurrency(mpt_issuance_id=_MPT_ID),
+                amount=MPTAmount(mpt_issuance_id=_MPT_ID, value="100"),
+                e_price=MPTAmount(mpt_issuance_id=_MPT_ID, value="2"),
+                flags=AMMWithdrawFlag.TF_LIMIT_LP_TOKEN,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'e_price': '`e_price` cannot be an MPT amount.'}",
         )

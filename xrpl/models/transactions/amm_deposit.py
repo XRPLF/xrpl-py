@@ -8,7 +8,7 @@ from typing import Dict, Optional
 
 from typing_extensions import Self
 
-from xrpl.models.amounts import Amount, IssuedCurrencyAmount
+from xrpl.models.amounts import Amount, IssuedCurrencyAmount, is_mpt
 from xrpl.models.currencies import Currency
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
@@ -81,7 +81,9 @@ class AMMDeposit(Transaction):
     e_price: Optional[Amount] = None
     """
     The maximum effective price, in the deposit asset, to pay
-    for each LP Token received.
+    for each LP Token received. Cannot be an MPT amount: when depositing an MPT,
+    give the price in a non-MPT asset such as the pool's LP Token (only the value is
+    used).
     """
 
     lp_token_out: Optional[IssuedCurrencyAmount] = None
@@ -102,4 +104,6 @@ class AMMDeposit(Transaction):
             errors["AMMDeposit"] = "Must set `amount` with `e_price`"
         elif self.lp_token_out is None and self.amount is None:
             errors["AMMDeposit"] = "Must set at least `lp_token_out` or `amount`"
+        if self.e_price is not None and is_mpt(self.e_price):
+            errors["e_price"] = "`e_price` cannot be an MPT amount."
         return errors

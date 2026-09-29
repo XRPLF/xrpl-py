@@ -12,6 +12,7 @@ from xrpl.utils.txn_parser.utils.types import (
     AccountOfferChange,
     AccountOfferChanges,
     CurrencyAmount,
+    MPTCurrencyAmount,
     OfferChange,
 )
 from xrpl.utils.xrp_conversions import drops_to_xrp
@@ -38,9 +39,14 @@ def _get_offer_status(
 
 def _derive_currency_amount(
     currency_amount: Union[str, Dict[str, str]],
-) -> CurrencyAmount:
+) -> Union[CurrencyAmount, MPTCurrencyAmount]:
     if isinstance(currency_amount, str):
         return CurrencyAmount(currency="XRP", value=str(drops_to_xrp(currency_amount)))
+    elif "mpt_issuance_id" in currency_amount:
+        return MPTCurrencyAmount(
+            mpt_issuance_id=currency_amount["mpt_issuance_id"],
+            value=currency_amount["value"],
+        )
     else:
         return CurrencyAmount(
             currency=currency_amount["currency"],
@@ -50,8 +56,8 @@ def _derive_currency_amount(
 
 
 def _calculate_delta(
-    final_amount: CurrencyAmount,
-    previous_amount: CurrencyAmount,
+    final_amount: Union[CurrencyAmount, MPTCurrencyAmount],
+    previous_amount: Union[CurrencyAmount, MPTCurrencyAmount],
 ) -> str:
     final_value = get_value(final_amount)
     previous_value = get_value(previous_amount)
@@ -62,7 +68,7 @@ def _calculate_delta(
 def _get_change_amount(
     node: NormalizedNode,
     side: Literal["TakerGets", "TakerPays"],
-) -> Optional[CurrencyAmount]:
+) -> Optional[Union[CurrencyAmount, MPTCurrencyAmount]]:
     new_fields = node.get("NewFields")
     if new_fields is not None:
         new_fields_amount = new_fields.get(side)
@@ -90,8 +96,8 @@ def _get_change_amount(
 
 
 def _get_quality(
-    taker_gets: CurrencyAmount,
-    taker_pays: CurrencyAmount,
+    taker_gets: Union[CurrencyAmount, MPTCurrencyAmount],
+    taker_pays: Union[CurrencyAmount, MPTCurrencyAmount],
 ) -> str:
     taker_gets_value = Decimal(taker_gets["value"])
     taker_pays_value = Decimal(taker_pays["value"])

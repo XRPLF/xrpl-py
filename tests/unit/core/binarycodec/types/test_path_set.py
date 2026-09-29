@@ -108,3 +108,74 @@ class TestPathSet(TestCase):
     def test_raises_invalid_value_type(self):
         invalid_value = 1
         self.assertRaises(XRPLBinaryCodecException, PathSet.from_value, invalid_value)
+
+
+_MPT_ID = "00000003430427B80BD2D09D36B70B969E12801065F22308"
+_MPT_ISSUER = "rffMEZLzDQPNU6VYbWNkgQBtMz6gCYnMAG"
+_MPT_ISSUER_HEX = "430427B80BD2D09D36B70B969E12801065F22308"
+_USD_HEX = "0000000000000000000000005553440000000000"
+_IOU_ISSUER = "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B"
+_IOU_ISSUER_HEX = "0A20B3C85F482532A9578DBB3950B85CA06594D1"
+
+# An MPT step has type 0x40 and a 24-byte MPTokenIssuanceID in place of the
+# currency. rippled's pathfinder also sets the issuer (0x40 | 0x20).
+mpt_json = [
+    [{"currency": "USD", "issuer": _IOU_ISSUER}, {"mpt_issuance_id": _MPT_ID}],
+    [{"mpt_issuance_id": _MPT_ID, "issuer": _MPT_ISSUER}],
+]
+mpt_buffer = (
+    "30"
+    + _USD_HEX
+    + _IOU_ISSUER_HEX
+    + "40"
+    + _MPT_ID
+    + "FF"
+    + "60"
+    + _MPT_ID
+    + _MPT_ISSUER_HEX
+    + "00"
+)
+
+
+class TestPathSetMPT(TestCase):
+    def test_from_value(self):
+        self.assertEqual(str(PathSet.from_value(mpt_json)), mpt_buffer)
+
+    def test_from_parser_to_json(self):
+        pathset = PathSet.from_parser(BinaryParser(mpt_buffer))
+        self.assertEqual(pathset.to_json(), mpt_json)
+
+    def test_mpt_as_first_step(self):
+        pathset = PathSet.from_value([[{"mpt_issuance_id": _MPT_ID}]])
+        self.assertEqual(str(pathset), "40" + _MPT_ID + "00")
+
+    def test_lowercase_mpt_issuance_id_is_normalized(self):
+        pathset = PathSet.from_value([[{"mpt_issuance_id": _MPT_ID.lower()}]])
+        self.assertEqual(pathset.to_json(), [[{"mpt_issuance_id": _MPT_ID}]])
+
+    def test_account_with_mpt(self):
+        # rippled accepts this combination, so the codec does too.
+        value = [[{"account": _IOU_ISSUER, "mpt_issuance_id": _MPT_ID}]]
+        pathset = PathSet.from_value(value)
+        self.assertEqual(str(pathset), "41" + _IOU_ISSUER_HEX + _MPT_ID + "00")
+        self.assertEqual(pathset.to_json(), value)
+
+    def test_raises_currency_and_mpt(self):
+        value = [[{"currency": "USD", "mpt_issuance_id": _MPT_ID}]]
+        with self.assertRaises(XRPLBinaryCodecException):
+            PathSet.from_value(value)
+
+    def test_raises_step_without_fields(self):
+        # The empty type byte would otherwise end the PathSet early.
+        value = [[{"currency": "USD", "issuer": _IOU_ISSUER}, {"type": 1}]]
+        with self.assertRaises(XRPLBinaryCodecException):
+            PathSet.from_value(value)
+
+    def test_from_parser_raises_currency_and_mpt(self):
+        parser = BinaryParser("50" + _USD_HEX + _MPT_ID + "00")
+        with self.assertRaises(XRPLBinaryCodecException):
+            PathSet.from_parser(parser)
+
+    def test_from_parser_raises_unknown_type_bits(self):
+        with self.assertRaises(XRPLBinaryCodecException):
+            PathSet.from_parser(BinaryParser("02" + _MPT_ID + "00"))
