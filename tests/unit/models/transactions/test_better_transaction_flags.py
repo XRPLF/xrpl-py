@@ -456,3 +456,65 @@ class TestBetterTransactionFlags(TestCase):
             first=signed_actual,
             second=signed_expected,
         )
+
+    def test_unknown_true_flag_raises(self):
+        # An unrecognized flag set to True must fail closed instead of being
+        # silently dropped (which would build a tx with unintended semantics).
+        # https://github.com/XRPLF/xrpl-py/issues/1016
+        with self.assertRaises(XRPLModelException):
+            models.OfferCreate(
+                account=ACCOUNT,
+                taker_gets="1000000",
+                taker_pays=models.IssuedCurrencyAmount(
+                    currency="USD",
+                    issuer="rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
+                    value="1",
+                ),
+                flags={"TF_IMMEDIATE_OR_CANCE1": True},  # typo
+            )
+
+    def test_camelcase_flag_name_raises(self):
+        # Protocol-style camelCase names are not recognized; they must raise
+        # rather than silently produce Flags: 0.
+        # https://github.com/XRPLF/xrpl-py/issues/1016
+        with self.assertRaises(XRPLModelException):
+            models.OfferCreate(
+                account=ACCOUNT,
+                taker_gets="1000000",
+                taker_pays=models.IssuedCurrencyAmount(
+                    currency="USD",
+                    issuer="rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
+                    value="1",
+                ),
+                flags={"tfImmediateOrCancel": True},
+            )
+
+    def test_unknown_false_flag_is_ignored(self):
+        # Only flags set to True are validated; False flags stay a no-op.
+        tx = models.OfferCreate(
+            account=ACCOUNT,
+            taker_gets="1000000",
+            taker_pays=models.IssuedCurrencyAmount(
+                currency="USD",
+                issuer="rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
+                value="1",
+            ),
+            flags={"TF_BOGUS": False},
+        )
+        self.assertEqual(tx.to_xrpl()["Flags"], 0)
+        self.assertTrue(tx.is_valid())
+
+    def test_snake_case_flag_name_accepted(self):
+        # Lowercase snake_case spellings keep working as before.
+        tx = models.OfferCreate(
+            account=ACCOUNT,
+            taker_gets="1000000",
+            taker_pays=models.IssuedCurrencyAmount(
+                currency="USD",
+                issuer="rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
+                value="1",
+            ),
+            flags={"tf_immediate_or_cancel": True},
+        )
+        self.assertEqual(tx.to_xrpl()["Flags"], 0x00020000)
+        self.assertTrue(tx.is_valid())
