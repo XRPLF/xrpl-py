@@ -185,8 +185,8 @@ class TestLoanSet(TestCase):
             )
         self.assertEqual(
             error.exception.args[0],
-            "{'LoanSet:GracePeriod': 'Grace period must be less than the payment "
-            + "interval.'}",
+            "{'LoanSet:GracePeriod': 'Grace period must be between 60 seconds and the "
+            + "payment interval (60 seconds if omitted) inclusive.'}",
         )
 
     def test_invalid_payment_interval_too_short(self):
@@ -210,3 +210,111 @@ class TestLoanSet(TestCase):
             principal_requested="100000000",
         )
         self.assertTrue(tx.is_valid())
+
+    def test_grace_period_bounds(self):
+        grace_period_error = (
+            "{'LoanSet:GracePeriod': 'Grace period must be between 60 seconds and the "
+            "payment interval (60 seconds if omitted) inclusive.'}"
+        )
+        for payment_interval, grace_period in [(120, 60), (120, 120), (None, 60)]:
+            tx = LoanSet(
+                account=_SOURCE,
+                loan_broker_id=_ISSUER,
+                principal_requested="100000000",
+                payment_interval=payment_interval,
+                grace_period=grace_period,
+            )
+            self.assertTrue(tx.is_valid())
+
+        # Without payment_interval, rippled uses its default of 60
+        for payment_interval, grace_period in [(120, 59), (None, 61)]:
+            with self.assertRaises(XRPLModelException) as error:
+                LoanSet(
+                    account=_SOURCE,
+                    loan_broker_id=_ISSUER,
+                    principal_requested="100000000",
+                    payment_interval=payment_interval,
+                    grace_period=grace_period,
+                )
+            self.assertEqual(error.exception.args[0], grace_period_error)
+
+    def test_invalid_payment_total_zero(self):
+        with self.assertRaises(XRPLModelException) as error:
+            LoanSet(
+                account=_SOURCE,
+                loan_broker_id=_ISSUER,
+                principal_requested="100000000",
+                payment_total=0,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'LoanSet:payment_total': 'Payment total must be greater than 0.'}",
+        )
+
+    def test_invalid_principal_requested_not_positive(self):
+        for principal_requested in ["0", "-1"]:
+            with self.assertRaises(XRPLModelException) as error:
+                LoanSet(
+                    account=_SOURCE,
+                    loan_broker_id=_ISSUER,
+                    principal_requested=principal_requested,
+                )
+            self.assertEqual(
+                error.exception.args[0],
+                "{'LoanSet:principal_requested': 'Principal requested must be "
+                "greater than 0.'}",
+            )
+
+    def test_loan_origination_fee_bounds(self):
+        for principal_requested, loan_origination_fee in [
+            ("100000", "0"),
+            ("100000", "100000"),
+            ("1e5", "1e5"),
+        ]:
+            tx = LoanSet(
+                account=_SOURCE,
+                loan_broker_id=_ISSUER,
+                principal_requested=principal_requested,
+                loan_origination_fee=loan_origination_fee,
+            )
+            self.assertTrue(tx.is_valid())
+
+        for loan_origination_fee in ["100001", "-1"]:
+            with self.assertRaises(XRPLModelException) as error:
+                LoanSet(
+                    account=_SOURCE,
+                    loan_broker_id=_ISSUER,
+                    principal_requested="100000",
+                    loan_origination_fee=loan_origination_fee,
+                )
+            self.assertEqual(
+                error.exception.args[0],
+                "{'LoanSet:loan_origination_fee': 'Loan origination fee must be "
+                "between 0 and the principal requested inclusive.'}",
+            )
+
+    def test_invalid_negative_payment_fees(self):
+        for field_name, label in [
+            ("loan_service_fee", "Loan service fee"),
+            ("late_payment_fee", "Late payment fee"),
+            ("close_payment_fee", "Close payment fee"),
+        ]:
+            tx = LoanSet(
+                account=_SOURCE,
+                loan_broker_id=_ISSUER,
+                principal_requested="100000000",
+                **{field_name: "0"},
+            )
+            self.assertTrue(tx.is_valid())
+
+            with self.assertRaises(XRPLModelException) as error:
+                LoanSet(
+                    account=_SOURCE,
+                    loan_broker_id=_ISSUER,
+                    principal_requested="100000000",
+                    **{field_name: "-1"},
+                )
+            self.assertEqual(
+                error.exception.args[0],
+                f"{{'LoanSet:{field_name}': '{label} must not be negative.'}}",
+            )

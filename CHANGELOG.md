@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Fixed
+
+- Flags given as a dict now raise an `XRPLModelException` when a flag set to `True` is not valid for the transaction type, instead of being silently encoded as `Flags: 0` ([#1016](https://github.com/XRPLF/xrpl-py/issues/1016)). This includes rippled-style names such as `tfImmediateOrCancel`; use the `UPPER_SNAKE_CASE` names of the transaction's `FlagInterface`. The global `TF_INNER_BATCH_TXN` flag now works in dict form for every transaction type.
+- `LoanSetFlag`, `LoanManageFlag` and `AMMClawbackFlag` and their `FlagInterface`s are now exported from `xrpl.models.transactions`. Until now their dict-form flags were silently encoded as `0`, so for example `LoanManage(flags={"TF_LOAN_DEFAULT": True})` did nothing on the ledger.
+- `LoanSet` validation now matches rippled's preflight checks, which reject these values with `temINVALID`: `grace_period` must be between 60 and `payment_interval` (60 if omitted), `payment_total` and `principal_requested` must be greater than 0, `loan_origination_fee` must be between 0 and `principal_requested`, and `loan_service_fee`, `late_payment_fee` and `close_payment_fee` must not be negative.
+- `VaultCreate` validation now rejects a `withdrawal_policy` other than `VAULT_STRATEGY_FIRST_COME_FIRST_SERVE` (1), which rippled rejects with `temMALFORMED`.
+
 ## [[5.2.0]]
 
 ### Added
