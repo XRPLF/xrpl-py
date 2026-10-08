@@ -50,6 +50,47 @@ def _check_gh_cli() -> None:
         sys.exit(1)
 
 
+# The artifacts API cannot filter by branch, so results are scanned page by
+# page. rippled publishes enough artifacts that a single 100-item page spans
+# only a few hours of the 3-day retention window.
+ARTIFACT_PAGE_SIZE = 100
+ARTIFACT_MAX_PAGES = 10
+
+
+def _find_develop_run() -> str | None:
+    """Find the newest unexpired server-definitions run on develop."""
+    jq = (
+        r'"\([.artifacts[]'
+        r' | select(.workflow_run.head_branch == "develop"'
+        r" and .expired == false)]"
+        r' | .[0].workflow_run.id // "")\t\(.artifacts | length)"'
+    )
+
+    for page in range(1, ARTIFACT_MAX_PAGES + 1):
+        try:
+            raw = _exec(
+                [
+                    "gh",
+                    "api",
+                    f"repos/{UPSTREAM_REPO}/actions/artifacts"
+                    f"?name={ARTIFACT_NAME}"
+                    f"&per_page={ARTIFACT_PAGE_SIZE}&page={page}",
+                    "--jq",
+                    jq,
+                ]
+            )
+        except subprocess.CalledProcessError:
+            return None
+
+        run_id, _, page_len = raw.partition("\t")
+        if run_id:
+            return run_id
+        if not page_len.isdigit() or int(page_len) < ARTIFACT_PAGE_SIZE:
+            return None
+
+    return None
+
+
 def _download_benchmark() -> dict | None:
     """Download the develop benchmark, or return None if it is unavailable.
 
@@ -60,21 +101,7 @@ def _download_benchmark() -> dict | None:
     """
     print("Downloading benchmark definitions from rippled develop branch...")
 
-    try:
-        raw = _exec(
-            [
-                "gh",
-                "api",
-                f"repos/{UPSTREAM_REPO}/actions/artifacts"
-                f"?name={ARTIFACT_NAME}&per_page=50",
-                "--jq",
-                '[.artifacts[] | select(.workflow_run.head_branch == "develop"'
-                " and .expired == false)] | .[0].workflow_run.id // empty",
-            ]
-        )
-        run_id = raw if raw else None
-    except subprocess.CalledProcessError:
-        run_id = None
+    run_id = _find_develop_run()
 
     if not run_id:
         print(

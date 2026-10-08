@@ -20,6 +20,7 @@ and the RPC return that same object.
 """
 
 import argparse
+import dataclasses
 import json
 import os
 import shutil
@@ -44,6 +45,22 @@ LOOPBACK_HOSTS = ("localhost", "127.0.0.1", "::1", "[::1]")
 
 # rippled's default JSON-RPC admin port.
 DEFAULT_RPC_PORT = 5005
+
+# The artifacts API cannot filter by branch or commit, so results are scanned
+# page by page. rippled publishes enough artifacts that a single 100-item page
+# spans only a few hours of the 3-day retention window.
+ARTIFACT_PAGE_SIZE = 100
+ARTIFACT_MAX_PAGES = 10
+
+
+@dataclasses.dataclass
+class Artifact:
+    """A located server-definitions artifact."""
+
+    run_id: str
+    head_sha: str
+    created_at: str
+
 
 DEFAULT_OUTPUT = os.path.join(
     os.path.dirname(__file__),
@@ -112,47 +129,59 @@ def _find_pr_for_fork_branch(fork_owner: str, branch: str) -> dict | None:
     return None
 
 
-def _find_artifact_by_branch(repo: str, branch: str) -> str | None:
+def _find_artifact(repo: str, field: str, value: str) -> "Artifact | None":
+    """Find the newest unexpired server-definitions artifact by run field.
+
+    The artifacts API cannot filter by branch or commit, so pages are scanned
+    newest-first. rippled produces enough artifacts that one page covers only
+    a few hours of the 3-day retention window, so this must paginate rather
+    than rely on a single request.
+    """
+    jq = (
+        r'"\([.artifacts[]'
+        rf' | select(.workflow_run.{field} == "{value}"'
+        r" and .expired == false)] | .[0] as $a"
+        r' | "\($a.workflow_run.id // "")\t\($a.workflow_run.head_sha // "")'
+        r'\t\($a.created_at // "")")\t\(.artifacts | length)"'
+    )
+
+    for page in range(1, ARTIFACT_MAX_PAGES + 1):
+        try:
+            raw = _exec(
+                [
+                    "gh",
+                    "api",
+                    f"repos/{repo}/actions/artifacts?name={ARTIFACT_NAME}"
+                    f"&per_page={ARTIFACT_PAGE_SIZE}&page={page}",
+                    "--jq",
+                    jq,
+                ]
+            )
+        except subprocess.CalledProcessError:
+            return None
+
+        run_id, sha, created, page_len = (raw.split("\t") + ["", "", "", ""])[:4]
+        if run_id:
+            return Artifact(run_id=run_id, head_sha=sha, created_at=created)
+        # A short page means there are no further pages to scan.
+        if not page_len.isdigit() or int(page_len) < ARTIFACT_PAGE_SIZE:
+            return None
+
+    return None
+
+
+def _find_artifact_by_branch(repo: str, branch: str) -> "Artifact | None":
     """Find the most recent server-definitions artifact on a branch.
 
-    Uses the artifacts API to search by name directly, then filters by branch.
     This works even if the overall CI run failed, as long as the artifact was
     produced before the failure.
     """
-    try:
-        raw = _exec(
-            [
-                "gh",
-                "api",
-                f"repos/{repo}/actions/artifacts" f"?name={ARTIFACT_NAME}&per_page=50",
-                "--jq",
-                "[.artifacts[]"
-                f' | select(.workflow_run.head_branch == "{branch}"'
-                " and .expired == false)] | .[0].workflow_run.id // empty",
-            ]
-        )
-        return raw if raw else None
-    except subprocess.CalledProcessError:
-        return None
+    return _find_artifact(repo, "head_branch", branch)
 
 
-def _find_artifact_by_sha(repo: str, sha: str) -> str | None:
+def _find_artifact_by_sha(repo: str, sha: str) -> "Artifact | None":
     """Find the server-definitions artifact for a specific commit SHA."""
-    try:
-        raw = _exec(
-            [
-                "gh",
-                "api",
-                f"repos/{repo}/actions/artifacts" f"?name={ARTIFACT_NAME}&per_page=50",
-                "--jq",
-                "[.artifacts[]"
-                f' | select(.workflow_run.head_sha == "{sha}"'
-                " and .expired == false)] | .[0].workflow_run.id // empty",
-            ]
-        )
-        return raw if raw else None
-    except subprocess.CalledProcessError:
-        return None
+    return _find_artifact(repo, "head_sha", sha)
 
 
 def _write_definitions(server_defs: dict, output_file: str) -> None:
@@ -340,6 +369,29 @@ def _download_artifact(repo: str, run_id: str, output_file: str) -> None:
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
+def _report_artifact(artifact: "Artifact", expected_sha: str | None) -> None:
+    """Print which commit the artifact came from, warning if it is not head.
+
+    rippled cancels a ref's in-progress run when a newer commit is pushed, so
+    in practice only the newest commit retains an artifact. If an older one
+    is ever served instead, say so rather than writing stale definitions
+    silently.
+    """
+    when = f" on {artifact.created_at}" if artifact.created_at else ""
+    print(
+        f"Found artifact in run {artifact.run_id}"
+        f" (commit {artifact.head_sha[:7]}{when})"
+    )
+
+    if expected_sha and artifact.head_sha and artifact.head_sha != expected_sha:
+        print(
+            f"Warning: this is NOT the current head commit"
+            f" ({expected_sha[:7]}). The head's CI may still be running or"
+            " may have failed; these definitions are from an earlier commit.",
+            file=sys.stderr,
+        )
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
@@ -429,7 +481,7 @@ def main() -> None:
     pr_number = args.pr_number
     output_file = args.output
 
-    run_id = None
+    artifact = None
     repo = UPSTREAM_REPO
 
     # Parse "owner:branch" format for fork branches
@@ -450,14 +502,14 @@ def main() -> None:
         # Try commit SHA first — works for fork PRs where the branch name
         # belongs to the fork repo and won't be found by branch-based search.
         print("Searching by commit SHA...")
-        run_id = _find_artifact_by_sha(UPSTREAM_REPO, pr_info["headRefOid"])
+        artifact = _find_artifact_by_sha(UPSTREAM_REPO, pr_info["headRefOid"])
 
-        if not run_id:
+        if not artifact:
             print(
                 f"No artifact found by SHA, trying branch"
                 f' "{pr_info["headRefName"]}"...'
             )
-            run_id = _find_artifact_by_branch(UPSTREAM_REPO, pr_info["headRefName"])
+            artifact = _find_artifact_by_branch(UPSTREAM_REPO, pr_info["headRefName"])
 
     elif fork_owner:
         fork_repo = f"{fork_owner}/rippled"
@@ -470,22 +522,22 @@ def main() -> None:
         if pr:
             sha_short = pr["headRefOid"][:7]
             print(f"Found PR #{pr['number']} ({sha_short}), searching upstream CI...")
-            run_id = _find_artifact_by_sha(UPSTREAM_REPO, pr["headRefOid"])
+            artifact = _find_artifact_by_sha(UPSTREAM_REPO, pr["headRefOid"])
 
-            if not run_id:
-                run_id = _find_artifact_by_branch(UPSTREAM_REPO, branch)
+            if not artifact:
+                artifact = _find_artifact_by_branch(UPSTREAM_REPO, branch)
 
-        if not run_id:
+        if not artifact:
             # No PR or no artifact in upstream — search the fork repo's CI
             print(f'Searching fork repo {fork_repo} for CI on branch "{branch}"...')
             repo = fork_repo
-            run_id = _find_artifact_by_branch(fork_repo, branch)
+            artifact = _find_artifact_by_branch(fork_repo, branch)
 
     else:
         print(f'Searching for "{ARTIFACT_NAME}" artifact on branch "{branch}"...')
-        run_id = _find_artifact_by_branch(UPSTREAM_REPO, branch)
+        artifact = _find_artifact_by_branch(UPSTREAM_REPO, branch)
 
-    if not run_id:
+    if not artifact:
         print(
             f'Error: No CI runs with "{ARTIFACT_NAME}" artifact found.\n'
             "Artifacts are kept for 3 days, take ~10 minutes to appear after"
@@ -498,10 +550,11 @@ def main() -> None:
         )
         sys.exit(1)
 
-    print(f"Found artifact in run {run_id}")
+    expected_sha = pr_info["headRefOid"] if pr_number else None
+    _report_artifact(artifact, expected_sha)
 
     print("Downloading artifact...")
-    _download_artifact(repo, run_id, output_file)
+    _download_artifact(repo, artifact.run_id, output_file)
     print(f"Definitions written to {output_file}")
 
 
