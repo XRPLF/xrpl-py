@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Fixed
+
+- `submit` (and so `submit_and_wait` and `sign_and_submit`) now raises an `XRPLException` naming `CounterpartySignature` and `sign_loan_set_by_counterparty` when a `LoanSet` is submitted without the counterparty's signature. rippled rejects such a LoanSet with `temBAD_SIGNER` and the unrelated message `No signer may duplicate account or other signers`. Batch inner LoanSets are not affected.
+
 ## [[5.2.0]]
 
 ### Added
