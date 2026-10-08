@@ -32,18 +32,15 @@ REQUIRED_KEYS = [
 ]
 
 
-def _exec(cmd: str) -> str:
-    result = subprocess.run(
-        cmd, shell=True, capture_output=True, text=True, check=True
-    )
+def _exec(cmd: list[str]) -> str:
+    """Run a command (argv list, no shell) and return its stripped stdout."""
+    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
     return result.stdout.strip()
 
 
 def _check_gh_cli() -> None:
     try:
-        subprocess.run(
-            ["gh", "--version"], capture_output=True, text=True, check=True
-        )
+        subprocess.run(["gh", "--version"], capture_output=True, text=True, check=True)
     except FileNotFoundError:
         print(
             "Error: GitHub CLI (gh) is required but not found.\n"
@@ -53,15 +50,27 @@ def _check_gh_cli() -> None:
         sys.exit(1)
 
 
-def _download_benchmark() -> dict:
+def _download_benchmark() -> dict | None:
+    """Download the develop benchmark, or return None if it is unavailable.
+
+    rippled retains the server-definitions artifact for only 3 days, and
+    develop occasionally goes longer than that without a merge. That is an
+    upstream availability gap rather than a problem with definitions.json,
+    so the caller skips validation instead of failing.
+    """
     print("Downloading benchmark definitions from rippled develop branch...")
 
     try:
         raw = _exec(
-            f'gh api "repos/{UPSTREAM_REPO}/actions/artifacts'
-            f'?name={ARTIFACT_NAME}&per_page=50"'
-            f" --jq '[.artifacts[] | select(.workflow_run.head_branch == \"develop\""
-            f" and .expired == false)] | .[0].workflow_run.id // empty'"
+            [
+                "gh",
+                "api",
+                f"repos/{UPSTREAM_REPO}/actions/artifacts"
+                f"?name={ARTIFACT_NAME}&per_page=50",
+                "--jq",
+                '[.artifacts[] | select(.workflow_run.head_branch == "develop"'
+                " and .expired == false)] | .[0].workflow_run.id // empty",
+            ]
         )
         run_id = raw if raw else None
     except subprocess.CalledProcessError:
@@ -69,11 +78,10 @@ def _download_benchmark() -> dict:
 
     if not run_id:
         print(
-            "Error: Could not find server-definitions artifact on rippled"
-            " develop branch.",
-            file=sys.stderr,
+            "Warning: No unexpired server-definitions artifact on rippled"
+            " develop (artifacts are retained for 3 days)."
         )
-        sys.exit(1)
+        return None
 
     print(f"Found artifact in run {run_id}")
     tmp_dir = tempfile.mkdtemp(prefix="server-definitions-")
@@ -81,24 +89,32 @@ def _download_benchmark() -> dict:
     try:
         try:
             _exec(
-                f"gh run download {run_id} --repo {UPSTREAM_REPO}"
-                f' --name {ARTIFACT_NAME} --dir "{tmp_dir}"'
+                [
+                    "gh",
+                    "run",
+                    "download",
+                    run_id,
+                    "--repo",
+                    UPSTREAM_REPO,
+                    "--name",
+                    ARTIFACT_NAME,
+                    "--dir",
+                    tmp_dir,
+                ]
             )
         except subprocess.CalledProcessError:
             print(
-                f"Error: Failed to download artifact from run {run_id}.\n"
-                "The artifact may have expired.",
-                file=sys.stderr,
+                f"Warning: Failed to download artifact from run {run_id};"
+                " it may have expired mid-run."
             )
-            sys.exit(1)
+            return None
 
         server_defs_path = os.path.join(tmp_dir, "server_definitions.json")
         if not os.path.exists(server_defs_path):
             print(
-                "Error: server_definitions.json not found in downloaded artifact",
-                file=sys.stderr,
+                "Warning: server_definitions.json not found in downloaded" " artifact."
             )
-            sys.exit(1)
+            return None
 
         with open(server_defs_path, encoding="utf-8") as f:
             return json.load(f)
@@ -233,19 +249,19 @@ def _validate_structure(local: dict, benchmark: dict) -> list[str]:
                 continue
             for type_name, fields in local_value.items():
                 if not isinstance(fields, list):
-                    errors.append(
-                        f'{key} "{type_name}": value must be a list'
-                    )
+                    errors.append(f'{key} "{type_name}": value must be a list')
                     continue
                 for j, field in enumerate(fields):
+                    if not isinstance(field, dict):
+                        errors.append(f'{key} "{type_name}"[{j}]: field must be a dict')
+                        continue
                     if not isinstance(field.get("name"), str):
                         errors.append(
                             f'{key} "{type_name}"[{j}]: "name" must be a string'
                         )
                     if not isinstance(field.get("optionality"), int):
                         errors.append(
-                            f'{key} "{type_name}"[{j}]: "optionality" must be'
-                            " an int"
+                            f'{key} "{type_name}"[{j}]: "optionality" must be' " an int"
                         )
 
     return errors
@@ -326,10 +342,49 @@ def _compare_definitions(local: dict, benchmark: dict) -> list[str]:
     return errors
 
 
+# ── Drift detection (non-blocking) ───────────────────────────────────────────
+
+
+def _find_drift(local: dict, benchmark: dict) -> list[str]:
+    """Report entries present upstream but absent locally.
+
+    This is reported as a warning rather than an error: rippled develop is
+    normally ahead of xrpl-py, because definitions.json is bumped
+    deliberately when an amendment is adopted rather than on every merge.
+    """
+    warnings = []
+
+    for key, bench_value in benchmark.items():
+        if key not in local:
+            warnings.append(f'Key "{key}" is present upstream but missing locally')
+            continue
+
+        category = _classify_value(bench_value)
+        local_value = local[key]
+
+        if category == "fields":
+            local_names = {name for name, _ in local_value}
+            missing = [name for name, _ in bench_value if name not in local_names]
+        elif category in ("simple_map", "nested_map", "format_array"):
+            missing = [name for name in bench_value if name not in local_value]
+        else:
+            continue
+
+        if missing:
+            shown = ", ".join(sorted(missing)[:10])
+            more = f" (+{len(missing) - 10} more)" if len(missing) > 10 else ""
+            warnings.append(
+                f"{key}: {len(missing)} missing upstream entries: {shown}{more}"
+            )
+
+    return warnings
+
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 
 def main() -> None:
+    """Entry point."""
     _check_gh_cli()
 
     print(f"Reading {DEFINITIONS_PATH}...")
@@ -341,11 +396,16 @@ def main() -> None:
         sys.exit(1)
 
     benchmark = _download_benchmark()
+    if benchmark is None:
+        print("Skipping validation: no benchmark available from rippled develop.")
+        return
 
     print("Validating structure...")
     struct_errors = _validate_structure(local, benchmark)
     if struct_errors:
-        print(f"\n{len(struct_errors)} structural validation error(s):", file=sys.stderr)
+        print(
+            f"\n{len(struct_errors)} structural validation error(s):", file=sys.stderr
+        )
         for e in struct_errors:
             print(f"  - {e}", file=sys.stderr)
         sys.exit(1)
@@ -359,7 +419,20 @@ def main() -> None:
             print(f"  - {e}", file=sys.stderr)
         sys.exit(1)
 
-    print("All entries match the benchmark. Validation passed.")
+    drift = _find_drift(local, benchmark)
+    if drift:
+        print(
+            f"\nNote: definitions.json is behind rippled develop in"
+            f" {len(drift)} place(s):"
+        )
+        for w in drift:
+            print(f"  - {w}")
+        print(
+            "This is not a failure. Run `poetry run poe definitions` to bump"
+            " definitions.json when adopting these amendments."
+        )
+
+    print("\nAll shared entries match the benchmark. Validation passed.")
 
 
 if __name__ == "__main__":

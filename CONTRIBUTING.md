@@ -216,6 +216,38 @@ poetry run poe definitions pr:6858
 poetry run poe definitions contributor:my-feature
 ```
 
+If no artifact is found, the branch most likely doesn't have one: artifacts
+are kept for only 3 days, take about 10 minutes to appear after a push, are
+never produced for an unpushed branch, and never produced for a PR from an
+external contributor until a maintainer approves its workflows. In any of
+those cases, generate from a local rippled instead.
+
+### Generating from a local rippled
+
+Two local sources are supported, neither of which needs `gh`.
+
+From a **local build**, which runs `xrpld --definitions`:
+
+```bash
+# finds .build/ or build/ automatically
+poetry run poe definitions ~/path/to/your/local/rippled
+
+# or point straight at the binary
+poetry run poe definitions ~/path/to/your/local/rippled/.build/xrpld
+```
+
+From a **running server** (a Docker container, or a standalone build), which
+sends a `server_definitions` request:
+
+```bash
+poetry run poe definitions localhost:5005
+poetry run poe definitions http://127.0.0.1:5005
+```
+
+Only loopback hosts may be given without a scheme, so that a fork reference
+like `contributor:my-feature` is never mistaken for a `host:port`. Use a full
+`http://` URL for anything else.
+
 To update the transaction models (still requires a rippled path or GitHub branch URL):
 
 ```bash
@@ -223,6 +255,27 @@ poetry run poe generate_tx_models https://github.com/XRPLF/rippled/tree/develop
 ```
 
 Verify that the changes make sense by inspection before submitting, as there may be updates required for the `xrpl-codec-gen` tool depending on the latest amendments we're updating to match.
+
+### Validating `definitions.json`
+
+CI checks `definitions.json` against the `server-definitions` artifact from
+rippled's `develop` branch on every PR. You can run the same check locally:
+
+```bash
+poetry run poe validate_definitions
+```
+
+The check fails only on genuine contradictions — an entry that exists both
+locally and upstream but disagrees on `nth`, `type`, a flag value, and so on.
+Two situations are reported without failing:
+
+- **Entries missing locally.** rippled `develop` is normally ahead of xrpl-py,
+  since `definitions.json` is bumped deliberately when an amendment is adopted
+  rather than on every upstream merge. These are listed as a note so the drift
+  stays visible.
+- **No benchmark available.** rippled retains the artifact for 3 days, and
+  `develop` occasionally goes longer than that without a merge. The check
+  skips rather than failing the build on an upstream availability gap.
 
 ## Mailing Lists
 

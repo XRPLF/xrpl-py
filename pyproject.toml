@@ -99,7 +99,7 @@ test_faucet = "coverage run -m unittest discover tests/faucet"
 lint = "poetry run flake8 xrpl tests"
 
 [tool.poe.tasks.definitions]
-help = "Generate definitions.json from rippled CI artifacts"
+help = "Generate definitions.json from a rippled CI artifact, local build, or running server"
 cmd = "python3 tools/generate_definitions.py ${BRANCH_OR_PR}"
 args = [{ name = "BRANCH_OR_PR", positional = true, default = "", multiple = true }]
 
