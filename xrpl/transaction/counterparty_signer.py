@@ -82,9 +82,9 @@ def sign_loan_set_by_counterparty(
     Signs a LoanSet transaction as the counterparty.
 
     This function adds a counterparty signature to a LoanSet transaction that has
-    already been signed by the first party. The counterparty uses their wallet to
-    sign the transaction, which is required for multi-party loan agreements on the
-    XRP Ledger.
+    already been signed by the first party, either single-signed or multisigned.
+    The counterparty uses their wallet to sign the transaction, which is required
+    for multi-party loan agreements on the XRP Ledger.
 
     Args:
         wallet: The counterparty's wallet used for signing the transaction.
@@ -132,7 +132,7 @@ def sign_loan_set_by_counterparty(
         raise XRPLException("Transaction is already signed by the counterparty.")
 
     # Validate first party has signed
-    if loan_set_tx.txn_signature is None or loan_set_tx.signing_pub_key is None:
+    if not _is_signed_by_first_party(loan_set_tx):
         raise XRPLException("Transaction must be first signed by first party.")
 
     # Determine multisign address
@@ -233,7 +233,7 @@ def combine_loanset_counterparty_signers(
             raise XRPLException("CounterpartySignature must have Signers.")
 
         # Validate first party has signed
-        if loan_set_tx.txn_signature is None or loan_set_tx.signing_pub_key is None:
+        if not _is_signed_by_first_party(loan_set_tx):
             raise XRPLException("Transaction must be first signed by first party.")
 
         decoded_transactions.append(loan_set_tx)
@@ -248,6 +248,20 @@ def combine_loanset_counterparty_signers(
         tx=combined_tx,
         tx_blob=encode(combined_tx.to_xrpl()),
     )
+
+
+def _is_signed_by_first_party(tx: LoanSet) -> bool:
+    """
+    Checks whether the Account has signed, with a single signature or, when the
+    Account is multisigned, with Signers.
+
+    Args:
+        tx: The LoanSet transaction to check.
+
+    Returns:
+        True if the Account has signed the transaction.
+    """
+    return tx.txn_signature is not None or bool(tx.signers)
 
 
 def _validate_loanset_transaction_equivalence(transactions: List[LoanSet]) -> None:
