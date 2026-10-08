@@ -155,6 +155,20 @@ class TestVaultCreate(TestCase):
             ),
         )
 
+    def test_unsupported_withdrawal_policy(self):
+        for withdrawal_policy in [0, 2, True]:
+            with self.assertRaises(XRPLModelException) as error:
+                VaultCreate(
+                    account=_ACCOUNT,
+                    asset=IssuedCurrency(currency="USD", issuer=_ACCOUNT),
+                    withdrawal_policy=withdrawal_policy,
+                )
+            self.assertEqual(
+                error.exception.args[0],
+                "{'withdrawal_policy': 'withdrawal_policy must be 1 (first come, "
+                "first served).'}",
+            )
+
     def test_unsupported_vault_kind(self):
         # An unsupported numeric VaultKind (e.g. 2) is rejected.
         with self.assertRaises(XRPLModelException) as e:

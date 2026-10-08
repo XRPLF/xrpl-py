@@ -3,6 +3,7 @@
 from __future__ import annotations  # Requires Python 3.7+
 
 from dataclasses import dataclass, field
+from decimal import Decimal, InvalidOperation
 from enum import Enum
 from typing import Dict, List, Optional
 
@@ -17,6 +18,17 @@ from xrpl.models.transactions.transaction import (
     TransactionFlagInterface,
 )
 from xrpl.models.transactions.types import TransactionType
+
+
+def _to_decimal(value: object) -> Optional[Decimal]:
+    """Parse a number string, or return None if it is absent or not a finite number."""
+    if not isinstance(value, str):
+        return None
+    try:
+        number = Decimal(value)
+    except InvalidOperation:
+        return None
+    return number if number.is_finite() else None
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -164,6 +176,9 @@ class LoanSet(Transaction):
     MAX_CLOSE_INTEREST_RATE = 100_000
     MAX_OVER_PAYMENT_INTEREST_RATE = 100_000
     MIN_PAYMENT_INTERVAL = 60
+    # rippled's GracePeriod bounds: at least 60, at most PaymentInterval (60 if omitted)
+    MIN_GRACE_PERIOD = 60
+    DEFAULT_PAYMENT_INTERVAL = 60
 
     def _get_errors(self: Self) -> Dict[str, str]:
         parent_class_errors = {
@@ -181,6 +196,36 @@ class LoanSet(Transaction):
 
         if self.data is not None and not HEX_REGEX.fullmatch(self.data):
             parent_class_errors["LoanSet:data"] = "Data must be a valid hex string."
+
+        for field_name, label in (
+            ("loan_service_fee", "Loan service fee"),
+            ("late_payment_fee", "Late payment fee"),
+            ("close_payment_fee", "Close payment fee"),
+        ):
+            fee = _to_decimal(getattr(self, field_name))
+            if fee is not None and fee < 0:
+                parent_class_errors[f"LoanSet:{field_name}"] = (
+                    f"{label} must not be negative."
+                )
+
+        principal_requested = _to_decimal(self.principal_requested)
+        if principal_requested is not None and principal_requested <= 0:
+            parent_class_errors["LoanSet:principal_requested"] = (
+                "Principal requested must be greater than 0."
+            )
+
+        origination_fee = _to_decimal(self.loan_origination_fee)
+        if origination_fee is not None and (
+            origination_fee < 0
+            or (
+                principal_requested is not None
+                and origination_fee > principal_requested
+            )
+        ):
+            parent_class_errors["LoanSet:loan_origination_fee"] = (
+                "Loan origination fee must be between 0 and the principal requested "
+                "inclusive."
+            )
 
         if self.overpayment_fee is not None and (
             self.overpayment_fee < 0
@@ -221,6 +266,11 @@ class LoanSet(Transaction):
                 "Overpayment interest rate must be between 0 and 100000 inclusive."
             )
 
+        if self.payment_total is not None and self.payment_total <= 0:
+            parent_class_errors["LoanSet:payment_total"] = (
+                "Payment total must be greater than 0."
+            )
+
         if (
             self.payment_interval is not None
             and self.payment_interval < self.MIN_PAYMENT_INTERVAL
@@ -229,13 +279,17 @@ class LoanSet(Transaction):
                 "Payment interval must be at least 60 seconds."
             )
 
-        if (
-            self.grace_period is not None
-            and self.payment_interval is not None
-            and self.grace_period > self.payment_interval
+        max_grace_period = (
+            self.payment_interval
+            if self.payment_interval is not None
+            else self.DEFAULT_PAYMENT_INTERVAL
+        )
+        if self.grace_period is not None and not (
+            self.MIN_GRACE_PERIOD <= self.grace_period <= max_grace_period
         ):
             parent_class_errors["LoanSet:GracePeriod"] = (
-                "Grace period must be less than the payment interval."
+                "Grace period must be between 60 seconds and the payment interval "
+                "(60 seconds if omitted) inclusive."
             )
 
         return parent_class_errors
