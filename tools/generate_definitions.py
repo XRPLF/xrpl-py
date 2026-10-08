@@ -1,376 +1,562 @@
-"""Script to generate the definitions.json file from rippled source code."""
+"""Script to generate the definitions.json file from rippled.
 
+By default this downloads the server-definitions artifact built by rippled CI
+and saves it as definitions.json, which requires the GitHub CLI (gh) to be
+installed and authenticated:
+  https://cli.github.com/
+
+Two local sources are also supported, for when CI has no usable artifact:
+rippled retains them for only 3 days, external-contributor PRs need workflow
+approval before CI runs at all, and a branch that has not been pushed has no
+CI run to download from.
+
+  - A filesystem path runs `xrpld --definitions` against a local build.
+  - An http(s) URL or a loopback host:port sends a `server_definitions`
+    request to a running node (a Docker container, or a standalone build).
+
+All three sources return the same payload: rippled builds the definitions
+once at startup from its compiled-in format tables, and both `--definitions`
+and the RPC return that same object.
+"""
+
+import argparse
+import dataclasses
+import json
 import os
-import re
+import shutil
+import subprocess
 import sys
-from pathlib import Path
+import tempfile
 
 import httpx
 
-if len(sys.argv) != 2 and len(sys.argv) != 3:
-    print("Usage: python " + sys.argv[0] + " path/to/rippled [path/to/output/file]")
-    print(
-        "Usage: python "
-        + sys.argv[0]
-        + " github.com/user/rippled/tree/feature-branch [path/to/output/file]"
-    )
-    sys.exit(1)
+UPSTREAM_REPO = "XRPLF/rippled"
+ARTIFACT_NAME = "server-definitions"
 
-########################################################################
-#  Get all necessary files from rippled
-########################################################################
+# rippled renamed its binary from "rippled" to "xrpld"; accept either.
+BINARY_NAMES = ("xrpld", "rippled")
+
+# Relative locations searched when given a rippled source/build directory.
+BUILD_SUBDIRS = ("", ".build", "build", "build/Release", "build/Debug")
+
+# Hosts accepted without a scheme, e.g. "localhost:5005". Restricted to
+# loopback so an "owner:branch" fork reference is never mistaken for a host.
+LOOPBACK_HOSTS = ("localhost", "127.0.0.1", "::1", "[::1]")
+
+# rippled's default JSON-RPC admin port.
+DEFAULT_RPC_PORT = 5005
+
+# The artifacts API cannot filter by branch or commit, so results are scanned
+# page by page. rippled publishes enough artifacts that a single 100-item page
+# spans only a few hours of the 3-day retention window.
+ARTIFACT_PAGE_SIZE = 100
+ARTIFACT_MAX_PAGES = 10
 
 
-def _read_file_from_github(repo: str, filename: str) -> str:
-    if "tree" not in repo:
-        repo += "/tree/HEAD"
-    url = repo.replace("github.com", "raw.githubusercontent.com")
-    url = url.replace("tree/", "")
-    url += "/" + filename
-    if not url.startswith("http"):
-        url = "https://" + url
+@dataclasses.dataclass
+class Artifact:
+    """A located server-definitions artifact."""
+
+    run_id: str
+    head_sha: str
+    created_at: str
+
+
+DEFAULT_OUTPUT = os.path.join(
+    os.path.dirname(__file__),
+    "../xrpl/core/binarycodec/definitions/definitions.json",
+)
+
+
+def _exec(cmd: list[str]) -> str:
+    """Run a command (argv list, no shell) and return its stripped stdout."""
+    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    return result.stdout.strip()
+
+
+def _check_gh_cli() -> None:
+    """Verify the GitHub CLI is installed."""
     try:
-        response = httpx.get(url)
-        response.raise_for_status()
-        return response.text
-    except httpx.HTTPError as e:
-        print(f"Error reading {url}: {e}", file=sys.stderr)
+        subprocess.run(["gh", "--version"], capture_output=True, text=True, check=True)
+    except FileNotFoundError:
+        print(
+            "Error: GitHub CLI (gh) is required but not found.\n"
+            "Install from https://cli.github.com/",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
 
-def _read_file(folder: str, filename: str) -> str:
-    file_path = Path(folder) / filename
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    return file_path.read_text()
+def _get_pr_info(pr_number: str) -> dict:
+    """Get branch name and head SHA for a pull request."""
+    try:
+        raw = _exec(
+            [
+                "gh",
+                "api",
+                f"repos/{UPSTREAM_REPO}/pulls/{pr_number}",
+                "--jq",
+                "{headRefName: .head.ref, headRefOid: .head.sha}",
+            ]
+        )
+        return json.loads(raw)
+    except subprocess.CalledProcessError:
+        print(
+            f"Error: Could not find PR #{pr_number} in {UPSTREAM_REPO}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
 
-func = _read_file_from_github if "github.com" in sys.argv[1] else _read_file
-
-sfield_h = func(sys.argv[1], "include/xrpl/protocol/SField.h")
-sfield_macro_file = func(sys.argv[1], "include/xrpl/protocol/detail/sfields.macro")
-ledger_entries_file = func(
-    sys.argv[1], "include/xrpl/protocol/detail/ledger_entries.macro"
-)
-ter_h = func(sys.argv[1], "include/xrpl/protocol/TER.h")
-transactions_file = func(sys.argv[1], "include/xrpl/protocol/detail/transactions.macro")
-
-
-# Translate from rippled string format to what the binary codecs expect
-def _translate(inp: str) -> str:
-    if re.match(r"^UINT", inp):
-        if re.search(r"256|160|128|192|384|512", inp):
-            return inp.replace("UINT", "Hash")
-        else:
-            return inp.replace("UINT", "UInt")
-
-    non_standard_renames = {
-        "OBJECT": "STObject",
-        "ARRAY": "STArray",
-        "ACCOUNT": "AccountID",
-        "LEDGERENTRY": "LedgerEntry",
-        "NOTPRESENT": "NotPresent",
-        "PATHSET": "PathSet",
-        "VL": "Blob",
-        "DIR_NODE": "DirectoryNode",
-        "PAYCHAN": "PayChannel",
-        "XCHAIN_BRIDGE": "XChainBridge",
-    }
-    if inp in non_standard_renames:
-        return non_standard_renames[inp]
-
-    parts = inp.split("_")
-    result = ""
-    for part in parts:
-        result += part[0:1].upper() + part[1:].lower()
-    return result
+def _find_pr_for_fork_branch(fork_owner: str, branch: str) -> dict | None:
+    """Find a PR in the upstream repo for a fork branch."""
+    try:
+        raw = _exec(
+            [
+                "gh",
+                "api",
+                f"repos/{UPSTREAM_REPO}/pulls"
+                f"?head={fork_owner}:{branch}&state=open&per_page=1",
+                "--jq",
+                "[.[] | {number: .number, headRefOid: .head.sha}]",
+            ]
+        )
+        prs = json.loads(raw)
+        if prs:
+            return prs[0]
+    except subprocess.CalledProcessError:
+        pass
+    return None
 
 
-output = ""
+def _find_artifact(repo: str, field: str, value: str) -> "Artifact | None":
+    """Find the newest unexpired server-definitions artifact by run field.
 
-
-# add a new line of content to the output
-def _add_line(line: str) -> None:
-    global output
-    output += line + "\n"
-
-
-# start
-_add_line("{")
-
-########################################################################
-#  SField processing
-########################################################################
-_add_line('  "FIELDS": [')
-
-# The ones that are harder to parse directly from SField.cpp
-_add_line(
-    """    [
-      "Generic",
-      {
-        "isSerialized": false,
-        "isSigningField": false,
-        "isVLEncoded": false,
-        "nth": 0,
-        "type": "Unknown"
-      }
-    ],
-    [
-      "Invalid",
-      {
-        "isSerialized": false,
-        "isSigningField": false,
-        "isVLEncoded": false,
-        "nth": -1,
-        "type": "Unknown"
-      }
-    ],
-    [
-      "ObjectEndMarker",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 1,
-        "type": "STObject"
-      }
-    ],
-    [
-      "ArrayEndMarker",
-      {
-        "isSerialized": true,
-        "isSigningField": true,
-        "isVLEncoded": false,
-        "nth": 1,
-        "type": "STArray"
-      }
-    ],
-    [
-      "taker_gets_funded",
-      {
-        "isSerialized": false,
-        "isSigningField": false,
-        "isVLEncoded": false,
-        "nth": 258,
-        "type": "Amount"
-      }
-    ],
-    [
-      "taker_pays_funded",
-      {
-        "isSerialized": false,
-        "isSigningField": false,
-        "isVLEncoded": false,
-        "nth": 259,
-        "type": "Amount"
-      }
-    ],"""
-)
-
-# Parse STypes
-# Example line:
-# STYPE(STI_UINT32, 2)    \
-type_hits = re.findall(
-    r"^ *STYPE\(STI_([^ ]*?)[ \n]*,[ \n]*([0-9-]+)[ \n]*\)[ \n]*\\?$",
-    sfield_h,
-    re.MULTILINE,
-)
-# name-to-value map - needed for SField processing
-type_map = {x[0]: x[1] for x in type_hits}
-
-
-def _is_vl_encoded(t: str) -> str:
-    if t == "VL" or t == "ACCOUNT" or t == "VECTOR256":
-        return "true"
-    return "false"
-
-
-def _is_serialized(t: str, name: str) -> str:
-    if t == "LEDGERENTRY" or t == "TRANSACTION" or t == "VALIDATION" or t == "METADATA":
-        return "false"
-    if name == "hash" or name == "index":
-        return "false"
-    return "true"
-
-
-def _is_signing_field(t: str, not_signing_field: str) -> str:
-    if not_signing_field == "kNotSigning":
-        return "false"
-    if t == "LEDGERENTRY" or t == "TRANSACTION" or t == "VALIDATION" or t == "METADATA":
-        return "false"
-    return "true"
-
-
-# Parse SField.cpp for all the SFields and their serialization info
-# Example lines:
-# TYPED_SFIELD(sfFee, AMOUNT, 8)
-# UNTYPED_SFIELD(sfSigners,  ARRAY, 3, SField::sMD_Default, SField::kNotSigning)
-sfield_hits = re.findall(
-    r"^ *[A-Z]*TYPED_SFIELD[ \n]*\([ \n]*sf([^,\n]*),[ \n]*([^, \n]+)[ \n]*,[ \n]*"
-    r"([0-9]+)(,.*?(kNotSigning))?",
-    sfield_macro_file,
-    re.MULTILINE,
-)
-sfield_hits += [
-    ("hash", "UINT256", "257", "", "kNotSigning"),
-    ("index", "UINT256", "258", "", "kNotSigning"),
-]
-sfield_hits.sort(key=lambda x: int(type_map[x[1]]) * 2**16 + int(x[2]))
-for x in range(len(sfield_hits)):
-    _add_line("    [")
-    _add_line('      "' + sfield_hits[x][0] + '",')
-    _add_line("      {")
-    _add_line(
-        '        "isSerialized": '
-        + _is_serialized(sfield_hits[x][1], sfield_hits[x][0])
-        + ","
-    )
-    _add_line(
-        '        "isSigningField": '
-        + _is_signing_field(sfield_hits[x][1], sfield_hits[x][4])
-        + ","
-    )
-    _add_line('        "isVLEncoded": ' + _is_vl_encoded(sfield_hits[x][1]) + ",")
-    _add_line('        "nth": ' + sfield_hits[x][2] + ",")
-    _add_line('        "type": "' + _translate(sfield_hits[x][1]) + '"')
-    _add_line("      }")
-    _add_line("    ]" + ("," if x < len(sfield_hits) - 1 else ""))
-
-_add_line("  ],")
-
-########################################################################
-#  Ledger entry type processing
-########################################################################
-_add_line('  "LEDGER_ENTRY_TYPES": {')
-
-
-def _unhex(x: str) -> str:
-    if x[0:2] == "0x":
-        return str(int(x, 16))
-    return x
-
-
-# Parse ledger entries
-# Example line:
-# LEDGER_ENTRY(ltNFTOKEN_OFFER, 0x0037, NFTokenOffer, nft_offer, ({
-lt_hits = re.findall(
-    r"^ *LEDGER_ENTRY[A-Z_]*\(lt[A-Z_]+[ \n]*,[ \n]*([xX0-9a-fA-F]+)[ \n]*,[ \n]*"
-    r"([^,]+),[ \n]*([^,]+), "
-    r"\({$",
-    ledger_entries_file,
-    re.MULTILINE,
-)
-lt_hits.append(("-1", "Invalid"))
-lt_hits.sort(key=lambda x: x[1])
-for x in range(len(lt_hits)):
-    _add_line(
-        '    "'
-        + lt_hits[x][1]
-        + '": '
-        + _unhex(lt_hits[x][0])
-        + ("," if x < len(lt_hits) - 1 else "")
-    )
-_add_line("  },")
-
-########################################################################
-#  TER code processing
-########################################################################
-_add_line('  "TRANSACTION_RESULTS": {')
-ter_h = str(ter_h).replace("[[maybe_unused]]", "")
-
-# Parse TER codes
-ter_code_hits = re.findall(
-    r"^ *((tel|tem|tef|ter|tes|tec)[A-Z_]+)([ \n]*=[ \n]*([0-9-]+))?[ \n]*,?[ \n]*"
-    r"(\/\/[^\n]*)?$",
-    ter_h,
-    re.MULTILINE,
-)
-ter_codes = []
-upto = -1
-
-# Get the exact values of the TER codes and sort them
-for x in range(len(ter_code_hits)):
-    if ter_code_hits[x][3] != "":
-        upto = int(ter_code_hits[x][3])
-    ter_codes.append((ter_code_hits[x][0], upto))
-
-    upto += 1
-ter_codes.sort(key=lambda x: x[0])
-
-current_type = ""
-for x in range(len(ter_codes)):
-    # print newline between the different code types
-    if current_type == "":
-        current_type = ter_codes[x][0][:3]
-    elif current_type != ter_codes[x][0][:3]:
-        _add_line("")
-        current_type = ter_codes[x][0][:3]
-
-    _add_line(
-        '    "'
-        + ter_codes[x][0]
-        + '": '
-        + str(ter_codes[x][1])
-        + ("," if x < len(ter_codes) - 1 else "")
+    The artifacts API cannot filter by branch or commit, so pages are scanned
+    newest-first. rippled produces enough artifacts that one page covers only
+    a few hours of the 3-day retention window, so this must paginate rather
+    than rely on a single request.
+    """
+    jq = (
+        r'"\([.artifacts[]'
+        rf' | select(.workflow_run.{field} == "{value}"'
+        r" and .expired == false)] | .[0] as $a"
+        r' | "\($a.workflow_run.id // "")\t\($a.workflow_run.head_sha // "")'
+        r'\t\($a.created_at // "")")\t\(.artifacts | length)"'
     )
 
-_add_line("  },")
+    for page in range(1, ARTIFACT_MAX_PAGES + 1):
+        try:
+            raw = _exec(
+                [
+                    "gh",
+                    "api",
+                    f"repos/{repo}/actions/artifacts?name={ARTIFACT_NAME}"
+                    f"&per_page={ARTIFACT_PAGE_SIZE}&page={page}",
+                    "--jq",
+                    jq,
+                ]
+            )
+        except subprocess.CalledProcessError:
+            return None
 
-########################################################################
-#  Transaction type processing
-########################################################################
-_add_line('  "TRANSACTION_TYPES": {')
+        run_id, sha, created, page_len = (raw.split("\t") + ["", "", "", ""])[:4]
+        if run_id:
+            return Artifact(run_id=run_id, head_sha=sha, created_at=created)
+        # A short page means there are no further pages to scan.
+        if not page_len.isdigit() or int(page_len) < ARTIFACT_PAGE_SIZE:
+            return None
 
-# Parse transaction types
-# Example line:
-# TRANSACTION(ttCHECK_CREATE, 16, CheckCreate, ({
-tx_hits = re.findall(
-    r"^ *TRANSACTION\(tt[A-Z_]+[ \n]*,[ \n]*([0-9]+)[ \n]*,[ \n]*([A-Za-z]+).*$",
-    transactions_file,
-    re.MULTILINE,
-)
-tx_hits.append(("-1", "Invalid"))
-tx_hits.sort(key=lambda x: x[1])
+    return None
 
-for x in range(len(tx_hits)):
-    _add_line(
-        '    "'
-        + tx_hits[x][1]
-        + '": '
-        + tx_hits[x][0]
-        + ("," if x < len(tx_hits) - 1 else "")
+
+def _find_artifact_by_branch(repo: str, branch: str) -> "Artifact | None":
+    """Find the most recent server-definitions artifact on a branch.
+
+    This works even if the overall CI run failed, as long as the artifact was
+    produced before the failure.
+    """
+    return _find_artifact(repo, "head_branch", branch)
+
+
+def _find_artifact_by_sha(repo: str, sha: str) -> "Artifact | None":
+    """Find the server-definitions artifact for a specific commit SHA."""
+    return _find_artifact(repo, "head_sha", sha)
+
+
+def _write_definitions(server_defs: dict, output_file: str) -> None:
+    """Write definitions to disk in the repo's canonical formatting."""
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(server_defs, f, indent=2)
+        f.write("\n")
+
+
+def _as_rpc_url(source: str) -> str | None:
+    """Return a JSON-RPC URL if the source names a running server, else None."""
+    if source.startswith(("http://", "https://")):
+        return source
+
+    host, sep, port = source.rpartition(":")
+    if sep and host.lower() in LOOPBACK_HOSTS and port.isdigit():
+        return f"http://{source}"
+    if not sep and source.lower() in LOOPBACK_HOSTS:
+        return f"http://{source}:{DEFAULT_RPC_PORT}"
+    return None
+
+
+def _generate_from_rpc(url: str, output_file: str) -> None:
+    """Fetch definitions from a running rippled via `server_definitions`."""
+    print(f"Requesting server_definitions from {url}...")
+    try:
+        response = httpx.post(
+            url,
+            json={"method": "server_definitions", "params": [{}]},
+            timeout=30,
+        )
+        response.raise_for_status()
+    except httpx.HTTPStatusError as e:
+        print(
+            f"Error: {url} returned HTTP {e.response.status_code}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    except httpx.HTTPError as e:
+        print(
+            f"Error: Could not reach rippled at {url}: {e}\n"
+            "Make sure the server is running and the JSON-RPC port is"
+            " exposed.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    try:
+        payload = response.json()
+    except ValueError as e:
+        print(f"Error: {url} did not return valid JSON: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    result = payload.get("result")
+    if not isinstance(result, dict):
+        print(
+            f'Error: Unexpected response from {url}: missing "result"',
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    if result.get("status") == "error" or "error" in result:
+        detail = result.get("error_message") or result.get("error")
+        print(
+            f"Error: server_definitions failed: {detail}\n"
+            "The server may be too old to support this request.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    # "status" is added by the JSON-RPC layer, not part of the definitions.
+    result.pop("status", None)
+
+    if "FIELDS" not in result:
+        print(
+            f"Error: Response from {url} does not look like server" " definitions.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    _write_definitions(result, output_file)
+
+
+def _resolve_local_binary(path: str) -> str:
+    """Resolve a path to a built xrpld/rippled binary.
+
+    Accepts the binary itself, or a rippled source/build directory to search.
+    """
+    if os.path.isfile(path):
+        if not os.access(path, os.X_OK):
+            print(f"Error: {path} is not executable", file=sys.stderr)
+            sys.exit(1)
+        return path
+
+    if not os.path.isdir(path):
+        print(f"Error: No such file or directory: {path}", file=sys.stderr)
+        sys.exit(1)
+
+    for subdir in BUILD_SUBDIRS:
+        for name in BINARY_NAMES:
+            candidate = os.path.join(path, subdir, name)
+            if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+                return candidate
+
+    searched = ", ".join(repr(d) for d in BUILD_SUBDIRS if d) or "the directory"
+    print(
+        f"Error: No xrpld or rippled binary found under {path}.\n"
+        f"Searched the directory itself and {searched}.\n"
+        "Build rippled first, or pass the path to the binary directly.",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+
+def _generate_from_binary(binary: str, output_file: str) -> None:
+    """Run `<binary> --definitions` and write the result."""
+    print(f"Running {binary} --definitions...")
+    try:
+        raw = _exec([binary, "--definitions"])
+    except subprocess.CalledProcessError as e:
+        stderr = (e.stderr or "").strip()
+        print(
+            f"Error: {binary} --definitions failed"
+            f" (exit {e.returncode}).\n{stderr}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    try:
+        server_defs = json.loads(raw)
+    except json.JSONDecodeError as e:
+        print(
+            f"Error: {binary} --definitions did not return valid JSON: {e}\n"
+            "Make sure this is a rippled binary new enough to support"
+            " --definitions.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    _write_definitions(server_defs, output_file)
+
+
+def _download_artifact(repo: str, run_id: str, output_file: str) -> None:
+    """Download the artifact and write it as definitions.json."""
+    tmp_dir = tempfile.mkdtemp(prefix="server-definitions-")
+    try:
+        try:
+            _exec(
+                [
+                    "gh",
+                    "run",
+                    "download",
+                    run_id,
+                    "--repo",
+                    repo,
+                    "--name",
+                    ARTIFACT_NAME,
+                    "--dir",
+                    tmp_dir,
+                ]
+            )
+        except subprocess.CalledProcessError:
+            print(
+                f"Error: Failed to download artifact from run {run_id}.\n"
+                "The artifact may have expired (GitHub retains artifacts for a"
+                " limited time).\n"
+                "Try a branch with a more recent CI run.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+        server_defs_path = os.path.join(tmp_dir, "server_definitions.json")
+        if not os.path.exists(server_defs_path):
+            print(
+                "Error: server_definitions.json not found in downloaded artifact",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+        with open(server_defs_path, encoding="utf-8") as f:
+            server_defs = json.load(f)
+
+        _write_definitions(server_defs, output_file)
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+
+
+def _report_artifact(artifact: "Artifact", expected_sha: str | None) -> None:
+    """Print which commit the artifact came from, warning if it is not head.
+
+    rippled cancels a ref's in-progress run when a newer commit is pushed, so
+    in practice only the newest commit retains an artifact. If an older one
+    is ever served instead, say so rather than writing stale definitions
+    silently.
+    """
+    when = f" on {artifact.created_at}" if artifact.created_at else ""
+    print(
+        f"Found artifact in run {artifact.run_id}"
+        f" (commit {artifact.head_sha[:7]}{when})"
     )
 
-_add_line("  },")
+    if expected_sha and artifact.head_sha and artifact.head_sha != expected_sha:
+        print(
+            f"Warning: this is NOT the current head commit"
+            f" ({expected_sha[:7]}). The head's CI may still be running or"
+            " may have failed; these definitions are from an earlier commit.",
+            file=sys.stderr,
+        )
 
-########################################################################
-#  Serialized type processing
-########################################################################
-_add_line('  "TYPES": {')
 
-type_hits.append(("DONE", "-1"))
-type_hits.sort(key=lambda x: _translate(x[0]))
-for x in range(len(type_hits)):
-    _add_line(
-        '    "'
-        + _translate(type_hits[x][0])
-        + '": '
-        + type_hits[x][1]
-        + ("," if x < len(type_hits) - 1 else "")
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Generates definitions.json from a rippled CI artifact, a local"
+            " xrpld build, or a running rippled server."
+        ),
+        epilog=(
+            "Remote sources require the GitHub CLI (gh) to be installed and\n"
+            "authenticated: https://cli.github.com/\n\n"
+            "Examples:\n"
+            "  python %(prog)s                              # develop\n"
+            "  python %(prog)s develop\n"
+            "  python %(prog)s pr:6858\n"
+            "  python %(prog)s contributor:my-feature\n"
+            "  python %(prog)s feature-branch -o ./custom-output.json\n\n"
+            "Local build (no gh required; runs xrpld --definitions):\n"
+            "  python %(prog)s ~/rippled                    # searches"
+            " .build/, build/\n"
+            "  python %(prog)s ~/rippled/.build/xrpld       # the binary"
+            " itself\n\n"
+            "Running server (no gh required; sends server_definitions):\n"
+            "  python %(prog)s localhost:5005\n"
+            "  python %(prog)s http://127.0.0.1:5005"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-
-_add_line("  }")
-_add_line("}")
-
-
-if len(sys.argv) == 3:
-    output_file = sys.argv[2]
-else:
-    output_file = os.path.join(
-        os.path.dirname(__file__),
-        "../xrpl/core/binarycodec/definitions/definitions.json",
+    parser.add_argument(
+        "source",
+        nargs="?",
+        default="develop",
+        help=(
+            'Branch name, PR number (e.g. "pr:7008"), fork branch'
+            ' (e.g. "contributor:my-feature"), a path to a local rippled'
+            " build or xrpld binary, or a running server"
+            ' (e.g. "localhost:5005"). Default: develop'
+        ),
     )
+    parser.add_argument(
+        "-o",
+        "--output",
+        default=DEFAULT_OUTPUT,
+        help="Output file path (default: definitions.json in binarycodec)",
+    )
+    args = parser.parse_args()
 
-with open(output_file, "w") as f:
-    f.write(output)
-print("File written successfully to " + output_file)
+    # Resolve local sources before remote ones. "pr:<n>" is checked first so
+    # it is never read as a host:port.
+    if args.source.startswith("pr:"):
+        args.rpc_url = None
+        args.local_path = None
+    else:
+        args.rpc_url = _as_rpc_url(args.source)
+        expanded = os.path.expanduser(args.source)
+        args.local_path = (
+            None if args.rpc_url else (expanded if os.path.exists(expanded) else None)
+        )
+
+    # Parse "pr:<number>" format
+    if args.source.startswith("pr:"):
+        args.pr_number = args.source[3:]
+        args.branch = "develop"
+    else:
+        args.pr_number = None
+        args.branch = args.source
+
+    return args
+
+
+def main() -> None:
+    """Entry point."""
+    args = _parse_args()
+
+    if args.rpc_url:
+        _generate_from_rpc(args.rpc_url, args.output)
+        print(f"Definitions written to {args.output}")
+        return
+
+    if args.local_path:
+        binary = _resolve_local_binary(args.local_path)
+        _generate_from_binary(binary, args.output)
+        print(f"Definitions written to {args.output}")
+        return
+
+    _check_gh_cli()
+
+    branch = args.branch
+    pr_number = args.pr_number
+    output_file = args.output
+
+    artifact = None
+    repo = UPSTREAM_REPO
+
+    # Parse "owner:branch" format for fork branches
+    fork_owner = None
+    if not pr_number and ":" in branch:
+        colon_idx = branch.index(":")
+        fork_owner = branch[:colon_idx]
+        branch = branch[colon_idx + 1 :]
+
+    if pr_number:
+        pr_info = _get_pr_info(pr_number)
+        sha_short = pr_info["headRefOid"][:7]
+        print(
+            f"Resolved PR #{pr_number} to branch"
+            f' "{pr_info["headRefName"]}" ({sha_short})'
+        )
+
+        # Try commit SHA first — works for fork PRs where the branch name
+        # belongs to the fork repo and won't be found by branch-based search.
+        print("Searching by commit SHA...")
+        artifact = _find_artifact_by_sha(UPSTREAM_REPO, pr_info["headRefOid"])
+
+        if not artifact:
+            print(
+                f"No artifact found by SHA, trying branch"
+                f' "{pr_info["headRefName"]}"...'
+            )
+            artifact = _find_artifact_by_branch(UPSTREAM_REPO, pr_info["headRefName"])
+
+    elif fork_owner:
+        fork_repo = f"{fork_owner}/rippled"
+        print(f'Fork branch detected: "{fork_owner}:{branch}"')
+
+        # Check if there's a PR in the upstream repo for this fork branch
+        print(f"Checking for PR in {UPSTREAM_REPO}...")
+        pr = _find_pr_for_fork_branch(fork_owner, branch)
+
+        if pr:
+            sha_short = pr["headRefOid"][:7]
+            print(f"Found PR #{pr['number']} ({sha_short}), searching upstream CI...")
+            artifact = _find_artifact_by_sha(UPSTREAM_REPO, pr["headRefOid"])
+
+            if not artifact:
+                artifact = _find_artifact_by_branch(UPSTREAM_REPO, branch)
+
+        if not artifact:
+            # No PR or no artifact in upstream — search the fork repo's CI
+            print(f'Searching fork repo {fork_repo} for CI on branch "{branch}"...')
+            repo = fork_repo
+            artifact = _find_artifact_by_branch(fork_repo, branch)
+
+    else:
+        print(f'Searching for "{ARTIFACT_NAME}" artifact on branch "{branch}"...')
+        artifact = _find_artifact_by_branch(UPSTREAM_REPO, branch)
+
+    if not artifact:
+        print(
+            f'Error: No CI runs with "{ARTIFACT_NAME}" artifact found.\n'
+            "Artifacts are kept for 3 days, take ~10 minutes to appear after"
+            " a push, and are never produced for an unpushed branch or for an"
+            " external contributor's PR awaiting workflow approval.\n"
+            "Generate from a local rippled instead, e.g.:\n"
+            "  python tools/generate_definitions.py ~/path/to/rippled\n"
+            "  python tools/generate_definitions.py localhost:5005",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    expected_sha = pr_info["headRefOid"] if pr_number else None
+    _report_artifact(artifact, expected_sha)
+
+    print("Downloading artifact...")
+    _download_artifact(repo, artifact.run_id, output_file)
+    print(f"Definitions written to {output_file}")
+
+
+if __name__ == "__main__":
+    main()
