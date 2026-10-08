@@ -219,8 +219,19 @@ poetry run poe definitions contributor:my-feature
 If no artifact is found, the branch most likely doesn't have one: artifacts
 are kept for only 3 days, take about 10 minutes to appear after a push, are
 never produced for an unpushed branch, and never produced for a PR from an
-external contributor until a maintainer approves its workflows. In any of
-those cases, generate from a local rippled instead.
+external contributor until a maintainer approves its workflows.
+
+For a PR whose artifact has expired, re-running its CI produces a fresh one
+in roughly 30 minutes and builds nothing locally. Workflow runs stay
+re-runnable long after the artifact is gone, so this works even on a PR that
+has been idle for weeks (requires write access to `XRPLF/rippled`):
+
+```bash
+gh run list --repo XRPLF/rippled --branch <branch> --workflow PR --limit 1
+gh run rerun <run-id> --repo XRPLF/rippled
+```
+
+Otherwise, generate from a local rippled instead.
 
 ### Generating from a local rippled
 
