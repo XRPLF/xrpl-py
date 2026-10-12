@@ -137,14 +137,6 @@ def _find_artifact(repo: str, field: str, value: str) -> "Artifact | None":
     a few hours of the 3-day retention window, so this must paginate rather
     than rely on a single request.
     """
-    jq = (
-        r'"\([.artifacts[]'
-        rf' | select(.workflow_run.{field} == "{value}"'
-        r" and .expired == false)] | .[0] as $a"
-        r' | "\($a.workflow_run.id // "")\t\($a.workflow_run.head_sha // "")'
-        r'\t\($a.created_at // "")")\t\(.artifacts | length)"'
-    )
-
     for page in range(1, ARTIFACT_MAX_PAGES + 1):
         try:
             raw = _exec(
@@ -153,18 +145,35 @@ def _find_artifact(repo: str, field: str, value: str) -> "Artifact | None":
                     "api",
                     f"repos/{repo}/actions/artifacts?name={ARTIFACT_NAME}"
                     f"&per_page={ARTIFACT_PAGE_SIZE}&page={page}",
-                    "--jq",
-                    jq,
                 ]
             )
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as e:
+            # Distinguish a failed query from a completed scan that found
+            # nothing; otherwise auth and rate-limit errors are reported as
+            # "no artifact found".
+            print(
+                "Error: GitHub API query for artifacts failed:\n"
+                f"{(e.stderr or '').strip()}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+        try:
+            artifacts = json.loads(raw).get("artifacts", [])
+        except json.JSONDecodeError:
             return None
 
-        run_id, sha, created, page_len = (raw.split("\t") + ["", "", "", ""])[:4]
-        if run_id:
-            return Artifact(run_id=run_id, head_sha=sha, created_at=created)
+        for entry in artifacts:
+            run = entry.get("workflow_run") or {}
+            if entry.get("expired") is False and run.get(field) == value:
+                return Artifact(
+                    run_id=str(run.get("id", "")),
+                    head_sha=run.get("head_sha") or "",
+                    created_at=entry.get("created_at") or "",
+                )
+
         # A short page means there are no further pages to scan.
-        if not page_len.isdigit() or int(page_len) < ARTIFACT_PAGE_SIZE:
+        if len(artifacts) < ARTIFACT_PAGE_SIZE:
             return None
 
     return None
@@ -191,16 +200,26 @@ def _write_definitions(server_defs: dict, output_file: str) -> None:
         f.write("\n")
 
 
+def _bracket_host(host: str) -> str:
+    """Bracket a bare IPv6 address, which URLs require to delimit the port."""
+    if ":" in host and not host.startswith("["):
+        return f"[{host}]"
+    return host
+
+
 def _as_rpc_url(source: str) -> str | None:
     """Return a JSON-RPC URL if the source names a running server, else None."""
     if source.startswith(("http://", "https://")):
         return source
 
+    # Checked before splitting: rpartition(":") would mangle a bare IPv6
+    # address such as "::1" into a host of ":".
+    if source.lower() in LOOPBACK_HOSTS:
+        return f"http://{_bracket_host(source)}:{DEFAULT_RPC_PORT}"
+
     host, sep, port = source.rpartition(":")
     if sep and host.lower() in LOOPBACK_HOSTS and port.isdigit():
-        return f"http://{source}"
-    if not sep and source.lower() in LOOPBACK_HOSTS:
-        return f"http://{source}:{DEFAULT_RPC_PORT}"
+        return f"http://{_bracket_host(host)}:{port}"
     return None
 
 

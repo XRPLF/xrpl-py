@@ -58,14 +58,11 @@ ARTIFACT_MAX_PAGES = 10
 
 
 def _find_develop_run() -> str | None:
-    """Find the newest unexpired server-definitions run on develop."""
-    jq = (
-        r'"\([.artifacts[]'
-        r' | select(.workflow_run.head_branch == "develop"'
-        r" and .expired == false)]"
-        r' | .[0].workflow_run.id // "")\t\(.artifacts | length)"'
-    )
+    """Find the newest unexpired server-definitions run on develop.
 
+    Returns None only for a completed scan that matched nothing; a failed
+    API call exits non-zero so it cannot be mistaken for an absent artifact.
+    """
     for page in range(1, ARTIFACT_MAX_PAGES + 1):
         try:
             raw = _exec(
@@ -75,17 +72,29 @@ def _find_develop_run() -> str | None:
                     f"repos/{UPSTREAM_REPO}/actions/artifacts"
                     f"?name={ARTIFACT_NAME}"
                     f"&per_page={ARTIFACT_PAGE_SIZE}&page={page}",
-                    "--jq",
-                    jq,
                 ]
             )
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as e:
+            # An auth, rate-limit or network failure. Skipping here would
+            # turn the check into a no-op that still reports success.
+            print(
+                "Error: GitHub API query for the benchmark artifact failed:\n"
+                f"{(e.stderr or '').strip()}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+        try:
+            artifacts = json.loads(raw).get("artifacts", [])
+        except json.JSONDecodeError:
             return None
 
-        run_id, _, page_len = raw.partition("\t")
-        if run_id:
-            return run_id
-        if not page_len.isdigit() or int(page_len) < ARTIFACT_PAGE_SIZE:
+        for entry in artifacts:
+            run = entry.get("workflow_run") or {}
+            if entry.get("expired") is False and run.get("head_branch") == "develop":
+                return str(run.get("id", ""))
+
+        if len(artifacts) < ARTIFACT_PAGE_SIZE:
             return None
 
     return None
@@ -98,6 +107,10 @@ def _download_benchmark() -> dict | None:
     develop occasionally goes longer than that without a merge. That is an
     upstream availability gap rather than a problem with definitions.json,
     so the caller skips validation instead of failing.
+
+    Only a completed scan that found nothing returns None. A failed API call
+    exits non-zero, so a bad token or rate limit cannot quietly disable the
+    check.
     """
     print("Downloading benchmark definitions from rippled develop branch...")
 
@@ -129,10 +142,13 @@ def _download_benchmark() -> dict | None:
                     tmp_dir,
                 ]
             )
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as e:
+            # The query already succeeded, so credentials work; the most
+            # likely cause is the artifact expiring between the two calls.
             print(
                 f"Warning: Failed to download artifact from run {run_id};"
-                " it may have expired mid-run."
+                " it may have expired mid-run.\n"
+                f"{(e.stderr or '').strip()}"
             )
             return None
 
