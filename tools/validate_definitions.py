@@ -100,6 +100,28 @@ def _find_develop_run() -> str | None:
     return None
 
 
+def _artifact_expired(run_id: str) -> bool:
+    """Report whether the run's server-definitions artifact is gone.
+
+    GitHub purges an artifact's payload once it expires, so the entry either
+    reports expired or disappears from the run entirely. Anything else means
+    the artifact is still there and a download failure had another cause.
+    """
+    try:
+        raw = _exec(
+            ["gh", "api", f"repos/{UPSTREAM_REPO}/actions/runs/{run_id}/artifacts"]
+        )
+        artifacts = json.loads(raw).get("artifacts", [])
+    except (subprocess.CalledProcessError, json.JSONDecodeError):
+        # Cannot confirm expiry, so do not treat it as confirmed.
+        return False
+
+    for entry in artifacts:
+        if entry.get("name") == ARTIFACT_NAME:
+            return bool(entry.get("expired"))
+    return True
+
+
 def _download_benchmark() -> dict | None:
     """Download the develop benchmark, or return None if it is unavailable.
 
@@ -108,9 +130,10 @@ def _download_benchmark() -> dict | None:
     upstream availability gap rather than a problem with definitions.json,
     so the caller skips validation instead of failing.
 
-    Only a completed scan that found nothing returns None. A failed API call
-    exits non-zero, so a bad token or rate limit cannot quietly disable the
-    check.
+    None is returned only for a confirmed availability gap: a completed scan
+    that matched nothing, or an artifact that expired between discovery and
+    download. Every other failure exits non-zero, so a bad token, a rate
+    limit or a network error cannot quietly disable the check.
     """
     print("Downloading benchmark definitions from rippled develop branch...")
 
@@ -143,21 +166,31 @@ def _download_benchmark() -> dict | None:
                 ]
             )
         except subprocess.CalledProcessError as e:
-            # The query already succeeded, so credentials work; the most
-            # likely cause is the artifact expiring between the two calls.
+            # Skip only if the artifact demonstrably expired between
+            # discovery and download. Every other download failure is an
+            # infrastructure problem and must not pass as a successful check.
+            if _artifact_expired(run_id):
+                print(
+                    f"Warning: Artifact from run {run_id} expired between"
+                    " discovery and download."
+                )
+                return None
             print(
-                f"Warning: Failed to download artifact from run {run_id};"
-                " it may have expired mid-run.\n"
-                f"{(e.stderr or '').strip()}"
+                f"Error: Failed to download the benchmark artifact from run"
+                f" {run_id}, and it has not expired:\n"
+                f"{(e.stderr or '').strip()}",
+                file=sys.stderr,
             )
-            return None
+            sys.exit(1)
 
         server_defs_path = os.path.join(tmp_dir, "server_definitions.json")
         if not os.path.exists(server_defs_path):
             print(
-                "Warning: server_definitions.json not found in downloaded" " artifact."
+                "Error: server_definitions.json not found in the downloaded"
+                " artifact.",
+                file=sys.stderr,
             )
-            return None
+            sys.exit(1)
 
         with open(server_defs_path, encoding="utf-8") as f:
             return json.load(f)
