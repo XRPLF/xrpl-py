@@ -62,6 +62,8 @@ class Artifact:
     created_at: str
 
 
+REGEX_SCRIPT = os.path.join(os.path.dirname(__file__), "generate_definitions_regex.py")
+
 DEFAULT_OUTPUT = os.path.join(
     os.path.dirname(__file__),
     "../xrpl/core/binarycodec/definitions/definitions.json",
@@ -388,6 +390,36 @@ def _download_artifact(repo: str, run_id: str, output_file: str) -> None:
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
+def _generate_from_source(source_url: str, output_file: str) -> None:
+    """Fall back to parsing rippled's source with the regex generator.
+
+    This is an approximation, not rippled's own output: it is derived from
+    the `.macro` headers rather than the compiled binary, and it cannot
+    produce the `hash` field. Prefer any of the other sources, and replace
+    the result with an artifact before committing it.
+    """
+    print(f"Parsing rippled source at {source_url}...")
+    try:
+        subprocess.run(
+            [sys.executable, REGEX_SCRIPT, source_url, output_file],
+            check=True,
+        )
+    except subprocess.CalledProcessError as e:
+        print(
+            f"Error: Source parsing failed (exit {e.returncode}).",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    print(
+        "\nWarning: these definitions were parsed from rippled source, not"
+        ' produced by rippled.\nThey omit "hash" and may differ from the'
+        " server's own output. Regenerate from a CI artifact, a local build"
+        " or a running server before committing.",
+        file=sys.stderr,
+    )
+
+
 def _report_artifact(artifact: "Artifact", expected_sha: str | None) -> None:
     """Print which commit the artifact came from, warning if it is not head.
 
@@ -449,6 +481,14 @@ def _parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--no-fallback",
+        action="store_true",
+        help=(
+            "Fail instead of falling back to parsing rippled source when no"
+            " artifact is found"
+        ),
+    )
+    parser.add_argument(
         "-o",
         "--output",
         default=DEFAULT_OUTPUT,
@@ -502,6 +542,7 @@ def main() -> None:
 
     artifact = None
     repo = UPSTREAM_REPO
+    source_url = f"github.com/{UPSTREAM_REPO}/tree/{branch}"
 
     # Parse "owner:branch" format for fork branches
     fork_owner = None
@@ -518,6 +559,10 @@ def main() -> None:
             f' "{pr_info["headRefName"]}" ({sha_short})'
         )
 
+        # A PR's head commit is reachable from the upstream repo even when
+        # it lives in a fork, so one URL form covers both.
+        source_url = f"github.com/{UPSTREAM_REPO}/tree/{pr_info['headRefOid']}"
+
         # Try commit SHA first — works for fork PRs where the branch name
         # belongs to the fork repo and won't be found by branch-based search.
         print("Searching by commit SHA...")
@@ -532,6 +577,7 @@ def main() -> None:
 
     elif fork_owner:
         fork_repo = f"{fork_owner}/rippled"
+        source_url = f"github.com/{fork_repo}/tree/{branch}"
         print(f'Fork branch detected: "{fork_owner}:{branch}"')
 
         # Check if there's a PR in the upstream repo for this fork branch
@@ -555,6 +601,14 @@ def main() -> None:
     else:
         print(f'Searching for "{ARTIFACT_NAME}" artifact on branch "{branch}"...')
         artifact = _find_artifact_by_branch(UPSTREAM_REPO, branch)
+
+    if not artifact and not args.no_fallback:
+        print(
+            f'\nNo "{ARTIFACT_NAME}" artifact found; falling back to source' " parsing."
+        )
+        _generate_from_source(source_url, output_file)
+        print(f"Definitions written to {output_file}")
+        return
 
     if not artifact:
         print(

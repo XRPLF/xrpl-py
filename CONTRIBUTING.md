@@ -231,6 +231,12 @@ gh run list --repo XRPLF/rippled --branch <branch> --workflow PR --limit 1
 gh run rerun <run-id> --repo XRPLF/rippled
 ```
 
+If none of those apply, the script falls back to parsing rippled's source
+directly and prints a warning. That output is an approximation — it is derived
+from the `.macro` headers rather than from rippled itself, and it omits the
+`hash` field — so replace it with an artifact before committing. Pass
+`--no-fallback` to fail instead of falling back.
+
 Otherwise, generate from a local rippled instead.
 
 ### Generating from a local rippled
