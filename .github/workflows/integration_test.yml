@@ -144,10 +144,10 @@ jobs:
 
       # The container already running for the integration tests is the
       # benchmark, so this needs no artifact download and no GitHub token.
-      # One Python version is enough: the check is about definitions.json,
-      # which does not vary across the matrix.
+      # It runs on every matrix entry: the check costs a couple of seconds,
+      # and gating it to one Python version would silently stop running it
+      # if that version were ever dropped from the matrix.
       - name: Validate definitions.json
-        if: ${{ matrix.python-version == '3.10' }}
         run: |
           for i in $(seq 1 15); do
             if curl -sf --max-time 2 -X POST http://localhost:5005 \
