@@ -8,6 +8,7 @@ Requires the GitHub CLI (gh) to be installed and authenticated.
   https://cli.github.com/
 """
 
+import argparse
 import json
 import os
 import shutil
@@ -15,7 +16,13 @@ import subprocess
 import sys
 import tempfile
 
+import httpx
+
 UPSTREAM_REPO = "XRPLF/rippled"
+
+# Default JSON-RPC endpoint of a local rippled (e.g. the rippleci/xrpld
+# container the CI job starts).
+DEFAULT_RPC_URL = "http://localhost:5005"
 ARTIFACT_NAME = "server-definitions"
 
 DEFINITIONS_PATH = os.path.join(
@@ -98,6 +105,44 @@ def _find_develop_run() -> str | None:
             return None
 
     return None
+
+
+def _benchmark_from_rpc(url: str) -> dict:
+    """Fetch the benchmark from a running rippled via `server_definitions`.
+
+    Preferred in CI: a container pinned to rippled develop is always
+    available, so there is no artifact retention window and no GitHub token
+    involved.
+    """
+    print(f"Requesting server_definitions from {url}...")
+    try:
+        response = httpx.post(
+            url,
+            json={"method": "server_definitions", "params": [{}]},
+            timeout=30,
+        )
+        response.raise_for_status()
+        payload = response.json()
+    except (httpx.HTTPError, ValueError) as e:
+        print(
+            f"Error: Could not read definitions from {url}: {e}\n"
+            "Make sure the rippled container is running and its JSON-RPC"
+            " port is exposed.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    result = payload.get("result")
+    if not isinstance(result, dict) or "FIELDS" not in result:
+        print(
+            f"Error: Unexpected server_definitions response from {url}.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    # "status" is added by the JSON-RPC layer, not part of the definitions.
+    result.pop("status", None)
+    return result
 
 
 def _artifact_expired(run_id: str) -> bool:
@@ -459,9 +504,34 @@ def _find_drift(local: dict, benchmark: dict) -> list[str]:
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Validates definitions.json against rippled. The benchmark comes"
+            " from a running rippled when a URL is given, otherwise from the"
+            " latest server-definitions artifact on develop."
+        )
+    )
+    parser.add_argument(
+        "benchmark",
+        nargs="?",
+        default="",
+        metavar="URL",
+        help=(
+            "JSON-RPC URL of a running rippled to validate against"
+            f' (e.g. "{DEFAULT_RPC_URL}"). Omit to use the latest'
+            " server-definitions artifact on develop."
+        ),
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
     """Entry point."""
-    _check_gh_cli()
+    args = _parse_args()
+
+    if not args.benchmark:
+        _check_gh_cli()
 
     print(f"Reading {DEFINITIONS_PATH}...")
     try:
@@ -471,10 +541,13 @@ def main() -> None:
         print(f"Error: Failed to parse definitions.json: {e}", file=sys.stderr)
         sys.exit(1)
 
-    benchmark = _download_benchmark()
-    if benchmark is None:
-        print("Skipping validation: no benchmark available from rippled develop.")
-        return
+    if args.benchmark:
+        benchmark = _benchmark_from_rpc(args.benchmark)
+    else:
+        benchmark = _download_benchmark()
+        if benchmark is None:
+            print("Skipping validation: no benchmark available from rippled develop.")
+            return
 
     print("Validating structure...")
     struct_errors = _validate_structure(local, benchmark)
@@ -498,7 +571,7 @@ def main() -> None:
     drift = _find_drift(local, benchmark)
     if drift:
         print(
-            f"\nNote: definitions.json is behind rippled develop in"
+            f"\nNote: definitions.json is behind the benchmark in"
             f" {len(drift)} place(s):"
         )
         for w in drift:

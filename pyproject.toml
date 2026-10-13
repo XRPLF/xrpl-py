@@ -108,8 +108,9 @@ cmd = "python3 -m unittest ${FILE_PATHS}"
 args = [{ name = "FILE_PATHS", positional = true, multiple = true }]
 
 [tool.poe.tasks.validate_definitions]
-help = "Validate definitions.json against rippled develop benchmark"
-cmd = "python3 tools/validate_definitions.py"
+help = "Validate definitions.json against a rippled benchmark"
+cmd = "python3 tools/validate_definitions.py ${BENCHMARK_URL}"
+args = [{ name = "BENCHMARK_URL", positional = true, default = "" }]
 
 [tool.poe.tasks.generate_tx_models]
 help = "Generate transaction models from rippled source"

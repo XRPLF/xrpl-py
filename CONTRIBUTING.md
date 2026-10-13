@@ -275,8 +275,17 @@ Verify that the changes make sense by inspection before submitting, as there may
 
 ### Validating `definitions.json`
 
-CI checks `definitions.json` against the `server-definitions` artifact from
-rippled's `develop` branch on every PR. You can run the same check locally:
+The integration test job validates `definitions.json` against the
+`rippleci/xrpld:develop` container it already runs, comparing it to that
+server's `server_definitions` response. You can run the same check locally
+against any rippled you have running:
+
+```bash
+poetry run poe validate_definitions http://localhost:5005
+```
+
+Omitting the URL compares against the latest `server-definitions` artifact on
+`develop` instead, which needs `gh` but no container:
 
 ```bash
 poetry run poe validate_definitions
@@ -290,9 +299,11 @@ Two situations are reported without failing:
   since `definitions.json` is bumped deliberately when an amendment is adopted
   rather than on every upstream merge. These are listed as a note so the drift
   stays visible.
-- **No benchmark available.** rippled retains the artifact for 3 days, and
-  `develop` occasionally goes longer than that without a merge. The check
-  skips rather than failing the build on an upstream availability gap.
+- **No benchmark available.** Only applies to the artifact source: rippled
+  retains artifacts for 3 days, and `develop` occasionally goes longer than
+  that without a merge, so the check skips rather than failing the build on an
+  upstream availability gap. The container source has no such window, which is
+  why CI uses it.
 
 ## Mailing Lists
 

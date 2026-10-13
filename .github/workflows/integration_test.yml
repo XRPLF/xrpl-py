@@ -142,6 +142,27 @@ jobs:
       - name: Install poetry dependencies
         run: poetry install
 
+      # The container already running for the integration tests is the
+      # benchmark, so this needs no artifact download and no GitHub token.
+      # One Python version is enough: the check is about definitions.json,
+      # which does not vary across the matrix.
+      - name: Validate definitions.json
+        if: ${{ matrix.python-version == '3.10' }}
+        run: |
+          for i in $(seq 1 15); do
+            if curl -sf --max-time 2 -X POST http://localhost:5005 \
+                 -d '{"method":"server_info","params":[{}]}' >/dev/null; then
+              break
+            fi
+            if [ "$i" -eq 15 ]; then
+              echo "xrpld did not become ready in time" >&2
+              docker logs xrpld-service >&2 || true
+              exit 1
+            fi
+            sleep 2
+          done
+          poetry run poe validate_definitions http://localhost:5005
+
       - name: Integration test
         run: |
           poetry run poe test_integration
