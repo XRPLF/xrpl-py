@@ -8,11 +8,9 @@ from typing_extensions import Self
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
-from xrpl.models.transactions.vault_create import (
-    VAULT_MAX_DATA_LENGTH,
-    VAULT_MAX_DOMAIN_ID_LENGTH,
-)
+from xrpl.models.transactions.vault_create import VAULT_MAX_DOMAIN_ID_LENGTH
 from xrpl.models.transactions.vault_delete import _MAX_VAULT_ID_LENGTH
+from xrpl.models.utils import is_valid_vault_data
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -41,9 +39,10 @@ class VaultSet(Transaction):
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
 
-        if self.data is not None and len(self.data) > VAULT_MAX_DATA_LENGTH:
+        if self.data is not None and not is_valid_vault_data(self.data):
             errors["data"] = (
-                "Data must be less than 256 bytes (alternatively, 512 hex characters)."
+                "Data must be an even-length hex string no longer than 256 bytes "
+                "(alternatively, 512 hex characters)."
             )
         if (
             self.domain_id is not None

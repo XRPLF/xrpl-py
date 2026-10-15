@@ -10,9 +10,13 @@ from xrpl.core.binarycodec.main import (
     decode,
     encode,
     encode_for_multisigning,
+    encode_for_multisigning_counterparty,
+    encode_for_multisigning_sponsor,
     encode_for_signing,
     encode_for_signing_batch,
     encode_for_signing_claim,
+    encode_for_signing_counterparty,
+    encode_for_signing_sponsor,
 )
 
 TX_JSON = {
@@ -486,3 +490,36 @@ class TestMainSigning(TestCase):
         self.assertEqual(
             encode_for_multisigning(multisig_json, signing_account), expected
         )
+
+    def test_single_signing_counterparty(self):
+        # Under fixCleanup3_4_0 the counterparty signs the same payload as the
+        # first party; only the 4-byte prefix differs: STX -> CPT.
+        base = encode_for_signing(signing_json)
+        actual = encode_for_signing_counterparty(signing_json)
+        self.assertTrue(base.startswith("53545800"))
+        self.assertEqual(actual[:8], "43505400")
+        self.assertEqual(actual[8:], base[8:])
+
+    def test_single_signing_sponsor(self):
+        # Only the 4-byte prefix differs: STX -> SPN.
+        base = encode_for_signing(signing_json)
+        actual = encode_for_signing_sponsor(signing_json)
+        self.assertEqual(actual[:8], "53504E00")
+        self.assertEqual(actual[8:], base[8:])
+
+    def test_multisig_counterparty(self):
+        signing_account = "rJZdUusLDtY9NEsGea7ijqhVrXv98rYBYN"
+        multisig_json = {**signing_json, "SigningPubKey": ""}
+        base = encode_for_multisigning(multisig_json, signing_account)
+        actual = encode_for_multisigning_counterparty(multisig_json, signing_account)
+        self.assertTrue(base.startswith("534D5400"))
+        self.assertEqual(actual[:8], "43504D00")
+        self.assertEqual(actual[8:], base[8:])
+
+    def test_multisig_sponsor(self):
+        signing_account = "rJZdUusLDtY9NEsGea7ijqhVrXv98rYBYN"
+        multisig_json = {**signing_json, "SigningPubKey": ""}
+        base = encode_for_multisigning(multisig_json, signing_account)
+        actual = encode_for_multisigning_sponsor(multisig_json, signing_account)
+        self.assertEqual(actual[:8], "53504D00")
+        self.assertEqual(actual[8:], base[8:])

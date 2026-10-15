@@ -88,11 +88,14 @@ class SetFee(PseudoTransaction):
     :meta hide-value:
     """
 
-    extension_compute_limit: Optional[int] = None
+    gas_limit: Optional[int] = None
+    """The maximum gas that a WASM execution can use."""
 
-    extension_size_limit: Optional[int] = None
+    bytecode_size_limit: Optional[int] = None
+    """The maximum size of WASM bytecode, in bytes."""
 
     gas_price: Optional[int] = None
+    """The cost of one unit of gas, in micro-drops."""
 
     transaction_type: PseudoTransactionType = field(
         default=PseudoTransactionType.SET_FEE,

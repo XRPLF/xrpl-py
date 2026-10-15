@@ -7,6 +7,7 @@ from xrpl.models.transactions.vault_withdraw import VaultWithdraw
 _ACCOUNT = "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW"
 _VAULT_ID = "B982D2AAEF6014E6BE3194D939865453D56D16FF7081BB1D0ED865C708ABCEEE"
 _DESTINATION = "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+_CREDENTIAL_ID = "0F0B70F4F4C5B27E39D62D4D69E9DF3D0BC0AC29B8FE7CD5AF1AC8C15F1D2E3B"
 
 
 class TestVaultWithdraw(TestCase):
@@ -17,6 +18,37 @@ class TestVaultWithdraw(TestCase):
             amount=IssuedCurrencyAmount(currency="USD", issuer=_ACCOUNT, value="100"),
         )
         self.assertTrue(tx.is_valid())
+
+    def test_valid_with_credential_ids(self):
+        tx = VaultWithdraw(
+            account=_ACCOUNT,
+            vault_id=_VAULT_ID,
+            amount=IssuedCurrencyAmount(currency="USD", issuer=_ACCOUNT, value="100"),
+            destination=_DESTINATION,
+            credential_ids=[_CREDENTIAL_ID],
+        )
+        self.assertTrue(tx.is_valid())
+
+    def test_invalid_duplicate_credential_ids(self):
+        with self.assertRaises(XRPLModelException) as e:
+            VaultWithdraw(
+                account=_ACCOUNT,
+                vault_id=_VAULT_ID,
+                amount=IssuedCurrencyAmount(
+                    currency="USD", issuer=_ACCOUNT, value="100"
+                ),
+                destination=_DESTINATION,
+                credential_ids=[_CREDENTIAL_ID, _CREDENTIAL_ID],
+            )
+        self.assertEqual(
+            e.exception.args[0],
+            str(
+                {
+                    "credential_ids_duplicates": "CredentialIDs list cannot contain "
+                    "duplicate values."
+                }
+            ),
+        )
 
     def test_valid_with_destination_tag(self):
         tx = VaultWithdraw(

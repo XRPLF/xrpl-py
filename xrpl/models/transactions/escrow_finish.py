@@ -58,7 +58,8 @@ class EscrowFinish(Transaction):
     """Credentials associated with sender of this transaction. The credentials included
     must not be expired."""
 
-    computation_allowance: Optional[int] = None
+    gas: Optional[int] = None
+    """The maximum amount of gas that the escrow's WASM bytecode can use."""
 
     def _get_errors(self: Self) -> Dict[str, str]:
         errors = super()._get_errors()
@@ -70,6 +71,9 @@ class EscrowFinish(Transaction):
             errors["condition"] = (
                 "If fulfillment is specified, condition must also be specified."
             )
+
+        if self.gas is not None and self.gas <= 0:
+            errors["gas"] = "gas must be positive."
 
         errors.update(validate_credential_ids(self.credential_ids))
         return errors

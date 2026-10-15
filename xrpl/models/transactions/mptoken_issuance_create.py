@@ -15,6 +15,7 @@ from xrpl.models.utils import (
     HEX_REGEX,
     MAX_MPTOKEN_METADATA_LENGTH,
     MPT_META_WARNING_HEADER,
+    validate_domain_id,
 )
 
 _MAX_TRANSFER_FEE: Final[int] = 50000
@@ -33,6 +34,52 @@ class MPTokenIssuanceCreateFlag(int, Enum):
     TF_MPT_CAN_TRADE = 0x00000010
     TF_MPT_CAN_TRANSFER = 0x00000020
     TF_MPT_CAN_CLAWBACK = 0x00000040
+    TF_MPT_CAN_HOLD_CONFIDENTIAL_BALANCE = 0x00000080
+    """
+    If set, indicates that the MPT can hold confidential balances.
+    This flag must be set to enable confidential MPT functionality.
+    """
+
+
+class MPTokenIssuanceImmutableFlag(int, Enum):
+    """
+    ImmutableFlags for the MPTokenIssuance ledger object (XLS-94d DynamicMPT).
+    Under DynamicMPT, MPTokenMetadata, TransferFee, and the MPT issuance flags
+    are mutable by default; setting a bit here permanently makes the corresponding
+    field or flag immutable. Once set, it can never be modified again.
+    Shared by MPTokenIssuanceCreate and MPTokenIssuanceSet.
+    Prefixed with TIF (Transaction Immutable Flag).
+    """
+
+    TIF_MPT_CAN_LOCK = 0x00000002
+    """Makes flag lsfMPTCanLock immutable"""
+
+    TIF_MPT_REQUIRE_AUTH = 0x00000004
+    """Makes flag lsfMPTRequireAuth immutable"""
+
+    TIF_MPT_CAN_ESCROW = 0x00000008
+    """Makes flag lsfMPTCanEscrow immutable"""
+
+    TIF_MPT_CAN_TRADE = 0x00000010
+    """Makes flag lsfMPTCanTrade immutable"""
+
+    TIF_MPT_CAN_TRANSFER = 0x00000020
+    """Makes flag lsfMPTCanTransfer immutable"""
+
+    TIF_MPT_CAN_CLAWBACK = 0x00000040
+    """Makes flag lsfMPTCanClawback immutable"""
+
+    TIF_MPT_CAN_HOLD_CONFIDENTIAL_BALANCE = 0x00000080
+    """
+    Makes flag lsfMPTCanHoldConfidentialBalance immutable.
+    Requires the XLS-96 Confidential MPT amendment.
+    """
+
+    TIF_MPT_METADATA = 0x00010000
+    """Makes field MPTokenMetadata immutable"""
+
+    TIF_MPT_TRANSFER_FEE = 0x00020000
+    """Makes field TransferFee immutable"""
 
 
 class MPTokenIssuanceCreateFlagInterface(TransactionFlagInterface):
@@ -48,6 +95,7 @@ class MPTokenIssuanceCreateFlagInterface(TransactionFlagInterface):
     TF_MPT_CAN_TRADE: bool
     TF_MPT_CAN_TRANSFER: bool
     TF_MPT_CAN_CLAWBACK: bool
+    TF_MPT_CAN_HOLD_CONFIDENTIAL_BALANCE: bool
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -97,6 +145,22 @@ class MPTokenIssuanceCreate(Transaction):
     may not be discoverable by ecosystem tools such as explorers and indexers.
     """
 
+    domain_id: Optional[str] = None
+    """
+    The DomainID of a Permissioned Domain to associate with this MPTokenIssuance,
+    as a 64-character hex string.
+    """
+
+    immutable_flags: Optional[int] = None
+    """
+    Permanently makes specific fields or flags immutable. Under DynamicMPT,
+    MPTokenMetadata, TransferFee, and the MPT issuance flags are mutable by
+    default; setting a bit here makes the corresponding field/flag immutable
+    for the life of the issuance.
+    This field is optional and only available when the DynamicMPT amendment is enabled.
+    Use MPTokenIssuanceImmutableFlag enum values.
+    """
+
     transaction_type: TransactionType = field(
         default=TransactionType.MPTOKEN_ISSUANCE_CREATE,
         init=False,
@@ -137,5 +201,29 @@ class MPTokenIssuanceCreate(Transaction):
                     + [f"- {msg}" for msg in validation_messages]
                 )
                 warnings.warn(message, stacklevel=5)
+
+        if self.domain_id is not None:
+            err = validate_domain_id(self.domain_id)
+            if err:
+                errors["domain_id"] = err
+
+        # Validate immutable_flags (DynamicMPT)
+        if self.immutable_flags is not None:
+            # A present ImmutableFlags must be non-zero and use only known bits
+            # (the reserved 0x00000001 is not a valid ImmutableFlags bit).
+            valid_mask = 0
+            for flag in MPTokenIssuanceImmutableFlag:
+                valid_mask |= flag.value
+
+            # The zero case needs its own check: `0 & ~valid_mask` is 0 (falsy),
+            # so the invalid-bits check below would let it through. Zero has no
+            # bits set, meaning nothing is declared immutable, which is a
+            # pointless no-op we reject explicitly.
+            if self.immutable_flags == 0:
+                errors["immutable_flags"] = "immutable_flags cannot be 0"
+            elif self.immutable_flags & ~valid_mask:
+                errors["immutable_flags"] = (
+                    "immutable_flags contains invalid or reserved bits"
+                )
 
         return errors

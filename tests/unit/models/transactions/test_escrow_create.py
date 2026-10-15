@@ -16,7 +16,8 @@ class TestEscrowCreate(TestCase):
         destination = _DESTINATION
         destination_tag = 1
         finish_after = 2
-        finish_function = "abcdef"
+        bytecode = "abcdef"
+        data = "1234"
         condition = "abcdef"
 
         escrow_create = EscrowCreate(
@@ -26,7 +27,8 @@ class TestEscrowCreate(TestCase):
             destination_tag=destination_tag,
             cancel_after=cancel_after,
             finish_after=finish_after,
-            finish_function=finish_function,
+            bytecode=bytecode,
+            data=data,
             condition=condition,
         )
         self.assertTrue(escrow_create.is_valid())
@@ -70,7 +72,7 @@ class TestEscrowCreate(TestCase):
         self.assertEqual(
             error.exception.args[0],
             "{'EscrowCreate': "
-            "'At least one of finish_after, condition, or finish_function must be set.'"
+            "'At least one of finish_after, condition, or bytecode must be set.'"
             "}",
         )
 
@@ -102,3 +104,59 @@ class TestEscrowCreate(TestCase):
             finish_after=10,
         )
         self.assertTrue(tx.is_valid())
+
+    def test_bytecode_empty(self):
+        with self.assertRaises(XRPLModelException) as error:
+            EscrowCreate(
+                account=_SOURCE,
+                amount="1000",
+                destination=_DESTINATION,
+                cancel_after=10,
+                bytecode="",
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'bytecode': 'bytecode must not be empty.'}",
+        )
+
+    def test_bytecode_without_cancel_after(self):
+        with self.assertRaises(XRPLModelException) as error:
+            EscrowCreate(
+                account=_SOURCE,
+                amount="1000",
+                destination=_DESTINATION,
+                bytecode="abcdef",
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'cancel_after': 'cancel_after is required with bytecode.'}",
+        )
+
+    def test_data_without_bytecode(self):
+        with self.assertRaises(XRPLModelException) as error:
+            EscrowCreate(
+                account=_SOURCE,
+                amount="1000",
+                destination=_DESTINATION,
+                finish_after=10,
+                data="1234",
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'data': 'data requires bytecode.'}",
+        )
+
+    def test_data_too_long(self):
+        with self.assertRaises(XRPLModelException) as error:
+            EscrowCreate(
+                account=_SOURCE,
+                amount="1000",
+                destination=_DESTINATION,
+                cancel_after=10,
+                bytecode="abcdef",
+                data="00" * 1025,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'data': 'data must be at most 1024 bytes.'}",
+        )

@@ -9,6 +9,7 @@ from xrpl.asyncio.transaction import autofill
 from xrpl.models import (
     Batch,
     BatchFlag,
+    CheckCreate,
     DelegateSet,
     Payment,
     SignerEntry,
@@ -17,12 +18,14 @@ from xrpl.models import (
 )
 from xrpl.models.requests.account_objects import AccountObjects, AccountObjectType
 from xrpl.models.response import ResponseStatus
+from xrpl.models.transactions import SponsorSignature
 from xrpl.models.transactions.delegate_set import Permission
 from xrpl.models.transactions.types import TransactionType
 from xrpl.transaction.batch_signers import (
     combine_batch_signers,
     sign_multiaccount_batch,
 )
+from xrpl.transaction.sponsor_signer import sign_as_sponsor
 from xrpl.wallet import Wallet
 
 
@@ -254,5 +257,110 @@ class TestBatch(IntegrationTestCase):
         self.assertEqual(len(combined.batch_signers[0].signers), 2)
 
         response = await sign_and_reliable_submission_async(combined, WALLET, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+    # ── Sponsorship inside a Batch ─────────────────────────────────────────
+    #
+    # An inner transaction's SponsorSignature must stay an empty placeholder;
+    # the sponsor's authorization comes from the outer BatchSigners instead.
+    # rippled therefore counts the sponsor as a required Batch signer whenever
+    # `Sponsor` and `SponsorSignature` are both present on an inner transaction,
+    # and rejects the Batch with temBAD_SIGNER unless BatchSigners matches its
+    # required set exactly.
+
+    @test_async_and_sync(globals(), ["xrpl.transaction.autofill"])
+    async def test_batch_with_reserve_sponsored_inner(self, client):
+        """The sponsor of an inner transaction signs via BatchSigners."""
+        sponsee = Wallet.create()
+        sponsor = Wallet.create()
+        await fund_wallet_async(sponsee)
+        await fund_wallet_async(sponsor)
+
+        # Inner 0: the sponsee creates a Check whose reserve the sponsor covers.
+        # Inner 1: the outer account moves a drop, so the Batch has two inners.
+        batch = Batch(
+            account=WALLET.address,
+            flags=BatchFlag.TF_ALL_OR_NOTHING,
+            raw_transactions=[
+                CheckCreate(
+                    account=sponsee.address,
+                    destination=DESTINATION.address,
+                    send_max="1000000",
+                    sponsor=sponsor.address,
+                    sponsor_flags=2,  # spfSponsorReserve
+                    sponsor_signature=SponsorSignature(),  # empty placeholder
+                ),
+                Payment(
+                    account=WALLET.address,
+                    amount="1",
+                    destination=DESTINATION.address,
+                ),
+            ],
+        )
+        autofilled = await autofill(batch, client, 2)
+
+        # Required signers: the sponsee (inner-0 authorizer) and the sponsor.
+        # The outer account signs the Batch itself and must not be a BatchSigner.
+        combined = Batch.from_blob(
+            combine_batch_signers(
+                [
+                    sign_multiaccount_batch(sponsee, autofilled),
+                    sign_multiaccount_batch(sponsor, autofilled),
+                ]
+            )
+        )
+        signers = [signer.account for signer in combined.batch_signers]
+        self.assertEqual(set(signers), {sponsee.address, sponsor.address})
+        self.assertNotIn(WALLET.address, signers)
+
+        response = await sign_and_reliable_submission_async(combined, WALLET, client)
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        # The Check exists and records the sponsor that covers its reserve.
+        objects = await client.request(
+            AccountObjects(account=sponsee.address, type=AccountObjectType.CHECK)
+        )
+        checks = objects.result["account_objects"]
+        self.assertEqual(len(checks), 1)
+        self.assertEqual(checks[0].get("Sponsor"), sponsor.address)
+
+    @test_async_and_sync(globals(), ["xrpl.transaction.autofill"])
+    async def test_outer_batch_fee_sponsored(self, client):
+        """The outer Batch may be fee-sponsored; the sponsor co-signs it."""
+        sponsor = Wallet.create()
+        await fund_wallet_async(sponsor)
+
+        batch = Batch(
+            account=WALLET.address,
+            flags=BatchFlag.TF_ALL_OR_NOTHING,
+            raw_transactions=[
+                Payment(
+                    account=WALLET.address,
+                    amount="1",
+                    destination=DESTINATION.address,
+                ),
+                Payment(
+                    account=WALLET.address,
+                    amount="1",
+                    destination=DESTINATION.address,
+                ),
+            ],
+            sponsor=sponsor.address,
+            sponsor_flags=1,  # spfSponsorFee
+        )
+        autofilled = await autofill(batch, client)
+        # The outer account's SigningPubKey must be settled before the sponsor
+        # signs, because it is a signing field.
+        prepared = Batch.from_dict(
+            {**autofilled.to_dict(), "signing_pub_key": WALLET.public_key}
+        )
+        sponsor_signed = sign_as_sponsor(sponsor, prepared).tx
+        self.assertIsNotNone(sponsor_signed.sponsor_signature)
+
+        response = await sign_and_reliable_submission_async(
+            sponsor_signed, WALLET, client
+        )
         self.assertEqual(response.status, ResponseStatus.SUCCESS)
         self.assertEqual(response.result["engine_result"], "tesSUCCESS")

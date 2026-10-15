@@ -69,8 +69,8 @@ class TestSignLoanSetByCounterpartySingleSign(TestCase):
                     "ED1139D765C2C8F175153EE663D2CBE574685D5FCF61A6A33DF7AC72C9903D3F94"
                 ),
                 "TxnSignature": (
-                    "440B839B41834A9292B23A8DB547EA34DC89FC8313056C96812384A860848381"
-                    "C4F11867F1092594D3E263DB2433CEB07E2AD312944FF68F2E2EF995ABAE9C05"
+                    "2C0D70281D70E40EAF54C12E21823BE3838426F4EF34E391FA28B2B226669647"
+                    "FFF8D5771D37F43741136555006CCB269CF8ED983748ADB22F09148F02578107"
                 ),
             },
         }
@@ -216,9 +216,9 @@ class TestSignLoanSetByCounterpartyMultiSign(TestCase):
                                 "72D69E28EE37438FE59E"
                             ),
                             "TxnSignature": (
-                                "C3A989FFA24CE21AE9E1734653387B34044A82B13F34B7B1175CB2"
-                                "0118F9EF904ABEA691E4D3EFFD1EBF63C3B50F29AA89B68AF4A70C"
-                                "F74601CD326772D1680E"
+                                "BDF36CEDBC8151619D8C3A2452D5775B744C0BB04722F757FB88EA"
+                                "744D18A5DED875F72009B92ED5039422FF0FFEC7CF635310910ED1"
+                                "D0623D24CE27AFDB6401"
                             ),
                             "Account": "rBJMcbqnAaxcUeEPF7WiaoHCtFiTmga7un",
                         },
@@ -230,9 +230,9 @@ class TestSignLoanSetByCounterpartyMultiSign(TestCase):
                                 "14137BB72720A"
                             ),
                             "TxnSignature": (
-                                "3A3D91798FCF56289BBF53A97D0CB07CFB5050CFBA05451A1C9A3A"
-                                "9E370AE81DCC3134E6CC35579ACA8937F15DF358DAB728054AC17C"
-                                "3858177C6947C1E21806"
+                                "3743ADC994FDAC886627FE12D3C8D5AA6F300F8903E2148D11A78E"
+                                "752D48C5B4CFF3A106BFE0019B661246BA9E33AFF37E060B487281"
+                                "2F8D79D9871DE4C56C04"
                             ),
                             "Account": "rKQhhSnRXJyqDq5BFtWG2E6zxAdq6wDyQC",
                         },

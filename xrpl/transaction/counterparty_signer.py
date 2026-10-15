@@ -9,7 +9,11 @@ from xrpl.core.addresscodec import (
     is_valid_xaddress,
     xaddress_to_classic_address,
 )
-from xrpl.core.binarycodec import encode, encode_for_multisigning, encode_for_signing
+from xrpl.core.binarycodec import (
+    encode,
+    encode_for_multisigning_counterparty,
+    encode_for_signing_counterparty,
+)
 from xrpl.core.keypairs import sign as keypairs_sign
 from xrpl.models.transactions import LoanSet, Transaction
 from xrpl.models.transactions.loan_set import CounterpartySignature
@@ -41,11 +45,13 @@ def compute_signature(
             else sign_as
         )
         return keypairs_sign(
-            bytes.fromhex(encode_for_multisigning(tx_json, classic_address)),
+            bytes.fromhex(
+                encode_for_multisigning_counterparty(tx_json, classic_address)
+            ),
             private_key,
         )
     return keypairs_sign(
-        bytes.fromhex(encode_for_signing(tx_json)),
+        bytes.fromhex(encode_for_signing_counterparty(tx_json)),
         private_key,
     )
 

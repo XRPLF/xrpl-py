@@ -161,3 +161,60 @@ class TestDelegateSet(IntegrationTestCase):
         self.assertTrue(
             GranularPermission.TRUSTLINE_AUTHORIZE.value in granted_permission
         )
+
+    @test_async_and_sync(globals())
+    async def test_delegate_sponsorship_set_accepted(self, client):
+        """DelegateSet delegating SponsorshipSet is accepted by rippled."""
+        alice = Wallet.create()
+        await fund_wallet_async(alice)
+        bob = Wallet.create()
+        await fund_wallet_async(bob)
+
+        tx = DelegateSet(
+            account=alice.address,
+            authorize=bob.address,
+            permissions=[Permission(permission_value=TransactionType.SPONSORSHIP_SET)],
+        )
+        response = await sign_and_reliable_submission_async(
+            tx, alice, client, check_fee=False
+        )
+        self.assertEqual(response.status, ResponseStatus.SUCCESS)
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        ledger_response = await client.request(
+            LedgerEntry(delegate=Delegate(account=alice.address, authorize=bob.address))
+        )
+        self.assertTrue(ledger_response.is_successful())
+        perm_values = {
+            p["Permission"]["PermissionValue"]
+            for p in ledger_response.result["node"]["Permissions"]
+        }
+        self.assertIn(TransactionType.SPONSORSHIP_SET.value, perm_values)
+
+    @test_async_and_sync(globals())
+    async def test_account_objects_sponsorship_set_delegation(self, client):
+        """AccountObjects returns the delegated SponsorshipSet permission."""
+        alice = Wallet.create()
+        await fund_wallet_async(alice)
+        bob = Wallet.create()
+        await fund_wallet_async(bob)
+
+        tx = DelegateSet(
+            account=alice.address,
+            authorize=bob.address,
+            permissions=[Permission(permission_value=TransactionType.SPONSORSHIP_SET)],
+        )
+        response = await sign_and_reliable_submission_async(
+            tx, alice, client, check_fee=False
+        )
+        self.assertEqual(response.result["engine_result"], "tesSUCCESS")
+
+        objects_response = await client.request(
+            AccountObjects(account=alice.address, type=AccountObjectType.DELEGATE)
+        )
+        self.assertTrue(objects_response.is_successful())
+        perm_values = {
+            p["Permission"]["PermissionValue"]
+            for p in objects_response.result["account_objects"][0]["Permissions"]
+        }
+        self.assertIn(TransactionType.SPONSORSHIP_SET.value, perm_values)
