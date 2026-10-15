@@ -14,8 +14,11 @@ from xrpl.core.addresscodec import is_valid_xaddress, xaddress_to_classic_addres
 from xrpl.core.binarycodec import encode, encode_for_multisigning, encode_for_signing
 from xrpl.core.keypairs.main import sign as keypairs_sign
 from xrpl.models import (
+    AccountInfo,
     Batch,
+    EscrowCreate,
     EscrowFinish,
+    LedgerEntry,
     LoanSet,
     Response,
     ServerState,
@@ -24,8 +27,6 @@ from xrpl.models import (
     Transaction,
     TransactionFlag,
 )
-from xrpl.models.requests.account_info import AccountInfo
-from xrpl.models.requests.ledger_entry import LedgerEntry
 from xrpl.models.transactions.transaction import (
     transaction_json_to_binary_codec_form as model_transaction_to_binary_codec,
 )
@@ -41,6 +42,11 @@ _LEDGER_OFFSET: Final[int] = 20
 # More context: https://github.com/XRPLF/rippled/pull/4370
 _RESTRICTED_NETWORKS = 1024
 _REQUIRED_NETWORKID_VERSION = "1.11.0"
+_MICRO_DROPS_PER_DROP = 1_000_000
+
+# Extra base fees for an EscrowCreate with Bytecode (rippled charges 10 in total).
+_WASM_EXTRA_BASE_FEES = 9
+_WASM_DROPS_PER_BYTE = 5
 
 # rippled charges Confidential MPT (XLS-0096) transactions an extra base-fee
 # multiplier on top of the standard cost to account for zero-knowledge proof
@@ -579,14 +585,27 @@ async def _calculate_fee_per_transaction_type(
 
     base_fee = net_fee
 
-    # EscrowFinish Transaction with Fulfillment
+    # EscrowCreate Transaction with Bytecode
+    if transaction.transaction_type == TransactionType.ESCROW_CREATE:
+        escrow_create = cast(EscrowCreate, transaction)
+        if escrow_create.bytecode is not None:
+            # 10 base fees in total, plus 5 drops per byte of bytecode
+            base_fee += _WASM_EXTRA_BASE_FEES * net_fee + (
+                _WASM_DROPS_PER_BYTE * len(escrow_create.bytecode) // 2
+            )
+
+    # EscrowFinish Transaction with Fulfillment and/or Gas
     # https://xrpl.org/escrowfinish.html#escrowfinish-fields
-    if transaction.transaction_type == TransactionType.ESCROW_FINISH:
+    elif transaction.transaction_type == TransactionType.ESCROW_FINISH:
         escrow_finish = cast(EscrowFinish, transaction)
         if escrow_finish.fulfillment is not None:
             fulfillment_bytes = escrow_finish.fulfillment.encode("ascii")
             # BaseFee × (33 + (Fulfillment size in bytes / 16))
             base_fee = math.ceil(net_fee * (33 + (len(fulfillment_bytes) / 16)))
+        if escrow_finish.gas is not None:
+            gas_price = await _fetch_gas_price(client)
+            # rippled rounds down, then adds 1 drop
+            base_fee += escrow_finish.gas * gas_price // _MICRO_DROPS_PER_DROP + 1
 
     # AccountDelete Transaction
     elif transaction.transaction_type in (
@@ -731,3 +750,9 @@ async def _autofill_batch(
         inner_txs.append(raw_txn_dict)
 
     return inner_txs
+
+
+async def _fetch_gas_price(client: Client) -> int:
+    server_state = await client._request_impl(ServerState())
+    fee = server_state.result["state"]["validated_ledger"]["gas_price"]
+    return int(fee)
