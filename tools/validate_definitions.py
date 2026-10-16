@@ -56,6 +56,22 @@ def _check_gh_cli() -> None:
         )
         sys.exit(1)
 
+    # Installed but unauthenticated fails later as an opaque API error, so
+    # check here and say what to do about it. GH_TOKEN satisfies this too.
+    try:
+        subprocess.run(
+            ["gh", "auth", "status"], capture_output=True, text=True, check=True
+        )
+    except subprocess.CalledProcessError as e:
+        detail = ((e.stderr or "") + (e.stdout or "")).strip()
+        print(
+            "Error: GitHub CLI (gh) is not authenticated.\n"
+            "Run `gh auth login`, or set GH_TOKEN to a token with access to"
+            f" {UPSTREAM_REPO}.\n{detail}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
 
 # The artifacts API cannot filter by branch, so results are scanned page by
 # page. rippled publishes enough artifacts that a single 100-item page spans
@@ -446,8 +462,16 @@ def _compare_definitions(local: dict, benchmark: dict) -> list[str]:
             for type_name, local_fields in local_value.items():
                 if type_name not in bench_value:
                     continue
-                bench_fields = {f["name"]: f for f in bench_value[type_name]}
+                # Entries may be malformed on either side: the local file is
+                # structurally validated first, but the benchmark is not.
+                bench_fields = {
+                    f["name"]: f
+                    for f in bench_value[type_name]
+                    if isinstance(f, dict) and "name" in f
+                }
                 for local_field in local_fields:
+                    if not isinstance(local_field, dict):
+                        continue
                     bench_field = bench_fields.get(local_field.get("name"))
                     if not bench_field:
                         continue

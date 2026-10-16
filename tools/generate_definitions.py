@@ -88,6 +88,22 @@ def _check_gh_cli() -> None:
         )
         sys.exit(1)
 
+    # Installed but unauthenticated fails later as an opaque API error, so
+    # check here and say what to do about it. GH_TOKEN satisfies this too.
+    try:
+        subprocess.run(
+            ["gh", "auth", "status"], capture_output=True, text=True, check=True
+        )
+    except subprocess.CalledProcessError as e:
+        detail = ((e.stderr or "") + (e.stdout or "")).strip()
+        print(
+            "Error: GitHub CLI (gh) is not authenticated.\n"
+            "Run `gh auth login`, or set GH_TOKEN to a token with access to"
+            f" {UPSTREAM_REPO}.\n{detail}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
 
 def _get_pr_info(pr_number: str) -> dict:
     """Get branch name and head SHA for a pull request."""
