@@ -197,6 +197,7 @@ async def submit_and_wait(
     fail_hard: bool = False,
     signers_count: Optional[int] = None,
     sponsor_signers_count: Optional[int] = None,
+    debug: bool = False,
 ) -> Response:
     """
     Signs a transaction locally if the transaction is unsigned, then submits,
@@ -223,10 +224,15 @@ async def submit_and_wait(
         sponsor_signers_count: the expected number of keys the sponsor will
             multi-sign with. Only used when the sponsor multi-signs; leave unset
             for a pre-funded sponsorship or a single-signing sponsor.
+        debug: an optional boolean. If True, print status updates to the
+            console as the transaction is signed, submitted, and validated.
+            Defaults to False.
 
     Returns:
         The response from the ledger.
     """
+    if debug:
+        print("Signing and autofilling transaction...")
     signed_transaction = await _get_signed_tx(
         transaction,
         client,
@@ -236,6 +242,8 @@ async def submit_and_wait(
         signers_count=signers_count,
         sponsor_signers_count=sponsor_signers_count,
     )
+    if debug:
+        print("Submitting transaction and waiting for validation...")
     return await _send_reliable_submission(
         signed_transaction, client, fail_hard=fail_hard
     )

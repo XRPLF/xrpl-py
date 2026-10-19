@@ -8,7 +8,7 @@ threading are covered separately in ``test_sponsor_fee.py``.
 """
 
 from unittest import IsolatedAsyncioTestCase
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, Mock, call, patch
 
 from xrpl.asyncio.transaction.reliable_submission import (
     _get_signed_tx,
@@ -161,3 +161,43 @@ class TestSubmitAndWait(IsolatedAsyncioTestCase):
 
         self.assertEqual(check_fee.await_args.kwargs["signers_count"], 2)
         self.assertEqual(autofill.await_args.kwargs["signers_count"], 2)
+
+    async def test_debug_true_prints_status_updates(self):
+        """debug=True prints progress at each stage of submission."""
+        signed = Mock()
+        response = Mock()
+        with (
+            patch(f"{_MODULE}._get_signed_tx", new=AsyncMock(return_value=signed)),
+            patch(
+                f"{_MODULE}._send_reliable_submission",
+                new=AsyncMock(return_value=response),
+            ),
+            patch("builtins.print") as mock_print,
+        ):
+            result = await submit_and_wait(Mock(), None, Mock(), debug=True)
+
+        self.assertIs(result, response)
+        self.assertEqual(
+            mock_print.call_args_list,
+            [
+                call("Signing and autofilling transaction..."),
+                call("Submitting transaction and waiting for validation..."),
+            ],
+        )
+
+    async def test_debug_defaults_to_false_and_stays_quiet(self):
+        """Without debug=True nothing is printed to the console."""
+        signed = Mock()
+        response = Mock()
+        with (
+            patch(f"{_MODULE}._get_signed_tx", new=AsyncMock(return_value=signed)),
+            patch(
+                f"{_MODULE}._send_reliable_submission",
+                new=AsyncMock(return_value=response),
+            ),
+            patch("builtins.print") as mock_print,
+        ):
+            result = await submit_and_wait(Mock(), None, Mock())
+
+        self.assertIs(result, response)
+        mock_print.assert_not_called()
