@@ -263,14 +263,20 @@ def _download_benchmark() -> dict | None:
 
 
 def _classify_value(value: object) -> str:
-    """Classify a value for validation/comparison."""
+    """Classify a value for validation/comparison.
+
+    Every entry is considered rather than only the first. A single malformed
+    or empty entry at the front would otherwise make the whole key
+    unclassifiable, silently dropping it from validation while the run still
+    reported success.
+    """
     if isinstance(value, list):
-        if (
-            len(value) > 0
-            and isinstance(value[0], list)
-            and len(value[0]) == 2
-            and isinstance(value[0][0], str)
-            and isinstance(value[0][1], dict)
+        if any(
+            isinstance(entry, list)
+            and len(entry) == 2
+            and isinstance(entry[0], str)
+            and isinstance(entry[1], dict)
+            for entry in value
         ):
             return "fields"
         return "skip"
@@ -278,30 +284,51 @@ def _classify_value(value: object) -> str:
     if not isinstance(value, dict):
         return "skip"
 
-    values = list(value.values())
-    if not values:
-        return "skip"
+    for entry in value.values():
+        if isinstance(entry, (int, float)):
+            return "simple_map"
 
-    first = values[0]
-
-    if isinstance(first, (int, float)):
-        return "simple_map"
-
-    if isinstance(first, dict):
-        inner_values = list(first.values())
-        if inner_values and isinstance(inner_values[0], (int, float)):
+        if isinstance(entry, dict) and any(
+            isinstance(inner, (int, float)) for inner in entry.values()
+        ):
             return "nested_map"
 
-    if isinstance(first, list):
-        if (
-            len(first) > 0
-            and isinstance(first[0], dict)
-            and "name" in first[0]
-            and "optionality" in first[0]
+        if isinstance(entry, list) and any(
+            isinstance(field, dict) and "name" in field and "optionality" in field
+            for field in entry
         ):
             return "format_array"
 
     return "skip"
+
+
+def _find_unclassified(local: dict, benchmark: dict) -> list[str]:
+    """Report structured keys that end up excluded from validation.
+
+    A key whose value is a non-empty dict or list but which classifies as
+    "skip" is not compared at all. That is almost always a malformed entry
+    rather than an intentional omission, so surface it instead of passing
+    silently.
+    """
+    warnings = []
+    for key, bench_value in benchmark.items():
+        if key not in local:
+            continue
+        if not isinstance(bench_value, (dict, list)) or not bench_value:
+            continue
+        bench_category = _classify_value(bench_value)
+        local_category = _classify_value(local[key])
+        if bench_category == "skip" or local_category == "skip":
+            warnings.append(
+                f'{key}: not compared (benchmark="{bench_category}",'
+                f' local="{local_category}") — the value may be malformed'
+            )
+        elif bench_category != local_category:
+            warnings.append(
+                f"{key}: benchmark and local disagree on shape"
+                f' ("{bench_category}" vs "{local_category}")'
+            )
+    return warnings
 
 
 # ── Structural validation ────────────────────────────────────────────────────
@@ -583,6 +610,21 @@ def main() -> None:
             print(f"  - {e}", file=sys.stderr)
         sys.exit(1)
     print("Structure OK")
+
+    unclassified = _find_unclassified(local, benchmark)
+    if unclassified:
+        print(
+            f"\n{len(unclassified)} key(s) could not be compared:",
+            file=sys.stderr,
+        )
+        for u in unclassified:
+            print(f"  - {u}", file=sys.stderr)
+        print(
+            "A key that cannot be classified is excluded from validation"
+            " entirely, so this fails rather than reporting a false pass.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     print("Comparing entries against benchmark...")
     compare_errors = _compare_definitions(local, benchmark)
