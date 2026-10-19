@@ -196,8 +196,10 @@ class TestSubmitAndWait(IsolatedAsyncioTestCase):
         submit_response = Mock()
         submit_response.result = {
             "engine_result": "tesSUCCESS",
-            "queued": True,
             "kept": False,
+            "applied": False,
+            "queued": True,
+            "broadcast": False,
         }
 
         txn_not_found = Mock()
@@ -235,7 +237,10 @@ class TestSubmitAndWait(IsolatedAsyncioTestCase):
                 call("Signing and autofilling transaction..."),
                 call(f"Submitting transaction {signed}"),
                 call("Initial engine result: tesSUCCESS"),
-                call("Transaction was queued."),
+                call("Transaction kept: False"),
+                call("Transaction applied: False"),
+                call("Transaction queued: True"),
+                call("Transaction broadcast: False"),
                 call(
                     "Checking transaction status. . . not yet validated "
                     "(ledger 18903225 / 18903230)."

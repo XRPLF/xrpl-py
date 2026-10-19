@@ -142,8 +142,8 @@ async def _send_reliable_submission(
     if debug:
         print(f"Initial engine result: {prelim_result}")
         for disposition in ("kept", "applied", "queued", "broadcast"):
-            if submit_response.result.get(disposition):
-                print(f"Transaction was {disposition}.")
+            value = bool(submit_response.result.get(disposition))
+            print(f"Transaction {disposition}: {value}")
 
     return await _wait_for_final_transaction_outcome(
         transaction_hash,
