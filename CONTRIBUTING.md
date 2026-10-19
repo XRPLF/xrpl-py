@@ -200,22 +200,110 @@ Examples can be found in subfolders of [tests/integrations](https://github.com/X
 
 ## Updating `definitions.json` and models
 
-To update just the `definitions.json` file:
+Definitions are now pulled from rippled CI artifacts using the [GitHub CLI (`gh`)](https://cli.github.com/).
+
+To update `definitions.json` from the `develop` branch (default):
 
 ```bash
-poetry run poe definitions https://github.com/XRPLF/rippled/tree/develop
+poetry run poe definitions
 ```
 
-Any Github branch link or local path to rippled will work here.
-
-To update the models as well:
+To update from a specific branch or pull request:
 
 ```bash
-poetry run poe generate https://github.com/XRPLF/rippled/tree/develop
+poetry run poe definitions my-feature
+poetry run poe definitions pr:6858
+poetry run poe definitions contributor:my-feature
+```
+
+If no artifact is found, the branch most likely doesn't have one: artifacts
+are kept for only 3 days, take about 10 minutes to appear after a push, are
+never produced for an unpushed branch, and never produced for a PR from an
+external contributor until a maintainer approves its workflows.
+
+For a PR whose artifact has expired, re-running its CI produces a fresh one
+in roughly 30 minutes and builds nothing locally. Workflow runs stay
+re-runnable long after the artifact is gone, so this works even on a PR that
+has been idle for weeks (requires write access to `XRPLF/rippled`):
+
+```bash
+gh run list --repo XRPLF/rippled --branch <branch> --workflow PR --limit 1
+gh run rerun <run-id> --repo XRPLF/rippled
+```
+
+If none of those apply, the script falls back to parsing rippled's source
+directly and prints a warning. That output is an approximation — it is derived
+from the `.macro` headers rather than from rippled itself, and it omits the
+`hash` field — so replace it with an artifact before committing. Pass
+`--no-fallback` to fail instead of falling back.
+
+Otherwise, generate from a local rippled instead.
+
+### Generating from a local rippled
+
+Two local sources are supported, neither of which needs `gh`.
+
+From a **local build**, which runs `xrpld --definitions`:
+
+```bash
+# finds .build/ or build/ automatically
+poetry run poe definitions ~/path/to/your/local/rippled
+
+# or point straight at the binary
+poetry run poe definitions ~/path/to/your/local/rippled/.build/xrpld
+```
+
+From a **running server** (a Docker container, or a standalone build), which
+sends a `server_definitions` request:
+
+```bash
+poetry run poe definitions localhost:5005
+poetry run poe definitions http://127.0.0.1:5005
+```
+
+Only loopback hosts may be given without a scheme, so that a fork reference
+like `contributor:my-feature` is never mistaken for a `host:port`. Use a full
+`http://` URL for anything else.
+
+To update the transaction models (still requires a rippled path or GitHub branch URL):
+
+```bash
+poetry run poe generate_tx_models https://github.com/XRPLF/rippled/tree/develop
 ```
 
 Verify that the changes make sense by inspection before submitting, as there may be updates required for the `xrpl-codec-gen` tool depending on the latest amendments we're updating to match.
 
+### Validating `definitions.json`
+
+The integration test job validates `definitions.json` against the
+`rippleci/xrpld:develop` container it already runs, comparing it to that
+server's `server_definitions` response. You can run the same check locally
+against any rippled you have running:
+
+```bash
+poetry run poe validate_definitions http://localhost:5005
+```
+
+Omitting the URL compares against the latest `server-definitions` artifact on
+`develop` instead, which needs `gh` but no container:
+
+```bash
+poetry run poe validate_definitions
+```
+
+The check fails only on genuine contradictions — an entry that exists both
+locally and upstream but disagrees on `nth`, `type`, a flag value, and so on.
+Two situations are reported without failing:
+
+- **Entries missing locally.** rippled `develop` is normally ahead of xrpl-py,
+  since `definitions.json` is bumped deliberately when an amendment is adopted
+  rather than on every upstream merge. These are listed as a note so the drift
+  stays visible.
+- **No benchmark available.** Only applies to the artifact source: rippled
+  retains artifacts for 3 days, and `develop` occasionally goes longer than
+  that without a merge, so the check skips rather than failing the build on an
+  upstream availability gap. The container source has no such window, which is
+  why CI uses it.
 
 ## Mailing Lists
 
