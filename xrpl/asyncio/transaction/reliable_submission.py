@@ -27,7 +27,12 @@ class XRPLReliableSubmissionException(XRPLException):
 
 
 async def _wait_for_final_transaction_outcome(
-    transaction_hash: str, client: Client, prelim_result: str, last_ledger_sequence: int
+    transaction_hash: str,
+    client: Client,
+    prelim_result: str,
+    last_ledger_sequence: int,
+    *,
+    debug: bool = False,
 ) -> Response:
     """
     The core logic of reliable submission.  Polls the ledger until the result of the
@@ -40,6 +45,11 @@ async def _wait_for_final_transaction_outcome(
     current_ledger_sequence = await get_latest_validated_ledger_sequence(client)
 
     if current_ledger_sequence >= last_ledger_sequence:
+        if debug:
+            print(
+                "Checking transaction status. . . expired without validation "
+                f"(ledger {current_ledger_sequence} / {last_ledger_sequence})."
+            )
         raise XRPLReliableSubmissionException(
             f"The latest validated ledger sequence {current_ledger_sequence} is "
             f"greater than LastLedgerSequence {last_ledger_sequence} in "
@@ -54,28 +64,41 @@ async def _wait_for_final_transaction_outcome(
             For the case if a submitted transaction is still
             in queue and not processed on the ledger yet.
             """
-            return await _wait_for_final_transaction_outcome(
-                transaction_hash, client, prelim_result, last_ledger_sequence
-            )
         else:
             raise XRPLRequestFailureException(transaction_response.result)
-
-    result = transaction_response.result
-    if "validated" in result and result["validated"]:
-        # result is in a validated ledger, outcome is final
-        return_code = result["meta"]["TransactionResult"]
-        if return_code != "tesSUCCESS":
-            raise XRPLReliableSubmissionException(f"Transaction failed: {return_code}")
-        return transaction_response
+    else:
+        result = transaction_response.result
+        if "validated" in result and result["validated"]:
+            # result is in a validated ledger, outcome is final
+            return_code = result["meta"]["TransactionResult"]
+            if debug:
+                print(
+                    "Checking transaction status. . . validated in ledger "
+                    f"{result['ledger_index']} with code {return_code}."
+                )
+            if return_code != "tesSUCCESS":
+                raise XRPLReliableSubmissionException(
+                    f"Transaction failed: {return_code}"
+                )
+            return transaction_response
 
     # outcome is not yet final
+    if debug:
+        print(
+            "Checking transaction status. . . not yet validated "
+            f"(ledger {current_ledger_sequence} / {last_ledger_sequence})."
+        )
     return await _wait_for_final_transaction_outcome(
-        transaction_hash, client, prelim_result, last_ledger_sequence
+        transaction_hash, client, prelim_result, last_ledger_sequence, debug=debug
     )
 
 
 async def _send_reliable_submission(
-    transaction: Transaction, client: Client, *, fail_hard: bool = False
+    transaction: Transaction,
+    client: Client,
+    *,
+    fail_hard: bool = False,
+    debug: bool = False,
 ) -> Response:
     """
     Asynchronously submits a transaction and verifies that it has been included in a
@@ -94,6 +117,9 @@ async def _send_reliable_submission(
         fail_hard: an optional boolean. If True, and the transaction fails for
             the initial server, do not retry or relay the transaction to other
             servers. Defaults to False.
+        debug: an optional boolean. If True, print status updates to the
+            console as the transaction is submitted and validated.
+            Defaults to False.
 
     Returns:
         The response from a validated ledger.
@@ -113,8 +139,18 @@ async def _send_reliable_submission(
         error_message = submit_response.result["engine_result_message"]
         raise XRPLReliableSubmissionException(f"{prelim_result}: {error_message}")
 
+    if debug:
+        print(f"Initial engine result: {prelim_result}")
+        for disposition in ("kept", "applied", "queued", "broadcast"):
+            value = bool(submit_response.result.get(disposition))
+            print(f"Transaction {disposition}: {value}")
+
     return await _wait_for_final_transaction_outcome(
-        transaction_hash, client, prelim_result, transaction.last_ledger_sequence
+        transaction_hash,
+        client,
+        prelim_result,
+        transaction.last_ledger_sequence,
+        debug=debug,
     )
 
 
@@ -197,6 +233,7 @@ async def submit_and_wait(
     fail_hard: bool = False,
     signers_count: Optional[int] = None,
     sponsor_signers_count: Optional[int] = None,
+    debug: bool = False,
 ) -> Response:
     """
     Signs a transaction locally if the transaction is unsigned, then submits,
@@ -223,10 +260,15 @@ async def submit_and_wait(
         sponsor_signers_count: the expected number of keys the sponsor will
             multi-sign with. Only used when the sponsor multi-signs; leave unset
             for a pre-funded sponsorship or a single-signing sponsor.
+        debug: an optional boolean. If True, print status updates to the
+            console as the transaction is signed, submitted, and validated.
+            Defaults to False.
 
     Returns:
         The response from the ledger.
     """
+    if debug:
+        print("Signing and autofilling transaction...")
     signed_transaction = await _get_signed_tx(
         transaction,
         client,
@@ -236,6 +278,8 @@ async def submit_and_wait(
         signers_count=signers_count,
         sponsor_signers_count=sponsor_signers_count,
     )
+    if debug:
+        print(f"Submitting transaction {signed_transaction}")
     return await _send_reliable_submission(
-        signed_transaction, client, fail_hard=fail_hard
+        signed_transaction, client, fail_hard=fail_hard, debug=debug
     )

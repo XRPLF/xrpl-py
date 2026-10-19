@@ -8,10 +8,12 @@ threading are covered separately in ``test_sponsor_fee.py``.
 """
 
 from unittest import IsolatedAsyncioTestCase
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, Mock, call, patch
 
 from xrpl.asyncio.transaction.reliable_submission import (
     _get_signed_tx,
+    _wait_for_final_transaction_outcome,
+    XRPLReliableSubmissionException,
     submit_and_wait,
 )
 from xrpl.constants import XRPLException
@@ -125,7 +127,7 @@ class TestSubmitAndWait(IsolatedAsyncioTestCase):
             result = await submit_and_wait(Mock(), None, Mock(), fail_hard=True)
 
         get_signed.assert_awaited_once()
-        send.assert_awaited_once_with(signed, None, fail_hard=True)
+        send.assert_awaited_once_with(signed, None, fail_hard=True, debug=False)
         self.assertIs(result, response)
 
     async def test_forwards_sponsor_signers_count(self):
@@ -161,3 +163,168 @@ class TestSubmitAndWait(IsolatedAsyncioTestCase):
 
         self.assertEqual(check_fee.await_args.kwargs["signers_count"], 2)
         self.assertEqual(autofill.await_args.kwargs["signers_count"], 2)
+
+    async def test_debug_true_prints_sign_and_submit_lines(self):
+        """submit_and_wait itself prints the signing and submitting lines."""
+        signed = Mock()
+        response = Mock()
+        with (
+            patch(f"{_MODULE}._get_signed_tx", new=AsyncMock(return_value=signed)),
+            patch(
+                f"{_MODULE}._send_reliable_submission",
+                new=AsyncMock(return_value=response),
+            ),
+            patch("builtins.print") as mock_print,
+        ):
+            result = await submit_and_wait(Mock(), None, Mock(), debug=True)
+
+        self.assertIs(result, response)
+        self.assertEqual(
+            mock_print.call_args_list,
+            [
+                call("Signing and autofilling transaction..."),
+                call(f"Submitting transaction {signed}"),
+            ],
+        )
+
+    async def test_debug_true_prints_full_flow_in_order(self):
+        """debug=True narrates the whole flow: sign, submit, poll, validate."""
+        signed = Mock()
+        signed.last_ledger_sequence = 18903230
+        signed.get_hash.return_value = "DEADBEEF"
+
+        submit_response = Mock()
+        submit_response.result = {
+            "engine_result": "tesSUCCESS",
+            "kept": False,
+            "applied": False,
+            "queued": True,
+            "broadcast": False,
+        }
+
+        txn_not_found = Mock()
+        txn_not_found.is_successful.return_value = False
+        txn_not_found.result = {"error": "txnNotFound"}
+
+        validated = Mock()
+        validated.is_successful.return_value = True
+        validated.result = {
+            "validated": True,
+            "ledger_index": 18903228,
+            "meta": {"TransactionResult": "tesSUCCESS"},
+        }
+
+        client = Mock()
+        client._request_impl = AsyncMock(side_effect=[txn_not_found, validated])
+
+        with (
+            patch(f"{_MODULE}._get_signed_tx", new=AsyncMock(return_value=signed)),
+            patch(f"{_MODULE}.submit", new=AsyncMock(return_value=submit_response)),
+            patch(
+                f"{_MODULE}.get_latest_validated_ledger_sequence",
+                new=AsyncMock(return_value=18903225),
+            ),
+            patch(f"{_MODULE}.asyncio") as mock_asyncio,
+            patch("builtins.print") as mock_print,
+        ):
+            mock_asyncio.sleep = AsyncMock()
+            result = await submit_and_wait(signed, client, Mock(), debug=True)
+
+        self.assertIs(result, validated)
+        self.assertEqual(
+            mock_print.call_args_list,
+            [
+                call("Signing and autofilling transaction..."),
+                call(f"Submitting transaction {signed}"),
+                call("Initial engine result: tesSUCCESS"),
+                call("Transaction kept: False"),
+                call("Transaction applied: False"),
+                call("Transaction queued: True"),
+                call("Transaction broadcast: False"),
+                call(
+                    "Checking transaction status. . . not yet validated "
+                    "(ledger 18903225 / 18903230)."
+                ),
+                call(
+                    "Checking transaction status. . . validated in ledger "
+                    "18903228 with code tesSUCCESS."
+                ),
+            ],
+        )
+
+    async def test_debug_false_stays_quiet_through_validation(self):
+        """debug=False (the default) prints nothing through the whole flow."""
+        signed = Mock()
+        signed.last_ledger_sequence = 18903230
+        signed.get_hash.return_value = "DEADBEEF"
+
+        submit_response = Mock()
+        submit_response.result = {"engine_result": "tesSUCCESS"}
+
+        validated = Mock()
+        validated.is_successful.return_value = True
+        validated.result = {
+            "validated": True,
+            "ledger_index": 18903228,
+            "meta": {"TransactionResult": "tesSUCCESS"},
+        }
+
+        client = Mock()
+        client._request_impl = AsyncMock(return_value=validated)
+
+        with (
+            patch(f"{_MODULE}._get_signed_tx", new=AsyncMock(return_value=signed)),
+            patch(f"{_MODULE}.submit", new=AsyncMock(return_value=submit_response)),
+            patch(
+                f"{_MODULE}.get_latest_validated_ledger_sequence",
+                new=AsyncMock(return_value=18903225),
+            ),
+            patch(f"{_MODULE}.asyncio") as mock_asyncio,
+            patch("builtins.print") as mock_print,
+        ):
+            mock_asyncio.sleep = AsyncMock()
+            result = await submit_and_wait(signed, client, Mock())
+
+        self.assertIs(result, validated)
+        mock_print.assert_not_called()
+
+    async def test_debug_defaults_to_false_and_stays_quiet(self):
+        """Without debug=True nothing is printed to the console."""
+        signed = Mock()
+        response = Mock()
+        with (
+            patch(f"{_MODULE}._get_signed_tx", new=AsyncMock(return_value=signed)),
+            patch(
+                f"{_MODULE}._send_reliable_submission",
+                new=AsyncMock(return_value=response),
+            ),
+            patch("builtins.print") as mock_print,
+        ):
+            result = await submit_and_wait(Mock(), None, Mock())
+
+        self.assertIs(result, response)
+        mock_print.assert_not_called()
+
+
+class TestWaitForFinalTransactionOutcome(IsolatedAsyncioTestCase):
+    async def test_debug_prints_expiry_line_before_raising(self):
+        """On expiry the debug line goes out, then the existing error raises."""
+        client = Mock()
+        with (
+            patch(
+                f"{_MODULE}.get_latest_validated_ledger_sequence",
+                new=AsyncMock(return_value=18903231),
+            ),
+            patch(f"{_MODULE}.asyncio") as mock_asyncio,
+            patch("builtins.print") as mock_print,
+        ):
+            mock_asyncio.sleep = AsyncMock()
+            with self.assertRaises(XRPLReliableSubmissionException):
+                await _wait_for_final_transaction_outcome(
+                    "DEADBEEF", client, "tesSUCCESS", 18903230, debug=True
+                )
+
+        mock_print.assert_called_once_with(
+            "Checking transaction status. . . expired without validation "
+            "(ledger 18903231 / 18903230)."
+        )
