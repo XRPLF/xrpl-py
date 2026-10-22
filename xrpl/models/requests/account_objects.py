@@ -9,7 +9,7 @@ AccountLinesRequest instead.
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 from xrpl.models.requests.request import LookupByLedgerRequest, Request, RequestMethod
 from xrpl.models.required import REQUIRED
@@ -65,7 +65,13 @@ class AccountObjects(Request, LookupByLedgerRequest):
 
     method: RequestMethod = field(default=RequestMethod.ACCOUNT_OBJECTS, init=False)
     sponsored: Optional[bool] = None
-    type: Optional[AccountObjectType] = None
+    type: Optional[Union[AccountObjectType, str]] = None
+    """
+    Filter results by ledger object type. Accepts an ``AccountObjectType``
+    enum member, the enum's lowercase value (e.g. ``"escrow"``), or a
+    canonical ledger entry name (e.g. ``"Escrow"``), which rippled has
+    supported since 2.4.0.
+    """
     deletion_blockers_only: bool = False
     limit: Optional[int] = None
     # marker data shape is actually undefined in the spec, up to the
