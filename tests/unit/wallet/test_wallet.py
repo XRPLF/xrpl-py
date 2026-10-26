@@ -11,6 +11,15 @@ ED_ADDRESS = "rnbrEQ9U6TgPkBYuR4RWSWGR1XgaPWuFjh"
 SED_SEED = "sEdVRAkrcTVBt4jKfJyKzQzndPFARgs"
 SED_ADDRESS = "rLLYAFe2iEGaQrz3rqWfpziGAR4XfQrW3e"
 
+MNEMONIC = (
+    "abandon abandon abandon abandon abandon abandon "
+    "abandon abandon abandon abandon abandon about"
+)
+MNEMONIC_ADDRESS = "rHsMGQEkVNJmpGWs8XUBoTBiAAbwxZN5v3"
+MNEMONIC_PUBLIC_KEY = (
+    "031D68BC1A142E6766B2BDFB006CCFE135EF2E0E2E94ABB5CF5C9AB6104776FBAE"
+)
+
 
 class TestWallet(TestCase):
     def test_create_basic(self):
@@ -51,6 +60,31 @@ class TestWallet(TestCase):
     def test_init_secp256k1_with_sEd_seed_fail(self):
         with self.assertRaises(XRPLAddressCodecException):
             Wallet.from_seed(SED_SEED, algorithm=CryptoAlgorithm.SECP256K1)
+
+    def test_from_mnemonic(self):
+        wallet = Wallet.from_mnemonic(MNEMONIC)
+        self.assertEqual(wallet.algorithm, CryptoAlgorithm.SECP256K1)
+        self.assertEqual(wallet.classic_address, MNEMONIC_ADDRESS)
+        self.assertEqual(wallet.public_key, MNEMONIC_PUBLIC_KEY)
+        self.assertIsNone(wallet.seed)
+
+    def test_from_mnemonic_different_accounts(self):
+        wallet0 = Wallet.from_mnemonic(MNEMONIC, account_index=0)
+        wallet1 = Wallet.from_mnemonic(MNEMONIC, account_index=1)
+        self.assertNotEqual(wallet0.classic_address, wallet1.classic_address)
+
+    def test_from_mnemonic_with_passphrase(self):
+        wallet_no_pass = Wallet.from_mnemonic(MNEMONIC)
+        wallet_pass = Wallet.from_mnemonic(MNEMONIC, passphrase="secret")
+        self.assertNotEqual(wallet_no_pass.classic_address, wallet_pass.classic_address)
+
+    def test_from_mnemonic_sign_verify(self):
+        from xrpl.core.keypairs import is_valid_message, sign
+
+        wallet = Wallet.from_mnemonic(MNEMONIC)
+        msg = b"test message"
+        sig = sign(msg, wallet.private_key)
+        self.assertTrue(is_valid_message(msg, bytes.fromhex(sig), wallet.public_key))
 
     def test_invalid_seed_not_leaked_in_exception(self):
         """Regression test for issue #987: exception messages for invalid

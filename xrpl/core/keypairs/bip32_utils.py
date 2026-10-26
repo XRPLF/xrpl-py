@@ -1,0 +1,107 @@
+"""BIP32/BIP44 key derivation for use with BIP39 mnemonics."""
+
+from __future__ import annotations
+
+import hashlib
+import hmac
+import struct
+from typing import Tuple
+
+from ecpy.curves import Curve  # type: ignore
+from ecpy.keys import ECPrivateKey  # type: ignore
+from typing_extensions import Final
+
+_CURVE: Final[Curve] = Curve.get_curve("secp256k1")
+_GROUP_ORDER: Final[int] = _CURVE.order
+_HARDENED: Final[int] = 0x80000000
+_XRP_COIN_TYPE: Final[int] = 144
+_KEY_LENGTH: Final[int] = 66
+_PADDING_PREFIX: Final[str] = "0"
+
+
+def mnemonic_to_seed(mnemonic: str, passphrase: str = "") -> bytes:
+    """
+    Convert a BIP39 mnemonic phrase to a 64-byte seed.
+
+    Args:
+        mnemonic: A BIP39 mnemonic phrase (space-separated words).
+        passphrase: An optional passphrase for additional security.
+
+    Returns:
+        A 64-byte seed derived from the mnemonic.
+    """
+    return hashlib.pbkdf2_hmac(
+        "sha512",
+        mnemonic.encode("utf-8"),
+        ("mnemonic" + passphrase).encode("utf-8"),
+        2048,
+        dklen=64,
+    )
+
+
+def _derive_master_key(seed: bytes) -> Tuple[bytes, bytes]:
+    """Derive master private key and chain code from a BIP39 seed."""
+    h = hmac.new(b"Bitcoin seed", seed, hashlib.sha512).digest()
+    return h[:32], h[32:]
+
+
+def _derive_child_key(
+    parent_key: bytes, parent_chain_code: bytes, index: int
+) -> Tuple[bytes, bytes]:
+    """Derive a child key from a parent key using BIP32 derivation."""
+    if index >= _HARDENED:
+        data = b"\x00" + parent_key + struct.pack(">I", index)
+    else:
+        private_int = int.from_bytes(parent_key, "big")
+        ec_private = ECPrivateKey(private_int, _CURVE)
+        pub_point = ec_private.get_public_key()
+        pub_bytes = bytes(_CURVE.encode_point(pub_point.W, compressed=True))
+        data = pub_bytes + struct.pack(">I", index)
+
+    h = hmac.new(parent_chain_code, data, hashlib.sha512).digest()
+    child_key_int = (
+        int.from_bytes(h[:32], "big") + int.from_bytes(parent_key, "big")
+    ) % _GROUP_ORDER
+    return child_key_int.to_bytes(32, "big"), h[32:]
+
+
+def derive_keypair_from_mnemonic(
+    mnemonic: str,
+    passphrase: str = "",
+    account_index: int = 0,
+    address_index: int = 0,
+) -> Tuple[str, str]:
+    """
+    Derive a secp256k1 keypair from a BIP39 mnemonic using the BIP44 path
+    ``m/44'/144'/account'/0/address_index``.
+
+    Args:
+        mnemonic: A BIP39 mnemonic phrase (space-separated words).
+        passphrase: An optional BIP39 passphrase. The default is ``""``.
+        account_index: The BIP44 account index. The default is ``0``.
+        address_index: The BIP44 address index. The default is ``0``.
+
+    Returns:
+        A (public_key, private_key) tuple as uppercase hex strings.
+    """
+    seed = mnemonic_to_seed(mnemonic, passphrase)
+    key, chain_code = _derive_master_key(seed)
+
+    for index in [
+        44 + _HARDENED,
+        _XRP_COIN_TYPE + _HARDENED,
+        account_index + _HARDENED,
+        0,
+        address_index,
+    ]:
+        key, chain_code = _derive_child_key(key, chain_code, index)
+
+    private_int = int.from_bytes(key, "big")
+    ec_private = ECPrivateKey(private_int, _CURVE)
+    ec_public = ec_private.get_public_key()
+
+    pub_bytes = bytes(_CURVE.encode_point(ec_public.W, compressed=True))
+    public_key = pub_bytes.hex().rjust(_KEY_LENGTH, _PADDING_PREFIX).upper()
+    private_key = key.hex().rjust(_KEY_LENGTH, _PADDING_PREFIX).upper()
+
+    return public_key, private_key
