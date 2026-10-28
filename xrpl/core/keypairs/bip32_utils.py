@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import struct
+import unicodedata
 from typing import Tuple
 
 from ecpy.curves import Curve  # type: ignore
@@ -30,10 +31,12 @@ def mnemonic_to_seed(mnemonic: str, passphrase: str = "") -> bytes:
     Returns:
         A 64-byte seed derived from the mnemonic.
     """
+    normalized_mnemonic = unicodedata.normalize("NFKD", mnemonic)
+    normalized_passphrase = unicodedata.normalize("NFKD", passphrase)
     return hashlib.pbkdf2_hmac(
         "sha512",
-        mnemonic.encode("utf-8"),
-        ("mnemonic" + passphrase).encode("utf-8"),
+        normalized_mnemonic.encode("utf-8"),
+        ("mnemonic" + normalized_passphrase).encode("utf-8"),
         2048,
         dklen=64,
     )
