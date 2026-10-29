@@ -87,6 +87,15 @@ def derive_keypair_from_mnemonic(
     Returns:
         A (public_key, private_key) tuple as uppercase hex strings.
     """
+    if not 0 <= account_index < _HARDENED:
+        raise ValueError(
+            f"account_index must be in range [0, {_HARDENED}), got {account_index}"
+        )
+    if not 0 <= address_index < _HARDENED:
+        raise ValueError(
+            f"address_index must be in range [0, {_HARDENED}), got {address_index}"
+        )
+
     seed = mnemonic_to_seed(mnemonic, passphrase)
     key, chain_code = _derive_master_key(seed)
 
