@@ -12,12 +12,16 @@ from ecpy.curves import Curve  # type: ignore
 from ecpy.keys import ECPrivateKey  # type: ignore
 from typing_extensions import Final
 
+from xrpl.core.keypairs.exceptions import XRPLKeypairsException
+from xrpl.core.keypairs.secp256k1 import SECP256K1
+
 _CURVE: Final[Curve] = Curve.get_curve("secp256k1")
 _GROUP_ORDER: Final[int] = _CURVE.order
 _HARDENED: Final[int] = 0x80000000
 _XRP_COIN_TYPE: Final[int] = 144
 _KEY_LENGTH: Final[int] = 66
 _PADDING_PREFIX: Final[str] = "0"
+_VERIFICATION_MESSAGE: Final[bytes] = b"This test message should verify."
 
 
 def mnemonic_to_seed(mnemonic: str, passphrase: str = "") -> bytes:
@@ -62,9 +66,12 @@ def _derive_child_key(
         data = pub_bytes + struct.pack(">I", index)
 
     h = hmac.new(parent_chain_code, data, hashlib.sha512).digest()
-    child_key_int = (
-        int.from_bytes(h[:32], "big") + int.from_bytes(parent_key, "big")
-    ) % _GROUP_ORDER
+    il_int = int.from_bytes(h[:32], "big")
+    if il_int >= _GROUP_ORDER:
+        raise ValueError("Derived key is invalid (IL >= group order).")
+    child_key_int = (il_int + int.from_bytes(parent_key, "big")) % _GROUP_ORDER
+    if child_key_int == 0:
+        raise ValueError("Derived key is invalid (zero key).")
     return child_key_int.to_bytes(32, "big"), h[32:]
 
 
@@ -115,5 +122,11 @@ def derive_keypair_from_mnemonic(
     pub_bytes = bytes(_CURVE.encode_point(ec_public.W, compressed=True))
     public_key = pub_bytes.hex().rjust(_KEY_LENGTH, _PADDING_PREFIX).upper()
     private_key = key.hex().rjust(_KEY_LENGTH, _PADDING_PREFIX).upper()
+
+    signature = SECP256K1.sign(_VERIFICATION_MESSAGE, private_key)
+    if not SECP256K1.is_valid_message(_VERIFICATION_MESSAGE, signature, public_key):
+        raise XRPLKeypairsException(
+            "Derived keypair did not generate verifiable signature",
+        )
 
     return public_key, private_key
