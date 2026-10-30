@@ -1,3 +1,4 @@
+from typing import get_type_hints
 from unittest import TestCase
 
 from xrpl.models.amounts import IssuedCurrencyAmount, MPTAmount
@@ -22,10 +23,13 @@ class TestLoanBrokerCoverClawback(TestCase):
             LoanBrokerCoverClawback(account=_SOURCE, amount="10.20")
         self.assertEqual(
             error.exception.args[0],
-            "{'amount': \"amount is <class 'str'>, expected "
-            + "typing.Union[xrpl.models.amounts.issued_currency_amount"
-            + ".IssuedCurrencyAmount, xrpl.models.amounts.mpt_amount.MPTAmount, "
-            + "NoneType]\", 'LoanBrokerCoverClawback:Amount': 'Amount cannot be XRP.'}",
+            str(
+                {
+                    "amount": "amount is <class 'str'>, expected "
+                    f"{get_type_hints(LoanBrokerCoverClawback)['amount']}",
+                    "LoanBrokerCoverClawback:Amount": "Amount cannot be XRP.",
+                }
+            ),
         )
 
     def test_invalid_negative_amount(self):
