@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Fixed
+
+- `drops_to_xrp` rejects a drops string with a fractional part, such as `"1e-3"` or `"15e-1"`, instead of returning a fraction of a drop.
+
 ## [[5.2.0]]
 
 ### Added

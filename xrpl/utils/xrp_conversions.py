@@ -94,6 +94,10 @@ def drops_to_xrp(drops: str) -> Decimal:
             drops_d = Decimal(drops)
         except InvalidOperation:
             raise XRPRangeException(f"Not a valid amount of drops: '{drops}'")
+        # The regex lets a negative exponent through, so "1e-3" would be a
+        # thousandth of a drop. Drops are whole units.
+        if drops_d != drops_d.to_integral_value():
+            raise XRPRangeException(f"Not a valid amount of drops: '{drops}'")
         xrp_d = drops_d * ONE_DROP
         if xrp_d > MAX_XRP:
             raise XRPRangeException(f"Drops amount {drops} is too large.")
