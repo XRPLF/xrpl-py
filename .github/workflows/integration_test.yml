@@ -223,6 +223,10 @@ jobs:
       - name: Install poetry dependencies
         run: poetry install
 
+      - name: Check virtualenv Python version
+        run: |
+          poetry run python -c "import sys; v = '%d.%d' % sys.version_info[:2]; print(sys.version); assert v == '3.11', f'venv is Python {v}, expected 3.11'"
+
       # cffi + setuptools are BUILD-time deps of the native ext only (setuptools
       # backs cffi's ffibuilder.compile() and is absent from a fresh venv); they
       # are intentionally not core xrpl-py dependencies.
