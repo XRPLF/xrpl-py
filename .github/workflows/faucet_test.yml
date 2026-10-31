@@ -13,7 +13,7 @@ on:
         default: ""
 
 env:
-  POETRY_VERSION: 2.1.1
+  POETRY_VERSION: 2.5.1
 
 jobs:
   faucet-test:
@@ -55,6 +55,10 @@ jobs:
 
       - name: Install poetry dependencies
         run: poetry install
+
+      - name: Check virtualenv Python version
+        run: |
+          poetry run python -c "import sys; v = '%d.%d' % sys.version_info[:2]; print(sys.version); assert v == '${{ matrix.python-version }}', f'venv is Python {v}, expected ${{ matrix.python-version }}'"
 
       - name: Run Faucet tests
         run: poetry run poe test_faucet

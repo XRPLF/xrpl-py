@@ -1,6 +1,7 @@
 import json
 import os
 from dataclasses import dataclass
+from typing import get_type_hints
 from unittest import TestCase
 
 from typing_extensions import Self
@@ -152,9 +153,8 @@ class TestBaseModel(TestCase):
                 {
                     "account": "account is <class 'int'>, expected <class 'str'>",
                     "amount": (
-                        "amount is <class 'int'>, expected typing.Union[xrpl."
-                        "models.amounts.issued_currency_amount.IssuedCurrencyAmount, "
-                        "xrpl.models.amounts.mpt_amount.MPTAmount, str]"
+                        "amount is <class 'int'>, expected "
+                        f"{get_type_hints(Payment)['amount']}"
                     ),
                     "destination": (
                         "destination is <class 'int'>, expected " "<class 'str'>"
@@ -178,8 +178,7 @@ class TestBaseModel(TestCase):
                 {
                     "flags": (
                         "flags is <class 'str'>, expected "
-                        "typing.Union[typing.Dict[str, bool], "
-                        "int, typing.List[int], NoneType]"
+                        f"{get_type_hints(Payment)['flags']}"
                     ),
                     "destination": (
                         "An XRP payment transaction cannot have the same "
