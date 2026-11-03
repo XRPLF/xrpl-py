@@ -11,6 +11,7 @@ from xrpl.core import addresscodec
 from xrpl.core.addresscodec import classic_address_to_xaddress, ensure_classic_address
 from xrpl.core.addresscodec.exceptions import XRPLAddressCodecException
 from xrpl.core.keypairs import derive_classic_address, derive_keypair, generate_seed
+from xrpl.core.keypairs.bip32_utils import derive_keypair_from_mnemonic
 
 
 class Wallet:
@@ -253,6 +254,47 @@ class Wallet:
 
         return cls.from_entropy(
             entropy, master_address=master_address, algorithm=algorithm
+        )
+
+    @classmethod
+    def from_mnemonic(
+        cls: Type[Self],
+        mnemonic: str,
+        *,
+        passphrase: str = "",
+        master_address: Optional[str] = None,
+        account_index: int = 0,
+        address_index: int = 0,
+    ) -> Self:
+        """
+        Generates a new Wallet from a BIP39 mnemonic phrase.
+
+        Uses the BIP44 derivation path ``m/44'/144'/account'/0/address_index``
+        to derive a secp256k1 keypair.
+
+        Args:
+            mnemonic: A BIP39 mnemonic phrase (space-separated words).
+            passphrase: An optional BIP39 passphrase for additional security.
+                The default is ``""``.
+            master_address: Include if a Wallet uses a Regular Key Pair. It must
+                be the master address of the account. The default is ``None``.
+            account_index: The BIP44 account index. The default is ``0``.
+            address_index: The BIP44 address index. The default is ``0``.
+
+        Returns:
+            The wallet that is generated from the given mnemonic.
+        """
+        public_key, private_key = derive_keypair_from_mnemonic(
+            mnemonic,
+            passphrase=passphrase,
+            account_index=account_index,
+            address_index=address_index,
+        )
+        return cls(
+            public_key,
+            private_key,
+            master_address=master_address,
+            algorithm=CryptoAlgorithm.SECP256K1,
         )
 
     def get_xaddress(
