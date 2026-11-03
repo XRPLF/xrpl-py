@@ -34,17 +34,24 @@ def xrp_to_drops(xrp: Union[int, float, Decimal]) -> str:
 
     Raises:
         TypeError: if ``xrp`` is given as a string
-        XRPRangeException: if the given amount of XRP is invalid
+        XRPRangeException: if the given amount of XRP is invalid, including
+            when it has more than 6 decimal places (i.e. a fraction of a drop)
     """
     if isinstance(xrp, str):
         # This protects people from passing drops to this function and getting
         # a million times as many drops back.
         raise TypeError(
-            "XRP provided as a string. Use a number format" "like Decimal or int."
+            "XRP provided as a string. Use a number format like Decimal or int."
         )
     with localcontext(DROPS_DECIMAL_CONTEXT):
         try:
-            xrp_d = Decimal(xrp)
+            if isinstance(xrp, float):
+                # Use the shortest round-trip string, as xrpl.js does: the
+                # exact binary expansion of a float (e.g. 0.1) has far more
+                # than 6 decimal places, but its repr is what the caller meant.
+                xrp_d = Decimal(str(xrp))
+            else:
+                xrp_d = Decimal(xrp)
         except InvalidOperation:
             raise XRPRangeException(f"Not a valid amount of XRP: '{xrp}'")
 
@@ -55,6 +62,16 @@ def xrp_to_drops(xrp: Union[int, float, Decimal]) -> str:
             raise XRPRangeException(f"XRP amount {xrp} is too small.")
         if xrp_d > MAX_XRP:
             raise XRPRangeException(f"XRP amount {xrp} is too large.")
+
+        # A drop is indivisible: silently rounding an amount with more than
+        # 6 decimal places could convert to more drops than the caller gave
+        # (round-half-even rounds up), so reject it instead, as xrpl.js does.
+        try:
+            is_whole_drops = xrp_d == xrp_d.quantize(ONE_DROP)
+        except InvalidOperation:
+            is_whole_drops = False
+        if not is_whole_drops:
+            raise XRPRangeException(f"XRP amount {xrp} has too many decimal places.")
 
         drops_amount = (xrp_d / ONE_DROP).quantize(Decimal(1))
         drops_str = str(drops_amount).strip()
