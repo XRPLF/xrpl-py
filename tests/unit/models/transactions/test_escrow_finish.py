@@ -95,3 +95,25 @@ class TestEscrowFinish(TestCase):
             ],
         )
         self.assertTrue(tx.is_valid())
+
+    def test_gas_zero(self):
+        with self.assertRaises(XRPLModelException) as error:
+            EscrowFinish(
+                account=_ACCOUNT,
+                owner=_ACCOUNT,
+                offer_sequence=1,
+                gas=0,
+            )
+        self.assertEqual(
+            error.exception.args[0],
+            "{'gas': 'gas must be positive.'}",
+        )
+
+    def test_valid_gas(self):
+        tx = EscrowFinish(
+            account=_ACCOUNT,
+            owner=_ACCOUNT,
+            offer_sequence=1,
+            gas=20000,
+        )
+        self.assertTrue(tx.is_valid())
