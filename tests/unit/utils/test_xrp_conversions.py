@@ -45,6 +45,15 @@ class TestXRPConversions(TestCase):
     def test_1mil_drops_with_exponent(self):
         self.assertEqual(xrpl.utils.drops_to_xrp("1e6"), Decimal(1))
 
+    def test_whole_drops_with_negative_exponent(self):
+        self.assertEqual(xrpl.utils.drops_to_xrp("10e-1"), Decimal("0.000001"))
+
+    def test_fractional_drops(self):
+        for drops in ["1e-3", "5e-1", "15e-1"]:
+            with self.subTest(drops=drops):
+                with self.assertRaises(xrpl.utils.XRPRangeException):
+                    xrpl.utils.drops_to_xrp(drops)
+
     def test_max_drops(self):
         self.assertEqual(xrpl.utils.drops_to_xrp(str(10**17)), Decimal(10**11))
 
