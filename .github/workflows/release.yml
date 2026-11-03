@@ -160,7 +160,7 @@ jobs:
       issues: write
       pull-requests: write
     env:
-      POETRY_VERSION: 2.1.1
+      POETRY_VERSION: 2.5.1
       CYCLONEDX_BOM_VERSION: 7.2.0
       PACKAGE_VERSION: ${{ needs.input-validate.outputs.package_version }}
     outputs:
