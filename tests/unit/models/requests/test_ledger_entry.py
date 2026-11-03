@@ -4,6 +4,7 @@ from xrpl.models import XRP, LedgerEntry, XChainBridge
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.requests.ledger_entry import (
     Credential,
+    Directory,
     MPToken,
     Oracle,
     PermissionedDomain,
@@ -46,6 +47,32 @@ class TestLedgerEntry(TestCase):
             directory="hello",
         )
         self.assertTrue(req.is_valid())
+
+    def test_directory_with_owner_only_is_valid(self):
+        # Regression test for https://github.com/XRPLF/xrpl-py/issues/885
+        # dir_root should be optional when owner is provided
+        req = LedgerEntry(
+            directory=Directory(
+                owner="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+                sub_index=0,
+            ),
+            ledger_index="validated",
+        )
+        self.assertTrue(req.is_valid())
+
+    def test_directory_with_dir_root_only_is_valid(self):
+        # owner should also be optional when dir_root is provided
+        req = LedgerEntry(
+            directory=Directory(
+                dir_root="1BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB0",
+            ),
+        )
+        self.assertTrue(req.is_valid())
+
+    def test_directory_with_neither_owner_nor_dir_root_is_invalid(self):
+        # Must provide at least one of owner or dir_root
+        with self.assertRaises(XRPLModelException):
+            Directory(sub_index=0)
 
     def test_has_only_offer_is_valid(self):
         req = LedgerEntry(
