@@ -1,4 +1,4 @@
-from typing import get_type_hints
+from typing import Optional, Union
 from unittest import TestCase
 
 from xrpl.models.amounts import IssuedCurrencyAmount, MPTAmount
@@ -26,7 +26,7 @@ class TestLoanBrokerCoverClawback(TestCase):
             str(
                 {
                     "amount": "amount is <class 'str'>, expected "
-                    f"{get_type_hints(LoanBrokerCoverClawback)['amount']}",
+                    f"{Optional[Union[IssuedCurrencyAmount, MPTAmount]]}",
                     "LoanBrokerCoverClawback:Amount": "Amount cannot be XRP.",
                 }
             ),
