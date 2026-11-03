@@ -1,5 +1,4 @@
-"""Regression tests for issue #977: a malformed JSON frame must not kill
-the WebSocket handler task."""
+"""Regression tests for WebSocket handler edge cases."""
 
 import asyncio
 import io
@@ -85,3 +84,35 @@ class TestHandlerMalformedJson(IsolatedAsyncioTestCase):
         self.assertIn("malformed", output.lower())
         self.assertNotIn("req_1", output)
         self.assertNotIn("req_2", output)
+
+
+class TestHandlerDuplicateId(IsolatedAsyncioTestCase):
+    async def test_handler_survives_duplicate_id_on_done_future(self) -> None:
+        """Multiple responses with the same id must not crash the handler.
+
+        Subscription-style commands (e.g. path_find) can produce many server
+        messages carrying the same id.  If the Future for that id has already
+        been resolved, set_result would raise InvalidStateError and kill the
+        handler task."""
+        frames = [
+            json.dumps({"id": "pf_1", "type": "response"}).encode(),
+            json.dumps({"id": "pf_1", "type": "path_find"}).encode(),
+            json.dumps({"id": "pf_1", "type": "path_find"}).encode(),
+        ]
+
+        ws = AsyncWebsocketClient("ws://test")
+        ws._websocket = _FakeWebSocket(frames)  # type: ignore[assignment]
+        ws._messages = asyncio.Queue()
+        ws._open_requests = {
+            "pf_1": asyncio.get_running_loop().create_future(),
+        }
+
+        await ws._handler()
+
+        enqueued = []
+        while not ws._messages.empty():
+            enqueued.append(ws._messages.get_nowait())
+        self.assertEqual(len(enqueued), 3)
+        self.assertEqual(
+            ws._open_requests["pf_1"].result(), {"id": "pf_1", "type": "response"}
+        )
