@@ -284,6 +284,37 @@ class TestMainSimple(TestCase):
         self.assertEqual(encode(json_blank_acct), binary)
         self.assertEqual(decode(encode(json_blank_acct)), json_dict)
 
+    def test_mpt_order_book_directory(self):
+        # Binary as returned by rippled for an MPT/MPT order book directory.
+        json_dict = {
+            "ExchangeRate": "5411C37937E08000",
+            "Flags": 0,
+            "Indexes": [
+                "264256D366462CD4220D4CD1D622BEDD9BA8B3AEFF011E32C3C6B25474F41BAA"
+            ],
+            "LedgerEntryType": "DirectoryNode",
+            "PreviousTxnID": (
+                "67F6D81379E694D9F0BF1AFCFFAF08683ADBEA1E8CE1D9F271619962E3B6688C"
+            ),
+            "PreviousTxnLgrSeq": 96,
+            "RootIndex": (
+                "0A580E7667DF57D7BBB0C76A4659BEEC3C353360DB74E2585411C37937E08000"
+            ),
+            "TakerGetsMPT": "0000005A69CF4172E161DE37E2079EAB7468C7B838B7C107",
+            "TakerPaysMPT": "0000005969CF4172E161DE37E2079EAB7468C7B838B7C107",
+        }
+        binary = (
+            "11006422000000002500000060365411C37937E080005567F6D81379E694D9F0BF"
+            "1AFCFFAF08683ADBEA1E8CE1D9F271619962E3B6688C580A580E7667DF57D7BBB0"
+            "C76A4659BEEC3C353360DB74E2585411C37937E08000011320264256D366462CD4"
+            "220D4CD1D622BEDD9BA8B3AEFF011E32C3C6B25474F41BAA03150000005969CF41"
+            "72E161DE37E2079EAB7468C7B838B7C10704150000005A69CF4172E161DE37E207"
+            "9EAB7468C7B838B7C107"
+        )
+
+        self.assertEqual(encode(json_dict), binary)
+        self.assertEqual(decode(binary), json_dict)
+
     def test_unl_modify(self):
         v_hash = "EDB6FC8E803EE8EDC2793F1EC917B2EE41D35255618DEB91D3F9B1FC89B75D4539"
         json_dict = {

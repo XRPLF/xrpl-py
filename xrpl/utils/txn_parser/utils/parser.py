@@ -7,10 +7,13 @@ from xrpl.utils.txn_parser.utils.types import (
     AccountBalance,
     AccountOfferChange,
     CurrencyAmount,
+    MPTCurrencyAmount,
 )
 
 
-def get_value(balance: Union[CurrencyAmount, Dict[str, str], str]) -> Decimal:
+def get_value(
+    balance: Union[CurrencyAmount, MPTCurrencyAmount, Dict[str, str], str],
+) -> Decimal:
     """
     Get a currency amount's value.
 

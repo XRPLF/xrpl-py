@@ -1,6 +1,7 @@
 from unittest import TestCase
 
-from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.core.binarycodec import decode
+from xrpl.models.amounts import IssuedCurrencyAmount, MPTAmount
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.path import PathStep
 from xrpl.models.transactions import Payment, PaymentFlag
@@ -14,6 +15,9 @@ _ISSUED_CURRENCY_AMOUNT = IssuedCurrencyAmount(
     currency="BTC", value="1.002", issuer=_ACCOUNT
 )
 _DESTINATION = "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+_MPT_ID = "00000003430427B80BD2D09D36B70B969E12801065F22308"
+_MPT_ISSUER = "rffMEZLzDQPNU6VYbWNkgQBtMz6gCYnMAG"
+_MPT_AMOUNT = MPTAmount(mpt_issuance_id=_MPT_ID, value="10")
 
 
 class TestPayment(TestCase):
@@ -190,6 +194,64 @@ class TestPayment(TestCase):
         }
         tx = Payment(**transaction_dict)
         self.assertTrue(tx.is_valid())
+
+    def test_mpt_cross_currency_payment_with_paths(self):
+        tx = Payment(
+            account=_ACCOUNT,
+            destination=_DESTINATION,
+            amount=_MPT_AMOUNT,
+            send_max=_XRP_AMOUNT,
+            paths=[
+                [
+                    PathStep(currency="BTC", issuer=_ACCOUNT),
+                    PathStep(mpt_issuance_id=_MPT_ID),
+                ]
+            ],
+        )
+        self.assertTrue(tx.is_valid())
+        paths = [
+            [
+                {"currency": "BTC", "issuer": _ACCOUNT},
+                {"mpt_issuance_id": _MPT_ID},
+            ]
+        ]
+        self.assertEqual(tx.to_xrpl()["Paths"], paths)
+        # The MPT step used to be encoded as an empty step, truncating the path.
+        self.assertEqual(decode(tx.blob())["Paths"], paths)
+        self.assertEqual(Payment.from_xrpl(tx.to_xrpl()), tx)
+
+    def test_mpt_payment_with_pathfinding_paths(self):
+        # `paths_computed` from ripple_path_find, including the MPT issuer.
+        payment_json = {
+            "TransactionType": "Payment",
+            "Account": _ACCOUNT,
+            "Destination": _DESTINATION,
+            "Amount": {"mpt_issuance_id": _MPT_ID, "value": "10"},
+            "SendMax": _XRP_AMOUNT,
+            "Paths": [
+                [{"issuer": _MPT_ISSUER, "mpt_issuance_id": _MPT_ID, "type": 96}]
+            ],
+        }
+        tx = Payment.from_xrpl(payment_json)
+        self.assertEqual(tx.paths[0][0].mpt_issuance_id, _MPT_ID)
+        self.assertEqual(
+            decode(tx.blob())["Paths"],
+            [[{"mpt_issuance_id": _MPT_ID, "issuer": _MPT_ISSUER}]],
+        )
+
+    def test_mpt_partial_payment_with_deliver_min(self):
+        tx = Payment(
+            account=_ACCOUNT,
+            destination=_DESTINATION,
+            amount=_MPT_AMOUNT,
+            send_max=_ISSUED_CURRENCY_AMOUNT,
+            deliver_min=MPTAmount(mpt_issuance_id=_MPT_ID, value="5"),
+            flags=PaymentFlag.TF_PARTIAL_PAYMENT,
+        )
+        self.assertTrue(tx.is_valid())
+        self.assertEqual(
+            decode(tx.blob())["DeliverMin"], {"mpt_issuance_id": _MPT_ID, "value": "5"}
+        )
 
     def test_simple_payment_with_zero_flag(self):
         payment_tx_json = {

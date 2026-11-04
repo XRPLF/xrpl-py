@@ -12,12 +12,15 @@ from xrpl.core.binarycodec.binary_wrappers.binary_parser import BinaryParser
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.account_id import AccountID
 from xrpl.core.binarycodec.types.currency import Currency
+from xrpl.core.binarycodec.types.hash192 import HASH192_BYTES, Hash192
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
 
 # Constant for masking types of a PathStep
 _TYPE_ACCOUNT: Final[int] = 0x01
 _TYPE_CURRENCY: Final[int] = 0x10
 _TYPE_ISSUER: Final[int] = 0x20
+_TYPE_MPT: Final[int] = 0x40
+_TYPE_ALL: Final[int] = _TYPE_ACCOUNT | _TYPE_CURRENCY | _TYPE_ISSUER | _TYPE_MPT
 
 # Constants for separating Paths in a PathSet
 _PATHSET_END_BYTE: Final[int] = 0x00
@@ -26,7 +29,12 @@ _PATH_SEPARATOR_BYTE: Final[int] = 0xFF
 
 def _is_path_step(value: Dict[str, str]) -> bool:
     """Helper function to determine if a dictionary represents a valid path step."""
-    return "issuer" in value or "account" in value or "currency" in value
+    return (
+        "issuer" in value
+        or "account" in value
+        or "currency" in value
+        or "mpt_issuance_id" in value
+    )
 
 
 def _is_path_set(value: List[List[Dict[str, str]]]) -> bool:
@@ -49,12 +57,24 @@ class PathStep(SerializedType):
             The PathStep constructed from value.
 
         Raises:
-            XRPLBinaryCodecException: If the supplied value is of the wrong type.
+            XRPLBinaryCodecException: If the supplied value is of the wrong type,
+                has no step fields, or sets both currency and mpt_issuance_id.
         """
         if not isinstance(value, dict):
             raise XRPLBinaryCodecException(
                 "Invalid type to construct a PathStep: expected dict,"
                 f" received {value.__class__.__name__}."
+            )
+
+        if not _is_path_step(value):
+            # An empty type byte would be read back as the end of the PathSet.
+            raise XRPLBinaryCodecException(
+                "A PathStep must contain at least one of account, currency, "
+                "mpt_issuance_id, or issuer."
+            )
+        if "currency" in value and "mpt_issuance_id" in value:
+            raise XRPLBinaryCodecException(
+                "A PathStep cannot contain both currency and mpt_issuance_id."
             )
 
         data_type = 0x00
@@ -67,6 +87,10 @@ class PathStep(SerializedType):
             currency = Currency.from_value(value["currency"])
             buffer += bytes(currency)
             data_type |= _TYPE_CURRENCY
+        if "mpt_issuance_id" in value:
+            mpt_issuance_id = Hash192.from_value(value["mpt_issuance_id"])
+            buffer += bytes(mpt_issuance_id)
+            data_type |= _TYPE_MPT
         if "issuer" in value:
             issuer = AccountID.from_value(value["issuer"])
             buffer += bytes(issuer)
@@ -86,9 +110,22 @@ class PathStep(SerializedType):
 
         Returns:
             The PathStep constructed from parser.
+
+        Raises:
+            XRPLBinaryCodecException: If the type byte has unknown bits set, or sets
+                both currency and mpt_issuance_id.
         """
         data_type = parser.read_uint8()
         buffer = b""
+
+        if data_type & ~_TYPE_ALL:
+            raise XRPLBinaryCodecException(
+                f"Invalid PathStep type byte: 0x{data_type:02X}."
+            )
+        if data_type & _TYPE_CURRENCY and data_type & _TYPE_MPT:
+            raise XRPLBinaryCodecException(
+                "A PathStep cannot contain both currency and mpt_issuance_id."
+            )
 
         if data_type & _TYPE_ACCOUNT:
             account_id = parser.read(AccountID.LENGTH)
@@ -96,6 +133,9 @@ class PathStep(SerializedType):
         if data_type & _TYPE_CURRENCY:
             currency = parser.read(Currency.LENGTH)
             buffer += currency
+        if data_type & _TYPE_MPT:
+            mpt_issuance_id = parser.read(HASH192_BYTES)
+            buffer += mpt_issuance_id
         if data_type & _TYPE_ISSUER:
             issuer = parser.read(AccountID.LENGTH)
             buffer += issuer
@@ -119,6 +159,9 @@ class PathStep(SerializedType):
         if data_type & _TYPE_CURRENCY:
             currency = Currency.from_parser(parser).to_json()
             json["currency"] = currency
+        if data_type & _TYPE_MPT:
+            mpt_issuance_id = Hash192.from_parser(parser).to_hex()
+            json["mpt_issuance_id"] = mpt_issuance_id
         if data_type & _TYPE_ISSUER:
             issuer = AccountID.from_parser(parser).to_json()
             json["issuer"] = issuer

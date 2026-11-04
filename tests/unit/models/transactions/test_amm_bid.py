@@ -1,7 +1,8 @@
 from unittest import TestCase
 
+from xrpl.core.binarycodec import decode
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.currencies import XRP, IssuedCurrency
+from xrpl.models.currencies import XRP, IssuedCurrency, MPTCurrency
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import AMMBid, AuthAccount
 
@@ -24,6 +25,8 @@ _AUTH_ACCOUNTS = [
 ]
 _LPTOKEN_CURRENCY = "5475B6C930B7BDD81CDA8FBA5CED962B11218E5A"
 _LPTOKEN_ISSUER = "r3628pXjRqfw5zfwGfhSusjZTvE3BoxEBw"
+_MPT_ID = "00000003430427B80BD2D09D36B70B969E12801065F22308"
+_MPT_ID2 = "00000004430427B80BD2D09D36B70B969E12801065F22308"
 
 
 class TestAMMBid(TestCase):
@@ -64,3 +67,15 @@ class TestAMMBid(TestCase):
             error.exception.args[0],
             "{'auth_accounts': 'Length must not be greater than 4'}",
         )
+
+    def test_tx_valid_with_mpt(self):
+        tx = AMMBid(
+            account=_ACCOUNT,
+            asset=_ASSET,
+            asset2=MPTCurrency(mpt_issuance_id=_MPT_ID),
+            bid_min=IssuedCurrencyAmount(
+                currency=_LPTOKEN_CURRENCY, issuer=_LPTOKEN_ISSUER, value="25"
+            ),
+        )
+        self.assertTrue(tx.is_valid())
+        self.assertEqual(decode(tx.blob()), tx.to_xrpl())

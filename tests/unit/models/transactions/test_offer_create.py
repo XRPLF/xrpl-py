@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+from xrpl.core.binarycodec import decode
+from xrpl.models.amounts import MPTAmount
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions.offer_create import OfferCreate, OfferCreateFlag
 
@@ -14,6 +16,12 @@ _TAKER_PAYS = {
     "issuer": "rJ4EpEPTDR88GpXvix3Y1djATCsDn41ixp",
     "value": "90",
 }
+_MPT_AMOUNT = MPTAmount(
+    mpt_issuance_id="00000003430427B80BD2D09D36B70B969E12801065F22308", value="100"
+)
+_MPT_AMOUNT2 = MPTAmount(
+    mpt_issuance_id="00000004430427B80BD2D09D36B70B969E12801065F22308", value="90"
+)
 
 
 class TestOfferCreate(TestCase):
@@ -116,3 +124,22 @@ class TestOfferCreate(TestCase):
             error.exception.args[0],
             "{'domain_id': 'domain_id length must be 64 characters.'}",
         )
+
+    def test_offer_create_valid_with_mpt(self):
+        for taker_gets, taker_pays in (
+            (_MPT_AMOUNT, _MPT_AMOUNT2),
+            (_MPT_AMOUNT, "1000000"),
+            ("1000000", _MPT_AMOUNT),
+            (_TAKER_GETS, _MPT_AMOUNT),
+        ):
+            with self.subTest(taker_gets=taker_gets, taker_pays=taker_pays):
+                tx = OfferCreate(
+                    account=_ACCOUNT,
+                    taker_gets=taker_gets,
+                    taker_pays=taker_pays,
+                )
+                self.assertTrue(tx.is_valid())
+                self.assertEqual(decode(tx.blob()), tx.to_xrpl())
+                self.assertEqual(
+                    OfferCreate.from_xrpl(tx.to_xrpl()).to_xrpl(), tx.to_xrpl()
+                )
