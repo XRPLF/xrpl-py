@@ -7,7 +7,9 @@ import json
 from contextlib import redirect_stdout
 from typing import List
 from unittest import IsolatedAsyncioTestCase
+from unittest.mock import AsyncMock, patch
 
+from xrpl.asyncio.clients import websocket_base
 from xrpl.asyncio.clients.async_websocket_client import AsyncWebsocketClient
 
 
@@ -85,3 +87,41 @@ class TestHandlerMalformedJson(IsolatedAsyncioTestCase):
         self.assertIn("malformed", output.lower())
         self.assertNotIn("req_1", output)
         self.assertNotIn("req_2", output)
+
+
+class TestWebsocketHeaders(IsolatedAsyncioTestCase):
+    """Custom header forwarding on the WebSocket handshake."""
+
+    async def test_forwards_headers_on_connect(self) -> None:
+        client = AsyncWebsocketClient(
+            "ws://test", headers={"Authorization": "Bearer testtoken"}
+        )
+
+        with patch.object(
+            websocket_base.websocket_client, "connect", new_callable=AsyncMock
+        ) as mock_connect:
+            mock_connect.return_value = _FakeWebSocket([])
+
+            await client._do_open()
+
+            self.assertEqual(
+                mock_connect.call_args.kwargs["additional_headers"],
+                {"Authorization": "Bearer testtoken"},
+            )
+
+            # _do_open spawned a handler task over the (empty) connection
+            client._handler_task.cancel()
+
+    async def test_no_headers_passes_none(self) -> None:
+        client = AsyncWebsocketClient("ws://test")
+
+        with patch.object(
+            websocket_base.websocket_client, "connect", new_callable=AsyncMock
+        ) as mock_connect:
+            mock_connect.return_value = _FakeWebSocket([])
+
+            await client._do_open()
+
+            self.assertIsNone(mock_connect.call_args.kwargs["additional_headers"])
+
+            client._handler_task.cancel()
