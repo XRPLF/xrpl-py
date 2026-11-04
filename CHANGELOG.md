@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Fixed
+
+- `xrp_to_drops` now raises `XRPRangeException` for amounts with more than 6 decimal places instead of silently rounding them (which could round up to more drops than the amount given). Floats are judged by their shortest round-trip string, as in xrpl.js, so `0.1` still converts but `0.1 + 0.2` is rejected.
+
 ## [[5.2.0]]
 
 ### Added
