@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Fixed
+
+- Binary codec: decode the base-10 `UInt64` fields (`MaximumAmount`, `OutstandingAmount`, `MPTAmount`, `LockedAmount`, `ConfidentialOutstandingAmount`) as base-10 strings, the same representation used when encoding them and the one `rippled` emits. Previously these fields decoded to zero-padded hex, so a `decode`/`encode` round-trip (for example through `Transaction.from_blob`) could silently change any value whose hex representation happened to contain only decimal digits (e.g. `"4096"` round-tripped to `"1000"`). `LockedAmount` and `ConfidentialOutstandingAmount` are also added to the base-10 field set so they encode from decimal strings consistently with the other MPT amount fields.
+
 ## [[5.2.0]]
 
 ### Added
