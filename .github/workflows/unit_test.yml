@@ -31,12 +31,20 @@ jobs:
         with:
           ref: ${{ inputs.git_ref != '' && inputs.git_ref || github.ref }}
 
+      # The installer builds Poetry's venv in ~/.local from the runner's own
+      # Python, so a cache from another runner image can't run (a new
+      # ubuntu-latest image broke the old key). Key it on that image and Python.
+      - name: Compute Poetry cache key
+        id: poetry-cache-key
+        run: |
+          echo "key=dotlocal-${ImageOS:-unknown}-${ImageVersion:-unknown}-$(python3 -c 'import sys; print("%d.%d.%d" % sys.version_info[:3])')-${{ env.POETRY_VERSION }}" >> "$GITHUB_OUTPUT"
+
       - name: Load cached .local
         id: cache-poetry
         uses: actions/cache@v4
         with:
           path: /home/runner/.local
-          key: dotlocal-${{ env.POETRY_VERSION }}
+          key: ${{ steps.poetry-cache-key.outputs.key }}
 
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'
@@ -87,12 +95,20 @@ jobs:
       # build_wheels_confidential.yml. Core unit tests do not build it; the
       # confidential native tests self-skip when the extension is absent.
 
+      # The installer builds Poetry's venv in ~/.local from the runner's own
+      # Python, so a cache from another runner image can't run (a new
+      # ubuntu-latest image broke the old key). Key it on that image and Python.
+      - name: Compute Poetry cache key
+        id: poetry-cache-key
+        run: |
+          echo "key=dotlocal-${ImageOS:-unknown}-${ImageVersion:-unknown}-$(python3 -c 'import sys; print("%d.%d.%d" % sys.version_info[:3])')-${{ env.POETRY_VERSION }}" >> "$GITHUB_OUTPUT"
+
       - name: Load cached .local
         id: cache-poetry
         uses: actions/cache@v4
         with:
           path: /home/runner/.local
-          key: dotlocal-${{ env.POETRY_VERSION }}
+          key: ${{ steps.poetry-cache-key.outputs.key }}
 
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'
