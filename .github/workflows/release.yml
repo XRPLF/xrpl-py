@@ -211,12 +211,20 @@ jobs:
           PR_URL="$(printf '%s' "$RESP" | jq -r '.html_url')"
           echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+      # The installer builds Poetry's venv in ~/.local from the runner's own
+      # Python, so a cache from another runner image can't run (a new
+      # ubuntu-latest image broke the old key). Key it on that image and Python.
+      - name: Compute Poetry cache key
+        id: poetry-cache-key
+        run: |
+          echo "key=dotlocal-${ImageOS:-unknown}-${ImageVersion:-unknown}-$(python3 -c 'import sys; print("%d.%d.%d" % sys.version_info[:3])')-${{ env.POETRY_VERSION }}" >> "$GITHUB_OUTPUT"
+
       - name: Load cached .local
         id: cache-poetry
         uses: actions/cache@v4
         with:
           path: /home/runner/.local
-          key: dotlocal-${{ env.POETRY_VERSION }}
+          key: ${{ steps.poetry-cache-key.outputs.key }}
 
       - name: Ensure Poetry on PATH
         run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
