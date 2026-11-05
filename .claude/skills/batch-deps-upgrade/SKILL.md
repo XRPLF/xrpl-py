@@ -41,7 +41,7 @@ Also fetch the Semgrep tickets per **Where the list comes from** under "Semgrep 
 - Run every Poetry command with `VIRTUAL_ENV` unset (`env -u VIRTUAL_ENV poetry ...`). If the shell exports `VIRTUAL_ENV`, Poetry installs into that interpreter instead of the project's `.venv` (`poetry.toml` sets `in-project = true`), which pollutes a shared environment.
 
 1. Create a branch from main: `deps/batch-deps-upgrade-YYYY-QN` (use current year and quarter)
-2. Check for **dependency conflicts** before upgrading. For each proposed upgrade, review `pyproject.toml` constraints and run `poetry show <pkg>` to check if any other dependency pins a version range that would block the upgrade. Mark conflicts as Skipped (dependency conflict: <details>) and do not attempt them.
+2. Check for **dependency conflicts** before upgrading. For each proposed upgrade, review `pyproject.toml` constraints and run `poetry show <pkg>` to check if any other dependency pins a version range that would block the upgrade. If the pin comes from a **direct** dep we declare, it is not a conflict yet: leave the upgrade for item 3, which tries bumping that parent. Mark only the rest as Skipped (dependency conflict: <details>) and do not attempt them.
 3. For each remaining upgrade, apply it:
    - **Direct deps** (listed in `pyproject.toml` under `[tool.poetry.dependencies]` or `[tool.poetry.group.dev.dependencies]`): update the version constraint in `pyproject.toml` to the new version using caret (`^<new_version>`), then run `poetry update <pkg>`. Always update `pyproject.toml` for direct deps — even if the current constraint already allows the new version — so the pinned minimum stays current.
    - **Transitive deps** (not in `pyproject.toml`): run `poetry update <pkg>` to update within the existing constraint range.
@@ -49,11 +49,12 @@ Also fetch the Semgrep tickets per **Where the list comes from** under "Semgrep 
    - When `poetry update <pkg>` can't reach the target version, find the parent constraining it (`poetry show <pkg>` lists "required by"). If that parent is a **direct** dep we declare in `pyproject.toml`, bumping *it* is an ordinary upgrade rather than a workaround — try that, even across a major version, and let Step 3 validate. Nothing else will surface it: a security ticket names the vulnerable transitive package, never the parent pinning it, and Dependabot may have no PR open for the parent. Mark Skipped only when the blocker is itself transitive (not something we declare), or when bumping the parent fails validation.
 4. After all upgrades are applied, run `poetry lock` to regenerate `poetry.lock`. **Do NOT delete `poetry.lock` and regenerate from scratch**.
 
-   xrpl-py supports every Python in `python = ">=3.10,<4.0"`, so the lock must resolve for all of them. When a package's newest release needs a newer Python than 3.10, Poetry may lock two versions split by a `python_version` marker (e.g. `flake8 7.4.1` for `< "3.15"`, `7.5.0` for `>= "3.15"`). That is expected, not a conflict. Classify by the entry the CI matrix versions use, and note the split in the PR description.
+   xrpl-py supports every Python in `python = ">=3.10,<4.0"`, so the lock must resolve for all of them. When a package's newest release needs a newer Python than 3.10, Poetry may lock two versions of it split by a `python_version` marker — the older release for the lower Pythons, the newest for the rest. The boundary is wherever the resolver happened to split the range (another package's marker can set it), not necessarily the release's own `requires-python`: in 2026-Q4 it was `"3.15"` (`flake8 7.4.1` below, `7.5.0` from 3.15, though 7.5.0 needs only 3.11). That is expected, not a conflict. Classify by the entry the CI matrix versions use, and note the split in the PR description.
 5. Run `poetry install` to sync the virtual environment.
 6. Diff `pyproject.toml` and `poetry.lock` against main to classify each Dependabot PR **and each Semgrep ticket** as:
-   - Upgraded: version changed
+   - Upgraded: the version the CI matrix uses reached at least what the PR or ticket asked for
    - No-op: version was already current or newer
+   - A version that moved but stopped short of the target is not Upgraded: find what holds it back (item 3's parent rule) or mark it Skipped with that reason.
 
    For tickets, see **Picking the target and matching results** under "Semgrep tickets" below — several tickets can share one install, and the match is per ticket.
 7. If any upgrade changes the public API of the library (new errors, changed return types, removed functionality) and results in a breaking change, add an entry under `## [Unreleased]` in `CHANGELOG.md`.
@@ -90,7 +91,12 @@ If installing a version through `pyenv` is not possible, run that version's step
 
 ### Validation order
 
-Unit tests, lint and faucet tests can run **in parallel across Python versions**, each in its own working directory (e.g. `git worktree`) or container so the virtualenvs don't interfere. Integration tests **must run one Python version at a time** against a single xrpld: every integration test funds wallets from the same genesis account and closes ledgers with `ledger_accept`, so parallel runs against one node collide.
+Unit tests and lint can run **in parallel across Python versions**, each in its own working directory (e.g. `git worktree`) or container so the virtualenvs don't interfere. Two jobs **must run one Python version at a time**:
+
+- **Integration tests**, against a single xrpld: every integration test funds wallets from the same genesis account and closes ledgers with `ledger_accept`, so parallel runs against one node collide.
+- **Faucet tests**: they hit the public faucets, which rate-limit, and some calls have no retry. CI runs them with `max-parallel: 1` for the same reason.
+
+The commands below are written as bare `poetry ...` for readability. Run each one as Step 2's Poetry setup requires: with `VIRTUAL_ENV` unset and CI's Poetry first on `PATH`.
 
 1. **Lint and type-check** (only on the `lint-and-type-check` Python version):
 
@@ -150,7 +156,7 @@ Unit tests, lint and faucet tests can run **in parallel across Python versions**
 
    The native tests self-skip when the extension is missing, so the `MPT_CRYPTO_AVAILABLE` assertion is what makes a pass mean something. The downloaded library and built extension are gitignored; leave them out of the diff.
 
-5. **Faucet tests** (every matrix version; uses the public devnet/testnet faucets, no local node):
+5. **Faucet tests** (every matrix version, one at a time; uses the public devnet/testnet faucets, no local node):
    ```bash
    poetry run poe test_faucet
    ```
@@ -227,7 +233,7 @@ Do NOT commit or create a PR. Instead, generate the following outputs for the hu
       A ticket whose fix version came from its advisory, Upgraded or No-op, carries the advisory's affected range instead, so the closing run checks every installed line — and `not installed` when the package is gone: `installed 3.0.3 (outside < 3.0.3)`, `installed 5.7.2, 6.3.1 (outside < 5.7.2, 6.0.0–<6.3.1)`, `not installed (≤ 2.88.2)`.
 
       Every comment must reference the batch PR, which does not exist yet at this point. Write that reference as the literal token `<PR>`; the closing run substitutes the merged PR's URL. Use a URL rather than `#1234`, which JIRA renders as plain text.
-   2. **Left open** — every Skipped one, with its reason. Each is a security fix that did not land, so this is worth reading. Skipped PRs stay open for Dependabot to keep rebasing.
+   2. **Left open** — every Skipped one, with its reason, keyed like a Close row so the closing run can match them: `<ticket-key or #pr> | <package> | <reason>`. Each is a security fix that did not land, so this is worth reading. Skipped PRs stay open for Dependabot to keep rebasing — including a grouped PR where only some of its packages were Skipped, so such a PR goes here and not under Close.
 
    **Do NOT commit `close-list.md`** — local scratch, like `code-changes.md` and `pr-description.md`. That is why the PR body must carry the same lists (item 3): it is the closing run's fallback when this file is gone.
 
@@ -251,7 +257,7 @@ ORDER BY rank
 
 **Take the package name from the summary, not the description** — a description may list several packages sharing one advisory, so it picks the wrong one. Match it against `poetry.lock` case-insensitively and treat `-`, `_` and `.` as equal (PEP 503 normalisation): tickets and advisories say `Pygments`, the lock says `pygments`. Take the fix version, severity and CVE/GHSA link from the description; if it gives no fix version, see the next paragraph. Wording varies, so read for intent rather than matching labels literally.
 
-Keep every ticket that names a vulnerable package. Drop tickets that name no vulnerable package, such as code and configuration findings. A package ticket with no fix version is still a row: take the fix version from its advisory (the GHSA link; read it with `gh api /advisories/<GHSA-id> --jq '.vulnerabilities[] | {package: .package.name, range: .vulnerable_version_range, patched: .first_patched_version}'`) instead — for each installed major line inside the affected range, the first patched version on that line, or on a higher major if that line has none — and handle it like any other ticket. It is satisfied only when every installed version falls outside the advisory's affected range: No-op if that was already true on `main` or the package is no longer installed, Upgraded if the batch made it true. Mark it Skipped only when the advisory has no patched version at all ("no fixed release exists") or has no usable range ("flag for manual review") — both need a human decision. If tickets came back but none of them could be parsed, that is a parsing failure — stop. If the query returned nothing, or nothing was in scope, there is simply no Semgrep work this quarter: record zero and carry on with the Dependabot batch. A ticket becomes a row whether or not a Dependabot PR proposes that package; a ticket is reason enough on its own.
+Keep every ticket that names a vulnerable package. Drop tickets that name no vulnerable package, such as code and configuration findings. A package ticket with no fix version is still a row: take the fix version from its advisory (the GHSA link; read it with `gh api /advisories/<GHSA-id> --jq '.vulnerabilities[] | select(.package.ecosystem == "pip") | {package: .package.name, range: .vulnerable_version_range, patched: .first_patched_version}'` — keep only the `pip` entries for the ticket's package, since one advisory can cover the same name in several ecosystems) instead — for each installed major line inside the affected range, the first patched version on that line, or on a higher major if that line has none — and handle it like any other ticket. It is satisfied only when every installed version falls outside the advisory's affected range: No-op if that was already true on `main` or the package is no longer installed, Upgraded if the batch made it true. Mark it Skipped only when the advisory has no patched version at all ("no fixed release exists") or has no usable range ("flag for manual review") — both need a human decision. If tickets came back but none of them could be parsed, that is a parsing failure — stop. If the query returned nothing, or nothing was in scope, there is simply no Semgrep work this quarter: record zero and carry on with the Dependabot batch. A ticket becomes a row whether or not a Dependabot PR proposes that package; a ticket is reason enough on its own.
 
 ### Picking the target and matching results (Step 2)
 
@@ -260,6 +266,8 @@ Where a ticket and a PR both want the same install, the target is the **highest*
 - Compare using proper version ordering (e.g. `poetry show <pkg>` or a real version-parsing library), never as strings — lexically `"7.5.9" > "7.5.21"`.
 - Check the install the ticket means. A package's installed version may satisfy the ticket's target on a different major line than the ticket was filed against — match the install on the ticket's own major line. If that line is gone because the package moved to a **higher** major, the ticket is satisfied — the vulnerable line is no longer installed — provided the advisory's affected range does not extend into the new major.
 - Match per ticket, not per package. Tickets sharing one install can want different versions. Never conclude "we upgraded X, so close the X tickets".
+- Check the advisory too, even when the ticket gives a fix version. Reaching the ticket's version is necessary but not enough: the installed version must also fall outside every `pip` range the ticket's advisory lists for that package. If it doesn't, the ticket isn't satisfied — take the advisory's patched version as the target.
+- A ticket whose package is no longer in `poetry.lock` after the batch is satisfied, fix version or not (it is No-op if it was already absent on `main`). Record it with the `not installed (<asked for>)` third field.
 
 Classify from the Step 2.6 diff, not from which PR did what: a parent bump carries along a dependency it pins exactly, so a ticket can come out Upgraded with no PR naming its package.
 
@@ -275,7 +283,7 @@ Never remove a dependency to resolve a finding. A transitive dep leaves only whe
 
 Runs none of Steps 1-4: no ticket discovery, no bumps, and none of Step 3's build/test chain. That exclusion does **not** cover the per-item check in step 1 below — that one always runs, and it is the safeguard against closing something whose fix was reverted. Read section 1 of `close-list.md`; if it is missing, fall back to the merged PR body's lists. Identify the batch PR from an argument or `gh pr list --repo XRPLF/xrpl-py --state merged --head <branch>`, and replace the `<PR>` token in every comment with its URL. **Check that no comment still contains `<PR>` before posting anything** — if one does, the substitution failed, so stop rather than post a placeholder onto dozens of tickets.
 
-1. **Verify each item against the current `main`** and skip anything not genuinely satisfied — a reviewer may have had an upgrade reverted. This is what makes the run safe whether or not the batch has merged. For a range-based item, verify that every installed version on `main` is still outside the range, or the package is still absent.
+1. **Verify each item against the current `main`** and skip anything not genuinely satisfied — a reviewer may have had an upgrade reverted. This is what makes the run safe whether or not the batch has merged. For each item, compare the version `main` locks (for the CI matrix Pythons) with the item's asked-for version, using version ordering: it must be at or above it. For a range-based item, verify that every installed version on `main` is still outside the range. A `not installed` item — range-based or not — passes only if the package is still absent. Close each PR at most once, and never close a PR that also has a Left open row.
 2. **Close everything that verified.** Do not ask for approval; the engineer reviewed both lists on the PR, and step 1 is the real check.
    - **JIRA tickets** — complete the `Done` transition first (query available transitions, take the one to `Done`), then post the comment. This avoids open-but-commented tickets if transition fails.
    - **Dependabot PRs** — `gh pr close <n> --repo XRPLF/xrpl-py --comment "<comment>"`.

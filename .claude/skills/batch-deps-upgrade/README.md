@@ -31,7 +31,7 @@ From the xrpl-py repo root, start a new Claude Code session and run:
 /batch-deps-upgrade
 ```
 
-It discovers the open Dependabot PRs and Semgrep tickets, applies the upgrades to `pyproject.toml`, runs `poetry lock` and `poetry install`, validates with lint, type-check, unit tests, integration tests, the Confidential MPT test, and faucet tests across all CI Python versions, and writes `code-changes.md`, `pr-description.md` and `close-list.md` plus a commit message. It creates the branch but does not commit, and writes nothing outside the repo.
+It discovers the open Dependabot PRs and Semgrep tickets, applies the upgrades to `pyproject.toml`, runs `poetry lock` and `poetry install`, validates with lint, type-check, unit tests, integration tests, the Confidential MPT test, and faucet tests across all CI Python versions, and writes `code-changes.md`, `pr-description.md` and `close-list.md` plus a commit message. It creates the branch but does not commit. Its file edits stay in the repo, but it can change the machine outside it: a throwaway Poetry virtualenv under `/tmp`, Python versions installed with `pyenv`, and pulled Docker images.
 
 Then, by hand:
 
