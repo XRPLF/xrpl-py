@@ -1,8 +1,9 @@
 from unittest import TestCase
 
 from xrpl.asyncio.wallet.wallet_generation import (
-    _DEV_FAUCET_URL,
-    _TEST_FAUCET_URL,
+    _DEVNET_FAUCET_URL,
+    _TESTNET_FAUCET_URL,
+    _WASM_DEVNET_FAUCET_URL,
     XRPLFaucetException,
     get_faucet_url,
     process_faucet_host_url,
@@ -18,8 +19,9 @@ class TestWallet(TestCase):
         self.assertEqual(wallet.get_xaddress(), expected)
 
     def test_get_faucet_wallet_valid(self):
-        self.assertEqual(get_faucet_url(1), _TEST_FAUCET_URL)
-        self.assertEqual(get_faucet_url(2), _DEV_FAUCET_URL)
+        self.assertEqual(get_faucet_url(1), _TESTNET_FAUCET_URL)
+        self.assertEqual(get_faucet_url(2), _DEVNET_FAUCET_URL)
+        self.assertEqual(get_faucet_url(2002), _WASM_DEVNET_FAUCET_URL)
 
     def test_get_faucet_wallet_invalid(self):
         with self.assertRaises(XRPLFaucetException):
