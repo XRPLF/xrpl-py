@@ -23,6 +23,8 @@ SPECIAL_FIELDS: Final[Set[str]] = {
     "MaximumAmount",
     "OutstandingAmount",
     "MPTAmount",
+    "LockedAmount",
+    "ConfidentialOutstandingAmount",
 }
 
 

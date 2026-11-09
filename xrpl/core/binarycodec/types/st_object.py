@@ -23,7 +23,7 @@ from xrpl.core.binarycodec.definitions import (
 from xrpl.core.binarycodec.exceptions import XRPLBinaryCodecException
 from xrpl.core.binarycodec.types.amount import SIGNED_XRP_FIELDS
 from xrpl.core.binarycodec.types.serialized_type import SerializedType
-from xrpl.core.binarycodec.types.uint64 import SPECIAL_FIELDS
+from xrpl.core.binarycodec.types.uint64 import SPECIAL_FIELDS, UInt64
 
 # Fields whose `from_value` needs the field name: UInt64 fields that render in
 # base 10 (SPECIAL_FIELDS) and Amount fields that may be negative
@@ -247,7 +247,12 @@ class STObject(SerializedType):
             field = parser.read_field()
             if field.name == _OBJECT_END_MARKER:
                 break
-            json_value = parser.read_field_value(field).to_json()
+            value = parser.read_field_value(field)
+            json_value: Any = (
+                value.to_json(field.name)
+                if isinstance(value, UInt64)
+                else value.to_json()
+            )
             accumulator[field.name] = _enum_to_str(field.name, json_value)
 
         return accumulator
