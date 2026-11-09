@@ -30,12 +30,15 @@ jobs:
         with:
           ref: ${{ inputs.git_ref != '' && inputs.git_ref || github.ref }}
 
+      - name: Record runner image OS for cache key
+        run: echo "IMAGE_OS=${ImageOS:?ImageOS not set}" >> "$GITHUB_ENV"
+
       - name: Load cached .local
         id: cache-poetry
         uses: actions/cache@v4
         with:
           path: /home/runner/.local
-          key: dotlocal-${{ env.POETRY_VERSION }}
+          key: dotlocal-${{ env.IMAGE_OS }}-${{ env.POETRY_VERSION }}
 
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'

@@ -211,12 +211,16 @@ jobs:
           PR_URL="$(printf '%s' "$RESP" | jq -r '.html_url')"
           echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: Record runner image OS for cache key
+        run: echo "IMAGE_OS=${ImageOS:?ImageOS not set}" >> "$GITHUB_ENV"
+
       - name: Load cached .local
         id: cache-poetry
         uses: actions/cache@v4
         with:
           path: /home/runner/.local
-          key: dotlocal-${{ env.POETRY_VERSION }}
+          key: dotlocal-${{ env.IMAGE_OS }}-${{ env.POETRY_VERSION }}
 
       - name: Ensure Poetry on PATH
         run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
