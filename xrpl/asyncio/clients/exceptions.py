@@ -36,3 +36,13 @@ class XRPLWebsocketException(XRPLException):
     """
 
     pass
+
+
+class XRPLAuthenticationException(XRPLRequestFailureException):
+    """
+    Raised when the XRPL node rejects a request before processing it because
+    of missing or invalid credentials or payment: HTTP 401 (Unauthorized),
+    402 (Payment Required), or 403 (Forbidden).
+    """
+
+    pass
