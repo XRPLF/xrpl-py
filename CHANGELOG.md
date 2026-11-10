@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support the `fixCleanup3_4_0` signing prefixes.
 - Regenerate `definitions.json` from rippled 3.4.0: adds new fields (e.g. `VaultKind`, `SubscriptionDate`, `RedemptionDate`) and removes Hook/Emit field definitions, as Hooks is no longer supported.
 
+### Fixed
+
+- Return a hex-format validation message instead of raising `ValueError` when `validate_mptoken_metadata` receives an odd-length hex string.
+- Reject odd-length `mptoken_metadata` with `XRPLModelException` in `MPTokenIssuanceCreate`, `MPTokenIssuanceSet`, and `VaultCreate` before serialization.
+
 ## [[5.1.0]]
 
 ### Added
