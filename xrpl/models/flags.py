@@ -33,6 +33,10 @@ def interface_to_flag_list(
     Returns:
         List[int]:
             A list of flags expressed as integers.
+
+    Raises:
+        XRPLModelException: If a flag set to True is not a known flag for the
+            given transaction type.
     """
     from xrpl.models import transactions  # Avoid circular dependencies
 
@@ -63,12 +67,17 @@ def interface_to_flag_list(
     tx_specific_flags = all_tx_flags[tx_type]  # get flags for that transaction type
     flag_list = []  # accumulator of the flag numbers
     for flag, flag_on in tx_flags.items():  # iterate through user-included flags
-        flag = flag.lower()  # normalize capitalization
+        key = flag.lower()  # normalize capitalization
         if flag_on:  # if flag was set to True
-            if flag in tx_specific_flags:  # if flag was defined
-                flag_list.append(tx_specific_flags[flag])
+            if key in tx_specific_flags:  # if flag was defined
+                flag_list.append(tx_specific_flags[key])
             else:
-                flag_list.append(0)  # if flag was set to False
+                # fail closed: an unrecognized flag set to True must never be
+                # silently dropped, or the transaction would be built with
+                # different semantics than the caller intended
+                raise XRPLModelException(
+                    f"Unknown flag {flag!r} for transaction type {tx_type}"
+                )
     return flag_list
 
 
