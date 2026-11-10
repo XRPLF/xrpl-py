@@ -436,23 +436,88 @@ class TestBetterTransactionFlags(TestCase):
             sign(transaction=tx, wallet=WALLET)
 
     def test_transaction_has_no_flags(self):
-        actual = models.OfferCancel(
+        # A flag that OfferCancel does not define is rejected, not dropped to 0
+        with self.assertRaises(XRPLModelException):
+            tx = models.OfferCancel(
+                account=ACCOUNT,
+                offer_sequence=6,
+                flags=models.PaymentChannelClaimFlagInterface(
+                    TF_CLOSE=True,
+                ),
+            )
+            sign(transaction=tx, wallet=WALLET)
+
+    def test_loan_and_amm_clawback_flags(self):
+        loan_set = models.LoanSet(
             account=ACCOUNT,
-            offer_sequence=6,
-            flags=models.PaymentChannelClaimFlagInterface(
-                TF_CLOSE=True,
-            ),
-        )
-        expected = models.OfferCancel(account=ACCOUNT, offer_sequence=6, flags=0)
-        signed_actual = sign(
-            transaction=actual,
-            wallet=WALLET,
-        )
-        signed_expected = sign(
-            transaction=expected,
-            wallet=WALLET,
+            loan_broker_id="A" * 64,
+            principal_requested="100",
+            flags=models.LoanSetFlagInterface(TF_LOAN_OVER_PAYMENT=True),
         )
         self.assertEqual(
-            first=signed_actual,
-            second=signed_expected,
+            loan_set.to_xrpl()["Flags"], models.LoanSetFlag.TF_LOAN_OVER_PAYMENT
         )
+        loan_manage = models.LoanManage(
+            account=ACCOUNT,
+            loan_id="B" * 64,
+            flags=models.LoanManageFlagInterface(TF_LOAN_DEFAULT=True),
+        )
+        self.assertEqual(
+            loan_manage.to_xrpl()["Flags"], models.LoanManageFlag.TF_LOAN_DEFAULT
+        )
+        amm_clawback = models.AMMClawback(
+            account=ACCOUNT,
+            holder="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+            asset=models.IssuedCurrency(currency="USD", issuer=ACCOUNT),
+            asset2=models.XRP(),
+            flags=models.AMMClawbackFlagInterface(TF_CLAW_TWO_ASSETS=True),
+        )
+        self.assertEqual(
+            amm_clawback.to_xrpl()["Flags"], models.AMMClawbackFlag.TF_CLAW_TWO_ASSETS
+        )
+
+    def test_global_flag_applies_to_every_transaction_type(self):
+        for tx in [
+            models.Payment(
+                account=ACCOUNT,
+                destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+                amount="1",
+                flags={"TF_INNER_BATCH_TXN": True},
+            ),
+            models.AccountDelete(
+                account=ACCOUNT,
+                destination="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+                flags={"TF_INNER_BATCH_TXN": True},
+            ),
+        ]:
+            self.assertEqual(
+                tx.to_xrpl()["Flags"], models.TransactionFlag.TF_INNER_BATCH_TXN
+            )
+
+    def test_unknown_flag_name_set_to_true_raises(self):
+        for flags in [{"tfImmediateOrCancel": True}, {"TF_TYPO": True}]:
+            with self.assertRaises(XRPLModelException) as error:
+                tx = models.OfferCreate(
+                    account=ACCOUNT,
+                    taker_gets="1000000",
+                    taker_pays=models.IssuedCurrencyAmount(
+                        currency="USD", issuer=ACCOUNT, value="1"
+                    ),
+                    flags=flags,
+                )
+                sign(transaction=tx, wallet=WALLET)
+            self.assertIn(
+                f"Invalid flag {next(iter(flags))} for OfferCreate.",
+                error.exception.args[0],
+            )
+
+    def test_unknown_flag_name_set_to_false_is_ignored(self):
+        tx = models.OfferCreate(
+            account=ACCOUNT,
+            taker_gets="1000000",
+            taker_pays=models.IssuedCurrencyAmount(
+                currency="USD", issuer=ACCOUNT, value="1"
+            ),
+            flags={"TF_TYPO": False},
+        )
+        self.assertEqual(tx.to_xrpl()["Flags"], 0)
