@@ -33,6 +33,35 @@ class TestXRPConversions(TestCase):
         with self.assertRaises(TypeError):
             xrpl.utils.xrp_to_drops("1000000")
 
+    def test_str_xrp_message(self):
+        with self.assertRaises(TypeError) as cm:
+            xrpl.utils.xrp_to_drops("1000000")
+        self.assertIn("format like Decimal", str(cm.exception))
+
+    def test_too_many_decimal_places(self):
+        for amount in [
+            Decimal("1.0000001"),
+            Decimal("1.0000005"),
+            Decimal("1.0000015"),
+            Decimal("1.0000007"),
+            Decimal("12.3456789"),
+        ]:
+            with self.assertRaises(xrpl.utils.XRPRangeException):
+                xrpl.utils.xrp_to_drops(amount)
+
+    def test_float_with_too_many_decimal_places(self):
+        # 0.1 + 0.2 == 0.30000000000000004, which has more than 6 decimals
+        with self.assertRaises(xrpl.utils.XRPRangeException):
+            xrpl.utils.xrp_to_drops(0.1 + 0.2)
+
+    def test_float_with_valid_decimal_places(self):
+        self.assertEqual(xrpl.utils.xrp_to_drops(0.1), "100000")
+        self.assertEqual(xrpl.utils.xrp_to_drops(1.5), "1500000")
+
+    def test_trailing_zero_decimal_places(self):
+        # Exactly representable in drops despite 7 written decimal places
+        self.assertEqual(xrpl.utils.xrp_to_drops(Decimal("1.0000000")), "1000000")
+
     def test_1_drop(self):
         self.assertEqual(xrpl.utils.drops_to_xrp("1"), Decimal("0.000001"))
 
