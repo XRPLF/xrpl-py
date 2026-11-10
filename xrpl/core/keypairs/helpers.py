@@ -30,5 +30,4 @@ def get_account_id(public_key: bytes) -> bytes:
     Returns:
         The account ID for the given public key.
     """
-    sha_hash = hashlib.sha256(public_key).digest()
-    return bytes(RIPEMD160.new(sha_hash).digest())
+    return bytes(RIPEMD160.new(hashlib.sha256(public_key).digest()).digest())
