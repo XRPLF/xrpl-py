@@ -8,7 +8,7 @@ from typing import Dict, Optional
 
 from typing_extensions import Self
 
-from xrpl.models.amounts import Amount, IssuedCurrencyAmount
+from xrpl.models.amounts import Amount, IssuedCurrencyAmount, is_mpt
 from xrpl.models.currencies import Currency
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
@@ -78,7 +78,7 @@ class AMMWithdraw(Transaction):
     e_price: Optional[Amount] = None
     """
     The minimum effective price, in LP Token returned, to pay per unit of the asset
-    to withdraw.
+    to withdraw. Cannot be an MPT amount.
     """
 
     lp_token_in: Optional[IssuedCurrencyAmount] = None
@@ -97,4 +97,6 @@ class AMMWithdraw(Transaction):
             errors["AMMWithdraw"] = "Must set `amount` with `amount2`"
         elif self.e_price is not None and self.amount is None:
             errors["AMMWithdraw"] = "Must set `amount` with `e_price`"
+        if self.e_price is not None and is_mpt(self.e_price):
+            errors["e_price"] = "`e_price` cannot be an MPT amount."
         return errors

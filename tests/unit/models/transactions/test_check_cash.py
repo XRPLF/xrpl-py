@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+from xrpl.core.binarycodec import decode
+from xrpl.models.amounts import MPTAmount
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions.check_cash import CheckCash
 
@@ -8,6 +10,9 @@ _FEE = "0.00001"
 _SEQUENCE = 19048
 _CHECK_ID = "838766BA2B995C00744175F69A1B11E32C3DBC40E64801A4056FCBD657F57334"
 _AMOUNT = "300"
+_MPT_AMOUNT = MPTAmount(
+    mpt_issuance_id="00000003430427B80BD2D09D36B70B969E12801065F22308", value="300"
+)
 
 
 class TestCheckCash(TestCase):
@@ -50,3 +55,14 @@ class TestCheckCash(TestCase):
             deliver_min=_AMOUNT,
         )
         self.assertTrue(tx.is_valid())
+
+    def test_mpt_amount_or_deliver_min_is_valid(self):
+        for field in ("amount", "deliver_min"):
+            with self.subTest(field=field):
+                tx = CheckCash(
+                    account=_ACCOUNT,
+                    check_id=_CHECK_ID,
+                    **{field: _MPT_AMOUNT},
+                )
+                self.assertTrue(tx.is_valid())
+                self.assertEqual(decode(tx.blob()), tx.to_xrpl())

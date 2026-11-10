@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Added
+
+- Support for MPTs on the DEX (XLS-82, `MPTokensV2` amendment): `PathStep` accepts `mpt_issuance_id`, `AMMClawback` accepts an MPT `asset` and `amount`, and `LedgerEntry` can look up an `AMM` by its asset pair, including MPTs.
+
+### Fixed
+
+- The `PathSet` codec now serializes MPT path steps. Previously a step with `mpt_issuance_id` was encoded as an empty step, which silently truncated the path.
+- `get_order_book_changes` no longer raises `KeyError` for offers whose `TakerGets` or `TakerPays` is an MPT. These amounts are reported as `{"mpt_issuance_id", "value"}`.
+- `AMMDeposit` and `AMMWithdraw` reject an MPT `e_price`, which rippled never accepts.
+
 ## [[5.2.0]]
 
 ### Added
