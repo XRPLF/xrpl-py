@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Fixed
+
+- `sign_loan_set_by_counterparty` and `combine_loanset_counterparty_signers` now accept a `LoanSet` whose `Account` is multisigned. They previously raised `Transaction must be first signed by first party.` because they only looked for a `TxnSignature`, so a loan broker with a signer list could not originate a loan.
+
 ## [[5.2.0]]
 
 ### Added

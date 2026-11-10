@@ -3,8 +3,14 @@
 from unittest import TestCase
 
 from xrpl.constants import XRPLException
+from xrpl.core.binarycodec import (
+    encode_for_multisigning_counterparty,
+    encode_for_signing_counterparty,
+)
+from xrpl.core.keypairs import is_valid_message
 from xrpl.models.exceptions import XRPLModelException
 from xrpl.models.transactions import LoanSet, Payment
+from xrpl.transaction import multisign, sign
 from xrpl.transaction.counterparty_signer import (
     combine_loanset_counterparty_signers,
     sign_loan_set_by_counterparty,
@@ -314,4 +320,112 @@ class TestSignLoanSetByCounterpartyMultiSign(TestCase):
         self.assertEqual(
             str(context.exception),
             "Transactions are not identical.",
+        )
+
+
+class TestSignLoanSetByCounterpartyMultisignedAccount(TestCase):
+    """Test counterparty signing of a LoanSet whose Account is multisigned."""
+
+    def setUp(self):
+        account_signer1 = Wallet.from_seed("sEdT2fq1MdpXJdosNRZ1tuHk4qU3V2m")
+        account_signer2 = Wallet.from_seed("sEdVYtgZDoV2YX48M2tUf8WHknNmuYK")
+        self.borrower_wallet = Wallet.from_seed("sEd7FqVHfNZ2UdGAwjssxPev2ujwJoT")
+        self.borrower_signer1 = Wallet.from_seed("sEdSyBUScyy9msTU36wdR68XkskQky5")
+        self.borrower_signer2 = Wallet.from_seed("sEdT8LubWzQv3VAx1JQqctv78N28zLA")
+
+        self.unsigned_loan_set = LoanSet.from_xrpl(
+            {
+                "TransactionType": "LoanSet",
+                "Flags": 0,
+                "Sequence": 1702,
+                "LastLedgerSequence": 1725,
+                "PaymentTotal": 1,
+                "LoanBrokerID": (
+                    "033D9B59DBDC4F48FB6708892E7DB0E8FBF9710C3A181B99D9FAF7B9C82EF077"
+                ),
+                "Fee": "480",
+                "Account": "rpfK3KEEBwXjUXKQnvAs1SbQhVKu7CSkY1",
+                "Counterparty": self.borrower_wallet.address,
+                "PrincipalRequested": "5000000",
+            }
+        )
+        self.multisigned_loan_set = multisign(
+            self.unsigned_loan_set,
+            [
+                sign(self.unsigned_loan_set, account_signer1, multisign=True),
+                sign(self.unsigned_loan_set, account_signer2, multisign=True),
+            ],
+        )
+
+    def test_single_sign(self):
+        """A single-key counterparty signs a LoanSet with a multisigned Account."""
+        result = sign_loan_set_by_counterparty(
+            self.borrower_wallet, self.multisigned_loan_set
+        )
+
+        self.assertEqual(result.tx.signing_pub_key, "")
+        self.assertEqual(result.tx.signers, self.multisigned_loan_set.signers)
+        counterparty_signature = result.tx.counterparty_signature
+        self.assertIsNotNone(counterparty_signature)
+        self.assertEqual(
+            counterparty_signature.signing_pub_key, self.borrower_wallet.public_key
+        )
+        self.assertTrue(
+            is_valid_message(
+                bytes.fromhex(encode_for_signing_counterparty(result.tx.to_xrpl())),
+                bytes.fromhex(counterparty_signature.txn_signature),
+                self.borrower_wallet.public_key,
+            )
+        )
+
+    def test_multi_sign_and_combine(self):
+        """Counterparty signers sign and combine a LoanSet with a multisigned
+        Account."""
+        signer1_result = sign_loan_set_by_counterparty(
+            self.borrower_signer1, self.multisigned_loan_set, multisign=True
+        )
+        signer2_result = sign_loan_set_by_counterparty(
+            self.borrower_signer2, self.multisigned_loan_set, multisign=True
+        )
+
+        result = combine_loanset_counterparty_signers(
+            [signer1_result.tx, signer2_result.tx]
+        )
+
+        self.assertEqual(result.tx.signing_pub_key, "")
+        self.assertEqual(result.tx.signers, self.multisigned_loan_set.signers)
+        counterparty_signers = result.tx.counterparty_signature.signers
+        self.assertEqual(len(counterparty_signers), 2)
+        tx_json = result.tx.to_xrpl()
+        for signer in counterparty_signers:
+            self.assertTrue(
+                is_valid_message(
+                    bytes.fromhex(
+                        encode_for_multisigning_counterparty(tx_json, signer.account)
+                    ),
+                    bytes.fromhex(signer.txn_signature),
+                    signer.signing_pub_key,
+                )
+            )
+
+    def test_throws_if_account_has_not_signed(self):
+        """A LoanSet the Account has not signed is still rejected."""
+        with self.assertRaises(XRPLException) as context:
+            sign_loan_set_by_counterparty(self.borrower_wallet, self.unsigned_loan_set)
+        self.assertEqual(
+            str(context.exception),
+            "Transaction must be first signed by first party.",
+        )
+
+        counterparty_signed = sign_loan_set_by_counterparty(
+            self.borrower_signer1, self.multisigned_loan_set, multisign=True
+        ).tx
+        account_unsigned = LoanSet.from_dict(
+            {**counterparty_signed.to_dict(), "signers": None}
+        )
+        with self.assertRaises(XRPLException) as context:
+            combine_loanset_counterparty_signers([account_unsigned])
+        self.assertEqual(
+            str(context.exception),
+            "Transaction must be first signed by first party.",
         )
