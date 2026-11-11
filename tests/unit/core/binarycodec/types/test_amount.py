@@ -348,6 +348,41 @@ class TestAmount(TestSerializedType):
             amount_object = amount.Amount.from_value(json)
             self.assertEqual(amount_object.to_hex(), serialized)
 
+    def test_mpt_extremes(self):
+        """
+        MPT amounts carry their sign and type in their own leading byte, so
+        unlike native XRP and IOU amounts, no bit inside the 64-bit value is
+        reserved for sign. The valid range is the full unsigned 64-bit range,
+        [0, 2^64 - 1].
+        """
+        issuance_id = "0000012FFD9EE5DA93AC614B4DB94D7E0FCE415CA51BED47"
+        max_value = "18446744073709551615"  # 2^64 - 1
+        over_max = "18446744073709551616"  # 2^64
+
+        for value, expected_hex in (
+            ("9223372036854775808", "608000000000000000"),  # 2^63
+            (max_value, "60FFFFFFFFFFFFFFFF"),
+        ):
+            with self.subTest(value=value):
+                amount_object = amount.Amount.from_value(
+                    {"value": value, "mpt_issuance_id": issuance_id}
+                )
+                self.assertEqual(amount_object.to_hex(), expected_hex + issuance_id)
+
+        with self.subTest(value=over_max):
+            self.assertRaises(
+                XRPLBinaryCodecException,
+                amount.Amount.from_value,
+                {"value": over_max, "mpt_issuance_id": issuance_id},
+            )
+
+        with self.subTest(value="-1"):
+            self.assertRaises(
+                XRPLBinaryCodecException,
+                amount.Amount.from_value,
+                {"value": "-1", "mpt_issuance_id": issuance_id},
+            )
+
     def test_to_json_issued_currency(self):
         for json, serialized in IOU_CASES:
             parser = BinaryParser(serialized)

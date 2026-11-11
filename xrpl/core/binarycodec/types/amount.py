@@ -35,7 +35,7 @@ _POS_SIGN_BIT_MASK: Final[int] = 0x4000000000000000
 _ZERO_CURRENCY_AMOUNT_HEX: Final[int] = 0x8000000000000000
 _NATIVE_AMOUNT_BYTE_LENGTH: Final[int] = 8
 _CURRENCY_AMOUNT_BYTE_LENGTH: Final[int] = 48
-_MPT_MASK: Final[Decimal] = Decimal(0x8000000000000000)
+_MAX_MPT_VALUE: Final[Decimal] = Decimal(2**64 - 1)
 
 # Amount fields whose XRP value may be negative. A signed XRP amount is
 # meaningful only for delta fields -- SponsorshipSet's FeeAmountDelta adjusts a
@@ -160,8 +160,11 @@ def verify_mpt_value(mpt_value: str) -> None:
     if decimal.is_zero():
         return
 
-    # Perform the bitwise AND operation to check the MSB
-    if int(decimal) & int(_MPT_MASK) != 0:
+    # An MPT amount is serialized as a full unsigned 64-bit value with its own
+    # leading sign and type byte, so no bit inside the value is reserved for
+    # sign the way it is for native XRP or IOU amounts. The valid range is the
+    # full unsigned 64-bit range.
+    if decimal < 0 or decimal > _MAX_MPT_VALUE:
         raise XRPLBinaryCodecException(f"{mpt_value} is an illegal amount")
 
 
