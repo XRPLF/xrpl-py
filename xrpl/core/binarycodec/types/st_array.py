@@ -70,7 +70,7 @@ class STArray(SerializedType):
         if not isinstance(value, list):
             raise XRPLBinaryCodecException(
                 "Invalid type to construct a STArray:"
-                " expected list, received {value.__class__.__name__}."
+                f" expected list, received {value.__class__.__name__}."
             )
 
         if len(value) > 0 and not isinstance(value[0], dict):
