@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from xrpl import CryptoAlgorithm
 from xrpl.core.addresscodec.exceptions import XRPLAddressCodecException
+from xrpl.core.keypairs.exceptions import XRPLKeypairsException
 from xrpl.wallet import Wallet
 
 SEED = "ssQgsaM2ujhyWoDw3Yb1TNjkZTVT2"
@@ -73,10 +74,53 @@ class TestWallet(TestCase):
         wallet1 = Wallet.from_mnemonic(MNEMONIC, account_index=1)
         self.assertNotEqual(wallet0.classic_address, wallet1.classic_address)
 
+    def test_from_mnemonic_fixed_vector_nonzero_indexes_and_passphrase(self):
+        wallet = Wallet.from_mnemonic(
+            MNEMONIC,
+            account_index=2,
+            address_index=3,
+            passphrase="secret",
+        )
+        self.assertEqual(wallet.classic_address, "rP3TJCGqiosUH2dRZ6yVMCousuuUPzDVF9")
+        self.assertEqual(
+            wallet.public_key,
+            "03E3963A49787C064FA364E8290B3AD6767C598D65683FA9EFCC18F51BB8F9D8F7",
+        )
+
+    def test_from_mnemonic_different_address_indexes(self):
+        wallet0 = Wallet.from_mnemonic(MNEMONIC, address_index=0)
+        wallet1 = Wallet.from_mnemonic(MNEMONIC, address_index=1)
+        self.assertNotEqual(wallet0.classic_address, wallet1.classic_address)
+
     def test_from_mnemonic_with_passphrase(self):
         wallet_no_pass = Wallet.from_mnemonic(MNEMONIC)
         wallet_pass = Wallet.from_mnemonic(MNEMONIC, passphrase="secret")
         self.assertNotEqual(wallet_no_pass.classic_address, wallet_pass.classic_address)
+
+    def test_from_mnemonic_non_ascii_passphrase_is_nfkd_normalised(self):
+        import unicodedata
+
+        composed = "café"
+        decomposed = unicodedata.normalize("NFD", composed)
+        self.assertNotEqual(composed, decomposed)
+
+        wallet_composed = Wallet.from_mnemonic(MNEMONIC, passphrase=composed)
+        wallet_decomposed = Wallet.from_mnemonic(MNEMONIC, passphrase=decomposed)
+        self.assertEqual(
+            wallet_composed.classic_address,
+            wallet_decomposed.classic_address,
+        )
+
+    def test_from_mnemonic_rejects_out_of_range_indexes(self):
+        for kwargs in (
+            {"account_index": -1},
+            {"account_index": 2**31},
+            {"address_index": -1},
+            {"address_index": 2**31},
+        ):
+            with self.subTest(kwargs=kwargs):
+                with self.assertRaises(XRPLKeypairsException):
+                    Wallet.from_mnemonic(MNEMONIC, **kwargs)
 
     def test_from_mnemonic_sign_verify(self):
         from xrpl.core.keypairs import is_valid_message, sign

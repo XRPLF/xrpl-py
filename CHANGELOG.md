@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Added
+
+- `Wallet.from_mnemonic` derives a `Wallet` from a BIP39 mnemonic along the BIP44 path `m/44'/144'/account_index'/0/address_index`, with optional `passphrase`, `account_index` and `address_index` arguments.
+
 ## [[5.2.0]]
 
 ### Added

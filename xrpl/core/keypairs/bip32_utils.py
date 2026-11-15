@@ -68,10 +68,10 @@ def _derive_child_key(
     h = hmac.new(parent_chain_code, data, hashlib.sha512).digest()
     il_int = int.from_bytes(h[:32], "big")
     if il_int >= _GROUP_ORDER:
-        raise ValueError("Derived key is invalid (IL >= group order).")
+        raise XRPLKeypairsException("Derived key is invalid (IL >= group order).")
     child_key_int = (il_int + int.from_bytes(parent_key, "big")) % _GROUP_ORDER
     if child_key_int == 0:
-        raise ValueError("Derived key is invalid (zero key).")
+        raise XRPLKeypairsException("Derived key is invalid (zero key).")
     return child_key_int.to_bytes(32, "big"), h[32:]
 
 
@@ -95,11 +95,11 @@ def derive_keypair_from_mnemonic(
         A (public_key, private_key) tuple as uppercase hex strings.
     """
     if not 0 <= account_index < _HARDENED:
-        raise ValueError(
+        raise XRPLKeypairsException(
             f"account_index must be in range [0, {_HARDENED}), got {account_index}"
         )
     if not 0 <= address_index < _HARDENED:
-        raise ValueError(
+        raise XRPLKeypairsException(
             f"address_index must be in range [0, {_HARDENED}), got {address_index}"
         )
 
