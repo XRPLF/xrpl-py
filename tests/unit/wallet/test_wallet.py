@@ -111,6 +111,22 @@ class TestWallet(TestCase):
             wallet_decomposed.classic_address,
         )
 
+    def test_mnemonic_to_seed_matches_bip39_japanese_reference_vector(self):
+        from xrpl.core.keypairs.bip32_utils import mnemonic_to_seed
+
+        mnemonic = (
+            "あいこくしん　あいこくしん　あいこくしん　"
+            "あいこくしん　あいこくしん　あいこくしん　"
+            "あいこくしん　あいこくしん　あいこくしん　"
+            "あいこくしん　あいこくしん　あおぞら"
+        )
+        passphrase = "㍍ガバヴァぱばぐゞちぢ十人十色"
+        expected_seed = (
+            "a262d6fb6122ecf45be09c50492b31f92e9beb7d9a845987a02cefda57a15f9c"
+            "467a17872029a9e92299b5cbdf306e3a0ee620245cbd508959b6cb7ca637bd55"
+        )
+        self.assertEqual(mnemonic_to_seed(mnemonic, passphrase).hex(), expected_seed)
+
     def test_from_mnemonic_rejects_out_of_range_indexes(self):
         for kwargs in (
             {"account_index": -1},
