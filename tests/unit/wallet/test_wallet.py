@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from xrpl import CryptoAlgorithm
 from xrpl.core.addresscodec.exceptions import XRPLAddressCodecException
+from xrpl.core.keypairs.exceptions import XRPLKeypairsException
 from xrpl.wallet import Wallet
 
 SEED = "ssQgsaM2ujhyWoDw3Yb1TNjkZTVT2"
@@ -10,6 +11,15 @@ ED_ADDRESS = "rnbrEQ9U6TgPkBYuR4RWSWGR1XgaPWuFjh"
 
 SED_SEED = "sEdVRAkrcTVBt4jKfJyKzQzndPFARgs"
 SED_ADDRESS = "rLLYAFe2iEGaQrz3rqWfpziGAR4XfQrW3e"
+
+MNEMONIC = (
+    "abandon abandon abandon abandon abandon abandon "
+    "abandon abandon abandon abandon abandon about"
+)
+MNEMONIC_ADDRESS = "rHsMGQEkVNJmpGWs8XUBoTBiAAbwxZN5v3"
+MNEMONIC_PUBLIC_KEY = (
+    "031D68BC1A142E6766B2BDFB006CCFE135EF2E0E2E94ABB5CF5C9AB6104776FBAE"
+)
 
 
 class TestWallet(TestCase):
@@ -51,6 +61,90 @@ class TestWallet(TestCase):
     def test_init_secp256k1_with_sEd_seed_fail(self):
         with self.assertRaises(XRPLAddressCodecException):
             Wallet.from_seed(SED_SEED, algorithm=CryptoAlgorithm.SECP256K1)
+
+    def test_from_mnemonic(self):
+        wallet = Wallet.from_mnemonic(MNEMONIC)
+        self.assertEqual(wallet.algorithm, CryptoAlgorithm.SECP256K1)
+        self.assertEqual(wallet.classic_address, MNEMONIC_ADDRESS)
+        self.assertEqual(wallet.public_key, MNEMONIC_PUBLIC_KEY)
+        self.assertIsNone(wallet.seed)
+
+    def test_from_mnemonic_different_accounts(self):
+        wallet0 = Wallet.from_mnemonic(MNEMONIC, account_index=0)
+        wallet1 = Wallet.from_mnemonic(MNEMONIC, account_index=1)
+        self.assertNotEqual(wallet0.classic_address, wallet1.classic_address)
+
+    def test_from_mnemonic_fixed_vector_nonzero_indexes_and_passphrase(self):
+        wallet = Wallet.from_mnemonic(
+            MNEMONIC,
+            account_index=2,
+            address_index=3,
+            passphrase="secret",
+        )
+        self.assertEqual(wallet.classic_address, "rP3TJCGqiosUH2dRZ6yVMCousuuUPzDVF9")
+        self.assertEqual(
+            wallet.public_key,
+            "03E3963A49787C064FA364E8290B3AD6767C598D65683FA9EFCC18F51BB8F9D8F7",
+        )
+
+    def test_from_mnemonic_different_address_indexes(self):
+        wallet0 = Wallet.from_mnemonic(MNEMONIC, address_index=0)
+        wallet1 = Wallet.from_mnemonic(MNEMONIC, address_index=1)
+        self.assertNotEqual(wallet0.classic_address, wallet1.classic_address)
+
+    def test_from_mnemonic_with_passphrase(self):
+        wallet_no_pass = Wallet.from_mnemonic(MNEMONIC)
+        wallet_pass = Wallet.from_mnemonic(MNEMONIC, passphrase="secret")
+        self.assertNotEqual(wallet_no_pass.classic_address, wallet_pass.classic_address)
+
+    def test_from_mnemonic_non_ascii_passphrase_is_nfkd_normalised(self):
+        import unicodedata
+
+        composed = "café"
+        decomposed = unicodedata.normalize("NFD", composed)
+        self.assertNotEqual(composed, decomposed)
+
+        wallet_composed = Wallet.from_mnemonic(MNEMONIC, passphrase=composed)
+        wallet_decomposed = Wallet.from_mnemonic(MNEMONIC, passphrase=decomposed)
+        self.assertEqual(
+            wallet_composed.classic_address,
+            wallet_decomposed.classic_address,
+        )
+
+    def test_mnemonic_to_seed_matches_bip39_japanese_reference_vector(self):
+        from xrpl.core.keypairs.bip32_utils import mnemonic_to_seed
+
+        mnemonic = (
+            "あいこくしん　あいこくしん　あいこくしん　"
+            "あいこくしん　あいこくしん　あいこくしん　"
+            "あいこくしん　あいこくしん　あいこくしん　"
+            "あいこくしん　あいこくしん　あおぞら"
+        )
+        passphrase = "㍍ガバヴァぱばぐゞちぢ十人十色"
+        expected_seed = (
+            "a262d6fb6122ecf45be09c50492b31f92e9beb7d9a845987a02cefda57a15f9c"
+            "467a17872029a9e92299b5cbdf306e3a0ee620245cbd508959b6cb7ca637bd55"
+        )
+        self.assertEqual(mnemonic_to_seed(mnemonic, passphrase).hex(), expected_seed)
+
+    def test_from_mnemonic_rejects_out_of_range_indexes(self):
+        for kwargs in (
+            {"account_index": -1},
+            {"account_index": 2**31},
+            {"address_index": -1},
+            {"address_index": 2**31},
+        ):
+            with self.subTest(kwargs=kwargs):
+                with self.assertRaises(XRPLKeypairsException):
+                    Wallet.from_mnemonic(MNEMONIC, **kwargs)
+
+    def test_from_mnemonic_sign_verify(self):
+        from xrpl.core.keypairs import is_valid_message, sign
+
+        wallet = Wallet.from_mnemonic(MNEMONIC)
+        msg = b"test message"
+        sig = sign(msg, wallet.private_key)
+        self.assertTrue(is_valid_message(msg, bytes.fromhex(sig), wallet.public_key))
 
     def test_invalid_seed_not_leaked_in_exception(self):
         """Regression test for issue #987: exception messages for invalid
