@@ -55,7 +55,7 @@ The high-level pipeline is:
 | --- | --- |
 | `input-validate` | Checks branch naming, ensures the version in `pyproject.toml` does not already exist as a tag, Detects whether the release is a beta (`a`, `b`, or `rc`). |
 | `faucet-tests`, `integration-tests` | Re-usable workflows that run faucet, unit, and integration test matrices against supported Python versions. Faucet-tests will be skipped for beta releases |
-| `pre-release` | Builds the wheel and sdist with Poetry 2.1.1, uploads build artifacts, generates a CycloneDX SBOM, scans it with Trivy, uploads results to OWASP Dependency-Track, and stores both SBOM and vulnerability reports as Actions artifacts. If any CRITICAL/HIGH findings exist, the job opens a GitHub issue linking to the report. |
+| `pre-release` | Builds the wheel and sdist with Poetry 2.5.1, uploads build artifacts, generates a CycloneDX SBOM, scans it with Trivy, uploads results to OWASP Dependency-Track, and stores both SBOM and vulnerability reports as Actions artifacts. If any CRITICAL/HIGH findings exist, the job opens a GitHub issue linking to the report. |
 | `ask_for_dev_team_review` | Creates or reuses a PR from the release branch to `main` (skipped for beta releases), gathers required reviewers from environment protection rules, prints a summary, and posts a Slack message requesting review/approval. |
 | `first_review` | Waits for the Dev environment (`first-review`) approval. |
 | `ask_for_sec_team_review` | For stable release, Notifies security reviewers from infosec on Slack and waits for the `official-release` environment approval. For beta release, Notifies security reviewers(Security Champions from dev team) on Slack and waits for the `beta-release` environment approval. |
