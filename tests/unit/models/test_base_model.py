@@ -1,12 +1,13 @@
 import json
 import os
 from dataclasses import dataclass
+from typing import Dict, List, Optional, Union
 from unittest import TestCase
 
 from typing_extensions import Self
 
 from xrpl.models import XRPLModelException
-from xrpl.models.amounts import IssuedCurrencyAmount
+from xrpl.models.amounts import IssuedCurrencyAmount, MPTAmount
 from xrpl.models.base_model import BaseModel
 from xrpl.models.currencies import XRP, IssuedCurrency
 from xrpl.models.requests import (
@@ -152,9 +153,8 @@ class TestBaseModel(TestCase):
                 {
                     "account": "account is <class 'int'>, expected <class 'str'>",
                     "amount": (
-                        "amount is <class 'int'>, expected typing.Union[xrpl."
-                        "models.amounts.issued_currency_amount.IssuedCurrencyAmount, "
-                        "xrpl.models.amounts.mpt_amount.MPTAmount, str]"
+                        "amount is <class 'int'>, expected "
+                        f"{Union[IssuedCurrencyAmount, MPTAmount, str]}"
                     ),
                     "destination": (
                         "destination is <class 'int'>, expected " "<class 'str'>"
@@ -178,8 +178,7 @@ class TestBaseModel(TestCase):
                 {
                     "flags": (
                         "flags is <class 'str'>, expected "
-                        "typing.Union[typing.Dict[str, bool], "
-                        "int, typing.List[int], NoneType]"
+                        f"{Optional[Union[Dict[str, bool], int, List[int]]]}"
                     ),
                     "destination": (
                         "An XRP payment transaction cannot have the same "
