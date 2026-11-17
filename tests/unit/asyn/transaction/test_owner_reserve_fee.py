@@ -34,7 +34,7 @@ class TestOwnerReserveFee(IsolatedAsyncioTestCase):
         self.assertEqual(await self._fee(tx), str(_OWNER_RESERVE_FEE))
 
     async def test_vault_create_pays_base_fee(self):
-        # rippled 3.2.0 stopped charging VaultCreate an owner reserve
+        # rippled 3.0.0 stopped charging VaultCreate an owner reserve
         # (XRPLF/rippled#5954), so it pays the reference fee like any transaction.
         tx = VaultCreate(account=_ACCOUNT, asset=XRP())
         self.assertEqual(await self._fee(tx), _BASE_FEE)

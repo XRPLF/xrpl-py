@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `autofill` now gives `VaultCreate` the network base fee instead of one owner reserve (2 XRP on Mainnet). rippled has charged `VaultCreate` the base fee since 3.2.0 ([XRPLF/rippled#5954](https://github.com/XRPLF/rippled/pull/5954)).
+- `autofill` now gives `VaultCreate` the network base fee instead of one owner reserve (0.2 XRP on Mainnet). rippled has charged `VaultCreate` the base fee since 3.0.0 ([XRPLF/rippled#5954](https://github.com/XRPLF/rippled/pull/5954)).
 
 ## [[5.2.0]]
 
