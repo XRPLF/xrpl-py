@@ -1,3 +1,4 @@
+from typing import Optional
 from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException
@@ -250,6 +251,26 @@ class TestLoanSet(TestCase):
             error.exception.args[0],
             "{'LoanSet:payment_total': 'Payment total must be greater than 0.'}",
         )
+
+    def test_wrong_type_reports_model_error(self):
+        # The range checks must not raise TypeError before the type error is reported
+        for field_name, value in [("payment_total", "1"), ("grace_period", "60")]:
+            with self.assertRaises(XRPLModelException) as error:
+                LoanSet(
+                    account=_SOURCE,
+                    loan_broker_id=_ISSUER,
+                    principal_requested="100000000",
+                    **{field_name: value},
+                )
+            self.assertEqual(
+                error.exception.args[0],
+                str(
+                    {
+                        field_name: f"{field_name} is <class 'str'>, expected "
+                        f"{Optional[int]}"
+                    }
+                ),
+            )
 
     def test_invalid_principal_requested_not_positive(self):
         for principal_requested in ["0", "-1"]:
