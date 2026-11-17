@@ -42,6 +42,11 @@ _LEDGER_OFFSET: Final[int] = 20
 _RESTRICTED_NETWORKS = 1024
 _REQUIRED_NETWORKID_VERSION = "1.11.0"
 
+_MISSING_COUNTERPARTY_SIGNATURE_ERROR: Final[str] = (
+    "LoanSet requires the counterparty's signature (CounterpartySignature). "
+    "Use sign_loan_set_by_counterparty before submitting."
+)
+
 # rippled charges Confidential MPT (XLS-0096) transactions an extra base-fee
 # multiplier on top of the standard cost to account for zero-knowledge proof
 # verification. Mirrors kConfidentialFeeMultiplier in rippled's Protocol.h: the
@@ -216,10 +221,7 @@ async def submit(
         XRPLRequestFailureException: if the rippled API call fails.
     """
     if _is_loan_set_missing_counterparty_signature(transaction):
-        raise XRPLException(
-            "LoanSet requires the counterparty's signature (CounterpartySignature). "
-            "Use sign_loan_set_by_counterparty before submitting."
-        )
+        raise XRPLException(_MISSING_COUNTERPARTY_SIGNATURE_ERROR)
 
     transaction_blob = encode(transaction.to_xrpl())
     response = await client._request_impl(

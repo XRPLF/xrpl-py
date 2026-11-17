@@ -1,9 +1,13 @@
-"""Unit tests for ``submit``."""
+"""Unit tests for the LoanSet CounterpartySignature check in ``submit``."""
 
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import AsyncMock, Mock
 
 from xrpl.asyncio.transaction.main import sign, submit
+from xrpl.asyncio.transaction.reliable_submission import (
+    XRPLReliableSubmissionException,
+    submit_and_wait,
+)
 from xrpl.constants import XRPLException
 from xrpl.models.transactions import Batch, BatchFlag, LoanSet, Payment
 from xrpl.transaction.counterparty_signer import sign_loan_set_by_counterparty
@@ -42,6 +46,15 @@ class TestSubmit(IsolatedAsyncioTestCase):
             "LoanSet requires the counterparty's signature (CounterpartySignature). "
             "Use sign_loan_set_by_counterparty before submitting.",
         )
+        client._request_impl.assert_not_awaited()
+
+    async def test_submit_and_wait_raises_reliable_submission_exception(self):
+        client = _client()
+
+        with self.assertRaises(XRPLReliableSubmissionException) as context:
+            await submit_and_wait(sign(_LOAN_SET, _BROKER), client)
+
+        self.assertIn("CounterpartySignature", str(context.exception))
         client._request_impl.assert_not_awaited()
 
     async def test_submits_loan_set_signed_by_counterparty(self):
