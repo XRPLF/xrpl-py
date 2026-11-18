@@ -17,6 +17,7 @@ from xrpl.core.keypairs.helpers import sha512_first_half
 PREFIX: Final[str] = "ED"
 _CURVE: Final[Curve] = Curve.get_curve("Ed25519")
 _SIGNER: Final[EDDSA] = EDDSA(sha512)
+_SIGNATURE_LENGTH: Final[int] = 64
 
 
 class ED25519(CryptoImplementation):
@@ -86,10 +87,15 @@ class ED25519(CryptoImplementation):
         Returns:
             Whether the message is valid for the given signature and public key.
         """
+        if len(signature) != _SIGNATURE_LENGTH:
+            return False
         raw_public = public_key[len(PREFIX) :]
         public_key_point = _CURVE.decode_point(bytes.fromhex(raw_public))
         wrapped_public = ECPublicKey(public_key_point)
-        return cast(bool, _SIGNER.verify(message, signature, wrapped_public))
+        try:
+            return cast(bool, _SIGNER.verify(message, signature, wrapped_public))
+        except AssertionError:
+            return False
 
     @classmethod
     def _public_key_to_str(cls: Type[Self], key: ECPublicKey) -> str:
