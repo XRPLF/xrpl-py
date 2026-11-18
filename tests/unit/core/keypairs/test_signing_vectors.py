@@ -5,6 +5,8 @@ from xrpl.core import keypairs
 
 _MESSAGE = b"This test message should verify."
 
+# Both signatures match ripple-keypairs 3.1.0 sign and xrpl4j BcSignatureService
+# for the same seed and message.
 _ED25519 = {
     "seed": "sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r",
     "public_key": "ED01FA53FA5A7E77798F882ECE20B1ABC00BB358A9E55A202D0D0676BD0CE37A63",
@@ -32,13 +34,6 @@ _SECP256K1 = {
         "03B462771E99AAE9C7912AF47D6120C0B0DA972A4043A17F26320A52056DA46EA8"
     ),
 }
-
-
-def _is_rejected(message, signature, public_key):
-    try:
-        return not keypairs.is_valid_message(message, signature, public_key)
-    except Exception:
-        return True
 
 
 class TestSigningVectors(TestCase):
@@ -107,16 +102,27 @@ class TestSigningVectors(TestCase):
     def test_verify_rejects_malformed_signature_ed25519(self):
         signature = bytes.fromhex(_ED25519["signature"])
         public_key = _ED25519["public_key"]
-        self.assertTrue(_is_rejected(_MESSAGE, signature[:-1], public_key))
-        self.assertTrue(_is_rejected(_MESSAGE, signature + b"\x00", public_key))
-        self.assertTrue(_is_rejected(_MESSAGE, b"", public_key))
+        off_curve_r = bytes([signature[0] ^ 0x02]) + signature[1:]
+        for malformed in (signature[:-1], signature + b"\x00", b"", off_curve_r):
+            with self.subTest(malformed=malformed.hex()):
+                self.assertFalse(
+                    keypairs.is_valid_message(_MESSAGE, malformed, public_key)
+                )
 
     def test_verify_rejects_malformed_signature_secp256k1(self):
         signature = bytes.fromhex(_SECP256K1["signature"])
         public_key = _SECP256K1["public_key"]
-        self.assertTrue(_is_rejected(_MESSAGE, signature[:-1], public_key))
-        self.assertTrue(_is_rejected(_MESSAGE, signature + b"\x00", public_key))
-        self.assertTrue(_is_rejected(_MESSAGE, b"", public_key))
+        for malformed in (
+            signature[:-1],
+            signature + b"\x00",
+            b"",
+            bytes.fromhex("3000"),
+            bytes.fromhex("3003028500"),
+        ):
+            with self.subTest(malformed=malformed.hex()):
+                self.assertFalse(
+                    keypairs.is_valid_message(_MESSAGE, malformed, public_key)
+                )
 
     def test_round_trip_ed25519(self):
         self._assert_round_trip(CryptoAlgorithm.ED25519)
