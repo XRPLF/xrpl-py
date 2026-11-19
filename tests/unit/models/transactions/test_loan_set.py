@@ -254,13 +254,24 @@ class TestLoanSet(TestCase):
 
     def test_wrong_type_reports_model_error(self):
         # The range checks must not raise TypeError before the type error is reported
-        for field_name, value in [("payment_total", "1"), ("grace_period", "60")]:
+        for field_name, value, extra in [
+            ("overpayment_fee", "1", {}),
+            ("interest_rate", "1", {}),
+            ("late_interest_rate", "1", {}),
+            ("close_interest_rate", "1", {}),
+            ("overpayment_interest_rate", "1", {}),
+            ("payment_total", "1", {}),
+            # a valid grace_period also runs its bound against the bad interval
+            ("payment_interval", "120", {"grace_period": 60}),
+            ("grace_period", "60", {}),
+        ]:
             with self.assertRaises(XRPLModelException) as error:
                 LoanSet(
                     account=_SOURCE,
                     loan_broker_id=_ISSUER,
                     principal_requested="100000000",
                     **{field_name: value},
+                    **extra,
                 )
             self.assertEqual(
                 error.exception.args[0],

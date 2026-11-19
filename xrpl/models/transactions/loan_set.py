@@ -227,7 +227,8 @@ class LoanSet(Transaction):
                 "inclusive."
             )
 
-        if self.overpayment_fee is not None and (
+        # isinstance guards: a wrongly typed value is reported by the base type check
+        if isinstance(self.overpayment_fee, int) and (
             self.overpayment_fee < 0
             or self.overpayment_fee > self.MAX_OVER_PAYMENT_FEE_RATE
         ):
@@ -235,14 +236,14 @@ class LoanSet(Transaction):
                 "Overpayment fee must be between 0 and 100000 inclusive."
             )
 
-        if self.interest_rate is not None and (
+        if isinstance(self.interest_rate, int) and (
             self.interest_rate < 0 or self.interest_rate > self.MAX_INTEREST_RATE
         ):
             parent_class_errors["LoanSet:interest_rate"] = (
                 "Interest rate must be between 0 and 100000 inclusive."
             )
 
-        if self.late_interest_rate is not None and (
+        if isinstance(self.late_interest_rate, int) and (
             self.late_interest_rate < 0
             or self.late_interest_rate > self.MAX_LATE_INTEREST_RATE
         ):
@@ -250,7 +251,7 @@ class LoanSet(Transaction):
                 "Late interest rate must be between 0 and 100000 inclusive."
             )
 
-        if self.close_interest_rate is not None and (
+        if isinstance(self.close_interest_rate, int) and (
             self.close_interest_rate < 0
             or self.close_interest_rate > self.MAX_CLOSE_INTEREST_RATE
         ):
@@ -258,7 +259,7 @@ class LoanSet(Transaction):
                 "Close interest rate must be between 0 and 100000 inclusive."
             )
 
-        if self.overpayment_interest_rate is not None and (
+        if isinstance(self.overpayment_interest_rate, int) and (
             self.overpayment_interest_rate < 0
             or self.overpayment_interest_rate > self.MAX_OVER_PAYMENT_INTEREST_RATE
         ):
@@ -266,14 +267,13 @@ class LoanSet(Transaction):
                 "Overpayment interest rate must be between 0 and 100000 inclusive."
             )
 
-        # isinstance guards: a wrongly typed value is reported by the base type check
         if isinstance(self.payment_total, int) and self.payment_total <= 0:
             parent_class_errors["LoanSet:payment_total"] = (
                 "Payment total must be greater than 0."
             )
 
         if (
-            self.payment_interval is not None
+            isinstance(self.payment_interval, int)
             and self.payment_interval < self.MIN_PAYMENT_INTERVAL
         ):
             parent_class_errors["LoanSet:PaymentInterval"] = (
@@ -285,8 +285,10 @@ class LoanSet(Transaction):
             if self.payment_interval is not None
             else self.DEFAULT_PAYMENT_INTERVAL
         )
-        if isinstance(self.grace_period, int) and not (
-            self.MIN_GRACE_PERIOD <= self.grace_period <= max_grace_period
+        if (
+            isinstance(self.grace_period, int)
+            and isinstance(max_grace_period, int)
+            and not (self.MIN_GRACE_PERIOD <= self.grace_period <= max_grace_period)
         ):
             parent_class_errors["LoanSet:GracePeriod"] = (
                 "Grace period must be between 60 seconds and the payment interval "
