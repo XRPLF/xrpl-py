@@ -42,6 +42,11 @@ _LEDGER_OFFSET: Final[int] = 20
 _RESTRICTED_NETWORKS = 1024
 _REQUIRED_NETWORKID_VERSION = "1.11.0"
 
+_MISSING_COUNTERPARTY_SIGNATURE_ERROR: Final[str] = (
+    "LoanSet requires the counterparty's signature (CounterpartySignature). "
+    "Use sign_loan_set_by_counterparty before submitting."
+)
+
 # rippled charges Confidential MPT (XLS-0096) transactions an extra base-fee
 # multiplier on top of the standard cost to account for zero-knowledge proof
 # verification. Mirrors kConfidentialFeeMultiplier in rippled's Protocol.h: the
@@ -211,8 +216,13 @@ async def submit(
         The response from the ledger.
 
     Raises:
+        XRPLException: if the transaction is a LoanSet without the counterparty's
+            signature.
         XRPLRequestFailureException: if the rippled API call fails.
     """
+    if _is_loan_set_missing_counterparty_signature(transaction):
+        raise XRPLException(_MISSING_COUNTERPARTY_SIGNATURE_ERROR)
+
     transaction_blob = encode(transaction.to_xrpl())
     response = await client._request_impl(
         SubmitOnly(tx_blob=transaction_blob, fail_hard=fail_hard)
@@ -221,6 +231,23 @@ async def submit(
         return response
 
     raise XRPLRequestFailureException(response.result)
+
+
+def _is_loan_set_missing_counterparty_signature(transaction: Transaction) -> bool:
+    """
+    Checks whether the transaction is a LoanSet that rippled would reject with
+    temBAD_SIGNER for lacking the counterparty's signature.
+
+    Args:
+        transaction: the transaction to check.
+
+    Returns:
+        Whether the transaction is a LoanSet without its CounterpartySignature.
+    """
+    return (
+        transaction.transaction_type == TransactionType.LOAN_SET
+        and cast(LoanSet, transaction).counterparty_signature is None
+    )
 
 
 async def simulate(
