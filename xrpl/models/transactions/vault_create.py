@@ -212,6 +212,14 @@ class VaultCreate(Transaction):
             errors["vault_kind"] = (
                 "vault_kind must be 0 (open-ended) or 1 (close-ended)."
             )
+        if self.withdrawal_policy is not None and not (
+            _is_integer(self.withdrawal_policy)
+            and self.withdrawal_policy
+            == WithdrawalPolicy.VAULT_STRATEGY_FIRST_COME_FIRST_SERVE
+        ):
+            errors["withdrawal_policy"] = (
+                "withdrawal_policy must be 1 (first come, first served)."
+            )
         # Both dates are UInt32 ledger fields: reject non-integers (NaN, Infinity,
         # fractional) and values outside [0, 2**32 - 1] before serialization would
         # raise an opaque OverflowError.
