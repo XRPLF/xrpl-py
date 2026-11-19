@@ -9,7 +9,7 @@ from xrpl.asyncio.transaction.reliable_submission import (
     submit_and_wait,
 )
 from xrpl.constants import XRPLException
-from xrpl.models.transactions import Batch, BatchFlag, LoanSet, Payment
+from xrpl.models.transactions import LoanSet
 from xrpl.transaction.counterparty_signer import sign_loan_set_by_counterparty
 from xrpl.wallet import Wallet
 
@@ -62,34 +62,5 @@ class TestSubmit(IsolatedAsyncioTestCase):
         signed = sign_loan_set_by_counterparty(_BORROWER, sign(_LOAN_SET, _BROKER))
 
         await submit(signed.tx, client)
-
-        client._request_impl.assert_awaited_once()
-
-    async def test_submits_batch_whose_inner_loan_set_has_no_counterparty_signature(
-        self,
-    ):
-        client = _client()
-        inner_fields = {"fee": "0", "signing_pub_key": ""}
-        batch = Batch(
-            account=_BROKER.address,
-            flags=BatchFlag.TF_ALL_OR_NOTHING,
-            sequence=1,
-            fee="40",
-            last_ledger_sequence=12312,
-            raw_transactions=[
-                LoanSet.from_dict(
-                    {**_LOAN_SET.to_dict(), **inner_fields, "sequence": 2}
-                ),
-                Payment(
-                    account=_BROKER.address,
-                    destination=_BORROWER.address,
-                    amount="1000000",
-                    sequence=3,
-                    **inner_fields,
-                ),
-            ],
-        )
-
-        await submit(sign(batch, _BROKER), client)
 
         client._request_impl.assert_awaited_once()

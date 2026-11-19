@@ -236,8 +236,7 @@ async def submit(
 def _is_loan_set_missing_counterparty_signature(transaction: Transaction) -> bool:
     """
     Checks whether the transaction is a LoanSet that rippled would reject with
-    temBAD_SIGNER for lacking the counterparty's signature. Only a Batch inner
-    LoanSet may omit it.
+    temBAD_SIGNER for lacking the counterparty's signature.
 
     Args:
         transaction: the transaction to check.
@@ -248,7 +247,6 @@ def _is_loan_set_missing_counterparty_signature(transaction: Transaction) -> boo
     return (
         transaction.transaction_type == TransactionType.LOAN_SET
         and cast(LoanSet, transaction).counterparty_signature is None
-        and not transaction.has_flag(TransactionFlag.TF_INNER_BATCH_TXN)
     )
 
 
