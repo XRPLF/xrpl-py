@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `sign_loan_set_by_counterparty` and `combine_loanset_counterparty_signers` now accept a `LoanSet` whose `Account` is multisigned. They previously raised `Transaction must be first signed by first party.` because they only looked for a `TxnSignature`, so a loan broker with a signer list could not originate a loan.
+- `sign_loan_set_by_counterparty` and `combine_loanset_counterparty_signers` now accept a `LoanSet` whose `Account` is multisigned. They previously raised `Transaction must be first signed by first party.` because they only looked for a `TxnSignature`, so a loan broker with a signer list could not originate a loan. They now also reject an `Account` signature that rippled rejects: a `TxnSignature` without a `SigningPubKey`, or `Signers` alongside a `SigningPubKey` or `TxnSignature`.
 
 ## [[5.2.0]]
 

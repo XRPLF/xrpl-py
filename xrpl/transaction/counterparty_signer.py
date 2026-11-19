@@ -132,8 +132,7 @@ def sign_loan_set_by_counterparty(
         raise XRPLException("Transaction is already signed by the counterparty.")
 
     # Validate first party has signed
-    if not _is_signed_by_first_party(loan_set_tx):
-        raise XRPLException("Transaction must be first signed by first party.")
+    _validate_first_party_signature(loan_set_tx)
 
     # Determine multisign address
     multisign_address: Optional[str] = None
@@ -233,8 +232,7 @@ def combine_loanset_counterparty_signers(
             raise XRPLException("CounterpartySignature must have Signers.")
 
         # Validate first party has signed
-        if not _is_signed_by_first_party(loan_set_tx):
-            raise XRPLException("Transaction must be first signed by first party.")
+        _validate_first_party_signature(loan_set_tx)
 
         decoded_transactions.append(loan_set_tx)
 
@@ -250,18 +248,24 @@ def combine_loanset_counterparty_signers(
     )
 
 
-def _is_signed_by_first_party(tx: LoanSet) -> bool:
+def _validate_first_party_signature(tx: LoanSet) -> None:
     """
-    Checks whether the Account has signed, with a single signature or, when the
-    Account is multisigned, with Signers.
+    Checks that the Account has signed in a form rippled accepts: a SigningPubKey
+    and TxnSignature, or Signers with an empty SigningPubKey and no TxnSignature.
 
     Args:
         tx: The LoanSet transaction to check.
 
-    Returns:
-        True if the Account has signed the transaction.
+    Raises:
+        XRPLException: If the Account has not signed, or has signed both ways.
     """
-    return tx.txn_signature is not None or bool(tx.signers)
+    if not tx.is_signed():
+        raise XRPLException("Transaction must be first signed by first party.")
+    if tx.signers and (tx.signing_pub_key or tx.txn_signature is not None):
+        raise XRPLException(
+            "Multisigned transaction must have an empty SigningPubKey and no "
+            "TxnSignature."
+        )
 
 
 def _validate_loanset_transaction_equivalence(transactions: List[LoanSet]) -> None:

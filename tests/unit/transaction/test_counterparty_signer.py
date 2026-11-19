@@ -323,6 +323,11 @@ class TestSignLoanSetByCounterpartyMultiSign(TestCase):
         )
 
 
+MULTISIGNED_ACCOUNT_ERROR = (
+    "Multisigned transaction must have an empty SigningPubKey and no TxnSignature."
+)
+
+
 class TestSignLoanSetByCounterpartyMultisignedAccount(TestCase):
     """Test counterparty signing of a LoanSet whose Account is multisigned."""
 
@@ -429,3 +434,45 @@ class TestSignLoanSetByCounterpartyMultisignedAccount(TestCase):
             str(context.exception),
             "Transaction must be first signed by first party.",
         )
+
+    def test_throws_if_txn_signature_has_empty_signing_pub_key(self):
+        """A TxnSignature without a SigningPubKey is rejected."""
+        self._assert_both_helpers_reject(
+            {
+                "signers": None,
+                "txn_signature": self.multisigned_loan_set.signers[0].txn_signature,
+            },
+            "Transaction must be first signed by first party.",
+        )
+
+    def test_throws_if_signers_has_signing_pub_key(self):
+        """Signers alongside a non-empty SigningPubKey are rejected."""
+        self._assert_both_helpers_reject(
+            {"signing_pub_key": self.multisigned_loan_set.signers[0].signing_pub_key},
+            MULTISIGNED_ACCOUNT_ERROR,
+        )
+
+    def test_throws_if_signers_has_txn_signature(self):
+        """Signers alongside a TxnSignature are rejected."""
+        self._assert_both_helpers_reject(
+            {"txn_signature": self.multisigned_loan_set.signers[0].txn_signature},
+            MULTISIGNED_ACCOUNT_ERROR,
+        )
+
+    def _assert_both_helpers_reject(self, account_fields, message):
+        malformed = LoanSet.from_dict(
+            {**self.multisigned_loan_set.to_dict(), **account_fields}
+        )
+        with self.assertRaises(XRPLException) as context:
+            sign_loan_set_by_counterparty(self.borrower_wallet, malformed)
+        self.assertEqual(str(context.exception), message)
+
+        counterparty_signed = sign_loan_set_by_counterparty(
+            self.borrower_signer1, self.multisigned_loan_set, multisign=True
+        ).tx
+        malformed = LoanSet.from_dict(
+            {**counterparty_signed.to_dict(), **account_fields}
+        )
+        with self.assertRaises(XRPLException) as context:
+            combine_loanset_counterparty_signers([malformed])
+        self.assertEqual(str(context.exception), message)
