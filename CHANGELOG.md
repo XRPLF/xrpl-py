@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `autofill` now gives `VaultCreate` the network base fee instead of one owner reserve (0.2 XRP on Mainnet). rippled has charged `VaultCreate` the base fee since 3.0.0 ([XRPLF/rippled#5954](https://github.com/XRPLF/rippled/pull/5954)).
 - `sign_loan_set_by_counterparty` and `combine_loanset_counterparty_signers` now accept a `LoanSet` whose `Account` is multisigned. They previously raised `Transaction must be first signed by first party.` because they only looked for a `TxnSignature`, so a loan broker with a signer list could not originate a loan. They now also reject an `Account` signature that rippled rejects: a `TxnSignature` without a `SigningPubKey`, or `Signers` alongside a `SigningPubKey` or `TxnSignature`.
+- `submit` and `sign_and_submit` now raise an `XRPLException`, and `submit_and_wait` an `XRPLReliableSubmissionException`, naming `CounterpartySignature` and `sign_loan_set_by_counterparty` when a `LoanSet` is submitted without the counterparty's signature. rippled rejects such a LoanSet with `temBAD_SIGNER` and the unrelated message `No signer may duplicate account or other signers`.
 
 ## [[5.2.0]]
 
