@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `autofill` now gives `VaultCreate` the network base fee instead of one owner reserve (0.2 XRP on Mainnet). rippled has charged `VaultCreate` the base fee since 3.0.0 ([XRPLF/rippled#5954](https://github.com/XRPLF/rippled/pull/5954)).
+- `sign_loan_set_by_counterparty` and `combine_loanset_counterparty_signers` now accept a `LoanSet` whose `Account` is multisigned. They previously raised `Transaction must be first signed by first party.` because they only looked for a `TxnSignature`, so a loan broker with a signer list could not originate a loan. They now also reject an `Account` signature that rippled rejects: a `TxnSignature` without a `SigningPubKey`, or `Signers` alongside a `SigningPubKey` or `TxnSignature`.
 - Flags given as a dict now raise an `XRPLModelException` when a flag set to `True` is not valid for the transaction type, instead of being silently encoded as `Flags: 0` ([#1016](https://github.com/XRPLF/xrpl-py/issues/1016)). This includes rippled-style names such as `tfImmediateOrCancel`; use the `UPPER_SNAKE_CASE` names of the transaction's `FlagInterface`. The global `TF_INNER_BATCH_TXN` flag now works in dict form for every transaction type.
 - `LoanPay` validation now accepts the `TF_INNER_BATCH_TXN` flag, so a `LoanPay` can be an inner transaction of a `Batch`.
 - `LoanSetFlag`, `LoanManageFlag` and `AMMClawbackFlag` and their `FlagInterface`s are now exported from `xrpl.models.transactions`. Until now their dict-form flags were silently encoded as `0`, so for example `LoanManage(flags={"TF_LOAN_DEFAULT": True})` did nothing on the ledger.
