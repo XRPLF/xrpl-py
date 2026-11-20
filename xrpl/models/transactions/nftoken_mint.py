@@ -8,13 +8,13 @@ from typing import Dict, Optional
 
 from typing_extensions import Final, Self
 
+from xrpl.constants import MAX_NFT_URI_LENGTH
 from xrpl.models.amounts import Amount
 from xrpl.models.amounts.amount import get_amount_value
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
 from xrpl.models.transactions.types import TransactionType
 
-_MAX_URI_LENGTH: Final[int] = 512
 _MAX_TRANSFER_FEE: Final[int] = 50000
 
 
@@ -164,8 +164,8 @@ class NFTokenMint(Transaction):
         return None
 
     def _get_uri_error(self: Self) -> Optional[str]:
-        if self.uri is not None and len(self.uri) > _MAX_URI_LENGTH:
-            return f"Must not be longer than {_MAX_URI_LENGTH} characters"
+        if self.uri is not None and len(self.uri) > MAX_NFT_URI_LENGTH:
+            return f"Must not be longer than {MAX_NFT_URI_LENGTH} characters"
         return None
 
     def _get_amount_error(self: Self) -> Optional[str]:

@@ -5,14 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
-from typing_extensions import Final, Self
+from typing_extensions import Self
 
+from xrpl.constants import MAX_NFT_URI_LENGTH
 from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 from xrpl.models.utils import HEX_REGEX
-
-_MAX_URI_LENGTH: Final[int] = 512
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -63,9 +62,8 @@ class NFTokenModify(Transaction):
     def _get_uri_error(self: Self) -> Optional[str]:
         if not self.uri:
             return "URI must not be empty string"
-        elif len(self.uri) > _MAX_URI_LENGTH:
-            return f"URI must not be longer than {_MAX_URI_LENGTH} characters"
-
+        if len(self.uri) > MAX_NFT_URI_LENGTH:
+            return f"URI must not be longer than {MAX_NFT_URI_LENGTH} characters"
         if not HEX_REGEX.fullmatch(self.uri):
             return "URI must be encoded in hex"
         return None
