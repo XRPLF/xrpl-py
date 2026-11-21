@@ -15,7 +15,7 @@ on:
         default: ""
 
 env:
-  POETRY_VERSION: 2.1.1
+  POETRY_VERSION: 2.5.1
 
 jobs:
   lint-and-type-check:
@@ -31,12 +31,20 @@ jobs:
         with:
           ref: ${{ inputs.git_ref != '' && inputs.git_ref || github.ref }}
 
+      # The installer builds Poetry's venv in ~/.local from the runner's own
+      # Python, so a cache from another runner image can't run (a new
+      # ubuntu-latest image broke the old key). Key it on that image and Python.
+      - name: Compute Poetry cache key
+        id: poetry-cache-key
+        run: |
+          echo "key=dotlocal-${ImageOS:-unknown}-${ImageVersion:-unknown}-$(python3 -c 'import sys; print("%d.%d.%d" % sys.version_info[:3])')-${{ env.POETRY_VERSION }}" >> "$GITHUB_OUTPUT"
+
       - name: Load cached .local
         id: cache-poetry
         uses: actions/cache@v4
         with:
           path: /home/runner/.local
-          key: dotlocal-${{ env.POETRY_VERSION }}
+          key: ${{ steps.poetry-cache-key.outputs.key }}
 
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'
@@ -56,6 +64,10 @@ jobs:
 
       - name: Install poetry dependencies
         run: poetry install
+
+      - name: Check virtualenv Python version
+        run: |
+          poetry run python -c "import sys; v = '%d.%d' % sys.version_info[:2]; print(sys.version); assert v == '${{ env.PYTHON_VERSION }}', f'venv is Python {v}, expected ${{ env.PYTHON_VERSION }}'"
 
       - name: Lint
         run: |
@@ -83,12 +95,20 @@ jobs:
       # build_wheels_confidential.yml. Core unit tests do not build it; the
       # confidential native tests self-skip when the extension is absent.
 
+      # The installer builds Poetry's venv in ~/.local from the runner's own
+      # Python, so a cache from another runner image can't run (a new
+      # ubuntu-latest image broke the old key). Key it on that image and Python.
+      - name: Compute Poetry cache key
+        id: poetry-cache-key
+        run: |
+          echo "key=dotlocal-${ImageOS:-unknown}-${ImageVersion:-unknown}-$(python3 -c 'import sys; print("%d.%d.%d" % sys.version_info[:3])')-${{ env.POETRY_VERSION }}" >> "$GITHUB_OUTPUT"
+
       - name: Load cached .local
         id: cache-poetry
         uses: actions/cache@v4
         with:
           path: /home/runner/.local
-          key: dotlocal-${{ env.POETRY_VERSION }}
+          key: ${{ steps.poetry-cache-key.outputs.key }}
 
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'
@@ -108,6 +128,10 @@ jobs:
 
       - name: Install poetry dependencies
         run: poetry install
+
+      - name: Check virtualenv Python version
+        run: |
+          poetry run python -c "import sys; v = '%d.%d' % sys.version_info[:2]; print(sys.version); assert v == '${{ matrix.python-version }}', f'venv is Python {v}, expected ${{ matrix.python-version }}'"
 
       - name: Unit test
         run: |
