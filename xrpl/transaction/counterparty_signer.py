@@ -82,9 +82,9 @@ def sign_loan_set_by_counterparty(
     Signs a LoanSet transaction as the counterparty.
 
     This function adds a counterparty signature to a LoanSet transaction that has
-    already been signed by the first party. The counterparty uses their wallet to
-    sign the transaction, which is required for multi-party loan agreements on the
-    XRP Ledger.
+    already been signed by the first party, either single-signed or multisigned.
+    The counterparty uses their wallet to sign the transaction, which is required
+    for multi-party loan agreements on the XRP Ledger.
 
     Args:
         wallet: The counterparty's wallet used for signing the transaction.
@@ -132,8 +132,7 @@ def sign_loan_set_by_counterparty(
         raise XRPLException("Transaction is already signed by the counterparty.")
 
     # Validate first party has signed
-    if loan_set_tx.txn_signature is None or loan_set_tx.signing_pub_key is None:
-        raise XRPLException("Transaction must be first signed by first party.")
+    _validate_first_party_signature(loan_set_tx)
 
     # Determine multisign address
     multisign_address: Optional[str] = None
@@ -233,8 +232,7 @@ def combine_loanset_counterparty_signers(
             raise XRPLException("CounterpartySignature must have Signers.")
 
         # Validate first party has signed
-        if loan_set_tx.txn_signature is None or loan_set_tx.signing_pub_key is None:
-            raise XRPLException("Transaction must be first signed by first party.")
+        _validate_first_party_signature(loan_set_tx)
 
         decoded_transactions.append(loan_set_tx)
 
@@ -248,6 +246,26 @@ def combine_loanset_counterparty_signers(
         tx=combined_tx,
         tx_blob=encode(combined_tx.to_xrpl()),
     )
+
+
+def _validate_first_party_signature(tx: LoanSet) -> None:
+    """
+    Checks that the Account has signed in a form rippled accepts: a SigningPubKey
+    and TxnSignature, or Signers with an empty SigningPubKey and no TxnSignature.
+
+    Args:
+        tx: The LoanSet transaction to check.
+
+    Raises:
+        XRPLException: If the Account has not signed, or has signed both ways.
+    """
+    if not tx.is_signed():
+        raise XRPLException("Transaction must be first signed by first party.")
+    if tx.signers and (tx.signing_pub_key or tx.txn_signature is not None):
+        raise XRPLException(
+            "Multisigned transaction must have an empty SigningPubKey and no "
+            "TxnSignature."
+        )
 
 
 def _validate_loanset_transaction_equivalence(transactions: List[LoanSet]) -> None:
