@@ -7,9 +7,16 @@ from typing_extensions import Final
 
 from xrpl.asyncio.clients import Client
 from xrpl.asyncio.ledger import get_latest_validated_ledger_sequence
-from xrpl.asyncio.transaction.main import _check_fee
+from xrpl.asyncio.transaction.main import (
+    _MISSING_COUNTERPARTY_SIGNATURE_ERROR,
+    _check_fee,
+    _is_loan_set_missing_counterparty_signature,
+)
 from xrpl.asyncio.transaction.main import autofill as _autofill
-from xrpl.asyncio.transaction.main import sign, submit
+from xrpl.asyncio.transaction.main import (
+    sign,
+    submit,
+)
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.constants import XRPLException
 from xrpl.models.requests import Tx
@@ -99,13 +106,18 @@ async def _send_reliable_submission(
         The response from a validated ledger.
 
     Raises:
-        XRPLReliableSubmissionException: if the transaction fails, is malformed, or is
-            missing a `last_ledger_sequence` param.
+        XRPLReliableSubmissionException: if the transaction fails, is malformed, is
+            missing a `last_ledger_sequence` param, or is a LoanSet without the
+            counterparty's signature.
     """
     if transaction.last_ledger_sequence is None:
         raise XRPLReliableSubmissionException(
             "Transaction must have a `last_ledger_sequence` param."
         )
+    # Checked here too, so this raises XRPLReliableSubmissionException as the
+    # temBAD_SIGNER result would.
+    if _is_loan_set_missing_counterparty_signature(transaction):
+        raise XRPLReliableSubmissionException(_MISSING_COUNTERPARTY_SIGNATURE_ERROR)
     transaction_hash = transaction.get_hash()
     submit_response = await submit(transaction, client, fail_hard=fail_hard)
     prelim_result = submit_response.result["engine_result"]
