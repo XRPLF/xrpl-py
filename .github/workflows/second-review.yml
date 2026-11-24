@@ -9,8 +9,10 @@
 # result or skip label and push events by editing it:
 #   - `pull_request_target`: PR opened, pushed, labeled or unlabeled.
 #   - `workflow_run`: after second-review-trigger.yml records a review change.
-# This workflow never checks out or runs PR code. One commit status per head
-# commit means there is never more than one `second-review` result.
+# This workflow never checks out or runs PR code. A commit status belongs to a
+# commit, not a PR, so the result covers every open PR whose head is that
+# commit: it fails while any of them is labeled and short of approvals. That
+# stops an unlabeled PR at the same commit from passing a labeled one.
 
 name: Second review
 
@@ -50,6 +52,8 @@ jobs:
           REPO: ${{ github.event.repository.name }}
           # Set on `pull_request_target`.
           EVENT_PR_NUMBER: ${{ github.event.pull_request.number }}
+          EVENT_PR_STATE: ${{ github.event.pull_request.state }}
+          EVENT_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           # Set on `workflow_run` by the trigger run, which a PR can influence.
           # Only used to pick which PR to look up; everything else is read from
           # the API.
@@ -60,6 +64,14 @@ jobs:
         run: |
           set -euo pipefail
 
+          post_status() {
+            gh api --silent "repos/${OWNER}/${REPO}/statuses/$1" \
+              -f state="$2" \
+              -f context=second-review \
+              -f description="$3" \
+              -f target_url="${RUN_URL}"
+          }
+
           if [ -n "${EVENT_PR_NUMBER}" ]; then
             PR_NUMBER="${EVENT_PR_NUMBER}"
           elif [[ "${RUN_TITLE}" =~ \#([0-9]+)$ ]]; then
@@ -69,60 +81,83 @@ jobs:
             exit 1
           fi
 
-          # writersOnly drops reviewers without write access; bot reviews never
-          # count toward approvals.
-          RESULT="$(gh api graphql \
-            -F owner="${OWNER}" -F name="${REPO}" -F number="${PR_NUMBER}" \
+          # A label change can turn an earlier success into a failure. Mark the
+          # commit pending first, so if anything below fails, the check stays
+          # blocked instead of keeping the old result.
+          if [ "${EVENT_PR_STATE}" = "open" ]; then
+            post_status "${EVENT_HEAD_SHA}" pending "Evaluating approvals"
+          fi
+
+          # All open PRs, so the ones sharing this PR's head commit can be
+          # evaluated together. writersOnly drops reviewers without write access.
+          OPEN_PRS="$(gh api graphql --paginate \
+            -F owner="${OWNER}" -F name="${REPO}" \
             -f query='
-              query($owner: String!, $name: String!, $number: Int!) {
+              query($owner: String!, $name: String!, $endCursor: String) {
                 repository(owner: $owner, name: $name) {
-                  pullRequest(number: $number) {
-                    state
-                    headRefOid
-                    labels(first: 100) { nodes { name } }
-                    latestOpinionatedReviews(first: 100, writersOnly: true) {
-                      nodes { state author { __typename login } }
+                  pullRequests(states: OPEN, first: 100, after: $endCursor) {
+                    pageInfo { hasNextPage endCursor }
+                    nodes {
+                      number
+                      headRefOid
+                      labels(first: 100) { nodes { name } }
+                      latestOpinionatedReviews(first: 100, writersOnly: true) {
+                        nodes { state author { __typename login } }
+                      }
                     }
                   }
                 }
-              }')"
-          PR="$(jq '.data.repository.pullRequest' <<< "${RESULT}")"
+              }' \
+            --jq '.data.repository.pullRequests.nodes[]' | jq -s .)"
 
-          if [ "$(jq -r '.state' <<< "${PR}")" != "OPEN" ]; then
+          HEAD_SHA="$(jq -r --argjson n "${PR_NUMBER}" \
+            'first(.[] | select(.number == $n) | .headRefOid) // empty' <<< "${OPEN_PRS}")"
+          if [ -z "${HEAD_SHA}" ]; then
             echo "PR #${PR_NUMBER} is not open; nothing to do." >> "${GITHUB_STEP_SUMMARY}"
             exit 0
           fi
-          HEAD_SHA="$(jq -r '.headRefOid' <<< "${PR}")"
 
-          if jq -e --arg label "${LABEL}" 'any(.labels.nodes[]; .name == $label)' \
-            <<< "${PR}" > /dev/null; then
-            APPROVERS="$(jq -r '
-              .latestOpinionatedReviews.nodes[]
-              | select(.state == "APPROVED" and .author.__typename == "User")
-              | .author.login' <<< "${PR}")"
-            COUNT="$(printf '%s' "${APPROVERS}" | grep -c . || true)"
-            if [ "${COUNT}" -ge "${REQUIRED_APPROVALS}" ]; then
-              STATE=success
-            else
-              STATE=failure
-            fi
-            DESCRIPTION="${LABEL}: ${COUNT}/${REQUIRED_APPROVALS} approvals from reviewers with write access"
-          else
-            APPROVERS=""
+          # Every open PR whose head is this commit. Bot reviews never count
+          # toward approvals.
+          GROUP="$(jq --arg sha "${HEAD_SHA}" --arg label "${LABEL}" \
+            --argjson required "${REQUIRED_APPROVALS}" '
+            [ .[] | select(.headRefOid == $sha)
+              | { number,
+                  labeled: any(.labels.nodes[]; .name == $label),
+                  approvers: [ .latestOpinionatedReviews.nodes[]
+                    | select(.state == "APPROVED" and .author.__typename == "User")
+                    | .author.login ] }
+              | .count = (.approvers | length)
+              | .blocked = (.labeled and .count < $required) ]' <<< "${OPEN_PRS}")"
+
+          # The PR that decides the result: a labeled PR short of approvals,
+          # else this PR if labeled, else another labeled PR at this commit.
+          SUBJECT="$(jq -c --argjson n "${PR_NUMBER}" '
+            first(.[] | select(.blocked))
+            // first(.[] | select(.number == $n and .labeled))
+            // first(.[] | select(.labeled))
+            // empty' <<< "${GROUP}")"
+
+          if [ -z "${SUBJECT}" ]; then
             STATE=success
             DESCRIPTION="No ${LABEL} label: one approval is enough"
+          else
+            if jq -e '.blocked' <<< "${SUBJECT}" > /dev/null; then
+              STATE=failure
+            else
+              STATE=success
+            fi
+            DESCRIPTION="${LABEL}: $(jq -r '.count' <<< "${SUBJECT}")/${REQUIRED_APPROVALS} approvals from reviewers with write access"
+            SUBJECT_NUMBER="$(jq -r '.number' <<< "${SUBJECT}")"
+            if [ "${SUBJECT_NUMBER}" != "${PR_NUMBER}" ]; then
+              DESCRIPTION="#${SUBJECT_NUMBER} (same commit) ${DESCRIPTION}"
+            fi
           fi
 
-          gh api --silent "repos/${OWNER}/${REPO}/statuses/${HEAD_SHA}" \
-            -f state="${STATE}" \
-            -f context=second-review \
-            -f description="${DESCRIPTION}" \
-            -f target_url="${RUN_URL}"
+          post_status "${HEAD_SHA}" "${STATE}" "${DESCRIPTION}"
 
           {
             echo "PR #${PR_NUMBER} at \`${HEAD_SHA:0:7}\`: **${STATE}**. ${DESCRIPTION}."
-            if [ -n "${APPROVERS}" ]; then
-              echo
-              printf -- '- @%s\n' ${APPROVERS}
-            fi
+            echo
+            jq -r '.[] | "- PR #\(.number): \(if .labeled then "labeled" else "not labeled" end), approved by \(if .approvers == [] then "nobody" else (.approvers | map("@" + .) | join(", ")) end)"' <<< "${GROUP}"
           } >> "${GITHUB_STEP_SUMMARY}"
