@@ -11,7 +11,11 @@ from xrpl.models.transactions.account_set import (
     AccountSetFlagInterface,
 )
 from xrpl.models.transactions.amm_bid import AMMBid, AuthAccount
-from xrpl.models.transactions.amm_clawback import AMMClawback
+from xrpl.models.transactions.amm_clawback import (
+    AMMClawback,
+    AMMClawbackFlag,
+    AMMClawbackFlagInterface,
+)
 from xrpl.models.transactions.amm_create import AMMCreate
 from xrpl.models.transactions.amm_delete import AMMDelete
 from xrpl.models.transactions.amm_deposit import (
@@ -55,9 +59,13 @@ from xrpl.models.transactions.loan_broker_cover_withdraw import LoanBrokerCoverW
 from xrpl.models.transactions.loan_broker_delete import LoanBrokerDelete
 from xrpl.models.transactions.loan_broker_set import LoanBrokerSet
 from xrpl.models.transactions.loan_delete import LoanDelete
-from xrpl.models.transactions.loan_manage import LoanManage
+from xrpl.models.transactions.loan_manage import (
+    LoanManage,
+    LoanManageFlag,
+    LoanManageFlagInterface,
+)
 from xrpl.models.transactions.loan_pay import LoanPay, LoanPayFlag, LoanPayFlagInterface
-from xrpl.models.transactions.loan_set import LoanSet
+from xrpl.models.transactions.loan_set import LoanSet, LoanSetFlag, LoanSetFlagInterface
 from xrpl.models.transactions.metadata import TransactionMetadata
 from xrpl.models.transactions.mptoken_authorize import (
     MPTokenAuthorize,
@@ -174,6 +182,8 @@ __all__ = [
     "AccountSetFlagInterface",
     "AMMBid",
     "AMMClawback",
+    "AMMClawbackFlag",
+    "AMMClawbackFlagInterface",
     "AMMCreate",
     "AMMDelete",
     "AMMDeposit",
@@ -214,10 +224,14 @@ __all__ = [
     "LoanBrokerSet",
     "LoanDelete",
     "LoanManage",
+    "LoanManageFlag",
+    "LoanManageFlagInterface",
     "LoanPay",
     "LoanPayFlag",
     "LoanPayFlagInterface",
     "LoanSet",
+    "LoanSetFlag",
+    "LoanSetFlagInterface",
     "Memo",
     "MPTokenAuthorize",
     "MPTokenAuthorizeFlag",

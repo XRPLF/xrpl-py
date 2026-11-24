@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from xrpl.models.exceptions import XRPLModelException
-from xrpl.models.transactions import LoanPay, LoanPayFlag
+from xrpl.models.transactions import LoanPay, LoanPayFlag, TransactionFlag
 
 _SOURCE = "r9LqNeG6qHxjeUocjvVki2XR35weJ9mZgQ"
 _LOAN_ID = "78381E3BA82D0464D27B6E7D968657EB8EFF95625A4FE623840127F61F468D4C"
@@ -35,6 +35,20 @@ class TestLoanPay(TestCase):
             error.exception.args[0],
             "{'LoanPay:Flags': 'Unrecognised flag in the LoanPay " + "transaction'}",
         )
+
+    def test_inner_batch_flag_round_trip(self):
+        tx = LoanPay(
+            account=_SOURCE,
+            loan_id=_LOAN_ID,
+            amount="1000",
+            flags={"TF_INNER_BATCH_TXN": True, "TF_LOAN_FULL_PAYMENT": True},
+        )
+        tx_json = tx.to_xrpl()
+        self.assertEqual(
+            tx_json["Flags"],
+            TransactionFlag.TF_INNER_BATCH_TXN | LoanPayFlag.TF_LOAN_FULL_PAYMENT,
+        )
+        self.assertEqual(LoanPay.from_xrpl(tx_json).to_xrpl(), tx_json)
 
     def test_valid_loan_pay(self):
         tx = LoanPay(

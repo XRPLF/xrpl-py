@@ -10,7 +10,11 @@ from typing_extensions import Self
 
 from xrpl.models.amounts import Amount
 from xrpl.models.required import REQUIRED
-from xrpl.models.transactions.transaction import Transaction, TransactionFlagInterface
+from xrpl.models.transactions.transaction import (
+    Transaction,
+    TransactionFlag,
+    TransactionFlagInterface,
+)
 from xrpl.models.transactions.types import TransactionType
 
 
@@ -76,7 +80,9 @@ class LoanPay(Transaction):
 
         if self.flags is not None and isinstance(self.flags, int):
             # Check for unrecognized flags (bits set outside valid mask)
-            if self.flags & ~self._VALID_FLAGS_MASK:
+            if self.flags & ~(
+                self._VALID_FLAGS_MASK | TransactionFlag.TF_INNER_BATCH_TXN
+            ):
                 errors["LoanPay:Flags"] = "Unrecognised flag in the LoanPay transaction"
             # Check that at most one flag is enabled
             elif bin(self.flags & self._VALID_FLAGS_MASK).count("1") > 1:
