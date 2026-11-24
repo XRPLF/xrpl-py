@@ -9,10 +9,13 @@
 # result or skip label and push events by editing it:
 #   - `pull_request_target`: PR opened, pushed, labeled or unlabeled.
 #   - `workflow_run`: after second-review-trigger.yml records a review change.
-# This workflow never checks out or runs PR code. A commit status belongs to a
-# commit, not a PR, so the result covers every open PR whose head is that
-# commit: it fails while any of them is labeled and short of approvals. That
-# stops an unlabeled PR at the same commit from passing a labeled one.
+# This workflow never checks out or runs PR code.
+#
+# A commit status belongs to a commit, not a PR, so each run evaluates one head
+# commit: the one GitHub records for the event, which a PR can't change. The
+# result covers every open PR whose head is that commit, and fails while any of
+# them is labeled and short of approvals. That stops an unlabeled PR at the same
+# commit from passing a labeled one.
 
 name: Second review
 
@@ -27,12 +30,12 @@ permissions:
   pull-requests: read
   statuses: write
 
-# One queue per PR for both triggers, so a slow evaluation can't post a stale
-# result over a newer one. The key matches the trigger's run name. Skipped
-# trigger runs (thread replies) get their own group, so they never cancel a
-# real evaluation.
+# One queue per head commit for both triggers. Every run that posts a given
+# commit's status runs in its queue, so a slow evaluation is cancelled rather
+# than posting a stale result over a newer one. Skipped trigger runs (thread
+# replies) get their own group, so they never cancel a real evaluation.
 concurrency:
-  group: "second-review-${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'success' && 'ignored-' || '' }}${{ github.event.workflow_run.display_title || format('Second review trigger for PR #{0}', github.event.pull_request.number) }}"
+  group: "second-review-${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'success' && 'ignored-' || '' }}${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha }}"
   cancel-in-progress: true
 
 jobs:
@@ -50,46 +53,38 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
+          # Set by GitHub; must match the concurrency group above.
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha }}
           # Set on `pull_request_target`.
-          EVENT_PR_NUMBER: ${{ github.event.pull_request.number }}
           EVENT_PR_STATE: ${{ github.event.pull_request.state }}
-          EVENT_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          # Set on `workflow_run` by the trigger run, which a PR can influence.
-          # Only used to pick which PR to look up; everything else is read from
-          # the API.
-          RUN_TITLE: ${{ github.event.workflow_run.display_title }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           LABEL: needs-second-reviewer
           REQUIRED_APPROVALS: 2
         run: |
           set -euo pipefail
 
-          post_status() {
-            gh api --silent "repos/${OWNER}/${REPO}/statuses/$1" \
-              -f state="$2" \
-              -f context=second-review \
-              -f description="$3" \
-              -f target_url="${RUN_URL}"
-          }
-
-          if [ -n "${EVENT_PR_NUMBER}" ]; then
-            PR_NUMBER="${EVENT_PR_NUMBER}"
-          elif [[ "${RUN_TITLE}" =~ \#([0-9]+)$ ]]; then
-            PR_NUMBER="${BASH_REMATCH[1]}"
-          else
-            echo "::error::Could not read a PR number from the trigger run name."
+          if [[ ! "${HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::No head commit in the event."
             exit 1
           fi
+
+          post_status() {
+            gh api --silent "repos/${OWNER}/${REPO}/statuses/${HEAD_SHA}" \
+              -f state="$1" \
+              -f context=second-review \
+              -f description="$2" \
+              -f target_url="${RUN_URL}"
+          }
 
           # A label change can turn an earlier success into a failure. Mark the
           # commit pending first, so if anything below fails, the check stays
           # blocked instead of keeping the old result.
           if [ "${EVENT_PR_STATE}" = "open" ]; then
-            post_status "${EVENT_HEAD_SHA}" pending "Evaluating approvals"
+            post_status pending "Evaluating approvals"
           fi
 
-          # All open PRs, so the ones sharing this PR's head commit can be
-          # evaluated together. writersOnly drops reviewers without write access.
+          # All open PRs, to find the ones whose head is this commit.
+          # writersOnly drops reviewers without write access.
           OPEN_PRS="$(gh api graphql --paginate \
             -F owner="${OWNER}" -F name="${REPO}" \
             -f query='
@@ -110,13 +105,6 @@ jobs:
               }' \
             --jq '.data.repository.pullRequests.nodes[]' | jq -s .)"
 
-          HEAD_SHA="$(jq -r --argjson n "${PR_NUMBER}" \
-            'first(.[] | select(.number == $n) | .headRefOid) // empty' <<< "${OPEN_PRS}")"
-          if [ -z "${HEAD_SHA}" ]; then
-            echo "PR #${PR_NUMBER} is not open; nothing to do." >> "${GITHUB_STEP_SUMMARY}"
-            exit 0
-          fi
-
           # Every open PR whose head is this commit. Bot reviews never count
           # toward approvals.
           GROUP="$(jq --arg sha "${HEAD_SHA}" --arg label "${LABEL}" \
@@ -130,11 +118,15 @@ jobs:
               | .count = (.approvers | length)
               | .blocked = (.labeled and .count < $required) ]' <<< "${OPEN_PRS}")"
 
+          if [ "$(jq 'length' <<< "${GROUP}")" -eq 0 ]; then
+            echo "No open PR has head commit \`${HEAD_SHA:0:7}\` (pushed or closed since the event); nothing to do." >> "${GITHUB_STEP_SUMMARY}"
+            exit 0
+          fi
+
           # The PR that decides the result: a labeled PR short of approvals,
-          # else this PR if labeled, else another labeled PR at this commit.
-          SUBJECT="$(jq -c --argjson n "${PR_NUMBER}" '
+          # else a labeled PR.
+          SUBJECT="$(jq -c '
             first(.[] | select(.blocked))
-            // first(.[] | select(.number == $n and .labeled))
             // first(.[] | select(.labeled))
             // empty' <<< "${GROUP}")"
 
@@ -148,16 +140,16 @@ jobs:
               STATE=success
             fi
             DESCRIPTION="${LABEL}: $(jq -r '.count' <<< "${SUBJECT}")/${REQUIRED_APPROVALS} approvals from reviewers with write access"
-            SUBJECT_NUMBER="$(jq -r '.number' <<< "${SUBJECT}")"
-            if [ "${SUBJECT_NUMBER}" != "${PR_NUMBER}" ]; then
-              DESCRIPTION="#${SUBJECT_NUMBER} (same commit) ${DESCRIPTION}"
+            # Name the PR when several share this commit.
+            if [ "$(jq 'length' <<< "${GROUP}")" -gt 1 ]; then
+              DESCRIPTION="PR #$(jq -r '.number' <<< "${SUBJECT}") ${DESCRIPTION}"
             fi
           fi
 
-          post_status "${HEAD_SHA}" "${STATE}" "${DESCRIPTION}"
+          post_status "${STATE}" "${DESCRIPTION}"
 
           {
-            echo "PR #${PR_NUMBER} at \`${HEAD_SHA:0:7}\`: **${STATE}**. ${DESCRIPTION}."
+            echo "Commit \`${HEAD_SHA:0:7}\`: **${STATE}**. ${DESCRIPTION}."
             echo
             jq -r '.[] | "- PR #\(.number): \(if .labeled then "labeled" else "not labeled" end), approved by \(if .approvers == [] then "nobody" else (.approvers | map("@" + .) | join(", ")) end)"' <<< "${GROUP}"
           } >> "${GITHUB_STEP_SUMMARY}"

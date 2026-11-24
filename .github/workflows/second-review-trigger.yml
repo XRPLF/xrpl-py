@@ -2,12 +2,14 @@
 #
 # GitHub has no trusted (`*_target`) version of review events, so this runs in
 # the PR's context, where forks get a read-only token and the workflow file
-# comes from the PR itself. It only records which PR changed, in its run name;
-# second-review.yml runs on `workflow_run` from the default branch, reads the
-# PR's current state from the API and posts the status. If a PR edits this file
-# to drop events, approvals just stop updating the status, so a failing check
-# stays failing. Label, push and open events are handled by second-review.yml
-# directly. Don't require this workflow's check.
+# comes from the PR itself. It does nothing on its own: second-review.yml runs
+# on `workflow_run` from the default branch, takes the head commit GitHub
+# recorded for this run (which a PR can't change), reads the current state of
+# the open PRs at that commit from the API and posts the status. The run name is
+# only a label for people. If a PR edits this file to drop events, reviews stop
+# updating the status until the next push or label change. Label, push and open
+# events are handled by second-review.yml directly. Don't require this
+# workflow's check.
 
 name: Second review trigger
 run-name: "Second review trigger for PR #${{ github.event.pull_request.number }}"
