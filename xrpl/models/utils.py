@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Pattern
 
 from typing_extensions import Final
 
-HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]*")
+HEX_REGEX: Final[Pattern[str]] = re.compile("[a-fA-F0-9]+")
 
 MAX_CREDENTIAL_ARRAY_LENGTH = 8
 
@@ -46,7 +46,7 @@ def get_credential_type_error(credential_type: str) -> Optional[str]:
         errors.append("cannot be an empty string.")
     elif len(credential_type) > _MAX_CREDENTIAL_LENGTH:
         errors.append(f"Length cannot exceed {_MAX_CREDENTIAL_LENGTH}.")
-    if not HEX_REGEX.fullmatch(credential_type):
+    if len(credential_type) != 0 and not HEX_REGEX.fullmatch(credential_type):
         errors.append("credential_type field must be encoded in hex.")
     return " ".join(errors) if len(errors) > 0 else None
 

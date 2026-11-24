@@ -62,7 +62,7 @@ class DIDSet(Transaction):
         def _process_field(name: str, value: Optional[str]) -> None:
             if value is not None:
                 error_strs = []
-                if not bool(HEX_REGEX.fullmatch(value)):
+                if value != "" and not bool(HEX_REGEX.fullmatch(value)):
                     error_strs.append("must be hex")
                 if len(value) > 256:
                     error_strs.append("must be <= 256 characters")

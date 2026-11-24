@@ -5,6 +5,7 @@ from unittest import TestCase
 from xrpl.models.currencies import IssuedCurrency
 from xrpl.models.requests import AccountInfo
 from xrpl.models.transactions import Payment, PaymentFlag
+from xrpl.models.utils import HEX_REGEX, is_valid_vault_data
 from xrpl.utils.mptoken_metadata import (
     decode_mptoken_metadata,
     encode_mptoken_metadata,
@@ -97,3 +98,31 @@ class TestMPTokenMetadataEncodingDecoding(TestCase):
             with self.subTest(test_name=test_name):
                 self.assertEqual(expected_long_form, decoded_metadata)
                 self.assertEqual(expected_hex, encoded_metadata)
+
+
+class TestHexRegex(TestCase):
+    def test_hex_regex_rejects_empty_string(self):
+        self.assertIsNone(HEX_REGEX.fullmatch(""))
+
+    def test_hex_regex_accepts_hex(self):
+        self.assertIsNotNone(HEX_REGEX.fullmatch("deadBEEF0123"))
+        self.assertIsNotNone(HEX_REGEX.fullmatch("a"))
+
+    def test_hex_regex_rejects_non_hex(self):
+        self.assertIsNone(HEX_REGEX.fullmatch("0x12"))
+        self.assertIsNone(HEX_REGEX.fullmatch("zz"))
+
+    def test_is_valid_vault_data_rejects_empty_string(self):
+        self.assertFalse(is_valid_vault_data(""))
+        self.assertTrue(is_valid_vault_data("ab"))
+        self.assertFalse(is_valid_vault_data("abc"))
+
+    def test_decode_mptoken_metadata_rejects_empty_string_as_hex(self):
+        with self.assertRaisesRegex(ValueError, "hex format"):
+            decode_mptoken_metadata("")
+
+    def test_validate_mptoken_metadata_rejects_empty_string_as_hex(self):
+        self.assertEqual(
+            ["MPTokenMetadata must be in hex format."],
+            validate_mptoken_metadata(""),
+        )
