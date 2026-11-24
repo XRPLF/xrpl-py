@@ -55,7 +55,7 @@ jobs:
           REPO: ${{ github.event.repository.name }}
           # Set by GitHub; must match the concurrency group above.
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha }}
-          # Set on `pull_request_target`.
+          # Set on `pull_request_target`; empty on `workflow_run`.
           EVENT_PR_STATE: ${{ github.event.pull_request.state }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           LABEL: needs-second-reviewer
@@ -76,10 +76,12 @@ jobs:
               -f target_url="${RUN_URL}"
           }
 
-          # A label change can turn an earlier success into a failure. Mark the
-          # commit pending first, so if anything below fails, the check stays
-          # blocked instead of keeping the old result.
-          if [ "${EVENT_PR_STATE}" = "open" ]; then
+          # A label change or a dismissed review can turn an earlier success into
+          # a failure. Mark the commit pending first, so if anything below
+          # fails, the check stays blocked instead of keeping the old result.
+          # Skipped only for PR events on a closed PR; review events don't carry
+          # the PR state.
+          if [ "${EVENT_PR_STATE}" != "closed" ]; then
             post_status pending "Evaluating approvals"
           fi
 
