@@ -1,0 +1,157 @@
+# Requires a second approval on PRs labeled `needs-second-reviewer`.
+#
+# `main` requires one approving review. Add the `second-review` commit status as
+# a required check so a labeled PR can't merge until two reviewers with write
+# access have approved it. Unlabeled PRs pass. See CONTRIBUTING.md#code-review.
+#
+# Both triggers below always run this file from the default branch, with a
+# token that can post statuses even for fork PRs, so a PR can't change the
+# result or skip label and push events by editing it:
+#   - `pull_request_target`: PR opened, pushed, labeled or unlabeled.
+#   - `workflow_run`: after second-review-trigger.yml records a review change.
+# This workflow never checks out or runs PR code.
+#
+# A commit status belongs to a commit, not a PR, so each run evaluates one head
+# commit: the one GitHub records for the event, which a PR can't change. The
+# result covers every open PR whose head is that commit, and fails while any of
+# them is labeled and short of approvals. That stops an unlabeled PR at the same
+# commit from passing a labeled one.
+
+name: Second review
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+  workflow_run:
+    workflows: ["Second review trigger"]
+    types: [completed]
+
+permissions:
+  pull-requests: read
+  statuses: write
+
+# One queue per head commit for both triggers. Every run that posts a given
+# commit's status runs in its queue, so a slow evaluation is cancelled rather
+# than posting a stale result over a newer one. Skipped trigger runs (thread
+# replies) get their own group, so they never cancel a real evaluation.
+concurrency:
+  group: "second-review-${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'success' && 'ignored-' || '' }}${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha }}"
+  cancel-in-progress: true
+
+jobs:
+  # Not named `second-review`: a check run with the same name as the required
+  # commit status would be required too.
+  post-second-review-status:
+    if: >-
+      github.event_name == 'pull_request_target' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Evaluate approvals and post status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+          # Set by GitHub; must match the concurrency group above.
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha }}
+          # Set on `pull_request_target`; empty on `workflow_run`.
+          EVENT_PR_STATE: ${{ github.event.pull_request.state }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          LABEL: needs-second-reviewer
+          REQUIRED_APPROVALS: 2
+        run: |
+          set -euo pipefail
+
+          if [[ ! "${HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::No head commit in the event."
+            exit 1
+          fi
+
+          post_status() {
+            gh api --silent "repos/${OWNER}/${REPO}/statuses/${HEAD_SHA}" \
+              -f state="$1" \
+              -f context=second-review \
+              -f description="$2" \
+              -f target_url="${RUN_URL}"
+          }
+
+          # A label change or a dismissed review can turn an earlier success into
+          # a failure. Mark the commit pending first, so if anything below
+          # fails, the check stays blocked instead of keeping the old result.
+          # Skipped only for PR events on a closed PR; review events don't carry
+          # the PR state.
+          if [ "${EVENT_PR_STATE}" != "closed" ]; then
+            post_status pending "Evaluating approvals"
+          fi
+
+          # All open PRs, to find the ones whose head is this commit.
+          # writersOnly drops reviewers without write access.
+          OPEN_PRS="$(gh api graphql --paginate \
+            -F owner="${OWNER}" -F name="${REPO}" \
+            -f query='
+              query($owner: String!, $name: String!, $endCursor: String) {
+                repository(owner: $owner, name: $name) {
+                  pullRequests(states: OPEN, first: 100, after: $endCursor) {
+                    pageInfo { hasNextPage endCursor }
+                    nodes {
+                      number
+                      headRefOid
+                      labels(first: 100) { nodes { name } }
+                      latestOpinionatedReviews(first: 100, writersOnly: true) {
+                        nodes { state author { __typename login } }
+                      }
+                    }
+                  }
+                }
+              }' \
+            --jq '.data.repository.pullRequests.nodes[]' | jq -s .)"
+
+          # Every open PR whose head is this commit. Bot reviews never count
+          # toward approvals.
+          GROUP="$(jq --arg sha "${HEAD_SHA}" --arg label "${LABEL}" \
+            --argjson required "${REQUIRED_APPROVALS}" '
+            [ .[] | select(.headRefOid == $sha)
+              | { number,
+                  labeled: any(.labels.nodes[]; .name == $label),
+                  approvers: [ .latestOpinionatedReviews.nodes[]
+                    | select(.state == "APPROVED" and .author.__typename == "User")
+                    | .author.login ] }
+              | .count = (.approvers | length)
+              | .blocked = (.labeled and .count < $required) ]' <<< "${OPEN_PRS}")"
+
+          if [ "$(jq 'length' <<< "${GROUP}")" -eq 0 ]; then
+            echo "No open PR has head commit \`${HEAD_SHA:0:7}\` (pushed or closed since the event); nothing to do." >> "${GITHUB_STEP_SUMMARY}"
+            exit 0
+          fi
+
+          # The PR that decides the result: a labeled PR short of approvals,
+          # else a labeled PR.
+          SUBJECT="$(jq -c '
+            first(.[] | select(.blocked))
+            // first(.[] | select(.labeled))
+            // empty' <<< "${GROUP}")"
+
+          if [ -z "${SUBJECT}" ]; then
+            STATE=success
+            DESCRIPTION="No ${LABEL} label: one approval is enough"
+          else
+            if jq -e '.blocked' <<< "${SUBJECT}" > /dev/null; then
+              STATE=failure
+            else
+              STATE=success
+            fi
+            DESCRIPTION="${LABEL}: $(jq -r '.count' <<< "${SUBJECT}")/${REQUIRED_APPROVALS} approvals from reviewers with write access"
+            # Name the PR when several share this commit.
+            if [ "$(jq 'length' <<< "${GROUP}")" -gt 1 ]; then
+              DESCRIPTION="PR #$(jq -r '.number' <<< "${SUBJECT}") ${DESCRIPTION}"
+            fi
+          fi
+
+          post_status "${STATE}" "${DESCRIPTION}"
+
+          {
+            echo "Commit \`${HEAD_SHA:0:7}\`: **${STATE}**. ${DESCRIPTION}."
+            echo
+            jq -r '.[] | "- PR #\(.number): \(if .labeled then "labeled" else "not labeled" end), approved by \(if .approvers == [] then "nobody" else (.approvers | map("@" + .) | join(", ")) end)"' <<< "${GROUP}"
+          } >> "${GITHUB_STEP_SUMMARY}"
