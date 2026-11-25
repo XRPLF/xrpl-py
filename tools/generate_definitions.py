@@ -104,8 +104,7 @@ _add_line("{")
 _add_line('  "FIELDS": [')
 
 # The ones that are harder to parse directly from SField.cpp
-_add_line(
-    """    [
+_add_line("""    [
       "Generic",
       {
         "isSerialized": false,
@@ -164,8 +163,7 @@ _add_line(
         "nth": 259,
         "type": "Amount"
       }
-    ],"""
-)
+    ],""")
 
 # Parse STypes
 # Example line:
