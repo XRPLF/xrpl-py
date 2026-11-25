@@ -52,6 +52,9 @@ repos:
         # on the command line.
         exclude: ^xrpl/ext/confidential/
         types: [python]
+        # Parallel mypy processes share .mypy_cache and crash with INTERNAL
+        # ERROR when they write it at the same time.
+        require_serial: true
       - id: sphinx
         name: sphinx
         entry: poetry run sphinx-apidoc -o docs/source xrpl
