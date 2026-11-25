@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Changed
+
+- Allow `pycryptodome` 4.x (the dependency was capped at `<4`).
+
 ### Fixed
 
 - `autofill` now gives `VaultCreate` the network base fee instead of one owner reserve (0.2 XRP on Mainnet). rippled has charged `VaultCreate` the base fee since 3.0.0 ([XRPLF/rippled#5954](https://github.com/XRPLF/rippled/pull/5954)).
