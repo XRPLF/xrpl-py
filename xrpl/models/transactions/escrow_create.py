@@ -12,6 +12,8 @@ from xrpl.models.required import REQUIRED
 from xrpl.models.transactions.transaction import Transaction
 from xrpl.models.transactions.types import TransactionType
 
+_MAX_DATA_LENGTH = 1024 * 2  # 1 KB, in hex characters
+
 
 @dataclass(frozen=True, kw_only=True)
 class EscrowCreate(Transaction):
@@ -66,6 +68,18 @@ class EscrowCreate(Transaction):
     fulfilled.
     """
 
+    bytecode: Optional[str] = None
+    """
+    The WASM bytecode, as hexadecimal, that determines whether the escrow can be
+    finished. Requires ``cancel_after``.
+    """
+
+    data: Optional[str] = None
+    """
+    Data, as hexadecimal, that the WASM bytecode can read and update. Requires
+    ``bytecode``.
+    """
+
     transaction_type: TransactionType = field(
         default=TransactionType.ESCROW_CREATE,
         init=False,
@@ -81,6 +95,26 @@ class EscrowCreate(Transaction):
             errors["EscrowCreate"] = (
                 "The finish_after time must be before the cancel_after time."
             )
+        if (
+            self.finish_after is None
+            and self.condition is None
+            and self.bytecode is None
+        ):
+            errors["EscrowCreate"] = (
+                "At least one of finish_after, condition, or bytecode must be set."
+            )
+
+        if self.bytecode is not None:
+            if self.bytecode == "":
+                errors["bytecode"] = "bytecode must not be empty."
+            if self.cancel_after is None:
+                errors["cancel_after"] = "cancel_after is required with bytecode."
+
+        if self.data is not None:
+            if self.bytecode is None:
+                errors["data"] = "data requires bytecode."
+            elif len(self.data) > _MAX_DATA_LENGTH:
+                errors["data"] = "data must be at most 1024 bytes."
 
         if get_amount_value(self.amount) <= 0:
             errors["amount"] = "amount must be positive."
