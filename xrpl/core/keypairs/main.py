@@ -122,19 +122,27 @@ def sign(message: Union[str, bytes], private_key: str) -> str:
     )
 
 
-def is_valid_message(message: bytes, signature: bytes, public_key: str) -> bool:
+def is_valid_message(
+    message: bytes, signature: Union[str, bytes], public_key: str
+) -> bool:
     """
     Verifies the signature on a given message.
 
     Args:
         message: The message to validate.
-        signature: The signature of the message.
+        signature: The signature of the message. Accepts either raw bytes or
+            a hex-encoded string (as returned by :func:`sign`).
         public_key: The public key to use to verify the message and
             signature.
 
     Returns:
         Whether the message is valid for the given signature and public key.
     """
+    if isinstance(signature, str):
+        try:
+            signature = bytes.fromhex(signature)
+        except ValueError:
+            return False
     return _get_module_from_key(public_key).is_valid_message(
         message,
         signature,
