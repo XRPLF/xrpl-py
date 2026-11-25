@@ -1,0 +1,81 @@
+name: Run pre-commit hooks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  POETRY_VERSION: 2.5.1
+  # pre-commit 4.7 needs Python 3.11 or later.
+  PYTHON_VERSION: "3.11.18"
+
+jobs:
+  run-hooks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Load cached .local
+        id: cache-poetry
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /home/runner/.local
+          key: dotlocal-${{ env.POETRY_VERSION }}
+
+      - name: Install poetry
+        if: steps.cache-poetry.outputs.cache-hit != 'true'
+        run: |
+          curl -sSL https://install.python-poetry.org/ | python - --version ${{ env.POETRY_VERSION }}
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "poetry"
+
+      # The local hooks run the tool versions in poetry.lock.
+      - name: Install poetry dependencies
+        run: poetry install
+
+      - name: Cache pre-commit environments
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            pre-commit-
+
+      - name: Install pre-commit
+        run: pip install --index-url https://pypi.org/simple --require-hashes -r .github/requirements/pre-commit.txt
+
+      - name: Run pre-commit
+        env:
+          MESSAGE: |
+            One or more files did not pass lint/formatting checks.
+
+            To run the checks (and autofix what can be autofixed) locally, run:
+              poetry install
+              pre-commit run --all-files
+
+            Then commit and push the changes.
+        run: |
+          set +e
+          pre-commit run --all-files --show-diff-on-failure --color always --verbose
+          rc=$?
+          set -e
+
+          if [ $rc -ne 0 ]; then
+              git status
+              echo "${MESSAGE}"
+              exit 1
+          fi
