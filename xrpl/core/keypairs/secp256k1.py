@@ -24,8 +24,6 @@ _SIGNER: Final[ECDSA] = ECDSA("DER")
 
 # String keys must be _KEY_LENGTH long
 _KEY_LENGTH: Final[int] = 66
-# Pad string keys with _PADDING_PREFIX to reach _KEY_LENGTH
-_PADDING_PREFIX: Final[str] = "0"
 
 # Generated sequence values are _SEQUENCE_SIZE bytes unsigned big-endian
 _SEQUENCE_SIZE: Final[int] = 4
@@ -133,7 +131,7 @@ class SECP256K1(CryptoImplementation):
 
     @classmethod
     def _format_key(cls: Type[Self], keystr: str) -> str:
-        return keystr.rjust(_KEY_LENGTH, _PADDING_PREFIX).upper()
+        return keystr.zfill(_KEY_LENGTH).upper()
 
     @classmethod
     def _public_key_to_bytes(cls: Type[Self], key: ECPublicKey) -> bytes:
