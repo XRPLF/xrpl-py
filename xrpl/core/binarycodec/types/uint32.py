@@ -57,7 +57,7 @@ class UInt32(UInt):
         if not isinstance(value, (str, int)):
             raise XRPLBinaryCodecException(
                 "Invalid type to construct a UInt32: expected str or int,"
-                " received {value.__class__.__name__}."
+                f" received {value.__class__.__name__}."
             )
 
         if isinstance(value, int):

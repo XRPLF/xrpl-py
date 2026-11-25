@@ -117,7 +117,7 @@ class Currency(Hash160):
             return cls(_iso_to_bytes(value))
         if _is_hex(value):
             return cls(bytes.fromhex(value))
-        raise XRPLBinaryCodecException("Unsupported Currency representation: {value}")
+        raise XRPLBinaryCodecException(f"Unsupported Currency representation: {value}")
 
     def to_json(self: Self) -> str:
         """

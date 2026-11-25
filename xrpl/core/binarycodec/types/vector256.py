@@ -37,7 +37,7 @@ class Vector256(SerializedType):
         if not isinstance(value, list):
             raise XRPLBinaryCodecException(
                 "Invalid type to construct a Vector256: expected list,"
-                " received {value.__class__.__name__}."
+                f" received {value.__class__.__name__}."
             )
 
         byte_list = []
