@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[Unreleased]]
 
+### Added
+
+- `Wallet.from_mnemonic` derives a `Wallet` from a BIP39 mnemonic along the BIP44 path `m/44'/144'/account_index'/0/address_index`, with optional `passphrase`, `account_index` and `address_index` arguments.
+
 ### Fixed
 
 - `autofill` now gives `VaultCreate` the network base fee instead of one owner reserve (0.2 XRP on Mainnet). rippled has charged `VaultCreate` the base fee since 3.0.0 ([XRPLF/rippled#5954](https://github.com/XRPLF/rippled/pull/5954)).
