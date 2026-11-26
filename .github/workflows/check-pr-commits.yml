@@ -10,4 +10,4 @@ permissions:
 
 jobs:
   check_commits:
-    uses: XRPLF/actions/.github/workflows/check-pr-commits.yml@ed23185d25693c9a724c3d05ae4a58371b0f72b8 # main (2026-07-22), no tagged releases
+    uses: XRPLF/actions/.github/workflows/check-pr-commits.yml@ed23185d25693c9a724c3d05ae4a58371b0f72b8
