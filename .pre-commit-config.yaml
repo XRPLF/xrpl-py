@@ -77,7 +77,15 @@ repos:
         files: (^|/)package-lock\.json$
       - id: fix-pypi-index-urls
         name: Remove non-public index URLs from pip requirements
-        entry: >-
-          perl -ni -e 'print unless /^--(index-url|extra-index-url|trusted-host)\s+(?!https:\/\/pypi\.org\/)/'
+        entry: perl -ni .github/scripts/remove-private-index-urls.pl
         language: system
         files: (^|/)requirements[^/]*\.txt$|^\.github/requirements/.*\.txt$
+      - id: test-fix-pypi-index-urls
+        name: Test fix-pypi-index-urls
+        entry: >-
+          bash -c 'f="$(mktemp)" && cp .github/hook-tests/index-urls.in.txt "$f" &&
+          perl -ni .github/scripts/remove-private-index-urls.pl "$f" &&
+          diff -u .github/hook-tests/index-urls.want.txt "$f"'
+        language: system
+        pass_filenames: false
+        files: ^\.github/(scripts/remove-private-index-urls\.pl|hook-tests/index-urls\.)
