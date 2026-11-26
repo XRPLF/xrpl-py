@@ -56,10 +56,14 @@ To run linting and other checks, `xrpl-py` uses [`pre-commit`](https://pre-commi
 
 **Note:** You only need to install `pre-commit` if you want to contribute code to `xrpl-py`.
 
-- Install `pre-commit`:
+- Install `pre-commit` (Python 3.11 or later) from hash-pinned requirements:
 
-        pip3 install pre-commit
+        pip3 install --require-hashes -r .github/requirements/pre-commit.txt
         pre-commit install
+
+- Run the hooks on all files. The Python hooks use the tools from `poetry install`.
+
+        pre-commit run --all-files
 
 ### Run the linter
 

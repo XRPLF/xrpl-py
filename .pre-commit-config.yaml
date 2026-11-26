@@ -1,12 +1,28 @@
-# .pre-commit-config.yaml
+# pre-commit is a tool to perform a predefined set of tasks manually and/or
+# automatically before git commits are made.
+#
+# Config reference: https://pre-commit.com/#pre-commit-configyaml---top-level
+#
+# Common tasks
+#
+# - Run on all files:   pre-commit run --all-files
+# - Register git hooks: pre-commit install --hook-type pre-commit
+#
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
 repos:
+  # `pre-commit sample-config` default hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # frozen: v6.0.0
     hooks:
+      - id: check-added-large-files
       - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
-  # Use our local versions of tools so that we stay in sync.
+
+  # Local hooks, so that the tools and their plugins are the versions pinned
+  # and hash-checked by poetry.lock. Run `poetry install` first.
   - repo: local
     hooks:
       - id: isort
@@ -23,14 +39,22 @@ repos:
         name: flake8
         entry: poetry run flake8
         language: system
+        # Same scope as `poe lint`.
+        files: ^(xrpl|tests)/
         types: [python]
       - id: mypy
         name: mypy
         entry: poetry run mypy
         args: ["--strict", "--implicit-reexport"]
         language: system
-        files: xrpl/
+        files: ^xrpl/
+        # mypy.ini excludes this, but mypy ignores `exclude` for files named
+        # on the command line.
+        exclude: ^xrpl/ext/confidential/
         types: [python]
+        # Parallel mypy processes share .mypy_cache and crash with INTERNAL
+        # ERROR when they write it at the same time.
+        require_serial: true
       - id: sphinx
         name: sphinx
         entry: poetry run sphinx-apidoc -o docs/source xrpl
@@ -39,3 +63,29 @@ repos:
         files: __init__
         exclude: ^tests
         types: [python]
+
+  # Lock files generated behind a private mirror point at that mirror, which
+  # CI and other contributors cannot reach. Rewrite them to the public
+  # registries.
+  - repo: local
+    hooks:
+      - id: fix-npm-registry-urls
+        name: Replace non-public registry URLs in package-lock.json
+        entry: >-
+          perl -pi -e 's#"resolved": "https?://(?!registry\.npmjs\.org/)[^"]*?/((?:\@[^/"]+/)?[^/"\@]+/-/[^/"]+\.tgz)"#"resolved": "https://registry.npmjs.org/$1"#'
+        language: system
+        files: (^|/)package-lock\.json$
+      - id: fix-pypi-index-urls
+        name: Remove non-public index URLs from pip requirements
+        entry: perl -ni .github/scripts/remove-private-index-urls.pl
+        language: system
+        files: (^|/)requirements[^/]*\.txt$|^\.github/requirements/.*\.txt$
+      - id: test-fix-pypi-index-urls
+        name: Test fix-pypi-index-urls
+        entry: >-
+          bash -c 'f="$(mktemp)" && cp .github/hook-tests/index-urls.in.txt "$f" &&
+          perl -ni .github/scripts/remove-private-index-urls.pl "$f" &&
+          diff -u .github/hook-tests/index-urls.want.txt "$f"'
+        language: system
+        pass_filenames: false
+        files: ^\.github/(scripts/remove-private-index-urls\.pl|hook-tests/index-urls\.)

@@ -1,0 +1,11 @@
+--index-url https://mirror.example/simple
+-i https://mirror.example/simple
+-i=https://mirror.example/simple
+--index-url=https://mirror.example/simple
+  --extra-index-url https://mirror.example/simple
+--trusted-host mirror.example
+--index-url https://pypi.org/simple
+-i https://pypi.org/simple
+--index-url=https://pypi.org/simple
+cfgv==3.5.0 \
+    --hash=sha256:a8dc6b26ad22ff227d2634a65cb388215ce6cc96bbcc5cfde7641ae87e8dacc0
