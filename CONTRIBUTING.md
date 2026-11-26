@@ -56,7 +56,7 @@ To run linting and other checks, `xrpl-py` uses [`pre-commit`](https://pre-commi
 
 **Note:** You only need to install `pre-commit` if you want to contribute code to `xrpl-py`.
 
-- Install `pre-commit` (Python 3.11 or later) at the version CI uses:
+- Install `pre-commit` (Python 3.11 or later) from hash-pinned requirements:
 
         pip3 install --require-hashes -r .github/requirements/pre-commit.txt
         pre-commit install
