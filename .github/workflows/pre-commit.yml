@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   run-hooks:
-    uses: mvadari/actions/.github/workflows/pre-commit.yml@2419edfef8c9e3c1eea93de356de571690fe8ffc
+    uses: XRPLF/actions/.github/workflows/pre-commit.yml@7a72fb65e893860c516215261572cdaf95b8705e
     with:
       runs_on: ubuntu-latest
       container: '{ "image": "ghcr.io/xrplf/xrpld/pre-commit:sha-d3a71b2" }'
