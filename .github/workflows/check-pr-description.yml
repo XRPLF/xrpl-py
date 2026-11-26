@@ -25,4 +25,4 @@ jobs:
           persist-credentials: false
 
       - name: Check PR description differs from template
-        uses: XRPLF/actions/check-pr-description@326b8a45c8dec23c37559396685d98ba65e5076a # main (2026-11-25), no tagged releases
+        uses: XRPLF/actions/check-pr-description@326b8a45c8dec23c37559396685d98ba65e5076a
